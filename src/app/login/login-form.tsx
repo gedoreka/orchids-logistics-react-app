@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
   Truck, 
@@ -10,41 +10,13 @@ import {
   EyeOff, 
   AlertTriangle, 
   LogIn, 
-  ArrowLeft
+  ArrowLeft,
+  ChevronLeft
 } from "lucide-react";
 import Link from "next/link";
 import { loginAction } from "@/lib/actions/auth";
 import { useRouter } from "next/navigation";
-
-function FloatingShapes() {
-  return (
-    <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
-      {[...Array(4)].map((_, i) => (
-        <motion.div
-          key={i}
-          className="absolute bg-white/10 rounded-full"
-          animate={{
-            y: [0, -30, 0],
-            rotate: [0, 180, 360],
-          }}
-          transition={{
-            duration: 8,
-            repeat: Infinity,
-            delay: i * 2,
-            ease: "easeInOut",
-          }}
-          style={{
-            width: 100 - i * 10,
-            height: 100 - i * 10,
-            top: `${10 + i * 25}%`,
-            left: i % 2 === 0 ? `${10 + i * 5}%` : undefined,
-            right: i % 2 !== 0 ? `${10 + i * 5}%` : undefined,
-          }}
-        />
-      ))}
-    </div>
-  );
-}
+import { cn } from "@/lib/utils";
 
 interface LoginFormProps {
   initialEmail?: string;
@@ -81,136 +53,127 @@ export default function LoginForm({ initialEmail = "" }: LoginFormProps) {
   };
 
   return (
-    <div className="relative min-h-screen w-full flex items-center justify-center p-4 overflow-hidden">
-      <FloatingShapes />
-
+    <div className="min-h-screen w-full flex items-center justify-center p-6 bg-[#fdfdfd]">
       <motion.div
-        initial={{ opacity: 0, scale: 0.9, y: 20 }}
-        animate={{ opacity: 1, scale: 1, y: 0 }}
-        transition={{ duration: 0.8, ease: "easeOut" }}
-        className="relative z-10 w-full max-w-[440px]"
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.5 }}
+        className="w-full max-w-[420px] bg-white rounded-[40px] p-10 shadow-2xl border border-gray-50 relative overflow-hidden"
       >
-        <div className="relative overflow-hidden rounded-[32px] border border-[var(--glass-border)] bg-[var(--glass-bg)] backdrop-blur-[var(--frosted-blur)] p-8 md:p-10 shadow-[var(--card-shadow)] transition-all duration-500 hover:shadow-[var(--hover-shadow)]">
-          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#3498db] to-[#2ecc71]" />
-          
-          <div className="mb-10 text-center">
-            <motion.div 
-              initial={{ scale: 0.8 }}
-              animate={{ scale: 1 }}
-              className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-2xl bg-gradient-to-br from-[#667eea] to-[#764ba2] shadow-[0_10px_25px_rgba(102,126,234,0.3)]"
+        <div className="absolute top-0 right-0 w-32 h-32 bg-[#3498db]/5 rounded-full -translate-y-1/2 translate-x-1/2 blur-2xl" />
+        
+        <div className="relative z-10 mb-10 text-center">
+          <motion.div 
+            whileHover={{ scale: 1.05 }}
+            className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-[24px] bg-gradient-to-br from-[#2c3e50] to-[#34495e] text-white shadow-xl shadow-gray-200"
+          >
+            <Truck size={36} />
+          </motion.div>
+          <h1 className="text-3xl font-black text-gray-900 mb-2 tracking-tight">
+            ZOOL SYSTEM
+          </h1>
+          <p className="text-gray-400 font-bold text-xs uppercase tracking-widest">تسجيل الدخول للنظام</p>
+        </div>
+
+        <AnimatePresence>
+          {error && (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              className="mb-8 flex items-center gap-3 rounded-2xl bg-red-50 p-4 text-red-600 border border-red-100"
             >
-              <Truck size={36} className="text-white" />
+              <AlertTriangle size={18} />
+              <span className="text-sm font-bold">{error}</span>
             </motion.div>
-            <h1 className="mb-2 text-3xl font-black tracking-tight text-[var(--text-color)]">
-              Logistics Systems Pro
-            </h1>
-            <p className="text-[var(--text-color)] text-sm font-medium opacity-80">نظام إدارة الخدمات اللوجستية المتكامل</p>
+          )}
+        </AnimatePresence>
+
+        <form onSubmit={handleSubmit} className="space-y-6 text-right" dir="rtl">
+          <div className="space-y-2.5">
+            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest mr-1">
+              البريد الإلكتروني
+            </label>
+            <div className="relative group">
+              <input
+                type="email"
+                required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="name@company.com"
+                className="w-full rounded-2xl border-none bg-gray-50/50 py-4 px-4 text-sm font-bold text-gray-900 placeholder:text-gray-300 focus:bg-white focus:ring-2 focus:ring-[#3498db]/20 outline-none transition-all duration-300"
+              />
+            </div>
           </div>
 
-          <AnimatePresence>
-            {error && (
-              <motion.div
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                className="mb-6 flex items-center gap-3 rounded-2xl border border-red-200 bg-red-50 p-4 text-red-600"
-              >
-                <AlertTriangle size={18} />
-                <span className="text-sm font-medium">{error}</span>
-              </motion.div>
-            )}
-          </AnimatePresence>
-
-          <form onSubmit={handleSubmit} className="space-y-6 text-right" dir="rtl">
-            <div className="space-y-2">
-              <label className="text-sm font-bold text-[var(--text-color)] mr-1">
-                البريد الإلكتروني
+          <div className="space-y-2.5">
+            <div className="flex items-center justify-between px-1">
+              <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest">
+                كلمة المرور
               </label>
-              <div className="relative group">
-                <input
-                  type="email"
-                  required
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="name@company.com"
-                  className="w-full rounded-2xl border border-[var(--glass-border)] bg-[var(--glass-bg)] py-4 pl-4 pr-12 text-[var(--text-color)] placeholder:text-gray-500 outline-none transition-all duration-300 focus:bg-white focus:ring-4 focus:ring-green-500/5 shadow-inner"
-                />
-                <Mail size={18} className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-green-500 transition-colors" />
-              </div>
+              <Link href="/forgot-password" title="نسيت كلمة المرور؟" className="text-[10px] font-black text-[#3498db] hover:underline">
+                نسيت كلمة المرور؟
+              </Link>
             </div>
-
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <label className="text-sm font-bold text-[var(--text-color)] mr-1">
-                  كلمة المرور
-                </label>
-                <Link href="/forgot-password" title="نسيت كلمة المرور؟" className="text-sm font-bold text-[#3498db] hover:underline transition-colors">
-                  نسيت كلمة المرور؟
-                </Link>
-              </div>
-              <div className="relative group">
-                <input
-                  type={showPassword ? "text" : "password"}
-                  required
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="••••••••"
-                  className="w-full rounded-2xl border border-[var(--glass-border)] bg-[var(--glass-bg)] py-4 pl-12 pr-12 text-[var(--text-color)] placeholder:text-gray-500 outline-none transition-all duration-300 focus:bg-white focus:ring-4 focus:ring-green-500/5 shadow-inner"
-                />
-                <Lock size={18} className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-green-500 transition-colors" />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
-                >
-                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                </button>
-              </div>
+            <div className="relative group">
+              <input
+                type={showPassword ? "text" : "password"}
+                required
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="••••••••"
+                className="w-full rounded-2xl border-none bg-gray-50/50 py-4 px-4 text-sm font-bold text-gray-900 placeholder:text-gray-300 focus:bg-white focus:ring-2 focus:ring-[#3498db]/20 outline-none transition-all duration-300"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-300 hover:text-gray-600 transition-colors"
+              >
+                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+              </button>
             </div>
+          </div>
 
-            <div className="flex items-center gap-2 mr-1">
+          <div className="flex items-center gap-3 px-1">
+            <div className="relative flex items-center">
               <input
                 type="checkbox"
                 id="remember"
                 checked={remember}
                 onChange={(e) => setRemember(e.target.checked)}
-                className="h-4 w-4 rounded border-gray-300 bg-white text-[#3498db] focus:ring-[#3498db] focus:ring-offset-0"
+                className="h-4 w-4 rounded border-gray-200 text-[#2c3e50] focus:ring-0 focus:ring-offset-0"
               />
-              <label htmlFor="remember" className="text-sm font-medium text-[var(--text-color)] cursor-pointer hover:text-[#3498db] transition-colors">
-                تذكر بيانات الدخول
-              </label>
             </div>
-
-            <motion.button
-              type="submit"
-              disabled={isLoading}
-              whileHover={{ scale: 1.01, translateY: -2 }}
-              whileTap={{ scale: 0.99 }}
-              className="relative w-full overflow-hidden rounded-2xl bg-gradient-to-r from-[#667eea] to-[#764ba2] py-4 text-lg font-bold text-white shadow-[0_10px_20px_rgba(102,126,234,0.3)] transition-all duration-300 disabled:opacity-70 group"
-            >
-              <div className="flex items-center justify-center gap-2">
-                {isLoading ? (
-                  <div className="h-5 w-5 animate-spin rounded-full border-2 border-white/30 border-t-white" />
-                ) : (
-                  <>
-                    <LogIn size={18} />
-                    تسجيل الدخول
-                  </>
-                )}
-              </div>
-            </motion.button>
-          </form>
-
-          <div className="mt-8 border-t border-[var(--glass-border)] pt-8 text-center">
-            <p className="mb-4 text-sm text-[var(--text-color)] opacity-70">ليس لديك حساب؟</p>
-            <Link
-              href="/register"
-              className="inline-flex items-center gap-2 text-sm font-bold text-[#3498db] hover:underline transition-all group"
-            >
-              إنشاء حساب منشأة جديدة
-              <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform" />
-            </Link>
+            <label htmlFor="remember" className="text-xs font-bold text-gray-500 cursor-pointer select-none">
+              تذكرني في المرة القادمة
+            </label>
           </div>
+
+          <button
+            type="submit"
+            disabled={isLoading}
+            className="w-full rounded-2xl bg-[#2c3e50] py-4 text-white font-black text-lg shadow-xl shadow-gray-200 hover:bg-[#1a252f] transition-all disabled:opacity-70 flex items-center justify-center gap-3"
+          >
+            {isLoading ? (
+              <div className="h-6 w-6 animate-spin rounded-full border-2 border-white/30 border-t-white" />
+            ) : (
+              <>
+                <LogIn size={20} />
+                دخول للنظام
+              </>
+            )}
+          </button>
+        </form>
+
+        <div className="mt-10 pt-8 border-t border-gray-50 text-center">
+          <p className="mb-4 text-xs font-bold text-gray-400">ليس لديك حساب منشأة؟</p>
+          <Link
+            href="/register"
+            className="inline-flex items-center gap-2 text-sm font-black text-[#3498db] group"
+          >
+            إنشاء حساب جديد
+            <ChevronLeft size={16} className="group-hover:-translate-x-1 transition-transform" />
+          </Link>
         </div>
       </motion.div>
     </div>
