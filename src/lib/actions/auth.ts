@@ -5,6 +5,110 @@ import { cookies } from "next/headers";
 import { query } from "@/lib/db";
 import bcrypt from "bcryptjs";
 import { sendResetCode } from "@/lib/mail";
+import { supabase } from "@/lib/supabase-client";
+
+export async function registerAction(formData: FormData): Promise<AuthResponse> {
+  try {
+    const name = formData.get("name") as string;
+    const commercial_number = formData.get("commercial_number") as string;
+    const vat_number = formData.get("vat_number") as string;
+    const phone = formData.get("phone") as string;
+    const website = formData.get("website") as string;
+    const currency = formData.get("currency") as string;
+    const country = formData.get("country") as string;
+    const region = formData.get("region") as string;
+    const district = formData.get("district") as string;
+    const street = formData.get("street") as string;
+    const postal_code = formData.get("postal_code") as string;
+    const short_address = formData.get("short_address") as string;
+    const bank_beneficiary = formData.get("bank_beneficiary") as string;
+    const bank_name = formData.get("bank_name") as string;
+    const bank_account = formData.get("bank_account") as string;
+    const bank_iban = formData.get("bank_iban") as string;
+    const transport_license_number = formData.get("transport_license_number") as string;
+    const transport_license_type = formData.get("transport_license_type") as string;
+    const license_start = formData.get("license_start") as string;
+    const license_end = formData.get("license_end") as string;
+    const user_email = formData.get("user_email") as string;
+    const password = formData.get("password") as string;
+
+    // File handling
+    const logoFile = formData.get("logo_path") as File;
+    const stampFile = formData.get("stamp_path") as File;
+    const digitalSealFile = formData.get("digital_seal_path") as File;
+    const licenseImageFile = formData.get("license_image") as File;
+
+    const uploadFile = async (file: File | null, folder: string) => {
+      if (!file || file.size === 0) return null;
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${Math.random().toString(36).substring(2)}_${Date.now()}.${fileExt}`;
+      const filePath = `${folder}/${fileName}`;
+
+      const { data, error } = await supabase.storage
+        .from('establishments')
+        .upload(filePath, file);
+
+      if (error) throw error;
+      const { data: publicUrlData } = supabase.storage
+        .from('establishments')
+        .getPublicUrl(filePath);
+      
+      return publicUrlData.publicUrl;
+    };
+
+    const logo_path = await uploadFile(logoFile, 'logos');
+    const stamp_path = await uploadFile(stampFile, 'stamps');
+    const digital_seal_path = await uploadFile(digitalSealFile, 'seals');
+    const transport_license_image = await uploadFile(licenseImageFile, 'licenses');
+
+    // Check if user already exists
+    const existingUsers = await query("SELECT id FROM users WHERE email = ?", [user_email]);
+    if (existingUsers.length > 0) {
+      return { success: false, error: "البريد الإلكتروني مسجل مسبقاً." };
+    }
+
+    // Insert Company
+    const companyResult = await query<{ id: number }>(
+      `INSERT INTO companies (
+        name, status, is_active, commercial_number, vat_number, phone, website, currency,
+        logo_path, stamp_path, digital_seal_path, country, region, district, street,
+        postal_code, short_address, bank_beneficiary, bank_name, bank_account, bank_iban,
+        transport_license_number, transport_license_type, transport_license_image,
+        license_start, license_end, created_at
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW()) RETURNING id`,
+      [
+        name, 'pending', 0, commercial_number, vat_number, phone, website, currency,
+        logo_path, stamp_path, digital_seal_path, country, region, district, street,
+        postal_code, short_address, bank_beneficiary, bank_name, bank_account, bank_iban,
+        transport_license_number, transport_license_type, transport_license_image,
+        license_start || null, license_end || null
+      ]
+    );
+
+    const companyId = companyResult[0].id;
+
+    // Insert User
+    const hashedPassword = await bcrypt.hash(password, 10);
+    await query(
+      "INSERT INTO users (name, email, password, role, company_id, is_activated, created_at) VALUES (?, ?, ?, ?, ?, ?, NOW())",
+      [name, user_email, hashedPassword, 'admin', companyId, 0]
+    );
+
+    // Insert Default Permissions
+    const features = ['dashboard', 'drivers', 'vehicles', 'tracking', 'reports', 'settings'];
+    for (const feature of features) {
+      await query(
+        "INSERT INTO company_permissions (company_id, feature_key, is_enabled) VALUES (?, ?, ?)",
+        [companyId, feature, 1]
+      );
+    }
+
+    return { success: true };
+  } catch (error) {
+    console.error("Registration error:", error);
+    return { success: false, error: "حدث خطأ أثناء عملية التسجيل. يرجى المحاولة لاحقاً." };
+  }
+}
 
 export async function loginAction(formData: FormData): Promise<AuthResponse> {
   const email = formData.get("email") as string;
