@@ -3,6 +3,56 @@
 import { query } from "@/lib/db";
 import { revalidatePath } from "next/cache";
 
+export async function createPackageWithEmployees(data: {
+  group_name: string;
+  work_type: string;
+  monthly_target: number;
+  bonus_after_target: number;
+  company_id: number;
+  employees: any[];
+}) {
+  try {
+    const result: any = await query(
+      "INSERT INTO employee_packages (group_name, work_type, monthly_target, bonus_after_target, company_id) VALUES (?, ?, ?, ?, ?)",
+      [data.group_name, data.work_type, data.monthly_target, data.bonus_after_target, data.company_id]
+    );
+    
+    // In MySQL, pool.execute result for INSERT contains insertId
+    // However, our query helper returns rows. Let's see how to get insertId.
+    // If using pool.execute directly, it returns [result, fields].
+    // Our 'execute' helper returns just result.
+    
+    // Let's use 'execute' helper which returns the result object.
+    const insertResult = await query<any>("SELECT LAST_INSERT_ID() as id");
+    const packageId = insertResult[0].id;
+
+    if (data.employees && data.employees.length > 0) {
+      for (const emp of data.employees) {
+        if (!emp.name) continue;
+        await query(
+          `INSERT INTO employees (
+            name, iqama_number, identity_number, nationality, user_code, 
+            phone, email, job_title, basic_salary, housing_allowance, 
+            vehicle_plate, iban, package_id, company_id, is_active
+          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1)`,
+          [
+            emp.name, emp.iqama_number || null, emp.identity_number || null, emp.nationality || null, emp.user_code || null,
+            emp.phone || null, emp.email || null, emp.job_title || null, emp.basic_salary || 0, emp.housing_allowance || 0,
+            emp.vehicle_plate || null, emp.iban || null, packageId, data.company_id
+          ]
+        );
+      }
+    }
+
+    revalidatePath("/hr");
+    revalidatePath("/hr/packages");
+    return { success: true };
+  } catch (error: any) {
+    console.error("Error creating package with employees:", error);
+    return { success: false, error: error.message };
+  }
+}
+
 export async function createEmployeePackage(data: {
   group_name: string;
   work_type: string;

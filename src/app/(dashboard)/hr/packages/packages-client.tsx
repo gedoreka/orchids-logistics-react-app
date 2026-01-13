@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
   Plus, 
@@ -14,10 +14,21 @@ import {
   Trophy,
   UserPlus,
   ArrowRight,
-  LayoutDashboard
+  LayoutDashboard,
+  Download,
+  Upload,
+  User,
+  CreditCard,
+  Briefcase,
+  Globe,
+  Phone,
+  Mail,
+  DollarSign,
+  Home,
+  Car
 } from "lucide-react";
 import { toast } from "sonner";
-import { createEmployeePackage, deleteEmployeePackage } from "@/lib/actions/hr";
+import { createPackageWithEmployees, deleteEmployeePackage } from "@/lib/actions/hr";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
@@ -36,19 +47,87 @@ export function PackagesClient({ initialPackages, companyId }: PackagesClientPro
     group_name: "",
     work_type: "target",
     monthly_target: 0,
-    bonus_after_target: 0,
+    bonus_after_target: 10,
   });
+
+  const [employees, setEmployees] = useState([
+    {
+      name: "",
+      iqama_number: "",
+      identity_number: "",
+      job_title: "",
+      nationality: "",
+      user_code: "",
+      phone: "",
+      email: "",
+      basic_salary: 0,
+      housing_allowance: 0,
+      vehicle_plate: "",
+      iban: ""
+    }
+  ]);
+
+  const addEmployeeRow = () => {
+    setEmployees([
+      ...employees,
+      {
+        name: "",
+        iqama_number: "",
+        identity_number: "",
+        job_title: "",
+        nationality: "",
+        user_code: "",
+        phone: "",
+        email: "",
+        basic_salary: 0,
+        housing_allowance: 0,
+        vehicle_plate: "",
+        iban: ""
+      }
+    ]);
+  };
+
+  const removeEmployeeRow = (index: number) => {
+    if (employees.length === 1) {
+      toast.error("يجب وجود موظف واحد على الأقل");
+      return;
+    }
+    setEmployees(employees.filter((_, i) => i !== index));
+  };
+
+  const updateEmployee = (index: number, field: string, value: any) => {
+    const newEmployees = [...employees];
+    newEmployees[index] = { ...newEmployees[index], [field]: value };
+    setEmployees(newEmployees);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
 
     try {
-      const result = await createEmployeePackage({ ...formData, company_id: companyId });
+      const result = await createPackageWithEmployees({ 
+        ...formData, 
+        company_id: companyId,
+        employees: employees.filter(emp => emp.name.trim() !== "")
+      });
+
       if (result.success) {
-        toast.success("تم إنشاء الباقة بنجاح");
+        toast.success("تم إنشاء الباقة والموظفين بنجاح");
         router.refresh();
         setIsModalOpen(false);
+        // Reset form
+        setFormData({
+          group_name: "",
+          work_type: "target",
+          monthly_target: 0,
+          bonus_after_target: 10,
+        });
+        setEmployees([{
+          name: "", iqama_number: "", identity_number: "", job_title: "",
+          nationality: "", user_code: "", phone: "", email: "",
+          basic_salary: 0, housing_allowance: 0, vehicle_plate: "", iban: ""
+        }]);
       } else {
         toast.error(result.error || "حدث خطأ أثناء الإضافة");
       }
@@ -60,7 +139,7 @@ export function PackagesClient({ initialPackages, companyId }: PackagesClientPro
   };
 
   const handleDelete = async (id: number) => {
-    if (!confirm("هل أنت متأكد من حذف هذه الباقة؟")) return;
+    if (!confirm("هل أنت متأكد من حذف هذه الباقة؟ سيتم حذف جميع الموظفين المرتبطين بها.")) return;
 
     try {
       const result = await deleteEmployeePackage(id);
@@ -73,6 +152,80 @@ export function PackagesClient({ initialPackages, companyId }: PackagesClientPro
     } catch (error) {
       toast.error("حدث خطأ غير متوقع");
     }
+  };
+
+  const downloadTemplate = () => {
+    const isSalary = formData.work_type === 'salary';
+    let headers;
+    if (isSalary) {
+      headers = ["الاسم", "رقم الهوية", "المسمى الوظيفي", "الجنسية", "رقم الهاتف", "البريد الإلكتروني", "الراتب الأساسي", "بدل السكن", "الآيبان"];
+    } else {
+      headers = ["الاسم", "رقم الإقامة", "الجنسية", "رقم المستخدم", "رقم الهاتف", "البريد الإلكتروني", "الراتب الأساسي", "بدل السكن", "لوحة المركبة", "الآيبان"];
+    }
+    
+    const csvContent = "data:text/csv;charset=utf-8,\uFEFF" + headers.join(",") + "\n" + 
+      (isSalary ? "أحمد محمد,1234567890,محاسب,سعودي,0555555555,ahmed@example.com,5000,1000,SA0000000000000000000000" 
+                : "أحمد محمد,1234567890,سعودي,EMP001,0555555555,ahmed@example.com,3000,1000,أ ب ج 1234,SA0000000000000000000000");
+    
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", `template_${formData.work_type}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const text = event.target?.result as string;
+      const lines = text.split("\n");
+      const isSalary = formData.work_type === 'salary';
+      
+      const newEmployees = lines.slice(1).map(line => {
+        const values = line.split(",");
+        if (values.length < 5) return null;
+        
+        if (isSalary) {
+          return {
+            name: values[0],
+            identity_number: values[1],
+            job_title: values[2],
+            nationality: values[3],
+            phone: values[4],
+            email: values[5],
+            basic_salary: parseFloat(values[6]) || 0,
+            housing_allowance: parseFloat(values[7]) || 0,
+            iban: values[8],
+            iqama_number: "", user_code: "", vehicle_plate: ""
+          };
+        } else {
+          return {
+            name: values[0],
+            iqama_number: values[1],
+            nationality: values[2],
+            user_code: values[3],
+            phone: values[4],
+            email: values[5],
+            basic_salary: parseFloat(values[6]) || 0,
+            housing_allowance: parseFloat(values[7]) || 0,
+            vehicle_plate: values[8],
+            iban: values[9],
+            identity_number: "", job_title: ""
+          };
+        }
+      }).filter(emp => emp !== null) as any[];
+
+      if (newEmployees.length > 0) {
+        setEmployees(newEmployees);
+        toast.success(`تم استيراد ${newEmployees.length} موظف بنجاح`);
+      }
+    };
+    reader.readAsText(file);
   };
 
   return (
@@ -136,7 +289,11 @@ export function PackagesClient({ initialPackages, companyId }: PackagesClientPro
 
                 <div>
                   <h3 className="text-lg font-black text-gray-900 mb-1">{pkg.group_name}</h3>
-                  <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-blue-50 text-blue-600 text-[9px] font-black uppercase tracking-wider">
+                  <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider ${
+                    pkg.work_type === 'target' ? 'bg-blue-50 text-blue-600' : 
+                    pkg.work_type === 'salary' ? 'bg-green-50 text-green-600' : 
+                    'bg-orange-50 text-orange-600'
+                  }`}>
                     {pkg.work_type === 'target' ? 'نظام التارجت' : pkg.work_type === 'salary' ? 'نظام الراتب' : 'نظام العمولة'}
                   </span>
                 </div>
@@ -186,103 +343,328 @@ export function PackagesClient({ initialPackages, companyId }: PackagesClientPro
         </div>
       </div>
 
-      {isModalOpen && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-black/40 backdrop-blur-md" onClick={() => setIsModalOpen(false)} />
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9, y: 20 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            className="relative w-full max-w-lg bg-white rounded-3xl shadow-2xl overflow-hidden"
-          >
-            <div className="bg-gradient-to-r from-[#9b59b6] to-[#8e44ad] p-6 text-white flex items-center justify-between">
-              <div>
-                <h3 className="text-xl font-black">إنشاء باقة جديدة</h3>
-                <p className="text-white/70 font-bold text-xs mt-0.5">تحديد نظام العمل والعمولات</p>
-              </div>
-              <button
-                onClick={() => setIsModalOpen(false)}
-                className="h-10 w-10 rounded-xl bg-white/10 flex items-center justify-center hover:bg-white/20 transition-all"
-              >
-                <X size={20} />
-              </button>
-            </div>
-
-            <form onSubmit={handleSubmit} className="p-6 space-y-5 text-right">
-              <div className="space-y-1.5">
-                <label className="text-xs font-black text-gray-500 mr-1 uppercase tracking-wider">اسم الباقة (المجموعة)</label>
-                <input
-                  type="text"
-                  required
-                  value={formData.group_name}
-                  onChange={(e) => setFormData({ ...formData, group_name: e.target.value })}
-                  placeholder="مثال: مناديب الرياض"
-                  className="w-full bg-gray-50 border-2 border-gray-100 rounded-xl py-3 px-5 text-sm font-bold text-gray-700 focus:border-[#9b59b6]/30 focus:ring-4 focus:ring-[#9b59b6]/5 outline-none transition-all"
-                />
-              </div>
-
-              <div className="space-y-1.5">
-                <label className="text-xs font-black text-gray-500 mr-1 uppercase tracking-wider">نوع العمل</label>
-                <select
-                  value={formData.work_type}
-                  onChange={(e) => setFormData({ ...formData, work_type: e.target.value })}
-                  className="w-full bg-gray-50 border-2 border-gray-100 rounded-xl py-3 px-5 text-sm font-bold text-gray-700 focus:border-[#9b59b6]/30 focus:ring-4 focus:ring-[#9b59b6]/5 outline-none transition-all appearance-none"
+      <AnimatePresence>
+        {isModalOpen && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="absolute inset-0 bg-black/40 backdrop-blur-md" 
+              onClick={() => setIsModalOpen(false)} 
+            />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 20 }}
+              className="relative w-full max-w-[95vw] h-[90vh] bg-white rounded-3xl shadow-2xl overflow-hidden flex flex-col"
+            >
+              <div className="bg-gradient-to-r from-[#9b59b6] to-[#8e44ad] p-6 text-white flex items-center justify-between shrink-0">
+                <div>
+                  <h3 className="text-xl font-black">إضافة باقة وموظفين</h3>
+                  <p className="text-white/70 font-bold text-xs mt-0.5">تحديد نظام العمل وإدخال بيانات الفريق</p>
+                </div>
+                <button
+                  onClick={() => setIsModalOpen(false)}
+                  className="h-10 w-10 rounded-xl bg-white/10 flex items-center justify-center hover:bg-white/20 transition-all"
                 >
-                  <option value="target">نظام التارجت (Target)</option>
-                  <option value="salary">نظام الراتب الأساسي (Salary)</option>
-                  <option value="commission">نظام العمولة (Commission)</option>
-                </select>
+                  <X size={20} />
+                </button>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-1.5">
-                  <label className="text-xs font-black text-gray-500 mr-1 uppercase tracking-wider">التارجت الشهري</label>
-                  <input
-                    type="number"
-                    required
-                    value={formData.monthly_target}
-                    onChange={(e) => setFormData({ ...formData, monthly_target: parseInt(e.target.value) })}
-                    className="w-full bg-gray-50 border-2 border-gray-100 rounded-xl py-3 px-5 text-sm font-bold text-gray-700 focus:border-[#9b59b6]/30 focus:ring-4 focus:ring-[#9b59b6]/5 outline-none transition-all"
-                  />
-                </div>
-                <div className="space-y-1.5">
-                  <label className="text-xs font-black text-gray-500 mr-1 uppercase tracking-wider">البونص الإضافي</label>
-                  <input
-                    type="number"
-                    required
-                    value={formData.bonus_after_target}
-                    onChange={(e) => setFormData({ ...formData, bonus_after_target: parseFloat(e.target.value) })}
-                    className="w-full bg-gray-50 border-2 border-gray-100 rounded-xl py-3 px-5 text-sm font-bold text-gray-700 focus:border-[#9b59b6]/30 focus:ring-4 focus:ring-[#9b59b6]/5 outline-none transition-all"
-                  />
-                </div>
+              <div className="flex-1 overflow-auto p-6 scrollbar-hide">
+                <form id="packageForm" onSubmit={handleSubmit} className="space-y-8">
+                  {/* Package Info Section */}
+                  <div className="grid grid-cols-1 md:grid-cols-4 gap-4 bg-gray-50/50 p-6 rounded-2xl border border-gray-100">
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-black text-gray-500 flex items-center gap-1.5 uppercase tracking-wider">
+                        <Package size={12} className="text-[#9b59b6]" />
+                        اسم الباقة
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        value={formData.group_name}
+                        onChange={(e) => setFormData({ ...formData, group_name: e.target.value })}
+                        placeholder="أدخل اسم الباقة"
+                        className="w-full bg-white border-2 border-gray-100 rounded-xl py-2.5 px-4 text-sm font-bold text-gray-700 focus:border-[#9b59b6]/30 outline-none transition-all"
+                      />
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-black text-gray-500 flex items-center gap-1.5 uppercase tracking-wider">
+                        <Target size={12} className="text-[#9b59b6]" />
+                        التارجت الشهري
+                      </label>
+                      <input
+                        type="number"
+                        disabled={formData.work_type === 'salary' || formData.work_type === 'commission'}
+                        value={formData.monthly_target}
+                        onChange={(e) => setFormData({ ...formData, monthly_target: parseInt(e.target.value) })}
+                        placeholder="أدخل التارجت الشهري"
+                        className="w-full bg-white border-2 border-gray-100 rounded-xl py-2.5 px-4 text-sm font-bold text-gray-700 focus:border-[#9b59b6]/30 outline-none transition-all disabled:opacity-50"
+                      />
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-black text-gray-500 flex items-center gap-1.5 uppercase tracking-wider">
+                        <Trophy size={12} className="text-[#9b59b6]" />
+                        البونص بعد التارجت
+                      </label>
+                      <input
+                        type="number"
+                        disabled={formData.work_type === 'salary' || formData.work_type === 'commission'}
+                        value={formData.bonus_after_target}
+                        onChange={(e) => setFormData({ ...formData, bonus_after_target: parseFloat(e.target.value) })}
+                        className="w-full bg-white border-2 border-gray-100 rounded-xl py-2.5 px-4 text-sm font-bold text-gray-700 focus:border-[#9b59b6]/30 outline-none transition-all disabled:opacity-50"
+                      />
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-black text-gray-500 flex items-center gap-1.5 uppercase tracking-wider">
+                        <Save size={12} className="text-[#9b59b6]" />
+                        نظام العمل
+                      </label>
+                      <select
+                        value={formData.work_type}
+                        onChange={(e) => setFormData({ ...formData, work_type: e.target.value })}
+                        className="w-full bg-white border-2 border-gray-100 rounded-xl py-2.5 px-4 text-sm font-bold text-gray-700 focus:border-[#9b59b6]/30 outline-none transition-all"
+                      >
+                        <option value="target">نظام تارجت</option>
+                        <option value="salary">نظام راتب</option>
+                        <option value="commission">نظام عمولة</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  {/* Excel Actions */}
+                  <div className="flex justify-center gap-4">
+                    <button
+                      type="button"
+                      onClick={downloadTemplate}
+                      className="flex items-center gap-2 px-6 py-3 bg-blue-50 text-blue-600 rounded-xl text-sm font-black hover:bg-blue-100 transition-all border border-blue-100"
+                    >
+                      <Download size={18} />
+                      تحميل قالب Excel
+                    </button>
+                    <label className="flex items-center gap-2 px-6 py-3 bg-teal-50 text-teal-600 rounded-xl text-sm font-black hover:bg-teal-100 transition-all border border-teal-100 cursor-pointer">
+                      <Upload size={18} />
+                      رفع ملف Excel
+                      <input type="file" className="hidden" accept=".csv" onChange={handleFileUpload} />
+                    </label>
+                  </div>
+
+                  {/* Employees Table Section */}
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <h4 className="text-lg font-black text-gray-900 flex items-center gap-2">
+                        <Users size={20} className="text-[#9b59b6]" />
+                        بيانات الموظفين (نظام {formData.work_type === 'target' ? 'التارجت' : formData.work_type === 'salary' ? 'الراتب' : 'العمولة'})
+                      </h4>
+                      <button
+                        type="button"
+                        onClick={addEmployeeRow}
+                        className="flex items-center gap-2 px-4 py-2 bg-[#9b59b6]/10 text-[#9b59b6] rounded-xl text-xs font-black hover:bg-[#9b59b6]/20 transition-all"
+                      >
+                        <Plus size={16} />
+                        إضافة موظف
+                      </button>
+                    </div>
+
+                    <div className="overflow-x-auto rounded-2xl border border-gray-100 bg-white">
+                      <table className="w-full text-right border-collapse">
+                        <thead className="bg-[#9b59b6] text-white">
+                          <tr>
+                            <th className="p-4 text-xs font-black whitespace-nowrap">اسم الموظف</th>
+                            {formData.work_type === 'salary' ? (
+                              <>
+                                <th className="p-4 text-xs font-black whitespace-nowrap">رقم الهوية</th>
+                                <th className="p-4 text-xs font-black whitespace-nowrap">المسمى الوظيفي</th>
+                              </>
+                            ) : (
+                              <>
+                                <th className="p-4 text-xs font-black whitespace-nowrap">رقم الإقامة</th>
+                                <th className="p-4 text-xs font-black whitespace-nowrap">رقم المستخدم</th>
+                              </>
+                            )}
+                            <th className="p-4 text-xs font-black whitespace-nowrap">الجنسية</th>
+                            <th className="p-4 text-xs font-black whitespace-nowrap">رقم الهاتف</th>
+                            <th className="p-4 text-xs font-black whitespace-nowrap">البريد الإلكتروني</th>
+                            <th className="p-4 text-xs font-black whitespace-nowrap">الراتب الأساسي</th>
+                            <th className="p-4 text-xs font-black whitespace-nowrap">بدل السكن</th>
+                            {formData.work_type !== 'salary' && (
+                              <th className="p-4 text-xs font-black whitespace-nowrap">لوحة المركبة</th>
+                            )}
+                            <th className="p-4 text-xs font-black whitespace-nowrap">الآيبان</th>
+                            <th className="p-4 text-xs font-black whitespace-nowrap">إجراءات</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-gray-50">
+                          {employees.map((emp, idx) => (
+                            <tr key={idx} className="hover:bg-gray-50/50 transition-colors">
+                              <td className="p-2">
+                                <input
+                                  type="text"
+                                  placeholder="اسم الموظف"
+                                  value={emp.name}
+                                  onChange={(e) => updateEmployee(idx, "name", e.target.value)}
+                                  className="w-full bg-transparent border-0 focus:ring-0 text-sm font-bold"
+                                />
+                              </td>
+                              {formData.work_type === 'salary' ? (
+                                <>
+                                  <td className="p-2">
+                                    <input
+                                      type="text"
+                                      placeholder="رقم الهوية"
+                                      value={emp.identity_number}
+                                      onChange={(e) => updateEmployee(idx, "identity_number", e.target.value)}
+                                      className="w-full bg-transparent border-0 focus:ring-0 text-sm font-bold"
+                                    />
+                                  </td>
+                                  <td className="p-2">
+                                    <input
+                                      type="text"
+                                      placeholder="المسمى الوظيفي"
+                                      value={emp.job_title}
+                                      onChange={(e) => updateEmployee(idx, "job_title", e.target.value)}
+                                      className="w-full bg-transparent border-0 focus:ring-0 text-sm font-bold"
+                                    />
+                                  </td>
+                                </>
+                              ) : (
+                                <>
+                                  <td className="p-2">
+                                    <input
+                                      type="text"
+                                      placeholder="رقم الإقامة"
+                                      value={emp.iqama_number}
+                                      onChange={(e) => updateEmployee(idx, "iqama_number", e.target.value)}
+                                      className="w-full bg-transparent border-0 focus:ring-0 text-sm font-bold"
+                                    />
+                                  </td>
+                                  <td className="p-2">
+                                    <input
+                                      type="text"
+                                      placeholder="رقم المستخدم"
+                                      value={emp.user_code}
+                                      onChange={(e) => updateEmployee(idx, "user_code", e.target.value)}
+                                      className="w-full bg-transparent border-0 focus:ring-0 text-sm font-bold"
+                                    />
+                                  </td>
+                                </>
+                              )}
+                              <td className="p-2">
+                                <input
+                                  type="text"
+                                  placeholder="الجنسية"
+                                  value={emp.nationality}
+                                  onChange={(e) => updateEmployee(idx, "nationality", e.target.value)}
+                                  className="w-full bg-transparent border-0 focus:ring-0 text-sm font-bold"
+                                />
+                              </td>
+                              <td className="p-2">
+                                <input
+                                  type="text"
+                                  placeholder="966XXXXXXXXX"
+                                  value={emp.phone}
+                                  onChange={(e) => updateEmployee(idx, "phone", e.target.value)}
+                                  className="w-full bg-transparent border-0 focus:ring-0 text-sm font-bold"
+                                />
+                              </td>
+                              <td className="p-2">
+                                <input
+                                  type="email"
+                                  placeholder="example@mail.com"
+                                  value={emp.email}
+                                  onChange={(e) => updateEmployee(idx, "email", e.target.value)}
+                                  className="w-full bg-transparent border-0 focus:ring-0 text-sm font-bold"
+                                />
+                              </td>
+                              <td className="p-2">
+                                <input
+                                  type="number"
+                                  placeholder="0.00"
+                                  value={emp.basic_salary}
+                                  onChange={(e) => updateEmployee(idx, "basic_salary", parseFloat(e.target.value))}
+                                  className="w-full bg-transparent border-0 focus:ring-0 text-sm font-bold"
+                                />
+                              </td>
+                              <td className="p-2">
+                                <input
+                                  type="number"
+                                  placeholder="0.00"
+                                  value={emp.housing_allowance}
+                                  onChange={(e) => updateEmployee(idx, "housing_allowance", parseFloat(e.target.value))}
+                                  className="w-full bg-transparent border-0 focus:ring-0 text-sm font-bold"
+                                />
+                              </td>
+                              {formData.work_type !== 'salary' && (
+                                <td className="p-2">
+                                  <input
+                                    type="text"
+                                    placeholder="لوحة المركبة"
+                                    value={emp.vehicle_plate}
+                                    onChange={(e) => updateEmployee(idx, "vehicle_plate", e.target.value)}
+                                    className="w-full bg-transparent border-0 focus:ring-0 text-sm font-bold"
+                                  />
+                                </td>
+                              )}
+                              <td className="p-2">
+                                <input
+                                  type="text"
+                                  placeholder="SA..."
+                                  value={emp.iban}
+                                  onChange={(e) => updateEmployee(idx, "iban", e.target.value)}
+                                  className="w-full bg-transparent border-0 focus:ring-0 text-sm font-bold"
+                                />
+                              </td>
+                              <td className="p-4">
+                                <button
+                                  type="button"
+                                  onClick={() => removeEmployeeRow(idx)}
+                                  className="h-8 w-8 rounded-lg bg-red-50 text-red-600 flex items-center justify-center hover:bg-red-600 hover:text-white transition-all"
+                                >
+                                  <Trash2 size={14} />
+                                </button>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </form>
               </div>
 
-              <div className="flex gap-3 pt-2">
+              <div className="p-6 bg-gray-50 border-t border-gray-100 flex gap-4 shrink-0">
                 <button
                   type="submit"
+                  form="packageForm"
                   disabled={isLoading}
-                  className="flex-1 flex items-center justify-center gap-2 bg-gradient-to-r from-[#9b59b6] to-[#8e44ad] text-white py-3.5 rounded-xl text-sm font-black shadow-lg shadow-[#9b59b6]/20 disabled:opacity-50"
+                  className="flex-1 flex items-center justify-center gap-2 bg-gradient-to-r from-[#2ecc71] to-[#27ae60] text-white py-4 rounded-2xl text-base font-black shadow-lg shadow-green-500/20 disabled:opacity-50"
                 >
                   {isLoading ? (
-                    <div className="h-4 w-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                    <div className="h-5 w-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                   ) : (
                     <>
-                      <Save size={18} />
-                      <span>حفظ الباقة</span>
+                      <Save size={20} />
+                      <span>حفظ الباقة والموظفين</span>
                     </>
                   )}
                 </button>
                 <button
                   type="button"
                   onClick={() => setIsModalOpen(false)}
-                  className="px-6 bg-gray-100 text-gray-500 py-3.5 rounded-xl text-sm font-black hover:bg-gray-200 transition-all"
+                  className="px-8 bg-white border-2 border-gray-200 text-gray-500 py-4 rounded-2xl text-base font-black hover:bg-gray-50 transition-all"
                 >
                   إلغاء
                 </button>
               </div>
-            </form>
-          </motion.div>
-        </div>
-      )}
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
