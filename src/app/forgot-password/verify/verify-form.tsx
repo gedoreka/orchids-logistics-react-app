@@ -13,7 +13,8 @@ import {
   Send
 } from "lucide-react";
 import Link from "next/link";
-import { verifyTokenAction } from "@/lib/actions/auth";
+import { verifyTokenAction, forgotPasswordAction } from "@/lib/actions/auth";
+import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 
 interface VerifyFormProps {
@@ -83,6 +84,23 @@ export default function VerifyForm({ email, userName }: VerifyFormProps) {
       setError(result.error || "رمز التحقق غير صحيح");
       setIsLoading(false);
     }
+  };
+
+  const handleResend = async () => {
+    setIsLoading(true);
+    const formData = new FormData();
+    formData.append("email", email);
+
+    const result = await forgotPasswordAction(formData);
+    
+    if (result.success) {
+      toast.success("تم إعادة إرسال رمز التحقق بنجاح");
+      setResendTimeLeft(60);
+      setTimeLeft(15 * 60);
+    } else {
+      toast.error(result.error || "فشل إعادة إرسال الرمز");
+    }
+    setIsLoading(false);
   };
 
   return (
@@ -216,15 +234,17 @@ export default function VerifyForm({ email, userName }: VerifyFormProps) {
                 <Send size={14} />
                 إعادة إرسال الرمز ({resendTimeLeft} ثانية)
               </p>
-            ) : (
-              <button 
-                onClick={() => setResendTimeLeft(60)}
-                className="text-sm font-bold text-[#3498db] hover:underline flex items-center justify-center gap-2 mx-auto"
-              >
-                <Send size={14} />
-                إعادة إرسال الرمز
-              </button>
-            )}
+              ) : (
+                <button 
+                  type="button"
+                  onClick={handleResend}
+                  disabled={isLoading}
+                  className="text-sm font-bold text-[#3498db] hover:underline flex items-center justify-center gap-2 mx-auto disabled:opacity-50"
+                >
+                  <Send size={14} />
+                  إعادة إرسال الرمز
+                </button>
+              )}
           </div>
 
           <Link

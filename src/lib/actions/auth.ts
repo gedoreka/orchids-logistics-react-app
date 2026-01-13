@@ -4,6 +4,7 @@ import { AuthResponse, User, Company, ResetToken } from "@/lib/types";
 import { cookies } from "next/headers";
 import { query } from "@/lib/db";
 import bcrypt from "bcryptjs";
+import { sendResetCode } from "@/lib/mail";
 
 export async function loginAction(formData: FormData): Promise<AuthResponse> {
   const email = formData.get("email") as string;
@@ -140,11 +141,8 @@ export async function forgotPasswordAction(formData: FormData): Promise<AuthResp
       [email, token]
     );
 
-    // Mock Email sending
-    console.log(`Sending email to ${email} with token ${token}`);
-    
-    // In a real implementation, you would use nodemailer or a similar service
-    // if (process.env.SMTP_HOST) { ... }
+    // Send Real Email
+    await sendResetCode(email, user.name, token);
 
     const cookieStore = await cookies();
     cookieStore.set("reset_email", email, { maxAge: 15 * 60, path: "/" });
