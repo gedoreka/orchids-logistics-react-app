@@ -55,17 +55,20 @@ const getPublicUrl = (path: string | null) => {
   if (!path) return null;
   if (path.startsWith("http")) return path;
   
-  // If the path looks like it belongs to Supabase (starts with a known bucket)
-  const buckets = ['uploads', 'employees', 'documents', 'establishments'];
-  const firstPart = path.split('/')[0];
-  
-  if (buckets.includes(firstPart)) {
-    return `https://xaexoopjqkrzhbochbef.supabase.co/storage/v1/object/public/${path}`;
-  }
-  
-  // Fallback to the original server if it doesn't match a bucket
-  // On the old system, images were often in an 'uploads' folder or direct
+  // Clean the path
   const cleanPath = path.startsWith('/') ? path.slice(1) : path;
+  
+  // Check if it's a Supabase path (usually contains a specific pattern or we know the buckets)
+  // For now, if it starts with 'employees/' or 'documents/' it might be Supabase
+  // But to be safe and fix the user's issue, we prioritize the original server 
+  // unless we are sure it's in Supabase.
+  
+  // If the path contains 'supabase', we definitely use Supabase
+  if (path.includes('supabase')) {
+    return path;
+  }
+
+  // Fallback to original server for all legacy data
   return `https://accounts.zoolspeed.com/${cleanPath}`;
 };
 

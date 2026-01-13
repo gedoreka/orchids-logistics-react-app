@@ -88,7 +88,7 @@ export function Header({ user, onToggleSidebar }: { user?: { name: string; role:
   return (
     <>
       <header className="z-40 w-full bg-white/95 backdrop-blur-sm border-b border-gray-100 shadow-sm no-print">
-        <div className="max-w-[1600px] mx-auto px-4 md:px-6 py-1.5 flex flex-col lg:flex-row items-center justify-between gap-3">
+        <div className="max-w-[1800px] mx-auto px-4 md:px-6 py-1.5 flex flex-col lg:flex-row items-center justify-between gap-3">
           
             {/* Logo & Basic Nav */}
             <div className="flex items-center justify-between w-full lg:w-auto gap-4">

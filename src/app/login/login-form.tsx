@@ -75,7 +75,8 @@ export default function LoginForm({ initialEmail = "" }: LoginFormProps) {
               <div className="h-12 w-12 rounded-xl bg-blue-600 flex items-center justify-center text-white shadow-xl shadow-blue-500/20">
                 <Truck size={28} />
               </div>
-              <h2 className="text-3xl font-black text-white tracking-tight">ZoolSpeed</h2>
+                <h2 className="text-3xl font-black text-white tracking-tight">Logistics Systems Pro</h2>
+
             </div>
 
             <div className="space-y-6">
@@ -106,7 +107,7 @@ export default function LoginForm({ initialEmail = "" }: LoginFormProps) {
 
         {/* Decorative Elements */}
         <div className="absolute bottom-10 left-10 text-gray-500 text-xs font-bold uppercase tracking-[0.2em]">
-          Powered by ZoolSpeed Systems © 2026
+          Powered by Logistics Systems Pro © 2026
         </div>
       </div>
 
@@ -118,7 +119,7 @@ export default function LoginForm({ initialEmail = "" }: LoginFormProps) {
             <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-blue-600 text-white shadow-lg">
               <Truck size={26} />
             </div>
-            <h1 className="text-2xl font-black text-slate-900 mb-1">ZoolSpeed</h1>
+            <h1 className="text-2xl font-black text-slate-900 mb-1">Logistics Systems Pro</h1>
             <p className="text-slate-400 font-bold text-xs uppercase tracking-widest">إدارة اللوجستيات الذكية</p>
           </div>
 
@@ -232,7 +233,7 @@ export default function LoginForm({ initialEmail = "" }: LoginFormProps) {
 
         {/* Mobile Footer Decor */}
         <div className="absolute bottom-6 left-0 right-0 lg:hidden text-center text-[10px] font-bold text-slate-300 uppercase tracking-widest">
-          ZoolSpeed Logistics Systems © 2026
+          Logistics Systems Pro © 2026
         </div>
       </div>
     </div>

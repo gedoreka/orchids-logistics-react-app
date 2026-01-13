@@ -110,7 +110,7 @@ export function TasksClient({
   };
 
   return (
-    <div className="flex flex-col h-full space-y-6 overflow-hidden max-w-[1600px] mx-auto px-4">
+    <div className="flex flex-col h-full space-y-6 overflow-hidden max-w-[1800px] mx-auto px-4">
       
       {/* Header & Navigation */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 shrink-0">

@@ -20,8 +20,9 @@ export function Footer() {
   };
 
   return (
-    <footer className="w-full bg-white border-t border-gray-100 py-3 px-6 no-print mt-auto">
-      <div className="max-w-[1600px] mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
+      <footer className="w-full bg-white border-t border-gray-100 py-3 px-6 no-print mt-auto">
+        <div className="max-w-[1800px] mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
+
         
         {/* Left: Branding */}
         <div className="flex items-center gap-2">
@@ -30,7 +31,8 @@ export function Footer() {
           <div className="w-[1px] h-3 bg-gray-200 mx-1" />
           <div className="flex items-center gap-1.5 text-gray-400 text-[10px] font-bold">
             <Copyright size={10} />
-            <span>شركة زول اسبيد للانشطة المتعددة ©️ {new Date().getFullYear()}</span>
+              <span>Logistics Systems Pro ©️ {new Date().getFullYear()}</span>
+
           </div>
         </div>
 

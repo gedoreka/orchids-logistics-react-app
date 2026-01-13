@@ -31,16 +31,15 @@ const getPublicUrl = (path: string | null) => {
   if (!path) return null;
   if (path.startsWith("http")) return path;
   
-  // If the path looks like it belongs to Supabase (starts with a known bucket)
-  const buckets = ['uploads', 'employees', 'documents', 'establishments'];
-  const firstPart = path.split('/')[0];
-  
-  if (buckets.includes(firstPart)) {
-    return `https://xaexoopjqkrzhbochbef.supabase.co/storage/v1/object/public/${path}`;
-  }
-  
-  // Fallback to the original server if it doesn't match a bucket
+  // Clean the path
   const cleanPath = path.startsWith('/') ? path.slice(1) : path;
+  
+  // If the path contains 'supabase', we definitely use Supabase
+  if (path.includes('supabase')) {
+    return path;
+  }
+
+  // Fallback to original server for all legacy data
   return `https://accounts.zoolspeed.com/${cleanPath}`;
 };
 
