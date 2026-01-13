@@ -35,17 +35,28 @@ export async function sendEmail({
 export async function sendResetCode(email: string, name: string, code: string) {
   const subject = "رمز التحقق لاستعادة كلمة المرور - ZoolSpeed";
   const html = `
-    <div dir="rtl" style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #eee; border-radius: 10px;">
-      <h2 style="color: #2563eb; text-align: center;">ZoolSpeed</h2>
-      <p>مرحباً ${name}،</p>
-      <p>لقد طلبت إعادة تعيين كلمة المرور الخاصة بك. يرجى استخدام رمز التحقق التالي:</p>
-      <div style="background-color: #f3f4f6; padding: 15px; text-align: center; font-size: 24px; font-weight: bold; letter-spacing: 5px; color: #1e40af; border-radius: 5px; margin: 20px 0;">
-        ${code}
+    <div dir="rtl" style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; padding: 40px; border: 1px solid #e2e8f0; border-radius: 24px; background-color: #ffffff;">
+      <div style="text-align: center; margin-bottom: 30px;">
+        <div style="background-color: #008080; width: 60px; height: 60px; border-radius: 16px; display: inline-block; line-height: 60px; color: white; font-size: 30px; font-weight: bold; box-shadow: 0 10px 20px rgba(0,128,128,0.2);">Z</div>
+        <h2 style="color: #0f172a; margin-top: 15px; font-size: 24px; font-weight: 800; letter-spacing: -0.5px;">ZoolSpeed Logistics</h2>
       </div>
-      <p>هذا الرمز صالح لمدة 15 دقيقة فقط.</p>
-      <p>إذا لم تطلب أنت هذا الرمز، فيرجى تجاهل هذا البريد الإلكتروني.</p>
-      <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
-      <p style="font-size: 12px; color: #666; text-align: center;">© ${new Date().getFullYear()} ZoolSpeed Logistics. جميع الحقوق محفوظة.</p>
+      <div style="background-color: #f8fafc; border-radius: 20px; padding: 30px; border: 1px solid #f1f5f9;">
+        <p style="font-size: 16px; color: #475569; margin-bottom: 25px; line-height: 1.6;">مرحباً <strong>${name}</strong>،</p>
+        <p style="font-size: 16px; color: #475569; margin-bottom: 25px; line-height: 1.6;">لقد طلبت إعادة تعيين كلمة المرور الخاصة بك. يرجى استخدام رمز التحقق التالي لإتمام العملية:</p>
+        <div style="background: linear-gradient(135deg, #008080 0%, #006666 100%); padding: 25px; text-align: center; font-size: 36px; font-weight: 800; letter-spacing: 10px; color: #ffffff; border-radius: 16px; margin: 30px 0; box-shadow: 0 10px 25px rgba(0,128,128,0.15);">
+          ${code}
+        </div>
+        <div style="display: flex; align-items: center; justify-content: center; gap: 8px; color: #008080; font-size: 14px; font-weight: 700;">
+          <span>•</span>
+          <span>صالح لمدة 15 دقيقة فقط</span>
+          <span>•</span>
+        </div>
+      </div>
+      <p style="font-size: 14px; color: #94a3b8; margin-top: 30px; line-height: 1.6; text-align: center;">إذا لم تطلب أنت هذا الرمز، فيرجى تجاهل هذا البريد الإلكتروني بأمان.</p>
+      <div style="border-top: 1px solid #f1f5f9; margin-top: 40px; padding-top: 30px; text-align: center;">
+        <p style="font-size: 12px; color: #94a3b8; margin: 0;">© ${new Date().getFullYear()} ZoolSpeed Logistics. جميع الحقوق محفوظة.</p>
+        <p style="font-size: 11px; color: #cbd5e1; margin-top: 8px;">هذا البريد مرسل آلياً، يرجى عدم الرد عليه.</p>
+      </div>
     </div>
   `;
 
