@@ -113,9 +113,14 @@ interface SidebarProps {
 }
 
 export function Sidebar({ userRole, permissions = {} }: SidebarProps) {
+  const [mounted, setMounted] = useState(false);
   const pathname = usePathname();
   const router = useRouter();
   const isAdmin = userRole === "admin";
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const filteredItems = navItems.filter(item => {
     if (item.adminOnly && !isAdmin) return false;
@@ -133,10 +138,14 @@ export function Sidebar({ userRole, permissions = {} }: SidebarProps) {
       {/* Header */}
       <div className="p-4 border-b border-white/10 text-center relative bg-black/10">
         <div className="flex flex-col items-center gap-1.5">
-          <div className="bg-[#3498db] p-1.5 rounded-lg text-white shadow-lg shadow-blue-500/10">
-            <Truck size={20} />
-          </div>
-          <h2 className="text-sm font-black text-white tracking-tight">Logistics Systems Pro</h2>
+          {mounted && (
+            <>
+              <div className="bg-[#3498db] p-1.5 rounded-lg text-white shadow-lg shadow-blue-500/10">
+                <Truck size={20} />
+              </div>
+              <h2 className="text-sm font-black text-white tracking-tight">Logistics Systems Pro</h2>
+            </>
+          )}
         </div>
       </div>
 

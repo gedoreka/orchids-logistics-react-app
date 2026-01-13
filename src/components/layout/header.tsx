@@ -23,6 +23,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { usePathname, useRouter } from "next/navigation";
 
 export function Header({ user, onToggleSidebar }: { user?: { name: string; role: string; email: string }, onToggleSidebar?: () => void }) {
+  const [mounted, setMounted] = useState(false);
   const [currentTime, setCurrentTime] = useState(new Date());
   const [location, setLocation] = useState("جاري تحديث الموقع...");
   const [isDriverModalOpen, setIsDriverModalOpen] = useState(false);
@@ -32,6 +33,7 @@ export function Header({ user, onToggleSidebar }: { user?: { name: string; role:
   const router = useRouter();
 
   useEffect(() => {
+    setMounted(true);
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);
     return () => clearInterval(timer);
   }, []);
@@ -88,63 +90,61 @@ export function Header({ user, onToggleSidebar }: { user?: { name: string; role:
       <header className="z-40 w-full bg-white/95 backdrop-blur-sm border-b border-gray-100 shadow-sm no-print">
         <div className="max-w-[1600px] mx-auto px-4 md:px-6 py-1.5 flex flex-col lg:flex-row items-center justify-between gap-3">
           
-          {/* Logo & Basic Nav */}
-          <div className="flex items-center justify-between w-full lg:w-auto gap-4">
-            <div className="flex items-center gap-3">
-              <button 
-                onClick={onToggleSidebar}
-                className="lg:hidden p-1.5 hover:bg-gray-100 rounded-lg transition-colors text-gray-600"
-              >
-                <Menu size={20} />
-              </button>
-              <div className="flex items-center gap-1.5">
-                <div className="bg-[#3498db] p-1.5 rounded-lg text-white">
-                  <Truck size={18} />
-                </div>
-                <span className="text-base font-black text-gray-800 tracking-tight hidden sm:inline">Logistics Systems Pro</span>
+            {/* Logo & Basic Nav */}
+            <div className="flex items-center justify-between w-full lg:w-auto gap-4">
+              <div className="flex items-center gap-3">
+                <button 
+                  onClick={onToggleSidebar}
+                  className="lg:hidden p-1.5 hover:bg-gray-100 rounded-lg transition-colors text-gray-600"
+                >
+                  <Menu size={20} />
+                </button>
               </div>
-            </div>
-            
-            <div className="flex items-center gap-2">
-              <button 
-                onClick={() => router.back()}
-                className="flex items-center gap-1 px-2.5 py-1 text-xs font-bold text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
-              >
-                <ArrowRight size={14} />
-                <span>رجوع</span>
-              </button>
               
               {pathname !== "/dashboard" && (
-                <button 
-                  onClick={() => router.push("/dashboard")}
-                  className="flex items-center gap-1 px-2.5 py-1 text-xs font-bold text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
-                >
-                  <Home size={14} />
-                  <span>الرئيسية</span>
-                </button>
+                <div className="flex items-center gap-2">
+                  <button 
+                    onClick={() => router.back()}
+                    className="flex items-center gap-1 px-2.5 py-1 text-xs font-bold text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+                  >
+                    <ArrowRight size={14} />
+                    <span>رجوع</span>
+                  </button>
+                  
+                  <button 
+                    onClick={() => router.push("/dashboard")}
+                    className="flex items-center gap-1 px-2.5 py-1 text-xs font-bold text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+                  >
+                    <Home size={14} />
+                    <span>الرئيسية</span>
+                  </button>
+                </div>
               )}
             </div>
-          </div>
 
-          {/* Time & Location */}
-          <div className="hidden xl:flex items-center gap-4 bg-gray-50/50 px-4 py-1.5 rounded-xl border border-gray-100">
-            <div className="flex items-center gap-3 text-[10px] font-bold text-gray-500">
-              <div className="flex items-center gap-1">
-                <Calendar size={12} className="text-[#3498db]" />
-                <span>{formatDate(currentTime)}</span>
-              </div>
-              <div className="w-[1px] h-3 bg-gray-200" />
-              <div className="flex items-center gap-1">
-                <History size={12} className="text-[#e67e22]" />
-                <span>{formatHijriDate(currentTime)}</span>
+            {/* Time & Location */}
+            <div className="hidden xl:flex items-center gap-4 bg-gray-50/50 px-4 py-1.5 rounded-xl border border-gray-100">
+              {mounted && (
+                <>
+                  <div className="flex items-center gap-3 text-[10px] font-bold text-gray-500">
+                    <div className="flex items-center gap-1">
+                      <Calendar size={12} className="text-[#3498db]" />
+                      <span>{formatDate(currentTime)}</span>
+                    </div>
+                    <div className="w-[1px] h-3 bg-gray-200" />
+                    <div className="flex items-center gap-1">
+                      <History size={12} className="text-[#e67e22]" />
+                      <span>{formatHijriDate(currentTime)}</span>
+                    </div>
+                  </div>
+                  <div className="w-[1px] h-3 bg-gray-200" />
+                </>
+              )}
+              <div className="flex items-center gap-1 text-[9px] text-gray-400 font-medium">
+                <MapPin size={10} />
+                <span className="truncate max-w-[150px]">{location}</span>
               </div>
             </div>
-            <div className="w-[1px] h-3 bg-gray-200" />
-            <div className="flex items-center gap-1 text-[9px] text-gray-400 font-medium">
-              <MapPin size={10} />
-              <span className="truncate max-w-[150px]">{location}</span>
-            </div>
-          </div>
 
           {/* User Actions */}
           <div className="flex items-center gap-2 w-full lg:w-auto justify-center lg:justify-end overflow-x-auto pb-1 lg:pb-0">
