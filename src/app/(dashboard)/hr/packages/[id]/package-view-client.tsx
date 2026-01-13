@@ -27,6 +27,12 @@ import { toast } from "sonner";
 import { deleteEmployee, updateIqamaExpiry, toggleEmployeeStatus } from "@/lib/actions/hr";
 import { useRouter } from "next/navigation";
 
+const getPublicUrl = (path: string | null) => {
+  if (!path) return null;
+  if (path.startsWith("http")) return path;
+  return `https://xaexoopjqkrzhbochbef.supabase.co/storage/v1/object/public/establishments/${path}`;
+};
+
 interface PackageViewClientProps {
   packageData: any;
   allPackages: any[];
@@ -86,10 +92,10 @@ export function PackageViewClient({
   };
 
   return (
-    <div className="space-y-6 pb-20 max-w-[1400px] mx-auto px-4">
+    <div className="flex flex-col h-[calc(100vh-140px)] space-y-4 max-w-[1400px] mx-auto px-4 overflow-hidden">
       
       {/* Header & Navigation */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 shrink-0">
         <div className="flex items-center gap-2 text-sm font-bold text-gray-400">
           <Link href="/hr" className="hover:text-[#9b59b6] transition-colors flex items-center gap-1">
             <LayoutDashboard size={14} />
@@ -122,15 +128,15 @@ export function PackageViewClient({
       </div>
 
       {/* Package Info Banner */}
-      <div className="bg-gradient-to-br from-[#2c3e50] to-[#34495e] rounded-[2rem] p-8 text-white shadow-xl relative overflow-hidden">
+      <div className="bg-gradient-to-br from-[#2c3e50] to-[#34495e] rounded-[2rem] p-6 text-white shadow-xl relative overflow-hidden shrink-0">
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div className="flex items-center gap-5">
-            <div className="h-16 w-16 rounded-2xl bg-[#3498db]/20 border border-white/10 flex items-center justify-center text-white">
-              <Package size={32} />
+            <div className="h-12 w-12 rounded-2xl bg-[#3498db]/20 border border-white/10 flex items-center justify-center text-white">
+              <Package size={24} />
             </div>
             <div>
-              <h1 className="text-2xl font-black tracking-tight">{packageData.group_name}</h1>
-              <div className="flex items-center gap-3 mt-1 opacity-70 text-xs font-bold">
+              <h1 className="text-xl font-black tracking-tight">{packageData.group_name}</h1>
+              <div className="flex items-center gap-3 mt-1 opacity-70 text-[10px] font-bold">
                 <span>نظام {packageData.work_type === 'salary' ? 'الراتب' : 'التارجت'}</span>
                 <span className="h-1 w-1 rounded-full bg-white/30" />
                 <span>{stats.total_employees} موظف</span>
@@ -138,12 +144,12 @@ export function PackageViewClient({
             </div>
           </div>
 
-          <div className="flex flex-wrap gap-3">
+          <div className="flex flex-wrap gap-2">
             <StatPill label="اكتمال الإقامات" value={`${stats.iqama_complete}/${stats.total_employees}`} />
             <StatPill label="اكتمال الصور" value={`${stats.photo_complete}/${stats.total_employees}`} />
             <Link href={`/hr/packages/${packageData.id}/add-employees`}>
-              <button className="h-12 px-6 rounded-xl bg-[#9b59b6] text-white text-sm font-black shadow-lg shadow-[#9b59b6]/20 hover:bg-[#8e44ad] transition-all flex items-center gap-2">
-                <UserPlus size={18} />
+              <button className="h-10 px-5 rounded-xl bg-[#9b59b6] text-white text-xs font-black shadow-lg shadow-[#9b59b6]/20 hover:bg-[#8e44ad] transition-all flex items-center gap-2">
+                <UserPlus size={16} />
                 إضافة موظفين
               </button>
             </Link>
@@ -153,8 +159,8 @@ export function PackageViewClient({
       </div>
 
       {/* Search & Filter Section */}
-      <div className="bg-white rounded-3xl border border-gray-100 p-6 shadow-sm">
-        <form onSubmit={handleSearch} className="flex flex-col md:flex-row gap-4">
+      <div className="bg-white rounded-2xl border border-gray-100 p-4 shadow-sm shrink-0">
+        <form onSubmit={handleSearch} className="flex flex-col md:flex-row gap-3">
           <div className="flex-1 relative">
             <Search className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
             <input 
@@ -162,14 +168,14 @@ export function PackageViewClient({
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="ابحث عن موظف بالاسم، رقم الإقامة، أو الكود..."
-              className="w-full h-12 pr-12 pl-4 rounded-xl bg-gray-50 border-2 border-gray-50 text-sm font-bold focus:border-[#9b59b6]/30 focus:bg-white outline-none transition-all"
+              className="w-full h-11 pr-12 pl-4 rounded-xl bg-gray-50 border-2 border-gray-50 text-xs font-bold focus:border-[#9b59b6]/30 focus:bg-white outline-none transition-all"
             />
           </div>
           
           <select 
             value={filter}
             onChange={(e) => handleFilterChange(e.target.value)}
-            className="h-12 px-4 rounded-xl bg-gray-50 border-2 border-gray-50 text-sm font-bold focus:border-[#9b59b6]/30 focus:bg-white outline-none transition-all md:w-48"
+            className="h-11 px-4 rounded-xl bg-gray-50 border-2 border-gray-50 text-xs font-bold focus:border-[#9b59b6]/30 focus:bg-white outline-none transition-all md:w-44"
           >
             <option value="all">جميع الحالات</option>
             <option value="active">إقامات سارية</option>
@@ -178,24 +184,24 @@ export function PackageViewClient({
             <option value="on_leave">في إجازة</option>
           </select>
 
-          <button type="submit" className="h-12 px-8 rounded-xl bg-gray-900 text-white text-sm font-black hover:bg-gray-800 transition-all">
+          <button type="submit" className="h-11 px-8 rounded-xl bg-gray-900 text-white text-xs font-black hover:bg-gray-800 transition-all">
             تطبيق
           </button>
         </form>
       </div>
 
-      {/* Employees Table */}
-      <div className="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full text-right">
-            <thead>
+      {/* Employees Table Container */}
+      <div className="flex-1 bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden flex flex-col min-h-0">
+        <div className="flex-1 overflow-auto scrollbar-hide">
+          <table className="w-full text-right border-separate border-spacing-0">
+            <thead className="sticky top-0 z-20">
               <tr className="bg-gray-50 border-b border-gray-100">
-                <th className="px-6 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">الموظف</th>
-                <th className="px-6 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">رقم الإقامة</th>
-                <th className="px-6 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">انتهاء الإقامة</th>
-                <th className="px-6 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">الراتب</th>
-                <th className="px-6 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">الحالة</th>
-                <th className="px-6 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest text-center">الإجراءات</th>
+                <th className="px-6 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest border-b border-gray-100">الموظف</th>
+                <th className="px-6 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest border-b border-gray-100">رقم الإقامة</th>
+                <th className="px-6 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest border-b border-gray-100">انتهاء الإقامة</th>
+                <th className="px-6 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest border-b border-gray-100">الراتب</th>
+                <th className="px-6 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest border-b border-gray-100">الحالة</th>
+                <th className="px-6 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest text-center border-b border-gray-100">الإجراءات</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-50">
@@ -203,9 +209,9 @@ export function PackageViewClient({
                 <tr key={emp.id} className={`hover:bg-gray-50/50 transition-colors group ${emp.is_active === 0 ? 'bg-orange-50/30' : ''}`}>
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-3">
-                      <div className="h-10 w-10 rounded-xl bg-gray-100 flex items-center justify-center text-gray-400 font-black text-xs">
+                      <div className="h-9 w-9 rounded-xl bg-gray-100 flex items-center justify-center text-gray-400 font-black text-xs overflow-hidden">
                         {emp.personal_photo ? (
-                          <img src={emp.personal_photo} alt="" className="h-full w-full object-cover rounded-xl" />
+                          <img src={getPublicUrl(emp.personal_photo) || ""} alt="" className="h-full w-full object-cover" />
                         ) : (
                           emp.name.charAt(0)
                         )}
