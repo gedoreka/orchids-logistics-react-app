@@ -13,7 +13,7 @@ import {
   Phone, 
   Globe, 
   Upload, 
-  PaperPlane,
+  SendHorizontal,
   CreditCard,
   Stamp,
   Signature,
@@ -284,10 +284,10 @@ export default function RegisterForm() {
               {isLoading ? (
                 <div className="h-7 w-7 animate-spin rounded-full border-4 border-white/30 border-t-white" />
               ) : (
-                <>
-                  إرسال طلب الانضمام
-                  <PaperPlane size={24} className="group-hover:translate-x-[-10px] group-hover:translate-y-[-10px] transition-transform" />
-                </>
+                  <>
+                    إرسال طلب الانضمام
+                    <SendHorizontal size={24} className="group-hover:translate-x-[-10px] group-hover:translate-y-[-10px] transition-transform" />
+                  </>
               )}
             </button>
             <p className="mt-6 text-center text-slate-500 font-medium">
