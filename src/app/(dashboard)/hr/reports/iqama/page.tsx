@@ -30,7 +30,7 @@ export default async function IqamaReportPage({ searchParams }: {
         e.user_code,
         e.iqama_expiry,
         ep.group_name,
-        (e.iqama_expiry - CURRENT_DATE) as days_remaining
+        DATEDIFF(e.iqama_expiry, CURRENT_DATE) as days_remaining
     FROM employees e
     LEFT JOIN employee_packages ep ON e.package_id = ep.id
     WHERE e.company_id = ? 
@@ -43,16 +43,22 @@ export default async function IqamaReportPage({ searchParams }: {
     params.push(`%${search}%`, `%${search}%`, `%${search}%`);
   }
 
-  const allData = await query(sql, params);
-
-  // 3. Process data based on filter
-  const iqamaData = allData.filter((item: any) => {
-    const days = item.days_remaining;
-    if (filter === 'expired' && days >= 0) return false;
-    if (filter === 'soon' && (days > 30 || days < 0)) return false;
-    if (filter === 'active' && days <= 30) return false;
-    return true;
-  }).sort((a: any, b: any) => a.days_remaining - b.days_remaining);
+    const allData: any[] = await query(sql, params);
+  
+    // 3. Process data based on filter
+    const iqamaData = allData.filter((item: any) => {
+      const days = item.days_remaining;
+      if (filter === 'expired' && days >= 0) return false;
+      if (filter === 'soon' && (days > 30 || days < 0)) return false;
+      if (filter === 'active' && days <= 30) return false;
+      return true;
+    }).map((item: any) => ({
+      ...item,
+      // Convert Date object to string to avoid rendering error in Client Component
+      iqama_expiry: item.iqama_expiry instanceof Date 
+        ? item.iqama_expiry.toISOString().split('T')[0] 
+        : item.iqama_expiry
+    })).sort((a: any, b: any) => a.days_remaining - b.days_remaining);
 
   // 4. Stats
   const stats = {
@@ -64,7 +70,7 @@ export default async function IqamaReportPage({ searchParams }: {
 
   return (
     <IqamaReportClient 
-      company={company[0]}
+      company={company[0] || { name: 'غير معروف', logo: null }}
       iqamaData={iqamaData}
       stats={stats}
       activeFilter={filter}

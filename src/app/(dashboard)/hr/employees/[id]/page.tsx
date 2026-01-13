@@ -80,12 +80,24 @@ export default async function EmployeeDetailsPage({ params }: { params: { id: st
     [employee.iqama_number, companyId]
   );
 
+  // Helper function to format dates to strings
+  const formatDate = (obj: any) => {
+    if (!obj) return obj;
+    const newObj = { ...obj };
+    for (const key in newObj) {
+      if (newObj[key] instanceof Date) {
+        newObj[key] = newObj[key].toISOString().split('T')[0];
+      }
+    }
+    return newObj;
+  };
+
   return (
     <EmployeeDetailsClient 
-      employee={employee}
+      employee={formatDate(employee)}
       allEmployees={allEmployees}
-      violations={violations}
-      letters={letters}
+      violations={violations.map(v => formatDate(v))}
+      letters={letters.map(l => formatDate(l))}
       stats={stats}
       monthlyData={monthlyData}
     />
