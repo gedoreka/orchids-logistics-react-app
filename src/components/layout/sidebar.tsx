@@ -129,49 +129,42 @@ export function Sidebar({ userRole, permissions = {} }: SidebarProps) {
   };
 
   return (
-    <div className="w-72 h-screen overflow-y-auto bg-gradient-to-b from-[#2c3e50] to-[#34495e] flex flex-col z-50 transition-all duration-300 shadow-xl">
+    <div className="w-64 h-screen overflow-y-auto bg-[#2c3e50] flex flex-col z-50 transition-all duration-300 shadow-xl border-l border-white/5">
       {/* Header */}
-      <div className="p-6 border-b border-white/15 text-center relative backdrop-blur-sm bg-black/20">
-        <div className="flex flex-col items-center gap-2">
-          <div className="bg-[#3498db] p-2 rounded-xl text-white shadow-lg shadow-blue-500/20">
-            <Truck size={28} />
+      <div className="p-4 border-b border-white/10 text-center relative bg-black/10">
+        <div className="flex flex-col items-center gap-1.5">
+          <div className="bg-[#3498db] p-1.5 rounded-lg text-white shadow-lg shadow-blue-500/10">
+            <Truck size={20} />
           </div>
-          <h2 className="text-xl font-black text-white tracking-tight">Logistics Systems Pro</h2>
+          <h2 className="text-sm font-black text-white tracking-tight">Logistics Systems Pro</h2>
         </div>
-        <div className="absolute bottom-0 left-1/4 right-1/4 h-0.5 bg-gradient-to-r from-transparent via-[#3498db] to-transparent" />
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 p-4 space-y-1.5 overflow-y-auto custom-scrollbar">
+      <nav className="flex-1 p-2 space-y-1 overflow-y-auto custom-scrollbar">
         {filteredItems.map((item, index) => {
           const isActive = pathname === item.href || pathname.startsWith(item.href + "/");
           return (
             <React.Fragment key={item.href}>
               <Link href={item.href}>
                 <motion.div
-                  whileHover={{ x: -5 }}
+                  whileHover={{ x: -3 }}
                   className={cn(
-                    "flex items-center gap-3 px-4 py-3.5 rounded-xl transition-all duration-200 group relative overflow-hidden border",
+                    "flex items-center gap-2.5 px-3 py-2 rounded-lg transition-all duration-200 group relative border",
                     isActive 
-                      ? "bg-white/15 text-white shadow-lg border-white/20" 
-                      : "text-white/80 hover:text-white hover:bg-white/10 border-transparent hover:border-white/10"
+                      ? "bg-white/10 text-white border-white/10 shadow-sm" 
+                      : "text-white/70 hover:text-white hover:bg-white/5 border-transparent"
                   )}
                 >
-                  {isActive && (
-                    <motion.div
-                      layoutId="active-nav"
-                      className="absolute right-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-gradient-to-b from-[#3498db] to-[#9b59b6] rounded-l-full"
-                    />
-                  )}
-                  <item.icon size={20} className={cn(
-                    "transition-all duration-300 group-hover:scale-110 flex-shrink-0",
-                    isActive ? "text-[#f1c40f]" : "text-white/60 group-hover:text-[#f1c40f]"
+                  <item.icon size={16} className={cn(
+                    "transition-all duration-300 shrink-0",
+                    isActive ? "text-[#f1c40f]" : "text-white/40 group-hover:text-[#f1c40f]"
                   )} />
-                  <span className="font-semibold text-sm">{item.title}</span>
+                  <span className="font-bold text-xs">{item.title}</span>
                 </motion.div>
               </Link>
               {item.dividerAfter && (
-                <hr className="border-white/20 my-4 mx-4" />
+                <hr className="border-white/5 my-2 mx-3" />
               )}
             </React.Fragment>
           );
@@ -179,18 +172,18 @@ export function Sidebar({ userRole, permissions = {} }: SidebarProps) {
       </nav>
 
       {/* Footer */}
-      <div className="p-4 border-t border-white/15 space-y-2">
+      <div className="p-3 border-t border-white/10 space-y-1.5">
         <Link href="/settings">
-          <div className="flex items-center gap-3 px-4 py-3.5 rounded-xl text-white/70 hover:text-white hover:bg-white/10 transition-all border border-transparent hover:border-white/10">
-            <Settings size={20} />
-            <span className="font-semibold text-sm">إعدادات النظام</span>
+          <div className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-white/60 hover:text-white hover:bg-white/5 transition-all">
+            <Settings size={16} />
+            <span className="font-bold text-xs">إعدادات النظام</span>
           </div>
         </Link>
         <button 
           onClick={handleLogout}
-          className="w-full flex items-center gap-3 px-4 py-4 rounded-xl bg-gradient-to-l from-[#e74c3c] to-[#c0392b] text-white font-bold text-sm shadow-lg shadow-red-500/30 hover:shadow-red-500/50 hover:scale-[1.02] transition-all"
+          className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-lg bg-red-500/10 text-red-400 hover:bg-red-500 hover:text-white font-bold text-xs transition-all border border-red-500/20"
         >
-          <LogOut size={20} className="group-hover:-translate-x-1 transition-transform" />
+          <LogOut size={16} />
           <span>تسجيل الخروج</span>
         </button>
       </div>

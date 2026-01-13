@@ -67,11 +67,11 @@ export function DashboardLayout({ children, user, permissions }: DashboardLayout
         <Header user={user} onToggleSidebar={() => setIsSidebarOpen(true)} />
 
         {/* Main Content Area */}
-        <main className="flex-1 flex flex-col p-4 md:p-8">
+        <main className="flex-1 flex flex-col p-3 md:p-4">
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
+            transition={{ duration: 0.3 }}
             className="flex-1"
           >
             {children}

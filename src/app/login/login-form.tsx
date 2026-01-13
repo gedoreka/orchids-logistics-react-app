@@ -53,65 +53,61 @@ export default function LoginForm({ initialEmail = "" }: LoginFormProps) {
   };
 
   return (
-    <div className="min-h-screen w-full flex items-center justify-center p-6 bg-[#fdfdfd]">
+    <div className="min-h-screen w-full flex items-center justify-center p-4 bg-[#f8fafc]">
       <motion.div
-        initial={{ opacity: 0, scale: 0.95 }}
+        initial={{ opacity: 0, scale: 0.98 }}
         animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.5 }}
-        className="w-full max-w-[420px] bg-white rounded-[40px] p-10 shadow-2xl border border-gray-50 relative overflow-hidden"
+        transition={{ duration: 0.4 }}
+        className="w-full max-w-[380px] bg-white rounded-2xl p-8 shadow-sm border border-gray-100 relative overflow-hidden"
       >
-        <div className="absolute top-0 right-0 w-32 h-32 bg-[#3498db]/5 rounded-full -translate-y-1/2 translate-x-1/2 blur-2xl" />
-        
-        <div className="relative z-10 mb-10 text-center">
+        <div className="relative z-10 mb-8 text-center">
           <motion.div 
             whileHover={{ scale: 1.05 }}
-            className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-[24px] bg-gradient-to-br from-[#2c3e50] to-[#34495e] text-white shadow-xl shadow-gray-200"
+            className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-xl bg-[#2c3e50] text-white shadow-lg"
           >
-            <Truck size={36} />
+            <Truck size={28} />
           </motion.div>
-            <h1 className="text-2xl font-black text-gray-900 mb-2 tracking-tight">
-              Logistics Systems Pro
-            </h1>
-          <p className="text-gray-400 font-bold text-xs uppercase tracking-widest">تسجيل الدخول للنظام</p>
+          <h1 className="text-xl font-black text-gray-900 mb-1 tracking-tight">
+            Logistics Systems Pro
+          </h1>
+          <p className="text-gray-400 font-bold text-[10px] uppercase tracking-widest">تسجيل الدخول للنظام</p>
         </div>
 
         <AnimatePresence>
           {error && (
             <motion.div
-              initial={{ opacity: 0, y: -10 }}
+              initial={{ opacity: 0, y: -5 }}
               animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              className="mb-8 flex items-center gap-3 rounded-2xl bg-red-50 p-4 text-red-600 border border-red-100"
+              exit={{ opacity: 0, y: -5 }}
+              className="mb-6 flex items-center gap-2 rounded-lg bg-red-50 p-3 text-red-600 border border-red-100"
             >
-              <AlertTriangle size={18} />
-              <span className="text-sm font-bold">{error}</span>
+              <AlertTriangle size={16} />
+              <span className="text-[11px] font-bold">{error}</span>
             </motion.div>
           )}
         </AnimatePresence>
 
-        <form onSubmit={handleSubmit} className="space-y-6 text-right" dir="rtl">
-          <div className="space-y-2.5">
-            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest mr-1">
+        <form onSubmit={handleSubmit} className="space-y-4 text-right" dir="rtl">
+          <div className="space-y-1.5">
+            <label className="text-[9px] font-black text-gray-400 uppercase tracking-widest mr-1">
               البريد الإلكتروني
             </label>
-            <div className="relative group">
-              <input
-                type="email"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="name@company.com"
-                className="w-full rounded-2xl border-none bg-gray-50/50 py-4 px-4 text-sm font-bold text-gray-900 placeholder:text-gray-300 focus:bg-white focus:ring-2 focus:ring-[#3498db]/20 outline-none transition-all duration-300"
-              />
-            </div>
+            <input
+              type="email"
+              required
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="name@company.com"
+              className="w-full rounded-xl border border-gray-100 bg-gray-50/50 py-3 px-4 text-xs font-bold text-gray-900 placeholder:text-gray-300 focus:bg-white focus:ring-2 focus:ring-[#3498db]/20 focus:border-[#3498db] outline-none transition-all duration-200"
+            />
           </div>
 
-          <div className="space-y-2.5">
+          <div className="space-y-1.5">
             <div className="flex items-center justify-between px-1">
-              <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest">
+              <label className="text-[9px] font-black text-gray-400 uppercase tracking-widest">
                 كلمة المرور
               </label>
-              <Link href="/forgot-password" title="نسيت كلمة المرور؟" className="text-[10px] font-black text-[#3498db] hover:underline">
+              <Link href="/forgot-password" title="نسيت كلمة المرور؟" className="text-[9px] font-black text-[#3498db] hover:underline">
                 نسيت كلمة المرور؟
               </Link>
             </div>
@@ -122,29 +118,27 @@ export default function LoginForm({ initialEmail = "" }: LoginFormProps) {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
-                className="w-full rounded-2xl border-none bg-gray-50/50 py-4 px-4 text-sm font-bold text-gray-900 placeholder:text-gray-300 focus:bg-white focus:ring-2 focus:ring-[#3498db]/20 outline-none transition-all duration-300"
+                className="w-full rounded-xl border border-gray-100 bg-gray-50/50 py-3 px-4 text-xs font-bold text-gray-900 placeholder:text-gray-300 focus:bg-white focus:ring-2 focus:ring-[#3498db]/20 focus:border-[#3498db] outline-none transition-all duration-200"
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
                 className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-300 hover:text-gray-600 transition-colors"
               >
-                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
               </button>
             </div>
           </div>
 
-          <div className="flex items-center gap-3 px-1">
-            <div className="relative flex items-center">
-              <input
-                type="checkbox"
-                id="remember"
-                checked={remember}
-                onChange={(e) => setRemember(e.target.checked)}
-                className="h-4 w-4 rounded border-gray-200 text-[#2c3e50] focus:ring-0 focus:ring-offset-0"
-              />
-            </div>
-            <label htmlFor="remember" className="text-xs font-bold text-gray-500 cursor-pointer select-none">
+          <div className="flex items-center gap-2 px-1">
+            <input
+              type="checkbox"
+              id="remember"
+              checked={remember}
+              onChange={(e) => setRemember(e.target.checked)}
+              className="h-3.5 w-3.5 rounded border-gray-200 text-[#2c3e50] focus:ring-0 focus:ring-offset-0"
+            />
+            <label htmlFor="remember" className="text-[11px] font-bold text-gray-500 cursor-pointer select-none">
               تذكرني في المرة القادمة
             </label>
           </div>
@@ -152,27 +146,27 @@ export default function LoginForm({ initialEmail = "" }: LoginFormProps) {
           <button
             type="submit"
             disabled={isLoading}
-            className="w-full rounded-2xl bg-[#2c3e50] py-4 text-white font-black text-lg shadow-xl shadow-gray-200 hover:bg-[#1a252f] transition-all disabled:opacity-70 flex items-center justify-center gap-3"
+            className="w-full rounded-xl bg-[#2c3e50] py-3 text-white font-black text-sm shadow-md shadow-gray-200 hover:bg-[#1a252f] transition-all disabled:opacity-70 flex items-center justify-center gap-2"
           >
             {isLoading ? (
-              <div className="h-6 w-6 animate-spin rounded-full border-2 border-white/30 border-t-white" />
+              <div className="h-5 w-5 animate-spin rounded-full border-2 border-white/30 border-t-white" />
             ) : (
               <>
-                <LogIn size={20} />
+                <LogIn size={18} />
                 دخول للنظام
               </>
             )}
           </button>
         </form>
 
-        <div className="mt-10 pt-8 border-t border-gray-50 text-center">
-          <p className="mb-4 text-xs font-bold text-gray-400">ليس لديك حساب منشأة؟</p>
+        <div className="mt-8 pt-6 border-t border-gray-50 text-center">
+          <p className="mb-2 text-[10px] font-bold text-gray-400">ليس لديك حساب منشأة؟</p>
           <Link
             href="/register"
-            className="inline-flex items-center gap-2 text-sm font-black text-[#3498db] group"
+            className="inline-flex items-center gap-1.5 text-xs font-black text-[#3498db] group"
           >
             إنشاء حساب جديد
-            <ChevronLeft size={16} className="group-hover:-translate-x-1 transition-transform" />
+            <ChevronLeft size={14} className="group-hover:-translate-x-1 transition-transform" />
           </Link>
         </div>
       </motion.div>

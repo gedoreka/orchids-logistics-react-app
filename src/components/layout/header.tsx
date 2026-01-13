@@ -86,40 +86,40 @@ export function Header({ user, onToggleSidebar }: { user?: { name: string; role:
   return (
     <>
       <header className="z-40 w-full bg-white/95 backdrop-blur-sm border-b border-gray-100 shadow-sm no-print">
-        <div className="max-w-[1600px] mx-auto px-4 md:px-6 py-3 flex flex-col lg:flex-row items-center justify-between gap-4">
+        <div className="max-w-[1600px] mx-auto px-4 md:px-6 py-1.5 flex flex-col lg:flex-row items-center justify-between gap-3">
           
           {/* Logo & Basic Nav */}
-          <div className="flex items-center justify-between w-full lg:w-auto gap-6">
-            <div className="flex items-center gap-4">
+          <div className="flex items-center justify-between w-full lg:w-auto gap-4">
+            <div className="flex items-center gap-3">
               <button 
                 onClick={onToggleSidebar}
-                className="lg:hidden p-2 hover:bg-gray-100 rounded-lg transition-colors text-gray-600"
+                className="lg:hidden p-1.5 hover:bg-gray-100 rounded-lg transition-colors text-gray-600"
               >
-                <Menu size={24} />
+                <Menu size={20} />
               </button>
-              <div className="flex items-center gap-2">
-                <div className="bg-[#3498db] p-2 rounded-lg text-white">
-                  <Truck size={24} />
+              <div className="flex items-center gap-1.5">
+                <div className="bg-[#3498db] p-1.5 rounded-lg text-white">
+                  <Truck size={18} />
                 </div>
-                <span className="text-xl font-black text-gray-800 tracking-tight hidden sm:inline">Logistics Systems Pro</span>
+                <span className="text-base font-black text-gray-800 tracking-tight hidden sm:inline">Logistics Systems Pro</span>
               </div>
             </div>
             
             <div className="flex items-center gap-2">
               <button 
                 onClick={() => router.back()}
-                className="flex items-center gap-1 px-3 py-1.5 text-sm font-bold text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+                className="flex items-center gap-1 px-2.5 py-1 text-xs font-bold text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
               >
-                <ArrowRight size={16} />
+                <ArrowRight size={14} />
                 <span>رجوع</span>
               </button>
               
               {pathname !== "/dashboard" && (
                 <button 
                   onClick={() => router.push("/dashboard")}
-                  className="flex items-center gap-1 px-3 py-1.5 text-sm font-bold text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+                  className="flex items-center gap-1 px-2.5 py-1 text-xs font-bold text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
                 >
-                  <Home size={16} />
+                  <Home size={14} />
                   <span>الرئيسية</span>
                 </button>
               )}
@@ -127,59 +127,60 @@ export function Header({ user, onToggleSidebar }: { user?: { name: string; role:
           </div>
 
           {/* Time & Location */}
-          <div className="hidden xl:flex flex-col items-center gap-1 bg-gray-50/50 px-6 py-2 rounded-2xl border border-gray-100">
-            <div className="flex items-center gap-4 text-xs font-bold text-gray-500">
-              <div className="flex items-center gap-1.5">
-                <Calendar size={14} className="text-[#3498db]" />
+          <div className="hidden xl:flex items-center gap-4 bg-gray-50/50 px-4 py-1.5 rounded-xl border border-gray-100">
+            <div className="flex items-center gap-3 text-[10px] font-bold text-gray-500">
+              <div className="flex items-center gap-1">
+                <Calendar size={12} className="text-[#3498db]" />
                 <span>{formatDate(currentTime)}</span>
               </div>
               <div className="w-[1px] h-3 bg-gray-200" />
-              <div className="flex items-center gap-1.5">
-                <History size={14} className="text-[#e67e22]" />
+              <div className="flex items-center gap-1">
+                <History size={12} className="text-[#e67e22]" />
                 <span>{formatHijriDate(currentTime)}</span>
               </div>
             </div>
-            <div className="flex items-center gap-1.5 text-[10px] text-gray-400 font-medium">
-              <MapPin size={12} />
-              <span className="truncate max-w-[200px]">{location}</span>
+            <div className="w-[1px] h-3 bg-gray-200" />
+            <div className="flex items-center gap-1 text-[9px] text-gray-400 font-medium">
+              <MapPin size={10} />
+              <span className="truncate max-w-[150px]">{location}</span>
             </div>
           </div>
 
           {/* User Actions */}
           <div className="flex items-center gap-2 w-full lg:w-auto justify-center lg:justify-end overflow-x-auto pb-1 lg:pb-0">
             {/* Language Switcher */}
-            <div className="flex items-center bg-gray-100 p-1 rounded-xl shrink-0">
-              <button className="flex items-center gap-1 px-3 py-1 text-xs font-bold bg-white text-[#3498db] rounded-lg shadow-sm">
-                <Globe size={14} />
+            <div className="flex items-center bg-gray-100 p-0.5 rounded-lg shrink-0">
+              <button className="flex items-center gap-1 px-2 py-0.5 text-[10px] font-bold bg-white text-[#3498db] rounded-md shadow-sm">
+                <Globe size={12} />
                 <span>العربية</span>
               </button>
-              <button className="flex items-center gap-1 px-3 py-1 text-xs font-bold text-gray-500 hover:text-gray-700">
-                <Globe size={14} />
+              <button className="flex items-center gap-1 px-2 py-0.5 text-[10px] font-bold text-gray-500 hover:text-gray-700">
+                <Globe size={12} />
                 <span>English</span>
               </button>
             </div>
 
             <button 
               onClick={() => setIsDriverModalOpen(true)}
-              className="flex items-center gap-1.5 px-4 py-2 bg-gray-800 text-white text-xs font-black rounded-xl hover:bg-gray-700 transition-all shrink-0 shadow-lg shadow-gray-200"
+              className="flex items-center gap-1 px-3 py-1.5 bg-gray-800 text-white text-[10px] font-black rounded-lg hover:bg-gray-700 transition-all shrink-0"
             >
-              <Truck size={14} />
+              <Truck size={12} />
               <span>تطبيق السائقين</span>
             </button>
 
             <button 
               onClick={() => router.push("/chat")}
-              className="flex items-center gap-1.5 px-4 py-2 bg-[#2c9c6e] text-white text-xs font-black rounded-xl hover:bg-[#258a61] transition-all shrink-0 shadow-lg shadow-green-100"
+              className="flex items-center gap-1 px-3 py-1.5 bg-[#2c9c6e] text-white text-[10px] font-black rounded-lg hover:bg-[#258a61] transition-all shrink-0"
             >
-              <MessageSquare size={14} />
+              <MessageSquare size={12} />
               <span>الدعم الفني</span>
             </button>
 
             <button 
               onClick={() => router.push("/user_profile")}
-              className="flex items-center gap-1.5 px-4 py-2 bg-[#3498db] text-white text-xs font-black rounded-xl hover:bg-[#2980b9] transition-all shrink-0 shadow-lg shadow-blue-100"
+              className="flex items-center gap-1 px-3 py-1.5 bg-[#3498db] text-white text-[10px] font-black rounded-lg hover:bg-[#2980b9] transition-all shrink-0"
             >
-              <UserCircle size={14} />
+              <UserCircle size={12} />
               <span>بياناتي</span>
             </button>
           </div>

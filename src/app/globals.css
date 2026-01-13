@@ -44,48 +44,42 @@
   --radius-xl: calc(var(--radius) + 4px);
 }
 
-  :root {
-    --radius: 1rem;
-    --background: #fdfdfd;
-    --foreground: #1a1a1a;
-    
-    /* Refined Luxurious Palette */
-    --primary-color: #2c3e50;
-    --secondary-color: #3498db;
-    --accent-color: #e74c3c;
-    --success-color: #2ecc71;
-    --warning-color: #f39c12;
-    --info-color: #3498db;
-    --glass-bg: rgba(255, 255, 255, 0.9);
-    --glass-border: rgba(0, 0, 0, 0.05);
-    --glass-shadow: 0 10px 40px rgba(0, 0, 0, 0.05);
-    --card-shadow: 0 12px 40px rgba(0, 0, 0, 0.1);
-    --hover-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
-    --transition: all 0.5s cubic-bezier(0.25, 1, 0.5, 1);
-    --frosted-blur: blur(25px);
-    --text-color: #1a1a1a;
-  }
+    :root {
+      --radius: 0.5rem;
+      --background: #f8fafc;
+      --foreground: #1a1a1a;
+      
+      /* Refined Luxurious Palette */
+      --primary-color: #2c3e50;
+      --secondary-color: #3498db;
+      --accent-color: #e74c3c;
+      --success-color: #2ecc71;
+      --warning-color: #f39c12;
+      --info-color: #3498db;
+      --glass-bg: rgba(255, 255, 255, 0.9);
+      --glass-border: rgba(0, 0, 0, 0.05);
+      --glass-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+      --card-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+      --hover-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+      --transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+      --frosted-blur: blur(10px);
+      --text-color: #1a1a1a;
+    }
+  
+    @layer base {
+      * {
+        @apply border-border outline-ring/50;
+      }
+      body {
+        font-family: 'Tajawal', 'Segoe UI', system-ui, sans-serif;
+        background: #f8fafc;
+        min-height: 100vh;
+        color: var(--text-color);
+        margin: 0;
+        padding: 0;
+      }
+    }
 
-  @layer base {
-    * {
-      @apply border-border outline-ring/50;
-    }
-    body {
-      font-family: 'Tajawal', 'Segoe UI', system-ui, sans-serif;
-      background: linear-gradient(135deg, 
-        #667eea 0%, 
-        #764ba2 25%, 
-        #f093fb 50%, 
-        #f5576c 75%, 
-        #4facfe 100%);
-      background-size: 400% 400%;
-      animation: gradientShift 15s ease infinite;
-      min-height: 100vh;
-      color: var(--text-color);
-      margin: 0;
-      padding: 0;
-    }
-  }
 
 @keyframes gradientShift {
   0% { background-position: 0% 50%; }
