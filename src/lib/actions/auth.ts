@@ -132,16 +132,15 @@ export async function forgotPasswordAction(formData: FormData): Promise<AuthResp
     const user = users[0];
     const token = Math.floor(100000 + Math.random() * 900000).toString();
 
-    // Delete old tokens
-    await query("DELETE FROM password_resets WHERE email = ?", [email]);
-
-    // Insert new token
+    // Use UPSERT for PostgreSQL
     await query(
-      "INSERT INTO password_resets (email, token, created_at) VALUES (?, ?, NOW())",
+      `INSERT INTO password_resets (email, token, created_at) 
+       VALUES (?, ?, NOW()) 
+       ON CONFLICT (email) DO UPDATE SET token = EXCLUDED.token, created_at = NOW()`,
       [email, token]
     );
 
-    // Send Real Email
+    // Send Real Email using Hostinger SMTP
     await sendResetCode(email, user.name, token);
 
     const cookieStore = await cookies();

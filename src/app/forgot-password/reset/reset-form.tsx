@@ -10,7 +10,9 @@ import {
   UserCircle,
   Info,
   CheckCircle2,
-  XCircle
+  XCircle,
+  Eye,
+  EyeOff
 } from "lucide-react";
 import { resetPasswordAction } from "@/lib/actions/auth";
 import { useRouter } from "next/navigation";
@@ -23,6 +25,7 @@ interface ResetFormProps {
 export default function ResetForm({ email, userName }: ResetFormProps) {
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -53,7 +56,7 @@ export default function ResetForm({ email, userName }: ResetFormProps) {
 
   const strength = getPasswordStrength();
   const strengthText = ["", "ضعيفة", "متوسطة", "قوية", "قوية جداً"][strength];
-  const strengthColor = ["bg-gray-200", "bg-red-500", "bg-yellow-500", "bg-green-500", "bg-green-600"][strength];
+  const strengthColor = ["bg-gray-800", "bg-red-500", "bg-yellow-500", "bg-green-500", "bg-green-400"][strength];
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -91,146 +94,142 @@ export default function ResetForm({ email, userName }: ResetFormProps) {
 
   if (success) {
     return (
-      <div className="relative min-h-screen w-full flex items-center justify-center p-4 bg-[linear-gradient(135deg,#667eea_0%,#764ba2_100%)]">
+      <div className="relative min-h-screen w-full flex items-center justify-center p-4 overflow-hidden bg-[#0a0a0a]">
+        <div className="absolute inset-0 z-0">
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(34,197,94,0.1),transparent_50%)]" />
+        </div>
         <motion.div 
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
-          className="bg-white p-10 rounded-[20px] shadow-2xl text-center max-w-md w-full"
+          className="relative z-10 w-full max-w-[440px] overflow-hidden rounded-[32px] border border-green-500/20 bg-white/[0.02] p-10 backdrop-blur-[32px] shadow-[0_32px_64px_rgba(0,0,0,0.5)] text-center"
         >
           <div className="mb-6 flex justify-center">
-            <div className="bg-green-100 p-4 rounded-full text-green-600">
+            <motion.div 
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ type: "spring", damping: 12 }}
+              className="bg-green-500/20 p-5 rounded-full text-green-400"
+            >
               <CheckCircle2 size={64} />
-            </div>
+            </motion.div>
           </div>
-          <h2 className="text-2xl font-bold text-gray-800 mb-4">تم التحديث بنجاح!</h2>
-          <div className="text-right space-y-2 text-gray-600 mb-8">
+          <h2 className="text-3xl font-bold text-white mb-4">تم التحديث بنجاح!</h2>
+          <div className="space-y-2 text-gray-400 mb-8 font-medium">
             <p>تم تحديث كلمة المرور لحسابك بنجاح</p>
-            <p>يمكنك الآن تسجيل الدخول باستخدام كلمة المرور الجديدة</p>
             <p>سيتم توجيهك إلى صفحة تسجيل الدخول خلال لحظات...</p>
           </div>
-          <button 
-            onClick={() => router.push("/login")}
-            className="w-full bg-green-500 text-white font-bold py-3 rounded-xl hover:bg-green-600 transition-colors"
-          >
-            تسجيل الدخول الآن
-          </button>
+          <motion.div 
+            initial={{ width: 0 }}
+            animate={{ width: "100%" }}
+            transition={{ duration: 3 }}
+            className="h-1 bg-green-500/50 rounded-full"
+          />
         </motion.div>
       </div>
     );
   }
 
   return (
-    <div className="relative min-h-screen w-full flex items-center justify-center p-4 overflow-hidden bg-[linear-gradient(135deg,#667eea_0%,#764ba2_100%)]">
-      {/* Floating Shapes */}
-      <div className="absolute inset-0 pointer-events-none z-0">
-        {[...Array(4)].map((_, i) => (
-          <motion.div
-            key={i}
-            className="absolute rounded-full bg-white/10"
-            animate={{
-              x: mousePosition.x * (i + 1),
-              y: mousePosition.y * (i + 1),
-              translateY: [0, -30, 0],
-              rotate: [0, 180, 360],
-            }}
-            transition={{
-              translateY: { duration: 8, repeat: Infinity, ease: "easeInOut", delay: i * 2 },
-              rotate: { duration: 15, repeat: Infinity, ease: "linear" }
-            }}
-            style={{
-              width: i === 0 ? 100 : i === 1 ? 80 : i === 2 ? 60 : 120,
-              height: i === 0 ? 100 : i === 1 ? 80 : i === 2 ? 60 : 120,
-              top: i === 0 ? "10%" : i === 1 ? "60%" : i === 2 ? "80%" : "30%",
-              left: i === 0 ? "10%" : i === 1 ? "90%" : i === 2 ? "20%" : "80%",
-            }}
-          />
-        ))}
+    <div className="relative min-h-screen w-full flex items-center justify-center p-4 overflow-hidden bg-[#0a0a0a]">
+      {/* Dynamic Background */}
+      <div className="absolute inset-0 z-0">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(102,126,234,0.1),transparent_50%)]" />
+        <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-blue-600/10 blur-[120px] rounded-full" />
+        <div className="bottom-[-10%] right-[-10%] absolute w-[40%] h-[40%] bg-purple-600/10 blur-[120px] rounded-full" />
       </div>
 
+      {/* Grid Pattern */}
+      <div className="absolute inset-0 z-0 opacity-[0.03]" style={{ backgroundImage: 'radial-gradient(#fff 1px, transparent 1px)', backgroundSize: '40px 40px' }} />
+
       <motion.div
-        initial={{ opacity: 0, y: 50 }}
+        initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6 }}
+        transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
         className="relative z-10 w-full max-w-[480px]"
       >
-        <div className="relative overflow-hidden rounded-[20px] bg-white/98 p-8 backdrop-blur-[10px] shadow-[0_15px_35px_rgba(0,0,0,0.2)] hover:shadow-[0_20px_45px_rgba(0,0,0,0.25)] transition-all duration-300">
+        <div className="relative overflow-hidden rounded-[32px] border border-white/[0.08] bg-white/[0.02] p-8 md:p-10 backdrop-blur-[32px] shadow-[0_32px_64px_rgba(0,0,0,0.5)] transition-all duration-500 hover:border-white/[0.12]">
           
-          <div className="mb-8 text-center bg-gradient-to-br from-[#2c3e50] to-[#3498db] -mx-8 -mt-8 p-8 text-white relative overflow-hidden">
-            <div className="absolute inset-0 bg-[radial-gradient(circle,rgba(255,255,255,0.1)_0%,transparent_70%)] rotate-45 -translate-x-1/2 -translate-y-1/2" />
-            <div className="relative z-10">
-              <div className="mx-auto mb-5 flex h-20 w-20 items-center justify-center rounded-full bg-white text-[#2c3e50] shadow-lg">
-                <Lock size={30} className="text-[#3498db]" />
-              </div>
-              <h1 className="mb-2 text-[1.8rem] font-extrabold tracking-tight">
-                تعيين كلمة مرور جديدة
-              </h1>
-              <p className="opacity-90 text-[1rem]">اختر كلمة مرور قوية وآمنة لحسابك</p>
-            </div>
+          <div className="mb-10 text-center">
+            <motion.div 
+              initial={{ scale: 0.8 }}
+              animate={{ scale: 1 }}
+              className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 shadow-[0_0_40px_rgba(59,130,246,0.3)]"
+            >
+              <RefreshCw size={36} className="text-white" />
+            </motion.div>
+            <h1 className="mb-2 text-3xl font-bold tracking-tight text-white">
+              كلمة مرور جديدة
+            </h1>
+            <p className="text-gray-400 text-sm font-medium">اختر كلمة مرور قوية وآمنة لحسابك</p>
           </div>
 
-          <div className="mb-5 flex items-center gap-4 rounded-xl bg-[#f8f9fa] p-4 border-l-4 border-[#2980b9]">
-            <UserCircle size={24} className="text-[#2980b9]" />
-            <div className="text-right">
-              <h5 className="font-bold text-[#2c3e50] text-sm">{userName}</h5>
-              <p className="text-xs text-gray-500">{email}</p>
+          <div className="mb-6 flex items-center gap-4 rounded-2xl border border-white/[0.08] bg-white/[0.03] p-4 text-right" dir="rtl">
+            <UserCircle size={24} className="text-blue-500 shrink-0" />
+            <div className="overflow-hidden">
+              <h5 className="font-bold text-white text-sm truncate">{userName}</h5>
+              <p className="text-xs text-gray-400 truncate">{email}</p>
             </div>
           </div>
 
           <AnimatePresence>
             {error && (
               <motion.div
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.95 }}
-                className="mb-5 flex items-center gap-3 rounded-[10px] bg-gradient-to-br from-[#ff6b6b] to-[#ee5a52] p-3 text-white shadow-md text-sm"
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                className="mb-6 flex items-center gap-3 rounded-2xl border border-red-500/20 bg-red-500/10 p-4 text-red-400 text-sm"
               >
                 <AlertTriangle size={18} />
-                <span>{error}</span>
+                <span className="font-medium">{error}</span>
               </motion.div>
             )}
           </AnimatePresence>
 
-          <div className="mb-5 rounded-[10px] border-l-4 border-[#3498db] bg-[#f8f9fa] p-4">
-            <p className="flex items-center gap-3 text-sm text-gray-600">
-              <Info size={18} className="text-[#3498db]" />
-              يجب أن تحتوي كلمة المرور على الأقل على 6 أحرف
-            </p>
-          </div>
-
-          <form onSubmit={handleSubmit} className="space-y-6 text-right">
+          <form onSubmit={handleSubmit} className="space-y-6 text-right" dir="rtl">
             <div className="space-y-2">
-              <label className="flex items-center gap-2 text-sm font-semibold text-[#2c3e50]">
-                <Key size={18} className="text-[#3498db]" />
+              <label className="text-xs font-semibold uppercase tracking-wider text-gray-400 mr-1">
                 كلمة المرور الجديدة
               </label>
               <div className="relative group">
                 <input
-                  type="password"
+                  type={showPassword ? "text" : "password"}
                   required
                   minLength={6}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  placeholder="أدخل كلمة المرور الجديدة"
-                  className="w-full rounded-xl border-2 border-[#e9ecef] bg-[#f8f9fa] py-4 pl-4 pr-[45px] text-black outline-none transition-all duration-300 focus:border-[#3498db] focus:bg-white"
+                  placeholder="••••••••"
+                  className="w-full rounded-2xl border border-white/[0.08] bg-white/[0.03] py-4 pl-12 pr-12 text-white placeholder:text-gray-600 outline-none transition-all duration-300 focus:border-blue-500/50 focus:bg-white/[0.06] focus:ring-4 focus:ring-blue-500/10"
                 />
-                <Lock size={18} className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-[#3498db]" />
+                <Lock size={18} className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 group-focus-within:text-blue-500 transition-colors" />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 hover:text-white transition-colors"
+                >
+                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
               </div>
-              <div className="mt-2 h-1.5 w-full bg-gray-200 rounded-full overflow-hidden">
-                <div 
-                  className={`h-full transition-all duration-500 ${strengthColor}`} 
-                  style={{ width: `${(strength / 4) * 100}%` }}
-                />
+              
+              <div className="pt-2">
+                <div className="flex items-center justify-between mb-1.5">
+                  <span className="text-[10px] font-bold text-gray-500 uppercase">قوة كلمة المرور</span>
+                  <span className={`text-[10px] font-bold uppercase ${strength >= 3 ? 'text-green-400' : strength >= 2 ? 'text-yellow-400' : 'text-red-400'}`}>
+                    {strengthText}
+                  </span>
+                </div>
+                <div className="flex gap-1 h-1">
+                  {[1, 2, 3, 4].map((step) => (
+                    <div 
+                      key={step} 
+                      className={`h-full flex-1 rounded-full transition-all duration-500 ${strength >= step ? strengthColor : 'bg-white/5'}`}
+                    />
+                  ))}
+                </div>
               </div>
-              {strengthText && (
-                <p className={`text-xs font-bold mt-1 ${strength === 1 ? 'text-red-500' : strength === 2 ? 'text-yellow-500' : 'text-green-500'}`}>
-                  قوة كلمة المرور: {strengthText}
-                </p>
-              )}
             </div>
 
             <div className="space-y-2">
-              <label className="flex items-center gap-2 text-sm font-semibold text-[#2c3e50]">
-                <Key size={18} className="text-[#3498db]" />
+              <label className="text-xs font-semibold uppercase tracking-wider text-gray-400 mr-1">
                 تأكيد كلمة المرور
               </label>
               <div className="relative group">
@@ -239,23 +238,23 @@ export default function ResetForm({ email, userName }: ResetFormProps) {
                   required
                   value={confirm}
                   onChange={(e) => setConfirm(e.target.value)}
-                  placeholder="أعد إدخال كلمة المرور"
-                  className="w-full rounded-xl border-2 border-[#e9ecef] bg-[#f8f9fa] py-4 pl-4 pr-[45px] text-black outline-none transition-all duration-300 focus:border-[#3498db] focus:bg-white"
+                  placeholder="••••••••"
+                  className="w-full rounded-2xl border border-white/[0.08] bg-white/[0.03] py-4 pl-4 pr-12 text-white placeholder:text-gray-600 outline-none transition-all duration-300 focus:border-blue-500/50 focus:bg-white/[0.06] focus:ring-4 focus:ring-blue-500/10"
                 />
-                <Lock size={18} className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-[#3498db]" />
+                <Key size={18} className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 group-focus-within:text-blue-500 transition-colors" />
               </div>
               {confirm && (
-                <div className="flex items-center gap-2 mt-1">
+                <div className="flex items-center gap-2 mt-2 px-1">
                   {password === confirm ? (
-                    <>
-                      <CheckCircle2 size={14} className="text-green-500" />
-                      <span className="text-xs text-green-500 font-bold">كلمة المرور متطابقة</span>
-                    </>
+                    <motion.div initial={{ opacity: 0, x: -5 }} animate={{ opacity: 1, x: 0 }} className="flex items-center gap-1.5 text-green-400 text-[10px] font-bold uppercase">
+                      <CheckCircle2 size={12} />
+                      تطابق تام
+                    </motion.div>
                   ) : (
-                    <>
-                      <XCircle size={14} className="text-red-500" />
-                      <span className="text-xs text-red-500 font-bold">كلمة المرور غير متطابقة</span>
-                    </>
+                    <motion.div initial={{ opacity: 0, x: -5 }} animate={{ opacity: 1, x: 0 }} className="flex items-center gap-1.5 text-red-400 text-[10px] font-bold uppercase">
+                      <XCircle size={12} />
+                      لا يوجد تطابق
+                    </motion.div>
                   )}
                 </div>
               )}
@@ -264,16 +263,16 @@ export default function ResetForm({ email, userName }: ResetFormProps) {
             <motion.button
               type="submit"
               disabled={isLoading || password !== confirm || password.length < 6}
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              className="w-full rounded-xl bg-gradient-to-br from-[#27ae60] to-[#219653] py-4 text-[1.1rem] font-bold text-white shadow-lg transition-all duration-300 disabled:opacity-50"
+              whileHover={{ scale: 1.01 }}
+              whileTap={{ scale: 0.99 }}
+              className="relative w-full overflow-hidden rounded-2xl bg-blue-600 py-4 text-sm font-bold text-white shadow-[0_16px_32px_rgba(59,130,246,0.3)] transition-all duration-300 hover:bg-blue-500 disabled:opacity-50 group"
             >
-              <div className="flex items-center justify-center gap-3">
+              <div className="flex items-center justify-center gap-2">
                 {isLoading ? (
                   <div className="h-5 w-5 animate-spin rounded-full border-2 border-white/30 border-t-white" />
                 ) : (
                   <>
-                    <RefreshCw size={20} />
+                    <RefreshCw size={18} />
                     تحديث كلمة المرور
                   </>
                 )}

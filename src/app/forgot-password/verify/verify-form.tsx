@@ -10,11 +10,11 @@ import {
   ArrowRight,
   Clock,
   UserCircle,
-  Send
+  Send,
+  ArrowLeft
 } from "lucide-react";
 import Link from "next/link";
 import { verifyTokenAction, forgotPasswordAction } from "@/lib/actions/auth";
-import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 
 interface VerifyFormProps {
@@ -30,17 +30,7 @@ export default function VerifyForm({ email, userName }: VerifyFormProps) {
   const [resendTimeLeft, setResendTimeLeft] = useState(60);
   const router = useRouter();
 
-  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
-
   useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
-      setMousePosition({
-        x: (e.clientX / window.innerWidth) * 20 - 10,
-        y: (e.clientY / window.innerHeight) * 20 - 10,
-      });
-    };
-    window.addEventListener("mousemove", handleMouseMove);
-
     const timer = setInterval(() => {
       setTimeLeft((prev) => (prev > 0 ? prev - 1 : 0));
     }, 1000);
@@ -50,7 +40,6 @@ export default function VerifyForm({ email, userName }: VerifyFormProps) {
     }, 1000);
 
     return () => {
-      window.removeEventListener("mousemove", handleMouseMove);
       clearInterval(timer);
       clearInterval(resendTimer);
     };
@@ -94,166 +83,143 @@ export default function VerifyForm({ email, userName }: VerifyFormProps) {
     const result = await forgotPasswordAction(formData);
     
     if (result.success) {
-      toast.success("تم إعادة إرسال رمز التحقق بنجاح");
       setResendTimeLeft(60);
       setTimeLeft(15 * 60);
+      setError("");
     } else {
-      toast.error(result.error || "فشل إعادة إرسال الرمز");
+      setError(result.error || "فشل إعادة إرسال الرمز");
     }
     setIsLoading(false);
   };
 
   return (
-    <div className="relative min-h-screen w-full flex items-center justify-center p-4 overflow-hidden bg-[linear-gradient(135deg,#667eea_0%,#764ba2_100%)]">
-      {/* Floating Shapes */}
-      <div className="absolute inset-0 pointer-events-none z-0">
-        {[...Array(4)].map((_, i) => (
-          <motion.div
-            key={i}
-            className="absolute rounded-full bg-white/10"
-            animate={{
-              x: mousePosition.x * (i + 1),
-              y: mousePosition.y * (i + 1),
-              translateY: [0, -30, 0],
-              rotate: [0, 180, 360],
-            }}
-            transition={{
-              translateY: { duration: 8, repeat: Infinity, ease: "easeInOut", delay: i * 2 },
-              rotate: { duration: 15, repeat: Infinity, ease: "linear" }
-            }}
-            style={{
-              width: i === 0 ? 100 : i === 1 ? 80 : i === 2 ? 60 : 120,
-              height: i === 0 ? 100 : i === 1 ? 80 : i === 2 ? 60 : 120,
-              top: i === 0 ? "10%" : i === 1 ? "60%" : i === 2 ? "80%" : "30%",
-              left: i === 0 ? "10%" : i === 1 ? "90%" : i === 2 ? "20%" : "80%",
-            }}
-          />
-        ))}
+    <div className="relative min-h-screen w-full flex items-center justify-center p-4 overflow-hidden bg-[#0a0a0a]">
+      {/* Dynamic Background */}
+      <div className="absolute inset-0 z-0">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(102,126,234,0.1),transparent_50%)]" />
+        <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-blue-600/10 blur-[120px] rounded-full" />
+        <div className="bottom-[-10%] right-[-10%] absolute w-[40%] h-[40%] bg-purple-600/10 blur-[120px] rounded-full" />
       </div>
 
+      {/* Grid Pattern */}
+      <div className="absolute inset-0 z-0 opacity-[0.03]" style={{ backgroundImage: 'radial-gradient(#fff 1px, transparent 1px)', backgroundSize: '40px 40px' }} />
+
       <motion.div
-        initial={{ opacity: 0, y: 50 }}
+        initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6 }}
+        transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
         className="relative z-10 w-full max-w-[480px]"
       >
-        <div className="relative overflow-hidden rounded-[20px] bg-white/98 p-8 backdrop-blur-[10px] shadow-[0_15px_35px_rgba(0,0,0,0.2)] hover:shadow-[0_20px_45px_rgba(0,0,0,0.25)] transition-all duration-300">
+        <div className="relative overflow-hidden rounded-[32px] border border-white/[0.08] bg-white/[0.02] p-8 md:p-10 backdrop-blur-[32px] shadow-[0_32px_64px_rgba(0,0,0,0.5)] transition-all duration-500 hover:border-white/[0.12]">
           
-          <div className="mb-8 text-center bg-gradient-to-br from-[#2c3e50] to-[#3498db] -mx-8 -mt-8 p-8 text-white relative overflow-hidden">
-            <div className="absolute inset-0 bg-[radial-gradient(circle,rgba(255,255,255,0.1)_0%,transparent_70%)] rotate-45 -translate-x-1/2 -translate-y-1/2" />
-            <div className="relative z-10">
-              <div className="mx-auto mb-5 flex h-20 w-20 items-center justify-center rounded-full bg-white text-[#2c3e50] shadow-lg">
-                <ShieldCheck size={30} className="text-[#3498db]" />
-              </div>
-              <h1 className="mb-2 text-[1.8rem] font-extrabold tracking-tight">
-                التحقق من الرمز
-              </h1>
-              <p className="opacity-90 text-[1rem]">أدخل رمز التحقق الذي استلمته عبر البريد الإلكتروني</p>
-            </div>
+          <div className="mb-8 text-center">
+            <motion.div 
+              initial={{ scale: 0.8 }}
+              animate={{ scale: 1 }}
+              className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 shadow-[0_0_40px_rgba(59,130,246,0.3)]"
+            >
+              <ShieldCheck size={36} className="text-white" />
+            </motion.div>
+            <h1 className="mb-2 text-3xl font-bold tracking-tight text-white">
+              تأكيد الرمز
+            </h1>
+            <p className="text-gray-400 text-sm font-medium">تم إرسال رمز التحقق إلى بريدك الإلكتروني</p>
           </div>
 
-          <div className="mb-5 flex items-center gap-4 rounded-xl bg-[#f8f9fa] p-4 border-l-4 border-[#2980b9]">
-            <UserCircle size={24} className="text-[#2980b9]" />
-            <div className="text-right">
-              <h5 className="font-bold text-[#2c3e50] text-sm">{userName}</h5>
-              <p className="text-xs text-gray-500">{email}</p>
+          <div className="mb-6 flex items-center gap-4 rounded-2xl border border-white/[0.08] bg-white/[0.03] p-4 text-right" dir="rtl">
+            <UserCircle size={24} className="text-blue-500 shrink-0" />
+            <div className="overflow-hidden">
+              <h5 className="font-bold text-white text-sm truncate">{userName}</h5>
+              <p className="text-xs text-gray-400 truncate">{email}</p>
             </div>
           </div>
 
           <AnimatePresence>
             {error && (
               <motion.div
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.95 }}
-                className="mb-5 flex items-center gap-3 rounded-[10px] bg-gradient-to-br from-[#ff6b6b] to-[#ee5a52] p-3 text-white shadow-md text-sm"
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                className="mb-6 flex items-center gap-3 rounded-2xl border border-red-500/20 bg-red-500/10 p-4 text-red-400 text-sm"
               >
                 <AlertTriangle size={18} />
-                <span>{error}</span>
+                <span className="font-medium">{error}</span>
               </motion.div>
             )}
           </AnimatePresence>
 
-          <div className="mb-5 rounded-[10px] border-l-4 border-[#f39c12] bg-[#f8f9fa] p-4">
-            <p className="flex items-center gap-3 text-sm text-gray-600">
-              <Clock size={18} className="text-[#f39c12]" />
-              رمز التحقق صالح لمدة 15 دقيقة فقط
-            </p>
-          </div>
-
-          <form onSubmit={handleSubmit} className="space-y-6 text-right">
+          <form onSubmit={handleSubmit} className="space-y-6 text-right" dir="rtl">
             <div className="space-y-2">
-              <label className="flex items-center gap-2 text-sm font-semibold text-[#2c3e50]">
-                <Key size={18} className="text-[#3498db]" />
-                رمز التحقق
+              <label className="text-xs font-semibold uppercase tracking-wider text-gray-400 mr-1">
+                رمز التحقق (6 أرقام)
               </label>
-              <div className="relative">
+              <div className="relative group">
                 <input
                   type="text"
                   required
                   maxLength={6}
                   value={token}
                   onChange={(e) => setToken(e.target.value.replace(/[^0-9]/g, ""))}
-                  placeholder="123456"
-                  className="w-full rounded-xl border-2 border-[#e9ecef] bg-[#f8f9fa] py-4 pl-4 pr-[45px] text-xl font-bold tracking-[8px] text-center text-black outline-none transition-all duration-300 focus:border-[#3498db] focus:bg-white"
+                  placeholder="000000"
+                  className="w-full rounded-2xl border border-white/[0.08] bg-white/[0.03] py-5 text-center text-3xl font-bold tracking-[12px] text-white placeholder:text-gray-700 outline-none transition-all duration-300 focus:border-blue-500/50 focus:bg-white/[0.06] focus:ring-4 focus:ring-blue-500/10"
                 />
-                <Key size={20} className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-[#3498db]" />
               </div>
             </div>
 
-            <div className="text-center">
-              <div className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-bold bg-[#f8f9fa] text-[#2c3e50] ${timeLeft <= 60 ? 'text-red-500 animate-pulse' : ''}`}>
-                <Clock size={16} />
-                <span>{formatTime(timeLeft)}</span>
+            <div className="flex items-center justify-center gap-3 py-2">
+              <div className={`flex items-center gap-2 rounded-full px-4 py-2 text-xs font-bold ${timeLeft <= 60 ? 'bg-red-500/20 text-red-400 animate-pulse' : 'bg-white/5 text-gray-400'}`}>
+                <Clock size={14} />
+                <span>تنتهي صلاحية الرمز خلال {formatTime(timeLeft)}</span>
               </div>
             </div>
 
             <motion.button
               type="submit"
               disabled={isLoading || timeLeft === 0}
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              className="w-full rounded-xl bg-gradient-to-br from-[#27ae60] to-[#219653] py-4 text-[1.1rem] font-bold text-white shadow-lg transition-all duration-300 disabled:opacity-50"
+              whileHover={{ scale: 1.01 }}
+              whileTap={{ scale: 0.99 }}
+              className="relative w-full overflow-hidden rounded-2xl bg-blue-600 py-4 text-sm font-bold text-white shadow-[0_16px_32px_rgba(59,130,246,0.3)] transition-all duration-300 hover:bg-blue-500 disabled:opacity-50 group"
             >
-              <div className="flex items-center justify-center gap-3">
+              <div className="flex items-center justify-center gap-2">
                 {isLoading ? (
                   <div className="h-5 w-5 animate-spin rounded-full border-2 border-white/30 border-t-white" />
                 ) : (
                   <>
-                    <CheckCircle size={20} />
-                    التحقق من الرمز
+                    <CheckCircle size={18} />
+                    تأكيد الرمز والمتابعة
                   </>
                 )}
               </div>
             </motion.button>
           </form>
 
-          <div className="mt-4 text-center">
+          <div className="mt-8 text-center">
             {resendTimeLeft > 0 ? (
               <p className="text-sm text-gray-500 flex items-center justify-center gap-2">
-                <Send size={14} />
-                إعادة إرسال الرمز ({resendTimeLeft} ثانية)
+                إعادة إرسال الرمز خلال {resendTimeLeft} ثانية
               </p>
-              ) : (
-                <button 
-                  type="button"
-                  onClick={handleResend}
-                  disabled={isLoading}
-                  className="text-sm font-bold text-[#3498db] hover:underline flex items-center justify-center gap-2 mx-auto disabled:opacity-50"
-                >
-                  <Send size={14} />
-                  إعادة إرسال الرمز
-                </button>
-              )}
+            ) : (
+              <button 
+                type="button"
+                onClick={handleResend}
+                disabled={isLoading}
+                className="text-sm font-bold text-blue-500 hover:text-blue-400 transition-colors flex items-center justify-center gap-2 mx-auto disabled:opacity-50 group"
+              >
+                <Send size={14} className="group-hover:-translate-y-0.5 group-hover:translate-x-0.5 transition-transform" />
+                لم يصلك الرمز؟ إعادة الإرسال الآن
+              </button>
+            )}
           </div>
 
-          <Link
-            href="/forgot-password"
-            className="mt-5 block text-center text-sm font-medium text-[#3498db] hover:text-[#2c3e50] hover:underline transition-colors"
-          >
-            <ArrowRight size={16} className="inline-block ml-1" />
-            العودة إلى استعادة كلمة المرور
-          </Link>
+          <div className="mt-8 border-t border-white/[0.08] pt-8 text-center">
+            <Link
+              href="/forgot-password"
+              className="inline-flex items-center gap-2 text-sm font-bold text-gray-400 hover:text-white transition-all group"
+            >
+              <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform" />
+              تغيير البريد الإلكتروني
+            </Link>
+          </div>
         </div>
       </motion.div>
     </div>
