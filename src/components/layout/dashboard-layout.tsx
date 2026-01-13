@@ -1,9 +1,9 @@
-"use client";
-
-import React from "react";
+import React, { useState } from "react";
 import { Sidebar } from "./sidebar";
-import { motion } from "framer-motion";
-import { Bell, User, Search, LogOut } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Header } from "./header";
+import { Footer } from "./footer";
+import { X } from "lucide-react";
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -16,61 +16,68 @@ interface DashboardLayoutProps {
 }
 
 export function DashboardLayout({ children, user, permissions }: DashboardLayoutProps) {
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
   return (
-    <div className="flex min-h-screen bg-[var(--background)]" dir="rtl">
-      <Sidebar userRole={user?.role} permissions={permissions} />
-      
-      <div className="flex-1 flex flex-col h-screen overflow-hidden">
-        {/* Header */}
-        <header className="h-20 bg-white/80 backdrop-blur-md border-b border-gray-100 flex items-center justify-between px-8 z-40">
-          <div className="flex items-center gap-6 flex-1">
-            <div className="relative w-full max-w-md group">
-              <Search className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-[#3498db] transition-colors" size={18} />
-              <input 
-                type="text" 
-                placeholder="البحث عن تقارير، عملاء، فواتير..."
-                className="w-full bg-gray-50 border-none rounded-2xl py-2.5 pr-12 pl-4 text-sm focus:ring-2 focus:ring-[#3498db]/20 transition-all"
-              />
-            </div>
-          </div>
+    <div className="flex min-h-screen bg-[#f8fafc]" dir="rtl">
+      {/* Sidebar - Desktop */}
+      <div className="hidden lg:block shrink-0">
+        <Sidebar userRole={user?.role} permissions={permissions} />
+      </div>
 
-          <div className="flex items-center gap-4">
-            <motion.button 
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className="p-2.5 rounded-2xl bg-gray-50 text-gray-500 hover:text-[#3498db] hover:bg-[#3498db]/5 transition-all relative"
+      {/* Sidebar - Mobile Drawer */}
+      <AnimatePresence>
+        {isSidebarOpen && (
+          <div className="fixed inset-0 z-[100] lg:hidden">
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setIsSidebarOpen(false)}
+              className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+            />
+            <motion.div 
+              initial={{ x: "100%" }}
+              animate={{ x: 0 }}
+              exit={{ x: "100%" }}
+              transition={{ type: "spring", damping: 25, stiffness: 200 }}
+              className="absolute top-0 right-0 bottom-0 w-72 bg-[#2c3e50] shadow-2xl overflow-hidden flex flex-col"
             >
-              <Bell size={20} />
-              <span className="absolute top-2.5 left-2.5 w-2 h-2 bg-red-500 rounded-full border-2 border-white" />
-            </motion.button>
-
-            <div className="h-10 w-[1px] bg-gray-100 mx-2" />
-
-            <div className="flex items-center gap-3 pl-2">
-              <div className="text-left flex flex-col items-end">
-                <span className="text-sm font-black text-gray-900 leading-tight">{user?.name || "مستخدم"}</span>
-                <span className="text-[10px] font-bold text-[#3498db] uppercase tracking-wider">{user?.role === "admin" ? "مدير النظام" : "مدير منشأة"}</span>
+              <div className="flex items-center justify-between p-4 border-b border-white/10">
+                <span className="text-white font-black">القائمة الرئيسية</span>
+                <button 
+                  onClick={() => setIsSidebarOpen(false)}
+                  className="p-2 text-white/50 hover:text-white transition-colors"
+                >
+                  <X size={24} />
+                </button>
               </div>
-              <motion.div 
-                whileHover={{ scale: 1.05 }}
-                className="h-11 w-11 rounded-2xl bg-gradient-to-br from-[#3498db] to-[#764ba2] flex items-center justify-center text-white shadow-lg shadow-[#3498db]/20"
-              >
-                <User size={22} />
-              </motion.div>
-            </div>
+              <div className="flex-1 overflow-y-auto">
+                <Sidebar userRole={user?.role} permissions={permissions} />
+              </div>
+            </motion.div>
           </div>
-        </header>
+        )}
+      </AnimatePresence>
+      
+      <div className="flex-1 flex flex-col min-w-0">
+        {/* Main Header */}
+        <Header user={user} onToggleSidebar={() => setIsSidebarOpen(true)} />
 
         {/* Main Content Area */}
-        <main className="flex-1 overflow-y-auto p-8 custom-scrollbar">
+        <main className="flex-1 flex flex-col p-4 md:p-8">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
+            className="flex-1"
           >
             {children}
           </motion.div>
         </main>
+
+        {/* Footer */}
+        <Footer />
       </div>
     </div>
   );
