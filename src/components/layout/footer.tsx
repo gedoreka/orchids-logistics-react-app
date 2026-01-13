@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import { 
   Truck, 
-  Envelope, 
+  Mail, 
   Phone, 
   Copy, 
   Check, 
@@ -46,9 +46,9 @@ export function Footer() {
               href="mailto:info@zoolspeed.com"
               className="group flex items-center gap-3 p-3 bg-white/5 rounded-2xl hover:bg-white/10 transition-all border border-white/5"
             >
-              <div className="p-2 bg-[#3498db]/20 rounded-lg text-[#3498db] group-hover:scale-110 transition-transform">
-                <Envelope size={18} />
-              </div>
+                <div className="p-2 bg-[#3498db]/20 rounded-lg text-[#3498db] group-hover:scale-110 transition-transform">
+                  <Mail size={18} />
+                </div>
               <div className="flex flex-col">
                 <span className="text-[10px] text-white/40 font-bold uppercase">البريد الإلكتروني</span>
                 <span className="text-xs font-bold">info@zoolspeed.com</span>
@@ -92,9 +92,9 @@ export function Footer() {
           <span>جميع الحقوق محفوظة لصالح : شركة زول اسبيد للانشطة المتعددة المحدودة ©️ {new Date().getFullYear()}</span>
         </div>
         
-        <div className="flex items-center gap-6">
-          <span className="text-[10px] font-black text-[#1abc9c] uppercase tracking-tighter">Powered by Zool Systems</span>
-        </div>
+          <div className="flex items-center gap-6">
+            <span className="text-[10px] font-black text-[#1abc9c] uppercase tracking-tighter">Logistics Systems Pro</span>
+          </div>
       </div>
     </footer>
   );

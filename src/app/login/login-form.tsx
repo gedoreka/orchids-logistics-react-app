@@ -69,9 +69,9 @@ export default function LoginForm({ initialEmail = "" }: LoginFormProps) {
           >
             <Truck size={36} />
           </motion.div>
-          <h1 className="text-3xl font-black text-gray-900 mb-2 tracking-tight">
-            ZOOL SYSTEM
-          </h1>
+            <h1 className="text-2xl font-black text-gray-900 mb-2 tracking-tight">
+              Logistics Systems Pro
+            </h1>
           <p className="text-gray-400 font-bold text-xs uppercase tracking-widest">تسجيل الدخول للنظام</p>
         </div>
 

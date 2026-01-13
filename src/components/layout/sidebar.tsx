@@ -132,7 +132,12 @@ export function Sidebar({ userRole, permissions = {} }: SidebarProps) {
     <div className="w-72 h-screen overflow-y-auto bg-gradient-to-b from-[#2c3e50] to-[#34495e] flex flex-col z-50 transition-all duration-300 shadow-xl">
       {/* Header */}
       <div className="p-6 border-b border-white/15 text-center relative backdrop-blur-sm bg-black/20">
-        <h2 className="text-2xl font-black text-white tracking-tight">ZOOL SYSTEM</h2>
+        <div className="flex flex-col items-center gap-2">
+          <div className="bg-[#3498db] p-2 rounded-xl text-white shadow-lg shadow-blue-500/20">
+            <Truck size={28} />
+          </div>
+          <h2 className="text-xl font-black text-white tracking-tight">Logistics Systems Pro</h2>
+        </div>
         <div className="absolute bottom-0 left-1/4 right-1/4 h-0.5 bg-gradient-to-r from-transparent via-[#3498db] to-transparent" />
       </div>
 
