@@ -25,7 +25,9 @@ import {
   Trophy,
   History,
   LayoutDashboard,
-  ArrowRight
+  ArrowRight,
+IdCard,
+PlusCircle
 } from "lucide-react";
 import { format } from "date-fns";
 import { ar } from "date-fns/locale";
@@ -500,24 +502,5 @@ function StatBox({ label, value, color, unit = "" }: any) {
         {unit && <span className="text-xs mr-1">{unit}</span>}
       </div>
     </div>
-  );
-}
-
-function PlusCircle({ size }: { size: number }) {
-  return (
-    <svg 
-      xmlns="http://www.w3.org/2000/svg" 
-      width={size} 
-      height={size} 
-      viewBox="0 0 24 24" 
-      fill="none" 
-      stroke="currentColor" 
-      strokeWidth="2" 
-      strokeLinecap="round" 
-      strokeLinejoin="round" 
-      className="lucide lucide-plus-circle"
-    >
-      <circle cx="12" cy="12" r="10"/><path d="M8 12h8"/><path d="M12 8v8"/>
-    </svg>
-  );
+);
 }
