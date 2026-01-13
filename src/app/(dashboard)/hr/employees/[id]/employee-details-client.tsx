@@ -77,13 +77,13 @@ interface EmployeeDetailsClientProps {
 }
 
 const tabConfig: any = {
-  general: { label: "العامة", icon: User, color: "blue", bg: "bg-blue-500", text: "text-blue-600", light: "bg-blue-100" },
-  bank: { label: "البنك", icon: University, color: "emerald", bg: "bg-emerald-500", text: "text-emerald-600", light: "bg-emerald-100" },
-  documents: { label: "المستندات", icon: FileText, color: "amber", bg: "bg-amber-500", text: "text-amber-600", light: "bg-amber-100" },
-  violations: { label: "المخالفات", icon: OctagonAlert, color: "red", bg: "bg-red-500", text: "text-red-600", light: "bg-red-100" },
-  status: { label: "الإقامة", icon: IdCard, color: "purple", bg: "bg-purple-500", text: "text-purple-600", light: "bg-purple-100" },
-  stats: { label: "الأداء", icon: BarChart3, color: "indigo", bg: "bg-indigo-500", text: "text-indigo-600", light: "bg-indigo-100" },
-  letters: { label: "الخطابات", icon: Mail, color: "rose", bg: "bg-rose-500", text: "text-rose-600", light: "bg-rose-100" },
+  general: { label: "العامة", icon: User, color: "blue", bg: "bg-gradient-to-br from-blue-500 to-blue-700", text: "text-blue-600", light: "bg-blue-50" },
+  bank: { label: "البنك", icon: University, color: "emerald", bg: "bg-gradient-to-br from-emerald-500 to-emerald-700", text: "text-emerald-600", light: "bg-emerald-50" },
+  documents: { label: "المستندات", icon: FileText, color: "amber", bg: "bg-gradient-to-br from-amber-500 to-amber-700", text: "text-amber-600", light: "bg-amber-50" },
+  violations: { label: "المخالفات", icon: OctagonAlert, color: "red", bg: "bg-gradient-to-br from-red-500 to-red-700", text: "text-red-600", light: "bg-red-50" },
+  status: { label: "الإقامة", icon: IdCard, color: "purple", bg: "bg-gradient-to-br from-purple-500 to-purple-700", text: "text-purple-600", light: "bg-purple-50" },
+  stats: { label: "الأداء", icon: BarChart3, color: "indigo", bg: "bg-gradient-to-br from-indigo-500 to-indigo-700", text: "text-indigo-600", light: "bg-indigo-50" },
+  letters: { label: "الخطابات", icon: Mail, color: "rose", bg: "bg-gradient-to-br from-rose-500 to-rose-700", text: "text-rose-600", light: "bg-rose-50" },
 };
 
 export function EmployeeDetailsClient({ 
@@ -358,48 +358,57 @@ export function EmployeeDetailsClient({
                 )}
 
                 {activeTab === "status" && (
-                  <div className="space-y-10 text-right">
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-                      <div className="bg-purple-50 p-8 rounded-3xl border-2 border-purple-100 flex flex-col items-center justify-center gap-4 text-center">
-                        <div className="bg-purple-100 p-4 rounded-2xl text-purple-600">
-                          <Timer size={32} />
-                        </div>
-                        <div>
-                          <p className="text-xs font-black text-purple-400 uppercase tracking-widest mb-1">تاريخ انتهاء الإقامة</p>
-                          <h4 className="text-2xl font-black text-purple-900">{employee.iqama_expiry || '---'}</h4>
-                        </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 pb-8">
+                    <div className="group relative bg-purple-50 p-10 rounded-[2.5rem] border-2 border-purple-100 flex flex-col items-center justify-center gap-6 text-center transition-all hover:shadow-2xl hover:shadow-purple-200/50 hover:-translate-y-2">
+                      <div className="bg-white p-6 rounded-3xl text-purple-600 shadow-xl group-hover:scale-110 transition-transform">
+                        <Timer size={40} />
                       </div>
-                      <div className="bg-blue-50 p-8 rounded-3xl border-2 border-blue-100 flex flex-col items-center justify-center gap-4 text-center">
-                        <div className="bg-blue-100 p-4 rounded-2xl text-blue-600">
-                          <ShieldCheck size={32} />
-                        </div>
-                        <div>
-                          <p className="text-xs font-black text-blue-400 uppercase tracking-widest mb-1">حالة الإقامة</p>
-                          <h4 className="text-2xl font-black text-blue-900">سارية المفعول</h4>
-                        </div>
+                      <div>
+                        <p className="text-xs font-black text-purple-400 uppercase tracking-[0.2em] mb-2">تاريخ انتهاء الإقامة</p>
+                        <h4 className="text-3xl font-black text-purple-900 drop-shadow-sm">{employee.iqama_expiry || '---'}</h4>
                       </div>
-                      <div className="bg-emerald-50 p-8 rounded-3xl border-2 border-emerald-100 flex flex-col items-center justify-center gap-4 text-center">
-                        <div className="bg-emerald-100 p-4 rounded-2xl text-emerald-600">
-                          <CalendarDays size={32} />
-                        </div>
-                        <div>
-                          <p className="text-xs font-black text-emerald-400 uppercase tracking-widest mb-1">تاريخ الإصدار</p>
-                          <h4 className="text-2xl font-black text-emerald-900">---</h4>
-                        </div>
+                      <div className="absolute top-4 right-4 bg-purple-100 text-purple-600 px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest">
+                        هام جداً
                       </div>
                     </div>
-                    
-                    <div className="bg-slate-50 p-8 rounded-3xl border border-gray-100">
-                      <h4 className="text-lg font-black text-gray-900 mb-6 flex items-center gap-3">
-                        <Info size={20} className="text-purple-600" />
-                        ملاحظات إضافية عن الإقامة
-                      </h4>
-                      <p className="text-sm font-bold text-gray-500 leading-relaxed">
-                        يتم تحديث بيانات الإقامة بشكل تلقائي من نظام أبشر. في حال وجود اختلاف في البيانات، يرجى التواصل مع قسم الموارد البشرية.
-                      </p>
+
+                    <div className="group relative bg-blue-50 p-10 rounded-[2.5rem] border-2 border-blue-100 flex flex-col items-center justify-center gap-6 text-center transition-all hover:shadow-2xl hover:shadow-blue-200/50 hover:-translate-y-2">
+                      <div className="bg-white p-6 rounded-3xl text-blue-600 shadow-xl group-hover:scale-110 transition-transform">
+                        <ShieldCheck size={40} />
+                      </div>
+                      <div>
+                        <p className="text-xs font-black text-blue-400 uppercase tracking-[0.2em] mb-2">حالة الإقامة</p>
+                        <h4 className="text-3xl font-black text-blue-900 drop-shadow-sm">سارية المفعول</h4>
+                      </div>
+                      <div className="absolute top-4 right-4 bg-green-100 text-green-600 px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest">
+                        نشط
+                      </div>
+                    </div>
+
+                    <div className="group relative bg-emerald-50 p-10 rounded-[2.5rem] border-2 border-emerald-100 flex flex-col items-center justify-center gap-6 text-center transition-all hover:shadow-2xl hover:shadow-emerald-200/50 hover:-translate-y-2">
+                      <div className="bg-white p-6 rounded-3xl text-emerald-600 shadow-xl group-hover:scale-110 transition-transform">
+                        <CalendarDays size={40} />
+                      </div>
+                      <div>
+                        <p className="text-xs font-black text-emerald-400 uppercase tracking-[0.2em] mb-2">تاريخ الإصدار</p>
+                        <h4 className="text-3xl font-black text-emerald-900 drop-shadow-sm">---</h4>
+                      </div>
+                    </div>
+
+                    <div className="col-span-full bg-slate-50 p-10 rounded-[2.5rem] border-2 border-gray-100 flex items-start gap-8 mt-4 shadow-sm">
+                      <div className="bg-white p-5 rounded-3xl text-purple-600 shadow-lg border border-purple-50">
+                        <Info size={32} />
+                      </div>
+                      <div className="space-y-3">
+                        <h4 className="text-xl font-black text-gray-900">تعليمات وإشعارات الإقامة</h4>
+                        <p className="text-sm font-bold text-gray-500 leading-relaxed max-w-3xl">
+                          يتم تحديث بيانات الإقامة بشكل تلقائي من نظام أبشر الموحد. في حال وجود اختلاف في البيانات المعروضة، يرجى التواصل فوراً مع قسم الموارد البشرية لتحديث السجلات يدوياً. تأكد دائماً من سريان مفعول الإقامة لتجنب الغرامات المالية.
+                        </p>
+                      </div>
                     </div>
                   </div>
                 )}
+
 
                 {activeTab === "violations" && (
                   <div className="space-y-10">
@@ -565,30 +574,34 @@ function TabButton({ id, icon, label, active, onClick, config }: any) {
   );
 }
 
-function InfoField({ label, value, onChange, editable, type = "text", className = "", icon }: any) {
-  return (
-    <div className={`space-y-3 ${className} group`}>
-      <label className="text-[10px] font-black text-gray-400 mr-2 flex items-center gap-2.5 uppercase tracking-widest group-hover:text-blue-500 transition-colors">
-        <div className="bg-gray-50 p-1.5 rounded-lg text-gray-400 group-hover:bg-blue-50 group-hover:text-blue-500 transition-all shadow-sm">
-          {icon}
+  function InfoField({ label, value, onChange, editable, type = "text", className = "", icon }: any) {
+    return (
+      <div className={`group relative bg-slate-50/50 p-6 rounded-[2.5rem] border-2 border-gray-50 hover:border-blue-100 transition-all duration-300 hover:shadow-xl hover:shadow-blue-500/5 ${className}`}>
+        <div className="flex items-center gap-3 mb-6">
+          <div className="bg-white p-3 rounded-2xl text-gray-400 group-hover:text-blue-500 group-hover:scale-110 transition-all shadow-sm border border-gray-50">
+            {icon}
+          </div>
+          <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] group-hover:text-blue-600 transition-colors">
+            {label}
+          </label>
         </div>
-        {label}
-      </label>
-      {editable ? (
-        <input
-          type={type}
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-          className="w-full bg-slate-50/50 border-2 border-gray-100 rounded-2xl py-4 px-6 text-xs font-black text-gray-800 focus:border-blue-400 focus:ring-8 focus:ring-blue-50 outline-none transition-all shadow-sm"
-        />
-      ) : (
-        <div className="w-full bg-white border-2 border-gray-50 rounded-2xl py-4 px-6 text-xs font-black text-gray-900 min-h-[56px] flex items-center shadow-sm group-hover:shadow-md transition-all group-hover:border-blue-50">
-          {value || '---'}
-        </div>
-      )}
-    </div>
-  );
-}
+        
+        {editable ? (
+          <input
+            type={type}
+            value={value}
+            onChange={(e) => onChange(e.target.value)}
+            className="w-full bg-white border-2 border-gray-100 rounded-2xl py-4 px-6 text-sm font-black text-gray-800 focus:border-blue-400 focus:ring-8 focus:ring-blue-50 outline-none transition-all shadow-sm"
+          />
+        ) : (
+          <div className="w-full bg-white/80 border-2 border-transparent rounded-2xl py-4 px-6 text-sm font-black text-gray-900 min-h-[64px] flex items-center shadow-inner group-hover:bg-white transition-all">
+            {value || '---'}
+          </div>
+        )}
+      </div>
+    );
+  }
+
 
 function DocumentCard({ label, path }: any) {
   const imageUrl = getPublicUrl(path);
