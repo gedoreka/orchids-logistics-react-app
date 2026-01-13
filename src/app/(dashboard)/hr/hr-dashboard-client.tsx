@@ -38,7 +38,7 @@ interface HRDashboardClientProps {
 
 export function HRDashboardClient({ stats, activePackages, recentEmployees, companyName }: HRDashboardClientProps) {
   return (
-    <div className="space-y-6 pb-20 max-w-[1400px] mx-auto px-4">
+    <div className="space-y-6 pb-20 max-w-[1600px] mx-auto px-4">
       {/* Header */}
       <div className="relative overflow-hidden bg-gradient-to-br from-[#2c3e50] to-[#34495e] rounded-[2rem] p-8 text-white shadow-2xl">
         <div className="relative z-10 space-y-6">
