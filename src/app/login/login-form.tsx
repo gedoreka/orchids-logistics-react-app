@@ -10,8 +10,10 @@ import {
   EyeOff, 
   AlertTriangle, 
   LogIn, 
-  ArrowLeft,
-  ChevronLeft
+  ChevronLeft,
+  ShieldCheck,
+  Globe,
+  BarChart3
 } from "lucide-react";
 import Link from "next/link";
 import { loginAction } from "@/lib/actions/auth";
@@ -47,129 +49,192 @@ export default function LoginForm({ initialEmail = "" }: LoginFormProps) {
       router.push("/dashboard");
       router.refresh();
     } else {
-      setError(result.error || "حدث خطأ ما");
+      setError(result.error || "حدث خطأ ما في البيانات");
       setIsLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen w-full flex items-center justify-center p-4 bg-[#f8fafc]">
-      <motion.div
-        initial={{ opacity: 0, scale: 0.98 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.4 }}
-        className="w-full max-w-[380px] bg-white rounded-2xl p-8 shadow-sm border border-gray-100 relative overflow-hidden"
-      >
-        <div className="relative z-10 mb-8 text-center">
-          <motion.div 
-            whileHover={{ scale: 1.05 }}
-            className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-xl bg-[#2c3e50] text-white shadow-lg"
+    <div className="min-h-screen w-full flex bg-white overflow-hidden">
+      {/* Left Side: Visual/Branding (Hidden on mobile) */}
+      <div className="hidden lg:flex lg:w-1/2 relative bg-[#1e293b] items-center justify-center p-12 overflow-hidden">
+        {/* Background Pattern/Overlay */}
+        <div className="absolute inset-0 opacity-20 pointer-events-none">
+          <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_50%_50%,#3b82f6,transparent_70%)]" />
+          <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?q=80&w=2070&auto=format&fit=crop')] bg-cover bg-center mix-blend-overlay grayscale" />
+        </div>
+
+        <div className="relative z-10 w-full max-w-md">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+            className="space-y-8"
           >
-            <Truck size={28} />
+            <div className="flex items-center gap-3">
+              <div className="h-12 w-12 rounded-xl bg-blue-600 flex items-center justify-center text-white shadow-xl shadow-blue-500/20">
+                <Truck size={28} />
+              </div>
+              <h2 className="text-3xl font-black text-white tracking-tight">ZoolSpeed</h2>
+            </div>
+
+            <div className="space-y-6">
+              <h1 className="text-5xl font-black text-white leading-[1.1]">
+                نظام إدارة <br />
+                <span className="text-blue-500">اللوجستيات المتطور</span>
+              </h1>
+              <p className="text-gray-400 text-lg font-medium leading-relaxed">
+                تحكم كامل في أسطولك، موظفيك، وعملياتك من خلال لوحة تحكم واحدة ذكية واحترافية.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4 pt-4">
+              {[
+                { icon: ShieldCheck, label: "أمان عالي" },
+                { icon: BarChart3, label: "تقارير ذكية" },
+                { icon: Globe, label: "تغطية شاملة" },
+                { icon: Truck, label: "تتبع لحظي" }
+              ].map((item, i) => (
+                <div key={i} className="flex items-center gap-2 text-gray-300 bg-white/5 backdrop-blur-sm border border-white/10 rounded-lg p-3">
+                  <item.icon size={18} className="text-blue-500" />
+                  <span className="text-sm font-bold">{item.label}</span>
+                </div>
+              ))}
+            </div>
           </motion.div>
-          <h1 className="text-xl font-black text-gray-900 mb-1 tracking-tight">
-            Logistics Systems Pro
-          </h1>
-          <p className="text-gray-400 font-bold text-[10px] uppercase tracking-widest">تسجيل الدخول للنظام</p>
         </div>
 
-        <AnimatePresence>
-          {error && (
-            <motion.div
-              initial={{ opacity: 0, y: -5 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -5 }}
-              className="mb-6 flex items-center gap-2 rounded-lg bg-red-50 p-3 text-red-600 border border-red-100"
-            >
-              <AlertTriangle size={16} />
-              <span className="text-[11px] font-bold">{error}</span>
-            </motion.div>
-          )}
-        </AnimatePresence>
+        {/* Decorative Elements */}
+        <div className="absolute bottom-10 left-10 text-gray-500 text-xs font-bold uppercase tracking-[0.2em]">
+          Powered by ZoolSpeed Systems © 2026
+        </div>
+      </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4 text-right" dir="rtl">
-          <div className="space-y-1.5">
-            <label className="text-[9px] font-black text-gray-400 uppercase tracking-widest mr-1">
-              البريد الإلكتروني
-            </label>
-            <input
-              type="email"
-              required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="name@company.com"
-              className="w-full rounded-xl border border-gray-100 bg-gray-50/50 py-3 px-4 text-xs font-bold text-gray-900 placeholder:text-gray-300 focus:bg-white focus:ring-2 focus:ring-[#3498db]/20 focus:border-[#3498db] outline-none transition-all duration-200"
-            />
+      {/* Right Side: Login Form */}
+      <div className="w-full lg:w-1/2 flex items-center justify-center p-6 sm:p-12 relative">
+        <div className="w-full max-w-[420px]">
+          {/* Mobile Header */}
+          <div className="lg:hidden mb-10 text-center">
+            <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-blue-600 text-white shadow-lg">
+              <Truck size={26} />
+            </div>
+            <h1 className="text-2xl font-black text-slate-900 mb-1">ZoolSpeed</h1>
+            <p className="text-slate-400 font-bold text-xs uppercase tracking-widest">إدارة اللوجستيات الذكية</p>
           </div>
 
-          <div className="space-y-1.5">
-            <div className="flex items-center justify-between px-1">
-              <label className="text-[9px] font-black text-gray-400 uppercase tracking-widest">
-                كلمة المرور
-              </label>
-              <Link href="/forgot-password" title="نسيت كلمة المرور؟" className="text-[9px] font-black text-[#3498db] hover:underline">
-                نسيت كلمة المرور؟
-              </Link>
-            </div>
-            <div className="relative group">
-              <input
-                type={showPassword ? "text" : "password"}
-                required
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="••••••••"
-                className="w-full rounded-xl border border-gray-100 bg-gray-50/50 py-3 px-4 text-xs font-bold text-gray-900 placeholder:text-gray-300 focus:bg-white focus:ring-2 focus:ring-[#3498db]/20 focus:border-[#3498db] outline-none transition-all duration-200"
-              />
-              <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-300 hover:text-gray-600 transition-colors"
+          <div className="mb-10 text-right" dir="rtl">
+            <h2 className="text-3xl font-black text-slate-900 mb-2">مرحباً بك مجدداً</h2>
+            <p className="text-slate-500 font-medium text-sm">أدخل بياناتك للوصول إلى لوحة التحكم الخاصة بك</p>
+          </div>
+
+          <AnimatePresence>
+            {error && (
+              <motion.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                className="mb-8 flex items-center gap-3 rounded-xl bg-red-50 p-4 text-red-600 border border-red-100 text-right"
+                dir="rtl"
               >
-                {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
-              </button>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-2 px-1">
-            <input
-              type="checkbox"
-              id="remember"
-              checked={remember}
-              onChange={(e) => setRemember(e.target.checked)}
-              className="h-3.5 w-3.5 rounded border-gray-200 text-[#2c3e50] focus:ring-0 focus:ring-offset-0"
-            />
-            <label htmlFor="remember" className="text-[11px] font-bold text-gray-500 cursor-pointer select-none">
-              تذكرني في المرة القادمة
-            </label>
-          </div>
-
-          <button
-            type="submit"
-            disabled={isLoading}
-            className="w-full rounded-xl bg-[#2c3e50] py-3 text-white font-black text-sm shadow-md shadow-gray-200 hover:bg-[#1a252f] transition-all disabled:opacity-70 flex items-center justify-center gap-2"
-          >
-            {isLoading ? (
-              <div className="h-5 w-5 animate-spin rounded-full border-2 border-white/30 border-t-white" />
-            ) : (
-              <>
-                <LogIn size={18} />
-                دخول للنظام
-              </>
+                <AlertTriangle size={20} className="shrink-0" />
+                <span className="text-sm font-bold">{error}</span>
+              </motion.div>
             )}
-          </button>
-        </form>
+          </AnimatePresence>
 
-        <div className="mt-8 pt-6 border-t border-gray-50 text-center">
-          <p className="mb-2 text-[10px] font-bold text-gray-400">ليس لديك حساب منشأة؟</p>
-          <Link
-            href="/register"
-            className="inline-flex items-center gap-1.5 text-xs font-black text-[#3498db] group"
-          >
-            إنشاء حساب جديد
-            <ChevronLeft size={14} className="group-hover:-translate-x-1 transition-transform" />
-          </Link>
+          <form onSubmit={handleSubmit} className="space-y-6 text-right" dir="rtl">
+            <div className="space-y-2">
+              <label className="text-xs font-bold text-slate-500 mr-1">البريد الإلكتروني</label>
+              <div className="relative group">
+                <div className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-blue-600 transition-colors">
+                  <Mail size={18} />
+                </div>
+                <input
+                  type="email"
+                  required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="name@company.com"
+                  className="w-full rounded-xl border border-slate-200 bg-slate-50/50 py-3.5 pr-12 pl-4 text-sm font-bold text-slate-900 placeholder:text-slate-300 focus:bg-white focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all duration-200"
+                />
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <div className="flex items-center justify-between px-1">
+                <label className="text-xs font-bold text-slate-500">كلمة المرور</label>
+                <Link href="/forgot-password" underline="none" className="text-xs font-bold text-blue-600 hover:text-blue-700 transition-colors">
+                  نسيت كلمة المرور؟
+                </Link>
+              </div>
+              <div className="relative group">
+                <div className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-blue-600 transition-colors">
+                  <Lock size={18} />
+                </div>
+                <input
+                  type={showPassword ? "text" : "password"}
+                  required
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="••••••••"
+                  className="w-full rounded-xl border border-slate-200 bg-slate-50/50 py-3.5 pr-12 pl-12 text-sm font-bold text-slate-900 placeholder:text-slate-300 focus:bg-white focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all duration-200"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
+                >
+                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2 px-1">
+              <input
+                type="checkbox"
+                id="remember"
+                checked={remember}
+                onChange={(e) => setRemember(e.target.checked)}
+                className="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500 focus:ring-offset-0"
+              />
+              <label htmlFor="remember" className="text-sm font-bold text-slate-500 cursor-pointer select-none">
+                تذكرني في المرة القادمة
+              </label>
+            </div>
+
+            <button
+              type="submit"
+              disabled={isLoading}
+              className="w-full rounded-xl bg-blue-600 py-4 text-white font-black text-base shadow-xl shadow-blue-500/20 hover:bg-blue-700 active:scale-[0.98] transition-all disabled:opacity-70 flex items-center justify-center gap-2"
+            >
+              {isLoading ? (
+                <div className="h-6 w-6 animate-spin rounded-full border-3 border-white/30 border-t-white" />
+              ) : (
+                <>
+                  <LogIn size={20} />
+                  تسجيل الدخول
+                </>
+              )}
+            </button>
+          </form>
+
+          <div className="mt-12 pt-8 border-t border-slate-100 text-center">
+            <p className="mb-4 text-sm font-medium text-slate-400">ليس لديك حساب منشأة؟</p>
+            <Link
+              href="/register"
+              className="inline-flex items-center gap-2 py-2.5 px-6 rounded-xl border border-slate-200 text-sm font-black text-slate-900 hover:bg-slate-50 transition-all group"
+            >
+              إنشاء حساب جديد
+              <ChevronLeft size={16} className="group-hover:-translate-x-1 transition-transform" />
+            </Link>
+          </div>
         </div>
-      </motion.div>
+
+        {/* Mobile Footer Decor */}
+        <div className="absolute bottom-6 left-0 right-0 lg:hidden text-center text-[10px] font-bold text-slate-300 uppercase tracking-widest">
+          ZoolSpeed Logistics Systems © 2026
+        </div>
+      </div>
     </div>
   );
 }
