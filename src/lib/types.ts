@@ -43,3 +43,20 @@ export interface ResetToken {
   token: string;
   created_at: string;
 }
+
+export interface Account {
+  id: number;
+  account_code: string;
+  account_name: string;
+  type: string;
+  company_id: number;
+  created_at: string;
+}
+
+export interface CostCenter {
+  id: number;
+  center_code: string;
+  center_name: string;
+  company_id: number;
+  created_at: string;
+}
