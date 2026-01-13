@@ -7,20 +7,19 @@ import {
   MapPin, 
   University, 
   FileCheck, 
-  User, 
   Mail, 
   Lock, 
   Phone, 
   Globe, 
   Upload, 
-  SendHorizontal,
   CreditCard,
-  Stamp,
-  Signature,
   Calendar,
   CheckCircle2,
-  ArrowRight,
   ChevronLeft,
+  Truck,
+  ShieldCheck,
+  BarChart3,
+  ArrowRight,
   Briefcase
 } from "lucide-react";
 import Link from "next/link";
@@ -41,7 +40,6 @@ export default function RegisterForm() {
   const [success, setSuccess] = useState(false);
   const [step, setStep] = useState(1);
   const [country, setCountry] = useState("");
-  const [region, setRegion] = useState("");
   const router = useRouter();
 
   const totalSteps = 4;
@@ -50,7 +48,6 @@ export default function RegisterForm() {
     e.preventDefault();
     if (step < totalSteps) {
       setStep(step + 1);
-      window.scrollTo({ top: 0, behavior: 'smooth' });
       return;
     }
 
@@ -69,24 +66,24 @@ export default function RegisterForm() {
 
   if (success) {
     return (
-      <div className="min-h-screen w-full flex items-center justify-center p-6 bg-[#fdfdfd]" dir="rtl">
+      <div className="min-h-screen w-full flex items-center justify-center p-6 bg-white" dir="rtl">
         <motion.div 
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
-          className="w-full max-w-xl bg-white rounded-[40px] p-12 shadow-2xl border border-gray-50 text-center"
+          className="w-full max-w-xl bg-white rounded-[40px] p-12 shadow-2xl border border-slate-100 text-center"
         >
-          <div className="mx-auto mb-8 flex h-24 w-24 items-center justify-center rounded-full bg-green-50 text-green-500 shadow-inner">
+          <div className="mx-auto mb-8 flex h-24 w-24 items-center justify-center rounded-3xl bg-green-50 text-green-500 shadow-inner">
             <CheckCircle2 size={48} />
           </div>
-          <h1 className="text-3xl font-black text-gray-900 mb-6">طلبك قيد المراجعة</h1>
-          <p className="text-gray-500 font-bold text-lg mb-10 leading-relaxed">
+          <h1 className="text-3xl font-black text-slate-900 mb-6">طلبك قيد المراجعة</h1>
+          <p className="text-slate-500 font-bold text-lg mb-10 leading-relaxed">
             تم استلام بيانات منشأتك بنجاح. سيقوم فريق التدقيق بمراجعة طلبك وتفعيل الحساب خلال الساعات القادمة.
           </p>
           <Link 
             href="/login" 
-            className="inline-flex items-center gap-2 px-10 py-4 bg-[#2c3e50] text-white rounded-2xl font-black hover:bg-[#1a252f] transition-all shadow-xl shadow-gray-200"
+            className="inline-flex items-center gap-2 px-10 py-4 bg-blue-600 text-white rounded-2xl font-black hover:bg-blue-700 transition-all shadow-xl shadow-blue-500/20"
           >
-            العودة للرئيسية
+            العودة لتسجيل الدخول
             <ArrowRight size={20} className="rotate-180" />
           </Link>
         </motion.div>
@@ -95,181 +92,228 @@ export default function RegisterForm() {
   }
 
   return (
-    <div className="min-h-screen w-full py-16 px-6 flex flex-col items-center" dir="rtl">
-      {/* Refined Header */}
-      <div className="w-full max-w-4xl text-center mb-12">
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#3498db]/10 text-[#3498db] text-[10px] font-black uppercase tracking-widest mb-6"
-        >
-          <Briefcase size={12} />
-          نظام إدارة المنشآت المتطور
-        </motion.div>
-        <h1 className="text-4xl font-black text-gray-900 mb-4 tracking-tight">تسجيل منشأة جديدة</h1>
-        <p className="text-gray-500 font-bold">خطوات بسيطة للانضمام إلى أقوى نظام لوجستي</p>
-      </div>
-
-      <div className="w-full max-w-4xl">
-        {/* Progress Bar */}
-        <div className="flex items-center justify-between mb-12 px-2">
-          {[1, 2, 3, 4].map((s) => (
-            <React.Fragment key={s}>
-              <div className="flex flex-col items-center gap-3 relative">
-                <div className={cn(
-                  "w-12 h-12 rounded-2xl flex items-center justify-center font-black text-sm transition-all duration-500 border-2",
-                  step >= s ? "bg-[#2c3e50] border-[#2c3e50] text-white shadow-lg shadow-gray-200" : "bg-white border-gray-100 text-gray-300"
-                )}>
-                  {step > s ? <CheckCircle2 size={20} /> : s}
-                </div>
-                <span className={cn("text-[10px] font-black absolute -bottom-6 whitespace-nowrap", step >= s ? "text-[#2c3e50]" : "text-gray-300")}>
-                  {s === 1 ? "البيانات الأساسية" : s === 2 ? "الموقع والبنك" : s === 3 ? "التراخيص" : "الحساب"}
-                </span>
-              </div>
-              {s < 4 && <div className={cn("flex-1 h-0.5 mx-4 rounded-full transition-all duration-700", step > s ? "bg-[#2c3e50]" : "bg-gray-100")} />}
-            </React.Fragment>
-          ))}
+    <div className="min-h-screen w-full flex bg-white overflow-hidden">
+      {/* Left Side: Branding (Visible on lg) */}
+      <div className="hidden lg:flex lg:w-1/3 relative bg-[#1e293b] items-center justify-center p-12 overflow-hidden">
+        <div className="absolute inset-0 opacity-20 pointer-events-none">
+          <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_50%_50%,#3b82f6,transparent_70%)]" />
+          <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?q=80&w=2070&auto=format&fit=crop')] bg-cover bg-center mix-blend-overlay grayscale" />
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-8">
-          <AnimatePresence mode="wait">
-            {step === 1 && (
-              <motion.div
-                key="step1"
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -20 }}
-                className="bg-white/80 backdrop-blur-xl rounded-[40px] p-10 border border-white shadow-sm"
-              >
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div className="relative z-10 w-full max-w-md">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+            className="space-y-8"
+          >
+            <div className="flex items-center gap-3">
+              <div className="h-12 w-12 rounded-xl bg-blue-600 flex items-center justify-center text-white shadow-xl shadow-blue-500/20">
+                <Truck size={28} />
+              </div>
+              <h2 className="text-2xl font-black text-white tracking-tight">Logistics Systems Pro</h2>
+            </div>
+
+            <div className="space-y-6">
+              <h1 className="text-4xl font-black text-white leading-[1.1]">
+                انضم إلى مستقبل <br />
+                <span className="text-blue-500">إدارة اللوجستيات</span>
+              </h1>
+              <p className="text-gray-400 text-lg font-medium leading-relaxed">
+                أنشئ حساب منشأتك الآن وابدأ في تحويل عملياتك اللوجستية إلى تجربة رقمية متكاملة واحترافية.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 gap-4 pt-4">
+              {[
+                { icon: ShieldCheck, label: "أمان وموثوقية عالية" },
+                { icon: BarChart3, label: "تحليلات وتقارير متقدمة" },
+                { icon: Globe, label: "دعم محلي ودولي واسع" },
+                { icon: Briefcase, label: "إدارة شاملة للموارد" }
+              ].map((item, i) => (
+                <div key={i} className="flex items-center gap-3 text-gray-300 bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-4">
+                  <item.icon size={20} className="text-blue-500" />
+                  <span className="text-sm font-bold">{item.label}</span>
+                </div>
+              ))}
+            </div>
+          </motion.div>
+        </div>
+      </div>
+
+      {/* Right Side: Register Form */}
+      <div className="w-full lg:w-2/3 flex flex-col items-center justify-center p-6 sm:p-12 relative overflow-y-auto">
+        <div className="w-full max-w-2xl">
+          {/* Mobile Header */}
+          <div className="lg:hidden mb-10 text-center">
+            <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-blue-600 text-white shadow-lg">
+              <Truck size={26} />
+            </div>
+            <h1 className="text-2xl font-black text-slate-900 mb-1">Logistics Systems Pro</h1>
+          </div>
+
+          <div className="mb-10 text-right" dir="rtl">
+            <h2 className="text-3xl font-black text-slate-900 mb-2">إنشاء حساب منشأة جديد</h2>
+            <p className="text-slate-500 font-medium text-sm">أكمل الخطوات التالية لتسجيل مؤسستك في النظام</p>
+          </div>
+
+          {/* Enhanced Progress Bar */}
+          <div className="flex items-center justify-between mb-12 px-2" dir="rtl">
+            {[1, 2, 3, 4].map((s) => (
+              <React.Fragment key={s}>
+                <div className="flex flex-col items-center gap-3 relative">
+                  <div className={cn(
+                    "w-12 h-12 rounded-2xl flex items-center justify-center font-black text-sm transition-all duration-500 border-2",
+                    step >= s ? "bg-blue-600 border-blue-600 text-white shadow-lg shadow-blue-200" : "bg-white border-slate-100 text-slate-300"
+                  )}>
+                    {step > s ? <CheckCircle2 size={20} /> : s}
+                  </div>
+                  <span className={cn("text-[10px] font-black absolute -bottom-6 whitespace-nowrap", step >= s ? "text-slate-900" : "text-slate-300")}>
+                    {s === 1 ? "البيانات الأساسية" : s === 2 ? "الموقع والبنك" : s === 3 ? "التراخيص" : "الحساب"}
+                  </span>
+                </div>
+                {s < 4 && <div className={cn("flex-1 h-1 mx-4 rounded-full transition-all duration-700", step > s ? "bg-blue-600" : "bg-slate-100")} />}
+              </React.Fragment>
+            ))}
+          </div>
+
+          <form onSubmit={handleSubmit} className="space-y-8" dir="rtl">
+            <AnimatePresence mode="wait">
+              {step === 1 && (
+                <motion.div
+                  key="step1"
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -20 }}
+                  className="grid grid-cols-1 md:grid-cols-2 gap-6"
+                >
                   <InputField label="اسم المنشأة" name="name" icon={Building2} required />
                   <InputField label="رقم السجل التجاري" name="commercial_number" icon={FileCheck} required />
                   <InputField label="الرقم الضريبي" name="vat_number" icon={CreditCard} />
                   <InputField label="رقم الهاتف" name="phone" icon={Phone} />
-                  <div className="space-y-3">
-                    <label className="text-xs font-black text-gray-400 uppercase tracking-wider flex items-center gap-2">
-                      <CreditCard size={14} className="text-[#3498db]" />
+                  <div className="space-y-2">
+                    <label className="text-xs font-bold text-slate-500 mr-1 flex items-center gap-2">
+                      <CreditCard size={14} className="text-blue-500" />
                       العملة المفضلة
                     </label>
-                    <select name="currency" required className="w-full rounded-2xl border-none bg-gray-50/50 py-4 px-4 text-sm font-bold text-gray-900 focus:ring-2 focus:ring-[#3498db]/20 outline-none transition-all">
+                    <select name="currency" required className="w-full rounded-xl border border-slate-200 bg-slate-50/50 py-3.5 px-4 text-sm font-bold text-slate-900 focus:bg-white focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all">
                       <option value="SAR">ريال سعودي (SAR)</option>
                       <option value="USD">دولار أمريكي (USD)</option>
                       <option value="AED">درهم إماراتي (AED)</option>
                     </select>
                   </div>
                   <FileUploadField label="شعار المنشأة" name="logo_path" icon={Upload} />
-                </div>
-              </motion.div>
-            )}
+                </motion.div>
+              )}
 
-            {step === 2 && (
-              <motion.div
-                key="step2"
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -20 }}
-                className="bg-white/80 backdrop-blur-xl rounded-[40px] p-10 border border-white shadow-sm"
-              >
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                  <div className="space-y-3">
-                    <label className="text-xs font-black text-gray-400 uppercase tracking-wider flex items-center gap-2">
-                      <Globe size={14} className="text-[#3498db]" />
+              {step === 2 && (
+                <motion.div
+                  key="step2"
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -20 }}
+                  className="grid grid-cols-1 md:grid-cols-2 gap-6"
+                >
+                  <div className="space-y-2">
+                    <label className="text-xs font-bold text-slate-500 mr-1 flex items-center gap-2">
+                      <Globe size={14} className="text-blue-500" />
                       الدولة
                     </label>
-                    <select name="country" required onChange={(e) => setCountry(e.target.value)} className="w-full rounded-2xl border-none bg-gray-50/50 py-4 px-4 text-sm font-bold text-gray-900 focus:ring-2 focus:ring-[#3498db]/20 outline-none transition-all">
+                    <select name="country" required onChange={(e) => setCountry(e.target.value)} className="w-full rounded-xl border border-slate-200 bg-slate-50/50 py-3.5 px-4 text-sm font-bold text-slate-900 focus:bg-white focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all">
                       <option value="">اختر الدولة</option>
                       {countries.map(c => <option key={c} value={c}>{c}</option>)}
                     </select>
                   </div>
-                  <div className="space-y-3">
-                    <label className="text-xs font-black text-gray-400 uppercase tracking-wider flex items-center gap-2">
-                      <MapPin size={14} className="text-[#3498db]" />
+                  <div className="space-y-2">
+                    <label className="text-xs font-bold text-slate-500 mr-1 flex items-center gap-2">
+                      <MapPin size={14} className="text-blue-500" />
                       المنطقة
                     </label>
-                    <select name="region" required className="w-full rounded-2xl border-none bg-gray-50/50 py-4 px-4 text-sm font-bold text-gray-900 focus:ring-2 focus:ring-[#3498db]/20 outline-none transition-all">
+                    <select name="region" required className="w-full rounded-xl border border-slate-200 bg-slate-50/50 py-3.5 px-4 text-sm font-bold text-slate-900 focus:bg-white focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all">
                       <option value="">اختر المنطقة</option>
                       {country && regions[country]?.map(r => <option key={r} value={r}>{r}</option>)}
                     </select>
                   </div>
                   <InputField label="اسم البنك" name="bank_name" icon={University} className="md:col-span-2" />
                   <InputField label="رقم الآيبان" name="bank_iban" icon={CreditCard} className="md:col-span-2" />
-                </div>
-              </motion.div>
-            )}
+                </motion.div>
+              )}
 
-            {step === 3 && (
-              <motion.div
-                key="step3"
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -20 }}
-                className="bg-white/80 backdrop-blur-xl rounded-[40px] p-10 border border-white shadow-sm"
-              >
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              {step === 3 && (
+                <motion.div
+                  key="step3"
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -20 }}
+                  className="grid grid-cols-1 md:grid-cols-2 gap-6"
+                >
                   <InputField label="رقم ترخيص النقل" name="transport_license_number" icon={FileCheck} />
                   <InputField label="نوع الترخيص" name="transport_license_type" icon={FileCheck} />
-                  <div className="grid grid-cols-2 gap-4 md:col-span-2">
-                    <InputField label="بداية الترخيص" name="license_start" type="date" icon={Calendar} />
-                    <InputField label="نهاية الترخيص" name="license_end" type="date" icon={Calendar} />
-                  </div>
+                  <InputField label="بداية الترخيص" name="license_start" type="date" icon={Calendar} />
+                  <InputField label="نهاية الترخيص" name="license_end" type="date" icon={Calendar} />
                   <FileUploadField label="صورة الترخيص" name="license_image" icon={Upload} className="md:col-span-2" />
-                </div>
-              </motion.div>
-            )}
+                </motion.div>
+              )}
 
-            {step === 4 && (
-              <motion.div
-                key="step4"
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -20 }}
-                className="bg-white/80 backdrop-blur-xl rounded-[40px] p-10 border border-white shadow-sm"
-              >
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              {step === 4 && (
+                <motion.div
+                  key="step4"
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -20 }}
+                  className="grid grid-cols-1 md:grid-cols-2 gap-6"
+                >
                   <InputField label="البريد الإلكتروني للإدارة" name="user_email" type="email" icon={Mail} required />
-                  <div />
+                  <div className="hidden md:block" />
                   <InputField label="كلمة المرور" name="password" type="password" icon={Lock} required />
                   <InputField label="تأكيد كلمة المرور" name="confirm_password" type="password" icon={Lock} required />
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
-
-          <div className="flex items-center justify-between pt-6">
-            {step > 1 && (
-              <button
-                type="button"
-                onClick={() => setStep(step - 1)}
-                className="flex items-center gap-2 px-8 py-4 rounded-2xl bg-white text-gray-500 font-black hover:text-gray-900 transition-all border border-gray-100 shadow-sm"
-              >
-                السابق
-              </button>
-            )}
-            
-            <button
-              type="submit"
-              disabled={isLoading}
-              className={cn(
-                "flex items-center justify-center gap-3 px-12 py-4 rounded-2xl font-black text-lg transition-all shadow-xl disabled:opacity-70",
-                step === totalSteps ? "bg-green-600 text-white shadow-green-100 hover:bg-green-700" : "bg-[#2c3e50] text-white shadow-gray-100 hover:bg-[#1a252f] mr-auto"
+                </motion.div>
               )}
-            >
-              {isLoading ? (
-                <div className="h-6 w-6 animate-spin rounded-full border-2 border-white/30 border-t-white" />
+            </AnimatePresence>
+
+            <div className="flex items-center justify-between pt-6">
+              {step > 1 ? (
+                <button
+                  type="button"
+                  onClick={() => setStep(step - 1)}
+                  className="flex items-center gap-2 px-8 py-4 rounded-xl border border-slate-200 text-slate-600 font-black hover:bg-slate-50 transition-all"
+                >
+                  السابق
+                </button>
               ) : (
-                <>
-                  {step === totalSteps ? "إكمال التسجيل" : "التالي"}
-                  <ChevronLeft size={20} className={cn("transition-transform", step === totalSteps && "rotate-180")} />
-                </>
+                <div />
               )}
-            </button>
-          </div>
-        </form>
+              
+              <button
+                type="submit"
+                disabled={isLoading}
+                className={cn(
+                  "flex items-center justify-center gap-3 px-12 py-4 rounded-xl font-black text-base transition-all shadow-xl disabled:opacity-70",
+                  step === totalSteps ? "bg-green-600 text-white shadow-green-500/20 hover:bg-green-700" : "bg-blue-600 text-white shadow-blue-500/20 hover:bg-blue-700"
+                )}
+              >
+                {isLoading ? (
+                  <div className="h-6 w-6 animate-spin rounded-full border-3 border-white/30 border-t-white" />
+                ) : (
+                  <>
+                    {step === totalSteps ? "إكمال التسجيل" : "التالي"}
+                    <ChevronLeft size={20} className={cn("transition-transform", step === totalSteps && "rotate-180")} />
+                  </>
+                )}
+              </button>
+            </div>
+          </form>
 
-        <p className="mt-12 text-center text-gray-400 font-bold">
-          هل لديك حساب بالفعل؟{" "}
-          <Link href="/login" className="text-[#3498db] hover:underline transition-all">تسجيل الدخول</Link>
-        </p>
+          <div className="mt-12 pt-8 border-t border-slate-100 text-center">
+            <p className="mb-4 text-sm font-medium text-slate-400">هل لديك حساب بالفعل؟</p>
+            <Link
+              href="/login"
+              className="inline-flex items-center gap-2 py-2.5 px-6 rounded-xl border border-slate-200 text-sm font-black text-slate-900 hover:bg-slate-50 transition-all"
+            >
+              تسجيل الدخول
+            </Link>
+          </div>
+        </div>
       </div>
     </div>
   );
@@ -277,15 +321,15 @@ export default function RegisterForm() {
 
 function InputField({ label, icon: Icon, className = "", ...props }: any) {
   return (
-    <div className={cn("space-y-3", className)}>
-      <label className="text-xs font-black text-gray-400 uppercase tracking-wider flex items-center gap-2">
-        {Icon && <Icon size={14} className="text-[#3498db]" />}
+    <div className={cn("space-y-2", className)}>
+      <label className="text-xs font-bold text-slate-500 mr-1 flex items-center gap-2">
+        {Icon && <Icon size={14} className="text-blue-500" />}
         {label}
       </label>
       <div className="relative group">
         <input
           {...props}
-          className="w-full rounded-2xl border-none bg-gray-50/50 py-4 px-4 text-sm font-bold text-gray-900 placeholder:text-gray-300 focus:bg-white focus:ring-2 focus:ring-[#3498db]/20 outline-none transition-all duration-300"
+          className="w-full rounded-xl border border-slate-200 bg-slate-50/50 py-3.5 px-4 text-sm font-bold text-slate-900 placeholder:text-slate-300 focus:bg-white focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all duration-200"
         />
       </div>
     </div>
@@ -296,18 +340,18 @@ function FileUploadField({ label, icon: Icon, className = "", ...props }: any) {
   const [fileName, setFileName] = useState("");
 
   return (
-    <div className={cn("space-y-3", className)}>
-      <label className="text-xs font-black text-gray-400 uppercase tracking-wider flex items-center gap-2">
-        {Icon && <Icon size={14} className="text-[#3498db]" />}
+    <div className={cn("space-y-2", className)}>
+      <label className="text-xs font-bold text-slate-500 mr-1 flex items-center gap-2">
+        {Icon && <Icon size={14} className="text-blue-500" />}
         {label}
       </label>
-      <label className="flex items-center gap-4 w-full p-4 rounded-2xl border-2 border-dashed border-gray-100 bg-gray-50/30 hover:bg-[#3498db]/5 hover:border-[#3498db] transition-all cursor-pointer group">
-        <div className="h-10 w-10 rounded-xl bg-white flex items-center justify-center text-gray-400 group-hover:text-[#3498db] shadow-sm transition-colors">
+      <label className="flex items-center gap-4 w-full p-4 rounded-xl border-2 border-dashed border-slate-200 bg-slate-50/30 hover:bg-blue-50 hover:border-blue-500 transition-all cursor-pointer group">
+        <div className="h-10 w-10 rounded-xl bg-white flex items-center justify-center text-slate-400 group-hover:text-blue-600 shadow-sm transition-colors border border-slate-100">
           <Upload size={18} />
         </div>
-        <div className="flex-1">
-          <p className="text-sm font-black text-gray-900">{fileName || "اضغط للرفع أو سحب الملف هنا"}</p>
-          <p className="text-[10px] font-bold text-gray-400">PNG, JPG, PDF (Max 5MB)</p>
+        <div className="flex-1 text-right">
+          <p className="text-sm font-bold text-slate-900">{fileName || "اضغط للرفع أو سحب الملف هنا"}</p>
+          <p className="text-[10px] font-bold text-slate-400 uppercase">PNG, JPG, PDF (Max 5MB)</p>
         </div>
         <input 
           type="file" 
