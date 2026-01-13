@@ -19,6 +19,7 @@ import Link from "next/link";
 import { loginAction } from "@/lib/actions/auth";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
+import { toast } from "sonner";
 
 interface LoginFormProps {
   initialEmail?: string;
@@ -46,6 +47,7 @@ export default function LoginForm({ initialEmail = "" }: LoginFormProps) {
     const result = await loginAction(formData);
 
     if (result.success) {
+      toast.success(`مرحباً بك مجدداً، ${result.user?.name || ""}`);
       router.push("/dashboard");
       router.refresh();
     } else {
