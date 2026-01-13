@@ -10,7 +10,7 @@ import {
   ArrowRight,
   Clock,
   UserCircle,
-  PaperPlane
+  Send
 } from "lucide-react";
 import Link from "next/link";
 import { verifyTokenAction } from "@/lib/actions/auth";
@@ -213,7 +213,7 @@ export default function VerifyForm({ email, userName }: VerifyFormProps) {
           <div className="mt-4 text-center">
             {resendTimeLeft > 0 ? (
               <p className="text-sm text-gray-500 flex items-center justify-center gap-2">
-                <PaperPlane size={14} />
+                <Send size={14} />
                 إعادة إرسال الرمز ({resendTimeLeft} ثانية)
               </p>
             ) : (
@@ -221,7 +221,7 @@ export default function VerifyForm({ email, userName }: VerifyFormProps) {
                 onClick={() => setResendTimeLeft(60)}
                 className="text-sm font-bold text-[#3498db] hover:underline flex items-center justify-center gap-2 mx-auto"
               >
-                <PaperPlane size={14} />
+                <Send size={14} />
                 إعادة إرسال الرمز
               </button>
             )}

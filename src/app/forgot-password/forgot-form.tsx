@@ -6,7 +6,7 @@ import {
   Lock, 
   Mail, 
   AlertTriangle, 
-  PaperPlane, 
+  Send, 
   ArrowRight,
   Info
 } from "lucide-react";
@@ -149,10 +149,10 @@ export default function ForgotForm() {
                 {isLoading ? (
                   <div className="h-5 w-5 animate-spin rounded-full border-2 border-white/30 border-t-white" />
                 ) : (
-                  <>
-                    <PaperPlane size={20} />
-                    إرسال رمز التحقق
-                  </>
+                    <>
+                      <Send size={20} />
+                      إرسال رمز التحقق
+                    </>
                 )}
               </div>
             </motion.button>
