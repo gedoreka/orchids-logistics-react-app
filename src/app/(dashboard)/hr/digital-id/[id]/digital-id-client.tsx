@@ -25,6 +25,23 @@ import Link from "next/link";
 import { format } from "date-fns";
 import { ar } from "date-fns/locale";
 
+const getPublicUrl = (path: string | null) => {
+  if (!path) return null;
+  if (path.startsWith("http")) return path;
+  
+  // If the path looks like it belongs to Supabase (starts with a known bucket)
+  const buckets = ['uploads', 'employees', 'documents', 'establishments'];
+  const firstPart = path.split('/')[0];
+  
+  if (buckets.includes(firstPart)) {
+    return `https://xaexoopjqkrzhbochbef.supabase.co/storage/v1/object/public/${path}`;
+  }
+  
+  // Fallback to the original server if it doesn't match a bucket
+  const cleanPath = path.startsWith('/') ? path.slice(1) : path;
+  return `https://accounts.zoolspeed.com/${cleanPath}`;
+};
+
 interface DigitalIdClientProps {
   employee: any;
   allEmployees: any[];
@@ -47,7 +64,7 @@ export function DigitalIdClient({ employee, allEmployees }: DigitalIdClientProps
   const expiryDays = getExpiryDays(employee.iqama_expiry);
 
   return (
-    <div className="space-y-6 pb-20 max-w-[1600px] mx-auto px-4 print:p-0 print:max-w-full">
+    <div className="space-y-6 pb-20 max-w-[1800px] mx-auto px-4 print:p-0 print:max-w-full">
       
       {/* Navigation - Hidden on print */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 print:hidden">
@@ -118,19 +135,20 @@ export function DigitalIdClient({ employee, allEmployees }: DigitalIdClientProps
               </div>
             </div>
 
-            {/* Employee Main Info Row */}
-            <div className="flex flex-col md:flex-row items-center gap-10 bg-gray-50/50 rounded-[2rem] p-8 border border-gray-100/50">
-              {/* Photo */}
-              <div className="relative group">
-                <div className="h-56 w-48 rounded-[2rem] bg-white p-1 shadow-2xl border-2 border-yellow-400/30 overflow-hidden relative z-10">
-                  <img 
-                    src={employee.personal_photo || `https://ui-avatars.com/api/?name=${encodeURIComponent(employee.name)}&background=2c3e50&color=fff&size=256`} 
-                    alt={employee.name}
-                    className="h-full w-full object-cover rounded-[1.75rem]"
-                  />
+              {/* Employee Main Info Row */}
+              <div className="flex flex-col md:flex-row items-center gap-10 bg-gray-50/50 rounded-[2rem] p-8 border border-gray-100/50">
+                {/* Photo */}
+                <div className="relative group">
+                  <div className="h-56 w-48 rounded-[2rem] bg-white p-1 shadow-2xl border-2 border-yellow-400/30 overflow-hidden relative z-10">
+                    <img 
+                      src={getPublicUrl(employee.personal_photo) || `https://ui-avatars.com/api/?name=${encodeURIComponent(employee.name)}&background=2c3e50&color=fff&size=256`} 
+                      alt={employee.name}
+                      className="h-full w-full object-cover rounded-[1.75rem]"
+                    />
+                  </div>
+                  <div className="absolute -inset-4 bg-yellow-400/10 rounded-[2.5rem] blur-2xl opacity-0 group-hover:opacity-100 transition-opacity" />
                 </div>
-                <div className="absolute -inset-4 bg-yellow-400/10 rounded-[2.5rem] blur-2xl opacity-0 group-hover:opacity-100 transition-opacity" />
-              </div>
+
 
               {/* Basic Details */}
               <div className="flex-1 space-y-6 text-center md:text-right">

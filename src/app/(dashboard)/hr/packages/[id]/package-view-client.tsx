@@ -30,8 +30,18 @@ import { useRouter } from "next/navigation";
 const getPublicUrl = (path: string | null) => {
   if (!path) return null;
   if (path.startsWith("http")) return path;
-  // The database paths already include 'uploads/' which corresponds to the bucket name
-  return `https://xaexoopjqkrzhbochbef.supabase.co/storage/v1/object/public/${path}`;
+  
+  // If the path looks like it belongs to Supabase (starts with a known bucket)
+  const buckets = ['uploads', 'employees', 'documents', 'establishments'];
+  const firstPart = path.split('/')[0];
+  
+  if (buckets.includes(firstPart)) {
+    return `https://xaexoopjqkrzhbochbef.supabase.co/storage/v1/object/public/${path}`;
+  }
+  
+  // Fallback to the original server if it doesn't match a bucket
+  const cleanPath = path.startsWith('/') ? path.slice(1) : path;
+  return `https://accounts.zoolspeed.com/${cleanPath}`;
 };
 
 interface PackageViewClientProps {
@@ -99,7 +109,7 @@ export function PackageViewClient({
 
   if (!mounted) {
     return (
-      <div className="flex flex-col h-full space-y-4 max-w-[1600px] mx-auto px-4 overflow-hidden animate-pulse">
+      <div className="flex flex-col h-full space-y-4 max-w-[1800px] mx-auto px-4 overflow-hidden animate-pulse">
         <div className="h-48 bg-gray-100 rounded-[2rem]" />
         <div className="h-20 bg-gray-100 rounded-2xl" />
         <div className="flex-1 bg-gray-100 rounded-3xl" />
@@ -108,7 +118,7 @@ export function PackageViewClient({
   }
 
     return (
-      <div className="flex flex-col h-[calc(100vh-140px)] space-y-4 max-w-[1600px] mx-auto px-4 overflow-hidden">
+      <div className="flex flex-col h-[calc(100vh-140px)] space-y-4 max-w-[1800px] mx-auto px-4 overflow-hidden">
         
         {/* Header & Navigation */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 shrink-0">

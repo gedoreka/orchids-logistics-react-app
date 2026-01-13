@@ -55,7 +55,7 @@ export function IqamaReportClient({
   };
 
   return (
-    <div className="space-y-6 pb-20 max-w-[1600px] mx-auto px-4 print:p-0 print:max-w-full">
+    <div className="space-y-6 pb-20 max-w-[1800px] mx-auto px-4 print:p-0 print:max-w-full">
       
       {/* Header & Navigation - Hidden on print */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 print:hidden">
