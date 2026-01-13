@@ -6,7 +6,7 @@ import {
   Users, 
   Package, 
   Umbrella, 
-  IidCard as IdCard, 
+  IdCard, 
   PlusCircle, 
   UserPlus, 
   FileText, 
