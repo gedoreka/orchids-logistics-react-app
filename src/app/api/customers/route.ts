@@ -11,7 +11,7 @@ export async function GET(request: NextRequest) {
     }
 
     const customers = await query(
-      "SELECT * FROM customers WHERE company_id = $1 ORDER BY name ASC",
+      "SELECT * FROM customers WHERE company_id = ? ORDER BY name ASC",
       [companyId]
     );
 
@@ -33,11 +33,11 @@ export async function POST(request: NextRequest) {
 
     const result = await execute(
       `INSERT INTO customers (company_id, name, email, phone, address, vat_number, commercial_number, contact_person, notes, created_at) 
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, NOW()) RETURNING id`,
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())`,
       [company_id, name, email || null, phone || null, address || null, vat_number || null, commercial_number || null, contact_person || null, notes || null]
     );
 
-    return NextResponse.json({ success: true, id: result[0]?.id });
+    return NextResponse.json({ success: true, id: result.insertId });
   } catch (error) {
     console.error("Error creating customer:", error);
     return NextResponse.json({ error: "Failed to create customer" }, { status: 500 });

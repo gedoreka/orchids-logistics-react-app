@@ -1,25 +1,20 @@
-import postgres from 'postgres';
+import mysql from 'mysql2/promise';
 
-const connectionString = process.env.DATABASE_URL || 'postgresql://postgres.xaexoopjqkrzhbochbef:FQtpzJwraLTrb3gHEX7R2oaAnJPAsyhVntIFiAvsA20kivkFYiKnfpwxQP7iCsiB@aws-0-us-west-2.pooler.supabase.com:5432/postgres';
-
-const sql = postgres(connectionString, {
-  ssl: 'require',
-  max: 10,
-  idle_timeout: 20,
-  connect_timeout: 30,
+const pool = mysql.createPool({
+  host: process.env.DB_HOST || 'srv1687.hstgr.io',
+  user: process.env.DB_USER || 'u464748164_zoolsys_main',
+  password: process.env.DB_PASSWORD || 'Info@92009',
+  database: process.env.DB_NAME || 'u464748164_zoolsys_main',
+  waitForConnections: true,
+  connectionLimit: 10,
+  queueLimit: 0,
 });
 
 export async function query<T>(queryStr: string, params: any[] = []): Promise<T[]> {
   try {
-    // Convert MySQL style "?" to PostgreSQL style "$1, $2, ..."
-    let index = 1;
-    const processedQuery = queryStr.replace(/\?/g, () => '$' + (index++));
-    
-    // Log query for debugging
-    console.log(`[DB] Executing: ${processedQuery} | Params: ${JSON.stringify(params)}`);
-    
-    const result = await sql.unsafe(processedQuery, params);
-    return result as unknown as T[];
+    console.log(`[DB] Executing: ${queryStr} | Params: ${JSON.stringify(params)}`);
+    const [rows] = await pool.execute(queryStr, params);
+    return rows as T[];
   } catch (error) {
     console.error('Database query error:', error);
     throw error;
@@ -28,11 +23,7 @@ export async function query<T>(queryStr: string, params: any[] = []): Promise<T[
 
 export async function execute(queryStr: string, params: any[] = []): Promise<any> {
   try {
-    // Convert MySQL style "?" to PostgreSQL style "$1, $2, ..."
-    let index = 1;
-    const processedQuery = queryStr.replace(/\?/g, () => '$' + (index++));
-    
-    const result = await sql.unsafe(processedQuery, params);
+    const [result] = await pool.execute(queryStr, params);
     return result;
   } catch (error) {
     console.error('Database execute error:', error);
@@ -40,4 +31,4 @@ export async function execute(queryStr: string, params: any[] = []): Promise<any
   }
 }
 
-export default sql;
+export default pool;

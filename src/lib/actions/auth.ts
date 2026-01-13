@@ -2,7 +2,7 @@
 
 import { AuthResponse, User, Company, ResetToken } from "@/lib/types";
 import { cookies } from "next/headers";
-import { query } from "@/lib/db";
+import { query, execute } from "@/lib/db";
 import bcrypt from "bcryptjs";
 import { sendResetCode } from "@/lib/mail";
 import { supabase } from "@/lib/supabase-client";
@@ -69,24 +69,24 @@ import { supabase } from "@/lib/supabase-client";
     }
 
     // Insert Company
-    const companyResult = await query<{ id: number }>(
-      `INSERT INTO companies (
-        name, status, is_active, commercial_number, vat_number, phone, website, currency,
-        logo_path, stamp_path, digital_seal_path, country, region, district, street,
-        postal_code, short_address, bank_beneficiary, bank_name, bank_account, bank_iban,
-        transport_license_number, transport_license_type, transport_license_image,
-        license_start, license_end, created_at
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW()) RETURNING id`,
-      [
-        name, 'pending', 0, commercial_number, vat_number, phone, website, currency,
-        logo_path, stamp_path, digital_seal_path, country, region, district, street,
-        postal_code, short_address, bank_beneficiary, bank_name, bank_account, bank_iban,
-        transport_license_number, transport_license_type, transport_license_image,
-        license_start || null, license_end || null
-      ]
-    );
+      const companyResult = await execute(
+        `INSERT INTO companies (
+          name, status, is_active, commercial_number, vat_number, phone, website, currency,
+          logo_path, stamp_path, digital_seal_path, country, region, district, street,
+          postal_code, short_address, bank_beneficiary, bank_name, bank_account, bank_iban,
+          transport_license_number, transport_license_type, transport_license_image,
+          license_start, license_end, created_at
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())`,
+        [
+          name, 'pending', 0, commercial_number, vat_number, phone, website, currency,
+          logo_path, stamp_path, digital_seal_path, country, region, district, street,
+          postal_code, short_address, bank_beneficiary, bank_name, bank_account, bank_iban,
+          transport_license_number, transport_license_type, transport_license_image,
+          license_start || null, license_end || null
+        ]
+      );
 
-    const companyId = companyResult[0].id;
+      const companyId = companyResult.insertId;
 
     // Insert User
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -237,11 +237,9 @@ export async function forgotPasswordAction(formData: FormData): Promise<AuthResp
     const user = users[0];
     const token = Math.floor(100000 + Math.random() * 900000).toString();
 
-    // Use UPSERT for PostgreSQL
+    await query("DELETE FROM password_resets WHERE email = ?", [email]);
     await query(
-      `INSERT INTO password_resets (email, token, created_at) 
-       VALUES (?, ?, NOW()) 
-       ON CONFLICT (email) DO UPDATE SET token = EXCLUDED.token, created_at = NOW()`,
+      "INSERT INTO password_resets (email, token, created_at) VALUES (?, ?, NOW())",
       [email, token]
     );
 

@@ -52,7 +52,7 @@ export default async function DashboardPage() {
   try {
     if (session.company_id) {
       const companies = await query<Company>(
-        "SELECT * FROM companies WHERE id = $1",
+        "SELECT * FROM companies WHERE id = ?",
         [session.company_id]
       );
       
@@ -91,25 +91,25 @@ export default async function DashboardPage() {
       }
 
       const employeesResult = await query<{ count: string }>(
-        "SELECT COUNT(*) as count FROM employees WHERE company_id = $1",
+        "SELECT COUNT(*) as count FROM employees WHERE company_id = ?",
         [session.company_id]
       );
       stats.total_employees = parseInt(employeesResult[0]?.count || "0");
 
       const packagesResult = await query<{ count: string }>(
-        "SELECT COUNT(*) as count FROM employee_packages WHERE company_id = $1",
+        "SELECT COUNT(*) as count FROM employee_packages WHERE company_id = ?",
         [session.company_id]
       );
       stats.total_packages = parseInt(packagesResult[0]?.count || "0");
 
       const activeResult = await query<{ count: string }>(
-        "SELECT COUNT(*) as count FROM employees WHERE company_id = $1 AND is_active = 1",
+        "SELECT COUNT(*) as count FROM employees WHERE company_id = ? AND is_active = 1",
         [session.company_id]
       );
       stats.active_employees = parseInt(activeResult[0]?.count || "0");
 
       const expiredResult = await query<{ count: string }>(
-        "SELECT COUNT(*) as count FROM employees WHERE company_id = $1 AND iqama_expiry IS NOT NULL AND iqama_expiry <= CURRENT_DATE",
+        "SELECT COUNT(*) as count FROM employees WHERE company_id = ? AND iqama_expiry IS NOT NULL AND iqama_expiry <= CURDATE()",
         [session.company_id]
       );
       stats.expired_iqama = parseInt(expiredResult[0]?.count || "0");

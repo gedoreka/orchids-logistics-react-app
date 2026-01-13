@@ -35,7 +35,7 @@ export default async function CustomersPage() {
 
   try {
     customers = await query<Customer>(
-      "SELECT * FROM customers WHERE company_id = $1 ORDER BY name ASC",
+      "SELECT * FROM customers WHERE company_id = ? ORDER BY name ASC",
       [companyId]
     );
   } catch (error) {

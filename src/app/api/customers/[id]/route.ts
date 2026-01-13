@@ -15,7 +15,7 @@ export async function PUT(
     }
 
     await execute(
-      `UPDATE customers SET name = $1, email = $2, phone = $3, address = $4, vat_number = $5, commercial_number = $6, contact_person = $7, notes = $8 WHERE id = $9`,
+      `UPDATE customers SET name = ?, email = ?, phone = ?, address = ?, vat_number = ?, commercial_number = ?, contact_person = ?, notes = ? WHERE id = ?`,
       [name, email || null, phone || null, address || null, vat_number || null, commercial_number || null, contact_person || null, notes || null, id]
     );
 
@@ -33,7 +33,7 @@ export async function DELETE(
   try {
     const { id } = await params;
 
-    await execute("DELETE FROM customers WHERE id = $1", [id]);
+    await execute("DELETE FROM customers WHERE id = ?", [id]);
 
     return NextResponse.json({ success: true });
   } catch (error) {
