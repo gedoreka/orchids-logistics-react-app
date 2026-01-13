@@ -11,7 +11,11 @@ const sql = postgres(connectionString, {
 
 export async function query<T>(queryStr: string, params: any[] = []): Promise<T[]> {
   try {
-    const result = await sql.unsafe(queryStr, params);
+    // Convert MySQL style "?" to PostgreSQL style "$1, $2, ..."
+    let index = 1;
+    const processedQuery = queryStr.replace(/\?/g, () => `$${index++}`);
+    
+    const result = await sql.unsafe(processedQuery, params);
     return result as unknown as T[];
   } catch (error) {
     console.error('Database query error:', error);
@@ -21,7 +25,11 @@ export async function query<T>(queryStr: string, params: any[] = []): Promise<T[
 
 export async function execute(queryStr: string, params: any[] = []): Promise<any> {
   try {
-    const result = await sql.unsafe(queryStr, params);
+    // Convert MySQL style "?" to PostgreSQL style "$1, $2, ..."
+    let index = 1;
+    const processedQuery = queryStr.replace(/\?/g, () => `$${index++}`);
+    
+    const result = await sql.unsafe(processedQuery, params);
     return result;
   } catch (error) {
     console.error('Database execute error:', error);
