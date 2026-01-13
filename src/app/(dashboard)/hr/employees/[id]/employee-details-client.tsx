@@ -51,8 +51,8 @@ import { useRouter } from "next/navigation";
 const getPublicUrl = (path: string | null) => {
   if (!path) return null;
   if (path.startsWith("http")) return path;
-  // Using establishments as default bucket since it was found in DB
-  return `https://xaexoopjqkrzhbochbef.supabase.co/storage/v1/object/public/establishments/${path}`;
+  // The database paths already include 'uploads/' which corresponds to the bucket name
+  return `https://xaexoopjqkrzhbochbef.supabase.co/storage/v1/object/public/${path}`;
 };
 
 interface EmployeeDetailsClientProps {
@@ -81,17 +81,21 @@ export function EmployeeDetailsClient({
   const prevEmployee = currentIndex > 0 ? allEmployees[currentIndex - 1] : null;
   const nextEmployee = currentIndex < allEmployees.length - 1 ? allEmployees[currentIndex + 1] : null;
 
-  const [personalInfo, setPersonalInfo] = useState({
-    iqama_number: employee.iqama_number || "",
-    user_code: employee.user_code || "",
-    nationality: employee.nationality || "",
-    phone: employee.phone || "",
-    email: employee.email || "",
-    vehicle_plate: employee.vehicle_plate || "",
-    birth_date: employee.birth_date ? format(new Date(employee.birth_date), 'yyyy-MM-dd') : "",
-    passport_number: employee.passport_number || "",
-    operation_card_number: employee.operation_card_number || ""
-  });
+    const [personalInfo, setPersonalInfo] = useState({
+      iqama_number: employee.iqama_number || "",
+      identity_number: employee.identity_number || "",
+      job_title: employee.job_title || "",
+      user_code: employee.user_code || "",
+      nationality: employee.nationality || "",
+      phone: employee.phone || "",
+      email: employee.email || "",
+      vehicle_plate: employee.vehicle_plate || "",
+      birth_date: employee.birth_date ? format(new Date(employee.birth_date), 'yyyy-MM-dd') : "",
+      passport_number: employee.passport_number || "",
+      operation_card_number: employee.operation_card_number || "",
+      basic_salary: employee.basic_salary || "",
+      housing_allowance: employee.housing_allowance || ""
+    });
 
   const [bankInfo, setBankInfo] = useState({
     bank_account: employee.bank_account || "",
@@ -283,28 +287,32 @@ export function EmployeeDetailsClient({
                 exit={{ opacity: 0, y: -10 }}
                 transition={{ duration: 0.2 }}
               >
-                {activeTab === "general" && (
-                  <form onSubmit={handleUpdatePersonal} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 text-right">
-                    <InfoField label="رقم الإقامة / الهوية" value={personalInfo.iqama_number} onChange={(v: string) => setPersonalInfo({...personalInfo, iqama_number: v})} editable={isEditing} icon={<IdCard size={16} />} />
-                    <InfoField label="الرقم الوظيفي" value={personalInfo.user_code} onChange={(v: string) => setPersonalInfo({...personalInfo, user_code: v})} editable={isEditing} icon={<Hash size={16} />} />
-                    <InfoField label="الجنسية" value={personalInfo.nationality} onChange={(v: string) => setPersonalInfo({...personalInfo, nationality: v})} editable={isEditing} icon={<Globe size={16} />} />
-                    <InfoField label="رقم الجوال" value={personalInfo.phone} onChange={(v: string) => setPersonalInfo({...personalInfo, phone: v})} editable={isEditing} icon={<Phone size={16} />} />
-                    <InfoField label="البريد الإلكتروني" value={personalInfo.email} onChange={(v: string) => setPersonalInfo({...personalInfo, email: v})} editable={isEditing} type="email" icon={<Mail size={16} />} />
-                    <InfoField label="روحة المركبة" value={personalInfo.vehicle_plate} onChange={(v: string) => setPersonalInfo({...personalInfo, vehicle_plate: v})} editable={isEditing} icon={<Car size={16} />} />
-                    <InfoField label="تاريخ الميلاد" value={personalInfo.birth_date} onChange={(v: string) => setPersonalInfo({...personalInfo, birth_date: v})} editable={isEditing} type="date" icon={<Calendar size={16} />} />
-                    <InfoField label="رقم الجواز" value={personalInfo.passport_number} onChange={(v: string) => setPersonalInfo({...personalInfo, passport_number: v})} editable={isEditing} icon={<FileText size={16} />} />
-                    <InfoField label="رقم كرت التشغيل" value={personalInfo.operation_card_number} onChange={(v: string) => setPersonalInfo({...personalInfo, operation_card_number: v})} editable={isEditing} icon={<IdCard size={16} />} />
-                    
-                    {isEditing && (
-                      <div className="col-span-full pt-8 flex justify-center">
-                        <button type="submit" className="bg-[#9b59b6] hover:bg-[#8e44ad] text-white px-12 py-4 rounded-xl font-black shadow-xl shadow-[#9b59b6]/40 flex items-center gap-3 transition-all hover:scale-105 active:scale-95">
-                          <Save size={20} />
-                          حفظ التغييرات
-                        </button>
-                      </div>
-                    )}
-                  </form>
-                )}
+                  {activeTab === "general" && (
+                    <form onSubmit={handleUpdatePersonal} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 text-right">
+                      <InfoField label="رقم الإقامة" value={personalInfo.iqama_number} onChange={(v: string) => setPersonalInfo({...personalInfo, iqama_number: v})} editable={isEditing} icon={<IdCard size={16} />} />
+                      <InfoField label="رقم الهوية الوطنية" value={personalInfo.identity_number} onChange={(v: string) => setPersonalInfo({...personalInfo, identity_number: v})} editable={isEditing} icon={<IdCard size={16} />} />
+                      <InfoField label="المسمى الوظيفي" value={personalInfo.job_title} onChange={(v: string) => setPersonalInfo({...personalInfo, job_title: v})} editable={isEditing} icon={<Briefcase size={16} />} />
+                      <InfoField label="الرقم الوظيفي" value={personalInfo.user_code} onChange={(v: string) => setPersonalInfo({...personalInfo, user_code: v})} editable={isEditing} icon={<Hash size={16} />} />
+                      <InfoField label="الجنسية" value={personalInfo.nationality} onChange={(v: string) => setPersonalInfo({...personalInfo, nationality: v})} editable={isEditing} icon={<Globe size={16} />} />
+                      <InfoField label="رقم الجوال" value={personalInfo.phone} onChange={(v: string) => setPersonalInfo({...personalInfo, phone: v})} editable={isEditing} icon={<Phone size={16} />} />
+                      <InfoField label="البريد الإلكتروني" value={personalInfo.email} onChange={(v: string) => setPersonalInfo({...personalInfo, email: v})} editable={isEditing} type="email" icon={<Mail size={16} />} />
+                      <InfoField label="لوحة المركبة" value={personalInfo.vehicle_plate} onChange={(v: string) => setPersonalInfo({...personalInfo, vehicle_plate: v})} editable={isEditing} icon={<Car size={16} />} />
+                      <InfoField label="تاريخ الميلاد" value={personalInfo.birth_date} onChange={(v: string) => setPersonalInfo({...personalInfo, birth_date: v})} editable={isEditing} type="date" icon={<Calendar size={16} />} />
+                      <InfoField label="رقم الجواز" value={personalInfo.passport_number} onChange={(v: string) => setPersonalInfo({...personalInfo, passport_number: v})} editable={isEditing} icon={<FileText size={16} />} />
+                      <InfoField label="رقم كرت التشغيل" value={personalInfo.operation_card_number} onChange={(v: string) => setPersonalInfo({...personalInfo, operation_card_number: v})} editable={isEditing} icon={<IdCard size={16} />} />
+                      <InfoField label="الراتب الأساسي" value={personalInfo.basic_salary} onChange={(v: string) => setPersonalInfo({...personalInfo, basic_salary: v})} editable={isEditing} icon={<CreditCard size={16} />} />
+                      <InfoField label="بدل السكن" value={personalInfo.housing_allowance} onChange={(v: string) => setPersonalInfo({...personalInfo, housing_allowance: v})} editable={isEditing} icon={<Building size={16} />} />
+                      
+                      {isEditing && (
+                        <div className="col-span-full pt-8 flex justify-center">
+                          <button type="submit" className="bg-[#9b59b6] hover:bg-[#8e44ad] text-white px-12 py-4 rounded-xl font-black shadow-xl shadow-[#9b59b6]/40 flex items-center gap-3 transition-all hover:scale-105 active:scale-95">
+                            <Save size={20} />
+                            حفظ التغييرات
+                          </button>
+                        </div>
+                      )}
+                    </form>
+                  )}
 
                 {activeTab === "bank" && (
                   <form onSubmit={handleUpdateBank} className="grid grid-cols-1 md:grid-cols-2 gap-6 text-right max-w-4xl mx-auto">
@@ -323,16 +331,17 @@ export function EmployeeDetailsClient({
                   </form>
                 )}
 
-                {activeTab === "documents" && (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-                    <DocumentCard label="صورة الإقامة" path={employee.iqama_file} />
-                    <DocumentCard label="رخصة القيادة" path={employee.license_file} />
-                    <DocumentCard label="استمارة المركبة" path={employee.vehicle_file} />
-                    <DocumentCard label="تصريح أجير" path={employee.agir_permit_file} />
-                    <DocumentCard label="عقد العمل" path={employee.work_contract_file} />
-                    <DocumentCard label="بطاقة التشغيل" path={employee.vehicle_operation_card} />
-                  </div>
-                )}
+                  {activeTab === "documents" && (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+                      <DocumentCard label="الصورة الشخصية" path={employee.personal_photo} />
+                      <DocumentCard label="صورة الإقامة" path={employee.iqama_file} />
+                      <DocumentCard label="رخصة القيادة" path={employee.license_file} />
+                      <DocumentCard label="استمارة المركبة" path={employee.vehicle_file} />
+                      <DocumentCard label="تصريح أجير" path={employee.agir_permit_file} />
+                      <DocumentCard label="عقد العمل" path={employee.work_contract_file} />
+                      <DocumentCard label="بطاقة التشغيل" path={employee.vehicle_operation_card} />
+                    </div>
+                  )}
 
                 {activeTab === "violations" && (
                   <div className="space-y-8">
@@ -519,17 +528,26 @@ function InfoField({ label, value, onChange, editable, type = "text", className 
 function DocumentCard({ label, path }: any) {
   const imageUrl = getPublicUrl(path);
 
+  const handleView = () => {
+    if (imageUrl) {
+      window.open(imageUrl, '_blank');
+    }
+  };
+
   return (
     <div className="group space-y-3">
-      <div className="relative overflow-hidden rounded-2xl border-4 border-white shadow-lg bg-[#f8fafc] aspect-[4/3] flex items-center justify-center cursor-pointer transition-all hover:shadow-xl hover:scale-[1.02]">
+      <div 
+        onClick={handleView}
+        className="relative overflow-hidden rounded-2xl border-4 border-white shadow-lg bg-[#f8fafc] aspect-[4/3] flex items-center justify-center cursor-pointer transition-all hover:shadow-xl hover:scale-[1.02]"
+      >
         {imageUrl ? (
           <>
             <img src={imageUrl} alt={label} className="h-full w-full object-cover group-hover:scale-110 transition-transform duration-700" />
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300 flex flex-col items-center justify-center gap-2 backdrop-blur-[1px]">
-              <button className="h-10 px-5 rounded-xl bg-white text-black text-[10px] font-black flex items-center gap-2 shadow-xl hover:scale-105 transition-all">
-                <FileText size={16} />
+              <div className="h-10 px-5 rounded-xl bg-white text-black text-[10px] font-black flex items-center gap-2 shadow-xl hover:scale-105 transition-all">
+                <Eye size={16} />
                 عرض المستند
-              </button>
+              </div>
             </div>
           </>
         ) : (
@@ -543,9 +561,14 @@ function DocumentCard({ label, path }: any) {
       </div>
       <div className="flex items-center justify-between px-2">
         <span className="text-xs font-black text-gray-900 uppercase tracking-tight">{label}</span>
-        <button className="h-8 w-8 rounded-lg bg-gray-50 text-gray-400 hover:bg-[#9b59b6] hover:text-white transition-all flex items-center justify-center shadow-sm hover:rotate-90">
-          <PlusCircle size={16} />
-        </button>
+        {imageUrl && (
+          <button 
+            onClick={handleView}
+            className="h-8 w-8 rounded-lg bg-gray-50 text-gray-400 hover:bg-[#9b59b6] hover:text-white transition-all flex items-center justify-center shadow-sm hover:rotate-90"
+          >
+            <Eye size={16} />
+          </button>
+        )}
       </div>
     </div>
   );

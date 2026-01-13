@@ -30,7 +30,8 @@ import { useRouter } from "next/navigation";
 const getPublicUrl = (path: string | null) => {
   if (!path) return null;
   if (path.startsWith("http")) return path;
-  return `https://xaexoopjqkrzhbochbef.supabase.co/storage/v1/object/public/establishments/${path}`;
+  // The database paths already include 'uploads/' which corresponds to the bucket name
+  return `https://xaexoopjqkrzhbochbef.supabase.co/storage/v1/object/public/${path}`;
 };
 
 interface PackageViewClientProps {

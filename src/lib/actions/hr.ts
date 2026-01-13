@@ -72,14 +72,16 @@ export async function updateEmployeePersonalInfo(id: number, data: any) {
   try {
     await query(
       `UPDATE employees SET 
-        iqama_number = ?, user_code = ?, nationality = ?, 
+        iqama_number = ?, identity_number = ?, job_title = ?, user_code = ?, nationality = ?, 
         phone = ?, email = ?, vehicle_plate = ?, 
-        birth_date = ?, passport_number = ?, operation_card_number = ?
+        birth_date = ?, passport_number = ?, operation_card_number = ?,
+        basic_salary = ?, housing_allowance = ?
       WHERE id = ?`,
       [
-        data.iqama_number, data.user_code, data.nationality,
+        data.iqama_number, data.identity_number, data.job_title, data.user_code, data.nationality,
         data.phone, data.email, data.vehicle_plate,
         data.birth_date || null, data.passport_number, data.operation_card_number,
+        data.basic_salary, data.housing_allowance,
         id
       ]
     );
