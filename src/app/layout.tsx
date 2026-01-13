@@ -25,12 +25,12 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ar" dir="rtl">
-      <body
-        className={`antialiased font-sans`}
-      >
-        {children}
-        <VisualEditsMessenger />
-      </body>
+        <body
+          className={`antialiased font-sans`}
+        >
+          {children}
+          {/* <VisualEditsMessenger /> */}
+        </body>
     </html>
   );
 }
