@@ -24,18 +24,20 @@ import {
   University,
   Trophy,
   History,
-  LayoutDashboard,
-  ArrowRight,
-  IdCard,
-  PlusCircle,
-  Info,
-  Edit3,
-  ArrowLeft,
-  List,
-  AlertTriangle,
-  OctagonAlert,
-  Eye
-} from "lucide-react";
+    LayoutDashboard,
+    ArrowRight,
+    IdCard,
+    PlusCircle,
+    Info,
+    Edit3,
+    ArrowLeft,
+    List,
+    AlertTriangle,
+    OctagonAlert,
+    Eye,
+    Umbrella,
+    CheckCircle2
+  } from "lucide-react";
 import { format } from "date-fns";
 import { ar } from "date-fns/locale";
 import { toast } from "sonner";
@@ -148,43 +150,85 @@ export function EmployeeDetailsClient({
   return (
     <div className="flex flex-col h-[calc(100vh-140px)] space-y-4 max-w-[1600px] mx-auto px-4 overflow-hidden">
       
-      <div className="bg-[#2c3e50] p-6 rounded-3xl relative overflow-hidden shadow-2xl border-b-4 border-yellow-500/20 shrink-0">
+      <div className="bg-[#2c3e50] p-8 rounded-[2.5rem] relative overflow-hidden shadow-2xl border-b-4 border-yellow-500/20 shrink-0">
         <div className="absolute top-0 left-0 w-full h-full opacity-10 pointer-events-none">
            <div className="absolute top-[-50%] left-[-10%] w-[40%] h-[200%] bg-white/20 rotate-12 blur-3xl" />
         </div>
 
-        <div className="relative z-10 flex flex-col items-center">
-          <div className="flex items-center gap-3 text-white/90 mb-4 bg-white/5 px-4 py-2 rounded-full border border-white/10 backdrop-blur-md">
-            <User className="text-yellow-400" size={18} />
-            <h2 className="text-[10px] font-black tracking-widest uppercase">تفاصيل الموظف</h2>
+        <div className="relative z-10 flex flex-col md:flex-row items-center gap-8">
+          {/* Profile Picture Section */}
+          <div className="relative group">
+            <div className="h-32 w-32 md:h-40 md:w-40 rounded-full border-4 border-white/20 p-1 backdrop-blur-sm shadow-2xl overflow-hidden transition-all duration-500 group-hover:scale-105 group-hover:border-yellow-400/50 bg-[#34495e]/50">
+              {getPublicUrl(employee.personal_photo) ? (
+                <img 
+                  src={getPublicUrl(employee.personal_photo)!} 
+                  alt={employee.name} 
+                  className="h-full w-full object-cover rounded-full transition-transform duration-700 group-hover:scale-110" 
+                />
+              ) : (
+                <div className="h-full w-full flex items-center justify-center text-white/20">
+                  <User size={64} className="group-hover:text-yellow-400/40 transition-colors" />
+                </div>
+              )}
+            </div>
+            <button className="absolute bottom-2 right-2 bg-yellow-400 hover:bg-yellow-500 text-gray-900 p-2.5 rounded-full shadow-xl transition-all hover:scale-110 active:scale-95 border-2 border-[#2c3e50]">
+              <Camera size={18} />
+            </button>
           </div>
 
-          <div className="bg-[#34495e]/40 backdrop-blur-xl rounded-2xl p-6 w-full max-w-4xl flex flex-col items-center border border-white/10 shadow-inner">
-            <h1 className="text-xl md:text-2xl font-black text-white tracking-[0.1em] uppercase mb-4 drop-shadow-2xl text-center leading-tight">
-              {employee.name}
-            </h1>
-            
-            <div className="flex flex-wrap justify-center gap-4">
-              <div className="bg-[#1a2a3a]/80 px-6 py-2 rounded-xl flex items-center gap-3 text-[10px] border border-white/10 group hover:border-yellow-400/50 transition-all shadow-lg">
-                <Hash className="text-yellow-500 group-hover:scale-125 transition-transform" size={14} />
-                <span className="text-yellow-500 font-black">الرقم الوظيفي:</span>
-                <span className="text-white font-black">{employee.user_code || '---'}</span>
-              </div>
-              <div className="bg-[#1a2a3a]/80 px-6 py-2 rounded-xl flex items-center gap-3 text-[10px] border border-white/10 group hover:border-yellow-400/50 transition-all shadow-lg">
-                <Briefcase className="text-yellow-500 group-hover:scale-125 transition-transform" size={14} />
-                <span className="text-yellow-500 font-black">الباقة:</span>
-                <span className="text-white font-black">{employee.group_name}</span>
+          <div className="flex-1 flex flex-col items-center md:items-start text-center md:text-right gap-4">
+            <div className="flex items-center gap-3 text-white/70 bg-white/5 px-4 py-1.5 rounded-full border border-white/10 backdrop-blur-md self-center md:self-start">
+              <User className="text-yellow-400" size={14} />
+              <h2 className="text-[9px] font-black tracking-widest uppercase">الملف الشخصي للموظف</h2>
+            </div>
+
+            <div>
+              <h1 className="text-2xl md:text-4xl font-black text-white tracking-tight mb-2 drop-shadow-lg">
+                {employee.name}
+              </h1>
+              <div className="flex flex-wrap justify-center md:justify-start gap-3">
+                <div className="bg-[#1a2a3a]/60 backdrop-blur-md px-4 py-1.5 rounded-xl flex items-center gap-2.5 text-[10px] border border-white/5 shadow-lg group hover:border-yellow-400/30 transition-all">
+                  <Hash className="text-yellow-500" size={12} />
+                  <span className="text-white/60 font-bold">الكود:</span>
+                  <span className="text-white font-black">{employee.user_code || '---'}</span>
+                </div>
+                <div className="bg-[#1a2a3a]/60 backdrop-blur-md px-4 py-1.5 rounded-xl flex items-center gap-2.5 text-[10px] border border-white/5 shadow-lg group hover:border-yellow-400/30 transition-all">
+                  <Briefcase className="text-yellow-500" size={12} />
+                  <span className="text-white/60 font-bold">الباقة:</span>
+                  <span className="text-white font-black">{employee.group_name}</span>
+                </div>
+                <div className={`px-4 py-1.5 rounded-xl flex items-center gap-2.5 text-[10px] border shadow-lg transition-all ${
+                  employee.is_active === 1 
+                  ? 'bg-green-500/10 border-green-500/20 text-green-400' 
+                  : 'bg-orange-500/10 border-orange-500/20 text-orange-400'
+                }`}>
+                  <div className={`h-1.5 w-1.5 rounded-full animate-pulse ${employee.is_active === 1 ? 'bg-green-400' : 'bg-orange-400'}`} />
+                  <span className="font-black">{employee.is_active === 1 ? 'موظف نشط' : 'في إجازة'}</span>
+                </div>
               </div>
             </div>
           </div>
-        </div>
 
-        <Link href={`/hr/packages/${employee.package_id}`} className="absolute top-6 right-6">
-          <button className="bg-[#9b59b6] hover:bg-[#8e44ad] text-white px-5 py-2.5 rounded-xl text-[10px] font-black flex items-center gap-2 transition-all shadow-2xl shadow-[#9b59b6]/40 group active:scale-95">
-            <span>العودة للباقة</span>
-            <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform" />
-          </button>
-        </Link>
+          <div className="flex flex-col gap-3 self-center md:self-start">
+            <Link href={`/hr/packages/${employee.package_id}`}>
+              <button className="w-full bg-white/10 hover:bg-white/20 text-white px-6 py-3 rounded-2xl text-[10px] font-black flex items-center justify-center gap-3 transition-all backdrop-blur-md border border-white/10 shadow-xl group active:scale-95">
+                <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
+                <span>العودة للباقة</span>
+              </button>
+            </Link>
+            <button 
+              onClick={handleToggleStatus}
+              className={`w-full px-6 py-3 rounded-2xl text-[10px] font-black transition-all shadow-xl flex items-center justify-center gap-3 active:scale-95 ${
+                employee.is_active === 1 
+                ? 'bg-orange-500 hover:bg-orange-600 text-white' 
+                : 'bg-green-500 hover:bg-green-600 text-white'
+              }`}
+            >
+              {employee.is_active === 1 ? <Umbrella size={16} /> : <CheckCircle2 size={16} />}
+              {employee.is_active === 1 ? 'تعيين إجازة' : 'تفعيل الموظف'}
+            </button>
+          </div>
+        </div>
       </div>
 
       <div className="flex items-center gap-3 overflow-x-auto pb-2 px-2 no-scrollbar shrink-0 justify-start">
