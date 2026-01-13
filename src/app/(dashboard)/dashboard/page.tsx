@@ -142,15 +142,15 @@ export default async function DashboardPage() {
         email: session.email,
         role: session.role || "user",
       }}
-      company={company ? {
-        name: company.name,
-        logo: company.logo_path,
-        commercial_number: company.commercial_number,
-        vat_number: company.vat_number,
-        created_at: company.created_at,
-        is_active: company.is_active === 1,
-        access_token: company.access_token,
-      } : null}
+        company={company ? {
+          name: company.name,
+          logo: company.logo_path,
+          commercial_number: company.commercial_number,
+          vat_number: company.vat_number,
+          created_at: company.created_at ? new Date(company.created_at).toLocaleDateString("ar-SA") : undefined,
+          is_active: company.is_active === 1,
+          access_token: company.access_token,
+        } : null}
       subscription={subscription}
       stats={stats}
       permissions={permissions}
