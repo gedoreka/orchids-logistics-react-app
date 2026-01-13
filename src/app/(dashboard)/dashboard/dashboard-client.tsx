@@ -1,126 +1,234 @@
 "use client";
 
-import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { 
   Users, 
   Package, 
   UserCheck, 
-  AlertCircle, 
-  Calendar,
+  AlertTriangle,
   Building2,
   Clock,
   Ban,
-  TrendingUp,
-  ChevronLeft,
+  CreditCard,
+  Crown,
+  User,
+  Calendar,
   Copy,
   Eye,
-  EyeOff
+  EyeOff,
+  Bolt,
+  FileText,
+  Truck,
+  Store,
+  BadgeDollarSign,
+  Receipt,
+  BookOpen
 } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { useState } from "react";
 
 interface DashboardClientProps {
-  stats: any;
-  user: any;
-  company: any;
-  initialYear: number;
+  user: {
+    name: string;
+    email: string;
+    role: string;
+  };
+  company: {
+    name: string;
+    logo?: string;
+    commercial_number?: string;
+    vat_number?: string;
+    created_at?: string;
+    is_active?: boolean;
+    access_token?: string;
+  } | null;
+  subscription: {
+    message: string;
+    type: string;
+    badge: string;
+    remaining_days?: number;
+  };
+  stats: {
+    users_count?: number;
+    pending_requests?: number;
+    stopped_companies?: number;
+    total_employees?: number;
+    total_packages?: number;
+    active_employees?: number;
+    expired_iqama?: number;
+    credit_notes_count?: number;
+    credit_notes_total?: number;
+  };
+  permissions: Record<string, number>;
+  isAdmin: boolean;
 }
 
-export function DashboardClient({ stats, user, company, initialYear }: DashboardClientProps) {
-  const [year, setYear] = useState(initialYear);
-  const [showToken, setShowToken] = useState(false);
-  const isAdmin = user.role === "admin";
+export function DashboardClient({ 
+  user, 
+  company, 
+  subscription, 
+  stats, 
+  permissions,
+  isAdmin 
+}: DashboardClientProps) {
+  const [tokenVisible, setTokenVisible] = useState(false);
+  const [copied, setCopied] = useState(false);
 
-  const container = {
-    hidden: { opacity: 0 },
-    show: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.1
-      }
+  const copyToken = () => {
+    if (company?.access_token) {
+      navigator.clipboard.writeText(company.access_token);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
     }
   };
 
-  const item = {
-    hidden: { opacity: 0, y: 20 },
-    show: { opacity: 1, y: 0 }
+  const getBadgeColor = (badge: string) => {
+    switch (badge) {
+      case "success": return "bg-green-500";
+      case "warning": return "bg-yellow-500";
+      case "danger": return "bg-red-500";
+      case "primary": return "bg-blue-500";
+      default: return "bg-gray-500";
+    }
   };
+
+  const quickAccessItems = [
+    { title: "إدارة الموارد البشرية", href: "/hr", icon: Users, color: "bg-gradient-to-br from-blue-500 to-blue-600", permission: "employees_module" },
+    { title: "الفواتير الضريبية", href: "/sales-invoices", icon: FileText, color: "bg-gradient-to-br from-green-500 to-green-600", permission: "sales_module" },
+    { title: "التجارة الإلكترونية", href: "/ecommerce-orders", icon: Store, color: "bg-gradient-to-br from-purple-500 to-purple-600", permission: "ecommerce_orders_module" },
+    { title: "الشحنات", href: "/personal-shipments", icon: Truck, color: "bg-gradient-to-br from-orange-500 to-orange-600", permission: "personal_shipments_module" },
+    { title: "المصروفات", href: "/expenses", icon: BadgeDollarSign, color: "bg-gradient-to-br from-red-500 to-red-600", permission: "expenses_module" },
+    { title: "سندات القبض", href: "/receipt-vouchers", icon: Receipt, color: "bg-gradient-to-br from-teal-500 to-teal-600", permission: "receipt_vouchers_module" },
+    { title: "مركز الحسابات", href: "/accounts", icon: BookOpen, color: "bg-gradient-to-br from-indigo-500 to-indigo-600", permission: "accounts_module" },
+    { title: "قائمة العملاء", href: "/customers", icon: Users, color: "bg-gradient-to-br from-pink-500 to-pink-600", permission: "clients_module" },
+  ];
+
+  const filteredQuickAccess = quickAccessItems.filter(item => 
+    isAdmin || permissions[item.permission] === 1
+  );
 
   return (
     <div className="space-y-8">
-      {/* Welcome Section */}
-      <section className="relative overflow-hidden rounded-[32px] bg-white p-10 shadow-sm border border-gray-100">
-        <div className="absolute top-0 right-0 w-64 h-64 bg-[#3498db]/5 rounded-full -translate-y-1/2 translate-x-1/2 blur-3xl" />
-        <div className="relative z-10 text-center">
-          <h1 className="text-4xl font-black text-gray-900 mb-3 tracking-tight">
-            مرحباً بك، {user.name} 👋
-          </h1>
-          <p className="text-gray-500 font-bold text-lg mb-8">نظرة عامة على نشاط منشأتك اليوم</p>
-          
-          <div className="flex flex-wrap justify-center gap-4">
-            <div className="px-6 py-2.5 rounded-2xl bg-[#3498db]/10 text-[#3498db] text-sm font-black flex items-center gap-2">
-              <Calendar size={16} />
-              {isAdmin ? "مسؤول النظام" : company?.name}
-            </div>
-            <div className="px-6 py-2.5 rounded-2xl bg-green-500/10 text-green-600 text-sm font-black flex items-center gap-2">
-              <TrendingUp size={16} />
-              اشتراك نشط
-            </div>
-          </div>
-        </div>
-      </section>
+      {/* Main Dashboard Card */}
+      <motion.div 
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="relative overflow-hidden bg-white/95 backdrop-blur-xl rounded-3xl p-8 shadow-xl border border-white/30"
+      >
+        <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500" />
+        
+        <h1 className="text-3xl font-black text-center bg-gradient-to-r from-[#2c3e50] to-[#3498db] bg-clip-text text-transparent mb-2">
+          مرحباً بك في لوحة التحكم
+        </h1>
+        <p className="text-center text-gray-500 mb-8">إدارة شاملة ومتكاملة لجميع عمليات منشأتك</p>
 
-      {/* Info Cards Grid */}
+        <div className="flex justify-center gap-4 flex-wrap">
+          <span className={`px-4 py-2 rounded-full text-white font-bold text-sm flex items-center gap-2 ${getBadgeColor(subscription.badge)}`}>
+            <Crown size={16} />
+            {subscription.message}
+          </span>
+          <span className="px-4 py-2 rounded-full bg-gray-500 text-white font-bold text-sm flex items-center gap-2">
+            <User size={16} />
+            {isAdmin ? "مدير النظام" : "مدير منشأة"}
+          </span>
+          {company?.name && (
+            <span className="px-4 py-2 rounded-full bg-blue-500 text-white font-bold text-sm flex items-center gap-2">
+              <Building2 size={16} />
+              {company.name}
+            </span>
+          )}
+        </div>
+      </motion.div>
+
+      {/* Info Cards */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Company Info Card */}
-        <motion.div variants={item} className="bg-white/80 backdrop-blur-md p-8 rounded-[32px] border border-white shadow-sm hover:shadow-xl transition-all duration-500 group">
-          <div className="flex items-center gap-4 mb-8">
-            <div className="h-14 w-14 rounded-2xl bg-[#3498db]/10 flex items-center justify-center text-[#3498db] group-hover:bg-[#3498db] group-hover:text-white transition-all duration-500">
-              <Building2 size={28} />
-            </div>
+        <motion.div 
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.1 }}
+          className="bg-white/95 backdrop-blur-xl rounded-3xl p-6 shadow-xl border border-white/30 relative overflow-hidden"
+        >
+          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 to-purple-500" />
+          
+          <div className="flex items-center gap-3 mb-6 pb-4 border-b border-gray-100">
+            <Building2 className="text-blue-500" size={28} />
+            <h3 className="text-xl font-bold text-gray-800">معلومات المنشأة</h3>
+          </div>
+
+          <div className="flex items-center gap-4 mb-6">
+            {company?.logo ? (
+              <img src={company.logo} alt="Logo" className="w-20 h-20 rounded-2xl object-cover border-2 border-blue-500 shadow-lg" />
+            ) : (
+              <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center shadow-lg">
+                <Building2 className="text-white" size={32} />
+              </div>
+            )}
             <div>
-              <h3 className="text-xl font-black text-gray-900">بيانات المنشأة</h3>
-              <p className="text-xs font-bold text-gray-400">المعلومات الأساسية المسجلة</p>
+              <h4 className="text-lg font-bold text-gray-800">{company?.name || "اسم المنشأة"}</h4>
+              <p className="text-gray-500 text-sm">{company?.commercial_number || "رقم السجل التجاري"}</p>
             </div>
           </div>
 
           <div className="grid grid-cols-2 gap-4">
-            <div className="p-4 rounded-2xl bg-gray-50/50 border border-gray-100">
-              <span className="block text-[10px] font-black text-gray-400 uppercase mb-1">الرقم الضريبي</span>
-              <span className="text-sm font-bold text-gray-900">{company?.vat_number || "—"}</span>
+            <div className="bg-gray-50 p-4 rounded-xl border-r-4 border-blue-500">
+              <p className="text-xs text-gray-500 mb-1">الرقم الضريبي</p>
+              <p className="font-bold text-gray-800">{company?.vat_number || "غير محدد"}</p>
             </div>
-            <div className="p-4 rounded-2xl bg-gray-50/50 border border-gray-100">
-              <span className="block text-[10px] font-black text-gray-400 uppercase mb-1">السجل التجاري</span>
-              <span className="text-sm font-bold text-gray-900">{company?.commercial_number || "—"}</span>
+            <div className="bg-gray-50 p-4 rounded-xl border-r-4 border-green-500">
+              <p className="text-xs text-gray-500 mb-1">حالة الحساب</p>
+              <span className={`px-3 py-1 rounded-full text-xs font-bold text-white ${getBadgeColor(subscription.badge)}`}>
+                {subscription.message}
+              </span>
+            </div>
+            <div className="bg-gray-50 p-4 rounded-xl border-r-4 border-purple-500 col-span-2">
+              <p className="text-xs text-gray-500 mb-1">تاريخ الإنشاء</p>
+              <p className="font-bold text-gray-800">{company?.created_at || "غير محدد"}</p>
             </div>
           </div>
         </motion.div>
 
         {/* System Info Card */}
-        <motion.div variants={item} className="bg-white/80 backdrop-blur-md p-8 rounded-[32px] border border-white shadow-sm hover:shadow-xl transition-all duration-500 group">
-          <div className="flex items-center gap-4 mb-8">
-            <div className="h-14 w-14 rounded-2xl bg-[#764ba2]/10 flex items-center justify-center text-[#764ba2] group-hover:bg-[#764ba2] group-hover:text-white transition-all duration-500">
-              <Clock size={28} />
-            </div>
-            <div>
-              <h3 className="text-xl font-black text-gray-900">حالة النظام</h3>
-              <p className="text-xs font-bold text-gray-400">معلومات الدخول والاشتراك</p>
-            </div>
+        <motion.div 
+          initial={{ opacity: 0, x: 20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.2 }}
+          className="bg-white/95 backdrop-blur-xl rounded-3xl p-6 shadow-xl border border-white/30 relative overflow-hidden"
+        >
+          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-purple-500 to-pink-500" />
+          
+          <div className="flex items-center gap-3 mb-6 pb-4 border-b border-gray-100">
+            <Crown className="text-purple-500" size={28} />
+            <h3 className="text-xl font-bold text-gray-800">معلومات النظام</h3>
           </div>
 
           <div className="grid grid-cols-2 gap-4">
-            <div className="p-4 rounded-2xl bg-gray-50/50 border border-gray-100">
-              <span className="block text-[10px] font-black text-gray-400 uppercase mb-1">نوع الحساب</span>
-              <span className="text-sm font-bold text-gray-900">{isAdmin ? "مسؤول النظام" : "مدير منشأة"}</span>
+            <div className="bg-gray-50 p-4 rounded-xl border-r-4 border-blue-500">
+              <p className="text-xs text-gray-500 mb-1">نوع الحساب</p>
+              <p className="font-bold text-gray-800">{isAdmin ? "حساب إداري" : "حساب مستخدم"}</p>
             </div>
-            <div className="p-4 rounded-2xl bg-gray-50/50 border border-gray-100">
-              <span className="block text-[10px] font-black text-gray-400 uppercase mb-1">رمز الوصول</span>
+            <div className="bg-gray-50 p-4 rounded-xl border-r-4 border-green-500">
+              <p className="text-xs text-gray-500 mb-1">نوع الاشتراك</p>
+              <p className="font-bold text-gray-800">
+                {subscription.type === "premium" ? "دائم" : subscription.type === "active" ? "نشط" : "منتهي"}
+              </p>
+            </div>
+            <div className="bg-gray-50 p-4 rounded-xl border-r-4 border-purple-500">
+              <p className="text-xs text-gray-500 mb-1">حالة النظام</p>
+              <span className={`px-3 py-1 rounded-full text-xs font-bold text-white ${company?.is_active ? "bg-green-500" : "bg-red-500"}`}>
+                {company?.is_active ? "نشط" : "متوقف"}
+              </span>
+            </div>
+            <div className="bg-gray-50 p-4 rounded-xl border-r-4 border-orange-500">
+              <p className="text-xs text-gray-500 mb-1">رمز الوصول</p>
               <div className="flex items-center gap-2">
-                <span className={cn("text-xs font-mono font-bold transition-all", !showToken && "blur-sm select-none")}>
-                  {company?.access_token || "—"}
+                <span className={`font-mono text-xs ${tokenVisible ? "" : "blur-sm select-none"}`}>
+                  {company?.access_token?.substring(0, 12) || "غير متاح"}...
                 </span>
-                <button onClick={() => setShowToken(!showToken)} className="text-gray-400 hover:text-gray-900 transition-colors">
-                  {showToken ? <EyeOff size={14} /> : <Eye size={14} />}
+                <button onClick={() => setTokenVisible(!tokenVisible)} className="p-1 hover:bg-gray-200 rounded">
+                  {tokenVisible ? <EyeOff size={14} /> : <Eye size={14} />}
+                </button>
+                <button onClick={copyToken} className="p-1 hover:bg-gray-200 rounded">
+                  <Copy size={14} className={copied ? "text-green-500" : ""} />
                 </button>
               </div>
             </div>
@@ -128,91 +236,191 @@ export function DashboardClient({ stats, user, company, initialYear }: Dashboard
         </motion.div>
       </div>
 
-      {/* Stats Section Header */}
-      <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-black text-gray-900 flex items-center gap-3">
-          <div className="w-2 h-8 bg-[#3498db] rounded-full" />
-          الإحصائيات العامة
-        </h2>
-        
-        <div className="flex items-center gap-3 bg-white p-1.5 rounded-2xl shadow-sm border border-gray-100">
-          <span className="text-xs font-black text-gray-400 px-3">السنة المالية</span>
-          <select 
-            value={year} 
-            onChange={(e) => setYear(parseInt(e.target.value))}
-            className="bg-gray-50 border-none rounded-xl py-1.5 px-4 text-xs font-bold outline-none focus:ring-0 cursor-pointer"
-          >
-            {[2024, 2025, 2026].map(y => (
-              <option key={y} value={y}>{y}</option>
-            ))}
-          </select>
-        </div>
-      </div>
-
-      {/* Main Stats Grid */}
+      {/* Year Filter */}
       <motion.div 
-        variants={container}
-        initial="hidden"
-        animate="show"
-        className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.3 }}
+        className="bg-white/95 backdrop-blur-xl rounded-2xl p-5 shadow-xl border border-white/30 flex items-center justify-between flex-wrap gap-4"
       >
+        <div className="flex items-center gap-3 text-gray-700 font-bold">
+          <Calendar className="text-blue-500" size={24} />
+          <span>اختر السنة المالية</span>
+        </div>
+        <select className="px-5 py-3 rounded-xl border border-gray-200 bg-white font-semibold focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all">
+          {[2024, 2025, 2026, 2027, 2028].map(year => (
+            <option key={year} value={year}>{year}</option>
+          ))}
+        </select>
+      </motion.div>
+
+      {/* Stats Grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         {isAdmin ? (
           <>
-            <StatCard icon={Users} title="المستخدمين النشطين" value={stats.users_count} color="blue" />
-            <StatCard icon={Clock} title="طلبات التسجيل" value={stats.pending_requests} color="orange" />
-            <StatCard icon={Ban} title="شركات موقوفة" value={stats.stopped_companies} color="red" />
-            <StatCard icon={Package} title="إجمالي الفواتير" value={stats.invoices_count} color="green" />
+            <StatCard 
+              icon={Users} 
+              value={stats.users_count || 0} 
+              label="المستخدمين النشطين" 
+              badge="نشط"
+              badgeColor="bg-green-500"
+              iconColor="bg-gradient-to-br from-blue-500 to-blue-600"
+              delay={0.4}
+            />
+            <StatCard 
+              icon={Clock} 
+              value={stats.pending_requests || 0} 
+              label="طلبات جديدة" 
+              badge="قيد الانتظار"
+              badgeColor="bg-yellow-500"
+              iconColor="bg-gradient-to-br from-yellow-500 to-orange-500"
+              delay={0.5}
+            />
+            <StatCard 
+              icon={Ban} 
+              value={stats.stopped_companies || 0} 
+              label="شركات متوقفة" 
+              badge="متوقف"
+              badgeColor="bg-red-500"
+              iconColor="bg-gradient-to-br from-red-500 to-red-600"
+              delay={0.6}
+            />
+            <StatCard 
+              icon={Building2} 
+              value={(stats.users_count || 0) + (stats.pending_requests || 0)} 
+              label="إجمالي الشركات" 
+              badge="الكل"
+              badgeColor="bg-purple-500"
+              iconColor="bg-gradient-to-br from-purple-500 to-purple-600"
+              delay={0.7}
+            />
           </>
         ) : (
           <>
-            <StatCard icon={Users} title="إجمالي الموظفين" value={stats.total_employees} color="blue" />
-            <StatCard icon={Package} title="الباقات المفعلة" value={stats.total_packages} color="green" />
-            <StatCard icon={UserCheck} title="موظفين نشطين" value={stats.active_employees} color="indigo" />
-            <StatCard icon={AlertCircle} title="إقامات منتهية" value={stats.expired_iqama} color="red" />
+            <StatCard 
+              icon={Users} 
+              value={stats.total_employees || 0} 
+              label="إجمالي الموظفين" 
+              badge="موظفين"
+              badgeColor="bg-blue-500"
+              iconColor="bg-gradient-to-br from-blue-500 to-blue-600"
+              delay={0.4}
+            />
+            <StatCard 
+              icon={Package} 
+              value={stats.total_packages || 0} 
+              label="الباقات المضافة" 
+              badge="باقات"
+              badgeColor="bg-green-500"
+              iconColor="bg-gradient-to-br from-green-500 to-green-600"
+              delay={0.5}
+            />
+            <StatCard 
+              icon={UserCheck} 
+              value={stats.active_employees || 0} 
+              label="الموظفين النشطين" 
+              badge="نشط"
+              badgeColor="bg-teal-500"
+              iconColor="bg-gradient-to-br from-teal-500 to-teal-600"
+              delay={0.6}
+            />
+            {permissions.credit_notes_module === 1 ? (
+              <StatCard 
+                icon={CreditCard} 
+                value={stats.credit_notes_total || 0} 
+                label="إشعارات الدائن" 
+                badge="دائن"
+                badgeColor="bg-red-500"
+                iconColor="bg-gradient-to-br from-red-500 to-red-600"
+                delay={0.7}
+                isCurrency
+                subValue={`${stats.credit_notes_count || 0} إشعار`}
+              />
+            ) : (
+              <StatCard 
+                icon={AlertTriangle} 
+                value={stats.expired_iqama || 0} 
+                label="إقامات منتهية" 
+                badge="تنبيه"
+                badgeColor="bg-red-500"
+                iconColor="bg-gradient-to-br from-red-500 to-red-600"
+                delay={0.7}
+              />
+            )}
           </>
         )}
+      </div>
+
+      {/* Quick Access */}
+      <motion.div 
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.8 }}
+        className="bg-white/95 backdrop-blur-xl rounded-3xl p-8 shadow-xl border border-white/30"
+      >
+        <h3 className="text-xl font-bold text-gray-800 mb-6 flex items-center gap-3">
+          <Bolt className="text-yellow-500" size={24} />
+          الوصول السريع
+        </h3>
+
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+          {filteredQuickAccess.map((item, index) => (
+            <motion.a
+              key={item.href}
+              href={item.href}
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.9 + index * 0.05 }}
+              whileHover={{ y: -5, scale: 1.02 }}
+              className="bg-gray-50 hover:bg-white p-6 rounded-2xl text-center transition-all border border-transparent hover:border-gray-200 hover:shadow-lg group"
+            >
+              <div className={`w-14 h-14 mx-auto mb-3 rounded-2xl ${item.color} flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform`}>
+                <item.icon className="text-white" size={24} />
+              </div>
+              <span className="font-semibold text-gray-700 text-sm">{item.title}</span>
+            </motion.a>
+          ))}
+        </div>
       </motion.div>
     </div>
   );
 }
 
-function StatCard({ icon: Icon, title, value, color }: { icon: any, title: string, value: number, color: string }) {
-  const colorMap: any = {
-    blue: "from-blue-500 to-blue-600 bg-blue-50 text-blue-600",
-    green: "from-green-500 to-green-600 bg-green-50 text-green-600",
-    red: "from-red-500 to-red-600 bg-red-50 text-red-600",
-    orange: "from-orange-500 to-orange-600 bg-orange-50 text-orange-600",
-    indigo: "from-indigo-500 to-indigo-600 bg-indigo-50 text-indigo-600",
-  };
+interface StatCardProps {
+  icon: React.ElementType;
+  value: number;
+  label: string;
+  badge: string;
+  badgeColor: string;
+  iconColor: string;
+  delay: number;
+  isCurrency?: boolean;
+  subValue?: string;
+}
 
+function StatCard({ icon: Icon, value, label, badge, badgeColor, iconColor, delay, isCurrency, subValue }: StatCardProps) {
   return (
-    <motion.div 
-      variants={{
-        hidden: { opacity: 0, y: 20 },
-        show: { opacity: 1, y: 0 }
-      }}
-      className="bg-white p-8 rounded-[32px] border border-gray-100 shadow-sm hover:shadow-xl transition-all duration-500 group relative overflow-hidden"
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay }}
+      whileHover={{ y: -8, scale: 1.02 }}
+      className="bg-white/95 backdrop-blur-xl rounded-3xl p-6 shadow-xl border border-white/30 text-center relative overflow-hidden"
     >
-      <div className={cn("absolute top-0 right-0 w-32 h-32 opacity-[0.03] -translate-y-1/2 translate-x-1/2 transition-transform duration-700 group-hover:scale-150")}>
-        <Icon size={128} />
+      <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 to-transparent" />
+      <span className={`absolute top-4 left-4 px-3 py-1 rounded-full text-xs font-bold text-white ${badgeColor}`}>
+        {badge}
+      </span>
+      
+      <div className={`w-16 h-16 mx-auto mb-4 rounded-2xl ${iconColor} flex items-center justify-center shadow-lg`}>
+        <Icon className="text-white" size={28} />
       </div>
-
-      <div className="flex flex-col items-center text-center relative z-10">
-        <div className={cn("h-16 w-16 rounded-2xl flex items-center justify-center mb-6 transition-all duration-500 group-hover:scale-110", colorMap[color])}>
-          <Icon size={32} />
-        </div>
-        <h4 className="text-3xl font-black text-gray-900 mb-2 tracking-tight">
-          {value?.toLocaleString() || 0}
-        </h4>
-        <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">{title}</p>
-      </div>
-
-      <div className="mt-6 flex justify-center">
-        <div className="flex items-center gap-1 text-[10px] font-black text-[#3498db] bg-[#3498db]/5 px-3 py-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-          عرض التفاصيل
-          <ChevronLeft size={10} />
-        </div>
-      </div>
+      
+      <h4 className="text-3xl font-black text-gray-800 mb-2">
+        {isCurrency ? `${value.toLocaleString()} ر.س` : value.toLocaleString()}
+      </h4>
+      <p className="text-gray-500 font-semibold">{label}</p>
+      {subValue && <p className="text-xs text-gray-400 mt-1">{subValue}</p>}
     </motion.div>
   );
 }

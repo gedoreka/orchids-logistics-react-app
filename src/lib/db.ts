@@ -1,7 +1,5 @@
-
 import postgres from 'postgres';
 
-// Use Supabase connection string from environment variables
 const connectionString = process.env.DATABASE_URL || 'postgresql://postgres.xaexoopjqkrzhbochbef:FQtpzJwraLTrb3gHEX7R2oaAnJPAsyhVntIFiAvsA20kivkFYiKnfpwxQP7iCsiB@aws-0-us-west-2.pooler.supabase.com:5432/postgres';
 
 const sql = postgres(connectionString, {
@@ -13,15 +11,20 @@ const sql = postgres(connectionString, {
 
 export async function query<T>(queryStr: string, params: any[] = []): Promise<T[]> {
   try {
-    // Convert MySQL style '?' to PostgreSQL style '$1, $2, ...'
-    let index = 1;
-    const pgQuery = queryStr.replace(/\?/g, () => `$${index++}`);
-    
-    // Execute the query
-    const result = await sql.unsafe(pgQuery, params);
+    const result = await sql.unsafe(queryStr, params);
     return result as unknown as T[];
   } catch (error) {
     console.error('Database query error:', error);
+    throw error;
+  }
+}
+
+export async function execute(queryStr: string, params: any[] = []): Promise<any> {
+  try {
+    const result = await sql.unsafe(queryStr, params);
+    return result;
+  } catch (error) {
+    console.error('Database execute error:', error);
     throw error;
   }
 }
