@@ -81,16 +81,21 @@ export default async function EmployeeDetailsPage({ params }: { params: { id: st
   );
 
   // Helper function to format dates to strings
-  const formatDate = (obj: any) => {
-    if (!obj) return obj;
-    const newObj = { ...obj };
-    for (const key in newObj) {
-      if (newObj[key] instanceof Date) {
-        newObj[key] = newObj[key].toISOString().split('T')[0];
+    const formatDate = (obj: any) => {
+      if (!obj) return obj;
+      const newObj = { ...obj };
+      for (const key in newObj) {
+        if (newObj[key] instanceof Date) {
+          const d = newObj[key] as Date;
+          if (!isNaN(d.getTime())) {
+            newObj[key] = d.toISOString().split('T')[0];
+          } else {
+            newObj[key] = null;
+          }
+        }
       }
-    }
-    return newObj;
-  };
+      return newObj;
+    };
 
   return (
     <EmployeeDetailsClient 

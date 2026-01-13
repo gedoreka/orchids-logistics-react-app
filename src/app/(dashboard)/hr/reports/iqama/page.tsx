@@ -52,13 +52,13 @@ export default async function IqamaReportPage({ searchParams }: {
       if (filter === 'soon' && (days > 30 || days < 0)) return false;
       if (filter === 'active' && days <= 30) return false;
       return true;
-    }).map((item: any) => ({
-      ...item,
-      // Convert Date object to string to avoid rendering error in Client Component
-      iqama_expiry: item.iqama_expiry instanceof Date 
-        ? item.iqama_expiry.toISOString().split('T')[0] 
-        : item.iqama_expiry
-    })).sort((a: any, b: any) => a.days_remaining - b.days_remaining);
+      }).map((item: any) => ({
+        ...item,
+        // Convert Date object to string to avoid rendering error in Client Component
+        iqama_expiry: item.iqama_expiry instanceof Date 
+          ? (!isNaN(item.iqama_expiry.getTime()) ? item.iqama_expiry.toISOString().split('T')[0] : null)
+          : item.iqama_expiry
+      })).sort((a: any, b: any) => a.days_remaining - b.days_remaining);
 
   // 4. Stats
   const stats = {

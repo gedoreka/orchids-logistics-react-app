@@ -94,21 +94,24 @@ export function EmployeeDetailsClient({
   const [mounted, setMounted] = useState(false);
   const router = useRouter();
 
-  const [personalInfo, setPersonalInfo] = useState({
-    iqama_number: employee.iqama_number || "",
-    identity_number: employee.identity_number || "",
-    job_title: employee.job_title || "",
-    user_code: employee.user_code || "",
-    nationality: employee.nationality || "",
-    phone: employee.phone || "",
-    email: employee.email || "",
-    vehicle_plate: employee.vehicle_plate || "",
-    birth_date: employee.birth_date ? new Date(employee.birth_date).toISOString().split('T')[0] : "",
-    passport_number: employee.passport_number || "",
-    operation_card_number: employee.operation_card_number || "",
-    basic_salary: employee.basic_salary || "",
-    housing_allowance: employee.housing_allowance || ""
-  });
+    const [personalInfo, setPersonalInfo] = useState({
+      iqama_number: employee.iqama_number || "",
+      identity_number: employee.identity_number || "",
+      job_title: employee.job_title || "",
+      user_code: employee.user_code || "",
+      nationality: employee.nationality || "",
+      phone: employee.phone || "",
+      email: employee.email || "",
+      vehicle_plate: employee.vehicle_plate || "",
+      birth_date: employee.birth_date ? (() => {
+        const d = new Date(employee.birth_date);
+        return !isNaN(d.getTime()) ? d.toISOString().split('T')[0] : "";
+      })() : "",
+      passport_number: employee.passport_number || "",
+      operation_card_number: employee.operation_card_number || "",
+      basic_salary: employee.basic_salary || "",
+      housing_allowance: employee.housing_allowance || ""
+    });
 
   const [bankInfo, setBankInfo] = useState({
     bank_account: employee.bank_account || "",

@@ -250,17 +250,20 @@ export function PackageViewClient({
                     <td className="px-6 py-4">
                       <span className="text-sm font-bold text-gray-600">{emp.iqama_number}</span>
                     </td>
-                    <td className="px-6 py-4">
-                      <div className="flex items-center gap-2">
-                        <input 
-                          type="date"
-                          defaultValue={emp.iqama_expiry ? new Date(emp.iqama_expiry).toISOString().split('T')[0] : ''}
-                          onChange={(e) => handleUpdateExpiry(emp.id, e.target.value)}
-                          className="bg-transparent border-none text-xs font-bold text-gray-600 focus:ring-0 cursor-pointer hover:text-[#9b59b6] transition-colors"
-                        />
-                        <ExpiryIcon date={emp.iqama_expiry} />
-                      </div>
-                    </td>
+                      <td className="px-6 py-4">
+                        <div className="flex items-center gap-2">
+                          <input 
+                            type="date"
+                            defaultValue={emp.iqama_expiry ? (() => {
+                              const d = new Date(emp.iqama_expiry);
+                              return !isNaN(d.getTime()) ? d.toISOString().split('T')[0] : "";
+                            })() : ""}
+                            onChange={(e) => handleUpdateExpiry(emp.id, e.target.value)}
+                            className="bg-transparent border-none text-xs font-bold text-gray-600 focus:ring-0 cursor-pointer hover:text-[#9b59b6] transition-colors"
+                          />
+                          <ExpiryIcon date={emp.iqama_expiry} />
+                        </div>
+                      </td>
                     <td className="px-6 py-4">
                       <span className="text-sm font-black text-gray-900">{Number(emp.basic_salary).toLocaleString()} ر.س</span>
                     </td>
@@ -321,7 +324,10 @@ function StatPill({ label, value }: any) {
 
 function ExpiryIcon({ date }: { date: string }) {
   if (!date) return null;
-  const days = Math.round((new Date(date).getTime() - new Date().getTime()) / 86400000);
+  const d = new Date(date);
+  if (isNaN(d.getTime())) return null;
+  
+  const days = Math.round((d.getTime() - new Date().getTime()) / 86400000);
   
   if (days <= 0) return <AlertTriangle size={14} className="text-red-500" />;
   if (days <= 30) return <AlertTriangle size={14} className="text-orange-500" />;
