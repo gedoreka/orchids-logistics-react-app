@@ -180,10 +180,10 @@ export function TasksClient({
               }`}>
                 {task.priority === 'high' ? 'أولوية عالية' : task.priority === 'medium' ? 'متوسطة' : 'منخفضة'}
               </span>
-              <button 
-                onClick={() => handleDelete(task.id)}
-                className="h-8 w-8 rounded-lg bg-red-50 text-red-600 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
-              >
+                <button 
+                  onClick={() => handleDelete(task.id)}
+                  className="h-8 w-8 rounded-lg bg-red-50 text-red-600 flex items-center justify-center transition-opacity"
+                >
                 <Trash2 size={14} />
               </button>
             </div>

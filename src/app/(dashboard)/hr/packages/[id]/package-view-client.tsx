@@ -246,21 +246,21 @@ export function PackageViewClient({
                       </span>
                     )}
                   </td>
-                  <td className="px-6 py-4">
-                    <div className="flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <Link href={`/hr/employees/${emp.id}`}>
-                        <button className="h-8 w-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center hover:bg-blue-600 hover:text-white transition-all shadow-sm">
-                          <Eye size={14} />
+                    <td className="px-6 py-4">
+                      <div className="flex items-center justify-center gap-2 transition-opacity">
+                        <Link href={`/hr/employees/${emp.id}`}>
+                          <button className="h-8 w-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center hover:bg-blue-600 hover:text-white transition-all shadow-sm">
+                            <Eye size={14} />
+                          </button>
+                        </Link>
+                        <button 
+                          onClick={() => handleDelete(emp.id)}
+                          className="h-8 w-8 rounded-lg bg-red-50 text-red-600 flex items-center justify-center hover:bg-red-600 hover:text-white transition-all shadow-sm"
+                        >
+                          <Trash2 size={14} />
                         </button>
-                      </Link>
-                      <button 
-                        onClick={() => handleDelete(emp.id)}
-                        className="h-8 w-8 rounded-lg bg-red-50 text-red-600 flex items-center justify-center hover:bg-red-600 hover:text-white transition-all shadow-sm"
-                      >
-                        <Trash2 size={14} />
-                      </button>
-                    </div>
-                  </td>
+                      </div>
+                    </td>
                 </tr>
               ))}
               {employees.length === 0 && (
