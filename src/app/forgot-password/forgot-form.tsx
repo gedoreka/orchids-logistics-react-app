@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
   Lock, 
@@ -8,31 +8,47 @@ import {
   AlertTriangle, 
   Send, 
   ArrowRight,
-  Info,
-  Truck
+  Info
 } from "lucide-react";
 import Link from "next/link";
 import { forgotPasswordAction } from "@/lib/actions/auth";
 import { useRouter } from "next/navigation";
+
+function FloatingShapes() {
+  return (
+    <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
+      {[...Array(4)].map((_, i) => (
+        <motion.div
+          key={i}
+          className="absolute bg-white/10 rounded-full"
+          animate={{
+            y: [0, -30, 0],
+            rotate: [0, 180, 360],
+          }}
+          transition={{
+            duration: 8,
+            repeat: Infinity,
+            delay: i * 2,
+            ease: "easeInOut",
+          }}
+          style={{
+            width: 100 - i * 10,
+            height: 100 - i * 10,
+            top: `${10 + i * 25}%`,
+            left: i % 2 === 0 ? `${10 + i * 5}%` : undefined,
+            right: i % 2 !== 0 ? `${10 + i * 5}%` : undefined,
+          }}
+        />
+      ))}
+    </div>
+  );
+}
 
 export default function ForgotForm() {
   const [email, setEmail] = useState("");
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
-
-  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
-
-  useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
-      setMousePosition({
-        x: (e.clientX / window.innerWidth) * 20 - 10,
-        y: (e.clientY / window.innerHeight) * 20 - 10,
-      });
-    };
-    window.addEventListener("mousemove", handleMouseMove);
-    return () => window.removeEventListener("mousemove", handleMouseMove);
-  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -53,37 +69,30 @@ export default function ForgotForm() {
   };
 
   return (
-    <div className="relative min-h-screen w-full flex items-center justify-center p-4 overflow-hidden bg-[#f8fafc]">
-      {/* Dynamic Background */}
-      <div className="absolute inset-0 z-0">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(0,128,128,0.05),transparent_50%)]" />
-        <div className="absolute top-[-10%] right-[-10%] w-[40%] h-[40%] bg-teal-600/5 blur-[120px] rounded-full" />
-        <div className="bottom-[-10%] left-[-10%] absolute w-[40%] h-[40%] bg-blue-600/5 blur-[120px] rounded-full" />
-      </div>
-
-      {/* Grid Pattern */}
-      <div className="absolute inset-0 z-0 opacity-[0.4]" style={{ backgroundImage: 'radial-gradient(#e2e8f0 1px, transparent 1px)', backgroundSize: '40px 40px' }} />
+    <div className="relative min-h-screen w-full flex items-center justify-center p-4 overflow-hidden">
+      <FloatingShapes />
 
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+        initial={{ opacity: 0, scale: 0.9, y: 20 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        transition={{ duration: 0.8, ease: "easeOut" }}
         className="relative z-10 w-full max-w-[440px]"
       >
-        <div className="relative overflow-hidden rounded-[32px] border border-slate-200 bg-white p-8 md:p-10 shadow-[0_20px_50px_rgba(0,0,0,0.05)] transition-all duration-500 hover:shadow-[0_20px_60px_rgba(0,0,0,0.08)]">
+        <div className="relative overflow-hidden rounded-[32px] border border-[var(--glass-border)] bg-[var(--glass-bg)] backdrop-blur-[var(--frosted-blur)] p-8 md:p-10 shadow-[var(--card-shadow)] transition-all duration-500 hover:shadow-[var(--hover-shadow)]">
+          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#3498db] to-[#2ecc71]" />
           
           <div className="mb-10 text-center">
             <motion.div 
               initial={{ scale: 0.8 }}
               animate={{ scale: 1 }}
-              className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-2xl bg-gradient-to-br from-teal-500 to-teal-700 shadow-[0_10px_25px_rgba(0,128,128,0.2)]"
+              className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-2xl bg-gradient-to-br from-[#667eea] to-[#764ba2] shadow-[0_10px_25px_rgba(102,126,234,0.3)]"
             >
               <Lock size={36} className="text-white" />
             </motion.div>
-            <h1 className="mb-2 text-3xl font-bold tracking-tight text-slate-900">
+            <h1 className="mb-2 text-3xl font-black tracking-tight text-[var(--text-color)]">
               استعادة الحساب
             </h1>
-            <p className="text-slate-500 text-sm font-medium">أدخل بريدك الإلكتروني لإعادة تعيين كلمة المرور</p>
+            <p className="text-[var(--text-color)] text-sm font-medium opacity-80">أدخل بريدك الإلكتروني لإعادة تعيين كلمة المرور</p>
           </div>
 
           <AnimatePresence>
@@ -100,16 +109,16 @@ export default function ForgotForm() {
             )}
           </AnimatePresence>
 
-          <div className="mb-8 rounded-2xl border border-teal-200 bg-teal-50 p-4 text-right" dir="rtl">
-            <p className="flex items-start gap-3 text-sm text-teal-700 font-medium leading-relaxed">
-              <Info size={18} className="mt-0.5 shrink-0" />
+          <div className="mb-8 rounded-2xl border border-[#3498db]/20 bg-[#3498db]/5 p-4 text-right" dir="rtl">
+            <p className="flex items-start gap-3 text-sm text-[var(--text-color)] font-medium leading-relaxed">
+              <Info size={18} className="mt-0.5 shrink-0 text-[#3498db]" />
               سنرسل لك رمزاً مكوناً من 6 أرقام إلى بريدك الإلكتروني لتتمكن من تعيين كلمة مرور جديدة.
             </p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6 text-right" dir="rtl">
             <div className="space-y-2">
-              <label className="text-xs font-semibold uppercase tracking-wider text-slate-500 mr-1">
+              <label className="text-sm font-bold text-[var(--text-color)] mr-1">
                 البريد الإلكتروني
               </label>
               <div className="relative group">
@@ -119,18 +128,18 @@ export default function ForgotForm() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="name@company.com"
-                  className="w-full rounded-2xl border border-slate-200 bg-slate-50 py-4 pl-4 pr-12 text-slate-900 placeholder:text-slate-400 outline-none transition-all duration-300 focus:border-teal-500 focus:bg-white focus:ring-4 focus:ring-teal-500/5"
+                  className="w-full rounded-2xl border border-[var(--glass-border)] bg-[var(--glass-bg)] py-4 pl-4 pr-12 text-[var(--text-color)] placeholder:text-gray-500 outline-none transition-all duration-300 focus:bg-white focus:ring-4 focus:ring-green-500/5 shadow-inner"
                 />
-                <Mail size={18} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-teal-500 transition-colors" />
+                <Mail size={18} className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-green-500 transition-colors" />
               </div>
             </div>
 
             <motion.button
               type="submit"
               disabled={isLoading}
-              whileHover={{ scale: 1.01 }}
+              whileHover={{ scale: 1.01, translateY: -2 }}
               whileTap={{ scale: 0.99 }}
-              className="relative w-full overflow-hidden rounded-2xl bg-teal-600 py-4 text-sm font-bold text-white shadow-[0_10px_20px_rgba(0,128,128,0.15)] transition-all duration-300 hover:bg-teal-700 disabled:opacity-70 group"
+              className="relative w-full overflow-hidden rounded-2xl bg-gradient-to-r from-[#667eea] to-[#764ba2] py-4 text-lg font-bold text-white shadow-[0_10px_20px_rgba(102,126,234,0.3)] transition-all duration-300 disabled:opacity-70 group"
             >
               <div className="flex items-center justify-center gap-2">
                 {isLoading ? (
@@ -145,10 +154,10 @@ export default function ForgotForm() {
             </motion.button>
           </form>
 
-          <div className="mt-8 border-t border-slate-100 pt-8 text-center">
+          <div className="mt-8 border-t border-[var(--glass-border)] pt-8 text-center">
             <Link
               href="/login"
-              className="inline-flex items-center gap-2 text-sm font-bold text-slate-500 hover:text-teal-600 transition-all group"
+              className="inline-flex items-center gap-2 text-sm font-bold text-[var(--text-color)] opacity-70 hover:opacity-100 hover:text-[#3498db] transition-all group"
             >
               <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
               العودة لتسجيل الدخول

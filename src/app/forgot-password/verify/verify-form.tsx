@@ -17,6 +17,36 @@ import Link from "next/link";
 import { verifyTokenAction, forgotPasswordAction } from "@/lib/actions/auth";
 import { useRouter } from "next/navigation";
 
+function FloatingShapes() {
+  return (
+    <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
+      {[...Array(4)].map((_, i) => (
+        <motion.div
+          key={i}
+          className="absolute bg-white/10 rounded-full"
+          animate={{
+            y: [0, -30, 0],
+            rotate: [0, 180, 360],
+          }}
+          transition={{
+            duration: 8,
+            repeat: Infinity,
+            delay: i * 2,
+            ease: "easeInOut",
+          }}
+          style={{
+            width: 100 - i * 10,
+            height: 100 - i * 10,
+            top: `${10 + i * 25}%`,
+            left: i % 2 === 0 ? `${10 + i * 5}%` : undefined,
+            right: i % 2 !== 0 ? `${10 + i * 5}%` : undefined,
+          }}
+        />
+      ))}
+    </div>
+  );
+}
+
 interface VerifyFormProps {
   email: string;
   userName: string;
@@ -93,44 +123,37 @@ export default function VerifyForm({ email, userName }: VerifyFormProps) {
   };
 
   return (
-    <div className="relative min-h-screen w-full flex items-center justify-center p-4 overflow-hidden bg-[#f8fafc]">
-      {/* Dynamic Background */}
-      <div className="absolute inset-0 z-0">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(0,128,128,0.05),transparent_50%)]" />
-        <div className="absolute top-[-10%] right-[-10%] w-[40%] h-[40%] bg-teal-600/5 blur-[120px] rounded-full" />
-        <div className="bottom-[-10%] left-[-10%] absolute w-[40%] h-[40%] bg-blue-600/5 blur-[120px] rounded-full" />
-      </div>
-
-      {/* Grid Pattern */}
-      <div className="absolute inset-0 z-0 opacity-[0.4]" style={{ backgroundImage: 'radial-gradient(#e2e8f0 1px, transparent 1px)', backgroundSize: '40px 40px' }} />
+    <div className="relative min-h-screen w-full flex items-center justify-center p-4 overflow-hidden">
+      <FloatingShapes />
 
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+        initial={{ opacity: 0, scale: 0.9, y: 20 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        transition={{ duration: 0.8, ease: "easeOut" }}
         className="relative z-10 w-full max-w-[480px]"
       >
-        <div className="relative overflow-hidden rounded-[32px] border border-slate-200 bg-white p-8 md:p-10 shadow-[0_20px_50px_rgba(0,0,0,0.05)] transition-all duration-500 hover:shadow-[0_20px_60px_rgba(0,0,0,0.08)]">
+        <div className="relative overflow-hidden rounded-[32px] border border-[var(--glass-border)] bg-[var(--glass-bg)] backdrop-blur-[var(--frosted-blur)] p-8 md:p-10 shadow-[var(--card-shadow)] transition-all duration-500 hover:shadow-[var(--hover-shadow)]">
+          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#3498db] to-[#2ecc71]" />
           
           <div className="mb-8 text-center">
             <motion.div 
               initial={{ scale: 0.8 }}
               animate={{ scale: 1 }}
-              className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-2xl bg-gradient-to-br from-teal-500 to-teal-700 shadow-[0_10px_25px_rgba(0,128,128,0.2)]"
+              className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-2xl bg-gradient-to-br from-[#667eea] to-[#764ba2] shadow-[0_10px_25px_rgba(102,126,234,0.3)]"
             >
               <ShieldCheck size={36} className="text-white" />
             </motion.div>
-            <h1 className="mb-2 text-3xl font-bold tracking-tight text-slate-900">
+            <h1 className="mb-2 text-3xl font-black tracking-tight text-[var(--text-color)]">
               تأكيد الرمز
             </h1>
-            <p className="text-slate-500 text-sm font-medium">تم إرسال رمز التحقق إلى بريدك الإلكتروني</p>
+            <p className="text-[var(--text-color)] text-sm font-medium opacity-80">تم إرسال رمز التحقق إلى بريدك الإلكتروني</p>
           </div>
 
-          <div className="mb-6 flex items-center gap-4 rounded-2xl border border-slate-100 bg-slate-50 p-4 text-right" dir="rtl">
-            <UserCircle size={24} className="text-teal-600 shrink-0" />
+          <div className="mb-6 flex items-center gap-4 rounded-2xl border border-[var(--glass-border)] bg-[var(--glass-bg)] p-4 text-right" dir="rtl">
+            <UserCircle size={24} className="text-[#3498db] shrink-0" />
             <div className="overflow-hidden">
-              <h5 className="font-bold text-slate-900 text-sm truncate">{userName}</h5>
-              <p className="text-xs text-slate-500 truncate">{email}</p>
+              <h5 className="font-bold text-[var(--text-color)] text-sm truncate">{userName}</h5>
+              <p className="text-xs text-[var(--text-color)] opacity-70 truncate">{email}</p>
             </div>
           </div>
 
@@ -150,7 +173,7 @@ export default function VerifyForm({ email, userName }: VerifyFormProps) {
 
           <form onSubmit={handleSubmit} className="space-y-6 text-right" dir="rtl">
             <div className="space-y-2">
-              <label className="text-xs font-semibold uppercase tracking-wider text-slate-500 mr-1">
+              <label className="text-xs font-bold uppercase tracking-wider text-[var(--text-color)] opacity-70 mr-1">
                 رمز التحقق (6 أرقام)
               </label>
               <div className="relative group">
@@ -161,7 +184,7 @@ export default function VerifyForm({ email, userName }: VerifyFormProps) {
                   value={token}
                   onChange={(e) => setToken(e.target.value.replace(/[^0-9]/g, ""))}
                   placeholder="000000"
-                  className="w-full rounded-2xl border border-slate-200 bg-slate-50 py-5 text-center text-3xl font-bold tracking-[12px] text-slate-900 placeholder:text-slate-300 outline-none transition-all duration-300 focus:border-teal-500 focus:bg-white focus:ring-4 focus:ring-teal-500/5"
+                  className="w-full rounded-2xl border border-[var(--glass-border)] bg-[var(--glass-bg)] py-5 text-center text-3xl font-bold tracking-[12px] text-[var(--text-color)] placeholder:text-gray-300 outline-none transition-all duration-300 focus:bg-white focus:ring-4 focus:ring-green-500/5 shadow-inner"
                 />
               </div>
             </div>
@@ -176,9 +199,9 @@ export default function VerifyForm({ email, userName }: VerifyFormProps) {
             <motion.button
               type="submit"
               disabled={isLoading || timeLeft === 0}
-              whileHover={{ scale: 1.01 }}
+              whileHover={{ scale: 1.01, translateY: -2 }}
               whileTap={{ scale: 0.99 }}
-              className="relative w-full overflow-hidden rounded-2xl bg-teal-600 py-4 text-sm font-bold text-white shadow-[0_10px_20px_rgba(0,128,128,0.15)] transition-all duration-300 hover:bg-teal-700 disabled:opacity-50 group"
+              className="relative w-full overflow-hidden rounded-2xl bg-gradient-to-r from-[#667eea] to-[#764ba2] py-4 text-lg font-bold text-white shadow-[0_10px_20px_rgba(102,126,234,0.3)] transition-all duration-300 disabled:opacity-50 group"
             >
               <div className="flex items-center justify-center gap-2">
                 {isLoading ? (
@@ -195,7 +218,7 @@ export default function VerifyForm({ email, userName }: VerifyFormProps) {
 
           <div className="mt-8 text-center">
             {resendTimeLeft > 0 ? (
-              <p className="text-sm text-slate-500 flex items-center justify-center gap-2">
+              <p className="text-sm text-[var(--text-color)] opacity-70 flex items-center justify-center gap-2">
                 إعادة إرسال الرمز خلال {resendTimeLeft} ثانية
               </p>
             ) : (
@@ -203,7 +226,7 @@ export default function VerifyForm({ email, userName }: VerifyFormProps) {
                 type="button"
                 onClick={handleResend}
                 disabled={isLoading}
-                className="text-sm font-bold text-teal-600 hover:text-teal-700 transition-colors flex items-center justify-center gap-2 mx-auto disabled:opacity-50 group"
+                className="text-sm font-bold text-[#3498db] hover:underline transition-colors flex items-center justify-center gap-2 mx-auto disabled:opacity-50 group"
               >
                 <Send size={14} className="group-hover:-translate-y-0.5 group-hover:translate-x-0.5 transition-transform" />
                 لم يصلك الرمز؟ إعادة الإرسال الآن
@@ -211,10 +234,10 @@ export default function VerifyForm({ email, userName }: VerifyFormProps) {
             )}
           </div>
 
-          <div className="mt-8 border-t border-slate-100 pt-8 text-center">
+          <div className="mt-8 border-t border-[var(--glass-border)] pt-8 text-center">
             <Link
               href="/forgot-password"
-              className="inline-flex items-center gap-2 text-sm font-bold text-slate-500 hover:text-teal-600 transition-all group"
+              className="inline-flex items-center gap-2 text-sm font-bold text-[var(--text-color)] opacity-70 hover:opacity-100 hover:text-[#3498db] transition-all group"
             >
               <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform" />
               تغيير البريد الإلكتروني

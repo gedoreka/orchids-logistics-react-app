@@ -45,25 +45,42 @@ const districts: Record<string, string[]> = {
   "القاهرة": ["مدينة نصر", "المعادي", "الزمالك", "شبرا", "مصر الجديدة"]
 };
 
+function FloatingShapes() {
+  return (
+    <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
+      {[...Array(4)].map((_, i) => (
+        <motion.div
+          key={i}
+          className="absolute bg-white/10 rounded-full"
+          animate={{
+            y: [0, -30, 0],
+            rotate: [0, 180, 360],
+          }}
+          transition={{
+            duration: 8,
+            repeat: Infinity,
+            delay: i * 2,
+            ease: "easeInOut",
+          }}
+          style={{
+            width: 100 - i * 10,
+            height: 100 - i * 10,
+            top: `${10 + i * 25}%`,
+            left: i % 2 === 0 ? `${10 + i * 5}%` : undefined,
+            right: i % 2 !== 0 ? `${10 + i * 5}%` : undefined,
+          }}
+        />
+      ))}
+    </div>
+  );
+}
+
 export default function RegisterForm() {
   const [isLoading, setIsLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [country, setCountry] = useState("");
   const [region, setRegion] = useState("");
   const router = useRouter();
-
-  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
-
-  useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
-      setMousePosition({
-        x: (e.clientX / window.innerWidth) * 20 - 10,
-        y: (e.clientY / window.innerHeight) * 20 - 10,
-      });
-    };
-    window.addEventListener("mousemove", handleMouseMove);
-    return () => window.removeEventListener("mousemove", handleMouseMove);
-  }, []);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -84,30 +101,25 @@ export default function RegisterForm() {
 
   if (success) {
     return (
-      <div className="min-h-screen w-full flex items-center justify-center p-4 bg-[#f8fafc] overflow-hidden" dir="rtl">
-        {/* Decorative Background */}
-        <div className="absolute inset-0 z-0">
-          <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-teal-600/5 blur-[120px] rounded-full" />
-          <div className="bottom-[-10%] right-[-10%] absolute w-[40%] h-[40%] bg-blue-600/5 blur-[120px] rounded-full" />
-        </div>
-
+      <div className="min-h-screen w-full flex items-center justify-center p-4 overflow-hidden" dir="rtl">
+        <FloatingShapes />
         <motion.div 
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
-          className="relative z-10 w-full max-w-2xl bg-white rounded-[40px] p-10 shadow-[0_20px_50px_rgba(0,0,0,0.05)] text-center border border-slate-100"
+          className="relative z-10 w-full max-w-2xl bg-[var(--glass-bg)] backdrop-blur-[var(--frosted-blur)] rounded-[30px] p-10 shadow-[var(--card-shadow)] text-center border border-[var(--glass-border)]"
         >
-          <div className="mx-auto mb-8 flex h-24 w-24 items-center justify-center rounded-full bg-teal-50 text-teal-600">
+          <div className="mx-auto mb-8 flex h-24 w-24 items-center justify-center rounded-full bg-green-50 text-green-600">
             <CheckCircle2 size={48} />
           </div>
-          <h1 className="text-3xl font-bold text-slate-900 mb-6">تم تقديم طلبك بنجاح!</h1>
-          <div className="space-y-4 text-slate-600 text-lg mb-10 leading-relaxed">
-            <p>شكراً لانضمامك إلى <span className="text-teal-600 font-bold">Logistics Systems Pro</span></p>
+          <h1 className="text-3xl font-bold text-[var(--text-color)] mb-6">تم تقديم طلبك بنجاح!</h1>
+          <div className="space-y-4 text-[var(--text-color)] text-lg mb-10 leading-relaxed">
+            <p>شكراً لانضمامك إلى <span className="font-bold">Logistics Systems Pro</span></p>
             <p>لقد استلمنا طلب تسجيل منشأتك بنجاح. سيقوم فريقنا بمراجعة البيانات والمستندات المرفقة خلال 24-48 ساعة.</p>
             <p>سيتم إرسال بريد إلكتروني إليك فور تفعيل الحساب.</p>
           </div>
           <Link 
             href="/login" 
-            className="inline-flex items-center gap-2 px-8 py-4 bg-teal-600 text-white rounded-2xl font-bold hover:bg-teal-700 transition-all shadow-lg shadow-teal-600/20"
+            className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-[#667eea] to-[#764ba2] text-white rounded-2xl font-bold hover:shadow-[var(--hover-shadow)] transition-all"
           >
             العودة لصفحة الدخول
             <ArrowRight size={20} className="rotate-180" />
@@ -118,57 +130,46 @@ export default function RegisterForm() {
   }
 
   return (
-    <div className="relative min-h-screen w-full bg-[#f8fafc] py-12 px-4 md:px-6 overflow-x-hidden" dir="rtl">
-      {/* Dynamic Background Shapes */}
-      <div className="fixed inset-0 z-0 pointer-events-none">
-        <motion.div 
-          animate={{ x: mousePosition.x * 2, y: mousePosition.y * 2 }}
-          className="absolute top-[10%] left-[5%] w-[300px] h-[300px] bg-teal-400/10 blur-[100px] rounded-full" 
-        />
-        <motion.div 
-          animate={{ x: -mousePosition.x * 1.5, y: -mousePosition.y * 1.5 }}
-          className="absolute bottom-[20%] right-[10%] w-[400px] h-[400px] bg-indigo-400/10 blur-[100px] rounded-full" 
-        />
-        <div className="absolute inset-0 opacity-[0.4]" style={{ backgroundImage: 'radial-gradient(#e2e8f0 1px, transparent 1px)', backgroundSize: '40px 40px' }} />
-      </div>
+    <div className="relative min-h-screen w-full py-12 px-4 md:px-6 overflow-x-hidden" dir="rtl">
+      <FloatingShapes />
 
-      <div className="relative z-10 max-w-5xl mx-auto">
+      <div className="relative z-10 max-w-[1400px] mx-auto">
         {/* Header */}
         <motion.div 
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="text-center mb-12"
+          className="bg-[var(--glass-bg)] backdrop-blur-[var(--frosted-blur)] border border-[var(--glass-border)] rounded-[30px] p-10 mb-10 shadow-[var(--card-shadow)] text-center relative overflow-hidden"
         >
-          <div className="inline-flex items-center gap-3 px-6 py-2 rounded-full bg-teal-50 text-teal-700 text-sm font-bold mb-6 border border-teal-100">
-            <Building2 size={16} />
-            بوابة تسجيل المنشآت
-          </div>
-          <h1 className="text-4xl md:text-5xl font-black text-slate-900 mb-4 tracking-tight">
-            Logistics Systems Pro
+          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#3498db] via-[#2ecc71] via-[#e74c3c] via-[#f39c12] via-[#9b59b6] to-[#3498db] bg-[length:200%_100%] animate-[gradientFlow_3s_linear_infinite]" />
+          <h1 className="text-4xl md:text-5xl font-black text-[var(--text-color)] mb-4 flex items-center justify-center gap-4">
+            <Building2 size={48} />
+            تسجيل منشأة جديدة
           </h1>
-          <p className="text-slate-500 text-lg font-medium">ابدأ رحلتك اللوجستية الاحترافية معنا اليوم</p>
+          <p className="text-[var(--text-color)] text-xl font-medium">املأ النموذج أدناه لتسجيل منشأتك في نظام Logistics Systems Pro</p>
         </motion.div>
 
-        <form onSubmit={handleSubmit} className="space-y-8">
+        <form onSubmit={handleSubmit} className="space-y-6">
           {/* Section: Establishment Data */}
           <FormSection title="بيانات المنشأة الأساسية" icon={<Building2 />}>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <InputField label="اسم المنشأة" name="name" icon={<Building2 />} required placeholder="الاسم التجاري الكامل" />
-              <InputField label="رقم السجل التجاري" name="commercial_number" icon={<FileCheck />} required placeholder="رقم السجل المكون من 10 أرقام" />
-              <InputField label="الرقم الضريبي" name="vat_number" icon={<CreditCard />} placeholder="الرقم الضريبي الموحد" />
-              <InputField label="رقم الهاتف" name="phone" icon={<Phone />} placeholder="05xxxxxxxx" />
+              <InputField label="اسم المنشأة" name="name" icon={<Building2 />} required placeholder="أدخل اسم المنشأة" />
+              <InputField label="رقم السجل التجاري" name="commercial_number" icon={<FileCheck />} required placeholder="أدخل رقم السجل التجاري" />
+              <InputField label="الرقم الضريبي" name="vat_number" icon={<CreditCard />} placeholder="أدخل الرقم الضريبي" />
+              <InputField label="رقم الهاتف" name="phone" icon={<Phone />} placeholder="أدخل رقم الهاتف" />
               <InputField label="الموقع الإلكتروني" name="website" type="url" icon={<Globe />} placeholder="https://example.com" />
               
               <div className="space-y-2">
-                <label className="text-sm font-bold text-slate-700 mr-1 flex items-center gap-2">
-                  <CreditCard size={16} className="text-teal-600" />
-                  العملة الأساسية
+                <label className="text-lg font-bold text-[var(--text-color)] flex items-center gap-2">
+                  <CreditCard size={20} className="text-green-500" />
+                  العملة
                 </label>
-                <select name="currency" required className="w-full rounded-2xl border border-slate-200 bg-slate-50/50 py-4 px-4 text-slate-900 outline-none focus:border-teal-500 focus:bg-white focus:ring-4 focus:ring-teal-500/5 transition-all">
+                <select name="currency" required className="w-full rounded-2xl border border-[var(--glass-border)] bg-[var(--glass-bg)] py-4 px-4 text-[var(--text-color)] outline-none focus:bg-white transition-all">
                   <option value="">اختر العملة</option>
                   <option value="SAR">ريال سعودي (SAR)</option>
                   <option value="USD">دولار أمريكي (USD)</option>
                   <option value="AED">درهم إماراتي (AED)</option>
+                  <option value="EUR">يورو (EUR)</option>
+                  <option value="EGP">جنيه مصري (EGP)</option>
                   <option value="SDG">جنيه سوداني (SDG)</option>
                 </select>
               </div>
@@ -183,15 +184,15 @@ export default function RegisterForm() {
           <FormSection title="الموقع الجغرافي" icon={<MapPin />}>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div className="space-y-2">
-                <label className="text-sm font-bold text-slate-700 mr-1 flex items-center gap-2">
-                  <Globe size={16} className="text-teal-600" />
+                <label className="text-lg font-bold text-[var(--text-color)] flex items-center gap-2">
+                  <Globe size={20} className="text-green-500" />
                   الدولة
                 </label>
                 <select 
                   name="country" 
                   required 
                   onChange={(e) => {setCountry(e.target.value); setRegion("");}}
-                  className="w-full rounded-2xl border border-slate-200 bg-slate-50/50 py-4 px-4 text-slate-900 outline-none focus:border-teal-500 focus:bg-white transition-all"
+                  className="w-full rounded-2xl border border-[var(--glass-border)] bg-[var(--glass-bg)] py-4 px-4 text-[var(--text-color)] outline-none focus:bg-white transition-all"
                 >
                   <option value="">اختر الدولة</option>
                   {Object.keys(regions).map(c => <option key={c} value={c}>{c}</option>)}
@@ -199,16 +200,16 @@ export default function RegisterForm() {
               </div>
 
               <div className="space-y-2">
-                <label className="text-sm font-bold text-slate-700 mr-1 flex items-center gap-2">
-                  <MapPin size={16} className="text-teal-600" />
-                  المنطقة / الولاية
+                <label className="text-lg font-bold text-[var(--text-color)] flex items-center gap-2">
+                  <MapPin size={20} className="text-green-500" />
+                  المنطقة
                 </label>
                 <select 
                   name="region" 
                   required 
                   value={region}
                   onChange={(e) => setRegion(e.target.value)}
-                  className="w-full rounded-2xl border border-slate-200 bg-slate-50/50 py-4 px-4 text-slate-900 outline-none focus:border-teal-500 focus:bg-white transition-all"
+                  className="w-full rounded-2xl border border-[var(--glass-border)] bg-[var(--glass-bg)] py-4 px-4 text-[var(--text-color)] outline-none focus:bg-white transition-all"
                 >
                   <option value="">اختر المنطقة</option>
                   {country && regions[country]?.map(r => <option key={r} value={r}>{r}</option>)}
@@ -216,41 +217,41 @@ export default function RegisterForm() {
               </div>
 
               <div className="space-y-2">
-                <label className="text-sm font-bold text-slate-700 mr-1 flex items-center gap-2">
-                  <MapPin size={16} className="text-teal-600" />
+                <label className="text-lg font-bold text-[var(--text-color)] flex items-center gap-2">
+                  <MapPin size={20} className="text-green-500" />
                   الحي
                 </label>
                 <select 
                   name="district" 
                   required 
-                  className="w-full rounded-2xl border border-slate-200 bg-slate-50/50 py-4 px-4 text-slate-900 outline-none focus:border-teal-500 focus:bg-white transition-all"
+                  className="w-full rounded-2xl border border-[var(--glass-border)] bg-[var(--glass-bg)] py-4 px-4 text-[var(--text-color)] outline-none focus:bg-white transition-all"
                 >
                   <option value="">اختر الحي</option>
                   {region && districts[region]?.map(d => <option key={d} value={d}>{d}</option>)}
                 </select>
               </div>
 
-              <InputField label="الشارع" name="street" className="md:col-span-2" placeholder="اسم الشارع ورقم المبنى" />
-              <InputField label="الرمز البريدي" name="postal_code" placeholder="12345" />
-              <InputField label="العنوان الوطني المختصر" name="short_address" className="md:col-span-3" placeholder="مثال: ABCD1234" />
+              <InputField label="الشارع" name="street" className="md:col-span-2" placeholder="أدخل اسم الشارع" />
+              <InputField label="الرمز البريدي" name="postal_code" placeholder="أدخل الرمز البريدي" />
+              <InputField label="العنوان الوطني المختصر" name="short_address" className="md:col-span-3" placeholder="أدخل العنوان المختصر" />
             </div>
           </FormSection>
 
           {/* Section: Bank */}
           <FormSection title="الحساب البنكي" icon={<University />}>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <InputField label="اسم المستفيد" name="bank_beneficiary" icon={<User />} placeholder="اسم المنشأة كما في البنك" />
-              <InputField label="اسم البنك" name="bank_name" icon={<University />} placeholder="مثال: بنك الراجحي" />
-              <InputField label="رقم الحساب" name="bank_account" icon={<CreditCard />} placeholder="رقم الحساب البنكي" />
-              <InputField label="رقم الآيبان (IBAN)" name="bank_iban" icon={<CreditCard />} placeholder="SAxxxxxxxxxxxxxxxxxxxxxx" />
+              <InputField label="اسم المستفيد" name="bank_beneficiary" icon={<User />} placeholder="أدخل اسم المستفيد" />
+              <InputField label="اسم البنك" name="bank_name" icon={<University />} placeholder="أدخل اسم البنك" />
+              <InputField label="رقم الحساب" name="bank_account" icon={<CreditCard />} placeholder="أدخل رقم الحساب" />
+              <InputField label="رقم الآيبان" name="bank_iban" icon={<CreditCard />} placeholder="أدخل رقم الآيبان" />
             </div>
           </FormSection>
 
           {/* Section: License */}
-          <FormSection title="بيانات الترخيص" icon={<FileCheck />}>
+          <FormSection title="ترخيص النقل" icon={<FileCheck />}>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <InputField label="رقم ترخيص النقل" name="transport_license_number" icon={<FileCheck />} />
-              <InputField label="نوع الترخيص" name="transport_license_type" placeholder="مثال: نقل بري بضائع" />
+              <InputField label="رقم الترخيص" name="transport_license_number" icon={<FileCheck />} placeholder="أدخل رقم الترخيص" />
+              <InputField label="نوع الترخيص" name="transport_license_type" placeholder="أدخل نوع الترخيص" />
               <FileUploadField label="صورة الترخيص" name="license_image" icon={<Upload />} accept="image/*,application/pdf" />
               
               <div className="grid grid-cols-2 gap-4">
@@ -261,12 +262,12 @@ export default function RegisterForm() {
           </FormSection>
 
           {/* Section: User Account */}
-          <FormSection title="بيانات مدير النظام" icon={<User />}>
+          <FormSection title="بيانات مستخدم الحساب" icon={<User />}>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <InputField label="البريد الإلكتروني الرسمي" name="user_email" type="email" icon={<Mail />} required placeholder="سيكون هذا اسم المستخدم للدخول" />
+              <InputField label="البريد الإلكتروني" name="user_email" type="email" icon={<Mail />} required placeholder="أدخل البريد الإلكتروني" />
               <div />
-              <InputField label="كلمة المرور" name="password" type="password" icon={<Lock />} required placeholder="••••••••" />
-              <InputField label="تأكيد كلمة المرور" name="confirm_password" type="password" icon={<Lock />} required placeholder="••••••••" />
+              <InputField label="كلمة المرور" name="password" type="password" icon={<Lock />} required placeholder="أدخل كلمة المرور" />
+              <InputField label="تأكيد كلمة المرور" name="confirm_password" type="password" icon={<Lock />} required placeholder="أكد كلمة المرور" />
             </div>
           </FormSection>
 
@@ -279,20 +280,26 @@ export default function RegisterForm() {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full relative overflow-hidden group py-6 rounded-[24px] bg-teal-600 text-white font-black text-xl shadow-[0_20px_40px_rgba(0,128,128,0.25)] transition-all hover:bg-teal-700 hover:shadow-[0_25px_50px_rgba(0,128,128,0.35)] disabled:opacity-70 flex items-center justify-center gap-4"
+              className="w-full relative overflow-hidden group py-6 rounded-[15px] bg-gradient-to-r from-[#667eea] to-[#764ba2] text-white font-bold text-2xl shadow-[0_8px_25px_rgba(102,126,234,0.4)] transition-all hover:translate-y-[-5px] disabled:opacity-70 flex items-center justify-center gap-4"
             >
               {isLoading ? (
                 <div className="h-7 w-7 animate-spin rounded-full border-4 border-white/30 border-t-white" />
               ) : (
                   <>
-                    إرسال طلب الانضمام
-                    <SendHorizontal size={24} className="group-hover:translate-x-[-10px] group-hover:translate-y-[-10px] transition-transform" />
+                    <SendHorizontal size={28} />
+                    إرسال طلب التسجيل
                   </>
               )}
             </button>
-            <p className="mt-6 text-center text-slate-500 font-medium">
+            <div className="mt-8 text-center text-[var(--text-color)] text-lg p-5 bg-[var(--glass-bg)] backdrop-blur-[var(--frosted-blur)] rounded-[15px] border border-[var(--glass-border)] border-l-4 border-l-[#3498db]">
+              <div className="flex items-center justify-center gap-3">
+                <AlertCircle className="text-green-500" />
+                سيتم مراجعة الطلب من قبل الإدارة وتفعيل الحساب بعد التأكد من صحة المعلومات والمستندات المقدمة
+              </div>
+            </div>
+            <p className="mt-6 text-center text-[var(--text-color)] font-medium">
               لديك حساب بالفعل؟{" "}
-              <Link href="/login" className="text-teal-600 font-bold hover:underline">تسجيل الدخول</Link>
+              <Link href="/login" className="text-[#3498db] font-bold hover:underline">تسجيل الدخول</Link>
             </p>
           </motion.div>
         </form>
@@ -307,13 +314,13 @@ function FormSection({ title, icon, children }: { title: string; icon: React.Rea
       initial={{ opacity: 0, y: 20 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
-      className="bg-white rounded-[32px] p-8 border border-slate-100 shadow-[0_10px_30px_rgba(0,0,0,0.02)] transition-all hover:shadow-[0_15px_40px_rgba(0,0,0,0.04)]"
+      className="bg-[var(--glass-bg)] backdrop-blur-[var(--frosted-blur)] rounded-[25px] p-8 border border-[var(--glass-border)] border-r-4 border-r-[#3498db] shadow-[var(--card-shadow)] relative overflow-hidden group hover:translate-y-[-5px] transition-all"
     >
-      <div className="flex items-center gap-4 mb-8 pb-6 border-b border-slate-50">
-        <div className="h-14 w-14 rounded-2xl bg-teal-50 text-teal-600 flex items-center justify-center shadow-sm">
-          {React.cloneElement(icon as React.ReactElement, { size: 28 })}
+      <div className="flex items-center gap-4 mb-8 pb-4 border-b border-[var(--glass-border)]">
+        <div className="h-16 w-16 rounded-full bg-[var(--glass-bg)] backdrop-blur-[var(--frosted-blur)] border border-[var(--glass-border)] text-[var(--text-color)] flex items-center justify-center shadow-[var(--glass-shadow)] group-hover:scale-110 group-hover:rotate-12 transition-all">
+          {React.cloneElement(icon as React.ReactElement, { size: 32 })}
         </div>
-        <h2 className="text-2xl font-black text-slate-800">{title}</h2>
+        <h2 className="text-3xl font-bold text-[var(--text-color)]">{title}</h2>
       </div>
       {children}
     </motion.div>
@@ -322,16 +329,21 @@ function FormSection({ title, icon, children }: { title: string; icon: React.Rea
 
 function InputField({ label, icon, className = "", ...props }: any) {
   return (
-    <div className={`space-y-2 ${className}`}>
-      <label className="text-sm font-bold text-slate-700 mr-1 flex items-center gap-2">
-        {icon && React.cloneElement(icon as React.ReactElement, { size: 16, className: "text-teal-600" })}
+    <div className={`space-y-3 ${className}`}>
+      <label className="text-lg font-bold text-[var(--text-color)] flex items-center gap-2">
+        {icon && React.cloneElement(icon as React.ReactElement, { size: 20, className: "text-green-500" })}
         {label}
       </label>
       <div className="relative group">
         <input
           {...props}
-          className="w-full rounded-2xl border border-slate-200 bg-slate-50/50 py-4 px-4 text-slate-900 placeholder:text-slate-400 outline-none transition-all duration-300 focus:border-teal-500 focus:bg-white focus:ring-4 focus:ring-teal-500/5"
+          className="w-full rounded-[15px] border border-[var(--glass-border)] bg-[var(--glass-bg)] backdrop-blur-[var(--frosted-blur)] py-4 px-4 text-[var(--text-color)] placeholder:text-gray-500 outline-none transition-all duration-300 focus:bg-white focus:ring-4 focus:ring-green-500/5 shadow-inner"
         />
+        {icon && (
+          <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-green-500 transition-all pointer-events-none">
+             {React.cloneElement(icon as React.ReactElement, { size: 20 })}
+          </span>
+        )}
       </div>
     </div>
   );
@@ -341,23 +353,23 @@ function FileUploadField({ label, icon, ...props }: any) {
   const [fileName, setFileName] = useState("");
 
   return (
-    <div className="space-y-2">
-      <label className="text-sm font-bold text-slate-700 mr-1 flex items-center gap-2">
-        {icon && React.cloneElement(icon as React.ReactElement, { size: 16, className: "text-teal-600" })}
+    <div className="space-y-3">
+      <label className="text-lg font-bold text-[var(--text-color)] flex items-center gap-2">
+        {icon && React.cloneElement(icon as React.ReactElement, { size: 20, className: "text-green-500" })}
         {label}
       </label>
       <div className="relative">
-        <label className="flex flex-col items-center justify-center w-full min-h-[100px] border-2 border-dashed border-slate-200 rounded-2xl bg-slate-50/50 hover:bg-white hover:border-teal-500 transition-all cursor-pointer group">
-          <div className="flex flex-col items-center justify-center pt-5 pb-6">
+        <label className="flex flex-col items-center justify-center w-full min-h-[54px] border-2 border-dashed border-[var(--glass-border)] rounded-[15px] bg-[var(--glass-bg)] backdrop-blur-[var(--frosted-blur)] hover:bg-green-500/10 hover:border-green-500 transition-all cursor-pointer group">
+          <div className="flex items-center gap-3 py-4">
             {fileName ? (
-              <div className="flex items-center gap-2 text-teal-600 font-bold">
+              <div className="flex items-center gap-2 text-green-600 font-bold">
                 <CheckCircle2 size={24} />
-                <span className="text-sm max-w-[200px] truncate">{fileName}</span>
+                <span className="text-lg max-w-[200px] truncate">{fileName}</span>
               </div>
             ) : (
               <>
-                <Upload className="w-8 h-8 mb-2 text-slate-400 group-hover:text-teal-500 transition-colors" />
-                <p className="text-xs text-slate-500 group-hover:text-teal-600">انقر للرفع</p>
+                <Upload className="w-6 h-6 text-[var(--text-color)] group-hover:text-green-500 transition-colors" />
+                <p className="text-lg text-[var(--text-color)]">اختر ملف</p>
               </>
             )}
           </div>
