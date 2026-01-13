@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
-  Tasks, 
+  ListTodo, 
   Plus, 
   Search, 
   Filter, 
@@ -230,7 +230,7 @@ export function TasksClient({
 
         {tasks.length === 0 && (
           <div className="col-span-full py-20 flex flex-col items-center gap-4 opacity-30">
-            <Tasks size={80} />
+            <ListTodo size={80} />
             <span className="text-2xl font-black text-center">لا توجد مهام حالياً</span>
           </div>
         )}
