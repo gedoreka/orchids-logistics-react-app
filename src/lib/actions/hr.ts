@@ -16,6 +16,7 @@ export async function createEmployeePackage(data: {
       [data.group_name, data.work_type, data.monthly_target, data.bonus_after_target, data.company_id]
     );
     revalidatePath("/hr");
+    revalidatePath("/hr/packages");
     return { success: true };
   } catch (error: any) {
     return { success: false, error: error.message };
@@ -36,6 +37,7 @@ export async function deleteEmployeePackage(id: number) {
 
     await query("DELETE FROM employee_packages WHERE id = ?", [id]);
     revalidatePath("/hr");
+    revalidatePath("/hr/packages");
     return { success: true };
   } catch (error: any) {
     return { success: false, error: error.message };
@@ -59,7 +61,88 @@ export async function saveEmployees(packageId: number, employees: any[]) {
       );
     }
     revalidatePath(`/hr/packages/${packageId}`);
+    revalidatePath("/hr");
     return { success: true, message: "تم حفظ الموظفين بنجاح" };
+  } catch (error: any) {
+    return { success: false, error: error.message };
+  }
+}
+
+export async function updateEmployeePersonalInfo(id: number, data: any) {
+  try {
+    await query(
+      `UPDATE employees SET 
+        iqama_number = ?, user_code = ?, nationality = ?, 
+        phone = ?, email = ?, vehicle_plate = ?, 
+        birth_date = ?, passport_number = ?, operation_card_number = ?
+      WHERE id = ?`,
+      [
+        data.iqama_number, data.user_code, data.nationality,
+        data.phone, data.email, data.vehicle_plate,
+        data.birth_date || null, data.passport_number, data.operation_card_number,
+        id
+      ]
+    );
+    revalidatePath(`/hr/employees/${id}`);
+    return { success: true };
+  } catch (error: any) {
+    return { success: false, error: error.message };
+  }
+}
+
+export async function updateEmployeeBankInfo(id: number, data: any) {
+  try {
+    await query(
+      `UPDATE employees SET bank_account = ?, iban = ?, bank_name = ? WHERE id = ?`,
+      [data.bank_account, data.iban, data.bank_name, id]
+    );
+    revalidatePath(`/hr/employees/${id}`);
+    return { success: true };
+  } catch (error: any) {
+    return { success: false, error: error.message };
+  }
+}
+
+export async function toggleEmployeeStatus(id: number, currentStatus: number) {
+  try {
+    const newStatus = currentStatus === 1 ? 0 : 1;
+    await query("UPDATE employees SET is_active = ? WHERE id = ?", [newStatus, id]);
+    revalidatePath("/hr");
+    revalidatePath("/hr/packages");
+    return { success: true };
+  } catch (error: any) {
+    return { success: false, error: error.message };
+  }
+}
+
+export async function toggleEmployeeFreeze(id: number, currentFrozen: number) {
+  try {
+    const newFrozen = currentFrozen === 1 ? 0 : 1;
+    await query("UPDATE employees SET is_frozen = ? WHERE id = ?", [newFrozen, id]);
+    revalidatePath("/hr/packages");
+    return { success: true };
+  } catch (error: any) {
+    return { success: false, error: error.message };
+  }
+}
+
+export async function deleteEmployee(id: number) {
+  try {
+    await query("DELETE FROM employees WHERE id = ?", [id]);
+    revalidatePath("/hr");
+    revalidatePath("/hr/packages");
+    return { success: true };
+  } catch (error: any) {
+    return { success: false, error: error.message };
+  }
+}
+
+export async function updateIqamaExpiry(id: number, expiryDate: string) {
+  try {
+    await query("UPDATE employees SET iqama_expiry = ? WHERE id = ?", [expiryDate, id]);
+    revalidatePath("/hr");
+    revalidatePath("/hr/packages");
+    return { success: true };
   } catch (error: any) {
     return { success: false, error: error.message };
   }
@@ -82,6 +165,7 @@ export async function addViolation(data: {
       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
       [data.employee_id, data.violation_type, data.violation_date, data.violation_amount, data.deducted_amount, remaining_amount, data.status, data.violation_description]
     );
+    revalidatePath(`/hr/employees/${data.employee_id}`);
     return { success: true };
   } catch (error: any) {
     return { success: false, error: error.message };
@@ -105,6 +189,44 @@ export async function addLetter(data: {
       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
       [data.employee_id, data.letter_type, data.start_date, data.end_date, data.duration_days, data.violation_amount, data.letter_details, data.document_path || null]
     );
+    revalidatePath(`/hr/employees/${data.employee_id}`);
+    return { success: true };
+  } catch (error: any) {
+    return { success: false, error: error.message };
+  }
+}
+
+export async function createTask(data: any) {
+  try {
+    await query(
+      `INSERT INTO employee_tasks (title, description, assigned_to, company_id, due_date, priority, status, created_by) 
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+      [data.title, data.description, data.assigned_to || null, data.company_id, data.due_date, data.priority, data.status, data.created_by]
+    );
+    revalidatePath("/hr/tasks");
+    revalidatePath("/hr");
+    return { success: true };
+  } catch (error: any) {
+    return { success: false, error: error.message };
+  }
+}
+
+export async function updateTaskStatus(id: number, status: string) {
+  try {
+    await query("UPDATE employee_tasks SET status = ? WHERE id = ?", [status, id]);
+    revalidatePath("/hr/tasks");
+    revalidatePath("/hr");
+    return { success: true };
+  } catch (error: any) {
+    return { success: false, error: error.message };
+  }
+}
+
+export async function deleteTask(id: number) {
+  try {
+    await query("DELETE FROM employee_tasks WHERE id = ?", [id]);
+    revalidatePath("/hr/tasks");
+    revalidatePath("/hr");
     return { success: true };
   } catch (error: any) {
     return { success: false, error: error.message };
