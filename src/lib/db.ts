@@ -13,7 +13,10 @@ export async function query<T>(queryStr: string, params: any[] = []): Promise<T[
   try {
     // Convert MySQL style "?" to PostgreSQL style "$1, $2, ..."
     let index = 1;
-    const processedQuery = queryStr.replace(/\?/g, () => `$${index++}`);
+    const processedQuery = queryStr.replace(/\?/g, () => '$' + (index++));
+    
+    // Log query for debugging
+    console.log(`[DB] Executing: ${processedQuery} | Params: ${JSON.stringify(params)}`);
     
     const result = await sql.unsafe(processedQuery, params);
     return result as unknown as T[];
@@ -27,7 +30,7 @@ export async function execute(queryStr: string, params: any[] = []): Promise<any
   try {
     // Convert MySQL style "?" to PostgreSQL style "$1, $2, ..."
     let index = 1;
-    const processedQuery = queryStr.replace(/\?/g, () => `$${index++}`);
+    const processedQuery = queryStr.replace(/\?/g, () => '$' + (index++));
     
     const result = await sql.unsafe(processedQuery, params);
     return result;

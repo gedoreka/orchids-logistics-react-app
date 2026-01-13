@@ -7,30 +7,31 @@ import bcrypt from "bcryptjs";
 import { sendResetCode } from "@/lib/mail";
 import { supabase } from "@/lib/supabase-client";
 
-export async function registerAction(formData: FormData): Promise<AuthResponse> {
-  try {
-    const name = formData.get("name") as string;
-    const commercial_number = formData.get("commercial_number") as string;
-    const vat_number = formData.get("vat_number") as string;
-    const phone = formData.get("phone") as string;
-    const website = formData.get("website") as string;
-    const currency = formData.get("currency") as string;
-    const country = formData.get("country") as string;
-    const region = formData.get("region") as string;
-    const district = formData.get("district") as string;
-    const street = formData.get("street") as string;
-    const postal_code = formData.get("postal_code") as string;
-    const short_address = formData.get("short_address") as string;
-    const bank_beneficiary = formData.get("bank_beneficiary") as string;
-    const bank_name = formData.get("bank_name") as string;
-    const bank_account = formData.get("bank_account") as string;
-    const bank_iban = formData.get("bank_iban") as string;
-    const transport_license_number = formData.get("transport_license_number") as string;
-    const transport_license_type = formData.get("transport_license_type") as string;
-    const license_start = formData.get("license_start") as string;
-    const license_end = formData.get("license_end") as string;
-    const user_email = formData.get("user_email") as string;
-    const password = formData.get("password") as string;
+  export async function registerAction(formData: FormData): Promise<AuthResponse> {
+    try {
+      const name = formData.get("name") as string;
+      const commercial_number = formData.get("commercial_number") as string;
+      const vat_number = formData.get("vat_number") as string;
+      const phone = formData.get("phone") as string;
+      const website = formData.get("website") as string;
+      const currency = formData.get("currency") as string;
+      const country = formData.get("country") as string;
+      const region = formData.get("region") as string;
+      const district = formData.get("district") as string;
+      const street = formData.get("street") as string;
+      const postal_code = formData.get("postal_code") as string;
+      const short_address = formData.get("short_address") as string;
+      const bank_beneficiary = formData.get("bank_beneficiary") as string;
+      const bank_name = formData.get("bank_name") as string;
+      const bank_account = formData.get("bank_account") as string;
+      const bank_iban = formData.get("bank_iban") as string;
+      const transport_license_number = formData.get("transport_license_number") as string;
+      const transport_license_type = formData.get("transport_license_type") as string;
+      const license_start = formData.get("license_start") as string;
+      const license_end = formData.get("license_end") as string;
+      const user_email = (formData.get("user_email") as string || "").trim().toLowerCase();
+      const password = formData.get("password") as string;
+
 
     // File handling
     const logoFile = formData.get("logo_path") as File;
@@ -111,7 +112,7 @@ export async function registerAction(formData: FormData): Promise<AuthResponse> 
 }
 
 export async function loginAction(formData: FormData): Promise<AuthResponse> {
-  const email = formData.get("email") as string;
+  const email = (formData.get("email") as string || "").trim().toLowerCase();
   const password = formData.get("password") as string;
   const remember = formData.get("remember") === "on";
 
@@ -224,7 +225,7 @@ export async function loginAction(formData: FormData): Promise<AuthResponse> {
 }
 
 export async function forgotPasswordAction(formData: FormData): Promise<AuthResponse> {
-  const email = formData.get("email") as string;
+  const email = (formData.get("email") as string || "").trim().toLowerCase();
 
   try {
     const users = await query<User>("SELECT id, name FROM users WHERE email = ?", [email]);
