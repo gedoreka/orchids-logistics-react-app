@@ -110,10 +110,10 @@ export function TasksClient({
   };
 
   return (
-    <div className="space-y-6 pb-20 max-w-[1400px] mx-auto px-4">
+    <div className="flex flex-col h-full space-y-6 overflow-hidden max-w-[1400px] mx-auto px-4">
       
       {/* Header & Navigation */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 shrink-0">
         <div className="flex items-center gap-2 text-sm font-bold text-gray-400">
           <Link href="/hr" className="hover:text-[#9b59b6] transition-colors flex items-center gap-1">
             <LayoutDashboard size={14} />
@@ -163,8 +163,9 @@ export function TasksClient({
       </div>
 
       {/* Tasks List */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {tasks.map((task) => (
+      <div className="flex-1 overflow-auto scrollbar-hide py-2">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {tasks.map((task) => (
           <motion.div
             key={task.id}
             layout

@@ -77,9 +77,9 @@ export function PackagesClient({ initialPackages, companyId }: PackagesClientPro
   };
 
   return (
-    <div className="space-y-6 pb-20 max-w-[1200px] mx-auto px-4">
+    <div className="flex flex-col h-full space-y-6 overflow-hidden max-w-[1400px] mx-auto px-4">
       {/* Navigation Header */}
-      <div className="flex items-center gap-2 text-sm font-bold text-gray-400 mb-2">
+      <div className="flex items-center gap-2 text-sm font-bold text-gray-400 shrink-0">
         <Link href="/hr" className="hover:text-[#9b59b6] transition-colors flex items-center gap-1">
           <LayoutDashboard size={14} />
           شؤون الموظفين
@@ -112,8 +112,9 @@ export function PackagesClient({ initialPackages, companyId }: PackagesClientPro
       </div>
 
       {/* Packages Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-        {packages.map((pkg, index) => (
+      <div className="flex-1 overflow-auto scrollbar-hide py-2">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+          {packages.map((pkg, index) => (
           <motion.div
             key={pkg.id}
             initial={{ opacity: 0, y: 20 }}

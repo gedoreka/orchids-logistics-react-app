@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
   Users, 
@@ -53,7 +53,12 @@ export function PackageViewClient({
   const [employees, setEmployees] = useState(initialEmployees);
   const [search, setSearch] = useState(searchQuery);
   const [filter, setFilter] = useState(activeFilter);
+  const [mounted, setMounted] = useState(false);
   const router = useRouter();
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // Navigation logic
   const currentIndex = allPackages.findIndex(p => p.id === packageData.id);
@@ -91,8 +96,18 @@ export function PackageViewClient({
     router.push(`/hr/packages/${packageData.id}?search=${search}&filter=${newFilter}`);
   };
 
+  if (!mounted) {
+    return (
+      <div className="flex flex-col h-full space-y-4 max-w-[1400px] mx-auto px-4 overflow-hidden animate-pulse">
+        <div className="h-48 bg-gray-100 rounded-[2rem]" />
+        <div className="h-20 bg-gray-100 rounded-2xl" />
+        <div className="flex-1 bg-gray-100 rounded-3xl" />
+      </div>
+    );
+  }
+
   return (
-    <div className="flex flex-col h-[calc(100vh-140px)] space-y-4 max-w-[1400px] mx-auto px-4 overflow-hidden">
+    <div className="flex flex-col h-full space-y-4 max-w-[1400px] mx-auto px-4 overflow-hidden">
       
       {/* Header & Navigation */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 shrink-0">

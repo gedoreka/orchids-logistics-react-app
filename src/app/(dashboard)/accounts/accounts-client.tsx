@@ -110,9 +110,9 @@ export function AccountsClient({ initialAccounts, companyId }: AccountsClientPro
   };
 
   return (
-    <div className="space-y-8 pb-20">
+    <div className="flex flex-col h-full space-y-6 overflow-hidden">
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 shrink-0">
         <div className="flex items-center gap-4">
           <div className="h-14 w-14 rounded-2xl bg-gradient-to-br from-[#3498db] to-[#764ba2] flex items-center justify-center text-white shadow-lg shadow-[#3498db]/20">
             <BookOpen size={28} />
@@ -169,10 +169,10 @@ export function AccountsClient({ initialAccounts, companyId }: AccountsClientPro
       </div>
 
       {/* Accounts Table */}
-      <div className="bg-white/80 backdrop-blur-md rounded-[2.5rem] border-2 border-gray-100 shadow-xl overflow-hidden">
-        <div className="overflow-x-auto">
+      <div className="flex-1 bg-white/80 backdrop-blur-md rounded-[2.5rem] border-2 border-gray-100 shadow-xl overflow-hidden flex flex-col min-h-0">
+        <div className="flex-1 overflow-auto">
           <table className="w-full text-right border-collapse">
-            <thead>
+            <thead className="sticky top-0 z-10 bg-gray-50/90 backdrop-blur-sm">
               <tr className="bg-gray-50/50">
                 <th className="p-6 text-sm font-black text-gray-400 uppercase tracking-wider border-b border-gray-100">العدد</th>
                 <th className="p-6 text-sm font-black text-gray-400 uppercase tracking-wider border-b border-gray-100">رمز الحساب</th>
