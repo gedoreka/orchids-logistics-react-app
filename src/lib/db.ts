@@ -1,28 +1,29 @@
-import mysql from 'mysql2/promise';
 
-// Use environment variables for connection
-const dbConfig = {
-  host: process.env.DB_HOST || 'localhost',
-  user: process.env.DB_USER || 'u464748164_zoolsys_main',
-  password: process.env.DB_PASSWORD || 'Info@92009',
-  database: process.env.DB_NAME || 'u464748164_zoolsys_main',
-  waitForConnections: true,
-  connectionLimit: 10,
-  queueLimit: 0,
-};
+import postgres from 'postgres';
 
-// Create the connection pool
-const pool = mysql.createPool(dbConfig);
+// Use Supabase connection string from environment variables
+const connectionString = process.env.DATABASE_URL || 'postgresql://postgres.xaexoopjqkrzhbochbef:FQtpzJwraLTrb3gHEX7R2oaAnJPAsyhVntIFiAvsA20kivkFYiKnfpwxQP7iCsiB@aws-0-us-west-2.pooler.supabase.com:5432/postgres';
+
+const sql = postgres(connectionString, {
+  ssl: 'require',
+  max: 10,
+  idle_timeout: 20,
+  connect_timeout: 30,
+});
 
 export async function query<T>(queryStr: string, params: any[] = []): Promise<T[]> {
   try {
-    // MySQL uses '?' for placeholders, which is what we expect
-    const [rows] = await pool.execute(queryStr, params);
-    return rows as T[];
+    // Convert MySQL style '?' to PostgreSQL style '$1, $2, ...'
+    let index = 1;
+    const pgQuery = queryStr.replace(/\?/g, () => `$${index++}`);
+    
+    // Execute the query
+    const result = await sql.unsafe(pgQuery, params);
+    return result as unknown as T[];
   } catch (error) {
     console.error('Database query error:', error);
     throw error;
   }
 }
 
-export default pool;
+export default sql;
