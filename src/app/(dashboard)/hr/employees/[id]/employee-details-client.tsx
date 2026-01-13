@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
   User, 
@@ -64,23 +64,19 @@ interface EmployeeDetailsClientProps {
   monthlyData: any[];
 }
 
-export function EmployeeDetailsClient({ 
-  employee, 
-  allEmployees, 
-  violations, 
-  letters, 
-  stats, 
-  monthlyData 
-}: EmployeeDetailsClientProps) {
-  const [activeTab, setActiveTab] = useState("general");
-  const [isEditing, setIsEditing] = useState(false);
-  const router = useRouter();
-
-  // Navigation logic
-  const currentIndex = allEmployees.findIndex(e => e.id === employee.id);
-  const prevEmployee = currentIndex > 0 ? allEmployees[currentIndex - 1] : null;
-  const nextEmployee = currentIndex < allEmployees.length - 1 ? allEmployees[currentIndex + 1] : null;
-
+  export function EmployeeDetailsClient({ 
+    employee, 
+    allEmployees, 
+    violations, 
+    letters, 
+    stats, 
+    monthlyData 
+  }: EmployeeDetailsClientProps) {
+    const [activeTab, setActiveTab] = useState("general");
+    const [isEditing, setIsEditing] = useState(false);
+    const [mounted, setMounted] = useState(false);
+    const router = useRouter();
+  
     const [personalInfo, setPersonalInfo] = useState({
       iqama_number: employee.iqama_number || "",
       identity_number: employee.identity_number || "",
@@ -90,20 +86,39 @@ export function EmployeeDetailsClient({
       phone: employee.phone || "",
       email: employee.email || "",
       vehicle_plate: employee.vehicle_plate || "",
-      birth_date: employee.birth_date ? format(new Date(employee.birth_date), 'yyyy-MM-dd') : "",
+      birth_date: employee.birth_date ? new Date(employee.birth_date).toISOString().split('T')[0] : "",
       passport_number: employee.passport_number || "",
       operation_card_number: employee.operation_card_number || "",
       basic_salary: employee.basic_salary || "",
       housing_allowance: employee.housing_allowance || ""
     });
-
-  const [bankInfo, setBankInfo] = useState({
-    bank_account: employee.bank_account || "",
-    iban: employee.iban || "",
-    bank_name: employee.bank_name || ""
-  });
-
-  const handleUpdatePersonal = async (e: React.FormEvent) => {
+  
+    const [bankInfo, setBankInfo] = useState({
+      bank_account: employee.bank_account || "",
+      iban: employee.iban || "",
+      bank_name: employee.bank_name || ""
+    });
+  
+    useEffect(() => {
+      setMounted(true);
+    }, []);
+  
+    if (!mounted) {
+      return (
+        <div className="flex flex-col h-[calc(100vh-140px)] space-y-4 max-w-[1200px] mx-auto px-4 overflow-hidden animate-pulse">
+          <div className="h-48 bg-gray-100 rounded-[2rem]" />
+          <div className="h-20 bg-gray-100 rounded-2xl" />
+          <div className="flex-1 bg-gray-100 rounded-3xl" />
+        </div>
+      );
+    }
+  
+    // Navigation logic
+    const currentIndex = allEmployees.findIndex(e => e.id === employee.id);
+    const prevEmployee = currentIndex > 0 ? allEmployees[currentIndex - 1] : null;
+    const nextEmployee = currentIndex < allEmployees.length - 1 ? allEmployees[currentIndex + 1] : null;
+  
+    const handleUpdatePersonal = async (e: React.FormEvent) => {
     e.preventDefault();
     const result = await updateEmployeePersonalInfo(employee.id, personalInfo);
     if (result.success) {
@@ -136,157 +151,104 @@ export function EmployeeDetailsClient({
   };
 
   return (
-    <div className="bg-[#f0f2f5] min-h-screen p-4 md:p-6 font-sans">
-      <div className="max-w-[1200px] mx-auto space-y-6">
-        
-        {/* Top Header Section */}
-        <div className="bg-[#2c3e50] p-6 md:p-8 rounded-3xl relative overflow-hidden shadow-2xl border-b-4 border-yellow-500/20">
-          <div className="absolute top-0 left-0 w-full h-full opacity-10 pointer-events-none">
-             <div className="absolute top-[-50%] left-[-10%] w-[40%] h-[200%] bg-white/20 rotate-12 blur-3xl" />
+    <div className="flex flex-col h-[calc(100vh-140px)] space-y-4 max-w-[1200px] mx-auto px-4 overflow-hidden">
+      
+      {/* Top Header Section */}
+      <div className="bg-[#2c3e50] p-6 rounded-3xl relative overflow-hidden shadow-2xl border-b-4 border-yellow-500/20 shrink-0">
+        <div className="absolute top-0 left-0 w-full h-full opacity-10 pointer-events-none">
+           <div className="absolute top-[-50%] left-[-10%] w-[40%] h-[200%] bg-white/20 rotate-12 blur-3xl" />
+        </div>
+
+        <div className="relative z-10 flex flex-col items-center">
+          <div className="flex items-center gap-3 text-white/90 mb-4 bg-white/5 px-4 py-2 rounded-full border border-white/10 backdrop-blur-md">
+            <User className="text-yellow-400" size={18} />
+            <h2 className="text-[10px] font-black tracking-widest uppercase">تفاصيل الموظف</h2>
           </div>
 
-          <div className="relative z-10 flex flex-col items-center">
-            <div className="flex items-center gap-3 text-white/90 mb-6 bg-white/5 px-4 py-2 rounded-full border border-white/10 backdrop-blur-md">
-              <User className="text-yellow-400" size={18} />
-              <h2 className="text-sm font-black tracking-widest uppercase">تفاصيل الموظف</h2>
-            </div>
-
-            <div className="bg-[#34495e]/40 backdrop-blur-xl rounded-2xl p-6 md:p-8 w-full max-w-4xl flex flex-col items-center border border-white/10 shadow-inner">
-              <h1 className="text-2xl md:text-3xl font-black text-white tracking-[0.1em] uppercase mb-6 drop-shadow-2xl text-center leading-tight">
-                {employee.name}
-              </h1>
-              
-              <div className="flex flex-wrap justify-center gap-4">
-                <div className="bg-[#1a2a3a]/80 px-6 py-2.5 rounded-xl flex items-center gap-3 text-xs border border-white/10 group hover:border-yellow-400/50 transition-all shadow-lg">
-                  <Hash className="text-yellow-500 group-hover:scale-125 transition-transform" size={16} />
-                  <span className="text-yellow-500 font-black">الرقم الوظيفي:</span>
-                  <span className="text-white font-black">{employee.user_code || '---'}</span>
-                </div>
-                <div className="bg-[#1a2a3a]/80 px-6 py-2.5 rounded-xl flex items-center gap-3 text-xs border border-white/10 group hover:border-yellow-400/50 transition-all shadow-lg">
-                  <Briefcase className="text-yellow-500 group-hover:scale-125 transition-transform" size={16} />
-                  <span className="text-yellow-500 font-black">الباقة:</span>
-                  <span className="text-white font-black">{employee.group_name}</span>
-                </div>
+          <div className="bg-[#34495e]/40 backdrop-blur-xl rounded-2xl p-6 w-full max-w-4xl flex flex-col items-center border border-white/10 shadow-inner">
+            <h1 className="text-xl md:text-2xl font-black text-white tracking-[0.1em] uppercase mb-4 drop-shadow-2xl text-center leading-tight">
+              {employee.name}
+            </h1>
+            
+            <div className="flex flex-wrap justify-center gap-4">
+              <div className="bg-[#1a2a3a]/80 px-6 py-2 rounded-xl flex items-center gap-3 text-[10px] border border-white/10 group hover:border-yellow-400/50 transition-all shadow-lg">
+                <Hash className="text-yellow-500 group-hover:scale-125 transition-transform" size={14} />
+                <span className="text-yellow-500 font-black">الرقم الوظيفي:</span>
+                <span className="text-white font-black">{employee.user_code || '---'}</span>
+              </div>
+              <div className="bg-[#1a2a3a]/80 px-6 py-2 rounded-xl flex items-center gap-3 text-[10px] border border-white/10 group hover:border-yellow-400/50 transition-all shadow-lg">
+                <Briefcase className="text-yellow-500 group-hover:scale-125 transition-transform" size={14} />
+                <span className="text-yellow-500 font-black">الباقة:</span>
+                <span className="text-white font-black">{employee.group_name}</span>
               </div>
             </div>
           </div>
+        </div>
 
-          <Link href={`/hr/packages/${employee.package_id}`} className="absolute top-6 right-6">
-            <button className="bg-[#9b59b6] hover:bg-[#8e44ad] text-white px-6 py-3 rounded-xl text-[10px] font-black flex items-center gap-2 transition-all shadow-2xl shadow-[#9b59b6]/40 group active:scale-95">
-              <span>العودة للباقة</span>
-              <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform" />
+        <Link href={`/hr/packages/${employee.package_id}`} className="absolute top-6 right-6">
+          <button className="bg-[#9b59b6] hover:bg-[#8e44ad] text-white px-5 py-2.5 rounded-xl text-[10px] font-black flex items-center gap-2 transition-all shadow-2xl shadow-[#9b59b6]/40 group active:scale-95">
+            <span>العودة للباقة</span>
+            <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform" />
+          </button>
+        </Link>
+      </div>
+
+      {/* Tabs Section */}
+      <div className="flex items-center gap-3 overflow-x-auto pb-2 px-2 no-scrollbar shrink-0 justify-start">
+        <TabButton id="general" icon={<User size={20} />} label="العامة" active={activeTab === "general"} onClick={setActiveTab} />
+        <TabButton id="bank" icon={<University size={20} />} label="البنك" active={activeTab === "bank"} onClick={setActiveTab} />
+        <TabButton id="documents" icon={<FileText size={20} />} label="المستندات" active={activeTab === "documents"} onClick={setActiveTab} />
+        <TabButton id="violations" icon={<OctagonAlert size={20} />} label="المخالفات" active={activeTab === "violations"} onClick={setActiveTab} />
+        <TabButton id="status" icon={<IdCard size={20} />} label="الإقامة" active={activeTab === "status"} onClick={setActiveTab} />
+        <TabButton id="stats" icon={<BarChart3 size={20} />} label="الأداء" active={activeTab === "stats"} onClick={setActiveTab} />
+        <TabButton id="letters" icon={<Mail size={20} />} label="الخطابات" active={activeTab === "letters"} onClick={setActiveTab} />
+      </div>
+
+      {/* Content Area */}
+      <div className="flex-1 bg-white rounded-3xl shadow-xl shadow-gray-200/70 overflow-hidden border border-gray-100 flex flex-col min-h-0">
+        <div className="bg-[#3498db] p-4 flex items-center justify-between shrink-0">
+          <div className="flex items-center gap-3 text-white">
+            <div className="bg-white/20 p-2 rounded-xl backdrop-blur-md shadow-inner">
+              <Info size={18} />
+            </div>
+            <h3 className="text-lg font-black tracking-tight">
+              {activeTab === "general" ? "المعلومات الأساسية" : 
+               activeTab === "bank" ? "تفاصيل الحساب البنكي" :
+               activeTab === "documents" ? "المستندات والوثائق" :
+               activeTab === "violations" ? "سجل المخالفات" :
+               activeTab === "stats" ? "إحصائيات الأداء" : "خطابات السائق"}
+            </h3>
+          </div>
+          <div className="flex gap-2">
+            <button 
+              onClick={handleToggleStatus}
+              className={`h-9 px-4 rounded-xl text-[10px] font-black transition-all shadow-lg backdrop-blur-md ${
+                employee.is_active === 1 
+                ? 'bg-orange-500/20 text-white hover:bg-orange-600 border border-white/10' 
+                : 'bg-green-500/20 text-white hover:bg-green-600 border border-white/10'
+              }`}
+            >
+              {employee.is_active === 1 ? 'إجازة' : 'تفعيل'}
             </button>
-          </Link>
-        </div>
-
-        {/* Navigation Card */}
-        <div className="bg-white rounded-3xl p-6 md:p-8 shadow-xl shadow-gray-200/60 border border-gray-100 flex flex-col md:flex-row items-center justify-between gap-6">
-          <div className="flex-1 w-full md:w-auto">
-            {prevEmployee && (
-              <Link href={`/hr/employees/${prevEmployee.id}?package_id=${employee.package_id}`} className="flex items-center gap-4 bg-[#f8fafc] p-4 rounded-2xl border border-gray-100 hover:border-[#3498db] transition-all group w-full shadow-sm hover:shadow-lg">
-                <div className="text-right flex-1">
-                  <p className="text-[9px] font-black text-gray-400 uppercase mb-1 tracking-wider">الموظف السابق</p>
-                  <p className="text-sm font-black text-gray-800 group-hover:text-[#3498db] transition-colors">{prevEmployee.name}</p>
-                </div>
-                <div className="bg-[#3498db] text-white p-2.5 rounded-lg shadow-lg shadow-[#3498db]/30 group-hover:scale-110 group-hover:rotate-12 transition-all">
-                  <ChevronRight size={20} strokeWidth={3} />
-                </div>
-              </Link>
-            )}
-          </div>
-
-          <div className="flex flex-col items-center gap-4">
-            <div className="bg-[#f0f9ff] p-6 rounded-2xl flex flex-col items-center gap-3 border border-blue-100 shadow-inner w-64 relative overflow-hidden group">
-              <div className="absolute top-0 left-0 w-full h-0.5 bg-gradient-to-r from-transparent via-[#3498db] to-transparent" />
-              <div className="bg-[#3498db] text-white p-3 rounded-xl shadow-lg shadow-[#3498db]/30 group-hover:scale-110 transition-transform">
-                <User size={24} strokeWidth={2.5} />
-              </div>
-              <p className="text-sm font-black text-gray-800 tracking-tight">التنقل بين الموظفين</p>
-              <p className="text-[10px] font-bold text-gray-400 bg-white/50 px-2.5 py-0.5 rounded-full">الموظف {currentIndex + 1} من {allEmployees.length}</p>
-              <div className="w-full h-2 bg-gray-200/50 rounded-full mt-1 overflow-hidden shadow-inner border border-gray-100">
-                <div 
-                  className="h-full bg-emerald-400 transition-all duration-1000 ease-out rounded-full shadow-[0_0_10px_rgba(52,211,153,0.5)]" 
-                  style={{ width: `${((currentIndex + 1) / allEmployees.length) * 100}%` }}
-                />
-              </div>
-            </div>
-            <button className="bg-[#9b59b6] hover:bg-[#8e44ad] text-white px-8 py-3 rounded-xl text-xs font-black flex items-center gap-2 shadow-xl shadow-[#9b59b6]/40 transition-all hover:scale-105 active:scale-95 group">
-              <List size={16} className="group-hover:rotate-180 transition-transform duration-500" />
-              قائمة الموظفين {allEmployees.length}
+            <button 
+              onClick={() => setIsEditing(!isEditing)}
+              className="bg-white/20 hover:bg-white/30 text-white px-5 py-2 rounded-xl text-[10px] font-black flex items-center gap-2 transition-all backdrop-blur-md border border-white/10 shadow-lg"
+            >
+              <Edit3 size={14} />
+              {isEditing ? 'إلغاء' : 'تعديل'}
             </button>
           </div>
-
-          <div className="flex-1 w-full md:w-auto">
-            {nextEmployee && (
-              <Link href={`/hr/employees/${nextEmployee.id}?package_id=${employee.package_id}`} className="flex items-center gap-4 bg-[#f8fafc] p-4 rounded-2xl border border-gray-100 hover:border-[#3498db] transition-all group w-full shadow-sm hover:shadow-lg">
-                <div className="bg-[#3498db] text-white p-2.5 rounded-lg shadow-lg shadow-[#3498db]/30 group-hover:scale-110 group-hover:-rotate-12 transition-all">
-                  <ChevronLeft size={20} strokeWidth={3} />
-                </div>
-                <div className="text-left flex-1">
-                  <p className="text-[9px] font-black text-gray-400 uppercase mb-1 tracking-wider">الموظف التالي</p>
-                  <p className="text-sm font-black text-gray-800 group-hover:text-[#3498db] transition-colors">{nextEmployee.name}</p>
-                </div>
-              </Link>
-            )}
-          </div>
         </div>
 
-        {/* Tabs Section */}
-        <div className="flex items-center gap-4 overflow-x-auto pb-6 px-4 no-scrollbar justify-start xl:justify-center">
-          <TabButton id="general" icon={<User size={24} />} label="المعلومات العامة" active={activeTab === "general"} onClick={setActiveTab} />
-          <TabButton id="bank" icon={<University size={24} />} label="الحساب البنكي" active={activeTab === "bank"} onClick={setActiveTab} />
-          <TabButton id="documents" icon={<FileText size={24} />} label="المستندات" active={activeTab === "documents"} onClick={setActiveTab} />
-          <TabButton id="violations" icon={<OctagonAlert size={24} />} label="المخالفات" active={activeTab === "violations"} onClick={setActiveTab} />
-          <TabButton id="status" icon={<IdCard size={24} />} label="صلاحية الإقامة" active={activeTab === "status"} onClick={setActiveTab} />
-          <TabButton id="stats" icon={<BarChart3 size={24} />} label="الإحصائيات" active={activeTab === "stats"} onClick={setActiveTab} />
-          <TabButton id="letters" icon={<Mail size={24} />} label="خطابات السائق" active={activeTab === "letters"} onClick={setActiveTab} />
-        </div>
-
-        {/* Content Area */}
-        <div className="bg-white rounded-3xl shadow-xl shadow-gray-200/70 overflow-hidden border border-gray-100">
-          <div className="bg-[#3498db] p-6 flex items-center justify-between">
-            <div className="flex items-center gap-4 text-white">
-              <div className="bg-white/20 p-2.5 rounded-xl backdrop-blur-md shadow-inner">
-                <Info size={20} />
-              </div>
-              <h3 className="text-xl font-black tracking-tight">
-                {activeTab === "general" ? "المعلومات الأساسية" : 
-                 activeTab === "bank" ? "تفاصيل الحساب البنكي" :
-                 activeTab === "documents" ? "المستندات والوثائق" :
-                 activeTab === "violations" ? "سجل المخالفات" :
-                 activeTab === "stats" ? "إحصائيات الأداء" : "خطابات السائق"}
-              </h3>
-            </div>
-            <div className="flex gap-3">
-              <button 
-                onClick={handleToggleStatus}
-                className={`h-10 px-5 rounded-xl text-[10px] font-black transition-all shadow-lg backdrop-blur-md ${
-                  employee.is_active === 1 
-                  ? 'bg-orange-500/20 text-white hover:bg-orange-600 border border-white/10' 
-                  : 'bg-green-500/20 text-white hover:bg-green-600 border border-white/10'
-                }`}
-              >
-                {employee.is_active === 1 ? 'تعيين في إجازة' : 'تفعيل الموظف'}
-              </button>
-              <button 
-                onClick={() => setIsEditing(!isEditing)}
-                className="bg-white/20 hover:bg-white/30 text-white px-6 py-2.5 rounded-xl text-[10px] font-black flex items-center gap-2 transition-all backdrop-blur-md border border-white/10 shadow-lg"
-              >
-                <Edit3 size={16} />
-                {isEditing ? 'إلغاء التعديل' : 'تعديل المعلومات'}
-              </button>
-            </div>
-          </div>
-
-          <div className="p-6 md:p-10 min-h-[400px]">
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={activeTab}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                transition={{ duration: 0.2 }}
-              >
+        <div className="flex-1 overflow-auto p-6 scrollbar-hide">
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={activeTab}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.2 }}
+            >
                   {activeTab === "general" && (
                     <form onSubmit={handleUpdatePersonal} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 text-right">
                       <InfoField label="رقم الإقامة" value={personalInfo.iqama_number} onChange={(v: string) => setPersonalInfo({...personalInfo, iqama_number: v})} editable={isEditing} icon={<IdCard size={16} />} />

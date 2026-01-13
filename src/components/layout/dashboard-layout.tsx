@@ -67,7 +67,7 @@ export function DashboardLayout({ children, user, permissions }: DashboardLayout
           <Header user={user} onToggleSidebar={() => setIsSidebarOpen(true)} />
   
           {/* Main Content Area */}
-          <main className="flex-1 flex flex-col p-3 md:p-4 overflow-hidden relative">
+          <main className="flex-1 flex flex-col overflow-hidden relative">
             <motion.div
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
