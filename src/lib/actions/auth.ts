@@ -1,11 +1,9 @@
 "use server";
 
-import { AuthResponse, User, Company } from "@/lib/types";
+import { AuthResponse, User, Company, ResetToken } from "@/lib/types";
 import { cookies } from "next/headers";
-
-// This is a placeholder for the actual database connection
-// In a real implementation, you would use a library like 'mysql2' or 'pg'
-// to connect to your existing database.
+import { query } from "@/lib/db";
+import bcrypt from "bcryptjs";
 
 export async function loginAction(formData: FormData): Promise<AuthResponse> {
   const email = formData.get("email") as string;
@@ -13,88 +11,210 @@ export async function loginAction(formData: FormData): Promise<AuthResponse> {
   const remember = formData.get("remember") === "on";
 
   try {
-    // 1. Fetch user from DB (Mock logic for now)
-    // const user = await db.query("SELECT * FROM users WHERE email = ?", [email]);
-    
-    // For demonstration, let's assume we found a user
-    // In reality, you'd verify password using bcrypt.compare()
-    
-    if (email === "admin@zoolspeed.com" && password === "admin123") {
-      const mockUser: User = {
-        id: 1,
-        name: "Admin User",
-        email: "admin@zoolspeed.com",
-        role: "admin",
-        company_id: 101,
-        is_activated: 1,
+    // 1. Fetch user from DB
+    const users = await query<User & { password?: string }>(
+      "SELECT * FROM users WHERE email = ?",
+      [email]
+    );
+
+    if (users.length === 0) {
+      return { success: false, error: "البريد الإلكتروني غير مسجل." };
+    }
+
+    const user = users[0];
+
+    // 2. Verify password
+    const isPasswordValid = await bcrypt.compare(password, user.password || "");
+    if (!isPasswordValid) {
+      return { success: false, error: "كلمة المرور غير صحيحة." };
+    }
+
+    // 3. Check company status
+    const companies = await query<Company>(
+      "SELECT status, is_active FROM companies WHERE id = ?",
+      [user.company_id]
+    );
+
+    if (companies.length === 0) {
+      return { success: false, error: "لم يتم العثور على بيانات الشركة." };
+    }
+
+    const company = companies[0];
+
+    if (company.status !== "approved") {
+      return {
+        success: false,
+        error: "الشركة غير مقبولة بعد. يرجى انتظار مراجعة الإدارة.",
       };
+    }
 
-      // 2. Check company status (Logic from login.php)
-      // const company = await db.query("SELECT status, is_active FROM companies WHERE id = ?", [mockUser.company_id]);
-      const mockCompany: Company = {
-        id: 101,
-        status: 'approved',
-        is_active: 1,
+    if (company.is_active !== 1) {
+      return {
+        success: false,
+        error: "الشركة موقوفة. يرجى التواصل مع الإدارة.",
       };
+    }
 
-      if (!mockCompany) {
-        return { success: false, error: "لم يتم العثور على بيانات الشركة." };
-      }
-      
-      if (mockCompany.status !== 'approved') {
-        return { success: false, error: "الشركة غير مقبولة بعد. يرجى انتظار مراجعة الإدارة." };
-      }
-      
-      if (mockCompany.is_active !== 1) {
-        return { success: false, error: "الشركة موقوفة. يرجى التواصل مع الإدارة." };
-      }
-
-      if (mockUser.is_activated === 0 && mockUser.email !== 'admin@zoolspeed.com') {
-        return { success: false, error: "الحساب غير مفعل. يرجى انتظار تفعيل الإدارة." };
-      }
-
-      // 3. Load permissions
-      // const permissions = await db.query("SELECT feature_key, is_enabled FROM company_permissions WHERE company_id = ?", [mockUser.company_id]);
-      const mockPermissions = {
-        "dashboard": 1,
-        "inventory": 1,
-        "accounting": 1
+    if (user.is_activated === 0 && user.email !== "admin@zoolspeed.com") {
+      return {
+        success: false,
+        error: "الحساب غير مفعل. يرجى انتظار تفعيل الإدارة.",
       };
+    }
 
-      // 4. Set Session (Using JWT or Encrypted Cookies in Next.js)
-      const cookieStore = await cookies();
-      
-      // In a real app, you'd sign a JWT here
-      cookieStore.set("auth_session", JSON.stringify({
-        user_id: mockUser.id,
-        user_name: mockUser.name,
-        company_id: mockUser.company_id,
-        role: mockUser.role,
-        permissions: mockPermissions
-      }), {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        maxAge: remember ? 30 * 24 * 60 * 60 : undefined, // 30 days if remember is checked
+    // 4. Load permissions
+    const permissionsRows = await query<{
+      feature_key: string;
+      is_enabled: number;
+    }>(
+      "SELECT feature_key, is_enabled FROM company_permissions WHERE company_id = ?",
+      [user.company_id]
+    );
+
+    const permissions: Record<string, number> = {};
+    permissionsRows.forEach((p) => {
+      permissions[p.feature_key] = p.is_enabled;
+    });
+
+    // 5. Set Session
+    const cookieStore = await cookies();
+    const sessionData = {
+      user_id: user.id,
+      user_name: user.name,
+      company_id: user.company_id,
+      role: user.role,
+      permissions,
+    };
+
+    cookieStore.set("auth_session", JSON.stringify(sessionData), {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      maxAge: remember ? 30 * 24 * 60 * 60 : undefined,
+      path: "/",
+    });
+
+    if (remember) {
+      cookieStore.set("user_email", email, {
+        maxAge: 30 * 24 * 60 * 60,
         path: "/",
       });
-
-      if (remember) {
-        cookieStore.set("user_email", email, {
-          maxAge: 30 * 24 * 60 * 60,
-          path: "/",
-        });
-      }
-
-      return { 
-        success: true, 
-        user: mockUser, 
-        permissions: mockPermissions 
-      };
-    } else {
-      return { success: false, error: "البريد الإلكتروني أو كلمة المرور غير صحيحة." };
     }
+
+    return {
+      success: true,
+      user: {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        company_id: user.company_id,
+        is_activated: user.is_activated,
+      },
+      permissions,
+    };
   } catch (error) {
     console.error("Login error:", error);
-    return { success: false, error: "خطأ في الاتصال بالقاعدة البيانات." };
+    return { success: false, error: "خطأ في الاتصال بقاعدة البيانات." };
+  }
+}
+
+export async function forgotPasswordAction(formData: FormData): Promise<AuthResponse> {
+  const email = formData.get("email") as string;
+
+  try {
+    const users = await query<User>("SELECT id, name FROM users WHERE email = ?", [email]);
+
+    if (users.length === 0) {
+      return { success: false, error: "البريد الإلكتروني غير مسجل في النظام." };
+    }
+
+    const user = users[0];
+    const token = Math.floor(100000 + Math.random() * 900000).toString();
+
+    // Delete old tokens
+    await query("DELETE FROM password_resets WHERE email = ?", [email]);
+
+    // Insert new token
+    await query(
+      "INSERT INTO password_resets (email, token, created_at) VALUES (?, ?, NOW())",
+      [email, token]
+    );
+
+    // Mock Email sending
+    console.log(`Sending email to ${email} with token ${token}`);
+    
+    // In a real implementation, you would use nodemailer or a similar service
+    // if (process.env.SMTP_HOST) { ... }
+
+    const cookieStore = await cookies();
+    cookieStore.set("reset_email", email, { maxAge: 15 * 60, path: "/" });
+    cookieStore.set("reset_user_name", user.name, { maxAge: 15 * 60, path: "/" });
+
+    return { success: true };
+  } catch (error) {
+    console.error("Forgot password error:", error);
+    return { success: false, error: "حدث خطأ أثناء معالجة الطلب." };
+  }
+}
+
+export async function verifyTokenAction(formData: FormData): Promise<AuthResponse> {
+  const token = formData.get("token") as string;
+  const cookieStore = await cookies();
+  const email = cookieStore.get("reset_email")?.value;
+
+  if (!email) {
+    return { success: false, error: "انتهت صلاحية الجلسة. يرجى المحاولة مرة أخرى." };
+  }
+
+  try {
+    const tokens = await query<ResetToken>(
+      "SELECT * FROM password_resets WHERE email = ? AND token = ? AND created_at >= NOW() - INTERVAL 15 MINUTE",
+      [email, token]
+    );
+
+    if (tokens.length === 0) {
+      return { success: false, error: "رمز التحقق غير صحيح أو منتهي الصلاحية." };
+    }
+
+    cookieStore.set("token_verified", "true", { maxAge: 15 * 60, path: "/" });
+    return { success: true };
+  } catch (error) {
+    console.error("Verify token error:", error);
+    return { success: false, error: "حدث خطأ أثناء التحقق من الرمز." };
+  }
+}
+
+export async function resetPasswordAction(formData: FormData): Promise<AuthResponse> {
+  const password = formData.get("password") as string;
+  const confirm = formData.get("confirm") as string;
+  const cookieStore = await cookies();
+  const email = cookieStore.get("reset_email")?.value;
+  const verified = cookieStore.get("token_verified")?.value === "true";
+
+  if (!email || !verified) {
+    return { success: false, error: "غير مصرح لك بالقيام بهذه العملية." };
+  }
+
+  if (password.length < 6) {
+    return { success: false, error: "كلمة المرور يجب أن تكون على الأقل 6 أحرف." };
+  }
+
+  if (password !== confirm) {
+    return { success: false, error: "كلمتا المرور غير متطابقتين." };
+  }
+
+  try {
+    const hashed = await bcrypt.hash(password, 10);
+    await query("UPDATE users SET password = ? WHERE email = ?", [hashed, email]);
+    await query("DELETE FROM password_resets WHERE email = ?", [email]);
+
+    cookieStore.delete("reset_email");
+    cookieStore.delete("reset_user_name");
+    cookieStore.delete("token_verified");
+
+    return { success: true };
+  } catch (error) {
+    console.error("Reset password error:", error);
+    return { success: false, error: "حدث خطأ أثناء تحديث كلمة المرور." };
   }
 }

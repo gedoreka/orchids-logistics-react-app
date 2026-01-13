@@ -13,9 +13,9 @@ export interface Company {
   is_active: number;
 }
 
-export interface AuthResponse {
-  success: boolean;
-  error?: string;
-  user?: User;
-  permissions?: Record<string, number>;
+export interface ResetToken {
+  id: number;
+  email: string;
+  token: string;
+  created_at: string;
 }
