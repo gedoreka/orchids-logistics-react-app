@@ -106,51 +106,51 @@ export function EmployeeDetailsClient({
   }, []);
 
   if (!mounted) {
+      return (
+        <div className="flex flex-col h-[calc(100vh-140px)] space-y-4 max-w-[1800px] mx-auto px-4 overflow-hidden animate-pulse">
+          <div className="h-48 bg-gray-100 rounded-[2rem]" />
+          <div className="h-20 bg-gray-100 rounded-2xl" />
+          <div className="flex-1 bg-gray-100 rounded-3xl" />
+        </div>
+      );
+    }
+  
+    const handleUpdatePersonal = async (e: React.FormEvent) => {
+      e.preventDefault();
+      const result = await updateEmployeePersonalInfo(employee.id, personalInfo);
+      if (result.success) {
+        toast.success("تم تحديث المعلومات الشخصية");
+        setIsEditing(false);
+        router.refresh();
+      } else {
+        toast.error(result.error);
+      }
+    };
+  
+    const handleUpdateBank = async (e: React.FormEvent) => {
+      e.preventDefault();
+      const result = await updateEmployeeBankInfo(employee.id, bankInfo);
+      if (result.success) {
+        toast.success("تم تحديث معلومات البنك");
+        setIsEditing(false);
+        router.refresh();
+      } else {
+        toast.error(result.error);
+      }
+    };
+  
+    const handleToggleStatus = async () => {
+      const result = await toggleEmployeeStatus(employee.id, employee.is_active);
+      if (result.success) {
+        toast.success(employee.is_active === 1 ? "تم تعيين الموظف في إجازة" : "تم تفعيل الموظف");
+        router.refresh();
+      }
+    };
+  
     return (
-      <div className="flex flex-col h-[calc(100vh-140px)] space-y-4 max-w-[1600px] mx-auto px-4 overflow-hidden animate-pulse">
-        <div className="h-48 bg-gray-100 rounded-[2rem]" />
-        <div className="h-20 bg-gray-100 rounded-2xl" />
-        <div className="flex-1 bg-gray-100 rounded-3xl" />
-      </div>
-    );
-  }
-
-  const handleUpdatePersonal = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const result = await updateEmployeePersonalInfo(employee.id, personalInfo);
-    if (result.success) {
-      toast.success("تم تحديث المعلومات الشخصية");
-      setIsEditing(false);
-      router.refresh();
-    } else {
-      toast.error(result.error);
-    }
-  };
-
-  const handleUpdateBank = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const result = await updateEmployeeBankInfo(employee.id, bankInfo);
-    if (result.success) {
-      toast.success("تم تحديث معلومات البنك");
-      setIsEditing(false);
-      router.refresh();
-    } else {
-      toast.error(result.error);
-    }
-  };
-
-  const handleToggleStatus = async () => {
-    const result = await toggleEmployeeStatus(employee.id, employee.is_active);
-    if (result.success) {
-      toast.success(employee.is_active === 1 ? "تم تعيين الموظف في إجازة" : "تم تفعيل الموظف");
-      router.refresh();
-    }
-  };
-
-  return (
-    <div className="flex flex-col h-[calc(100vh-140px)] space-y-4 max-w-[1600px] mx-auto px-4 overflow-hidden">
-      
-      <div className="bg-[#2c3e50] p-8 rounded-[2.5rem] relative overflow-hidden shadow-2xl border-b-4 border-yellow-500/20 shrink-0">
+      <div className="flex flex-col h-[calc(100vh-140px)] space-y-4 max-w-[1800px] mx-auto px-4 overflow-hidden">
+        
+        <div className="bg-[#2c3e50] p-8 rounded-[2.5rem] relative overflow-hidden shadow-2xl border-b-4 border-yellow-500/20 shrink-0">
         <div className="absolute top-0 left-0 w-full h-full opacity-10 pointer-events-none">
            <div className="absolute top-[-50%] left-[-10%] w-[40%] h-[200%] bg-white/20 rotate-12 blur-3xl" />
         </div>
