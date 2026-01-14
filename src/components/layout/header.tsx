@@ -85,7 +85,7 @@ export function Header({ user, onToggleSidebar }: { user?: { name: string; role:
   };
 
   const copyDriverLink = () => {
-    navigator.clipboard.writeText("https://accounts.zoolspeed.com/driver-input.php");
+    navigator.clipboard.writeText("https://orchids-driver-input-app.vercel.app");
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
