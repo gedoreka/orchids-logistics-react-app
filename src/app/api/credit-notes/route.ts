@@ -108,17 +108,40 @@ export async function POST(request: NextRequest) {
       SELECT credit_note_number 
       FROM credit_notes 
       WHERE credit_note_number LIKE 'CRN%'
-      ORDER BY CAST(SUBSTRING(credit_note_number, 4) AS UNSIGNED) DESC 
-      LIMIT 1
+      ORDER BY id DESC
+      LIMIT 10
     `);
 
     let nextNumber = 1;
-    if (lastNotes.length > 0 && lastNotes[0].credit_note_number) {
-      const lastNumStr = lastNotes[0].credit_note_number.substring(3);
-      const lastNum = parseInt(lastNumStr);
-      if (!isNaN(lastNum)) nextNumber = lastNum + 1;
+    if (lastNotes.length > 0) {
+      // Find the maximum number among the last 10 notes to be safer
+      const numbers = lastNotes
+        .map((n: any) => {
+          const match = n.credit_note_number.match(/\d+$/);
+          return match ? parseInt(match[0]) : 0;
+        })
+        .filter((num: number) => !isNaN(num));
+      
+      if (numbers.length > 0) {
+        nextNumber = Math.max(...numbers) + 1;
+      }
     }
-    const creditNoteNumber = `CRN${nextNumber.toString().padStart(6, '0')}`;
+
+    let creditNoteNumber = `CRN${nextNumber.toString().padStart(6, '0')}`;
+    
+    // Final check for uniqueness (just in case)
+    let isUnique = false;
+    let attempts = 0;
+    while (!isUnique && attempts < 10) {
+      const existing = await query<any>("SELECT id FROM credit_notes WHERE credit_note_number = ?", [creditNoteNumber]);
+      if (existing.length === 0) {
+        isUnique = true;
+      } else {
+        nextNumber++;
+        creditNoteNumber = `CRN${nextNumber.toString().padStart(6, '0')}`;
+        attempts++;
+      }
+    }
 
     const vatAmount = total_with_vat * 0.15;
     const totalBeforeVat = total_with_vat - vatAmount;

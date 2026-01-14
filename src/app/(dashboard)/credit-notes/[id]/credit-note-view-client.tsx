@@ -1,22 +1,23 @@
 "use client";
 
-import React from "react";
+import React, { useRef, useState, useEffect } from "react";
 import { 
-  ArrowRight, 
-  Printer, 
-  Download, 
-  Building2, 
-  User, 
-  FileText, 
+  Building2,
+  Printer,
+  Download,
+  ArrowRight,
+  FileText,
   Calculator,
   Calendar,
-  AlertTriangle
+  AlertTriangle,
+  Truck,
+  QrCode,
+  CreditCard
 } from "lucide-react";
 import Link from "next/link";
-import { motion } from "framer-motion";
+import { QRCodeCanvas } from "qrcode.react";
 import { format } from "date-fns";
 import { ar } from "date-fns/locale";
-import { cn } from "@/lib/utils";
 
 interface CreditNoteViewClientProps {
   creditNote: any;
@@ -24,201 +25,398 @@ interface CreditNoteViewClientProps {
 }
 
 export function CreditNoteViewClient({ creditNote, qrData }: CreditNoteViewClientProps) {
+  const printRef = useRef<HTMLDivElement>(null);
+  const [pdfLoading, setPdfLoading] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
   const handlePrint = () => {
     window.print();
   };
 
+  const handleDownloadPDF = async () => {
+    setPdfLoading(true);
+    try {
+      const html2canvas = (await import('html2canvas')).default;
+      const { jsPDF } = await import('jspdf');
+      
+      const element = printRef.current;
+      if (!element) return;
+      
+      const canvas = await html2canvas(element, {
+        scale: 3,
+        useCORS: true,
+        logging: false,
+        backgroundColor: '#ffffff',
+        windowWidth: element.scrollWidth,
+        windowHeight: element.scrollHeight
+      });
+      
+      const imgData = canvas.toDataURL('image/png');
+      const pdf = new jsPDF('p', 'mm', 'a4');
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = pdf.internal.pageSize.getHeight();
+      
+      const imgWidth = pdfWidth;
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+      
+      let finalImgHeight = imgHeight;
+      let finalImgWidth = imgWidth;
+      
+      if (imgHeight > pdfHeight) {
+        const ratio = pdfHeight / imgHeight;
+        finalImgHeight = pdfHeight;
+        finalImgWidth = imgWidth * ratio;
+      }
+      
+      const xOffset = (pdfWidth - finalImgWidth) / 2;
+      
+      pdf.addImage(imgData, 'PNG', xOffset, 0, finalImgWidth, finalImgHeight);
+      pdf.save(`إشعار-دائن-${creditNote.credit_note_number}.pdf`);
+    } catch (error) {
+      console.error('Error generating PDF:', error);
+    } finally {
+      setPdfLoading(false);
+    }
+  };
+
+  const getPublicUrl = (path: string) => {
+    if (!path) return null;
+    if (path.startsWith('http')) return path;
+    return `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/project-uploads/${path}`;
+  };
+
+  const formatDate = (dateStr: string) => {
+    if (!dateStr) return '-';
+    try {
+      return format(new Date(dateStr), 'dd-MM-yyyy', { locale: ar });
+    } catch (e) {
+      return dateStr;
+    }
+  };
+
   return (
-    <div className="flex-1 flex flex-col p-4 lg:p-6 space-y-6 overflow-y-auto bg-slate-50/50 print:bg-white print:p-0">
-      {/* Header - Hidden in Print */}
-      <div className="flex items-center justify-between print:hidden">
-        <div className="flex items-center gap-4">
+    <div className="min-h-screen bg-[#f1f5f9] overflow-y-auto font-tajawal">
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@200;300;400;500;700;800;900&display=swap');
+        .font-tajawal { font-family: 'Tajawal', sans-serif; }
+        @media print {
+          .no-print { display: none !important; }
+          body { background: white !important; padding: 0 !important; margin: 0 !important; }
+          .invoice-container { 
+            box-shadow: none !important; 
+            margin: 0 !important; 
+            width: 210mm !important; 
+            height: 297mm !important;
+            max-width: 100% !important; 
+            border: none !important;
+            transform: none !important;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+          }
+          @page {
+            size: A4 portrait;
+            margin: 0;
+          }
+        }
+      `}</style>
+
+      <div className="w-full max-w-[210mm] mx-auto py-6 space-y-4">
+        {/* Action Buttons */}
+        <div className="flex flex-wrap gap-2 justify-center no-print px-4">
           <Link href="/credit-notes">
-            <button className="p-2 hover:bg-white rounded-xl border border-transparent hover:border-slate-200 transition-all text-slate-500">
-              <ArrowRight size={20} />
+            <button className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white text-[#334155] hover:bg-[#f8fafc] border border-[#e2e8f0] font-bold text-sm transition-all shadow-sm">
+              <ArrowRight size={18} />
+              العودة
             </button>
           </Link>
-          <div>
-            <h1 className="text-2xl font-black text-[#1e293b]">عرض إشعار الدائن</h1>
-            <p className="text-[#64748b] font-bold text-sm">تفاصيل المستند الضريبي رقم {creditNote.credit_note_number}</p>
-          </div>
-        </div>
-        <div className="flex items-center gap-3">
-          <button 
+          <button
             onClick={handlePrint}
-            className="bg-white text-slate-700 px-5 py-2.5 rounded-xl font-bold text-sm flex items-center gap-2 border border-slate-200 hover:bg-slate-50 transition-all shadow-sm"
+            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-[#1e293b] text-white hover:bg-[#0f172a] font-bold text-sm transition-all shadow-md"
           >
             <Printer size={18} />
-            <span>طباعة</span>
+            طباعة
           </button>
-          <button className="bg-[#2c3e50] text-white px-5 py-2.5 rounded-xl font-bold text-sm flex items-center gap-2 shadow-lg shadow-blue-500/20">
+          <button
+            onClick={handleDownloadPDF}
+            disabled={pdfLoading}
+            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-[#2563eb] text-white hover:bg-[#1d4ed8] font-bold text-sm transition-all shadow-md disabled:opacity-50"
+          >
             <Download size={18} />
-            <span>تحميل PDF</span>
+            {pdfLoading ? 'جاري...' : 'تحميل PDF'}
           </button>
         </div>
-      </div>
 
-      {/* Credit Note Document */}
-      <div className="bg-white rounded-2xl border border-slate-200 shadow-xl overflow-hidden print:border-none print:shadow-none max-w-4xl mx-auto w-full">
-        {/* Document Header */}
-        <div className="bg-[#2c3e50] text-white p-8 lg:p-12 relative overflow-hidden print:bg-slate-100 print:text-slate-900">
-          <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -mr-32 -mt-32 blur-3xl print:hidden" />
-          
-          <div className="flex flex-col md:flex-row justify-between items-start gap-8 relative z-10">
-            <div className="space-y-4">
-              <div className="flex items-center gap-3">
-                <div className="bg-blue-500 p-2.5 rounded-xl">
-                  <FileText size={24} className="text-white" />
-                </div>
-                <h2 className="text-3xl font-black uppercase tracking-tight">إشعار دائن ضريبي</h2>
-              </div>
-              <div className="space-y-1">
-                <p className="text-blue-200 font-bold text-sm print:text-slate-500">رقم الإشعار: <span className="text-white print:text-slate-900">{creditNote.credit_note_number}</span></p>
-                <p className="text-blue-200 font-bold text-sm print:text-slate-500">تاريخ الإصدار: <span className="text-white print:text-slate-900">{format(new Date(creditNote.created_at), 'yyyy-MM-dd HH:mm', { locale: ar })}</span></p>
-                {creditNote.status === 'cancelled' && (
-                  <div className="flex items-center gap-1.5 text-red-400 font-black text-xs uppercase mt-2 bg-red-500/10 px-3 py-1 rounded-full w-fit">
-                    <AlertTriangle size={12} />
-                    <span>تم إلغاء هذا الإشعار</span>
-                  </div>
+        {/* Credit Note Layout */}
+        <div 
+          ref={printRef} 
+          className="invoice-container bg-white shadow-xl overflow-hidden border border-[#f1f5f9] mx-auto"
+          style={{ 
+            width: '210mm', 
+            minHeight: '297mm', 
+            backgroundColor: '#ffffff',
+            color: '#0f172a',
+            display: 'flex',
+            flexDirection: 'column',
+            boxSizing: 'border-box'
+          }}
+        >
+          {/* Header */}
+          <div 
+            className="text-white p-6 relative overflow-hidden"
+            style={{ background: 'linear-gradient(135deg, #1e293b 0%, #2c3e50 100%)' }}
+          >
+            <div className="flex flex-row justify-between items-center gap-4 relative z-10">
+              {/* Company Logo */}
+              <div 
+                className="w-20 h-20 rounded-xl flex items-center justify-center p-3 border border-[#ffffff33]"
+                style={{ backgroundColor: 'rgba(255,255,255,0.1)' }}
+              >
+                {creditNote.company_logo ? (
+                  <img 
+                    src={getPublicUrl(creditNote.company_logo) || ''} 
+                    alt="Logo" 
+                    className="max-w-full max-h-full object-contain rounded-md"
+                    crossOrigin="anonymous"
+                  />
+                ) : (
+                  <Building2 size={36} className="text-white/60" />
                 )}
               </div>
-            </div>
 
-            {creditNote.company_logo && (
-              <img 
-                src={creditNote.company_logo} 
-                alt="Logo" 
-                className="h-16 lg:h-20 object-contain bg-white p-2 rounded-xl"
-              />
-            )}
-          </div>
-        </div>
+              {/* Title Center */}
+              <div className="text-center flex-1">
+                <h1 className="text-2xl font-black mb-0 tracking-wider">إشعار دائن ضريبي</h1>
+                <p className="text-white/60 text-[12px] uppercase font-light">Credit Note</p>
+                <div className="mt-2 inline-flex items-center gap-2 px-4 py-1 rounded-lg border border-[#ffffff1a]" style={{ backgroundColor: 'rgba(255,255,255,0.05)' }}>
+                  <span className="font-bold text-[10px]">نظام الفواتير الإلكترونية</span>
+                </div>
+              </div>
 
-        {/* Document Body */}
-        <div className="p-8 lg:p-12 space-y-12">
-          {/* Parties Info */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-            <div className="space-y-4">
-              <h3 className="text-sm font-black text-slate-400 uppercase tracking-widest flex items-center gap-2 border-b border-slate-100 pb-2">
-                <Building2 size={16} className="text-blue-600" />
-                بيانات البائع
-              </h3>
-              <div className="space-y-2">
-                <p className="font-black text-slate-900 text-lg">{creditNote.company_name}</p>
-                <p className="text-slate-600 font-bold text-sm">{creditNote.company_address}</p>
-                <p className="text-slate-600 font-bold text-sm">الرقم الضريبي: {creditNote.company_vat}</p>
-                <p className="text-slate-600 font-bold text-sm">الهاتف: {creditNote.company_phone}</p>
+              {/* System Logo */}
+              <div className="flex flex-col items-center gap-1 p-3 rounded-xl border border-[#ffffff1a] min-w-[120px]" style={{ backgroundColor: 'rgba(255,255,255,0.05)' }}>
+                <Truck size={24} className="text-[#3b82f6]" />
+                <h2 className="text-[10px] font-black text-white uppercase">Logistics Systems</h2>
               </div>
             </div>
 
-            <div className="space-y-4">
-              <h3 className="text-sm font-black text-slate-400 uppercase tracking-widest flex items-center gap-2 border-b border-slate-100 pb-2">
-                <User size={16} className="text-blue-600" />
-                بيانات العميل
-              </h3>
-              <div className="space-y-2">
-                <p className="font-black text-slate-900 text-lg">{creditNote.client_name}</p>
-                <p className="text-slate-600 font-bold text-sm">{creditNote.client_address}</p>
-                <p className="text-slate-600 font-bold text-sm">الرقم الضريبي: {creditNote.client_vat}</p>
-                {creditNote.client_email && <p className="text-slate-600 font-bold text-sm">{creditNote.client_email}</p>}
+            {/* Header Meta */}
+            <div className="grid grid-cols-3 gap-4 mt-6 pt-4 border-t border-[#ffffff1a] relative z-10">
+              <div className="text-center">
+                <span className="text-[#ffffff66] text-[10px] block">رقم الإشعار:</span>
+                <p className="font-bold text-[13px] tracking-widest">{creditNote.credit_note_number}</p>
               </div>
-            </div>
-          </div>
-
-          {/* Additional Info */}
-          <div className="bg-slate-50 p-6 rounded-2xl border border-slate-100 flex flex-wrap gap-8 items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-white rounded-lg border border-slate-200">
-                <FileText size={18} className="text-slate-400" />
+              <div className="text-center">
+                <span className="text-[#ffffff66] text-[10px] block">تاريخ الإصدار:</span>
+                <p className="font-bold text-[13px]">{formatDate(creditNote.created_at)}</p>
               </div>
-              <div>
-                <p className="text-[10px] font-black text-slate-400 uppercase">الفاتورة الأصلية</p>
-                <p className="text-sm font-black text-slate-700">{creditNote.invoice_number}</p>
-              </div>
-            </div>
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-white rounded-lg border border-slate-200">
-                <Calendar size={18} className="text-slate-400" />
-              </div>
-              <div>
-                <p className="text-[10px] font-black text-slate-400 uppercase">تاريخ الفاتورة</p>
-                <p className="text-sm font-black text-slate-700">
-                  {creditNote.invoice_date ? format(new Date(creditNote.invoice_date), 'yyyy-MM-dd', { locale: ar }) : '-'}
+              <div className="text-center">
+                <span className="text-[#ffffff66] text-[10px] block">الحالة:</span>
+                <p className={cn(
+                  "font-bold text-[13px]",
+                  creditNote.status === 'cancelled' ? "text-red-400" : "text-green-400"
+                )}>
+                  {creditNote.status === 'cancelled' ? 'ملغي' : 'نشط'}
                 </p>
               </div>
             </div>
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-white rounded-lg border border-slate-200">
-                <Calculator size={18} className="text-slate-400" />
-              </div>
-              <div>
-                <p className="text-[10px] font-black text-slate-400 uppercase">قيمة الفاتورة</p>
-                <p className="text-sm font-black text-slate-700">{parseFloat(creditNote.invoice_total_amount).toLocaleString()} ريال</p>
-              </div>
-            </div>
           </div>
 
-          {/* Reason */}
-          <div className="space-y-3">
-            <h3 className="text-sm font-black text-slate-400 uppercase tracking-widest">سبب إصدار الإشعار</h3>
-            <div className="bg-white p-6 rounded-2xl border border-slate-200 min-h-[100px] italic text-slate-600 font-medium">
-              {creditNote.reason}
-            </div>
-          </div>
+          <div className="p-8 space-y-6 flex-grow flex flex-col">
+            {/* Info Cards */}
+            <div className="grid grid-cols-2 gap-6">
+              {/* Company Info */}
+              <div className="rounded-2xl p-4 border border-[#f1f5f9]" style={{ backgroundColor: '#f8fafc' }}>
+                <h3 className="font-black text-[#0f172a] mb-3 pb-2 border-b border-[#e2e8f0] flex items-center gap-2 text-[13px]">
+                  <div className="w-1.5 h-4 bg-[#2563eb] rounded-full"></div>
+                  بيانات البائع
+                </h3>
+                <div className="space-y-2 text-[11px]">
+                  <div className="flex justify-between items-start gap-4">
+                    <span className="text-[#64748b]">الاسم:</span>
+                    <span className="font-bold text-[#0f172a] text-right">{creditNote.company_name}</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-[#64748b]">السجل التجاري:</span>
+                    <span className="font-bold text-[#0f172a]">{creditNote.company_cr || '-'}</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-[#64748b]">الرقم الضريبي:</span>
+                    <span className="font-bold text-[#2563eb]">{creditNote.company_vat}</span>
+                  </div>
+                  <div className="flex justify-start gap-2">
+                    <span className="text-[#64748b] whitespace-nowrap">العنوان:</span>
+                    <span className="font-bold text-[#0f172a] leading-tight text-right">{creditNote.company_address}</span>
+                  </div>
+                </div>
+              </div>
 
-          {/* Totals Table */}
-          <div className="space-y-6">
-            <h3 className="text-sm font-black text-slate-400 uppercase tracking-widest">تفاصيل المبلغ</h3>
-            <div className="overflow-hidden rounded-2xl border border-slate-200">
-              <table className="w-full text-right border-collapse">
-                <thead>
-                  <tr className="bg-slate-50 border-b border-slate-200">
-                    <th className="px-6 py-4 text-xs font-black text-slate-500 uppercase tracking-wider">الوصف</th>
-                    <th className="px-6 py-4 text-xs font-black text-slate-500 uppercase tracking-wider text-center">قبل الضريبة</th>
-                    <th className="px-6 py-4 text-xs font-black text-slate-500 uppercase tracking-wider text-center">الضريبة (15%)</th>
-                    <th className="px-6 py-4 text-xs font-black text-slate-500 uppercase tracking-wider text-center">الإجمالي</th>
+              {/* Customer Info */}
+              <div className="rounded-2xl p-4 border border-[#f1f5f9]" style={{ backgroundColor: '#f8fafc' }}>
+                <h3 className="font-black text-[#0f172a] mb-3 pb-2 border-b border-[#e2e8f0] flex items-center gap-2 text-[13px]">
+                  <div className="w-1.5 h-4 bg-[#059669] rounded-full"></div>
+                  بيانات العميل
+                </h3>
+                <div className="space-y-2 text-[11px]">
+                  <div className="flex justify-between items-start gap-4">
+                    <span className="text-[#64748b]">الاسم:</span>
+                    <span className="font-bold text-[#0f172a] text-right">{creditNote.client_name}</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-[#64748b]">السجل التجاري:</span>
+                    <span className="font-bold text-[#0f172a]">{creditNote.client_cr || '-'}</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-[#64748b]">الرقم الضريبي:</span>
+                    <span className="font-bold text-[#059669]">{creditNote.client_vat || '-'}</span>
+                  </div>
+                  <div className="flex justify-start gap-2">
+                    <span className="text-[#64748b] whitespace-nowrap">العنوان:</span>
+                    <span className="font-bold text-[#0f172a] leading-tight text-right">{creditNote.client_address || '-'}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Reference Invoice Info */}
+            <div className="bg-slate-50 p-6 rounded-2xl border border-slate-100 flex flex-wrap gap-8 items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-white rounded-lg border border-slate-200">
+                  <FileText size={18} className="text-slate-400" />
+                </div>
+                <div>
+                  <p className="text-[10px] font-black text-slate-400 uppercase">الفاتورة الأصلية</p>
+                  <p className="text-sm font-black text-slate-700">{creditNote.invoice_number}</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-white rounded-lg border border-slate-200">
+                  <Calendar size={18} className="text-slate-400" />
+                </div>
+                <div>
+                  <p className="text-[10px] font-black text-slate-400 uppercase">تاريخ الفاتورة</p>
+                  <p className="text-sm font-black text-slate-700">{formatDate(creditNote.invoice_date)}</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-white rounded-lg border border-slate-200">
+                  <Calculator size={18} className="text-slate-400" />
+                </div>
+                <div>
+                  <p className="text-[10px] font-black text-slate-400 uppercase">قيمة الفاتورة</p>
+                  <p className="text-sm font-black text-slate-700">{parseFloat(creditNote.invoice_total_amount).toLocaleString()} ريال</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Reason */}
+            <div className="space-y-3">
+              <h3 className="text-sm font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
+                <AlertTriangle size={14} className="text-amber-500" />
+                سبب إصدار الإشعار
+              </h3>
+              <div className="bg-white p-5 rounded-2xl border border-slate-200 min-h-[80px] italic text-slate-600 font-medium text-[13px]">
+                {creditNote.reason}
+              </div>
+            </div>
+
+            {/* Amount Table */}
+            <div className="rounded-xl border border-[#f1f5f9] overflow-hidden shadow-sm">
+              <table className="w-full text-[11px] border-collapse">
+                <thead style={{ background: '#1e293b', color: '#ffffff' }}>
+                  <tr>
+                    <th className="px-3 py-3 text-right font-bold">الوصف</th>
+                    <th className="px-3 py-3 text-center font-bold">قبل الضريبة</th>
+                    <th className="px-3 py-3 text-center font-bold">الضريبة 15%</th>
+                    <th className="px-3 py-3 text-center font-bold">الإجمالي المسترجع</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100">
+                <tbody className="divide-y divide-[#f1f5f9] bg-white">
                   <tr>
-                    <td className="px-6 py-6 font-bold text-slate-700 text-sm">
+                    <td className="px-3 py-4 font-bold text-[#0f172a]">
                       مبلغ إشعار الدائن المسترجع
-                      <p className="text-[10px] text-slate-400 font-black mt-1">خصم من الفاتورة رقم {creditNote.invoice_number}</p>
+                      <p className="text-[9px] text-slate-400 font-medium mt-0.5">خصم من الفاتورة رقم {creditNote.invoice_number}</p>
                     </td>
-                    <td className="px-6 py-6 text-center">
-                      <span className="font-bold text-slate-600 text-sm">{parseFloat(creditNote.total_before_vat).toLocaleString()} ريال</span>
-                    </td>
-                    <td className="px-6 py-6 text-center">
-                      <span className="font-bold text-slate-600 text-sm">{parseFloat(creditNote.vat_amount).toLocaleString()} ريال</span>
-                    </td>
-                    <td className="px-6 py-6 text-center">
-                      <span className="font-black text-red-600 text-lg">{parseFloat(creditNote.total_amount).toLocaleString()} ريال</span>
-                    </td>
-                  </tr>
-                  <tr className="bg-slate-50 font-black">
-                    <td colSpan={3} className="px-6 py-4 text-left text-slate-500 text-sm uppercase">إجمالي المبلغ المستحق للعميل</td>
-                    <td className="px-6 py-4 text-center text-red-600 text-xl">{parseFloat(creditNote.total_amount).toLocaleString()} ريال</td>
+                    <td className="px-3 py-4 text-center font-medium">{parseFloat(creditNote.total_before_vat).toLocaleString('en-US', { minimumFractionDigits: 2 })} ريال</td>
+                    <td className="px-3 py-4 text-center text-[#2563eb] font-bold">{parseFloat(creditNote.vat_amount).toLocaleString('en-US', { minimumFractionDigits: 2 })} ريال</td>
+                    <td className="px-3 py-4 text-center font-black text-red-600 text-[14px]">{parseFloat(creditNote.total_amount).toLocaleString('en-US', { minimumFractionDigits: 2 })} ريال</td>
                   </tr>
                 </tbody>
               </table>
             </div>
-          </div>
 
-          {/* Footer & QR */}
-          <div className="flex flex-col md:flex-row justify-between items-end gap-8 pt-8 border-t border-slate-100">
-            <div className="space-y-4 max-w-md">
-              <p className="text-[10px] font-black text-slate-400 uppercase leading-relaxed">
-                هذا المستند تم إنشاؤه آلياً وهو متوافق مع متطلبات هيئة الزكاة والضريبة والجمارك (ZATCA) للمرحلة الأولى من الربط الإلكتروني.
-              </p>
+            {/* Summary and QR Section */}
+            <div className="grid grid-cols-2 gap-6 items-stretch mt-auto">
+              {/* Summary Box */}
+              <div 
+                className="rounded-2xl p-5 border border-[#f1f5f9] flex flex-col justify-between"
+                style={{ background: '#f8fafc' }}
+              >
+                <div>
+                  <h3 className="font-black text-[#0f172a] mb-3 flex items-center gap-2 text-[13px]">
+                    <CreditCard size={16} className="text-[#2563eb]" />
+                    ملخص الإشعار
+                  </h3>
+                  <div className="space-y-3">
+                    <div className="flex justify-between items-center py-1.5 border-b border-dashed border-[#e2e8f0]">
+                      <span className="text-[#64748b] text-[11px]">قبل الضريبة:</span>
+                      <span className="font-bold text-[#0f172a] text-[11px]">{parseFloat(creditNote.total_before_vat).toLocaleString('en-US', { minimumFractionDigits: 2 })} ريال</span>
+                    </div>
+                    <div className="flex justify-between items-center py-1.5 border-b border-dashed border-[#e2e8f0]">
+                      <span className="text-[#64748b] text-[11px]">الضريبة 15%:</span>
+                      <span className="font-bold text-[#2563eb] text-[11px]">{parseFloat(creditNote.vat_amount).toLocaleString('en-US', { minimumFractionDigits: 2 })} ريال</span>
+                    </div>
+                  </div>
+                </div>
+                
+                <div 
+                  className="flex justify-between items-center py-3 px-4 rounded-xl mt-4 shadow-md"
+                  style={{ background: '#dc2626' }}
+                >
+                  <span className="font-black text-white text-[12px]">الإجمالي المسترجع:</span>
+                  <span className="font-black text-[14px] text-white">
+                    {parseFloat(creditNote.total_amount).toLocaleString('en-US', { minimumFractionDigits: 2 })} ريال
+                  </span>
+                </div>
+              </div>
+
+              {/* QR and Compliance */}
+              <div className="rounded-2xl p-5 border border-[#f1f5f9] bg-white text-center flex flex-col justify-between shadow-sm">
+                <div>
+                  <h3 className="font-black text-[#0f172a] mb-3 flex items-center justify-center gap-2 text-[13px]">
+                    <QrCode size={16} className="text-[#2563eb]" />
+                    باركود ZATCA
+                  </h3>
+                  <div className="flex justify-center mb-2">
+                    <div className="p-2 bg-white rounded-xl shadow-sm border border-[#f8fafc]">
+                      {isMounted && (
+                        <QRCodeCanvas
+                          value={qrData}
+                          size={130}
+                          level="H"
+                          includeMargin={false}
+                        />
+                      )}
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="pt-2 border-t border-[#f1f5f9]">
+                  <p className="text-[9px] font-bold text-slate-400">
+                    مستند ضريبي معتمد - المرحلة الأولى
+                  </p>
+                </div>
+              </div>
             </div>
-            
-            <div className="flex flex-col items-center gap-2 p-4 bg-slate-50 rounded-2xl border border-slate-100">
-              <img 
-                src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(qrData)}`}
-                alt="ZATCA QR Code"
-                className="w-32 h-32"
-              />
-              <span className="text-[10px] font-black text-slate-400 uppercase">رمز التحقق الضريبي</span>
+
+            {/* Compliance Footer */}
+            <div className="pt-6 border-t border-[#f1f5f9]">
+              <p className="text-[10px] text-center text-slate-400 font-medium">
+                هذا المستند تم إنشاؤه آلياً وهو متوافق مع متطلبات هيئة الزكاة والضريبة والجمارك (ZATCA).
+              </p>
             </div>
           </div>
         </div>
