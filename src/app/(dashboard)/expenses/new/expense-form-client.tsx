@@ -93,10 +93,10 @@ function EmployeeSelect({ row, type, metadata, updateRow }: {
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  const filteredEmployees = (metadata?.employees || []).filter((emp: Employee) => 
-    emp.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
-    emp.iqama_number.includes(searchTerm)
-  );
+    const filteredEmployees = (metadata?.employees || []).filter((emp: Employee) => 
+      (emp.name || "").toLowerCase().includes(searchTerm.toLowerCase()) || 
+      (emp.iqama_number || "").includes(searchTerm)
+    );
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {

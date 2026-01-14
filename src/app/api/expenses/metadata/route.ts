@@ -34,11 +34,11 @@ export async function GET(request: NextRequest) {
 
     // 4. Fetch Employees
     const employees = await query(
-      `SELECT e.id, e.name, e.iqama_number, e.phone, ep.package_name
+      `SELECT e.id, e.name, e.iqama_number, e.phone, ep.name AS package_name
        FROM employees e
        LEFT JOIN employee_packages ep ON e.package_id = ep.id
-       WHERE e.company_id = ? AND e.status = 'active'
-       ORDER BY ep.package_name, e.name`,
+       WHERE e.company_id = ? AND e.is_active = 1
+       ORDER BY ep.name, e.name`,
       [companyId]
     );
 
