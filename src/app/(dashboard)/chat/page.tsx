@@ -1,7 +1,12 @@
 import React from "react";
 import { cookies } from "next/headers";
-import { query } from "@/lib/db";
+import { createClient } from "@supabase/supabase-js";
 import { ChatClient } from "./chat-client";
+
+const supabase = createClient(
+  process.env.SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+);
 
 export default async function ChatPage() {
   const cookieStore = await cookies();
@@ -9,14 +14,15 @@ export default async function ChatPage() {
   const session = JSON.parse(sessionCookie?.value || "{}");
   const companyId = session.company_id;
 
-  const initialMessages = await query(
-    "SELECT * FROM chat_messages WHERE company_id = ? ORDER BY created_at ASC",
-    [companyId]
-  );
+  const { data: initialMessages } = await supabase
+    .from("chat_messages")
+    .select("*")
+    .eq("company_id", companyId)
+    .order("created_at", { ascending: true });
 
   return (
     <ChatClient 
-      initialMessages={initialMessages} 
+      initialMessages={initialMessages || []} 
       companyId={companyId}
       senderRole="client"
     />
