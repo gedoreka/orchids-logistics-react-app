@@ -27,7 +27,7 @@ import { cn } from "@/lib/utils";
 export function Header({ user, onToggleSidebar }: { user?: { name: string; role: string; email: string }, onToggleSidebar?: () => void }) {
   const [mounted, setMounted] = useState(false);
   const [currentTime, setCurrentTime] = useState(new Date());
-  const [location, setLocation] = useState("جاري تحديث الموقع...");
+  const [location, setLocation] = useState("الرياض، السعودية");
   const [isDriverModalOpen, setIsDriverModalOpen] = useState(false);
   const [showQR, setShowQR] = useState(false);
   const [copied, setCopied] = useState(false);
