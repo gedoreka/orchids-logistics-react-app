@@ -79,10 +79,9 @@ export async function POST(request: NextRequest) {
 
     // Fetch invoice details
     const invoices = await query<any>(`
-      SELECT si.*, c.name as client_name, c.vat_number as client_vat, c.address as client_address
-      FROM sales_invoices si
-      JOIN customers c ON si.client_id = c.id
-      WHERE si.id = ? AND si.company_id = ?
+      SELECT *
+      FROM sales_invoices
+      WHERE id = ? AND company_id = ?
     `, [invoice_id, companyId]);
 
     const invoice = invoices[0];
