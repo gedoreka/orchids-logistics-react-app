@@ -87,6 +87,19 @@ export function FleetClient({
   const [activeTab, setActiveTab] = useState("dashboard");
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedMaintenance, setSelectedMaintenance] = useState<any>(null);
+
+  // Sync state with props when server revalidates
+  useEffect(() => {
+    setVehicles(initialVehicles);
+  }, [initialVehicles]);
+
+  useEffect(() => {
+    setSpares(initialSpares);
+  }, [initialSpares]);
+
+  useEffect(() => {
+    setMaintenance(initialMaintenance);
+  }, [initialMaintenance]);
   
   const printRef = useRef<HTMLDivElement>(null);
   const handlePrint = useReactToPrint({
@@ -120,23 +133,26 @@ export function FleetClient({
             <p className="mt-3 text-slate-400 font-medium text-lg">تحكم كامل واحترافي في المركبات، قطع الغيار، وعمليات الصيانة</p>
           </div>
           
-          <div className="flex flex-wrap justify-center gap-4">
-            <AddVehicleDialog 
-              companyId={companyId} 
-              companyName={companyName}
-              employees={employees} 
-              vehicleCategories={vehicleCategories}
-            />
-            <AddSpareDialog 
-              companyId={companyId} 
-              categories={categories} 
-            />
-            <MaintenanceRequestDialog 
-              companyId={companyId} 
-              vehicles={vehicles} 
-              spares={spares} 
-            />
-          </div>
+            <div className="flex flex-wrap justify-center gap-4">
+              <AddVehicleCategoryDialog companyId={companyId} />
+              <AddCategoryDialog companyId={companyId} />
+              <AddVehicleDialog 
+                companyId={companyId} 
+                companyName={companyName}
+                employees={employees} 
+                vehicleCategories={vehicleCategories}
+              />
+              <AddSpareDialog 
+                companyId={companyId} 
+                categories={categories} 
+              />
+              <MaintenanceRequestDialog 
+                companyId={companyId} 
+                vehicles={vehicles} 
+                spares={spares} 
+              />
+            </div>
+
         </div>
       </div>
 
@@ -658,8 +674,8 @@ function AddVehicleDialog({ companyId, companyName, employees, vehicleCategories
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button className="h-16 px-8 rounded-2xl bg-white text-slate-900 font-black text-lg hover:bg-white shadow-xl hover:shadow-white/20 hover:-translate-y-1 transition-all border-none">
-          <Plus className="ml-2 h-6 w-6 text-blue-500" /> إضافة مركبة
+        <Button className="h-20 px-10 rounded-[1.5rem] bg-white text-slate-900 font-black text-xl hover:bg-white shadow-2xl hover:shadow-white/20 hover:-translate-y-1 transition-all border-none">
+          <Plus className="ml-3 h-7 w-7 text-blue-500" /> إضافة مركبة جديدة
         </Button>
       </DialogTrigger>
       <DialogContent className="max-w-4xl rounded-[2.5rem] border-none shadow-3xl overflow-hidden p-0 bg-white">
@@ -756,39 +772,46 @@ function AddVehicleDialog({ companyId, companyName, employees, vehicleCategories
                 <Input name="owner_id_number" placeholder="رقم هوية المالك / السجل" className="h-12 rounded-xl bg-white" />
               </div>
 
-              <div className="space-y-4">
-                <label className="text-sm font-black text-slate-700">تعيين السائق</label>
-                <div className="space-y-3">
-                  <div className="relative">
-                    <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-                    <Input 
-                      placeholder="ابحث بالاسم أو رقم الهوية..." 
-                      className="h-11 pr-10 rounded-xl bg-slate-50 border-slate-200"
-                      value={driverSearch}
-                      onChange={(e) => setDriverSearch(e.target.value)}
-                    />
+                  <div className="space-y-4 p-6 rounded-[2rem] bg-slate-50 border border-slate-200 shadow-sm">
+                    <label className="text-sm font-black text-slate-700 flex items-center gap-2">
+                      <User size={18} className="text-blue-500" /> تعيين السائق
+                    </label>
+                    <div className="space-y-3">
+                      <div className="relative">
+                        <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                        <Input 
+                          placeholder="ابحث بالاسم أو رقم الهوية..." 
+                          className="h-12 pr-10 rounded-xl bg-white border-slate-200 font-bold"
+                          value={driverSearch}
+                          onChange={(e) => setDriverSearch(e.target.value)}
+                        />
+                      </div>
+                      <Select name="driver_id">
+                        <SelectTrigger className="h-12 rounded-xl border-slate-200 bg-white shadow-sm">
+                          <SelectValue placeholder="اختر السائق من النتائج" />
+                        </SelectTrigger>
+                        <SelectContent className="bg-white border-slate-200 shadow-2xl rounded-2xl min-w-[300px]">
+                          {filteredDrivers.length > 0 ? (
+                            filteredDrivers.map(emp => (
+                              <SelectItem key={emp.id} value={emp.id.toString()} className="p-3 focus:bg-blue-50 rounded-xl transition-all">
+                                <div className="flex flex-col text-right">
+                                  <span className="font-black text-slate-800">{emp.name}</span>
+                                  <span className="text-xs text-slate-400 font-bold">{emp.iqama_number}</span>
+                                </div>
+                              </SelectItem>
+                            ))
+                          ) : (
+                            <div className="p-4 text-center text-slate-400 text-sm italic">لا توجد نتائج مطابقة</div>
+                          )}
+                        </SelectContent>
+                      </Select>
+                      <div className="space-y-2 pt-2">
+                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mr-2">تاريخ استلام السائق</label>
+                        <Input name="driver_receive_date" type="date" className="h-11 rounded-xl bg-white" />
+                      </div>
+                    </div>
                   </div>
-                  <Select name="driver_id">
-                    <SelectTrigger className="h-12 rounded-xl border-slate-200 bg-white">
-                      <SelectValue placeholder="اختر السائق من النتائج" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {filteredDrivers.map(emp => (
-                        <SelectItem key={emp.id} value={emp.id.toString()}>
-                          <div className="flex flex-col text-right">
-                            <span className="font-bold">{emp.name}</span>
-                            <span className="text-[10px] text-slate-400">{emp.iqama_number}</span>
-                          </div>
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <div className="space-y-2">
-                    <label className="text-xs font-black text-slate-400 uppercase tracking-wider">تاريخ استلام السائق</label>
-                    <Input name="driver_receive_date" type="date" className="h-11 rounded-xl" />
-                  </div>
-                </div>
-              </div>
+
             </div>
           </div>
 

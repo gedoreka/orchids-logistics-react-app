@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { query } from "@/lib/db";
+import { query, execute } from "@/lib/db";
 
 export async function addVehicleCategory(data: { company_id: number; name: string; description?: string }) {
   try {
