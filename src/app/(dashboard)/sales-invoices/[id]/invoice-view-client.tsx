@@ -103,11 +103,6 @@ interface InvoiceViewClientProps {
   customer: Customer | null;
 }
 
-function encodeTLV(tag: number, value: string): string {
-  const valueBytes = new TextEncoder().encode(value);
-  return String.fromCharCode(tag) + String.fromCharCode(valueBytes.length) + value;
-}
-
 function generateQRCodeTLV(
   sellerName: string,
   vatNumber: string,
@@ -115,13 +110,27 @@ function generateQRCodeTLV(
   totalWithVAT: string,
   vatAmount: string
 ): string {
-  let tlv = '';
-  tlv += encodeTLV(1, sellerName);
-  tlv += encodeTLV(2, vatNumber);
-  tlv += encodeTLV(3, invoiceDate + 'T00:00:00Z');
-  tlv += encodeTLV(4, totalWithVAT);
-  tlv += encodeTLV(5, vatAmount);
-  return btoa(tlv);
+  const encoder = new TextEncoder();
+  const values = [
+    sellerName,
+    vatNumber,
+    invoiceDate + 'T00:00:00Z',
+    totalWithVAT,
+    vatAmount
+  ];
+  
+  const tlvParts: number[] = [];
+  values.forEach((value, index) => {
+    const encoded = encoder.encode(value);
+    tlvParts.push(index + 1);
+    tlvParts.push(encoded.length);
+    tlvParts.push(...encoded);
+  });
+  
+  const bytes = new Uint8Array(tlvParts);
+  let binary = '';
+  bytes.forEach(byte => binary += String.fromCharCode(byte));
+  return btoa(binary);
 }
 
 export function InvoiceViewClient({
