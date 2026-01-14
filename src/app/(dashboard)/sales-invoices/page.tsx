@@ -8,6 +8,16 @@ async function getCompanyId(userId: number) {
   return users[0]?.company_id;
 }
 
+function safeDate(val: any): string | null {
+  if (!val) return null;
+  if (typeof val === 'string') return val;
+  if (val instanceof Date) {
+    if (isNaN(val.getTime())) return null;
+    return val.toISOString().split('T')[0];
+  }
+  return String(val);
+}
+
 async function getInvoices(companyId: number) {
   const invoices = await query<any>(`
     SELECT 
@@ -22,10 +32,10 @@ async function getInvoices(companyId: number) {
   
   return invoices.map((inv: any) => ({
     ...inv,
-    issue_date: inv.issue_date ? (inv.issue_date instanceof Date ? inv.issue_date.toISOString().split('T')[0] : inv.issue_date) : null,
-    due_date: inv.due_date ? (inv.due_date instanceof Date ? inv.due_date.toISOString().split('T')[0] : inv.due_date) : null,
-    created_at: inv.created_at ? (inv.created_at instanceof Date ? inv.created_at.toISOString() : inv.created_at) : null,
-    updated_at: inv.updated_at ? (inv.updated_at instanceof Date ? inv.updated_at.toISOString() : inv.updated_at) : null,
+    issue_date: safeDate(inv.issue_date),
+    due_date: safeDate(inv.due_date),
+    created_at: safeDate(inv.created_at),
+    updated_at: safeDate(inv.updated_at),
   }));
 }
 
