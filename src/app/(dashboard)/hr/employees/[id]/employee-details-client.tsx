@@ -72,20 +72,12 @@ type EmployeeDetailsClientProps = {
   monthlyData: any[];
 };
 
-const tabConfig: Record<string, any> = {
-  general: { icon: User, label: "المعلومات العامة", bg: "bg-blue-600", color: "blue", light: "bg-blue-50", text: "text-blue-600" },
-  bank: { icon: University, label: "الحساب البنكي", bg: "bg-emerald-600", color: "emerald", light: "bg-emerald-50", text: "text-emerald-600" },
-  status: { icon: ShieldCheck, label: "صلاحية الإقامة", bg: "bg-purple-600", color: "purple", light: "bg-purple-50", text: "text-purple-600" },
-  documents: { icon: FileText, label: "المستندات", bg: "bg-indigo-600", color: "indigo", light: "bg-indigo-50", text: "text-indigo-600" },
-  violations: { icon: AlertOctagon, label: "المخالفات", bg: "bg-red-600", color: "red", light: "bg-red-50", text: "text-red-600" },
-  stats: { icon: BarChart3, label: "الإحصائيات", bg: "bg-slate-800", color: "slate", light: "bg-slate-50", text: "text-slate-800" },
-  letters: { icon: Mail, label: "خطابات السائق", bg: "bg-rose-600", color: "rose", light: "bg-rose-50", text: "text-rose-600" },
-};
-
 function getPublicUrl(path: string | null) {
   if (!path) return null;
   if (path.startsWith('http')) return path;
-  return `https://xaexoopjqkrzhbochbef.supabase.co/storage/v1/object/public/employees/${path}`;
+  // Handle paths that might already have 'employees/' prefix
+  const cleanPath = path.startsWith('employees/') ? path.replace('employees/', '') : path;
+  return `https://xaexoopjqkrzhbochbef.supabase.co/storage/v1/object/public/employees/${cleanPath}`;
 }
 
 export function EmployeeDetailsClient({ 
@@ -96,6 +88,17 @@ export function EmployeeDetailsClient({
   stats, 
   monthlyData 
 }: EmployeeDetailsClientProps) {
+  // Tab Configuration
+  const tabConfig: Record<string, any> = useMemo(() => ({
+    general: { icon: User, label: "المعلومات العامة", bg: "bg-blue-600", color: "blue", light: "bg-blue-50", text: "text-blue-600" },
+    bank: { icon: University, label: "الحساب البنكي", bg: "bg-emerald-600", color: "emerald", light: "bg-emerald-50", text: "text-emerald-600" },
+    status: { icon: ShieldCheck, label: "صلاحية الإقامة", bg: "bg-purple-600", color: "purple", light: "bg-purple-50", text: "text-purple-600" },
+    documents: { icon: FileText, label: "المستندات", bg: "bg-indigo-600", color: "indigo", light: "bg-indigo-50", text: "text-indigo-600" },
+    violations: { icon: AlertOctagon, label: "المخالفات", bg: "bg-red-600", color: "red", light: "bg-red-50", text: "text-red-600" },
+    stats: { icon: BarChart3, label: "الإحصائيات", bg: "bg-slate-800", color: "slate", light: "bg-slate-50", text: "text-slate-800" },
+    letters: { icon: Mail, label: "خطابات السائق", bg: "bg-rose-600", color: "rose", light: "bg-rose-50", text: "text-rose-600" },
+  }), []);
+
   const [activeTab, setActiveTab] = useState("general");
   const [isEditing, setIsEditing] = useState(false);
   const [mounted, setMounted] = useState(false);
@@ -603,87 +606,143 @@ export function EmployeeDetailsClient({
                 </div>
               )}
 
-              {activeTab === "status" && (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 pb-8">
-                  <div className={`group relative p-10 rounded-[2.5rem] border-2 flex flex-col items-center justify-center gap-6 text-center transition-all hover:shadow-2xl hover:-translate-y-2 ${
-                    iqamaStatus.color === 'red' ? 'bg-red-50 border-red-100 hover:shadow-red-200/50' :
-                    iqamaStatus.color === 'orange' ? 'bg-orange-50 border-orange-100 hover:shadow-orange-200/50' :
-                    'bg-green-50 border-green-100 hover:shadow-green-200/50'
-                  }`}>
-                    <div className={`bg-white p-6 rounded-3xl shadow-xl group-hover:scale-110 transition-transform ${
-                      iqamaStatus.color === 'red' ? 'text-red-600' :
-                      iqamaStatus.color === 'orange' ? 'text-orange-600' :
-                      'text-green-600'
-                    }`}>
-                      <Timer size={40} />
-                    </div>
-                    <div>
-                      <p className={`text-xs font-black uppercase tracking-[0.2em] mb-2 ${
-                        iqamaStatus.color === 'red' ? 'text-red-400' :
-                        iqamaStatus.color === 'orange' ? 'text-orange-400' :
-                        'text-green-400'
-                      }`}>تاريخ انتهاء الإقامة</p>
-                      <h4 className="text-3xl font-black text-gray-900 drop-shadow-sm">{employee.iqama_expiry || '---'}</h4>
-                    </div>
-                    <div className={`absolute top-4 right-4 px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest ${
-                      iqamaStatus.color === 'red' ? 'bg-red-100 text-red-600' :
-                      iqamaStatus.color === 'orange' ? 'bg-orange-100 text-orange-600' :
-                      'bg-green-100 text-green-600'
-                    }`}>
-                      {iqamaStatus.text}
-                    </div>
-                  </div>
+                {activeTab === "status" && (
+                  <div className="flex flex-col gap-10">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                      {/* Iqama Days Countdown */}
+                      <motion.div 
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className={`relative p-10 rounded-[3rem] border-2 overflow-hidden group shadow-xl transition-all hover:shadow-2xl ${
+                          iqamaStatus.color === 'red' ? 'bg-red-50 border-red-100 hover:border-red-200' :
+                          iqamaStatus.color === 'orange' ? 'bg-orange-50 border-orange-100 hover:border-orange-200' :
+                          'bg-green-50 border-green-100 hover:border-green-200'
+                        }`}
+                      >
+                        <div className="absolute -top-12 -right-12 w-32 h-32 bg-white/20 rounded-full blur-3xl group-hover:scale-150 transition-transform duration-700" />
+                        <div className="relative z-10 flex flex-col items-center text-center gap-6">
+                          <div className={`p-6 rounded-[2rem] shadow-2xl bg-white ${
+                            iqamaStatus.color === 'red' ? 'text-red-600 shadow-red-100' :
+                            iqamaStatus.color === 'orange' ? 'text-orange-600 shadow-orange-100' :
+                            'text-green-600 shadow-green-100'
+                          }`}>
+                            <Timer size={48} className="animate-pulse-slow" />
+                          </div>
+                          <div>
+                            <p className="text-[10px] font-black uppercase tracking-[0.3em] opacity-40 mb-2">الأيام المتبقية</p>
+                            <div className="flex items-baseline justify-center gap-2">
+                              <span className="text-6xl font-black tracking-tighter drop-shadow-sm">
+                                {iqamaStatus.days !== null ? Math.abs(iqamaStatus.days) : '--'}
+                              </span>
+                              <span className="text-sm font-bold opacity-60">يوم</span>
+                            </div>
+                            <p className={`text-[11px] font-black mt-4 px-6 py-2 rounded-full inline-block ${
+                              iqamaStatus.color === 'red' ? 'bg-red-100 text-red-600' :
+                              iqamaStatus.color === 'orange' ? 'bg-orange-100 text-orange-600' :
+                              'bg-green-100 text-green-600'
+                            }`}>
+                              {iqamaStatus.text}
+                            </p>
+                          </div>
+                        </div>
+                      </motion.div>
 
-                  <div className="group relative bg-blue-50 p-10 rounded-[2.5rem] border-2 border-blue-100 flex flex-col items-center justify-center gap-6 text-center transition-all hover:shadow-2xl hover:shadow-blue-200/50 hover:-translate-y-2">
-                    <div className="bg-white p-6 rounded-3xl text-blue-600 shadow-xl group-hover:scale-110 transition-transform">
-                      <ShieldCheck size={40} />
-                    </div>
-                    <div>
-                      <p className="text-xs font-black text-blue-400 uppercase tracking-[0.2em] mb-2">حالة الإقامة</p>
-                      <h4 className="text-3xl font-black text-blue-900 drop-shadow-sm">{iqamaStatus.days !== null && iqamaStatus.days < 0 ? 'منتهية' : 'سارية المفعول'}</h4>
-                    </div>
-                    <div className={`absolute top-4 right-4 px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest ${
-                      iqamaStatus.days !== null && iqamaStatus.days < 0 ? 'bg-red-100 text-red-600' : 'bg-green-100 text-green-600'
-                    }`}>
-                      {iqamaStatus.days !== null && iqamaStatus.days < 0 ? 'غير نشط' : 'نشط'}
-                    </div>
-                  </div>
+                      {/* Iqama Status Card */}
+                      <motion.div 
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.1 }}
+                        className="relative p-10 rounded-[3rem] border-2 border-blue-100 bg-blue-50/50 overflow-hidden group shadow-xl transition-all hover:shadow-2xl hover:border-blue-200"
+                      >
+                        <div className="absolute -bottom-12 -left-12 w-32 h-32 bg-blue-100/40 rounded-full blur-3xl group-hover:scale-150 transition-transform duration-700" />
+                        <div className="relative z-10 flex flex-col items-center text-center gap-6">
+                          <div className="p-6 rounded-[2rem] shadow-2xl bg-white text-blue-600 shadow-blue-100">
+                            <ShieldCheck size={48} />
+                          </div>
+                          <div>
+                            <p className="text-[10px] font-black uppercase tracking-[0.3em] text-blue-400 mb-2">حالة صلاحية المستند</p>
+                            <h4 className="text-4xl font-black text-blue-900 drop-shadow-sm">
+                              {iqamaStatus.days !== null && iqamaStatus.days < 0 ? 'منتهية الصلاحية' : 'سارية الصلاحية'}
+                            </h4>
+                            <div className="flex items-center gap-3 mt-4 justify-center">
+                              <div className={`h-2.5 w-2.5 rounded-full ${iqamaStatus.days !== null && iqamaStatus.days < 0 ? 'bg-red-500 animate-pulse' : 'bg-green-500 animate-bounce'}`} />
+                              <span className="text-xs font-black text-blue-700 uppercase tracking-widest">مراقب من النظام</span>
+                            </div>
+                          </div>
+                        </div>
+                      </motion.div>
 
-                  <div className="bg-slate-50 p-10 rounded-[2.5rem] border-2 border-gray-100 flex flex-col gap-6">
-                    <div className="flex items-center gap-4">
-                      <div className="bg-white p-3 rounded-2xl text-purple-600 shadow-lg border border-purple-50">
-                        <Edit3 size={24} />
+                      {/* Update Expiry Card */}
+                      <motion.div 
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.2 }}
+                        className="bg-white p-10 rounded-[3rem] border-2 border-gray-100 shadow-xl flex flex-col gap-8 group"
+                      >
+                        <div className="flex items-center gap-5">
+                          <div className="p-4 rounded-2xl bg-purple-50 text-purple-600 shadow-lg border border-purple-100 group-hover:rotate-12 transition-transform">
+                            <CalendarDays size={28} />
+                          </div>
+                          <div>
+                            <h4 className="text-xl font-black text-gray-900">تحديث التاريخ</h4>
+                            <p className="text-[10px] font-bold text-gray-400 uppercase">تعديل يدوي للتاريخ</p>
+                          </div>
+                        </div>
+                        <form onSubmit={handleUpdateExpiry} className="space-y-5">
+                          <div className="relative">
+                            <Calendar className="absolute right-5 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+                            <input 
+                              type="date" 
+                              value={newExpiryDate}
+                              onChange={(e) => setNewExpiryDate(e.target.value)}
+                              className="w-full bg-slate-50 border-2 border-gray-50 rounded-2xl py-4 pr-14 pl-6 text-sm font-black text-gray-800 focus:bg-white focus:border-purple-400 outline-none transition-all shadow-inner"
+                              required
+                            />
+                          </div>
+                          <button type="submit" className="w-full bg-purple-600 hover:bg-purple-700 text-white py-4 rounded-2xl text-[11px] font-black flex items-center justify-center gap-3 transition-all shadow-xl shadow-purple-200 active:scale-95 group">
+                            <Save size={18} className="group-hover:translate-y-[-2px] transition-transform" />
+                            حفظ التاريخ الجديد
+                          </button>
+                        </form>
+                      </motion.div>
+                    </div>
+
+                    {/* Information Alert */}
+                    <motion.div 
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      transition={{ delay: 0.3 }}
+                      className="bg-slate-900 p-10 rounded-[3rem] text-white flex flex-col md:flex-row items-center gap-10 border border-white/5 relative overflow-hidden"
+                    >
+                      <div className="absolute top-0 left-0 w-full h-full opacity-10">
+                        <div className="absolute top-[-50%] right-[-10%] w-[50%] h-[200%] bg-blue-500/20 rotate-45 blur-3xl" />
                       </div>
-                      <h4 className="text-lg font-black text-gray-900">تحديث تاريخ الإقامة</h4>
-                    </div>
-                    <form onSubmit={handleUpdateExpiry} className="space-y-4">
-                      <input 
-                        type="date" 
-                        value={newExpiryDate}
-                        onChange={(e) => setNewExpiryDate(e.target.value)}
-                        className="w-full bg-white border-2 border-gray-100 rounded-2xl py-3 px-5 text-sm font-black text-gray-800 focus:border-purple-400 outline-none transition-all shadow-sm"
-                        required
-                      />
-                      <button type="submit" className="w-full bg-purple-600 hover:bg-purple-700 text-white py-3 rounded-2xl text-[10px] font-black flex items-center justify-center gap-3 transition-all shadow-lg active:scale-95">
-                        <Save size={16} />
-                        تحديث التاريخ
-                      </button>
-                    </form>
+                      <div className="relative z-10 bg-white/10 p-6 rounded-[2rem] backdrop-blur-md border border-white/10 text-yellow-400 shadow-2xl">
+                        <Info size={40} />
+                      </div>
+                      <div className="relative z-10 flex-1 space-y-4 text-center md:text-right">
+                        <h4 className="text-2xl font-black tracking-tight flex items-center gap-3 justify-center md:justify-start">
+                          <div className="h-2 w-12 bg-yellow-400 rounded-full" />
+                          نظام مراقبة صلاحية الإقامة
+                        </h4>
+                        <p className="text-sm font-bold text-white/60 leading-relaxed max-w-3xl">
+                          هذا النظام مرتبط بقاعدة البيانات الموحدة لإدارة الموارد البشرية. يتم إرسال تنبيهات تلقائية للنظام وللموظف عبر البريد الإلكتروني وتطبيق الجوال قبل 30 يوماً من انتهاء الصلاحية. يرجى التأكد من أن جميع الحقول صحيحة لتجنب أي تعقيدات قانونية أو غرامات مالية.
+                        </p>
+                      </div>
+                      <div className="relative z-10 grid grid-cols-2 gap-4">
+                        <div className="bg-white/5 px-6 py-4 rounded-2xl border border-white/10 backdrop-blur-md flex flex-col items-center">
+                          <span className="text-2xl font-black text-yellow-400">30</span>
+                          <span className="text-[8px] font-black uppercase text-white/40 tracking-widest mt-1">يوم تنبيه</span>
+                        </div>
+                        <div className="bg-white/5 px-6 py-4 rounded-2xl border border-white/10 backdrop-blur-md flex flex-col items-center">
+                          <span className="text-2xl font-black text-red-400">0</span>
+                          <span className="text-[8px] font-black uppercase text-white/40 tracking-widest mt-1">يوم سماح</span>
+                        </div>
+                      </div>
+                    </motion.div>
                   </div>
+                )}
 
-                  <div className="col-span-full bg-slate-50 p-10 rounded-[2.5rem] border-2 border-gray-100 flex items-start gap-8 mt-4 shadow-sm">
-                    <div className="bg-white p-5 rounded-3xl text-purple-600 shadow-lg border border-purple-50">
-                      <Info size={32} />
-                    </div>
-                    <div className="space-y-3">
-                      <h4 className="text-xl font-black text-gray-900">تعليمات وإشعارات الإقامة</h4>
-                      <p className="text-sm font-bold text-gray-500 leading-relaxed max-w-3xl">
-                        يتم تحديث بيانات الإقامة بشكل تلقائي من نظام أبشر الموحد. في حال وجود اختلاف في البيانات المعروضة، يرجى التواصل فوراً مع قسم الموارد البشرية لتحديث السجلات يدوياً. تأكد دائماً من سريان مفعول الإقامة لتجنب الغرامات المالية.
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              )}
 
 
               {activeTab === "violations" && (

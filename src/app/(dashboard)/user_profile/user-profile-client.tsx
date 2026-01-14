@@ -144,8 +144,9 @@ export function UserProfileClient({ user, company, bankAccounts }: any) {
           <SectionCard title="بيانات الشركة" icon={<Building size={24} />}>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               <StaticField label="اسم الشركة" value={company?.name} icon={<Building size={18} />} />
-              <StaticField label="السجل التجاري" value={company?.commercial_number} icon={<FileContract size={18} />} />
-              <StaticField label="الرقم الضريبي" value={company?.vat_number} icon={<Hash size={18} />} />
+                <StaticField label="السجل التجاري" value={company?.commercial_number} icon={<FileText size={18} />} />
+                <StaticField label="الرقم الضريبي" value={company?.vat_number} icon={<Hash size={18} />} />
+
               <StaticField label="الهاتف" value={company?.phone} icon={<Phone size={18} />} />
               <StaticField label="الموقع الإلكتروني" value={company?.website} icon={<Globe size={18} />} />
               <StaticField label="العملة" value={company?.currency} icon={<DollarSign size={18} />} />
@@ -239,7 +240,8 @@ export function UserProfileClient({ user, company, bankAccounts }: any) {
               </div>
             </SectionCard>
 
-            <SectionCard title="الملفات الرسمية" icon={<FileContract size={24} />}>
+              <SectionCard title="الملفات الرسمية" icon={<FileText size={24} />}>
+
               <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                 <FileUpload label="شعار الشركة" path={company?.logo_path} />
                 <FileUpload label="ختم الشركة" path={company?.stamp_path} />
