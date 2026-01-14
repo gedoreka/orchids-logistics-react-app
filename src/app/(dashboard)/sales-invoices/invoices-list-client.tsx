@@ -305,110 +305,141 @@ export function InvoicesListClient({ invoices }: InvoicesListClientProps) {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.5 }}
-          className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden"
+          className="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden"
         >
-          <div className="p-4 border-b border-gray-100 flex flex-col md:flex-row gap-4 items-center justify-between">
-            <div className="relative w-full md:w-80">
-              <Search size={18} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400" />
-              <input
-                type="text"
-                placeholder="ابحث برقم الفاتورة أو اسم العميل..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pr-10 pl-4 py-2.5 rounded-xl border border-gray-200 focus:border-blue-400 focus:ring-2 focus:ring-blue-100 outline-none transition-all text-sm"
-              />
+          {/* Luxurious Header */}
+          <div className="bg-gradient-to-r from-[#1e293b] to-[#334155] p-4 flex flex-col md:flex-row gap-4 items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="bg-white/10 p-2 rounded-lg">
+                <FileText className="text-white h-5 w-5" />
+              </div>
+              <div>
+                <h2 className="text-white font-black text-lg">قائمة الفواتير</h2>
+                <div className="flex items-center gap-2">
+                  <span className="bg-blue-500/20 text-blue-200 px-2 py-0.5 rounded-md text-[10px] font-bold border border-blue-500/30">
+                    {filteredInvoices.length} فاتورة
+                  </span>
+                </div>
+              </div>
             </div>
-            <div className="flex items-center gap-2">
-              <Filter size={16} className="text-gray-400" />
+            
+            <div className="flex items-center gap-3">
+              <div className="relative w-full md:w-64">
+                <Search size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                <input
+                  type="text"
+                  placeholder="بحث..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full pr-10 pl-4 py-2 rounded-xl bg-white/5 border border-white/10 focus:bg-white/10 focus:border-white/20 outline-none transition-all text-sm text-white placeholder:text-gray-400"
+                />
+              </div>
               <select
                 value={filterStatus}
                 onChange={(e) => setFilterStatus(e.target.value)}
-                className="px-4 py-2.5 rounded-xl border border-gray-200 focus:border-blue-400 outline-none text-sm"
+                className="px-3 py-2 rounded-xl bg-white/5 border border-white/10 focus:bg-white/10 outline-none text-sm text-white cursor-pointer"
               >
-                <option value="all">جميع الفواتير</option>
-                <option value="paid">مدفوعة</option>
-                <option value="due">مستحقة</option>
-                <option value="draft">مسودة</option>
+                <option value="all" className="text-gray-900">جميع الحالات</option>
+                <option value="paid" className="text-gray-900">مدفوعة</option>
+                <option value="due" className="text-gray-900">مستحقة</option>
+                <option value="draft" className="text-gray-900">مسودة</option>
               </select>
             </div>
           </div>
 
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
-              <thead className="bg-gray-50">
+              <thead className="bg-gray-50/50">
                 <tr>
-                  <th className="text-right px-4 py-3 font-bold text-gray-700">رقم الفاتورة</th>
-                  <th className="text-right px-4 py-3 font-bold text-gray-700">اسم العميل</th>
-                  <th className="text-right px-4 py-3 font-bold text-gray-700">تاريخ الإصدار</th>
-                  <th className="text-right px-4 py-3 font-bold text-gray-700">تاريخ الاستحقاق</th>
-                  <th className="text-right px-4 py-3 font-bold text-gray-700">الإجمالي</th>
-                  <th className="text-right px-4 py-3 font-bold text-gray-700">الضريبة</th>
-                  <th className="text-right px-4 py-3 font-bold text-gray-700">الحالة</th>
-                  <th className="text-center px-4 py-3 font-bold text-gray-700">الإجراءات</th>
+                  <th className="text-right px-4 py-4 font-black text-gray-500 text-xs uppercase tracking-wider">رقم الفاتورة</th>
+                  <th className="text-right px-4 py-4 font-black text-gray-500 text-xs uppercase tracking-wider">اسم العميل</th>
+                  <th className="text-right px-4 py-4 font-black text-gray-500 text-xs uppercase tracking-wider">تاريخ الإصدار</th>
+                  <th className="text-right px-4 py-4 font-black text-gray-500 text-xs uppercase tracking-wider">تاريخ الاستحقاق</th>
+                  <th className="text-right px-4 py-4 font-black text-gray-500 text-xs uppercase tracking-wider">الإجمالي</th>
+                  <th className="text-right px-4 py-4 font-black text-gray-500 text-xs uppercase tracking-wider">الضريبة</th>
+                  <th className="text-right px-4 py-4 font-black text-gray-500 text-xs uppercase tracking-wider">الحالة</th>
+                  <th className="text-center px-4 py-4 font-black text-gray-500 text-xs uppercase tracking-wider">الإجراءات</th>
                 </tr>
               </thead>
-              <tbody>
+              <tbody className="divide-y divide-gray-100">
                 {filteredInvoices.length === 0 ? (
                   <tr>
-                    <td colSpan={8} className="text-center py-12">
-                      <FileText size={48} className="mx-auto text-gray-300 mb-3" />
-                      <p className="text-gray-500 font-bold">لا توجد فواتير</p>
-                      <p className="text-gray-400 text-sm">يمكنك إنشاء فاتورة جديدة بالضغط على الزر أعلاه</p>
+                    <td colSpan={8} className="text-center py-20">
+                      <div className="bg-gray-50 w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                        <FileText size={32} className="text-gray-300" />
+                      </div>
+                      <p className="text-gray-500 font-bold">لا توجد فواتير مطابقة للبحث</p>
+                      <p className="text-gray-400 text-xs mt-1">جرب تغيير معايير البحث أو الفلترة</p>
                     </td>
                   </tr>
                 ) : (
                   filteredInvoices.map((inv) => {
                     const status = inv.invoice_status || inv.status || 'due';
                     return (
-                      <tr key={inv.id} className="border-b border-gray-50 hover:bg-blue-50/30 transition-colors">
-                        <td className="px-4 py-3 font-bold text-gray-900">{inv.invoice_number}</td>
-                        <td className="px-4 py-3 text-gray-700">{inv.client_name || '-'}</td>
-                        <td className="px-4 py-3 text-gray-600">{inv.issue_date || '-'}</td>
-                        <td className="px-4 py-3 text-gray-600">{inv.due_date || '-'}</td>
-                        <td className="px-4 py-3 font-bold text-gray-900">
-                          {parseFloat(String(inv.total_amount)).toLocaleString('en-US', { minimumFractionDigits: 2 })} ريال
+                      <tr key={inv.id} className="group hover:bg-blue-50/40 transition-all">
+                        <td className="px-4 py-4 font-black text-gray-900">{inv.invoice_number}</td>
+                        <td className="px-4 py-4">
+                          <div className="flex flex-col">
+                            <span className="font-bold text-gray-900 truncate max-w-[200px]">{inv.client_name || '-'}</span>
+                            {inv.client_vat && <span className="text-[10px] text-gray-400 font-medium">ضريبة: {inv.client_vat}</span>}
+                          </div>
                         </td>
-                        <td className="px-4 py-3 text-gray-600">
-                          {parseFloat(String(inv.tax_amount)).toLocaleString('en-US', { minimumFractionDigits: 2 })} ريال
+                        <td className="px-4 py-4 text-gray-600 font-medium">{inv.issue_date || '-'}</td>
+                        <td className="px-4 py-4 text-gray-600 font-medium">{inv.due_date || '-'}</td>
+                        <td className="px-4 py-4">
+                          <span className="font-black text-gray-900">
+                            {parseFloat(String(inv.total_amount)).toLocaleString('en-US', { minimumFractionDigits: 2 })} ريال
+                          </span>
                         </td>
-                        <td className="px-4 py-3">{getStatusBadge(status)}</td>
-                        <td className="px-4 py-3">
+                        <td className="px-4 py-4">
+                          <span className="font-bold text-gray-600">
+                            {parseFloat(String(inv.tax_amount)).toLocaleString('en-US', { minimumFractionDigits: 2 })} ريال
+                          </span>
+                        </td>
+                        <td className="px-4 py-4">{getStatusBadge(status)}</td>
+                        <td className="px-4 py-4">
                           <div className="flex items-center justify-center gap-2">
+                            {/* عرض الفاتورة / المسودة */}
                             <Link href={`/sales-invoices/${inv.id}`}>
-                              <button className="p-2 rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100 transition-colors" title="عرض">
-                                <Eye size={16} />
+                              <button className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-[#2563eb] text-white hover:bg-[#1d4ed8] transition-all shadow-sm hover:shadow-md font-bold text-xs min-w-[110px] justify-center">
+                                <Eye size={14} />
+                                {status === 'draft' ? "عرض المسودة" : "عرض الفاتورة"}
                               </button>
                             </Link>
+
+                            {/* سداد المبلغ الضريبي */}
                             {status === 'due' && (
                               <button
                                 onClick={() => handleTogglePayment(inv.id, status)}
                                 disabled={loading === inv.id}
-                                className="p-2 rounded-lg bg-emerald-50 text-emerald-600 hover:bg-emerald-100 transition-colors disabled:opacity-50"
-                                title="سداد"
+                                className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-[#10b981] text-white hover:bg-[#059669] transition-all shadow-sm hover:shadow-md font-bold text-xs min-w-[130px] justify-center disabled:opacity-50"
                               >
-                                {loading === inv.id ? <Loader2 size={16} className="animate-spin" /> : <CreditCard size={16} />}
+                                {loading === inv.id ? <Loader2 size={14} className="animate-spin" /> : <CreditCard size={14} />}
+                                سداد المبلغ الضريبي
                               </button>
                             )}
+
+                            {/* إعادة كمستحقة */}
                             {status === 'paid' && (
                               <button
                                 onClick={() => handleTogglePayment(inv.id, status)}
                                 disabled={loading === inv.id}
-                                className="p-2 rounded-lg bg-amber-50 text-amber-600 hover:bg-amber-100 transition-colors disabled:opacity-50"
-                                title="إعادة كمستحقة"
+                                className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-[#f59e0b] text-white hover:bg-[#d97706] transition-all shadow-sm hover:shadow-md font-bold text-xs min-w-[130px] justify-center disabled:opacity-50"
                               >
-                                {loading === inv.id ? <Loader2 size={16} className="animate-spin" /> : <Clock size={16} />}
+                                {loading === inv.id ? <Loader2 size={14} className="animate-spin" /> : <Clock size={14} />}
+                                إعادة كمستحقة
                               </button>
                             )}
-                            {status === 'draft' && (
-                              <button
-                                onClick={() => handleDelete(inv.id, status)}
-                                disabled={loading === inv.id}
-                                className="p-2 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 transition-colors disabled:opacity-50"
-                                title="حذف"
-                              >
-                                {loading === inv.id ? <Loader2 size={16} className="animate-spin" /> : <Trash2 size={16} />}
-                              </button>
-                            )}
+
+                            {/* حذف الفاتورة */}
+                            <button
+                              onClick={() => handleDelete(inv.id, status)}
+                              disabled={loading === inv.id}
+                              className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-red-500 text-white hover:bg-red-600 transition-all shadow-sm hover:shadow-md font-bold text-xs min-w-[70px] justify-center disabled:opacity-50"
+                            >
+                              {loading === inv.id ? <Loader2 size={14} className="animate-spin" /> : <Trash2 size={14} />}
+                              حذف
+                            </button>
                           </div>
                         </td>
                       </tr>
@@ -419,10 +450,15 @@ export function InvoicesListClient({ invoices }: InvoicesListClientProps) {
             </table>
           </div>
 
-          <div className="p-4 border-t border-gray-100 bg-gray-50">
-            <p className="text-sm text-gray-500 text-center">
-              عرض {filteredInvoices.length} من {invoices.length} فاتورة
+          <div className="p-4 border-t border-gray-100 bg-gray-50/50 flex justify-between items-center">
+            <p className="text-xs font-bold text-gray-500">
+              إجمالي المعروض: {filteredInvoices.length} من {invoices.length} فاتورة
             </p>
+            <div className="flex gap-2">
+              <div className="w-2 h-2 rounded-full bg-emerald-500"></div>
+              <div className="w-2 h-2 rounded-full bg-amber-500"></div>
+              <div className="w-2 h-2 rounded-full bg-blue-500"></div>
+            </div>
           </div>
         </motion.div>
       </div>
