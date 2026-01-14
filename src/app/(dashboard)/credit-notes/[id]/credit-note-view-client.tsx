@@ -18,6 +18,7 @@ import Link from "next/link";
 import { QRCodeCanvas } from "qrcode.react";
 import { format } from "date-fns";
 import { ar } from "date-fns/locale";
+import { cn } from "@/lib/utils";
 
 interface CreditNoteViewClientProps {
   creditNote: any;
@@ -225,92 +226,95 @@ export function CreditNoteViewClient({ creditNote, qrData }: CreditNoteViewClien
             </div>
           </div>
 
-          <div className="p-8 space-y-6 flex-grow flex flex-col">
-            {/* Info Cards */}
-            <div className="grid grid-cols-2 gap-6">
-              {/* Company Info */}
-              <div className="rounded-2xl p-4 border border-[#f1f5f9]" style={{ backgroundColor: '#f8fafc' }}>
-                <h3 className="font-black text-[#0f172a] mb-3 pb-2 border-b border-[#e2e8f0] flex items-center gap-2 text-[13px]">
-                  <div className="w-1.5 h-4 bg-[#2563eb] rounded-full"></div>
-                  بيانات البائع
-                </h3>
-                <div className="space-y-2 text-[11px]">
-                  <div className="flex justify-between items-start gap-4">
-                    <span className="text-[#64748b]">الاسم:</span>
-                    <span className="font-bold text-[#0f172a] text-right">{creditNote.company_name}</span>
+            <div className="p-8 space-y-8 flex-grow flex flex-col">
+              {/* Info Cards */}
+              <div className="grid grid-cols-2 gap-8">
+                {/* Company Info */}
+                <div className="rounded-[2rem] p-6 border-2 border-[#f1f5f9] relative overflow-hidden group hover:border-[#2563eb]/20 transition-all shadow-sm" style={{ backgroundColor: '#f8fafc' }}>
+                  <div className="absolute top-0 right-0 w-24 h-24 bg-[#2563eb]/5 rounded-bl-[4rem] -z-0"></div>
+                  <h3 className="font-black text-[#0f172a] mb-5 pb-3 border-b-2 border-[#e2e8f0] flex items-center gap-3 text-sm relative z-10">
+                    <div className="w-2 h-5 bg-[#2563eb] rounded-full"></div>
+                    بيانات البائع <span className="text-[10px] text-slate-400 font-bold opacity-50">Seller Details</span>
+                  </h3>
+                  <div className="space-y-3 text-[12px] relative z-10">
+                    <div className="flex justify-between items-start gap-4">
+                      <span className="text-[#64748b] font-bold">اسم الشركة:</span>
+                      <span className="font-black text-[#0f172a] text-right">{creditNote.company_name}</span>
+                    </div>
+                    <div className="flex justify-between items-center py-2 border-y border-dashed border-slate-200">
+                      <span className="text-[#64748b] font-bold">السجل التجاري:</span>
+                      <span className="font-black text-[#0f172a] tracking-wider">{creditNote.company_cr || '-'}</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-[#64748b] font-bold">الرقم الضريبي:</span>
+                      <span className="font-black text-[#2563eb] text-sm">{creditNote.company_vat}</span>
+                    </div>
+                    <div className="flex justify-start gap-3 mt-2 pt-2 border-t border-slate-100">
+                      <span className="text-[#64748b] font-bold whitespace-nowrap">العنوان:</span>
+                      <span className="font-bold text-[#0f172a] leading-relaxed text-right text-[11px]">{creditNote.company_address}</span>
+                    </div>
                   </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-[#64748b]">السجل التجاري:</span>
-                    <span className="font-bold text-[#0f172a]">{creditNote.company_cr || '-'}</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-[#64748b]">الرقم الضريبي:</span>
-                    <span className="font-bold text-[#2563eb]">{creditNote.company_vat}</span>
-                  </div>
-                  <div className="flex justify-start gap-2">
-                    <span className="text-[#64748b] whitespace-nowrap">العنوان:</span>
-                    <span className="font-bold text-[#0f172a] leading-tight text-right">{creditNote.company_address}</span>
+                </div>
+
+                {/* Customer Info */}
+                <div className="rounded-[2rem] p-6 border-2 border-[#f1f5f9] relative overflow-hidden group hover:border-[#059669]/20 transition-all shadow-sm" style={{ backgroundColor: '#f8fafc' }}>
+                  <div className="absolute top-0 right-0 w-24 h-24 bg-[#059669]/5 rounded-bl-[4rem] -z-0"></div>
+                  <h3 className="font-black text-[#0f172a] mb-5 pb-3 border-b-2 border-[#e2e8f0] flex items-center gap-3 text-sm relative z-10">
+                    <div className="w-2 h-5 bg-[#059669] rounded-full"></div>
+                    بيانات العميل <span className="text-[10px] text-slate-400 font-bold opacity-50">Customer Details</span>
+                  </h3>
+                  <div className="space-y-3 text-[12px] relative z-10">
+                    <div className="flex justify-between items-start gap-4">
+                      <span className="text-[#64748b] font-bold">اسم العميل:</span>
+                      <span className="font-black text-[#0f172a] text-right">{creditNote.client_name}</span>
+                    </div>
+                    <div className="flex justify-between items-center py-2 border-y border-dashed border-slate-200">
+                      <span className="text-[#64748b] font-bold">السجل التجاري:</span>
+                      <span className="font-black text-[#0f172a] tracking-wider">{creditNote.client_cr || '-'}</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-[#64748b] font-bold">الرقم الضريبي:</span>
+                      <span className="font-black text-[#059669] text-sm">{creditNote.client_vat || '-'}</span>
+                    </div>
+                    <div className="flex justify-start gap-3 mt-2 pt-2 border-t border-slate-100">
+                      <span className="text-[#64748b] font-bold whitespace-nowrap">العنوان:</span>
+                      <span className="font-bold text-[#0f172a] leading-relaxed text-right text-[11px]">{creditNote.client_address || '-'}</span>
+                    </div>
                   </div>
                 </div>
               </div>
 
-              {/* Customer Info */}
-              <div className="rounded-2xl p-4 border border-[#f1f5f9]" style={{ backgroundColor: '#f8fafc' }}>
-                <h3 className="font-black text-[#0f172a] mb-3 pb-2 border-b border-[#e2e8f0] flex items-center gap-2 text-[13px]">
-                  <div className="w-1.5 h-4 bg-[#059669] rounded-full"></div>
-                  بيانات العميل
-                </h3>
-                <div className="space-y-2 text-[11px]">
-                  <div className="flex justify-between items-start gap-4">
-                    <span className="text-[#64748b]">الاسم:</span>
-                    <span className="font-bold text-[#0f172a] text-right">{creditNote.client_name}</span>
+              {/* Reference Invoice Info */}
+              <div className="bg-[#1e293b] p-6 rounded-[2rem] border-2 border-slate-200 flex flex-wrap gap-8 items-center justify-between relative overflow-hidden shadow-lg shadow-slate-200/50">
+                <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-r from-blue-500/10 to-transparent opacity-50"></div>
+                <div className="flex items-center gap-4 relative z-10">
+                  <div className="p-3 bg-white/10 backdrop-blur-md rounded-2xl border border-white/20 shadow-inner">
+                    <FileText size={24} className="text-blue-400" />
                   </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-[#64748b]">السجل التجاري:</span>
-                    <span className="font-bold text-[#0f172a]">{creditNote.client_cr || '-'}</span>
+                  <div>
+                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">مرجع الفاتورة الأصلية</p>
+                    <p className="text-xl font-black text-white">{creditNote.invoice_number}</p>
                   </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-[#64748b]">الرقم الضريبي:</span>
-                    <span className="font-bold text-[#059669]">{creditNote.client_vat || '-'}</span>
+                </div>
+                <div className="flex items-center gap-4 relative z-10">
+                  <div className="p-3 bg-white/10 backdrop-blur-md rounded-2xl border border-white/20 shadow-inner">
+                    <Calendar size={24} className="text-orange-400" />
                   </div>
-                  <div className="flex justify-start gap-2">
-                    <span className="text-[#64748b] whitespace-nowrap">العنوان:</span>
-                    <span className="font-bold text-[#0f172a] leading-tight text-right">{creditNote.client_address || '-'}</span>
+                  <div>
+                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">تاريخ الفاتورة</p>
+                    <p className="text-lg font-black text-white">{formatDate(creditNote.invoice_date)}</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-4 relative z-10">
+                  <div className="p-3 bg-white/10 backdrop-blur-md rounded-2xl border border-white/20 shadow-inner">
+                    <Calculator size={24} className="text-green-400" />
+                  </div>
+                  <div>
+                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">إجمالي الفاتورة</p>
+                    <p className="text-lg font-black text-white">{parseFloat(creditNote.invoice_total_amount).toLocaleString()} <span className="text-xs font-normal opacity-50">ريال</span></p>
                   </div>
                 </div>
               </div>
-            </div>
-
-            {/* Reference Invoice Info */}
-            <div className="bg-slate-50 p-6 rounded-2xl border border-slate-100 flex flex-wrap gap-8 items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="p-2 bg-white rounded-lg border border-slate-200">
-                  <FileText size={18} className="text-slate-400" />
-                </div>
-                <div>
-                  <p className="text-[10px] font-black text-slate-400 uppercase">الفاتورة الأصلية</p>
-                  <p className="text-sm font-black text-slate-700">{creditNote.invoice_number}</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-3">
-                <div className="p-2 bg-white rounded-lg border border-slate-200">
-                  <Calendar size={18} className="text-slate-400" />
-                </div>
-                <div>
-                  <p className="text-[10px] font-black text-slate-400 uppercase">تاريخ الفاتورة</p>
-                  <p className="text-sm font-black text-slate-700">{formatDate(creditNote.invoice_date)}</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-3">
-                <div className="p-2 bg-white rounded-lg border border-slate-200">
-                  <Calculator size={18} className="text-slate-400" />
-                </div>
-                <div>
-                  <p className="text-[10px] font-black text-slate-400 uppercase">قيمة الفاتورة</p>
-                  <p className="text-sm font-black text-slate-700">{parseFloat(creditNote.invoice_total_amount).toLocaleString()} ريال</p>
-                </div>
-              </div>
-            </div>
 
             {/* Reason */}
             <div className="space-y-3">

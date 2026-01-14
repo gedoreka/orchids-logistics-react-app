@@ -31,25 +31,27 @@ export async function GET(
       return NextResponse.json({ error: "غير مصرح" }, { status: 401 });
     }
 
-      const creditNotes = await query<any>(`
-        SELECT 
-          cn.*,
-          si.invoice_number as original_invoice_number,
-          si.issue_date as invoice_date,
-          si.total_amount as invoice_total_amount,
-          c.email as client_email,
-          c.phone as client_phone,
-          comp.name as company_name,
-          comp.vat_number as company_vat,
-          CONCAT(COALESCE(comp.street, ''), ' ', COALESCE(comp.district, ''), ' ', COALESCE(comp.region, '')) as company_address,
-          comp.phone as company_phone,
-          comp.logo_path as company_logo
-        FROM credit_notes cn
-        JOIN sales_invoices si ON cn.invoice_id = si.id
-        LEFT JOIN customers c ON cn.client_id = c.id
-        JOIN companies comp ON cn.company_id = comp.id
-        WHERE cn.id = ? AND cn.company_id = ?
-      `, [id, companyId]);
+        const creditNotes = await query<any>(`
+          SELECT 
+            cn.*,
+            si.invoice_number as original_invoice_number,
+            si.issue_date as invoice_date,
+            si.total_amount as invoice_total_amount,
+            c.email as client_email,
+            c.phone as client_phone,
+            c.commercial_number as client_cr,
+            comp.name as company_name,
+            comp.vat_number as company_vat,
+            comp.commercial_number as company_cr,
+            CONCAT(COALESCE(comp.street, ''), ' ', COALESCE(comp.district, ''), ' ', COALESCE(comp.region, '')) as company_address,
+            comp.phone as company_phone,
+            comp.logo_path as company_logo
+          FROM credit_notes cn
+          JOIN sales_invoices si ON cn.invoice_id = si.id
+          LEFT JOIN customers c ON cn.client_id = c.id
+          JOIN companies comp ON cn.company_id = comp.id
+          WHERE cn.id = ? AND cn.company_id = ?
+        `, [id, companyId]);
 
     if (creditNotes.length === 0) {
       return NextResponse.json({ error: "إشعار الدائن غير موجود" }, { status: 404 });
