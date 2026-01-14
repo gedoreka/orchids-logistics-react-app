@@ -131,25 +131,6 @@ export function PackageViewClient({
             <ArrowRight size={14} />
             <span className="text-[#9b59b6]">{packageData.group_name}</span>
           </div>
-  
-          <div className="flex items-center gap-2">
-            {prevPackage && (
-              <Link href={`/hr/packages/${prevPackage.id}`}>
-                <button className="h-9 px-4 rounded-lg bg-white border border-gray-100 text-xs font-black text-gray-500 hover:border-[#9b59b6] hover:text-[#9b59b6] transition-all flex items-center gap-2 shadow-sm">
-                  <ChevronRight size={14} />
-                  الباقة السابقة
-                </button>
-              </Link>
-            )}
-            {nextPackage && (
-              <Link href={`/hr/packages/${nextPackage.id}`}>
-                <button className="h-9 px-4 rounded-lg bg-white border border-gray-100 text-xs font-black text-gray-500 hover:border-[#9b59b6] hover:text-[#9b59b6] transition-all flex items-center gap-2 shadow-sm">
-                  الباقة التالية
-                  <ChevronLeft size={14} />
-                </button>
-              </Link>
-            )}
-          </div>
         </div>
   
         {/* Package Info Banner */}
@@ -169,7 +150,28 @@ export function PackageViewClient({
               </div>
             </div>
   
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap items-center gap-2">
+              <div className="flex items-center gap-2 mr-2">
+                {prevPackage && (
+                  <Link href={`/hr/packages/${prevPackage.id}`}>
+                    <button className="h-9 px-4 rounded-xl bg-white/10 backdrop-blur-md border border-white/10 text-xs font-black text-white hover:bg-white/20 transition-all flex items-center gap-2 shadow-sm">
+                      <ChevronRight size={14} />
+                      الباقة السابقة
+                    </button>
+                  </Link>
+                )}
+                {nextPackage && (
+                  <Link href={`/hr/packages/${nextPackage.id}`}>
+                    <button className="h-9 px-4 rounded-xl bg-white/10 backdrop-blur-md border border-white/10 text-xs font-black text-white hover:bg-white/20 transition-all flex items-center gap-2 shadow-sm">
+                      الباقة التالية
+                      <ChevronLeft size={14} />
+                    </button>
+                  </Link>
+                )}
+              </div>
+              
+              <div className="h-8 w-[1px] bg-white/10 mx-1 hidden md:block" />
+
               <StatPill label="اكتمال الإقامات" value={`${stats.iqama_complete}/${stats.total_employees}`} />
               <StatPill label="اكتمال الصور" value={`${stats.photo_complete}/${stats.total_employees}`} />
               <Link href={`/hr/packages/${packageData.id}/add-employees`}>
@@ -219,34 +221,37 @@ export function PackageViewClient({
         <div className="flex-1 bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden flex flex-col min-h-0">
           <div className="flex-1 overflow-auto scrollbar-hide">
             <table className="w-full text-right border-separate border-spacing-0">
-              <thead className="sticky top-0 z-20">
-                <tr className="bg-gray-50 border-b border-gray-100">
-                  <th className="px-6 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest border-b border-gray-100">الموظف</th>
-                  <th className="px-6 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest border-b border-gray-100">رقم الإقامة</th>
-                  <th className="px-6 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest border-b border-gray-100">انتهاء الإقامة</th>
-                  <th className="px-6 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest border-b border-gray-100">الراتب</th>
-                  <th className="px-6 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest border-b border-gray-100">الحالة</th>
-                  <th className="px-6 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest text-center border-b border-gray-100">الإجراءات</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-50">
-                {employees.map((emp) => (
-                  <tr key={emp.id} className={`hover:bg-gray-50/50 transition-colors group ${emp.is_active === 0 ? 'bg-orange-50/30' : ''}`}>
-                    <td className="px-6 py-4">
-                      <div className="flex items-center gap-3">
-                        <div className="h-9 w-9 rounded-xl bg-gray-100 flex items-center justify-center text-gray-400 font-black text-xs overflow-hidden">
-                          {emp.personal_photo ? (
-                            <img src={getPublicUrl(emp.personal_photo) || ""} alt="" className="h-full w-full object-cover" />
-                          ) : (
-                            emp.name.charAt(0)
-                          )}
+                <thead className="sticky top-0 z-20">
+                  <tr className="bg-gray-50 border-b border-gray-100">
+                    <th className="px-6 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest border-b border-gray-100">الموظف</th>
+                    <th className="px-6 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest border-b border-gray-100">الرقم الوظيفي</th>
+                    <th className="px-6 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest border-b border-gray-100">رقم الإقامة</th>
+                    <th className="px-6 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest border-b border-gray-100">انتهاء الإقامة</th>
+                    <th className="px-6 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest border-b border-gray-100">الراتب</th>
+                    <th className="px-6 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest border-b border-gray-100">الحالة</th>
+                    <th className="px-6 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest text-center border-b border-gray-100">الإجراءات</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-50">
+                  {employees.map((emp) => (
+                    <tr key={emp.id} className={`hover:bg-gray-50/50 transition-colors group ${emp.is_active === 0 ? 'bg-orange-50/30' : ''}`}>
+                      <td className="px-6 py-4">
+                        <div className="flex items-center gap-3">
+                          <div className="h-9 w-9 rounded-xl bg-gray-100 flex items-center justify-center text-gray-400 font-black text-xs overflow-hidden">
+                            {emp.personal_photo ? (
+                              <img src={getPublicUrl(emp.personal_photo) || ""} alt="" className="h-full w-full object-cover" />
+                            ) : (
+                              emp.name.charAt(0)
+                            )}
+                          </div>
+                          <div>
+                            <p className="text-sm font-black text-gray-900">{emp.name}</p>
+                          </div>
                         </div>
-                        <div>
-                          <p className="text-sm font-black text-gray-900">{emp.name}</p>
-                          <p className="text-[10px] font-bold text-gray-400">#{emp.user_code}</p>
-                        </div>
-                      </div>
-                    </td>
+                      </td>
+                      <td className="px-6 py-4">
+                        <span className="text-xs font-black text-[#9b59b6] bg-[#9b59b6]/5 px-2 py-1 rounded-lg">#{emp.user_code}</span>
+                      </td>
                     <td className="px-6 py-4">
                       <span className="text-sm font-bold text-gray-600">{emp.iqama_number}</span>
                     </td>
