@@ -19,7 +19,8 @@ interface SalesReceipt {
 async function getSalesReceipts(companyId: number) {
   try {
     const receipts = await query<SalesReceipt>(
-      `SELECT sr.*, 
+      `SELECT sr.id, sr.receipt_number, sr.client_id, sr.client_name, sr.invoice_number,
+              sr.receipt_date, sr.amount, sr.notes, sr.created_by, sr.created_at,
               COALESCE(sr.client_name, c.customer_name) as client_name
        FROM sales_receipts sr
        LEFT JOIN customers c ON sr.client_id = c.id
@@ -40,8 +41,8 @@ async function getStats(companyId: number) {
       `SELECT 
         COUNT(*) as total,
         COALESCE(SUM(amount), 0) as total_amount,
-        COUNT(CASE WHEN invoice_id IS NOT NULL THEN 1 END) as linked,
-        COUNT(CASE WHEN invoice_id IS NULL THEN 1 END) as unlinked
+        COUNT(CASE WHEN invoice_number IS NOT NULL AND invoice_number != '' THEN 1 END) as linked,
+        COUNT(CASE WHEN invoice_number IS NULL OR invoice_number = '' THEN 1 END) as unlinked
        FROM sales_receipts WHERE company_id = ?`,
       [companyId]
     );

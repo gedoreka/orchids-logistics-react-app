@@ -83,24 +83,23 @@ export async function POST(request: NextRequest) {
 
     const receiptNumber = 'RCPT' + Math.floor(10000 + Math.random() * 90000);
 
-    const result = await execute(
-      `INSERT INTO sales_receipts (
-        company_id, client_id, client_name, invoice_id, invoice_number, 
-        receipt_number, receipt_date, amount, notes, created_by, created_at
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())`,
-      [
-        company_id,
-        client_id,
-        client.customer_name,
-        invoice_id || null,
-        invoiceNumber,
-        receiptNumber,
-        receipt_date,
-        amount,
-        notes,
-        created_by
-      ]
-    );
+      const result = await execute(
+        `INSERT INTO sales_receipts (
+          company_id, client_id, client_name, invoice_number, 
+          receipt_number, receipt_date, amount, notes, created_by, created_at
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())`,
+        [
+          company_id,
+          client_id,
+          client.customer_name,
+          invoiceNumber,
+          receiptNumber,
+          receipt_date,
+          amount,
+          notes,
+          created_by
+        ]
+      );
 
     return NextResponse.json({ success: true, id: result.insertId, receipt_number: receiptNumber });
   } catch (error) {
