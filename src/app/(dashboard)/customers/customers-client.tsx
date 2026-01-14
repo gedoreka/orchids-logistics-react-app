@@ -1,387 +1,356 @@
 "use client";
 
+import React, { useState } from "react";
 import { motion } from "framer-motion";
-import { useState } from "react";
 import { 
   Users, 
-  Plus, 
+  UserPlus, 
   Search, 
-  Edit, 
-  Trash2, 
-  Phone, 
-  Mail, 
-  MapPin,
+  Eye,
+  Edit,
+  Trash2,
+  Mail,
+  Phone,
   Building2,
-  FileText,
-  X
+  Receipt,
+  CheckCircle,
+  XCircle,
+  FileSpreadsheet,
+  ChartBar,
+  Upload,
+  MoreVertical
 } from "lucide-react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { format } from "date-fns";
 
 interface Customer {
   id: number;
-  name: string;
+  customer_name: string;
+  company_name: string;
+  commercial_number: string;
+  vat_number: string;
   email?: string;
   phone?: string;
-  address?: string;
-  vat_number?: string;
-  commercial_number?: string;
-  contact_person?: string;
-  notes?: string;
-  created_at?: string;
+  is_active: number;
+  created_at: string;
 }
 
 interface CustomersClientProps {
   customers: Customer[];
+  stats: {
+    total: number;
+    active: number;
+    inactive: number;
+  };
   companyId: number;
 }
 
-export function CustomersClient({ customers: initialCustomers, companyId }: CustomersClientProps) {
+export function CustomersClient({ customers: initialCustomers, stats, companyId }: CustomersClientProps) {
   const [customers, setCustomers] = useState(initialCustomers);
   const [searchTerm, setSearchTerm] = useState("");
-  const [showModal, setShowModal] = useState(false);
-  const [editingCustomer, setEditingCustomer] = useState<Customer | null>(null);
-  const [loading, setLoading] = useState(false);
+  const [deleteLoading, setDeleteLoading] = useState<number | null>(null);
+  const router = useRouter();
 
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    phone: "",
-    address: "",
-    vat_number: "",
-    commercial_number: "",
-    contact_person: "",
-    notes: "",
+  const filteredCustomers = customers.filter(customer => {
+    const search = searchTerm.toLowerCase();
+    return (
+      customer.customer_name?.toLowerCase().includes(search) ||
+      customer.company_name?.toLowerCase().includes(search) ||
+      customer.vat_number?.toLowerCase().includes(search) ||
+      customer.email?.toLowerCase().includes(search) ||
+      customer.phone?.includes(search)
+    );
   });
 
-  const filteredCustomers = customers.filter(customer =>
-    customer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    customer.phone?.includes(searchTerm) ||
-    customer.email?.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
-  const openAddModal = () => {
-    setEditingCustomer(null);
-    setFormData({
-      name: "",
-      email: "",
-      phone: "",
-      address: "",
-      vat_number: "",
-      commercial_number: "",
-      contact_person: "",
-      notes: "",
-    });
-    setShowModal(true);
-  };
-
-  const openEditModal = (customer: Customer) => {
-    setEditingCustomer(customer);
-    setFormData({
-      name: customer.name,
-      email: customer.email || "",
-      phone: customer.phone || "",
-      address: customer.address || "",
-      vat_number: customer.vat_number || "",
-      commercial_number: customer.commercial_number || "",
-      contact_person: customer.contact_person || "",
-      notes: customer.notes || "",
-    });
-    setShowModal(true);
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-
+  const handleDelete = async (id: number, customerName: string) => {
+    if (!confirm(`هل أنت متأكد من حذف العميل "${customerName}"؟`)) return;
+    
+    setDeleteLoading(id);
     try {
-      const url = editingCustomer 
-        ? `/api/customers/${editingCustomer.id}` 
-        : "/api/customers";
-      
-      const method = editingCustomer ? "PUT" : "POST";
-      
-      const response = await fetch(url, {
-        method,
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...formData, company_id: companyId }),
+      const res = await fetch(`/api/customers/${id}?company_id=${companyId}`, {
+        method: "DELETE"
       });
-
-      if (response.ok) {
-        const result = await response.json();
-        if (editingCustomer) {
-          setCustomers(customers.map(c => c.id === editingCustomer.id ? { ...c, ...formData } : c));
-        } else {
-          setCustomers([...customers, { id: result.id, ...formData }]);
-        }
-        setShowModal(false);
+      
+      if (res.ok) {
+        setCustomers(prev => prev.filter(c => c.id !== id));
+        router.refresh();
+      } else {
+        alert("فشل حذف العميل");
       }
     } catch (error) {
-      console.error("Error saving customer:", error);
+      alert("حدث خطأ أثناء الحذف");
     } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleDelete = async (id: number) => {
-    if (!confirm("هل أنت متأكد من حذف هذا العميل؟")) return;
-
-    try {
-      const response = await fetch(`/api/customers/${id}`, { method: "DELETE" });
-      if (response.ok) {
-        setCustomers(customers.filter(c => c.id !== id));
-      }
-    } catch (error) {
-      console.error("Error deleting customer:", error);
+      setDeleteLoading(null);
     }
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 pb-20 max-w-[1800px] mx-auto px-4">
       {/* Header */}
-      <motion.div 
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="bg-white/95 backdrop-blur-xl rounded-3xl p-6 shadow-xl border border-white/30"
-      >
-        <div className="flex items-center justify-between flex-wrap gap-4">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center shadow-lg">
-              <Users className="text-white" size={24} />
+      <div className="relative overflow-hidden bg-gradient-to-br from-[#2c3e50] to-[#34495e] rounded-[2rem] p-8 text-white shadow-2xl">
+        <div className="relative z-10 space-y-6">
+          <div className="flex flex-col items-center text-center space-y-4">
+            <div className="h-16 w-16 rounded-2xl bg-[#3498db] flex items-center justify-center text-white shadow-lg shadow-blue-500/20">
+              <Users size={32} />
             </div>
             <div>
-              <h1 className="text-2xl font-black text-gray-800">قائمة العملاء</h1>
-              <p className="text-gray-500 text-sm">إدارة بيانات العملاء والموردين</p>
+              <h1 className="text-3xl font-black tracking-tight">إدارة العملاء</h1>
+              <p className="text-white/60 text-sm mt-2">إدارة قاعدة بيانات العملاء والمنشآت</p>
             </div>
           </div>
 
-          <button
-            onClick={openAddModal}
-            className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-500 text-white font-bold rounded-xl shadow-lg hover:shadow-xl hover:scale-105 transition-all"
-          >
-            <Plus size={20} />
-            إضافة عميل جديد
-          </button>
+          {/* Quick Stats Grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-8">
+            <StatCard 
+              icon={<Users size={20} />} 
+              label="إجمالي العملاء" 
+              value={stats.total} 
+              color="blue"
+            />
+            <StatCard 
+              icon={<CheckCircle size={20} />} 
+              label="العملاء النشطين" 
+              value={stats.active} 
+              color="green"
+            />
+            <StatCard 
+              icon={<XCircle size={20} />} 
+              label="العملاء الغير نشطين" 
+              value={stats.inactive} 
+              color="orange"
+            />
+            <StatCard 
+              icon={<ChartBar size={20} />} 
+              label="هذا الشهر" 
+              value={stats.total} 
+              color="purple"
+            />
+          </div>
         </div>
-      </motion.div>
-
-      {/* Search */}
-      <motion.div 
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.1 }}
-        className="bg-white/95 backdrop-blur-xl rounded-2xl p-4 shadow-xl border border-white/30"
-      >
-        <div className="relative">
-          <Search className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
-          <input
-            type="text"
-            placeholder="البحث عن عميل بالاسم أو رقم الجوال أو البريد..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pr-12 pl-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
-          />
-        </div>
-      </motion.div>
-
-      {/* Customers Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {filteredCustomers.map((customer, index) => (
-          <motion.div
-            key={customer.id}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 + index * 0.05 }}
-            className="bg-white/95 backdrop-blur-xl rounded-2xl p-6 shadow-xl border border-white/30 hover:shadow-2xl hover:-translate-y-1 transition-all"
-          >
-            <div className="flex items-start justify-between mb-4">
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center text-white font-bold text-lg">
-                  {customer.name.charAt(0)}
-                </div>
-                <div>
-                  <h3 className="font-bold text-gray-800">{customer.name}</h3>
-                  {customer.contact_person && (
-                    <p className="text-xs text-gray-500">{customer.contact_person}</p>
-                  )}
-                </div>
-              </div>
-              <div className="flex gap-2">
-                <button
-                  onClick={() => openEditModal(customer)}
-                  className="p-2 rounded-lg bg-blue-50 text-blue-500 hover:bg-blue-100 transition-colors"
-                >
-                  <Edit size={16} />
-                </button>
-                <button
-                  onClick={() => handleDelete(customer.id)}
-                  className="p-2 rounded-lg bg-red-50 text-red-500 hover:bg-red-100 transition-colors"
-                >
-                  <Trash2 size={16} />
-                </button>
-              </div>
-            </div>
-
-            <div className="space-y-2 text-sm">
-              {customer.phone && (
-                <div className="flex items-center gap-2 text-gray-600">
-                  <Phone size={14} className="text-blue-500" />
-                  <span dir="ltr">{customer.phone}</span>
-                </div>
-              )}
-              {customer.email && (
-                <div className="flex items-center gap-2 text-gray-600">
-                  <Mail size={14} className="text-purple-500" />
-                  <span>{customer.email}</span>
-                </div>
-              )}
-              {customer.address && (
-                <div className="flex items-center gap-2 text-gray-600">
-                  <MapPin size={14} className="text-green-500" />
-                  <span className="truncate">{customer.address}</span>
-                </div>
-              )}
-              {customer.vat_number && (
-                <div className="flex items-center gap-2 text-gray-600">
-                  <FileText size={14} className="text-orange-500" />
-                  <span>الرقم الضريبي: {customer.vat_number}</span>
-                </div>
-              )}
-            </div>
-          </motion.div>
-        ))}
+        
+        <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -mr-32 -mt-32 blur-3xl" />
+        <div className="absolute bottom-0 left-0 w-64 h-64 bg-blue-500/10 rounded-full -ml-32 -mb-32 blur-3xl" />
       </div>
 
-      {filteredCustomers.length === 0 && (
-        <motion.div 
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          className="text-center py-12"
-        >
-          <Users className="mx-auto text-gray-300 mb-4" size={64} />
-          <h3 className="text-xl font-bold text-gray-400">لا يوجد عملاء</h3>
-          <p className="text-gray-400">قم بإضافة عميل جديد للبدء</p>
-        </motion.div>
-      )}
-
-      {/* Modal */}
-      {showModal && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="bg-white rounded-3xl p-8 w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl"
-          >
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl font-bold text-gray-800">
-                {editingCustomer ? "تعديل بيانات العميل" : "إضافة عميل جديد"}
-              </h2>
-              <button
-                onClick={() => setShowModal(false)}
-                className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
-              >
-                <X size={24} />
+      {/* Search & Actions */}
+      <div className="bg-white rounded-3xl border border-gray-100 p-6 shadow-sm">
+        <div className="flex flex-col lg:flex-row gap-4 items-center justify-between">
+          <div className="relative w-full lg:w-96">
+            <Search className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+            <input
+              type="text"
+              placeholder="بحث بالاسم، الرقم الضريبي، البريد..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full pr-12 pl-4 py-3 rounded-xl border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition-all text-sm font-bold"
+            />
+          </div>
+          
+          <div className="flex gap-3 flex-wrap">
+            <Link href="/customers/new">
+              <button className="flex items-center gap-2 px-5 py-3 rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-600 text-white font-bold text-sm hover:shadow-lg hover:shadow-emerald-500/20 transition-all">
+                <UserPlus size={18} />
+                <span>إضافة عميل جديد</span>
               </button>
-            </div>
-
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">اسم العميل *</label>
-                  <input
-                    type="text"
-                    required
-                    value={formData.name}
-                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">رقم الجوال</label>
-                  <input
-                    type="tel"
-                    value={formData.phone}
-                    onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                    className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
-                    dir="ltr"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">البريد الإلكتروني</label>
-                  <input
-                    type="email"
-                    value={formData.email}
-                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                    className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">جهة الاتصال</label>
-                  <input
-                    type="text"
-                    value={formData.contact_person}
-                    onChange={(e) => setFormData({ ...formData, contact_person: e.target.value })}
-                    className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">الرقم الضريبي</label>
-                  <input
-                    type="text"
-                    value={formData.vat_number}
-                    onChange={(e) => setFormData({ ...formData, vat_number: e.target.value })}
-                    className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">السجل التجاري</label>
-                  <input
-                    type="text"
-                    value={formData.commercial_number}
-                    onChange={(e) => setFormData({ ...formData, commercial_number: e.target.value })}
-                    className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">العنوان</label>
-                <input
-                  type="text"
-                  value={formData.address}
-                  onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-                  className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">ملاحظات</label>
-                <textarea
-                  rows={3}
-                  value={formData.notes}
-                  onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-                  className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 resize-none"
-                />
-              </div>
-
-              <div className="flex gap-4 pt-4">
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="flex-1 py-4 bg-gradient-to-r from-blue-500 to-purple-500 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all disabled:opacity-50"
-                >
-                  {loading ? "جاري الحفظ..." : (editingCustomer ? "تحديث البيانات" : "إضافة العميل")}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setShowModal(false)}
-                  className="px-8 py-4 bg-gray-100 text-gray-700 font-bold rounded-xl hover:bg-gray-200 transition-all"
-                >
-                  إلغاء
-                </button>
-              </div>
-            </form>
-          </motion.div>
+            </Link>
+            <button className="flex items-center gap-2 px-5 py-3 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 text-white font-bold text-sm hover:shadow-lg hover:shadow-blue-500/20 transition-all">
+              <FileSpreadsheet size={18} />
+              <span>تصدير Excel</span>
+            </button>
+          </div>
         </div>
-      )}
+      </div>
+
+      {/* Customers Table */}
+      <div className="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden">
+        <div className="bg-gradient-to-br from-[#2c3e50] to-[#34495e] px-6 py-4 flex justify-between items-center">
+          <div className="flex items-center gap-2 text-white">
+            <Users size={20} />
+            <h3 className="font-black">قائمة العملاء</h3>
+          </div>
+          <span className="bg-white/20 text-white px-3 py-1 rounded-lg text-xs font-bold">
+            {filteredCustomers.length} عميل
+          </span>
+        </div>
+
+        {filteredCustomers.length > 0 ? (
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead>
+                <tr className="bg-gray-50 border-b border-gray-100">
+                  <th className="text-right px-6 py-4 text-xs font-black text-gray-600 uppercase">العميل</th>
+                  <th className="text-right px-6 py-4 text-xs font-black text-gray-600 uppercase">المنشأة</th>
+                  <th className="text-right px-6 py-4 text-xs font-black text-gray-600 uppercase">الرقم الضريبي</th>
+                  <th className="text-right px-6 py-4 text-xs font-black text-gray-600 uppercase">البريد الإلكتروني</th>
+                  <th className="text-right px-6 py-4 text-xs font-black text-gray-600 uppercase">الهاتف</th>
+                  <th className="text-right px-6 py-4 text-xs font-black text-gray-600 uppercase">الحالة</th>
+                  <th className="text-right px-6 py-4 text-xs font-black text-gray-600 uppercase">تاريخ الإنشاء</th>
+                  <th className="text-center px-6 py-4 text-xs font-black text-gray-600 uppercase">الإجراءات</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredCustomers.map((customer) => (
+                  <motion.tr 
+                    key={customer.id}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    className="border-b border-gray-50 hover:bg-gray-50/50 transition-colors group"
+                  >
+                    <td className="px-6 py-4">
+                      <div className="flex items-center gap-3">
+                        <div className="h-10 w-10 rounded-xl bg-blue-50 flex items-center justify-center text-blue-500">
+                          <Users size={18} />
+                        </div>
+                        <span className="font-bold text-gray-900 text-sm">
+                          {customer.customer_name || "غير محدد"}
+                        </span>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="flex items-center gap-2">
+                        <Building2 size={14} className="text-gray-400" />
+                        <span className="text-sm text-gray-700">{customer.company_name}</span>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4">
+                      <code className="px-2 py-1 bg-gray-100 rounded text-xs font-mono">
+                        {customer.vat_number}
+                      </code>
+                    </td>
+                    <td className="px-6 py-4">
+                      {customer.email ? (
+                        <a href={`mailto:${customer.email}`} className="flex items-center gap-1 text-sm text-blue-600 hover:underline">
+                          <Mail size={12} />
+                          {customer.email}
+                        </a>
+                      ) : (
+                        <span className="text-gray-400 text-sm">غير محدد</span>
+                      )}
+                    </td>
+                    <td className="px-6 py-4">
+                      {customer.phone ? (
+                        <a href={`tel:${customer.phone}`} className="flex items-center gap-1 text-sm text-gray-700 hover:text-blue-600">
+                          <Phone size={12} />
+                          {customer.phone}
+                        </a>
+                      ) : (
+                        <span className="text-gray-400 text-sm">غير محدد</span>
+                      )}
+                    </td>
+                    <td className="px-6 py-4">
+                      {customer.is_active ? (
+                        <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-emerald-50 text-emerald-600 text-xs font-bold">
+                          <CheckCircle size={12} />
+                          نشط
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-red-50 text-red-600 text-xs font-bold">
+                          <XCircle size={12} />
+                          غير نشط
+                        </span>
+                      )}
+                    </td>
+                    <td className="px-6 py-4">
+                      <span className="text-sm text-gray-500">
+                        {format(new Date(customer.created_at), 'yyyy-MM-dd')}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="flex items-center justify-center gap-2">
+                        <Link href={`/customers/${customer.id}`}>
+                          <button className="h-9 w-9 rounded-lg bg-blue-50 text-blue-500 flex items-center justify-center hover:bg-blue-500 hover:text-white transition-all" title="عرض">
+                            <Eye size={16} />
+                          </button>
+                        </Link>
+                        <Link href={`/customers/${customer.id}/edit`}>
+                          <button className="h-9 w-9 rounded-lg bg-amber-50 text-amber-500 flex items-center justify-center hover:bg-amber-500 hover:text-white transition-all" title="تعديل">
+                            <Edit size={16} />
+                          </button>
+                        </Link>
+                        <button 
+                          onClick={() => handleDelete(customer.id, customer.customer_name || customer.company_name)}
+                          disabled={deleteLoading === customer.id}
+                          className="h-9 w-9 rounded-lg bg-red-50 text-red-500 flex items-center justify-center hover:bg-red-500 hover:text-white transition-all disabled:opacity-50"
+                          title="حذف"
+                        >
+                          {deleteLoading === customer.id ? (
+                            <div className="h-4 w-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
+                          ) : (
+                            <Trash2 size={16} />
+                          )}
+                        </button>
+                      </div>
+                    </td>
+                  </motion.tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ) : (
+          <div className="py-20 text-center">
+            <Users size={60} className="mx-auto text-gray-200 mb-4" />
+            <h4 className="text-lg font-bold text-gray-600 mb-2">لا يوجد عملاء</h4>
+            <p className="text-gray-400 text-sm mb-6">ابدأ بإضافة أول عميل لك</p>
+            <Link href="/customers/new">
+              <button className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-600 text-white font-bold text-sm hover:shadow-lg hover:shadow-emerald-500/20 transition-all">
+                <UserPlus size={18} />
+                <span>إضافة عميل جديد</span>
+              </button>
+            </Link>
+          </div>
+        )}
+      </div>
+
+      {/* Quick Action Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <Link href="/customers/new">
+          <div className="bg-white rounded-3xl border border-gray-100 p-6 shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all text-center group">
+            <div className="h-14 w-14 rounded-2xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center text-white mx-auto mb-4 group-hover:scale-110 transition-transform">
+              <UserPlus size={24} />
+            </div>
+            <h4 className="font-black text-gray-900 mb-1">إضافة عميل جديد</h4>
+            <p className="text-xs text-gray-500">تسجيل بيانات عميل أو منشأة جديدة</p>
+          </div>
+        </Link>
+        
+        <div className="bg-white rounded-3xl border border-gray-100 p-6 shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all text-center group cursor-pointer">
+          <div className="h-14 w-14 rounded-2xl bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center text-white mx-auto mb-4 group-hover:scale-110 transition-transform">
+            <Upload size={24} />
+          </div>
+          <h4 className="font-black text-gray-900 mb-1">استيراد البيانات</h4>
+          <p className="text-xs text-gray-500">استيراد العملاء من ملف Excel</p>
+        </div>
+        
+        <div className="bg-white rounded-3xl border border-gray-100 p-6 shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all text-center group cursor-pointer">
+          <div className="h-14 w-14 rounded-2xl bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center text-white mx-auto mb-4 group-hover:scale-110 transition-transform">
+            <ChartBar size={24} />
+          </div>
+          <h4 className="font-black text-gray-900 mb-1">التقارير</h4>
+          <p className="text-xs text-gray-500">عرض تقارير وإحصائيات العملاء</p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function StatCard({ icon, label, value, color }: { icon: React.ReactNode; label: string; value: number; color: string }) {
+  const colors: Record<string, string> = {
+    blue: "bg-blue-500 shadow-blue-500/20",
+    green: "bg-emerald-500 shadow-emerald-500/20",
+    orange: "bg-orange-500 shadow-orange-500/20",
+    purple: "bg-purple-500 shadow-purple-500/20"
+  };
+
+  return (
+    <div className="bg-white/10 backdrop-blur-md border border-white/10 rounded-2xl p-4 hover:bg-white/20 transition-all">
+      <div className="flex items-center justify-between mb-3">
+        <div className={`h-8 w-8 rounded-lg flex items-center justify-center text-white ${colors[color]}`}>
+          {icon}
+        </div>
+        <span className="text-xl font-black">{value}</span>
+      </div>
+      <p className="text-[10px] font-black uppercase tracking-wider text-white/60">{label}</p>
     </div>
   );
 }

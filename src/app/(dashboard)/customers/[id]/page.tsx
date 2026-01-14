@@ -1,7 +1,8 @@
 import React from "react";
 import { cookies } from "next/headers";
 import { query } from "@/lib/db";
-import { CustomersClient } from "./customers-client";
+import { CustomerViewClient } from "./customer-view-client";
+import { notFound } from "next/navigation";
 
 interface Customer {
   id: number;
@@ -9,13 +10,26 @@ interface Customer {
   company_name: string;
   commercial_number: string;
   vat_number: string;
+  unified_number?: string;
   email?: string;
   phone?: string;
+  country?: string;
+  city?: string;
+  district?: string;
+  street_name?: string;
+  postal_code?: string;
+  short_address?: string;
+  account_id?: number;
+  cost_center_id?: number;
+  account_name?: string;
+  cost_center_name?: string;
   is_active: number;
   created_at: string;
+  updated_at?: string;
 }
 
-export default async function CustomersPage() {
+export default async function CustomerViewPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
   const cookieStore = await cookies();
   const sessionCookie = cookieStore.get("auth_session");
   const session = JSON.parse(sessionCookie?.value || "{}");
@@ -23,11 +37,7 @@ export default async function CustomersPage() {
   const companyId = session.company_id;
 
   if (!companyId) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <p className="text-gray-500">جاري التحميل...</p>
-      </div>
-    );
+    notFound();
   }
 
   const customers = await query<Customer>(
@@ -37,24 +47,13 @@ export default async function CustomersPage() {
      FROM customers c
      LEFT JOIN accounts a ON c.account_id = a.id
      LEFT JOIN cost_centers cc ON c.cost_center_id = cc.id
-     WHERE c.company_id = ? 
-     ORDER BY c.id DESC`,
-    [companyId]
+     WHERE c.id = ? AND c.company_id = ?`,
+    [id, companyId]
   );
 
-  const totalCustomers = customers.length;
-  const activeCustomers = customers.filter(c => c.is_active === 1).length;
-  const inactiveCustomers = customers.filter(c => c.is_active === 0).length;
+  if (!customers || customers.length === 0) {
+    notFound();
+  }
 
-  return (
-    <CustomersClient 
-      customers={customers}
-      stats={{
-        total: totalCustomers,
-        active: activeCustomers,
-        inactive: inactiveCustomers
-      }}
-      companyId={companyId}
-    />
-  );
+  return <CustomerViewClient customer={customers[0]} companyId={companyId} />;
 }
