@@ -135,7 +135,7 @@ export function AccountsClient({ initialAccounts, companyId }: AccountsClientPro
   };
 
   return (
-    <div className="max-w-[1400px] mx-auto px-4 py-8 space-y-8 rtl" dir="rtl">
+    <div className="w-full max-w-[98%] mx-auto px-6 py-6 space-y-6 rtl" dir="rtl">
       {/* Header */}
       <motion.div 
         initial={{ opacity: 0, y: -20 }}
