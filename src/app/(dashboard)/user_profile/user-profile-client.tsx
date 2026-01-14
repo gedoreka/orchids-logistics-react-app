@@ -6,7 +6,7 @@ import {
   Building, 
   University, 
   IdCard, 
-  FileContract, 
+  FileText, 
   Save, 
   PlusCircle, 
   Edit, 

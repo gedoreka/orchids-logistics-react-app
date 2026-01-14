@@ -189,6 +189,22 @@ export async function deleteEmployee(id: number) {
   }
 }
 
+export async function updateEmployeeDocument(id: number, field: string, path: string) {
+  try {
+    const allowedFields = [
+      'personal_photo', 'iqama_file', 'license_file', 'vehicle_file', 
+      'agir_permit_file', 'work_contract_file', 'vehicle_operation_card'
+    ];
+    if (!allowedFields.includes(field)) throw new Error("Field not allowed");
+
+    await query(`UPDATE employees SET ${field} = ? WHERE id = ?`, [path, id]);
+    revalidatePath(`/hr/employees/${id}`);
+    return { success: true };
+  } catch (error: any) {
+    return { success: false, error: error.message };
+  }
+}
+
 export async function updateIqamaExpiry(id: number, expiryDate: string) {
   try {
     await query("UPDATE employees SET iqama_expiry = ? WHERE id = ?", [expiryDate, id]);
@@ -224,6 +240,37 @@ export async function addViolation(data: {
   }
 }
 
+export async function updateViolation(id: number, employeeId: number, data: any) {
+  try {
+    const remaining_amount = data.violation_amount - data.deducted_amount;
+    await query(
+      `UPDATE employee_violations SET 
+        violation_type = ?, violation_date = ?, violation_amount = ?, 
+        deducted_amount = ?, remaining_amount = ?, status = ?, violation_description = ? 
+      WHERE id = ?`,
+      [
+        data.violation_type, data.violation_date, data.violation_amount, 
+        data.deducted_amount, remaining_amount, data.status, data.violation_description, 
+        id
+      ]
+    );
+    revalidatePath(`/hr/employees/${employeeId}`);
+    return { success: true };
+  } catch (error: any) {
+    return { success: false, error: error.message };
+  }
+}
+
+export async function deleteViolation(id: number, employeeId: number) {
+  try {
+    await query("DELETE FROM employee_violations WHERE id = ?", [id]);
+    revalidatePath(`/hr/employees/${employeeId}`);
+    return { success: true };
+  } catch (error: any) {
+    return { success: false, error: error.message };
+  }
+}
+
 export async function addLetter(data: {
   employee_id: number;
   letter_type: string;
@@ -242,6 +289,36 @@ export async function addLetter(data: {
       [data.employee_id, data.letter_type, data.start_date, data.end_date, data.duration_days, data.violation_amount, data.letter_details, data.document_path || null]
     );
     revalidatePath(`/hr/employees/${data.employee_id}`);
+    return { success: true };
+  } catch (error: any) {
+    return { success: false, error: error.message };
+  }
+}
+
+export async function updateLetter(id: number, employeeId: number, data: any) {
+  try {
+    await query(
+      `UPDATE employee_letters SET 
+        letter_type = ?, start_date = ?, end_date = ?, 
+        duration_days = ?, violation_amount = ?, letter_details = ? 
+      WHERE id = ?`,
+      [
+        data.letter_type, data.start_date, data.end_date, 
+        data.duration_days, data.violation_amount, data.letter_details, 
+        id
+      ]
+    );
+    revalidatePath(`/hr/employees/${employeeId}`);
+    return { success: true };
+  } catch (error: any) {
+    return { success: false, error: error.message };
+  }
+}
+
+export async function deleteLetter(id: number, employeeId: number) {
+  try {
+    await query("DELETE FROM employee_letters WHERE id = ?", [id]);
+    revalidatePath(`/hr/employees/${employeeId}`);
     return { success: true };
   } catch (error: any) {
     return { success: false, error: error.message };

@@ -53,44 +53,17 @@ import {
   toggleEmployeeStatus,
   addViolation,
   addLetter,
-  updateIqamaExpiry
+  updateIqamaExpiry,
+  deleteViolation,
+  updateViolation,
+  deleteLetter,
+  updateLetter
 } from "@/lib/actions/hr";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
-const getPublicUrl = (path: string | null) => {
-  if (!path) return null;
-  if (path.startsWith("http")) return path;
-  
-  const cleanPath = path.startsWith('/') ? path.slice(1) : path;
-  
-  if (path.includes('supabase')) {
-    return path;
-  }
-
-  return `https://accounts.zoolspeed.com/${cleanPath}`;
-};
-
-interface EmployeeDetailsClientProps {
-  employee: any;
-  allEmployees: any[];
-  violations: any[];
-  letters: any[];
-  stats: any;
-  monthlyData: any[];
-}
-
-const tabConfig: any = {
-  general: { label: "المعلومات العامة", icon: User, color: "blue", bg: "bg-gradient-to-br from-blue-500 to-blue-700", text: "text-blue-600", light: "bg-blue-50" },
-  bank: { label: "الحساب البنكي", icon: University, color: "emerald", bg: "bg-gradient-to-br from-emerald-500 to-emerald-700", text: "text-emerald-600", light: "bg-emerald-50" },
-  documents: { label: "المستندات", icon: FileText, color: "amber", bg: "bg-gradient-to-br from-amber-500 to-amber-700", text: "text-amber-600", light: "bg-amber-50" },
-  violations: { label: "المخالفات", icon: OctagonAlert, color: "red", bg: "bg-gradient-to-br from-red-500 to-red-700", text: "text-red-600", light: "bg-red-50" },
-  status: { label: "صلاحية الإقامة", icon: IdCard, color: "purple", bg: "bg-gradient-to-br from-purple-500 to-purple-700", text: "text-purple-600", light: "bg-purple-50" },
-  stats: { label: "الأداء", icon: BarChart3, color: "indigo", bg: "bg-gradient-to-br from-indigo-500 to-indigo-700", text: "text-indigo-600", light: "bg-indigo-50" },
-  letters: { label: "الخطابات", icon: Mail, color: "rose", bg: "bg-gradient-to-br from-rose-500 to-rose-700", text: "text-rose-600", light: "bg-rose-50" },
-};
-
 export function EmployeeDetailsClient({ 
+
   employee, 
   allEmployees, 
   violations, 
@@ -162,6 +135,9 @@ export function EmployeeDetailsClient({
 
   const [newExpiryDate, setNewExpiryDate] = useState(employee.iqama_expiry || "");
 
+  const [editingViolation, setEditingViolation] = useState<any>(null);
+  const [editingLetter, setEditingLetter] = useState<any>(null);
+
   useEffect(() => {
     setMounted(true);
   }, []);
@@ -230,6 +206,31 @@ export function EmployeeDetailsClient({
     }
   };
 
+  const handleDeleteViolation = async (id: number) => {
+    if (confirm("هل أنت متأكد من حذف هذه المخالفة؟")) {
+      const result = await deleteViolation(id, employee.id);
+      if (result.success) {
+        toast.success("تم حذف المخالفة");
+        router.refresh();
+      } else {
+        toast.error(result.error);
+      }
+    }
+  };
+
+  const handleUpdateViolation = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingViolation) return;
+    const result = await updateViolation(editingViolation.id, employee.id, editingViolation);
+    if (result.success) {
+      toast.success("تم تحديث المخالفة");
+      setEditingViolation(null);
+      router.refresh();
+    } else {
+      toast.error(result.error);
+    }
+  };
+
   const handleAddLetter = async (e: React.FormEvent) => {
     e.preventDefault();
     const result = await addLetter({
@@ -246,6 +247,31 @@ export function EmployeeDetailsClient({
         violation_amount: 0,
         letter_details: ""
       });
+      router.refresh();
+    } else {
+      toast.error(result.error);
+    }
+  };
+
+  const handleDeleteLetter = async (id: number) => {
+    if (confirm("هل أنت متأكد من حذف هذا الخطاب؟")) {
+      const result = await deleteLetter(id, employee.id);
+      if (result.success) {
+        toast.success("تم حذف الخطاب");
+        router.refresh();
+      } else {
+        toast.error(result.error);
+      }
+    }
+  };
+
+  const handleUpdateLetter = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingLetter) return;
+    const result = await updateLetter(editingLetter.id, employee.id, editingLetter);
+    if (result.success) {
+      toast.success("تم تحديث الخطاب");
+      setEditingLetter(null);
       router.refresh();
     } else {
       toast.error(result.error);
@@ -614,108 +640,135 @@ export function EmployeeDetailsClient({
 
 
               {activeTab === "violations" && (
-                <div className="space-y-10">
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-                    <StatBox label="إجمالي المخالفات" value={violations.reduce((acc, v) => acc + Number(v.violation_amount), 0)} color="red" />
-                    <StatBox label="تم خصمه" value={violations.reduce((acc, v) => acc + Number(v.deducted_amount), 0)} color="green" />
-                    <StatBox label="المتبقي" value={violations.reduce((acc, v) => acc + Number(v.remaining_amount), 0)} color="blue" />
-                  </div>
-
-                  <div className="bg-slate-50 p-8 rounded-[2.5rem] border-2 border-gray-100 space-y-6">
-                    <div className="flex items-center gap-4">
-                      <div className="bg-white p-3 rounded-2xl text-red-600 shadow-lg border border-red-50">
-                        <PlusCircle size={24} />
-                      </div>
-                      <h4 className="text-lg font-black text-gray-900">إضافة مخالفة جديدة</h4>
+                  <div className="space-y-10">
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+                      <StatBox label="إجمالي المخالفات" value={violations.reduce((acc, v) => acc + Number(v.violation_amount), 0)} color="red" />
+                      <StatBox label="تم خصمه" value={violations.reduce((acc, v) => acc + Number(v.deducted_amount), 0)} color="green" />
+                      <StatBox label="المتبقي" value={violations.reduce((acc, v) => acc + Number(v.remaining_amount), 0)} color="blue" />
                     </div>
-                    <form onSubmit={handleAddViolation} className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                      <div className="space-y-2">
-                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest mr-2">نوع المخالفة</label>
-                        <select 
-                          value={newViolation.violation_type}
-                          onChange={(e) => setNewViolation({...newViolation, violation_type: e.target.value})}
-                          className="w-full bg-white border-2 border-gray-100 rounded-2xl py-3 px-5 text-xs font-black text-gray-800 focus:border-red-400 outline-none transition-all shadow-sm"
-                        >
-                          <option value="traffic">مرورية</option>
-                          <option value="general">عامة</option>
-                        </select>
-                      </div>
-                      <div className="space-y-2">
-                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest mr-2">تاريخ المخالفة</label>
-                        <input 
-                          type="date"
-                          value={newViolation.violation_date}
-                          onChange={(e) => setNewViolation({...newViolation, violation_date: e.target.value})}
-                          className="w-full bg-white border-2 border-gray-100 rounded-2xl py-3 px-5 text-xs font-black text-gray-800 focus:border-red-400 outline-none transition-all shadow-sm"
-                          required
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest mr-2">المبلغ</label>
-                        <input 
-                          type="number"
-                          value={newViolation.violation_amount}
-                          onChange={(e) => setNewViolation({...newViolation, violation_amount: Number(e.target.value)})}
-                          className="w-full bg-white border-2 border-gray-100 rounded-2xl py-3 px-5 text-xs font-black text-gray-800 focus:border-red-400 outline-none transition-all shadow-sm"
-                          required
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest mr-2">المخصوم</label>
-                        <input 
-                          type="number"
-                          value={newViolation.deducted_amount}
-                          onChange={(e) => setNewViolation({...newViolation, deducted_amount: Number(e.target.value)})}
-                          className="w-full bg-white border-2 border-gray-100 rounded-2xl py-3 px-5 text-xs font-black text-gray-800 focus:border-red-400 outline-none transition-all shadow-sm"
-                          required
-                        />
-                      </div>
-                      <div className="md:col-span-2 lg:col-span-3 space-y-2">
-                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest mr-2">وصف المخالفة</label>
-                        <input 
-                          type="text"
-                          value={newViolation.violation_description}
-                          onChange={(e) => setNewViolation({...newViolation, violation_description: e.target.value})}
-                          placeholder="مثال: تجاوز السرعة المحددة في طريق الملك فهد"
-                          className="w-full bg-white border-2 border-gray-100 rounded-2xl py-3 px-5 text-xs font-black text-gray-800 focus:border-red-400 outline-none transition-all shadow-sm"
-                        />
-                      </div>
-                      <div className="flex items-end">
-                        <button type="submit" className="w-full bg-red-600 hover:bg-red-700 text-white py-3 rounded-2xl text-[10px] font-black flex items-center justify-center gap-3 transition-all shadow-lg active:scale-95">
-                          <PlusCircle size={16} />
-                          إضافة المخالفة
-                        </button>
-                      </div>
-                    </form>
-                  </div>
 
-                  <div className="overflow-x-auto rounded-[2rem] border border-gray-100 shadow-xl shadow-gray-100/50">
-                    <table className="w-full text-right">
-                      <thead>
-                        <tr className="bg-gray-50/50 border-b border-gray-100">
-                          <th className="px-8 py-5 text-[10px] font-black text-gray-400 uppercase tracking-widest">تاريخ المخالفة</th>
-                          <th className="px-8 py-5 text-[10px] font-black text-gray-400 uppercase tracking-widest">نوع المخالفة</th>
-                          <th className="px-8 py-5 text-[10px] font-black text-gray-400 uppercase tracking-widest">المبلغ</th>
-                          <th className="px-8 py-5 text-[10px] font-black text-gray-400 uppercase tracking-widest">المخصوم</th>
-                          <th className="px-8 py-5 text-[10px] font-black text-gray-400 uppercase tracking-widest">المتبقي</th>
-                          <th className="px-8 py-5 text-[10px] font-black text-gray-400 uppercase tracking-widest">الوصف</th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-gray-50">
-                        {violations.map((v) => (
-                          <tr key={v.id} className="hover:bg-slate-50/80 transition-all group">
-                            <td className="px-8 py-5 text-xs font-bold text-gray-600">{v.violation_date}</td>
-                            <td className="px-8 py-5 text-xs font-black text-gray-900">
-                              <span className={`px-3 py-1 rounded-lg text-[9px] font-black ${v.violation_type === 'traffic' ? 'bg-red-50 text-red-600' : 'bg-orange-50 text-orange-600'}`}>
-                                {v.violation_type === 'traffic' ? 'مرورية' : 'عامة'}
-                              </span>
-                            </td>
-                            <td className="px-8 py-5 text-xs font-black text-red-600">{Number(v.violation_amount).toLocaleString()} ر.س</td>
-                            <td className="px-8 py-5 text-xs font-black text-green-600">{Number(v.deducted_amount).toLocaleString()} ر.س</td>
-                            <td className="px-8 py-5 text-xs font-black text-blue-600">{Number(v.remaining_amount).toLocaleString()} ر.س</td>
-                            <td className="px-8 py-5 text-xs font-bold text-gray-500 max-w-xs truncate">{v.violation_description || '---'}</td>
+                    <div className="bg-slate-50 p-8 rounded-[2.5rem] border-2 border-gray-100 space-y-6">
+                      <div className="flex items-center gap-4">
+                        <div className="bg-white p-3 rounded-2xl text-red-600 shadow-lg border border-red-50">
+                          <PlusCircle size={24} />
+                        </div>
+                        <h4 className="text-lg font-black text-gray-900">{editingViolation ? "تعديل مخالفة" : "إضافة مخالفة جديدة"}</h4>
+                      </div>
+                      <form onSubmit={editingViolation ? handleUpdateViolation : handleAddViolation} className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                        <div className="space-y-2">
+                          <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest mr-2">نوع المخالفة</label>
+                          <select 
+                            value={editingViolation ? editingViolation.violation_type : newViolation.violation_type}
+                            onChange={(e) => editingViolation ? setEditingViolation({...editingViolation, violation_type: e.target.value}) : setNewViolation({...newViolation, violation_type: e.target.value})}
+                            className="w-full bg-white border-2 border-gray-100 rounded-2xl py-3 px-5 text-xs font-black text-gray-800 focus:border-red-400 outline-none transition-all shadow-sm"
+                          >
+                            <option value="traffic">مرورية</option>
+                            <option value="general">عامة</option>
+                          </select>
+                        </div>
+                        <div className="space-y-2">
+                          <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest mr-2">تاريخ المخالفة</label>
+                          <input 
+                            type="date"
+                            value={editingViolation ? editingViolation.violation_date : newViolation.violation_date}
+                            onChange={(e) => editingViolation ? setEditingViolation({...editingViolation, violation_date: e.target.value}) : setNewViolation({...newViolation, violation_date: e.target.value})}
+                            className="w-full bg-white border-2 border-gray-100 rounded-2xl py-3 px-5 text-xs font-black text-gray-800 focus:border-red-400 outline-none transition-all shadow-sm"
+                            required
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest mr-2">المبلغ</label>
+                          <input 
+                            type="number"
+                            value={editingViolation ? editingViolation.violation_amount : newViolation.violation_amount}
+                            onChange={(e) => editingViolation ? setEditingViolation({...editingViolation, violation_amount: Number(e.target.value)}) : setNewViolation({...newViolation, violation_amount: Number(e.target.value)})}
+                            className="w-full bg-white border-2 border-gray-100 rounded-2xl py-3 px-5 text-xs font-black text-gray-800 focus:border-red-400 outline-none transition-all shadow-sm"
+                            required
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest mr-2">المخصوم</label>
+                          <input 
+                            type="number"
+                            value={editingViolation ? editingViolation.deducted_amount : newViolation.deducted_amount}
+                            onChange={(e) => editingViolation ? setEditingViolation({...editingViolation, deducted_amount: Number(e.target.value)}) : setNewViolation({...newViolation, deducted_amount: Number(e.target.value)})}
+                            className="w-full bg-white border-2 border-gray-100 rounded-2xl py-3 px-5 text-xs font-black text-gray-800 focus:border-red-400 outline-none transition-all shadow-sm"
+                            required
+                          />
+                        </div>
+                        <div className="md:col-span-2 lg:col-span-3 space-y-2">
+                          <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest mr-2">وصف المخالفة</label>
+                          <input 
+                            type="text"
+                            value={editingViolation ? editingViolation.violation_description : newViolation.violation_description}
+                            onChange={(e) => editingViolation ? setEditingViolation({...editingViolation, violation_description: e.target.value}) : setNewViolation({...newViolation, violation_description: e.target.value})}
+                            placeholder="مثال: تجاوز السرعة المحددة في طريق الملك فهد"
+                            className="w-full bg-white border-2 border-gray-100 rounded-2xl py-3 px-5 text-xs font-black text-gray-800 focus:border-red-400 outline-none transition-all shadow-sm"
+                          />
+                        </div>
+                        <div className="flex items-end gap-2">
+                          <button type="submit" className="flex-1 bg-red-600 hover:bg-red-700 text-white py-3 rounded-2xl text-[10px] font-black flex items-center justify-center gap-3 transition-all shadow-lg active:scale-95">
+                            <PlusCircle size={16} />
+                            {editingViolation ? "تحديث المخالفة" : "إضافة المخالفة"}
+                          </button>
+                          {editingViolation && (
+                            <button 
+                              type="button" 
+                              onClick={() => setEditingViolation(null)}
+                              className="px-4 py-3 bg-gray-200 text-gray-600 rounded-2xl text-[10px] font-black transition-all shadow-sm active:scale-95"
+                            >
+                              إلغاء
+                            </button>
+                          )}
+                        </div>
+                      </form>
+                    </div>
+
+                    <div className="overflow-x-auto rounded-[2rem] border border-gray-100 shadow-xl shadow-gray-100/50">
+                      <table className="w-full text-right">
+                        <thead>
+                          <tr className="bg-gray-50/50 border-b border-gray-100">
+                            <th className="px-8 py-5 text-[10px] font-black text-gray-400 uppercase tracking-widest">تاريخ المخالفة</th>
+                            <th className="px-8 py-5 text-[10px] font-black text-gray-400 uppercase tracking-widest">نوع المخالفة</th>
+                            <th className="px-8 py-5 text-[10px] font-black text-gray-400 uppercase tracking-widest">المبلغ</th>
+                            <th className="px-8 py-5 text-[10px] font-black text-gray-400 uppercase tracking-widest">المخصوم</th>
+                            <th className="px-8 py-5 text-[10px] font-black text-gray-400 uppercase tracking-widest">المتبقي</th>
+                            <th className="px-8 py-5 text-[10px] font-black text-gray-400 uppercase tracking-widest">الوصف</th>
+                            <th className="px-8 py-5 text-[10px] font-black text-gray-400 uppercase tracking-widest text-center">الإجراءات</th>
                           </tr>
-                        ))}
+                        </thead>
+                        <tbody className="divide-y divide-gray-50">
+                          {violations.map((v) => (
+                            <tr key={v.id} className="hover:bg-slate-50/80 transition-all group">
+                              <td className="px-8 py-5 text-xs font-bold text-gray-600">{v.violation_date}</td>
+                              <td className="px-8 py-5 text-xs font-black text-gray-900">
+                                <span className={`px-3 py-1 rounded-lg text-[9px] font-black ${v.violation_type === 'traffic' ? 'bg-red-50 text-red-600' : 'bg-orange-50 text-orange-600'}`}>
+                                  {v.violation_type === 'traffic' ? 'مرورية' : 'عامة'}
+                                </span>
+                              </td>
+                              <td className="px-8 py-5 text-xs font-black text-red-600">{Number(v.violation_amount).toLocaleString()} ر.س</td>
+                              <td className="px-8 py-5 text-xs font-black text-green-600">{Number(v.deducted_amount).toLocaleString()} ر.س</td>
+                              <td className="px-8 py-5 text-xs font-black text-blue-600">{Number(v.remaining_amount).toLocaleString()} ر.س</td>
+                              <td className="px-8 py-5 text-xs font-bold text-gray-500 max-w-xs truncate">{v.violation_description || '---'}</td>
+                              <td className="px-8 py-5 text-center">
+                                <div className="flex justify-center gap-2">
+                                  <button 
+                                    onClick={() => setEditingViolation(v)}
+                                    className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-all"
+                                  >
+                                    <Edit3 size={16} />
+                                  </button>
+                                  <button 
+                                    onClick={() => handleDeleteViolation(v.id)}
+                                    className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-all"
+                                  >
+                                    <Trash size={16} />
+                                  </button>
+                                </div>
+                              </td>
+                            </tr>
+                          ))}
+
                         {violations.length === 0 && (
                           <tr>
                             <td colSpan={6} className="px-8 py-16 text-center text-gray-300 font-bold">لا توجد سجلات للمخالفات حالياً</td>
@@ -776,140 +829,164 @@ export function EmployeeDetailsClient({
                 </div>
               )}
 
-              {activeTab === "letters" && (
-                <div className="space-y-10">
-                  <div className="bg-slate-50 p-8 rounded-[2.5rem] border-2 border-gray-100 space-y-6">
-                    <div className="flex items-center gap-4">
-                      <div className="bg-white p-3 rounded-2xl text-rose-600 shadow-lg border border-rose-50">
-                        <PlusCircle size={24} />
-                      </div>
-                      <h4 className="text-lg font-black text-gray-900">إضافة خطاب جديد</h4>
-                    </div>
-                    <form onSubmit={handleAddLetter} className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                      <div className="space-y-2">
-                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest mr-2">نوع الخطاب</label>
-                        <select 
-                          value={newLetter.letter_type}
-                          onChange={(e) => setNewLetter({...newLetter, letter_type: e.target.value})}
-                          className="w-full bg-white border-2 border-gray-100 rounded-2xl py-3 px-5 text-xs font-black text-gray-800 focus:border-rose-400 outline-none transition-all shadow-sm"
-                        >
-                          <option value="annual_leave">إجازة سنوية</option>
-                          <option value="sick_leave">إجازة مرضية</option>
-                          <option value="personal_leave">إجازة شخصية</option>
-                          <option value="absence">غياب بدون سبب</option>
-                          <option value="other">أخرى</option>
-                        </select>
-                      </div>
-                      <div className="space-y-2">
-                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest mr-2">تاريخ البداية</label>
-                        <input 
-                          type="date"
-                          value={newLetter.start_date}
-                          onChange={(e) => setNewLetter({...newLetter, start_date: e.target.value})}
-                          className="w-full bg-white border-2 border-gray-100 rounded-2xl py-3 px-5 text-xs font-black text-gray-800 focus:border-rose-400 outline-none transition-all shadow-sm"
-                          required
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest mr-2">تاريخ النهاية</label>
-                        <input 
-                          type="date"
-                          value={newLetter.end_date}
-                          onChange={(e) => setNewLetter({...newLetter, end_date: e.target.value})}
-                          className="w-full bg-white border-2 border-gray-100 rounded-2xl py-3 px-5 text-xs font-black text-gray-800 focus:border-rose-400 outline-none transition-all shadow-sm"
-                          required
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest mr-2">المدة (أيام)</label>
-                        <input 
-                          type="number"
-                          value={newLetter.duration_days}
-                          onChange={(e) => setNewLetter({...newLetter, duration_days: Number(e.target.value)})}
-                          className="w-full bg-white border-2 border-gray-100 rounded-2xl py-3 px-5 text-xs font-black text-gray-800 focus:border-rose-400 outline-none transition-all shadow-sm"
-                          required
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest mr-2">مبلغ المخالفة</label>
-                        <input 
-                          type="number"
-                          value={newLetter.violation_amount}
-                          onChange={(e) => setNewLetter({...newLetter, violation_amount: Number(e.target.value)})}
-                          className="w-full bg-white border-2 border-gray-100 rounded-2xl py-3 px-5 text-xs font-black text-gray-800 focus:border-rose-400 outline-none transition-all shadow-sm"
-                        />
-                      </div>
-                      <div className="md:col-span-3 space-y-2">
-                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest mr-2">التفاصيل</label>
-                        <textarea 
-                          value={newLetter.letter_details}
-                          onChange={(e) => setNewLetter({...newLetter, letter_details: e.target.value})}
-                          rows={3}
-                          className="w-full bg-white border-2 border-gray-100 rounded-2xl py-3 px-5 text-xs font-black text-gray-800 focus:border-rose-400 outline-none transition-all shadow-sm resize-none"
-                          placeholder="اكتب تفاصيل الخطاب هنا..."
-                        />
-                      </div>
-                      <div className="col-span-full flex justify-end">
-                        <button type="submit" className="bg-rose-600 hover:bg-rose-700 text-white px-12 py-3 rounded-2xl text-[10px] font-black flex items-center justify-center gap-3 transition-all shadow-lg active:scale-95">
-                          <PlusCircle size={16} />
-                          حفظ الخطاب
-                        </button>
-                      </div>
-                    </form>
-                  </div>
-
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 pb-8">
-                    {letters.map((l) => (
-                      <div key={l.id} className="p-8 rounded-[2rem] bg-slate-50/50 border border-gray-100 space-y-6 hover:border-rose-200 transition-all group relative overflow-hidden shadow-sm hover:shadow-xl">
-                        <div className="absolute top-0 left-0 w-2 h-full bg-rose-200" />
-                        <div className="flex justify-between items-start">
-                          <div className="h-14 w-14 rounded-2xl bg-white flex items-center justify-center text-rose-600 shadow-xl group-hover:scale-110 transition-transform border border-rose-50">
-                            <Mail size={28} />
-                          </div>
-                          <span className="px-4 py-2 rounded-xl bg-white text-[9px] font-black text-gray-400 uppercase border border-gray-100 shadow-sm tracking-widest">
-                            {l.created_at}
-                          </span>
+                {activeTab === "letters" && (
+                  <div className="space-y-10">
+                    <div className="bg-slate-50 p-8 rounded-[2.5rem] border-2 border-gray-100 space-y-6">
+                      <div className="flex items-center gap-4">
+                        <div className="bg-white p-3 rounded-2xl text-rose-600 shadow-lg border border-rose-50">
+                          <PlusCircle size={24} />
                         </div>
-                        <div>
-                          <h4 className="text-xl font-black text-gray-900 mb-2">
-                            {l.letter_type === 'annual_leave' ? 'إجازة سنوية' :
-                             l.letter_type === 'sick_leave' ? 'إجازة مرضية' :
-                             l.letter_type === 'personal_leave' ? 'إجازة شخصية' :
-                             l.letter_type === 'absence' ? 'غياب دون سبب' : 'أخرى'}
-                          </h4>
-                          <div className="bg-white p-4 rounded-2xl border border-gray-50 shadow-inner">
-                            <p className="text-xs font-bold text-gray-500 leading-relaxed">{l.letter_details || 'لا توجد تفاصيل'}</p>
-                          </div>
+                        <h4 className="text-lg font-black text-gray-900">{editingLetter ? "تعديل خطاب" : "إضافة خطاب جديد"}</h4>
+                      </div>
+                      <form onSubmit={editingLetter ? handleUpdateLetter : handleAddLetter} className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div className="space-y-2">
+                          <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest mr-2">نوع الخطاب</label>
+                          <select 
+                            value={editingLetter ? editingLetter.letter_type : newLetter.letter_type}
+                            onChange={(e) => editingLetter ? setEditingLetter({...editingLetter, letter_type: e.target.value}) : setNewLetter({...newLetter, letter_type: e.target.value})}
+                            className="w-full bg-white border-2 border-gray-100 rounded-2xl py-3 px-5 text-xs font-black text-gray-800 focus:border-rose-400 outline-none transition-all shadow-sm"
+                          >
+                            <option value="annual_leave">إجازة سنوية</option>
+                            <option value="sick_leave">إجازة مرضية</option>
+                            <option value="personal_leave">إجازة شخصية</option>
+                            <option value="absence">غياب دون سبب</option>
+                            <option value="other">أخرى</option>
+                          </select>
                         </div>
-                        <div className="pt-4 flex items-center justify-between">
-                          <span className="flex items-center gap-2.5 bg-white px-4 py-2 rounded-xl border border-gray-100 text-[10px] font-black text-gray-500">
-                            <Calendar size={14} className="text-rose-400" />
-                            {l.start_date} - {l.end_date} ({l.duration_days} أيام)
-                          </span>
-                          {l.violation_amount > 0 && (
-                            <span className="flex items-center gap-2.5 bg-rose-50 text-rose-600 px-4 py-2 rounded-xl border border-rose-100 text-[10px] font-black">
-                              <AlertTriangle size={14} />
-                              المخالفة: {Number(l.violation_amount).toLocaleString()} ر.س
-                            </span>
+                        <div className="space-y-2">
+                          <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest mr-2">تاريخ البداية</label>
+                          <input 
+                            type="date"
+                            value={editingLetter ? editingLetter.start_date : newLetter.start_date}
+                            onChange={(e) => editingLetter ? setEditingLetter({...editingLetter, start_date: e.target.value}) : setNewLetter({...newLetter, start_date: e.target.value})}
+                            className="w-full bg-white border-2 border-gray-100 rounded-2xl py-3 px-5 text-xs font-black text-gray-800 focus:border-rose-400 outline-none transition-all shadow-sm"
+                            required
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest mr-2">تاريخ النهاية</label>
+                          <input 
+                            type="date"
+                            value={editingLetter ? editingLetter.end_date : newLetter.end_date}
+                            onChange={(e) => editingLetter ? setEditingLetter({...editingLetter, end_date: e.target.value}) : setNewLetter({...newLetter, end_date: e.target.value})}
+                            className="w-full bg-white border-2 border-gray-100 rounded-2xl py-3 px-5 text-xs font-black text-gray-800 focus:border-rose-400 outline-none transition-all shadow-sm"
+                            required
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest mr-2">المدة (أيام)</label>
+                          <input 
+                            type="number"
+                            value={editingLetter ? editingLetter.duration_days : newLetter.duration_days}
+                            onChange={(e) => editingLetter ? setEditingLetter({...editingLetter, duration_days: Number(e.target.value)}) : setNewLetter({...newLetter, duration_days: Number(e.target.value)})}
+                            className="w-full bg-white border-2 border-gray-100 rounded-2xl py-3 px-5 text-xs font-black text-gray-800 focus:border-rose-400 outline-none transition-all shadow-sm"
+                            required
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest mr-2">مبلغ المخالفة</label>
+                          <input 
+                            type="number"
+                            value={editingLetter ? editingLetter.violation_amount : newLetter.violation_amount}
+                            onChange={(e) => editingLetter ? setEditingLetter({...editingLetter, violation_amount: Number(e.target.value)}) : setNewLetter({...newLetter, violation_amount: Number(e.target.value)})}
+                            className="w-full bg-white border-2 border-gray-100 rounded-2xl py-3 px-5 text-xs font-black text-gray-800 focus:border-rose-400 outline-none transition-all shadow-sm"
+                          />
+                        </div>
+                        <div className="md:col-span-3 space-y-2">
+                          <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest mr-2">التفاصيل</label>
+                          <textarea 
+                            value={editingLetter ? editingLetter.letter_details : newLetter.letter_details}
+                            onChange={(e) => editingLetter ? setEditingLetter({...editingLetter, letter_details: e.target.value}) : setNewLetter({...newLetter, letter_details: e.target.value})}
+                            rows={3}
+                            className="w-full bg-white border-2 border-gray-100 rounded-2xl py-3 px-5 text-xs font-black text-gray-800 focus:border-rose-400 outline-none transition-all shadow-sm resize-none"
+                            placeholder="اكتب تفاصيل الخطاب هنا..."
+                          />
+                        </div>
+                        <div className="col-span-full flex justify-end gap-3">
+                          {editingLetter && (
+                            <button 
+                              type="button" 
+                              onClick={() => setEditingLetter(null)}
+                              className="px-8 py-3 bg-gray-200 text-gray-600 rounded-2xl text-[10px] font-black transition-all shadow-sm active:scale-95"
+                            >
+                              إلغاء التعديل
+                            </button>
                           )}
+                          <button type="submit" className="bg-rose-600 hover:bg-rose-700 text-white px-12 py-3 rounded-2xl text-[10px] font-black flex items-center justify-center gap-3 transition-all shadow-lg active:scale-95">
+                            <PlusCircle size={16} />
+                            {editingLetter ? "تحديث الخطاب" : "حفظ الخطاب"}
+                          </button>
                         </div>
-                      </div>
-                    ))}
-                    {letters.length === 0 && (
-                      <div className="col-span-full py-24 text-center text-gray-300 font-bold bg-slate-50/50 rounded-[2.5rem] border-4 border-dashed border-gray-100">
-                        <Mail size={48} className="mx-auto mb-4 opacity-10" />
-                        <p className="text-sm">لا يوجد سجل خطابات لهذا الموظف</p>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              )}
-            </motion.div>
-          </AnimatePresence>
-        </div>
-      </div>
+                      </form>
+                    </div>
 
-      {/* Employee List Popup */}
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 pb-8">
+                      {letters.map((l) => (
+                        <div key={l.id} className="p-8 rounded-[2rem] bg-slate-50/50 border border-gray-100 space-y-6 hover:border-rose-200 transition-all group relative overflow-hidden shadow-sm hover:shadow-xl">
+                          <div className="absolute top-0 left-0 w-2 h-full bg-rose-200" />
+                          <div className="flex justify-between items-start">
+                            <div className="h-14 w-14 rounded-2xl bg-white flex items-center justify-center text-rose-600 shadow-xl group-hover:scale-110 transition-transform border border-rose-50">
+                              <Mail size={28} />
+                            </div>
+                            <div className="flex gap-2">
+                              <button 
+                                onClick={() => setEditingLetter(l)}
+                                className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-all"
+                              >
+                                <Edit3 size={16} />
+                              </button>
+                              <button 
+                                onClick={() => handleDeleteLetter(l.id)}
+                                className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-all"
+                              >
+                                <Trash size={16} />
+                              </button>
+                              <span className="px-4 py-2 rounded-xl bg-white text-[9px] font-black text-gray-400 uppercase border border-gray-100 shadow-sm tracking-widest">
+                                {l.created_at}
+                              </span>
+                            </div>
+                          </div>
+                          <div>
+                            <h4 className="text-xl font-black text-gray-900 mb-2">
+                              {l.letter_type === 'annual_leave' ? 'إجازة سنوية' :
+                               l.letter_type === 'sick_leave' ? 'إجازة مرضية' :
+                               l.letter_type === 'personal_leave' ? 'إجازة شخصية' :
+                               l.letter_type === 'absence' ? 'غياب دون سبب' : 'أخرى'}
+                            </h4>
+                            <div className="bg-white p-4 rounded-2xl border border-gray-50 shadow-inner">
+                              <p className="text-xs font-bold text-gray-500 leading-relaxed">{l.letter_details || 'لا توجد تفاصيل'}</p>
+                            </div>
+                          </div>
+                          <div className="pt-4 flex items-center justify-between">
+                            <span className="flex items-center gap-2.5 bg-white px-4 py-2 rounded-xl border border-gray-100 text-[10px] font-black text-gray-500">
+                              <Calendar size={14} className="text-rose-400" />
+                              {l.start_date} - {l.end_date} ({l.duration_days} أيام)
+                            </span>
+                            {l.violation_amount > 0 && (
+                              <span className="flex items-center gap-2.5 bg-rose-50 text-rose-600 px-4 py-2 rounded-xl border border-rose-100 text-[10px] font-black">
+                                <AlertTriangle size={14} />
+                                المخالفة: {Number(l.violation_amount).toLocaleString()} ر.س
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                      {letters.length === 0 && (
+                        <div className="col-span-full py-24 text-center text-gray-300 font-bold bg-slate-50/50 rounded-[2.5rem] border-4 border-dashed border-gray-100">
+                          <Mail size={48} className="mx-auto mb-4 opacity-10" />
+                          <p className="text-sm">لا يوجد سجل خطابات لهذا الموظف</p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </motion.div>
+            </AnimatePresence>
+          </div>
+        </div>
+
+        {/* Employee List Popup */}
+
       <AnimatePresence>
         {isPopupOpen && (
           <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
