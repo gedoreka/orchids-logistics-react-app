@@ -1,11 +1,74 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
 import { cookies } from 'next/headers';
+import { query } from '@/lib/db';
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
+interface ExpenseRow {
+  id: number;
+  company_id: number;
+  expense_date: string;
+  expense_type: string;
+  amount: string;
+  description: string;
+  employee_iqama: string;
+  employee_name: string;
+  account_code: string;
+  cost_center_code: string;
+  month_reference: string;
+  tax_value: string;
+  net_amount: string;
+  account_id: number;
+  cost_center_id: number;
+  attachment: string;
+  attachment_path: string;
+  driver_name: string;
+  driver_iqama: string;
+  plate_number: string;
+  account_name?: string;
+  center_code?: string;
+  center_name?: string;
+}
+
+interface DeductionRow {
+  id: number;
+  company_id: number;
+  month_reference: string;
+  voucher_number: string;
+  deduction_type: string;
+  expense_date: string;
+  employee_id: number;
+  employee_name: string;
+  employee_iqama: string;
+  amount: string;
+  account_id: number;
+  cost_center_id: number;
+  description: string;
+  attachment: string;
+  status: string;
+  account_code?: string;
+  account_name?: string;
+  center_code?: string;
+  center_name?: string;
+}
+
+interface PayrollRow {
+  id: number;
+  payroll_month: string;
+  employee_count: number;
+  total_amount: string;
+  is_paid: number;
+  created_at: string;
+  package_id: number;
+  saved_by: string;
+  is_draft: number;
+  company_id: number;
+}
+
+interface CompanyRow {
+  id: number;
+  name: string;
+  logo_path: string;
+  currency: string;
+}
 
 export async function GET(request: NextRequest) {
   try {
@@ -29,120 +92,112 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'No company ID' }, { status: 401 });
     }
 
+    const userCompany = await query<{ company_id: number }>(
+      'SELECT company_id FROM users WHERE id = ?',
+      [session.user_id]
+    );
+    
+    if (userCompany && userCompany[0] && userCompany[0].company_id) {
+      companyId = userCompany[0].company_id;
+    }
+
     const { searchParams } = new URL(request.url);
     const month = searchParams.get('month') || new Date().toISOString().slice(0, 7);
     const reportType = searchParams.get('report_type') || 'all';
 
-    let { data: companyInfo } = await supabase
-      .from('companies')
-      .select('id, name, logo_path, currency')
-      .eq('id', companyId)
-      .single();
+    const companies = await query<CompanyRow>(
+      'SELECT id, name, logo_path, currency FROM companies WHERE id = ?',
+      [companyId]
+    );
+    const companyInfo = companies[0] || null;
 
-    if (!companyInfo) {
-      const { data: defaultCompany } = await supabase
-        .from('companies')
-        .select('id, name, logo_path, currency')
-        .limit(1)
-        .single();
-      
-      if (defaultCompany) {
-        companyInfo = defaultCompany;
-        companyId = defaultCompany.id;
-      }
-    }
-
-    let expensesGrouped: Record<string, any[]> = {};
-    let deductionsGrouped: Record<string, any[]> = {};
+    let expensesGrouped: Record<string, ExpenseRow[]> = {};
+    let deductionsGrouped: Record<string, DeductionRow[]> = {};
     let payrolls: any[] = [];
     let totalExpenses = 0;
     let totalDeductions = 0;
     let totalPayrolls = 0;
 
     if (reportType === 'expenses' || reportType === 'all') {
-      const { data: expenses } = await supabase
-        .from('monthly_expenses')
-        .select(`
-          *,
-          accounts:account_id (account_code, account_name),
-          cost_centers:cost_center_id (center_code, center_name)
-        `)
-        .eq('company_id', companyId)
-        .eq('month_reference', month)
-        .order('expense_type')
-        .order('expense_date', { ascending: true });
+      const expenses = await query<ExpenseRow>(
+        `SELECT 
+          e.*,
+          a.account_code as acc_code,
+          a.account_name,
+          c.center_code,
+          c.center_name
+        FROM monthly_expenses e
+        LEFT JOIN accounts a ON e.account_id = a.id
+        LEFT JOIN cost_centers c ON e.cost_center_id = c.id
+        WHERE e.company_id = ? AND e.month_reference = ?
+        ORDER BY e.expense_type, e.expense_date ASC`,
+        [companyId, month]
+      );
 
-      if (expenses) {
-        expenses.forEach((expense: any) => {
+      if (expenses && expenses.length > 0) {
+        expenses.forEach((expense) => {
           const group = expense.expense_type || 'مصروفات أخرى';
           if (!expensesGrouped[group]) {
             expensesGrouped[group] = [];
           }
           expensesGrouped[group].push({
             ...expense,
-            account_code: expense.accounts?.account_code || expense.account_code,
-            account_name: expense.accounts?.account_name,
-            center_code: expense.cost_centers?.center_code || expense.cost_center_code,
-            center_name: expense.cost_centers?.center_name,
+            account_code: (expense as any).acc_code || expense.account_code,
+            center_code: expense.center_code || expense.cost_center_code,
           });
-          totalExpenses += parseFloat(expense.amount || 0);
+          totalExpenses += parseFloat(expense.amount || '0');
         });
       }
     }
 
     if (reportType === 'deductions' || reportType === 'all') {
-      const { data: deductions } = await supabase
-        .from('monthly_deductions')
-        .select(`
-          *,
-          accounts:account_id (account_code, account_name),
-          cost_centers:cost_center_id (center_code, center_name)
-        `)
-        .eq('company_id', companyId)
-        .eq('month_reference', month)
-        .order('deduction_type')
-        .order('expense_date', { ascending: true });
+      const deductions = await query<DeductionRow>(
+        `SELECT 
+          d.*,
+          a.account_code,
+          a.account_name,
+          c.center_code,
+          c.center_name
+        FROM monthly_deductions d
+        LEFT JOIN accounts a ON d.account_id = a.id
+        LEFT JOIN cost_centers c ON d.cost_center_id = c.id
+        WHERE d.company_id = ? AND d.month_reference = ?
+        ORDER BY d.deduction_type, d.expense_date ASC`,
+        [companyId, month]
+      );
 
-      if (deductions) {
-        deductions.forEach((deduction: any) => {
+      if (deductions && deductions.length > 0) {
+        deductions.forEach((deduction) => {
           const group = deduction.deduction_type || 'استقطاعات أخرى';
           if (!deductionsGrouped[group]) {
             deductionsGrouped[group] = [];
           }
-          deductionsGrouped[group].push({
-            ...deduction,
-            account_code: deduction.accounts?.account_code,
-            account_name: deduction.accounts?.account_name,
-            center_code: deduction.cost_centers?.center_code,
-            center_name: deduction.cost_centers?.center_name,
-          });
-          totalDeductions += parseFloat(deduction.amount || 0);
+          deductionsGrouped[group].push(deduction);
+          totalDeductions += parseFloat(deduction.amount || '0');
         });
       }
     }
 
     if (reportType === 'expenses' || reportType === 'all') {
-      const { data: payrollsData } = await supabase
-        .from('salary_payrolls')
-        .select('*')
-        .eq('company_id', companyId)
-        .eq('payroll_month', month)
-        .eq('is_draft', 0);
+      const payrollsData = await query<PayrollRow>(
+        `SELECT * FROM salary_payrolls 
+        WHERE company_id = ? AND payroll_month = ? AND (is_draft = 0 OR is_draft IS NULL)`,
+        [companyId, month]
+      );
 
-      if (payrollsData) {
+      if (payrollsData && payrollsData.length > 0) {
         for (const payroll of payrollsData) {
-          const { data: items } = await supabase
-            .from('salary_payroll_items')
-            .select('*')
-            .eq('payroll_id', payroll.id)
-            .order('iqama_number');
+          const items = await query<any>(
+            'SELECT * FROM salary_payroll_items WHERE payroll_id = ? ORDER BY iqama_number',
+            [payroll.id]
+          );
 
           payrolls.push({
             ...payroll,
             items: items || [],
-            employee_count: items?.length || 0
+            employee_count: payroll.employee_count || items?.length || 0
           });
-          totalPayrolls += parseFloat(payroll.total_amount || 0);
+          totalPayrolls += parseFloat(payroll.total_amount || '0');
         }
       }
     }
