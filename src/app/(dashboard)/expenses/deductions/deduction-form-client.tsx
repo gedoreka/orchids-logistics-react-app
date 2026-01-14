@@ -2,10 +2,10 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import { 
-  Plus, Trash2, Save, Tags, Cog, Info, CheckCircle, 
-  ChevronDown, X, Calculator, Search, 
-  ArrowRight, FileText, History, Bolt, Building2, User as UserIcon,
-  Settings, HandCoins, Calendar, DollarSign
+  Plus, Trash2, Save, Tags, Info, CheckCircle, 
+  ChevronDown, X, Paperclip, Search, 
+  ArrowRight, FileText, History, Bolt, Building2,
+  Settings, HandCoins
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
@@ -62,6 +62,12 @@ const defaultDeductionValues: Record<string, string> = {
   advances: 'سلفية',
   deductions: 'خصم تأخير',
   other: 'استقطاع متنوع'
+};
+
+const headersMap: Record<string, string[]> = {
+  advances: ['التاريخ', 'نوع الاستقطاع', 'المبلغ', 'الموظف', 'رقم الإقامة', 'الحساب', 'مركز التكلفة', 'الوصف', 'التحصيل', 'حذف'],
+  deductions: ['التاريخ', 'نوع الاستقطاع', 'المبلغ', 'الموظف', 'رقم الإقامة', 'الحساب', 'مركز التكلفة', 'الوصف', 'التحصيل', 'حذف'],
+  other: ['التاريخ', 'نوع الاستقطاع', 'المبلغ', 'الموظف', 'رقم الإقامة', 'الحساب', 'مركز التكلفة', 'الوصف', 'التحصيل', 'حذف']
 };
 
 function EmployeeSelect({ row, type, metadata, updateRow }: { 
@@ -136,7 +142,7 @@ function EmployeeSelect({ row, type, metadata, updateRow }: {
         <button 
           type="button"
           onClick={() => updateRow(type, row.id, 'manualEmployee', false)}
-          className="text-blue-500"
+          className="text-rose-500"
         >
           <Search className="w-4 h-4" />
         </button>
@@ -150,12 +156,12 @@ function EmployeeSelect({ row, type, metadata, updateRow }: {
         <div className="relative w-full" ref={triggerRef}>
           <div 
             onClick={() => setIsOpen(!isOpen)}
-            className="w-full bg-white/50 border border-slate-200 cursor-pointer text-sm font-medium py-1.5 px-3 flex items-center justify-between min-h-[36px] hover:bg-white hover:border-blue-300 rounded-lg transition-all shadow-sm"
+            className="w-full bg-white/50 border border-slate-200 cursor-pointer text-sm font-medium py-1.5 px-3 flex items-center justify-between min-h-[36px] hover:bg-white hover:border-rose-300 rounded-lg transition-all shadow-sm"
           >
             <span className={row.employee_name ? "text-slate-900 font-bold" : "text-slate-400"}>
               {row.employee_name || "-- اختر الموظف --"}
             </span>
-            <ChevronDown className={`w-4 h-4 text-slate-400 transition-transform duration-200 ${isOpen ? 'rotate-180 text-blue-500' : ''}`} />
+            <ChevronDown className={`w-4 h-4 text-slate-400 transition-transform duration-200 ${isOpen ? 'rotate-180 text-rose-500' : ''}`} />
           </div>
 
           {isOpen && (
@@ -167,15 +173,14 @@ function EmployeeSelect({ row, type, metadata, updateRow }: {
                 width: `${coords.width}px`,
                 zIndex: 9999
               }}
-              className="bg-white border border-slate-200 rounded-2xl shadow-[0_20px_70px_-10px_rgba(0,0,0,0.3)] overflow-hidden animate-in fade-in zoom-in duration-200 rtl"
-              dir="rtl"
+              className="bg-white border border-slate-200 rounded-2xl shadow-[0_20px_70px_-10px_rgba(0,0,0,0.3)] overflow-hidden animate-in fade-in zoom-in duration-200"
             >
               <div className="p-3 border-b border-slate-100 bg-slate-50/50">
                 <div className="relative">
                   <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                   <input
                     type="text"
-                    className="w-full pr-9 pl-3 py-2 bg-white border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
+                    className="w-full pr-9 pl-3 py-2 bg-white border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-rose-500 focus:border-transparent outline-none transition-all"
                     placeholder="بحث بالاسم أو الإقامة..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
@@ -195,9 +200,9 @@ function EmployeeSelect({ row, type, metadata, updateRow }: {
                         setIsOpen(false);
                         setSearchTerm("");
                       }}
-                      className="px-4 py-3 hover:bg-blue-50 cursor-pointer border-b border-slate-50 last:border-0 transition-all flex flex-col group/item text-right"
+                      className="px-4 py-3 hover:bg-rose-50 cursor-pointer border-b border-slate-50 last:border-0 transition-all flex flex-col group/item"
                     >
-                      <div className="font-bold text-slate-900 text-sm group-hover/item:text-blue-700">{emp.name}</div>
+                      <div className="font-bold text-slate-900 text-sm group-hover/item:text-rose-700">{emp.name}</div>
                       <div className="flex items-center gap-2 mt-1">
                         <span className="bg-slate-100 text-slate-600 px-2 py-0.5 rounded text-[10px] font-mono">
                           {emp.iqama_number || "بدون إقامة"}
@@ -223,7 +228,7 @@ function EmployeeSelect({ row, type, metadata, updateRow }: {
         <button 
           type="button"
           onClick={() => updateRow(type, row.id, 'manualEmployee', true)}
-          className="text-slate-400 hover:text-blue-500 p-1 rounded-lg transition-colors"
+          className="text-slate-400 hover:text-rose-500 p-1 rounded-lg transition-colors"
           title="إدخال يدوي"
         >
           <Bolt className="w-4 h-4" />
@@ -340,7 +345,6 @@ export default function DeductionFormClient({ user }: { user: User }) {
         if (row.id === id) {
           let updatedRow = { ...row, [field]: value };
           
-          // Auto description
           if (field === 'deduction_type' || field === 'employee_name') {
             const dType = field === 'deduction_type' ? value : row.deduction_type;
             const eName = field === 'employee_name' ? value : row.employee_name;
@@ -388,10 +392,6 @@ export default function DeductionFormClient({ user }: { user: User }) {
     }
   };
 
-  const calculateSectionTotal = (rows: DeductionRow[]) => {
-    return rows.reduce((acc, row) => acc + (parseFloat(row.amount) || 0), 0).toFixed(2);
-  };
-
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -402,103 +402,101 @@ export default function DeductionFormClient({ user }: { user: User }) {
 
   return (
     <div className="max-w-[1400px] mx-auto px-4 py-8 space-y-8 rtl" dir="rtl">
-      {/* Header */}
+      {/* Header - مطابق للمنصرفات مع تغيير اللون */}
       <motion.div 
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="relative overflow-hidden rounded-[2.5rem] bg-gradient-to-r from-rose-700 to-rose-900 p-8 text-white shadow-2xl border border-white/10"
+        className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-rose-900 to-rose-800 p-8 text-white shadow-xl border border-white/10"
       >
         <div className="relative z-10 flex flex-col items-center justify-center text-center space-y-4">
-          <div className="p-4 bg-white/10 rounded-3xl backdrop-blur-md shadow-lg border border-white/10">
-            <HandCoins className="w-10 h-10 text-white" />
+          <div className="p-3 bg-white/10 rounded-full backdrop-blur-sm">
+            <HandCoins className="w-8 h-8 text-rose-400" />
           </div>
-          <h1 className="text-3xl font-black tracking-tight">إضافة الاستقطاعات الشهرية</h1>
-          <p className="text-rose-100 max-w-2xl font-medium opacity-90">
-            إدارة السلفيات والخصومات الشهرية للموظفين بدقة واحترافية عالية
+          <h1 className="text-2xl font-bold tracking-tight">إضافة الاستقطاعات الشهرية</h1>
+          <p className="text-rose-300 max-w-2xl">
+            إدارة السلفيات والخصومات الشهرية للموظفين بشكل منظم وسهل
           </p>
         </div>
-        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-amber-400 via-rose-400 to-rose-600"></div>
+        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-rose-500 via-pink-500 to-red-500"></div>
       </motion.div>
 
-      {/* Subtype Management Banner */}
+      {/* Subtype Management Banner - مطابق للمنصرفات */}
       <motion.div 
-        className="bg-white p-6 rounded-[2rem] shadow-xl border border-rose-50 flex flex-col md:flex-row items-center justify-between gap-6"
+        className="bg-white p-4 rounded-2xl shadow-lg border border-slate-100 flex flex-col md:flex-row items-center justify-between gap-4"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
       >
-        <div className="flex items-center space-x-5 space-x-reverse">
-          <div className="p-4 bg-rose-50 rounded-2xl text-rose-600 shadow-sm border border-rose-100">
-            <Tags className="w-6 h-6" />
+        <div className="flex items-center space-x-4 space-x-reverse">
+          <div className="p-2.5 bg-rose-50 rounded-xl text-rose-600">
+            <Tags className="w-5 h-5" />
           </div>
           <div>
-            <h3 className="text-lg font-black text-slate-900">إدارة أنواع الاستقطاعات المخصصة</h3>
-            <p className="text-sm text-slate-500 font-medium">يمكنك إضافة وتعديل أنواع الاستقطاعات المخصصة لك فقط التي تظهر في القوائم المنسدلة.</p>
+            <h3 className="text-base font-bold text-slate-900">إدارة أنواع الاستقطاعات المخصصة</h3>
+            <p className="text-xs text-slate-500">يمكنك إضافة وتعديل أنواع الاستقطاعات المخصصة لك فقط التي تظهر في القوائم المنسدلة.</p>
           </div>
         </div>
         <button 
           onClick={() => setShowSubtypeManager(true)}
-          className="bg-rose-600 hover:bg-rose-700 text-white px-8 py-3 rounded-2xl font-black transition-all flex items-center space-x-3 space-x-reverse shadow-lg shadow-rose-100 group border-b-4 border-rose-800"
+          className="bg-rose-50 hover:bg-rose-100 text-rose-700 px-4 py-2 rounded-xl font-bold transition-all flex items-center space-x-2 space-x-reverse border border-rose-100 text-sm"
         >
-          <Settings className="w-5 h-5 group-hover:rotate-90 transition-transform duration-500" />
+          <Settings className="w-4 h-4" />
           <span>إدارة الأنواع المخصصة</span>
         </button>
       </motion.div>
 
-      {/* Info Bar */}
+      {/* Info Bar - مطابق للمنصرفات */}
       <motion.div 
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        className="grid grid-cols-1 md:grid-cols-3 gap-6"
+        className="grid grid-cols-1 md:grid-cols-3 gap-4"
       >
-        <div className="bg-white p-5 rounded-3xl border border-slate-100 shadow-lg flex items-center space-x-4 space-x-reverse group hover:border-rose-200 transition-colors">
-          <div className="p-3 bg-blue-50 rounded-2xl text-blue-600 group-hover:scale-110 transition-transform">
-            <Calendar className="w-6 h-6" />
+        <div className="bg-white/80 backdrop-blur-md p-4 rounded-xl border border-white/20 shadow-md flex items-center space-x-3 space-x-reverse">
+          <div className="p-2.5 bg-rose-50 rounded-lg text-rose-600">
+            <History className="w-5 h-5" />
           </div>
-          <div className="flex-1">
-            <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">الشهر</p>
+          <div>
+            <p className="text-xs text-slate-500">الشهر</p>
             <input 
               type="month" 
-              className="w-full bg-transparent border-none p-0 focus:ring-0 font-black text-slate-800 text-lg"
+              className="bg-transparent border-none p-0 focus:ring-0 font-bold text-slate-900 text-base w-full"
               value={monthReference}
               onChange={(e) => setMonthReference(e.target.value)}
             />
           </div>
         </div>
-        <div className="bg-white p-5 rounded-3xl border border-slate-100 shadow-lg flex items-center space-x-4 space-x-reverse group hover:border-rose-200 transition-colors">
-          <div className="p-3 bg-emerald-50 rounded-2xl text-emerald-600 group-hover:scale-110 transition-transform">
-            <FileText className="w-6 h-6" />
+        <div className="bg-white/80 backdrop-blur-md p-4 rounded-xl border border-white/20 shadow-md flex items-center space-x-3 space-x-reverse">
+          <div className="p-2.5 bg-green-50 rounded-lg text-green-600">
+            <FileText className="w-5 h-5" />
           </div>
           <div>
-            <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">رقم القيد</p>
-            <p className="text-lg font-black text-slate-800">{metadata?.voucherNumber}</p>
+            <p className="text-xs text-slate-500">رقم القيد التالي</p>
+            <p className="text-base font-bold text-slate-900">{metadata?.voucherNumber}</p>
           </div>
         </div>
-        <div className="bg-white p-5 rounded-3xl border border-slate-100 shadow-lg flex items-center space-x-4 space-x-reverse group hover:border-rose-200 transition-colors">
-          <div className="p-3 bg-amber-50 rounded-2xl text-amber-600 group-hover:scale-110 transition-transform">
-            <Bolt className="w-6 h-6" />
+        <div className="bg-white/80 backdrop-blur-md p-4 rounded-xl border border-white/20 shadow-md flex items-center space-x-3 space-x-reverse">
+          <div className="p-2.5 bg-purple-50 rounded-lg text-purple-600">
+            <Bolt className="w-5 h-5" />
           </div>
           <div>
-            <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">حالة القيد</p>
-            <p className="text-lg font-black text-slate-800">جديد</p>
+            <p className="text-xs text-slate-500">حالة القيد</p>
+            <p className="text-base font-bold text-slate-900">جديد</p>
           </div>
         </div>
       </motion.div>
 
-      {/* Deduction Type Selector */}
+      {/* Deduction Type Selector - مطابق للمنصرفات */}
       <motion.div 
-        className="bg-white p-8 rounded-[2.5rem] shadow-xl border border-slate-100 relative overflow-hidden"
+        className="bg-white p-6 rounded-2xl shadow-lg border border-slate-100"
         whileHover={{ y: -5 }}
+        transition={{ type: "spring", stiffness: 300 }}
       >
-        <div className="absolute top-0 right-0 w-2 h-full bg-rose-600" />
-        <div className="flex items-center space-x-3 space-x-reverse mb-6">
-          <div className="p-2 bg-rose-50 rounded-xl text-rose-600">
-            <Tags className="w-6 h-6" />
-          </div>
-          <h2 className="text-xl font-black text-slate-900 tracking-tight">إضافة قسم استقطاع جديد</h2>
+        <div className="flex items-center space-x-2 space-x-reverse mb-4">
+          <Tags className="w-5 h-5 text-rose-600" />
+          <h2 className="text-lg font-bold text-slate-900">اختر نوع الاستقطاع لإضافته</h2>
         </div>
-        <div className="flex flex-col md:flex-row gap-6">
+        <div className="flex flex-col md:flex-row gap-4">
           <select 
-            className="flex-1 bg-slate-50 border border-slate-200 rounded-2xl px-6 py-4 focus:ring-4 focus:ring-rose-500/10 focus:border-rose-500 outline-none transition-all font-bold text-slate-700"
+            className="flex-1 bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-rose-500 focus:border-transparent outline-none transition-all text-sm"
             value={selectedTypeToAdd}
             onChange={(e) => setSelectedTypeToAdd(e.target.value)}
           >
@@ -509,105 +507,90 @@ export default function DeductionFormClient({ user }: { user: User }) {
           </select>
           <button 
             onClick={() => addSection(selectedTypeToAdd)}
-            className="bg-rose-600 hover:bg-rose-700 text-white px-10 py-4 rounded-2xl font-black transition-all flex items-center justify-center space-x-3 space-x-reverse shadow-lg shadow-rose-100 border-b-4 border-rose-800 active:translate-y-1 active:border-b-0"
+            className="bg-rose-600 hover:bg-rose-700 text-white px-6 py-2.5 rounded-xl font-bold transition-all flex items-center justify-center space-x-2 space-x-reverse shadow-lg shadow-rose-200 text-sm"
           >
-            <Plus className="w-6 h-6" />
-            <span>إضافة القسم</span>
+            <Plus className="w-4 h-4" />
+            <span>إضافة النوع</span>
           </button>
         </div>
       </motion.div>
 
-      {/* Sections */}
-      <form onSubmit={handleSubmit} className="space-y-10">
+      {/* Sections - مطابق للمنصرفات */}
+      <form onSubmit={handleSubmit} className="space-y-8">
         <AnimatePresence>
           {Object.entries(sections).map(([type, rows]) => (
-              <motion.div 
-                key={type}
-                initial={{ opacity: 0, scale: 0.98 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.98 }}
-                className="bg-white rounded-[2.5rem] shadow-2xl border border-slate-100 overflow-hidden group"
-              >
-                <div className="bg-slate-50 p-6 border-b border-slate-100 flex items-center justify-between">
-                  <div className="flex items-center space-x-4 space-x-reverse">
-                    <div className="p-3 bg-rose-100 rounded-2xl text-rose-600 shadow-inner">
-                      <DollarSign className="w-6 h-6" />
-                    </div>
-                    <div>
-                      <h3 className="text-xl font-black text-slate-900 tracking-tight">{mainTypes[type as keyof typeof mainTypes]}</h3>
-                      <p className="text-xs font-bold text-slate-400">إجمالي القسم: <span className="text-rose-600">{calculateSectionTotal(rows)} ريال</span></p>
-                    </div>
+            <motion.div 
+              key={type}
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="bg-white rounded-2xl shadow-xl border border-slate-100 overflow-hidden"
+            >
+              <div className="bg-slate-50 p-4 border-b border-slate-100 flex items-center justify-between">
+                <div className="flex items-center space-x-3 space-x-reverse">
+                  <div className="p-2 bg-rose-100 rounded-lg text-rose-600">
+                    <Building2 className="w-4 h-4" />
                   </div>
-                  <button 
-                    type="button"
-                    onClick={() => removeSection(type)}
-                    className="bg-white text-slate-300 hover:text-rose-500 p-2.5 rounded-2xl border border-slate-100 hover:border-rose-100 hover:bg-rose-50 transition-all duration-300 shadow-sm"
-                  >
-                    <Trash2 className="w-5 h-5" />
-                  </button>
+                  <h3 className="text-base font-bold text-slate-900">{mainTypes[type as keyof typeof mainTypes]}</h3>
                 </div>
+                <button 
+                  type="button"
+                  onClick={() => removeSection(type)}
+                  className="text-red-500 hover:bg-red-50 p-1.5 rounded-lg transition-colors"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </button>
+              </div>
 
-              <div className="overflow-x-auto p-6 custom-scrollbar">
-                <table className="w-full text-right border-separate border-spacing-y-2 min-w-[1200px]">
+              <div className="overflow-x-auto p-4">
+                <table className="w-full text-right border-collapse min-w-[1000px]">
                   <thead>
-                    <tr className="text-slate-400 text-xs font-black uppercase tracking-widest border-b border-slate-100">
-                      <th className="px-4 py-3">#</th>
-                      <th className="px-4 py-3">التاريخ</th>
-                      <th className="px-4 py-3">نوع الاستقطاع</th>
-                      <th className="px-4 py-3">المبلغ</th>
-                      <th className="px-4 py-3">الموظف</th>
-                      <th className="px-4 py-3">رقم الإقامة</th>
-                      <th className="px-4 py-3">الحساب</th>
-                      <th className="px-4 py-3">مركز التكلفة</th>
-                      <th className="px-4 py-3">الوصف</th>
-                      <th className="px-4 py-3">التحصيل</th>
-                      <th className="px-4 py-3">حذف</th>
+                    <tr className="border-b border-slate-100 text-slate-500 text-sm">
+                      {headersMap[type].map((h, i) => (
+                        <th key={i} className="px-4 py-3 font-semibold">{h}</th>
+                      ))}
                     </tr>
                   </thead>
                   <tbody>
-                    {rows.map((row, idx) => (
-                      <tr key={row.id} className="bg-slate-50/50 hover:bg-white transition-all duration-300 group/row border border-transparent hover:border-rose-100 hover:shadow-md rounded-2xl overflow-hidden">
-                        <td className="px-2 py-4 text-center font-black text-slate-300 group-hover/row:text-rose-600">
-                          {idx + 1}
-                        </td>
+                    {rows.map((row) => (
+                      <tr key={row.id} className="border-b border-slate-50 hover:bg-slate-50/50 transition-colors">
                         <td className="px-2 py-4">
                           <input 
                             type="date" 
-                            className="w-full bg-transparent border-none focus:ring-0 text-sm font-bold text-slate-700"
+                            className="w-full bg-transparent border-none focus:ring-0 text-sm"
                             value={row.expense_date}
                             onChange={(e) => updateRow(type, row.id, 'expense_date', e.target.value)}
                             required
                           />
                         </td>
                         <td className="px-2 py-4">
-                            <select 
-                              className="w-full bg-transparent border-none focus:ring-0 text-sm font-black text-slate-800"
-                              value={row.deduction_type}
-                              onChange={(e) => updateRow(type, row.id, 'deduction_type', e.target.value)}
-                            >
-                              <option value="">اختر النوع</option>
-                              {(metadata?.subtypes || [])
-                                .filter(s => s.main_type === type)
-                                .map(s => (
-                                  <option key={s.subtype_name} value={s.subtype_name} className={s.is_custom ? "text-indigo-600" : "text-emerald-600 font-bold"}>
-                                    {s.subtype_name} {s.is_custom ? "✏️" : "🌟"}
-                                  </option>
-                                ))}
-                              <option value="other">أخرى</option>
-                            </select>
+                          <select 
+                            className="w-full bg-transparent border-none focus:ring-0 text-sm font-semibold"
+                            value={row.deduction_type}
+                            onChange={(e) => updateRow(type, row.id, 'deduction_type', e.target.value)}
+                          >
+                            <option value="">اختر النوع</option>
+                            {(metadata?.subtypes || [])
+                              .filter(s => s.main_type === type)
+                              .map(s => (
+                                <option key={s.subtype_name} value={s.subtype_name}>
+                                  {s.subtype_name} {s.is_custom ? "✏️" : "🌟"}
+                                </option>
+                              ))}
+                            <option value="other">أخرى</option>
+                          </select>
                         </td>
                         <td className="px-2 py-4">
                           <input 
                             type="number" 
-                            className="w-24 bg-transparent border-none focus:ring-0 text-lg font-black text-rose-600 text-center"
+                            className="w-24 bg-transparent border-none focus:ring-0 text-sm font-bold text-rose-600"
                             placeholder="0.00"
                             value={row.amount}
                             onChange={(e) => updateRow(type, row.id, 'amount', e.target.value)}
                             required
                           />
                         </td>
-                        
-                        <td className="px-2 py-4 min-w-[200px]">
+                        <td className="px-2 py-4">
                           <EmployeeSelect 
                             row={row} 
                             type={type} 
@@ -618,17 +601,16 @@ export default function DeductionFormClient({ user }: { user: User }) {
                         <td className="px-2 py-4">
                           <input 
                             type="text" 
-                            className="w-32 bg-transparent border-none focus:ring-0 text-sm font-mono font-bold text-slate-500 text-center"
+                            className="w-28 bg-transparent border-none focus:ring-0 text-sm text-slate-500"
                             value={row.employee_iqama}
                             readOnly={!row.manualEmployee}
                             onChange={(e) => updateRow(type, row.id, 'employee_iqama', e.target.value)}
                             placeholder="رقم الإقامة"
                           />
                         </td>
-
                         <td className="px-2 py-4">
                           <select 
-                            className="w-full bg-transparent border-none focus:ring-0 text-sm font-bold text-slate-600"
+                            className="w-full bg-transparent border-none focus:ring-0 text-sm"
                             value={row.account_id}
                             onChange={(e) => updateRow(type, row.id, 'account_id', e.target.value)}
                           >
@@ -640,7 +622,7 @@ export default function DeductionFormClient({ user }: { user: User }) {
                         </td>
                         <td className="px-2 py-4">
                           <select 
-                            className="w-full bg-transparent border-none focus:ring-0 text-sm font-bold text-slate-600"
+                            className="w-full bg-transparent border-none focus:ring-0 text-sm"
                             value={row.cost_center_id}
                             onChange={(e) => updateRow(type, row.id, 'cost_center_id', e.target.value)}
                           >
@@ -653,8 +635,8 @@ export default function DeductionFormClient({ user }: { user: User }) {
                         <td className="px-2 py-4">
                           <input 
                             type="text" 
-                            className="w-full bg-transparent border-none focus:ring-0 text-sm font-medium text-slate-700"
-                            placeholder="وصف الاستقطاع..."
+                            className="w-full bg-transparent border-none focus:ring-0 text-sm"
+                            placeholder="وصف..."
                             value={row.description}
                             onChange={(e) => updateRow(type, row.id, 'description', e.target.value)}
                           />
@@ -662,15 +644,15 @@ export default function DeductionFormClient({ user }: { user: User }) {
                         <td className="px-2 py-4 text-center">
                           <div 
                             onClick={() => updateRow(type, row.id, 'status', row.status === 'collected' ? 'pending' : 'collected')}
-                            className={`flex items-center gap-2 px-4 py-2 rounded-full cursor-pointer transition-all border ${
+                            className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full cursor-pointer transition-all border text-xs ${
                               row.status === 'collected' 
-                              ? 'bg-emerald-50 text-emerald-700 border-emerald-200 font-black' 
-                              : 'bg-slate-100 text-slate-400 border-slate-200 font-bold'
+                              ? 'bg-emerald-50 text-emerald-700 border-emerald-200 font-bold' 
+                              : 'bg-slate-100 text-slate-400 border-slate-200'
                             }`}
                           >
-                            <span className="text-[10px] whitespace-nowrap">{row.status === 'collected' ? 'تم الخصم' : 'لم يخصم'}</span>
-                            <div className={`w-8 h-4 rounded-full relative transition-colors ${row.status === 'collected' ? 'bg-emerald-400' : 'bg-slate-300'}`}>
-                              <div className={`absolute top-0.5 w-3 h-3 bg-white rounded-full transition-all ${row.status === 'collected' ? 'left-4.5' : 'left-0.5'}`} />
+                            <span>{row.status === 'collected' ? 'تم الخصم' : 'لم يخصم'}</span>
+                            <div className={`w-6 h-3 rounded-full relative transition-colors ${row.status === 'collected' ? 'bg-emerald-400' : 'bg-slate-300'}`}>
+                              <div className={`absolute top-0.5 w-2 h-2 bg-white rounded-full transition-all ${row.status === 'collected' ? 'left-3.5' : 'left-0.5'}`} />
                             </div>
                           </div>
                         </td>
@@ -678,9 +660,9 @@ export default function DeductionFormClient({ user }: { user: User }) {
                           <button 
                             type="button"
                             onClick={() => removeRow(type, row.id)}
-                            className="text-slate-200 hover:text-rose-500 transition-colors p-2 hover:bg-rose-50 rounded-xl"
+                            className="text-slate-300 hover:text-red-500 transition-colors"
                           >
-                            <X className="w-5 h-5" />
+                            <X className="w-4 h-4" />
                           </button>
                         </td>
                       </tr>
@@ -689,88 +671,73 @@ export default function DeductionFormClient({ user }: { user: User }) {
                 </table>
               </div>
               
-              <div className="p-8 bg-slate-50/50 border-t border-slate-100 flex items-center justify-between">
+              <div className="p-4 bg-slate-50/50 border-t border-slate-100">
                 <button 
                   type="button"
                   onClick={() => addRow(type)}
-                  className="flex items-center space-x-3 space-x-reverse bg-white border border-slate-200 px-6 py-3 rounded-2xl text-rose-600 hover:text-rose-700 font-black text-sm transition-all shadow-sm hover:shadow-md hover:border-rose-200 group"
+                  className="flex items-center space-x-2 space-x-reverse text-rose-600 hover:text-rose-700 font-semibold text-sm transition-colors"
                 >
-                  <Plus className="w-5 h-5 group-hover:rotate-90 transition-transform" />
+                  <Plus className="w-4 h-4" />
                   <span>إضافة سطر جديد للقسم</span>
                 </button>
-                <div className="flex items-center space-x-4 space-x-reverse bg-white px-6 py-3 rounded-2xl border border-slate-100 shadow-sm font-bold text-slate-500">
-                  <div className="flex items-center gap-2">
-                    <span>عدد العمليات:</span>
-                    <span className="text-slate-900">{rows.length}</span>
-                  </div>
-                  <div className="w-px h-4 bg-slate-200" />
-                  <div className="flex items-center gap-2">
-                    <span>إجمالي القسم:</span>
-                    <span className="text-rose-600 font-black">{calculateSectionTotal(rows)} ريال</span>
-                  </div>
-                </div>
               </div>
             </motion.div>
           ))}
         </AnimatePresence>
 
-          {Object.keys(sections).length > 0 && (
-            <motion.div 
-              initial={{ opacity: 0, y: 40 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="flex justify-center pt-8 pb-16"
+        {Object.keys(sections).length > 0 && (
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="flex justify-center pt-8 pb-16"
+          >
+            <button 
+              type="submit"
+              disabled={submitting}
+              className={`bg-green-600 hover:bg-green-700 text-white px-8 py-3 rounded-xl font-bold transition-all flex items-center space-x-3 space-x-reverse shadow-xl shadow-green-100 transform active:scale-95 ${submitting ? 'opacity-50 cursor-not-allowed' : ''}`}
             >
-              <button 
-                type="submit"
-                disabled={submitting}
-                className={`group relative bg-emerald-600 hover:bg-emerald-700 text-white px-12 py-5 rounded-[2rem] font-black transition-all flex items-center space-x-4 space-x-reverse shadow-2xl shadow-emerald-200 transform active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed overflow-hidden`}
-              >
-                <div className="absolute top-0 left-0 w-full h-1 bg-white/20" />
-                {submitting ? (
-                  <div className="animate-spin rounded-full h-6 w-6 border-4 border-white border-b-transparent"></div>
-                ) : (
-                  <Save className="w-7 h-7 group-hover:scale-110 transition-transform" />
-                )}
-                <span className="text-xl">حفظ كافة الاستقطاعات</span>
-              </button>
-            </motion.div>
-          )}
+              {submitting ? (
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+              ) : (
+                <Save className="w-5 h-5" />
+              )}
+              <span className="text-lg">حفظ كافة الاستقطاعات</span>
+            </button>
+          </motion.div>
+        )}
       </form>
 
-      {/* Success Notification */}
+      {/* Success Notification - مطابق للمنصرفات */}
       <AnimatePresence>
         {showSuccess && (
-          <div className="fixed inset-0 flex items-center justify-center z-[1000]">
+          <>
             <motion.div 
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="absolute inset-0 bg-slate-900/80 backdrop-blur-xl"
+              className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100]"
               onClick={() => router.push('/expenses')}
             />
             <motion.div 
               initial={{ opacity: 0, scale: 0.8, y: 100 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.8, y: 100 }}
-              className="relative z-[1001] bg-white text-slate-900 p-12 rounded-[3.5rem] shadow-2xl text-center max-w-md w-full border border-white"
+              className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[101] bg-gradient-to-br from-rose-600 to-pink-700 text-white p-8 rounded-3xl shadow-2xl text-center min-w-[350px]"
             >
-              <div className="w-24 h-24 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-8 shadow-inner relative">
-                <div className="absolute inset-0 rounded-full border-4 border-emerald-500 animate-ping opacity-20" />
-                <CheckCircle className="w-14 h-14 text-emerald-600" />
+              <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-6 animate-bounce">
+                <CheckCircle className="w-10 h-10 text-white" />
               </div>
-              <h2 className="text-3xl font-black mb-4 tracking-tight">تم الحفظ بنجاح!</h2>
-              <p className="text-slate-500 font-bold mb-10 leading-relaxed">
-                تم تسجيل <span className="text-emerald-600 px-2 py-0.5 bg-emerald-50 rounded-lg">{savedCount}</span> استقطاعاً بنجاح في النظام المالي.
-              </p>
+              <h2 className="text-2xl font-bold mb-3">تم الحفظ بنجاح!</h2>
+              <p className="text-base opacity-90 mb-6">تم تسجيل {savedCount} استقطاعاً بنجاح في النظام المالي.</p>
               <button 
                 onClick={() => router.push('/expenses')}
-                className="w-full bg-slate-900 hover:bg-slate-800 text-white px-8 py-5 rounded-3xl font-black text-lg transition-all flex items-center justify-center space-x-3 space-x-reverse shadow-xl shadow-slate-200 group"
+                className="bg-white text-rose-700 px-8 py-2.5 rounded-xl font-bold text-base hover:bg-rose-50 transition-colors flex items-center mx-auto space-x-2 space-x-reverse"
               >
                 <span>العودة لمركز المنصرفات</span>
-                <ArrowRight className="w-5 h-5 group-hover:translate-x-[-5px] transition-transform" />
+                <ArrowRight className="w-4 h-4" />
               </button>
             </motion.div>
-          </div>
+          </>
         )}
       </AnimatePresence>
 
@@ -787,26 +754,11 @@ export default function DeductionFormClient({ user }: { user: User }) {
 
       <style jsx global>{`
         .rtl { direction: rtl; }
-        .custom-scrollbar::-webkit-scrollbar {
-          width: 8px;
-          height: 8px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-track {
-          background: #f1f5f9;
-          border-radius: 10px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb {
-          background: #e2e8f0;
-          border-radius: 10px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-          background: #cbd5e1;
-        }
         input[type="date"]::-webkit-calendar-picker-indicator {
           cursor: pointer;
           filter: invert(0.5);
         }
-        .left-4.5 { left: 1.125rem; }
+        .left-3\\.5 { left: 0.875rem; }
       `}</style>
     </div>
   );
