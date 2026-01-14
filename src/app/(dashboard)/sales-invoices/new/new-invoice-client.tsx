@@ -51,7 +51,8 @@ interface Adjustment {
   title: string;
   type: 'discount' | 'addition';
   amount: number;
-  is_gross: boolean;
+  is_taxable: boolean;
+  is_inclusive: boolean;
   vat_amount: number;
   total_with_vat: number;
 }
@@ -72,6 +73,12 @@ export function NewInvoiceClient({ customers, invoiceNumber, companyId, userName
     title: string;
     message: string;
   }>({ show: false, type: "success", title: "", message: "" });
+
+  const [isMounted, setIsMounted] = useState(false);
+
+  React.useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   const today = new Date().toISOString().split('T')[0];
   const defaultDueDate = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
@@ -130,9 +137,15 @@ export function NewInvoiceClient({ customers, invoiceNumber, companyId, userName
       let vatAmount = 0;
       let totalWithVat = adj.amount;
       
-      if (adj.is_gross) {
-        vatAmount = adj.amount * 0.15;
-        totalWithVat = adj.amount + vatAmount;
+      if (adj.is_taxable) {
+        if (adj.is_inclusive) {
+          const beforeVat = adj.amount / 1.15;
+          vatAmount = adj.amount - beforeVat;
+          totalWithVat = adj.amount;
+        } else {
+          vatAmount = adj.amount * 0.15;
+          totalWithVat = adj.amount + vatAmount;
+        }
       }
       
       return {
@@ -189,7 +202,8 @@ export function NewInvoiceClient({ customers, invoiceNumber, companyId, userName
       title: '',
       type: 'discount',
       amount: 0,
-      is_gross: false,
+      is_taxable: true,
+      is_inclusive: true,
       vat_amount: 0,
       total_with_vat: 0
     }]);
@@ -199,28 +213,31 @@ export function NewInvoiceClient({ customers, invoiceNumber, companyId, userName
     setAdjustments(prev => prev.filter((_, i) => i !== index));
   };
 
-  const totals = useMemo(() => {
-    let totalBeforeVat = 0;
-    let totalVat = 0;
-    let totalWithVat = 0;
-
-    items.forEach(item => {
-      totalBeforeVat += item.before_vat;
-      totalVat += item.vat_amount;
-      totalWithVat += item.total_with_vat;
-    });
-
-    adjustments.forEach(adj => {
-      if (adj.type === 'addition') {
-        totalVat += adj.vat_amount;
-        totalWithVat += adj.total_with_vat;
-      } else {
-        totalWithVat -= adj.total_with_vat;
-      }
-    });
-
-    return { totalBeforeVat, totalVat, totalWithVat };
-  }, [items, adjustments]);
+    const totals = useMemo(() => {
+      let totalBeforeVat = 0;
+      let totalVat = 0;
+      let totalWithVat = 0;
+  
+      items.forEach(item => {
+        totalBeforeVat += item.before_vat;
+        totalVat += item.vat_amount;
+        totalWithVat += item.total_with_vat;
+      });
+  
+      adjustments.forEach(adj => {
+        if (adj.type === 'addition') {
+          totalVat += adj.vat_amount;
+          totalWithVat += adj.total_with_vat;
+          totalBeforeVat += (adj.total_with_vat - adj.vat_amount);
+        } else {
+          totalVat -= adj.vat_amount;
+          totalWithVat -= adj.total_with_vat;
+          totalBeforeVat -= (adj.total_with_vat - adj.vat_amount);
+        }
+      });
+  
+      return { totalBeforeVat, totalVat, totalWithVat };
+    }, [items, adjustments]);
 
   const validateForm = () => {
     if (!clientId) {
@@ -256,7 +273,8 @@ export function NewInvoiceClient({ customers, invoiceNumber, companyId, userName
         title: adj.title,
         type: adj.type,
         amount: adj.amount,
-        is_gross: adj.is_gross
+        is_taxable: adj.is_taxable,
+        is_inclusive: adj.is_inclusive
       }));
 
       const res = await fetch('/api/sales-invoices', {
@@ -334,10 +352,11 @@ export function NewInvoiceClient({ customers, invoiceNumber, companyId, userName
                     <p className="text-white/70 text-sm font-medium">نظام الفوترة الإلكترونية الذكي • المرحلة الثانية</p>
                   </div>
                 </div>
-                <div className="flex items-center gap-3 bg-white/10 backdrop-blur-md px-5 py-2.5 rounded-2xl text-xs font-bold border border-white/20 shadow-lg">
-                  <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                  <span className="opacity-90 tracking-wide">متصل بالنظام الضريبي • {new Date().toLocaleDateString('ar-SA')}</span>
-                </div>
+                  <div className="flex items-center gap-3 bg-white/10 backdrop-blur-md px-5 py-2.5 rounded-2xl text-xs font-bold border border-white/20 shadow-lg">
+                    <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                    <span className="opacity-90 tracking-wide">متصل بالنظام الضريبي • {isMounted ? new Date().toLocaleDateString('ar-SA') : '...'}</span>
+                  </div>
+
               </div>
             </motion.div>
 
@@ -554,42 +573,96 @@ export function NewInvoiceClient({ customers, invoiceNumber, companyId, userName
                     </button>
                   </div>
 
-              <div className="space-y-3">
-                {adjustments.map((adj, index) => (
-                  <div key={adj.id} className="flex flex-col md:flex-row gap-2 p-3 bg-gray-50 rounded-xl border border-gray-100 relative group">
-                    <input
-                      type="text"
-                      value={adj.title}
-                      onChange={(e) => handleAdjustmentChange(index, 'title', e.target.value)}
-                      placeholder="وصف التعديل..."
-                      className="flex-1 px-3 py-2 rounded-lg border border-gray-200 focus:border-blue-400 outline-none text-xs"
-                    />
-                    <select
-                      value={adj.type}
-                      onChange={(e) => handleAdjustmentChange(index, 'type', e.target.value)}
-                      className="w-24 px-2 py-2 rounded-lg border border-gray-200 focus:border-blue-400 outline-none text-xs font-bold"
-                    >
-                      <option value="discount">خصم (-)</option>
-                      <option value="addition">إضافة (+)</option>
-                    </select>
-                    <div className="relative w-32">
-                      <input
-                        type="number"
-                        value={adj.amount || ''}
-                        onChange={(e) => handleAdjustmentChange(index, 'amount', parseFloat(e.target.value) || 0)}
-                        className="w-full px-2 py-2 rounded-lg border border-gray-200 focus:border-blue-400 outline-none text-xs font-bold"
-                      />
-                      <span className="absolute left-2 top-1/2 -translate-y-1/2 text-[10px] text-gray-400">SR</span>
+                <div className="space-y-3">
+                  {adjustments.map((adj, index) => (
+                    <div key={adj.id} className="flex flex-col gap-3 p-4 bg-gray-50 rounded-xl border border-gray-100 relative group">
+                      <div className="flex flex-col md:flex-row gap-2">
+                        <input
+                          type="text"
+                          value={adj.title}
+                          onChange={(e) => handleAdjustmentChange(index, 'title', e.target.value)}
+                          placeholder="وصف التعديل (مثل: خصم خاص، رسوم إضافية)..."
+                          className="flex-1 px-3 py-2 rounded-lg border border-gray-200 focus:border-blue-400 outline-none text-xs font-bold"
+                        />
+                        <select
+                          value={adj.type}
+                          onChange={(e) => handleAdjustmentChange(index, 'type', e.target.value)}
+                          className="w-full md:w-32 px-2 py-2 rounded-lg border border-gray-200 focus:border-blue-400 outline-none text-xs font-black"
+                        >
+                          <option value="discount">خصم (-)</option>
+                          <option value="addition">إضافة (+)</option>
+                        </select>
+                        <div className="relative w-full md:w-40">
+                          <input
+                            type="number"
+                            value={adj.amount || ''}
+                            onChange={(e) => handleAdjustmentChange(index, 'amount', parseFloat(e.target.value) || 0)}
+                            className="w-full px-3 py-2 rounded-lg border border-gray-200 focus:border-blue-400 outline-none text-xs font-black text-blue-600"
+                          />
+                          <span className="absolute left-2 top-1/2 -translate-y-1/2 text-[10px] text-gray-400 font-bold">SR</span>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => removeAdjustment(index)}
+                          className="p-2 text-gray-400 hover:text-red-500 transition-colors hidden md:block"
+                        >
+                          <Trash2 size={16} />
+                        </button>
+                      </div>
+
+                      <div className="flex flex-wrap items-center gap-4 pt-2 border-t border-gray-200/50">
+                        <label className="flex items-center gap-2 cursor-pointer group/toggle">
+                          <input
+                            type="checkbox"
+                            checked={adj.is_taxable}
+                            onChange={(e) => handleAdjustmentChange(index, 'is_taxable', e.target.checked)}
+                            className="w-4 h-4 rounded border-gray-300 text-amber-600 focus:ring-amber-500"
+                          />
+                          <span className="text-[10px] font-black text-gray-600 group-hover/toggle:text-amber-700 transition-colors">خاضع للضريبة (15%)</span>
+                        </label>
+
+                        {adj.is_taxable && (
+                          <div className="flex items-center gap-3 bg-amber-50 px-3 py-1 rounded-lg border border-amber-100">
+                            <span className="text-[9px] font-bold text-amber-700">طريقة الحساب:</span>
+                            <div className="flex items-center gap-2">
+                              <button
+                                type="button"
+                                onClick={() => handleAdjustmentChange(index, 'is_inclusive', true)}
+                                className={`px-2 py-0.5 rounded text-[9px] font-black transition-all ${adj.is_inclusive ? 'bg-amber-600 text-white shadow-sm' : 'bg-white text-amber-600 hover:bg-amber-100'}`}
+                              >
+                                شاملة
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => handleAdjustmentChange(index, 'is_inclusive', false)}
+                                className={`px-2 py-0.5 rounded text-[9px] font-black transition-all ${!adj.is_inclusive ? 'bg-amber-600 text-white shadow-sm' : 'bg-white text-amber-600 hover:bg-amber-100'}`}
+                              >
+                                غير شاملة
+                              </button>
+                            </div>
+                          </div>
+                        )}
+
+                        <div className="mr-auto flex items-center gap-3">
+                          <div className="text-[10px] font-bold text-gray-500">
+                            الضريبة: <span className="text-amber-600 font-black">{adj.vat_amount.toFixed(2)} ريال</span>
+                          </div>
+                          <div className="text-[10px] font-bold text-gray-500">
+                            الإجمالي: <span className="text-emerald-600 font-black">{adj.total_with_vat.toFixed(2)} ريال</span>
+                          </div>
+                        </div>
+
+                        <button
+                          type="button"
+                          onClick={() => removeAdjustment(index)}
+                          className="p-1 text-red-500 md:hidden"
+                        >
+                          <Trash2 size={14} />
+                        </button>
+                      </div>
                     </div>
-                    <button
-                      type="button"
-                      onClick={() => removeAdjustment(index)}
-                      className="p-2 text-gray-400 hover:text-red-500 transition-colors"
-                    >
-                      <Trash2 size={16} />
-                    </button>
-                  </div>
-                ))}
+                  ))}
+
                 {adjustments.length === 0 && (
                   <div className="text-center py-6 border-2 border-dashed border-gray-100 rounded-xl text-gray-400 text-sm">
                     لا يوجد خصومات أو إضافات حالياً

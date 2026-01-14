@@ -109,26 +109,34 @@ export async function POST(request: NextRequest) {
 
     for (const adj of adjustments) {
       const amount = parseFloat(adj.amount) || 0;
-      const isGross = adj.is_gross;
-      let netAmount = amount;
+      const isTaxable = adj.is_taxable;
+      const isInclusive = adj.is_inclusive;
+      
       let vatAmount = 0;
       let total = amount;
 
-      if (isGross) {
-        vatAmount = amount * 0.15;
-        total = amount + vatAmount;
+      if (isTaxable) {
+        if (isInclusive) {
+          const beforeVat = amount / 1.15;
+          vatAmount = amount - beforeVat;
+          total = amount;
+        } else {
+          vatAmount = amount * 0.15;
+          total = amount + vatAmount;
+        }
       }
 
       if (adj.type === 'addition') {
-        adjustmentAmount += netAmount;
+        adjustmentAmount += (total - vatAmount);
         adjustmentVat += vatAmount;
         adjustmentTotalWithVat += total;
         totalVat += vatAmount;
         totalWithVat += total;
       } else {
-        adjustmentAmount -= netAmount;
+        adjustmentAmount -= (total - vatAmount);
         adjustmentVat -= vatAmount;
         adjustmentTotalWithVat -= total;
+        totalVat -= vatAmount;
         totalWithVat -= total;
       }
 
@@ -195,19 +203,27 @@ export async function POST(request: NextRequest) {
 
     for (const adj of adjustments) {
       const amount = parseFloat(adj.amount) || 0;
-      const isGross = adj.is_gross ? 1 : 0;
+      const isTaxable = adj.is_taxable ? 1 : 0;
+      const isInclusive = adj.is_inclusive ? 1 : 0;
+      
       let vatAmount = 0;
       let total = amount;
 
-      if (adj.is_gross) {
-        vatAmount = amount * 0.15;
-        total = amount + vatAmount;
+      if (adj.is_taxable) {
+        if (adj.is_inclusive) {
+          const beforeVat = amount / 1.15;
+          vatAmount = amount - beforeVat;
+          total = amount;
+        } else {
+          vatAmount = amount * 0.15;
+          total = amount + vatAmount;
+        }
       }
 
       await execute(`
         INSERT INTO invoice_adjustments (
-          invoice_id, title, type, amount, vat_amount, total_with_vat, is_gross
-        ) VALUES (?, ?, ?, ?, ?, ?, ?)
+          invoice_id, title, type, amount, vat_amount, total_with_vat, is_taxable, is_inclusive
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
       `, [
         invoiceId,
         adj.title,
@@ -215,7 +231,8 @@ export async function POST(request: NextRequest) {
         amount,
         vatAmount,
         total,
-        isGross
+        isTaxable,
+        isInclusive
       ]);
     }
 
