@@ -20,7 +20,13 @@ async function getInvoices(companyId: number) {
     ORDER BY si.id DESC
   `, [companyId]);
   
-  return invoices;
+  return invoices.map((inv: any) => ({
+    ...inv,
+    issue_date: inv.issue_date ? (inv.issue_date instanceof Date ? inv.issue_date.toISOString().split('T')[0] : inv.issue_date) : null,
+    due_date: inv.due_date ? (inv.due_date instanceof Date ? inv.due_date.toISOString().split('T')[0] : inv.due_date) : null,
+    created_at: inv.created_at ? (inv.created_at instanceof Date ? inv.created_at.toISOString() : inv.created_at) : null,
+    updated_at: inv.updated_at ? (inv.updated_at instanceof Date ? inv.updated_at.toISOString() : inv.updated_at) : null,
+  }));
 }
 
 export default async function SalesInvoicesPage() {
