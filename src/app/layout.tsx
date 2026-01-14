@@ -25,9 +25,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="ar" dir="rtl">
+    <html lang="ar" dir="rtl" style={{ fontFeatureSettings: '"tnum" on, "lnum" on' }}>
         <body
           className={`antialiased font-sans`}
+          style={{ fontFeatureSettings: '"tnum" on, "lnum" on' }}
         >
           {children}
           <Toaster position="top-center" richColors />

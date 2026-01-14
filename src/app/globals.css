@@ -66,19 +66,26 @@
       --text-color: #1a1a1a;
     }
   
-    @layer base {
-      * {
-        @apply border-border outline-ring/50;
-      }
-      body {
-        font-family: 'Tajawal', 'Segoe UI', system-ui, sans-serif;
-        background: #f8fafc;
-        min-height: 100vh;
-        color: var(--text-color);
-        margin: 0;
-        padding: 0;
-      }
+@layer base {
+    * {
+      @apply border-border outline-ring/50;
+      font-feature-settings: "tnum" on, "lnum" on;
     }
+    html {
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    body {
+      font-family: 'Tajawal', 'Segoe UI', system-ui, sans-serif;
+      background: #f8fafc;
+      min-height: 100vh;
+      color: var(--text-color);
+      margin: 0;
+      padding: 0;
+    }
+    input, textarea, select, table, th, td, span, p, div, h1, h2, h3, h4, h5, h6, label, button, a {
+      font-feature-settings: "tnum" on, "lnum" on !important;
+    }
+  }
 
 
 @keyframes gradientShift {
