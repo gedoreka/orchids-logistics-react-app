@@ -539,20 +539,20 @@ export function NewInvoiceClient({ customers, invoiceNumber, companyId, userName
               animate={{ opacity: 1, y: 0 }}
               className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 space-y-4"
             >
-                <div className="flex items-center justify-between mb-2">
-                  <div className="flex items-center gap-2">
-                    <Percent size={18} className="text-amber-600" />
-                    <h3 className="font-bold text-gray-900">التعديلات والإضافية</h3>
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center gap-2">
+                      <Percent size={18} className="text-amber-600" />
+                      <h3 className="font-bold text-gray-900">التعديلات والإضافية</h3>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={addAdjustment}
+                      className="flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-gradient-to-r from-amber-500 to-orange-600 text-white hover:from-amber-600 hover:to-orange-700 transition-all font-black text-xs shadow-lg shadow-amber-200/50 hover:-translate-y-0.5 border border-white/20 active:scale-95"
+                    >
+                      <Plus size={14} className="stroke-[3px]" />
+                      إضافة خصم أو استحقاق
+                    </button>
                   </div>
-                  <button
-                    type="button"
-                    onClick={addAdjustment}
-                    className="flex items-center gap-2 px-4 py-2 rounded-xl bg-amber-600 text-white hover:bg-amber-700 transition-all font-bold text-xs shadow-md shadow-amber-100 hover:-translate-y-0.5"
-                  >
-                    <Plus size={14} />
-                    إضافة خصم أو استحقاق
-                  </button>
-                </div>
 
               <div className="space-y-3">
                 {adjustments.map((adj, index) => (

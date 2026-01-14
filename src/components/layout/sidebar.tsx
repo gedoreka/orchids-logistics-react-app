@@ -72,7 +72,7 @@ const navItems: NavItem[] = [
   { title: "مسيرات الرواتب", href: "/salary-payrolls", icon: BadgeDollarSign, permission: "salary_payrolls_module" },
   { title: "الفواتير الضريبية", href: "/sales-invoices", icon: FileText, permission: "sales_module" },
   { title: "إشعارات الدائن", href: "/credit-notes", icon: CreditCard, permission: "credit_notes_module" },
-  { title: "إدارة المركبات", href: "/vehicles", icon: Car, permission: "sales_module" },
+  { title: "إدارة المركبات", href: "/fleet", icon: Car, permission: "sales_module" },
   
   // E-commerce - التجارة الإلكترونية
   { title: "التجارة الإلكترونية", href: "/ecommerce-orders", icon: Store, permission: "ecommerce_orders_module" },

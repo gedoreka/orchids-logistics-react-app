@@ -460,42 +460,99 @@ function AddVehicleDialog({ companyId, employees }: { companyId: number, employe
           <DialogTitle className="text-2xl font-bold">إضافة مركبة للأسطول</DialogTitle>
           <p className="text-blue-100 opacity-80">أدخل كافة تفاصيل المركبة بدقة</p>
         </div>
-        <form onSubmit={handleSubmit} className="p-8 space-y-6">
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <label className="text-sm font-bold text-slate-700">رقم اللوحة (عربي)</label>
-              <Input name="plate_number_ar" required placeholder="أ ب ج 1 2 3" className="rounded-xl border-slate-200 h-11" />
+          <form onSubmit={handleSubmit} className="p-8 space-y-6 max-h-[70vh] overflow-y-auto custom-scrollbar">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="col-span-2">
+                <h3 className="text-sm font-black text-blue-600 mb-2 flex items-center gap-2">
+                  <Car size={16} /> معلومات المركبة الأساسية
+                </h3>
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-bold text-slate-700">رقم اللوحة (عربي)</label>
+                <Input name="plate_number_ar" required placeholder="أ ب ج 1 2 3" className="rounded-xl border-slate-200 h-11" />
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-bold text-slate-700">رقم اللوحة (إنجليزي)</label>
+                <Input name="plate_number_en" placeholder="ABC 123" className="rounded-xl border-slate-200 h-11" />
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-bold text-slate-700">الماركة</label>
+                <Input name="brand" required placeholder="مثال: تويوتا" className="rounded-xl border-slate-200 h-11" />
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-bold text-slate-700">الموديل</label>
+                <Input name="model" required placeholder="مثال: كامري" className="rounded-xl border-slate-200 h-11" />
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-bold text-slate-700">سنة الصنع</label>
+                <Input name="manufacture_year" type="number" placeholder="2024" className="rounded-xl border-slate-200 h-11" />
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-bold text-slate-700">اللون</label>
+                <Input name="color" placeholder="مثال: أبيض" className="rounded-xl border-slate-200 h-11" />
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-bold text-slate-700">رقم الهيكل (VIN)</label>
+                <Input name="chassis_number" placeholder="رقم الهيكل" className="rounded-xl border-slate-200 h-11" />
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-bold text-slate-700">الرقم التسلسلي</label>
+                <Input name="serial_number" placeholder="الرقم التسلسلي" className="rounded-xl border-slate-200 h-11" />
+              </div>
+
+              <div className="col-span-2 mt-4">
+                <h3 className="text-sm font-black text-blue-600 mb-2 flex items-center gap-2">
+                  <User size={16} /> معلومات المالك والسائق
+                </h3>
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-bold text-slate-700">اسم المالك</label>
+                <Input name="owner_name" placeholder="اسم الشركة أو المالك" className="rounded-xl border-slate-200 h-11" />
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-bold text-slate-700">رقم هوية المالك</label>
+                <Input name="owner_id_number" placeholder="السجل التجاري أو الهوية" className="rounded-xl border-slate-200 h-11" />
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-bold text-slate-700">السائق</label>
+                <Select name="driver_id">
+                  <SelectTrigger className="rounded-xl border-slate-200 h-11">
+                    <SelectValue placeholder="اختر السائق" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {employees.map(emp => (
+                      <SelectItem key={emp.id} value={emp.id.toString()}>{emp.name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-bold text-slate-700">تاريخ الاستلام</label>
+                <Input name="driver_receive_date" type="date" className="rounded-xl border-slate-200 h-11" />
+              </div>
+
+              <div className="col-span-2 mt-4">
+                <h3 className="text-sm font-black text-blue-600 mb-2 flex items-center gap-2">
+                  <Shield size={16} /> التأمين والصيانة
+                </h3>
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-bold text-slate-700">رقم وثيقة التأمين</label>
+                <Input name="insurance_policy_number" placeholder="رقم الوثيقة" className="rounded-xl border-slate-200 h-11" />
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-bold text-slate-700">نهاية التأمين</label>
+                <Input name="insurance_end_date" type="date" className="rounded-xl border-slate-200 h-11" />
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-bold text-slate-700">آخر غيار زيت (كم)</label>
+                <Input name="last_oil_change_km" type="number" placeholder="0" className="rounded-xl border-slate-200 h-11" />
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-bold text-slate-700">صلاحية الزيت (كم)</label>
+                <Input name="oil_valid_km" type="number" placeholder="5000" className="rounded-xl border-slate-200 h-11" />
+              </div>
             </div>
-            <div className="space-y-2">
-              <label className="text-sm font-bold text-slate-700">رقم اللوحة (إنجليزي)</label>
-              <Input name="plate_number_en" placeholder="ABC 123" className="rounded-xl border-slate-200 h-11" />
-            </div>
-            <div className="space-y-2">
-              <label className="text-sm font-bold text-slate-700">الماركة</label>
-              <Input name="brand" required placeholder="مثال: تويوتا" className="rounded-xl border-slate-200 h-11" />
-            </div>
-            <div className="space-y-2">
-              <label className="text-sm font-bold text-slate-700">الموديل</label>
-              <Input name="model" required placeholder="مثال: كامري" className="rounded-xl border-slate-200 h-11" />
-            </div>
-            <div className="space-y-2">
-              <label className="text-sm font-bold text-slate-700">سنة الصنع</label>
-              <Input name="manufacture_year" type="number" placeholder="2024" className="rounded-xl border-slate-200 h-11" />
-            </div>
-            <div className="space-y-2">
-              <label className="text-sm font-bold text-slate-700">السائق</label>
-              <Select name="driver_id">
-                <SelectTrigger className="rounded-xl border-slate-200 h-11">
-                  <SelectValue placeholder="اختر السائق" />
-                </SelectTrigger>
-                <SelectContent>
-                  {employees.map(emp => (
-                    <SelectItem key={emp.id} value={emp.id.toString()}>{emp.name}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
           <DialogFooter className="pt-4">
             <Button type="submit" disabled={loading} className="w-full h-12 rounded-xl bg-blue-600 font-bold hover:bg-blue-700">
               {loading ? "جاري الحفظ..." : "حفظ المركبة"}
