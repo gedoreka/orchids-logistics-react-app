@@ -83,6 +83,124 @@ const headersMap: Record<string, string[]> = {
   default: ['التاريخ', 'نوع المصروف', 'المبلغ', 'الحساب', 'مركز التكلفة', 'الوصف', 'المستند', 'حذف']
 };
 
+function EmployeeSelect({ row, type, metadata, updateRow }: { 
+  row: ExpenseRow; 
+  type: string; 
+  metadata: any; 
+  updateRow: any 
+}) {
+  const [searchTerm, setSearchTerm] = useState("");
+  const [isOpen, setIsOpen] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  const filteredEmployees = (metadata?.employees || []).filter((emp: Employee) => 
+    emp.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
+    emp.iqama_number.includes(searchTerm)
+  );
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+        setIsOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  if (row.manualEmployee) {
+    return (
+      <div className="flex items-center space-x-2 space-x-reverse">
+        <input 
+          type="text" 
+          className="w-full bg-slate-100 border border-slate-200 rounded-lg px-2 py-1 text-sm"
+          placeholder="اسم الموظف"
+          value={row.employee_name}
+          onChange={(e) => updateRow(type, row.id, 'employee_name', e.target.value)}
+        />
+        <button 
+          type="button"
+          onClick={() => updateRow(type, row.id, 'manualEmployee', false)}
+          className="text-blue-500"
+        >
+          <Search className="w-4 h-4" />
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="relative group" ref={containerRef}>
+      <div className="flex items-center space-x-2 space-x-reverse">
+        <div className="relative w-full">
+          <div 
+            onClick={() => setIsOpen(!isOpen)}
+            className="w-full bg-transparent border-none cursor-pointer text-sm font-medium py-1 px-2 flex items-center justify-between"
+          >
+            <span className={row.employee_name ? "text-slate-900" : "text-slate-400"}>
+              {row.employee_name || "-- اختر الموظف --"}
+            </span>
+            <ChevronDown className="w-4 h-4 text-slate-400" />
+          </div>
+
+          {isOpen && (
+            <div className="absolute z-[100] mt-1 w-64 bg-white border border-slate-200 rounded-xl shadow-2xl overflow-hidden right-0">
+              <div className="p-2 border-b border-slate-100 bg-slate-50">
+                <div className="relative">
+                  <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                  <input
+                    type="text"
+                    className="w-full pr-9 pl-3 py-2 bg-white border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+                    placeholder="بحث بالاسم أو الإقامة..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    autoFocus
+                  />
+                </div>
+              </div>
+              <div className="max-h-60 overflow-y-auto">
+                {filteredEmployees.length > 0 ? (
+                  filteredEmployees.map((emp: Employee) => (
+                    <div
+                      key={emp.id}
+                      onClick={() => {
+                        updateRow(type, row.id, 'employee_id', emp.id.toString());
+                        updateRow(type, row.id, 'employee_name', emp.name);
+                        updateRow(type, row.id, 'employee_iqama', emp.iqama_number);
+                        setIsOpen(false);
+                        setSearchTerm("");
+                      }}
+                      className="px-4 py-2.5 hover:bg-blue-50 cursor-pointer border-b border-slate-50 last:border-0 transition-colors"
+                    >
+                      <div className="font-bold text-slate-900 text-sm">{emp.name}</div>
+                      <div className="text-xs text-slate-500 flex items-center mt-0.5">
+                        <UserIcon className="w-3 h-3 ml-1" />
+                        <span>{emp.iqama_number}</span>
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <div className="p-4 text-center text-sm text-slate-400 italic">
+                    لا يوجد نتائج
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+        </div>
+        <button 
+          type="button"
+          onClick={() => updateRow(type, row.id, 'manualEmployee', true)}
+          className="text-slate-400 opacity-0 group-hover:opacity-100 transition-opacity"
+          title="إدخال يدوي"
+        >
+          <Bolt className="w-4 h-4" />
+        </button>
+      </div>
+    </div>
+  );
+}
+
 export default function ExpenseFormClient({ user }: { user: User }) {
   const router = useRouter();
   const [loading, setLoading] = useState(true);
@@ -226,24 +344,26 @@ export default function ExpenseFormClient({ user }: { user: User }) {
     formData.append("user_id", user.id.toString());
     formData.append("month", new Date().toISOString().substring(0, 7));
 
-    Object.values(sections).flat().forEach(row => {
-      formData.append("expense_date[]", row.expense_date);
-      formData.append("expense_type[]", row.expense_type);
-      formData.append("amount[]", row.amount);
-      formData.append("employee_iqama[]", row.employee_iqama);
-      formData.append("employee_name[]", row.employee_name);
-      formData.append("employee_id[]", row.employee_id);
-      formData.append("account_code[]", row.account_code);
-      formData.append("cost_center_code[]", row.cost_center_code);
-      formData.append("description[]", row.description);
-      formData.append("tax_value[]", row.tax_value);
-      formData.append("net_amount[]", row.net_amount);
-      if (row.attachment) {
-        formData.append("attachment[]", row.attachment);
-      } else {
-        // Append a dummy blob if no file to maintain array alignment if necessary
-        // or handle array logic in API
-      }
+    Object.entries(sections).forEach(([mainType, rows]) => {
+      rows.forEach(row => {
+        formData.append("main_type[]", mainType);
+        formData.append("expense_date[]", row.expense_date);
+        formData.append("expense_type[]", row.expense_type);
+        formData.append("amount[]", row.amount);
+        formData.append("employee_iqama[]", row.employee_iqama);
+        formData.append("employee_name[]", row.employee_name);
+        formData.append("employee_id[]", row.employee_id);
+        formData.append("account_code[]", row.account_code);
+        formData.append("cost_center_code[]", row.cost_center_code);
+        formData.append("description[]", row.description);
+        formData.append("tax_value[]", row.tax_value);
+        formData.append("net_amount[]", row.net_amount);
+        if (row.attachment) {
+          formData.append("attachment[]", row.attachment);
+        } else {
+          formData.append("attachment[]", "");
+        }
+      });
     });
 
     try {
@@ -482,7 +602,7 @@ export default function ExpenseFormClient({ user }: { user: User }) {
                           </>
                         )}
 
-                        {(type === 'iqama' || type === 'traffic' || type === 'advances') && (
+                        {(type === 'iqama') && (
                           <>
                             <td className="px-2 py-4">
                               <input 
@@ -495,82 +615,63 @@ export default function ExpenseFormClient({ user }: { user: User }) {
                               />
                             </td>
                             <td className="px-2 py-4">
-                              <div className="relative group">
-                                {row.manualEmployee ? (
-                                  <div className="flex items-center space-x-2 space-x-reverse">
-                                    <input 
-                                      type="text" 
-                                      className="w-full bg-slate-100 border border-slate-200 rounded-lg px-2 py-1 text-sm"
-                                      placeholder="اسم الموظف"
-                                      value={row.employee_name}
-                                      onChange={(e) => updateRow(type, row.id, 'employee_name', e.target.value)}
-                                    />
-                                    <button 
-                                      type="button"
-                                      onClick={() => updateRow(type, row.id, 'manualEmployee', false)}
-                                      className="text-blue-500"
-                                    >
-                                      <Search className="w-4 h-4" />
-                                    </button>
-                                  </div>
-                                ) : (
-                                  <div className="flex items-center space-x-2 space-x-reverse">
-                                      <select 
-                                        className="w-full bg-transparent border-none focus:ring-0 text-sm font-medium"
-                                        value={row.employee_id}
-                                        onChange={(e) => {
-                                          const emp = (metadata?.employees || []).find(ev => ev.id.toString() === e.target.value);
-                                          if (emp) {
-                                            updateRow(type, row.id, 'employee_id', e.target.value);
-                                            updateRow(type, row.id, 'employee_name', emp.name);
-                                            updateRow(type, row.id, 'employee_iqama', emp.iqama_number);
-                                          }
-                                        }}
-                                      >
-                                        <option value="">-- اختر الموظف --</option>
-                                        {(metadata?.employees || []).map(emp => (
-                                          <option key={emp.id} value={emp.id}>{emp.name}</option>
-                                        ))}
-                                      </select>
-                                    <button 
-                                      type="button"
-                                      onClick={() => updateRow(type, row.id, 'manualEmployee', true)}
-                                      className="text-slate-400 opacity-0 group-hover:opacity-100 transition-opacity"
-                                      title="إدخال يدوي"
-                                    >
-                                      <Bolt className="w-4 h-4" />
-                                    </button>
-                                  </div>
-                                )}
-                              </div>
+                              <EmployeeSelect 
+                                row={row} 
+                                type={type} 
+                                metadata={metadata} 
+                                updateRow={updateRow} 
+                              />
                             </td>
                           </>
                         )}
 
-                          <td className="px-2 py-4">
-                            <select 
-                              className="w-full bg-transparent border-none focus:ring-0 text-sm"
-                              value={row.account_code}
-                              onChange={(e) => updateRow(type, row.id, 'account_code', e.target.value)}
-                            >
-                              <option value="">-- الحساب --</option>
-                              {(metadata?.accounts || []).map(acc => (
-                                <option key={acc.id} value={acc.account_code}>{acc.account_code} - {acc.account_name}</option>
-                              ))}
-                            </select>
-                          </td>
-                          <td className="px-2 py-4">
-                            <select 
-                              className="w-full bg-transparent border-none focus:ring-0 text-sm"
-                              value={row.cost_center_code}
-                              onChange={(e) => updateRow(type, row.id, 'cost_center_code', e.target.value)}
-                            >
-                              <option value="">-- المركز --</option>
-                              {(metadata?.costCenters || []).map(cc => (
-                                <option key={cc.id} value={cc.center_code}>{cc.center_code} - {cc.center_name}</option>
-                              ))}
-                            </select>
-                          </td>
+                        {(type === 'traffic' || type === 'advances') && (
+                          <>
+                            <td className="px-2 py-4">
+                              <EmployeeSelect 
+                                row={row} 
+                                type={type} 
+                                metadata={metadata} 
+                                updateRow={updateRow} 
+                              />
+                            </td>
+                            <td className="px-2 py-4">
+                              <input 
+                                type="text" 
+                                className="w-28 bg-transparent border-none focus:ring-0 text-sm text-slate-500"
+                                value={row.employee_iqama}
+                                readOnly={!row.manualEmployee}
+                                onChange={(e) => updateRow(type, row.id, 'employee_iqama', e.target.value)}
+                                placeholder="رقم الإقامة"
+                              />
+                            </td>
+                          </>
+                        )}
+
+                        <td className="px-2 py-4">
+                          <select 
+                            className="w-full bg-transparent border-none focus:ring-0 text-sm"
+                            value={row.account_code}
+                            onChange={(e) => updateRow(type, row.id, 'account_code', e.target.value)}
+                          >
+                            <option value="">-- الحساب --</option>
+                            {(metadata?.accounts || []).map(acc => (
+                              <option key={acc.id} value={acc.account_code}>{acc.account_code} - {acc.account_name}</option>
+                            ))}
+                          </select>
+                        </td>
+                        <td className="px-2 py-4">
+                          <select 
+                            className="w-full bg-transparent border-none focus:ring-0 text-sm"
+                            value={row.cost_center_code}
+                            onChange={(e) => updateRow(type, row.id, 'cost_center_code', e.target.value)}
+                          >
+                            <option value="">-- المركز --</option>
+                            {(metadata?.costCenters || []).map(cc => (
+                              <option key={cc.id} value={cc.center_code}>{cc.center_code} - {cc.center_name}</option>
+                            ))}
+                          </select>
+                        </td>
                         <td className="px-2 py-4">
                           <input 
                             type="text" 

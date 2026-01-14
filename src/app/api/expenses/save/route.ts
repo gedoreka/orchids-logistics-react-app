@@ -14,6 +14,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Company ID required" }, { status: 400 });
     }
 
+    const mainTypes = formData.getAll("main_type[]") as string[];
     const expenseDates = formData.getAll("expense_date[]") as string[];
     const expenseTypes = formData.getAll("expense_type[]") as string[];
     const amounts = formData.getAll("amount[]") as string[];
@@ -25,7 +26,7 @@ export async function POST(request: NextRequest) {
     const descriptions = formData.getAll("description[]") as string[];
     const taxValues = formData.getAll("tax_value[]") as string[];
     const netAmounts = formData.getAll("net_amount[]") as string[];
-    const attachments = formData.getAll("attachment[]") as File[];
+    const attachments = formData.getAll("attachment[]") as any[];
 
     const count = expenseDates.length;
     let savedCount = 0;
@@ -44,6 +45,7 @@ export async function POST(request: NextRequest) {
     const centerMap = new Map(costCenters.map(c => [c.center_code, c.id]));
 
     for (let i = 0; i < count; i++) {
+      const mainType = mainTypes[i];
       const date = expenseDates[i];
       const type = expenseTypes[i];
       const amount = parseFloat(amounts[i] || "0");
@@ -61,7 +63,7 @@ export async function POST(request: NextRequest) {
       const attachment = attachments[i];
 
       let attachmentPath = "";
-      if (attachment && attachment.size > 0) {
+      if (attachment && attachment instanceof File && attachment.size > 0) {
         const fileName = `${Date.now()}_${attachment.name}`;
         const { data, error } = await supabase.storage
           .from("expenses")
@@ -103,14 +105,40 @@ export async function POST(request: NextRequest) {
           );
         }
 
-        // 3. Add traffic violation if applicable
-        if (type === "مخالفات مرورية" && empId > 0) {
+        // 3. Business Logic based on mainType
+        
+        // A. Iqama Renewal Logic
+        if (mainType === 'iqama' && empId > 0) {
+          const renewalAmounts = [162, 163, 2425];
+          if (renewalAmounts.includes(Math.floor(amount))) {
+            // Renew for 3 months from current date
+            await execute(
+              `UPDATE employees 
+               SET iqama_expiry = CURRENT_DATE + INTERVAL '3 months' 
+               WHERE id = ?`,
+              [empId]
+            );
+          }
+        }
+
+        // B. Traffic Violation Logic
+        if ((mainType === 'traffic' || type === "مخالفات مرورية") && empId > 0) {
           await execute(
             `INSERT INTO employee_violations 
              (employee_id, violation_type, violation_date, violation_amount, 
               deducted_amount, remaining_amount, status, violation_description) 
              VALUES (?, 'traffic', ?, ?, ?, 0, 'deducted', ?)`,
             [empId, date, amount, amount, desc || `مخالفة مرورية - ${name}`]
+          );
+        }
+
+        // C. Loan (Advances) Logic
+        if (mainType === 'advances' && empId > 0) {
+          await execute(
+            `INSERT INTO monthly_deductions 
+             (company_id, amount, month_reference, employee_name, deduction_type, deduction_date) 
+             VALUES (?, ?, ?, ?, 'advance', ?)`,
+            [companyId, amount, monthRef, name, date]
           );
         }
       }
