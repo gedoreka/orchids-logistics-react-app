@@ -75,9 +75,23 @@ type EmployeeDetailsClientProps = {
 function getPublicUrl(path: string | null) {
   if (!path) return null;
   if (path.startsWith('http')) return path;
-  // Handle paths that might already have 'employees/' prefix
-  const cleanPath = path.startsWith('employees/') ? path.replace('employees/', '') : path;
-  return `https://xaexoopjqkrzhbochbef.supabase.co/storage/v1/object/public/employees/${cleanPath}`;
+  
+  // Clean the path
+  const cleanPath = path.startsWith('/') ? path.slice(1) : path;
+  
+  // If the path contains 'supabase' or is already a full URL, return as is
+  if (path.includes('supabase')) {
+    return path;
+  }
+
+  // Handle paths that might already have 'employees/' prefix for Supabase
+  if (path.startsWith('employees/')) {
+    const sPath = path.replace('employees/', '');
+    return `https://xaexoopjqkrzhbochbef.supabase.co/storage/v1/object/public/employees/${sPath}`;
+  }
+
+  // Fallback to original server for all legacy data
+  return `https://accounts.zoolspeed.com/${cleanPath}`;
 }
 
 export function EmployeeDetailsClient({ 
@@ -88,8 +102,8 @@ export function EmployeeDetailsClient({
   stats, 
   monthlyData 
 }: EmployeeDetailsClientProps) {
-  // Tab Configuration
-  const tabConfig: Record<string, any> = useMemo(() => ({
+  // Tab Configuration - Moved to top of component to ensure it's defined
+  const tabConfig: Record<string, any> = {
     general: { icon: User, label: "المعلومات العامة", bg: "bg-blue-600", color: "blue", light: "bg-blue-50", text: "text-blue-600" },
     bank: { icon: University, label: "الحساب البنكي", bg: "bg-emerald-600", color: "emerald", light: "bg-emerald-50", text: "text-emerald-600" },
     status: { icon: ShieldCheck, label: "صلاحية الإقامة", bg: "bg-purple-600", color: "purple", light: "bg-purple-50", text: "text-purple-600" },
@@ -97,7 +111,7 @@ export function EmployeeDetailsClient({
     violations: { icon: AlertOctagon, label: "المخالفات", bg: "bg-red-600", color: "red", light: "bg-red-50", text: "text-red-600" },
     stats: { icon: BarChart3, label: "الإحصائيات", bg: "bg-slate-800", color: "slate", light: "bg-slate-50", text: "text-slate-800" },
     letters: { icon: Mail, label: "خطابات السائق", bg: "bg-rose-600", color: "rose", light: "bg-rose-50", text: "text-rose-600" },
-  }), []);
+  };
 
   const [activeTab, setActiveTab] = useState("general");
   const [isEditing, setIsEditing] = useState(false);
