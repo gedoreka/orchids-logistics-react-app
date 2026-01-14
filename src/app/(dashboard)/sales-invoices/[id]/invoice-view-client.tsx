@@ -24,7 +24,7 @@ import {
   Stamp
 } from "lucide-react";
 import Link from "next/link";
-import { QRCodeSVG } from "qrcode.react";
+import { QRCodeCanvas } from "qrcode.react";
 
 interface InvoiceItem {
   id: number;
@@ -148,7 +148,7 @@ const formatDate = (dateStr: string) => {
   if (!dateStr || dateStr === 'Invalid Date') return '-';
   try {
     const d = new Date(dateStr);
-    return `${d.getFullYear()}-${(d.getMonth() + 1).toString().padStart(2, '0')}-${d.getDate().toString().padStart(2, '0')}`;
+    return `${d.getDate().toString().padStart(2, '0')}-${(d.getMonth() + 1).toString().padStart(2, '0')}-${d.getFullYear()}`;
   } catch (e) {
     return dateStr;
   }
@@ -226,7 +226,7 @@ export function InvoiceViewClient({
         filename: `فاتورة-ضريبية-${invoice.invoice_number}.pdf`,
         image: { type: 'jpeg', quality: 0.98 },
         html2canvas: { 
-          scale: 2, 
+          scale: 1.5, 
           useCORS: true, 
           logging: false,
           backgroundColor: '#ffffff'
@@ -250,7 +250,7 @@ export function InvoiceViewClient({
   };
 
   return (
-    <div className="min-h-screen bg-[#f5f7fa] p-4 md:p-6 overflow-y-auto font-tajawal">
+    <div className="min-h-screen bg-slate-50 p-4 md:p-6 overflow-y-auto font-tajawal">
       <style jsx global>{`
         @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@200;300;400;500;700;800;900&display=swap');
         .font-tajawal { font-family: 'Tajawal', sans-serif; }
@@ -297,7 +297,7 @@ export function InvoiceViewClient({
         {/* Invoice Layout */}
         <div 
           ref={printRef} 
-          className="invoice-container bg-white rounded-3xl shadow-[0_10px_40px_rgba(0,0,0,0.08)] overflow-hidden border border-slate-100"
+          className="invoice-container bg-white rounded-3xl shadow-xl overflow-hidden border border-slate-100"
         >
           {/* Header */}
           <div 
@@ -376,7 +376,7 @@ export function InvoiceViewClient({
                 <div className="absolute -top-3 -right-3 w-8 h-8 bg-blue-600 text-white rounded-xl flex items-center justify-center shadow-lg z-10 transition-transform group-hover:scale-110">
                   <Building2 size={16} />
                 </div>
-                <div className="rounded-3xl p-6 border border-slate-100 bg-slate-50/50 shadow-sm transition-all hover:shadow-md hover:border-blue-100">
+                <div className="rounded-3xl p-6 border border-slate-100 bg-[#f8fafc] shadow-sm transition-all hover:shadow-md hover:border-blue-100">
                   <h3 className="font-black text-slate-800 mb-5 pb-3 border-b border-slate-200 flex items-center gap-2">
                     <span className="w-1.5 h-6 bg-blue-600 rounded-full"></span>
                     بيانات المنشأة
@@ -407,7 +407,7 @@ export function InvoiceViewClient({
                 <div className="absolute -top-3 -right-3 w-8 h-8 bg-emerald-600 text-white rounded-xl flex items-center justify-center shadow-lg z-10 transition-transform group-hover:scale-110">
                   <User size={16} />
                 </div>
-                <div className="rounded-3xl p-6 border border-slate-100 bg-slate-50/50 shadow-sm transition-all hover:shadow-md hover:border-emerald-100">
+                <div className="rounded-3xl p-6 border border-slate-100 bg-[#f8fafc] shadow-sm transition-all hover:shadow-md hover:border-emerald-100">
                   <h3 className="font-black text-slate-800 mb-5 pb-3 border-b border-slate-200 flex items-center gap-2">
                     <span className="w-1.5 h-6 bg-emerald-600 rounded-full"></span>
                     بيانات العميل
@@ -454,7 +454,7 @@ export function InvoiceViewClient({
                   </thead>
                   <tbody className="divide-y divide-slate-100 bg-white">
                     {items.map((item) => (
-                      <tr key={item.id} className="hover:bg-slate-50/50 transition-colors">
+                      <tr key={item.id} className="hover:bg-slate-50 transition-colors">
                         <td className="px-5 py-5 font-bold text-slate-900">{item.product_name}</td>
                         <td className="px-5 py-5 text-center text-slate-600 font-medium">{item.quantity}</td>
                         <td className="px-5 py-5 text-center text-slate-600 font-medium">{parseFloat(String(item.unit_price)).toFixed(4)}</td>
@@ -466,7 +466,7 @@ export function InvoiceViewClient({
                     ))}
                     
                     {adjustments.map((adj) => (
-                      <tr key={adj.id} className={adj.type === 'discount' ? 'bg-red-50/30' : 'bg-emerald-50/30'}>
+                      <tr key={adj.id} className={adj.type === 'discount' ? 'bg-[#fef2f2]' : 'bg-[#f0fdf4]'}>
                         <td className="px-5 py-5 font-bold text-slate-800 flex items-center gap-2">
                           <div className={`w-2 h-2 rounded-full ${adj.type === 'discount' ? 'bg-red-500' : 'bg-emerald-500'}`}></div>
                           {adj.title} <span className="text-xs font-normal opacity-60">({adj.type === 'discount' ? 'خصم' : 'إضافة'})</span>
@@ -503,32 +503,32 @@ export function InvoiceViewClient({
 
                 <div className="space-y-4">
                   <div className="flex justify-between items-center py-2 border-b border-dashed border-slate-200">
-                    <span className="text-slate-500 font-medium">الإجمالي قبل الضريبة:</span>
-                    <span className="font-bold text-slate-800">{totalBeforeVat.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ريال</span>
+                    <span className="text-slate-500 font-medium text-sm">الإجمالي قبل الضريبة:</span>
+                    <span className="font-bold text-slate-800 text-sm">{totalBeforeVat.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ريال</span>
                   </div>
                   <div className="flex justify-between items-center py-2 border-b border-dashed border-slate-200">
-                    <span className="text-slate-500 font-medium">ضريبة القيمة المضافة (15%):</span>
-                    <span className="font-bold text-blue-600">{totalVat.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ريال</span>
+                    <span className="text-slate-500 font-medium text-sm">ضريبة القيمة المضافة (15%):</span>
+                    <span className="font-bold text-blue-600 text-sm">{totalVat.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ريال</span>
                   </div>
                   {discountTotal > 0 && (
-                    <div className="flex justify-between items-center py-2 border-b border-dashed border-slate-200 bg-red-50/30 px-2 rounded-lg">
-                      <span className="text-red-600 font-medium">إجمالي الخصومات:</span>
-                      <span className="font-bold text-red-600">-{discountTotal.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ريال</span>
+                    <div className="flex justify-between items-center py-2 border-b border-dashed border-slate-200 bg-[#fef2f2] px-2 rounded-lg">
+                      <span className="text-red-600 font-medium text-sm">إجمالي الخصومات:</span>
+                      <span className="font-bold text-red-600 text-sm">-{discountTotal.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ريال</span>
                     </div>
                   )}
                   {additionTotal > 0 && (
-                    <div className="flex justify-between items-center py-2 border-b border-dashed border-slate-200 bg-emerald-50/30 px-2 rounded-lg">
-                      <span className="text-emerald-600 font-medium">إجمالي الإضافات:</span>
-                      <span className="font-bold text-emerald-600">+{additionTotal.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ريال</span>
+                    <div className="flex justify-between items-center py-2 border-b border-dashed border-slate-200 bg-[#f0fdf4] px-2 rounded-lg">
+                      <span className="text-emerald-600 font-medium text-sm">إجمالي الإضافات:</span>
+                      <span className="font-bold text-emerald-600 text-sm">+{additionTotal.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ريال</span>
                     </div>
                   )}
                   
                   <div 
-                    className="flex justify-between items-center py-5 px-6 rounded-2xl mt-6 shadow-sm border border-emerald-100"
+                    className="flex justify-between items-center py-4 px-6 rounded-2xl mt-6 shadow-sm border border-emerald-100"
                     style={{ background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)' }}
                   >
-                    <span className="font-black text-white text-lg">إجمالي المبلغ المستحق:</span>
-                    <span className="font-black text-2xl text-white tracking-tight">
+                    <span className="font-black text-white text-base">إجمالي المبلغ المستحق:</span>
+                    <span className="font-black text-lg text-white tracking-tight">
                       {grandTotal.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ريال
                     </span>
                   </div>
@@ -543,8 +543,8 @@ export function InvoiceViewClient({
                   الباركود الضريبي | ZATCA
                 </h3>
                 <div className="flex justify-center mb-6">
-                  <div className="p-4 bg-white rounded-2xl shadow-[0_10px_30px_rgba(0,0,0,0.05)] border border-slate-50 transition-transform group-hover:scale-105">
-                    <QRCodeSVG
+                  <div className="p-4 bg-white rounded-2xl shadow-lg border border-slate-50 transition-transform group-hover:scale-105">
+                    <QRCodeCanvas
                       value={qrData}
                       size={180}
                       level="H"
@@ -552,22 +552,22 @@ export function InvoiceViewClient({
                     />
                   </div>
                 </div>
-                <p className="text-xs text-slate-400 font-medium mb-6">باركود ضريبي قابل للقراءة متوافق مع هيئة الزكاة والضريبة</p>
+                <p className="text-[10px] text-slate-400 font-bold mb-6">باركود ضريبي قابل للقراءة متوافق مع هيئة الزكاة والضريبة</p>
                 
                 <div className="grid grid-cols-2 gap-4 pt-6 border-t border-slate-50">
                   <div className="p-3 bg-slate-50 rounded-xl">
-                    <span className="text-slate-400 text-[10px] block uppercase font-bold mb-1">الفترة من:</span>
-                    <p className="font-bold text-blue-600 text-sm">{formatDate(items[0]?.period_from)}</p>
+                    <span className="text-slate-400 text-[9px] block uppercase font-bold mb-1">الفترة من:</span>
+                    <p className="font-bold text-blue-600 text-xs">{formatDate(items[0]?.period_from)}</p>
                   </div>
                   <div className="p-3 bg-slate-50 rounded-xl">
-                    <span className="text-slate-400 text-[10px] block uppercase font-bold mb-1">إلى:</span>
-                    <p className="font-bold text-blue-600 text-sm">{formatDate(items[0]?.period_to)}</p>
+                    <span className="text-slate-400 text-[9px] block uppercase font-bold mb-1">إلى:</span>
+                    <p className="font-bold text-blue-600 text-xs">{formatDate(items[0]?.period_to)}</p>
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* Bank Info Section */}
+            {/* Bank Info Section with Status Integrated */}
             {selectedBank && (
               <div 
                 className="rounded-3xl p-8 border border-emerald-100 shadow-sm relative overflow-hidden"
@@ -575,12 +575,12 @@ export function InvoiceViewClient({
               >
                 <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-8">
                   <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 bg-emerald-600 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-emerald-600/20">
+                    <div className="w-12 h-12 bg-emerald-600 rounded-2xl flex items-center justify-center text-white shadow-lg">
                       <University size={24} />
                     </div>
                     <div>
                       <h3 className="font-black text-slate-800 text-lg">معلومات الحساب البنكي</h3>
-                      <p className="text-xs text-emerald-600 font-bold">حساب بنكي معتمد وامن</p>
+                      <p className="text-[10px] text-emerald-600 font-black">حساب بنكي معتمد وامن</p>
                     </div>
                   </div>
 
@@ -600,45 +600,77 @@ export function InvoiceViewClient({
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                   <div className="bg-white rounded-2xl p-5 border border-slate-50 shadow-sm transition-all hover:shadow-md">
-                    <p className="text-[10px] text-slate-400 font-black uppercase mb-2 tracking-tighter">اسم البنك</p>
-                    <p className="font-black text-slate-800 text-sm">{selectedBank.bank_name}</p>
+                    <p className="text-[9px] text-slate-400 font-black uppercase mb-2 tracking-tighter">اسم البنك</p>
+                    <p className="font-black text-slate-800 text-xs">{selectedBank.bank_name}</p>
                   </div>
                   <div className="bg-white rounded-2xl p-5 border border-slate-50 shadow-sm transition-all hover:shadow-md">
-                    <p className="text-[10px] text-slate-400 font-black uppercase mb-2 tracking-tighter">اسم المستفيد</p>
-                    <p className="font-black text-slate-800 text-sm">{selectedBank.bank_beneficiary}</p>
+                    <p className="text-[9px] text-slate-400 font-black uppercase mb-2 tracking-tighter">اسم المستفيد</p>
+                    <p className="font-black text-slate-800 text-xs">{selectedBank.bank_beneficiary}</p>
                   </div>
                   <div className="bg-white rounded-2xl p-5 border border-slate-50 shadow-sm transition-all hover:shadow-md">
-                    <p className="text-[10px] text-slate-400 font-black uppercase mb-2 tracking-tighter">رقم الحساب</p>
-                    <p className="font-black text-blue-600 text-sm tracking-widest">{selectedBank.bank_account}</p>
+                    <p className="text-[9px] text-slate-400 font-black uppercase mb-2 tracking-tighter">رقم الحساب</p>
+                    <p className="font-black text-blue-600 text-xs tracking-widest">{selectedBank.bank_account}</p>
                   </div>
                   <div className="bg-white rounded-2xl p-5 border border-slate-50 shadow-sm transition-all hover:shadow-md">
-                    <p className="text-[10px] text-slate-400 font-black uppercase mb-2 tracking-tighter">الآيبان</p>
-                    <p className="font-black text-slate-800 text-[11px] break-all leading-relaxed font-mono tracking-tighter">{selectedBank.bank_iban}</p>
+                    <p className="text-[9px] text-slate-400 font-black uppercase mb-2 tracking-tighter">الآيبان</p>
+                    <p className="font-black text-slate-800 text-[10px] break-all leading-relaxed font-mono tracking-tighter">{selectedBank.bank_iban}</p>
                   </div>
                 </div>
 
-                <div className="flex flex-wrap gap-4 mt-8 pt-6 border-t border-emerald-100">
-                  <div className="flex items-center gap-2 text-emerald-700 text-xs font-bold">
-                    <ShieldCheck size={16} />
-                    <span>حساب أمن</span>
+                {/* Integrated Status and Secure Badges */}
+                <div className="flex flex-wrap items-center justify-between gap-4 mt-8 pt-6 border-t border-emerald-100">
+                  <div className="flex flex-wrap gap-4">
+                    <div className="flex items-center gap-2 text-emerald-700 text-[10px] font-bold">
+                      <ShieldCheck size={14} className="text-emerald-500" />
+                      <span>حساب أمن</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-emerald-700 text-[10px] font-bold">
+                      <Award size={14} className="text-emerald-500" />
+                      <span>حساب بنكي معتمد</span>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-2 text-emerald-700 text-xs font-bold">
-                    <Award size={16} />
-                    <span>حساب بنكي معتمد</span>
+                  
+                  {/* Small Tidy Status */}
+                  <div className="flex items-center gap-3">
+                    {invoiceStatus === 'paid' ? (
+                      <div className="flex items-center gap-1.5 text-emerald-600 bg-emerald-50 px-3 py-1 rounded-lg border border-emerald-100">
+                        <CheckCircle size={12} />
+                        <span className="font-bold text-[10px] uppercase">تم السداد</span>
+                      </div>
+                    ) : invoiceStatus === 'draft' ? (
+                      <div className="flex items-center gap-1.5 text-slate-500 bg-slate-50 px-3 py-1 rounded-lg border border-slate-100">
+                        <Edit size={12} />
+                        <span className="font-bold text-[10px] uppercase">مسودة</span>
+                      </div>
+                    ) : (
+                      <div className="flex items-center gap-3 bg-amber-50 px-3 py-1 rounded-lg border border-amber-100">
+                        <div className="flex items-center gap-1.5 text-amber-600">
+                          <Clock size={12} />
+                          <span className="font-bold text-[10px] uppercase">بانتظار السداد</span>
+                        </div>
+                        <div className="w-px h-3 bg-amber-200" />
+                        <span className="text-[9px] font-bold text-amber-700/70">الاستحقاق: {formatDate(invoice.due_date)}</span>
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
             )}
 
-            {/* Stamp and Signature Section */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 pt-6">
+            {/* Footer Note */}
+            <div className="text-center pt-8 border-t border-slate-50">
+              <p className="text-slate-400 text-[10px] font-bold uppercase tracking-widest">شكراً لثقتكم بنا | Thank you for your business</p>
+            </div>
+
+            {/* Stamp and Signature Section - REPOSITIONED TO END */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 pt-10 border-t border-slate-100 mt-10">
               {/* Stamp */}
-              <div className="rounded-3xl p-8 border border-slate-100 bg-slate-50/30 text-center relative group">
-                <h4 className="text-slate-800 font-black text-sm mb-6 flex items-center justify-center gap-2">
-                  <Stamp size={18} className="text-slate-400" />
+              <div className="text-center group">
+                <h4 className="text-slate-800 font-black text-[11px] mb-4 flex items-center justify-center gap-2">
+                  <Stamp size={14} className="text-slate-400" />
                   ختم المنشأة
                 </h4>
-                <div className="w-40 h-40 mx-auto bg-white rounded-2xl border border-dashed border-slate-200 flex items-center justify-center p-4 relative overflow-hidden transition-all group-hover:border-blue-300">
+                <div className="w-32 h-32 mx-auto bg-white rounded-2xl border border-dashed border-slate-200 flex items-center justify-center p-4 relative overflow-hidden transition-all group-hover:border-blue-300 shadow-sm">
                   {company.stamp_path ? (
                     <img 
                       src={getPublicUrl(company.stamp_path) || ''} 
@@ -647,21 +679,21 @@ export function InvoiceViewClient({
                       crossOrigin="anonymous"
                     />
                   ) : (
-                    <div className="text-slate-300 flex flex-col items-center gap-2">
-                      <Stamp size={40} className="opacity-20" />
-                      <span className="text-[10px] font-bold uppercase">لم يتم رفع الختم</span>
+                    <div className="text-slate-300 flex flex-col items-center gap-1">
+                      <Stamp size={32} className="opacity-10" />
+                      <span className="text-[8px] font-black uppercase">لا يوجد ختم</span>
                     </div>
                   )}
                 </div>
               </div>
 
               {/* Signature */}
-              <div className="rounded-3xl p-8 border border-slate-100 bg-slate-50/30 text-center relative group">
-                <h4 className="text-slate-800 font-black text-sm mb-6 flex items-center justify-center gap-2">
-                  <Signature size={18} className="text-slate-400" />
+              <div className="text-center group">
+                <h4 className="text-slate-800 font-black text-[11px] mb-4 flex items-center justify-center gap-2">
+                  <Signature size={14} className="text-slate-400" />
                   التوقيع الإلكتروني
                 </h4>
-                <div className="w-40 h-40 mx-auto bg-white rounded-2xl border border-dashed border-slate-200 flex items-center justify-center p-4 relative overflow-hidden transition-all group-hover:border-indigo-300">
+                <div className="w-32 h-32 mx-auto bg-white rounded-2xl border border-dashed border-slate-200 flex items-center justify-center p-4 relative overflow-hidden transition-all group-hover:border-indigo-300 shadow-sm">
                   {company.digital_seal_path ? (
                     <img 
                       src={getPublicUrl(company.digital_seal_path) || ''} 
@@ -670,47 +702,13 @@ export function InvoiceViewClient({
                       crossOrigin="anonymous"
                     />
                   ) : (
-                    <div className="text-slate-300 flex flex-col items-center gap-2">
-                      <Signature size={40} className="opacity-20" />
-                      <span className="text-[10px] font-bold uppercase">لم يتم رفع التوقيع</span>
+                    <div className="text-slate-300 flex flex-col items-center gap-1">
+                      <Signature size={32} className="opacity-10" />
+                      <span className="text-[8px] font-black uppercase">لا يوجد توقيع</span>
                     </div>
                   )}
                 </div>
               </div>
-            </div>
-
-            {/* Status Footer */}
-            <div className="flex justify-center items-center gap-8 pt-8">
-              {invoiceStatus === 'paid' ? (
-                <div className="flex items-center gap-3 text-emerald-600 px-10 py-4 rounded-2xl bg-emerald-50 shadow-sm border border-emerald-100">
-                  <div className="bg-emerald-600 p-1.5 rounded-full text-white">
-                    <CheckCircle size={24} />
-                  </div>
-                  <span className="font-black text-xl">تم السداد بنجاح</span>
-                </div>
-              ) : invoiceStatus === 'draft' ? (
-                <div className="flex items-center gap-3 text-slate-600 px-10 py-4 rounded-2xl bg-slate-100 shadow-sm border border-slate-200">
-                  <div className="bg-slate-600 p-1.5 rounded-full text-white">
-                    <Edit size={24} />
-                  </div>
-                  <span className="font-black text-xl">مسودة فاتورة</span>
-                </div>
-              ) : (
-                <div className="flex items-center gap-3 text-amber-600 px-10 py-4 rounded-2xl bg-amber-50 shadow-sm border border-amber-100">
-                  <div className="bg-amber-600 p-1.5 rounded-full text-white">
-                    <Clock size={24} />
-                  </div>
-                  <div className="text-right">
-                    <span className="font-black text-xl block">بانتظار السداد</span>
-                    <span className="text-xs font-bold opacity-70">تاريخ الاستحقاق: {formatDate(invoice.due_date)}</span>
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* Footer Note */}
-            <div className="text-center pt-8 border-t border-slate-50">
-              <p className="text-slate-400 text-[10px] font-bold uppercase tracking-widest">شكراً لثقتكم بنا | Thank you for your business</p>
             </div>
           </div>
         </div>
