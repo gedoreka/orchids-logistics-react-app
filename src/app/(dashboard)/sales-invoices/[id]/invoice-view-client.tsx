@@ -110,27 +110,33 @@ function generateQRCodeTLV(
   totalWithVAT: string,
   vatAmount: string
 ): string {
-  const encoder = new TextEncoder();
-  const values = [
-    sellerName,
-    vatNumber,
-    invoiceDate + 'T00:00:00Z',
-    totalWithVAT,
-    vatAmount
-  ];
-  
-  const tlvParts: number[] = [];
-  values.forEach((value, index) => {
-    const encoded = encoder.encode(value);
-    tlvParts.push(index + 1);
-    tlvParts.push(encoded.length);
-    tlvParts.push(...encoded);
-  });
-  
-  const bytes = new Uint8Array(tlvParts);
-  let binary = '';
-  bytes.forEach(byte => binary += String.fromCharCode(byte));
-  return btoa(binary);
+  try {
+    const encoder = new TextEncoder();
+    const safeDate = invoiceDate && invoiceDate !== 'Invalid Date' ? invoiceDate : new Date().toISOString().split('T')[0];
+    const values = [
+      sellerName || '',
+      vatNumber || '',
+      safeDate + 'T00:00:00Z',
+      totalWithVAT || '0.00',
+      vatAmount || '0.00'
+    ];
+    
+    const tlvParts: number[] = [];
+    values.forEach((value, index) => {
+      const encoded = encoder.encode(String(value));
+      tlvParts.push(index + 1);
+      tlvParts.push(encoded.length);
+      tlvParts.push(...encoded);
+    });
+    
+    const bytes = new Uint8Array(tlvParts);
+    let binary = '';
+    bytes.forEach(byte => binary += String.fromCharCode(byte));
+    return btoa(binary);
+  } catch (e) {
+    console.error('QR generation error:', e);
+    return '';
+  }
 }
 
 export function InvoiceViewClient({
