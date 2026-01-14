@@ -301,348 +301,341 @@ export function NewInvoiceClient({ customers, invoiceNumber, companyId, userName
         )}
       </AnimatePresence>
 
-      <div className="max-w-5xl mx-auto space-y-6">
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="bg-gradient-to-br from-[#1a237e] to-[#283593] rounded-2xl p-6 text-white shadow-xl text-center"
-        >
-          <h1 className="text-2xl md:text-3xl font-black flex items-center justify-center gap-3">
-            <FileText className="h-8 w-8" />
-            إنشاء فاتورة ضريبية
-          </h1>
-          <p className="text-white/80 mt-2">أضف تفاصيل الفاتورة وخدماتها واختر العميل المناسب</p>
-          <div className="mt-4 inline-flex items-center gap-2 bg-white/10 px-4 py-2 rounded-xl">
-            <Plus size={18} />
-            <span>نظام إنشاء الفواتير الإلكترونية</span>
-          </div>
-        </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6"
-        >
-          <h3 className="font-bold text-gray-900 mb-4 flex items-center gap-2">
-            <FileText size={20} className="text-blue-600" />
-            معلومات الفاتورة الأساسية
-          </h3>
-          
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-            <div>
-              <label className="block text-sm font-bold text-gray-700 mb-1">رقم الفاتورة</label>
-              <input
-                type="text"
-                value={invoiceNumber}
-                readOnly
-                className="w-full px-4 py-2.5 rounded-xl border border-gray-200 bg-gray-50 text-gray-500"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-bold text-gray-700 mb-1">تاريخ الإصدار</label>
-              <input
-                type="date"
-                value={issueDate}
-                onChange={(e) => setIssueDate(e.target.value)}
-                className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:border-blue-400 focus:ring-2 focus:ring-blue-100 outline-none"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-bold text-gray-700 mb-1">تاريخ الاستحقاق</label>
-              <input
-                type="date"
-                value={dueDate}
-                onChange={(e) => setDueDate(e.target.value)}
-                className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:border-blue-400 focus:ring-2 focus:ring-blue-100 outline-none"
-              />
-            </div>
-          </div>
-
-          <div>
-            <label className="block text-sm font-bold text-gray-700 mb-1">
-              <Users size={16} className="inline ml-1" />
-              اسم العميل
-            </label>
-              <select
-                value={clientId}
-                onChange={(e) => setClientId(parseInt(e.target.value))}
-                className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:border-blue-400 focus:ring-2 focus:ring-blue-100 outline-none"
-              >
-                <option value={0}>-- اختر عميل --</option>
-                {customers.map((c) => (
-                  <option key={c.id} value={c.id}>
-                    {c.company_name || c.customer_name || c.name} {c.vat_number ? `(${c.vat_number})` : ''}
-                  </option>
-                ))}
-              </select>
-          </div>
-        </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-          className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6"
-        >
-          <h3 className="font-bold text-gray-900 mb-4 flex items-center gap-2">
-            <DollarSign size={20} className="text-emerald-600" />
-            تفاصيل الخدمات / المنتجات
-          </h3>
-
-          <div className="space-y-4">
-            {items.map((item, index) => (
-              <div key={item.id} className="bg-gray-50 rounded-xl p-4 border border-gray-100">
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-3 mb-3">
-                  <div className="md:col-span-2">
-                    <label className="block text-xs font-bold text-gray-600 mb-1">اسم الخدمة</label>
-                    <input
-                      type="text"
-                      value={item.product_name}
-                      onChange={(e) => handleItemChange(index, 'product_name', e.target.value)}
-                      placeholder="أدخل اسم الخدمة"
-                      className="w-full px-3 py-2 rounded-lg border border-gray-200 focus:border-blue-400 outline-none text-sm"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-bold text-gray-600 mb-1">عدد الطلبات</label>
-                    <input
-                      type="number"
-                      value={item.quantity || ''}
-                      onChange={(e) => handleItemChange(index, 'quantity', parseFloat(e.target.value) || 0)}
-                      className="w-full px-3 py-2 rounded-lg border border-gray-200 focus:border-blue-400 outline-none text-sm"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-bold text-gray-600 mb-1">المبلغ شامل الضريبة</label>
-                    <input
-                      type="number"
-                      value={item.total_with_vat || ''}
-                      onChange={(e) => handleItemChange(index, 'total_with_vat', parseFloat(e.target.value) || 0)}
-                      className="w-full px-3 py-2 rounded-lg border border-gray-200 focus:border-blue-400 outline-none text-sm"
-                    />
-                  </div>
+        <div className="max-w-6xl mx-auto space-y-4">
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="bg-gradient-to-br from-[#1a237e] to-[#283593] rounded-2xl p-5 text-white shadow-lg relative overflow-hidden"
+          >
+            <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-4">
+              <div className="flex items-center gap-4">
+                <div className="p-3 bg-white/10 rounded-xl">
+                  <FileText className="h-7 w-7" />
                 </div>
-
-                <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
-                  <div>
-                    <label className="block text-xs font-bold text-gray-600 mb-1">سعر الوحدة</label>
-                    <input
-                      type="text"
-                      value={item.unit_price.toFixed(4)}
-                      readOnly
-                      className="w-full px-3 py-2 rounded-lg border border-gray-100 bg-gray-100 text-gray-500 text-sm"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-bold text-gray-600 mb-1">قبل الضريبة</label>
-                    <input
-                      type="text"
-                      value={item.before_vat.toFixed(2)}
-                      readOnly
-                      className="w-full px-3 py-2 rounded-lg border border-gray-100 bg-gray-100 text-gray-500 text-sm"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-bold text-gray-600 mb-1">الضريبة (15%)</label>
-                    <input
-                      type="text"
-                      value={item.vat_amount.toFixed(2)}
-                      readOnly
-                      className="w-full px-3 py-2 rounded-lg border border-gray-100 bg-blue-50 text-blue-600 text-sm"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-bold text-gray-600 mb-1">من تاريخ</label>
-                    <input
-                      type="date"
-                      value={item.period_from}
-                      onChange={(e) => handleItemChange(index, 'period_from', e.target.value)}
-                      className="w-full px-3 py-2 rounded-lg border border-gray-200 focus:border-blue-400 outline-none text-sm"
-                    />
-                  </div>
-                  <div className="flex items-end gap-2">
-                    <div className="flex-1">
-                      <label className="block text-xs font-bold text-gray-600 mb-1">إلى</label>
-                      <input
-                        type="date"
-                        value={item.period_to}
-                        onChange={(e) => handleItemChange(index, 'period_to', e.target.value)}
-                        className="w-full px-3 py-2 rounded-lg border border-gray-200 focus:border-blue-400 outline-none text-sm"
-                      />
-                    </div>
-                    {items.length > 1 && (
-                      <button
-                        type="button"
-                        onClick={() => removeItem(index)}
-                        className="p-2 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 transition-colors"
-                      >
-                        <Trash2 size={18} />
-                      </button>
-                    )}
-                  </div>
+                <div className="text-right">
+                  <h1 className="text-xl md:text-2xl font-black">إنشاء فاتورة ضريبية</h1>
+                  <p className="text-white/70 text-sm">أضف تفاصيل الخدمات والعميل لإصدار فاتورة جديدة</p>
                 </div>
               </div>
-            ))}
+              <div className="flex items-center gap-2 bg-white/10 px-4 py-2 rounded-xl text-sm font-medium border border-white/10">
+                <Clock size={16} className="text-blue-300" />
+                <span>نظام الفوترة الإلكترونية • {new Date().toLocaleDateString('ar-SA')}</span>
+              </div>
+            </div>
+          </motion.div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              className="lg:col-span-2 bg-white rounded-2xl shadow-sm border border-gray-100 p-5 space-y-4"
+            >
+              <div className="flex items-center gap-2 mb-2">
+                <Users size={18} className="text-blue-600" />
+                <h3 className="font-bold text-gray-900">بيانات العميل</h3>
+              </div>
+              
+              <div className="space-y-3">
+                <label className="block text-sm font-bold text-gray-700">اختر العميل المستهدف</label>
+                <select
+                  value={clientId}
+                  onChange={(e) => setClientId(parseInt(e.target.value))}
+                  className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:border-blue-400 focus:ring-4 focus:ring-blue-50 outline-none transition-all appearance-none bg-no-repeat bg-[left_1rem_center] bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20fill%3D%22none%22%20viewBox%3D%220%200%2024%2024%20stroke%3D%22%236B7280%22%3E%3Cpath%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%20stroke-width%3D%222%22%20d%3D%22M19%209l-7%207-7-7%22%2F%3E%3C%2Fsvg%3E')] bg-[length:1.25rem]"
+                >
+                  <option value={0}>-- اختر عميل من القائمة --</option>
+                  {customers.map((c) => (
+                    <option key={c.id} value={c.id}>
+                      {c.company_name || c.customer_name || c.name} {c.vat_number ? `(${c.vat_number})` : ''}
+                    </option>
+                  ))}
+                </select>
+                {clientId > 0 && (
+                  <div className="grid grid-cols-2 gap-4 mt-2 p-3 bg-blue-50/50 rounded-xl border border-blue-100">
+                    <div className="text-xs">
+                      <span className="text-gray-500 block">الرقم الضريبي</span>
+                      <span className="font-bold text-gray-700">{customers.find(c => c.id === clientId)?.vat_number || 'غير متوفر'}</span>
+                    </div>
+                    <div className="text-xs">
+                      <span className="text-gray-500 block">العنوان</span>
+                      <span className="font-bold text-gray-700 truncate block">{customers.find(c => c.id === clientId)?.address || 'غير متوفر'}</span>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 space-y-4"
+            >
+              <div className="flex items-center gap-2 mb-2">
+                <Calendar size={18} className="text-blue-600" />
+                <h3 className="font-bold text-gray-900">مواعيد الفاتورة</h3>
+              </div>
+              
+              <div className="grid grid-cols-1 gap-3">
+                <div className="flex items-center gap-3">
+                  <div className="flex-1">
+                    <label className="block text-xs font-bold text-gray-500 mb-1">رقم الفاتورة</label>
+                    <div className="px-4 py-2 rounded-xl bg-gray-50 border border-gray-200 text-gray-500 font-bold text-sm">
+                      {invoiceNumber}
+                    </div>
+                  </div>
+                  <div className="flex-1">
+                    <label className="block text-xs font-bold text-gray-500 mb-1">تاريخ الإصدار</label>
+                    <input
+                      type="date"
+                      value={issueDate}
+                      onChange={(e) => setIssueDate(e.target.value)}
+                      className="w-full px-3 py-2 rounded-xl border border-gray-200 focus:border-blue-400 outline-none text-sm"
+                    />
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-gray-500 mb-1">تاريخ الاستحقاق</label>
+                  <input
+                    type="date"
+                    value={dueDate}
+                    onChange={(e) => setDueDate(e.target.value)}
+                    className="w-full px-3 py-2 rounded-xl border border-gray-200 focus:border-blue-400 outline-none text-sm"
+                  />
+                </div>
+              </div>
+            </motion.div>
           </div>
 
-          <button
-            type="button"
-            onClick={addItem}
-            className="mt-4 flex items-center gap-2 px-4 py-2 rounded-xl bg-emerald-50 text-emerald-600 hover:bg-emerald-100 transition-colors font-bold text-sm"
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden"
           >
-            <Plus size={18} />
-            إضافة خدمة أخرى
-          </button>
-        </motion.div>
+            <div className="bg-gray-50/50 px-6 py-4 border-b border-gray-100 flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <DollarSign size={18} className="text-emerald-600" />
+                <h3 className="font-bold text-gray-900">تفاصيل الخدمات والمنتجات</h3>
+              </div>
+              <button
+                type="button"
+                onClick={addItem}
+                className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-emerald-500 text-white hover:bg-emerald-600 transition-colors font-bold text-xs shadow-sm"
+              >
+                <Plus size={14} />
+                إضافة خدمة
+              </button>
+            </div>
 
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-          className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6"
-        >
-          <h3 className="font-bold text-gray-900 mb-4 flex items-center gap-2">
-            <Percent size={20} className="text-amber-600" />
-            إضافات وخصومات
-          </h3>
+            <div className="p-0">
+              <div className="hidden md:grid grid-cols-12 gap-2 px-6 py-3 bg-gray-100/50 text-xs font-black text-gray-500 border-b border-gray-100">
+                <div className="col-span-3">اسم الخدمة</div>
+                <div className="col-span-1 text-center">الكمية</div>
+                <div className="col-span-2 text-center">المبلغ (شامل)</div>
+                <div className="col-span-2 text-center">من تاريخ</div>
+                <div className="col-span-2 text-center">إلى تاريخ</div>
+                <div className="col-span-1 text-center">الضريبة</div>
+                <div className="col-span-1 text-center">حذف</div>
+              </div>
 
-          <div className="space-y-4">
-            {adjustments.map((adj, index) => (
-              <div key={adj.id} className="bg-gray-50 rounded-xl p-4 border border-gray-100">
-                <div className="grid grid-cols-1 md:grid-cols-6 gap-3 items-end">
-                  <div className="md:col-span-2">
-                    <label className="block text-xs font-bold text-gray-600 mb-1">الوصف</label>
+              <div className="divide-y divide-gray-100">
+                {items.map((item, index) => (
+                  <div key={item.id} className="p-4 md:px-6 md:py-3 hover:bg-gray-50/50 transition-colors">
+                    <div className="grid grid-cols-1 md:grid-cols-12 gap-3 items-center">
+                      <div className="md:col-span-3">
+                        <input
+                          type="text"
+                          value={item.product_name}
+                          onChange={(e) => handleItemChange(index, 'product_name', e.target.value)}
+                          placeholder="اسم الخدمة أو المنتج..."
+                          className="w-full px-3 py-2 rounded-lg border border-gray-200 focus:border-blue-400 outline-none text-sm font-medium truncate"
+                        />
+                      </div>
+                      <div className="md:col-span-1">
+                        <input
+                          type="number"
+                          value={item.quantity || ''}
+                          onChange={(e) => handleItemChange(index, 'quantity', parseFloat(e.target.value) || 0)}
+                          className="w-full px-2 py-2 rounded-lg border border-gray-200 focus:border-blue-400 outline-none text-sm text-center font-bold"
+                        />
+                      </div>
+                      <div className="md:col-span-2">
+                        <div className="relative">
+                          <input
+                            type="number"
+                            value={item.total_with_vat || ''}
+                            onChange={(e) => handleItemChange(index, 'total_with_vat', parseFloat(e.target.value) || 0)}
+                            className="w-full px-2 py-2 rounded-lg border border-gray-200 focus:border-blue-400 outline-none text-sm text-center font-black text-emerald-600"
+                          />
+                          <span className="absolute left-2 top-1/2 -translate-y-1/2 text-[10px] text-gray-400">SR</span>
+                        </div>
+                      </div>
+                      <div className="md:col-span-2">
+                        <input
+                          type="date"
+                          value={item.period_from}
+                          onChange={(e) => handleItemChange(index, 'period_from', e.target.value)}
+                          className="w-full px-2 py-2 rounded-lg border border-gray-200 focus:border-blue-400 outline-none text-xs"
+                        />
+                      </div>
+                      <div className="md:col-span-2">
+                        <input
+                          type="date"
+                          value={item.period_to}
+                          onChange={(e) => handleItemChange(index, 'period_to', e.target.value)}
+                          className="w-full px-2 py-2 rounded-lg border border-gray-200 focus:border-blue-400 outline-none text-xs"
+                        />
+                      </div>
+                      <div className="md:col-span-1 text-center">
+                        <div className="text-[10px] font-bold text-blue-600 bg-blue-50 py-1 rounded">
+                          {item.vat_amount.toFixed(2)}
+                        </div>
+                      </div>
+                      <div className="md:col-span-1 flex justify-center">
+                        <button
+                          type="button"
+                          onClick={() => removeItem(index)}
+                          disabled={items.length === 1}
+                          className="p-2 rounded-lg text-gray-300 hover:text-red-500 hover:bg-red-50 transition-all disabled:opacity-0"
+                        >
+                          <Trash2 size={16} />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </motion.div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 space-y-4"
+            >
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center gap-2">
+                  <Percent size={18} className="text-amber-600" />
+                  <h3 className="font-bold text-gray-900">التعديلات الإضافية</h3>
+                </div>
+                <button
+                  type="button"
+                  onClick={addAdjustment}
+                  className="px-3 py-1 rounded-lg bg-amber-50 text-amber-600 hover:bg-amber-100 transition-colors font-bold text-xs"
+                >
+                  إضافة تعديل
+                </button>
+              </div>
+
+              <div className="space-y-3">
+                {adjustments.map((adj, index) => (
+                  <div key={adj.id} className="flex flex-col md:flex-row gap-2 p-3 bg-gray-50 rounded-xl border border-gray-100 relative group">
                     <input
                       type="text"
                       value={adj.title}
                       onChange={(e) => handleAdjustmentChange(index, 'title', e.target.value)}
-                      placeholder="سبب الخصم أو الإضافة"
-                      className="w-full px-3 py-2 rounded-lg border border-gray-200 focus:border-blue-400 outline-none text-sm"
+                      placeholder="وصف التعديل..."
+                      className="flex-1 px-3 py-2 rounded-lg border border-gray-200 focus:border-blue-400 outline-none text-xs"
                     />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-bold text-gray-600 mb-1">النوع</label>
                     <select
                       value={adj.type}
                       onChange={(e) => handleAdjustmentChange(index, 'type', e.target.value)}
-                      className="w-full px-3 py-2 rounded-lg border border-gray-200 focus:border-blue-400 outline-none text-sm"
+                      className="w-24 px-2 py-2 rounded-lg border border-gray-200 focus:border-blue-400 outline-none text-xs font-bold"
                     >
-                      <option value="discount">خصم</option>
-                      <option value="addition">إضافة</option>
+                      <option value="discount">خصم (-)</option>
+                      <option value="addition">إضافة (+)</option>
                     </select>
-                  </div>
-                  <div>
-                    <label className="block text-xs font-bold text-gray-600 mb-1">المبلغ</label>
-                    <input
-                      type="number"
-                      value={adj.amount || ''}
-                      onChange={(e) => handleAdjustmentChange(index, 'amount', parseFloat(e.target.value) || 0)}
-                      className="w-full px-3 py-2 rounded-lg border border-gray-200 focus:border-blue-400 outline-none text-sm"
-                    />
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <input
-                      type="checkbox"
-                      checked={adj.is_gross}
-                      onChange={(e) => handleAdjustmentChange(index, 'is_gross', e.target.checked)}
-                      className="w-4 h-4 rounded text-blue-600"
-                    />
-                    <label className="text-xs text-gray-600">شامل الضريبة</label>
-                  </div>
-                  <div className="flex items-end gap-2">
-                    <div className="flex-1">
-                      <label className="block text-xs font-bold text-gray-600 mb-1">الإجمالي</label>
+                    <div className="relative w-32">
                       <input
-                        type="text"
-                        value={adj.total_with_vat.toFixed(2)}
-                        readOnly
-                        className={`w-full px-3 py-2 rounded-lg border text-sm ${
-                          adj.type === 'discount' ? 'bg-red-50 text-red-600' : 'bg-emerald-50 text-emerald-600'
-                        }`}
+                        type="number"
+                        value={adj.amount || ''}
+                        onChange={(e) => handleAdjustmentChange(index, 'amount', parseFloat(e.target.value) || 0)}
+                        className="w-full px-2 py-2 rounded-lg border border-gray-200 focus:border-blue-400 outline-none text-xs font-bold"
                       />
+                      <span className="absolute left-2 top-1/2 -translate-y-1/2 text-[10px] text-gray-400">SR</span>
                     </div>
                     <button
                       type="button"
                       onClick={() => removeAdjustment(index)}
-                      className="p-2 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 transition-colors"
+                      className="p-2 text-gray-400 hover:text-red-500 transition-colors"
                     >
-                      <Trash2 size={18} />
+                      <Trash2 size={16} />
                     </button>
+                  </div>
+                ))}
+                {adjustments.length === 0 && (
+                  <div className="text-center py-6 border-2 border-dashed border-gray-100 rounded-xl text-gray-400 text-sm">
+                    لا يوجد خصومات أو إضافات حالياً
+                  </div>
+                )}
+              </div>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="bg-gradient-to-br from-[#1a237e] to-[#283593] rounded-2xl shadow-xl p-6 text-white"
+            >
+              <div className="flex items-center gap-2 mb-6">
+                <Calculator size={20} className="text-blue-300" />
+                <h3 className="font-bold">ملخص الحسابات الضريبية</h3>
+              </div>
+
+              <div className="space-y-4">
+                <div className="flex justify-between items-center text-sm opacity-80">
+                  <span>المبلغ قبل الضريبة</span>
+                  <span className="font-mono">{totals.totalBeforeVat.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ريال</span>
+                </div>
+                <div className="flex justify-between items-center text-sm opacity-80">
+                  <span>ضريبة القيمة المضافة (15%)</span>
+                  <span className="font-mono">{totals.totalVat.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ريال</span>
+                </div>
+                <div className="h-px bg-white/10 my-2" />
+                <div className="flex justify-between items-center">
+                  <span className="text-lg font-bold">الإجمالي النهائي</span>
+                  <div className="text-right">
+                    <span className="text-3xl font-black text-blue-300 tracking-tight">
+                      {totals.totalWithVat.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                    </span>
+                    <span className="mr-2 text-sm font-bold opacity-70">ريال سعودي</span>
                   </div>
                 </div>
               </div>
-            ))}
+            </motion.div>
           </div>
 
-          <button
-            type="button"
-            onClick={addAdjustment}
-            className="mt-4 flex items-center gap-2 px-4 py-2 rounded-xl bg-amber-50 text-amber-600 hover:bg-amber-100 transition-colors font-bold text-sm"
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-4 border-t border-gray-100"
           >
-            <Plus size={18} />
-            إضافة خصم أو إضافة
-          </button>
-        </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
-          className="bg-gradient-to-br from-gray-50 to-blue-50 rounded-2xl shadow-sm border border-gray-100 p-6"
-        >
-          <h3 className="font-bold text-gray-900 mb-4 flex items-center gap-2">
-            <Calculator size={20} className="text-blue-600" />
-            ملخص الفاتورة
-          </h3>
-
-          <div className="space-y-3">
-            <div className="flex justify-between items-center py-2 border-b border-dashed border-gray-200">
-              <span className="text-gray-600">المبلغ غير شامل الضريبة:</span>
-              <span className="font-bold text-gray-900">{totals.totalBeforeVat.toFixed(2)} ريال</span>
+            <Link href="/sales-invoices">
+              <button className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl bg-gray-100 text-gray-700 hover:bg-gray-200 transition-all font-bold text-sm">
+                <ArrowRight size={18} />
+                إلغاء والعودة
+              </button>
+            </Link>
+            
+            <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+              <button
+                onClick={() => handleSave('draft')}
+                disabled={loading}
+                className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-8 py-3 rounded-xl bg-slate-700 hover:bg-slate-800 text-white font-bold transition-all disabled:opacity-50 text-sm shadow-md"
+              >
+                {loading ? <Loader2 size={18} className="animate-spin" /> : <Clock size={18} />}
+                حفظ كمسودة
+              </button>
+              <button
+                onClick={() => handleSave('due')}
+                disabled={loading}
+                className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-8 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold transition-all disabled:opacity-50 text-sm shadow-lg shadow-emerald-200 hover:-translate-y-0.5"
+              >
+                {loading ? <Loader2 size={18} className="animate-spin" /> : <FileCheck size={18} />}
+                حفظ وإصدار الفاتورة
+              </button>
             </div>
-            <div className="flex justify-between items-center py-2 border-b border-dashed border-gray-200">
-              <span className="text-gray-600">إجمالي الضريبة:</span>
-              <span className="font-bold text-blue-600">{totals.totalVat.toFixed(2)} ريال</span>
-            </div>
-            <div className="flex justify-between items-center py-3 mt-2 border-t-2 border-blue-200">
-              <span className="text-lg font-bold text-gray-900">إجمالي المبلغ المستحق:</span>
-              <span className="text-xl font-black text-emerald-600 bg-emerald-100 px-4 py-2 rounded-xl">
-                {totals.totalWithVat.toFixed(2)} ريال
-              </span>
-            </div>
-          </div>
-        </motion.div>
+          </motion.div>
+        </div>
 
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4 }}
-          className="flex flex-col sm:flex-row justify-center gap-4"
-        >
-          <Link href="/sales-invoices">
-            <button className="flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-gray-100 text-gray-700 hover:bg-gray-200 transition-colors font-bold">
-              <ArrowRight size={20} />
-              العودة
-            </button>
-          </Link>
-          <button
-            onClick={() => handleSave('draft')}
-            disabled={loading}
-            className="flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-gray-500 hover:bg-gray-600 text-white font-bold transition-colors disabled:opacity-50"
-          >
-            {loading ? <Loader2 size={20} className="animate-spin" /> : <Save size={20} />}
-            حفظ كمسودة
-          </button>
-          <button
-            onClick={() => handleSave('due')}
-            disabled={loading}
-            className="flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white font-bold transition-colors disabled:opacity-50 shadow-lg"
-          >
-            {loading ? <Loader2 size={20} className="animate-spin" /> : <FileCheck size={20} />}
-            حفظ كفاتورة مستحقة
-          </button>
-        </motion.div>
-      </div>
     </div>
   );
 }
