@@ -401,7 +401,7 @@ export default function DeductionFormClient({ user }: { user: User }) {
   }
 
   return (
-    <div className="max-w-[1400px] mx-auto px-4 py-8 space-y-8 rtl" dir="rtl">
+    <div className="max-w-[98%] mx-auto px-4 py-8 space-y-8 rtl" dir="rtl">
       {/* Header - مطابق للمنصرفات مع تغيير اللون */}
       <motion.div 
         initial={{ opacity: 0, y: -20 }}

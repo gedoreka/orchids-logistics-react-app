@@ -61,10 +61,10 @@ export function ExpensesClient({ companyId, companyInfo, stats, recentActivity }
   };
 
   return (
-    <div className="min-h-screen bg-slate-50/50 p-4 md:p-8 font-tajawal rtl" dir="rtl">
-      <motion.div 
-        className="max-w-7xl mx-auto space-y-8"
-        initial="hidden"
+      <div className="min-h-screen bg-slate-50/50 p-4 md:p-8 font-tajawal rtl" dir="rtl">
+        <motion.div 
+          className="max-w-[98%] mx-auto space-y-8"
+          initial="hidden"
         animate="visible"
         variants={containerVariants}
       >
