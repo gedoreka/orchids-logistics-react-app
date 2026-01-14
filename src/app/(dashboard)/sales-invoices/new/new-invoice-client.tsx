@@ -101,44 +101,58 @@ export function NewInvoiceClient({ customers, invoiceNumber, companyId, userName
     setNotification({ show: true, type, title, message });
   };
 
-  const calculateItem = useCallback((item: InvoiceItem): InvoiceItem => {
-    const totalWithVat = item.total_with_vat;
-    const beforeVat = totalWithVat / 1.15;
-    const vatAmount = totalWithVat - beforeVat;
-    const unitPrice = item.quantity > 0 ? beforeVat / item.quantity : 0;
-    
-    return {
-      ...item,
-      before_vat: beforeVat,
-      vat_amount: vatAmount,
-      unit_price: unitPrice
-    };
-  }, []);
+    const calculateItem = useCallback((item: InvoiceItem, source: 'total' | 'unit_price' = 'total'): InvoiceItem => {
+      let totalWithVat = item.total_with_vat;
+      let unitPrice = item.unit_price;
+      const quantity = item.quantity || 0;
 
-  const calculateAdjustment = useCallback((adj: Adjustment): Adjustment => {
-    let vatAmount = 0;
-    let totalWithVat = adj.amount;
-    
-    if (adj.is_gross) {
-      vatAmount = adj.amount * 0.15;
-      totalWithVat = adj.amount + vatAmount;
-    }
-    
-    return {
-      ...adj,
-      vat_amount: vatAmount,
-      total_with_vat: totalWithVat
-    };
-  }, []);
+      if (source === 'unit_price') {
+        const beforeVat = unitPrice * quantity;
+        totalWithVat = beforeVat * 1.15;
+      }
 
-  const handleItemChange = (index: number, field: keyof InvoiceItem, value: any) => {
-    setItems(prev => {
-      const newItems = [...prev];
-      newItems[index] = { ...newItems[index], [field]: value };
-      newItems[index] = calculateItem(newItems[index]);
-      return newItems;
-    });
-  };
+      const beforeVat = totalWithVat / 1.15;
+      const vatAmount = totalWithVat - beforeVat;
+      if (source === 'total') {
+        unitPrice = quantity > 0 ? beforeVat / quantity : 0;
+      }
+      
+      return {
+        ...item,
+        before_vat: beforeVat,
+        vat_amount: vatAmount,
+        unit_price: unitPrice,
+        total_with_vat: totalWithVat
+      };
+    }, []);
+
+    const calculateAdjustment = useCallback((adj: Adjustment): Adjustment => {
+      let vatAmount = 0;
+      let totalWithVat = adj.amount;
+      
+      if (adj.is_gross) {
+        vatAmount = adj.amount * 0.15;
+        totalWithVat = adj.amount + vatAmount;
+      }
+      
+      return {
+        ...adj,
+        vat_amount: vatAmount,
+        total_with_vat: totalWithVat
+      };
+    }, []);
+
+    const handleItemChange = (index: number, field: keyof InvoiceItem, value: any) => {
+      setItems(prev => {
+        const newItems = [...prev];
+        newItems[index] = { ...newItems[index], [field]: value };
+        
+        // Determine source of change for calculation
+        const source = field === 'unit_price' ? 'unit_price' : 'total';
+        newItems[index] = calculateItem(newItems[index], source);
+        return newItems;
+      });
+    };
 
   const handleAdjustmentChange = (index: number, field: keyof Adjustment, value: any) => {
     setAdjustments(prev => {
@@ -302,27 +316,30 @@ export function NewInvoiceClient({ customers, invoiceNumber, companyId, userName
       </AnimatePresence>
 
         <div className="max-w-6xl mx-auto space-y-4">
-          <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="bg-gradient-to-br from-[#1a237e] to-[#283593] rounded-2xl p-5 text-white shadow-lg relative overflow-hidden"
-          >
-            <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-4">
-              <div className="flex items-center gap-4">
-                <div className="p-3 bg-white/10 rounded-xl">
-                  <FileText className="h-7 w-7" />
+            <motion.div
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="bg-gradient-to-br from-[#1a237e] to-[#283593] rounded-3xl p-6 text-white shadow-xl relative overflow-hidden group"
+            >
+              <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/2 blur-3xl group-hover:bg-white/10 transition-colors duration-500" />
+              <div className="absolute bottom-0 left-0 w-48 h-48 bg-blue-400/10 rounded-full translate-y-1/2 -translate-x-1/2 blur-2xl" />
+              
+              <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-6">
+                <div className="flex items-center gap-5">
+                  <div className="p-4 bg-white/15 backdrop-blur-md rounded-2xl shadow-inner border border-white/20">
+                    <FileText className="h-8 w-8 text-blue-200" />
+                  </div>
+                  <div className="text-right">
+                    <h1 className="text-2xl md:text-3xl font-black tracking-tight">إنشاء فاتورة ضريبية</h1>
+                    <p className="text-white/70 text-sm font-medium">نظام الفوترة الإلكترونية الذكي • المرحلة الثانية</p>
+                  </div>
                 </div>
-                <div className="text-right">
-                  <h1 className="text-xl md:text-2xl font-black">إنشاء فاتورة ضريبية</h1>
-                  <p className="text-white/70 text-sm">أضف تفاصيل الخدمات والعميل لإصدار فاتورة جديدة</p>
+                <div className="flex items-center gap-3 bg-white/10 backdrop-blur-md px-5 py-2.5 rounded-2xl text-xs font-bold border border-white/20 shadow-lg">
+                  <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                  <span className="opacity-90 tracking-wide">متصل بالنظام الضريبي • {new Date().toLocaleDateString('ar-SA')}</span>
                 </div>
               </div>
-              <div className="flex items-center gap-2 bg-white/10 px-4 py-2 rounded-xl text-sm font-medium border border-white/10">
-                <Clock size={16} className="text-blue-300" />
-                <span>نظام الفوترة الإلكترونية • {new Date().toLocaleDateString('ar-SA')}</span>
-              </div>
-            </div>
-          </motion.div>
+            </motion.div>
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
             <motion.div
@@ -426,83 +443,93 @@ export function NewInvoiceClient({ customers, invoiceNumber, companyId, userName
             </div>
 
             <div className="p-0">
-              <div className="hidden md:grid grid-cols-12 gap-2 px-6 py-3 bg-gray-100/50 text-xs font-black text-gray-500 border-b border-gray-100">
-                <div className="col-span-3">اسم الخدمة</div>
-                <div className="col-span-1 text-center">الكمية</div>
-                <div className="col-span-2 text-center">المبلغ (شامل)</div>
-                <div className="col-span-2 text-center">من تاريخ</div>
-                <div className="col-span-2 text-center">إلى تاريخ</div>
-                <div className="col-span-1 text-center">الضريبة</div>
-                <div className="col-span-1 text-center">حذف</div>
-              </div>
+                <div className="hidden md:grid grid-cols-12 gap-2 px-6 py-3 bg-gray-100/50 text-xs font-black text-gray-500 border-b border-gray-100">
+                  <div className="col-span-3">اسم الخدمة</div>
+                  <div className="col-span-1 text-center">الكمية</div>
+                  <div className="col-span-1 text-center">سعر الوحدة</div>
+                  <div className="col-span-1 text-center">الإجمالي (شامل)</div>
+                  <div className="col-span-2 text-center">من تاريخ</div>
+                  <div className="col-span-2 text-center">إلى تاريخ</div>
+                  <div className="col-span-1 text-center">الضريبة</div>
+                  <div className="col-span-1 text-center">حذف</div>
+                </div>
 
-              <div className="divide-y divide-gray-100">
-                {items.map((item, index) => (
-                  <div key={item.id} className="p-4 md:px-6 md:py-3 hover:bg-gray-50/50 transition-colors">
-                    <div className="grid grid-cols-1 md:grid-cols-12 gap-3 items-center">
-                      <div className="md:col-span-3">
-                        <input
-                          type="text"
-                          value={item.product_name}
-                          onChange={(e) => handleItemChange(index, 'product_name', e.target.value)}
-                          placeholder="اسم الخدمة أو المنتج..."
-                          className="w-full px-3 py-2 rounded-lg border border-gray-200 focus:border-blue-400 outline-none text-sm font-medium truncate"
-                        />
-                      </div>
-                      <div className="md:col-span-1">
-                        <input
-                          type="number"
-                          value={item.quantity || ''}
-                          onChange={(e) => handleItemChange(index, 'quantity', parseFloat(e.target.value) || 0)}
-                          className="w-full px-2 py-2 rounded-lg border border-gray-200 focus:border-blue-400 outline-none text-sm text-center font-bold"
-                        />
-                      </div>
-                      <div className="md:col-span-2">
-                        <div className="relative">
+                <div className="divide-y divide-gray-100">
+                  {items.map((item, index) => (
+                    <div key={item.id} className="p-4 md:px-6 md:py-3 hover:bg-gray-50/50 transition-colors">
+                      <div className="grid grid-cols-1 md:grid-cols-12 gap-3 items-center">
+                        <div className="md:col-span-3">
+                          <input
+                            type="text"
+                            value={item.product_name}
+                            onChange={(e) => handleItemChange(index, 'product_name', e.target.value)}
+                            placeholder="اسم الخدمة أو المنتج..."
+                            className="w-full px-3 py-2 rounded-lg border border-gray-200 focus:border-blue-400 outline-none text-sm font-medium truncate bg-white shadow-sm"
+                          />
+                        </div>
+                        <div className="md:col-span-1">
                           <input
                             type="number"
-                            value={item.total_with_vat || ''}
-                            onChange={(e) => handleItemChange(index, 'total_with_vat', parseFloat(e.target.value) || 0)}
-                            className="w-full px-2 py-2 rounded-lg border border-gray-200 focus:border-blue-400 outline-none text-sm text-center font-black text-emerald-600"
+                            value={item.quantity || ''}
+                            onChange={(e) => handleItemChange(index, 'quantity', parseFloat(e.target.value) || 0)}
+                            className="w-full px-2 py-2 rounded-lg border border-gray-200 focus:border-blue-400 outline-none text-sm text-center font-bold bg-white shadow-sm"
                           />
-                          <span className="absolute left-2 top-1/2 -translate-y-1/2 text-[10px] text-gray-400">SR</span>
                         </div>
-                      </div>
-                      <div className="md:col-span-2">
-                        <input
-                          type="date"
-                          value={item.period_from}
-                          onChange={(e) => handleItemChange(index, 'period_from', e.target.value)}
-                          className="w-full px-2 py-2 rounded-lg border border-gray-200 focus:border-blue-400 outline-none text-xs"
-                        />
-                      </div>
-                      <div className="md:col-span-2">
-                        <input
-                          type="date"
-                          value={item.period_to}
-                          onChange={(e) => handleItemChange(index, 'period_to', e.target.value)}
-                          className="w-full px-2 py-2 rounded-lg border border-gray-200 focus:border-blue-400 outline-none text-xs"
-                        />
-                      </div>
-                      <div className="md:col-span-1 text-center">
-                        <div className="text-[10px] font-bold text-blue-600 bg-blue-50 py-1 rounded">
-                          {item.vat_amount.toFixed(2)}
+                        <div className="md:col-span-1">
+                          <div className="relative">
+                            <input
+                              type="number"
+                              value={item.unit_price ? Number(item.unit_price.toFixed(2)) : ''}
+                              onChange={(e) => handleItemChange(index, 'unit_price', parseFloat(e.target.value) || 0)}
+                              className="w-full px-1 py-2 rounded-lg border border-gray-200 focus:border-blue-400 outline-none text-[11px] text-center font-bold bg-white shadow-sm text-blue-600"
+                            />
+                          </div>
                         </div>
-                      </div>
-                      <div className="md:col-span-1 flex justify-center">
-                        <button
-                          type="button"
-                          onClick={() => removeItem(index)}
-                          disabled={items.length === 1}
-                          className="p-2 rounded-lg text-gray-300 hover:text-red-500 hover:bg-red-50 transition-all disabled:opacity-0"
-                        >
-                          <Trash2 size={16} />
-                        </button>
+                        <div className="md:col-span-1">
+                          <div className="relative">
+                            <input
+                              type="number"
+                              value={item.total_with_vat || ''}
+                              onChange={(e) => handleItemChange(index, 'total_with_vat', parseFloat(e.target.value) || 0)}
+                              className="w-full px-1 py-2 rounded-lg border border-gray-200 focus:border-blue-400 outline-none text-[11px] text-center font-black text-emerald-600 bg-white shadow-sm"
+                            />
+                          </div>
+                        </div>
+                        <div className="md:col-span-2">
+                          <input
+                            type="date"
+                            value={item.period_from}
+                            onChange={(e) => handleItemChange(index, 'period_from', e.target.value)}
+                            className="w-full px-2 py-2 rounded-lg border border-gray-200 focus:border-blue-400 outline-none text-xs bg-white shadow-sm"
+                          />
+                        </div>
+                        <div className="md:col-span-2">
+                          <input
+                            type="date"
+                            value={item.period_to}
+                            onChange={(e) => handleItemChange(index, 'period_to', e.target.value)}
+                            className="w-full px-2 py-2 rounded-lg border border-gray-200 focus:border-blue-400 outline-none text-xs bg-white shadow-sm"
+                          />
+                        </div>
+                        <div className="md:col-span-1 text-center">
+                          <div className="text-[10px] font-bold text-blue-600 bg-blue-50 py-1 rounded border border-blue-100">
+                            {item.vat_amount.toFixed(2)}
+                          </div>
+                        </div>
+                        <div className="md:col-span-1 flex justify-center">
+                          <button
+                            type="button"
+                            onClick={() => removeItem(index)}
+                            disabled={items.length === 1}
+                            className="p-2 rounded-lg text-gray-300 hover:text-red-500 hover:bg-red-50 transition-all disabled:opacity-0"
+                          >
+                            <Trash2 size={16} />
+                          </button>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
             </div>
           </motion.div>
 
@@ -512,19 +539,20 @@ export function NewInvoiceClient({ customers, invoiceNumber, companyId, userName
               animate={{ opacity: 1, y: 0 }}
               className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 space-y-4"
             >
-              <div className="flex items-center justify-between mb-2">
-                <div className="flex items-center gap-2">
-                  <Percent size={18} className="text-amber-600" />
-                  <h3 className="font-bold text-gray-900">التعديلات الإضافية</h3>
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center gap-2">
+                    <Percent size={18} className="text-amber-600" />
+                    <h3 className="font-bold text-gray-900">التعديلات والإضافية</h3>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={addAdjustment}
+                    className="flex items-center gap-2 px-4 py-2 rounded-xl bg-amber-600 text-white hover:bg-amber-700 transition-all font-bold text-xs shadow-md shadow-amber-100 hover:-translate-y-0.5"
+                  >
+                    <Plus size={14} />
+                    إضافة خصم أو استحقاق
+                  </button>
                 </div>
-                <button
-                  type="button"
-                  onClick={addAdjustment}
-                  className="px-3 py-1 rounded-lg bg-amber-50 text-amber-600 hover:bg-amber-100 transition-colors font-bold text-xs"
-                >
-                  إضافة تعديل
-                </button>
-              </div>
 
               <div className="space-y-3">
                 {adjustments.map((adj, index) => (
