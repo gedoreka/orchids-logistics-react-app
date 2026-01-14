@@ -24,6 +24,13 @@ import {
   ExternalLink,
   FileImage,
   File,
+  Trash2,
+  Pencil,
+  AlertTriangle,
+  CheckCircle2,
+  X,
+  Save,
+  Loader2,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -40,7 +47,11 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogFooter,
 } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 
 interface ExpenseItem {
   id: number;
@@ -51,12 +62,15 @@ interface ExpenseItem {
   amount: number;
   tax_value: number;
   net_amount: number;
+  account_id: number;
   account_code: string;
   account_name: string;
+  cost_center_id: number;
   center_code: string;
   center_name: string;
   description: string;
   attachment: string;
+  month_reference: string;
 }
 
 interface DeductionItem {
@@ -66,13 +80,28 @@ interface DeductionItem {
   employee_name: string;
   employee_iqama: string;
   amount: number;
+  account_id: number;
   account_code: string;
   account_name: string;
+  cost_center_id: number;
   center_code: string;
   center_name: string;
   description: string;
   status: string;
   attachment: string;
+  month_reference: string;
+}
+
+interface AccountOption {
+  id: number;
+  account_code: string;
+  account_name: string;
+}
+
+interface CostCenterOption {
+  id: number;
+  center_code: string;
+  center_name: string;
 }
 
 interface PayrollItem {
@@ -187,6 +216,14 @@ export function ExpensesReportClient({ companyId }: ExpensesReportClientProps) {
   const [selectedItem, setSelectedItem] = useState<ExpenseItem | DeductionItem | null>(null);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [showAnalysisModal, setShowAnalysisModal] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [deleteLoading, setDeleteLoading] = useState(false);
+  const [editLoading, setEditLoading] = useState(false);
+  const [notification, setNotification] = useState<{show: boolean; type: 'success' | 'error'; message: string}>({show: false, type: 'success', message: ''});
+  const [editForm, setEditForm] = useState<any>({});
+  const [accounts, setAccounts] = useState<AccountOption[]>([]);
+  const [costCenters, setCostCenters] = useState<CostCenterOption[]>([]);
 
   const monthOptions = generateMonthOptions();
 
@@ -237,6 +274,116 @@ export function ExpensesReportClient({ companyId }: ExpensesReportClientProps) {
   const showItemDetails = (item: ExpenseItem | DeductionItem) => {
     setSelectedItem(item);
     setShowDetailsModal(true);
+  };
+
+  const showNotification = (type: 'success' | 'error', message: string) => {
+    setNotification({show: true, type, message});
+    setTimeout(() => setNotification({show: false, type: 'success', message: ''}), 3000);
+  };
+
+  const fetchMetadata = async () => {
+    try {
+      const [accountsRes, centersRes] = await Promise.all([
+        fetch('/api/accounts'),
+        fetch('/api/expenses/metadata')
+      ]);
+      const accountsData = await accountsRes.json();
+      const centersData = await centersRes.json();
+      if (accountsData.success) setAccounts(accountsData.data || []);
+      if (centersData.success) setCostCenters(centersData.data?.costCenters || []);
+    } catch (error) {
+      console.error('Error fetching metadata:', error);
+    }
+  };
+
+  const handleDeleteClick = (item: ExpenseItem | DeductionItem) => {
+    setSelectedItem(item);
+    setShowDeleteModal(true);
+  };
+
+  const handleEditClick = async (item: ExpenseItem | DeductionItem) => {
+    setSelectedItem(item);
+    await fetchMetadata();
+    setEditForm({
+      id: item.id,
+      expense_date: item.expense_date?.split('T')[0] || '',
+      employee_name: item.employee_name || '',
+      employee_iqama: item.employee_iqama || '',
+      amount: item.amount || 0,
+      tax_value: 'tax_value' in item ? item.tax_value || 0 : 0,
+      net_amount: 'net_amount' in item ? item.net_amount || item.amount || 0 : item.amount || 0,
+      account_id: item.account_id || '',
+      cost_center_id: item.cost_center_id || '',
+      expense_type: 'expense_type' in item ? item.expense_type : item.deduction_type,
+      description: item.description || '',
+      month_reference: item.month_reference || selectedMonth,
+      attachment: item.attachment || '',
+      status: 'status' in item ? item.status : undefined,
+    });
+    setShowEditModal(true);
+  };
+
+  const handleDelete = async () => {
+    if (!selectedItem) return;
+    setDeleteLoading(true);
+    try {
+      const isExpense = 'expense_type' in selectedItem;
+      const endpoint = isExpense 
+        ? `/api/expenses/report?id=${selectedItem.id}&type=expense`
+        : `/api/expenses/report?id=${selectedItem.id}&type=deduction`;
+      
+      const res = await fetch(endpoint, { method: 'DELETE' });
+      const data = await res.json();
+      
+      if (data.success) {
+        showNotification('success', 'تم حذف العملية بنجاح');
+        setShowDeleteModal(false);
+        fetchReportData();
+      } else {
+        showNotification('error', data.message || 'حدث خطأ أثناء الحذف');
+      }
+    } catch (error) {
+      showNotification('error', 'حدث خطأ أثناء الحذف');
+    } finally {
+      setDeleteLoading(false);
+    }
+  };
+
+  const handleEditSubmit = async () => {
+    if (!selectedItem) return;
+    setEditLoading(true);
+    try {
+      const isExpense = 'expense_type' in selectedItem;
+      const endpoint = isExpense 
+        ? `/api/expenses/report`
+        : `/api/expenses/report`;
+      
+      const res = await fetch(endpoint, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          ...editForm,
+          type: isExpense ? 'expense' : 'deduction'
+        })
+      });
+      const data = await res.json();
+      
+      if (data.success) {
+        showNotification('success', 'تم تعديل العملية بنجاح');
+        setShowEditModal(false);
+        fetchReportData();
+      } else {
+        showNotification('error', data.message || 'حدث خطأ أثناء التعديل');
+      }
+    } catch (error) {
+      showNotification('error', 'حدث خطأ أثناء التعديل');
+    } finally {
+      setEditLoading(false);
+    }
+  };
+
+  const calculateNetAmount = (amount: number, taxValue: number) => {
+    return amount - taxValue;
   };
 
   if (loading) {
@@ -650,36 +797,57 @@ export function ExpensesReportClient({ companyId }: ExpensesReportClientProps) {
                                       <th className="p-2 text-center text-slate-600 font-bold text-xs">الصافي</th>
                                       <th className="p-2 text-center text-slate-600 font-bold text-xs">الحساب</th>
                                       <th className="p-2 text-center text-slate-600 font-bold text-xs">م.التكلفة</th>
-                                      <th className="p-2 text-center text-slate-600 font-bold text-xs print:hidden">التفاصيل</th>
-                                    </tr>
-                                  </thead>
-                                  <tbody>
-                                    {expenses.map((expense, idx) => (
-                                      <tr
-                                        key={expense.id}
-                                        className="border-b border-slate-100 hover:bg-blue-50/50 transition-colors"
-                                      >
-                                        <td className="p-2 text-center text-slate-500 text-xs">{idx + 1}</td>
-                                        <td className="p-2 text-center text-xs">{formatDate(expense.expense_date)}</td>
-                                        <td className="p-2 text-center font-medium text-xs">{expense.employee_name || "-"}</td>
-                                        <td className="p-2 text-center text-slate-500 text-xs">{expense.employee_iqama || "-"}</td>
-                                        <td className="p-2 text-center font-bold text-blue-600 text-xs">{formatNumber(expense.amount || 0)}</td>
-                                        <td className="p-2 text-center text-slate-500 text-xs">{formatNumber(expense.tax_value || 0)}</td>
-                                        <td className="p-2 text-center font-bold text-emerald-600 text-xs">{formatNumber(expense.net_amount || expense.amount || 0)}</td>
-                                        <td className="p-2 text-center text-xs">{expense.account_code || "-"}</td>
-                                        <td className="p-2 text-center text-xs">{expense.center_code || "-"}</td>
-                                        <td className="p-2 text-center print:hidden">
-                                          <Button
-                                            size="sm"
-                                            variant="ghost"
-                                            onClick={() => showItemDetails(expense)}
-                                            className="text-blue-600 hover:bg-blue-100 h-6 w-6 p-0"
-                                          >
-                                            <Eye className="w-3 h-3" />
-                                          </Button>
-                                        </td>
+                                        <th className="p-2 text-center text-slate-600 font-bold text-xs print:hidden">الإجراءات</th>
                                       </tr>
-                                    ))}
+                                    </thead>
+                                    <tbody>
+                                      {expenses.map((expense, idx) => (
+                                        <tr
+                                          key={expense.id}
+                                          className="border-b border-slate-100 hover:bg-blue-50/50 transition-colors"
+                                        >
+                                          <td className="p-2 text-center text-slate-500 text-xs">{idx + 1}</td>
+                                          <td className="p-2 text-center text-xs">{formatDate(expense.expense_date)}</td>
+                                          <td className="p-2 text-center font-medium text-xs">{expense.employee_name || "-"}</td>
+                                          <td className="p-2 text-center text-slate-500 text-xs">{expense.employee_iqama || "-"}</td>
+                                          <td className="p-2 text-center font-bold text-blue-600 text-xs">{formatNumber(expense.amount || 0)}</td>
+                                          <td className="p-2 text-center text-slate-500 text-xs">{formatNumber(expense.tax_value || 0)}</td>
+                                          <td className="p-2 text-center font-bold text-emerald-600 text-xs">{formatNumber(expense.net_amount || expense.amount || 0)}</td>
+                                          <td className="p-2 text-center text-xs">{expense.account_code || "-"}</td>
+                                          <td className="p-2 text-center text-xs">{expense.center_code || "-"}</td>
+                                          <td className="p-2 text-center print:hidden">
+                                            <div className="flex items-center justify-center gap-1">
+                                              <Button
+                                                size="sm"
+                                                variant="ghost"
+                                                onClick={() => showItemDetails(expense)}
+                                                className="text-blue-600 hover:bg-blue-100 h-7 px-2"
+                                                title="عرض التفاصيل"
+                                              >
+                                                <Eye className="w-3.5 h-3.5" />
+                                              </Button>
+                                              <Button
+                                                size="sm"
+                                                variant="ghost"
+                                                onClick={() => handleEditClick(expense)}
+                                                className="text-amber-600 hover:bg-amber-100 h-7 px-2"
+                                                title="تعديل"
+                                              >
+                                                <Pencil className="w-3.5 h-3.5" />
+                                              </Button>
+                                              <Button
+                                                size="sm"
+                                                variant="ghost"
+                                                onClick={() => handleDeleteClick(expense)}
+                                                className="text-rose-600 hover:bg-rose-100 h-7 px-2"
+                                                title="حذف"
+                                              >
+                                                <Trash2 className="w-3.5 h-3.5" />
+                                              </Button>
+                                            </div>
+                                          </td>
+                                        </tr>
+                                      ))}
                                   </tbody>
                                 </table>
                               </div>
@@ -797,46 +965,67 @@ export function ExpensesReportClient({ companyId }: ExpensesReportClientProps) {
                                       <th className="p-2 text-center text-slate-600 font-bold text-xs">المبلغ</th>
                                       <th className="p-2 text-center text-slate-600 font-bold text-xs">الحساب</th>
                                       <th className="p-2 text-center text-slate-600 font-bold text-xs">م.التكلفة</th>
-                                      <th className="p-2 text-center text-slate-600 font-bold text-xs">الحالة</th>
-                                      <th className="p-2 text-center text-slate-600 font-bold text-xs print:hidden">التفاصيل</th>
-                                    </tr>
-                                  </thead>
-                                  <tbody>
-                                    {deductions.map((deduction, idx) => (
-                                      <tr
-                                        key={deduction.id}
-                                        className="border-b border-slate-100 hover:bg-rose-50/50 transition-colors"
-                                      >
-                                        <td className="p-2 text-center text-slate-500 text-xs">{idx + 1}</td>
-                                        <td className="p-2 text-center text-xs">{formatDate(deduction.expense_date)}</td>
-                                        <td className="p-2 text-center font-medium text-xs">{deduction.employee_name || "-"}</td>
-                                        <td className="p-2 text-center text-slate-500 text-xs">{deduction.employee_iqama || "-"}</td>
-                                        <td className="p-2 text-center font-bold text-rose-600 text-xs">{formatNumber(deduction.amount || 0)}</td>
-                                        <td className="p-2 text-center text-xs">{deduction.account_code || "-"}</td>
-                                        <td className="p-2 text-center text-xs">{deduction.center_code || "-"}</td>
-                                        <td className="p-2 text-center">
-                                          <Badge
-                                            className={`text-xs ${
-                                              deduction.status === "completed"
-                                                ? "bg-emerald-100 text-emerald-700"
-                                                : "bg-amber-100 text-amber-700"
-                                            }`}
-                                          >
-                                            {deduction.status === "completed" ? "مدفوع" : "غير مدفوع"}
-                                          </Badge>
-                                        </td>
-                                        <td className="p-2 text-center print:hidden">
-                                          <Button
-                                            size="sm"
-                                            variant="ghost"
-                                            onClick={() => showItemDetails(deduction)}
-                                            className="text-rose-600 hover:bg-rose-100 h-6 w-6 p-0"
-                                          >
-                                            <Eye className="w-3 h-3" />
-                                          </Button>
-                                        </td>
+                                        <th className="p-2 text-center text-slate-600 font-bold text-xs">الحالة</th>
+                                        <th className="p-2 text-center text-slate-600 font-bold text-xs print:hidden">الإجراءات</th>
                                       </tr>
-                                    ))}
+                                    </thead>
+                                    <tbody>
+                                      {deductions.map((deduction, idx) => (
+                                        <tr
+                                          key={deduction.id}
+                                          className="border-b border-slate-100 hover:bg-rose-50/50 transition-colors"
+                                        >
+                                          <td className="p-2 text-center text-slate-500 text-xs">{idx + 1}</td>
+                                          <td className="p-2 text-center text-xs">{formatDate(deduction.expense_date)}</td>
+                                          <td className="p-2 text-center font-medium text-xs">{deduction.employee_name || "-"}</td>
+                                          <td className="p-2 text-center text-slate-500 text-xs">{deduction.employee_iqama || "-"}</td>
+                                          <td className="p-2 text-center font-bold text-rose-600 text-xs">{formatNumber(deduction.amount || 0)}</td>
+                                          <td className="p-2 text-center text-xs">{deduction.account_code || "-"}</td>
+                                          <td className="p-2 text-center text-xs">{deduction.center_code || "-"}</td>
+                                          <td className="p-2 text-center">
+                                            <Badge
+                                              className={`text-xs ${
+                                                deduction.status === "completed"
+                                                  ? "bg-emerald-100 text-emerald-700"
+                                                  : "bg-amber-100 text-amber-700"
+                                              }`}
+                                            >
+                                              {deduction.status === "completed" ? "مدفوع" : "غير مدفوع"}
+                                            </Badge>
+                                          </td>
+                                          <td className="p-2 text-center print:hidden">
+                                            <div className="flex items-center justify-center gap-1">
+                                              <Button
+                                                size="sm"
+                                                variant="ghost"
+                                                onClick={() => showItemDetails(deduction)}
+                                                className="text-rose-600 hover:bg-rose-100 h-7 px-2"
+                                                title="عرض التفاصيل"
+                                              >
+                                                <Eye className="w-3.5 h-3.5" />
+                                              </Button>
+                                              <Button
+                                                size="sm"
+                                                variant="ghost"
+                                                onClick={() => handleEditClick(deduction)}
+                                                className="text-amber-600 hover:bg-amber-100 h-7 px-2"
+                                                title="تعديل"
+                                              >
+                                                <Pencil className="w-3.5 h-3.5" />
+                                              </Button>
+                                              <Button
+                                                size="sm"
+                                                variant="ghost"
+                                                onClick={() => handleDeleteClick(deduction)}
+                                                className="text-red-600 hover:bg-red-100 h-7 px-2"
+                                                title="حذف"
+                                              >
+                                                <Trash2 className="w-3.5 h-3.5" />
+                                              </Button>
+                                            </div>
+                                          </td>
+                                        </tr>
+                                      ))}
                                   </tbody>
                                 </table>
                               </div>
@@ -977,14 +1166,14 @@ export function ExpensesReportClient({ companyId }: ExpensesReportClientProps) {
         </motion.div>
 
         {/* Details Modal */}
-        <Dialog open={showDetailsModal} onOpenChange={setShowDetailsModal}>
-          <DialogContent className="max-w-2xl rtl max-h-[90vh] overflow-y-auto" dir="rtl">
-            <DialogHeader>
-              <DialogTitle className="flex items-center gap-2 text-base">
-                <Info className="w-5 h-5 text-blue-600" />
-                التفاصيل الكاملة
-              </DialogTitle>
-            </DialogHeader>
+          <Dialog open={showDetailsModal} onOpenChange={setShowDetailsModal}>
+            <DialogContent className="max-w-2xl rtl max-h-[90vh] overflow-y-auto" dir="rtl">
+              <DialogHeader>
+                <DialogTitle className="flex items-center gap-2 text-base">
+                  <Eye className="w-5 h-5 text-blue-600" />
+                  عرض تفاصيل العملية
+                </DialogTitle>
+              </DialogHeader>
             {selectedItem && (
               <div className="space-y-3 p-3">
                 <div className="grid grid-cols-2 gap-3">
@@ -1157,8 +1346,334 @@ export function ExpensesReportClient({ companyId }: ExpensesReportClientProps) {
               </div>
             </div>
           </DialogContent>
-        </Dialog>
-      </div>
+          </Dialog>
+        </div>
+
+        {/* Delete Confirmation Modal */}
+        <AnimatePresence>
+          {showDeleteModal && (
+            <Dialog open={showDeleteModal} onOpenChange={setShowDeleteModal}>
+              <DialogContent className="max-w-md rtl" dir="rtl">
+                <div className="text-center py-4">
+                  <motion.div
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    className="w-20 h-20 mx-auto mb-4 rounded-full bg-gradient-to-br from-red-100 to-rose-100 flex items-center justify-center"
+                  >
+                    <AlertTriangle className="w-10 h-10 text-red-500" />
+                  </motion.div>
+                  <h3 className="text-xl font-bold text-slate-800 mb-2">هل أنت متأكد؟</h3>
+                  <p className="text-slate-500 mb-6">
+                    سيتم حذف{" "}
+                    {selectedItem && "expense_type" in selectedItem ? "المنصرف" : "الاستقطاع"}{" "}
+                    "{selectedItem && ("expense_type" in selectedItem ? selectedItem.expense_type : selectedItem?.deduction_type)}" نهائياً.
+                    <br />
+                    <span className="text-red-500 font-medium">لا يمكن التراجع عن هذا الإجراء!</span>
+                  </p>
+                  <div className="flex items-center justify-center gap-3">
+                    <Button
+                      onClick={handleDelete}
+                      disabled={deleteLoading}
+                      className="bg-gradient-to-r from-red-500 to-rose-600 hover:from-red-600 hover:to-rose-700 text-white px-6 py-2 rounded-xl"
+                    >
+                      {deleteLoading ? (
+                        <>
+                          <Loader2 className="w-4 h-4 ml-2 animate-spin" />
+                          جاري الحذف...
+                        </>
+                      ) : (
+                        <>
+                          <Trash2 className="w-4 h-4 ml-2" />
+                          نعم، احذفها
+                        </>
+                      )}
+                    </Button>
+                    <Button
+                      onClick={() => setShowDeleteModal(false)}
+                      variant="outline"
+                      className="px-6 py-2 rounded-xl"
+                    >
+                      إلغاء
+                    </Button>
+                  </div>
+                </div>
+              </DialogContent>
+            </Dialog>
+          )}
+        </AnimatePresence>
+
+        {/* Edit Modal */}
+        <AnimatePresence>
+          {showEditModal && selectedItem && (
+            <Dialog open={showEditModal} onOpenChange={setShowEditModal}>
+              <DialogContent className="max-w-2xl rtl max-h-[90vh] overflow-y-auto" dir="rtl">
+                <DialogHeader>
+                  <DialogTitle className="flex items-center gap-2 text-base">
+                    <Pencil className="w-5 h-5 text-amber-600" />
+                    تعديل {("expense_type" in selectedItem) ? "المنصرف" : "الاستقطاع"}
+                  </DialogTitle>
+                </DialogHeader>
+                <div className="space-y-4 p-2">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="expense_date">تاريخ العملية</Label>
+                      <Input
+                        id="expense_date"
+                        type="date"
+                        value={editForm.expense_date || ''}
+                        onChange={(e) => setEditForm({...editForm, expense_date: e.target.value})}
+                        className="rounded-xl"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="month_reference">الشهر المرجعي</Label>
+                      <Input
+                        id="month_reference"
+                        type="month"
+                        value={editForm.month_reference || ''}
+                        onChange={(e) => setEditForm({...editForm, month_reference: e.target.value})}
+                        className="rounded-xl"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="employee_name">اسم المستفيد</Label>
+                      <Input
+                        id="employee_name"
+                        type="text"
+                        value={editForm.employee_name || ''}
+                        onChange={(e) => setEditForm({...editForm, employee_name: e.target.value})}
+                        className="rounded-xl"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="employee_iqama">رقم الإقامة</Label>
+                      <Input
+                        id="employee_iqama"
+                        type="text"
+                        value={editForm.employee_iqama || ''}
+                        onChange={(e) => setEditForm({...editForm, employee_iqama: e.target.value})}
+                        className="rounded-xl"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="amount">المبلغ</Label>
+                      <Input
+                        id="amount"
+                        type="number"
+                        step="0.01"
+                        value={editForm.amount || 0}
+                        onChange={(e) => {
+                          const amount = parseFloat(e.target.value) || 0;
+                          const taxValue = editForm.tax_value || 0;
+                          setEditForm({
+                            ...editForm,
+                            amount,
+                            net_amount: amount - taxValue
+                          });
+                        }}
+                        className="rounded-xl"
+                      />
+                    </div>
+                    {"tax_value" in selectedItem && (
+                      <>
+                        <div className="space-y-2">
+                          <Label htmlFor="tax_value">قيمة الضريبة</Label>
+                          <Input
+                            id="tax_value"
+                            type="number"
+                            step="0.01"
+                            value={editForm.tax_value || 0}
+                            onChange={(e) => {
+                              const taxValue = parseFloat(e.target.value) || 0;
+                              const amount = editForm.amount || 0;
+                              setEditForm({
+                                ...editForm,
+                                tax_value: taxValue,
+                                net_amount: amount - taxValue
+                              });
+                            }}
+                            className="rounded-xl"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="net_amount">المبلغ الصافي</Label>
+                          <Input
+                            id="net_amount"
+                            type="number"
+                            step="0.01"
+                            value={editForm.net_amount || 0}
+                            readOnly
+                            className="rounded-xl bg-slate-50"
+                          />
+                        </div>
+                      </>
+                    )}
+                    <div className="space-y-2">
+                      <Label htmlFor="account_id">الحساب</Label>
+                      <Select 
+                        value={String(editForm.account_id || '')} 
+                        onValueChange={(value) => setEditForm({...editForm, account_id: parseInt(value)})}
+                      >
+                        <SelectTrigger className="rounded-xl">
+                          <SelectValue placeholder="اختر الحساب" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {accounts.map((acc) => (
+                            <SelectItem key={acc.id} value={String(acc.id)}>
+                              {acc.account_code} - {acc.account_name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="cost_center_id">مركز التكلفة</Label>
+                      <Select 
+                        value={String(editForm.cost_center_id || '')} 
+                        onValueChange={(value) => setEditForm({...editForm, cost_center_id: parseInt(value)})}
+                      >
+                        <SelectTrigger className="rounded-xl">
+                          <SelectValue placeholder="اختر مركز التكلفة" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {costCenters.map((cc) => (
+                            <SelectItem key={cc.id} value={String(cc.id)}>
+                              {cc.center_code} - {cc.center_name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    {"status" in selectedItem && (
+                      <div className="space-y-2">
+                        <Label htmlFor="status">الحالة</Label>
+                        <Select 
+                          value={editForm.status || ''} 
+                          onValueChange={(value) => setEditForm({...editForm, status: value})}
+                        >
+                          <SelectTrigger className="rounded-xl">
+                            <SelectValue placeholder="اختر الحالة" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="pending">غير مدفوع</SelectItem>
+                            <SelectItem value="completed">مدفوع</SelectItem>
+                            <SelectItem value="approved">معتمد</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    )}
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="description">الوصف</Label>
+                    <Textarea
+                      id="description"
+                      value={editForm.description || ''}
+                      onChange={(e) => setEditForm({...editForm, description: e.target.value})}
+                      className="rounded-xl min-h-[80px]"
+                    />
+                  </div>
+                  
+                  {editForm.attachment && (
+                    <div className="bg-gradient-to-br from-amber-50 to-orange-50 p-4 rounded-xl border border-amber-200">
+                      <div className="flex items-center gap-2 mb-3">
+                        <Paperclip className="w-5 h-5 text-amber-600" />
+                        <p className="text-sm font-bold text-amber-800">المرفق الحالي</p>
+                      </div>
+                      {isImageFile(editForm.attachment) ? (
+                        <div className="space-y-3">
+                          <div className="relative rounded-xl overflow-hidden border border-amber-200 bg-white">
+                            <img 
+                              src={getAttachmentUrl(editForm.attachment) || ''} 
+                              alt="المرفق"
+                              className="w-full max-h-[200px] object-contain"
+                            />
+                          </div>
+                          <p className="text-xs text-amber-700">
+                            سيتم الاحتفاظ بهذا المرفق إذا لم تقم بتغييره
+                          </p>
+                        </div>
+                      ) : (
+                        <div className="flex items-center gap-3 p-3 bg-white rounded-xl border border-amber-200">
+                          <File className="w-8 h-8 text-amber-600" />
+                          <div>
+                            <p className="text-sm font-medium text-slate-800">{editForm.attachment.split('/').pop()}</p>
+                            <p className="text-xs text-slate-500">سيتم الاحتفاظ بالمرفق</p>
+                          </div>
+                          <a
+                            href={getAttachmentUrl(editForm.attachment) || ''}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="mr-auto text-amber-600 hover:text-amber-700"
+                          >
+                            <ExternalLink className="w-5 h-5" />
+                          </a>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+                <DialogFooter className="flex gap-3 mt-4">
+                  <Button
+                    onClick={handleEditSubmit}
+                    disabled={editLoading}
+                    className="bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white px-6 rounded-xl"
+                  >
+                    {editLoading ? (
+                      <>
+                        <Loader2 className="w-4 h-4 ml-2 animate-spin" />
+                        جاري الحفظ...
+                      </>
+                    ) : (
+                      <>
+                        <Save className="w-4 h-4 ml-2" />
+                        حفظ التعديلات
+                      </>
+                    )}
+                  </Button>
+                  <Button
+                    onClick={() => setShowEditModal(false)}
+                    variant="outline"
+                    className="rounded-xl"
+                  >
+                    إلغاء
+                  </Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
+          )}
+        </AnimatePresence>
+
+        {/* Notification */}
+        <AnimatePresence>
+          {notification.show && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9, y: -50 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: -50 }}
+              className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-[100]"
+            >
+              <div className={`px-8 py-6 rounded-2xl shadow-2xl flex items-center gap-4 ${
+                notification.type === 'success' 
+                  ? 'bg-gradient-to-r from-emerald-500 to-green-600 text-white' 
+                  : 'bg-gradient-to-r from-red-500 to-rose-600 text-white'
+              }`}>
+                <div className="w-14 h-14 rounded-full bg-white/20 flex items-center justify-center">
+                  {notification.type === 'success' ? (
+                    <CheckCircle2 className="w-8 h-8" />
+                  ) : (
+                    <X className="w-8 h-8" />
+                  )}
+                </div>
+                <div>
+                  <h4 className="font-bold text-lg">
+                    {notification.type === 'success' ? 'تمت العملية بنجاح' : 'حدث خطأ'}
+                  </h4>
+                  <p className="text-white/90">{notification.message}</p>
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
       <style jsx global>{`
         @media print {

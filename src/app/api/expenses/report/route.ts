@@ -233,3 +233,203 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
+
+export async function DELETE(request: NextRequest) {
+  try {
+    const cookieStore = await cookies();
+    const sessionCookie = cookieStore.get('auth_session');
+    
+    if (!sessionCookie) {
+      return NextResponse.json({ success: false, message: 'Unauthorized' }, { status: 401 });
+    }
+
+    let session;
+    try {
+      session = JSON.parse(sessionCookie.value);
+    } catch {
+      return NextResponse.json({ success: false, message: 'Invalid session' }, { status: 401 });
+    }
+    
+    let companyId = session.company_id;
+    
+    if (!companyId) {
+      return NextResponse.json({ success: false, message: 'No company ID' }, { status: 401 });
+    }
+
+    const userCompany = await query<{ company_id: number }>(
+      'SELECT company_id FROM users WHERE id = ?',
+      [session.user_id]
+    );
+    
+    if (userCompany && userCompany[0] && userCompany[0].company_id) {
+      companyId = userCompany[0].company_id;
+    }
+
+    const { searchParams } = new URL(request.url);
+    const id = searchParams.get('id');
+    const type = searchParams.get('type');
+
+    if (!id || !type) {
+      return NextResponse.json({ success: false, message: 'Missing id or type parameter' }, { status: 400 });
+    }
+
+    const table = type === 'expense' ? 'monthly_expenses' : 'monthly_deductions';
+
+    const checkRecord = await query<{ id: number }>(
+      `SELECT id FROM ${table} WHERE id = ? AND company_id = ?`,
+      [parseInt(id), companyId]
+    );
+
+    if (!checkRecord || checkRecord.length === 0) {
+      return NextResponse.json({ success: false, message: 'Record not found or unauthorized' }, { status: 404 });
+    }
+
+    await query(
+      `DELETE FROM ${table} WHERE id = ? AND company_id = ?`,
+      [parseInt(id), companyId]
+    );
+
+    return NextResponse.json({ success: true, message: 'Deleted successfully' });
+
+  } catch (error: any) {
+    console.error('Delete API Error:', error);
+    return NextResponse.json({ success: false, message: error.message }, { status: 500 });
+  }
+}
+
+export async function PUT(request: NextRequest) {
+  try {
+    const cookieStore = await cookies();
+    const sessionCookie = cookieStore.get('auth_session');
+    
+    if (!sessionCookie) {
+      return NextResponse.json({ success: false, message: 'Unauthorized' }, { status: 401 });
+    }
+
+    let session;
+    try {
+      session = JSON.parse(sessionCookie.value);
+    } catch {
+      return NextResponse.json({ success: false, message: 'Invalid session' }, { status: 401 });
+    }
+    
+    let companyId = session.company_id;
+    
+    if (!companyId) {
+      return NextResponse.json({ success: false, message: 'No company ID' }, { status: 401 });
+    }
+
+    const userCompany = await query<{ company_id: number }>(
+      'SELECT company_id FROM users WHERE id = ?',
+      [session.user_id]
+    );
+    
+    if (userCompany && userCompany[0] && userCompany[0].company_id) {
+      companyId = userCompany[0].company_id;
+    }
+
+    const body = await request.json();
+    const { id, type, ...data } = body;
+
+    if (!id || !type) {
+      return NextResponse.json({ success: false, message: 'Missing id or type' }, { status: 400 });
+    }
+
+    if (type === 'expense') {
+      const checkRecord = await query<{ id: number; attachment: string }>(
+        'SELECT id, attachment FROM monthly_expenses WHERE id = ? AND company_id = ?',
+        [id, companyId]
+      );
+
+      if (!checkRecord || checkRecord.length === 0) {
+        return NextResponse.json({ success: false, message: 'Record not found' }, { status: 404 });
+      }
+
+      const currentAttachment = checkRecord[0].attachment;
+      const attachmentToSave = data.attachment || currentAttachment;
+
+      await query(
+        `UPDATE monthly_expenses SET
+          expense_date = ?,
+          employee_name = ?,
+          employee_iqama = ?,
+          amount = ?,
+          tax_value = ?,
+          net_amount = ?,
+          account_id = ?,
+          cost_center_id = ?,
+          expense_type = ?,
+          description = ?,
+          month_reference = ?,
+          attachment = ?
+        WHERE id = ? AND company_id = ?`,
+        [
+          data.expense_date,
+          data.employee_name || null,
+          data.employee_iqama || null,
+          data.amount || 0,
+          data.tax_value || 0,
+          data.net_amount || data.amount || 0,
+          data.account_id || null,
+          data.cost_center_id || null,
+          data.expense_type || null,
+          data.description || null,
+          data.month_reference || null,
+          attachmentToSave,
+          id,
+          companyId
+        ]
+      );
+
+    } else {
+      const checkRecord = await query<{ id: number; attachment: string }>(
+        'SELECT id, attachment FROM monthly_deductions WHERE id = ? AND company_id = ?',
+        [id, companyId]
+      );
+
+      if (!checkRecord || checkRecord.length === 0) {
+        return NextResponse.json({ success: false, message: 'Record not found' }, { status: 404 });
+      }
+
+      const currentAttachment = checkRecord[0].attachment;
+      const attachmentToSave = data.attachment || currentAttachment;
+
+      await query(
+        `UPDATE monthly_deductions SET
+          expense_date = ?,
+          employee_name = ?,
+          employee_iqama = ?,
+          amount = ?,
+          account_id = ?,
+          cost_center_id = ?,
+          deduction_type = ?,
+          description = ?,
+          month_reference = ?,
+          attachment = ?,
+          status = ?
+        WHERE id = ? AND company_id = ?`,
+        [
+          data.expense_date,
+          data.employee_name || null,
+          data.employee_iqama || null,
+          data.amount || 0,
+          data.account_id || null,
+          data.cost_center_id || null,
+          data.expense_type || null,
+          data.description || null,
+          data.month_reference || null,
+          attachmentToSave,
+          data.status || 'pending',
+          id,
+          companyId
+        ]
+      );
+    }
+
+    return NextResponse.json({ success: true, message: 'Updated successfully' });
+
+  } catch (error: any) {
+    console.error('Update API Error:', error);
+    return NextResponse.json({ success: false, message: error.message }, { status: 500 });
+  }
+}
