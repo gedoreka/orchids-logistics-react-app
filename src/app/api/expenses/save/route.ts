@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from "next/server";
-import { query, execute } from "@/lib/db";
 import { supabase } from "@/lib/supabase";
 
 export async function POST(request: NextRequest) {
@@ -8,7 +7,6 @@ export async function POST(request: NextRequest) {
     
     const companyId = formData.get("company_id") as string;
     const userId = formData.get("user_id") as string;
-    const month = formData.get("month") as string;
 
     if (!companyId) {
       return NextResponse.json({ error: "Company ID required" }, { status: 400 });
@@ -31,18 +29,18 @@ export async function POST(request: NextRequest) {
     const count = expenseDates.length;
     let savedCount = 0;
 
-    // Fetch account and cost center IDs for mapping
-    const accounts = await query<{ id: number; account_code: string }>(
-      "SELECT id, account_code FROM accounts WHERE company_id = ?",
-      [companyId]
-    );
-    const costCenters = await query<{ id: number; center_code: string }>(
-      "SELECT id, center_code FROM cost_centers WHERE company_id = ?",
-      [companyId]
-    );
+    const { data: accounts } = await supabase
+      .from("accounts")
+      .select("id, account_code")
+      .eq("company_id", companyId);
 
-    const accountMap = new Map(accounts.map(a => [a.account_code, a.id]));
-    const centerMap = new Map(costCenters.map(c => [c.center_code, c.id]));
+    const { data: costCenters } = await supabase
+      .from("cost_centers")
+      .select("id, center_code")
+      .eq("company_id", companyId);
+
+    const accountMap = new Map((accounts || []).map(a => [a.account_code, a.id]));
+    const centerMap = new Map((costCenters || []).map(c => [c.center_code, c.id]));
 
     for (let i = 0; i < count; i++) {
       const mainType = mainTypes[i];
@@ -76,70 +74,83 @@ export async function POST(request: NextRequest) {
 
       const accId = accountMap.get(accountCode) || null;
       const centerId = centerMap.get(centerCode) || null;
-      const monthRef = date.substring(0, 7); // YYYY-MM
+      const monthRef = date.substring(0, 7);
 
-      // 1. Insert into monthly_expenses
-      const result = await execute(
-        `INSERT INTO monthly_expenses (
-          company_id, expense_date, expense_type, amount, description,
-          employee_iqama, employee_name, account_code, cost_center_code,
-          tax_value, net_amount, month_reference, account_id, cost_center_id, attachment
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        [
-          companyId, date, type, amount, desc,
-          iqama, name, accountCode, centerCode,
-          tax, net, monthRef, accId, centerId, attachmentPath
-        ]
-      );
+      const { data: insertedExpense, error: insertError } = await supabase
+        .from("monthly_expenses")
+        .insert({
+          company_id: parseInt(companyId),
+          expense_date: date,
+          expense_type: type,
+          amount: amount,
+          description: desc,
+          employee_iqama: iqama,
+          employee_name: name,
+          account_code: accountCode,
+          cost_center_code: centerCode,
+          tax_value: tax,
+          net_amount: net,
+          month_reference: monthRef,
+          account_id: accId,
+          cost_center_id: centerId,
+          attachment: attachmentPath
+        })
+        .select()
+        .single();
 
-      if (result.insertId) {
+      if (insertError) {
+        console.error("Error inserting expense:", insertError);
+        continue;
+      }
+
+      if (insertedExpense) {
         savedCount++;
 
-        // 2. Insert into journal_entries
         if (accId) {
-          await execute(
-            `INSERT INTO journal_entries (
-              entry_date, account_id, description, debit, credit, company_id
-            ) VALUES (?, ?, ?, ?, 0, ?)`,
-            [date, accId, desc || `Expense: ${type}`, net, companyId]
-          );
+          await supabase.from("journal_entries").insert({
+            entry_date: date,
+            account_id: accId,
+            description: desc || `Expense: ${type}`,
+            debit: net,
+            credit: 0,
+            company_id: parseInt(companyId)
+          });
         }
 
-        // 3. Business Logic based on mainType
-        
-        // A. Iqama Renewal Logic
         if (mainType === 'iqama' && empId > 0) {
           const renewalAmounts = [162, 163, 2425];
           if (renewalAmounts.includes(Math.floor(amount))) {
-            // Renew for 3 months from current date
-            await execute(
-              `UPDATE employees 
-               SET iqama_expiry = CURRENT_DATE + INTERVAL '3 months' 
-               WHERE id = ?`,
-              [empId]
-            );
+            const newExpiry = new Date();
+            newExpiry.setMonth(newExpiry.getMonth() + 3);
+            await supabase
+              .from("employees")
+              .update({ iqama_expiry: newExpiry.toISOString().split('T')[0] })
+              .eq("id", empId);
           }
         }
 
-        // B. Traffic Violation Logic
         if ((mainType === 'traffic' || type === "مخالفات مرورية") && empId > 0) {
-          await execute(
-            `INSERT INTO employee_violations 
-             (employee_id, violation_type, violation_date, violation_amount, 
-              deducted_amount, remaining_amount, status, violation_description) 
-             VALUES (?, 'traffic', ?, ?, ?, 0, 'deducted', ?)`,
-            [empId, date, amount, amount, desc || `مخالفة مرورية - ${name}`]
-          );
+          await supabase.from("employee_violations").insert({
+            employee_id: empId,
+            violation_type: 'traffic',
+            violation_date: date,
+            violation_amount: amount,
+            deducted_amount: amount,
+            remaining_amount: 0,
+            status: 'deducted',
+            violation_description: desc || `مخالفة مرورية - ${name}`
+          });
         }
 
-        // C. Loan (Advances) Logic
         if (mainType === 'advances' && empId > 0) {
-          await execute(
-            `INSERT INTO monthly_deductions 
-             (company_id, amount, month_reference, employee_name, deduction_type, deduction_date) 
-             VALUES (?, ?, ?, ?, 'advance', ?)`,
-            [companyId, amount, monthRef, name, date]
-          );
+          await supabase.from("monthly_deductions").insert({
+            company_id: parseInt(companyId),
+            amount: amount,
+            month_reference: monthRef,
+            employee_name: name,
+            deduction_type: 'advance',
+            expense_date: date
+          });
         }
       }
     }
