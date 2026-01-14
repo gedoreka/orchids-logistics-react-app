@@ -284,13 +284,20 @@ export function ExpensesReportClient({ companyId }: ExpensesReportClientProps) {
   const fetchMetadata = async () => {
     try {
       const [accountsRes, centersRes] = await Promise.all([
-        fetch('/api/accounts'),
-        fetch('/api/expenses/metadata')
+        fetch(`/api/accounts?company_id=${companyId}`),
+        fetch(`/api/expenses/metadata?company_id=${companyId}`)
       ]);
       const accountsData = await accountsRes.json();
       const centersData = await centersRes.json();
-      if (accountsData.success) setAccounts(accountsData.data || []);
-      if (centersData.success) setCostCenters(centersData.data?.costCenters || []);
+      
+      if (accountsData.success) {
+        setAccounts(accountsData.accounts || []);
+      }
+      
+      // metadata API returns costCenters directly in the root or centersData.costCenters
+      if (centersData.costCenters) {
+        setCostCenters(centersData.costCenters);
+      }
     } catch (error) {
       console.error('Error fetching metadata:', error);
     }
@@ -303,7 +310,9 @@ export function ExpensesReportClient({ companyId }: ExpensesReportClientProps) {
 
   const handleEditClick = async (item: ExpenseItem | DeductionItem) => {
     setSelectedItem(item);
+    // Fetch metadata first to ensure lists are populated
     await fetchMetadata();
+    
     setEditForm({
       id: item.id,
       expense_date: item.expense_date?.split('T')[0] || '',
@@ -314,11 +323,12 @@ export function ExpensesReportClient({ companyId }: ExpensesReportClientProps) {
       net_amount: 'net_amount' in item ? item.net_amount || item.amount || 0 : item.amount || 0,
       account_id: item.account_id || '',
       cost_center_id: item.cost_center_id || '',
-      expense_type: 'expense_type' in item ? item.expense_type : item.deduction_type,
+      expense_type: 'expense_type' in item ? item.expense_type : (item as any).deduction_type,
       description: item.description || '',
       month_reference: item.month_reference || selectedMonth,
       attachment: item.attachment || '',
       status: 'status' in item ? item.status : undefined,
+      newFile: null as File | null
     });
     setShowEditModal(true);
   };
@@ -354,17 +364,38 @@ export function ExpensesReportClient({ companyId }: ExpensesReportClientProps) {
     setEditLoading(true);
     try {
       const isExpense = 'expense_type' in selectedItem;
-      const endpoint = isExpense 
-        ? `/api/expenses/report`
-        : `/api/expenses/report`;
+      const formData = new FormData();
       
-      const res = await fetch(endpoint, {
+      formData.append('id', editForm.id.toString());
+      formData.append('type', isExpense ? 'expense' : 'deduction');
+      formData.append('expense_date', editForm.expense_date);
+      formData.append('month_reference', editForm.month_reference);
+      formData.append('employee_name', editForm.employee_name);
+      formData.append('employee_iqama', editForm.employee_iqama);
+      formData.append('amount', editForm.amount.toString());
+      formData.append('account_id', editForm.account_id?.toString() || '');
+      formData.append('cost_center_id', editForm.cost_center_id?.toString() || '');
+      formData.append('expense_type', editForm.expense_type);
+      formData.append('description', editForm.description);
+      
+      if ('tax_value' in editForm) {
+        formData.append('tax_value', editForm.tax_value.toString());
+        formData.append('net_amount', (editForm.net_amount || (editForm.amount - editForm.tax_value)).toString());
+      }
+      
+      if (editForm.status) {
+        formData.append('status', editForm.status);
+      }
+
+      if (editForm.newFile) {
+        formData.append('attachment', editForm.newFile);
+      } else {
+        formData.append('attachment', editForm.attachment || '');
+      }
+
+      const res = await fetch('/api/expenses/report', {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          ...editForm,
-          type: isExpense ? 'expense' : 'deduction'
-        })
+        body: formData
       });
       const data = await res.json();
       
@@ -376,6 +407,7 @@ export function ExpensesReportClient({ companyId }: ExpensesReportClientProps) {
         showNotification('error', data.message || 'حدث خطأ أثناء التعديل');
       }
     } catch (error) {
+      console.error('Update error:', error);
       showNotification('error', 'حدث خطأ أثناء التعديل');
     } finally {
       setEditLoading(false);
@@ -1600,18 +1632,55 @@ export function ExpensesReportClient({ companyId }: ExpensesReportClientProps) {
                             <p className="text-xs text-slate-500">سيتم الاحتفاظ بالمرفق</p>
                           </div>
                           <a
-                            href={getAttachmentUrl(editForm.attachment) || ''}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="mr-auto text-amber-600 hover:text-amber-700"
+                              href={getAttachmentUrl(editForm.attachment) || ''}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="mr-auto text-amber-600 hover:text-amber-700"
+                            >
+                              <ExternalLink className="w-5 h-5" />
+                            </a>
+                          </div>
+                        )}
+                      </div>
+                    )}
+
+                    <div className="space-y-2 mt-4 p-4 border-2 border-dashed border-slate-200 rounded-2xl bg-slate-50/50 hover:bg-slate-50 transition-colors">
+                      <Label htmlFor="new_file" className="flex items-center gap-2 cursor-pointer">
+                        <Paperclip className="w-5 h-5 text-blue-600" />
+                        <span className="font-bold text-slate-700">تغيير المرفق (اختياري)</span>
+                      </Label>
+                      <Input
+                        id="new_file"
+                        type="file"
+                        className="hidden"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) {
+                            setEditForm({ ...editForm, newFile: file });
+                          }
+                        }}
+                      />
+                      {editForm.newFile ? (
+                        <div className="flex items-center gap-3 p-2 bg-blue-50 rounded-xl border border-blue-100">
+                          <CheckCircle2 className="w-5 h-5 text-emerald-500" />
+                          <span className="text-sm font-medium text-blue-700 truncate max-w-[150px]">{editForm.newFile.name}</span>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            type="button"
+                            className="mr-auto text-rose-500 hover:text-rose-600"
+                            onClick={() => setEditForm({ ...editForm, newFile: null })}
                           >
-                            <ExternalLink className="w-5 h-5" />
-                          </a>
+                            <X className="w-4 h-4" />
+                          </Button>
                         </div>
+                      ) : (
+                        <p className="text-xs text-slate-500 mr-7">
+                          انقر هنا لرفع مستند جديد، أو اتركها فارغة للاحتفاظ بالمستند الحالي
+                        </p>
                       )}
                     </div>
-                  )}
-                </div>
+                  </div>
                 <DialogFooter className="flex gap-3 mt-4">
                   <Button
                     onClick={handleEditSubmit}

@@ -328,25 +328,58 @@ export async function PUT(request: NextRequest) {
       companyId = userCompany[0].company_id;
     }
 
-    const body = await request.json();
-    const { id, type, ...data } = body;
+    const formData = await request.formData();
+    const id = formData.get('id') as string;
+    const type = formData.get('type') as string;
 
     if (!id || !type) {
       return NextResponse.json({ success: false, message: 'Missing id or type' }, { status: 400 });
     }
 
-    if (type === 'expense') {
-      const checkRecord = await query<{ id: number; attachment: string }>(
-        'SELECT id, attachment FROM monthly_expenses WHERE id = ? AND company_id = ?',
-        [id, companyId]
-      );
+    const table = type === 'expense' ? 'monthly_expenses' : 'monthly_deductions';
+    
+    const checkRecord = await query<{ id: number; attachment: string }>(
+      `SELECT id, attachment FROM ${table} WHERE id = ? AND company_id = ?`,
+      [parseInt(id), companyId]
+    );
 
-      if (!checkRecord || checkRecord.length === 0) {
-        return NextResponse.json({ success: false, message: 'Record not found' }, { status: 404 });
+    if (!checkRecord || checkRecord.length === 0) {
+      return NextResponse.json({ success: false, message: 'Record not found' }, { status: 404 });
+    }
+
+    const currentAttachment = checkRecord[0].attachment;
+    let attachmentToSave = currentAttachment;
+
+    const attachmentFile = formData.get('attachment');
+    if (attachmentFile && attachmentFile instanceof File && attachmentFile.size > 0) {
+      const { supabase } = await import('@/lib/supabase');
+      const fileName = `${Date.now()}_${attachmentFile.name}`;
+      const { data, error } = await supabase.storage
+        .from("expenses")
+        .upload(`uploads/${fileName}`, attachmentFile);
+      
+      if (!error && data) {
+        attachmentToSave = data.path;
+      } else if (error) {
+        console.error('Storage upload error:', error);
       }
+    } else if (typeof attachmentFile === 'string') {
+      attachmentToSave = attachmentFile;
+    }
 
-      const currentAttachment = checkRecord[0].attachment;
-      const attachmentToSave = data.attachment || currentAttachment;
+    const amount = parseFloat(formData.get('amount') as string || '0');
+    const expenseDate = formData.get('expense_date') as string;
+    const employeeName = formData.get('employee_name') as string;
+    const employeeIqama = formData.get('employee_iqama') as string;
+    const accountId = formData.get('account_id') as string;
+    const costCenterId = formData.get('cost_center_id') as string;
+    const expenseType = formData.get('expense_type') as string;
+    const description = formData.get('description') as string;
+    const monthReference = formData.get('month_reference') as string;
+
+    if (type === 'expense') {
+      const taxValue = parseFloat(formData.get('tax_value') as string || '0');
+      const netAmount = parseFloat(formData.get('net_amount') as string || (amount - taxValue).toString());
 
       await query(
         `UPDATE monthly_expenses SET
@@ -364,36 +397,24 @@ export async function PUT(request: NextRequest) {
           attachment = ?
         WHERE id = ? AND company_id = ?`,
         [
-          data.expense_date,
-          data.employee_name || null,
-          data.employee_iqama || null,
-          data.amount || 0,
-          data.tax_value || 0,
-          data.net_amount || data.amount || 0,
-          data.account_id || null,
-          data.cost_center_id || null,
-          data.expense_type || null,
-          data.description || null,
-          data.month_reference || null,
+          expenseDate,
+          employeeName || null,
+          employeeIqama || null,
+          amount,
+          taxValue,
+          netAmount,
+          accountId ? parseInt(accountId) : null,
+          costCenterId ? parseInt(costCenterId) : null,
+          expenseType || null,
+          description || null,
+          monthReference || null,
           attachmentToSave,
-          id,
+          parseInt(id),
           companyId
         ]
       );
-
     } else {
-      const checkRecord = await query<{ id: number; attachment: string }>(
-        'SELECT id, attachment FROM monthly_deductions WHERE id = ? AND company_id = ?',
-        [id, companyId]
-      );
-
-      if (!checkRecord || checkRecord.length === 0) {
-        return NextResponse.json({ success: false, message: 'Record not found' }, { status: 404 });
-      }
-
-      const currentAttachment = checkRecord[0].attachment;
-      const attachmentToSave = data.attachment || currentAttachment;
-
+      const status = formData.get('status') as string || 'pending';
       await query(
         `UPDATE monthly_deductions SET
           expense_date = ?,
@@ -409,18 +430,18 @@ export async function PUT(request: NextRequest) {
           status = ?
         WHERE id = ? AND company_id = ?`,
         [
-          data.expense_date,
-          data.employee_name || null,
-          data.employee_iqama || null,
-          data.amount || 0,
-          data.account_id || null,
-          data.cost_center_id || null,
-          data.expense_type || null,
-          data.description || null,
-          data.month_reference || null,
+          expenseDate,
+          employeeName || null,
+          employeeIqama || null,
+          amount,
+          accountId ? parseInt(accountId) : null,
+          costCenterId ? parseInt(costCenterId) : null,
+          expenseType || null,
+          description || null,
+          monthReference || null,
           attachmentToSave,
-          data.status || 'pending',
-          id,
+          status,
+          parseInt(id),
           companyId
         ]
       );
