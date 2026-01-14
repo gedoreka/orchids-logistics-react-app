@@ -156,3 +156,44 @@ export async function createMaintenanceRequest(data: any, spares: any[]) {
     return { success: false, error: error.message };
   }
 }
+
+export async function deleteMaintenanceRequest(id: number) {
+  try {
+    // 1. Get the maintenance details to restore spare quantities if needed? 
+    // Usually deletion should reverse the stock if it's a mistake.
+    const details = await query("SELECT spare_id, quantity_used FROM maintenance_details WHERE maintenance_id = ?", [id]);
+    
+    // Restore quantities
+    for (const item of details as any[]) {
+      await query("UPDATE spares SET quantity = quantity + ? WHERE id = ?", [item.quantity_used, item.spare_id]);
+    }
+
+    // 2. Delete details
+    await query("DELETE FROM maintenance_details WHERE maintenance_id = ?", [id]);
+    
+    // 3. Delete request
+    await query("DELETE FROM maintenance_requests WHERE id = ?", [id]);
+    
+    revalidatePath("/fleet");
+    return { success: true };
+  } catch (error: any) {
+    console.error("Error deleting maintenance request:", error);
+    return { success: false, error: error.message };
+  }
+}
+
+export async function getMaintenanceDetails(id: number) {
+  try {
+    const details = await query(
+      `SELECT md.*, s.name as spare_name, s.code as spare_code 
+       FROM maintenance_details md 
+       JOIN spares s ON md.spare_id = s.id 
+       WHERE md.maintenance_id = ?`,
+      [id]
+    );
+    return { success: true, details };
+  } catch (error: any) {
+    console.error("Error fetching maintenance details:", error);
+    return { success: false, error: error.message };
+  }
+}
