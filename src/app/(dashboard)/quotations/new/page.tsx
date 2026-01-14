@@ -1,5 +1,4 @@
 import { cookies } from "next/headers";
-import { redirect } from "next/navigation";
 import { query } from "@/lib/db";
 import { NewQuotationClient } from "./new-quotation-client";
 
@@ -42,20 +41,19 @@ async function getNextQuotationNumber() {
 
 export default async function NewQuotationPage() {
   const cookieStore = await cookies();
-  const sessionCookie = cookieStore.get("session");
+  const sessionCookie = cookieStore.get("auth_session");
+  const session = JSON.parse(sessionCookie?.value || "{}");
+  
+  const companyId = session.company_id;
 
-  if (!sessionCookie?.value) {
-    redirect("/login");
+  if (!companyId) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <p className="text-gray-500">جاري التحميل...</p>
+      </div>
+    );
   }
 
-  let session;
-  try {
-    session = JSON.parse(sessionCookie.value);
-  } catch {
-    redirect("/login");
-  }
-
-  const companyId = session.company_id || 1;
   const [customers, nextQuotationNumber] = await Promise.all([
     getCustomers(companyId),
     getNextQuotationNumber()
