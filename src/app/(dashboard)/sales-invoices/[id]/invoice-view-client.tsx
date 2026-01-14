@@ -269,45 +269,9 @@ export function InvoiceViewClient({
     return `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/project-uploads/${path}`;
   };
 
-  return (
-    <div className="min-h-screen bg-[#f1f5f9] overflow-y-auto font-tajawal">
-        <style>{`
-          @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@200;300;400;500;700;800;900&display=swap');
-          .font-tajawal { font-family: 'Tajawal', sans-serif; }
-          @media print {
-            .no-print { display: none !important; }
-            html, body { 
-              background: white !important; 
-              padding: 0 !important; 
-              margin: 0 !important; 
-              width: 210mm !important;
-              height: auto !important;
-            }
-            .invoice-container { 
-              box-shadow: none !important; 
-              margin: 0 !important; 
-              width: 210mm !important; 
-              min-height: 297mm !important;
-              max-width: 100% !important; 
-              border: none !important;
-              transform: none !important;
-              -webkit-print-color-adjust: exact !important;
-              print-color-adjust: exact !important;
-              overflow: visible !important;
-            }
-            @page {
-              size: A4 portrait;
-              margin: 0;
-            }
-            * {
-              -webkit-print-color-adjust: exact !important;
-              print-color-adjust: exact !important;
-            }
-          }
-        `}</style>
-
-
-      <div className="w-full max-w-[210mm] mx-auto py-6 space-y-4">
+    return (
+      <div className="min-h-screen bg-[#f1f5f9] overflow-y-auto font-tajawal">
+        <div className="w-full max-w-[210mm] mx-auto py-6 space-y-4">
         {/* Action Buttons */}
         <div className="flex flex-wrap gap-2 justify-center no-print px-4">
           <Link href="/sales-invoices">
@@ -317,7 +281,7 @@ export function InvoiceViewClient({
             </button>
           </Link>
           <button
-            onClick={handlePrint}
+            onClick={() => handlePrint()}
             className="flex items-center gap-2 px-4 py-2 rounded-lg bg-[#1e293b] text-white hover:bg-[#0f172a] font-bold text-sm transition-all shadow-md"
           >
             <Printer size={18} />
@@ -333,20 +297,54 @@ export function InvoiceViewClient({
           </button>
         </div>
 
-        {/* Invoice Layout */}
-          <div 
-            ref={printRef} 
-            className="invoice-container bg-white shadow-xl overflow-hidden border border-[#f1f5f9] mx-auto"
-            style={{ 
-              width: '210mm', 
-              minHeight: '297mm', 
-              backgroundColor: '#ffffff',
-              color: '#0f172a',
-              display: 'flex',
-              flexDirection: 'column',
-              boxSizing: 'border-box'
-            }}
-          >
+          {/* Invoice Layout */}
+            <div 
+              ref={printRef} 
+              className="invoice-container bg-white shadow-xl overflow-hidden border border-[#f1f5f9] mx-auto"
+              style={{ 
+                width: '210mm', 
+                minHeight: '297mm', 
+                backgroundColor: '#ffffff',
+                color: '#0f172a',
+                display: 'flex',
+                flexDirection: 'column',
+                boxSizing: 'border-box'
+              }}
+            >
+              <style>{`
+                @media print {
+                  .no-print { display: none !important; }
+                  body { 
+                    background: white !important; 
+                    margin: 0 !important; 
+                    padding: 0 !important;
+                  }
+                  .invoice-container { 
+                    box-shadow: none !important; 
+                    margin: 0 !important; 
+                    width: 210mm !important; 
+                    min-height: 297mm !important;
+                    max-width: 100% !important; 
+                    border: none !important;
+                    padding: 0 !important;
+                    overflow: visible !important;
+                    display: flex !important;
+                    flex-direction: column !important;
+                    background: white !important;
+                    -webkit-print-color-adjust: exact !important;
+                    print-color-adjust: exact !important;
+                  }
+                  @page {
+                    size: A4 portrait;
+                    margin: 0;
+                  }
+                  * {
+                    -webkit-print-color-adjust: exact !important;
+                    print-color-adjust: exact !important;
+                  }
+                }
+              `}</style>
+
 
           {/* Header */}
           <div 

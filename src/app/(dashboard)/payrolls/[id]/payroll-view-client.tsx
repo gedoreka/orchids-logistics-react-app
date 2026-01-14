@@ -23,6 +23,7 @@ import {
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { format } from "date-fns";
+import { useReactToPrint } from "react-to-print";
 
 interface PayrollItem {
   id: number;
@@ -123,9 +124,10 @@ export function PayrollViewClient({ payroll, company, companyId }: PayrollViewCl
     }
   };
 
-  const handlePrint = () => {
-    window.print();
-  };
+  const handlePrint = useReactToPrint({
+    contentRef: printRef,
+    documentTitle: `مسير رواتب - ${payroll.payroll_month}`,
+  });
 
   const handleDownloadPDF = async () => {
     setPdfLoading(true);
@@ -240,6 +242,13 @@ export function PayrollViewClient({ payroll, company, companyId }: PayrollViewCl
                     </button>
                   </Link>
                   <button 
+                    onClick={() => handlePrint()}
+                    className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-blue-500 text-white font-bold text-sm hover:bg-blue-600 transition-all"
+                  >
+                    <Printer size={16} />
+                    <span>طباعة</span>
+                  </button>
+                  <button 
                     onClick={handleDownloadPDF}
                     disabled={pdfLoading}
                     className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-blue-500 text-white font-bold text-sm hover:bg-blue-600 transition-all disabled:opacity-50"
@@ -262,6 +271,34 @@ export function PayrollViewClient({ payroll, company, companyId }: PayrollViewCl
           </div>
 
           <div ref={printRef} className="space-y-6">
+            <style>{`
+              @media print {
+                .no-print, .print\\:hidden { display: none !important; }
+                body { 
+                  background: white !important; 
+                  margin: 0 !important; 
+                  padding: 10mm !important;
+                }
+                .print-content { 
+                  box-shadow: none !important; 
+                  margin: 0 !important; 
+                  width: 100% !important; 
+                  max-width: 100% !important; 
+                  border: none !important;
+                  background: white !important;
+                  -webkit-print-color-adjust: exact !important;
+                  print-color-adjust: exact !important;
+                }
+                @page {
+                  size: A4 landscape;
+                  margin: 0;
+                }
+                * {
+                  -webkit-print-color-adjust: exact !important;
+                  print-color-adjust: exact !important;
+                }
+              }
+            `}</style>
             <div className="print:block hidden text-center mb-6">
               <h1 className="text-2xl font-black text-gray-900">مسير رواتب {payroll.payroll_month}</h1>
               <p className="text-gray-500">{company.name}</p>
@@ -422,6 +459,13 @@ export function PayrollViewClient({ payroll, company, companyId }: PayrollViewCl
                 <span>تعديل</span>
               </button>
             </Link>
+            <button 
+              onClick={() => handlePrint()}
+              className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-blue-500 text-white font-bold text-sm hover:bg-blue-600 transition-all"
+            >
+              <Printer size={16} />
+              <span>طباعة</span>
+            </button>
             <button 
               onClick={handleDownloadPDF}
               disabled={pdfLoading}

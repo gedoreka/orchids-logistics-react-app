@@ -180,38 +180,37 @@ export function QuotationViewClient({ quotation, company, companyId }: Quotation
         )}
       </AnimatePresence>
 
-      <style>{`
-        @media print {
-          .no-print, .print\\:hidden { display: none !important; }
-          html, body { 
-            background: white !important; 
-            padding: 0 !important; 
-            margin: 0 !important; 
-            width: 210mm !important;
-          }
-          .print-content { 
-            box-shadow: none !important; 
-            margin: 0 !important; 
-            width: 210mm !important; 
-            padding: 15mm !important;
-            max-width: 100% !important; 
-            border: none !important;
-            -webkit-print-color-adjust: exact !important;
-            print-color-adjust: exact !important;
-          }
-          @page {
-            size: A4 portrait;
-            margin: 0;
-          }
-          * {
-            -webkit-print-color-adjust: exact !important;
-            print-color-adjust: exact !important;
-          }
-        }
-      `}</style>
-
-      <div className="flex-1 overflow-auto p-6 print:p-0" ref={printRef}>
-        <div className="max-w-[1200px] mx-auto space-y-6 print-content">
+        <div className="flex-1 overflow-auto p-6 print:p-0" ref={printRef}>
+          <style>{`
+            @media print {
+              .no-print, .print\\:hidden { display: none !important; }
+              body { 
+                background: white !important; 
+                margin: 0 !important; 
+                padding: 0 !important;
+              }
+              .print-content { 
+                box-shadow: none !important; 
+                margin: 0 !important; 
+                width: 210mm !important; 
+                padding: 15mm !important;
+                max-width: 100% !important; 
+                border: none !important;
+                background: white !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+              }
+              @page {
+                size: A4 portrait;
+                margin: 0;
+              }
+              * {
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+              }
+            }
+          `}</style>
+          <div className="max-w-[1200px] mx-auto space-y-6 print-content">
           <div className="relative overflow-hidden bg-gradient-to-br from-[#1a237e] to-[#283593] rounded-2xl p-6 text-white shadow-xl print:hidden">
             <div className="relative z-10">
               <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
@@ -237,13 +236,13 @@ export function QuotationViewClient({ quotation, company, companyId }: Quotation
                       <span>تعديل</span>
                     </button>
                   </Link>
-                  <button 
-                    onClick={handlePrint}
-                    className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-blue-500 text-white font-bold text-sm hover:bg-blue-600 transition-all"
-                  >
-                    <Printer size={16} />
-                    <span>طباعة</span>
-                  </button>
+            <button 
+              onClick={() => handlePrint()}
+              className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-blue-500 text-white font-bold text-sm hover:bg-blue-600 transition-all"
+            >
+              <Printer size={16} />
+              <span>طباعة</span>
+            </button>
                 </div>
               </div>
             </div>
