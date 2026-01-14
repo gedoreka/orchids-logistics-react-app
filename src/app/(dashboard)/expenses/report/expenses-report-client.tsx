@@ -20,6 +20,10 @@ import {
   TrendingUp,
   Folder,
   Info,
+  Paperclip,
+  ExternalLink,
+  FileImage,
+  File,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -68,6 +72,7 @@ interface DeductionItem {
   center_name: string;
   description: string;
   status: string;
+  attachment: string;
 }
 
 interface PayrollItem {
@@ -111,6 +116,20 @@ const formatNumber = (num: number) => {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   }).format(num);
+};
+
+const UPLOADS_BASE_URL = "https://srv1687-files.hstgr.io/6f56635d72e50a2d/files/public_html/accounts/uploads/";
+
+const getAttachmentUrl = (attachment: string | null | undefined) => {
+  if (!attachment) return null;
+  if (attachment.startsWith('http')) return attachment;
+  const cleanPath = attachment.replace(/^uploads\//, '');
+  return `${UPLOADS_BASE_URL}${cleanPath}`;
+};
+
+const isImageFile = (filename: string) => {
+  const ext = filename.toLowerCase().split('.').pop();
+  return ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp'].includes(ext || '');
 };
 
 const formatDate = (dateStr: string) => {
@@ -959,7 +978,7 @@ export function ExpensesReportClient({ companyId }: ExpensesReportClientProps) {
 
         {/* Details Modal */}
         <Dialog open={showDetailsModal} onOpenChange={setShowDetailsModal}>
-          <DialogContent className="max-w-xl rtl" dir="rtl">
+          <DialogContent className="max-w-2xl rtl max-h-[90vh] overflow-y-auto" dir="rtl">
             <DialogHeader>
               <DialogTitle className="flex items-center gap-2 text-base">
                 <Info className="w-5 h-5 text-blue-600" />
@@ -1018,6 +1037,73 @@ export function ExpensesReportClient({ companyId }: ExpensesReportClientProps) {
                     <p className="font-medium text-slate-800 text-sm">{selectedItem.description}</p>
                   </div>
                 )}
+                
+                {(() => {
+                    const attachment = selectedItem.attachment;
+                    const attachmentUrl = getAttachmentUrl(attachment);
+                  
+                  if (!attachmentUrl) return null;
+                  
+                  return (
+                    <div className="bg-gradient-to-br from-amber-50 to-orange-50 p-4 rounded-xl border border-amber-200">
+                      <div className="flex items-center gap-2 mb-3">
+                        <Paperclip className="w-5 h-5 text-amber-600" />
+                        <p className="text-sm font-bold text-amber-800">المرفقات</p>
+                      </div>
+                      
+                      {isImageFile(attachment || '') ? (
+                        <div className="space-y-3">
+                          <div className="relative rounded-xl overflow-hidden border border-amber-200 bg-white">
+                            <img 
+                              src={attachmentUrl} 
+                              alt="المرفق"
+                              className="w-full max-h-[400px] object-contain"
+                              onError={(e) => {
+                                (e.target as HTMLImageElement).style.display = 'none';
+                                const parent = (e.target as HTMLImageElement).parentElement;
+                                if (parent) {
+                                  parent.innerHTML = '<div class="p-8 text-center text-slate-500"><p>لا يمكن تحميل الصورة</p></div>';
+                                }
+                              }}
+                            />
+                          </div>
+                          <a
+                            href={attachmentUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-2 px-4 py-2 bg-amber-600 text-white rounded-xl hover:bg-amber-700 transition-colors text-sm font-medium"
+                          >
+                            <ExternalLink className="w-4 h-4" />
+                            فتح في نافذة جديدة
+                          </a>
+                        </div>
+                      ) : (
+                        <div className="flex items-center gap-3 p-4 bg-white rounded-xl border border-amber-200">
+                          <div className="w-12 h-12 bg-amber-100 rounded-xl flex items-center justify-center">
+                            <File className="w-6 h-6 text-amber-600" />
+                          </div>
+                          <div className="flex-1">
+                            <p className="text-sm font-medium text-slate-800 truncate max-w-[200px]">
+                              {attachment?.split('/').pop() || 'مرفق'}
+                            </p>
+                            <p className="text-xs text-slate-500">
+                              {attachment?.split('.').pop()?.toUpperCase() || 'ملف'}
+                            </p>
+                          </div>
+                          <a
+                            href={attachmentUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-2 px-4 py-2 bg-amber-600 text-white rounded-xl hover:bg-amber-700 transition-colors text-sm font-medium"
+                          >
+                            <ExternalLink className="w-4 h-4" />
+                            عرض
+                          </a>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })()}
               </div>
             )}
           </DialogContent>
