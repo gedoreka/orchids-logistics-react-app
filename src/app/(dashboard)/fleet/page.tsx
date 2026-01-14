@@ -56,14 +56,27 @@ export default async function FleetPage() {
     [companyId]
   );
 
-  return (
-    <FleetClient 
-      initialVehicles={vehicles}
-      initialSpares={spares}
-      categories={categories}
-      initialMaintenance={maintenanceRequests}
-      employees={employees}
-      companyId={companyId}
-    />
-  );
+    const vehicleCategories = await query<any>(
+      "SELECT * FROM vehicle_categories WHERE company_id = ? ORDER BY name",
+      [companyId]
+    );
+
+    const company = await query<any>(
+      "SELECT name FROM companies WHERE id = ?",
+      [companyId]
+    );
+
+    return (
+      <FleetClient 
+        initialVehicles={vehicles}
+        initialSpares={spares}
+        categories={categories}
+        vehicleCategories={vehicleCategories}
+        initialMaintenance={maintenanceRequests}
+        employees={employees}
+        companyId={companyId}
+        companyName={company[0]?.name || ""}
+      />
+    );
+
 }

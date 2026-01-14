@@ -3,10 +3,33 @@
 import { revalidatePath } from "next/cache";
 import { query } from "@/lib/db";
 
+export async function addVehicleCategory(data: { company_id: number; name: string; description?: string }) {
+  try {
+    await query(
+      "INSERT INTO vehicle_categories (company_id, name, description) VALUES (?, ?, ?)",
+      [data.company_id, data.name, data.description]
+    );
+    revalidatePath("/fleet");
+    return { success: true };
+  } catch (error: any) {
+    console.error("Error adding vehicle category:", error);
+    return { success: false, error: error.message };
+  }
+}
+
 export async function addVehicle(data: any) {
-  const fields = Object.keys(data);
+  // Ensure numeric fields are correctly formatted
+  const processedData = { ...data };
+  if (processedData.category_id) processedData.category_id = parseInt(processedData.category_id);
+  if (processedData.driver_id) processedData.driver_id = parseInt(processedData.driver_id);
+  if (processedData.manufacture_year) processedData.manufacture_year = parseInt(processedData.manufacture_year);
+  if (processedData.current_km) processedData.current_km = parseInt(processedData.current_km);
+  if (processedData.last_oil_change_km) processedData.last_oil_change_km = parseInt(processedData.last_oil_change_km);
+  if (processedData.oil_valid_km) processedData.oil_valid_km = parseInt(processedData.oil_valid_km);
+
+  const fields = Object.keys(processedData);
   const placeholders = fields.map(() => "?").join(", ");
-  const values = Object.values(data);
+  const values = Object.values(processedData);
 
   try {
     await query(
@@ -88,10 +111,10 @@ export async function addSpare(data: any) {
 
 export async function createMaintenanceRequest(data: any, spares: any[]) {
   try {
-    const res = await query<any>(
+    const res = await execute(
       `INSERT INTO maintenance_requests 
        (company_id, vehicle_id, maintenance_person, maintenance_date, current_km, notes, status, total_cost) 
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?) RETURNING id`,
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         data.company_id,
         data.vehicle_id,
@@ -104,7 +127,7 @@ export async function createMaintenanceRequest(data: any, spares: any[]) {
       ]
     );
 
-    const maintenanceId = res[0].id;
+    const maintenanceId = res.insertId;
 
     for (const spare of spares) {
       await query(
