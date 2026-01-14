@@ -175,6 +175,11 @@ export function InvoiceViewClient({
   const printRef = useRef<HTMLDivElement>(null);
   const [pdfLoading, setPdfLoading] = useState(false);
   const [selectedBankId, setSelectedBankId] = useState(bankAccounts[0]?.id);
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   const selectedBank = bankAccounts.find(b => b.id === selectedBankId) || bankAccounts[0];
 
@@ -250,8 +255,8 @@ export function InvoiceViewClient({
   };
 
   return (
-    <div className="min-h-screen bg-[#f1f5f9] p-4 md:p-6 overflow-y-auto font-tajawal">
-      <style jsx global>{`
+    <div className="min-h-screen bg-slate-50 p-4 md:p-6 overflow-y-auto font-tajawal">
+      <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@200;300;400;500;700;800;900&display=swap');
         .font-tajawal { font-family: 'Tajawal', sans-serif; }
         @media print {
@@ -542,36 +547,33 @@ export function InvoiceViewClient({
                 className="rounded-3xl p-8 border border-slate-100 bg-white shadow-sm text-center relative group flex flex-col justify-between"
               >
                 <div className="absolute top-0 right-0 w-full h-1 bg-slate-100"></div>
-                <div>
-                  <h3 className="font-black text-slate-800 mb-4 flex items-center justify-center gap-2">
-                    <QrCode size={20} className="text-blue-600" />
-                    الباركود الضريبي | ZATCA
-                  </h3>
-                  <div className="flex justify-center mb-4">
-                    <div className="p-3 bg-white rounded-2xl shadow-md border border-slate-50 transition-transform group-hover:scale-105">
-                      <QRCodeCanvas
-                        value={qrData}
-                        size={140}
-                        level="H"
-                        includeMargin={false}
-                      />
+                  <div>
+                    <h3 className="font-black text-slate-800 mb-4 flex items-center justify-center gap-2">
+                      <QrCode size={20} className="text-blue-600" />
+                      الباركود الضريبي | ZATCA
+                    </h3>
+                    <div className="flex justify-center mb-4">
+                      <div className="p-3 bg-white rounded-2xl shadow-md border border-slate-50 transition-transform group-hover:scale-105">
+                        {isMounted && (
+                          <QRCodeCanvas
+                            value={qrData}
+                            size={140}
+                            level="H"
+                            includeMargin={false}
+                          />
+                        )}
+                      </div>
+                    </div>
+                    <p className="text-[9px] text-slate-400 font-bold mb-4">باركود ضريبي قابل للقراءة متوافق مع هيئة الزكاة والضريبة</p>
+                  </div>
+                  
+                  <div className="flex justify-center items-center gap-4 pt-3 border-t border-slate-50">
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-slate-400 text-[8px] font-bold">الفترة:</span>
+                      <p className="font-bold text-blue-600 text-[9px]">{formatDate(items[0]?.period_from)} - {formatDate(items[0]?.period_to)}</p>
                     </div>
                   </div>
-                  <p className="text-[9px] text-slate-400 font-bold mb-4">باركود ضريبي قابل للقراءة متوافق مع هيئة الزكاة والضريبة</p>
                 </div>
-                
-                <div className="flex justify-center items-center gap-6 pt-4 border-t border-slate-50">
-                  <div className="flex items-center gap-2">
-                    <span className="text-slate-400 text-[8px] font-bold uppercase">الفترة من:</span>
-                    <p className="font-bold text-blue-600 text-[10px]">{formatDate(items[0]?.period_from)}</p>
-                  </div>
-                  <div className="w-px h-3 bg-slate-200" />
-                  <div className="flex items-center gap-2">
-                    <span className="text-slate-400 text-[8px] font-bold uppercase">إلى:</span>
-                    <p className="font-bold text-blue-600 text-[10px]">{formatDate(items[0]?.period_to)}</p>
-                  </div>
-                </div>
-              </div>
             </div>
 
             {/* Bank Info Section with Status Integrated */}
@@ -664,12 +666,7 @@ export function InvoiceViewClient({
               </div>
             )}
 
-            {/* Footer Note */}
-            <div className="text-center pt-8 border-t border-slate-50">
-              <p className="text-slate-400 text-[10px] font-bold uppercase tracking-widest">شكراً لثقتكم بنا | Thank you for your business</p>
-            </div>
-
-            {/* Stamp and Signature Section - REPOSITIONED TO END */}
+              {/* Stamp and Signature Section - REPOSITIONED TO END */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 pt-10 border-t border-slate-100 mt-10">
               {/* Stamp */}
               <div className="text-center group">
