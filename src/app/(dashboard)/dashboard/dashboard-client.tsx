@@ -414,7 +414,7 @@ export function DashboardClient({
         </div>
         
         <h4 className="text-xl font-black text-gray-800 mb-0.5 tracking-tight">
-          {isCurrency ? `${value.toLocaleString()}` : value.toLocaleString()}
+          {isCurrency ? `${value.toLocaleString('en-US')}` : value.toLocaleString('en-US')}
           {isCurrency && <span className="text-[10px] mr-1">ر.س</span>}
         </h4>
         <p className="text-gray-400 font-bold text-[10px]">{label}</p>

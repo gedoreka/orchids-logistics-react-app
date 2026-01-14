@@ -126,7 +126,7 @@ export function AdminNotificationsClient({ initialNotifications }: AdminNotifica
                     <div className="flex flex-wrap items-center gap-6 pt-4 pr-13">
                       <div className="flex items-center gap-2 text-[10px] font-black text-gray-400 uppercase tracking-widest">
                         <Clock size={12} />
-                        <span>{new Date(notif.created_at).toLocaleString('ar-SA')}</span>
+                        <span>{new Date(notif.created_at).toLocaleString('en-US')}</span>
                       </div>
                       <div className="flex items-center gap-2 text-[10px] font-black text-gray-400 uppercase tracking-widest">
                         <Users size={12} />

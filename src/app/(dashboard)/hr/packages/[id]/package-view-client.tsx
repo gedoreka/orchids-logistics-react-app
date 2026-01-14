@@ -270,7 +270,7 @@ export function PackageViewClient({
                         </div>
                       </td>
                     <td className="px-6 py-4">
-                      <span className="text-sm font-black text-gray-900">{Number(emp.basic_salary).toLocaleString()} ر.س</span>
+                      <span className="text-sm font-black text-gray-900">{Number(emp.basic_salary).toLocaleString('en-US')} ر.س</span>
                     </td>
                     <td className="px-6 py-4">
                       {emp.is_active === 1 ? (

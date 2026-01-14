@@ -620,7 +620,7 @@ export function NewPayrollClient({ packages, debts, companyId, userName }: NewPa
                       <div key={debt.id} className="bg-white rounded-xl p-3 border border-amber-100">
                         <p className="font-bold text-gray-900 text-sm">{debt.employee_name}</p>
                         <p className="text-xs text-gray-500">{debt.iqama_number}</p>
-                        <p className="text-red-600 font-bold text-sm mt-1">{Number(debt.amount).toLocaleString('ar-SA')} ر.س</p>
+                        <p className="text-red-600 font-bold text-sm mt-1">{Number(debt.amount).toLocaleString('en-US')} ر.س</p>
                       </div>
                     ))}
                   </div>
@@ -684,10 +684,10 @@ export function NewPayrollClient({ packages, debts, companyId, userName }: NewPa
                             {selectedPackage.work_type !== 'salary' && (
                               <td className="px-3 py-2 text-gray-600 whitespace-nowrap">{row.user_code}</td>
                             )}
-                            <td className="px-3 py-2 font-bold text-gray-900">{row.basic_salary.toLocaleString('ar-SA')}</td>
+                            <td className="px-3 py-2 font-bold text-gray-900">{row.basic_salary.toLocaleString('en-US')}</td>
                             {selectedPackage.work_type === 'salary' && (
                               <>
-                                <td className="px-3 py-2 text-gray-600">{row.housing_allowance.toLocaleString('ar-SA')}</td>
+                                <td className="px-3 py-2 text-gray-600">{row.housing_allowance.toLocaleString('en-US')}</td>
                                 <td className="px-3 py-2 text-gray-600">{row.nationality}</td>
                               </>
                             )}
@@ -794,7 +794,7 @@ export function NewPayrollClient({ packages, debts, companyId, userName }: NewPa
                           <span className="text-sm font-bold">إجمالي الرواتب</span>
                         </div>
                         <p className="text-2xl font-black text-emerald-600">
-                          {totals.totalSalary.toLocaleString('ar-SA', { minimumFractionDigits: 2 })} ريال
+                          {totals.totalSalary.toLocaleString('en-US', { minimumFractionDigits: 2 })} ريال
                         </p>
                       </div>
                       <div className="bg-white rounded-xl p-4 border border-gray-100 text-center">
@@ -810,7 +810,7 @@ export function NewPayrollClient({ packages, debts, companyId, userName }: NewPa
                           <span className="text-sm font-bold">إجمالي الخصومات</span>
                         </div>
                         <p className="text-2xl font-black text-red-600">
-                          {totals.totalDeductions.toLocaleString('ar-SA', { minimumFractionDigits: 2 })} ريال
+                          {totals.totalDeductions.toLocaleString('en-US', { minimumFractionDigits: 2 })} ريال
                         </p>
                       </div>
                     </div>

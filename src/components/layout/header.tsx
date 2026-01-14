@@ -65,23 +65,25 @@ export function Header({ user, onToggleSidebar }: { user?: { name: string; role:
   }, []);
 
   const formatDate = (date: Date) => {
-    return date.toLocaleDateString("ar-SA", {
-      weekday: "long",
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-      second: "2-digit",
-    });
+    const weekdays = ['الأحد', 'الإثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'];
+    const months = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+    const weekday = weekdays[date.getDay()];
+    const day = date.getDate();
+    const month = months[date.getMonth()];
+    const year = date.getFullYear();
+    const hours = date.getHours().toString().padStart(2, '0');
+    const minutes = date.getMinutes().toString().padStart(2, '0');
+    const seconds = date.getSeconds().toString().padStart(2, '0');
+    return `${weekday}، ${day} ${month} ${year} - ${hours}:${minutes}:${seconds}`;
   };
 
   const formatHijriDate = (date: Date) => {
-    return new Intl.DateTimeFormat("ar-SA-u-ca-islamic", {
+    const formatter = new Intl.DateTimeFormat("ar-u-ca-islamic-nu-latn", {
       day: "numeric",
       month: "long",
       year: "numeric",
-    }).format(date);
+    });
+    return formatter.format(date);
   };
 
   const copyDriverLink = () => {

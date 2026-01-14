@@ -144,7 +144,7 @@ export function BalanceSheetClient({
           </div>
           <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-2">إجمالي الأصول</span>
           <div className="text-3xl font-black text-green-600 tracking-tighter">
-            {totalAssets.toLocaleString('ar-SA', { minimumFractionDigits: 2 })} <span className="text-sm font-black opacity-60">ريال</span>
+            {totalAssets.toLocaleString('en-US', { minimumFractionDigits: 2 })} <span className="text-sm font-black opacity-60">ريال</span>
           </div>
         </motion.div>
 
@@ -159,7 +159,7 @@ export function BalanceSheetClient({
           </div>
           <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-2">الالتزامات + حقوق الملكية</span>
           <div className="text-3xl font-black text-blue-600 tracking-tighter">
-            {(totalLiabilities + totalEquitiesWithIncome).toLocaleString('ar-SA', { minimumFractionDigits: 2 })} <span className="text-sm font-black opacity-60">ريال</span>
+            {(totalLiabilities + totalEquitiesWithIncome).toLocaleString('en-US', { minimumFractionDigits: 2 })} <span className="text-sm font-black opacity-60">ريال</span>
           </div>
         </motion.div>
 
@@ -219,7 +219,7 @@ export function BalanceSheetClient({
                       <span className="px-2 py-1 rounded-lg bg-white border border-gray-100">{item.account_code}</span>
                     </td>
                     <td className="p-4 bg-gray-50/50 rounded-l-2xl text-left font-black text-gray-900 group-hover:bg-gray-100 transition-colors">
-                      {Math.abs(Number(item.net_balance)).toLocaleString('ar-SA', { minimumFractionDigits: 2 })}
+                      {Math.abs(Number(item.net_balance)).toLocaleString('en-US', { minimumFractionDigits: 2 })}
                     </td>
                   </tr>
                 ))}
@@ -233,7 +233,7 @@ export function BalanceSheetClient({
                 <tr>
                   <td colSpan={2} className="p-6 text-xl font-black text-gray-900">إجمالي الأصول</td>
                   <td className="p-6 text-xl font-black text-green-600 text-left border-t-2 border-green-100">
-                    {totalAssets.toLocaleString('ar-SA', { minimumFractionDigits: 2 })}
+                    {totalAssets.toLocaleString('en-US', { minimumFractionDigits: 2 })}
                   </td>
                 </tr>
               </tfoot>
@@ -269,7 +269,7 @@ export function BalanceSheetClient({
                         <span className="px-2 py-1 rounded-lg bg-white border border-gray-100">{item.account_code}</span>
                       </td>
                       <td className="p-4 bg-red-50/20 rounded-l-2xl text-left font-black text-red-600 group-hover:bg-red-50 transition-colors">
-                        {Math.abs(Number(item.net_balance)).toLocaleString('ar-SA', { minimumFractionDigits: 2 })}
+                        {Math.abs(Number(item.net_balance)).toLocaleString('en-US', { minimumFractionDigits: 2 })}
                       </td>
                     </tr>
                   ))}
@@ -281,7 +281,7 @@ export function BalanceSheetClient({
                         <span className="px-2 py-1 rounded-lg bg-white border border-gray-100">{item.account_code}</span>
                       </td>
                       <td className="p-4 bg-blue-50/20 rounded-l-2xl text-left font-black text-blue-600 group-hover:bg-blue-50 transition-colors">
-                        {Math.abs(Number(item.net_balance)).toLocaleString('ar-SA', { minimumFractionDigits: 2 })}
+                        {Math.abs(Number(item.net_balance)).toLocaleString('en-US', { minimumFractionDigits: 2 })}
                       </td>
                     </tr>
                   ))}
@@ -296,7 +296,7 @@ export function BalanceSheetClient({
                         "p-4 bg-purple-50 rounded-l-2xl text-left font-black",
                         netIncome >= 0 ? "text-green-600" : "text-red-600"
                       )}>
-                        {Math.abs(netIncome).toLocaleString('ar-SA', { minimumFractionDigits: 2 })}
+                        {Math.abs(netIncome).toLocaleString('en-US', { minimumFractionDigits: 2 })}
                       </td>
                     </tr>
                   )}
@@ -305,7 +305,7 @@ export function BalanceSheetClient({
                   <tr>
                     <td colSpan={2} className="p-6 text-xl font-black text-gray-900">إجمالي الالتزامات وحقوق الملكية</td>
                     <td className="p-6 text-xl font-black text-blue-600 text-left border-t-2 border-blue-100">
-                      {(totalLiabilities + totalEquitiesWithIncome).toLocaleString('ar-SA', { minimumFractionDigits: 2 })}
+                      {(totalLiabilities + totalEquitiesWithIncome).toLocaleString('en-US', { minimumFractionDigits: 2 })}
                     </td>
                   </tr>
                 </tfoot>
@@ -321,7 +321,7 @@ export function BalanceSheetClient({
           Generated by Logistics Systems Pro
         </div>
         <div className="text-gray-400 text-sm font-black">
-          {new Date().toLocaleString('ar-SA')}
+          {new Date().toLocaleString('en-US')}
         </div>
       </div>
     </div>

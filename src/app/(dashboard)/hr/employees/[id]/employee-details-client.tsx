@@ -873,9 +873,9 @@ export function EmployeeDetailsClient({
                                   {v.violation_type === 'traffic' ? 'مرورية' : 'عامة'}
                                 </span>
                               </td>
-                              <td className="px-8 py-5 text-xs font-black text-red-600">{Number(v.violation_amount).toLocaleString()} ر.س</td>
-                              <td className="px-8 py-5 text-xs font-black text-green-600">{Number(v.deducted_amount).toLocaleString()} ر.س</td>
-                              <td className="px-8 py-5 text-xs font-black text-blue-600">{Number(v.remaining_amount).toLocaleString()} ر.س</td>
+                              <td className="px-8 py-5 text-xs font-black text-red-600">{Number(v.violation_amount).toLocaleString('en-US')} ر.س</td>
+                              <td className="px-8 py-5 text-xs font-black text-green-600">{Number(v.deducted_amount).toLocaleString('en-US')} ر.س</td>
+                              <td className="px-8 py-5 text-xs font-black text-blue-600">{Number(v.remaining_amount).toLocaleString('en-US')} ر.س</td>
                               <td className="px-8 py-5 text-xs font-bold text-gray-500 max-w-xs truncate">{v.violation_description || '---'}</td>
                               <td className="px-8 py-5 text-center">
                                 <div className="flex justify-center gap-2">
@@ -946,7 +946,7 @@ export function EmployeeDetailsClient({
                               <td className="px-8 py-5 text-xs font-bold text-gray-600">{m.target}</td>
                               <td className="px-8 py-5 text-xs font-black text-green-600">+{m.bonus}</td>
                               <td className="px-8 py-5 text-xs font-black text-red-600">-{m.total_deduction}</td>
-                              <td className="px-8 py-5 text-sm font-black text-gray-900 bg-gray-50/50">{Number(m.net_salary).toLocaleString()} ر.س</td>
+                              <td className="px-8 py-5 text-sm font-black text-gray-900 bg-gray-50/50">{Number(m.net_salary).toLocaleString('en-US')} ر.س</td>
                             </tr>
                           ))}
                         </tbody>
@@ -1099,7 +1099,7 @@ export function EmployeeDetailsClient({
                             {l.violation_amount > 0 && (
                               <span className="flex items-center gap-2.5 bg-rose-50 text-rose-600 px-4 py-2 rounded-xl border border-rose-100 text-[10px] font-black">
                                 <AlertTriangle size={14} />
-                                المخالفة: {Number(l.violation_amount).toLocaleString()} ر.س
+                                المخالفة: {Number(l.violation_amount).toLocaleString('en-US')} ر.س
                               </span>
                             )}
                           </div>
@@ -1345,7 +1345,7 @@ function StatBox({ label, value, color, unit = "" }: any) {
       <div className="absolute -top-6 -right-6 w-12 h-12 bg-white/20 rounded-full blur-xl" />
       <p className="text-[10px] font-black uppercase tracking-[0.2em] opacity-60 group-hover:opacity-100 transition-opacity">{label}</p>
       <div className="text-3xl font-black tracking-tighter">
-        {value.toLocaleString()}
+        {value.toLocaleString('en-US')}
         {unit && <span className="text-xs mr-1 font-bold opacity-70">{unit}</span>}
       </div>
     </div>

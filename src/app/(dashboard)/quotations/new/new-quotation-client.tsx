@@ -406,7 +406,7 @@ export function NewQuotationClient({ customers, companyId, nextQuotationNumber }
                     </div>
                     <div className="mt-2 text-left">
                       <span className="text-xs text-gray-500">
-                        الإجمالي: <span className="font-bold text-emerald-600">{(item.quantity * item.price).toLocaleString('ar-SA', { minimumFractionDigits: 2 })} ر.س</span>
+                        الإجمالي: <span className="font-bold text-emerald-600">{(item.quantity * item.price).toLocaleString('en-US', { minimumFractionDigits: 2 })} ر.س</span>
                       </span>
                     </div>
                   </div>
@@ -423,18 +423,18 @@ export function NewQuotationClient({ customers, companyId, nextQuotationNumber }
                 <div className="max-w-md mr-auto space-y-3">
                   <div className="flex justify-between items-center py-2 border-b border-gray-100">
                     <span className="text-gray-600 text-sm">المجموع الفرعي:</span>
-                    <span className="font-bold text-gray-900">{subtotal.toLocaleString('ar-SA', { minimumFractionDigits: 2 })} ر.س</span>
+                    <span className="font-bold text-gray-900">{subtotal.toLocaleString('en-US', { minimumFractionDigits: 2 })} ر.س</span>
                   </div>
                   <div className="flex justify-between items-center py-2 border-b border-gray-100">
                     <span className="text-gray-600 text-sm flex items-center gap-1">
                       <Percent size={12} />
                       ضريبة القيمة المضافة ({vatRate}%):
                     </span>
-                    <span className="font-bold text-amber-600">{vatAmount.toLocaleString('ar-SA', { minimumFractionDigits: 2 })} ر.س</span>
+                    <span className="font-bold text-amber-600">{vatAmount.toLocaleString('en-US', { minimumFractionDigits: 2 })} ر.س</span>
                   </div>
                   <div className="flex justify-between items-center py-3 bg-emerald-50 rounded-lg px-4">
                     <span className="text-emerald-800 font-bold">الإجمالي شامل الضريبة:</span>
-                    <span className="font-black text-2xl text-emerald-600">{total.toLocaleString('ar-SA', { minimumFractionDigits: 2 })} ر.س</span>
+                    <span className="font-black text-2xl text-emerald-600">{total.toLocaleString('en-US', { minimumFractionDigits: 2 })} ر.س</span>
                   </div>
                 </div>
               </div>

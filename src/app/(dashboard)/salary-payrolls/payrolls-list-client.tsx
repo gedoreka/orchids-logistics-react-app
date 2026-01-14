@@ -196,7 +196,7 @@ export function PayrollsListClient({ payrolls: initialPayrolls, stats, companyId
                     <div className="text-[10px] text-white/60 font-bold">إجمالي</div>
                   </div>
                   <div className="bg-emerald-500/20 backdrop-blur rounded-xl p-3 text-center">
-                    <div className="text-lg font-black text-emerald-300">{Number(stats.total_amount).toLocaleString('ar-SA')}</div>
+                    <div className="text-lg font-black text-emerald-300">{Number(stats.total_amount).toLocaleString('en-US')}</div>
                     <div className="text-[10px] text-white/60 font-bold">ر.س</div>
                   </div>
                   <div className="bg-green-500/20 backdrop-blur rounded-xl p-3 text-center">
@@ -291,7 +291,7 @@ export function PayrollsListClient({ payrolls: initialPayrolls, stats, companyId
                         <td className="px-4 py-3">
                           <div className="flex items-center gap-1 text-sm font-bold text-emerald-600">
                             <DollarSign size={14} />
-                            {Number(payroll.total_amount || 0).toLocaleString('ar-SA', { minimumFractionDigits: 2 })}
+                            {Number(payroll.total_amount || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}
                             <span className="text-xs text-gray-400">ر.س</span>
                           </div>
                         </td>

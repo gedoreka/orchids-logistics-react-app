@@ -294,9 +294,9 @@ export function QuotationViewClient({ quotation, company, companyId }: Quotation
                       <td className="px-4 py-3 font-bold text-gray-900 text-sm">{item.product_name}</td>
                       <td className="px-4 py-3 text-gray-600 text-sm">{item.description || '-'}</td>
                       <td className="px-4 py-3 text-center text-sm">{item.quantity}</td>
-                      <td className="px-4 py-3 text-center text-sm">{Number(item.price).toLocaleString('ar-SA', { minimumFractionDigits: 2 })} ر.س</td>
-                      <td className="px-4 py-3 text-center text-sm text-amber-600">{Number(item.vat_amount || 0).toLocaleString('ar-SA', { minimumFractionDigits: 2 })} ر.س</td>
-                      <td className="px-4 py-3 text-center text-sm font-bold text-emerald-600">{Number(item.total).toLocaleString('ar-SA', { minimumFractionDigits: 2 })} ر.س</td>
+                      <td className="px-4 py-3 text-center text-sm">{Number(item.price).toLocaleString('en-US', { minimumFractionDigits: 2 })} ر.س</td>
+                      <td className="px-4 py-3 text-center text-sm text-amber-600">{Number(item.vat_amount || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })} ر.س</td>
+                      <td className="px-4 py-3 text-center text-sm font-bold text-emerald-600">{Number(item.total).toLocaleString('en-US', { minimumFractionDigits: 2 })} ر.س</td>
                     </tr>
                   ))}
                 </tbody>
@@ -313,18 +313,18 @@ export function QuotationViewClient({ quotation, company, companyId }: Quotation
               <div className="max-w-md mr-auto space-y-3">
                 <div className="flex justify-between items-center py-2 border-b border-gray-100">
                   <span className="text-gray-600 text-sm">المجموع الفرعي:</span>
-                  <span className="font-bold text-gray-900">{subtotal.toLocaleString('ar-SA', { minimumFractionDigits: 2 })} ر.س</span>
+                  <span className="font-bold text-gray-900">{subtotal.toLocaleString('en-US', { minimumFractionDigits: 2 })} ر.س</span>
                 </div>
                 <div className="flex justify-between items-center py-2 border-b border-gray-100">
                   <span className="text-gray-600 text-sm flex items-center gap-1">
                     <Percent size={12} />
                     ضريبة القيمة المضافة (15%):
                   </span>
-                  <span className="font-bold text-amber-600">{totalVat.toLocaleString('ar-SA', { minimumFractionDigits: 2 })} ر.س</span>
+                  <span className="font-bold text-amber-600">{totalVat.toLocaleString('en-US', { minimumFractionDigits: 2 })} ر.س</span>
                 </div>
                 <div className="flex justify-between items-center py-3 bg-emerald-50 rounded-lg px-4">
                   <span className="text-emerald-800 font-bold">الإجمالي شامل الضريبة:</span>
-                  <span className="font-black text-2xl text-emerald-600">{Number(quotation.total_amount).toLocaleString('ar-SA', { minimumFractionDigits: 2 })} ر.س</span>
+                  <span className="font-black text-2xl text-emerald-600">{Number(quotation.total_amount).toLocaleString('en-US', { minimumFractionDigits: 2 })} ر.س</span>
                 </div>
               </div>
             </div>

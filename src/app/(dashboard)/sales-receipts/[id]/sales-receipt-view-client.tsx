@@ -280,7 +280,7 @@ export function SalesReceiptViewClient({ receipt, company, companyId }: SalesRec
               <div className="inline-flex items-center gap-3 bg-emerald-50 rounded-2xl px-8 py-4">
                 <DollarSign size={32} className="text-emerald-500" />
                 <span className="text-4xl font-black text-emerald-600">
-                  {Number(receipt.amount || 0).toLocaleString('ar-SA', { minimumFractionDigits: 2 })}
+                  {Number(receipt.amount || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}
                 </span>
                 <span className="text-xl font-bold text-emerald-400">ر.س</span>
               </div>

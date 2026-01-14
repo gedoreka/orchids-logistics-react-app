@@ -351,24 +351,24 @@ export function PayrollViewClient({ payroll, company, companyId }: PayrollViewCl
                       <td className="px-3 py-2 font-bold text-gray-900 whitespace-nowrap">{item.employee_name}</td>
                       <td className="px-3 py-2 text-gray-600 whitespace-nowrap">{item.iqama_number}</td>
                       <td className="px-3 py-2 text-gray-600">{item.user_code}</td>
-                      <td className="px-3 py-2 font-bold">{Number(item.basic_salary || 0).toLocaleString('ar-SA', { minimumFractionDigits: 2 })}</td>
+                      <td className="px-3 py-2 font-bold">{Number(item.basic_salary || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}</td>
                       <td className="px-3 py-2 text-gray-600">{item.target || 0}</td>
                       <td className="px-3 py-2 font-bold text-blue-600">{item.successful_orders || 0}</td>
-                      <td className="px-3 py-2 text-red-600">{Number(item.target_deduction || 0).toLocaleString('ar-SA', { minimumFractionDigits: 2 })}</td>
-                      <td className="px-3 py-2 text-emerald-600">{Number(item.monthly_bonus || 0).toLocaleString('ar-SA', { minimumFractionDigits: 2 })}</td>
-                      <td className="px-3 py-2 text-red-600">{Number(item.operator_deduction || 0).toLocaleString('ar-SA', { minimumFractionDigits: 2 })}</td>
-                      <td className="px-3 py-2 text-red-600">{Number(item.internal_deduction || 0).toLocaleString('ar-SA', { minimumFractionDigits: 2 })}</td>
-                      <td className="px-3 py-2 text-red-600">{Number(item.wallet_deduction || 0).toLocaleString('ar-SA', { minimumFractionDigits: 2 })}</td>
-                      <td className="px-3 py-2 text-emerald-600">{Number(item.internal_bonus || 0).toLocaleString('ar-SA', { minimumFractionDigits: 2 })}</td>
+                      <td className="px-3 py-2 text-red-600">{Number(item.target_deduction || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}</td>
+                      <td className="px-3 py-2 text-emerald-600">{Number(item.monthly_bonus || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}</td>
+                      <td className="px-3 py-2 text-red-600">{Number(item.operator_deduction || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}</td>
+                      <td className="px-3 py-2 text-red-600">{Number(item.internal_deduction || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}</td>
+                      <td className="px-3 py-2 text-red-600">{Number(item.wallet_deduction || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}</td>
+                      <td className="px-3 py-2 text-emerald-600">{Number(item.internal_bonus || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}</td>
                       <td className={`px-3 py-2 font-bold ${item.net_salary < 0 ? 'text-red-600' : 'text-emerald-600'}`}>
-                        {Number(item.net_salary || 0).toLocaleString('ar-SA', { minimumFractionDigits: 2 })}
+                        {Number(item.net_salary || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}
                       </td>
                       <td className="px-3 py-2 text-gray-600">{item.payment_method}</td>
                     </tr>
                   ))}
                   <tr className="bg-emerald-50 font-bold">
                     <td colSpan={13} className="px-3 py-3 text-left text-emerald-800">الإجمالي:</td>
-                    <td className="px-3 py-3 text-emerald-800">{Number(payroll.total_net || 0).toLocaleString('ar-SA', { minimumFractionDigits: 2 })} ريال</td>
+                    <td className="px-3 py-3 text-emerald-800">{Number(payroll.total_net || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })} ريال</td>
                     <td></td>
                   </tr>
                 </tbody>

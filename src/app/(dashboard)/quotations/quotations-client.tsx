@@ -308,7 +308,7 @@ export function QuotationsClient({ quotations: initialQuotations, stats, company
                         <td className="px-4 py-3">
                           <div className="flex items-center gap-1 text-sm font-bold text-emerald-600">
                             <DollarSign size={14} />
-                            {Number(quotation.total_amount || 0).toLocaleString('ar-SA', { minimumFractionDigits: 2 })}
+                            {Number(quotation.total_amount || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}
                             <span className="text-xs text-gray-400">ر.س</span>
                           </div>
                         </td>

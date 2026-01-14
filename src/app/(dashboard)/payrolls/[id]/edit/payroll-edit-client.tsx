@@ -379,7 +379,7 @@ export function PayrollEditClient({ payroll, companyId }: PayrollEditClientProps
                     <span className="text-sm font-bold">إجمالي الرواتب</span>
                   </div>
                   <p className="text-2xl font-black text-emerald-600">
-                    {totals.totalSalary.toLocaleString('ar-SA', { minimumFractionDigits: 2 })} ريال
+                    {totals.totalSalary.toLocaleString('en-US', { minimumFractionDigits: 2 })} ريال
                   </p>
                 </div>
                 <div className="bg-white rounded-xl p-4 border border-gray-100 text-center">
@@ -395,7 +395,7 @@ export function PayrollEditClient({ payroll, companyId }: PayrollEditClientProps
                     <span className="text-sm font-bold">إجمالي الخصومات</span>
                   </div>
                   <p className="text-2xl font-black text-red-600">
-                    {totals.totalDeductions.toLocaleString('ar-SA', { minimumFractionDigits: 2 })} ريال
+                    {totals.totalDeductions.toLocaleString('en-US', { minimumFractionDigits: 2 })} ريال
                   </p>
                 </div>
               </div>
