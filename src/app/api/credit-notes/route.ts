@@ -30,7 +30,6 @@ export async function GET(request: NextRequest) {
     const creditNotes = await query<any>(`
       SELECT 
         cn.*,
-        si.invoice_number,
         si.status as invoice_status
       FROM credit_notes cn
       LEFT JOIN sales_invoices si ON cn.invoice_id = si.id
@@ -108,12 +107,15 @@ export async function POST(request: NextRequest) {
     const lastNotes = await query<any>(`
       SELECT credit_note_number 
       FROM credit_notes 
-      ORDER BY id DESC LIMIT 1
+      WHERE credit_note_number LIKE 'CRN%'
+      ORDER BY CAST(SUBSTRING(credit_note_number, 4) AS UNSIGNED) DESC 
+      LIMIT 1
     `);
 
     let nextNumber = 1;
     if (lastNotes.length > 0 && lastNotes[0].credit_note_number) {
-      const lastNum = parseInt(lastNotes[0].credit_note_number.replace('CRN', ''));
+      const lastNumStr = lastNotes[0].credit_note_number.substring(3);
+      const lastNum = parseInt(lastNumStr);
       if (!isNaN(lastNum)) nextNumber = lastNum + 1;
     }
     const creditNoteNumber = `CRN${nextNumber.toString().padStart(6, '0')}`;

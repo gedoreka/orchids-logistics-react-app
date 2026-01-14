@@ -31,12 +31,13 @@ export async function GET(
       return NextResponse.json({ error: "غير مصرح" }, { status: 401 });
     }
 
-    const creditNotes = await query<any>(`
-      SELECT 
-        cn.*,
-        si.issue_date as invoice_date,
-        si.total_amount as invoice_total_amount,
-        c.email as client_email,
+      const creditNotes = await query<any>(`
+        SELECT 
+          cn.*,
+          si.invoice_number as original_invoice_number,
+          si.issue_date as invoice_date,
+          si.total_amount as invoice_total_amount,
+          c.email as client_email,
           c.phone as client_phone,
           comp.name as company_name,
           comp.vat_number as company_vat,
