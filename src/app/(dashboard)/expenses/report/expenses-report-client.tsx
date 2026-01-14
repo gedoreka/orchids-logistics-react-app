@@ -503,88 +503,117 @@ export function ExpensesReportClient({ companyId }: ExpensesReportClientProps) {
         </motion.div>
 
         {/* Navigation Tabs */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-          className="print:hidden"
-        >
-          <Card className="border-none shadow-lg rounded-2xl overflow-hidden">
-            <CardContent className="p-0">
-              <div className="grid grid-cols-3 divide-x divide-slate-100 rtl:divide-x-reverse">
-                {[
-                  {
-                    type: "expenses" as const,
-                    label: "المنصرفات الشهرية",
-                    sub: "عرض جميع المنصرفات",
-                    icon: Wallet,
-                    count: stats.expensesCount,
-                    activeColor: "bg-blue-50 border-b-2 border-blue-500",
-                    iconColor: "text-blue-600",
-                    textColor: "text-blue-700",
-                  },
-                  {
-                    type: "deductions" as const,
-                    label: "الاستقطاعات الشهرية",
-                    sub: "عرض جميع الاستقطاعات",
-                    icon: HandCoins,
-                    count: stats.deductionsCount,
-                    activeColor: "bg-rose-50 border-b-2 border-rose-500",
-                    iconColor: "text-rose-600",
-                    textColor: "text-rose-700",
-                  },
-                  {
-                    type: "all" as const,
-                    label: "التقرير الشامل",
-                    sub: "عرض جميع البيانات معاً",
-                    icon: BarChart3,
-                    count: stats.expensesCount + stats.deductionsCount,
-                    activeColor: "bg-purple-50 border-b-2 border-purple-500",
-                    iconColor: "text-purple-600",
-                    textColor: "text-purple-700",
-                  },
-                ].map((tab) => (
-                  <button
-                    key={tab.type}
-                    onClick={() => setReportType(tab.type)}
-                    className={`relative p-4 text-center transition-all duration-300 group ${
-                      reportType === tab.type
-                        ? tab.activeColor
-                        : "hover:bg-slate-50"
-                    }`}
-                  >
-                    <Badge
-                      className={`absolute top-2 left-2 text-xs ${
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            className="print:hidden"
+          >
+            <Card className="border-none shadow-xl rounded-3xl overflow-hidden bg-white/50 backdrop-blur-md">
+              <CardContent className="p-2">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                  {[
+                    {
+                      type: "expenses" as const,
+                      label: "المنصرفات الشهرية",
+                      sub: "عرض جميع المنصرفات التشغيلية والرواتب",
+                      icon: Wallet,
+                      count: stats.expensesCount,
+                      activeStyles: "bg-blue-600 text-white shadow-blue-200",
+                      inactiveStyles: "bg-blue-50/50 text-blue-700 hover:bg-blue-100/80 border-blue-100",
+                      badgeActive: "bg-white/20 text-white",
+                      badgeInactive: "bg-blue-600 text-white",
+                      iconActive: "text-white",
+                      iconInactive: "text-blue-600",
+                    },
+                    {
+                      type: "deductions" as const,
+                      label: "الاستقطاعات الشهرية",
+                      sub: "عرض جميع الاستقطاعات والخصومات",
+                      icon: HandCoins,
+                      count: stats.deductionsCount,
+                      activeStyles: "bg-rose-600 text-white shadow-rose-200",
+                      inactiveStyles: "bg-rose-50/50 text-rose-700 hover:bg-rose-100/80 border-rose-100",
+                      badgeActive: "bg-white/20 text-white",
+                      badgeInactive: "bg-rose-600 text-white",
+                      iconActive: "text-white",
+                      iconInactive: "text-rose-600",
+                    },
+                    {
+                      type: "all" as const,
+                      label: "التقرير الشامل",
+                      sub: "رؤية كاملة لجميع العمليات المالية",
+                      icon: BarChart3,
+                      count: stats.expensesCount + stats.deductionsCount,
+                      activeStyles: "bg-gradient-to-r from-blue-600 via-purple-600 to-rose-600 text-white shadow-purple-200",
+                      inactiveStyles: "bg-slate-50 text-slate-700 hover:bg-slate-100 border-slate-200",
+                      badgeActive: "bg-white/20 text-white",
+                      badgeInactive: "bg-slate-600 text-white",
+                      iconActive: "text-white",
+                      iconInactive: "text-slate-600",
+                    },
+                  ].map((tab) => (
+                    <button
+                      key={tab.type}
+                      onClick={() => setReportType(tab.type)}
+                      className={`relative flex flex-col items-center justify-center p-6 rounded-2xl transition-all duration-500 border-2 group ${
                         reportType === tab.type
-                          ? "bg-blue-500 text-white"
-                          : "bg-slate-200 text-slate-600"
+                          ? `${tab.activeStyles} border-transparent scale-[1.02] shadow-2xl`
+                          : `${tab.inactiveStyles} border-transparent hover:scale-[1.01]`
                       }`}
                     >
-                      {tab.count}
-                    </Badge>
-                    <tab.icon
-                      className={`w-6 h-6 mx-auto mb-2 ${
-                        reportType === tab.type
-                          ? tab.iconColor
-                          : "text-slate-400 group-hover:text-slate-600"
-                      }`}
-                    />
-                    <h3
-                      className={`text-sm font-bold ${
-                        reportType === tab.type
-                          ? tab.textColor
-                          : "text-slate-700"
-                      }`}
-                    >
-                      {tab.label}
-                    </h3>
-                    <p className="text-xs text-slate-500 mt-0.5">{tab.sub}</p>
-                  </button>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        </motion.div>
+                      {/* Interactive Background Effect */}
+                      <div className={`absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-10 transition-opacity duration-300 ${
+                        reportType === tab.type ? 'hidden' : 'bg-current'
+                      }`} />
+
+                      <Badge
+                        className={`absolute top-3 left-3 text-[10px] font-bold px-2 py-0.5 rounded-lg transition-colors duration-300 ${
+                          reportType === tab.type
+                            ? tab.badgeActive
+                            : tab.badgeInactive
+                        }`}
+                      >
+                        {tab.count}
+                      </Badge>
+
+                      <div className={`mb-3 p-3 rounded-xl transition-all duration-300 ${
+                        reportType === tab.type 
+                          ? 'bg-white/20 rotate-6' 
+                          : 'bg-white group-hover:rotate-6 shadow-sm'
+                      }`}>
+                        <tab.icon
+                          className={`w-7 h-7 transition-colors duration-300 ${
+                            reportType === tab.type
+                              ? tab.iconActive
+                              : tab.iconInactive
+                          }`}
+                        />
+                      </div>
+
+                      <h3 className="text-base font-bold mb-1 tracking-tight">
+                        {tab.label}
+                      </h3>
+                      
+                      <p className={`text-xs text-center px-4 leading-relaxed transition-colors duration-300 ${
+                        reportType === tab.type ? 'text-white/80' : 'text-slate-500'
+                      }`}>
+                        {tab.sub}
+                      </p>
+
+                      {/* Active Indicator Line */}
+                      {reportType === tab.type && (
+                        <motion.div
+                          layoutId="activeTab"
+                          className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-12 h-1 bg-white rounded-full shadow-sm"
+                        />
+                      )}
+                    </button>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
 
         {/* Control Bar */}
         <motion.div
