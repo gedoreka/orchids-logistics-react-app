@@ -85,7 +85,7 @@ export function Header({ user, onToggleSidebar }: { user?: { name: string; role:
   };
 
   const copyDriverLink = () => {
-    navigator.clipboard.writeText("https://orchids-driver-input-app.vercel.app");
+    navigator.clipboard.writeText("https://accounts.zoolspeed.com/driver/");
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
@@ -264,8 +264,8 @@ export function Header({ user, onToggleSidebar }: { user?: { name: string; role:
 
               <div className="grid grid-cols-1 gap-3 mb-6">
                 <a 
-                  href="https://accounts.zoolspeed.com/driver-input.php" 
-                  target="_blank"
+                    href="https://accounts.zoolspeed.com/driver/" 
+                    target="_blank"
                   className="flex items-center justify-between p-4 bg-white/5 hover:bg-white/10 rounded-2xl transition-all group"
                 >
                   <div className="flex items-center gap-3">
@@ -303,9 +303,9 @@ export function Header({ user, onToggleSidebar }: { user?: { name: string; role:
                   className="flex flex-col items-center gap-4 p-6 bg-white rounded-3xl mb-6"
                 >
                   <div className="bg-gray-100 p-4 rounded-2xl">
-                    <img 
-                      src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://accounts.zoolspeed.com/driver-input.php" 
-                      alt="QR Code" 
+                      <img 
+                        src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://accounts.zoolspeed.com/driver/" 
+                        alt="QR Code"
                       className="w-32 h-32"
                     />
                   </div>
