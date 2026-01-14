@@ -164,22 +164,19 @@ export function InvoicesListClient({ invoices }: InvoicesListClientProps) {
     switch (status) {
       case 'paid':
         return (
-          <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-emerald-100 text-emerald-700">
-            <CheckCircle size={12} />
+          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[11px] font-bold bg-emerald-50 text-emerald-600 border border-emerald-100">
             مدفوعة
           </span>
         );
       case 'draft':
         return (
-          <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-gray-100 text-gray-600">
-            <FileEdit size={12} />
+          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[11px] font-bold bg-slate-50 text-slate-500 border border-slate-200">
             مسودة
           </span>
         );
       default:
         return (
-          <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-amber-100 text-amber-700">
-            <Clock size={12} />
+          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[11px] font-bold bg-amber-50 text-amber-600 border border-amber-100">
             مستحقة
           </span>
         );
@@ -187,258 +184,198 @@ export function InvoicesListClient({ invoices }: InvoicesListClientProps) {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/20 p-4 md:p-6">
+    <div className="min-h-screen bg-[#f8fafc] p-4 md:p-6 font-sans">
       <AnimatePresence>
         {notification.show && (
           <motion.div
             initial={{ opacity: 0, y: -50, x: "-50%" }}
             animate={{ opacity: 1, y: 0, x: "-50%" }}
             exit={{ opacity: 0, y: -50, x: "-50%" }}
-            className={`fixed top-4 left-1/2 z-50 px-6 py-3 rounded-xl shadow-lg ${
-              notification.type === "success" ? "bg-emerald-500" : "bg-red-500"
-            } text-white font-bold flex items-center gap-2`}
+            className={`fixed top-6 left-1/2 z-50 px-6 py-3 rounded-2xl shadow-2xl ${
+              notification.type === "success" ? "bg-emerald-600" : "bg-rose-600"
+            } text-white font-bold flex items-center gap-3 border border-white/20 backdrop-blur-md`}
           >
-            {notification.type === "success" ? <CheckCircle size={20} /> : <AlertCircle size={20} />}
-            {notification.message}
+            {notification.type === "success" ? <CheckCircle size={18} /> : <AlertCircle size={18} />}
+            <span className="text-sm">{notification.message}</span>
           </motion.div>
         )}
       </AnimatePresence>
 
       <div className="max-w-7xl mx-auto space-y-6">
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="bg-gradient-to-br from-[#1a237e] to-[#283593] rounded-2xl p-6 text-white shadow-xl"
-        >
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-            <div>
-              <h1 className="text-2xl md:text-3xl font-black flex items-center gap-3">
-                <FileText className="h-8 w-8" />
-                الفواتير الضريبية
-              </h1>
-              <p className="text-white/80 mt-1">إدارة وعرض جميع فواتير المبيعات الضريبية</p>
-            </div>
-            <Link href="/sales-invoices/new">
-              <button className="flex items-center gap-2 px-5 py-3 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white font-bold transition-all shadow-lg hover:shadow-xl">
-                <Plus size={20} />
-                إنشاء فاتورة جديدة
-              </button>
-            </Link>
-          </div>
-        </motion.div>
-
+        {/* Statistics Cards - Compact & Fluid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100 hover:shadow-md transition-all"
-          >
-            <div className="flex items-center gap-3">
-              <div className="h-12 w-12 rounded-xl bg-blue-100 flex items-center justify-center text-blue-600">
-                <FileText size={24} />
+          {[
+            { label: "إجمالي المبيعات", value: stats.totalSubtotal, sub: "قبل الضريبة", icon: FileText, color: "blue" },
+            { label: "ضريبة مدفوعة", value: stats.totalPaidTax, sub: `${stats.paidCount} فاتورة`, icon: CheckCircle, color: "emerald" },
+            { label: "ضريبة مستحقة", value: stats.totalDueTax, sub: `${stats.dueCount} فاتورة`, icon: Clock, color: "amber" },
+            { label: "المسودات", value: stats.totalDraft, sub: `${stats.draftCount} فاتورة`, icon: FileEdit, color: "slate" }
+          ].map((stat, i) => (
+            <motion.div
+              key={i}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: i * 0.1 }}
+              className="bg-white rounded-2xl p-4 border border-slate-100 shadow-sm hover:shadow-md transition-all group"
+            >
+              <div className="flex items-center gap-4">
+                <div className={`h-10 w-10 rounded-xl bg-${stat.color}-50 flex items-center justify-center text-${stat.color}-600 group-hover:scale-110 transition-transform`}>
+                  <stat.icon size={20} />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">{stat.label}</p>
+                  <p className="text-lg font-black text-slate-900 truncate">
+                    {stat.value.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                    <span className="text-[10px] text-slate-400 mr-1">ريال</span>
+                  </p>
+                </div>
               </div>
-              <div>
-                <p className="text-sm text-gray-500">إجمالي الفواتير</p>
-                <p className="text-xl font-black text-gray-900">{stats.totalSubtotal.toLocaleString('en-US', { minimumFractionDigits: 2 })} ريال</p>
-                <p className="text-xs text-gray-400">قيمة الفواتير قبل الضريبة</p>
-              </div>
-            </div>
-          </motion.div>
-
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-            className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100 hover:shadow-md transition-all"
-          >
-            <div className="flex items-center gap-3">
-              <div className="h-12 w-12 rounded-xl bg-emerald-100 flex items-center justify-center text-emerald-600">
-                <CheckCircle size={24} />
-              </div>
-              <div>
-                <p className="text-sm text-gray-500">ضريبة مدفوعة</p>
-                <p className="text-xl font-black text-emerald-600">{stats.totalPaidTax.toLocaleString('en-US', { minimumFractionDigits: 2 })} ريال</p>
-                <p className="text-xs text-gray-400">{stats.paidCount} فاتورة</p>
-              </div>
-            </div>
-          </motion.div>
-
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3 }}
-            className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100 hover:shadow-md transition-all"
-          >
-            <div className="flex items-center gap-3">
-              <div className="h-12 w-12 rounded-xl bg-amber-100 flex items-center justify-center text-amber-600">
-                <Clock size={24} />
-              </div>
-              <div>
-                <p className="text-sm text-gray-500">ضريبة مستحقة</p>
-                <p className="text-xl font-black text-amber-600">{stats.totalDueTax.toLocaleString('en-US', { minimumFractionDigits: 2 })} ريال</p>
-                <p className="text-xs text-gray-400">{stats.dueCount} فاتورة</p>
-              </div>
-            </div>
-          </motion.div>
-
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4 }}
-            className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100 hover:shadow-md transition-all"
-          >
-            <div className="flex items-center gap-3">
-              <div className="h-12 w-12 rounded-xl bg-gray-100 flex items-center justify-center text-gray-600">
-                <FileEdit size={24} />
-              </div>
-              <div>
-                <p className="text-sm text-gray-500">مسودات</p>
-                <p className="text-xl font-black text-gray-600">{stats.totalDraft.toLocaleString('en-US', { minimumFractionDigits: 2 })} ريال</p>
-                <p className="text-xs text-gray-400">{stats.draftCount} فاتورة</p>
-              </div>
-            </div>
-          </motion.div>
+            </motion.div>
+          ))}
         </div>
 
+        {/* Main Content Area */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.5 }}
-          className="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden"
+          className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden"
         >
-          {/* Luxurious Header */}
-          <div className="bg-gradient-to-r from-[#1e293b] to-[#334155] p-4 flex flex-col md:flex-row gap-4 items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="bg-white/10 p-2 rounded-lg">
-                <FileText className="text-white h-5 w-5" />
+          {/* Enhanced Header */}
+          <div className="p-4 border-b border-slate-50 flex flex-col lg:flex-row items-center justify-between gap-4 bg-white">
+            <div className="flex items-center gap-4">
+              <div className="h-10 w-10 rounded-xl bg-slate-900 flex items-center justify-center text-white shadow-lg">
+                <FileText size={20} />
               </div>
               <div>
-                <h2 className="text-white font-black text-lg">قائمة الفواتير</h2>
-                <div className="flex items-center gap-2">
-                  <span className="bg-blue-500/20 text-blue-200 px-2 py-0.5 rounded-md text-[10px] font-bold border border-blue-500/30">
-                    {filteredInvoices.length} فاتورة
-                  </span>
-                </div>
+                <h1 className="text-lg font-black text-slate-900 tracking-tight">الفواتير الضريبية</h1>
+                <p className="text-[11px] text-slate-400 font-medium">إدارة فواتير المبيعات وتحصيل الضرائب</p>
+              </div>
+              <div className="mr-2 bg-slate-50 px-2.5 py-1 rounded-lg border border-slate-100">
+                <span className="text-[11px] font-black text-slate-600">{filteredInvoices.length} سجل</span>
               </div>
             </div>
-            
-            <div className="flex items-center gap-3">
-              <div className="relative w-full md:w-64">
-                <Search size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400" />
+
+            <div className="flex flex-wrap items-center gap-3 w-full lg:w-auto">
+              <div className="relative flex-1 lg:w-64">
+                <Search size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400" />
                 <input
                   type="text"
-                  placeholder="بحث..."
+                  placeholder="بحث برقم الفاتورة أو العميل..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pr-10 pl-4 py-2 rounded-xl bg-white/5 border border-white/10 focus:bg-white/10 focus:border-white/20 outline-none transition-all text-sm text-white placeholder:text-gray-400"
+                  className="w-full pr-9 pl-4 py-2 rounded-xl bg-slate-50 border-none focus:ring-2 focus:ring-slate-900/5 transition-all text-xs font-medium placeholder:text-slate-400"
                 />
               </div>
+              
               <select
                 value={filterStatus}
                 onChange={(e) => setFilterStatus(e.target.value)}
-                className="px-3 py-2 rounded-xl bg-white/5 border border-white/10 focus:bg-white/10 outline-none text-sm text-white cursor-pointer"
+                className="px-4 py-2 rounded-xl bg-slate-50 border-none focus:ring-2 focus:ring-slate-900/5 outline-none text-xs font-bold text-slate-600 cursor-pointer appearance-none"
               >
-                <option value="all" className="text-gray-900">جميع الحالات</option>
-                <option value="paid" className="text-gray-900">مدفوعة</option>
-                <option value="due" className="text-gray-900">مستحقة</option>
-                <option value="draft" className="text-gray-900">مسودة</option>
+                <option value="all">جميع الحالات</option>
+                <option value="paid">مدفوعة</option>
+                <option value="due">مستحقة</option>
+                <option value="draft">مسودة</option>
               </select>
+
+              <Link href="/sales-invoices/new">
+                <button className="flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-900 text-white hover:bg-slate-800 transition-all shadow-md hover:shadow-xl font-bold text-xs">
+                  <Plus size={16} />
+                  فاتورة جديدة
+                </button>
+              </Link>
             </div>
           </div>
 
           <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead className="bg-gray-50/50">
-                <tr>
-                  <th className="text-right px-4 py-4 font-black text-gray-500 text-xs uppercase tracking-wider">رقم الفاتورة</th>
-                  <th className="text-right px-4 py-4 font-black text-gray-500 text-xs uppercase tracking-wider">اسم العميل</th>
-                  <th className="text-right px-4 py-4 font-black text-gray-500 text-xs uppercase tracking-wider">تاريخ الإصدار</th>
-                  <th className="text-right px-4 py-4 font-black text-gray-500 text-xs uppercase tracking-wider">تاريخ الاستحقاق</th>
-                  <th className="text-right px-4 py-4 font-black text-gray-500 text-xs uppercase tracking-wider">الإجمالي</th>
-                  <th className="text-right px-4 py-4 font-black text-gray-500 text-xs uppercase tracking-wider">الضريبة</th>
-                  <th className="text-right px-4 py-4 font-black text-gray-500 text-xs uppercase tracking-wider">الحالة</th>
-                  <th className="text-center px-4 py-4 font-black text-gray-500 text-xs uppercase tracking-wider">الإجراءات</th>
+            <table className="w-full">
+              <thead>
+                <tr className="bg-slate-50/50">
+                  <th className="text-right px-4 py-3 text-[11px] font-black text-slate-500 uppercase tracking-widest border-b border-slate-100">رقم الفاتورة</th>
+                  <th className="text-right px-4 py-3 text-[11px] font-black text-slate-500 uppercase tracking-widest border-b border-slate-100">العميل</th>
+                  <th className="text-right px-4 py-3 text-[11px] font-black text-slate-500 uppercase tracking-widest border-b border-slate-100">تاريخ الإصدار</th>
+                  <th className="text-right px-4 py-3 text-[11px] font-black text-slate-500 uppercase tracking-widest border-b border-slate-100">تاريخ الاستحقاق</th>
+                  <th className="text-right px-4 py-3 text-[11px] font-black text-slate-500 uppercase tracking-widest border-b border-slate-100">الإجمالي</th>
+                  <th className="text-right px-4 py-3 text-[11px] font-black text-slate-500 uppercase tracking-widest border-b border-slate-100">الضريبة</th>
+                  <th className="text-right px-4 py-3 text-[11px] font-black text-slate-500 uppercase tracking-widest border-b border-slate-100">الحالة</th>
+                  <th className="text-center px-4 py-3 text-[11px] font-black text-slate-500 uppercase tracking-widest border-b border-slate-100">الإجراءات</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-100">
+              <tbody className="divide-y divide-slate-50">
                 {filteredInvoices.length === 0 ? (
                   <tr>
-                    <td colSpan={8} className="text-center py-20">
-                      <div className="bg-gray-50 w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                        <FileText size={32} className="text-gray-300" />
+                    <td colSpan={8} className="text-center py-16">
+                      <div className="h-12 w-12 bg-slate-50 rounded-2xl flex items-center justify-center mx-auto mb-3">
+                        <Search size={24} className="text-slate-200" />
                       </div>
-                      <p className="text-gray-500 font-bold">لا توجد فواتير مطابقة للبحث</p>
-                      <p className="text-gray-400 text-xs mt-1">جرب تغيير معايير البحث أو الفلترة</p>
+                      <p className="text-xs font-bold text-slate-400">لا توجد نتائج مطابقة</p>
                     </td>
                   </tr>
                 ) : (
                   filteredInvoices.map((inv) => {
                     const status = inv.invoice_status || inv.status || 'due';
                     return (
-                      <tr key={inv.id} className="group hover:bg-blue-50/40 transition-all">
-                        <td className="px-4 py-4 font-black text-gray-900">{inv.invoice_number}</td>
-                        <td className="px-4 py-4">
+                      <tr key={inv.id} className="group hover:bg-slate-50/50 transition-colors">
+                        <td className="px-4 py-3.5 whitespace-nowrap">
+                          <span className="text-xs font-black text-slate-900">{inv.invoice_number}</span>
+                        </td>
+                        <td className="px-4 py-3.5 whitespace-nowrap">
                           <div className="flex flex-col">
-                            <span className="font-bold text-gray-900 truncate max-w-[200px]">{inv.client_name || '-'}</span>
-                            {inv.client_vat && <span className="text-[10px] text-gray-400 font-medium">ضريبة: {inv.client_vat}</span>}
+                            <span className="text-xs font-bold text-slate-700 max-w-[180px] truncate">{inv.client_name || '-'}</span>
+                            {inv.client_vat && <span className="text-[9px] text-slate-400 font-medium">VAT: {inv.client_vat}</span>}
                           </div>
                         </td>
-                        <td className="px-4 py-4 text-gray-600 font-medium">{inv.issue_date || '-'}</td>
-                        <td className="px-4 py-4 text-gray-600 font-medium">{inv.due_date || '-'}</td>
-                        <td className="px-4 py-4">
-                          <span className="font-black text-gray-900">
-                            {parseFloat(String(inv.total_amount)).toLocaleString('en-US', { minimumFractionDigits: 2 })} ريال
+                        <td className="px-4 py-3.5 whitespace-nowrap text-[11px] font-bold text-slate-500">{inv.issue_date || '-'}</td>
+                        <td className="px-4 py-3.5 whitespace-nowrap text-[11px] font-bold text-slate-500">{inv.due_date || '-'}</td>
+                        <td className="px-4 py-3.5 whitespace-nowrap">
+                          <span className="text-xs font-black text-slate-900">
+                            {parseFloat(String(inv.total_amount)).toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                            <span className="text-[9px] text-slate-400 mr-1 font-bold">ريال</span>
                           </span>
                         </td>
-                        <td className="px-4 py-4">
-                          <span className="font-bold text-gray-600">
-                            {parseFloat(String(inv.tax_amount)).toLocaleString('en-US', { minimumFractionDigits: 2 })} ريال
+                        <td className="px-4 py-3.5 whitespace-nowrap">
+                          <span className="text-xs font-bold text-slate-500">
+                            {parseFloat(String(inv.tax_amount)).toLocaleString('en-US', { minimumFractionDigits: 2 })}
                           </span>
                         </td>
-                        <td className="px-4 py-4">{getStatusBadge(status)}</td>
-                        <td className="px-4 py-4">
+                        <td className="px-4 py-3.5 whitespace-nowrap">{getStatusBadge(status)}</td>
+                        <td className="px-4 py-3.5 whitespace-nowrap">
                           <div className="flex items-center justify-center gap-2">
-                            {/* عرض الفاتورة / المسودة */}
                             <Link href={`/sales-invoices/${inv.id}`}>
-                              <button className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-[#2563eb] text-white hover:bg-[#1d4ed8] transition-all shadow-sm hover:shadow-md font-bold text-xs min-w-[110px] justify-center">
-                                <Eye size={14} />
+                              <button className="h-8 px-3 rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white transition-all font-bold text-[11px] flex items-center gap-1.5 border border-blue-100">
+                                <Eye size={12} />
                                 {status === 'draft' ? "عرض المسودة" : "عرض الفاتورة"}
                               </button>
                             </Link>
 
-                            {/* سداد المبلغ الضريبي */}
                             {status === 'due' && (
                               <button
                                 onClick={() => handleTogglePayment(inv.id, status)}
                                 disabled={loading === inv.id}
-                                className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-[#10b981] text-white hover:bg-[#059669] transition-all shadow-sm hover:shadow-md font-bold text-xs min-w-[130px] justify-center disabled:opacity-50"
+                                className="h-8 px-3 rounded-lg bg-emerald-50 text-emerald-600 hover:bg-emerald-600 hover:text-white transition-all font-bold text-[11px] flex items-center gap-1.5 border border-emerald-100 disabled:opacity-50"
                               >
-                                {loading === inv.id ? <Loader2 size={14} className="animate-spin" /> : <CreditCard size={14} />}
+                                {loading === inv.id ? <Loader2 size={12} className="animate-spin" /> : <DollarSign size={12} />}
                                 سداد المبلغ الضريبي
                               </button>
                             )}
 
-                            {/* إعادة كمستحقة */}
                             {status === 'paid' && (
                               <button
                                 onClick={() => handleTogglePayment(inv.id, status)}
                                 disabled={loading === inv.id}
-                                className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-[#f59e0b] text-white hover:bg-[#d97706] transition-all shadow-sm hover:shadow-md font-bold text-xs min-w-[130px] justify-center disabled:opacity-50"
+                                className="h-8 px-3 rounded-lg bg-amber-50 text-amber-600 hover:bg-amber-600 hover:text-white transition-all font-bold text-[11px] flex items-center gap-1.5 border border-amber-100 disabled:opacity-50"
                               >
-                                {loading === inv.id ? <Loader2 size={14} className="animate-spin" /> : <Clock size={14} />}
+                                {loading === inv.id ? <Loader2 size={12} className="animate-spin" /> : <Clock size={12} />}
                                 إعادة كمستحقة
                               </button>
                             )}
 
-                            {/* حذف الفاتورة */}
                             <button
                               onClick={() => handleDelete(inv.id, status)}
                               disabled={loading === inv.id}
-                              className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-red-500 text-white hover:bg-red-600 transition-all shadow-sm hover:shadow-md font-bold text-xs min-w-[70px] justify-center disabled:opacity-50"
+                              className="h-8 w-8 flex items-center justify-center rounded-lg bg-rose-50 text-rose-600 hover:bg-rose-600 hover:text-white transition-all border border-rose-100 disabled:opacity-50"
+                              title="حذف"
                             >
-                              {loading === inv.id ? <Loader2 size={14} className="animate-spin" /> : <Trash2 size={14} />}
-                              حذف
+                              {loading === inv.id ? <Loader2 size={12} className="animate-spin" /> : <Trash2 size={12} />}
                             </button>
                           </div>
                         </td>
@@ -450,14 +387,17 @@ export function InvoicesListClient({ invoices }: InvoicesListClientProps) {
             </table>
           </div>
 
-          <div className="p-4 border-t border-gray-100 bg-gray-50/50 flex justify-between items-center">
-            <p className="text-xs font-bold text-gray-500">
-              إجمالي المعروض: {filteredInvoices.length} من {invoices.length} فاتورة
+          <div className="p-4 bg-slate-50/30 flex justify-between items-center border-t border-slate-50">
+            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+              نظام الفواتير الضريبية المعتمد
             </p>
-            <div className="flex gap-2">
-              <div className="w-2 h-2 rounded-full bg-emerald-500"></div>
-              <div className="w-2 h-2 rounded-full bg-amber-500"></div>
-              <div className="w-2 h-2 rounded-full bg-blue-500"></div>
+            <div className="flex items-center gap-3">
+              <span className="text-[10px] font-black text-slate-400">ZATCA COMPLIANT</span>
+              <div className="flex gap-1">
+                <div className="w-1 h-1 rounded-full bg-slate-200"></div>
+                <div className="w-1 h-1 rounded-full bg-slate-300"></div>
+                <div className="w-1 h-1 rounded-full bg-slate-400"></div>
+              </div>
             </div>
           </div>
         </motion.div>
