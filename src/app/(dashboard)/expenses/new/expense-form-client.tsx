@@ -92,12 +92,37 @@ function EmployeeSelect({ row, type, metadata, updateRow }: {
 }) {
   const [searchTerm, setSearchTerm] = useState("");
   const [isOpen, setIsOpen] = useState(false);
+  const [coords, setCoords] = useState({ top: 0, left: 0, width: 0 });
   const containerRef = useRef<HTMLDivElement>(null);
+  const triggerRef = useRef<HTMLDivElement>(null);
 
-    const filteredEmployees = (metadata?.employees || []).filter((emp: Employee) => 
-      (emp.name || "").toLowerCase().includes(searchTerm.toLowerCase()) || 
-      (emp.iqama_number || "").includes(searchTerm)
-    );
+  const filteredEmployees = (metadata?.employees || []).filter((emp: Employee) => 
+    (emp.name || "").toLowerCase().includes(searchTerm.toLowerCase()) || 
+    (emp.iqama_number || "").includes(searchTerm)
+  );
+
+  const updatePosition = () => {
+    if (triggerRef.current) {
+      const rect = triggerRef.current.getBoundingClientRect();
+      setCoords({
+        top: rect.bottom + window.scrollY,
+        left: rect.left + window.scrollX,
+        width: Math.max(rect.width, 280)
+      });
+    }
+  };
+
+  useEffect(() => {
+    if (isOpen) {
+      updatePosition();
+      window.addEventListener('scroll', updatePosition, true);
+      window.addEventListener('resize', updatePosition);
+    }
+    return () => {
+      window.removeEventListener('scroll', updatePosition, true);
+      window.removeEventListener('resize', updatePosition);
+    };
+  }, [isOpen]);
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -133,19 +158,28 @@ function EmployeeSelect({ row, type, metadata, updateRow }: {
   return (
     <div className="relative group" ref={containerRef}>
       <div className="flex items-center space-x-2 space-x-reverse">
-        <div className="relative w-full">
+        <div className="relative w-full" ref={triggerRef}>
           <div 
             onClick={() => setIsOpen(!isOpen)}
-            className="w-full bg-transparent border-none cursor-pointer text-sm font-medium py-1 px-2 flex items-center justify-between"
+            className="w-full bg-transparent border-none cursor-pointer text-sm font-medium py-1 px-2 flex items-center justify-between min-h-[32px] hover:bg-slate-50 rounded"
           >
             <span className={row.employee_name ? "text-slate-900" : "text-slate-400"}>
               {row.employee_name || "-- اختر الموظف --"}
             </span>
-            <ChevronDown className="w-4 h-4 text-slate-400" />
+            <ChevronDown className={`w-4 h-4 text-slate-400 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
           </div>
 
           {isOpen && (
-            <div className="absolute z-[200] mt-1 w-72 bg-white border border-slate-200 rounded-xl shadow-[0_20px_50px_rgba(0,0,0,0.15)] overflow-hidden right-0 animate-in fade-in zoom-in duration-200">
+            <div 
+              style={{ 
+                position: 'fixed',
+                top: `${coords.top - window.scrollY + 4}px`,
+                left: `${coords.left - (coords.width > 280 ? 0 : 280 - coords.width)}px`,
+                width: '280px',
+                zIndex: 9999
+              }}
+              className="bg-white border border-slate-200 rounded-xl shadow-[0_20px_50px_rgba(0,0,0,0.2)] overflow-hidden animate-in fade-in zoom-in duration-200"
+            >
               <div className="p-3 border-b border-slate-100 bg-slate-50">
                 <div className="relative">
                   <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-blue-500" />
@@ -159,7 +193,7 @@ function EmployeeSelect({ row, type, metadata, updateRow }: {
                   />
                 </div>
               </div>
-              <div className="max-h-72 overflow-y-auto">
+              <div className="max-h-64 overflow-y-auto">
                 {filteredEmployees.length > 0 ? (
                   filteredEmployees.map((emp: Employee) => (
                     <div
@@ -322,8 +356,8 @@ export default function ExpenseFormClient({ user }: { user: User }) {
           
           // Auto calculations for fuel
           if (type === 'fuel') {
-            const amt = parseFloat(updatedRow.amount || "0");
-            const taxInput = parseFloat(updatedRow.tax_value || "0");
+            const amtStr = String(updatedRow.amount || "0").trim();
+            const amt = parseFloat(amtStr) || 0;
             
             if (updatedRow.taxable) {
               if (updatedRow.tax_inclusive) {

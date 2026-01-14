@@ -23,12 +23,13 @@ export async function GET(request: NextRequest) {
       [companyId]
     );
 
-    // 3. Fetch Subtypes
+    // 3. Fetch Subtypes (Including system defaults from company_id=1)
     const subtypes = await query(
-      `SELECT main_type, subtype_name 
+      `SELECT DISTINCT main_type, subtype_name 
        FROM expense_subtypes 
-       WHERE company_id = ? AND (is_custom = FALSE OR added_by = ?)
-       ORDER BY main_type, sort_order, subtype_name`,
+       WHERE (company_id = ? OR (is_custom = FALSE AND company_id = 1))
+       AND (is_custom = FALSE OR added_by = ? OR company_id = 1)
+       ORDER BY main_type, subtype_name`,
       [companyId, userId]
     );
 
