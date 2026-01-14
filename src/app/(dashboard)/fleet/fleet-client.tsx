@@ -61,597 +61,37 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { motion, AnimatePresence } from "framer-motion";
 import { useReactToPrint } from "react-to-print";
 
-interface FleetClientProps {
-  initialVehicles: any[];
-  initialSpares: any[];
-  categories: any[];
-  vehicleCategories: any[];
-  initialMaintenance: any[];
-  employees: any[];
-  companyId: number;
-  companyName: string;
-}
-
-export function FleetClient({ 
-  initialVehicles, 
-  initialSpares, 
-  categories, 
-  vehicleCategories,
-  initialMaintenance, 
-  employees,
-  companyId,
-  companyName
-}: FleetClientProps) {
-  const [vehicles, setVehicles] = useState(initialVehicles);
-  const [spares, setSpares] = useState(initialSpares);
-  const [maintenance, setMaintenance] = useState(initialMaintenance);
-  const [activeTab, setActiveTab] = useState("dashboard");
-    const [searchQuery, setSearchQuery] = useState("");
-    const [selectedMaintenance, setSelectedMaintenance] = useState<any>(null);
-    const [selectedMaintenanceDetails, setSelectedMaintenanceDetails] = useState<any[]>([]);
-  
-    // Sync state with props when server revalidates
-
-  useEffect(() => {
-    setVehicles(initialVehicles);
-  }, [initialVehicles]);
-
-  useEffect(() => {
-    setSpares(initialSpares);
-  }, [initialSpares]);
-
-  useEffect(() => {
-    setMaintenance(initialMaintenance);
-  }, [initialMaintenance]);
-  
-  const printRef = useRef<HTMLDivElement>(null);
-  const handlePrint = useReactToPrint({
-    contentRef: printRef,
-  });
-
-  // Stats
-  const totalVehicles = vehicles.length;
-  const totalSpares = spares.length;
-  const lowStockCount = spares.filter(s => s.quantity <= (s.min_quantity || 0)).length;
-  const pendingMaintenance = maintenance.filter(m => m.status === 'pending').length;
-
-  const filteredVehicles = vehicles.filter(v => 
-    v.plate_number_ar?.includes(searchQuery) || 
-    v.brand?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    v.model?.toLowerCase().includes(searchQuery.toLowerCase())
-  );
-
-  return (
-    <div className="flex flex-col gap-6 p-4 md:p-8 animate-in fade-in duration-500 bg-slate-50/50 min-h-screen">
-      {/* Luxurious Header */}
-      <div className="relative overflow-hidden rounded-[2.5rem] bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-10 text-white shadow-2xl">
-        <div className="absolute -right-20 -top-20 h-80 w-80 rounded-full bg-blue-500/10 blur-[100px]"></div>
-        <div className="absolute -bottom-20 -left-20 h-80 w-80 rounded-full bg-emerald-500/10 blur-[100px]"></div>
-        
-        <div className="relative z-10 flex flex-col items-center justify-between gap-8 md:flex-row">
-          <div className="text-center md:text-right">
-            <h1 className="text-4xl font-black tracking-tight md:text-5xl">
-              <span className="bg-gradient-to-r from-blue-400 via-indigo-400 to-emerald-400 bg-clip-text text-transparent">نظام إدارة الأسطول</span>
-            </h1>
-            <p className="mt-3 text-slate-400 font-medium text-lg">تحكم كامل واحترافي في المركبات، قطع الغيار، وعمليات الصيانة</p>
-          </div>
-          
-            <div className="flex flex-wrap justify-center gap-4">
-              <AddVehicleCategoryDialog companyId={companyId} />
-              <AddCategoryDialog companyId={companyId} />
-              <AddVehicleDialog 
-                companyId={companyId} 
-                companyName={companyName}
-                employees={employees} 
-                vehicleCategories={vehicleCategories}
-              />
-              <AddSpareDialog 
-                companyId={companyId} 
-                categories={categories} 
-              />
-              <MaintenanceRequestDialog 
-                companyId={companyId} 
-                vehicles={vehicles} 
-                spares={spares} 
-              />
-            </div>
-
-        </div>
-      </div>
-
-      {/* Main Navigation Tabs */}
-      <Tabs defaultValue="dashboard" value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <div className="flex items-center justify-center mb-8">
-          <TabsList className="grid grid-cols-4 w-full max-w-3xl h-16 rounded-2xl bg-white/80 backdrop-blur-md p-1.5 shadow-xl shadow-slate-200/50 border border-slate-200">
-            <TabsTrigger value="dashboard" className="rounded-xl flex items-center gap-2 text-base font-bold data-[state=active]:bg-slate-900 data-[state=active]:text-white transition-all">
-              <LayoutDashboard size={20} /> لوحة التحكم
-            </TabsTrigger>
-            <TabsTrigger value="vehicles" className="rounded-xl flex items-center gap-2 text-base font-bold data-[state=active]:bg-slate-900 data-[state=active]:text-white transition-all">
-              <Truck size={20} /> المركبات
-            </TabsTrigger>
-            <TabsTrigger value="inventory" className="rounded-xl flex items-center gap-2 text-base font-bold data-[state=active]:bg-slate-900 data-[state=active]:text-white transition-all">
-              <Package size={20} /> المخزون
-            </TabsTrigger>
-            <TabsTrigger value="maintenance" className="rounded-xl flex items-center gap-2 text-base font-bold data-[state=active]:bg-slate-900 data-[state=active]:text-white transition-all">
-              <Wrench size={20} /> الصيانة
-            </TabsTrigger>
-          </TabsList>
-        </div>
-
-        <TabsContent value="dashboard" className="space-y-8 outline-none">
-          {/* Dashboard Summary Cards */}
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-            <DashboardStatCard 
-              title="إجمالي الأسطول" 
-              value={totalVehicles} 
-              icon={<Car size={32} />} 
-              color="blue"
-              desc="مركبة نشطة"
-            />
-            <DashboardStatCard 
-              title="قطع الغيار" 
-              value={totalSpares} 
-              icon={<Box size={32} />} 
-              color="emerald"
-              desc="صنف متوفر"
-            />
-            <DashboardStatCard 
-              title="تنبيهات المخزون" 
-              value={lowStockCount} 
-              icon={<AlertTriangle size={32} />} 
-              color="amber"
-              desc="أصناف قاربت على النفاد"
-              alert={lowStockCount > 0}
-            />
-            <DashboardStatCard 
-              title="أوامر الصيانة" 
-              value={pendingMaintenance} 
-              icon={<FileCheck size={32} />} 
-              color="rose"
-              desc="طلب قيد الانتظار"
-            />
-          </div>
-
-          <div className="grid gap-8 lg:grid-cols-2">
-            <Card className="rounded-[2rem] border-none shadow-2xl shadow-slate-200/60 overflow-hidden bg-white">
-              <CardHeader className="border-b bg-slate-50/80 p-6 flex flex-row items-center justify-between">
-                <CardTitle className="flex items-center gap-3 text-xl font-black text-slate-800">
-                  <div className="p-2 bg-blue-500/10 rounded-xl text-blue-600">
-                    <History size={24} />
-                  </div>
-                  آخر عمليات الصيانة
-                </CardTitle>
-                <Button variant="ghost" className="text-blue-600 font-bold hover:bg-blue-50 rounded-xl">عرض الكل</Button>
-              </CardHeader>
-              <CardContent className="p-0">
-                <div className="overflow-x-auto">
-                  <Table>
-                    <TableHeader>
-                      <TableRow className="bg-slate-50/30 hover:bg-transparent">
-                        <TableHead className="py-4 font-bold text-slate-600">المركبة</TableHead>
-                        <TableHead className="py-4 font-bold text-slate-600">التاريخ</TableHead>
-                        <TableHead className="py-4 font-bold text-slate-600">التكلفة</TableHead>
-                        <TableHead className="py-4 font-bold text-slate-600">الحالة</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {maintenance.slice(0, 5).map((m) => (
-                        <TableRow key={m.id} className="group cursor-pointer transition-all hover:bg-slate-50/80">
-                          <TableCell className="py-4">
-                            <div className="flex flex-col">
-                              <span className="font-black text-slate-800">{m.plate_number_ar}</span>
-                              <span className="text-xs text-slate-400 font-medium">{m.brand} - {m.model}</span>
-                            </div>
-                          </TableCell>
-                          <TableCell className="py-4 text-slate-500 font-medium">
-                            {new Date(m.maintenance_date).toLocaleDateString('ar-SA')}
-                          </TableCell>
-                          <TableCell className="py-4">
-                            <span className="text-lg font-black text-emerald-600">{m.total_cost} <small className="text-[10px] text-slate-400 uppercase">SAR</small></span>
-                          </TableCell>
-                          <TableCell className="py-4">
-                            <Badge className={`rounded-lg px-3 py-1 font-bold ${
-                              m.status === 'pending' 
-                                ? 'bg-amber-50 text-amber-700 border-amber-200' 
-                                : 'bg-emerald-50 text-emerald-700 border-emerald-200'
-                            }`}>
-                              {m.status === 'pending' ? 'قيد الانتظار' : 'مكتمل'}
-                            </Badge>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="rounded-[2rem] border-none shadow-2xl shadow-slate-200/60 overflow-hidden bg-white">
-              <CardHeader className="border-b bg-slate-50/80 p-6 flex flex-row items-center justify-between">
-                <CardTitle className="flex items-center gap-3 text-xl font-black text-slate-800">
-                  <div className="p-2 bg-rose-500/10 rounded-xl text-rose-600">
-                    <AlertTriangle size={24} />
-                  </div>
-                  نقص في قطع الغيار
-                </CardTitle>
-                <Button variant="ghost" className="text-rose-600 font-bold hover:bg-rose-50 rounded-xl">طلب توريد</Button>
-              </CardHeader>
-              <CardContent className="p-0">
-                <Table>
-                  <TableHeader>
-                    <TableRow className="bg-slate-50/30 hover:bg-transparent">
-                      <TableHead className="py-4 font-bold text-slate-600">القطعة</TableHead>
-                      <TableHead className="py-4 font-bold text-slate-600">المخزون</TableHead>
-                      <TableHead className="py-4 font-bold text-slate-600">الحد الأدنى</TableHead>
-                      <TableHead className="py-4 text-left"></TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {spares.filter(s => s.quantity <= (s.min_quantity || 0)).slice(0, 5).map((s) => (
-                      <TableRow key={s.id} className="group transition-all hover:bg-slate-50/80">
-                        <TableCell className="py-4">
-                          <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center text-slate-400">
-                              <Package size={20} />
-                            </div>
-                            <span className="font-bold text-slate-800">{s.name}</span>
-                          </div>
-                        </TableCell>
-                        <TableCell className="py-4">
-                          <Badge className="bg-rose-100 text-rose-700 hover:bg-rose-100 border-none font-black text-sm px-3">{s.quantity}</Badge>
-                        </TableCell>
-                        <TableCell className="py-4 text-slate-500 font-bold">{s.min_quantity}</TableCell>
-                        <TableCell className="py-4 text-left">
-                          <Button size="sm" className="rounded-xl bg-slate-900 font-bold opacity-0 group-hover:opacity-100 transition-all">إضافة</Button>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                    {spares.filter(s => s.quantity <= (s.min_quantity || 0)).length === 0 && (
-                      <TableRow>
-                        <TableCell colSpan={4} className="py-12 text-center text-slate-400 font-medium italic">
-                          لا توجد تنبيهات للمخزون حالياً
-                        </TableCell>
-                      </TableRow>
-                    )}
-                  </TableBody>
-                </Table>
-              </CardContent>
-            </Card>
-          </div>
-        </TabsContent>
-
-        <TabsContent value="vehicles">
-          <Card className="rounded-[2rem] border-none shadow-2xl shadow-slate-200/50 overflow-hidden bg-white">
-            <CardHeader className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b bg-slate-50/50 p-6">
-              <div className="relative w-full max-w-lg">
-                <Search className="absolute right-4 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400" />
-                <Input 
-                  placeholder="ابحث برقم اللوحة، الماركة، أو الموديل..." 
-                  className="h-14 pr-12 rounded-[1.25rem] border-slate-200 bg-white text-lg font-medium shadow-sm focus:ring-2 focus:ring-blue-500/20 transition-all"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                />
-              </div>
-              <div className="flex gap-3">
-                <AddVehicleCategoryDialog companyId={companyId} />
-                <Button variant="outline" size="lg" className="h-14 px-6 rounded-[1.25rem] font-bold gap-2 text-slate-600 border-slate-200 hover:bg-white hover:shadow-md transition-all">
-                  <Filter size={20} /> تصفية النتائج
-                </Button>
-              </div>
-            </CardHeader>
-            <CardContent className="p-0">
-              <div className="overflow-x-auto">
-                <Table>
-                  <TableHeader>
-                    <TableRow className="bg-slate-50/80 hover:bg-transparent">
-                      <TableHead className="py-5 px-6 font-black text-slate-600 text-sm uppercase tracking-wider">لوحة المركبة</TableHead>
-                      <TableHead className="py-5 font-black text-slate-600 text-sm uppercase tracking-wider">النوع والموديل</TableHead>
-                      <TableHead className="py-5 font-black text-slate-600 text-sm uppercase tracking-wider">السائق الحالي</TableHead>
-                      <TableHead className="py-5 font-black text-slate-600 text-sm uppercase tracking-wider">العداد (كم)</TableHead>
-                      <TableHead className="py-5 font-black text-slate-600 text-sm uppercase tracking-wider">آخر صيانة</TableHead>
-                      <TableHead className="py-5 px-6 text-left"></TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {filteredVehicles.map((v) => (
-                      <TableRow key={v.id} className="group transition-all hover:bg-blue-50/30">
-                        <TableCell className="py-5 px-6">
-                          <div className="flex items-center gap-4">
-                            <div className="flex flex-col items-center justify-center h-14 w-20 rounded-xl border-2 border-slate-900 bg-white shadow-sm overflow-hidden">
-                              <div className="h-1/3 w-full bg-slate-900 flex items-center justify-center text-[8px] font-black text-white tracking-[0.2em]">KSA</div>
-                              <div className="flex-1 flex flex-col items-center justify-center">
-                                <span className="text-sm font-black text-slate-900 leading-none">{v.plate_number_ar}</span>
-                                <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">{v.plate_number_en}</span>
-                              </div>
-                            </div>
-                          </div>
-                        </TableCell>
-                        <TableCell className="py-5">
-                          <div className="flex flex-col">
-                            <span className="text-lg font-black text-slate-800">{v.brand}</span>
-                            <div className="flex items-center gap-2">
-                              <Badge variant="outline" className="rounded-md font-bold text-xs bg-slate-50">{v.model}</Badge>
-                              <span className="text-sm text-slate-400 font-medium">{v.manufacture_year}</span>
-                            </div>
-                          </div>
-                        </TableCell>
-                        <TableCell className="py-5">
-                          <div className="flex items-center gap-3">
-                            <div className="w-9 h-9 rounded-full bg-indigo-500/10 flex items-center justify-center text-indigo-600">
-                              <User size={18} />
-                            </div>
-                            <span className="font-bold text-slate-700">{v.driver_name || <span className="text-slate-300 italic">غير محدد</span>}</span>
-                          </div>
-                        </TableCell>
-                        <TableCell className="py-5">
-                          <div className="flex items-center gap-2">
-                            <span className="text-xl font-black text-slate-800">{(v.current_km || 0).toLocaleString()}</span>
-                            <span className="text-xs font-black text-slate-400 uppercase">KM</span>
-                          </div>
-                        </TableCell>
-                        <TableCell className="py-5">
-                          <div className="flex flex-col">
-                            <span className="text-sm font-bold text-slate-700">
-                              {v.last_maintenance_date ? new Date(v.last_maintenance_date).toLocaleDateString('ar-SA') : 'لم تجرى بعد'}
-                            </span>
-                            <span className="text-xs text-slate-400 font-medium">{v.maintenance_count || 0} عملية صيانة</span>
-                          </div>
-                        </TableCell>
-                        <TableCell className="py-5 px-6 text-left">
-                          <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-all">
-                            <Button variant="ghost" size="icon" className="h-11 w-11 rounded-xl text-slate-400 hover:bg-white hover:text-blue-600 hover:shadow-md border border-transparent hover:border-blue-100 transition-all">
-                              <Edit size={20} />
-                            </Button>
-                            <Button variant="ghost" size="icon" className="h-11 w-11 rounded-xl text-slate-400 hover:bg-white hover:text-rose-600 hover:shadow-md border border-transparent hover:border-rose-100 transition-all" onClick={() => {
-                              if(confirm('هل أنت متأكد من حذف هذه المركبة؟')) {
-                                deleteVehicle(v.id).then(() => toast.success('تم حذف المركبة بنجاح'));
-                              }
-                            }}>
-                              <Trash2 size={20} />
-                            </Button>
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                    {filteredVehicles.length === 0 && (
-                      <TableRow>
-                        <TableCell colSpan={6} className="py-24 text-center">
-                          <div className="flex flex-col items-center justify-center gap-4 text-slate-400">
-                            <Truck size={64} className="opacity-20" />
-                            <p className="text-xl font-medium">لم يتم العثور على أي مركبات تطابق البحث</p>
-                            <Button variant="outline" className="rounded-xl" onClick={() => setSearchQuery("")}>إعادة ضبط البحث</Button>
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    )}
-                  </TableBody>
-                </Table>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="inventory">
-          <div className="grid gap-8 md:grid-cols-12">
-            <div className="md:col-span-3">
-              <Card className="rounded-[2rem] border-none shadow-xl shadow-slate-200/50 bg-white sticky top-24">
-                <CardHeader className="border-b bg-slate-50/50 p-6 flex flex-row items-center justify-between">
-                  <CardTitle className="text-lg font-black text-slate-800 flex items-center gap-2">
-                    <Layers size={18} className="text-blue-500" /> الفئات
-                  </CardTitle>
-                  <AddCategoryDialog companyId={companyId} />
-                </CardHeader>
-                <CardContent className="p-4">
-                  <div className="flex flex-col gap-2">
-                    <Button variant="ghost" className="h-12 justify-start font-black text-base bg-blue-50 text-blue-700 rounded-xl hover:bg-blue-100">
-                      الكل <span className="mr-auto text-xs opacity-50">{spares.length}</span>
-                    </Button>
-                    {categories.map(cat => (
-                      <Button key={cat.id} variant="ghost" className="h-12 justify-start text-base font-bold text-slate-600 hover:bg-slate-50 hover:text-blue-600 rounded-xl">
-                        {cat.name} <span className="mr-auto text-xs opacity-30">{spares.filter(s => s.category_id === cat.id).length}</span>
-                      </Button>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-            
-            <div className="md:col-span-9">
-              <Card className="rounded-[2.5rem] border-none shadow-2xl shadow-slate-200/50 overflow-hidden bg-white">
-                <CardHeader className="border-b bg-slate-50/50 p-8 flex flex-row items-center justify-between">
-                  <CardTitle className="text-2xl font-black text-slate-800">قائمة المخزون</CardTitle>
-                  <div className="flex gap-4">
-                    <div className="relative">
-                      <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-                      <Input placeholder="بحث في المخزون..." className="h-11 pr-10 rounded-xl w-64 border-slate-200" />
-                    </div>
-                  </div>
-                </CardHeader>
-                <CardContent className="p-0">
-                  <Table>
-                    <TableHeader>
-                      <TableRow className="bg-slate-50/50 hover:bg-transparent">
-                        <TableHead className="py-6 px-8 font-black text-slate-600">اسم القطعة</TableHead>
-                        <TableHead className="py-6 font-black text-slate-600">الفئة</TableHead>
-                        <TableHead className="py-6 font-black text-slate-600">حالة المخزون</TableHead>
-                        <TableHead className="py-6 font-black text-slate-600">سعر الوحدة</TableHead>
-                        <TableHead className="py-6 px-8 text-left"></TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {spares.map(s => (
-                        <TableRow key={s.id} className="group transition-all hover:bg-slate-50/80">
-                          <TableCell className="py-6 px-8">
-                            <div className="flex items-center gap-4">
-                              <div className="w-12 h-12 rounded-2xl bg-slate-100 flex items-center justify-center text-slate-400 group-hover:bg-blue-100 group-hover:text-blue-600 transition-all">
-                                <Package size={24} />
-                              </div>
-                              <div className="flex flex-col">
-                                <span className="text-lg font-black text-slate-800">{s.name}</span>
-                                <span className="text-xs font-mono text-slate-400 tracking-widest">{s.code || 'NO-CODE'}</span>
-                              </div>
-                            </div>
-                          </TableCell>
-                          <TableCell className="py-6">
-                            <Badge variant="secondary" className="bg-slate-100 text-slate-600 font-bold px-3 py-1 rounded-lg">
-                              {s.category_name || 'بدون فئة'}
-                            </Badge>
-                          </TableCell>
-                          <TableCell className="py-6">
-                            <div className="flex items-center gap-3">
-                              <div className="flex flex-col">
-                                <span className={`text-xl font-black ${s.quantity <= (s.min_quantity || 0) ? 'text-rose-600' : 'text-emerald-600'}`}>
-                                  {s.quantity}
-                                </span>
-                                <span className="text-[10px] text-slate-400 font-bold uppercase tracking-tighter">وحدة متوفرة</span>
-                              </div>
-                              {s.quantity <= (s.min_quantity || 0) && (
-                                <div className="p-1.5 bg-amber-100 text-amber-600 rounded-lg animate-pulse">
-                                  <AlertTriangle size={16} />
-                                </div>
-                              )}
-                            </div>
-                          </TableCell>
-                          <TableCell className="py-6">
-                            <div className="flex flex-col">
-                              <span className="text-xl font-black text-slate-800">{s.unit_price} <small className="text-[10px] text-slate-400">SAR</small></span>
-                              {s.sale_price && s.sale_price > 0 && (
-                                <span className="text-xs font-bold text-blue-600">سعر الفاتورة: {s.sale_price}</span>
-                              )}
-                            </div>
-                          </TableCell>
-                          <TableCell className="py-6 px-8 text-left">
-                            <Button variant="ghost" size="icon" className="h-11 w-11 rounded-xl text-slate-300 hover:bg-white hover:text-blue-600 hover:shadow-md transition-all">
-                              <Edit size={22} />
-                            </Button>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </CardContent>
-              </Card>
-            </div>
-          </div>
-        </TabsContent>
-
-        <TabsContent value="maintenance">
-          <Card className="rounded-[2.5rem] border-none shadow-2xl shadow-slate-200/50 overflow-hidden bg-white">
-            <CardHeader className="flex flex-row items-center justify-between border-b bg-slate-50/50 p-8">
-              <CardTitle className="text-2xl font-black text-slate-800">سجل طلبات الصيانة</CardTitle>
-              <div className="flex gap-4">
-                <Button variant="outline" className="h-12 rounded-xl font-bold border-slate-200 text-slate-600">تصدير اكسل</Button>
-              </div>
-            </CardHeader>
-            <CardContent className="p-0">
-              <div className="overflow-x-auto">
-                <Table>
-                  <TableHeader>
-                    <TableRow className="bg-slate-50/50 hover:bg-transparent">
-                      <TableHead className="py-6 px-8 font-black text-slate-600">رقم الطلب</TableHead>
-                      <TableHead className="py-6 font-black text-slate-600">المركبة</TableHead>
-                      <TableHead className="py-6 font-black text-slate-600">فني الصيانة</TableHead>
-                      <TableHead className="py-6 font-black text-slate-600">التاريخ</TableHead>
-                      <TableHead className="py-6 font-black text-slate-600">التكلفة الإجمالية</TableHead>
-                      <TableHead className="py-6 font-black text-slate-600">الحالة</TableHead>
-                      <TableHead className="py-6 px-8 text-left"></TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {maintenance.map(m => (
-                      <TableRow key={m.id} className="group transition-all hover:bg-slate-50/80">
-                        <TableCell className="py-6 px-8">
-                          <span className="font-mono text-slate-400 text-sm font-bold tracking-widest">#{m.id.toString().padStart(6, '0')}</span>
-                        </TableCell>
-                        <TableCell className="py-6">
-                          <div className="flex flex-col">
-                            <span className="text-lg font-black text-slate-800">{m.plate_number_ar}</span>
-                            <span className="text-xs text-slate-400 font-bold">{m.brand} {m.model}</span>
-                          </div>
-                        </TableCell>
-                        <TableCell className="py-6 font-bold text-slate-700">{m.maintenance_person}</TableCell>
-                        <TableCell className="py-6 text-slate-500 font-medium">{new Date(m.maintenance_date).toLocaleDateString('ar-SA')}</TableCell>
-                        <TableCell className="py-6">
-                          <span className="text-xl font-black text-emerald-600">{m.total_cost} <small className="text-[10px] text-slate-400 uppercase">SAR</small></span>
-                        </TableCell>
-                        <TableCell className="py-6">
-                          <Badge className={`rounded-xl px-4 py-1.5 font-black text-xs ${
-                            m.status === 'pending' 
-                              ? 'bg-amber-100 text-amber-700 hover:bg-amber-100' 
-                              : 'bg-emerald-100 text-emerald-700 hover:bg-emerald-100'
-                          }`}>
-                            {m.status === 'pending' ? 'قيد الانتظار' : 'تم الإصلاح'}
-                          </Badge>
-                        </TableCell>
-                          <TableCell className="py-6 px-8 text-left">
-                            <div className="flex justify-end gap-2">
-                              <Button 
-                                variant="ghost" 
-                                size="icon" 
-                                title="طباعة الإيصال"
-                                className="h-11 w-11 rounded-xl text-slate-400 hover:bg-white hover:text-blue-600 hover:shadow-md transition-all border border-transparent hover:border-blue-100"
-                                onClick={async () => {
-                                  setSelectedMaintenance(m);
-                                  const res = await getMaintenanceDetails(m.id);
-                                  if (res.success) {
-                                    setSelectedMaintenanceDetails(res.details || []);
-                                  }
-                                  setTimeout(() => handlePrint(), 500);
-                                }}
-                              >
-                                <Printer size={20} />
-                              </Button>
-                              <DeleteMaintenanceDialog id={m.id} onDeleted={() => {
-                                setMaintenance(prev => prev.filter(item => item.id !== m.id));
-                              }} />
-                            </div>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                  </TableBody>
-                </Table>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
-
-      {/* Hidden Print Content */}
-      <div className="opacity-0 pointer-events-none absolute -z-50 overflow-hidden h-0 w-0">
-        <MaintenanceReceipt ref={printRef} data={selectedMaintenance} details={selectedMaintenanceDetails} companyName={companyName} />
-      </div>
-    </div>
-  );
-}
-
 // ------------------------------------------------------------------------------------------------
-// Sub-components
+// Sub-components (Moved to top to prevent ReferenceError and ensure hoisting)
 // ------------------------------------------------------------------------------------------------
 
 function DashboardStatCard({ title, value, icon, color, desc, alert }: any) {
-  const colors: any = {
-    blue: "from-blue-500/20 to-indigo-500/20 text-blue-600 border-blue-100",
-    emerald: "from-emerald-500/20 to-teal-500/20 text-emerald-600 border-emerald-100",
-    amber: "from-amber-500/20 to-orange-500/20 text-amber-600 border-amber-100",
-    rose: "from-rose-500/20 to-pink-500/20 text-rose-600 border-rose-100",
+  const colorMap: any = {
+    blue: { bg: "bg-blue-500", light: "bg-blue-50", text: "text-blue-600", border: "border-blue-100" },
+    emerald: { bg: "bg-emerald-500", light: "bg-emerald-50", text: "text-emerald-600", border: "border-emerald-100" },
+    amber: { bg: "bg-amber-500", light: "bg-amber-50", text: "text-amber-600", border: "border-amber-100" },
+    rose: { bg: "bg-rose-500", light: "bg-rose-50", text: "text-rose-600", border: "border-rose-100" },
   };
 
+  const selected = colorMap[color] || colorMap.blue;
+
   return (
-    <motion.div whileHover={{ y: -5 }} className="relative group">
-      <Card className={`rounded-[2rem] border overflow-hidden bg-white shadow-xl shadow-slate-200/50 transition-all ${alert ? 'ring-2 ring-rose-500/20' : ''}`}>
-        <div className={`absolute inset-0 bg-gradient-to-br ${colors[color]} opacity-0 group-hover:opacity-100 transition-opacity duration-500`}></div>
-        <CardContent className="p-8 relative z-10">
-          <div className="flex justify-between items-start mb-6">
-            <div className={`p-4 rounded-[1.25rem] bg-white shadow-lg ${colors[color].split(' ')[2]}`}>
+    <motion.div whileHover={{ y: -5 }}>
+      <Card className={`rounded-2xl border bg-white shadow-lg overflow-hidden ${alert ? 'ring-2 ring-rose-500/50' : ''}`}>
+        <CardContent className="p-6">
+          <div className="flex justify-between items-start">
+            <div className={`p-4 rounded-xl ${selected.bg} text-white shadow-md`}>
               {icon}
             </div>
-            {alert && <div className="h-3 w-3 rounded-full bg-rose-500 animate-ping"></div>}
+            {alert && (
+              <Badge className="bg-rose-100 text-rose-700 animate-pulse border-none">تنبيه</Badge>
+            )}
           </div>
-          <div className="space-y-1">
-            <h3 className="text-slate-500 font-bold text-sm uppercase tracking-wider">{title}</h3>
-            <div className="flex items-baseline gap-2">
-              <span className="text-4xl font-black text-slate-900 tracking-tighter">{value}</span>
-              <span className="text-xs font-black text-slate-400 uppercase">{desc}</span>
+          <div className="mt-4">
+            <p className="text-slate-500 font-bold text-sm">{title}</p>
+            <div className="flex items-baseline gap-2 mt-1">
+              <span className="text-3xl font-black text-slate-900">{value}</span>
+              <span className="text-xs font-bold text-slate-400 uppercase">{desc}</span>
             </div>
           </div>
         </CardContent>
@@ -685,24 +125,24 @@ function AddVehicleCategoryDialog({ companyId }: { companyId: number }) {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline" size="lg" className="h-14 px-6 rounded-[1.25rem] font-bold gap-2 text-slate-600 border-slate-200 hover:bg-white hover:shadow-md transition-all">
+        <Button variant="outline" className="h-12 px-6 rounded-xl font-bold gap-2 text-slate-700 border-slate-300 hover:bg-slate-50">
           <Plus size={20} /> فئة مركبات جديدة
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px] rounded-[2rem]">
+      <DialogContent className="sm:max-w-[425px] rounded-2xl">
         <DialogHeader>
-          <DialogTitle className="text-2xl font-black text-slate-800">إضافة فئة مركبات</DialogTitle>
+          <DialogTitle className="text-xl font-black">إضافة فئة مركبات</DialogTitle>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-6 pt-4">
+        <form onSubmit={handleSubmit} className="space-y-4 pt-4">
           <div className="space-y-2">
-            <Label htmlFor="name" className="text-sm font-bold text-slate-700 mr-2">اسم الفئة</Label>
-            <Input id="name" name="name" placeholder="مثلاً: سيارات سيدان، شاحنات ثقيلة..." className="h-12 rounded-xl" required />
+            <Label htmlFor="name" className="text-sm font-bold">اسم الفئة</Label>
+            <Input id="name" name="name" placeholder="مثلاً: سيارات سيدان، شاحنات ثقيلة..." className="rounded-lg" required />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="description" className="text-sm font-bold text-slate-700 mr-2">وصف إضافي</Label>
-            <Input id="description" name="description" className="h-12 rounded-xl" />
+            <Label htmlFor="description" className="text-sm font-bold">وصف إضافي</Label>
+            <Input id="description" name="description" className="rounded-lg" />
           </div>
-          <Button type="submit" className="w-full h-14 rounded-xl bg-slate-900 font-bold text-lg" disabled={loading}>
+          <Button type="submit" className="w-full h-12 rounded-lg bg-blue-600 hover:bg-blue-700 font-bold" disabled={loading}>
             {loading ? "جاري الإضافة..." : "حفظ الفئة"}
           </Button>
         </form>
@@ -736,24 +176,24 @@ function AddCategoryDialog({ companyId }: { companyId: number }) {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="ghost" size="icon" className="h-10 w-10 rounded-xl text-slate-400 hover:bg-blue-50 hover:text-blue-600 transition-all">
-          <Plus size={20} />
+        <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg text-slate-400 hover:bg-blue-50 hover:text-blue-600">
+          <Plus size={18} />
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px] rounded-[2rem]">
+      <DialogContent className="sm:max-w-[425px] rounded-2xl">
         <DialogHeader>
-          <DialogTitle className="text-2xl font-black text-slate-800">إضافة فئة قطع غيار</DialogTitle>
+          <DialogTitle className="text-xl font-black">إضافة فئة قطع غيار</DialogTitle>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-6 pt-4">
+        <form onSubmit={handleSubmit} className="space-y-4 pt-4">
           <div className="space-y-2">
-            <Label htmlFor="name" className="text-sm font-bold text-slate-700 mr-2">اسم الفئة</Label>
-            <Input id="name" name="name" placeholder="مثلاً: فلاتر، إطارات، زيوت..." className="h-12 rounded-xl" required />
+            <Label htmlFor="name" className="text-sm font-bold">اسم الفئة</Label>
+            <Input id="name" name="name" placeholder="مثلاً: فلاتر، إطارات..." className="rounded-lg" required />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="description" className="text-sm font-bold text-slate-700 mr-2">وصف إضافي</Label>
-            <Input id="description" name="description" className="h-12 rounded-xl" />
+            <Label htmlFor="description" className="text-sm font-bold">وصف إضافي</Label>
+            <Input id="description" name="description" className="rounded-lg" />
           </div>
-          <Button type="submit" className="w-full h-14 rounded-xl bg-slate-900 font-bold text-lg" disabled={loading}>
+          <Button type="submit" className="w-full h-12 rounded-lg bg-blue-600 hover:bg-blue-700 font-bold" disabled={loading}>
             {loading ? "جاري الإضافة..." : "حفظ الفئة"}
           </Button>
         </form>
@@ -784,44 +224,44 @@ function AddVehicleDialog({ companyId, employees, vehicleCategories }: any) {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button size="lg" className="h-14 px-8 rounded-[1.25rem] font-black text-lg gap-3 bg-slate-900 hover:bg-slate-800 shadow-xl shadow-slate-900/20 transition-all">
-          <Truck size={24} /> إضافة مركبة جديدة
+        <Button className="h-12 px-8 rounded-xl font-bold gap-3 bg-emerald-600 hover:bg-emerald-700 shadow-lg transition-all">
+          <Truck size={20} /> إضافة مركبة جديدة
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[600px] rounded-[2rem] max-h-[90vh] overflow-y-auto">
+      <DialogContent className="sm:max-w-[600px] rounded-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="text-3xl font-black text-slate-800">بيانات المركبة الجديدة</DialogTitle>
+          <DialogTitle className="text-2xl font-black">بيانات المركبة الجديدة</DialogTitle>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-6 pt-6">
-          <div className="grid grid-cols-2 gap-6">
-            <div className="space-y-2">
-              <Label className="font-bold text-slate-700 mr-2">رقم اللوحة (عربي)</Label>
-              <Input name="plate_number_ar" placeholder="أ ب ج 1234" className="h-12 rounded-xl" required />
+        <form onSubmit={handleSubmit} className="space-y-4 pt-4">
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-1">
+              <Label className="font-bold text-xs">رقم اللوحة (عربي)</Label>
+              <Input name="plate_number_ar" placeholder="أ ب ج 1234" className="rounded-lg" required />
             </div>
-            <div className="space-y-2">
-              <Label className="font-bold text-slate-700 mr-2">رقم اللوحة (انجليزي)</Label>
-              <Input name="plate_number_en" placeholder="ABC 1234" className="h-12 rounded-xl" required />
+            <div className="space-y-1">
+              <Label className="font-bold text-xs">رقم اللوحة (انجليزي)</Label>
+              <Input name="plate_number_en" placeholder="ABC 1234" className="rounded-lg" required />
             </div>
-            <div className="space-y-2">
-              <Label className="font-bold text-slate-700 mr-2">الماركة</Label>
-              <Input name="brand" placeholder="تويوتا، مرسيدس..." className="h-12 rounded-xl" required />
+            <div className="space-y-1">
+              <Label className="font-bold text-xs">الماركة</Label>
+              <Input name="brand" placeholder="تويوتا..." className="rounded-lg" required />
             </div>
-            <div className="space-y-2">
-              <Label className="font-bold text-slate-700 mr-2">الموديل</Label>
-              <Input name="model" placeholder="هايلوكس، أكتروس..." className="h-12 rounded-xl" required />
+            <div className="space-y-1">
+              <Label className="font-bold text-xs">الموديل</Label>
+              <Input name="model" placeholder="هايلوكس..." className="rounded-lg" required />
             </div>
-            <div className="space-y-2">
-              <Label className="font-bold text-slate-700 mr-2">سنة الصنع</Label>
-              <Input name="manufacture_year" type="number" className="h-12 rounded-xl" required />
+            <div className="space-y-1">
+              <Label className="font-bold text-xs">سنة الصنع</Label>
+              <Input name="manufacture_year" type="number" className="rounded-lg" required />
             </div>
-            <div className="space-y-2">
-              <Label className="font-bold text-slate-700 mr-2">العداد الحالي (كم)</Label>
-              <Input name="current_km" type="number" className="h-12 rounded-xl" required />
+            <div className="space-y-1">
+              <Label className="font-bold text-xs">العداد الحالي (كم)</Label>
+              <Input name="current_km" type="number" className="rounded-lg" required />
             </div>
-            <div className="space-y-2">
-              <Label className="font-bold text-slate-700 mr-2">فئة المركبة</Label>
+            <div className="space-y-1">
+              <Label className="font-bold text-xs">فئة المركبة</Label>
               <Select name="category_id">
-                <SelectTrigger className="h-12 rounded-xl">
+                <SelectTrigger className="rounded-lg">
                   <SelectValue placeholder="اختر الفئة" />
                 </SelectTrigger>
                 <SelectContent>
@@ -831,10 +271,10 @@ function AddVehicleDialog({ companyId, employees, vehicleCategories }: any) {
                 </SelectContent>
               </Select>
             </div>
-            <div className="space-y-2">
-              <Label className="font-bold text-slate-700 mr-2">السائق المسؤول</Label>
+            <div className="space-y-1">
+              <Label className="font-bold text-xs">السائق المسؤول</Label>
               <Select name="driver_id">
-                <SelectTrigger className="h-12 rounded-xl">
+                <SelectTrigger className="rounded-lg">
                   <SelectValue placeholder="اختر السائق" />
                 </SelectTrigger>
                 <SelectContent>
@@ -845,8 +285,8 @@ function AddVehicleDialog({ companyId, employees, vehicleCategories }: any) {
               </Select>
             </div>
           </div>
-          <Button type="submit" className="w-full h-14 rounded-xl bg-slate-900 font-bold text-lg" disabled={loading}>
-            {loading ? "جاري الحفظ..." : "إضافة المركبة للأسطول"}
+          <Button type="submit" className="w-full h-12 rounded-lg bg-blue-600 hover:bg-blue-700 font-bold" disabled={loading}>
+            {loading ? "جاري الحفظ..." : "إضافة المركبة"}
           </Button>
         </form>
       </DialogContent>
@@ -876,28 +316,28 @@ function AddSpareDialog({ companyId, categories }: any) {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline" size="lg" className="h-14 px-6 rounded-[1.25rem] font-bold gap-2 text-slate-600 border-slate-200 hover:bg-white hover:shadow-md transition-all">
+        <Button variant="outline" className="h-12 px-6 rounded-xl font-bold gap-2 text-slate-700 border-slate-300 hover:bg-slate-50">
           <Plus size={20} /> قطعة غيار جديدة
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[500px] rounded-[2rem]">
+      <DialogContent className="sm:max-w-[500px] rounded-2xl">
         <DialogHeader>
-          <DialogTitle className="text-2xl font-black text-slate-800">إضافة صنف للمخزون</DialogTitle>
+          <DialogTitle className="text-xl font-black">إضافة صنف للمخزون</DialogTitle>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-6 pt-4">
+        <form onSubmit={handleSubmit} className="space-y-4 pt-4">
           <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2 col-span-2">
-              <Label className="font-bold text-slate-700 mr-2">اسم القطعة</Label>
-              <Input name="name" className="h-12 rounded-xl" required />
+            <div className="space-y-1 col-span-2">
+              <Label className="font-bold text-xs">اسم القطعة</Label>
+              <Input name="name" className="rounded-lg" required />
             </div>
-            <div className="space-y-2">
-              <Label className="font-bold text-slate-700 mr-2">كود القطعة</Label>
-              <Input name="code" className="h-12 rounded-xl" />
+            <div className="space-y-1">
+              <Label className="font-bold text-xs">كود القطعة</Label>
+              <Input name="code" className="rounded-lg" />
             </div>
-            <div className="space-y-2">
-              <Label className="font-bold text-slate-700 mr-2">الفئة</Label>
+            <div className="space-y-1">
+              <Label className="font-bold text-xs">الفئة</Label>
               <Select name="category_id">
-                <SelectTrigger className="h-12 rounded-xl">
+                <SelectTrigger className="rounded-lg">
                   <SelectValue placeholder="اختر الفئة" />
                 </SelectTrigger>
                 <SelectContent>
@@ -907,24 +347,24 @@ function AddSpareDialog({ companyId, categories }: any) {
                 </SelectContent>
               </Select>
             </div>
-            <div className="space-y-2">
-              <Label className="font-bold text-slate-700 mr-2">الكمية الحالية</Label>
-              <Input name="quantity" type="number" className="h-12 rounded-xl" required />
+            <div className="space-y-1">
+              <Label className="font-bold text-xs">الكمية الحالية</Label>
+              <Input name="quantity" type="number" className="rounded-lg" required />
             </div>
-            <div className="space-y-2">
-              <Label className="font-bold text-slate-700 mr-2">الحد الأدنى للتنبيه</Label>
-              <Input name="min_quantity" type="number" className="h-12 rounded-xl" defaultValue="5" />
+            <div className="space-y-1">
+              <Label className="font-bold text-xs">الحد الأدنى</Label>
+              <Input name="min_quantity" type="number" className="rounded-lg" defaultValue="5" />
             </div>
-            <div className="space-y-2">
-              <Label className="font-bold text-slate-700 mr-2">سعر التكلفة</Label>
-              <Input name="unit_price" type="number" step="0.01" className="h-12 rounded-xl" required />
+            <div className="space-y-1">
+              <Label className="font-bold text-xs">سعر التكلفة</Label>
+              <Input name="unit_price" type="number" step="0.01" className="rounded-lg" required />
             </div>
-            <div className="space-y-2">
-              <Label className="font-bold text-slate-700 mr-2">سعر البيع (اختياري)</Label>
-              <Input name="sale_price" type="number" step="0.01" className="h-12 rounded-xl" />
+            <div className="space-y-1">
+              <Label className="font-bold text-xs">سعر البيع</Label>
+              <Input name="sale_price" type="number" step="0.01" className="rounded-lg" />
             </div>
           </div>
-          <Button type="submit" className="w-full h-14 rounded-xl bg-slate-900 font-bold text-lg" disabled={loading}>
+          <Button type="submit" className="w-full h-12 rounded-lg bg-blue-600 hover:bg-blue-700 font-bold" disabled={loading}>
             {loading ? "جاري الإضافة..." : "حفظ الصنف"}
           </Button>
         </form>
@@ -979,20 +419,20 @@ function MaintenanceRequestDialog({ companyId, vehicles, spares }: any) {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button size="lg" className="h-14 px-8 rounded-[1.25rem] font-black text-lg gap-3 bg-blue-600 hover:bg-blue-700 shadow-xl shadow-blue-900/20 transition-all">
-          <Wrench size={24} /> طلب صيانة جديد
+        <Button className="h-12 px-8 rounded-xl font-bold gap-3 bg-blue-600 hover:bg-blue-700 shadow-lg transition-all">
+          <Wrench size={20} /> طلب صيانة جديد
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[700px] rounded-[2rem] max-h-[90vh] overflow-y-auto">
+      <DialogContent className="sm:max-w-[700px] rounded-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="text-3xl font-black text-slate-800">إنشاء أمر صيانة</DialogTitle>
+          <DialogTitle className="text-2xl font-black">إنشاء أمر صيانة</DialogTitle>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-6 pt-6">
-          <div className="grid grid-cols-2 gap-6">
-            <div className="space-y-2">
-              <Label className="font-bold text-slate-700 mr-2">المركبة</Label>
+        <form onSubmit={handleSubmit} className="space-y-4 pt-4">
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-1">
+              <Label className="font-bold text-xs">المركبة</Label>
               <Select name="vehicle_id" required>
-                <SelectTrigger className="h-12 rounded-xl">
+                <SelectTrigger className="rounded-lg">
                   <SelectValue placeholder="اختر المركبة" />
                 </SelectTrigger>
                 <SelectContent>
@@ -1002,75 +442,72 @@ function MaintenanceRequestDialog({ companyId, vehicles, spares }: any) {
                 </SelectContent>
               </Select>
             </div>
-            <div className="space-y-2">
-              <Label className="font-bold text-slate-700 mr-2">الفني المسؤول</Label>
-              <Input name="maintenance_person" className="h-12 rounded-xl" placeholder="اسم الفني" required />
+            <div className="space-y-1">
+              <Label className="font-bold text-xs">الفني المسؤول</Label>
+              <Input name="maintenance_person" className="rounded-lg" placeholder="اسم الفني" required />
             </div>
-            <div className="space-y-2">
-              <Label className="font-bold text-slate-700 mr-2">التاريخ</Label>
-              <Input name="maintenance_date" type="date" className="h-12 rounded-xl" defaultValue={new Date().toISOString().split('T')[0]} required />
+            <div className="space-y-1">
+              <Label className="font-bold text-xs">التاريخ</Label>
+              <Input name="maintenance_date" type="date" className="rounded-lg" defaultValue={new Date().toISOString().split('T')[0]} required />
             </div>
-            <div className="space-y-2">
-              <Label className="font-bold text-slate-700 mr-2">قراءة العداد الحالية</Label>
-              <Input name="current_km" type="number" className="h-12 rounded-xl" placeholder="كم" required />
+            <div className="space-y-1">
+              <Label className="font-bold text-xs">قراءة العداد</Label>
+              <Input name="current_km" type="number" className="rounded-lg" placeholder="كم" required />
             </div>
           </div>
 
-          <div className="p-6 rounded-2xl bg-slate-50 border border-slate-200 space-y-4">
-            <h4 className="font-black text-slate-800 flex items-center gap-2">
-              <Package size={18} className="text-blue-500" /> قطع الغيار المستخدمة
+          <div className="p-4 rounded-xl bg-slate-50 border space-y-3">
+            <h4 className="font-bold text-slate-800 text-sm flex items-center gap-2">
+              <Package size={16} className="text-blue-500" /> قطع الغيار المستخدمة
             </h4>
             <Select onValueChange={addSpareToRequest}>
-              <SelectTrigger className="h-12 rounded-xl bg-white">
-                <SelectValue placeholder="ابحث وأضف قطع غيار..." />
+              <SelectTrigger className="rounded-lg bg-white">
+                <SelectValue placeholder="أضف قطع غيار..." />
               </SelectTrigger>
               <SelectContent>
                 {spares.map((s: any) => (
                   <SelectItem key={s.id} value={s.id.toString()} disabled={s.quantity <= 0}>
-                    {s.name} ({s.quantity} متوفر) - {s.unit_price} SAR
+                    {s.name} ({s.quantity} متوفر)
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
 
-            <ScrollArea className="h-[150px] w-full rounded-xl border bg-white p-2">
+            <ScrollArea className="h-[120px] w-full rounded-lg border bg-white p-2">
               {selectedSpares.map(s => (
-                <div key={s.id} className="flex items-center justify-between p-3 border-b last:border-0">
-                  <div className="flex flex-col">
-                    <span className="font-bold text-slate-800">{s.name}</span>
-                    <span className="text-xs text-slate-400">{s.unit_price} SAR للوحدة</span>
-                  </div>
-                  <div className="flex items-center gap-3">
+                <div key={s.id} className="flex items-center justify-between p-2 border-b last:border-0">
+                  <span className="font-bold text-xs text-slate-700">{s.name}</span>
+                  <div className="flex items-center gap-2">
                     <Input 
                       type="number" 
-                      className="w-16 h-8 text-center rounded-lg" 
+                      className="w-12 h-7 text-center text-xs rounded-md" 
                       value={s.quantity} 
                       onChange={(e) => updateSpareQuantity(s.id, parseInt(e.target.value))}
                     />
-                    <Button variant="ghost" size="icon" className="h-8 w-8 text-rose-500" onClick={() => setSelectedSpares(selectedSpares.filter(item => item.id !== s.id))}>
-                      <X size={16} />
+                    <Button variant="ghost" size="icon" className="h-6 w-6 text-rose-500" onClick={() => setSelectedSpares(selectedSpares.filter(item => item.id !== s.id))}>
+                      <X size={14} />
                     </Button>
                   </div>
                 </div>
               ))}
               {selectedSpares.length === 0 && (
-                <div className="h-full flex items-center justify-center text-slate-300 italic text-sm">لم يتم إضافة قطع غيار بعد</div>
+                <div className="h-full flex items-center justify-center text-slate-300 italic text-xs">لم يتم اختيار قطع غيار</div>
               )}
             </ScrollArea>
             
-            <div className="flex justify-between items-center pt-2">
-              <span className="font-black text-slate-600 uppercase tracking-widest text-xs">إجمالي التكلفة التقديري</span>
-              <span className="text-2xl font-black text-emerald-600">{totalCost.toLocaleString()} <small className="text-xs">SAR</small></span>
+            <div className="flex justify-between items-center text-sm">
+              <span className="font-bold text-slate-500">الإجمالي:</span>
+              <span className="text-xl font-black text-emerald-600">{totalCost.toLocaleString()} <small className="text-xs">SAR</small></span>
             </div>
           </div>
 
-          <div className="space-y-2">
-            <Label className="font-bold text-slate-700 mr-2">ملاحظات إضافية</Label>
-            <Input name="notes" className="h-12 rounded-xl" placeholder="وصف للأعمال التي تمت..." />
+          <div className="space-y-1">
+            <Label className="font-bold text-xs">ملاحظات</Label>
+            <Input name="notes" className="rounded-lg" placeholder="وصف الأعمال..." />
           </div>
 
-          <Button type="submit" className="w-full h-14 rounded-xl bg-slate-900 font-bold text-lg" disabled={loading}>
-            {loading ? "جاري المعالجة..." : "حفظ الطلب وتحديث المخزون"}
+          <Button type="submit" className="w-full h-12 rounded-lg bg-blue-600 hover:bg-blue-700 font-bold" disabled={loading}>
+            {loading ? "جاري الحفظ..." : "حفظ طلب الصيانة"}
           </Button>
         </form>
       </DialogContent>
@@ -1098,11 +535,11 @@ function DeleteMaintenanceDialog({ id, onDeleted }: { id: number, onDeleted: () 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="ghost" size="icon" className="h-11 w-11 rounded-xl text-slate-400 hover:bg-white hover:text-rose-600 hover:shadow-md transition-all border border-transparent hover:border-rose-100">
-          <Trash2 size={20} />
+        <Button variant="ghost" size="icon" className="h-10 w-10 rounded-lg text-slate-400 hover:bg-rose-50 hover:text-rose-600 transition-all">
+          <Trash2 size={18} />
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[400px] rounded-[2.5rem] p-0 overflow-hidden border-none shadow-2xl">
+      <DialogContent className="sm:max-w-[400px] rounded-[2rem] p-0 overflow-hidden border-none shadow-2xl">
         <div className="bg-gradient-to-br from-rose-500 to-rose-600 p-8 text-center text-white">
           <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: "spring", damping: 10 }}>
             <div className="w-20 h-20 bg-white/20 backdrop-blur-md rounded-3xl mx-auto flex items-center justify-center mb-4">
@@ -1110,11 +547,11 @@ function DeleteMaintenanceDialog({ id, onDeleted }: { id: number, onDeleted: () 
             </div>
           </motion.div>
           <h2 className="text-2xl font-black mb-2">تأكيد الحذف</h2>
-          <p className="text-white/80 font-medium">هل أنت متأكد من رغبتك في حذف هذا الطلب؟ سيتم استرجاع قطع الغيار المستخدمة إلى المخزون تلقائياً.</p>
+          <p className="text-white/80 font-medium text-sm">هل أنت متأكد من رغبتك في حذف هذا الطلب؟ سيتم استرجاع قطع الغيار المستخدمة إلى المخزون تلقائياً.</p>
         </div>
         <div className="p-8 bg-white flex flex-col gap-3">
           <Button 
-            className="h-14 rounded-2xl bg-rose-600 hover:bg-rose-700 text-white font-black text-lg shadow-xl shadow-rose-200"
+            className="h-12 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-black text-lg shadow-xl shadow-rose-200"
             onClick={handleDelete}
             disabled={loading}
           >
@@ -1122,7 +559,7 @@ function DeleteMaintenanceDialog({ id, onDeleted }: { id: number, onDeleted: () 
           </Button>
           <Button 
             variant="ghost" 
-            className="h-14 rounded-2xl font-black text-slate-500 hover:bg-slate-50"
+            className="h-12 rounded-xl font-black text-slate-500 hover:bg-slate-50"
             onClick={() => setOpen(false)}
           >
             إلغاء
@@ -1270,10 +707,6 @@ const MaintenanceReceipt = React.forwardRef<HTMLDivElement, { data: any, details
             <h4 className="text-[10px] font-black text-blue-600 uppercase tracking-widest mb-2">إخلاء المسؤولية</h4>
             <p className="text-[10px] leading-relaxed text-blue-800 font-medium">هذا المستند يعتبر إيصالاً رسمياً لعملية الصيانة المذكورة أعلاه. تضمن الشركة جودة الإصلاح وفقاً للمعايير المتبعة. يرجى الاحتفاظ بهذا الإيصال للمراجعة الدورية.</p>
           </div>
-          <div className="flex items-center gap-4 opacity-30 grayscale">
-            <div className="h-10 w-10 rounded-lg bg-slate-200"></div>
-            <div className="h-4 w-32 bg-slate-200 rounded-full"></div>
-          </div>
         </div>
 
         <div className="w-80 space-y-4">
@@ -1286,7 +719,7 @@ const MaintenanceReceipt = React.forwardRef<HTMLDivElement, { data: any, details
             <span className="text-lg font-bold text-slate-700">{taxAmount.toFixed(2)}</span>
           </div>
           <div className="h-px bg-slate-100 mx-4"></div>
-          <div className="bg-slate-900 text-white p-6 rounded-[2rem] shadow-2xl flex justify-between items-center transform scale-105 origin-left">
+          <div className="bg-slate-900 text-white p-6 rounded-2xl shadow-xl flex justify-between items-center">
             <div className="flex flex-col">
               <span className="text-[10px] font-black opacity-50 uppercase tracking-widest">الإجمالي النهائي</span>
               <span className="text-xs font-bold">TOTAL AMOUNT</span>
@@ -1310,34 +743,352 @@ const MaintenanceReceipt = React.forwardRef<HTMLDivElement, { data: any, details
         <div className="space-y-6">
           <p className="text-xs font-black text-slate-400 uppercase tracking-widest">توقيع السلم المستلم</p>
           <div className="h-20 border-b border-dashed border-slate-200 flex items-center justify-center">
-            <div className="w-16 h-16 rounded-full border-2 border-slate-100 flex items-center justify-center opacity-20">
-              <User size={24} />
-            </div>
+            <User size={24} className="opacity-10" />
           </div>
         </div>
         <div className="relative">
-          <div className="absolute inset-0 flex items-center justify-center">
-            <div className="w-32 h-32 rounded-full border-4 border-slate-50 border-double rotate-12 flex items-center justify-center opacity-10">
-              <div className="text-[8px] font-black text-slate-400 text-center uppercase tracking-tighter">
-                OFFICIAL STAMP<br/>ZOOLSYS LOGISTICS<br/>{new Date().getFullYear()}
-              </div>
-            </div>
-          </div>
-          <p className="text-xs font-black text-slate-400 uppercase tracking-widest relative z-10 mb-20">ختم الاعتماد الرسمي</p>
+          <p className="text-xs font-black text-slate-400 uppercase tracking-widest relative z-10">ختم الاعتماد الرسمي</p>
+          <div className="h-20 border-b border-dashed border-slate-200"></div>
         </div>
-      </div>
-
-      <div className="absolute bottom-12 right-16 left-16 flex justify-between items-center text-[8px] font-black text-slate-300 uppercase tracking-[0.4em]">
-        <span>ZOOLSYS PRO LOGISTICS MANAGEMENT</span>
-        <div className="flex items-center gap-2">
-          <div className="w-1 h-1 rounded-full bg-slate-300"></div>
-          <span>CONFIDENTIAL DOCUMENT</span>
-          <div className="w-1 h-1 rounded-full bg-slate-300"></div>
-        </div>
-        <span>PAGE 01 OF 01</span>
       </div>
     </div>
   );
 });
 
 MaintenanceReceipt.displayName = "MaintenanceReceipt";
+
+// ------------------------------------------------------------------------------------------------
+// Main Component
+// ------------------------------------------------------------------------------------------------
+
+export function FleetClient({ 
+  initialVehicles, 
+  initialSpares, 
+  categories, 
+  vehicleCategories,
+  initialMaintenance, 
+  employees,
+  companyId,
+  companyName
+}: FleetClientProps) {
+  const [vehicles, setVehicles] = useState(initialVehicles);
+  const [spares, setSpares] = useState(initialSpares);
+  const [maintenance, setMaintenance] = useState(initialMaintenance);
+  const [activeTab, setActiveTab] = useState("dashboard");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedMaintenance, setSelectedMaintenance] = useState<any>(null);
+  const [selectedMaintenanceDetails, setSelectedMaintenanceDetails] = useState<any[]>([]);
+  
+  useEffect(() => { setVehicles(initialVehicles); }, [initialVehicles]);
+  useEffect(() => { setSpares(initialSpares); }, [initialSpares]);
+  useEffect(() => { setMaintenance(initialMaintenance); }, [initialMaintenance]);
+  
+  const printRef = useRef<HTMLDivElement>(null);
+  const handlePrint = useReactToPrint({
+    contentRef: printRef,
+  });
+
+  const totalVehicles = vehicles.length;
+  const totalSpares = spares.length;
+  const lowStockCount = spares.filter(s => s.quantity <= (s.min_quantity || 0)).length;
+  const pendingMaintenance = maintenance.filter(m => m.status === 'pending').length;
+
+  const filteredVehicles = vehicles.filter(v => 
+    v.plate_number_ar?.includes(searchQuery) || 
+    v.brand?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    v.model?.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  return (
+    <div className="flex flex-col gap-6 p-4 md:p-8 bg-slate-50 min-h-screen">
+      {/* Colorful Header */}
+      <div className="rounded-3xl bg-gradient-to-r from-blue-600 to-indigo-700 p-8 text-white shadow-xl">
+        <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+          <div className="text-center md:text-right">
+            <h1 className="text-3xl font-black">إدارة الأسطول والمخزون</h1>
+            <p className="text-blue-100 mt-2">مرحباً بك في لوحة تحكم الأسطول لشركة {companyName}</p>
+          </div>
+          
+          <div className="flex flex-wrap justify-center gap-3">
+            <AddVehicleCategoryDialog companyId={companyId} />
+            <AddCategoryDialog companyId={companyId} />
+            <AddVehicleDialog 
+              companyId={companyId} 
+              employees={employees} 
+              vehicleCategories={vehicleCategories}
+            />
+            <AddSpareDialog 
+              companyId={companyId} 
+              categories={categories} 
+            />
+            <MaintenanceRequestDialog 
+              companyId={companyId} 
+              vehicles={vehicles} 
+              spares={spares} 
+            />
+          </div>
+        </div>
+      </div>
+
+      <Tabs defaultValue="dashboard" value={activeTab} onValueChange={setActiveTab} className="w-full">
+        <div className="flex items-center justify-center mb-6">
+          <TabsList className="bg-white p-1 rounded-2xl shadow-md border border-slate-200 h-14">
+            <TabsTrigger value="dashboard" className="rounded-xl px-6 data-[state=active]:bg-blue-600 data-[state=active]:text-white font-bold">لوحة التحكم</TabsTrigger>
+            <TabsTrigger value="vehicles" className="rounded-xl px-6 data-[state=active]:bg-blue-600 data-[state=active]:text-white font-bold">المركبات</TabsTrigger>
+            <TabsTrigger value="inventory" className="rounded-xl px-6 data-[state=active]:bg-blue-600 data-[state=active]:text-white font-bold">المخزون</TabsTrigger>
+            <TabsTrigger value="maintenance" className="rounded-xl px-6 data-[state=active]:bg-blue-600 data-[state=active]:text-white font-bold">الصيانة</TabsTrigger>
+          </TabsList>
+        </div>
+
+        <TabsContent value="dashboard" className="space-y-6">
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+            <DashboardStatCard title="إجمالي الأسطول" value={totalVehicles} icon={<Car size={28} />} color="blue" desc="مركبة" />
+            <DashboardStatCard title="قطع الغيار" value={totalSpares} icon={<Box size={28} />} color="emerald" desc="صنف" />
+            <DashboardStatCard title="تنبيهات المخزون" value={lowStockCount} icon={<AlertTriangle size={28} />} color="amber" desc="صنف ناقص" alert={lowStockCount > 0} />
+            <DashboardStatCard title="طلبات الصيانة" value={pendingMaintenance} icon={<FileCheck size={28} />} color="rose" desc="طلب" />
+          </div>
+
+          <div className="grid gap-6 lg:grid-cols-2">
+            <Card className="rounded-2xl shadow-md border-none overflow-hidden">
+              <CardHeader className="bg-slate-50 border-b p-4">
+                <CardTitle className="text-lg font-black flex items-center gap-2">
+                  <History className="text-blue-600" size={20} /> آخر عمليات الصيانة
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-0">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="font-bold">المركبة</TableHead>
+                      <TableHead className="font-bold">التاريخ</TableHead>
+                      <TableHead className="font-bold">التكلفة</TableHead>
+                      <TableHead className="font-bold">الحالة</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {maintenance.slice(0, 5).map((m) => (
+                      <TableRow key={m.id}>
+                        <TableCell className="font-black">{m.plate_number_ar}</TableCell>
+                        <TableCell className="text-slate-500">{new Date(m.maintenance_date).toLocaleDateString('ar-SA')}</TableCell>
+                        <TableCell className="font-bold text-emerald-600">{m.total_cost} SAR</TableCell>
+                        <TableCell>
+                          <Badge className={m.status === 'pending' ? 'bg-amber-100 text-amber-700' : 'bg-emerald-100 text-emerald-700'}>
+                            {m.status === 'pending' ? 'قيد الانتظار' : 'مكتمل'}
+                          </Badge>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </CardContent>
+            </Card>
+
+            <Card className="rounded-2xl shadow-md border-none overflow-hidden">
+              <CardHeader className="bg-slate-50 border-b p-4">
+                <CardTitle className="text-lg font-black flex items-center gap-2">
+                  <AlertTriangle className="text-rose-600" size={20} /> نقص في المخزون
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-0">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="font-bold">القطعة</TableHead>
+                      <TableHead className="font-bold">المخزون</TableHead>
+                      <TableHead className="font-bold">الحد الأدنى</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {spares.filter(s => s.quantity <= (s.min_quantity || 0)).slice(0, 5).map((s) => (
+                      <TableRow key={s.id}>
+                        <TableCell className="font-bold">{s.name}</TableCell>
+                        <TableCell><Badge variant="destructive">{s.quantity}</Badge></TableCell>
+                        <TableCell className="font-bold text-slate-400">{s.min_quantity}</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </CardContent>
+            </Card>
+          </div>
+        </TabsContent>
+
+        <TabsContent value="vehicles">
+          <Card className="rounded-2xl shadow-md border-none overflow-hidden">
+            <CardHeader className="bg-white border-b p-6 flex flex-row items-center justify-between">
+              <div className="relative w-64">
+                <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                <Input 
+                  placeholder="بحث عن مركبة..." 
+                  className="pr-10 rounded-xl"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
+              </div>
+            </CardHeader>
+            <CardContent className="p-0">
+              <Table>
+                <TableHeader>
+                  <TableRow className="bg-slate-50">
+                    <TableHead className="font-black">لوحة المركبة</TableHead>
+                    <TableHead className="font-black">النوع والموديل</TableHead>
+                    <TableHead className="font-black">السائق</TableHead>
+                    <TableHead className="font-black">العداد</TableHead>
+                    <TableHead className="font-black text-left">إجراءات</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {filteredVehicles.map((v) => (
+                    <TableRow key={v.id} className="hover:bg-slate-50 transition-all">
+                      <TableCell>
+                        <div className="h-10 w-14 border-2 border-slate-900 rounded-md bg-white flex flex-col items-center justify-center font-black">
+                          <span className="text-xs leading-none">{v.plate_number_ar}</span>
+                          <span className="text-[8px] text-slate-400">{v.plate_number_en}</span>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex flex-col">
+                          <span className="font-bold">{v.brand}</span>
+                          <span className="text-xs text-slate-400">{v.model} - {v.manufacture_year}</span>
+                        </div>
+                      </TableCell>
+                      <TableCell className="font-bold text-slate-600">{v.driver_name || '---'}</TableCell>
+                      <TableCell className="font-black">{v.current_km?.toLocaleString()} <small className="text-slate-400">KM</small></TableCell>
+                      <TableCell className="text-left">
+                        <Button variant="ghost" size="icon" className="text-rose-500 hover:bg-rose-50" onClick={() => {
+                          if(confirm('هل أنت متأكد من حذف هذه المركبة؟')) {
+                            deleteVehicle(v.id).then(() => toast.success('تم حذف المركبة'));
+                          }
+                        }}>
+                          <Trash2 size={18} />
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="inventory">
+          <div className="grid gap-6 md:grid-cols-4">
+            <Card className="rounded-2xl shadow-md border-none p-4 h-fit">
+              <div className="flex items-center justify-between mb-4 px-2">
+                <h3 className="font-black text-sm flex items-center gap-2"><Layers size={16} /> الفئات</h3>
+                <AddCategoryDialog companyId={companyId} />
+              </div>
+              <div className="space-y-1">
+                <Button variant="ghost" className="w-full justify-start font-bold bg-blue-50 text-blue-700 rounded-xl">الكل</Button>
+                {categories.map(cat => (
+                  <Button key={cat.id} variant="ghost" className="w-full justify-start text-slate-600 font-bold rounded-xl">{cat.name}</Button>
+                ))}
+              </div>
+            </Card>
+            
+            <Card className="md:col-span-3 rounded-2xl shadow-md border-none overflow-hidden">
+              <CardContent className="p-0">
+                <Table>
+                  <TableHeader>
+                    <TableRow className="bg-slate-50">
+                      <TableHead className="font-black">القطعة</TableHead>
+                      <TableHead className="font-black">الفئة</TableHead>
+                      <TableHead className="font-black">الكمية</TableHead>
+                      <TableHead className="font-black">التكلفة</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {spares.map(s => (
+                      <TableRow key={s.id}>
+                        <TableCell className="font-bold">{s.name}</TableCell>
+                        <TableCell><Badge variant="outline">{s.category_name || 'بدون'}</Badge></TableCell>
+                        <TableCell>
+                          <span className={`font-black ${s.quantity <= (s.min_quantity || 0) ? 'text-rose-600' : 'text-slate-900'}`}>{s.quantity}</span>
+                        </TableCell>
+                        <TableCell className="font-bold">{s.unit_price} SAR</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </CardContent>
+            </Card>
+          </div>
+        </TabsContent>
+
+        <TabsContent value="maintenance">
+          <Card className="rounded-2xl shadow-md border-none overflow-hidden">
+            <CardContent className="p-0">
+              <Table>
+                <TableHeader>
+                  <TableRow className="bg-slate-50">
+                    <TableHead className="font-black">رقم الطلب</TableHead>
+                    <TableHead className="font-black">المركبة</TableHead>
+                    <TableHead className="font-black">الفني</TableHead>
+                    <TableHead className="font-black">التاريخ</TableHead>
+                    <TableHead className="font-black">التكلفة</TableHead>
+                    <TableHead className="font-black">الحالة</TableHead>
+                    <TableHead className="font-black text-left">إجراءات</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {maintenance.map(m => (
+                    <TableRow key={m.id}>
+                      <TableCell className="font-mono text-slate-400">#{m.id.toString().padStart(6, '0')}</TableCell>
+                      <TableCell className="font-black">{m.plate_number_ar}</TableCell>
+                      <TableCell className="font-bold">{m.maintenance_person}</TableCell>
+                      <TableCell>{new Date(m.maintenance_date).toLocaleDateString('ar-SA')}</TableCell>
+                      <TableCell className="font-black text-emerald-600">{m.total_cost} SAR</TableCell>
+                      <TableCell>
+                        <Badge className={m.status === 'pending' ? 'bg-amber-100 text-amber-700' : 'bg-emerald-100 text-emerald-700'}>
+                          {m.status === 'pending' ? 'قيد الانتظار' : 'مكتمل'}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="text-left">
+                        <div className="flex justify-end gap-1">
+                          <Button 
+                            variant="ghost" 
+                            size="icon" 
+                            className="h-10 w-10 text-blue-600 hover:bg-blue-50"
+                            onClick={async () => {
+                              setSelectedMaintenance(m);
+                              const res = await getMaintenanceDetails(m.id);
+                              if (res.success) {
+                                setSelectedMaintenanceDetails(res.details || []);
+                              }
+                              setTimeout(() => handlePrint(), 500);
+                            }}
+                          >
+                            <Printer size={18} />
+                          </Button>
+                          <DeleteMaintenanceDialog id={m.id} onDeleted={() => {
+                            setMaintenance(prev => prev.filter(item => item.id !== m.id));
+                          }} />
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
+
+      {/* Hidden Print Content */}
+      <div className="opacity-0 pointer-events-none absolute -z-50 overflow-hidden h-0 w-0">
+        <MaintenanceReceipt ref={printRef} data={selectedMaintenance} details={selectedMaintenanceDetails} companyName={companyName} />
+      </div>
+    </div>
+  );
+}
+
+interface FleetClientProps {
+  initialVehicles: any[];
+  initialSpares: any[];
+  categories: any[];
+  vehicleCategories: any[];
+  initialMaintenance: any[];
+  employees: any[];
+  companyId: number;
+  companyName: string;
+}
