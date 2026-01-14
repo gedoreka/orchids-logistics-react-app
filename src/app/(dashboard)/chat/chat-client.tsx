@@ -9,17 +9,15 @@ import {
   Smile,
   CheckCheck,
   Check,
-  Image as ImageIcon,
   Mic,
   MoreVertical,
   Phone,
   Video,
-  Search,
-  ArrowDown
+  ArrowDown,
+  RefreshCw
 } from "lucide-react";
 import { toast } from "sonner";
-import { sendMessage, markMessagesAsRead } from "@/lib/actions/chat";
-import { supabase } from "@/lib/supabase";
+import { sendMessage, getMessages } from "@/lib/actions/chat";
 
 interface ChatClientProps {
   initialMessages: any[];
@@ -34,6 +32,7 @@ export function ChatClient({ initialMessages, companyId, senderRole }: ChatClien
   const [showScrollBtn, setShowScrollBtn] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  const pollIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
   const scrollToBottom = useCallback(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -57,33 +56,22 @@ export function ChatClient({ initialMessages, companyId, senderRole }: ChatClien
   }, []);
 
   useEffect(() => {
-    const channel = supabase
-      .channel(`chat_${companyId}`)
-      .on(
-        'postgres_changes',
-        {
-          event: 'INSERT',
-          schema: 'public',
-          table: 'chat_messages',
-          filter: `company_id=eq.${companyId}`,
-        },
-        (payload) => {
-          setMessages((prev) => {
-            const exists = prev.some(m => m.id === payload.new.id);
-            if (exists) return prev;
-            return [...prev, payload.new];
-          });
-          if (payload.new.sender_role !== senderRole) {
-            markMessagesAsRead(companyId, senderRole);
-          }
+    const pollMessages = async () => {
+      try {
+        const res = await getMessages(companyId);
+        if (res.success && res.data) {
+          setMessages(res.data);
         }
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
+      } catch (error) {
+        console.error("Polling error:", error);
+      }
     };
-  }, [companyId, senderRole]);
+
+    pollIntervalRef.current = setInterval(pollMessages, 3000);
+    return () => {
+      if (pollIntervalRef.current) clearInterval(pollIntervalRef.current);
+    };
+  }, [companyId]);
 
   const handleSend = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -98,7 +86,7 @@ export function ChatClient({ initialMessages, companyId, senderRole }: ChatClien
       sender_role: senderRole,
       message: messageContent,
       created_at: new Date().toISOString(),
-      is_read: false,
+      is_read: 0,
       _pending: true
     };
 
@@ -119,7 +107,7 @@ export function ChatClient({ initialMessages, companyId, senderRole }: ChatClien
         setInputValue(messageContent);
       } else {
         setMessages(prev => prev.map(m => 
-          m.id === tempId ? { ...m, _pending: false } : m
+          m.id === tempId ? { ...m, id: result.insertId, _pending: false } : m
         ));
       }
     } catch (error) {
@@ -149,7 +137,7 @@ export function ChatClient({ initialMessages, companyId, senderRole }: ChatClien
 
   return (
     <div className="h-[calc(100vh-6rem)] flex flex-col bg-[#efeae2] rounded-2xl overflow-hidden shadow-xl border border-gray-200">
-      {/* Header - WhatsApp Style */}
+      {/* Header */}
       <div className="bg-[#075e54] px-4 py-2.5 flex items-center gap-3 shrink-0">
         <div className="relative">
           <div className="w-10 h-10 rounded-full bg-[#128c7e] flex items-center justify-center">
@@ -174,7 +162,7 @@ export function ChatClient({ initialMessages, companyId, senderRole }: ChatClien
         </div>
       </div>
 
-      {/* Messages Area */}
+      {/* Messages */}
       <div 
         ref={containerRef}
         className="flex-1 overflow-y-auto px-3 py-2 relative"
@@ -185,14 +173,12 @@ export function ChatClient({ initialMessages, companyId, senderRole }: ChatClien
       >
         {Object.entries(messageGroups).map(([date, msgs]) => (
           <div key={date}>
-            {/* Date Badge */}
             <div className="flex justify-center my-2">
               <span className="bg-[#e1f2fb] text-[#54656f] text-[10px] font-bold px-3 py-1 rounded-lg shadow-sm">
                 {date === new Date().toLocaleDateString('ar-SA') ? 'اليوم' : date}
               </span>
             </div>
 
-            {/* Messages */}
             {msgs.map((msg, index) => {
               const isMe = msg.sender_role === senderRole;
               const showTail = index === 0 || msgs[index - 1]?.sender_role !== msg.sender_role;
@@ -214,15 +200,17 @@ export function ChatClient({ initialMessages, companyId, senderRole }: ChatClien
                   >
                     {showTail && (
                       <div 
-                        className={`absolute top-0 w-2 h-2 ${
+                        className={`absolute top-0 w-0 h-0 ${
                           isMe 
-                            ? '-left-2 border-l-8 border-l-transparent border-t-8 border-t-[#d9fdd3]' 
-                            : '-right-2 border-r-8 border-r-transparent border-t-8 border-t-white'
+                            ? '-left-2' 
+                            : '-right-2'
                         }`}
                         style={{
-                          width: 0,
-                          height: 0,
-                          borderStyle: 'solid'
+                          borderStyle: 'solid',
+                          borderWidth: isMe ? '0 8px 8px 0' : '0 0 8px 8px',
+                          borderColor: isMe 
+                            ? 'transparent #d9fdd3 transparent transparent'
+                            : 'transparent transparent transparent white'
                         }}
                       />
                     )}
@@ -261,7 +249,6 @@ export function ChatClient({ initialMessages, companyId, senderRole }: ChatClien
         
         <div ref={messagesEndRef} />
         
-        {/* Scroll to bottom button */}
         <AnimatePresence>
           {showScrollBtn && (
             <motion.button
@@ -277,7 +264,7 @@ export function ChatClient({ initialMessages, companyId, senderRole }: ChatClien
         </AnimatePresence>
       </div>
 
-      {/* Input Area - WhatsApp Style */}
+      {/* Input */}
       <div className="bg-[#f0f2f5] px-3 py-2 shrink-0">
         <form onSubmit={handleSend} className="flex items-end gap-2">
           <div className="flex items-center gap-1">
