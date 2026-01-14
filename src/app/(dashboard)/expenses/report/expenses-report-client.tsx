@@ -118,7 +118,7 @@ const formatNumber = (num: number) => {
   }).format(num);
 };
 
-const UPLOADS_BASE_URL = "https://srv1687-files.hstgr.io/6f56635d72e50a2d/files/public_html/accounts/uploads/";
+const UPLOADS_BASE_URL = "https://accounts.zoolspeed.com/uploads/";
 
 const getAttachmentUrl = (attachment: string | null | undefined) => {
   if (!attachment) return null;
