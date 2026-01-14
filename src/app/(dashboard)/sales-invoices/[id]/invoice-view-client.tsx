@@ -189,29 +189,36 @@ export function InvoiceViewClient({
     window.print();
   };
 
-  const handleDownloadPDF = async () => {
-    setPdfLoading(true);
-    try {
-      const html2pdf = (await import('html2pdf.js')).default;
-      const element = printRef.current;
-      if (!element) return;
-      
-      const opt = {
-        margin: [10, 10, 10, 10],
-        filename: `فاتورة-ضريبية-${invoice.invoice_number}.pdf`,
-        image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: { scale: 2, useCORS: true, letterRendering: true },
-        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
-        pagebreak: { mode: 'avoid-all' }
-      };
-      
-      await html2pdf().set(opt).from(element).save();
-    } catch (error) {
-      console.error('Error generating PDF:', error);
-    } finally {
-      setPdfLoading(false);
-    }
-  };
+    const handleDownloadPDF = async () => {
+      setPdfLoading(true);
+      try {
+        const html2pdf = (await import('html2pdf.js')).default;
+        const element = printRef.current;
+        if (!element) return;
+        
+        const opt = {
+          margin: [10, 10, 10, 10],
+          filename: `فاتورة-ضريبية-${invoice.invoice_number}.pdf`,
+          image: { type: 'jpeg', quality: 0.98 },
+          html2canvas: { 
+            scale: 2, 
+            useCORS: true, 
+            letterRendering: true,
+            logging: false,
+            backgroundColor: '#ffffff'
+          },
+          jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+          pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
+        };
+        
+        await html2pdf().set(opt).from(element).save();
+      } catch (error) {
+        console.error('Error generating PDF:', error);
+      } finally {
+        setPdfLoading(false);
+      }
+    };
+
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/20 p-4 md:p-6">
@@ -247,9 +254,13 @@ export function InvoiceViewClient({
           </a>
         </div>
 
-        <div ref={printRef} className="bg-white rounded-2xl shadow-lg overflow-hidden print:shadow-none print:rounded-none">
-          <div className="bg-gradient-to-br from-[#1a237e] to-[#283593] text-white p-6 print:bg-[#1a237e]">
-            <div className="flex justify-between items-start flex-wrap gap-4">
+          <div ref={printRef} className="bg-white rounded-2xl shadow-lg overflow-hidden print:shadow-none print:rounded-none">
+            <div 
+              className="text-white p-6"
+              style={{ background: 'linear-gradient(to bottom right, #1a237e, #283593)' }}
+            >
+              <div className="flex justify-between items-start flex-wrap gap-4">
+
               <div className="text-center flex-1">
                 <h1 className="text-2xl md:text-3xl font-black mb-2">فاتورة ضريبية</h1>
                 <p className="text-white/80 text-lg">VAT Invoice</p>
@@ -276,86 +287,94 @@ export function InvoiceViewClient({
             </div>
           </div>
 
-          <div className="p-6 space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="bg-gray-50 rounded-xl p-4 border border-gray-100">
-                <h3 className="font-bold text-gray-900 mb-3 flex items-center gap-2">
-                  <Building2 size={18} className="text-blue-600" />
-                  بيانات المنشأة
-                </h3>
-                <div className="space-y-2 text-sm">
-                  <p><span className="text-gray-500">اسم المنشأة:</span> <span className="font-bold">{company?.name || '-'}</span></p>
-                  <p><span className="text-gray-500">السجل التجاري:</span> <span className="font-bold">{company?.commercial_number || '-'}</span></p>
-                  <p><span className="text-gray-500">الرقم الضريبي:</span> <span className="font-bold">{company?.vat_number || '-'}</span></p>
-                  <p><span className="text-gray-500">العنوان:</span> <span className="font-bold">{companyAddress || '-'}</span></p>
+            <div className="p-6 space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="rounded-xl p-4 border border-gray-100" style={{ backgroundColor: '#f9fafb' }}>
+                  <h3 className="font-bold text-gray-900 mb-3 flex items-center gap-2">
+                    <Building2 size={18} className="text-blue-600" />
+                    بيانات المنشأة
+                  </h3>
+                  <div className="space-y-2 text-sm">
+                    <p><span className="text-gray-500">اسم المنشأة:</span> <span className="font-bold">{company?.name || '-'}</span></p>
+                    <p><span className="text-gray-500">السجل التجاري:</span> <span className="font-bold">{company?.commercial_number || '-'}</span></p>
+                    <p><span className="text-gray-500">الرقم الضريبي:</span> <span className="font-bold">{company?.vat_number || '-'}</span></p>
+                    <p><span className="text-gray-500">العنوان:</span> <span className="font-bold">{companyAddress || '-'}</span></p>
+                  </div>
+                </div>
+
+                <div className="rounded-xl p-4 border border-gray-100" style={{ backgroundColor: '#f9fafb' }}>
+                  <h3 className="font-bold text-gray-900 mb-3 flex items-center gap-2">
+                    <User size={18} className="text-emerald-600" />
+                    بيانات العميل
+                  </h3>
+                  <div className="space-y-2 text-sm">
+                      <p><span className="text-gray-500">اسم العميل:</span> <span className="font-bold">{customer?.company_name || customer?.customer_name || customer?.name || invoice.client_name || '-'}</span></p>
+                      <p><span className="text-gray-500">السجل التجاري:</span> <span className="font-bold">{customer?.commercial_number || '-'}</span></p>
+                      <p><span className="text-gray-500">الرقم الضريبي:</span> <span className="font-bold">{customer?.vat_number || invoice.client_vat || '-'}</span></p>
+                      <p><span className="text-gray-500">العنوان:</span> <span className="font-bold">{customer?.address || invoice.client_address || '-'}</span></p>
+                    </div>
                 </div>
               </div>
 
-              <div className="bg-gray-50 rounded-xl p-4 border border-gray-100">
-                <h3 className="font-bold text-gray-900 mb-3 flex items-center gap-2">
-                  <User size={18} className="text-emerald-600" />
-                  بيانات العميل
-                </h3>
-                <div className="space-y-2 text-sm">
-                    <p><span className="text-gray-500">اسم العميل:</span> <span className="font-bold">{customer?.company_name || customer?.customer_name || customer?.name || invoice.client_name || '-'}</span></p>
-                    <p><span className="text-gray-500">السجل التجاري:</span> <span className="font-bold">{customer?.commercial_number || '-'}</span></p>
-                    <p><span className="text-gray-500">الرقم الضريبي:</span> <span className="font-bold">{customer?.vat_number || invoice.client_vat || '-'}</span></p>
-                    <p><span className="text-gray-500">العنوان:</span> <span className="font-bold">{customer?.address || invoice.client_address || '-'}</span></p>
-                  </div>
+
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm border-collapse">
+                  <thead 
+                    className="text-white"
+                    style={{ background: 'linear-gradient(to bottom right, #1a237e, #283593)' }}
+                  >
+                    <tr>
+                      <th className="px-3 py-3 text-right font-bold">البند</th>
+                      <th className="px-3 py-3 text-center font-bold">الكمية</th>
+                      <th className="px-3 py-3 text-center font-bold">سعر الوحدة</th>
+                      <th className="px-3 py-3 text-center font-bold">قبل الضريبة</th>
+                      <th className="px-3 py-3 text-center font-bold">الضريبة 15%</th>
+                      <th className="px-3 py-3 text-center font-bold">الإجمالي</th>
+                      <th className="px-3 py-3 text-center font-bold">العملة</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {items.map((item, idx) => (
+                      <tr key={item.id} className="border-b border-gray-100 hover:bg-blue-50/30">
+                        <td className="px-3 py-3 font-bold text-gray-900">{item.product_name}</td>
+                        <td className="px-3 py-3 text-center text-gray-600">{item.quantity}</td>
+                        <td className="px-3 py-3 text-center text-gray-600">{parseFloat(String(item.unit_price)).toFixed(4)}</td>
+                        <td className="px-3 py-3 text-center text-gray-600">{parseFloat(String(item.total_before_vat)).toFixed(2)}</td>
+                        <td className="px-3 py-3 text-center text-blue-600">{parseFloat(String(item.vat_amount)).toFixed(2)}</td>
+                        <td className="px-3 py-3 text-center font-bold text-gray-900">{parseFloat(String(item.total_with_vat)).toFixed(2)}</td>
+                        <td className="px-3 py-3 text-center text-gray-500">{company?.currency || 'ريال سعودي'}</td>
+                      </tr>
+                    ))}
+                    
+                    {adjustments.map((adj) => (
+                      <tr key={adj.id} className="border-b border-gray-100" style={{ backgroundColor: adj.type === 'discount' ? '#fef2f2' : '#ecfdf5' }}>
+                        <td className="px-3 py-3 font-bold">
+                          {adj.title} ({adj.type === 'discount' ? 'خصم' : 'إضافة'})
+                        </td>
+                        <td className="px-3 py-3 text-center">-</td>
+                        <td className="px-3 py-3 text-center">-</td>
+                        <td className="px-3 py-3 text-center">{parseFloat(String(adj.amount)).toFixed(2)}</td>
+                        <td className="px-3 py-3 text-center">{parseFloat(String(adj.vat_amount)).toFixed(2)}</td>
+                        <td className="px-3 py-3 text-center font-bold">
+                          {adj.type === 'discount' ? '-' : ''}{parseFloat(String(adj.total_with_vat)).toFixed(2)}
+                        </td>
+                        <td className="px-3 py-3 text-center text-gray-500">{company?.currency || 'ريال سعودي'}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
-            </div>
 
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm border-collapse">
-                <thead className="bg-gradient-to-br from-[#1a237e] to-[#283593] text-white print:bg-[#1a237e]">
-                  <tr>
-                    <th className="px-3 py-3 text-right font-bold">البند</th>
-                    <th className="px-3 py-3 text-center font-bold">الكمية</th>
-                    <th className="px-3 py-3 text-center font-bold">سعر الوحدة</th>
-                    <th className="px-3 py-3 text-center font-bold">قبل الضريبة</th>
-                    <th className="px-3 py-3 text-center font-bold">الضريبة 15%</th>
-                    <th className="px-3 py-3 text-center font-bold">الإجمالي</th>
-                    <th className="px-3 py-3 text-center font-bold">العملة</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {items.map((item, idx) => (
-                    <tr key={item.id} className="border-b border-gray-100 hover:bg-blue-50/30">
-                      <td className="px-3 py-3 font-bold text-gray-900">{item.product_name}</td>
-                      <td className="px-3 py-3 text-center text-gray-600">{item.quantity}</td>
-                      <td className="px-3 py-3 text-center text-gray-600">{parseFloat(String(item.unit_price)).toFixed(4)}</td>
-                      <td className="px-3 py-3 text-center text-gray-600">{parseFloat(String(item.total_before_vat)).toFixed(2)}</td>
-                      <td className="px-3 py-3 text-center text-blue-600">{parseFloat(String(item.vat_amount)).toFixed(2)}</td>
-                      <td className="px-3 py-3 text-center font-bold text-gray-900">{parseFloat(String(item.total_with_vat)).toFixed(2)}</td>
-                      <td className="px-3 py-3 text-center text-gray-500">{company?.currency || 'ريال سعودي'}</td>
-                    </tr>
-                  ))}
-                  
-                  {adjustments.map((adj) => (
-                    <tr key={adj.id} className={`border-b border-gray-100 ${adj.type === 'discount' ? 'bg-red-50' : 'bg-emerald-50'}`}>
-                      <td className="px-3 py-3 font-bold">
-                        {adj.title} ({adj.type === 'discount' ? 'خصم' : 'إضافة'})
-                      </td>
-                      <td className="px-3 py-3 text-center">-</td>
-                      <td className="px-3 py-3 text-center">-</td>
-                      <td className="px-3 py-3 text-center">{parseFloat(String(adj.amount)).toFixed(2)}</td>
-                      <td className="px-3 py-3 text-center">{parseFloat(String(adj.vat_amount)).toFixed(2)}</td>
-                      <td className="px-3 py-3 text-center font-bold">
-                        {adj.type === 'discount' ? '-' : ''}{parseFloat(String(adj.total_with_vat)).toFixed(2)}
-                      </td>
-                      <td className="px-3 py-3 text-center text-gray-500">{company?.currency || 'ريال سعودي'}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div 
+                  className="rounded-xl p-5 border border-gray-100"
+                  style={{ background: 'linear-gradient(to bottom right, #f9fafb, #eff6ff)' }}
+                >
+                  <h3 className="font-bold text-gray-900 mb-4 flex items-center gap-2">
+                    <CreditCard size={18} className="text-blue-600" />
+                    ملخص الفاتورة
+                  </h3>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="bg-gradient-to-br from-gray-50 to-blue-50 rounded-xl p-5 border border-gray-100">
-                <h3 className="font-bold text-gray-900 mb-4 flex items-center gap-2">
-                  <CreditCard size={18} className="text-blue-600" />
-                  ملخص الفاتورة
-                </h3>
                 <div className="space-y-3 text-sm">
                   <div className="flex justify-between py-2 border-b border-dashed border-gray-200">
                     <span className="text-gray-600">الإجمالي قبل الضريبة:</span>
@@ -377,12 +396,13 @@ export function InvoiceViewClient({
                       <span className="font-bold text-emerald-600">{additionTotal.toFixed(2)} ريال</span>
                     </div>
                   )}
-                  <div className="flex justify-between py-3 border-t-2 border-blue-200 mt-2">
-                    <span className="font-bold text-lg">إجمالي المبلغ المستحق:</span>
-                    <span className="font-black text-xl text-emerald-600 bg-emerald-100 px-4 py-1 rounded-lg">
-                      {grandTotal.toFixed(2)} ريال
-                    </span>
-                  </div>
+                    <div className="flex justify-between py-3 border-t-2 border-blue-200 mt-2">
+                      <span className="font-bold text-lg">إجمالي المبلغ المستحق:</span>
+                      <span className="font-black text-xl text-emerald-600 px-4 py-1 rounded-lg" style={{ backgroundColor: '#d1fae5' }}>
+                        {grandTotal.toFixed(2)} ريال
+                      </span>
+                    </div>
+
                 </div>
               </div>
 
@@ -415,65 +435,69 @@ export function InvoiceViewClient({
               </div>
             </div>
 
-            {selectedBank && (
-              <div className="bg-gradient-to-br from-emerald-50 to-teal-50 rounded-xl p-5 border border-emerald-100">
-                <div className="flex justify-between items-center mb-4">
-                  <h3 className="font-bold text-gray-900 flex items-center gap-2">
-                    <University size={18} className="text-emerald-600" />
-                    معلومات الحساب البنكي
-                  </h3>
-                  {bankAccounts.length > 1 && (
-                    <select
-                      value={selectedBankId}
-                      onChange={(e) => setSelectedBankId(parseInt(e.target.value))}
-                      className="px-3 py-1.5 rounded-lg border border-emerald-200 text-sm print:hidden"
-                    >
-                      {bankAccounts.map(bank => (
-                        <option key={bank.id} value={bank.id}>{bank.bank_name}</option>
-                      ))}
-                    </select>
-                  )}
-                </div>
-                
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                  <div className="bg-white rounded-lg p-3 border border-emerald-100">
-                    <p className="text-xs text-gray-500 mb-1">اسم البنك</p>
-                    <p className="font-bold text-gray-900">{selectedBank.bank_name}</p>
+              {selectedBank && (
+                <div 
+                  className="rounded-xl p-5 border border-emerald-100"
+                  style={{ background: 'linear-gradient(to bottom right, #ecfdf5, #f0fdfa)' }}
+                >
+                  <div className="flex justify-between items-center mb-4">
+                    <h3 className="font-bold text-gray-900 flex items-center gap-2">
+                      <University size={18} className="text-emerald-600" />
+                      معلومات الحساب البنكي
+                    </h3>
+                    {bankAccounts.length > 1 && (
+                      <select
+                        value={selectedBankId}
+                        onChange={(e) => setSelectedBankId(parseInt(e.target.value))}
+                        className="px-3 py-1.5 rounded-lg border border-emerald-200 text-sm print:hidden"
+                      >
+                        {bankAccounts.map(bank => (
+                          <option key={bank.id} value={bank.id}>{bank.bank_name}</option>
+                        ))}
+                      </select>
+                    )}
                   </div>
-                  <div className="bg-white rounded-lg p-3 border border-emerald-100">
-                    <p className="text-xs text-gray-500 mb-1">اسم المستفيد</p>
-                    <p className="font-bold text-gray-900">{selectedBank.bank_beneficiary}</p>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div className="bg-white rounded-lg p-3 border border-emerald-100">
+                      <p className="text-xs text-gray-500 mb-1">اسم البنك</p>
+                      <p className="font-bold text-gray-900">{selectedBank.bank_name}</p>
+                    </div>
+                    <div className="bg-white rounded-lg p-3 border border-emerald-100">
+                      <p className="text-xs text-gray-500 mb-1">اسم المستفيد</p>
+                      <p className="font-bold text-gray-900">{selectedBank.bank_beneficiary}</p>
+                    </div>
+                    <div className="bg-white rounded-lg p-3 border border-emerald-100">
+                      <p className="text-xs text-gray-500 mb-1">رقم الحساب</p>
+                      <p className="font-bold text-gray-900">{selectedBank.bank_account}</p>
+                    </div>
+                    <div className="bg-white rounded-lg p-3 border border-emerald-100">
+                      <p className="text-xs text-gray-500 mb-1">الآيبان</p>
+                      <p className="font-bold text-gray-900 text-sm break-all">{selectedBank.bank_iban}</p>
+                    </div>
                   </div>
-                  <div className="bg-white rounded-lg p-3 border border-emerald-100">
-                    <p className="text-xs text-gray-500 mb-1">رقم الحساب</p>
-                    <p className="font-bold text-gray-900">{selectedBank.bank_account}</p>
-                  </div>
-                  <div className="bg-white rounded-lg p-3 border border-emerald-100">
-                    <p className="text-xs text-gray-500 mb-1">الآيبان</p>
-                    <p className="font-bold text-gray-900 text-sm break-all">{selectedBank.bank_iban}</p>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            <div className="flex justify-center items-center gap-8 pt-6 border-t border-gray-100">
-              {invoiceStatus === 'paid' ? (
-                <div className="flex items-center gap-2 text-emerald-600 bg-emerald-50 px-6 py-3 rounded-xl">
-                  <CheckCircle size={24} />
-                  <span className="font-bold text-lg">تم السداد</span>
-                </div>
-              ) : invoiceStatus === 'draft' ? (
-                <div className="flex items-center gap-2 text-gray-600 bg-gray-100 px-6 py-3 rounded-xl">
-                  <Edit size={24} />
-                  <span className="font-bold text-lg">مسودة</span>
-                </div>
-              ) : (
-                <div className="flex items-center gap-2 text-amber-600 bg-amber-50 px-6 py-3 rounded-xl">
-                  <Clock size={24} />
-                  <span className="font-bold text-lg">مستحقة - تاريخ الاستحقاق: {invoice.due_date || '-'}</span>
                 </div>
               )}
-            </div>
+
+              <div className="flex justify-center items-center gap-8 pt-6 border-t border-gray-100">
+                {invoiceStatus === 'paid' ? (
+                  <div className="flex items-center gap-2 text-emerald-600 px-6 py-3 rounded-xl" style={{ backgroundColor: '#ecfdf5' }}>
+                    <CheckCircle size={24} />
+                    <span className="font-bold text-lg">تم السداد</span>
+                  </div>
+                ) : invoiceStatus === 'draft' ? (
+                  <div className="flex items-center gap-2 text-gray-600 px-6 py-3 rounded-xl" style={{ backgroundColor: '#f3f4f6' }}>
+                    <Edit size={24} />
+                    <span className="font-bold text-lg">مسودة</span>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-2 text-amber-600 px-6 py-3 rounded-xl" style={{ backgroundColor: '#fffbe6' }}>
+                    <Clock size={24} />
+                    <span className="font-bold text-lg">مستحقة - تاريخ الاستحقاق: {invoice.due_date || '-'}</span>
+                  </div>
+                )}
+              </div>
+
           </div>
         </div>
       </div>
