@@ -104,10 +104,21 @@ function EmployeeSelect({ row, type, metadata, updateRow }: {
   const updatePosition = () => {
     if (triggerRef.current) {
       const rect = triggerRef.current.getBoundingClientRect();
+      const dropdownWidth = 280;
+      // Calculate center position
+      const centerX = rect.left + (rect.width / 2);
+      let leftPos = centerX - (dropdownWidth / 2);
+      
+      // Keep it within screen bounds
+      if (leftPos < 10) leftPos = 10;
+      if (leftPos + dropdownWidth > window.innerWidth - 10) {
+        leftPos = window.innerWidth - dropdownWidth - 10;
+      }
+
       setCoords({
-        top: rect.bottom + window.scrollY,
-        left: rect.left + window.scrollX,
-        width: Math.max(rect.width, 280)
+        top: rect.bottom + 4,
+        left: leftPos,
+        width: dropdownWidth
       });
     }
   };
@@ -115,6 +126,7 @@ function EmployeeSelect({ row, type, metadata, updateRow }: {
   useEffect(() => {
     if (isOpen) {
       updatePosition();
+      // Use scroll event on window and capture to ensure it works with nested scrolls
       window.addEventListener('scroll', updatePosition, true);
       window.addEventListener('resize', updatePosition);
     }
@@ -161,31 +173,31 @@ function EmployeeSelect({ row, type, metadata, updateRow }: {
         <div className="relative w-full" ref={triggerRef}>
           <div 
             onClick={() => setIsOpen(!isOpen)}
-            className="w-full bg-transparent border-none cursor-pointer text-sm font-medium py-1 px-2 flex items-center justify-between min-h-[32px] hover:bg-slate-50 rounded"
+            className="w-full bg-white/50 border border-slate-200 cursor-pointer text-sm font-medium py-1.5 px-3 flex items-center justify-between min-h-[36px] hover:bg-white hover:border-blue-300 rounded-lg transition-all shadow-sm"
           >
-            <span className={row.employee_name ? "text-slate-900" : "text-slate-400"}>
+            <span className={row.employee_name ? "text-slate-900 font-bold" : "text-slate-400"}>
               {row.employee_name || "-- اختر الموظف --"}
             </span>
-            <ChevronDown className={`w-4 h-4 text-slate-400 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+            <ChevronDown className={`w-4 h-4 text-slate-400 transition-transform duration-200 ${isOpen ? 'rotate-180 text-blue-500' : ''}`} />
           </div>
 
           {isOpen && (
             <div 
               style={{ 
                 position: 'fixed',
-                top: `${coords.top - window.scrollY + 4}px`,
-                left: `${coords.left - (coords.width > 280 ? 0 : 280 - coords.width)}px`,
-                width: '280px',
+                top: `${coords.top}px`,
+                left: `${coords.left}px`,
+                width: `${coords.width}px`,
                 zIndex: 9999
               }}
-              className="bg-white border border-slate-200 rounded-xl shadow-[0_20px_50px_rgba(0,0,0,0.2)] overflow-hidden animate-in fade-in zoom-in duration-200"
+              className="bg-white border border-slate-200 rounded-2xl shadow-[0_20px_70px_-10px_rgba(0,0,0,0.3)] overflow-hidden animate-in fade-in zoom-in duration-200"
             >
-              <div className="p-3 border-b border-slate-100 bg-slate-50">
+              <div className="p-3 border-b border-slate-100 bg-slate-50/50">
                 <div className="relative">
-                  <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-blue-500" />
+                  <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                   <input
                     type="text"
-                    className="w-full pr-9 pl-3 py-2.5 bg-white border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none transition-all shadow-sm"
+                    className="w-full pr-9 pl-3 py-2 bg-white border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
                     placeholder="بحث بالاسم أو الإقامة..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
@@ -193,7 +205,7 @@ function EmployeeSelect({ row, type, metadata, updateRow }: {
                   />
                 </div>
               </div>
-              <div className="max-h-64 overflow-y-auto">
+              <div className="max-h-64 overflow-y-auto custom-scrollbar">
                 {filteredEmployees.length > 0 ? (
                   filteredEmployees.map((emp: Employee) => (
                     <div
@@ -208,10 +220,13 @@ function EmployeeSelect({ row, type, metadata, updateRow }: {
                       className="px-4 py-3 hover:bg-blue-50 cursor-pointer border-b border-slate-50 last:border-0 transition-all flex flex-col group/item"
                     >
                       <div className="font-bold text-slate-900 text-sm group-hover/item:text-blue-700">{emp.name}</div>
-                      <div className="text-xs text-slate-500 flex items-center mt-1">
-                        <div className="bg-slate-100 px-2 py-0.5 rounded text-[10px] font-mono">
+                      <div className="flex items-center gap-2 mt-1">
+                        <span className="bg-slate-100 text-slate-600 px-2 py-0.5 rounded text-[10px] font-mono">
                           {emp.iqama_number || "بدون إقامة"}
-                        </div>
+                        </span>
+                        {emp.phone && (
+                          <span className="text-[10px] text-slate-400">{emp.phone}</span>
+                        )}
                       </div>
                     </div>
                   ))
@@ -220,7 +235,7 @@ function EmployeeSelect({ row, type, metadata, updateRow }: {
                     <div className="w-12 h-12 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-3">
                       <Search className="w-6 h-6 text-slate-300" />
                     </div>
-                    <p className="text-sm text-slate-400">لا يوجد نتائج لهذا البحث</p>
+                    <p className="text-sm text-slate-400 font-medium">لا يوجد نتائج لهذا البحث</p>
                   </div>
                 )}
               </div>
@@ -230,7 +245,7 @@ function EmployeeSelect({ row, type, metadata, updateRow }: {
         <button 
           type="button"
           onClick={() => updateRow(type, row.id, 'manualEmployee', true)}
-          className="text-slate-400 opacity-0 group-hover:opacity-100 transition-opacity"
+          className="text-slate-400 hover:text-blue-500 p-1 rounded-lg transition-colors"
           title="إدخال يدوي"
         >
           <Bolt className="w-4 h-4" />
@@ -352,8 +367,16 @@ export default function ExpenseFormClient({ user }: { user: User }) {
     setSections(prev => {
       const updatedRows = prev[type].map(row => {
         if (row.id === id) {
-          const updatedRow = { ...row, [field]: value };
+          let updatedRow = { ...row, [field]: value };
           
+          // Logic for taxable/inclusive sync
+          if (field === 'tax_inclusive' && value === true) {
+            updatedRow.taxable = true;
+          }
+          if (field === 'taxable' && value === false) {
+            updatedRow.tax_inclusive = false;
+          }
+
           // Auto calculations for fuel
           if (type === 'fuel') {
             const amtStr = String(updatedRow.amount || "0").trim();
