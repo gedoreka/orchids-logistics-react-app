@@ -1,0 +1,431 @@
+"use client";
+
+import React, { useState, useMemo } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { 
+  FileText,
+  Plus,
+  Search,
+  Eye,
+  Trash2,
+  CheckCircle,
+  Clock,
+  FileEdit,
+  DollarSign,
+  Calendar,
+  Users,
+  AlertCircle,
+  Loader2,
+  Filter,
+  CreditCard
+} from "lucide-react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { format } from "date-fns";
+
+interface Invoice {
+  id: number;
+  invoice_number: string;
+  invoice_month: string;
+  client_id: number;
+  client_name: string;
+  client_vat: string;
+  issue_date: string;
+  due_date: string;
+  total_amount: number;
+  vat_total: number;
+  status: string;
+  subtotal: number;
+  tax_amount: number;
+  invoice_status: string;
+}
+
+interface InvoicesListClientProps {
+  invoices: Invoice[];
+}
+
+export function InvoicesListClient({ invoices }: InvoicesListClientProps) {
+  const router = useRouter();
+  const [searchQuery, setSearchQuery] = useState("");
+  const [filterStatus, setFilterStatus] = useState("all");
+  const [loading, setLoading] = useState<number | null>(null);
+  const [notification, setNotification] = useState<{
+    show: boolean;
+    type: "success" | "error";
+    message: string;
+  }>({ show: false, type: "success", message: "" });
+
+  const stats = useMemo(() => {
+    let totalSubtotal = 0;
+    let totalPaidTax = 0;
+    let totalDueTax = 0;
+    let totalDraft = 0;
+    let paidCount = 0;
+    let dueCount = 0;
+    let draftCount = 0;
+
+    invoices.forEach((inv) => {
+      const subtotal = parseFloat(String(inv.subtotal)) || 0;
+      const taxAmount = parseFloat(String(inv.tax_amount)) || 0;
+      const total = parseFloat(String(inv.total_amount)) || 0;
+      const status = inv.invoice_status || inv.status || 'due';
+
+      totalSubtotal += subtotal;
+
+      if (status === 'paid') {
+        totalPaidTax += taxAmount;
+        paidCount++;
+      } else if (status === 'draft') {
+        totalDraft += total;
+        draftCount++;
+      } else {
+        totalDueTax += taxAmount;
+        dueCount++;
+      }
+    });
+
+    return {
+      totalSubtotal,
+      totalPaidTax,
+      totalDueTax,
+      totalDraft,
+      paidCount,
+      dueCount,
+      draftCount,
+      totalCount: invoices.length
+    };
+  }, [invoices]);
+
+  const filteredInvoices = useMemo(() => {
+    return invoices.filter((inv) => {
+      const status = inv.invoice_status || inv.status || 'due';
+      const matchesSearch = 
+        inv.invoice_number?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        inv.client_name?.toLowerCase().includes(searchQuery.toLowerCase());
+      const matchesFilter = filterStatus === "all" || status === filterStatus;
+      return matchesSearch && matchesFilter;
+    });
+  }, [invoices, searchQuery, filterStatus]);
+
+  const handleTogglePayment = async (invoiceId: number, currentStatus: string) => {
+    setLoading(invoiceId);
+    try {
+      const res = await fetch(`/api/sales-invoices/${invoiceId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "toggle_payment" })
+      });
+
+      const data = await res.json();
+
+      if (data.success) {
+        setNotification({ show: true, type: "success", message: data.message });
+        router.refresh();
+      } else {
+        setNotification({ show: true, type: "error", message: data.error || "حدث خطأ" });
+      }
+    } catch {
+      setNotification({ show: true, type: "error", message: "حدث خطأ في الاتصال" });
+    } finally {
+      setLoading(null);
+      setTimeout(() => setNotification({ show: false, type: "success", message: "" }), 3000);
+    }
+  };
+
+  const handleDelete = async (invoiceId: number, status: string) => {
+    if (status !== 'draft') {
+      setNotification({ show: true, type: "error", message: "لا يمكن حذف الفاتورة إلا إذا كانت مسودة" });
+      setTimeout(() => setNotification({ show: false, type: "success", message: "" }), 3000);
+      return;
+    }
+
+    if (!confirm("هل أنت متأكد من حذف هذه الفاتورة؟")) return;
+
+    setLoading(invoiceId);
+    try {
+      const res = await fetch(`/api/sales-invoices/${invoiceId}`, { method: "DELETE" });
+      const data = await res.json();
+
+      if (data.success) {
+        setNotification({ show: true, type: "success", message: data.message });
+        router.refresh();
+      } else {
+        setNotification({ show: true, type: "error", message: data.error || "حدث خطأ" });
+      }
+    } catch {
+      setNotification({ show: true, type: "error", message: "حدث خطأ في الاتصال" });
+    } finally {
+      setLoading(null);
+      setTimeout(() => setNotification({ show: false, type: "success", message: "" }), 3000);
+    }
+  };
+
+  const getStatusBadge = (status: string) => {
+    switch (status) {
+      case 'paid':
+        return (
+          <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-emerald-100 text-emerald-700">
+            <CheckCircle size={12} />
+            مدفوعة
+          </span>
+        );
+      case 'draft':
+        return (
+          <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-gray-100 text-gray-600">
+            <FileEdit size={12} />
+            مسودة
+          </span>
+        );
+      default:
+        return (
+          <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-amber-100 text-amber-700">
+            <Clock size={12} />
+            مستحقة
+          </span>
+        );
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/20 p-4 md:p-6">
+      <AnimatePresence>
+        {notification.show && (
+          <motion.div
+            initial={{ opacity: 0, y: -50, x: "-50%" }}
+            animate={{ opacity: 1, y: 0, x: "-50%" }}
+            exit={{ opacity: 0, y: -50, x: "-50%" }}
+            className={`fixed top-4 left-1/2 z-50 px-6 py-3 rounded-xl shadow-lg ${
+              notification.type === "success" ? "bg-emerald-500" : "bg-red-500"
+            } text-white font-bold flex items-center gap-2`}
+          >
+            {notification.type === "success" ? <CheckCircle size={20} /> : <AlertCircle size={20} />}
+            {notification.message}
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <div className="max-w-7xl mx-auto space-y-6">
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="bg-gradient-to-br from-[#1a237e] to-[#283593] rounded-2xl p-6 text-white shadow-xl"
+        >
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+            <div>
+              <h1 className="text-2xl md:text-3xl font-black flex items-center gap-3">
+                <FileText className="h-8 w-8" />
+                الفواتير الضريبية
+              </h1>
+              <p className="text-white/80 mt-1">إدارة وعرض جميع فواتير المبيعات الضريبية</p>
+            </div>
+            <Link href="/sales-invoices/new">
+              <button className="flex items-center gap-2 px-5 py-3 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white font-bold transition-all shadow-lg hover:shadow-xl">
+                <Plus size={20} />
+                إنشاء فاتورة جديدة
+              </button>
+            </Link>
+          </div>
+        </motion.div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100 hover:shadow-md transition-all"
+          >
+            <div className="flex items-center gap-3">
+              <div className="h-12 w-12 rounded-xl bg-blue-100 flex items-center justify-center text-blue-600">
+                <FileText size={24} />
+              </div>
+              <div>
+                <p className="text-sm text-gray-500">إجمالي الفواتير</p>
+                <p className="text-xl font-black text-gray-900">{stats.totalSubtotal.toLocaleString('en-US', { minimumFractionDigits: 2 })} ريال</p>
+                <p className="text-xs text-gray-400">قيمة الفواتير قبل الضريبة</p>
+              </div>
+            </div>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100 hover:shadow-md transition-all"
+          >
+            <div className="flex items-center gap-3">
+              <div className="h-12 w-12 rounded-xl bg-emerald-100 flex items-center justify-center text-emerald-600">
+                <CheckCircle size={24} />
+              </div>
+              <div>
+                <p className="text-sm text-gray-500">ضريبة مدفوعة</p>
+                <p className="text-xl font-black text-emerald-600">{stats.totalPaidTax.toLocaleString('en-US', { minimumFractionDigits: 2 })} ريال</p>
+                <p className="text-xs text-gray-400">{stats.paidCount} فاتورة</p>
+              </div>
+            </div>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+            className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100 hover:shadow-md transition-all"
+          >
+            <div className="flex items-center gap-3">
+              <div className="h-12 w-12 rounded-xl bg-amber-100 flex items-center justify-center text-amber-600">
+                <Clock size={24} />
+              </div>
+              <div>
+                <p className="text-sm text-gray-500">ضريبة مستحقة</p>
+                <p className="text-xl font-black text-amber-600">{stats.totalDueTax.toLocaleString('en-US', { minimumFractionDigits: 2 })} ريال</p>
+                <p className="text-xs text-gray-400">{stats.dueCount} فاتورة</p>
+              </div>
+            </div>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4 }}
+            className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100 hover:shadow-md transition-all"
+          >
+            <div className="flex items-center gap-3">
+              <div className="h-12 w-12 rounded-xl bg-gray-100 flex items-center justify-center text-gray-600">
+                <FileEdit size={24} />
+              </div>
+              <div>
+                <p className="text-sm text-gray-500">مسودات</p>
+                <p className="text-xl font-black text-gray-600">{stats.totalDraft.toLocaleString('en-US', { minimumFractionDigits: 2 })} ريال</p>
+                <p className="text-xs text-gray-400">{stats.draftCount} فاتورة</p>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.5 }}
+          className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden"
+        >
+          <div className="p-4 border-b border-gray-100 flex flex-col md:flex-row gap-4 items-center justify-between">
+            <div className="relative w-full md:w-80">
+              <Search size={18} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400" />
+              <input
+                type="text"
+                placeholder="ابحث برقم الفاتورة أو اسم العميل..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full pr-10 pl-4 py-2.5 rounded-xl border border-gray-200 focus:border-blue-400 focus:ring-2 focus:ring-blue-100 outline-none transition-all text-sm"
+              />
+            </div>
+            <div className="flex items-center gap-2">
+              <Filter size={16} className="text-gray-400" />
+              <select
+                value={filterStatus}
+                onChange={(e) => setFilterStatus(e.target.value)}
+                className="px-4 py-2.5 rounded-xl border border-gray-200 focus:border-blue-400 outline-none text-sm"
+              >
+                <option value="all">جميع الفواتير</option>
+                <option value="paid">مدفوعة</option>
+                <option value="due">مستحقة</option>
+                <option value="draft">مسودة</option>
+              </select>
+            </div>
+          </div>
+
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="text-right px-4 py-3 font-bold text-gray-700">رقم الفاتورة</th>
+                  <th className="text-right px-4 py-3 font-bold text-gray-700">اسم العميل</th>
+                  <th className="text-right px-4 py-3 font-bold text-gray-700">تاريخ الإصدار</th>
+                  <th className="text-right px-4 py-3 font-bold text-gray-700">تاريخ الاستحقاق</th>
+                  <th className="text-right px-4 py-3 font-bold text-gray-700">الإجمالي</th>
+                  <th className="text-right px-4 py-3 font-bold text-gray-700">الضريبة</th>
+                  <th className="text-right px-4 py-3 font-bold text-gray-700">الحالة</th>
+                  <th className="text-center px-4 py-3 font-bold text-gray-700">الإجراءات</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredInvoices.length === 0 ? (
+                  <tr>
+                    <td colSpan={8} className="text-center py-12">
+                      <FileText size={48} className="mx-auto text-gray-300 mb-3" />
+                      <p className="text-gray-500 font-bold">لا توجد فواتير</p>
+                      <p className="text-gray-400 text-sm">يمكنك إنشاء فاتورة جديدة بالضغط على الزر أعلاه</p>
+                    </td>
+                  </tr>
+                ) : (
+                  filteredInvoices.map((inv) => {
+                    const status = inv.invoice_status || inv.status || 'due';
+                    return (
+                      <tr key={inv.id} className="border-b border-gray-50 hover:bg-blue-50/30 transition-colors">
+                        <td className="px-4 py-3 font-bold text-gray-900">{inv.invoice_number}</td>
+                        <td className="px-4 py-3 text-gray-700">{inv.client_name || '-'}</td>
+                        <td className="px-4 py-3 text-gray-600">{inv.issue_date || '-'}</td>
+                        <td className="px-4 py-3 text-gray-600">{inv.due_date || '-'}</td>
+                        <td className="px-4 py-3 font-bold text-gray-900">
+                          {parseFloat(String(inv.total_amount)).toLocaleString('en-US', { minimumFractionDigits: 2 })} ريال
+                        </td>
+                        <td className="px-4 py-3 text-gray-600">
+                          {parseFloat(String(inv.tax_amount)).toLocaleString('en-US', { minimumFractionDigits: 2 })} ريال
+                        </td>
+                        <td className="px-4 py-3">{getStatusBadge(status)}</td>
+                        <td className="px-4 py-3">
+                          <div className="flex items-center justify-center gap-2">
+                            <Link href={`/sales-invoices/${inv.id}`}>
+                              <button className="p-2 rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100 transition-colors" title="عرض">
+                                <Eye size={16} />
+                              </button>
+                            </Link>
+                            {status === 'due' && (
+                              <button
+                                onClick={() => handleTogglePayment(inv.id, status)}
+                                disabled={loading === inv.id}
+                                className="p-2 rounded-lg bg-emerald-50 text-emerald-600 hover:bg-emerald-100 transition-colors disabled:opacity-50"
+                                title="سداد"
+                              >
+                                {loading === inv.id ? <Loader2 size={16} className="animate-spin" /> : <CreditCard size={16} />}
+                              </button>
+                            )}
+                            {status === 'paid' && (
+                              <button
+                                onClick={() => handleTogglePayment(inv.id, status)}
+                                disabled={loading === inv.id}
+                                className="p-2 rounded-lg bg-amber-50 text-amber-600 hover:bg-amber-100 transition-colors disabled:opacity-50"
+                                title="إعادة كمستحقة"
+                              >
+                                {loading === inv.id ? <Loader2 size={16} className="animate-spin" /> : <Clock size={16} />}
+                              </button>
+                            )}
+                            {status === 'draft' && (
+                              <button
+                                onClick={() => handleDelete(inv.id, status)}
+                                disabled={loading === inv.id}
+                                className="p-2 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 transition-colors disabled:opacity-50"
+                                title="حذف"
+                              >
+                                {loading === inv.id ? <Loader2 size={16} className="animate-spin" /> : <Trash2 size={16} />}
+                              </button>
+                            )}
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })
+                )}
+              </tbody>
+            </table>
+          </div>
+
+          <div className="p-4 border-t border-gray-100 bg-gray-50">
+            <p className="text-sm text-gray-500 text-center">
+              عرض {filteredInvoices.length} من {invoices.length} فاتورة
+            </p>
+          </div>
+        </motion.div>
+      </div>
+    </div>
+  );
+}
