@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
-import { query } from "@/lib/db";
+import { query, execute } from "@/lib/db";
 
 async function getCompanyId(userId: number) {
-  const users = await query<any>("SELECT company_id FROM users WHERE id = $1", [userId]);
+  const users = await query<any>("SELECT company_id FROM users WHERE id = ?", [userId]);
   return users[0]?.company_id;
 }
 
@@ -34,7 +34,7 @@ export async function GET(request: NextRequest) {
         COALESCE((SELECT SUM(vat_amount) FROM invoice_items WHERE invoice_id = si.id), 0) as tax_amount,
         COALESCE((SELECT status FROM invoice_items WHERE invoice_id = si.id LIMIT 1), 'due') as invoice_status
       FROM sales_invoices si
-      WHERE si.company_id = $1
+      WHERE si.company_id = ?
       ORDER BY si.id DESC
     `, [companyId]);
 
@@ -79,7 +79,7 @@ export async function POST(request: NextRequest) {
     } = body;
 
     const customers = await query<any>(
-      "SELECT * FROM customers WHERE id = $1 AND company_id = $2",
+      "SELECT * FROM customers WHERE id = ? AND company_id = ?",
       [client_id, companyId]
     );
     const client = customers[0];
@@ -136,18 +136,17 @@ export async function POST(request: NextRequest) {
       adjustmentType = adj.type;
     }
 
-    const result = await query<any>(`
+    const result = await execute(`
       INSERT INTO sales_invoices (
         invoice_number, invoice_month, client_id, client_name, client_vat, client_address,
         issue_date, due_date, total_amount, vat_total, discount, status, company_id, created_by,
         adjustment_title, adjustment_type, adjustment_amount, adjustment_vat, adjustment_total_with_vat
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19)
-      RETURNING id
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `, [
       invoice_number,
       invoice_month,
       client_id,
-      client.name,
+      client.company_name || client.customer_name || client.name,
       client.vat_number,
       client.address,
       issue_date,
@@ -165,7 +164,7 @@ export async function POST(request: NextRequest) {
       adjustmentTotalWithVat
     ]);
 
-    const invoiceId = result[0].id;
+    const invoiceId = result.insertId;
 
     for (const item of items) {
       const totalWithVatItem = parseFloat(item.total_with_vat) || 0;
@@ -174,11 +173,11 @@ export async function POST(request: NextRequest) {
       const vatAmount = totalWithVatItem - beforeVat;
       const unitPrice = quantity > 0 ? beforeVat / quantity : 0;
 
-      await query(`
+      await execute(`
         INSERT INTO invoice_items (
           invoice_id, product_name, period_from, period_to, quantity, unit_price,
           vat_rate, total_before_vat, vat_amount, total_with_vat, status
-        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       `, [
         invoiceId,
         item.product_name,
@@ -205,10 +204,10 @@ export async function POST(request: NextRequest) {
         total = amount + vatAmount;
       }
 
-      await query(`
+      await execute(`
         INSERT INTO invoice_adjustments (
           invoice_id, title, type, amount, vat_amount, total_with_vat, is_gross
-        ) VALUES ($1, $2, $3, $4, $5, $6, $7)
+        ) VALUES (?, ?, ?, ?, ?, ?, ?)
       `, [
         invoiceId,
         adj.title,

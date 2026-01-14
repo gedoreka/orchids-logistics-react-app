@@ -24,7 +24,9 @@ import { useRouter } from "next/navigation";
 
 interface Customer {
   id: number;
-  name: string;
+  name?: string;
+  customer_name?: string;
+  company_name?: string;
   email: string;
   phone: string;
   address: string;
@@ -361,18 +363,18 @@ export function NewInvoiceClient({ customers, invoiceNumber, companyId, userName
               <Users size={16} className="inline ml-1" />
               اسم العميل
             </label>
-            <select
-              value={clientId}
-              onChange={(e) => setClientId(parseInt(e.target.value))}
-              className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:border-blue-400 focus:ring-2 focus:ring-blue-100 outline-none"
-            >
-              <option value={0}>-- اختر عميل --</option>
-              {customers.map((c) => (
-                <option key={c.id} value={c.id}>
-                  {c.name} {c.vat_number ? `(${c.vat_number})` : ''}
-                </option>
-              ))}
-            </select>
+              <select
+                value={clientId}
+                onChange={(e) => setClientId(parseInt(e.target.value))}
+                className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:border-blue-400 focus:ring-2 focus:ring-blue-100 outline-none"
+              >
+                <option value={0}>-- اختر عميل --</option>
+                {customers.map((c) => (
+                  <option key={c.id} value={c.id}>
+                    {c.company_name || c.customer_name || c.name} {c.vat_number ? `(${c.vat_number})` : ''}
+                  </option>
+                ))}
+              </select>
           </div>
         </motion.div>
 

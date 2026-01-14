@@ -4,13 +4,13 @@ import { query } from "@/lib/db";
 import { NewInvoiceClient } from "./new-invoice-client";
 
 async function getCompanyId(userId: number) {
-  const users = await query<any>("SELECT company_id FROM users WHERE id = $1", [userId]);
+  const users = await query<any>("SELECT company_id FROM users WHERE id = ?", [userId]);
   return users[0]?.company_id;
 }
 
 async function getCustomers(companyId: number) {
   return await query<any>(
-    "SELECT * FROM customers WHERE company_id = $1 ORDER BY name ASC",
+    "SELECT * FROM customers WHERE company_id = ? ORDER BY customer_name ASC",
     [companyId]
   );
 }
@@ -18,7 +18,7 @@ async function getCustomers(companyId: number) {
 async function getNextInvoiceNumber(companyId: number) {
   const result = await query<any>(`
     SELECT invoice_number FROM sales_invoices 
-    WHERE company_id = $1 AND invoice_number LIKE 'INV%'
+    WHERE company_id = ? AND invoice_number LIKE 'INV%'
     ORDER BY id DESC LIMIT 1
   `, [companyId]);
   

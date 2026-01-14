@@ -70,7 +70,9 @@ interface BankAccount {
 
 interface Customer {
   id: number;
-  name: string;
+  name?: string;
+  customer_name?: string;
+  company_name?: string;
   email: string;
   phone: string;
   address: string;
@@ -280,11 +282,11 @@ export function InvoiceViewClient({
                   بيانات العميل
                 </h3>
                 <div className="space-y-2 text-sm">
-                  <p><span className="text-gray-500">اسم العميل:</span> <span className="font-bold">{customer?.name || invoice.client_name || '-'}</span></p>
-                  <p><span className="text-gray-500">السجل التجاري:</span> <span className="font-bold">{customer?.commercial_number || '-'}</span></p>
-                  <p><span className="text-gray-500">الرقم الضريبي:</span> <span className="font-bold">{customer?.vat_number || invoice.client_vat || '-'}</span></p>
-                  <p><span className="text-gray-500">العنوان:</span> <span className="font-bold">{customer?.address || invoice.client_address || '-'}</span></p>
-                </div>
+                    <p><span className="text-gray-500">اسم العميل:</span> <span className="font-bold">{customer?.company_name || customer?.customer_name || customer?.name || invoice.client_name || '-'}</span></p>
+                    <p><span className="text-gray-500">السجل التجاري:</span> <span className="font-bold">{customer?.commercial_number || '-'}</span></p>
+                    <p><span className="text-gray-500">الرقم الضريبي:</span> <span className="font-bold">{customer?.vat_number || invoice.client_vat || '-'}</span></p>
+                    <p><span className="text-gray-500">العنوان:</span> <span className="font-bold">{customer?.address || invoice.client_address || '-'}</span></p>
+                  </div>
               </div>
             </div>
 

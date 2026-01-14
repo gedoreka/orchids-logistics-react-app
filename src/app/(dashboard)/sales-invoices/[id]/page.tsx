@@ -4,13 +4,13 @@ import { query } from "@/lib/db";
 import { InvoiceViewClient } from "./invoice-view-client";
 
 async function getCompanyId(userId: number) {
-  const users = await query<any>("SELECT company_id FROM users WHERE id = $1", [userId]);
+  const users = await query<any>("SELECT company_id FROM users WHERE id = ?", [userId]);
   return users[0]?.company_id;
 }
 
 async function getInvoiceData(id: string, companyId: number) {
   const invoices = await query<any>(
-    "SELECT * FROM sales_invoices WHERE id = $1 AND company_id = $2",
+    "SELECT * FROM sales_invoices WHERE id = ? AND company_id = ?",
     [id, companyId]
   );
 
@@ -19,29 +19,29 @@ async function getInvoiceData(id: string, companyId: number) {
   const invoice = invoices[0];
 
   const items = await query<any>(
-    "SELECT * FROM invoice_items WHERE invoice_id = $1",
+    "SELECT * FROM invoice_items WHERE invoice_id = ?",
     [id]
   );
 
   const adjustments = await query<any>(
-    "SELECT * FROM invoice_adjustments WHERE invoice_id = $1",
+    "SELECT * FROM invoice_adjustments WHERE invoice_id = ?",
     [id]
   );
 
   const companies = await query<any>(
-    "SELECT * FROM companies WHERE id = $1",
+    "SELECT * FROM companies WHERE id = ?",
     [companyId]
   );
 
   const bankAccounts = await query<any>(
-    "SELECT * FROM company_bank_accounts WHERE company_id = $1 ORDER BY id DESC",
+    "SELECT * FROM company_bank_accounts WHERE company_id = ? ORDER BY id DESC",
     [companyId]
   );
 
   let customer = null;
   if (invoice.client_id) {
     const customers = await query<any>(
-      "SELECT * FROM customers WHERE id = $1",
+      "SELECT * FROM customers WHERE id = ?",
       [invoice.client_id]
     );
     customer = customers[0];

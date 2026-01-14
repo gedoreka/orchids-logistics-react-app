@@ -4,7 +4,7 @@ import { query } from "@/lib/db";
 import { InvoicesListClient } from "./invoices-list-client";
 
 async function getCompanyId(userId: number) {
-  const users = await query<any>("SELECT company_id FROM users WHERE id = $1", [userId]);
+  const users = await query<any>("SELECT company_id FROM users WHERE id = ?", [userId]);
   return users[0]?.company_id;
 }
 
@@ -16,7 +16,7 @@ async function getInvoices(companyId: number) {
       COALESCE((SELECT SUM(vat_amount) FROM invoice_items WHERE invoice_id = si.id), 0) as tax_amount,
       COALESCE((SELECT status FROM invoice_items WHERE invoice_id = si.id LIMIT 1), si.status) as invoice_status
     FROM sales_invoices si
-    WHERE si.company_id = $1
+    WHERE si.company_id = ?
     ORDER BY si.id DESC
   `, [companyId]);
   
