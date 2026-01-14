@@ -76,38 +76,45 @@ export function PayrollEditClient({ payroll, companyId }: PayrollEditClientProps
     }
   };
 
-  const calculateRow = useCallback((item: PayrollItem): PayrollItem => {
-    const workType = payroll.work_type || 'salary';
-    let net = 0;
-    let targetDeduction = 0;
-    let monthlyBonus = 0;
+    const calculateRow = useCallback((item: PayrollItem): PayrollItem => {
+      const workType = payroll.work_type || 'salary';
+      let net = 0;
+      let targetDeduction = 0;
+      let monthlyBonus = 0;
 
-    const totalDeductions = item.operator_deduction + item.internal_deduction + item.wallet_deduction;
+      const basicSalaryVal = Number(item.basic_salary) || 0;
+      const internalBonusVal = Number(item.internal_bonus) || 0;
+      const operatorVal = Number(item.operator_deduction) || 0;
+      const internalVal = Number(item.internal_deduction) || 0;
+      const walletVal = Number(item.wallet_deduction) || 0;
+      const successfulOrdersVal = Number(item.successful_orders) || 0;
 
-    if (workType === 'salary') {
-      net = item.basic_salary + item.internal_bonus - totalDeductions;
-    } else if (workType === 'target') {
-      const target = item.target || payroll.monthly_target || 0;
-      const bonusPerOrder = payroll.bonus_after_target || 10;
-      
-      if (item.successful_orders < target) {
-        targetDeduction = (target - item.successful_orders) * (item.basic_salary / target);
+      const totalDeductions = operatorVal + internalVal + walletVal;
+
+      if (workType === 'salary') {
+        net = basicSalaryVal + internalBonusVal - totalDeductions;
+      } else if (workType === 'target') {
+        const target = Number(item.target || payroll.monthly_target || 0);
+        const bonusPerOrder = Number(payroll.bonus_after_target) || 10;
+        
+        if (successfulOrdersVal < target) {
+          targetDeduction = target > 0 ? (target - successfulOrdersVal) * (basicSalaryVal / target) : 0;
+        } else {
+          monthlyBonus = (successfulOrdersVal - target) * bonusPerOrder;
+        }
+        
+        net = basicSalaryVal + monthlyBonus + internalBonusVal - targetDeduction - totalDeductions;
       } else {
-        monthlyBonus = (item.successful_orders - target) * bonusPerOrder;
+        net = basicSalaryVal + internalBonusVal - totalDeductions;
       }
-      
-      net = item.basic_salary + monthlyBonus + item.internal_bonus - targetDeduction - totalDeductions;
-    } else {
-      net = item.basic_salary + item.internal_bonus - totalDeductions;
-    }
 
-    return {
-      ...item,
-      target_deduction: targetDeduction,
-      monthly_bonus: monthlyBonus,
-      net_salary: net
-    };
-  }, [payroll]);
+      return {
+        ...item,
+        target_deduction: targetDeduction,
+        monthly_bonus: monthlyBonus,
+        net_salary: net
+      };
+    }, [payroll]);
 
   const handleRowChange = (index: number, field: keyof PayrollItem, value: number | string) => {
     setItems(prev => {

@@ -142,32 +142,50 @@ export function NewPayrollClient({ packages, debts, companyId, userName }: NewPa
         const data = await res.json();
         setSelectedPackage(data.package);
         setEmployees(data.employees || []);
-        setTiers(data.tiers || []);
-        setSlabs(data.slabs || []);
+        setTiers((data.tiers || []).map((t: Tier) => ({
+          ...t,
+          min_orders: Number(t.min_orders) || 0,
+          base_salary: Number(t.base_salary) || 0,
+          increment_per_order: Number(t.increment_per_order) || 0,
+          bonus: Number(t.bonus) || 0
+        })));
+        setSlabs((data.slabs || []).map((s: Slab) => ({
+          ...s,
+          from_orders: Number(s.from_orders) || 0,
+          to_orders: s.to_orders ? Number(s.to_orders) : null,
+          value_per_order: Number(s.value_per_order) || 0
+        })));
 
-        const rows: EmployeeRow[] = (data.employees || []).map((emp: Employee) => ({
-          employee_name: emp.name,
-          iqama_number: emp.iqama_number,
-          user_code: emp.user_code || '',
-          basic_salary: emp.basic_salary || 0,
-          housing_allowance: emp.housing_allowance || 0,
-          nationality: emp.nationality || '',
-          job_title: emp.job_title || '',
-          target: data.package?.monthly_target || 0,
-          bonus_per_order: data.package?.bonus_after_target || 0,
-          successful_orders: 0,
-          target_deduction: 0,
-          monthly_bonus: 0,
-          operator_deduction: 0,
-          internal_deduction: 0,
-          wallet_deduction: 0,
-          internal_bonus: 0,
-          net_salary: emp.basic_salary + (emp.housing_allowance || 0),
-          payment_method: 'غير محدد',
-          achieved_tier: '',
-          tier_bonus: 0,
-          extra_amount: 0
-        }));
+        const rows: EmployeeRow[] = (data.employees || []).map((emp: Employee) => {
+          const basicSalary = Number(emp.basic_salary) || 0;
+          const housingAllowance = Number(emp.housing_allowance) || 0;
+          const target = Number(data.package?.monthly_target) || 0;
+          const bonusPerOrder = Number(data.package?.bonus_after_target) || 0;
+
+          return {
+            employee_name: emp.name,
+            iqama_number: emp.iqama_number,
+            user_code: emp.user_code || '',
+            basic_salary: basicSalary,
+            housing_allowance: housingAllowance,
+            nationality: emp.nationality || '',
+            job_title: emp.job_title || '',
+            target: target,
+            bonus_per_order: bonusPerOrder,
+            successful_orders: 0,
+            target_deduction: 0,
+            monthly_bonus: 0,
+            operator_deduction: 0,
+            internal_deduction: 0,
+            wallet_deduction: 0,
+            internal_bonus: 0,
+            net_salary: basicSalary + housingAllowance,
+            payment_method: 'غير محدد',
+            achieved_tier: '',
+            tier_bonus: 0,
+            extra_amount: 0
+          };
+        });
         setEmployeeRows(rows);
       }
     } catch (error) {
@@ -184,35 +202,41 @@ export function NewPayrollClient({ packages, debts, companyId, userName }: NewPa
   }, [selectedPackageId, fetchPackageData]);
 
   const calculateTierSystem = (orders: number, operator: number, internal: number, wallet: number, reward: number) => {
+    const ordersVal = Number(orders) || 0;
+    const operatorVal = Number(operator) || 0;
+    const internalVal = Number(internal) || 0;
+    const walletVal = Number(wallet) || 0;
+    const rewardVal = Number(reward) || 0;
+
     let calculatedSalary = 0;
     let achievedTier = '';
     
-    if (orders < 1) {
+    if (ordersVal < 1) {
       calculatedSalary = 0;
       achievedTier = 'لا توجد طلبات';
-    } else if (orders < 301) {
-      calculatedSalary = orders * 2;
+    } else if (ordersVal < 301) {
+      calculatedSalary = ordersVal * 2;
       achievedTier = 'من 1 إلى 300 طلب (2 ريال/طلب)';
-    } else if (orders < 401) {
-      calculatedSalary = orders * 3;
+    } else if (ordersVal < 401) {
+      calculatedSalary = ordersVal * 3;
       achievedTier = 'من 301 إلى 400 طلب (3 ريال/طلب)';
-    } else if (orders < 450) {
-      calculatedSalary = orders * 4;
+    } else if (ordersVal < 450) {
+      calculatedSalary = ordersVal * 4;
       achievedTier = 'من 401 إلى 449 طلب (4 ريال/طلب)';
-    } else if (orders < 520) {
-      calculatedSalary = 2450 + (orders - 450) * 7;
+    } else if (ordersVal < 520) {
+      calculatedSalary = 2450 + (ordersVal - 450) * 7;
       achievedTier = 'الشريحة 1 (450-519 طلب)';
-    } else if (orders < 560) {
-      calculatedSalary = 3000 + (orders - 520) * 8;
+    } else if (ordersVal < 560) {
+      calculatedSalary = 3000 + (ordersVal - 520) * 8;
       achievedTier = 'الشريحة 2 (520-559 طلب)';
     } else {
-      calculatedSalary = 3450 + (orders - 560) * 10;
+      calculatedSalary = 3450 + (ordersVal - 560) * 10;
       achievedTier = 'الشريحة 3 (560+ طلب)';
     }
     
-    const totalDeductions = operator + internal + wallet;
+    const totalDeductions = operatorVal + internalVal + walletVal;
     return {
-      net: calculatedSalary + reward - totalDeductions,
+      net: Number(calculatedSalary + rewardVal - totalDeductions),
       achievedTier,
       baseSalary: calculatedSalary
     };
@@ -227,36 +251,44 @@ export function NewPayrollClient({ packages, debts, companyId, userName }: NewPa
     let tierBonus = 0;
     let extraAmount = 0;
 
-    const totalDeductions = row.operator_deduction + row.internal_deduction + row.wallet_deduction;
+    const operatorVal = Number(row.operator_deduction) || 0;
+    const internalVal = Number(row.internal_deduction) || 0;
+    const walletVal = Number(row.wallet_deduction) || 0;
+    const rewardVal = Number(row.internal_bonus) || 0;
+    const ordersVal = Number(row.successful_orders) || 0;
+    const basicSalaryVal = Number(row.basic_salary) || 0;
+    const housingVal = Number(row.housing_allowance) || 0;
+
+    const totalDeductions = operatorVal + internalVal + walletVal;
 
     if (workType === 'salary') {
-      net = row.basic_salary + row.housing_allowance + row.internal_bonus - totalDeductions;
+      net = basicSalaryVal + housingVal + rewardVal - totalDeductions;
     } else if (workType === 'target') {
-      const target = row.target || selectedPackage?.monthly_target || 0;
-      const bonusPerOrder = row.bonus_per_order || selectedPackage?.bonus_after_target || 0;
+      const target = Number(row.target || selectedPackage?.monthly_target || 0);
+      const bonusPerOrder = Number(row.bonus_per_order || selectedPackage?.bonus_after_target || 0);
       
-      if (row.successful_orders < target) {
-        targetDeduction = (target - row.successful_orders) * (row.basic_salary / target);
+      if (ordersVal < target) {
+        targetDeduction = target > 0 ? (target - ordersVal) * (basicSalaryVal / target) : 0;
       } else {
-        monthlyBonus = (row.successful_orders - target) * bonusPerOrder;
+        monthlyBonus = (ordersVal - target) * bonusPerOrder;
       }
       
-      net = row.basic_salary + monthlyBonus + row.internal_bonus - targetDeduction - totalDeductions;
+      net = basicSalaryVal + monthlyBonus + rewardVal - targetDeduction - totalDeductions;
     } else if (workType === 'tiers') {
       if (tierSystemActive) {
         const result = calculateTierSystem(
-          row.successful_orders,
-          row.operator_deduction,
-          row.internal_deduction,
-          row.wallet_deduction,
-          row.internal_bonus
+          ordersVal,
+          operatorVal,
+          internalVal,
+          walletVal,
+          rewardVal
         );
         net = result.net;
         achievedTier = result.achievedTier;
       } else {
         let matchedTier: Tier | null = null;
         for (const tier of tiers) {
-          if (row.successful_orders >= tier.min_orders) {
+          if (ordersVal >= tier.min_orders) {
             matchedTier = tier;
           } else {
             break;
@@ -264,34 +296,34 @@ export function NewPayrollClient({ packages, debts, companyId, userName }: NewPa
         }
 
         if (matchedTier) {
-          const baseSalary = matchedTier.base_salary;
-          extraAmount = (row.successful_orders - matchedTier.min_orders) * matchedTier.increment_per_order;
-          tierBonus = matchedTier.bonus || 0;
-          net = baseSalary + extraAmount + tierBonus + row.internal_bonus - totalDeductions;
+          const baseSalary = Number(matchedTier.base_salary);
+          extraAmount = (ordersVal - Number(matchedTier.min_orders)) * Number(matchedTier.increment_per_order);
+          tierBonus = Number(matchedTier.bonus) || 0;
+          net = baseSalary + extraAmount + tierBonus + rewardVal - totalDeductions;
           achievedTier = `من ${matchedTier.min_orders} طلب`;
         } else {
           let matchedSlab: Slab | null = null;
           for (const slab of slabs) {
-            if (row.successful_orders >= slab.from_orders && 
-                (slab.to_orders === null || slab.to_orders === 0 || row.successful_orders <= slab.to_orders)) {
+            if (ordersVal >= slab.from_orders && 
+                (slab.to_orders === null || slab.to_orders === 0 || ordersVal <= slab.to_orders)) {
               matchedSlab = slab;
               break;
             }
           }
 
           if (matchedSlab) {
-            net = row.successful_orders * matchedSlab.value_per_order + row.internal_bonus - totalDeductions;
+            net = ordersVal * Number(matchedSlab.value_per_order) + rewardVal - totalDeductions;
             achievedTier = `انخفاض (${matchedSlab.from_orders}-${matchedSlab.to_orders || 'فوق'})`;
           } else {
-            net = row.internal_bonus - totalDeductions;
+            net = rewardVal - totalDeductions;
             achievedTier = 'لا توجد شريحة مناسبة';
           }
         }
       }
     } else if (workType === 'commission') {
-      const commissionRate = (selectedPackage?.bonus_after_target || 0) / 100;
-      const commission = row.successful_orders * commissionRate;
-      net = row.basic_salary + commission + row.internal_bonus - totalDeductions;
+      const commissionRate = (Number(selectedPackage?.bonus_after_target) || 0) / 100;
+      const commission = ordersVal * commissionRate;
+      net = basicSalaryVal + commission + rewardVal - totalDeductions;
     }
 
     return {
