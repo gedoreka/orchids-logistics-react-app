@@ -1,27 +1,20 @@
 "use client";
 
 import React, { useRef, useState, useEffect } from "react";
-import { motion } from "framer-motion";
 import { 
-  FileText,
   Building2,
-  User,
-  Calendar,
-  QrCode,
   Printer,
   Download,
-  Mail,
   ArrowRight,
   CheckCircle,
   Clock,
   CreditCard,
   University,
-  Edit,
   Truck,
   ShieldCheck,
-  Award,
   Signature,
-  Stamp
+  Stamp,
+  QrCode
 } from "lucide-react";
 import Link from "next/link";
 import { QRCodeCanvas } from "qrcode.react";
@@ -222,25 +215,28 @@ export function InvoiceViewClient({
   const handleDownloadPDF = async () => {
     setPdfLoading(true);
     try {
-      const html2pdf = (await import('html2pdf.js')).default;
+      const html2canvas = (await import('html2canvas')).default;
+      const { jsPDF } = await import('jspdf');
+      
       const element = printRef.current;
       if (!element) return;
       
-      const opt = {
-        margin: [2, 2, 2, 2], // Minimal margin to fit in one page
-        filename: `فاتورة-ضريبية-${invoice.invoice_number}.pdf`,
-        image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: { 
-          scale: 2, 
-          useCORS: true, 
-          logging: false,
-          backgroundColor: '#ffffff'
-        },
-        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
-        pagebreak: { mode: 'avoid-all' }
-      };
+      const canvas = await html2canvas(element, {
+        scale: 2,
+        useCORS: true,
+        logging: false,
+        backgroundColor: '#ffffff'
+      });
       
-      await html2pdf().set(opt).from(element).save();
+      const imgData = canvas.toDataURL('image/png');
+      const pdf = new jsPDF('p', 'mm', 'a4');
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      
+      const imgWidth = pdfWidth - 10;
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+      
+      pdf.addImage(imgData, 'PNG', 5, 5, imgWidth, imgHeight);
+      pdf.save(`فاتورة-ضريبية-${invoice.invoice_number}.pdf`);
     } catch (error) {
       console.error('Error generating PDF:', error);
     } finally {
@@ -276,12 +272,6 @@ export function InvoiceViewClient({
             margin: 5mm;
           }
         }
-        /* Custom styles to prevent lab() colors in Tailwind 4 */
-        .bg-invoice-header { background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%) !important; }
-        .bg-invoice-footer { background: #f8fafc !important; }
-        .text-invoice-primary { color: #0f172a !important; }
-        .text-invoice-secondary { color: #475569 !important; }
-        .border-invoice { border-color: #f1f5f9 !important; }
       `}</style>
 
       <div className="max-w-5xl mx-auto space-y-4">
@@ -314,16 +304,25 @@ export function InvoiceViewClient({
         <div 
           ref={printRef} 
           className="invoice-container bg-white rounded-2xl shadow-xl overflow-hidden border border-[#f1f5f9]"
-          style={{ width: '210mm', minHeight: '290mm', margin: '0 auto', backgroundColor: '#ffffff' }}
+          style={{ 
+            width: '210mm', 
+            minHeight: '280mm', 
+            margin: '0 auto', 
+            backgroundColor: '#ffffff',
+            color: '#0f172a'
+          }}
         >
           {/* Header */}
           <div 
-            className="text-white p-6 relative overflow-hidden"
+            className="text-white p-4 relative overflow-hidden"
             style={{ background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)' }}
           >
-            <div className="flex flex-col md:flex-row justify-between items-center gap-4 relative z-10">
+            <div className="flex flex-row justify-between items-center gap-4 relative z-10">
               {/* Company Logo */}
-              <div className="w-16 h-16 bg-white/10 rounded-xl flex items-center justify-center p-2 backdrop-blur-md border border-white/20">
+              <div 
+                className="w-14 h-14 rounded-xl flex items-center justify-center p-2 border border-[#ffffff33]"
+                style={{ backgroundColor: 'rgba(255,255,255,0.1)' }}
+              >
                 {company.logo_path ? (
                   <img 
                     src={getPublicUrl(company.logo_path) || ''} 
@@ -332,53 +331,53 @@ export function InvoiceViewClient({
                     crossOrigin="anonymous"
                   />
                 ) : (
-                  <Building2 size={32} className="text-white/60" />
+                  <Building2 size={28} className="text-white/60" />
                 )}
               </div>
 
               {/* Title Center */}
               <div className="text-center flex-1">
-                <h1 className="text-2xl font-black mb-0 tracking-wider">فاتورة ضريبية</h1>
-                <p className="text-white/60 text-sm uppercase font-light">VAT Invoice</p>
-                <div className="mt-2 inline-flex items-center gap-2 bg-white/5 border border-white/10 px-3 py-1 rounded-xl backdrop-blur-sm">
-                  <span className="font-bold text-[10px]">نظام الفواتير الإلكترونية</span>
+                <h1 className="text-xl font-black mb-0 tracking-wider">فاتورة ضريبية</h1>
+                <p className="text-white/60 text-[10px] uppercase font-light">VAT Invoice</p>
+                <div className="mt-1 inline-flex items-center gap-2 px-3 py-0.5 rounded-lg border border-[#ffffff1a]" style={{ backgroundColor: 'rgba(255,255,255,0.05)' }}>
+                  <span className="font-bold text-[9px]">نظام الفواتير الإلكترونية</span>
                 </div>
               </div>
 
               {/* System Logo */}
-              <div className="flex flex-col items-center gap-1 bg-white/5 p-2 rounded-xl border border-white/10 backdrop-blur-md min-w-[120px]">
-                <Truck size={20} className="text-[#3b82f6]" />
-                <h2 className="text-[10px] font-black text-white uppercase">Logistics Systems</h2>
+              <div className="flex flex-col items-center gap-1 p-2 rounded-xl border border-[#ffffff1a] min-w-[100px]" style={{ backgroundColor: 'rgba(255,255,255,0.05)' }}>
+                <Truck size={18} className="text-[#3b82f6]" />
+                <h2 className="text-[9px] font-black text-white uppercase">Logistics Systems</h2>
               </div>
             </div>
 
             {/* Header Meta */}
-            <div className="grid grid-cols-3 gap-4 mt-6 pt-4 border-t border-white/10 relative z-10">
+            <div className="grid grid-cols-3 gap-2 mt-4 pt-3 border-t border-[#ffffff1a] relative z-10">
               <div className="text-center">
-                <span className="text-white/40 text-[10px] block">مطالبة شهر:</span>
-                <p className="font-bold text-xs">{invoice.invoice_month || getClaimMonth(invoice.issue_date)}</p>
+                <span className="text-[#ffffff66] text-[9px] block">مطالبة شهر:</span>
+                <p className="font-bold text-[11px]">{invoice.invoice_month || getClaimMonth(invoice.issue_date)}</p>
               </div>
               <div className="text-center">
-                <span className="text-white/40 text-[10px] block">رقم الفاتورة:</span>
-                <p className="font-bold text-xs tracking-widest">{invoice.invoice_number}</p>
+                <span className="text-[#ffffff66] text-[9px] block">رقم الفاتورة:</span>
+                <p className="font-bold text-[11px] tracking-widest">{invoice.invoice_number}</p>
               </div>
               <div className="text-center">
-                <span className="text-white/40 text-[10px] block">تاريخ الإصدار:</span>
-                <p className="font-bold text-xs">{formatDate(invoice.issue_date)}</p>
+                <span className="text-[#ffffff66] text-[9px] block">تاريخ الإصدار:</span>
+                <p className="font-bold text-[11px]">{formatDate(invoice.issue_date)}</p>
               </div>
             </div>
           </div>
 
-          <div className="p-6 space-y-6">
+          <div className="p-4 space-y-4">
             {/* Info Cards */}
             <div className="grid grid-cols-2 gap-4">
               {/* Company Info */}
-              <div className="rounded-2xl p-4 border border-[#f1f5f9] bg-[#f8fafc]">
-                <h3 className="font-black text-[#0f172a] mb-3 pb-2 border-b border-[#e2e8f0] flex items-center gap-2 text-xs">
-                  <div className="w-1 h-4 bg-[#2563eb] rounded-full"></div>
+              <div className="rounded-2xl p-3 border border-[#f1f5f9]" style={{ backgroundColor: '#f8fafc' }}>
+                <h3 className="font-black text-[#0f172a] mb-2 pb-1 border-b border-[#e2e8f0] flex items-center gap-2 text-[11px]">
+                  <div className="w-1 h-3 bg-[#2563eb] rounded-full"></div>
                   بيانات المنشأة
                 </h3>
-                <div className="space-y-2 text-[10px]">
+                <div className="space-y-1.5 text-[9px]">
                   <div className="flex justify-between items-center">
                     <span className="text-[#64748b]">الاسم:</span>
                     <span className="font-bold text-[#0f172a]">{company?.name}</span>
@@ -399,12 +398,12 @@ export function InvoiceViewClient({
               </div>
 
               {/* Customer Info */}
-              <div className="rounded-2xl p-4 border border-[#f1f5f9] bg-[#f8fafc]">
-                <h3 className="font-black text-[#0f172a] mb-3 pb-2 border-b border-[#e2e8f0] flex items-center gap-2 text-xs">
-                  <div className="w-1 h-4 bg-[#059669] rounded-full"></div>
+              <div className="rounded-2xl p-3 border border-[#f1f5f9]" style={{ backgroundColor: '#f8fafc' }}>
+                <h3 className="font-black text-[#0f172a] mb-2 pb-1 border-b border-[#e2e8f0] flex items-center gap-2 text-[11px]">
+                  <div className="w-1 h-3 bg-[#059669] rounded-full"></div>
                   بيانات العميل
                 </h3>
-                <div className="space-y-2 text-[10px]">
+                <div className="space-y-1.5 text-[9px]">
                   <div className="flex justify-between items-center">
                     <span className="text-[#64748b]">الاسم:</span>
                     <span className="font-bold text-[#0f172a]">{customer?.company_name || customer?.name || invoice.client_name}</span>
@@ -427,41 +426,41 @@ export function InvoiceViewClient({
 
             {/* Items Table */}
             <div className="rounded-xl border border-[#f1f5f9] overflow-hidden shadow-sm">
-              <table className="w-full text-[10px] border-collapse">
+              <table className="w-full text-[9px] border-collapse">
                 <thead style={{ background: '#1e293b', color: '#ffffff' }}>
                   <tr>
-                    <th className="px-3 py-3 text-right font-bold">البند</th>
-                    <th className="px-3 py-3 text-center font-bold">الكمية</th>
-                    <th className="px-3 py-3 text-center font-bold">السعر</th>
-                    <th className="px-3 py-3 text-center font-bold">قبل الضريبة</th>
-                    <th className="px-3 py-3 text-center font-bold">الضريبة 15%</th>
-                    <th className="px-3 py-3 text-center font-bold">الإجمالي</th>
+                    <th className="px-2 py-2 text-right font-bold">البند</th>
+                    <th className="px-2 py-2 text-center font-bold">الكمية</th>
+                    <th className="px-2 py-2 text-center font-bold">السعر</th>
+                    <th className="px-2 py-2 text-center font-bold">قبل الضريبة</th>
+                    <th className="px-2 py-2 text-center font-bold">الضريبة 15%</th>
+                    <th className="px-2 py-2 text-center font-bold">الإجمالي</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-[#f1f5f9] bg-white">
                   {items.map((item) => (
                     <tr key={item.id} className="hover:bg-[#f8fafc]">
-                      <td className="px-3 py-2 font-bold text-[#0f172a]">{item.product_name}</td>
-                      <td className="px-3 py-2 text-center">{item.quantity}</td>
-                      <td className="px-3 py-2 text-center">{parseFloat(String(item.unit_price)).toFixed(2)}</td>
-                      <td className="px-3 py-2 text-center font-medium">{parseFloat(String(item.total_before_vat)).toLocaleString('en-US', { minimumFractionDigits: 2 })}</td>
-                      <td className="px-3 py-2 text-center text-[#2563eb] font-bold">{parseFloat(String(item.vat_amount)).toLocaleString('en-US', { minimumFractionDigits: 2 })}</td>
-                      <td className="px-3 py-2 text-center font-black text-[#0f172a]">{parseFloat(String(item.total_with_vat)).toLocaleString('en-US', { minimumFractionDigits: 2 })}</td>
+                      <td className="px-2 py-1.5 font-bold text-[#0f172a]">{item.product_name}</td>
+                      <td className="px-2 py-1.5 text-center">{item.quantity}</td>
+                      <td className="px-2 py-1.5 text-center">{parseFloat(String(item.unit_price)).toFixed(2)}</td>
+                      <td className="px-2 py-1.5 text-center font-medium">{parseFloat(String(item.total_before_vat)).toLocaleString('en-US', { minimumFractionDigits: 2 })}</td>
+                      <td className="px-2 py-1.5 text-center text-[#2563eb] font-bold">{parseFloat(String(item.vat_amount)).toLocaleString('en-US', { minimumFractionDigits: 2 })}</td>
+                      <td className="px-2 py-1.5 text-center font-black text-[#0f172a]">{parseFloat(String(item.total_with_vat)).toLocaleString('en-US', { minimumFractionDigits: 2 })}</td>
                     </tr>
                   ))}
                   
                   {adjustments.map((adj) => (
                     <tr key={adj.id} style={{ backgroundColor: adj.type === 'discount' ? '#fff1f2' : '#f0fdf4' }}>
-                      <td className="px-3 py-2 font-bold text-[#1e293b]">
-                        {adj.title} <span className="text-[8px] opacity-60">({adj.type === 'discount' ? 'خصم' : 'إضافة'})</span>
+                      <td className="px-2 py-1.5 font-bold text-[#1e293b]">
+                        {adj.title} <span className="text-[7px] opacity-60">({adj.type === 'discount' ? 'خصم' : 'إضافة'})</span>
                       </td>
-                      <td className="px-3 py-2 text-center opacity-40">-</td>
-                      <td className="px-3 py-2 text-center opacity-40">-</td>
-                      <td className={`px-3 py-2 text-center font-bold ${adj.type === 'discount' ? 'text-[#e11d48]' : 'text-[#059669]'}`}>
+                      <td className="px-2 py-1.5 text-center opacity-40">-</td>
+                      <td className="px-2 py-1.5 text-center opacity-40">-</td>
+                      <td className={`px-2 py-1.5 text-center font-bold ${adj.type === 'discount' ? 'text-[#e11d48]' : 'text-[#059669]'}`}>
                         {adj.type === 'discount' ? '-' : ''}{parseFloat(String(adj.amount)).toLocaleString('en-US', { minimumFractionDigits: 2 })}
                       </td>
-                      <td className="px-3 py-2 text-center opacity-40">-</td>
-                      <td className={`px-3 py-2 text-center font-black ${adj.type === 'discount' ? 'text-[#be123c]' : 'text-[#047857]'}`}>
+                      <td className="px-2 py-1.5 text-center opacity-40">-</td>
+                      <td className={`px-2 py-1.5 text-center font-black ${adj.type === 'discount' ? 'text-[#be123c]' : 'text-[#047857]'}`}>
                         {adj.type === 'discount' ? '-' : ''}{parseFloat(String(adj.total_with_vat)).toLocaleString('en-US', { minimumFractionDigits: 2 })}
                       </td>
                     </tr>
@@ -474,27 +473,27 @@ export function InvoiceViewClient({
             <div className="grid grid-cols-2 gap-4 items-stretch">
               {/* Summary Box */}
               <div 
-                className="rounded-2xl p-5 border border-[#f1f5f9] flex flex-col justify-between"
+                className="rounded-2xl p-4 border border-[#f1f5f9] flex flex-col justify-between"
                 style={{ background: '#f8fafc' }}
               >
                 <div>
-                  <h3 className="font-black text-[#0f172a] mb-4 flex items-center gap-2 text-xs">
-                    <CreditCard size={14} className="text-[#2563eb]" />
+                  <h3 className="font-black text-[#0f172a] mb-2 flex items-center gap-2 text-[11px]">
+                    <CreditCard size={12} className="text-[#2563eb]" />
                     ملخص الفاتورة
                   </h3>
-                  <div className="space-y-3">
+                  <div className="space-y-2">
                     <div className="flex justify-between items-center py-1 border-b border-dashed border-[#e2e8f0]">
-                      <span className="text-[#64748b] text-[10px]">قبل الضريبة:</span>
-                      <span className="font-bold text-[#0f172a] text-[10px]">{totalBeforeVat.toLocaleString('en-US', { minimumFractionDigits: 2 })} ريال</span>
+                      <span className="text-[#64748b] text-[9px]">قبل الضريبة:</span>
+                      <span className="font-bold text-[#0f172a] text-[9px]">{totalBeforeVat.toLocaleString('en-US', { minimumFractionDigits: 2 })} ريال</span>
                     </div>
                     <div className="flex justify-between items-center py-1 border-b border-dashed border-[#e2e8f0]">
-                      <span className="text-[#64748b] text-[10px]">الضريبة 15%:</span>
-                      <span className="font-bold text-[#2563eb] text-[10px]">{totalVat.toLocaleString('en-US', { minimumFractionDigits: 2 })} ريال</span>
+                      <span className="text-[#64748b] text-[9px]">الضريبة 15%:</span>
+                      <span className="font-bold text-[#2563eb] text-[9px]">{totalVat.toLocaleString('en-US', { minimumFractionDigits: 2 })} ريال</span>
                     </div>
                     {(discountTotal > 0 || additionTotal > 0) && (
                       <div className="flex justify-between items-center py-1 border-b border-dashed border-[#e2e8f0]">
-                        <span className="text-[#64748b] text-[10px]">تعديلات:</span>
-                        <span className={`font-bold text-[10px] ${additionTotal - discountTotal < 0 ? 'text-[#e11d48]' : 'text-[#059669]'}`}>
+                        <span className="text-[#64748b] text-[9px]">تعديلات:</span>
+                        <span className={`font-bold text-[9px] ${additionTotal - discountTotal < 0 ? 'text-[#e11d48]' : 'text-[#059669]'}`}>
                           {(additionTotal - discountTotal).toLocaleString('en-US', { minimumFractionDigits: 2 })} ريال
                         </span>
                       </div>
@@ -503,29 +502,29 @@ export function InvoiceViewClient({
                 </div>
                 
                 <div 
-                  className="flex justify-between items-center py-2 px-4 rounded-xl mt-4 shadow-sm"
+                  className="flex justify-between items-center py-2 px-3 rounded-xl mt-2 shadow-sm"
                   style={{ background: '#059669' }}
                 >
                   <span className="font-black text-white text-[10px]">المبلغ المستحق:</span>
-                  <span className="font-black text-xs text-white">
+                  <span className="font-black text-[11px] text-white">
                     {grandTotal.toLocaleString('en-US', { minimumFractionDigits: 2 })} ريال
                   </span>
                 </div>
               </div>
 
               {/* QR and Period */}
-              <div className="rounded-2xl p-5 border border-[#f1f5f9] bg-white text-center flex flex-col justify-between">
+              <div className="rounded-2xl p-4 border border-[#f1f5f9] bg-white text-center flex flex-col justify-between">
                 <div>
-                  <h3 className="font-black text-[#0f172a] mb-2 flex items-center justify-center gap-2 text-xs">
-                    <QrCode size={14} className="text-[#2563eb]" />
+                  <h3 className="font-black text-[#0f172a] mb-1 flex items-center justify-center gap-2 text-[11px]">
+                    <QrCode size={12} className="text-[#2563eb]" />
                     باركود ZATCA
                   </h3>
-                  <div className="flex justify-center mb-2">
-                    <div className="p-2 bg-white rounded-xl shadow-sm border border-[#f8fafc]">
+                  <div className="flex justify-center mb-1">
+                    <div className="p-1 bg-white rounded-xl shadow-sm border border-[#f8fafc]">
                       {isMounted && (
                         <QRCodeCanvas
                           value={qrData}
-                          size={100}
+                          size={80}
                           level="H"
                           includeMargin={false}
                         />
@@ -534,8 +533,8 @@ export function InvoiceViewClient({
                   </div>
                 </div>
                 
-                <div className="pt-2 border-t border-[#f1f5f9]">
-                  <p className="font-bold text-[#2563eb] text-[9px]">
+                <div className="pt-1 border-t border-[#f1f5f9]">
+                  <p className="font-bold text-[#2563eb] text-[8px]">
                     الفترة: {formatDate(items[0]?.period_from)} - {formatDate(items[0]?.period_to)}
                   </p>
                 </div>
@@ -545,48 +544,48 @@ export function InvoiceViewClient({
             {/* Bank Info */}
             {selectedBank && (
               <div 
-                className="rounded-2xl p-4 border border-[#ccfbf1]"
+                className="rounded-2xl p-3 border border-[#ccfbf1]"
                 style={{ background: '#f0fdfa' }}
               >
-                <div className="flex justify-between items-center mb-4">
+                <div className="flex justify-between items-center mb-2">
                   <div className="flex items-center gap-2">
-                    <University size={16} className="text-[#059669]" />
-                    <h3 className="font-black text-[#0f172a] text-xs">معلومات السداد البنكي</h3>
+                    <University size={14} className="text-[#059669]" />
+                    <h3 className="font-black text-[#0f172a] text-[11px]">معلومات السداد البنكي</h3>
                   </div>
-                  <div className="flex items-center gap-2 bg-[#10b981] text-white px-2 py-0.5 rounded-full text-[8px] font-bold">
-                    <ShieldCheck size={10} />
+                  <div className="flex items-center gap-1 bg-[#10b981] text-white px-2 py-0.5 rounded-full text-[7px] font-bold">
+                    <ShieldCheck size={9} />
                     <span>حساب معتمد</span>
                   </div>
                 </div>
                 
-                <div className="grid grid-cols-4 gap-3">
-                  <div className="bg-white rounded-xl p-3 border border-[#f1f5f9]">
-                    <p className="text-[8px] text-[#94a3b8] mb-1">البنك</p>
-                    <p className="font-bold text-[#0f172a] text-[9px] truncate">{selectedBank.bank_name}</p>
+                <div className="grid grid-cols-4 gap-2">
+                  <div className="bg-white rounded-xl p-2 border border-[#f1f5f9]">
+                    <p className="text-[7px] text-[#94a3b8] mb-0.5">البنك</p>
+                    <p className="font-bold text-[#0f172a] text-[8px] truncate">{selectedBank.bank_name}</p>
                   </div>
-                  <div className="bg-white rounded-xl p-3 border border-[#f1f5f9]">
-                    <p className="text-[8px] text-[#94a3b8] mb-1">المستفيد</p>
-                    <p className="font-bold text-[#0f172a] text-[9px] truncate">{selectedBank.bank_beneficiary}</p>
+                  <div className="bg-white rounded-xl p-2 border border-[#f1f5f9]">
+                    <p className="text-[7px] text-[#94a3b8] mb-0.5">المستفيد</p>
+                    <p className="font-bold text-[#0f172a] text-[8px] truncate">{selectedBank.bank_beneficiary}</p>
                   </div>
-                  <div className="bg-white rounded-xl p-3 border border-[#f1f5f9]">
-                    <p className="text-[8px] text-[#94a3b8] mb-1">الحساب</p>
-                    <p className="font-bold text-[#2563eb] text-[9px]">{selectedBank.bank_account}</p>
+                  <div className="bg-white rounded-xl p-2 border border-[#f1f5f9]">
+                    <p className="text-[7px] text-[#94a3b8] mb-0.5">الحساب</p>
+                    <p className="font-bold text-[#2563eb] text-[8px]">{selectedBank.bank_account}</p>
                   </div>
-                  <div className="bg-white rounded-xl p-3 border border-[#f1f5f9]">
-                    <p className="text-[8px] text-[#94a3b8] mb-1">الآيبان</p>
-                    <p className="font-bold text-[#0f172a] text-[8px] break-all">{selectedBank.bank_iban}</p>
+                  <div className="bg-white rounded-xl p-2 border border-[#f1f5f9]">
+                    <p className="text-[7px] text-[#94a3b8] mb-0.5">الآيبان</p>
+                    <p className="font-bold text-[#0f172a] text-[7px] break-all">{selectedBank.bank_iban}</p>
                   </div>
                 </div>
 
-                <div className="flex justify-end mt-3">
+                <div className="flex justify-end mt-2">
                   {invoiceStatus === 'paid' ? (
-                    <div className="flex items-center gap-1 text-[#059669] text-[9px] font-black uppercase">
-                      <CheckCircle size={10} />
+                    <div className="flex items-center gap-1 text-[#059669] text-[8px] font-black uppercase">
+                      <CheckCircle size={9} />
                       <span>تم السداد بنجاح</span>
                     </div>
                   ) : (
-                    <div className="flex items-center gap-2 text-[#d97706] text-[9px] font-black uppercase">
-                      <Clock size={10} />
+                    <div className="flex items-center gap-2 text-[#d97706] text-[8px] font-black uppercase">
+                      <Clock size={9} />
                       <span>بانتظار السداد - الاستحقاق: {formatDate(invoice.due_date)}</span>
                     </div>
                   )}
@@ -595,11 +594,11 @@ export function InvoiceViewClient({
             )}
 
             {/* Stamp and Signature Section */}
-            <div className="grid grid-cols-2 gap-8 pt-6 border-t border-[#f1f5f9]">
+            <div className="grid grid-cols-2 gap-8 pt-4 border-t border-[#f1f5f9]">
               {/* Stamp */}
               <div className="text-center">
-                <h4 className="text-[#64748b] font-bold text-[9px] mb-2 uppercase tracking-tight">ختم المنشأة</h4>
-                <div className="w-20 h-20 mx-auto bg-white rounded-xl border border-dashed border-[#e2e8f0] flex items-center justify-center p-2">
+                <h4 className="text-[#64748b] font-bold text-[8px] mb-1 uppercase tracking-tight">ختم المنشأة</h4>
+                <div className="w-16 h-16 mx-auto bg-white rounded-xl border border-dashed border-[#e2e8f0] flex items-center justify-center p-2">
                   {company.stamp_path ? (
                     <img 
                       src={getPublicUrl(company.stamp_path) || ''} 
@@ -608,15 +607,15 @@ export function InvoiceViewClient({
                       crossOrigin="anonymous"
                     />
                   ) : (
-                    <Stamp size={24} className="text-[#e2e8f0]" />
+                    <Stamp size={20} className="text-[#e2e8f0]" />
                   )}
                 </div>
               </div>
 
               {/* Signature */}
               <div className="text-center">
-                <h4 className="text-[#64748b] font-bold text-[9px] mb-2 uppercase tracking-tight">التوقيع الإلكتروني</h4>
-                <div className="w-20 h-20 mx-auto bg-white rounded-xl border border-dashed border-[#e2e8f0] flex items-center justify-center p-2">
+                <h4 className="text-[#64748b] font-bold text-[8px] mb-1 uppercase tracking-tight">التوقيع الإلكتروني</h4>
+                <div className="w-16 h-16 mx-auto bg-white rounded-xl border border-dashed border-[#e2e8f0] flex items-center justify-center p-2">
                   {company.digital_seal_path ? (
                     <img 
                       src={getPublicUrl(company.digital_seal_path) || ''} 
@@ -625,7 +624,7 @@ export function InvoiceViewClient({
                       crossOrigin="anonymous"
                     />
                   ) : (
-                    <Signature size={24} className="text-[#e2e8f0]" />
+                    <Signature size={20} className="text-[#e2e8f0]" />
                   )}
                 </div>
               </div>
