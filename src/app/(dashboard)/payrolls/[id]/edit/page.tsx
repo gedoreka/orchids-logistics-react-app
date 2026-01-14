@@ -1,7 +1,12 @@
 import { cookies } from "next/headers";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { query } from "@/lib/db";
 import { PayrollEditClient } from "./payroll-edit-client";
+
+async function getCompanyId(userId: number) {
+  const users = await query<any>("SELECT company_id FROM users WHERE id = ?", [userId]);
+  return users[0]?.company_id;
+}
 
 async function getPayroll(id: string, companyId: number) {
   try {
@@ -31,16 +36,20 @@ export default async function PayrollEditPage({ params }: { params: Promise<{ id
   const { id } = await params;
   const cookieStore = await cookies();
   const sessionCookie = cookieStore.get("auth_session");
-  const session = JSON.parse(sessionCookie?.value || "{}");
   
-  const companyId = session.company_id;
+  if (!sessionCookie) {
+    redirect("/login");
+  }
+  
+  const session = JSON.parse(sessionCookie.value);
+  let companyId = session.company_id;
+  
+  if (!companyId && session.user_id) {
+    companyId = await getCompanyId(session.user_id);
+  }
 
   if (!companyId) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <p className="text-gray-500">جاري التحميل...</p>
-      </div>
-    );
+    redirect("/login");
   }
 
   const payroll = await getPayroll(id, companyId);

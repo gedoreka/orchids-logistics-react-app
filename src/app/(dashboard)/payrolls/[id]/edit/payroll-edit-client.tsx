@@ -256,95 +256,98 @@ export function PayrollEditClient({ payroll, companyId }: PayrollEditClientProps
             </div>
 
             <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead className="bg-gray-50">
-                  <tr className="border-b border-gray-100">
-                    <th className="text-right px-3 py-2 text-xs font-bold text-gray-600">الاسم</th>
-                    <th className="text-right px-3 py-2 text-xs font-bold text-gray-600">الإقامة</th>
-                    <th className="text-right px-3 py-2 text-xs font-bold text-gray-600">الكود</th>
-                    <th className="text-right px-3 py-2 text-xs font-bold text-gray-600">الراتب</th>
-                    <th className="text-right px-3 py-2 text-xs font-bold text-gray-600">التارقت</th>
-                    <th className="text-right px-3 py-2 text-xs font-bold text-gray-600">الطلبات</th>
-                    <th className="text-right px-3 py-2 text-xs font-bold text-gray-600">خصم</th>
-                    <th className="text-right px-3 py-2 text-xs font-bold text-gray-600">بونص</th>
-                    <th className="text-right px-3 py-2 text-xs font-bold text-gray-600">مشغل</th>
-                    <th className="text-right px-3 py-2 text-xs font-bold text-gray-600">داخلي</th>
-                    <th className="text-right px-3 py-2 text-xs font-bold text-gray-600">محفظة</th>
-                    <th className="text-right px-3 py-2 text-xs font-bold text-gray-600">مكافأة</th>
-                    <th className="text-right px-3 py-2 text-xs font-bold text-gray-600">صافي</th>
-                    <th className="text-right px-3 py-2 text-xs font-bold text-gray-600">الدفع</th>
+              <table className="w-full text-sm border-collapse">
+                <thead className="bg-gray-100">
+                  <tr>
+                    <th className="text-right px-3 py-3 text-xs font-bold text-gray-700 border border-gray-200">الاسم</th>
+                    <th className="text-right px-3 py-3 text-xs font-bold text-gray-700 border border-gray-200">الإقامة</th>
+                    <th className="text-right px-3 py-3 text-xs font-bold text-gray-700 border border-gray-200">الكود</th>
+                    <th className="text-right px-3 py-3 text-xs font-bold text-gray-700 border border-gray-200">الراتب</th>
+                    <th className="text-right px-3 py-3 text-xs font-bold text-gray-700 border border-gray-200">التارقت</th>
+                    <th className="text-right px-3 py-3 text-xs font-bold text-gray-700 border border-gray-200">الطلبات</th>
+                    <th className="text-right px-3 py-3 text-xs font-bold text-gray-700 border border-gray-200">خصم</th>
+                    <th className="text-right px-3 py-3 text-xs font-bold text-gray-700 border border-gray-200">بونص</th>
+                    <th className="text-right px-3 py-3 text-xs font-bold text-gray-700 border border-gray-200">مشغل</th>
+                    <th className="text-right px-3 py-3 text-xs font-bold text-gray-700 border border-gray-200">داخلي</th>
+                    <th className="text-right px-3 py-3 text-xs font-bold text-gray-700 border border-gray-200">محفظة</th>
+                    <th className="text-right px-3 py-3 text-xs font-bold text-gray-700 border border-gray-200">مكافأة</th>
+                    <th className="text-right px-3 py-3 text-xs font-bold text-gray-700 border border-gray-200">صافي</th>
+                    <th className="text-right px-3 py-3 text-xs font-bold text-gray-700 border border-gray-200">الدفع</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-gray-50">
+                <tbody>
                   {items.map((item, index) => (
-                    <tr key={item.id} className={`hover:bg-gray-50/50 ${item.net_salary < 0 ? 'bg-red-50' : ''}`}>
-                      <td className="px-3 py-2 font-bold text-gray-900 whitespace-nowrap">{item.employee_name}</td>
-                      <td className="px-3 py-2 text-gray-600 whitespace-nowrap">{item.iqama_number}</td>
-                      <td className="px-3 py-2 text-gray-600">{item.user_code}</td>
-                      <td className="px-3 py-2 font-bold">{item.basic_salary}</td>
-                      <td className="px-3 py-2 text-gray-600">{item.target}</td>
-                      <td className="px-3 py-2">
+                    <tr 
+                      key={item.id} 
+                      className={`transition-colors duration-150 hover:bg-blue-50/50 ${item.net_salary < 0 ? 'bg-red-50 hover:bg-red-100/50' : ''}`}
+                    >
+                      <td className="px-3 py-2.5 font-bold text-gray-900 whitespace-nowrap border border-gray-200">{item.employee_name}</td>
+                      <td className="px-3 py-2.5 text-gray-600 whitespace-nowrap border border-gray-200">{item.iqama_number}</td>
+                      <td className="px-3 py-2.5 text-gray-600 border border-gray-200">{item.user_code}</td>
+                      <td className="px-3 py-2.5 font-bold border border-gray-200">{item.basic_salary}</td>
+                      <td className="px-3 py-2.5 text-gray-600 border border-gray-200">{item.target}</td>
+                      <td className="px-3 py-2.5 border border-gray-200">
                         <input
                           type="number"
                           value={item.successful_orders}
                           onChange={(e) => handleRowChange(index, 'successful_orders', parseFloat(e.target.value) || 0)}
-                          className="w-16 px-2 py-1 rounded-lg border border-gray-200 text-center text-sm"
+                          className="w-16 px-2 py-1 rounded-lg border border-gray-200 text-center text-sm focus:border-blue-400 focus:ring-1 focus:ring-blue-200 transition-all"
                           min="0"
                         />
                       </td>
-                      <td className="px-3 py-2">
+                      <td className="px-3 py-2.5 border border-gray-200">
                         <input
                           type="text"
                           value={item.target_deduction.toFixed(2)}
                           readOnly
-                          className="w-16 px-2 py-1 rounded-lg border border-gray-100 bg-gray-50 text-center text-sm"
+                          className="w-16 px-2 py-1 rounded-lg border border-gray-100 bg-gray-50 text-center text-sm text-red-600"
                         />
                       </td>
-                      <td className="px-3 py-2">
+                      <td className="px-3 py-2.5 border border-gray-200">
                         <input
                           type="text"
                           value={item.monthly_bonus.toFixed(2)}
                           readOnly
-                          className="w-16 px-2 py-1 rounded-lg border border-gray-100 bg-gray-50 text-center text-sm"
+                          className="w-16 px-2 py-1 rounded-lg border border-gray-100 bg-gray-50 text-center text-sm text-emerald-600"
                         />
                       </td>
-                      <td className="px-3 py-2">
+                      <td className="px-3 py-2.5 border border-gray-200">
                         <input
                           type="number"
                           value={item.operator_deduction}
                           onChange={(e) => handleRowChange(index, 'operator_deduction', parseFloat(e.target.value) || 0)}
-                          className="w-16 px-2 py-1 rounded-lg border border-gray-200 text-center text-sm"
+                          className="w-16 px-2 py-1 rounded-lg border border-gray-200 text-center text-sm focus:border-blue-400 focus:ring-1 focus:ring-blue-200 transition-all"
                           min="0"
                         />
                       </td>
-                      <td className="px-3 py-2">
+                      <td className="px-3 py-2.5 border border-gray-200">
                         <input
                           type="number"
                           value={item.internal_deduction}
                           onChange={(e) => handleRowChange(index, 'internal_deduction', parseFloat(e.target.value) || 0)}
-                          className="w-16 px-2 py-1 rounded-lg border border-gray-200 text-center text-sm"
+                          className="w-16 px-2 py-1 rounded-lg border border-gray-200 text-center text-sm focus:border-blue-400 focus:ring-1 focus:ring-blue-200 transition-all"
                           min="0"
                         />
                       </td>
-                      <td className="px-3 py-2">
+                      <td className="px-3 py-2.5 border border-gray-200">
                         <input
                           type="number"
                           value={item.wallet_deduction}
                           onChange={(e) => handleRowChange(index, 'wallet_deduction', parseFloat(e.target.value) || 0)}
-                          className="w-16 px-2 py-1 rounded-lg border border-gray-200 text-center text-sm"
+                          className="w-16 px-2 py-1 rounded-lg border border-gray-200 text-center text-sm focus:border-blue-400 focus:ring-1 focus:ring-blue-200 transition-all"
                           min="0"
                         />
                       </td>
-                      <td className="px-3 py-2">
+                      <td className="px-3 py-2.5 border border-gray-200">
                         <input
                           type="number"
                           value={item.internal_bonus}
                           onChange={(e) => handleRowChange(index, 'internal_bonus', parseFloat(e.target.value) || 0)}
-                          className="w-16 px-2 py-1 rounded-lg border border-gray-200 text-center text-sm"
+                          className="w-16 px-2 py-1 rounded-lg border border-gray-200 text-center text-sm focus:border-blue-400 focus:ring-1 focus:ring-blue-200 transition-all"
                           min="0"
                         />
                       </td>
-                      <td className="px-3 py-2">
+                      <td className="px-3 py-2.5 border border-gray-200">
                         <input
                           type="text"
                           value={item.net_salary.toFixed(2)}
@@ -354,11 +357,11 @@ export function PayrollEditClient({ payroll, companyId }: PayrollEditClientProps
                           }`}
                         />
                       </td>
-                      <td className="px-3 py-2">
+                      <td className="px-3 py-2.5 border border-gray-200">
                         <select
                           value={item.payment_method}
                           onChange={(e) => handleRowChange(index, 'payment_method', e.target.value)}
-                          className="w-20 px-2 py-1 rounded-lg border border-gray-200 text-sm"
+                          className="w-20 px-2 py-1 rounded-lg border border-gray-200 text-sm focus:border-blue-400 focus:ring-1 focus:ring-blue-200 transition-all"
                         >
                           <option value="مدد">مدد</option>
                           <option value="كاش">كاش</option>

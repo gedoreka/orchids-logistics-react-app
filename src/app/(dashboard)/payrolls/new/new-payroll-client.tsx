@@ -644,121 +644,124 @@ export function NewPayrollClient({ packages, debts, companyId, userName }: NewPa
                   </div>
 
                   <div className="overflow-x-auto">
-                    <table className="w-full text-sm">
-                      <thead className="bg-gray-50 sticky top-0">
-                        <tr className="border-b border-gray-100">
-                          <th className="text-right px-3 py-2 text-xs font-bold text-gray-600 whitespace-nowrap">اسم الموظف</th>
-                          <th className="text-right px-3 py-2 text-xs font-bold text-gray-600 whitespace-nowrap">الإقامة</th>
+                    <table className="w-full text-sm border-collapse">
+                      <thead className="bg-gray-100 sticky top-0">
+                        <tr>
+                          <th className="text-right px-3 py-3 text-xs font-bold text-gray-700 whitespace-nowrap border border-gray-200">اسم الموظف</th>
+                          <th className="text-right px-3 py-3 text-xs font-bold text-gray-700 whitespace-nowrap border border-gray-200">الإقامة</th>
                           {selectedPackage.work_type !== 'salary' && (
-                            <th className="text-right px-3 py-2 text-xs font-bold text-gray-600 whitespace-nowrap">الكود</th>
+                            <th className="text-right px-3 py-3 text-xs font-bold text-gray-700 whitespace-nowrap border border-gray-200">الكود</th>
                           )}
-                          <th className="text-right px-3 py-2 text-xs font-bold text-gray-600 whitespace-nowrap">الراتب</th>
+                          <th className="text-right px-3 py-3 text-xs font-bold text-gray-700 whitespace-nowrap border border-gray-200">الراتب</th>
                           {selectedPackage.work_type === 'salary' && (
                             <>
-                              <th className="text-right px-3 py-2 text-xs font-bold text-gray-600 whitespace-nowrap">السكن</th>
-                              <th className="text-right px-3 py-2 text-xs font-bold text-gray-600 whitespace-nowrap">الجنسية</th>
+                              <th className="text-right px-3 py-3 text-xs font-bold text-gray-700 whitespace-nowrap border border-gray-200">السكن</th>
+                              <th className="text-right px-3 py-3 text-xs font-bold text-gray-700 whitespace-nowrap border border-gray-200">الجنسية</th>
                             </>
                           )}
                           {selectedPackage.work_type !== 'salary' && (
                             <>
-                              <th className="text-right px-3 py-2 text-xs font-bold text-gray-600 whitespace-nowrap">التارقت</th>
-                              <th className="text-right px-3 py-2 text-xs font-bold text-gray-600 whitespace-nowrap">البونص</th>
-                              <th className="text-right px-3 py-2 text-xs font-bold text-gray-600 whitespace-nowrap">الطلبات</th>
-                              <th className="text-right px-3 py-2 text-xs font-bold text-gray-600 whitespace-nowrap">خصم</th>
-                              <th className="text-right px-3 py-2 text-xs font-bold text-gray-600 whitespace-nowrap">بونص</th>
+                              <th className="text-right px-3 py-3 text-xs font-bold text-gray-700 whitespace-nowrap border border-gray-200">التارقت</th>
+                              <th className="text-right px-3 py-3 text-xs font-bold text-gray-700 whitespace-nowrap border border-gray-200">البونص</th>
+                              <th className="text-right px-3 py-3 text-xs font-bold text-gray-700 whitespace-nowrap border border-gray-200">الطلبات</th>
+                              <th className="text-right px-3 py-3 text-xs font-bold text-gray-700 whitespace-nowrap border border-gray-200">خصم</th>
+                              <th className="text-right px-3 py-3 text-xs font-bold text-gray-700 whitespace-nowrap border border-gray-200">بونص</th>
                             </>
                           )}
-                          <th className="text-right px-3 py-2 text-xs font-bold text-gray-600 whitespace-nowrap">مشغل</th>
-                          <th className="text-right px-3 py-2 text-xs font-bold text-gray-600 whitespace-nowrap">داخلي</th>
-                          <th className="text-right px-3 py-2 text-xs font-bold text-gray-600 whitespace-nowrap">محفظة</th>
-                          <th className="text-right px-3 py-2 text-xs font-bold text-gray-600 whitespace-nowrap">مكافأة</th>
-                          <th className="text-right px-3 py-2 text-xs font-bold text-gray-600 whitespace-nowrap">صافي</th>
-                          <th className="text-right px-3 py-2 text-xs font-bold text-gray-600 whitespace-nowrap">التحويل</th>
+                          <th className="text-right px-3 py-3 text-xs font-bold text-gray-700 whitespace-nowrap border border-gray-200">مشغل</th>
+                          <th className="text-right px-3 py-3 text-xs font-bold text-gray-700 whitespace-nowrap border border-gray-200">داخلي</th>
+                          <th className="text-right px-3 py-3 text-xs font-bold text-gray-700 whitespace-nowrap border border-gray-200">محفظة</th>
+                          <th className="text-right px-3 py-3 text-xs font-bold text-gray-700 whitespace-nowrap border border-gray-200">مكافأة</th>
+                          <th className="text-right px-3 py-3 text-xs font-bold text-gray-700 whitespace-nowrap border border-gray-200">صافي</th>
+                          <th className="text-right px-3 py-3 text-xs font-bold text-gray-700 whitespace-nowrap border border-gray-200">التحويل</th>
                         </tr>
                       </thead>
-                      <tbody className="divide-y divide-gray-50">
+                      <tbody>
                         {employeeRows.map((row, index) => (
-                          <tr key={index} className={`hover:bg-gray-50/50 ${row.net_salary < 0 ? 'bg-red-50' : ''}`}>
-                            <td className="px-3 py-2 font-bold text-gray-900 whitespace-nowrap">{row.employee_name}</td>
-                            <td className="px-3 py-2 text-gray-600 whitespace-nowrap">{row.iqama_number}</td>
+                          <tr 
+                            key={index} 
+                            className={`transition-colors duration-150 hover:bg-blue-50/50 ${row.net_salary < 0 ? 'bg-red-50 hover:bg-red-100/50' : ''}`}
+                          >
+                            <td className="px-3 py-2.5 font-bold text-gray-900 whitespace-nowrap border border-gray-200">{row.employee_name}</td>
+                            <td className="px-3 py-2.5 text-gray-600 whitespace-nowrap border border-gray-200">{row.iqama_number}</td>
                             {selectedPackage.work_type !== 'salary' && (
-                              <td className="px-3 py-2 text-gray-600 whitespace-nowrap">{row.user_code}</td>
+                              <td className="px-3 py-2.5 text-gray-600 whitespace-nowrap border border-gray-200">{row.user_code}</td>
                             )}
-                            <td className="px-3 py-2 font-bold text-gray-900">{row.basic_salary.toLocaleString('en-US')}</td>
+                            <td className="px-3 py-2.5 font-bold text-gray-900 border border-gray-200">{row.basic_salary.toLocaleString('en-US')}</td>
                             {selectedPackage.work_type === 'salary' && (
                               <>
-                                <td className="px-3 py-2 text-gray-600">{row.housing_allowance.toLocaleString('en-US')}</td>
-                                <td className="px-3 py-2 text-gray-600">{row.nationality}</td>
+                                <td className="px-3 py-2.5 text-gray-600 border border-gray-200">{row.housing_allowance.toLocaleString('en-US')}</td>
+                                <td className="px-3 py-2.5 text-gray-600 border border-gray-200">{row.nationality}</td>
                               </>
                             )}
                             {selectedPackage.work_type !== 'salary' && (
                               <>
-                                <td className="px-3 py-2 text-gray-600">{row.target}</td>
-                                <td className="px-3 py-2 text-gray-600">{row.bonus_per_order}</td>
-                                <td className="px-3 py-2">
+                                <td className="px-3 py-2.5 text-gray-600 border border-gray-200">{row.target}</td>
+                                <td className="px-3 py-2.5 text-gray-600 border border-gray-200">{row.bonus_per_order}</td>
+                                <td className="px-3 py-2.5 border border-gray-200">
                                   <input
                                     type="number"
                                     value={row.successful_orders}
                                     onChange={(e) => handleRowChange(index, 'successful_orders', parseFloat(e.target.value) || 0)}
-                                    className="w-16 px-2 py-1 rounded-lg border border-gray-200 text-center text-sm"
+                                    className="w-16 px-2 py-1 rounded-lg border border-gray-200 text-center text-sm focus:border-blue-400 focus:ring-1 focus:ring-blue-200 transition-all"
                                     min="0"
                                   />
                                 </td>
-                                <td className="px-3 py-2">
+                                <td className="px-3 py-2.5 border border-gray-200">
                                   <input
                                     type="text"
                                     value={row.target_deduction.toFixed(2)}
                                     readOnly
-                                    className="w-16 px-2 py-1 rounded-lg border border-gray-100 bg-gray-50 text-center text-sm"
+                                    className="w-16 px-2 py-1 rounded-lg border border-gray-100 bg-gray-50 text-center text-sm text-red-600"
                                   />
                                 </td>
-                                <td className="px-3 py-2">
+                                <td className="px-3 py-2.5 border border-gray-200">
                                   <input
                                     type="text"
                                     value={row.monthly_bonus.toFixed(2)}
                                     readOnly
-                                    className="w-16 px-2 py-1 rounded-lg border border-gray-100 bg-gray-50 text-center text-sm"
+                                    className="w-16 px-2 py-1 rounded-lg border border-gray-100 bg-gray-50 text-center text-sm text-emerald-600"
                                   />
                                 </td>
                               </>
                             )}
-                            <td className="px-3 py-2">
+                            <td className="px-3 py-2.5 border border-gray-200">
                               <input
                                 type="number"
                                 value={row.operator_deduction}
                                 onChange={(e) => handleRowChange(index, 'operator_deduction', parseFloat(e.target.value) || 0)}
-                                className="w-16 px-2 py-1 rounded-lg border border-gray-200 text-center text-sm"
+                                className="w-16 px-2 py-1 rounded-lg border border-gray-200 text-center text-sm focus:border-blue-400 focus:ring-1 focus:ring-blue-200 transition-all"
                                 min="0"
                               />
                             </td>
-                            <td className="px-3 py-2">
+                            <td className="px-3 py-2.5 border border-gray-200">
                               <input
                                 type="number"
                                 value={row.internal_deduction}
                                 onChange={(e) => handleRowChange(index, 'internal_deduction', parseFloat(e.target.value) || 0)}
-                                className="w-16 px-2 py-1 rounded-lg border border-gray-200 text-center text-sm"
+                                className="w-16 px-2 py-1 rounded-lg border border-gray-200 text-center text-sm focus:border-blue-400 focus:ring-1 focus:ring-blue-200 transition-all"
                                 min="0"
                               />
                             </td>
-                            <td className="px-3 py-2">
+                            <td className="px-3 py-2.5 border border-gray-200">
                               <input
                                 type="number"
                                 value={row.wallet_deduction}
                                 onChange={(e) => handleRowChange(index, 'wallet_deduction', parseFloat(e.target.value) || 0)}
-                                className="w-16 px-2 py-1 rounded-lg border border-gray-200 text-center text-sm"
+                                className="w-16 px-2 py-1 rounded-lg border border-gray-200 text-center text-sm focus:border-blue-400 focus:ring-1 focus:ring-blue-200 transition-all"
                                 min="0"
                               />
                             </td>
-                            <td className="px-3 py-2">
+                            <td className="px-3 py-2.5 border border-gray-200">
                               <input
                                 type="number"
                                 value={row.internal_bonus}
                                 onChange={(e) => handleRowChange(index, 'internal_bonus', parseFloat(e.target.value) || 0)}
-                                className="w-16 px-2 py-1 rounded-lg border border-gray-200 text-center text-sm"
+                                className="w-16 px-2 py-1 rounded-lg border border-gray-200 text-center text-sm focus:border-blue-400 focus:ring-1 focus:ring-blue-200 transition-all"
                                 min="0"
                               />
                             </td>
-                            <td className="px-3 py-2">
+                            <td className="px-3 py-2.5 border border-gray-200">
                               <input
                                 type="text"
                                 value={row.net_salary.toFixed(2)}
@@ -768,11 +771,11 @@ export function NewPayrollClient({ packages, debts, companyId, userName }: NewPa
                                 }`}
                               />
                             </td>
-                            <td className="px-3 py-2">
+                            <td className="px-3 py-2.5 border border-gray-200">
                               <select
                                 value={row.payment_method}
                                 onChange={(e) => handleRowChange(index, 'payment_method', e.target.value)}
-                                className="w-20 px-2 py-1 rounded-lg border border-gray-200 text-sm"
+                                className="w-20 px-2 py-1 rounded-lg border border-gray-200 text-sm focus:border-blue-400 focus:ring-1 focus:ring-blue-200 transition-all"
                               >
                                 <option value="غير محدد">غير محدد</option>
                                 <option value="مدد">مدد</option>
