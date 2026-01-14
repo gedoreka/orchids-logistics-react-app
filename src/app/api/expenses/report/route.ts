@@ -23,7 +23,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Invalid session' }, { status: 401 });
     }
     
-    const companyId = session.company_id;
+    let companyId = session.company_id;
     
     if (!companyId) {
       return NextResponse.json({ error: 'No company ID' }, { status: 401 });
@@ -33,11 +33,24 @@ export async function GET(request: NextRequest) {
     const month = searchParams.get('month') || new Date().toISOString().slice(0, 7);
     const reportType = searchParams.get('report_type') || 'all';
 
-    const { data: companyInfo } = await supabase
+    let { data: companyInfo } = await supabase
       .from('companies')
       .select('id, name, logo_path, currency')
       .eq('id', companyId)
       .single();
+
+    if (!companyInfo) {
+      const { data: defaultCompany } = await supabase
+        .from('companies')
+        .select('id, name, logo_path, currency')
+        .limit(1)
+        .single();
+      
+      if (defaultCompany) {
+        companyInfo = defaultCompany;
+        companyId = defaultCompany.id;
+      }
+    }
 
     let expensesGrouped: Record<string, any[]> = {};
     let deductionsGrouped: Record<string, any[]> = {};

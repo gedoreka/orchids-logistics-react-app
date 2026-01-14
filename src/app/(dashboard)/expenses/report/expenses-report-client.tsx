@@ -133,13 +133,17 @@ const getMonthName = (monthStr: string) => {
 
 const generateMonthOptions = () => {
   const options = [];
-  const currentYear = new Date().getFullYear();
+  const currentDate = new Date();
+  const currentYear = currentDate.getFullYear();
+  const currentMonth = currentDate.getMonth() + 1;
   const monthNames = [
     "January", "February", "March", "April", "May", "June",
     "July", "August", "September", "October", "November", "December"
   ];
+  
   for (let year = currentYear; year >= currentYear - 2; year--) {
-    for (let month = 12; month >= 1; month--) {
+    const startMonth = year === currentYear ? currentMonth : 12;
+    for (let month = startMonth; month >= 1; month--) {
       const monthStr = `${year}-${month.toString().padStart(2, "0")}`;
       const label = `${monthNames[month - 1]} ${year}`;
       options.push({ value: monthStr, label });
@@ -151,9 +155,10 @@ const generateMonthOptions = () => {
 export function ExpensesReportClient({ companyId }: ExpensesReportClientProps) {
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState<ReportData | null>(null);
-  const [selectedMonth, setSelectedMonth] = useState(
-    new Date().toISOString().slice(0, 7)
-  );
+  const [selectedMonth, setSelectedMonth] = useState(() => {
+    const now = new Date();
+    return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
+  });
   const [reportType, setReportType] = useState<"expenses" | "deductions" | "all">(
     "expenses"
   );
