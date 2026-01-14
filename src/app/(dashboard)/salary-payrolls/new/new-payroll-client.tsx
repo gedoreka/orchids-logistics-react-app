@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
   FileText,
@@ -20,7 +20,8 @@ import {
   Calculator,
   FileCheck,
   AlertTriangle,
-  Clock
+  Clock,
+  X
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -109,6 +110,7 @@ export function NewPayrollClient({ packages, debts, companyId, userName }: NewPa
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [fetchingPackage, setFetchingPackage] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
   const [notification, setNotification] = useState<NotificationState>({
     show: false,
     type: "success",
@@ -443,6 +445,22 @@ export function NewPayrollClient({ packages, debts, companyId, userName }: NewPa
 
   const totals = getTotals();
 
+  const filteredEmployeeRows = useMemo(() => {
+    if (!searchQuery.trim()) return employeeRows;
+    const query = searchQuery.toLowerCase().trim();
+    return employeeRows.filter(row => 
+      row.employee_name.toLowerCase().includes(query) ||
+      row.iqama_number.includes(query) ||
+      row.user_code.includes(query)
+    );
+  }, [employeeRows, searchQuery]);
+
+  const getFilteredIndex = (filteredIdx: number) => {
+    if (!searchQuery.trim()) return filteredIdx;
+    const filteredRow = filteredEmployeeRows[filteredIdx];
+    return employeeRows.findIndex(row => row.iqama_number === filteredRow.iqama_number);
+  };
+
   return (
     <div className="h-full flex flex-col">
       <AnimatePresence>
@@ -628,195 +646,223 @@ export function NewPayrollClient({ packages, debts, companyId, userName }: NewPa
               )}
 
               {employeeRows.length > 0 && (
-                <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-                  <div className="bg-gradient-to-br from-[#1a237e] to-[#283593] px-4 py-3 flex justify-between items-center">
-                    <div className="flex items-center gap-2 text-white">
-                      <Calculator size={18} />
-                      <h3 className="font-bold text-sm">
-                        {selectedPackage.work_type === 'salary' ? 'جدول الرواتب' :
-                         selectedPackage.work_type === 'target' ? 'جدول التارقت' :
-                         selectedPackage.work_type === 'tiers' ? 'جدول الشرائح' : 'جدول الرواتب'}
-                      </h3>
+                  <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden flex flex-col" style={{ height: 'calc(100vh - 420px)', minHeight: '500px' }}>
+                    <div className="bg-gradient-to-br from-[#1a237e] to-[#283593] px-4 py-3 flex justify-between items-center flex-shrink-0">
+                      <div className="flex items-center gap-2 text-white">
+                        <Calculator size={18} />
+                        <h3 className="font-bold text-sm">
+                          {selectedPackage.work_type === 'salary' ? 'جدول الرواتب' :
+                           selectedPackage.work_type === 'target' ? 'جدول التارقت' :
+                           selectedPackage.work_type === 'tiers' ? 'جدول الشرائح' : 'جدول الرواتب'}
+                        </h3>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <div className="relative">
+                          <input
+                            type="text"
+                            placeholder="بحث بالاسم أو الإقامة أو الكود..."
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            className="w-56 pl-8 pr-3 py-1.5 rounded-lg bg-white/10 border border-white/20 text-white placeholder-white/50 text-xs focus:bg-white/20 focus:border-white/40 outline-none transition-all"
+                          />
+                          <Search size={14} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-white/50" />
+                          {searchQuery && (
+                            <button 
+                              onClick={() => setSearchQuery("")}
+                              className="absolute right-2 top-1/2 -translate-y-1/2 text-white/50 hover:text-white"
+                            >
+                              <X size={12} />
+                            </button>
+                          )}
+                        </div>
+                        <span className="bg-white/20 text-white px-2 py-0.5 rounded text-xs font-bold">
+                          {searchQuery ? `${filteredEmployeeRows.length} / ${employeeRows.length}` : `${employeeRows.length}`} موظف
+                        </span>
+                      </div>
                     </div>
-                    <span className="bg-white/20 text-white px-2 py-0.5 rounded text-xs font-bold">
-                      {employeeRows.length} موظف
-                    </span>
-                  </div>
 
-                  <div className="overflow-x-auto">
-                    <table className="w-full text-sm">
-                      <thead className="bg-gray-50 sticky top-0">
-                        <tr className="border-b border-gray-100">
-                          <th className="text-right px-3 py-2 text-xs font-bold text-gray-600 whitespace-nowrap">اسم الموظف</th>
-                          <th className="text-right px-3 py-2 text-xs font-bold text-gray-600 whitespace-nowrap">الإقامة</th>
-                          {selectedPackage.work_type !== 'salary' && (
-                            <th className="text-right px-3 py-2 text-xs font-bold text-gray-600 whitespace-nowrap">الكود</th>
-                          )}
-                          <th className="text-right px-3 py-2 text-xs font-bold text-gray-600 whitespace-nowrap">الراتب</th>
-                          {selectedPackage.work_type === 'salary' && (
-                            <>
-                              <th className="text-right px-3 py-2 text-xs font-bold text-gray-600 whitespace-nowrap">السكن</th>
-                              <th className="text-right px-3 py-2 text-xs font-bold text-gray-600 whitespace-nowrap">الجنسية</th>
-                            </>
-                          )}
-                          {selectedPackage.work_type !== 'salary' && (
-                            <>
-                              <th className="text-right px-3 py-2 text-xs font-bold text-gray-600 whitespace-nowrap">التارقت</th>
-                              <th className="text-right px-3 py-2 text-xs font-bold text-gray-600 whitespace-nowrap">البونص</th>
-                              <th className="text-right px-3 py-2 text-xs font-bold text-gray-600 whitespace-nowrap">الطلبات</th>
-                              <th className="text-right px-3 py-2 text-xs font-bold text-gray-600 whitespace-nowrap">خصم</th>
-                              <th className="text-right px-3 py-2 text-xs font-bold text-gray-600 whitespace-nowrap">بونص</th>
-                            </>
-                          )}
-                          <th className="text-right px-3 py-2 text-xs font-bold text-gray-600 whitespace-nowrap">مشغل</th>
-                          <th className="text-right px-3 py-2 text-xs font-bold text-gray-600 whitespace-nowrap">داخلي</th>
-                          <th className="text-right px-3 py-2 text-xs font-bold text-gray-600 whitespace-nowrap">محفظة</th>
-                          <th className="text-right px-3 py-2 text-xs font-bold text-gray-600 whitespace-nowrap">مكافأة</th>
-                          <th className="text-right px-3 py-2 text-xs font-bold text-gray-600 whitespace-nowrap">صافي</th>
-                          <th className="text-right px-3 py-2 text-xs font-bold text-gray-600 whitespace-nowrap">التحويل</th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-gray-50">
-                        {employeeRows.map((row, index) => (
-                          <tr key={index} className={`hover:bg-gray-50/50 ${row.net_salary < 0 ? 'bg-red-50' : ''}`}>
-                            <td className="px-3 py-2 font-bold text-gray-900 whitespace-nowrap">{row.employee_name}</td>
-                            <td className="px-3 py-2 text-gray-600 whitespace-nowrap">{row.iqama_number}</td>
+                    <div className="flex-1 overflow-auto">
+                      <table className="w-full text-sm">
+                        <thead className="bg-gray-100 sticky top-0 z-10">
+                          <tr className="border-b border-gray-200">
+                            <th className="text-right px-3 py-2.5 text-xs font-bold text-gray-700 whitespace-nowrap border-l border-gray-200">#</th>
+                            <th className="text-right px-3 py-2.5 text-xs font-bold text-gray-700 whitespace-nowrap border-l border-gray-200">اسم الموظف</th>
+                            <th className="text-right px-3 py-2.5 text-xs font-bold text-gray-700 whitespace-nowrap border-l border-gray-200">الإقامة</th>
                             {selectedPackage.work_type !== 'salary' && (
-                              <td className="px-3 py-2 text-gray-600 whitespace-nowrap">{row.user_code}</td>
+                              <th className="text-right px-3 py-2.5 text-xs font-bold text-gray-700 whitespace-nowrap border-l border-gray-200">الكود</th>
                             )}
-                            <td className="px-3 py-2 font-bold text-gray-900">{row.basic_salary.toLocaleString('en-US')}</td>
+                            <th className="text-right px-3 py-2.5 text-xs font-bold text-gray-700 whitespace-nowrap border-l border-gray-200">الراتب</th>
                             {selectedPackage.work_type === 'salary' && (
                               <>
-                                <td className="px-3 py-2 text-gray-600">{row.housing_allowance.toLocaleString('en-US')}</td>
-                                <td className="px-3 py-2 text-gray-600">{row.nationality}</td>
+                                <th className="text-right px-3 py-2.5 text-xs font-bold text-gray-700 whitespace-nowrap border-l border-gray-200">السكن</th>
+                                <th className="text-right px-3 py-2.5 text-xs font-bold text-gray-700 whitespace-nowrap border-l border-gray-200">الجنسية</th>
                               </>
                             )}
                             {selectedPackage.work_type !== 'salary' && (
                               <>
-                                <td className="px-3 py-2 text-gray-600">{row.target}</td>
-                                <td className="px-3 py-2 text-gray-600">{row.bonus_per_order}</td>
-                                <td className="px-3 py-2">
+                                <th className="text-right px-3 py-2.5 text-xs font-bold text-gray-700 whitespace-nowrap border-l border-gray-200">التارقت</th>
+                                <th className="text-right px-3 py-2.5 text-xs font-bold text-gray-700 whitespace-nowrap border-l border-gray-200">البونص</th>
+                                <th className="text-right px-3 py-2.5 text-xs font-bold text-gray-700 whitespace-nowrap border-l border-gray-200">الطلبات</th>
+                                <th className="text-right px-3 py-2.5 text-xs font-bold text-gray-700 whitespace-nowrap border-l border-gray-200">خصم</th>
+                                <th className="text-right px-3 py-2.5 text-xs font-bold text-gray-700 whitespace-nowrap border-l border-gray-200">بونص</th>
+                              </>
+                            )}
+                            <th className="text-right px-3 py-2.5 text-xs font-bold text-gray-700 whitespace-nowrap border-l border-gray-200">مشغل</th>
+                            <th className="text-right px-3 py-2.5 text-xs font-bold text-gray-700 whitespace-nowrap border-l border-gray-200">داخلي</th>
+                            <th className="text-right px-3 py-2.5 text-xs font-bold text-gray-700 whitespace-nowrap border-l border-gray-200">محفظة</th>
+                            <th className="text-right px-3 py-2.5 text-xs font-bold text-gray-700 whitespace-nowrap border-l border-gray-200">مكافأة</th>
+                            <th className="text-right px-3 py-2.5 text-xs font-bold text-gray-700 whitespace-nowrap border-l border-gray-200">صافي</th>
+                            <th className="text-right px-3 py-2.5 text-xs font-bold text-gray-700 whitespace-nowrap">التحويل</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {filteredEmployeeRows.map((row, filteredIdx) => {
+                            const realIndex = getFilteredIndex(filteredIdx);
+                            return (
+                              <tr 
+                                key={realIndex} 
+                                className={`border-b border-gray-100 transition-colors duration-100 hover:bg-blue-50/60 ${row.net_salary < 0 ? 'bg-red-50 hover:bg-red-100/60' : ''}`}
+                              >
+                                <td className="px-3 py-2 text-gray-400 text-center border-l border-gray-100 text-xs">{realIndex + 1}</td>
+                                <td className="px-3 py-2 font-bold text-gray-900 whitespace-nowrap border-l border-gray-100">{row.employee_name}</td>
+                                <td className="px-3 py-2 text-gray-600 whitespace-nowrap border-l border-gray-100">{row.iqama_number}</td>
+                                {selectedPackage.work_type !== 'salary' && (
+                                  <td className="px-3 py-2 text-gray-600 whitespace-nowrap border-l border-gray-100">{row.user_code}</td>
+                                )}
+                                <td className="px-3 py-2 font-bold text-gray-900 border-l border-gray-100">{row.basic_salary.toLocaleString('en-US')}</td>
+                                {selectedPackage.work_type === 'salary' && (
+                                  <>
+                                    <td className="px-3 py-2 text-gray-600 border-l border-gray-100">{row.housing_allowance.toLocaleString('en-US')}</td>
+                                    <td className="px-3 py-2 text-gray-600 border-l border-gray-100">{row.nationality}</td>
+                                  </>
+                                )}
+                                {selectedPackage.work_type !== 'salary' && (
+                                  <>
+                                    <td className="px-3 py-2 text-gray-600 border-l border-gray-100">{row.target}</td>
+                                    <td className="px-3 py-2 text-gray-600 border-l border-gray-100">{row.bonus_per_order}</td>
+                                    <td className="px-3 py-2 border-l border-gray-100">
+                                      <input
+                                        type="number"
+                                        value={row.successful_orders}
+                                        onChange={(e) => handleRowChange(realIndex, 'successful_orders', parseFloat(e.target.value) || 0)}
+                                        className="w-16 px-2 py-1 rounded-lg border border-gray-200 text-center text-sm focus:border-blue-400 focus:ring-1 focus:ring-blue-200"
+                                        min="0"
+                                      />
+                                    </td>
+                                    <td className="px-3 py-2 border-l border-gray-100">
+                                      <input
+                                        type="text"
+                                        value={row.target_deduction.toFixed(2)}
+                                        readOnly
+                                        className="w-16 px-2 py-1 rounded-lg border border-gray-100 bg-gray-50 text-center text-sm text-red-600"
+                                      />
+                                    </td>
+                                    <td className="px-3 py-2 border-l border-gray-100">
+                                      <input
+                                        type="text"
+                                        value={row.monthly_bonus.toFixed(2)}
+                                        readOnly
+                                        className="w-16 px-2 py-1 rounded-lg border border-gray-100 bg-gray-50 text-center text-sm text-emerald-600"
+                                      />
+                                    </td>
+                                  </>
+                                )}
+                                <td className="px-3 py-2 border-l border-gray-100">
                                   <input
                                     type="number"
-                                    value={row.successful_orders}
-                                    onChange={(e) => handleRowChange(index, 'successful_orders', parseFloat(e.target.value) || 0)}
-                                    className="w-16 px-2 py-1 rounded-lg border border-gray-200 text-center text-sm"
+                                    value={row.operator_deduction}
+                                    onChange={(e) => handleRowChange(realIndex, 'operator_deduction', parseFloat(e.target.value) || 0)}
+                                    className="w-16 px-2 py-1 rounded-lg border border-gray-200 text-center text-sm focus:border-blue-400 focus:ring-1 focus:ring-blue-200"
                                     min="0"
                                   />
                                 </td>
-                                <td className="px-3 py-2">
+                                <td className="px-3 py-2 border-l border-gray-100">
+                                  <input
+                                    type="number"
+                                    value={row.internal_deduction}
+                                    onChange={(e) => handleRowChange(realIndex, 'internal_deduction', parseFloat(e.target.value) || 0)}
+                                    className="w-16 px-2 py-1 rounded-lg border border-gray-200 text-center text-sm focus:border-blue-400 focus:ring-1 focus:ring-blue-200"
+                                    min="0"
+                                  />
+                                </td>
+                                <td className="px-3 py-2 border-l border-gray-100">
+                                  <input
+                                    type="number"
+                                    value={row.wallet_deduction}
+                                    onChange={(e) => handleRowChange(realIndex, 'wallet_deduction', parseFloat(e.target.value) || 0)}
+                                    className="w-16 px-2 py-1 rounded-lg border border-gray-200 text-center text-sm focus:border-blue-400 focus:ring-1 focus:ring-blue-200"
+                                    min="0"
+                                  />
+                                </td>
+                                <td className="px-3 py-2 border-l border-gray-100">
+                                  <input
+                                    type="number"
+                                    value={row.internal_bonus}
+                                    onChange={(e) => handleRowChange(realIndex, 'internal_bonus', parseFloat(e.target.value) || 0)}
+                                    className="w-16 px-2 py-1 rounded-lg border border-gray-200 text-center text-sm focus:border-blue-400 focus:ring-1 focus:ring-blue-200"
+                                    min="0"
+                                  />
+                                </td>
+                                <td className="px-3 py-2 border-l border-gray-100">
                                   <input
                                     type="text"
-                                    value={row.target_deduction.toFixed(2)}
+                                    value={row.net_salary.toFixed(2)}
                                     readOnly
-                                    className="w-16 px-2 py-1 rounded-lg border border-gray-100 bg-gray-50 text-center text-sm"
+                                    className={`w-20 px-2 py-1 rounded-lg border text-center text-sm font-bold ${
+                                      row.net_salary < 0 ? 'bg-red-100 border-red-200 text-red-600' : 'bg-emerald-50 border-emerald-200 text-emerald-600'
+                                    }`}
                                   />
                                 </td>
                                 <td className="px-3 py-2">
-                                  <input
-                                    type="text"
-                                    value={row.monthly_bonus.toFixed(2)}
-                                    readOnly
-                                    className="w-16 px-2 py-1 rounded-lg border border-gray-100 bg-gray-50 text-center text-sm"
-                                  />
+                                  <select
+                                    value={row.payment_method}
+                                    onChange={(e) => handleRowChange(realIndex, 'payment_method', e.target.value)}
+                                    className="w-20 px-2 py-1 rounded-lg border border-gray-200 text-sm focus:border-blue-400 focus:ring-1 focus:ring-blue-200"
+                                  >
+                                    <option value="غير محدد">غير محدد</option>
+                                    <option value="مدد">مدد</option>
+                                    <option value="كاش">كاش</option>
+                                    <option value="تحويل">تحويل</option>
+                                  </select>
                                 </td>
-                              </>
-                            )}
-                            <td className="px-3 py-2">
-                              <input
-                                type="number"
-                                value={row.operator_deduction}
-                                onChange={(e) => handleRowChange(index, 'operator_deduction', parseFloat(e.target.value) || 0)}
-                                className="w-16 px-2 py-1 rounded-lg border border-gray-200 text-center text-sm"
-                                min="0"
-                              />
-                            </td>
-                            <td className="px-3 py-2">
-                              <input
-                                type="number"
-                                value={row.internal_deduction}
-                                onChange={(e) => handleRowChange(index, 'internal_deduction', parseFloat(e.target.value) || 0)}
-                                className="w-16 px-2 py-1 rounded-lg border border-gray-200 text-center text-sm"
-                                min="0"
-                              />
-                            </td>
-                            <td className="px-3 py-2">
-                              <input
-                                type="number"
-                                value={row.wallet_deduction}
-                                onChange={(e) => handleRowChange(index, 'wallet_deduction', parseFloat(e.target.value) || 0)}
-                                className="w-16 px-2 py-1 rounded-lg border border-gray-200 text-center text-sm"
-                                min="0"
-                              />
-                            </td>
-                            <td className="px-3 py-2">
-                              <input
-                                type="number"
-                                value={row.internal_bonus}
-                                onChange={(e) => handleRowChange(index, 'internal_bonus', parseFloat(e.target.value) || 0)}
-                                className="w-16 px-2 py-1 rounded-lg border border-gray-200 text-center text-sm"
-                                min="0"
-                              />
-                            </td>
-                            <td className="px-3 py-2">
-                              <input
-                                type="text"
-                                value={row.net_salary.toFixed(2)}
-                                readOnly
-                                className={`w-20 px-2 py-1 rounded-lg border text-center text-sm font-bold ${
-                                  row.net_salary < 0 ? 'bg-red-100 border-red-200 text-red-600' : 'bg-emerald-50 border-emerald-200 text-emerald-600'
-                                }`}
-                              />
-                            </td>
-                            <td className="px-3 py-2">
-                              <select
-                                value={row.payment_method}
-                                onChange={(e) => handleRowChange(index, 'payment_method', e.target.value)}
-                                className="w-20 px-2 py-1 rounded-lg border border-gray-200 text-sm"
-                              >
-                                <option value="غير محدد">غير محدد</option>
-                                <option value="مدد">مدد</option>
-                                <option value="كاش">كاش</option>
-                                <option value="تحويل">تحويل</option>
-                              </select>
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
+                              </tr>
+                            );
+                          })}
+                        </tbody>
+                      </table>
+                    </div>
 
-                  <div className="bg-gradient-to-r from-gray-50 to-blue-50 p-4 border-t border-gray-100">
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                      <div className="bg-white rounded-xl p-4 border border-gray-100 text-center">
-                        <div className="flex items-center justify-center gap-2 text-emerald-600 mb-2">
-                          <DollarSign size={18} />
-                          <span className="text-sm font-bold">إجمالي الرواتب</span>
+                    <div className="bg-gradient-to-r from-gray-50 to-blue-50 p-3 border-t border-gray-200 flex-shrink-0">
+                      <div className="grid grid-cols-3 gap-3">
+                        <div className="bg-white rounded-xl p-3 border border-gray-100 text-center">
+                          <div className="flex items-center justify-center gap-1.5 text-emerald-600 mb-1">
+                            <DollarSign size={14} />
+                            <span className="text-xs font-bold">إجمالي الرواتب</span>
+                          </div>
+                          <p className="text-lg font-black text-emerald-600">
+                            {totals.totalSalary.toLocaleString('en-US', { minimumFractionDigits: 2 })} ريال
+                          </p>
                         </div>
-                        <p className="text-2xl font-black text-emerald-600">
-                          {totals.totalSalary.toLocaleString('en-US', { minimumFractionDigits: 2 })} ريال
-                        </p>
-                      </div>
-                      <div className="bg-white rounded-xl p-4 border border-gray-100 text-center">
-                        <div className="flex items-center justify-center gap-2 text-blue-600 mb-2">
-                          <Target size={18} />
-                          <span className="text-sm font-bold">الطلبات الناجحة</span>
+                        <div className="bg-white rounded-xl p-3 border border-gray-100 text-center">
+                          <div className="flex items-center justify-center gap-1.5 text-blue-600 mb-1">
+                            <Target size={14} />
+                            <span className="text-xs font-bold">الطلبات الناجحة</span>
+                          </div>
+                          <p className="text-lg font-black text-blue-600">{totals.totalOrders}</p>
                         </div>
-                        <p className="text-2xl font-black text-blue-600">{totals.totalOrders}</p>
-                      </div>
-                      <div className="bg-white rounded-xl p-4 border border-gray-100 text-center">
-                        <div className="flex items-center justify-center gap-2 text-red-600 mb-2">
-                          <AlertCircle size={18} />
-                          <span className="text-sm font-bold">إجمالي الخصومات</span>
+                        <div className="bg-white rounded-xl p-3 border border-gray-100 text-center">
+                          <div className="flex items-center justify-center gap-1.5 text-red-600 mb-1">
+                            <AlertCircle size={14} />
+                            <span className="text-xs font-bold">إجمالي الخصومات</span>
+                          </div>
+                          <p className="text-lg font-black text-red-600">
+                            {totals.totalDeductions.toLocaleString('en-US', { minimumFractionDigits: 2 })} ريال
+                          </p>
                         </div>
-                        <p className="text-2xl font-black text-red-600">
-                          {totals.totalDeductions.toLocaleString('en-US', { minimumFractionDigits: 2 })} ريال
-                        </p>
                       </div>
                     </div>
                   </div>
-                </div>
-              )}
+                )}
 
               <div className="flex justify-center gap-4 pb-6">
                 <Link href="/salary-payrolls">
