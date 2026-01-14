@@ -131,17 +131,17 @@ export function ExpensesClient({ companyId, companyInfo, stats, recentActivity }
                 <motion.div 
                   key={idx}
                   whileHover={{ scale: 1.02 }}
-                  className={`bg-white/90 backdrop-blur-lg rounded-2xl p-6 text-slate-800 shadow-xl border border-white/50 relative overflow-hidden group`}
+                  className={`bg-white/90 backdrop-blur-lg rounded-2xl p-4 text-slate-800 shadow-xl border border-white/50 relative overflow-hidden group`}
                 >
                   <div className={`absolute top-0 right-0 w-1 h-full bg-gradient-to-b ${stat.color}`} />
                   <div className="flex flex-col items-center space-y-2">
-                    <div className={`p-3 rounded-xl bg-gradient-to-br ${stat.color} text-white shadow-lg`}>
-                      <stat.icon className="w-6 h-6" />
+                    <div className={`p-2.5 rounded-xl bg-gradient-to-br ${stat.color} text-white shadow-lg`}>
+                      <stat.icon className="w-5 h-5" />
                     </div>
-                    <span className="text-3xl font-black text-slate-900 tabular-nums">
-                      {new Intl.NumberFormat('ar-SA', { minimumFractionDigits: 2 }).format(stat.value)}
+                    <span className="text-2xl font-black text-slate-900 tabular-nums">
+                      {new Intl.NumberFormat('en-US', { minimumFractionDigits: 2 }).format(stat.value)}
                     </span>
-                    <span className="text-sm font-medium text-slate-500">{stat.label}</span>
+                    <span className="text-xs font-medium text-slate-500">{stat.label}</span>
                   </div>
                 </motion.div>
               ))}
@@ -165,12 +165,12 @@ export function ExpensesClient({ companyId, companyInfo, stats, recentActivity }
               onClick={() => window.location.href = card.link}
             >
               <Card className="border-none shadow-lg hover:shadow-2xl transition-all duration-300 rounded-[2rem] overflow-hidden bg-white/80 backdrop-blur-xl">
-                <CardContent className="p-8 text-center space-y-4">
-                  <div className={`mx-auto w-16 h-16 rounded-2xl ${card.color} flex items-center justify-center text-white shadow-xl group-hover:scale-110 transition-transform duration-300`}>
-                    <card.icon className="w-8 h-8" />
+                <CardContent className="p-6 text-center space-y-3">
+                  <div className={`mx-auto w-12 h-12 rounded-2xl ${card.color} flex items-center justify-center text-white shadow-xl group-hover:scale-110 transition-transform duration-300`}>
+                    <card.icon className="w-6 h-6" />
                   </div>
-                  <h3 className="text-xl font-bold text-slate-800">{card.title}</h3>
-                  <p className="text-sm font-semibold text-blue-600 group-hover:translate-x-1 transition-transform">{card.sub}</p>
+                  <h3 className="text-lg font-bold text-slate-800">{card.title}</h3>
+                  <p className="text-xs font-semibold text-blue-600 group-hover:translate-x-1 transition-transform">{card.sub}</p>
                 </CardContent>
               </Card>
             </motion.div>
@@ -182,48 +182,48 @@ export function ExpensesClient({ companyId, companyInfo, stats, recentActivity }
           {/* Recent Activity */}
           <motion.div className="lg:col-span-2 space-y-4" variants={itemVariants}>
             <div className="flex items-center justify-between px-2">
-              <h2 className="text-2xl font-bold text-slate-800 flex items-center gap-3">
-                <History className="w-7 h-7 text-blue-600" />
+              <h2 className="text-xl font-bold text-slate-800 flex items-center gap-3">
+                <History className="w-6 h-6 text-blue-600" />
                 النشاط الأخير
               </h2>
-              <Button variant="ghost" className="text-blue-600 font-bold hover:bg-blue-50">عرض الكل</Button>
+              <Button variant="ghost" className="text-blue-600 font-bold hover:bg-blue-50 h-8 text-sm">عرض الكل</Button>
             </div>
             
-            <Card className="border-none shadow-xl rounded-[2rem] overflow-hidden bg-white/80 backdrop-blur-xl">
+            <Card className="border-none shadow-xl rounded-[2.5rem] overflow-hidden bg-white/80 backdrop-blur-xl">
               <CardContent className="p-0">
                 <div className="divide-y divide-slate-100">
                   {recentActivity.length > 0 ? (
                     recentActivity.map((item, idx) => (
-                      <div key={idx} className="p-5 flex items-center justify-between hover:bg-slate-50/50 transition-colors group">
+                      <div key={idx} className="p-4 flex items-center justify-between hover:bg-slate-50/50 transition-colors group">
                         <div className="flex items-center gap-4">
-                          <div className="w-12 h-12 rounded-xl bg-blue-100 text-blue-600 flex items-center justify-center group-hover:bg-blue-600 group-hover:text-white transition-all duration-300 shadow-sm">
-                            <Wallet className="w-6 h-6" />
+                          <div className="w-10 h-10 rounded-xl bg-blue-100 text-blue-600 flex items-center justify-center group-hover:bg-blue-600 group-hover:text-white transition-all duration-300 shadow-sm">
+                            <Wallet className="w-5 h-5" />
                           </div>
-                          <div className="space-y-1">
-                            <h4 className="font-bold text-slate-800">{item.expense_type}</h4>
-                            <p className="text-sm text-slate-500 flex items-center gap-2">
+                          <div className="space-y-0.5">
+                            <h4 className="font-bold text-slate-800 text-sm">{item.expense_type}</h4>
+                            <p className="text-xs text-slate-500 flex items-center gap-2">
                               <span>{item.employee_name}</span>
                               <span className="w-1 h-1 rounded-full bg-slate-300" />
                               <span className="font-bold text-blue-600">
-                                {new Intl.NumberFormat('ar-SA').format(item.amount)} ريال
+                                {new Intl.NumberFormat('en-US').format(item.amount)} ريال
                               </span>
                             </p>
                           </div>
                         </div>
                         <div className="text-left">
-                          <Badge variant="secondary" className="font-bold px-3 py-1 rounded-lg flex items-center gap-1 bg-slate-100 text-slate-600 border-none">
+                          <Badge variant="secondary" className="font-bold px-3 py-1 rounded-lg flex items-center gap-1 bg-slate-100 text-slate-600 border-none text-[10px]">
                             <Calendar className="w-3 h-3" />
-                            {new Date(item.expense_date).toLocaleDateString('ar-SA')}
+                            {new Date(item.expense_date).toLocaleDateString('en-US')}
                           </Badge>
                         </div>
                       </div>
                     ))
                   ) : (
                     <div className="p-12 text-center space-y-4">
-                      <div className="w-20 h-20 bg-slate-100 rounded-full flex items-center justify-center mx-auto text-slate-300">
-                        <History className="w-10 h-10" />
+                      <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto text-slate-300">
+                        <History className="w-8 h-8" />
                       </div>
-                      <p className="text-slate-400 font-medium">لا توجد أنشطة حديثة حتى الآن</p>
+                      <p className="text-slate-400 font-medium text-sm">لا توجد أنشطة حديثة حتى الآن</p>
                     </div>
                   )}
                 </div>
@@ -233,12 +233,12 @@ export function ExpensesClient({ companyId, companyInfo, stats, recentActivity }
 
           {/* Quick Actions */}
           <motion.div className="space-y-4" variants={itemVariants}>
-            <h2 className="text-2xl font-bold text-slate-800 flex items-center gap-3 px-2">
-              <PlusCircle className="w-7 h-7 text-rose-600" />
+            <h2 className="text-xl font-bold text-slate-800 flex items-center gap-3 px-2">
+              <PlusCircle className="w-6 h-6 text-rose-600" />
               إجراءات سريعة
             </h2>
             
-            <div className="grid grid-cols-1 gap-4">
+            <div className="grid grid-cols-1 gap-3">
               {[
                 { label: "إضافة منصرف", icon: PlusCircle, color: "text-blue-600", bg: "bg-blue-50", link: "/expenses/new" },
                 { label: "إضافة استقطاع", icon: HandCoins, color: "text-rose-600", bg: "bg-rose-50", link: "/expenses/deductions" },
@@ -248,16 +248,16 @@ export function ExpensesClient({ companyId, companyInfo, stats, recentActivity }
                 <motion.button
                   key={idx}
                   whileHover={{ x: -5 }}
-                  className="flex items-center justify-between p-5 bg-white shadow-md hover:shadow-lg rounded-2xl transition-all group w-full text-right border border-slate-100"
+                  className="flex items-center justify-between p-4 bg-white shadow-md hover:shadow-lg rounded-2xl transition-all group w-full text-right border border-slate-100"
                   onClick={() => window.location.href = action.link}
                 >
                   <div className="flex items-center gap-4">
-                    <div className={`p-3 rounded-xl ${action.bg} ${action.color} group-hover:scale-110 transition-transform`}>
-                      <action.icon className="w-6 h-6" />
+                    <div className={`p-2.5 rounded-xl ${action.bg} ${action.color} group-hover:scale-110 transition-transform`}>
+                      <action.icon className="w-5 h-5" />
                     </div>
-                    <span className="font-bold text-slate-700">{action.label}</span>
+                    <span className="font-bold text-slate-700 text-sm">{action.label}</span>
                   </div>
-                  <ArrowLeftRight className="w-5 h-5 text-slate-300 group-hover:text-blue-600 transition-colors" />
+                  <ArrowLeftRight className="w-4 h-4 text-slate-300 group-hover:text-blue-600 transition-colors" />
                 </motion.button>
               ))}
             </div>
