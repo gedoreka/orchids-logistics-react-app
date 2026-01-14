@@ -17,10 +17,12 @@ import {
   Copy,
   QrCode,
   Check,
-  Info
+  Info,
+  Sparkles
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { usePathname, useRouter } from "next/navigation";
+import { cn } from "@/lib/utils";
 
 export function Header({ user, onToggleSidebar }: { user?: { name: string; role: string; email: string }, onToggleSidebar?: () => void }) {
   const [mounted, setMounted] = useState(false);
@@ -47,7 +49,10 @@ export function Header({ user, onToggleSidebar }: { user?: { name: string; role:
               `https://nominatim.openstreetmap.org/reverse?format=json&lat=${position.coords.latitude}&lon=${position.coords.longitude}&accept-language=ar`
             );
             const data = await response.json();
-            setLocation(data.display_name.split(",").slice(0, 2).join(",") || "الموقع غير معروف");
+            const addr = data.address;
+            const city = addr.city || addr.town || addr.village || addr.state || "";
+            const country = addr.country || "السعودية";
+            setLocation(`${country}، ${city}`);
           } catch (error) {
             setLocation("السعودية، الرياض");
           }
@@ -85,110 +90,149 @@ export function Header({ user, onToggleSidebar }: { user?: { name: string; role:
     setTimeout(() => setCopied(false), 2000);
   };
 
+  const PremiumButton = ({ 
+    onClick, 
+    icon: Icon, 
+    label, 
+    colorClass, 
+    borderClass,
+    animate = false 
+  }: { 
+    onClick: () => void; 
+    icon: any; 
+    label: string; 
+    colorClass: string; 
+    borderClass: string;
+    animate?: boolean;
+  }) => (
+    <motion.button
+      whileHover={{ scale: 1.05, translateY: -2 }}
+      whileTap={{ scale: 0.98 }}
+      onClick={onClick}
+      className={cn(
+        "relative flex items-center gap-3 px-6 py-2.5 text-[12px] font-black text-white rounded-2xl transition-all shadow-lg overflow-hidden group border-b-4",
+        colorClass,
+        borderClass
+      )}
+    >
+      <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300" />
+      <Icon size={16} className={cn("relative z-10", animate && "animate-pulse")} />
+      <span className="relative z-10 whitespace-nowrap">{label}</span>
+      <Sparkles size={12} className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity text-white/50" />
+    </motion.button>
+  );
+
   return (
     <>
-      <header className="z-40 w-full bg-white/80 backdrop-blur-md border-b-2 border-gray-100 shadow-xl no-print sticky top-0">
-        <div className="max-w-[1900px] mx-auto px-6 md:px-10 py-3 flex flex-col lg:flex-row items-center justify-between gap-5">
+      <header className="z-40 w-full bg-white/90 backdrop-blur-xl border-b border-gray-100 shadow-2xl no-print sticky top-0">
+        <div className="w-full mx-auto px-6 md:px-12 py-3 flex flex-col xl:flex-row items-center justify-between gap-6">
           
             {/* Logo & Basic Nav */}
-            <div className="flex items-center justify-between w-full lg:w-auto gap-6">
+            <div className="flex items-center justify-between w-full xl:w-auto gap-8">
               <div className="flex items-center gap-4">
                 <button 
                   onClick={onToggleSidebar}
-                  className="lg:hidden p-2.5 bg-gray-50 hover:bg-gray-100 rounded-xl transition-all text-gray-600 shadow-sm"
+                  className="lg:hidden p-3 bg-gray-50 hover:bg-gray-100 rounded-2xl transition-all text-gray-600 shadow-inner border border-gray-100"
                 >
-                  <Menu size={22} />
+                  <Menu size={24} />
                 </button>
               </div>
               
               {pathname !== "/dashboard" && (
-                <div className="flex items-center gap-3">
-                  <button 
+                <div className="flex items-center gap-4">
+                  <motion.button 
+                    whileHover={{ scale: 1.02, x: 5 }}
                     onClick={() => router.back()}
-                    className="flex items-center gap-2 px-4 py-2 bg-gray-50 text-sm font-black text-gray-700 hover:bg-gray-100 rounded-xl transition-all shadow-sm group"
+                    className="flex items-center gap-2 px-5 py-2.5 bg-gray-50 text-[12px] font-black text-gray-700 hover:bg-gray-100 rounded-2xl transition-all shadow-sm border border-gray-200/50 group"
                   >
-                    <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
+                    <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
                     <span>رجوع</span>
-                  </button>
+                  </motion.button>
                   
-                  <button 
+                  <motion.button 
+                    whileHover={{ scale: 1.02 }}
                     onClick={() => router.push("/dashboard")}
-                    className="flex items-center gap-2 px-4 py-2 bg-gray-50 text-sm font-black text-gray-700 hover:bg-gray-100 rounded-xl transition-all shadow-sm group"
+                    className="flex items-center gap-2 px-5 py-2.5 bg-gray-50 text-[12px] font-black text-gray-700 hover:bg-gray-100 rounded-2xl transition-all shadow-sm border border-gray-200/50 group"
                   >
-                    <Home size={16} className="group-hover:scale-110 transition-transform" />
+                    <Home size={18} className="group-hover:scale-110 transition-transform" />
                     <span>الرئيسية</span>
-                  </button>
+                  </motion.button>
                 </div>
               )}
             </div>
 
-            {/* Time & Location */}
-            <div className="hidden xl:flex items-center gap-6 bg-white/50 px-6 py-2.5 rounded-2xl border-2 border-gray-50 shadow-inner">
+            {/* Time & Location - Centered & Compact */}
+            <div className="hidden xl:flex items-center gap-8 bg-white/60 px-8 py-2 rounded-[2rem] border border-gray-100 shadow-[inset_0_2px_10px_rgba(0,0,0,0.02)]">
               {mounted && (
                 <>
-                  <div className="flex items-center gap-4 text-[11px] font-black text-gray-600 uppercase tracking-tight">
-                    <div className="flex items-center gap-2 group">
-                      <div className="w-8 h-8 bg-[#3498db]/10 rounded-lg flex items-center justify-center text-[#3498db] group-hover:bg-[#3498db] group-hover:text-white transition-all">
+                  <div className="flex items-center gap-6 text-[10px] font-black text-gray-500 uppercase tracking-widest">
+                    <div className="flex items-center gap-3 group">
+                      <div className="w-9 h-9 bg-blue-500/10 rounded-xl flex items-center justify-center text-blue-500 group-hover:bg-blue-500 group-hover:text-white transition-all shadow-sm">
                         <Calendar size={14} />
                       </div>
-                      <span className="whitespace-nowrap">{formatDate(currentTime)}</span>
+                      <span className="whitespace-nowrap leading-none">{formatDate(currentTime)}</span>
                     </div>
-                    <div className="w-[2px] h-4 bg-gray-200" />
-                    <div className="flex items-center gap-2 group">
-                      <div className="w-8 h-8 bg-[#e67e22]/10 rounded-lg flex items-center justify-center text-[#e67e22] group-hover:bg-[#e67e22] group-hover:text-white transition-all">
+                    
+                    <div className="w-px h-6 bg-gray-200" />
+                    
+                    <div className="flex items-center gap-3 group">
+                      <div className="w-9 h-9 bg-orange-500/10 rounded-xl flex items-center justify-center text-orange-500 group-hover:bg-orange-500 group-hover:text-white transition-all shadow-sm">
                         <History size={14} />
                       </div>
-                      <span className="whitespace-nowrap">{formatHijriDate(currentTime)}</span>
+                      <span className="whitespace-nowrap leading-none">{formatHijriDate(currentTime)}</span>
                     </div>
                   </div>
-                  <div className="w-[2px] h-4 bg-gray-200" />
+                  
+                  <div className="w-px h-6 bg-gray-200" />
                 </>
               )}
-              <div className="flex items-center gap-2 text-[10px] text-gray-400 font-black tracking-tighter group cursor-help">
-                <div className="w-6 h-6 bg-gray-100 rounded-full flex items-center justify-center group-hover:bg-[#e74c3c]/10 group-hover:text-[#e74c3c] transition-all">
+              
+              <div className="flex items-center gap-3 text-[10px] text-gray-400 font-black tracking-widest group cursor-help">
+                <div className="w-7 h-7 bg-red-500/10 rounded-full flex items-center justify-center text-red-500 group-hover:bg-red-500 group-hover:text-white transition-all shadow-sm">
                   <MapPin size={12} className="animate-bounce" />
                 </div>
-                <span className="truncate max-w-[200px]">{location}</span>
+                <span className="truncate max-w-[250px] uppercase">{location}</span>
               </div>
             </div>
 
-          {/* User Actions */}
-          <div className="flex items-center gap-3 w-full lg:w-auto justify-center lg:justify-end pb-2 lg:pb-0">
+          {/* User Actions - Premium Style */}
+          <div className="flex items-center gap-4 w-full xl:w-auto justify-center xl:justify-end">
             {/* Language Switcher */}
-            <div className="flex items-center bg-gray-50 p-1 rounded-xl shrink-0 border border-gray-100 shadow-inner">
-              <button className="flex items-center gap-2 px-4 py-1.5 text-[11px] font-black bg-white text-[#3498db] rounded-lg shadow-sm border border-gray-100 transition-all hover:scale-105">
+            <div className="flex items-center bg-gray-50 p-1.5 rounded-2xl shrink-0 border border-gray-100 shadow-inner mr-2">
+              <button className="flex items-center gap-2 px-5 py-2 text-[10px] font-black bg-white text-blue-600 rounded-xl shadow-md border border-gray-100 transition-all hover:scale-105">
                 <Globe size={14} />
                 <span>العربية</span>
               </button>
-              <button className="flex items-center gap-2 px-4 py-1.5 text-[11px] font-black text-gray-500 hover:text-gray-800 transition-all hover:bg-white/50 rounded-lg">
+              <button className="flex items-center gap-2 px-5 py-2 text-[10px] font-black text-gray-400 hover:text-gray-800 transition-all hover:bg-white/50 rounded-xl">
                 <Globe size={14} />
                 <span>English</span>
               </button>
             </div>
 
-            <button 
+            <PremiumButton 
               onClick={() => setIsDriverModalOpen(true)}
-              className="flex items-center gap-2 px-5 py-2.5 bg-[#1a1a1a] text-white text-[11px] font-black rounded-xl hover:bg-black transition-all hover:shadow-lg hover:scale-105 shrink-0 border-b-4 border-gray-800"
-            >
-              <Truck size={14} className="animate-pulse" />
-              <span>تطبيق السائقين</span>
-            </button>
+              icon={Truck}
+              label="تطبيق السائقين"
+              colorClass="bg-[#1a1a1a] hover:bg-black"
+              borderClass="border-gray-800"
+              animate={true}
+            />
 
-            <button 
+            <PremiumButton 
               onClick={() => router.push("/chat")}
-              className="flex items-center gap-2 px-5 py-2.5 bg-[#2ecc71] text-white text-[11px] font-black rounded-xl hover:bg-[#27ae60] transition-all hover:shadow-lg hover:scale-105 shrink-0 border-b-4 border-[#1e8449]"
-            >
-              <MessageSquare size={14} />
-              <span>الدعم الفني</span>
-            </button>
+              icon={MessageSquare}
+              label="الدعم الفني"
+              colorClass="bg-gradient-to-r from-[#2ecc71] to-[#27ae60]"
+              borderClass="border-[#1e8449]"
+            />
 
-            <button 
+            <PremiumButton 
               onClick={() => router.push("/user_profile")}
-              className="flex items-center gap-2 px-5 py-2.5 bg-[#3498db] text-white text-[11px] font-black rounded-xl hover:bg-[#2980b9] transition-all hover:shadow-lg hover:scale-105 shrink-0 border-b-4 border-[#2171a9]"
-            >
-              <UserCircle size={14} />
-              <span>بياناتي</span>
-            </button>
+              icon={UserCircle}
+              label="بياناتي"
+              colorClass="bg-gradient-to-r from-[#3498db] to-[#2980b9]"
+              borderClass="border-[#2171a9]"
+            />
           </div>
         </div>
       </header>
@@ -208,7 +252,7 @@ export function Header({ user, onToggleSidebar }: { user?: { name: string; role:
               initial={{ scale: 0.9, opacity: 0, y: 20 }}
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.9, opacity: 0, y: 20 }}
-              className="relative w-full max-w-md bg-[#2c3e50] text-white rounded-[2rem] p-8 shadow-2xl overflow-hidden"
+              className="relative w-full max-w-md bg-[#2c3e50] text-white rounded-[2.5rem] p-8 shadow-2xl overflow-hidden"
             >
               <button 
                 onClick={() => setIsDriverModalOpen(false)}
@@ -242,7 +286,7 @@ export function Header({ user, onToggleSidebar }: { user?: { name: string; role:
 
                 <button 
                   onClick={copyDriverLink}
-                  className="flex items-center justify-between p-4 bg-white/5 hover:bg-white/10 rounded-2xl transition-all group text-right"
+                  className="flex items-center justify-between p-4 bg-white/5 hover:bg-white/10 rounded-2xl transition-all group text-right w-full"
                 >
                   <div className="flex items-center gap-3">
                     {copied ? <Check size={20} className="text-green-400" /> : <Copy size={20} className="text-[#f1c40f]" />}
@@ -252,7 +296,7 @@ export function Header({ user, onToggleSidebar }: { user?: { name: string; role:
 
                 <button 
                   onClick={() => setShowQR(!showQR)}
-                  className="flex items-center justify-between p-4 bg-white/5 hover:bg-white/10 rounded-2xl transition-all group text-right"
+                  className="flex items-center justify-between p-4 bg-white/5 hover:bg-white/10 rounded-2xl transition-all group text-right w-full"
                 >
                   <div className="flex items-center gap-3">
                     <QrCode size={20} className="text-[#e67e22]" />
