@@ -250,7 +250,7 @@ export function InvoiceViewClient({
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 p-4 md:p-6 overflow-y-auto font-tajawal">
+    <div className="min-h-screen bg-[#f1f5f9] p-4 md:p-6 overflow-y-auto font-tajawal">
       <style jsx global>{`
         @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@200;300;400;500;700;800;900&display=swap');
         .font-tajawal { font-family: 'Tajawal', sans-serif; }
@@ -489,79 +489,86 @@ export function InvoiceViewClient({
             </div>
 
             {/* Summary and QR Section */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-start">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-stretch">
               {/* Summary Box */}
               <div 
-                className="rounded-3xl p-8 border border-slate-100 shadow-sm relative overflow-hidden"
+                className="rounded-3xl p-8 border border-slate-100 shadow-sm relative overflow-hidden flex flex-col justify-between"
                 style={{ background: 'linear-gradient(to bottom right, #ffffff, #f8fafc)' }}
               >
                 <div className="absolute top-0 right-0 w-2 h-full bg-blue-600/10"></div>
-                <h3 className="font-black text-slate-800 mb-6 flex items-center gap-2">
-                  <CreditCard size={20} className="text-blue-600" />
-                  ملخص الفاتورة
-                </h3>
+                <div>
+                  <h3 className="font-black text-slate-800 mb-6 flex items-center gap-2">
+                    <CreditCard size={20} className="text-blue-600" />
+                    ملخص الفاتورة
+                  </h3>
 
-                <div className="space-y-4">
-                  <div className="flex justify-between items-center py-2 border-b border-dashed border-slate-200">
-                    <span className="text-slate-500 font-medium text-sm">الإجمالي قبل الضريبة:</span>
-                    <span className="font-bold text-slate-800 text-sm">{totalBeforeVat.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ريال</span>
-                  </div>
-                  <div className="flex justify-between items-center py-2 border-b border-dashed border-slate-200">
-                    <span className="text-slate-500 font-medium text-sm">ضريبة القيمة المضافة (15%):</span>
-                    <span className="font-bold text-blue-600 text-sm">{totalVat.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ريال</span>
-                  </div>
-                  {discountTotal > 0 && (
-                    <div className="flex justify-between items-center py-2 border-b border-dashed border-slate-200 bg-[#fef2f2] px-2 rounded-lg">
-                      <span className="text-red-600 font-medium text-sm">إجمالي الخصومات:</span>
-                      <span className="font-bold text-red-600 text-sm">-{discountTotal.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ريال</span>
+                  <div className="space-y-4">
+                    <div className="flex justify-between items-center py-2 border-b border-dashed border-slate-200">
+                      <span className="text-slate-500 font-medium text-xs">الإجمالي قبل الضريبة:</span>
+                      <span className="font-bold text-slate-800 text-xs">{totalBeforeVat.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ريال</span>
                     </div>
-                  )}
-                  {additionTotal > 0 && (
-                    <div className="flex justify-between items-center py-2 border-b border-dashed border-slate-200 bg-[#f0fdf4] px-2 rounded-lg">
-                      <span className="text-emerald-600 font-medium text-sm">إجمالي الإضافات:</span>
-                      <span className="font-bold text-emerald-600 text-sm">+{additionTotal.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ريال</span>
+                    <div className="flex justify-between items-center py-2 border-b border-dashed border-slate-200">
+                      <span className="text-slate-500 font-medium text-xs">ضريبة القيمة المضافة (15%):</span>
+                      <span className="font-bold text-blue-600 text-xs">{totalVat.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ريال</span>
                     </div>
-                  )}
-                  
-                  <div 
-                    className="flex justify-between items-center py-4 px-6 rounded-2xl mt-6 shadow-sm border border-emerald-100"
-                    style={{ background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)' }}
-                  >
-                    <span className="font-black text-white text-base">إجمالي المبلغ المستحق:</span>
-                    <span className="font-black text-lg text-white tracking-tight">
-                      {grandTotal.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ريال
-                    </span>
+                    {discountTotal > 0 && (
+                      <div className="flex justify-between items-center py-2 border-b border-dashed border-slate-200 bg-[#fef2f2] px-2 rounded-lg">
+                        <span className="text-red-600 font-medium text-xs">إجمالي الخصومات:</span>
+                        <span className="font-bold text-red-600 text-xs">-{discountTotal.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ريال</span>
+                      </div>
+                    )}
+                    {additionTotal > 0 && (
+                      <div className="flex justify-between items-center py-2 border-b border-dashed border-slate-200 bg-[#f0fdf4] px-2 rounded-lg">
+                        <span className="text-emerald-600 font-medium text-xs">إجمالي الإضافات:</span>
+                        <span className="font-bold text-emerald-600 text-xs">+{additionTotal.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ريال</span>
+                      </div>
+                    )}
                   </div>
+                </div>
+                
+                <div 
+                  className="flex justify-between items-center py-3 px-6 rounded-2xl mt-6 shadow-sm border border-emerald-100"
+                  style={{ background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)' }}
+                >
+                  <span className="font-black text-white text-xs">إجمالي المبلغ المستحق:</span>
+                  <span className="font-black text-xs text-white tracking-tight">
+                    {grandTotal.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ريال
+                  </span>
                 </div>
               </div>
 
               {/* QR and Period */}
-              <div className="rounded-3xl p-8 border border-slate-100 bg-white shadow-sm text-center relative group">
+              <div 
+                className="rounded-3xl p-8 border border-slate-100 bg-white shadow-sm text-center relative group flex flex-col justify-between"
+              >
                 <div className="absolute top-0 right-0 w-full h-1 bg-slate-100"></div>
-                <h3 className="font-black text-slate-800 mb-6 flex items-center justify-center gap-2">
-                  <QrCode size={20} className="text-blue-600" />
-                  الباركود الضريبي | ZATCA
-                </h3>
-                <div className="flex justify-center mb-6">
-                  <div className="p-4 bg-white rounded-2xl shadow-lg border border-slate-50 transition-transform group-hover:scale-105">
-                    <QRCodeCanvas
-                      value={qrData}
-                      size={180}
-                      level="H"
-                      includeMargin={false}
-                    />
+                <div>
+                  <h3 className="font-black text-slate-800 mb-4 flex items-center justify-center gap-2">
+                    <QrCode size={20} className="text-blue-600" />
+                    الباركود الضريبي | ZATCA
+                  </h3>
+                  <div className="flex justify-center mb-4">
+                    <div className="p-3 bg-white rounded-2xl shadow-md border border-slate-50 transition-transform group-hover:scale-105">
+                      <QRCodeCanvas
+                        value={qrData}
+                        size={140}
+                        level="H"
+                        includeMargin={false}
+                      />
+                    </div>
                   </div>
+                  <p className="text-[9px] text-slate-400 font-bold mb-4">باركود ضريبي قابل للقراءة متوافق مع هيئة الزكاة والضريبة</p>
                 </div>
-                <p className="text-[10px] text-slate-400 font-bold mb-6">باركود ضريبي قابل للقراءة متوافق مع هيئة الزكاة والضريبة</p>
                 
-                <div className="grid grid-cols-2 gap-4 pt-6 border-t border-slate-50">
-                  <div className="p-3 bg-slate-50 rounded-xl">
-                    <span className="text-slate-400 text-[9px] block uppercase font-bold mb-1">الفترة من:</span>
-                    <p className="font-bold text-blue-600 text-xs">{formatDate(items[0]?.period_from)}</p>
+                <div className="flex justify-center items-center gap-6 pt-4 border-t border-slate-50">
+                  <div className="flex items-center gap-2">
+                    <span className="text-slate-400 text-[8px] font-bold uppercase">الفترة من:</span>
+                    <p className="font-bold text-blue-600 text-[10px]">{formatDate(items[0]?.period_from)}</p>
                   </div>
-                  <div className="p-3 bg-slate-50 rounded-xl">
-                    <span className="text-slate-400 text-[9px] block uppercase font-bold mb-1">إلى:</span>
-                    <p className="font-bold text-blue-600 text-xs">{formatDate(items[0]?.period_to)}</p>
+                  <div className="w-px h-3 bg-slate-200" />
+                  <div className="flex items-center gap-2">
+                    <span className="text-slate-400 text-[8px] font-bold uppercase">إلى:</span>
+                    <p className="font-bold text-blue-600 text-[10px]">{formatDate(items[0]?.period_to)}</p>
                   </div>
                 </div>
               </div>
@@ -670,7 +677,7 @@ export function InvoiceViewClient({
                   <Stamp size={14} className="text-slate-400" />
                   ختم المنشأة
                 </h4>
-                <div className="w-32 h-32 mx-auto bg-white rounded-2xl border border-dashed border-slate-200 flex items-center justify-center p-4 relative overflow-hidden transition-all group-hover:border-blue-300 shadow-sm">
+                <div className="w-24 h-24 mx-auto bg-white rounded-2xl border border-dashed border-slate-200 flex items-center justify-center p-4 relative overflow-hidden transition-all group-hover:border-blue-300 shadow-sm">
                   {company.stamp_path ? (
                     <img 
                       src={getPublicUrl(company.stamp_path) || ''} 
@@ -693,7 +700,7 @@ export function InvoiceViewClient({
                   <Signature size={14} className="text-slate-400" />
                   التوقيع الإلكتروني
                 </h4>
-                <div className="w-32 h-32 mx-auto bg-white rounded-2xl border border-dashed border-slate-200 flex items-center justify-center p-4 relative overflow-hidden transition-all group-hover:border-indigo-300 shadow-sm">
+                <div className="w-24 h-24 mx-auto bg-white rounded-2xl border border-dashed border-slate-200 flex items-center justify-center p-4 relative overflow-hidden transition-all group-hover:border-indigo-300 shadow-sm">
                   {company.digital_seal_path ? (
                     <img 
                       src={getPublicUrl(company.digital_seal_path) || ''} 
