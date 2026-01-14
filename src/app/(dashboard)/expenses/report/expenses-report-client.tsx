@@ -482,7 +482,7 @@ export function ExpensesReportClient({ companyId }: ExpensesReportClientProps) {
                 <div className="text-center flex-1">
                   <h1 className="text-xl lg:text-2xl font-bold flex items-center justify-center gap-3">
                     <TrendingUp className="w-7 h-7 text-amber-400" />
-                    التقرير الشامل للمنصرفات
+                    التقرير المالي الشهري
                   </h1>
                 </div>
 
@@ -490,7 +490,7 @@ export function ExpensesReportClient({ companyId }: ExpensesReportClientProps) {
                   <div className="flex items-center gap-3">
                     <Calendar className="w-6 h-6 text-amber-400" />
                     <div>
-                      <p className="text-xs text-blue-200">الشهر المحدد</p>
+                      <p className="text-xs text-blue-200">الشهر المختار</p>
                       <p className="text-base font-bold">
                         {getMonthName(selectedMonth)}
                       </p>
@@ -502,225 +502,35 @@ export function ExpensesReportClient({ companyId }: ExpensesReportClientProps) {
           </Card>
         </motion.div>
 
-        {/* Navigation Tabs */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            className="print:hidden"
-          >
-            <Card className="border-none shadow-xl rounded-3xl overflow-hidden bg-white/50 backdrop-blur-md">
-              <CardContent className="p-2">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                  {[
-                    {
-                      type: "expenses" as const,
-                      label: "المنصرفات الشهرية",
-                      sub: "عرض جميع المنصرفات التشغيلية والرواتب",
-                      icon: Wallet,
-                      count: stats.expensesCount,
-                      activeStyles: "bg-blue-600 text-white shadow-blue-200",
-                      inactiveStyles: "bg-blue-50/50 text-blue-700 hover:bg-blue-100/80 border-blue-100",
-                      badgeActive: "bg-white/20 text-white",
-                      badgeInactive: "bg-blue-600 text-white",
-                      iconActive: "text-white",
-                      iconInactive: "text-blue-600",
-                    },
-                    {
-                      type: "deductions" as const,
-                      label: "الاستقطاعات الشهرية",
-                      sub: "عرض جميع الاستقطاعات والخصومات",
-                      icon: HandCoins,
-                      count: stats.deductionsCount,
-                      activeStyles: "bg-rose-600 text-white shadow-rose-200",
-                      inactiveStyles: "bg-rose-50/50 text-rose-700 hover:bg-rose-100/80 border-rose-100",
-                      badgeActive: "bg-white/20 text-white",
-                      badgeInactive: "bg-rose-600 text-white",
-                      iconActive: "text-white",
-                      iconInactive: "text-rose-600",
-                    },
-                    {
-                      type: "all" as const,
-                      label: "التقرير الشامل",
-                      sub: "رؤية كاملة لجميع العمليات المالية",
-                      icon: BarChart3,
-                      count: stats.expensesCount + stats.deductionsCount,
-                      activeStyles: "bg-gradient-to-r from-blue-600 via-purple-600 to-rose-600 text-white shadow-purple-200",
-                      inactiveStyles: "bg-slate-50 text-slate-700 hover:bg-slate-100 border-slate-200",
-                      badgeActive: "bg-white/20 text-white",
-                      badgeInactive: "bg-slate-600 text-white",
-                      iconActive: "text-white",
-                      iconInactive: "text-slate-600",
-                    },
-                  ].map((tab) => (
-                    <button
-                      key={tab.type}
-                      onClick={() => setReportType(tab.type)}
-                      className={`relative flex flex-col items-center justify-center p-6 rounded-2xl transition-all duration-500 border-2 group ${
-                        reportType === tab.type
-                          ? `${tab.activeStyles} border-transparent scale-[1.02] shadow-2xl`
-                          : `${tab.inactiveStyles} border-transparent hover:scale-[1.01]`
-                      }`}
-                    >
-                      {/* Interactive Background Effect */}
-                      <div className={`absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-10 transition-opacity duration-300 ${
-                        reportType === tab.type ? 'hidden' : 'bg-current'
-                      }`} />
-
-                      <Badge
-                        className={`absolute top-3 left-3 text-[10px] font-bold px-2 py-0.5 rounded-lg transition-colors duration-300 ${
-                          reportType === tab.type
-                            ? tab.badgeActive
-                            : tab.badgeInactive
-                        }`}
-                      >
-                        {tab.count}
-                      </Badge>
-
-                      <div className={`mb-3 p-3 rounded-xl transition-all duration-300 ${
-                        reportType === tab.type 
-                          ? 'bg-white/20 rotate-6' 
-                          : 'bg-white group-hover:rotate-6 shadow-sm'
-                      }`}>
-                        <tab.icon
-                          className={`w-7 h-7 transition-colors duration-300 ${
-                            reportType === tab.type
-                              ? tab.iconActive
-                              : tab.iconInactive
-                          }`}
-                        />
-                      </div>
-
-                      <h3 className="text-base font-bold mb-1 tracking-tight">
-                        {tab.label}
-                      </h3>
-                      
-                      <p className={`text-xs text-center px-4 leading-relaxed transition-colors duration-300 ${
-                        reportType === tab.type ? 'text-white/80' : 'text-slate-500'
-                      }`}>
-                        {tab.sub}
-                      </p>
-
-                      {/* Active Indicator Line */}
-                      {reportType === tab.type && (
-                        <motion.div
-                          layoutId="activeTab"
-                          className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-12 h-1 bg-white rounded-full shadow-sm"
-                        />
-                      )}
-                    </button>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          </motion.div>
-
-        {/* Control Bar */}
+        {/* Stats Cards - Main Totals (Always Visible) */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-          className="print:hidden"
-        >
-          <Card className="border-none shadow-md rounded-2xl">
-            <CardContent className="p-4">
-              <div className="flex flex-col lg:flex-row items-center justify-between gap-3">
-                <div className="flex items-center gap-3 flex-wrap">
-                  <div className="flex items-center gap-2 text-slate-700 text-sm font-medium">
-                    <Filter className="w-4 h-4 text-blue-600" />
-                    <span>اختر الشهر:</span>
-                  </div>
-                  <Select value={selectedMonth} onValueChange={setSelectedMonth}>
-                    <SelectTrigger
-                      id="monthSelect"
-                      className="w-[180px] rounded-xl border-slate-200 bg-white shadow-sm"
-                    >
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent className="bg-white border border-slate-200 shadow-xl rounded-xl">
-                      {monthOptions.map((opt) => (
-                        <SelectItem key={opt.value} value={opt.value} className="hover:bg-slate-50">
-                          {opt.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <Button
-                    onClick={fetchReportData}
-                    size="sm"
-                    className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white rounded-xl"
-                  >
-                    <Search className="w-4 h-4 ml-1" />
-                    تصفية
-                  </Button>
-                </div>
-
-                <div className="flex items-center gap-2 flex-wrap">
-                  <Button
-                    onClick={handlePrint}
-                    size="sm"
-                    className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white rounded-xl"
-                  >
-                    <Printer className="w-4 h-4 ml-1" />
-                    طباعة
-                  </Button>
-                  <Button
-                    onClick={handleExportExcel}
-                    size="sm"
-                    className="bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white rounded-xl"
-                  >
-                    <FileSpreadsheet className="w-4 h-4 ml-1" />
-                    تصدير
-                  </Button>
-                  <Button
-                    onClick={() => setShowAnalysisModal(true)}
-                    size="sm"
-                    className="bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white rounded-xl"
-                  >
-                    <BarChart3 className="w-4 h-4 ml-1" />
-                    تحليل
-                  </Button>
-                  <Button
-                    onClick={() => (window.location.href = "/expenses")}
-                    size="sm"
-                    className="bg-gradient-to-r from-rose-500 to-rose-600 hover:from-rose-600 hover:to-rose-700 text-white rounded-xl"
-                  >
-                    <Home className="w-4 h-4 ml-1" />
-                    الرئيسية
-                  </Button>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </motion.div>
-
-        {/* Stats Cards */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
-          className="grid grid-cols-2 lg:grid-cols-4 gap-3"
+          transition={{ delay: 0.1 }}
+          className="grid grid-cols-2 lg:grid-cols-4 gap-4"
         >
           {[
             {
-              label: "المنصرفات الشهرية",
+              label: "إجمالي المنصرفات",
               value: stats.totalExpenses,
               count: stats.expensesCount,
               countLabel: "عملية",
               icon: Wallet,
-              gradient: "from-blue-500 to-blue-600",
-              bgGradient: "from-blue-50 to-blue-100/50",
-              borderColor: "border-r-4 border-r-blue-500",
+              gradient: "from-blue-600 to-blue-700",
+              bgGradient: "from-blue-50 to-white",
+              accent: "blue",
+              description: "تشمل المنصرفات التشغيلية والرواتب"
             },
             {
-              label: "الاستقطاعات الشهرية",
+              label: "إجمالي الاستقطاعات",
               value: stats.totalDeductions,
               count: stats.deductionsCount,
               countLabel: "عملية",
               icon: HandCoins,
-              gradient: "from-rose-500 to-rose-600",
-              bgGradient: "from-rose-50 to-rose-100/50",
-              borderColor: "border-r-4 border-r-rose-500",
+              gradient: "from-rose-600 to-rose-700",
+              bgGradient: "from-rose-50 to-white",
+              accent: "rose",
+              description: "إجمالي الخصومات والاستقطاعات"
             },
             {
               label: "مسيرات الرواتب",
@@ -728,58 +538,211 @@ export function ExpensesReportClient({ companyId }: ExpensesReportClientProps) {
               count: stats.payrollsCount,
               countLabel: "مسير",
               icon: FileText,
-              gradient: "from-emerald-500 to-emerald-600",
-              bgGradient: "from-emerald-50 to-emerald-100/50",
-              borderColor: "border-r-4 border-r-emerald-500",
-              link: "/salary-payrolls",
+              gradient: "from-emerald-600 to-emerald-700",
+              bgGradient: "from-emerald-50 to-white",
+              accent: "emerald",
+              description: "كشوفات الرواتب المعتمدة",
+              link: "/salary-payrolls"
             },
             {
               label: "المجموع الكلي",
               value: stats.totalAll,
-              count: null,
-              countLabel: "إجمالي المصروفات",
+              count: stats.expensesCount + stats.deductionsCount + stats.payrollsCount,
+              countLabel: "عملية إجمالية",
               icon: Calculator,
-              gradient: "from-amber-500 to-amber-600",
-              bgGradient: "from-amber-50 to-amber-100/50",
-              borderColor: "border-r-4 border-r-amber-500",
+              gradient: "from-amber-600 to-amber-700",
+              bgGradient: "from-amber-50 to-white",
+              accent: "amber",
+              description: "صافي التدفقات المالية للشهر"
             },
           ].map((stat, idx) => (
             <motion.div
               key={idx}
-              whileHover={{ y: -3, scale: 1.01 }}
+              whileHover={{ y: -5, scale: 1.02 }}
               transition={{ type: "spring", stiffness: 300 }}
               onClick={() => stat.link && (window.location.href = stat.link)}
-              className={stat.link ? "cursor-pointer" : ""}
+              className={`relative group ${stat.link ? "cursor-pointer" : ""}`}
             >
-              <Card
-                className={`border-none shadow-lg rounded-3xl overflow-hidden bg-gradient-to-br ${stat.bgGradient} ${stat.borderColor}`}
-              >
-                <CardContent className="p-4">
-                  <div className="flex flex-col items-center text-center space-y-2">
-                    <div
-                      className={`w-10 h-10 rounded-xl bg-gradient-to-br ${stat.gradient} flex items-center justify-center shadow-md`}
-                    >
-                      <stat.icon className="w-5 h-5 text-white" />
+              <Card className={`border-none shadow-xl rounded-[2.5rem] overflow-hidden bg-gradient-to-br ${stat.bgGradient} relative z-10 h-full border-b-4 border-${stat.accent}-500/30`}>
+                <CardContent className="p-6">
+                  <div className="flex flex-col items-center text-center space-y-4">
+                    <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${stat.gradient} flex items-center justify-center shadow-lg group-hover:rotate-6 transition-transform duration-300`}>
+                      <stat.icon className="w-7 h-7 text-white" />
                     </div>
-                    <div>
-                      <p className="text-xl font-bold text-slate-800">
-                        {formatNumber(stat.value)}
-                      </p>
-                      <p className="text-xs text-slate-500">ر.س</p>
+                    
+                    <div className="space-y-1">
+                      <p className={`text-sm font-bold text-${stat.accent}-700 tracking-wide`}>{stat.label}</p>
+                      <div className="flex items-baseline justify-center gap-1">
+                        <span className="text-2xl font-black text-slate-800">{formatNumber(stat.value)}</span>
+                        <span className="text-[10px] font-bold text-slate-400">ر.س</span>
+                      </div>
                     </div>
-                    <div>
-                      <p className="text-sm font-bold text-slate-700">{stat.label}</p>
-                      <p className="text-xs text-slate-500">
-                        {stat.count !== null
-                          ? `${stat.count} ${stat.countLabel}`
-                          : stat.countLabel}
-                      </p>
+
+                    <div className="w-full pt-3 border-t border-slate-100 flex items-center justify-between">
+                      <div className="flex items-center gap-1.5">
+                        <div className={`w-2 h-2 rounded-full bg-${stat.accent}-500 animate-pulse`} />
+                        <span className="text-xs font-bold text-slate-600">{stat.count} {stat.countLabel}</span>
+                      </div>
+                      <Info className="w-3.5 h-3.5 text-slate-300" />
                     </div>
                   </div>
                 </CardContent>
               </Card>
             </motion.div>
           ))}
+        </motion.div>
+
+        {/* Navigation Tabs - Selection Options */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+          className="print:hidden"
+        >
+          <div className="bg-white/40 backdrop-blur-xl p-2 rounded-[3rem] shadow-inner border border-white/50 inline-flex w-full">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-2 w-full">
+              {[
+                {
+                  id: "expenses" as const,
+                  label: "عرض المنصرفات",
+                  icon: Wallet,
+                  color: "blue",
+                  gradient: "from-blue-500 to-blue-700",
+                  sub: "كشف تفصيلي للمصروفات والرواتب"
+                },
+                {
+                  id: "deductions" as const,
+                  label: "عرض الاستقطاعات",
+                  icon: HandCoins,
+                  color: "rose",
+                  gradient: "from-rose-500 to-rose-700",
+                  sub: "كشف تفصيلي للخصومات والجزاءات"
+                },
+                {
+                  id: "all" as const,
+                  label: "التقرير الشامل",
+                  icon: BarChart3,
+                  color: "purple",
+                  gradient: "from-blue-600 via-purple-600 to-rose-600",
+                  sub: "رؤية موحدة لجميع الحركات المالية"
+                }
+              ].map((tab) => (
+                <button
+                  key={tab.id}
+                  onClick={() => setReportType(tab.id)}
+                  className={`relative flex items-center gap-4 p-4 rounded-[2.2rem] transition-all duration-500 group overflow-hidden ${
+                    reportType === tab.id
+                      ? `bg-gradient-to-r ${tab.gradient} text-white shadow-2xl scale-[1.02] z-10`
+                      : "bg-transparent text-slate-600 hover:bg-white/60"
+                  }`}
+                >
+                  <div className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all duration-300 ${
+                    reportType === tab.id
+                      ? "bg-white/20 rotate-6"
+                      : `bg-${tab.color}-100 text-${tab.color}-600 group-hover:rotate-12`
+                  }`}>
+                    <tab.icon className="w-6 h-6" />
+                  </div>
+                  
+                  <div className="text-right flex-1">
+                    <p className={`text-base font-bold ${reportType === tab.id ? "text-white" : "text-slate-800"}`}>
+                      {tab.label}
+                    </p>
+                    <p className={`text-[10px] ${reportType === tab.id ? "text-white/70" : "text-slate-500"}`}>
+                      {tab.sub}
+                    </p>
+                  </div>
+
+                  {reportType === tab.id && (
+                    <motion.div
+                      layoutId="activeGlow"
+                      className="absolute inset-0 bg-white/10 blur-xl rounded-full"
+                    />
+                  )}
+                </button>
+              ))}
+            </div>
+          </div>
+        </motion.div>
+
+        {/* Control Bar - Advanced Filters */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+          className="print:hidden"
+        >
+          <Card className="border-none shadow-md rounded-[2.5rem] bg-white/60 backdrop-blur-md border border-white/50">
+            <CardContent className="p-4">
+              <div className="flex flex-col lg:flex-row items-center justify-between gap-4">
+                <div className="flex items-center gap-3 flex-wrap">
+                  <div className="flex items-center gap-2 text-slate-700 text-sm font-bold bg-white/80 px-5 py-2.5 rounded-[1.5rem] border border-slate-100 shadow-sm">
+                    <Filter className="w-4 h-4 text-blue-600" />
+                    <span>اختر الفترة:</span>
+                    <Select value={selectedMonth} onValueChange={setSelectedMonth}>
+                      <SelectTrigger className="w-[180px] border-none bg-transparent font-black focus:ring-0 text-slate-800">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent className="rounded-2xl border-slate-100 shadow-2xl bg-white/95 backdrop-blur-lg">
+                        {monthOptions.map((opt) => (
+                          <SelectItem key={opt.value} value={opt.value} className="font-bold text-slate-700">
+                            {opt.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <Button
+                    onClick={fetchReportData}
+                    className="bg-gradient-to-r from-blue-600 to-indigo-700 hover:from-blue-700 hover:to-indigo-800 text-white rounded-[1.5rem] px-8 py-6 shadow-xl shadow-blue-200 transition-all active:scale-95 font-bold"
+                  >
+                    <Search className="w-5 h-5 ml-2" />
+                    تحديث التقرير
+                  </Button>
+                </div>
+
+                <div className="flex items-center gap-1 flex-wrap bg-white/80 p-1.5 rounded-[1.8rem] border border-slate-100 shadow-inner">
+                  <Button
+                    onClick={handlePrint}
+                    variant="ghost"
+                    size="sm"
+                    className="text-slate-600 hover:text-blue-600 hover:bg-blue-50 rounded-xl px-5 h-10 font-bold transition-colors"
+                  >
+                    <Printer className="w-4 h-4 ml-2" />
+                    طباعة
+                  </Button>
+                  <Button
+                    onClick={handleExportExcel}
+                    variant="ghost"
+                    size="sm"
+                    className="text-slate-600 hover:text-emerald-600 hover:bg-emerald-50 rounded-xl px-5 h-10 font-bold transition-colors"
+                  >
+                    <FileSpreadsheet className="w-4 h-4 ml-2" />
+                    تصدير Excel
+                  </Button>
+                  <Button
+                    onClick={() => setShowAnalysisModal(true)}
+                    variant="ghost"
+                    size="sm"
+                    className="text-slate-600 hover:text-amber-600 hover:bg-amber-50 rounded-xl px-5 h-10 font-bold transition-colors"
+                  >
+                    <BarChart3 className="w-4 h-4 ml-2" />
+                    تحليل ذكي
+                  </Button>
+                  <div className="w-px h-8 bg-slate-200 mx-2" />
+                  <Button
+                    onClick={() => (window.location.href = "/expenses")}
+                    variant="ghost"
+                    size="sm"
+                    className="text-slate-600 hover:text-rose-600 hover:bg-rose-50 rounded-xl px-5 h-10 font-bold transition-colors"
+                  >
+                    <Home className="w-4 h-4 ml-2" />
+                    الرئيسية
+                  </Button>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
         </motion.div>
 
         {/* Expenses Section */}
