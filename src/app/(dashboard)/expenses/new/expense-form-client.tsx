@@ -49,6 +49,7 @@ interface ExpenseRow {
   cost_center_code: string;
   description: string;
   taxable: boolean;
+  tax_inclusive: boolean;
   tax_value: string;
   net_amount: string;
   attachment: File | null;
@@ -77,7 +78,7 @@ const defaultExpenseValues: Record<string, string> = {
 
 const headersMap: Record<string, string[]> = {
   iqama: ['التاريخ', 'نوع المصروف', 'المبلغ', 'رقم الإقامة', 'الموظف', 'الحساب', 'مركز التكلفة', 'الوصف', 'المستند', 'حذف'],
-  fuel: ['التاريخ', 'نوع المصروف', 'المبلغ', 'ضريبة؟', 'قيمة الضريبة', 'الصافي', 'الحساب', 'مركز التكلفة', 'الوصف', 'المستند', 'حذف'],
+  fuel: ['التاريخ', 'نوع المصروف', 'المبلغ', 'ضريبة؟', 'شامل؟', 'قيمة الضريبة', 'الصافي', 'الحساب', 'مركز التكلفة', 'الوصف', 'المستند', 'حذف'],
   traffic: ['التاريخ', 'نوع المصروف', 'المبلغ', 'السائق', 'رقم الإقامة', 'مركز التكلفة', 'الحساب', 'الوصف', 'المستند', 'حذف'],
   advances: ['التاريخ', 'نوع المصروف', 'المبلغ', 'الموظف', 'رقم الإقامة', 'الحساب', 'مركز التكلفة', 'الوصف', 'المستند*', 'حذف'],
   default: ['التاريخ', 'نوع المصروف', 'المبلغ', 'الحساب', 'مركز التكلفة', 'الوصف', 'المستند', 'حذف']
@@ -144,13 +145,13 @@ function EmployeeSelect({ row, type, metadata, updateRow }: {
           </div>
 
           {isOpen && (
-            <div className="absolute z-[100] mt-1 w-64 bg-white border border-slate-200 rounded-xl shadow-2xl overflow-hidden right-0">
-              <div className="p-2 border-b border-slate-100 bg-slate-50">
+            <div className="absolute z-[200] mt-1 w-72 bg-white border border-slate-200 rounded-xl shadow-[0_20px_50px_rgba(0,0,0,0.15)] overflow-hidden right-0 animate-in fade-in zoom-in duration-200">
+              <div className="p-3 border-b border-slate-100 bg-slate-50">
                 <div className="relative">
-                  <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                  <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-blue-500" />
                   <input
                     type="text"
-                    className="w-full pr-9 pl-3 py-2 bg-white border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+                    className="w-full pr-9 pl-3 py-2.5 bg-white border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none transition-all shadow-sm"
                     placeholder="بحث بالاسم أو الإقامة..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
@@ -158,7 +159,7 @@ function EmployeeSelect({ row, type, metadata, updateRow }: {
                   />
                 </div>
               </div>
-              <div className="max-h-60 overflow-y-auto">
+              <div className="max-h-72 overflow-y-auto">
                 {filteredEmployees.length > 0 ? (
                   filteredEmployees.map((emp: Employee) => (
                     <div
@@ -170,18 +171,22 @@ function EmployeeSelect({ row, type, metadata, updateRow }: {
                         setIsOpen(false);
                         setSearchTerm("");
                       }}
-                      className="px-4 py-2.5 hover:bg-blue-50 cursor-pointer border-b border-slate-50 last:border-0 transition-colors"
+                      className="px-4 py-3 hover:bg-blue-50 cursor-pointer border-b border-slate-50 last:border-0 transition-all flex flex-col group/item"
                     >
-                      <div className="font-bold text-slate-900 text-sm">{emp.name}</div>
-                      <div className="text-xs text-slate-500 flex items-center mt-0.5">
-                        <UserIcon className="w-3 h-3 ml-1" />
-                        <span>{emp.iqama_number}</span>
+                      <div className="font-bold text-slate-900 text-sm group-hover/item:text-blue-700">{emp.name}</div>
+                      <div className="text-xs text-slate-500 flex items-center mt-1">
+                        <div className="bg-slate-100 px-2 py-0.5 rounded text-[10px] font-mono">
+                          {emp.iqama_number || "بدون إقامة"}
+                        </div>
                       </div>
                     </div>
                   ))
                 ) : (
-                  <div className="p-4 text-center text-sm text-slate-400 italic">
-                    لا يوجد نتائج
+                  <div className="p-8 text-center">
+                    <div className="w-12 h-12 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-3">
+                      <Search className="w-6 h-6 text-slate-300" />
+                    </div>
+                    <p className="text-sm text-slate-400">لا يوجد نتائج لهذا البحث</p>
                   </div>
                 )}
               </div>
@@ -251,6 +256,7 @@ export default function ExpenseFormClient({ user }: { user: User }) {
       cost_center_code: "",
       description: "",
       taxable: false,
+      tax_inclusive: false,
       tax_value: "0",
       net_amount: "0",
       attachment: null,
@@ -277,6 +283,7 @@ export default function ExpenseFormClient({ user }: { user: User }) {
       cost_center_code: "",
       description: "",
       taxable: false,
+      tax_inclusive: false,
       tax_value: "0",
       net_amount: "0",
       attachment: null,
@@ -316,10 +323,23 @@ export default function ExpenseFormClient({ user }: { user: User }) {
           // Auto calculations for fuel
           if (type === 'fuel') {
             const amt = parseFloat(updatedRow.amount || "0");
-            const tax = parseFloat(updatedRow.tax_value || "0");
+            const taxInput = parseFloat(updatedRow.tax_value || "0");
+            
             if (updatedRow.taxable) {
-              updatedRow.net_amount = (amt + tax).toFixed(2);
+              if (updatedRow.tax_inclusive) {
+                // If tax inclusive: base = total / 1.15, tax = total - base
+                const base = amt / 1.15;
+                const tax = amt - base;
+                updatedRow.tax_value = tax.toFixed(2);
+                updatedRow.net_amount = amt.toFixed(2);
+              } else {
+                // If not inclusive: tax = base * 0.15, net = base + tax
+                const tax = amt * 0.15;
+                updatedRow.tax_value = tax.toFixed(2);
+                updatedRow.net_amount = (amt + tax).toFixed(2);
+              }
             } else {
+              updatedRow.tax_value = "0";
               updatedRow.net_amount = amt.toFixed(2);
             }
           } else {
@@ -577,30 +597,38 @@ export default function ExpenseFormClient({ user }: { user: User }) {
                           />
                         </td>
                         
-                        {type === 'fuel' && (
-                          <>
-                            <td className="px-2 py-4 text-center">
-                              <input 
-                                type="checkbox" 
-                                className="w-4 h-4 rounded text-blue-600"
-                                checked={row.taxable}
-                                onChange={(e) => updateRow(type, row.id, 'taxable', e.target.checked)}
-                              />
-                            </td>
-                            <td className="px-2 py-4">
-                              <input 
-                                type="number" 
-                                className="w-20 bg-transparent border-none focus:ring-0 text-sm"
-                                placeholder="0.00"
-                                value={row.tax_value}
-                                onChange={(e) => updateRow(type, row.id, 'tax_value', e.target.value)}
-                              />
-                            </td>
-                            <td className="px-2 py-4">
-                              <span className="text-sm font-bold text-slate-700">{row.net_amount}</span>
-                            </td>
-                          </>
-                        )}
+                          {type === 'fuel' && (
+                            <>
+                              <td className="px-2 py-4 text-center">
+                                <input 
+                                  type="checkbox" 
+                                  className="w-4 h-4 rounded text-blue-600"
+                                  checked={row.taxable}
+                                  onChange={(e) => updateRow(type, row.id, 'taxable', e.target.checked)}
+                                />
+                              </td>
+                              <td className="px-2 py-4 text-center">
+                                <input 
+                                  type="checkbox" 
+                                  className="w-4 h-4 rounded text-green-600"
+                                  checked={row.tax_inclusive}
+                                  onChange={(e) => updateRow(type, row.id, 'tax_inclusive', e.target.checked)}
+                                />
+                              </td>
+                              <td className="px-2 py-4">
+                                <input 
+                                  type="number" 
+                                  className="w-20 bg-transparent border-none focus:ring-0 text-sm"
+                                  placeholder="0.00"
+                                  value={row.tax_value}
+                                  readOnly
+                                />
+                              </td>
+                              <td className="px-2 py-4">
+                                <span className="text-sm font-bold text-slate-700">{row.net_amount}</span>
+                              </td>
+                            </>
+                          )}
 
                         {(type === 'iqama') && (
                           <>
