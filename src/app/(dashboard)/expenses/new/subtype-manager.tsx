@@ -219,28 +219,28 @@ export default function SubtypeManager({ companyId, userId, onClose, onRefresh }
                     <th className="px-6 py-4 border-b border-slate-100 text-center">خيارات</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-50">
-                  {loading ? (
-                    <tr>
-                      <td colSpan={4} className="px-6 py-12 text-center">
-                        <div className="flex flex-col items-center space-y-2">
-                          <RefreshCw className="w-8 h-8 text-blue-500 animate-spin" />
-                          <p className="text-sm text-slate-500">جاري تحميل البيانات...</p>
-                        </div>
-                      </td>
-                    </tr>
-                  ) : subtypes.length === 0 ? (
-                    <tr>
-                      <td colSpan={4} className="px-6 py-12 text-center">
-                        <p className="text-sm text-slate-400">لا توجد أنواع مخصصة حالياً</p>
-                      </td>
-                    </tr>
-                  ) : (
-                    subtypes.map((item) => (
-                      <tr 
-                        key={item.id} 
-                        className={`group hover:bg-slate-50/80 transition-colors ${!item.is_custom ? 'opacity-70' : ''}`}
-                      >
+                  <tbody className="divide-y divide-slate-50">
+                    {loading ? (
+                      <tr>
+                        <td colSpan={4} className="px-6 py-12 text-center">
+                          <div className="flex flex-col items-center space-y-2">
+                            <RefreshCw className="w-8 h-8 text-blue-500 animate-spin" />
+                            <p className="text-sm text-slate-500">جاري تحميل البيانات...</p>
+                          </div>
+                        </td>
+                      </tr>
+                    ) : (subtypes || []).length === 0 ? (
+                      <tr>
+                        <td colSpan={4} className="px-6 py-12 text-center">
+                          <p className="text-sm text-slate-400">لا توجد أنواع مخصصة حالياً</p>
+                        </td>
+                      </tr>
+                    ) : (
+                      (subtypes || []).map((item) => (
+                        <tr 
+                          key={item.id} 
+                          className={`group hover:bg-slate-50/80 transition-colors ${!item.is_custom ? 'opacity-70' : ''}`}
+                        >
                         <td className="px-6 py-4">
                           <div className="flex items-center space-x-2 space-x-reverse">
                             <div className={`w-1 h-4 rounded-full ${item.is_custom ? 'bg-blue-500' : 'bg-slate-300'}`}></div>

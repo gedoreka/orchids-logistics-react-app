@@ -432,19 +432,19 @@ export default function ExpenseFormClient({ user }: { user: User }) {
                           />
                         </td>
                         <td className="px-2 py-4">
-                          <select 
-                            className="w-full bg-transparent border-none focus:ring-0 text-sm font-semibold"
-                            value={row.expense_type}
-                            onChange={(e) => updateRow(type, row.id, 'expense_type', e.target.value)}
-                          >
-                            <option value="">اختر النوع</option>
-                            {metadata?.subtypes
-                              .filter(s => s.main_type === type)
-                              .map(s => (
-                                <option key={s.subtype_name} value={s.subtype_name}>{s.subtype_name}</option>
-                              ))}
-                            <option value="other">أخرى</option>
-                          </select>
+                            <select 
+                              className="w-full bg-transparent border-none focus:ring-0 text-sm font-semibold"
+                              value={row.expense_type}
+                              onChange={(e) => updateRow(type, row.id, 'expense_type', e.target.value)}
+                            >
+                              <option value="">اختر النوع</option>
+                              {(metadata?.subtypes || [])
+                                .filter(s => s.main_type === type)
+                                .map(s => (
+                                  <option key={s.subtype_name} value={s.subtype_name}>{s.subtype_name}</option>
+                                ))}
+                              <option value="other">أخرى</option>
+                            </select>
                         </td>
                         <td className="px-2 py-4">
                           <input 
@@ -515,23 +515,23 @@ export default function ExpenseFormClient({ user }: { user: User }) {
                                   </div>
                                 ) : (
                                   <div className="flex items-center space-x-2 space-x-reverse">
-                                    <select 
-                                      className="w-full bg-transparent border-none focus:ring-0 text-sm font-medium"
-                                      value={row.employee_id}
-                                      onChange={(e) => {
-                                        const emp = metadata?.employees.find(ev => ev.id.toString() === e.target.value);
-                                        if (emp) {
-                                          updateRow(type, row.id, 'employee_id', e.target.value);
-                                          updateRow(type, row.id, 'employee_name', emp.name);
-                                          updateRow(type, row.id, 'employee_iqama', emp.iqama_number);
-                                        }
-                                      }}
-                                    >
-                                      <option value="">-- اختر الموظف --</option>
-                                      {metadata?.employees.map(emp => (
-                                        <option key={emp.id} value={emp.id}>{emp.name}</option>
-                                      ))}
-                                    </select>
+                                      <select 
+                                        className="w-full bg-transparent border-none focus:ring-0 text-sm font-medium"
+                                        value={row.employee_id}
+                                        onChange={(e) => {
+                                          const emp = (metadata?.employees || []).find(ev => ev.id.toString() === e.target.value);
+                                          if (emp) {
+                                            updateRow(type, row.id, 'employee_id', e.target.value);
+                                            updateRow(type, row.id, 'employee_name', emp.name);
+                                            updateRow(type, row.id, 'employee_iqama', emp.iqama_number);
+                                          }
+                                        }}
+                                      >
+                                        <option value="">-- اختر الموظف --</option>
+                                        {(metadata?.employees || []).map(emp => (
+                                          <option key={emp.id} value={emp.id}>{emp.name}</option>
+                                        ))}
+                                      </select>
                                     <button 
                                       type="button"
                                       onClick={() => updateRow(type, row.id, 'manualEmployee', true)}
@@ -547,30 +547,30 @@ export default function ExpenseFormClient({ user }: { user: User }) {
                           </>
                         )}
 
-                        <td className="px-2 py-4">
-                          <select 
-                            className="w-full bg-transparent border-none focus:ring-0 text-sm"
-                            value={row.account_code}
-                            onChange={(e) => updateRow(type, row.id, 'account_code', e.target.value)}
-                          >
-                            <option value="">-- الحساب --</option>
-                            {metadata?.accounts.map(acc => (
-                              <option key={acc.id} value={acc.account_code}>{acc.account_code} - {acc.account_name}</option>
-                            ))}
-                          </select>
-                        </td>
-                        <td className="px-2 py-4">
-                          <select 
-                            className="w-full bg-transparent border-none focus:ring-0 text-sm"
-                            value={row.cost_center_code}
-                            onChange={(e) => updateRow(type, row.id, 'cost_center_code', e.target.value)}
-                          >
-                            <option value="">-- المركز --</option>
-                            {metadata?.costCenters.map(cc => (
-                              <option key={cc.id} value={cc.center_code}>{cc.center_code} - {cc.center_name}</option>
-                            ))}
-                          </select>
-                        </td>
+                          <td className="px-2 py-4">
+                            <select 
+                              className="w-full bg-transparent border-none focus:ring-0 text-sm"
+                              value={row.account_code}
+                              onChange={(e) => updateRow(type, row.id, 'account_code', e.target.value)}
+                            >
+                              <option value="">-- الحساب --</option>
+                              {(metadata?.accounts || []).map(acc => (
+                                <option key={acc.id} value={acc.account_code}>{acc.account_code} - {acc.account_name}</option>
+                              ))}
+                            </select>
+                          </td>
+                          <td className="px-2 py-4">
+                            <select 
+                              className="w-full bg-transparent border-none focus:ring-0 text-sm"
+                              value={row.cost_center_code}
+                              onChange={(e) => updateRow(type, row.id, 'cost_center_code', e.target.value)}
+                            >
+                              <option value="">-- المركز --</option>
+                              {(metadata?.costCenters || []).map(cc => (
+                                <option key={cc.id} value={cc.center_code}>{cc.center_code} - {cc.center_name}</option>
+                              ))}
+                            </select>
+                          </td>
                         <td className="px-2 py-4">
                           <input 
                             type="text" 
