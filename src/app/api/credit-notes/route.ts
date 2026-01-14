@@ -108,9 +108,8 @@ export async function POST(request: NextRequest) {
     const lastNotes = await query<any>(`
       SELECT credit_note_number 
       FROM credit_notes 
-      WHERE company_id = ? 
       ORDER BY id DESC LIMIT 1
-    `, [companyId]);
+    `);
 
     let nextNumber = 1;
     if (lastNotes.length > 0 && lastNotes[0].credit_note_number) {
