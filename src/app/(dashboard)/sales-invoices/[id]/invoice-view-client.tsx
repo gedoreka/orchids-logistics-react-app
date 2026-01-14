@@ -227,17 +227,17 @@ export function InvoiceViewClient({
       if (!element) return;
       
       const opt = {
-        margin: [5, 5, 5, 5],
+        margin: [2, 2, 2, 2], // Minimal margin to fit in one page
         filename: `فاتورة-ضريبية-${invoice.invoice_number}.pdf`,
         image: { type: 'jpeg', quality: 0.98 },
         html2canvas: { 
-          scale: 1.5, 
+          scale: 2, 
           useCORS: true, 
           logging: false,
           backgroundColor: '#ffffff'
         },
         jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
-        pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
+        pagebreak: { mode: 'avoid-all' }
       };
       
       await html2pdf().set(opt).from(element).save();
@@ -262,442 +262,361 @@ export function InvoiceViewClient({
         @media print {
           .no-print { display: none !important; }
           body { background: white !important; padding: 0 !important; }
-          .invoice-container { box-shadow: none !important; margin: 0 !important; max-width: 100% !important; border: none !important; }
+          .invoice-container { 
+            box-shadow: none !important; 
+            margin: 0 !important; 
+            width: 100% !important; 
+            max-width: 100% !important; 
+            border: none !important;
+            transform: scale(0.95);
+            transform-origin: top center;
+          }
+          @page {
+            size: auto;
+            margin: 5mm;
+          }
         }
+        /* Custom styles to prevent lab() colors in Tailwind 4 */
+        .bg-invoice-header { background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%) !important; }
+        .bg-invoice-footer { background: #f8fafc !important; }
+        .text-invoice-primary { color: #0f172a !important; }
+        .text-invoice-secondary { color: #475569 !important; }
+        .border-invoice { border-color: #f1f5f9 !important; }
       `}</style>
 
-      <div className="max-w-5xl mx-auto space-y-6">
+      <div className="max-w-5xl mx-auto space-y-4">
         {/* Action Buttons */}
-        <div className="flex flex-wrap gap-3 justify-center no-print">
+        <div className="flex flex-wrap gap-2 justify-center no-print">
           <Link href="/sales-invoices">
-            <button className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-white text-slate-700 hover:bg-slate-50 border border-slate-200 font-bold text-sm transition-all shadow-sm">
-              <ArrowRight size={18} />
-              العودة للقائمة
+            <button className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white text-[#334155] hover:bg-[#f8fafc] border border-[#e2e8f0] font-bold text-xs transition-all shadow-sm">
+              <ArrowRight size={16} />
+              العودة
             </button>
           </Link>
           <button
             onClick={handlePrint}
-            className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-slate-800 text-white hover:bg-slate-900 font-bold text-sm transition-all shadow-md"
+            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-[#1e293b] text-white hover:bg-[#0f172a] font-bold text-xs transition-all shadow-md"
           >
-            <Printer size={18} />
+            <Printer size={16} />
             طباعة
           </button>
           <button
             onClick={handleDownloadPDF}
             disabled={pdfLoading}
-            className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-blue-600 text-white hover:bg-blue-700 font-bold text-sm transition-all shadow-md disabled:opacity-50"
+            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-[#2563eb] text-white hover:bg-[#1d4ed8] font-bold text-xs transition-all shadow-md disabled:opacity-50"
           >
-            <Download size={18} />
-            {pdfLoading ? 'جاري التحميل...' : 'تحميل PDF'}
+            <Download size={16} />
+            {pdfLoading ? 'جاري...' : 'تحميل PDF'}
           </button>
-          <a
-            href={`mailto:${customer?.email || ''}?subject=فاتورة رقم ${invoice.invoice_number}`}
-            className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-indigo-600 text-white hover:bg-indigo-700 font-bold text-sm transition-all shadow-md"
-          >
-            <Mail size={18} />
-            إرسال بالبريد
-          </a>
         </div>
 
         {/* Invoice Layout */}
         <div 
           ref={printRef} 
-          className="invoice-container bg-white rounded-3xl shadow-xl overflow-hidden border border-slate-100"
+          className="invoice-container bg-white rounded-2xl shadow-xl overflow-hidden border border-[#f1f5f9]"
+          style={{ width: '210mm', minHeight: '290mm', margin: '0 auto', backgroundColor: '#ffffff' }}
         >
           {/* Header */}
           <div 
-            className="text-white p-8 md:p-10 relative overflow-hidden"
-            style={{ background: 'linear-gradient(135deg, #1e293b 0%, #334155 100%)' }}
+            className="text-white p-6 relative overflow-hidden"
+            style={{ background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)' }}
           >
-            {/* Background elements */}
-            <div className="absolute top-[-50px] right-[-50px] w-48 h-48 bg-white/5 rounded-full blur-3xl"></div>
-            <div className="absolute bottom-[-60px] left-[-60px] w-64 h-64 bg-blue-500/10 rounded-full blur-3xl"></div>
-
-            <div className="flex flex-col md:flex-row justify-between items-center gap-8 relative z-10">
-              {/* Company Logo (Left) */}
-              <div className="w-24 h-24 bg-white/10 rounded-2xl flex items-center justify-center p-2 backdrop-blur-md border border-white/20">
+            <div className="flex flex-col md:flex-row justify-between items-center gap-4 relative z-10">
+              {/* Company Logo */}
+              <div className="w-16 h-16 bg-white/10 rounded-xl flex items-center justify-center p-2 backdrop-blur-md border border-white/20">
                 {company.logo_path ? (
                   <img 
                     src={getPublicUrl(company.logo_path) || ''} 
                     alt="Logo" 
-                    className="max-w-full max-h-full object-contain rounded-lg"
+                    className="max-w-full max-h-full object-contain rounded-md"
                     crossOrigin="anonymous"
                   />
                 ) : (
-                  <Building2 size={40} className="text-white/60" />
+                  <Building2 size={32} className="text-white/60" />
                 )}
               </div>
 
               {/* Title Center */}
               <div className="text-center flex-1">
-                <h1 className="text-3xl md:text-4xl font-black mb-1 tracking-wider">فاتورة ضريبية</h1>
-                <p className="text-white/70 text-lg uppercase font-light">VAT Invoice</p>
-                <div className="mt-4 inline-flex items-center gap-2 bg-white/10 border border-white/10 px-5 py-2 rounded-2xl backdrop-blur-sm">
-                  <FileText size={18} className="text-blue-400" />
-                  <span className="font-bold text-sm">نظام الفواتير الإلكترونية</span>
+                <h1 className="text-2xl font-black mb-0 tracking-wider">فاتورة ضريبية</h1>
+                <p className="text-white/60 text-sm uppercase font-light">VAT Invoice</p>
+                <div className="mt-2 inline-flex items-center gap-2 bg-white/5 border border-white/10 px-3 py-1 rounded-xl backdrop-blur-sm">
+                  <span className="font-bold text-[10px]">نظام الفواتير الإلكترونية</span>
                 </div>
               </div>
 
-              {/* System Logo (Right) */}
-              <div className="flex flex-col items-center gap-2 bg-white/10 p-4 rounded-2xl border border-white/20 backdrop-blur-md min-w-[150px]">
-                <div className="bg-blue-500 p-2 rounded-xl text-white shadow-lg">
-                  <Truck size={24} />
-                </div>
-                <h2 className="text-xs font-black text-white tracking-tight uppercase">Logistics Systems Pro</h2>
+              {/* System Logo */}
+              <div className="flex flex-col items-center gap-1 bg-white/5 p-2 rounded-xl border border-white/10 backdrop-blur-md min-w-[120px]">
+                <Truck size={20} className="text-[#3b82f6]" />
+                <h2 className="text-[10px] font-black text-white uppercase">Logistics Systems</h2>
               </div>
             </div>
 
             {/* Header Meta */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-10 pt-6 border-t border-white/10 relative z-10">
-              <div className="flex items-center justify-center gap-3">
-                <Calendar size={18} className="text-blue-400" />
-                <div>
-                  <span className="text-white/50 text-xs block text-right">مطالبة عن شهر:</span>
-                  <p className="font-bold text-sm">{invoice.invoice_month || getClaimMonth(invoice.issue_date)}</p>
-                </div>
+            <div className="grid grid-cols-3 gap-4 mt-6 pt-4 border-t border-white/10 relative z-10">
+              <div className="text-center">
+                <span className="text-white/40 text-[10px] block">مطالبة شهر:</span>
+                <p className="font-bold text-xs">{invoice.invoice_month || getClaimMonth(invoice.issue_date)}</p>
               </div>
-              <div className="flex items-center justify-center gap-3">
-                <FileText size={18} className="text-blue-400" />
-                <div>
-                  <span className="text-white/50 text-xs block text-right">رقم الفاتورة:</span>
-                  <p className="font-bold text-sm tracking-widest">{invoice.invoice_number}</p>
-                </div>
+              <div className="text-center">
+                <span className="text-white/40 text-[10px] block">رقم الفاتورة:</span>
+                <p className="font-bold text-xs tracking-widest">{invoice.invoice_number}</p>
               </div>
-              <div className="flex items-center justify-center gap-3">
-                <Clock size={18} className="text-blue-400" />
-                <div>
-                  <span className="text-white/50 text-xs block text-right">تاريخ الإصدار:</span>
-                  <p className="font-bold text-sm">{formatDate(invoice.issue_date)}</p>
-                </div>
+              <div className="text-center">
+                <span className="text-white/40 text-[10px] block">تاريخ الإصدار:</span>
+                <p className="font-bold text-xs">{formatDate(invoice.issue_date)}</p>
               </div>
             </div>
           </div>
 
-          <div className="p-8 md:p-10 space-y-10">
+          <div className="p-6 space-y-6">
             {/* Info Cards */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <div className="grid grid-cols-2 gap-4">
               {/* Company Info */}
-              <div className="relative group">
-                <div className="absolute -top-3 -right-3 w-8 h-8 bg-blue-600 text-white rounded-xl flex items-center justify-center shadow-lg z-10 transition-transform group-hover:scale-110">
-                  <Building2 size={16} />
-                </div>
-                  <div className="rounded-3xl p-6 border border-[#f1f5f9] bg-[#f8fafc] shadow-sm transition-all hover:shadow-md hover:border-blue-100">
-                    <h3 className="font-black text-[#1e293b] mb-5 pb-3 border-b border-[#e2e8f0] flex items-center gap-2">
-                      <span className="w-1.5 h-6 bg-blue-600 rounded-full"></span>
-                      بيانات المنشأة
-                    </h3>
-                    <div className="space-y-4 text-sm">
-                      <div className="flex justify-between items-center">
-                        <span className="text-[#64748b] font-medium">اسم المنشأة:</span>
-                        <span className="font-bold text-[#1e293b]">{company?.name || '-'}</span>
-                      </div>
-                      <div className="flex justify-between items-center">
-                        <span className="text-[#64748b] font-medium">السجل التجاري:</span>
-                        <span className="font-bold text-[#1e293b]">{company?.commercial_number || '-'}</span>
-                      </div>
-                      <div className="flex justify-between items-center">
-                        <span className="text-[#64748b] font-medium">الرقم الضريبي:</span>
-                        <span className="font-bold text-[#1e293b] tracking-wider text-blue-600">{company?.vat_number || '-'}</span>
-                      </div>
-                      <div className="flex justify-start gap-4">
-                        <span className="text-[#64748b] font-medium whitespace-nowrap">العنوان:</span>
-                        <span className="font-bold text-[#1e293b] text-left w-full">{companyAddress || '-'}</span>
-                      </div>
-                    </div>
+              <div className="rounded-2xl p-4 border border-[#f1f5f9] bg-[#f8fafc]">
+                <h3 className="font-black text-[#0f172a] mb-3 pb-2 border-b border-[#e2e8f0] flex items-center gap-2 text-xs">
+                  <div className="w-1 h-4 bg-[#2563eb] rounded-full"></div>
+                  بيانات المنشأة
+                </h3>
+                <div className="space-y-2 text-[10px]">
+                  <div className="flex justify-between items-center">
+                    <span className="text-[#64748b]">الاسم:</span>
+                    <span className="font-bold text-[#0f172a]">{company?.name}</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-[#64748b]">السجل:</span>
+                    <span className="font-bold text-[#0f172a]">{company?.commercial_number}</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-[#64748b]">الضريبي:</span>
+                    <span className="font-bold text-[#2563eb]">{company?.vat_number}</span>
+                  </div>
+                  <div className="flex justify-start gap-2">
+                    <span className="text-[#64748b] whitespace-nowrap">العنوان:</span>
+                    <span className="font-bold text-[#0f172a] leading-tight">{companyAddress}</span>
                   </div>
                 </div>
+              </div>
 
-                {/* Customer Info */}
-                <div className="relative group">
-                  <div className="absolute -top-3 -right-3 w-8 h-8 bg-emerald-600 text-white rounded-xl flex items-center justify-center shadow-lg z-10 transition-transform group-hover:scale-110">
-                    <User size={16} />
+              {/* Customer Info */}
+              <div className="rounded-2xl p-4 border border-[#f1f5f9] bg-[#f8fafc]">
+                <h3 className="font-black text-[#0f172a] mb-3 pb-2 border-b border-[#e2e8f0] flex items-center gap-2 text-xs">
+                  <div className="w-1 h-4 bg-[#059669] rounded-full"></div>
+                  بيانات العميل
+                </h3>
+                <div className="space-y-2 text-[10px]">
+                  <div className="flex justify-between items-center">
+                    <span className="text-[#64748b]">الاسم:</span>
+                    <span className="font-bold text-[#0f172a]">{customer?.company_name || customer?.name || invoice.client_name}</span>
                   </div>
-                  <div className="rounded-3xl p-6 border border-[#f1f5f9] bg-[#f8fafc] shadow-sm transition-all hover:shadow-md hover:border-emerald-100">
-                    <h3 className="font-black text-[#1e293b] mb-5 pb-3 border-b border-[#e2e8f0] flex items-center gap-2">
-                      <span className="w-1.5 h-6 bg-emerald-600 rounded-full"></span>
-                      بيانات العميل
-                    </h3>
-                    <div className="space-y-4 text-sm">
-                      <div className="flex justify-between items-center">
-                        <span className="text-[#64748b] font-medium">اسم العميل:</span>
-                        <span className="font-bold text-[#1e293b]">{customer?.company_name || customer?.customer_name || customer?.name || invoice.client_name || '-'}</span>
-                      </div>
-                      <div className="flex justify-between items-center">
-                        <span className="text-[#64748b] font-medium">السجل التجاري:</span>
-                        <span className="font-bold text-[#1e293b]">{customer?.commercial_number || '-'}</span>
-                      </div>
-                      <div className="flex justify-between items-center">
-                        <span className="text-[#64748b] font-medium">الرقم الضريبي:</span>
-                        <span className="font-bold text-[#1e293b] tracking-wider text-emerald-600">{customer?.vat_number || invoice.client_vat || '-'}</span>
-                      </div>
-                      <div className="flex justify-start gap-4">
-                        <span className="text-[#64748b] font-medium whitespace-nowrap">العنوان:</span>
-                        <span className="font-bold text-[#1e293b] text-left w-full">{customer?.address || invoice.client_address || '-'}</span>
-                      </div>
-                    </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-[#64748b]">السجل:</span>
+                    <span className="font-bold text-[#0f172a]">{customer?.commercial_number || '-'}</span>
                   </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-[#64748b]">الضريبي:</span>
+                    <span className="font-bold text-[#059669]">{customer?.vat_number || invoice.client_vat || '-'}</span>
+                  </div>
+                  <div className="flex justify-start gap-2">
+                    <span className="text-[#64748b] whitespace-nowrap">العنوان:</span>
+                    <span className="font-bold text-[#0f172a] leading-tight">{customer?.address || invoice.client_address || '-'}</span>
+                  </div>
+                </div>
               </div>
             </div>
 
             {/* Items Table */}
-            <div className="rounded-3xl border border-slate-100 overflow-hidden shadow-sm">
-              <div className="overflow-x-auto">
-                <table className="w-full text-sm border-collapse">
-                  <thead 
-                    className="text-white"
-                    style={{ background: 'linear-gradient(135deg, #1e293b 0%, #334155 100%)' }}
-                  >
-                    <tr>
-                      <th className="px-5 py-5 text-right font-black uppercase tracking-wider">البند</th>
-                      <th className="px-5 py-5 text-center font-black uppercase tracking-wider">الكمية</th>
-                      <th className="px-5 py-5 text-center font-black uppercase tracking-wider">سعر الوحدة</th>
-                      <th className="px-5 py-5 text-center font-black uppercase tracking-wider">قبل الضريبة</th>
-                      <th className="px-5 py-5 text-center font-black uppercase tracking-wider">الضريبة 15%</th>
-                      <th className="px-5 py-5 text-center font-black uppercase tracking-wider">الإجمالي</th>
-                      <th className="px-5 py-5 text-center font-black uppercase tracking-wider">العملة</th>
+            <div className="rounded-xl border border-[#f1f5f9] overflow-hidden shadow-sm">
+              <table className="w-full text-[10px] border-collapse">
+                <thead style={{ background: '#1e293b', color: '#ffffff' }}>
+                  <tr>
+                    <th className="px-3 py-3 text-right font-bold">البند</th>
+                    <th className="px-3 py-3 text-center font-bold">الكمية</th>
+                    <th className="px-3 py-3 text-center font-bold">السعر</th>
+                    <th className="px-3 py-3 text-center font-bold">قبل الضريبة</th>
+                    <th className="px-3 py-3 text-center font-bold">الضريبة 15%</th>
+                    <th className="px-3 py-3 text-center font-bold">الإجمالي</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-[#f1f5f9] bg-white">
+                  {items.map((item) => (
+                    <tr key={item.id} className="hover:bg-[#f8fafc]">
+                      <td className="px-3 py-2 font-bold text-[#0f172a]">{item.product_name}</td>
+                      <td className="px-3 py-2 text-center">{item.quantity}</td>
+                      <td className="px-3 py-2 text-center">{parseFloat(String(item.unit_price)).toFixed(2)}</td>
+                      <td className="px-3 py-2 text-center font-medium">{parseFloat(String(item.total_before_vat)).toLocaleString('en-US', { minimumFractionDigits: 2 })}</td>
+                      <td className="px-3 py-2 text-center text-[#2563eb] font-bold">{parseFloat(String(item.vat_amount)).toLocaleString('en-US', { minimumFractionDigits: 2 })}</td>
+                      <td className="px-3 py-2 text-center font-black text-[#0f172a]">{parseFloat(String(item.total_with_vat)).toLocaleString('en-US', { minimumFractionDigits: 2 })}</td>
                     </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-100 bg-white">
-                    {items.map((item) => (
-                      <tr key={item.id} className="hover:bg-slate-50 transition-colors">
-                        <td className="px-5 py-5 font-bold text-slate-900">{item.product_name}</td>
-                        <td className="px-5 py-5 text-center text-slate-600 font-medium">{item.quantity}</td>
-                        <td className="px-5 py-5 text-center text-slate-600 font-medium">{parseFloat(String(item.unit_price)).toFixed(4)}</td>
-                        <td className="px-5 py-5 text-center text-slate-600 font-bold">{parseFloat(String(item.total_before_vat)).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
-                        <td className="px-5 py-5 text-center text-blue-600 font-bold">{parseFloat(String(item.vat_amount)).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
-                        <td className="px-5 py-5 text-center font-black text-slate-900">{parseFloat(String(item.total_with_vat)).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
-                        <td className="px-5 py-5 text-center text-slate-400 text-xs font-bold">{company?.currency || 'ريال سعودي'}</td>
-                      </tr>
-                    ))}
-                    
-                    {adjustments.map((adj) => (
-                      <tr key={adj.id} className={adj.type === 'discount' ? 'bg-[#fef2f2]' : 'bg-[#f0fdf4]'}>
-                        <td className="px-5 py-5 font-bold text-slate-800 flex items-center gap-2">
-                          <div className={`w-2 h-2 rounded-full ${adj.type === 'discount' ? 'bg-red-500' : 'bg-emerald-500'}`}></div>
-                          {adj.title} <span className="text-xs font-normal opacity-60">({adj.type === 'discount' ? 'خصم' : 'إضافة'})</span>
-                        </td>
-                        <td className="px-5 py-5 text-center text-slate-400">-</td>
-                        <td className="px-5 py-5 text-center text-slate-400">-</td>
-                        <td className={`px-5 py-5 text-center font-bold ${adj.type === 'discount' ? 'text-red-500' : 'text-emerald-500'}`}>
-                          {adj.type === 'discount' ? '-' : ''}{parseFloat(String(adj.amount)).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                        </td>
-                        <td className="px-5 py-5 text-center text-slate-400 font-medium">{parseFloat(String(adj.vat_amount)).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
-                        <td className={`px-5 py-5 text-center font-black ${adj.type === 'discount' ? 'text-red-600' : 'text-emerald-600'}`}>
-                          {adj.type === 'discount' ? '-' : ''}{parseFloat(String(adj.total_with_vat)).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                        </td>
-                        <td className="px-5 py-5 text-center text-slate-400 text-xs font-bold">{company?.currency || 'ريال سعودي'}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+                  ))}
+                  
+                  {adjustments.map((adj) => (
+                    <tr key={adj.id} style={{ backgroundColor: adj.type === 'discount' ? '#fff1f2' : '#f0fdf4' }}>
+                      <td className="px-3 py-2 font-bold text-[#1e293b]">
+                        {adj.title} <span className="text-[8px] opacity-60">({adj.type === 'discount' ? 'خصم' : 'إضافة'})</span>
+                      </td>
+                      <td className="px-3 py-2 text-center opacity-40">-</td>
+                      <td className="px-3 py-2 text-center opacity-40">-</td>
+                      <td className={`px-3 py-2 text-center font-bold ${adj.type === 'discount' ? 'text-[#e11d48]' : 'text-[#059669]'}`}>
+                        {adj.type === 'discount' ? '-' : ''}{parseFloat(String(adj.amount)).toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                      </td>
+                      <td className="px-3 py-2 text-center opacity-40">-</td>
+                      <td className={`px-3 py-2 text-center font-black ${adj.type === 'discount' ? 'text-[#be123c]' : 'text-[#047857]'}`}>
+                        {adj.type === 'discount' ? '-' : ''}{parseFloat(String(adj.total_with_vat)).toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
 
-              {/* Summary and QR Section */}
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-stretch">
-                {/* Summary Box */}
-                <div 
-                  className="rounded-3xl p-8 border border-[#f1f5f9] shadow-sm relative overflow-hidden flex flex-col justify-between"
-                  style={{ background: 'linear-gradient(to bottom right, #ffffff, #f8fafc)' }}
-                >
-                  <div className="absolute top-0 right-0 w-2 h-full bg-blue-600/10"></div>
-                  <div>
-                    <h3 className="font-black text-[#1e293b] mb-6 flex items-center gap-2">
-                      <CreditCard size={20} className="text-blue-600" />
-                      ملخص الفاتورة
-                    </h3>
-  
-                    <div className="space-y-4">
-                      <div className="flex justify-between items-center py-2 border-b border-dashed border-[#e2e8f0]">
-                        <span className="text-[#64748b] font-medium text-xs">الإجمالي قبل الضريبة:</span>
-                        <span className="font-bold text-[#1e293b] text-xs">{totalBeforeVat.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ريال</span>
-                      </div>
-                      <div className="flex justify-between items-center py-2 border-b border-dashed border-[#e2e8f0]">
-                        <span className="text-[#64748b] font-medium text-xs">ضريبة القيمة المضافة (15%):</span>
-                        <span className="font-bold text-blue-600 text-xs">{totalVat.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ريال</span>
-                      </div>
-                      {discountTotal > 0 && (
-                        <div className="flex justify-between items-center py-2 border-b border-dashed border-[#e2e8f0] bg-[#fef2f2] px-2 rounded-lg">
-                          <span className="text-red-600 font-medium text-xs">إجمالي الخصومات:</span>
-                          <span className="font-bold text-red-600 text-xs">-{discountTotal.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ريال</span>
-                        </div>
-                      )}
-                      {additionTotal > 0 && (
-                        <div className="flex justify-between items-center py-2 border-b border-dashed border-[#e2e8f0] bg-[#f0fdf4] px-2 rounded-lg">
-                          <span className="text-emerald-600 font-medium text-xs">إجمالي الإضافات:</span>
-                          <span className="font-bold text-emerald-600 text-xs">+{additionTotal.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ريال</span>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                  
-                  <div 
-                    className="flex justify-between items-center py-3 px-6 rounded-2xl mt-6 shadow-sm border border-emerald-100"
-                    style={{ background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)' }}
-                  >
-                    <span className="font-black text-white text-xs">إجمالي المبلغ المستحق:</span>
-                    <span className="font-black text-xs text-white tracking-tight">
-                      {grandTotal.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ريال
-                    </span>
-                  </div>
-                </div>
-  
-                {/* QR and Period */}
-                <div 
-                  className="rounded-3xl p-8 border border-[#f1f5f9] bg-white shadow-sm text-center relative group flex flex-col justify-between"
-                >
-                  <div className="absolute top-0 right-0 w-full h-1 bg-[#f1f5f9]"></div>
-                    <div>
-                      <h3 className="font-black text-[#1e293b] mb-4 flex items-center justify-center gap-2">
-                        <QrCode size={20} className="text-blue-600" />
-                        الباركود الضريبي | ZATCA
-                      </h3>
-                      <div className="flex justify-center mb-4">
-                        <div className="p-3 bg-white rounded-2xl shadow-md border border-[#f8fafc] transition-transform group-hover:scale-105">
-                          {isMounted && (
-                            <QRCodeCanvas
-                              value={qrData}
-                              size={140}
-                              level="H"
-                              includeMargin={false}
-                            />
-                          )}
-                        </div>
-                      </div>
-                      <p className="text-[9px] text-[#94a3b8] font-bold mb-4">باركود ضريبي قابل للقراءة متوافق مع هيئة الزكاة والضريبة</p>
-                    </div>
-                    
-                    <div className="flex justify-center items-center gap-4 pt-3 border-t border-[#f1f5f9]">
-                      <div className="flex items-center gap-1.5">
-                        <span className="text-[#94a3b8] text-[8px] font-bold">الفترة:</span>
-                        <p className="font-bold text-blue-600 text-[9px]">{formatDate(items[0]?.period_from)} - {formatDate(items[0]?.period_to)}</p>
-                      </div>
-                    </div>
-                  </div>
-              </div>
-
-            {/* Bank Info Section with Status Integrated */}
-            {selectedBank && (
+            {/* Summary and QR Section */}
+            <div className="grid grid-cols-2 gap-4 items-stretch">
+              {/* Summary Box */}
               <div 
-                className="rounded-3xl p-8 border border-emerald-100 shadow-sm relative overflow-hidden"
-                style={{ background: 'linear-gradient(to bottom right, #f0fdfa, #f9fafb)' }}
+                className="rounded-2xl p-5 border border-[#f1f5f9] flex flex-col justify-between"
+                style={{ background: '#f8fafc' }}
               >
-                <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-8">
-                  <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 bg-emerald-600 rounded-2xl flex items-center justify-center text-white shadow-lg">
-                      <University size={24} />
+                <div>
+                  <h3 className="font-black text-[#0f172a] mb-4 flex items-center gap-2 text-xs">
+                    <CreditCard size={14} className="text-[#2563eb]" />
+                    ملخص الفاتورة
+                  </h3>
+                  <div className="space-y-3">
+                    <div className="flex justify-between items-center py-1 border-b border-dashed border-[#e2e8f0]">
+                      <span className="text-[#64748b] text-[10px]">قبل الضريبة:</span>
+                      <span className="font-bold text-[#0f172a] text-[10px]">{totalBeforeVat.toLocaleString('en-US', { minimumFractionDigits: 2 })} ريال</span>
                     </div>
-                    <div>
-                      <h3 className="font-black text-[#1e293b] text-lg">معلومات الحساب البنكي</h3>
-                      <p className="text-[10px] text-emerald-600 font-black">حساب بنكي معتمد وامن</p>
+                    <div className="flex justify-between items-center py-1 border-b border-dashed border-[#e2e8f0]">
+                      <span className="text-[#64748b] text-[10px]">الضريبة 15%:</span>
+                      <span className="font-bold text-[#2563eb] text-[10px]">{totalVat.toLocaleString('en-US', { minimumFractionDigits: 2 })} ريال</span>
                     </div>
-                  </div>
-
-                  <div className="flex items-center gap-3 no-print">
-                    <span className="text-[#64748b] font-bold text-xs">تبديل الحساب:</span>
-                    <select
-                      value={selectedBankId}
-                      onChange={(e) => setSelectedBankId(parseInt(e.target.value))}
-                      className="px-4 py-2 rounded-xl border border-emerald-200 bg-white text-sm font-bold text-[#475569] shadow-sm focus:ring-2 focus:ring-emerald-500 outline-none transition-all cursor-pointer"
-                    >
-                      {bankAccounts.map(bank => (
-                        <option key={bank.id} value={bank.id}>{bank.bank_name}</option>
-                      ))}
-                    </select>
-                  </div>
-                </div>
-                
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                  <div className="bg-white rounded-2xl p-5 border border-[#f1f5f9] shadow-sm transition-all hover:shadow-md">
-                    <p className="text-[9px] text-[#94a3b8] font-black uppercase mb-2 tracking-tighter">اسم البنك</p>
-                    <p className="font-black text-[#1e293b] text-xs">{selectedBank.bank_name}</p>
-                  </div>
-                  <div className="bg-white rounded-2xl p-5 border border-[#f1f5f9] shadow-sm transition-all hover:shadow-md">
-                    <p className="text-[9px] text-[#94a3b8] font-black uppercase mb-2 tracking-tighter">اسم المستفيد</p>
-                    <p className="font-black text-[#1e293b] text-xs">{selectedBank.bank_beneficiary}</p>
-                  </div>
-                  <div className="bg-white rounded-2xl p-5 border border-[#f1f5f9] shadow-sm transition-all hover:shadow-md">
-                    <p className="text-[9px] text-[#94a3b8] font-black uppercase mb-2 tracking-tighter">رقم الحساب</p>
-                    <p className="font-black text-blue-600 text-xs tracking-widest">{selectedBank.bank_account}</p>
-                  </div>
-                  <div className="bg-white rounded-2xl p-5 border border-[#f1f5f9] shadow-sm transition-all hover:shadow-md">
-                    <p className="text-[9px] text-[#94a3b8] font-black uppercase mb-2 tracking-tighter">الآيبان</p>
-                    <p className="font-black text-[#1e293b] text-[10px] break-all leading-relaxed font-mono tracking-tighter">{selectedBank.bank_iban}</p>
-                  </div>
-                </div>
-
-                {/* Integrated Status and Secure Badges */}
-                <div className="flex flex-wrap items-center justify-between gap-4 mt-8 pt-6 border-t border-emerald-100">
-                  <div className="flex flex-wrap gap-4">
-                    <div className="flex items-center gap-2 text-emerald-700 text-[10px] font-bold">
-                      <ShieldCheck size={14} className="text-emerald-500" />
-                      <span>حساب أمن</span>
-                    </div>
-                    <div className="flex items-center gap-2 text-emerald-700 text-[10px] font-bold">
-                      <Award size={14} className="text-emerald-500" />
-                      <span>حساب بنكي معتمد</span>
-                    </div>
-                  </div>
-                  
-                  {/* Small Tidy Status */}
-                  <div className="flex items-center gap-3">
-                    {invoiceStatus === 'paid' ? (
-                      <div className="flex items-center gap-1.5 text-emerald-600 bg-emerald-50 px-3 py-1 rounded-lg border border-emerald-100">
-                        <CheckCircle size={12} />
-                        <span className="font-bold text-[10px] uppercase">تم السداد</span>
-                      </div>
-                    ) : invoiceStatus === 'draft' ? (
-                      <div className="flex items-center gap-1.5 text-[#64748b] bg-[#f8fafc] px-3 py-1 rounded-lg border border-[#f1f5f9]">
-                        <Edit size={12} />
-                        <span className="font-bold text-[10px] uppercase">مسودة</span>
-                      </div>
-                    ) : (
-                      <div className="flex items-center gap-3 bg-amber-50 px-3 py-1 rounded-lg border border-amber-100">
-                        <div className="flex items-center gap-1.5 text-amber-600">
-                          <Clock size={12} />
-                          <span className="font-bold text-[10px] uppercase">بانتظار السداد</span>
-                        </div>
-                        <div className="w-px h-3 bg-amber-200" />
-                        <span className="text-[9px] font-bold text-amber-700/70">الاستحقاق: {formatDate(invoice.due_date)}</span>
+                    {(discountTotal > 0 || additionTotal > 0) && (
+                      <div className="flex justify-between items-center py-1 border-b border-dashed border-[#e2e8f0]">
+                        <span className="text-[#64748b] text-[10px]">تعديلات:</span>
+                        <span className={`font-bold text-[10px] ${additionTotal - discountTotal < 0 ? 'text-[#e11d48]' : 'text-[#059669]'}`}>
+                          {(additionTotal - discountTotal).toLocaleString('en-US', { minimumFractionDigits: 2 })} ريال
+                        </span>
                       </div>
                     )}
                   </div>
                 </div>
+                
+                <div 
+                  className="flex justify-between items-center py-2 px-4 rounded-xl mt-4 shadow-sm"
+                  style={{ background: '#059669' }}
+                >
+                  <span className="font-black text-white text-[10px]">المبلغ المستحق:</span>
+                  <span className="font-black text-xs text-white">
+                    {grandTotal.toLocaleString('en-US', { minimumFractionDigits: 2 })} ريال
+                  </span>
+                </div>
+              </div>
+
+              {/* QR and Period */}
+              <div className="rounded-2xl p-5 border border-[#f1f5f9] bg-white text-center flex flex-col justify-between">
+                <div>
+                  <h3 className="font-black text-[#0f172a] mb-2 flex items-center justify-center gap-2 text-xs">
+                    <QrCode size={14} className="text-[#2563eb]" />
+                    باركود ZATCA
+                  </h3>
+                  <div className="flex justify-center mb-2">
+                    <div className="p-2 bg-white rounded-xl shadow-sm border border-[#f8fafc]">
+                      {isMounted && (
+                        <QRCodeCanvas
+                          value={qrData}
+                          size={100}
+                          level="H"
+                          includeMargin={false}
+                        />
+                      )}
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="pt-2 border-t border-[#f1f5f9]">
+                  <p className="font-bold text-[#2563eb] text-[9px]">
+                    الفترة: {formatDate(items[0]?.period_from)} - {formatDate(items[0]?.period_to)}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Bank Info */}
+            {selectedBank && (
+              <div 
+                className="rounded-2xl p-4 border border-[#ccfbf1]"
+                style={{ background: '#f0fdfa' }}
+              >
+                <div className="flex justify-between items-center mb-4">
+                  <div className="flex items-center gap-2">
+                    <University size={16} className="text-[#059669]" />
+                    <h3 className="font-black text-[#0f172a] text-xs">معلومات السداد البنكي</h3>
+                  </div>
+                  <div className="flex items-center gap-2 bg-[#10b981] text-white px-2 py-0.5 rounded-full text-[8px] font-bold">
+                    <ShieldCheck size={10} />
+                    <span>حساب معتمد</span>
+                  </div>
+                </div>
+                
+                <div className="grid grid-cols-4 gap-3">
+                  <div className="bg-white rounded-xl p-3 border border-[#f1f5f9]">
+                    <p className="text-[8px] text-[#94a3b8] mb-1">البنك</p>
+                    <p className="font-bold text-[#0f172a] text-[9px] truncate">{selectedBank.bank_name}</p>
+                  </div>
+                  <div className="bg-white rounded-xl p-3 border border-[#f1f5f9]">
+                    <p className="text-[8px] text-[#94a3b8] mb-1">المستفيد</p>
+                    <p className="font-bold text-[#0f172a] text-[9px] truncate">{selectedBank.bank_beneficiary}</p>
+                  </div>
+                  <div className="bg-white rounded-xl p-3 border border-[#f1f5f9]">
+                    <p className="text-[8px] text-[#94a3b8] mb-1">الحساب</p>
+                    <p className="font-bold text-[#2563eb] text-[9px]">{selectedBank.bank_account}</p>
+                  </div>
+                  <div className="bg-white rounded-xl p-3 border border-[#f1f5f9]">
+                    <p className="text-[8px] text-[#94a3b8] mb-1">الآيبان</p>
+                    <p className="font-bold text-[#0f172a] text-[8px] break-all">{selectedBank.bank_iban}</p>
+                  </div>
+                </div>
+
+                <div className="flex justify-end mt-3">
+                  {invoiceStatus === 'paid' ? (
+                    <div className="flex items-center gap-1 text-[#059669] text-[9px] font-black uppercase">
+                      <CheckCircle size={10} />
+                      <span>تم السداد بنجاح</span>
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-2 text-[#d97706] text-[9px] font-black uppercase">
+                      <Clock size={10} />
+                      <span>بانتظار السداد - الاستحقاق: {formatDate(invoice.due_date)}</span>
+                    </div>
+                  )}
+                </div>
               </div>
             )}
 
-              {/* Stamp and Signature Section - REPOSITIONED TO END */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 pt-10 border-t border-[#f1f5f9] mt-10">
+            {/* Stamp and Signature Section */}
+            <div className="grid grid-cols-2 gap-8 pt-6 border-t border-[#f1f5f9]">
               {/* Stamp */}
-              <div className="text-center group">
-                <h4 className="text-[#1e293b] font-black text-[11px] mb-4 flex items-center justify-center gap-2">
-                  <Stamp size={14} className="text-[#94a3b8]" />
-                  ختم المنشأة
-                </h4>
-                <div className="w-24 h-24 mx-auto bg-white rounded-2xl border border-dashed border-[#e2e8f0] flex items-center justify-center p-4 relative overflow-hidden transition-all group-hover:border-blue-300 shadow-sm">
+              <div className="text-center">
+                <h4 className="text-[#64748b] font-bold text-[9px] mb-2 uppercase tracking-tight">ختم المنشأة</h4>
+                <div className="w-20 h-20 mx-auto bg-white rounded-xl border border-dashed border-[#e2e8f0] flex items-center justify-center p-2">
                   {company.stamp_path ? (
                     <img 
                       src={getPublicUrl(company.stamp_path) || ''} 
                       alt="Stamp" 
-                      className="max-w-full max-h-full object-contain grayscale hover:grayscale-0 transition-all duration-500"
+                      className="max-w-full max-h-full object-contain grayscale"
                       crossOrigin="anonymous"
                     />
                   ) : (
-                    <div className="text-[#e2e8f0] flex flex-col items-center gap-1">
-                      <Stamp size={32} className="opacity-10" />
-                      <span className="text-[8px] font-black uppercase">لا يوجد ختم</span>
-                    </div>
+                    <Stamp size={24} className="text-[#e2e8f0]" />
                   )}
                 </div>
               </div>
 
               {/* Signature */}
-              <div className="text-center group">
-                <h4 className="text-[#1e293b] font-black text-[11px] mb-4 flex items-center justify-center gap-2">
-                  <Signature size={14} className="text-[#94a3b8]" />
-                  التوقيع الإلكتروني
-                </h4>
-                <div className="w-24 h-24 mx-auto bg-white rounded-2xl border border-dashed border-[#e2e8f0] flex items-center justify-center p-4 relative overflow-hidden transition-all group-hover:border-indigo-300 shadow-sm">
+              <div className="text-center">
+                <h4 className="text-[#64748b] font-bold text-[9px] mb-2 uppercase tracking-tight">التوقيع الإلكتروني</h4>
+                <div className="w-20 h-20 mx-auto bg-white rounded-xl border border-dashed border-[#e2e8f0] flex items-center justify-center p-2">
                   {company.digital_seal_path ? (
                     <img 
                       src={getPublicUrl(company.digital_seal_path) || ''} 
@@ -706,10 +625,7 @@ export function InvoiceViewClient({
                       crossOrigin="anonymous"
                     />
                   ) : (
-                    <div className="text-[#e2e8f0] flex flex-col items-center gap-1">
-                      <Signature size={32} className="opacity-10" />
-                      <span className="text-[8px] font-black uppercase">لا يوجد توقيع</span>
-                    </div>
+                    <Signature size={24} className="text-[#e2e8f0]" />
                   )}
                 </div>
               </div>
