@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
   FileText,
@@ -26,6 +26,7 @@ import {
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { format } from "date-fns";
+import { useReactToPrint } from "react-to-print";
 
 interface QuotationItem {
   id: number;
@@ -77,6 +78,7 @@ interface QuotationViewClientProps {
 
 export function QuotationViewClient({ quotation, company, companyId }: QuotationViewClientProps) {
   const router = useRouter();
+  const printRef = useRef<HTMLDivElement>(null);
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [notification, setNotification] = useState<NotificationState>({
     show: false,
@@ -123,9 +125,10 @@ export function QuotationViewClient({ quotation, company, companyId }: Quotation
     }
   };
 
-  const handlePrint = () => {
-    window.print();
-  };
+  const handlePrint = useReactToPrint({
+    contentRef: printRef,
+    documentTitle: `عرض سعر - ${quotation.quotation_number}`,
+  });
 
   return (
     <div className="h-full flex flex-col">
@@ -177,8 +180,38 @@ export function QuotationViewClient({ quotation, company, companyId }: Quotation
         )}
       </AnimatePresence>
 
-      <div className="flex-1 overflow-auto p-6 print:p-0">
-        <div className="max-w-[1200px] mx-auto space-y-6">
+      <style>{`
+        @media print {
+          .no-print, .print\\:hidden { display: none !important; }
+          html, body { 
+            background: white !important; 
+            padding: 0 !important; 
+            margin: 0 !important; 
+            width: 210mm !important;
+          }
+          .print-content { 
+            box-shadow: none !important; 
+            margin: 0 !important; 
+            width: 210mm !important; 
+            padding: 15mm !important;
+            max-width: 100% !important; 
+            border: none !important;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+          }
+          @page {
+            size: A4 portrait;
+            margin: 0;
+          }
+          * {
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+          }
+        }
+      `}</style>
+
+      <div className="flex-1 overflow-auto p-6 print:p-0" ref={printRef}>
+        <div className="max-w-[1200px] mx-auto space-y-6 print-content">
           <div className="relative overflow-hidden bg-gradient-to-br from-[#1a237e] to-[#283593] rounded-2xl p-6 text-white shadow-xl print:hidden">
             <div className="relative z-10">
               <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">

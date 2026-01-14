@@ -19,6 +19,7 @@ import { QRCodeCanvas } from "qrcode.react";
 import { format } from "date-fns";
 import { ar } from "date-fns/locale";
 import { cn } from "@/lib/utils";
+import { useReactToPrint } from "react-to-print";
 
 interface CreditNoteViewClientProps {
   creditNote: any;
@@ -34,9 +35,10 @@ export function CreditNoteViewClient({ creditNote, qrData }: CreditNoteViewClien
     setIsMounted(true);
   }, []);
 
-  const handlePrint = () => {
-    window.print();
-  };
+  const handlePrint = useReactToPrint({
+    contentRef: printRef,
+    documentTitle: `إشعار دائن - ${creditNote.credit_note_number}`,
+  });
 
   const handleDownloadPDF = async () => {
     setPdfLoading(true);
@@ -101,29 +103,41 @@ export function CreditNoteViewClient({ creditNote, qrData }: CreditNoteViewClien
 
   return (
     <div className="min-h-screen bg-[#f1f5f9] overflow-y-auto font-tajawal">
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@200;300;400;500;700;800;900&display=swap');
-        .font-tajawal { font-family: 'Tajawal', sans-serif; }
-        @media print {
-          .no-print { display: none !important; }
-          body { background: white !important; padding: 0 !important; margin: 0 !important; }
-          .invoice-container { 
-            box-shadow: none !important; 
-            margin: 0 !important; 
-            width: 210mm !important; 
-            height: 297mm !important;
-            max-width: 100% !important; 
-            border: none !important;
-            transform: none !important;
-            -webkit-print-color-adjust: exact !important;
-            print-color-adjust: exact !important;
+        <style>{`
+          @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@200;300;400;500;700;800;900&display=swap');
+          .font-tajawal { font-family: 'Tajawal', sans-serif; }
+          @media print {
+            .no-print { display: none !important; }
+            html, body { 
+              background: white !important; 
+              padding: 0 !important; 
+              margin: 0 !important; 
+              width: 210mm !important;
+              height: auto !important;
+            }
+            .invoice-container { 
+              box-shadow: none !important; 
+              margin: 0 !important; 
+              width: 210mm !important; 
+              min-height: 297mm !important;
+              max-width: 100% !important; 
+              border: none !important;
+              transform: none !important;
+              -webkit-print-color-adjust: exact !important;
+              print-color-adjust: exact !important;
+              overflow: visible !important;
+            }
+            @page {
+              size: A4 portrait;
+              margin: 0;
+            }
+            * {
+              -webkit-print-color-adjust: exact !important;
+              print-color-adjust: exact !important;
+            }
           }
-          @page {
-            size: A4 portrait;
-            margin: 0;
-          }
-        }
-      `}</style>
+        `}</style>
+
 
       <div className="w-full max-w-[210mm] mx-auto py-6 space-y-4">
         {/* Action Buttons */}
