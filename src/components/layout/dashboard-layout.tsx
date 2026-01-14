@@ -43,7 +43,7 @@ export function DashboardLayout({ children, user, permissions }: DashboardLayout
               animate={{ x: 0 }}
               exit={{ x: "100%" }}
               transition={{ type: "spring", damping: 25, stiffness: 200 }}
-              className="absolute top-0 right-0 bottom-0 w-72 bg-[#2c3e50] shadow-2xl overflow-hidden flex flex-col"
+                className="absolute top-0 right-0 bottom-0 w-64 bg-[#2c3e50] shadow-2xl overflow-hidden flex flex-col"
             >
               <div className="flex items-center justify-between p-4 border-b border-white/10">
                 <span className="text-white font-black">القائمة الرئيسية</span>
