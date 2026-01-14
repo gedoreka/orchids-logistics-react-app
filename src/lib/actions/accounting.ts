@@ -50,6 +50,16 @@ export async function deleteAccount(id: number) {
       return { success: false, error: "لا يمكن حذف هذا الحساب لأنه مرتبط بمصروفات." };
     }
 
+    // Check for deductions
+    const deductions = await query<{ count: string }>(
+      "SELECT COUNT(*) as count FROM monthly_deductions WHERE account_id = ?",
+      [id]
+    );
+    
+    if (Number(deductions[0].count) > 0) {
+      return { success: false, error: "لا يمكن حذف هذا الحساب لأنه مرتبط باستقطاعات." };
+    }
+
     await query("DELETE FROM accounts WHERE id = ?", [id]);
     revalidatePath("/accounts");
     return { success: true };
@@ -101,6 +111,16 @@ export async function deleteCostCenter(id: number) {
     
     if (Number(expenses[0].count) > 0) {
       return { success: false, error: "لا يمكن حذف مركز التكلفة لأنه مرتبط بمصروفات." };
+    }
+
+    // Check for deductions
+    const deductions = await query<{ count: string }>(
+      "SELECT COUNT(*) as count FROM monthly_deductions WHERE cost_center_id = ?",
+      [id]
+    );
+    
+    if (Number(deductions[0].count) > 0) {
+      return { success: false, error: "لا يمكن حذف مركز التكلفة لأنه مرتبط باستقطاعات." };
     }
 
     await query("DELETE FROM cost_centers WHERE id = ?", [id]);
