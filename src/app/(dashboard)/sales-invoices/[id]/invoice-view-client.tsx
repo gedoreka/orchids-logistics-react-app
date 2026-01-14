@@ -228,15 +228,27 @@ export function InvoiceViewClient({
         backgroundColor: '#ffffff'
       });
       
-      const imgData = canvas.toDataURL('image/png');
-      const pdf = new jsPDF('p', 'mm', 'a4');
-      const pdfWidth = pdf.internal.pageSize.getWidth();
-      
-      const imgWidth = pdfWidth - 10;
-      const imgHeight = (canvas.height * imgWidth) / canvas.width;
-      
-      pdf.addImage(imgData, 'PNG', 5, 5, imgWidth, imgHeight);
-      pdf.save(`فاتورة-ضريبية-${invoice.invoice_number}.pdf`);
+        const pdf = new jsPDF('p', 'mm', 'a4');
+        const pdfWidth = pdf.internal.pageSize.getWidth();
+        const pdfHeight = pdf.internal.pageSize.getHeight();
+        
+        const imgWidth = pdfWidth;
+        const imgHeight = (canvas.height * imgWidth) / canvas.width;
+        
+        // If image height exceeds PDF page height, scale it down to fit one page
+        let finalImgHeight = imgHeight;
+        let finalImgWidth = imgWidth;
+        if (imgHeight > pdfHeight) {
+          const ratio = pdfHeight / imgHeight;
+          finalImgHeight = pdfHeight;
+          finalImgWidth = imgWidth * ratio;
+        }
+        
+        const xOffset = (pdfWidth - finalImgWidth) / 2;
+        
+        pdf.addImage(imgData, 'PNG', xOffset, 0, finalImgWidth, finalImgHeight);
+        pdf.save(`فاتورة-ضريبية-${invoice.invoice_number}.pdf`);
+
     } catch (error) {
       console.error('Error generating PDF:', error);
     } finally {
@@ -255,23 +267,25 @@ export function InvoiceViewClient({
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@200;300;400;500;700;800;900&display=swap');
         .font-tajawal { font-family: 'Tajawal', sans-serif; }
-        @media print {
-          .no-print { display: none !important; }
-          body { background: white !important; padding: 0 !important; }
-          .invoice-container { 
-            box-shadow: none !important; 
-            margin: 0 !important; 
-            width: 100% !important; 
-            max-width: 100% !important; 
-            border: none !important;
-            transform: scale(0.95);
-            transform-origin: top center;
+          @media print {
+            .no-print { display: none !important; }
+            body { background: white !important; padding: 0 !important; }
+            .invoice-container { 
+              box-shadow: none !important; 
+              margin: 0 !important; 
+              width: 210mm !important; 
+              max-width: 100% !important; 
+              border: none !important;
+              transform: none !important;
+              -webkit-print-color-adjust: exact !important;
+              print-color-adjust: exact !important;
+            }
+            @page {
+              size: A4 portrait;
+              margin: 0;
+            }
           }
-          @page {
-            size: auto;
-            margin: 5mm;
-          }
-        }
+
       `}</style>
 
       <div className="max-w-5xl mx-auto space-y-4">
@@ -301,17 +315,19 @@ export function InvoiceViewClient({
         </div>
 
         {/* Invoice Layout */}
-        <div 
-          ref={printRef} 
-          className="invoice-container bg-white rounded-2xl shadow-xl overflow-hidden border border-[#f1f5f9]"
-          style={{ 
-            width: '210mm', 
-            minHeight: '280mm', 
-            margin: '0 auto', 
-            backgroundColor: '#ffffff',
-            color: '#0f172a'
-          }}
-        >
+          <div 
+            ref={printRef} 
+            className="invoice-container bg-white shadow-xl overflow-hidden border border-[#f1f5f9] mx-auto"
+            style={{ 
+              width: '210mm', 
+              minHeight: 'auto', 
+              backgroundColor: '#ffffff',
+              color: '#0f172a',
+              display: 'flex',
+              flexDirection: 'column'
+            }}
+          >
+
           {/* Header */}
           <div 
             className="text-white p-4 relative overflow-hidden"
