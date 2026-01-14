@@ -45,25 +45,28 @@
 }
 
     :root {
-      --radius: 0.5rem;
-      --background: #f8fafc;
-      --foreground: #1a1a1a;
+      --radius: 1rem;
+      --background: #f5f7fa;
+      --foreground: #2c3e50;
       
-      /* Refined Luxurious Palette */
+      /* Refined Luxurious Palette from PHP Design */
       --primary-color: #2c3e50;
       --secondary-color: #3498db;
       --accent-color: #e74c3c;
-      --success-color: #2ecc71;
-      --warning-color: #f39c12;
+      --success-color: #27ae60;
+      --warning-color: #f1c40f;
       --info-color: #3498db;
-      --glass-bg: rgba(255, 255, 255, 0.9);
-      --glass-border: rgba(0, 0, 0, 0.05);
-      --glass-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-      --card-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-      --hover-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
-      --transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
-      --frosted-blur: blur(10px);
-      --text-color: #1a1a1a;
+      
+      /* Glassmorphism Variables */
+      --glass-bg: rgba(255, 255, 255, 0.85);
+      --glass-border: rgba(255, 255, 255, 0.2);
+      --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.07);
+      
+      /* Shadow System */
+      --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+      --hover-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+      
+      --transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     }
   
     @layer base {
@@ -72,12 +75,71 @@
       }
       body {
         font-family: 'Tajawal', 'Segoe UI', system-ui, sans-serif;
-        background: #f8fafc;
+        background: linear-gradient(135deg, #f5f7fa 0%, #e4e8ed 100%);
         min-height: 100vh;
-        color: var(--text-color);
+        color: var(--foreground);
         margin: 0;
         padding: 0;
+        scroll-behavior: smooth;
       }
+    }
+
+    /* Luxury Utility Classes - Pure CSS for maximum compatibility with Tailwind 4 */
+    .glass-card {
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+    }
+    
+    .premium-gradient {
+      background: linear-gradient(135deg, #2c3e50, #34495e);
+    }
+    
+    .premium-button {
+      position: relative;
+      overflow: hidden;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      font-weight: 700;
+      border-radius: 1rem;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+    }
+
+    .premium-button:hover {
+      transform: translateY(-2px) scale(1.02);
+      box-shadow: 0 15px 30px rgba(0,0,0,0.15);
+    }
+
+    .premium-button:active {
+      transform: translateY(0) scale(0.98);
+    }
+
+    .premium-button-primary {
+      background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+      color: white;
+    }
+
+    .premium-button-success {
+      background: linear-gradient(135deg, #10b981, #047857);
+      color: white;
+    }
+
+    .premium-button-warning {
+      background: linear-gradient(135deg, #facc15, #ca8a04);
+      color: white;
+    }
+    
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
     }
 
 
@@ -87,16 +149,10 @@
   100% { background-position: 0% 50%; }
 }
 
-@keyframes gradientFlow {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
-}
-
 @keyframes slideUp {
   from {
     opacity: 0;
-    transform: translateY(50px) scale(0.9);
+    transform: translateY(30px) scale(0.98);
   }
   to {
     opacity: 1;
@@ -104,20 +160,7 @@
   }
 }
 
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(30px); }
-  to { opacity: 1; transform: translateY(0); }
+@keyframes pulse-glow {
+  0%, 100% { opacity: 0.5; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.05); }
 }
-
-@keyframes float {
-  0%, 100% { transform: translateY(0) rotate(0deg); }
-  50% { transform: translateY(-30px) rotate(180deg); }
-}
-
-@keyframes fieldGlow {
-  0% { box-shadow: 0 0 0 0 rgba(46, 204, 113, 0.4); }
-  70% { box-shadow: 0 0 0 10px rgba(46, 204, 113, 0); }
-  100% { box-shadow: 0 0 0 0 rgba(46, 204, 113, 0); }
-}
-
-

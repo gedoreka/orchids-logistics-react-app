@@ -21,7 +21,7 @@ export function DashboardLayout({ children, user, permissions }: DashboardLayout
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   return (
-    <div className="flex min-h-screen bg-[#f8fafc]" dir="rtl">
+    <div className="flex min-h-screen bg-[var(--background)]" dir="rtl">
       {/* Sidebar - Desktop */}
       <div className="hidden lg:block shrink-0">
         <Sidebar userRole={user?.role} permissions={permissions} />
