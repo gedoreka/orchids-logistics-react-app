@@ -221,8 +221,8 @@ export function InvoiceViewClient({
 
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/20 p-4 md:p-6">
-      <div className="max-w-5xl mx-auto space-y-6">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/20 p-4 md:p-6 overflow-y-auto">
+      <div className="max-w-4xl mx-auto space-y-6">
         <div className="flex flex-wrap gap-3 justify-center print:hidden">
           <Link href="/sales-invoices">
             <button className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gray-100 text-gray-700 hover:bg-gray-200 font-bold text-sm transition-all">
@@ -254,7 +254,7 @@ export function InvoiceViewClient({
           </a>
         </div>
 
-          <div ref={printRef} className="bg-white rounded-2xl shadow-lg overflow-hidden print:shadow-none print:rounded-none">
+          <div ref={printRef} className="bg-white rounded-2xl shadow-lg print:shadow-none print:rounded-none overflow-visible">
             <div 
               className="text-white p-6"
               style={{ background: 'linear-gradient(to bottom right, #1a237e, #283593)' }}

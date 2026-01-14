@@ -62,17 +62,17 @@ export function DashboardLayout({ children, user, permissions }: DashboardLayout
         )}
       </AnimatePresence>
       
-        <div className="flex-1 flex flex-col min-w-0 h-screen overflow-hidden">
+        <div className="flex-1 flex flex-col min-w-0 min-h-screen">
           {/* Main Header */}
           <Header user={user} onToggleSidebar={() => setIsSidebarOpen(true)} />
   
           {/* Main Content Area */}
-          <main className="flex-1 flex flex-col overflow-hidden relative">
+          <main className="flex-1 flex flex-col relative">
             <motion.div
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.3 }}
-              className="flex-1 flex flex-col min-h-0"
+              className="flex-1 flex flex-col"
             >
               {children}
             </motion.div>
