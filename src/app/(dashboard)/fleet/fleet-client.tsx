@@ -54,6 +54,7 @@ import {
   TableRow 
 } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Label } from "@/components/ui/label";
 import { addVehicle, addSpare, addSpareCategory, addVehicleCategory, createMaintenanceRequest, deleteVehicle, deleteMaintenanceRequest, getMaintenanceDetails } from "@/lib/actions/fleet";
 import { toast } from "sonner";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -607,232 +608,736 @@ export function FleetClient({
                           </TableCell>
                         </TableRow>
                       ))}
-                    </TableBody>
-                  </Table>
+                  </TableBody>
+                </Table>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
+
+      {/* Hidden Print Content */}
+      <div className="opacity-0 pointer-events-none absolute -z-50 overflow-hidden h-0 w-0">
+        <MaintenanceReceipt ref={printRef} data={selectedMaintenance} details={selectedMaintenanceDetails} companyName={companyName} />
+      </div>
+    </div>
+  );
+}
+
+// ------------------------------------------------------------------------------------------------
+// Sub-components
+// ------------------------------------------------------------------------------------------------
+
+function DashboardStatCard({ title, value, icon, color, desc, alert }: any) {
+  const colors: any = {
+    blue: "from-blue-500/20 to-indigo-500/20 text-blue-600 border-blue-100",
+    emerald: "from-emerald-500/20 to-teal-500/20 text-emerald-600 border-emerald-100",
+    amber: "from-amber-500/20 to-orange-500/20 text-amber-600 border-amber-100",
+    rose: "from-rose-500/20 to-pink-500/20 text-rose-600 border-rose-100",
+  };
+
+  return (
+    <motion.div whileHover={{ y: -5 }} className="relative group">
+      <Card className={`rounded-[2rem] border overflow-hidden bg-white shadow-xl shadow-slate-200/50 transition-all ${alert ? 'ring-2 ring-rose-500/20' : ''}`}>
+        <div className={`absolute inset-0 bg-gradient-to-br ${colors[color]} opacity-0 group-hover:opacity-100 transition-opacity duration-500`}></div>
+        <CardContent className="p-8 relative z-10">
+          <div className="flex justify-between items-start mb-6">
+            <div className={`p-4 rounded-[1.25rem] bg-white shadow-lg ${colors[color].split(' ')[2]}`}>
+              {icon}
+            </div>
+            {alert && <div className="h-3 w-3 rounded-full bg-rose-500 animate-ping"></div>}
+          </div>
+          <div className="space-y-1">
+            <h3 className="text-slate-500 font-bold text-sm uppercase tracking-wider">{title}</h3>
+            <div className="flex items-baseline gap-2">
+              <span className="text-4xl font-black text-slate-900 tracking-tighter">{value}</span>
+              <span className="text-xs font-black text-slate-400 uppercase">{desc}</span>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    </motion.div>
+  );
+}
+
+function AddVehicleCategoryDialog({ companyId }: { companyId: number }) {
+  const [open, setOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    setLoading(true);
+    const formData = new FormData(e.currentTarget);
+    const res = await addVehicleCategory({
+      company_id: companyId,
+      name: formData.get("name") as string,
+      description: formData.get("description") as string,
+    });
+    setLoading(false);
+    if (res.success) {
+      toast.success("تم إضافة الفئة بنجاح");
+      setOpen(false);
+    } else {
+      toast.error("خطأ في إضافة الفئة");
+    }
+  }
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <Button variant="outline" size="lg" className="h-14 px-6 rounded-[1.25rem] font-bold gap-2 text-slate-600 border-slate-200 hover:bg-white hover:shadow-md transition-all">
+          <Plus size={20} /> فئة مركبات جديدة
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="sm:max-w-[425px] rounded-[2rem]">
+        <DialogHeader>
+          <DialogTitle className="text-2xl font-black text-slate-800">إضافة فئة مركبات</DialogTitle>
+        </DialogHeader>
+        <form onSubmit={handleSubmit} className="space-y-6 pt-4">
+          <div className="space-y-2">
+            <Label htmlFor="name" className="text-sm font-bold text-slate-700 mr-2">اسم الفئة</Label>
+            <Input id="name" name="name" placeholder="مثلاً: سيارات سيدان، شاحنات ثقيلة..." className="h-12 rounded-xl" required />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="description" className="text-sm font-bold text-slate-700 mr-2">وصف إضافي</Label>
+            <Input id="description" name="description" className="h-12 rounded-xl" />
+          </div>
+          <Button type="submit" className="w-full h-14 rounded-xl bg-slate-900 font-bold text-lg" disabled={loading}>
+            {loading ? "جاري الإضافة..." : "حفظ الفئة"}
+          </Button>
+        </form>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+function AddCategoryDialog({ companyId }: { companyId: number }) {
+  const [open, setOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    setLoading(true);
+    const formData = new FormData(e.currentTarget);
+    const res = await addSpareCategory({
+      company_id: companyId,
+      name: formData.get("name") as string,
+      description: formData.get("description") as string,
+    });
+    setLoading(false);
+    if (res.success) {
+      toast.success("تم إضافة الفئة بنجاح");
+      setOpen(false);
+    } else {
+      toast.error("خطأ في إضافة الفئة");
+    }
+  }
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <Button variant="ghost" size="icon" className="h-10 w-10 rounded-xl text-slate-400 hover:bg-blue-50 hover:text-blue-600 transition-all">
+          <Plus size={20} />
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="sm:max-w-[425px] rounded-[2rem]">
+        <DialogHeader>
+          <DialogTitle className="text-2xl font-black text-slate-800">إضافة فئة قطع غيار</DialogTitle>
+        </DialogHeader>
+        <form onSubmit={handleSubmit} className="space-y-6 pt-4">
+          <div className="space-y-2">
+            <Label htmlFor="name" className="text-sm font-bold text-slate-700 mr-2">اسم الفئة</Label>
+            <Input id="name" name="name" placeholder="مثلاً: فلاتر، إطارات، زيوت..." className="h-12 rounded-xl" required />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="description" className="text-sm font-bold text-slate-700 mr-2">وصف إضافي</Label>
+            <Input id="description" name="description" className="h-12 rounded-xl" />
+          </div>
+          <Button type="submit" className="w-full h-14 rounded-xl bg-slate-900 font-bold text-lg" disabled={loading}>
+            {loading ? "جاري الإضافة..." : "حفظ الفئة"}
+          </Button>
+        </form>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+function AddVehicleDialog({ companyId, employees, vehicleCategories }: any) {
+  const [open, setOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    setLoading(true);
+    const formData = new FormData(e.currentTarget);
+    const data = Object.fromEntries(formData.entries());
+    const res = await addVehicle({ ...data, company_id: companyId });
+    setLoading(false);
+    if (res.success) {
+      toast.success("تم إضافة المركبة بنجاح");
+      setOpen(false);
+    } else {
+      toast.error("خطأ في إضافة المركبة");
+    }
+  }
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <Button size="lg" className="h-14 px-8 rounded-[1.25rem] font-black text-lg gap-3 bg-slate-900 hover:bg-slate-800 shadow-xl shadow-slate-900/20 transition-all">
+          <Truck size={24} /> إضافة مركبة جديدة
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="sm:max-w-[600px] rounded-[2rem] max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle className="text-3xl font-black text-slate-800">بيانات المركبة الجديدة</DialogTitle>
+        </DialogHeader>
+        <form onSubmit={handleSubmit} className="space-y-6 pt-6">
+          <div className="grid grid-cols-2 gap-6">
+            <div className="space-y-2">
+              <Label className="font-bold text-slate-700 mr-2">رقم اللوحة (عربي)</Label>
+              <Input name="plate_number_ar" placeholder="أ ب ج 1234" className="h-12 rounded-xl" required />
+            </div>
+            <div className="space-y-2">
+              <Label className="font-bold text-slate-700 mr-2">رقم اللوحة (انجليزي)</Label>
+              <Input name="plate_number_en" placeholder="ABC 1234" className="h-12 rounded-xl" required />
+            </div>
+            <div className="space-y-2">
+              <Label className="font-bold text-slate-700 mr-2">الماركة</Label>
+              <Input name="brand" placeholder="تويوتا، مرسيدس..." className="h-12 rounded-xl" required />
+            </div>
+            <div className="space-y-2">
+              <Label className="font-bold text-slate-700 mr-2">الموديل</Label>
+              <Input name="model" placeholder="هايلوكس، أكتروس..." className="h-12 rounded-xl" required />
+            </div>
+            <div className="space-y-2">
+              <Label className="font-bold text-slate-700 mr-2">سنة الصنع</Label>
+              <Input name="manufacture_year" type="number" className="h-12 rounded-xl" required />
+            </div>
+            <div className="space-y-2">
+              <Label className="font-bold text-slate-700 mr-2">العداد الحالي (كم)</Label>
+              <Input name="current_km" type="number" className="h-12 rounded-xl" required />
+            </div>
+            <div className="space-y-2">
+              <Label className="font-bold text-slate-700 mr-2">فئة المركبة</Label>
+              <Select name="category_id">
+                <SelectTrigger className="h-12 rounded-xl">
+                  <SelectValue placeholder="اختر الفئة" />
+                </SelectTrigger>
+                <SelectContent>
+                  {vehicleCategories.map((cat: any) => (
+                    <SelectItem key={cat.id} value={cat.id.toString()}>{cat.name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label className="font-bold text-slate-700 mr-2">السائق المسؤول</Label>
+              <Select name="driver_id">
+                <SelectTrigger className="h-12 rounded-xl">
+                  <SelectValue placeholder="اختر السائق" />
+                </SelectTrigger>
+                <SelectContent>
+                  {employees.map((emp: any) => (
+                    <SelectItem key={emp.id} value={emp.id.toString()}>{emp.full_name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          <Button type="submit" className="w-full h-14 rounded-xl bg-slate-900 font-bold text-lg" disabled={loading}>
+            {loading ? "جاري الحفظ..." : "إضافة المركبة للأسطول"}
+          </Button>
+        </form>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+function AddSpareDialog({ companyId, categories }: any) {
+  const [open, setOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    setLoading(true);
+    const formData = new FormData(e.currentTarget);
+    const data = Object.fromEntries(formData.entries());
+    const res = await addSpare({ ...data, company_id: companyId });
+    setLoading(false);
+    if (res.success) {
+      toast.success("تم إضافة القطعة بنجاح");
+      setOpen(false);
+    } else {
+      toast.error("خطأ في إضافة القطعة");
+    }
+  }
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <Button variant="outline" size="lg" className="h-14 px-6 rounded-[1.25rem] font-bold gap-2 text-slate-600 border-slate-200 hover:bg-white hover:shadow-md transition-all">
+          <Plus size={20} /> قطعة غيار جديدة
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="sm:max-w-[500px] rounded-[2rem]">
+        <DialogHeader>
+          <DialogTitle className="text-2xl font-black text-slate-800">إضافة صنف للمخزون</DialogTitle>
+        </DialogHeader>
+        <form onSubmit={handleSubmit} className="space-y-6 pt-4">
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2 col-span-2">
+              <Label className="font-bold text-slate-700 mr-2">اسم القطعة</Label>
+              <Input name="name" className="h-12 rounded-xl" required />
+            </div>
+            <div className="space-y-2">
+              <Label className="font-bold text-slate-700 mr-2">كود القطعة</Label>
+              <Input name="code" className="h-12 rounded-xl" />
+            </div>
+            <div className="space-y-2">
+              <Label className="font-bold text-slate-700 mr-2">الفئة</Label>
+              <Select name="category_id">
+                <SelectTrigger className="h-12 rounded-xl">
+                  <SelectValue placeholder="اختر الفئة" />
+                </SelectTrigger>
+                <SelectContent>
+                  {categories.map((cat: any) => (
+                    <SelectItem key={cat.id} value={cat.id.toString()}>{cat.name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label className="font-bold text-slate-700 mr-2">الكمية الحالية</Label>
+              <Input name="quantity" type="number" className="h-12 rounded-xl" required />
+            </div>
+            <div className="space-y-2">
+              <Label className="font-bold text-slate-700 mr-2">الحد الأدنى للتنبيه</Label>
+              <Input name="min_quantity" type="number" className="h-12 rounded-xl" defaultValue="5" />
+            </div>
+            <div className="space-y-2">
+              <Label className="font-bold text-slate-700 mr-2">سعر التكلفة</Label>
+              <Input name="unit_price" type="number" step="0.01" className="h-12 rounded-xl" required />
+            </div>
+            <div className="space-y-2">
+              <Label className="font-bold text-slate-700 mr-2">سعر البيع (اختياري)</Label>
+              <Input name="sale_price" type="number" step="0.01" className="h-12 rounded-xl" />
+            </div>
+          </div>
+          <Button type="submit" className="w-full h-14 rounded-xl bg-slate-900 font-bold text-lg" disabled={loading}>
+            {loading ? "جاري الإضافة..." : "حفظ الصنف"}
+          </Button>
+        </form>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+function MaintenanceRequestDialog({ companyId, vehicles, spares }: any) {
+  const [open, setOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [selectedSpares, setSelectedSpares] = useState<any[]>([]);
+
+  const totalCost = selectedSpares.reduce((sum, s) => sum + (s.quantity * s.unit_price), 0);
+
+  function addSpareToRequest(spareId: string) {
+    const spare = spares.find((s: any) => s.id.toString() === spareId);
+    if (spare && !selectedSpares.find(s => s.id === spare.id)) {
+      setSelectedSpares([...selectedSpares, { ...spare, quantity: 1 }]);
+    }
+  }
+
+  function updateSpareQuantity(id: number, qty: number) {
+    setSelectedSpares(selectedSpares.map(s => s.id === id ? { ...s, quantity: Math.max(1, qty) } : s));
+  }
+
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    setLoading(true);
+    const formData = new FormData(e.currentTarget);
+    const data = {
+      company_id: companyId,
+      vehicle_id: parseInt(formData.get("vehicle_id") as string),
+      maintenance_person: formData.get("maintenance_person") as string,
+      maintenance_date: formData.get("maintenance_date") as string,
+      current_km: parseInt(formData.get("current_km") as string),
+      notes: formData.get("notes") as string,
+      total_cost: totalCost,
+    };
+
+    const res = await createMaintenanceRequest(data, selectedSpares);
+    setLoading(false);
+    if (res.success) {
+      toast.success("تم إنشاء طلب الصيانة وتحديث المخزون");
+      setOpen(false);
+      setSelectedSpares([]);
+    } else {
+      toast.error("خطأ في معالجة طلب الصيانة");
+    }
+  }
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <Button size="lg" className="h-14 px-8 rounded-[1.25rem] font-black text-lg gap-3 bg-blue-600 hover:bg-blue-700 shadow-xl shadow-blue-900/20 transition-all">
+          <Wrench size={24} /> طلب صيانة جديد
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="sm:max-w-[700px] rounded-[2rem] max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle className="text-3xl font-black text-slate-800">إنشاء أمر صيانة</DialogTitle>
+        </DialogHeader>
+        <form onSubmit={handleSubmit} className="space-y-6 pt-6">
+          <div className="grid grid-cols-2 gap-6">
+            <div className="space-y-2">
+              <Label className="font-bold text-slate-700 mr-2">المركبة</Label>
+              <Select name="vehicle_id" required>
+                <SelectTrigger className="h-12 rounded-xl">
+                  <SelectValue placeholder="اختر المركبة" />
+                </SelectTrigger>
+                <SelectContent>
+                  {vehicles.map((v: any) => (
+                    <SelectItem key={v.id} value={v.id.toString()}>{v.plate_number_ar} ({v.brand})</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label className="font-bold text-slate-700 mr-2">الفني المسؤول</Label>
+              <Input name="maintenance_person" className="h-12 rounded-xl" placeholder="اسم الفني" required />
+            </div>
+            <div className="space-y-2">
+              <Label className="font-bold text-slate-700 mr-2">التاريخ</Label>
+              <Input name="maintenance_date" type="date" className="h-12 rounded-xl" defaultValue={new Date().toISOString().split('T')[0]} required />
+            </div>
+            <div className="space-y-2">
+              <Label className="font-bold text-slate-700 mr-2">قراءة العداد الحالية</Label>
+              <Input name="current_km" type="number" className="h-12 rounded-xl" placeholder="كم" required />
+            </div>
+          </div>
+
+          <div className="p-6 rounded-2xl bg-slate-50 border border-slate-200 space-y-4">
+            <h4 className="font-black text-slate-800 flex items-center gap-2">
+              <Package size={18} className="text-blue-500" /> قطع الغيار المستخدمة
+            </h4>
+            <Select onValueChange={addSpareToRequest}>
+              <SelectTrigger className="h-12 rounded-xl bg-white">
+                <SelectValue placeholder="ابحث وأضف قطع غيار..." />
+              </SelectTrigger>
+              <SelectContent>
+                {spares.map((s: any) => (
+                  <SelectItem key={s.id} value={s.id.toString()} disabled={s.quantity <= 0}>
+                    {s.name} ({s.quantity} متوفر) - {s.unit_price} SAR
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
+            <ScrollArea className="h-[150px] w-full rounded-xl border bg-white p-2">
+              {selectedSpares.map(s => (
+                <div key={s.id} className="flex items-center justify-between p-3 border-b last:border-0">
+                  <div className="flex flex-col">
+                    <span className="font-bold text-slate-800">{s.name}</span>
+                    <span className="text-xs text-slate-400">{s.unit_price} SAR للوحدة</span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <Input 
+                      type="number" 
+                      className="w-16 h-8 text-center rounded-lg" 
+                      value={s.quantity} 
+                      onChange={(e) => updateSpareQuantity(s.id, parseInt(e.target.value))}
+                    />
+                    <Button variant="ghost" size="icon" className="h-8 w-8 text-rose-500" onClick={() => setSelectedSpares(selectedSpares.filter(item => item.id !== s.id))}>
+                      <X size={16} />
+                    </Button>
+                  </div>
                 </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-        </Tabs>
-  
-        {/* Hidden Print Content */}
-        <div className="opacity-0 pointer-events-none absolute -z-50 overflow-hidden h-0 w-0">
-          <MaintenanceReceipt ref={printRef} data={selectedMaintenance} details={selectedMaintenanceDetails} companyName={companyName} />
+              ))}
+              {selectedSpares.length === 0 && (
+                <div className="h-full flex items-center justify-center text-slate-300 italic text-sm">لم يتم إضافة قطع غيار بعد</div>
+              )}
+            </ScrollArea>
+            
+            <div className="flex justify-between items-center pt-2">
+              <span className="font-black text-slate-600 uppercase tracking-widest text-xs">إجمالي التكلفة التقديري</span>
+              <span className="text-2xl font-black text-emerald-600">{totalCost.toLocaleString()} <small className="text-xs">SAR</small></span>
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label className="font-bold text-slate-700 mr-2">ملاحظات إضافية</Label>
+            <Input name="notes" className="h-12 rounded-xl" placeholder="وصف للأعمال التي تمت..." />
+          </div>
+
+          <Button type="submit" className="w-full h-14 rounded-xl bg-slate-900 font-bold text-lg" disabled={loading}>
+            {loading ? "جاري المعالجة..." : "حفظ الطلب وتحديث المخزون"}
+          </Button>
+        </form>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+function DeleteMaintenanceDialog({ id, onDeleted }: { id: number, onDeleted: () => void }) {
+  const [open, setOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+  async function handleDelete() {
+    setLoading(true);
+    const res = await deleteMaintenanceRequest(id);
+    setLoading(false);
+    if (res.success) {
+      toast.success("تم حذف الطلب وإعادة قطع الغيار للمخزون");
+      onDeleted();
+      setOpen(false);
+    } else {
+      toast.error("خطأ في حذف الطلب");
+    }
+  }
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <Button variant="ghost" size="icon" className="h-11 w-11 rounded-xl text-slate-400 hover:bg-white hover:text-rose-600 hover:shadow-md transition-all border border-transparent hover:border-rose-100">
+          <Trash2 size={20} />
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="sm:max-w-[400px] rounded-[2.5rem] p-0 overflow-hidden border-none shadow-2xl">
+        <div className="bg-gradient-to-br from-rose-500 to-rose-600 p-8 text-center text-white">
+          <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: "spring", damping: 10 }}>
+            <div className="w-20 h-20 bg-white/20 backdrop-blur-md rounded-3xl mx-auto flex items-center justify-center mb-4">
+              <Trash2 size={40} />
+            </div>
+          </motion.div>
+          <h2 className="text-2xl font-black mb-2">تأكيد الحذف</h2>
+          <p className="text-white/80 font-medium">هل أنت متأكد من رغبتك في حذف هذا الطلب؟ سيتم استرجاع قطع الغيار المستخدمة إلى المخزون تلقائياً.</p>
+        </div>
+        <div className="p-8 bg-white flex flex-col gap-3">
+          <Button 
+            className="h-14 rounded-2xl bg-rose-600 hover:bg-rose-700 text-white font-black text-lg shadow-xl shadow-rose-200"
+            onClick={handleDelete}
+            disabled={loading}
+          >
+            {loading ? "جاري الحذف..." : "نعم، حذف الطلب"}
+          </Button>
+          <Button 
+            variant="ghost" 
+            className="h-14 rounded-2xl font-black text-slate-500 hover:bg-slate-50"
+            onClick={() => setOpen(false)}
+          >
+            إلغاء
+          </Button>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+const MaintenanceReceipt = React.forwardRef<HTMLDivElement, { data: any, details: any[], companyName: string }>(({ data, details, companyName }, ref) => {
+  if (!data) return null;
+
+  const taxRate = 0.15;
+  const subtotal = data.total_cost;
+  const taxAmount = subtotal * taxRate;
+  const grandTotal = subtotal + taxAmount;
+
+  return (
+    <div ref={ref} className="p-16 bg-white min-h-[1100px] relative font-sans text-slate-900" dir="rtl">
+      {/* Aesthetic Border */}
+      <div className="absolute inset-0 border-[16px] border-slate-50 pointer-events-none"></div>
+      <div className="absolute top-0 right-0 left-0 h-2 bg-slate-900"></div>
+      
+      {/* Header Section */}
+      <div className="flex justify-between items-start mb-16 relative z-10">
+        <div className="space-y-4">
+          <div className="flex items-center gap-4">
+            <div className="w-16 h-16 bg-slate-900 rounded-2xl flex items-center justify-center text-white shadow-xl">
+              <Wrench size={32} />
+            </div>
+            <div>
+              <h1 className="text-4xl font-black tracking-tighter text-slate-900">{companyName}</h1>
+              <p className="text-blue-600 font-black text-sm uppercase tracking-widest">Maintenance Division</p>
+            </div>
+          </div>
+        </div>
+        <div className="text-left">
+          <h2 className="text-5xl font-black text-slate-100 absolute -left-4 -top-6 select-none">INVOICE</h2>
+          <div className="relative z-10 space-y-2">
+            <div className="bg-slate-900 text-white px-6 py-3 rounded-2xl shadow-2xl">
+              <p className="text-[10px] font-bold opacity-50 uppercase mb-1">Receipt Number</p>
+              <p className="text-2xl font-black tracking-widest">#{data.id.toString().padStart(6, '0')}</p>
+            </div>
+            <p className="text-slate-400 font-bold text-xs mt-2">تاريخ الإصدار: {new Date().toLocaleDateString('ar-SA')}</p>
+          </div>
         </div>
       </div>
-    );
-  }
-  
-  // ------------------------------------------------------------------------------------------------
-  // Sub-components
-  // ------------------------------------------------------------------------------------------------
 
-  const MaintenanceReceipt = React.forwardRef<HTMLDivElement, { data: any, details: any[], companyName: string }>(({ data, details, companyName }, ref) => {
-    if (!data) return null;
-  
-    const taxRate = 0.15;
-    const subtotal = data.total_cost;
-    const taxAmount = subtotal * taxRate;
-    const grandTotal = subtotal + taxAmount;
-
-    return (
-      <div ref={ref} className="p-16 bg-white min-h-[1100px] relative font-sans text-slate-900" dir="rtl">
-        {/* Aesthetic Border */}
-        <div className="absolute inset-0 border-[16px] border-slate-50 pointer-events-none"></div>
-        <div className="absolute top-0 right-0 left-0 h-2 bg-slate-900"></div>
-        
-        {/* Header Section */}
-        <div className="flex justify-between items-start mb-16 relative z-10">
-          <div className="space-y-4">
-            <div className="flex items-center gap-4">
-              <div className="w-16 h-16 bg-slate-900 rounded-2xl flex items-center justify-center text-white shadow-xl">
-                <Wrench size={32} />
-              </div>
-              <div>
-                <h1 className="text-4xl font-black tracking-tighter text-slate-900">{companyName}</h1>
-                <p className="text-blue-600 font-black text-sm uppercase tracking-widest">Maintenance Division</p>
-              </div>
-            </div>
-          </div>
-          <div className="text-left">
-            <h2 className="text-5xl font-black text-slate-100 absolute -left-4 -top-6 select-none">INVOICE</h2>
-            <div className="relative z-10 space-y-2">
-              <div className="bg-slate-900 text-white px-6 py-3 rounded-2xl shadow-2xl">
-                <p className="text-[10px] font-bold opacity-50 uppercase mb-1">Receipt Number</p>
-                <p className="text-2xl font-black tracking-widest">#{data.id.toString().padStart(6, '0')}</p>
-              </div>
-              <p className="text-slate-400 font-bold text-xs mt-2">تاريخ الإصدار: {new Date().toLocaleDateString('ar-SA')}</p>
-            </div>
-          </div>
-        </div>
-
-        {/* Info Grid */}
-        <div className="grid grid-cols-2 gap-12 mb-16">
-          <div className="p-8 rounded-[2rem] bg-slate-50 border border-slate-100 space-y-6">
-            <h3 className="text-xs font-black text-blue-600 uppercase tracking-[0.2em] flex items-center gap-2">
-              <Car size={14} /> تفاصيل المركبة
-            </h3>
-            <div className="grid grid-cols-2 gap-y-6">
-              <div>
-                <p className="text-[10px] font-black text-slate-400 uppercase">رقم اللوحة</p>
-                <p className="text-xl font-black text-slate-800">{data.plate_number_ar}</p>
-              </div>
-              <div>
-                <p className="text-[10px] font-black text-slate-400 uppercase">النوع / الموديل</p>
-                <p className="text-lg font-bold text-slate-800">{data.brand} {data.model}</p>
-              </div>
-              <div>
-                <p className="text-[10px] font-black text-slate-400 uppercase">العداد الحالي</p>
-                <p className="text-lg font-black text-slate-800">{data.current_km.toLocaleString()} <small className="text-[10px] opacity-50">KM</small></p>
-              </div>
-            </div>
-          </div>
-
-          <div className="p-8 rounded-[2rem] bg-slate-50 border border-slate-100 space-y-6">
-            <h3 className="text-xs font-black text-amber-600 uppercase tracking-[0.2em] flex items-center gap-2">
-              <History size={14} /> بيانات الصيانة
-            </h3>
-            <div className="grid grid-cols-2 gap-y-6">
-              <div>
-                <p className="text-[10px] font-black text-slate-400 uppercase">الفني المسؤول</p>
-                <p className="text-lg font-bold text-slate-800">{data.maintenance_person}</p>
-              </div>
-              <div>
-                <p className="text-[10px] font-black text-slate-400 uppercase">تاريخ الخدمة</p>
-                <p className="text-lg font-bold text-slate-800">{new Date(data.maintenance_date).toLocaleDateString('ar-SA')}</p>
-              </div>
-              <div className="col-span-2">
-                <p className="text-[10px] font-black text-slate-400 uppercase">ملاحظات الفني</p>
-                <p className="text-sm font-medium text-slate-600 italic leading-relaxed">{data.notes || "لا توجد ملاحظات إضافية"}</p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Spares Table */}
-        <div className="mb-16">
-          <h3 className="text-xs font-black text-slate-400 uppercase tracking-[0.2em] mb-6 mr-4 flex items-center gap-2">
-            <Package size={14} /> بيان قطع الغيار المستخدمة والأعمال
+      {/* Info Grid */}
+      <div className="grid grid-cols-2 gap-12 mb-16">
+        <div className="p-8 rounded-[2rem] bg-slate-50 border border-slate-100 space-y-6">
+          <h3 className="text-xs font-black text-blue-600 uppercase tracking-[0.2em] flex items-center gap-2">
+            <Car size={14} /> تفاصيل المركبة
           </h3>
-          <div className="rounded-[2rem] border border-slate-100 overflow-hidden shadow-sm">
-            <table className="w-full">
-              <thead>
-                <tr className="bg-slate-900 text-white">
-                  <th className="py-5 px-8 text-right font-black text-xs uppercase tracking-wider">الصنف / الوصف</th>
-                  <th className="py-5 px-4 text-center font-black text-xs uppercase tracking-wider">الكمية</th>
-                  <th className="py-5 px-4 text-center font-black text-xs uppercase tracking-wider">السعر</th>
-                  <th className="py-5 px-8 text-left font-black text-xs uppercase tracking-wider">الإجمالي</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100">
-                {details && details.length > 0 ? (
-                  details.map((item, idx) => (
-                    <tr key={idx} className="hover:bg-slate-50 transition-colors">
-                      <td className="py-6 px-8">
-                        <div className="flex flex-col">
-                          <span className="font-black text-slate-800">{item.spare_name}</span>
-                          <span className="text-[10px] font-mono text-slate-400 uppercase tracking-widest">{item.spare_code}</span>
-                        </div>
-                      </td>
-                      <td className="py-6 px-4 text-center font-black text-slate-600">{item.quantity_used}</td>
-                      <td className="py-6 px-4 text-center font-bold text-slate-600">{Number(item.unit_price).toFixed(2)}</td>
-                      <td className="py-6 px-8 text-left font-black text-slate-900">{Number(item.total_price).toFixed(2)} <small className="text-[8px] opacity-30">SAR</small></td>
-                    </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td className="py-10 px-8">
+          <div className="grid grid-cols-2 gap-y-6">
+            <div>
+              <p className="text-[10px] font-black text-slate-400 uppercase">رقم اللوحة</p>
+              <p className="text-xl font-black text-slate-800">{data.plate_number_ar}</p>
+            </div>
+            <div>
+              <p className="text-[10px] font-black text-slate-400 uppercase">النوع / الموديل</p>
+              <p className="text-lg font-bold text-slate-800">{data.brand} {data.model}</p>
+            </div>
+            <div>
+              <p className="text-[10px] font-black text-slate-400 uppercase">العداد الحالي</p>
+              <p className="text-lg font-black text-slate-800">{data.current_km.toLocaleString()} <small className="text-[10px] opacity-50">KM</small></p>
+            </div>
+          </div>
+        </div>
+
+        <div className="p-8 rounded-[2rem] bg-slate-50 border border-slate-100 space-y-6">
+          <h3 className="text-xs font-black text-amber-600 uppercase tracking-[0.2em] flex items-center gap-2">
+            <History size={14} /> بيانات الصيانة
+          </h3>
+          <div className="grid grid-cols-2 gap-y-6">
+            <div>
+              <p className="text-[10px] font-black text-slate-400 uppercase">الفني المسؤول</p>
+              <p className="text-lg font-bold text-slate-800">{data.maintenance_person}</p>
+            </div>
+            <div>
+              <p className="text-[10px] font-black text-slate-400 uppercase">تاريخ الخدمة</p>
+              <p className="text-lg font-bold text-slate-800">{new Date(data.maintenance_date).toLocaleDateString('ar-SA')}</p>
+            </div>
+            <div className="col-span-2">
+              <p className="text-[10px] font-black text-slate-400 uppercase">ملاحظات الفني</p>
+              <p className="text-sm font-medium text-slate-600 italic leading-relaxed">{data.notes || "لا توجد ملاحظات إضافية"}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Spares Table */}
+      <div className="mb-16">
+        <h3 className="text-xs font-black text-slate-400 uppercase tracking-[0.2em] mb-6 mr-4 flex items-center gap-2">
+          <Package size={14} /> بيان قطع الغيار المستخدمة والأعمال
+        </h3>
+        <div className="rounded-[2rem] border border-slate-100 overflow-hidden shadow-sm">
+          <table className="w-full">
+            <thead>
+              <tr className="bg-slate-900 text-white">
+                <th className="py-5 px-8 text-right font-black text-xs uppercase tracking-wider">الصنف / الوصف</th>
+                <th className="py-5 px-4 text-center font-black text-xs uppercase tracking-wider">الكمية</th>
+                <th className="py-5 px-4 text-center font-black text-xs uppercase tracking-wider">السعر</th>
+                <th className="py-5 px-8 text-left font-black text-xs uppercase tracking-wider">الإجمالي</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100">
+              {details && details.length > 0 ? (
+                details.map((item, idx) => (
+                  <tr key={idx} className="hover:bg-slate-50 transition-colors">
+                    <td className="py-6 px-8">
                       <div className="flex flex-col">
-                        <span className="font-black text-slate-800">أعمال صيانة وإصلاح متنوعة</span>
-                        <span className="text-[10px] font-bold text-slate-400">شاملة قطع الغيار واليد العاملة</span>
+                        <span className="font-black text-slate-800">{item.spare_name}</span>
+                        <span className="text-[10px] font-mono text-slate-400 uppercase tracking-widest">{item.spare_code}</span>
                       </div>
                     </td>
-                    <td className="py-10 px-4 text-center font-black text-slate-600">1</td>
-                    <td className="py-10 px-4 text-center font-bold text-slate-600">{subtotal.toFixed(2)}</td>
-                    <td className="py-10 px-8 text-left font-black text-slate-900">{subtotal.toFixed(2)} <small className="text-[8px] opacity-30">SAR</small></td>
+                    <td className="py-6 px-4 text-center font-black text-slate-600">{item.quantity_used}</td>
+                    <td className="py-6 px-4 text-center font-bold text-slate-600">{Number(item.unit_price).toFixed(2)}</td>
+                    <td className="py-6 px-8 text-left font-black text-slate-900">{Number(item.total_price).toFixed(2)} <small className="text-[8px] opacity-30">SAR</small></td>
                   </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        {/* Summary & Totals */}
-        <div className="flex justify-between items-end mb-24">
-          <div className="w-1/2 space-y-6">
-            <div className="p-6 rounded-2xl bg-blue-50/50 border border-blue-100/50">
-              <h4 className="text-[10px] font-black text-blue-600 uppercase tracking-widest mb-2">إخلاء المسؤولية</h4>
-              <p className="text-[10px] leading-relaxed text-blue-800 font-medium">هذا المستند يعتبر إيصالاً رسمياً لعملية الصيانة المذكورة أعلاه. تضمن الشركة جودة الإصلاح وفقاً للمعايير المتبعة. يرجى الاحتفاظ بهذا الإيصال للمراجعة الدورية.</p>
-            </div>
-            <div className="flex items-center gap-4 opacity-30 grayscale">
-              <div className="h-10 w-10 rounded-lg bg-slate-200"></div>
-              <div className="h-4 w-32 bg-slate-200 rounded-full"></div>
-            </div>
-          </div>
-
-          <div className="w-80 space-y-4">
-            <div className="flex justify-between items-center px-4">
-              <span className="text-xs font-black text-slate-400 uppercase tracking-widest">المجموع الفرعي</span>
-              <span className="text-lg font-bold text-slate-700">{subtotal.toFixed(2)}</span>
-            </div>
-            <div className="flex justify-between items-center px-4">
-              <span className="text-xs font-black text-slate-400 uppercase tracking-widest">ضريبة القيمة المضافة (15%)</span>
-              <span className="text-lg font-bold text-slate-700">{taxAmount.toFixed(2)}</span>
-            </div>
-            <div className="h-px bg-slate-100 mx-4"></div>
-            <div className="bg-slate-900 text-white p-6 rounded-[2rem] shadow-2xl flex justify-between items-center transform scale-105 origin-left">
-              <div className="flex flex-col">
-                <span className="text-[10px] font-black opacity-50 uppercase tracking-widest">الإجمالي النهائي</span>
-                <span className="text-xs font-bold">TOTAL AMOUNT</span>
-              </div>
-              <div className="flex flex-col items-end">
-                <span className="text-3xl font-black">{grandTotal.toFixed(2)}</span>
-                <span className="text-[10px] font-black opacity-50">SAR / ريال سعودي</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Footer Signatures */}
-        <div className="grid grid-cols-3 gap-16 text-center border-t border-slate-100 pt-16">
-          <div className="space-y-6">
-            <p className="text-xs font-black text-slate-400 uppercase tracking-widest">اعتماد المدير الفني</p>
-            <div className="h-20 flex items-center justify-center italic text-slate-300 font-serif border-b border-dashed border-slate-200">
-              Technical Approval
-            </div>
-          </div>
-          <div className="space-y-6">
-            <p className="text-xs font-black text-slate-400 uppercase tracking-widest">توقيع السلم المستلم</p>
-            <div className="h-20 border-b border-dashed border-slate-200 flex items-center justify-center">
-              <div className="w-16 h-16 rounded-full border-2 border-slate-100 flex items-center justify-center opacity-20">
-                <User size={24} />
-              </div>
-            </div>
-          </div>
-          <div className="relative">
-            <div className="absolute inset-0 flex items-center justify-center">
-              <div className="w-32 h-32 rounded-full border-4 border-slate-50 border-double rotate-12 flex items-center justify-center opacity-10">
-                <div className="text-[8px] font-black text-slate-400 text-center uppercase tracking-tighter">
-                  OFFICIAL STAMP<br/>ZOOLSYS LOGISTICS<br/>{new Date().getFullYear()}
-                </div>
-              </div>
-            </div>
-            <p className="text-xs font-black text-slate-400 uppercase tracking-widest relative z-10 mb-20">ختم الاعتماد الرسمي</p>
-          </div>
-        </div>
-
-        <div className="absolute bottom-12 right-16 left-16 flex justify-between items-center text-[8px] font-black text-slate-300 uppercase tracking-[0.4em]">
-          <span>ZOOLSYS PRO LOGISTICS MANAGEMENT</span>
-          <div className="flex items-center gap-2">
-            <div className="w-1 h-1 rounded-full bg-slate-300"></div>
-            <span>CONFIDENTIAL DOCUMENT</span>
-            <div className="w-1 h-1 rounded-full bg-slate-300"></div>
-          </div>
-          <span>PAGE 01 OF 01</span>
+                ))
+              ) : (
+                <tr>
+                  <td className="py-10 px-8">
+                    <div className="flex flex-col">
+                      <span className="font-black text-slate-800">أعمال صيانة وإصلاح متنوعة</span>
+                      <span className="text-[10px] font-bold text-slate-400">شاملة قطع الغيار واليد العاملة</span>
+                    </div>
+                  </td>
+                  <td className="py-10 px-4 text-center font-black text-slate-600">1</td>
+                  <td className="py-10 px-4 text-center font-bold text-slate-600">{subtotal.toFixed(2)}</td>
+                  <td className="py-10 px-8 text-left font-black text-slate-900">{subtotal.toFixed(2)} <small className="text-[8px] opacity-30">SAR</small></td>
+                </tr>
+              )}
+            </tbody>
+          </table>
         </div>
       </div>
-    );
-  });
-  
-  MaintenanceReceipt.displayName = "MaintenanceReceipt";
 
+      {/* Summary & Totals */}
+      <div className="flex justify-between items-end mb-24">
+        <div className="w-1/2 space-y-6">
+          <div className="p-6 rounded-2xl bg-blue-50/50 border border-blue-100/50">
+            <h4 className="text-[10px] font-black text-blue-600 uppercase tracking-widest mb-2">إخلاء المسؤولية</h4>
+            <p className="text-[10px] leading-relaxed text-blue-800 font-medium">هذا المستند يعتبر إيصالاً رسمياً لعملية الصيانة المذكورة أعلاه. تضمن الشركة جودة الإصلاح وفقاً للمعايير المتبعة. يرجى الاحتفاظ بهذا الإيصال للمراجعة الدورية.</p>
+          </div>
+          <div className="flex items-center gap-4 opacity-30 grayscale">
+            <div className="h-10 w-10 rounded-lg bg-slate-200"></div>
+            <div className="h-4 w-32 bg-slate-200 rounded-full"></div>
+          </div>
+        </div>
+
+        <div className="w-80 space-y-4">
+          <div className="flex justify-between items-center px-4">
+            <span className="text-xs font-black text-slate-400 uppercase tracking-widest">المجموع الفرعي</span>
+            <span className="text-lg font-bold text-slate-700">{subtotal.toFixed(2)}</span>
+          </div>
+          <div className="flex justify-between items-center px-4">
+            <span className="text-xs font-black text-slate-400 uppercase tracking-widest">ضريبة القيمة المضافة (15%)</span>
+            <span className="text-lg font-bold text-slate-700">{taxAmount.toFixed(2)}</span>
+          </div>
+          <div className="h-px bg-slate-100 mx-4"></div>
+          <div className="bg-slate-900 text-white p-6 rounded-[2rem] shadow-2xl flex justify-between items-center transform scale-105 origin-left">
+            <div className="flex flex-col">
+              <span className="text-[10px] font-black opacity-50 uppercase tracking-widest">الإجمالي النهائي</span>
+              <span className="text-xs font-bold">TOTAL AMOUNT</span>
+            </div>
+            <div className="flex flex-col items-end">
+              <span className="text-3xl font-black">{grandTotal.toFixed(2)}</span>
+              <span className="text-[10px] font-black opacity-50">SAR / ريال سعودي</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Footer Signatures */}
+      <div className="grid grid-cols-3 gap-16 text-center border-t border-slate-100 pt-16">
+        <div className="space-y-6">
+          <p className="text-xs font-black text-slate-400 uppercase tracking-widest">اعتماد المدير الفني</p>
+          <div className="h-20 flex items-center justify-center italic text-slate-300 font-serif border-b border-dashed border-slate-200">
+            Technical Approval
+          </div>
+        </div>
+        <div className="space-y-6">
+          <p className="text-xs font-black text-slate-400 uppercase tracking-widest">توقيع السلم المستلم</p>
+          <div className="h-20 border-b border-dashed border-slate-200 flex items-center justify-center">
+            <div className="w-16 h-16 rounded-full border-2 border-slate-100 flex items-center justify-center opacity-20">
+              <User size={24} />
+            </div>
+          </div>
+        </div>
+        <div className="relative">
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div className="w-32 h-32 rounded-full border-4 border-slate-50 border-double rotate-12 flex items-center justify-center opacity-10">
+              <div className="text-[8px] font-black text-slate-400 text-center uppercase tracking-tighter">
+                OFFICIAL STAMP<br/>ZOOLSYS LOGISTICS<br/>{new Date().getFullYear()}
+              </div>
+            </div>
+          </div>
+          <p className="text-xs font-black text-slate-400 uppercase tracking-widest relative z-10 mb-20">ختم الاعتماد الرسمي</p>
+        </div>
+      </div>
+
+      <div className="absolute bottom-12 right-16 left-16 flex justify-between items-center text-[8px] font-black text-slate-300 uppercase tracking-[0.4em]">
+        <span>ZOOLSYS PRO LOGISTICS MANAGEMENT</span>
+        <div className="flex items-center gap-2">
+          <div className="w-1 h-1 rounded-full bg-slate-300"></div>
+          <span>CONFIDENTIAL DOCUMENT</span>
+          <div className="w-1 h-1 rounded-full bg-slate-300"></div>
+        </div>
+        <span>PAGE 01 OF 01</span>
+      </div>
+    </div>
+  );
+});
+
+MaintenanceReceipt.displayName = "MaintenanceReceipt";
