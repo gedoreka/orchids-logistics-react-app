@@ -83,5 +83,12 @@ export default async function InvoiceViewPage({ params }: { params: Promise<{ id
     notFound();
   }
 
-  return <InvoiceViewClient {...data} />;
+  const serializedData = JSON.parse(JSON.stringify(data, (key, value) => {
+    if (value instanceof Date) {
+      return value.toISOString();
+    }
+    return value;
+  }));
+
+  return <InvoiceViewClient {...serializedData} />;
 }
