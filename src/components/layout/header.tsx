@@ -164,27 +164,18 @@ export function Header({ user, onToggleSidebar }: { user?: { name: string; role:
             {/* Time & Location - Centered & Compact */}
             <div className="hidden xl:flex items-center gap-8 bg-white/60 px-8 py-2 rounded-[2rem] border border-gray-100 shadow-[inset_0_2px_10px_rgba(0,0,0,0.02)]">
               {mounted && (
-                <>
-                  <div className="flex items-center gap-6 text-[10px] font-black text-gray-500 uppercase tracking-widest">
-                    <div className="flex items-center gap-3 group">
-                      <div className="w-9 h-9 bg-blue-500/10 rounded-xl flex items-center justify-center text-blue-500 group-hover:bg-blue-500 group-hover:text-white transition-all shadow-sm">
-                        <Calendar size={14} />
+                  <>
+                    <div className="flex items-center gap-6 text-[10px] font-black text-gray-500 uppercase tracking-widest">
+                      <div className="flex items-center gap-3 group">
+                        <div className="w-9 h-9 bg-blue-500/10 rounded-xl flex items-center justify-center text-blue-500 group-hover:bg-blue-500 group-hover:text-white transition-all shadow-sm">
+                          <Calendar size={14} />
+                        </div>
+                        <span className="whitespace-nowrap leading-none">{formatDate(currentTime)}</span>
                       </div>
-                      <span className="whitespace-nowrap leading-none">{formatDate(currentTime)}</span>
                     </div>
                     
                     <div className="w-px h-6 bg-gray-200" />
-                    
-                    <div className="flex items-center gap-3 group">
-                      <div className="w-9 h-9 bg-orange-500/10 rounded-xl flex items-center justify-center text-orange-500 group-hover:bg-orange-500 group-hover:text-white transition-all shadow-sm">
-                        <History size={14} />
-                      </div>
-                      <span className="whitespace-nowrap leading-none">{formatHijriDate(currentTime)}</span>
-                    </div>
-                  </div>
-                  
-                  <div className="w-px h-6 bg-gray-200" />
-                </>
+                  </>
               )}
               
               <div className="flex items-center gap-3 text-[10px] text-gray-400 font-black tracking-widest group cursor-help">
