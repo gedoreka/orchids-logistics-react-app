@@ -34,9 +34,10 @@ interface HRDashboardClientProps {
   activePackages: any[];
   recentEmployees: any[];
   companyName: string;
+  mostUsedPackageId: number | null;
 }
 
-export function HRDashboardClient({ stats, activePackages, recentEmployees, companyName }: HRDashboardClientProps) {
+export function HRDashboardClient({ stats, activePackages, recentEmployees, companyName, mostUsedPackageId }: HRDashboardClientProps) {
   return (
     <div className="space-y-6 pb-20 max-w-[1800px] mx-auto px-4">
       {/* Header */}
@@ -118,7 +119,7 @@ export function HRDashboardClient({ stats, activePackages, recentEmployees, comp
               desc="البحث عن الموظفين وتعديل بياناتهم" 
               badge={`${stats.totalEmployees} موظف`} 
               color="green"
-              href="/hr/packages"
+              href={mostUsedPackageId ? `/hr/packages/${mostUsedPackageId}` : "/hr/packages"}
             />
             <QuickNavCard 
               icon={<IdCard size={28} />} 

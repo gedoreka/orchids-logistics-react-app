@@ -48,6 +48,19 @@ export default async function HRPage() {
     [companyId]
   );
 
+  // 3.1 Find the most used package (by employee count)
+  const mostUsedPackageRes = await query(
+    `SELECT ep.id, ep.group_name, COUNT(e.id) as employee_count
+     FROM employee_packages ep
+     LEFT JOIN employees e ON e.package_id = ep.id
+     WHERE ep.company_id = ?
+     GROUP BY ep.id, ep.group_name
+     ORDER BY employee_count DESC
+     LIMIT 1`,
+    [companyId]
+  );
+  const mostUsedPackageId = mostUsedPackageRes[0]?.id || (activePackages[0]?.id || null);
+
   // 4. Fetch Recent Employees (limit 5)
   const recentEmployees = await query(
     `SELECT e.*, ep.group_name 
@@ -74,6 +87,7 @@ export default async function HRPage() {
       }}
       activePackages={activePackages}
       recentEmployees={recentEmployees}
+      mostUsedPackageId={mostUsedPackageId}
     />
   );
 }
