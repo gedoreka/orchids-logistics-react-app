@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import { motion } from "framer-motion";
+import { useRouter } from "next/navigation";
 import { 
   Wallet, 
   HandCoins, 
@@ -37,6 +38,7 @@ interface ExpensesClientProps {
 
 export function ExpensesClient({ companyId, companyInfo, stats, recentActivity }: ExpensesClientProps) {
   const [currentMonth] = useState(new Date().toISOString().slice(0, 7));
+  const router = useRouter();
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -162,7 +164,7 @@ export function ExpensesClient({ companyId, companyInfo, stats, recentActivity }
               variants={itemVariants}
               whileHover={{ y: -5 }}
               className="group cursor-pointer"
-              onClick={() => window.location.href = card.link}
+              onClick={() => router.push(card.link)}
             >
               <Card className="border-none shadow-lg hover:shadow-2xl transition-all duration-300 rounded-[2rem] overflow-hidden bg-white/80 backdrop-blur-xl">
                 <CardContent className="p-6 text-center space-y-3">
@@ -249,7 +251,7 @@ export function ExpensesClient({ companyId, companyInfo, stats, recentActivity }
                   key={idx}
                   whileHover={{ x: -5 }}
                   className="flex items-center justify-between p-4 bg-white shadow-md hover:shadow-lg rounded-2xl transition-all group w-full text-right border border-slate-100"
-                  onClick={() => window.location.href = action.link}
+                  onClick={() => router.push(action.link)}
                 >
                   <div className="flex items-center gap-4">
                     <div className={`p-2.5 rounded-xl ${action.bg} ${action.color} group-hover:scale-110 transition-transform`}>

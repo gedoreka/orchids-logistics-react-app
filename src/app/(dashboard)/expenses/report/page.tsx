@@ -4,11 +4,24 @@ import { ExpensesReportClient } from './expenses-report-client';
 
 export default async function ExpensesReportPage() {
   const cookieStore = await cookies();
-  const companyId = cookieStore.get('company_id')?.value;
+  const sessionCookie = cookieStore.get('auth_session');
 
-  if (!companyId) {
+  if (!sessionCookie) {
     redirect('/login');
   }
 
-  return <ExpensesReportClient companyId={parseInt(companyId)} />;
+  let session;
+  try {
+    session = JSON.parse(sessionCookie.value);
+  } catch {
+    redirect('/login');
+  }
+  
+  const companyId = session.company_id;
+
+  if (!companyId) {
+    redirect('/dashboard');
+  }
+
+  return <ExpensesReportClient companyId={companyId} />;
 }

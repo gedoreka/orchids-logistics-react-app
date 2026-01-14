@@ -10,10 +10,23 @@ const supabase = createClient(
 export async function GET(request: NextRequest) {
   try {
     const cookieStore = await cookies();
-    const companyId = cookieStore.get('company_id')?.value;
+    const sessionCookie = cookieStore.get('auth_session');
+    
+    if (!sessionCookie) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    let session;
+    try {
+      session = JSON.parse(sessionCookie.value);
+    } catch {
+      return NextResponse.json({ error: 'Invalid session' }, { status: 401 });
+    }
+    
+    const companyId = session.company_id;
     
     if (!companyId) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json({ error: 'No company ID' }, { status: 401 });
     }
 
     const { searchParams } = new URL(request.url);
