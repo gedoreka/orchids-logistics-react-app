@@ -17,13 +17,12 @@ import {
   FileSpreadsheet,
   ChartBar,
   Upload,
-  X,
   AlertCircle,
   Loader2
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { format } from "date-fns";
+import { useLocale, useTranslations } from "@/lib/locale-context";
 
 interface Customer {
   id: number;
@@ -65,6 +64,9 @@ export function CustomersClient({ customers: initialCustomers, stats, companyId 
     message: ""
   });
   const router = useRouter();
+  const { isRTL } = useLocale();
+  const t = useTranslations('customers');
+  const tCommon = useTranslations('common');
 
   const filteredCustomers = customers.filter(customer => {
     const search = searchTerm.toLowerCase();
@@ -85,10 +87,10 @@ export function CustomersClient({ customers: initialCustomers, stats, companyId 
   };
 
   const handleDelete = async (id: number, customerName: string) => {
-    if (!confirm(`هل أنت متأكد من حذف العميل "${customerName}"؟`)) return;
+    if (!confirm(t('confirmDelete').replace('{name}', customerName))) return;
     
     setDeleteLoading(id);
-    showNotification("loading", "جاري الحذف", "جاري حذف بيانات العميل...");
+    showNotification("loading", t('deleteLoading'), t('deletingCustomer'));
     
     try {
       const res = await fetch(`/api/customers/${id}?company_id=${companyId}`, {
@@ -97,20 +99,20 @@ export function CustomersClient({ customers: initialCustomers, stats, companyId 
       
       if (res.ok) {
         setCustomers(prev => prev.filter(c => c.id !== id));
-        showNotification("success", "تم الحذف بنجاح", "تم حذف العميل بنجاح");
+        showNotification("success", t('deleteSuccess'), t('customerDeleted'));
         router.refresh();
       } else {
-        showNotification("error", "فشل الحذف", "فشل حذف العميل، حاول مرة أخرى");
+        showNotification("error", t('deleteFailed'), t('deleteFailedMessage'));
       }
     } catch {
-      showNotification("error", "خطأ", "حدث خطأ أثناء الحذف");
+      showNotification("error", t('errorOccurred'), t('deleteError'));
     } finally {
       setDeleteLoading(null);
     }
   };
 
   return (
-    <div className="h-full flex flex-col">
+    <div className="h-full flex flex-col" dir={isRTL ? "rtl" : "ltr"}>
       <AnimatePresence>
         {notification.show && (
           <>
@@ -149,7 +151,7 @@ export function CustomersClient({ customers: initialCustomers, stats, companyId 
                         notification.type === "success" ? "bg-emerald-500 hover:bg-emerald-600" : "bg-red-500 hover:bg-red-600"
                       }`}
                     >
-                      حسناً
+                      {tCommon('ok')}
                     </button>
                   )}
                 </div>
@@ -169,51 +171,51 @@ export function CustomersClient({ customers: initialCustomers, stats, companyId 
                     <Users size={28} />
                   </div>
                   <div>
-                    <h1 className="text-2xl font-black">إدارة العملاء</h1>
-                    <p className="text-white/60 text-sm">إدارة قاعدة بيانات العملاء والمنشآت</p>
+                    <h1 className="text-2xl font-black">{t('management')}</h1>
+                    <p className="text-white/60 text-sm">{t('subtitle')}</p>
                   </div>
                 </div>
                 <div className="grid grid-cols-3 gap-3">
                   <div className="bg-white/10 backdrop-blur rounded-xl p-3 text-center">
                     <div className="text-2xl font-black">{stats.total}</div>
-                    <div className="text-[10px] text-white/60 font-bold">إجمالي</div>
+                    <div className="text-[10px] text-white/60 font-bold">{tCommon('total')}</div>
                   </div>
                   <div className="bg-emerald-500/20 backdrop-blur rounded-xl p-3 text-center">
                     <div className="text-2xl font-black text-emerald-300">{stats.active}</div>
-                    <div className="text-[10px] text-white/60 font-bold">نشط</div>
+                    <div className="text-[10px] text-white/60 font-bold">{tCommon('active')}</div>
                   </div>
                   <div className="bg-red-500/20 backdrop-blur rounded-xl p-3 text-center">
                     <div className="text-2xl font-black text-red-300">{stats.inactive}</div>
-                    <div className="text-[10px] text-white/60 font-bold">غير نشط</div>
+                    <div className="text-[10px] text-white/60 font-bold">{tCommon('inactive')}</div>
                   </div>
                 </div>
               </div>
             </div>
-            <div className="absolute top-0 right-0 w-40 h-40 bg-white/5 rounded-full -mr-20 -mt-20 blur-2xl" />
+            <div className={`absolute top-0 ${isRTL ? 'left-0 -ml-20' : 'right-0 -mr-20'} w-40 h-40 bg-white/5 rounded-full -mt-20 blur-2xl`} />
           </div>
 
           <div className="bg-white rounded-2xl border border-gray-100 p-4 shadow-sm">
             <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
               <div className="relative w-full md:w-80">
-                <Search className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+                <Search className={`absolute ${isRTL ? 'right-3' : 'left-3'} top-1/2 -translate-y-1/2 text-gray-400`} size={18} />
                 <input
                   type="text"
-                  placeholder="بحث بالاسم، الرقم الضريبي..."
+                  placeholder={t('searchPlaceholder')}
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pr-10 pl-4 py-2.5 rounded-xl border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none text-sm"
+                  className={`w-full ${isRTL ? 'pr-10 pl-4' : 'pl-10 pr-4'} py-2.5 rounded-xl border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none text-sm`}
                 />
               </div>
               <div className="flex gap-2 flex-wrap">
                 <Link href="/customers/new">
                   <button className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-500 text-white font-bold text-sm hover:bg-emerald-600 transition-all">
                     <UserPlus size={16} />
-                    <span>إضافة عميل</span>
+                    <span>{t('addCustomer')}</span>
                   </button>
                 </Link>
                 <button className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-blue-500 text-white font-bold text-sm hover:bg-blue-600 transition-all">
                   <FileSpreadsheet size={16} />
-                  <span>تصدير</span>
+                  <span>{tCommon('export')}</span>
                 </button>
               </div>
             </div>
@@ -223,10 +225,10 @@ export function CustomersClient({ customers: initialCustomers, stats, companyId 
             <div className="bg-gradient-to-br from-[#2c3e50] to-[#34495e] px-4 py-3 flex justify-between items-center">
               <div className="flex items-center gap-2 text-white">
                 <Users size={18} />
-                <h3 className="font-bold text-sm">قائمة العملاء</h3>
+                <h3 className="font-bold text-sm">{t('customersList')}</h3>
               </div>
               <span className="bg-white/20 text-white px-2 py-0.5 rounded text-xs font-bold">
-                {filteredCustomers.length} عميل
+                {filteredCustomers.length} {t('customer')}
               </span>
             </div>
 
@@ -235,13 +237,13 @@ export function CustomersClient({ customers: initialCustomers, stats, companyId 
                 <table className="w-full">
                   <thead className="sticky top-0 bg-gray-50 z-10">
                     <tr className="border-b border-gray-100">
-                      <th className="text-right px-4 py-3 text-xs font-bold text-gray-600">العميل</th>
-                      <th className="text-right px-4 py-3 text-xs font-bold text-gray-600">المنشأة</th>
-                      <th className="text-right px-4 py-3 text-xs font-bold text-gray-600">الرقم الضريبي</th>
-                      <th className="text-right px-4 py-3 text-xs font-bold text-gray-600">البريد</th>
-                      <th className="text-right px-4 py-3 text-xs font-bold text-gray-600">الهاتف</th>
-                      <th className="text-right px-4 py-3 text-xs font-bold text-gray-600">الحالة</th>
-                      <th className="text-center px-4 py-3 text-xs font-bold text-gray-600">الإجراءات</th>
+                      <th className={`${isRTL ? 'text-right' : 'text-left'} px-4 py-3 text-xs font-bold text-gray-600`}>{t('customer')}</th>
+                      <th className={`${isRTL ? 'text-right' : 'text-left'} px-4 py-3 text-xs font-bold text-gray-600`}>{t('facility')}</th>
+                      <th className={`${isRTL ? 'text-right' : 'text-left'} px-4 py-3 text-xs font-bold text-gray-600`}>{t('taxNumber')}</th>
+                      <th className={`${isRTL ? 'text-right' : 'text-left'} px-4 py-3 text-xs font-bold text-gray-600`}>{t('emailCol')}</th>
+                      <th className={`${isRTL ? 'text-right' : 'text-left'} px-4 py-3 text-xs font-bold text-gray-600`}>{t('phoneCol')}</th>
+                      <th className={`${isRTL ? 'text-right' : 'text-left'} px-4 py-3 text-xs font-bold text-gray-600`}>{t('statusCol')}</th>
+                      <th className="text-center px-4 py-3 text-xs font-bold text-gray-600">{t('actionsCol')}</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-50">
@@ -256,7 +258,7 @@ export function CustomersClient({ customers: initialCustomers, stats, companyId 
                               <Users size={14} />
                             </div>
                             <span className="font-bold text-gray-900 text-sm">
-                              {customer.customer_name || "غير محدد"}
+                              {customer.customer_name || t('notSpecified')}
                             </span>
                           </div>
                         </td>
@@ -295,24 +297,24 @@ export function CustomersClient({ customers: initialCustomers, stats, companyId 
                           {customer.is_active ? (
                             <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-600 text-xs font-bold">
                               <CheckCircle size={10} />
-                              نشط
+                              {t('activeStatus')}
                             </span>
                           ) : (
                             <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-red-50 text-red-600 text-xs font-bold">
                               <XCircle size={10} />
-                              غير نشط
+                              {t('inactiveStatus')}
                             </span>
                           )}
                         </td>
                         <td className="px-4 py-3">
                           <div className="flex items-center justify-center gap-1">
                             <Link href={`/customers/${customer.id}`}>
-                              <button className="h-7 w-7 rounded-lg bg-blue-50 text-blue-500 flex items-center justify-center hover:bg-blue-500 hover:text-white transition-all" title="عرض">
+                              <button className="h-7 w-7 rounded-lg bg-blue-50 text-blue-500 flex items-center justify-center hover:bg-blue-500 hover:text-white transition-all" title={tCommon('view')}>
                                 <Eye size={14} />
                               </button>
                             </Link>
                             <Link href={`/customers/${customer.id}/edit`}>
-                              <button className="h-7 w-7 rounded-lg bg-amber-50 text-amber-500 flex items-center justify-center hover:bg-amber-500 hover:text-white transition-all" title="تعديل">
+                              <button className="h-7 w-7 rounded-lg bg-amber-50 text-amber-500 flex items-center justify-center hover:bg-amber-500 hover:text-white transition-all" title={tCommon('edit')}>
                                 <Edit size={14} />
                               </button>
                             </Link>
@@ -320,7 +322,7 @@ export function CustomersClient({ customers: initialCustomers, stats, companyId 
                               onClick={() => handleDelete(customer.id, customer.customer_name || customer.company_name)}
                               disabled={deleteLoading === customer.id}
                               className="h-7 w-7 rounded-lg bg-red-50 text-red-500 flex items-center justify-center hover:bg-red-500 hover:text-white transition-all disabled:opacity-50"
-                              title="حذف"
+                              title={tCommon('delete')}
                             >
                               {deleteLoading === customer.id ? (
                                 <div className="h-3 w-3 border-2 border-current border-t-transparent rounded-full animate-spin" />
@@ -338,12 +340,12 @@ export function CustomersClient({ customers: initialCustomers, stats, companyId 
             ) : (
               <div className="py-16 text-center">
                 <Users size={48} className="mx-auto text-gray-200 mb-4" />
-                <h4 className="text-lg font-bold text-gray-600 mb-2">لا يوجد عملاء</h4>
-                <p className="text-gray-400 text-sm mb-4">ابدأ بإضافة أول عميل لك</p>
+                <h4 className="text-lg font-bold text-gray-600 mb-2">{t('noCustomers')}</h4>
+                <p className="text-gray-400 text-sm mb-4">{t('startAddingCustomer')}</p>
                 <Link href="/customers/new">
                   <button className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-emerald-500 text-white font-bold text-sm hover:bg-emerald-600 transition-all">
                     <UserPlus size={16} />
-                    <span>إضافة عميل</span>
+                    <span>{t('addCustomer')}</span>
                   </button>
                 </Link>
               </div>
@@ -356,8 +358,8 @@ export function CustomersClient({ customers: initialCustomers, stats, companyId 
                 <div className="h-12 w-12 rounded-xl bg-blue-500 flex items-center justify-center text-white mx-auto mb-3 group-hover:scale-105 transition-transform">
                   <UserPlus size={20} />
                 </div>
-                <h4 className="font-bold text-gray-900 text-sm mb-1">إضافة عميل</h4>
-                <p className="text-xs text-gray-500">تسجيل عميل جديد</p>
+                <h4 className="font-bold text-gray-900 text-sm mb-1">{t('addCustomer')}</h4>
+                <p className="text-xs text-gray-500">{t('registerNewCustomer')}</p>
               </div>
             </Link>
             
@@ -365,16 +367,16 @@ export function CustomersClient({ customers: initialCustomers, stats, companyId 
               <div className="h-12 w-12 rounded-xl bg-emerald-500 flex items-center justify-center text-white mx-auto mb-3 group-hover:scale-105 transition-transform">
                 <Upload size={20} />
               </div>
-              <h4 className="font-bold text-gray-900 text-sm mb-1">استيراد</h4>
-              <p className="text-xs text-gray-500">من ملف Excel</p>
+              <h4 className="font-bold text-gray-900 text-sm mb-1">{tCommon('import')}</h4>
+              <p className="text-xs text-gray-500">{t('importFromExcel')}</p>
             </div>
             
             <div className="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all text-center group cursor-pointer">
               <div className="h-12 w-12 rounded-xl bg-purple-500 flex items-center justify-center text-white mx-auto mb-3 group-hover:scale-105 transition-transform">
                 <ChartBar size={20} />
               </div>
-              <h4 className="font-bold text-gray-900 text-sm mb-1">التقارير</h4>
-              <p className="text-xs text-gray-500">إحصائيات العملاء</p>
+              <h4 className="font-bold text-gray-900 text-sm mb-1">{t('reports')}</h4>
+              <p className="text-xs text-gray-500">{t('customerReports')}</p>
             </div>
           </div>
         </div>
