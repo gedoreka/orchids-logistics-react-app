@@ -271,16 +271,16 @@ function ReceiptVouchersContent() {
           </div>
         </div>
 
-        <div className="relative z-10 flex flex-wrap justify-center lg:justify-start gap-4 mt-8">
-          <span className="flex items-center gap-2 px-5 py-2.5 bg-blue-500/20 backdrop-blur-sm rounded-xl border border-blue-500/30 text-blue-300 font-bold">
-            <User size={18} />
-            المسؤول: المدير
-          </span>
-          <span className="flex items-center gap-2 px-5 py-2.5 bg-purple-500/20 backdrop-blur-sm rounded-xl border border-purple-500/30 text-purple-300 font-bold">
-            <Calendar size={18} />
-            {new Date().toLocaleDateString("ar-SA")}
-          </span>
-        </div>
+          <div className="relative z-10 flex flex-wrap justify-center lg:justify-start gap-4 mt-8">
+            <span className="flex items-center gap-2 px-5 py-2.5 bg-blue-500/20 backdrop-blur-sm rounded-xl border border-blue-500/30 text-blue-300 font-bold">
+              <User size={18} />
+              المسؤول: المدير
+            </span>
+            <span className="flex items-center gap-2 px-5 py-2.5 bg-purple-500/20 backdrop-blur-sm rounded-xl border border-purple-500/30 text-purple-300 font-bold">
+              <Calendar size={18} />
+              {new Date().toLocaleDateString("en-GB")}
+            </span>
+          </div>
       </motion.div>
 
       {/* Action Bar */}

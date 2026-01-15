@@ -15,6 +15,11 @@ interface Stats {
   paymentVouchers: { count: number; total: number };
 }
 
+interface CompanyInfo {
+  name: string;
+  logo_path?: string;
+}
+
 const voucherTypes = [
   {
     id: "sales-receipts",
@@ -70,6 +75,7 @@ function FinancialVouchersContent() {
     paymentVouchers: { count: 0, total: 0 }
   });
   const [loading, setLoading] = useState(true);
+  const [companyInfo, setCompanyInfo] = useState<CompanyInfo | null>(null);
   const companyId = "1";
 
   const fetchStats = async () => {
@@ -106,8 +112,21 @@ function FinancialVouchersContent() {
     }
   };
 
+  const fetchCompanyInfo = async () => {
+    try {
+      const res = await fetch(`/api/company-info?company_id=${companyId}`);
+      const data = await res.json();
+      if (data.company) {
+        setCompanyInfo(data.company);
+      }
+    } catch (error) {
+      console.error("Error fetching company info:", error);
+    }
+  };
+
   useEffect(() => {
     fetchStats();
+    fetchCompanyInfo();
   }, []);
 
   const totalIncome = stats.salesReceipts.total + stats.receiptVouchers.total;
@@ -150,11 +169,11 @@ function FinancialVouchersContent() {
               <div className="flex flex-wrap justify-center lg:justify-start gap-4 mt-8">
                 <span className="flex items-center gap-2 px-5 py-3 bg-blue-500/20 backdrop-blur-sm rounded-2xl border border-blue-500/30 text-blue-300 font-bold">
                   <Building2 size={18} />
-                  شركة ZoolSpeed
+                  {companyInfo?.name || "جاري التحميل..."}
                 </span>
                 <span className="flex items-center gap-2 px-5 py-3 bg-emerald-500/20 backdrop-blur-sm rounded-2xl border border-emerald-500/30 text-emerald-300 font-bold">
                   <Calendar size={18} />
-                  {new Date().toLocaleDateString("ar-SA", { year: 'numeric', month: 'long', day: 'numeric' })}
+                  {new Date().toLocaleDateString("en-GB", { year: 'numeric', month: '2-digit', day: '2-digit' })}
                 </span>
                 <button 
                   onClick={fetchStats}
@@ -367,13 +386,13 @@ function FinancialVouchersContent() {
       </motion.div>
 
       {/* Footer */}
-      <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-[10px] font-black text-slate-400 uppercase tracking-widest pt-6">
-        <div className="flex items-center gap-2">
-          <Sparkles size={12} className="text-indigo-500" />
-          <span>نظام ZoolSpeed Logistics - إدارة السندات المالية</span>
+        <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-[10px] font-black text-slate-400 uppercase tracking-widest pt-6">
+          <div className="flex items-center gap-2">
+            <Sparkles size={12} className="text-indigo-500" />
+            <span>نظام {companyInfo?.name || "Logistics"} - إدارة السندات المالية</span>
+          </div>
+          <span>جميع الحقوق محفوظة © {new Date().getFullYear()}</span>
         </div>
-        <span>جميع الحقوق محفوظة © {new Date().getFullYear()}</span>
-      </div>
     </div>
   );
 }
