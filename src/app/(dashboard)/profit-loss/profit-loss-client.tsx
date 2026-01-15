@@ -224,15 +224,11 @@ function ProfitLossContent() {
           </div>
 
           <div className="flex flex-wrap items-center justify-center gap-4">
-            <div className="bg-white/10 backdrop-blur-md rounded-2xl px-6 py-4 border border-white/10">
-              <p className="text-xs text-slate-400 font-bold uppercase tracking-wider">اسم الشركة</p>
-              <p className="text-xl font-black text-white">{companyInfo.name}</p>
+              <div className="bg-white/10 backdrop-blur-md rounded-2xl px-6 py-4 border border-white/10">
+                <p className="text-xs text-slate-400 font-bold uppercase tracking-wider">تاريخ التقرير</p>
+                <p className="text-xl font-black text-white">{new Date().toLocaleDateString("en-GB")}</p>
+              </div>
             </div>
-            <div className="bg-white/10 backdrop-blur-md rounded-2xl px-6 py-4 border border-white/10">
-              <p className="text-xs text-slate-400 font-bold uppercase tracking-wider">تاريخ التقرير</p>
-              <p className="text-xl font-black text-white">{new Date().toLocaleDateString("en-GB")}</p>
-            </div>
-          </div>
         </div>
 
         <div className="relative z-10 flex flex-wrap justify-center lg:justify-start gap-4 mt-8 print:hidden">
@@ -243,10 +239,6 @@ function ProfitLossContent() {
           <span className="flex items-center gap-2 px-5 py-2.5 bg-purple-500/20 backdrop-blur-sm rounded-xl border border-purple-500/30 text-purple-300 font-bold">
             <User size={18} />
             المستخدم: {userName}
-          </span>
-          <span className="flex items-center gap-2 px-5 py-2.5 bg-amber-500/20 backdrop-blur-sm rounded-xl border border-amber-500/30 text-amber-300 font-bold">
-            <Calendar size={18} />
-            {new Date().toLocaleDateString("en-GB")}
           </span>
         </div>
       </motion.div>
@@ -651,50 +643,50 @@ function ProfitLossContent() {
           {expandedSections.expenses ? <ChevronUp className="w-6 h-6 text-white" /> : <ChevronDown className="w-6 h-6 text-white" />}
         </button>
 
-        <AnimatePresence>
-          {expandedSections.expenses && (
-            <motion.div
-              initial={{ height: 0 }}
-              animate={{ height: "auto" }}
-              exit={{ height: 0 }}
-              className="overflow-hidden"
-            >
-              <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead>
-                    <tr className="bg-slate-50 border-b-2 border-slate-100">
-                      <th className="px-6 py-4 text-right text-xs font-black text-slate-500 uppercase">نوع المصروف</th>
-                      <th className="px-6 py-4 text-right text-xs font-black text-slate-500 uppercase">التاريخ</th>
-                      <th className="px-6 py-4 text-right text-xs font-black text-slate-500 uppercase">المبلغ</th>
-                      <th className="px-6 py-4 text-right text-xs font-black text-slate-500 uppercase">الموظف</th>
-                      <th className="px-6 py-4 text-right text-xs font-black text-slate-500 uppercase">الوصف</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-50">
-                    {details.expenses.length > 0 ? (
-                      details.expenses.map((exp) => (
-                        <tr key={exp.id} className="hover:bg-slate-50/70 transition-colors">
-                          <td className="px-6 py-4 text-sm font-bold text-slate-700">{exp.expense_type}</td>
-                          <td className="px-6 py-4 text-sm font-bold text-slate-600">{formatDate(exp.expense_date)}</td>
-                          <td className="px-6 py-4 text-lg font-black text-red-600">{formatNumber(exp.amount)} ريال</td>
-                          <td className="px-6 py-4 text-sm font-bold text-slate-600">{exp.employee_display_name}</td>
-                          <td className="px-6 py-4 text-sm text-slate-500 max-w-[200px] truncate">{exp.description}</td>
-                        </tr>
-                      ))
-                    ) : (
-                      <tr>
-                        <td colSpan={5} className="px-6 py-12 text-center">
-                          <CreditCard className="w-12 h-12 text-slate-300 mx-auto mb-3" />
-                          <p className="text-slate-400 font-bold">لا توجد مصروفات لهذا الشهر</p>
-                        </td>
+          <AnimatePresence>
+            {expandedSections.expenses && (
+              <motion.div
+                initial={{ height: 0 }}
+                animate={{ height: "auto" }}
+                exit={{ height: 0 }}
+                className="overflow-hidden"
+              >
+                <div className="overflow-x-auto max-h-[500px] overflow-y-auto">
+                  <table className="w-full">
+                    <thead className="sticky top-0 z-10">
+                      <tr className="bg-slate-50 border-b-2 border-slate-100">
+                        <th className="px-6 py-4 text-right text-xs font-black text-slate-500 uppercase">نوع المصروف</th>
+                        <th className="px-6 py-4 text-right text-xs font-black text-slate-500 uppercase">التاريخ</th>
+                        <th className="px-6 py-4 text-right text-xs font-black text-slate-500 uppercase">المبلغ</th>
+                        <th className="px-6 py-4 text-right text-xs font-black text-slate-500 uppercase">الموظف</th>
+                        <th className="px-6 py-4 text-right text-xs font-black text-slate-500 uppercase">الوصف</th>
                       </tr>
-                    )}
-                  </tbody>
-                </table>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
+                    </thead>
+                    <tbody className="divide-y divide-slate-50">
+                      {details.expenses.length > 0 ? (
+                        details.expenses.map((exp) => (
+                          <tr key={exp.id} className="hover:bg-slate-50/70 transition-colors">
+                            <td className="px-6 py-4 text-sm font-bold text-slate-700">{exp.expense_type}</td>
+                            <td className="px-6 py-4 text-sm font-bold text-slate-600">{formatDate(exp.expense_date)}</td>
+                            <td className="px-6 py-4 text-lg font-black text-red-600">{formatNumber(exp.amount)} ريال</td>
+                            <td className="px-6 py-4 text-sm font-bold text-slate-600">{exp.employee_display_name}</td>
+                            <td className="px-6 py-4 text-sm text-slate-500 max-w-[200px] truncate">{exp.description}</td>
+                          </tr>
+                        ))
+                      ) : (
+                        <tr>
+                          <td colSpan={5} className="px-6 py-12 text-center">
+                            <CreditCard className="w-12 h-12 text-slate-300 mx-auto mb-3" />
+                            <p className="text-slate-400 font-bold">لا توجد مصروفات لهذا الشهر</p>
+                          </td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
       </motion.div>
 
       <motion.div
