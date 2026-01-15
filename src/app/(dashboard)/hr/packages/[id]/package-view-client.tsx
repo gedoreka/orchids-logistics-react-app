@@ -21,11 +21,11 @@ import {
   LayoutDashboard,
   Target,
   Trophy,
-  DollarSign,
-  IdCard,
-  Camera,
-  FileCheck,
-  Car,
+DollarSign,
+IdCard,
+FileImage,
+FileCheck,
+Car,
   Sparkles,
   Download,
   Settings,
@@ -257,7 +257,7 @@ export function PackageViewClient({
               color="blue"
             />
             <StatCard 
-              icon={<Camera size={18} />}
+              icon={<FileImage size={18} />}
               label="اكتمال الصور"
               value={`${stats.photo_complete}/${stats.total_employees}`}
               color="emerald"
