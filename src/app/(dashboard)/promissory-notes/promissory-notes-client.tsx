@@ -21,6 +21,8 @@ interface PromissoryNote {
   debtor_address: string | null;
   beneficiary_name: string | null;
   beneficiary_commercial_number: string | null;
+  beneficiary_id_number: string | null;
+  beneficiary_id_type: "commercial" | "national" | null;
   use_custom_beneficiary: boolean;
   status: string;
   notes: string | null;
@@ -88,6 +90,8 @@ export default function PromissoryNotesClient() {
     debtor_address: "",
     beneficiary_name: "",
     beneficiary_commercial_number: "",
+    beneficiary_id_number: "",
+    beneficiary_id_type: "commercial" as "commercial" | "national",
     use_custom_beneficiary: false,
     status: "draft",
     notes: ""
@@ -171,6 +175,8 @@ export default function PromissoryNotesClient() {
       debtor_address: "",
       beneficiary_name: "",
       beneficiary_commercial_number: "",
+      beneficiary_id_number: "",
+      beneficiary_id_type: "commercial",
       use_custom_beneficiary: false,
       status: "draft",
       notes: ""
@@ -191,6 +197,8 @@ export default function PromissoryNotesClient() {
       debtor_address: note.debtor_address || "",
       beneficiary_name: note.beneficiary_name || "",
       beneficiary_commercial_number: note.beneficiary_commercial_number || "",
+      beneficiary_id_number: note.beneficiary_id_number || "",
+      beneficiary_id_type: note.beneficiary_id_type || "commercial",
       use_custom_beneficiary: note.use_custom_beneficiary,
       status: note.status,
       notes: note.notes || ""
@@ -257,17 +265,17 @@ export default function PromissoryNotesClient() {
           </div>
           
           <div class="content">
-            <p style="margin-bottom: 16px;">
-              أتعهد أنا الموقع أدناه بأن أدفع بموجب هذا السند بدون قيد أو شرط لأمر / 
-              <span class="field">${getBeneficiaryName(selectedNote!)}</span>
-              سجل تجاري رقم: 
-              <span class="field">${getBeneficiaryCommercialNumber(selectedNote!)}</span>
-              مبلغ وقدره: 
-              <span class="field">${formatAmount(selectedNote?.amount || null)}</span>
-              ريال لا غير (
-              <span class="field field-large">${selectedNote?.amount_text || ""}</span>
-              ) ريال
-            </p>
+              <p style="margin-bottom: 16px;">
+                أتعهد أنا الموقع أدناه بأن أدفع بموجب هذا السند بدون قيد أو شرط لأمر / 
+                <span class="field">${getBeneficiaryName(selectedNote!)}</span>
+                ${getBeneficiaryIdLabel(selectedNote!)} 
+                <span class="field">${getBeneficiaryIdNumber(selectedNote!)}</span>
+                مبلغ وقدره: 
+                <span class="field">${formatAmount(selectedNote?.amount || null)}</span>
+                ريال لا غير (
+                <span class="field field-large">${selectedNote?.amount_text || ""}</span>
+                ) ريال
+              </p>
             
             <p style="margin-bottom: 16px;">
               <strong>تاريخ الاستحقاق:</strong> 
@@ -366,17 +374,17 @@ export default function PromissoryNotesClient() {
           </div>
           
           <div class="content">
-            <p style="margin-bottom: 20px;">
-              أتعهد أنا الموقع أدناه بأن أدفع بموجب هذا السند بدون قيد أو شرط لأمر / 
-              <span class="field">${getBeneficiaryName(selectedNote)}</span>
-              سجل تجاري رقم: 
-              <span class="field">${getBeneficiaryCommercialNumber(selectedNote)}</span>
-              مبلغ وقدره: 
-              <span class="field">${formatAmount(selectedNote.amount)}</span>
-              ريال لا غير (
-              <span class="field field-large">${selectedNote.amount_text || ""}</span>
-              ) ريال
-            </p>
+              <p style="margin-bottom: 20px;">
+                أتعهد أنا الموقع أدناه بأن أدفع بموجب هذا السند بدون قيد أو شرط لأمر / 
+                <span class="field">${getBeneficiaryName(selectedNote)}</span>
+                ${getBeneficiaryIdLabel(selectedNote)} 
+                <span class="field">${getBeneficiaryIdNumber(selectedNote)}</span>
+                مبلغ وقدره: 
+                <span class="field">${formatAmount(selectedNote.amount)}</span>
+                ريال لا غير (
+                <span class="field field-large">${selectedNote.amount_text || ""}</span>
+                ) ريال
+              </p>
             
             <p style="margin-bottom: 20px;">
               <strong>تاريخ الاستحقاق:</strong> 
@@ -440,6 +448,25 @@ export default function PromissoryNotesClient() {
       return note.beneficiary_name;
     }
     return companyInfo?.name || "..........................................";
+  };
+
+  const getBeneficiaryIdLabel = (note: PromissoryNote) => {
+    if (note.use_custom_beneficiary && note.beneficiary_id_type === "national") {
+      return "رقم الهوية:";
+    }
+    return "سجل تجاري رقم:";
+  };
+
+  const getBeneficiaryIdNumber = (note: PromissoryNote) => {
+    if (note.use_custom_beneficiary) {
+      if (note.beneficiary_id_type === "national" && note.beneficiary_id_number) {
+        return note.beneficiary_id_number;
+      }
+      if (note.beneficiary_commercial_number) {
+        return note.beneficiary_commercial_number;
+      }
+    }
+    return companyInfo?.commercial_number || "..........................................";
   };
 
   const getBeneficiaryCommercialNumber = (note: PromissoryNote) => {
@@ -731,7 +758,7 @@ export default function PromissoryNotesClient() {
                     </label>
 
                     {formData.use_custom_beneficiary && (
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-4">
                         <div>
                           <label className="block text-slate-300 mb-2 text-sm font-medium">اسم المستفيد</label>
                           <input
@@ -742,15 +769,59 @@ export default function PromissoryNotesClient() {
                             placeholder="اسم المستفيد..."
                           />
                         </div>
+                        
                         <div>
-                          <label className="block text-slate-300 mb-2 text-sm font-medium">رقم السجل التجاري</label>
-                          <input
-                            type="text"
-                            value={formData.beneficiary_commercial_number}
-                            onChange={(e) => setFormData({...formData, beneficiary_commercial_number: e.target.value})}
-                            className="w-full bg-slate-600 border border-slate-500 rounded-xl py-3 px-4 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                            placeholder="رقم السجل التجاري..."
-                          />
+                          <label className="block text-slate-300 mb-2 text-sm font-medium">نوع الرقم المعرف في السند</label>
+                          <div className="flex gap-4">
+                            <label className="flex items-center gap-2 cursor-pointer">
+                              <input
+                                type="radio"
+                                name="beneficiary_id_type"
+                                value="commercial"
+                                checked={formData.beneficiary_id_type === "commercial"}
+                                onChange={(e) => setFormData({...formData, beneficiary_id_type: e.target.value as "commercial" | "national"})}
+                                className="w-4 h-4 text-emerald-500 focus:ring-emerald-500"
+                              />
+                              <span className="text-slate-300">سجل تجاري</span>
+                            </label>
+                            <label className="flex items-center gap-2 cursor-pointer">
+                              <input
+                                type="radio"
+                                name="beneficiary_id_type"
+                                value="national"
+                                checked={formData.beneficiary_id_type === "national"}
+                                onChange={(e) => setFormData({...formData, beneficiary_id_type: e.target.value as "commercial" | "national"})}
+                                className="w-4 h-4 text-emerald-500 focus:ring-emerald-500"
+                              />
+                              <span className="text-slate-300">رقم هوية</span>
+                            </label>
+                          </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          {formData.beneficiary_id_type === "commercial" ? (
+                            <div>
+                              <label className="block text-slate-300 mb-2 text-sm font-medium">رقم السجل التجاري</label>
+                              <input
+                                type="text"
+                                value={formData.beneficiary_commercial_number}
+                                onChange={(e) => setFormData({...formData, beneficiary_commercial_number: e.target.value})}
+                                className="w-full bg-slate-600 border border-slate-500 rounded-xl py-3 px-4 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                                placeholder="رقم السجل التجاري..."
+                              />
+                            </div>
+                          ) : (
+                            <div>
+                              <label className="block text-slate-300 mb-2 text-sm font-medium">رقم الهوية</label>
+                              <input
+                                type="text"
+                                value={formData.beneficiary_id_number}
+                                onChange={(e) => setFormData({...formData, beneficiary_id_number: e.target.value})}
+                                className="w-full bg-slate-600 border border-slate-500 rounded-xl py-3 px-4 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                                placeholder="رقم الهوية..."
+                              />
+                            </div>
+                          )}
                         </div>
                       </div>
                     )}
@@ -866,9 +937,9 @@ export default function PromissoryNotesClient() {
                             <span className="font-bold text-black px-2">
                               {getBeneficiaryName(selectedNote)}
                             </span>
-                            {" "}سجل تجاري رقم:{" "}
+                            {" "}{getBeneficiaryIdLabel(selectedNote)}{" "}
                             <span className="font-bold text-black px-2">
-                              {getBeneficiaryCommercialNumber(selectedNote)}
+                              {getBeneficiaryIdNumber(selectedNote)}
                             </span>
                             {" "}مبلغ وقدره:{" "}
                             <span className="font-bold text-black px-4 py-1 inline-block min-w-[200px]">

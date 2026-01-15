@@ -48,8 +48,9 @@ export async function POST(request: NextRequest) {
       `INSERT INTO promissory_notes (
         company_id, note_number, debtor_name, debtor_id_number, amount, amount_text,
         creation_date, due_date, creation_place, debtor_address, beneficiary_name,
-        beneficiary_commercial_number, use_custom_beneficiary, status, notes
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        beneficiary_commercial_number, beneficiary_id_number, beneficiary_id_type,
+        use_custom_beneficiary, status, notes
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         companyId,
         noteNumber,
@@ -63,6 +64,8 @@ export async function POST(request: NextRequest) {
         data.debtor_address || null,
         data.beneficiary_name || null,
         data.beneficiary_commercial_number || null,
+        data.beneficiary_id_number || null,
+        data.beneficiary_id_type || 'commercial',
         data.use_custom_beneficiary ? 1 : 0,
         data.status || 'draft',
         data.notes || null
@@ -97,8 +100,8 @@ export async function PUT(request: NextRequest) {
       `UPDATE promissory_notes SET 
         debtor_name = ?, debtor_id_number = ?, amount = ?, amount_text = ?,
         creation_date = ?, due_date = ?, creation_place = ?, debtor_address = ?,
-        beneficiary_name = ?, beneficiary_commercial_number = ?, use_custom_beneficiary = ?,
-        status = ?, notes = ?
+        beneficiary_name = ?, beneficiary_commercial_number = ?, beneficiary_id_number = ?,
+        beneficiary_id_type = ?, use_custom_beneficiary = ?, status = ?, notes = ?
       WHERE id = ? AND company_id = ?`,
       [
         data.debtor_name || null,
@@ -111,6 +114,8 @@ export async function PUT(request: NextRequest) {
         data.debtor_address || null,
         data.beneficiary_name || null,
         data.beneficiary_commercial_number || null,
+        data.beneficiary_id_number || null,
+        data.beneficiary_id_type || 'commercial',
         data.use_custom_beneficiary ? 1 : 0,
         data.status || 'draft',
         data.notes || null,
