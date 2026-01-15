@@ -73,6 +73,7 @@
     }
     html {
       font-variant-numeric: lining-nums tabular-nums;
+      overflow-x: hidden;
     }
     body {
       font-family: 'Tajawal', 'Segoe UI', system-ui, sans-serif;
@@ -81,10 +82,19 @@
       color: var(--text-color);
       margin: 0;
       padding: 0;
+      overflow-x: hidden;
+      width: 100%;
+      max-width: 100vw;
     }
     input, textarea, select, table, th, td, span, p, div, h1, h2, h3, h4, h5, h6, label, button, a {
       font-feature-settings: "tnum" on, "lnum" on !important;
     }
+  }
+
+  .dashboard-content {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
   }
 
 

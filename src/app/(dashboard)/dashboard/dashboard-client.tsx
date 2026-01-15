@@ -106,14 +106,14 @@ export function DashboardClient({
     isAdmin || permissions[item.permission] === 1
   );
 
-    return (
-      <div className="space-y-4">
-        {/* Main Dashboard Card */}
-        <motion.div 
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="relative overflow-hidden bg-white border border-gray-100 rounded-xl p-5 shadow-sm"
-        >
+      return (
+        <div className="p-4 md:p-6 space-y-4 w-full overflow-x-hidden">
+          {/* Main Dashboard Card */}
+          <motion.div 
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="relative overflow-hidden bg-white border border-gray-100 rounded-xl p-5 shadow-sm"
+          >
           <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500" />
           
           <h1 className="text-xl font-black text-center text-gray-800 mb-1">

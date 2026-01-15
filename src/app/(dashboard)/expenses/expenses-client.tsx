@@ -62,14 +62,14 @@ export function ExpensesClient({ companyId, companyInfo, stats, recentActivity }
     }
   };
 
-  return (
-      <div className="min-h-screen bg-slate-50/50 p-4 md:p-8 font-tajawal rtl" dir="rtl">
-        <motion.div 
-          className="max-w-[98%] mx-auto space-y-8"
-          initial="hidden"
-        animate="visible"
-        variants={containerVariants}
-      >
+    return (
+        <div className="min-h-screen bg-slate-50/50 p-4 md:p-6 font-tajawal rtl w-full overflow-x-hidden" dir="rtl">
+          <motion.div 
+            className="w-full space-y-6"
+            initial="hidden"
+          animate="visible"
+          variants={containerVariants}
+        >
         {/* Header Section */}
         <motion.div 
           className="relative overflow-hidden rounded-[2rem] p-8 bg-gradient-to-br from-[#1e293b] via-[#334155] to-[#1e293b] text-white shadow-2xl border border-white/10"

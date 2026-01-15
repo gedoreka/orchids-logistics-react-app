@@ -21,7 +21,7 @@ export function DashboardLayout({ children, user, permissions }: DashboardLayout
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   return (
-    <div className="min-h-screen bg-[#f8fafc]" dir="rtl">
+    <div className="min-h-screen bg-[#f8fafc] overflow-x-hidden" dir="rtl">
       {/* Sidebar - Desktop - Fixed */}
       <aside className="hidden lg:flex fixed top-0 right-0 h-screen w-64 z-50">
         <Sidebar userRole={user?.role} permissions={permissions} />
@@ -63,17 +63,17 @@ export function DashboardLayout({ children, user, permissions }: DashboardLayout
       </AnimatePresence>
       
       {/* Main Content Area - with margin for fixed sidebar */}
-      <div className="lg:mr-64 flex flex-col min-h-screen w-full">
+      <div className="lg:mr-64 flex flex-col min-h-screen overflow-x-hidden">
         {/* Header - Fixed at top */}
         <Header user={user} onToggleSidebar={() => setIsSidebarOpen(true)} />
 
         {/* Main Content - Scrollable */}
-        <main className="flex-1 overflow-auto">
+        <main className="flex-1 overflow-x-hidden">
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3 }}
-            className="min-h-full"
+            className="min-h-full w-full"
           >
             {children}
           </motion.div>
