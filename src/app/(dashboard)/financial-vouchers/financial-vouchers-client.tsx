@@ -14,6 +14,9 @@ interface Stats {
   salesReceipts: { count: number; total: number };
   receiptVouchers: { count: number; total: number };
   paymentVouchers: { count: number; total: number };
+  promissoryNotes: { count: number; total: number };
+  quotations: { count: number; total: number };
+  incomeVouchers: { count: number; total: number };
 }
 
 interface CompanyInfo {
@@ -66,6 +69,51 @@ const voucherTypes = [
     shadowColor: "shadow-rose-500/20",
     stats: { label: "إجمالي المصروفات", key: "paymentVouchers" as const },
     features: ["تسجيل المصروفات", "متابعة الدفعات", "سندات الصرف"]
+  },
+  {
+    id: "promissory-notes",
+    title: "سندات لأمر",
+    subtitle: "إدارة السندات الإذنية والقانونية",
+    description: "إصدار وتتبع سندات لأمر إلكترونية معتمدة",
+    href: "/promissory-notes",
+    icon: ScrollText,
+    gradient: "from-amber-600 to-orange-700",
+    bgGradient: "from-amber-50 to-orange-50",
+    borderColor: "border-amber-500",
+    iconBg: "bg-amber-500",
+    shadowColor: "shadow-amber-500/20",
+    stats: { label: "إجمالي السندات", key: "promissoryNotes" as const },
+    features: ["إصدار سندات لأمر", "تحويل المبالغ لنصوص", "طباعة بصمة وتوقيع"]
+  },
+  {
+    id: "quotations",
+    title: "عروض الأسعار",
+    subtitle: "إدارة عروض الأسعار والتقديرات",
+    description: "إنشاء ومتابعة عروض الأسعار المقدمة للعملاء",
+    href: "/quotations",
+    icon: FileCheck,
+    gradient: "from-purple-600 to-violet-700",
+    bgGradient: "from-purple-50 to-violet-50",
+    borderColor: "border-purple-500",
+    iconBg: "bg-purple-500",
+    shadowColor: "shadow-purple-500/20",
+    stats: { label: "إجمالي العروض", key: "quotations" as const },
+    features: ["إنشاء عروض أسعار", "متابعة حالة العرض", "تحويل العرض لفاتورة"]
+  },
+  {
+    id: "income-vouchers",
+    title: "سندات الإيراد",
+    subtitle: "تسجيل الإيرادات المتنوعة",
+    description: "إدارة وتسجيل الإيرادات غير المباشرة والمتنوعة",
+    href: "/income/new",
+    icon: PlusCircle,
+    gradient: "from-cyan-600 to-sky-700",
+    bgGradient: "from-cyan-50 to-sky-50",
+    borderColor: "border-cyan-500",
+    iconBg: "bg-cyan-500",
+    shadowColor: "shadow-cyan-500/20",
+    stats: { label: "إجمالي الإيرادات", key: "incomeVouchers" as const },
+    features: ["تسجيل إيرادات يدوية", "ربط مع مراكز التكلفة", "متابعة الدخل"]
   }
 ];
 
@@ -73,7 +121,10 @@ function FinancialVouchersContent() {
   const [stats, setStats] = useState<Stats>({
     salesReceipts: { count: 0, total: 0 },
     receiptVouchers: { count: 0, total: 0 },
-    paymentVouchers: { count: 0, total: 0 }
+    paymentVouchers: { count: 0, total: 0 },
+    promissoryNotes: { count: 0, total: 0 },
+    quotations: { count: 0, total: 0 },
+    incomeVouchers: { count: 0, total: 0 }
   });
   const [loading, setLoading] = useState(true);
   const [companyInfo, setCompanyInfo] = useState<CompanyInfo | null>(null);
@@ -99,15 +150,21 @@ function FinancialVouchersContent() {
     if (!cId) return;
     setLoading(true);
     try {
-      const [salesRes, receiptRes, paymentRes] = await Promise.all([
+      const [salesRes, receiptRes, paymentRes, promissoryRes, quotationsRes, incomeRes] = await Promise.all([
         fetch(`/api/sales-receipts?company_id=${cId}`).then(r => r.json()).catch(() => ({ data: [] })),
         fetch(`/api/receipt-vouchers/metadata?company_id=${cId}`).then(r => r.json()).catch(() => ({ vouchers: [] })),
-        fetch(`/api/payment-vouchers/metadata?company_id=${cId}`).then(r => r.json()).catch(() => ({ vouchers: [] }))
+        fetch(`/api/payment-vouchers/metadata?company_id=${cId}`).then(r => r.json()).catch(() => ({ vouchers: [] })),
+        fetch(`/api/promissory-notes?company_id=${cId}`).then(r => r.json()).catch(() => ({ notes: [] })),
+        fetch(`/api/quotations?company_id=${cId}`).then(r => r.json()).catch(() => ([])),
+        fetch(`/api/income/metadata?company_id=${cId}`).then(r => r.json()).catch(() => ({ incomes: [] }))
       ]);
 
       const salesData = salesRes.data || [];
       const receiptData = receiptRes.vouchers || [];
       const paymentData = paymentRes.vouchers || [];
+      const promissoryData = promissoryRes.notes || [];
+      const quotationsData = Array.isArray(quotationsRes) ? quotationsRes : [];
+      const incomeData = incomeRes.incomes || [];
 
       setStats({
         salesReceipts: {
@@ -121,6 +178,18 @@ function FinancialVouchersContent() {
         paymentVouchers: {
           count: paymentData.length,
           total: paymentData.reduce((sum: number, item: any) => sum + (parseFloat(item.total_amount) || 0), 0)
+        },
+        promissoryNotes: {
+          count: promissoryData.length,
+          total: promissoryData.reduce((sum: number, item: any) => sum + (parseFloat(item.amount) || 0), 0)
+        },
+        quotations: {
+          count: quotationsData.length,
+          total: quotationsData.reduce((sum: number, item: any) => sum + (parseFloat(item.total_amount) || 0), 0)
+        },
+        incomeVouchers: {
+          count: incomeData.length,
+          total: incomeData.reduce((sum: number, item: any) => sum + (parseFloat(item.amount) || 0), 0)
         }
       });
     } catch (error) {
@@ -129,6 +198,7 @@ function FinancialVouchersContent() {
       setLoading(false);
     }
   };
+
 
   useEffect(() => {
     const init = async () => {
@@ -142,291 +212,240 @@ function FinancialVouchersContent() {
     init();
   }, []);
 
-  const totalIncome = stats.salesReceipts.total + stats.receiptVouchers.total;
-  const totalExpense = stats.paymentVouchers.total;
-  const netBalance = totalIncome - totalExpense;
+    const totalIncome = stats.salesReceipts.total + stats.receiptVouchers.total + stats.incomeVouchers.total;
+    const totalExpense = stats.paymentVouchers.total;
+    const netBalance = totalIncome - totalExpense;
 
-  return (
-    <div className="max-w-[1800px] mx-auto p-4 md:p-6 space-y-8" dir="rtl">
-      {/* Hero Header */}
-      <motion.div
-        initial={{ opacity: 0, y: -30 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="relative overflow-hidden rounded-[40px] bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 p-10 md:p-14 shadow-2xl"
-      >
-        <div className="absolute top-0 left-0 right-0 h-2 bg-gradient-to-r from-blue-500 via-emerald-500 to-rose-500" />
-        <div className="absolute -top-40 -left-40 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl" />
-        <div className="absolute -bottom-40 -right-40 w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl" />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-gradient-radial from-indigo-500/5 to-transparent rounded-full" />
+    return (
+      <div className="max-w-[1800px] mx-auto p-4 md:p-6 space-y-6" dir="rtl">
+        {/* Hero Header */}
+        <motion.div
+          initial={{ opacity: 0, y: -30 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="relative overflow-hidden rounded-[30px] bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 p-8 md:p-10 shadow-2xl"
+        >
+          <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-blue-500 via-emerald-500 to-rose-500" />
+          
+          <div className="relative z-10">
+            <div className="flex flex-col lg:flex-row items-center justify-between gap-8">
+              <div className="text-center lg:text-right">
+                <motion.div 
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  transition={{ delay: 0.2, type: "spring" }}
+                  className="inline-flex items-center gap-2 px-4 py-1.5 bg-white/10 backdrop-blur-md rounded-full border border-white/10 mb-4"
+                >
+                  <Sparkles className="w-4 h-4 text-yellow-400" />
+                  <span className="text-white/80 font-bold text-xs uppercase tracking-wider">مركز إدارة السندات المالية</span>
+                </motion.div>
+                
+                <h1 className="text-4xl md:text-5xl font-black text-white tracking-tight mb-3">
+                  السندات المالية
+                </h1>
+                <p className="text-lg text-slate-400 max-w-2xl">
+                  إدارة شاملة للمبيعات والمقبوضات والمصروفات والسندات القانونية
+                </p>
+                
+                <div className="flex flex-wrap justify-center lg:justify-start gap-3 mt-6">
+                  <span className="flex items-center gap-2 px-4 py-2 bg-blue-500/20 backdrop-blur-sm rounded-xl border border-blue-500/30 text-blue-300 font-bold text-sm">
+                    <Building2 size={16} />
+                    {companyInfo?.name || "جاري التحميل..."}
+                  </span>
+                  <button 
+                      onClick={() => fetchStats(companyId)}
+                      className="flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-sm rounded-xl border border-white/20 text-white font-bold text-sm hover:bg-white/20 transition-colors"
+                    >
+                    <RefreshCw size={16} className={loading ? "animate-spin" : ""} />
+                    تحديث
+                  </button>
+                </div>
+              </div>
 
-        <div className="relative z-10">
-          <div className="flex flex-col lg:flex-row items-center justify-between gap-10">
-            <div className="text-center lg:text-right">
-              <motion.div 
-                initial={{ scale: 0 }}
-                animate={{ scale: 1 }}
-                transition={{ delay: 0.2, type: "spring" }}
-                className="inline-flex items-center gap-3 px-5 py-2 bg-white/10 backdrop-blur-md rounded-full border border-white/10 mb-6"
-              >
-                <Sparkles className="w-5 h-5 text-yellow-400" />
-                <span className="text-white/80 font-bold text-sm">مركز إدارة السندات المالية</span>
-              </motion.div>
-              
-              <h1 className="text-5xl md:text-6xl font-black text-white tracking-tight mb-4">
-                السندات المالية
-              </h1>
-              <p className="text-xl text-slate-400 max-w-2xl">
-                إدارة شاملة لجميع السندات المالية من مبيعات ومقبوضات ومصروفات في مكان واحد
-              </p>
-              
-              <div className="flex flex-wrap justify-center lg:justify-start gap-4 mt-8">
-                <span className="flex items-center gap-2 px-5 py-3 bg-blue-500/20 backdrop-blur-sm rounded-2xl border border-blue-500/30 text-blue-300 font-bold">
-                  <Building2 size={18} />
-                  {companyInfo?.name || "جاري التحميل..."}
-                </span>
-                <span className="flex items-center gap-2 px-5 py-3 bg-emerald-500/20 backdrop-blur-sm rounded-2xl border border-emerald-500/30 text-emerald-300 font-bold">
-                  <Calendar size={18} />
-                  {new Date().toLocaleDateString("en-GB", { year: 'numeric', month: '2-digit', day: '2-digit' })}
-                </span>
-                <button 
-                    onClick={() => fetchStats(companyId)}
-                    className="flex items-center gap-2 px-5 py-3 bg-white/10 backdrop-blur-sm rounded-2xl border border-white/20 text-white font-bold hover:bg-white/20 transition-colors"
-                  >
-                  <RefreshCw size={18} className={loading ? "animate-spin" : ""} />
-                  تحديث
-                </button>
+              {/* Summary Cards */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3 w-full lg:w-auto">
+                <motion.div 
+                  initial={{ opacity: 0, x: 30 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.3 }}
+                  className="bg-gradient-to-br from-emerald-500/20 to-teal-600/20 backdrop-blur-md rounded-2xl p-5 border border-emerald-500/30 min-w-[180px]"
+                >
+                  <div className="flex items-center gap-2 mb-2">
+                    <TrendingUp className="w-4 h-4 text-emerald-400" />
+                    <span className="text-emerald-300 font-bold text-xs">إجمالي الدخل</span>
+                  </div>
+                  <p className="text-2xl font-black text-white">{totalIncome.toLocaleString()}</p>
+                  <p className="text-emerald-400 text-[10px] font-bold">ريال سعودي</p>
+                </motion.div>
+
+                <motion.div 
+                  initial={{ opacity: 0, x: 30 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.4 }}
+                  className="bg-gradient-to-br from-rose-500/20 to-orange-600/20 backdrop-blur-md rounded-2xl p-5 border border-rose-500/30 min-w-[180px]"
+                >
+                  <div className="flex items-center gap-2 mb-2">
+                    <TrendingDown className="w-4 h-4 text-rose-400" />
+                    <span className="text-rose-300 font-bold text-xs">إجمالي المصروفات</span>
+                  </div>
+                  <p className="text-2xl font-black text-white">{totalExpense.toLocaleString()}</p>
+                  <p className="text-rose-400 text-[10px] font-bold">ريال سعودي</p>
+                </motion.div>
+
+                <motion.div 
+                  initial={{ opacity: 0, x: 30 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.5 }}
+                  className={`bg-gradient-to-br ${netBalance >= 0 ? 'from-blue-500/20 to-indigo-600/20 border-blue-500/30' : 'from-amber-500/20 to-orange-600/20 border-amber-500/30'} backdrop-blur-md rounded-2xl p-5 border min-w-[180px]`}
+                >
+                  <div className="flex items-center gap-2 mb-2">
+                    <DollarSign className={`w-4 h-4 ${netBalance >= 0 ? 'text-blue-400' : 'text-amber-400'}`} />
+                    <span className={`${netBalance >= 0 ? 'text-blue-300' : 'text-amber-300'} font-bold text-xs`}>الرصيد الصافي</span>
+                  </div>
+                  <p className="text-2xl font-black text-white">{netBalance.toLocaleString()}</p>
+                  <p className={`${netBalance >= 0 ? 'text-blue-400' : 'text-amber-400'} text-[10px] font-bold`}>ريال سعودي</p>
+                </motion.div>
               </div>
             </div>
-
-            {/* Summary Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 w-full lg:w-auto">
-              <motion.div 
-                initial={{ opacity: 0, x: 30 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.3 }}
-                className="bg-gradient-to-br from-emerald-500/20 to-teal-600/20 backdrop-blur-md rounded-3xl p-6 border border-emerald-500/30"
-              >
-                <div className="flex items-center gap-3 mb-3">
-                  <div className="p-2 bg-emerald-500/30 rounded-xl">
-                    <TrendingUp className="w-5 h-5 text-emerald-400" />
-                  </div>
-                  <span className="text-emerald-300 font-bold text-sm">الإيرادات</span>
-                </div>
-                <p className="text-3xl font-black text-white">{totalIncome.toLocaleString()}</p>
-                <p className="text-emerald-400 text-xs font-bold mt-1">ريال سعودي</p>
-              </motion.div>
-
-              <motion.div 
-                initial={{ opacity: 0, x: 30 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.4 }}
-                className="bg-gradient-to-br from-rose-500/20 to-orange-600/20 backdrop-blur-md rounded-3xl p-6 border border-rose-500/30"
-              >
-                <div className="flex items-center gap-3 mb-3">
-                  <div className="p-2 bg-rose-500/30 rounded-xl">
-                    <TrendingDown className="w-5 h-5 text-rose-400" />
-                  </div>
-                  <span className="text-rose-300 font-bold text-sm">المصروفات</span>
-                </div>
-                <p className="text-3xl font-black text-white">{totalExpense.toLocaleString()}</p>
-                <p className="text-rose-400 text-xs font-bold mt-1">ريال سعودي</p>
-              </motion.div>
-
-              <motion.div 
-                initial={{ opacity: 0, x: 30 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.5 }}
-                className={`bg-gradient-to-br ${netBalance >= 0 ? 'from-blue-500/20 to-indigo-600/20 border-blue-500/30' : 'from-amber-500/20 to-orange-600/20 border-amber-500/30'} backdrop-blur-md rounded-3xl p-6 border`}
-              >
-                <div className="flex items-center gap-3 mb-3">
-                  <div className={`p-2 ${netBalance >= 0 ? 'bg-blue-500/30' : 'bg-amber-500/30'} rounded-xl`}>
-                    <DollarSign className={`w-5 h-5 ${netBalance >= 0 ? 'text-blue-400' : 'text-amber-400'}`} />
-                  </div>
-                  <span className={`${netBalance >= 0 ? 'text-blue-300' : 'text-amber-300'} font-bold text-sm`}>الرصيد الصافي</span>
-                </div>
-                <p className="text-3xl font-black text-white">{netBalance.toLocaleString()}</p>
-                <p className={`${netBalance >= 0 ? 'text-blue-400' : 'text-amber-400'} text-xs font-bold mt-1`}>ريال سعودي</p>
-              </motion.div>
-            </div>
-          </div>
-        </div>
-      </motion.div>
-
-      {/* Alert Banner */}
-      {stats.paymentVouchers.count > stats.receiptVouchers.count && (
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="bg-gradient-to-r from-amber-50 to-orange-50 border-2 border-amber-200 rounded-2xl p-5 flex items-center gap-4"
-        >
-          <div className="p-3 bg-amber-100 rounded-xl">
-            <AlertTriangle className="w-6 h-6 text-amber-600" />
-          </div>
-          <div>
-            <h4 className="text-amber-800 font-black">تنبيه: المصروفات أكثر من المقبوضات!</h4>
-            <p className="text-amber-600 text-sm font-medium">يُنصح بمراجعة سندات الصرف والتحقق من التوازن المالي</p>
           </div>
         </motion.div>
-      )}
 
-      {/* Voucher Cards Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {voucherTypes.map((voucher, index) => {
-          const statData = stats[voucher.stats.key];
-          return (
-            <motion.div
-              key={voucher.id}
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.1 + 0.3 }}
-              whileHover={{ y: -10, scale: 1.02 }}
-              className="group"
-            >
-              <Link href={voucher.href}>
-                <div className={`relative overflow-hidden bg-white rounded-[30px] shadow-xl ${voucher.shadowColor} hover:shadow-2xl transition-all duration-500 border-2 border-slate-100 hover:${voucher.borderColor}`}>
-                  {/* Top Gradient Bar */}
-                  <div className={`h-2 bg-gradient-to-r ${voucher.gradient}`} />
-                  
-                  {/* Content */}
-                  <div className="p-8">
-                    {/* Icon & Title */}
-                    <div className="flex items-start justify-between mb-6">
-                      <div className={`p-4 ${voucher.iconBg} rounded-2xl shadow-lg transform group-hover:scale-110 transition-transform duration-300`}>
-                        <voucher.icon className="w-8 h-8 text-white" />
+        {/* Voucher Cards Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+          {voucherTypes.map((voucher, index) => {
+            const statData = stats[voucher.stats.key];
+            return (
+              <motion.div
+                key={voucher.id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.1 }}
+                whileHover={{ y: -5 }}
+                className="group"
+              >
+                <Link href={voucher.href}>
+                  <div className={`relative overflow-hidden bg-white rounded-2xl shadow-lg ${voucher.shadowColor} hover:shadow-xl transition-all duration-300 border border-slate-100 hover:${voucher.borderColor}`}>
+                    <div className={`h-1.5 bg-gradient-to-r ${voucher.gradient}`} />
+                    
+                    <div className="p-6">
+                      <div className="flex items-start justify-between mb-4">
+                        <div className={`p-3 ${voucher.iconBg} rounded-xl shadow-md transform group-hover:scale-110 transition-transform duration-300`}>
+                          <voucher.icon className="w-6 h-6 text-white" />
+                        </div>
+                        <ArrowUpRight className="w-5 h-5 text-slate-300 group-hover:text-slate-600 transition-colors" />
                       </div>
-                      <ArrowUpRight className="w-6 h-6 text-slate-300 group-hover:text-slate-600 transform group-hover:translate-x-1 group-hover:-translate-y-1 transition-all" />
-                    </div>
 
-                    <h3 className="text-2xl font-black text-slate-800 mb-2">{voucher.title}</h3>
-                    <p className="text-slate-500 font-bold text-sm mb-1">{voucher.subtitle}</p>
-                    <p className="text-slate-400 text-sm mb-6">{voucher.description}</p>
+                      <h3 className="text-xl font-black text-slate-800 mb-1">{voucher.title}</h3>
+                      <p className="text-slate-400 text-xs mb-4 line-clamp-1">{voucher.description}</p>
 
-                    {/* Stats */}
-                    <div className={`bg-gradient-to-r ${voucher.bgGradient} rounded-2xl p-5 mb-6`}>
-                      <div className="flex items-center justify-between mb-3">
-                        <span className="text-slate-600 font-bold text-sm">{voucher.stats.label}</span>
-                        <span className={`px-3 py-1 ${voucher.iconBg} text-white text-xs font-black rounded-full`}>
-                          {statData.count} سند
+                      <div className={`bg-gradient-to-r ${voucher.bgGradient} rounded-xl p-4 mb-4`}>
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="text-slate-600 font-bold text-[10px] uppercase tracking-wider">{voucher.stats.label}</span>
+                          <span className={`px-2 py-0.5 ${voucher.iconBg} text-white text-[10px] font-black rounded-full`}>
+                            {statData.count} سند
+                          </span>
+                        </div>
+                        <p className="text-2xl font-black text-slate-800">
+                          {statData.total.toLocaleString()}
+                          <span className="text-xs font-bold text-slate-500 mr-1.5 text-[10px]">ر.س</span>
+                        </p>
+                      </div>
+
+                      <div className="space-y-1.5">
+                        {voucher.features.map((feature, fIndex) => (
+                          <div key={fIndex} className="flex items-center gap-2 text-xs text-slate-500">
+                            <CheckCircle className="w-3.5 h-3.5 text-emerald-500" />
+                            <span className="font-medium line-clamp-1">{feature}</span>
+                          </div>
+                        ))}
+                      </div>
+
+                      <div className={`mt-6 py-3 px-4 bg-gradient-to-r ${voucher.gradient} rounded-xl text-center group-hover:shadow-md transition-all`}>
+                        <span className="text-white font-black text-sm flex items-center justify-center gap-2">
+                          إدارة {voucher.title}
+                          <ArrowRight className="w-4 h-4 transform group-hover:translate-x-1 transition-transform" />
                         </span>
                       </div>
-                      <p className="text-3xl font-black text-slate-800">
-                        {statData.total.toLocaleString()}
-                        <span className="text-sm font-bold text-slate-500 mr-2">ر.س</span>
-                      </p>
-                    </div>
-
-                    {/* Features */}
-                    <div className="space-y-2">
-                      {voucher.features.map((feature, fIndex) => (
-                        <div key={fIndex} className="flex items-center gap-2 text-sm text-slate-500">
-                          <CheckCircle className="w-4 h-4 text-emerald-500" />
-                          <span className="font-medium">{feature}</span>
-                        </div>
-                      ))}
-                    </div>
-
-                    {/* Action Button */}
-                    <div className={`mt-8 py-4 px-6 bg-gradient-to-r ${voucher.gradient} rounded-2xl text-center group-hover:shadow-lg transition-all`}>
-                      <span className="text-white font-black flex items-center justify-center gap-2">
-                        الدخول للإدارة
-                        <ArrowRight className="w-5 h-5 transform group-hover:translate-x-2 transition-transform" />
-                      </span>
                     </div>
                   </div>
-                </div>
-              </Link>
-            </motion.div>
-          );
-        })}
-      </div>
-
-      {/* Quick Actions */}
-      <motion.div
-        initial={{ opacity: 0, y: 30 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.6 }}
-        className="bg-gradient-to-br from-slate-50 to-slate-100 rounded-[30px] p-8 border border-slate-200"
-      >
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-4">
-            <div className="p-3 bg-slate-200 rounded-2xl">
-              <BarChart3 className="w-6 h-6 text-slate-600" />
-            </div>
-            <div>
-              <h3 className="text-xl font-black text-slate-800">إجراءات سريعة</h3>
-              <p className="text-slate-500 text-sm font-medium">الوصول السريع لإنشاء السندات</p>
-            </div>
-          </div>
+                </Link>
+              </motion.div>
+            );
+          })}
         </div>
 
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
-            <Link href="/sales-receipts/new">
-              <div className="flex flex-col items-center gap-2 p-4 bg-white rounded-2xl border-2 border-slate-100 hover:border-blue-300 hover:shadow-lg transition-all group cursor-pointer text-center">
-                <div className="p-3 bg-blue-100 rounded-xl group-hover:bg-blue-500 transition-colors">
-                  <FileText className="w-5 h-5 text-blue-600 group-hover:text-white transition-colors" />
-                </div>
-                <p className="font-bold text-slate-800 text-sm">سند مبيعات</p>
+        {/* Quick Actions */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.6 }}
+          className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm"
+        >
+          <div className="flex items-center gap-3 mb-6">
+            <div className="p-2 bg-slate-100 rounded-lg">
+              <BarChart3 className="w-5 h-5 text-slate-600" />
+            </div>
+            <div>
+              <h3 className="text-lg font-black text-slate-800">إجراءات سريعة</h3>
+              <p className="text-slate-400 text-xs font-medium">الوصول المباشر للعمليات</p>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+            <Link href="/sales-receipts/new" className="flex flex-col items-center gap-2 p-3 bg-slate-50 rounded-xl border border-slate-100 hover:border-blue-200 hover:bg-blue-50 transition-all group cursor-pointer text-center">
+              <div className="p-2.5 bg-blue-100 rounded-lg group-hover:bg-blue-500 transition-colors">
+                <FileText className="w-4 h-4 text-blue-600 group-hover:text-white" />
               </div>
+              <p className="font-bold text-slate-700 text-xs">سند مبيعات</p>
             </Link>
 
-            <Link href="/receipt-vouchers">
-              <div className="flex flex-col items-center gap-2 p-4 bg-white rounded-2xl border-2 border-slate-100 hover:border-emerald-300 hover:shadow-lg transition-all group cursor-pointer text-center">
-                <div className="p-3 bg-emerald-100 rounded-xl group-hover:bg-emerald-500 transition-colors">
-                  <Receipt className="w-5 h-5 text-emerald-600 group-hover:text-white transition-colors" />
-                </div>
-                <p className="font-bold text-slate-800 text-sm">سند قبض</p>
+            <Link href="/receipt-vouchers" className="flex flex-col items-center gap-2 p-3 bg-slate-50 rounded-xl border border-slate-100 hover:border-emerald-200 hover:bg-emerald-50 transition-all group cursor-pointer text-center">
+              <div className="p-2.5 bg-emerald-100 rounded-lg group-hover:bg-emerald-500 transition-colors">
+                <Receipt className="w-4 h-4 text-emerald-600 group-hover:text-white" />
               </div>
+              <p className="font-bold text-slate-700 text-xs">سند قبض</p>
             </Link>
 
-            <Link href="/payment-vouchers">
-              <div className="flex flex-col items-center gap-2 p-4 bg-white rounded-2xl border-2 border-slate-100 hover:border-rose-300 hover:shadow-lg transition-all group cursor-pointer text-center">
-                <div className="p-3 bg-rose-100 rounded-xl group-hover:bg-rose-500 transition-colors">
-                  <Wallet className="w-5 h-5 text-rose-600 group-hover:text-white transition-colors" />
-                </div>
-                <p className="font-bold text-slate-800 text-sm">سند صرف</p>
+            <Link href="/payment-vouchers" className="flex flex-col items-center gap-2 p-3 bg-slate-50 rounded-xl border border-slate-100 hover:border-rose-200 hover:bg-rose-50 transition-all group cursor-pointer text-center">
+              <div className="p-2.5 bg-rose-100 rounded-lg group-hover:bg-rose-500 transition-colors">
+                <Wallet className="w-4 h-4 text-rose-600 group-hover:text-white" />
               </div>
+              <p className="font-bold text-slate-700 text-xs">سند صرف</p>
             </Link>
 
-            <Link href="/promissory-notes">
-              <div className="flex flex-col items-center gap-2 p-4 bg-white rounded-2xl border-2 border-slate-100 hover:border-amber-300 hover:shadow-lg transition-all group cursor-pointer text-center">
-                <div className="p-3 bg-amber-100 rounded-xl group-hover:bg-amber-500 transition-colors">
-                  <ScrollText className="w-5 h-5 text-amber-600 group-hover:text-white transition-colors" />
-                </div>
-                <p className="font-bold text-slate-800 text-sm">سند لأمر</p>
+            <Link href="/promissory-notes" className="flex flex-col items-center gap-2 p-3 bg-slate-50 rounded-xl border border-slate-100 hover:border-amber-200 hover:bg-amber-50 transition-all group cursor-pointer text-center">
+              <div className="p-2.5 bg-amber-100 rounded-lg group-hover:bg-amber-500 transition-colors">
+                <ScrollText className="w-4 h-4 text-amber-600 group-hover:text-white" />
               </div>
+              <p className="font-bold text-slate-700 text-xs">سند لأمر</p>
             </Link>
 
-            <Link href="/quotations/new">
-              <div className="flex flex-col items-center gap-2 p-4 bg-white rounded-2xl border-2 border-slate-100 hover:border-purple-300 hover:shadow-lg transition-all group cursor-pointer text-center">
-                <div className="p-3 bg-purple-100 rounded-xl group-hover:bg-purple-500 transition-colors">
-                  <FileCheck className="w-5 h-5 text-purple-600 group-hover:text-white transition-colors" />
-                </div>
-                <p className="font-bold text-slate-800 text-sm">عرض سعر</p>
+            <Link href="/quotations/new" className="flex flex-col items-center gap-2 p-3 bg-slate-50 rounded-xl border border-slate-100 hover:border-purple-200 hover:bg-purple-50 transition-all group cursor-pointer text-center">
+              <div className="p-2.5 bg-purple-100 rounded-lg group-hover:bg-purple-500 transition-colors">
+                <FileCheck className="w-4 h-4 text-purple-600 group-hover:text-white" />
               </div>
+              <p className="font-bold text-slate-700 text-xs">عرض سعر</p>
             </Link>
 
-            <Link href="/income/new">
-              <div className="flex flex-col items-center gap-2 p-4 bg-white rounded-2xl border-2 border-slate-100 hover:border-cyan-300 hover:shadow-lg transition-all group cursor-pointer text-center">
-                <div className="p-3 bg-cyan-100 rounded-xl group-hover:bg-cyan-500 transition-colors">
-                  <PlusCircle className="w-5 h-5 text-cyan-600 group-hover:text-white transition-colors" />
-                </div>
-                <p className="font-bold text-slate-800 text-sm">سند إيراد</p>
+            <Link href="/income/new" className="flex flex-col items-center gap-2 p-3 bg-slate-50 rounded-xl border border-slate-100 hover:border-cyan-200 hover:bg-cyan-50 transition-all group cursor-pointer text-center">
+              <div className="p-2.5 bg-cyan-100 rounded-lg group-hover:bg-cyan-500 transition-colors">
+                <PlusCircle className="w-4 h-4 text-cyan-600 group-hover:text-white" />
               </div>
+              <p className="font-bold text-slate-700 text-xs">سند إيراد</p>
             </Link>
           </div>
-      </motion.div>
+        </motion.div>
 
-      {/* Footer */}
-        <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-[10px] font-black text-slate-400 uppercase tracking-widest pt-6">
+        {/* Footer */}
+        <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-[10px] font-black text-slate-400 uppercase tracking-widest pt-4 opacity-70">
           <div className="flex items-center gap-2">
-            <Sparkles size={12} className="text-indigo-500" />
+            <Sparkles size={10} className="text-indigo-500" />
             <span>نظام {companyInfo?.name || "Logistics"} - إدارة السندات المالية</span>
           </div>
           <span>جميع الحقوق محفوظة © {new Date().getFullYear()}</span>
         </div>
-    </div>
-  );
-}
+      </div>
+    );
+  }
 
 export function FinancialVouchersClient() {
   return (
