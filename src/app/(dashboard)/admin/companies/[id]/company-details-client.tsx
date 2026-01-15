@@ -16,12 +16,12 @@ import {
   Mail,
   Globe,
   DollarSign,
-  Image,
+  ImageIcon,
   Stamp,
   Flag,
   MapPin,
   Home,
-  Road,
+  Navigation,
   Hash,
   Building,
   Landmark,
@@ -117,7 +117,7 @@ export function CompanyDetailsClient({ company }: CompanyDetailsClientProps) {
         { name: "country", label: "الدولة", icon: Flag },
         { name: "region", label: "المنطقة", icon: MapPin },
         { name: "district", label: "الحي", icon: Home },
-        { name: "street", label: "الشارع", icon: Road },
+        { name: "street", label: "الشارع", icon: Navigation },
         { name: "postal_code", label: "الرمز البريدي", icon: Hash },
         { name: "short_address", label: "العنوان المختصر", icon: Building },
       ]
@@ -304,7 +304,7 @@ export function CompanyDetailsClient({ company }: CompanyDetailsClientProps) {
           >
             <div className="flex items-center gap-4 mb-8 pb-6 border-b-2 border-slate-100">
               <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-teal-500/10 to-teal-600/5 flex items-center justify-center">
-                <Image size={28} className="text-teal-600" />
+                <ImageIcon size={28} className="text-teal-600" />
               </div>
               <h2 className="text-2xl font-black text-slate-800">الشعار والختم</h2>
             </div>
