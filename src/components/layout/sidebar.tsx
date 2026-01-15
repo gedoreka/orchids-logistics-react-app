@@ -37,12 +37,14 @@ import {
   Coins,
   Sparkles,
   ChevronLeft,
+  ChevronRight,
   Zap
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useLocale, useTranslations } from "@/lib/locale-context";
 
 interface NavItem {
-  title: string;
+  titleKey: string;
   href: string;
   icon: React.ElementType;
   adminOnly?: boolean;
@@ -52,50 +54,50 @@ interface NavItem {
 }
 
 const navItems: NavItem[] = [
-  { title: "الرئيسية", href: "/dashboard", icon: Home, gradient: "from-blue-500 to-cyan-500" },
+  { titleKey: "home", href: "/dashboard", icon: Home, gradient: "from-blue-500 to-cyan-500" },
   
-  { title: "طلبات تسجيل الشركات", href: "/admin/companies", icon: Building2, adminOnly: true, gradient: "from-violet-500 to-purple-500" },
-  { title: "إضافة شركة جديدة", href: "/register", icon: PlusCircle, adminOnly: true, gradient: "from-emerald-500 to-green-500" },
-  { title: "توليد رمز الاشتراك", href: "/admin/tokens/generate", icon: Key, adminOnly: true, gradient: "from-amber-500 to-yellow-500" },
-  { title: "بحث عن رمز اشتراك", href: "/admin/tokens/search", icon: Search, adminOnly: true, gradient: "from-sky-500 to-blue-500" },
-  { title: "الدعم الفني", href: "/admin/chat", icon: MessageSquare, adminOnly: true, gradient: "from-indigo-500 to-violet-500" },
-  { title: "إشعارات الإدارة", href: "/admin/notifications", icon: Bell, adminOnly: true, gradient: "from-rose-500 to-pink-500" },
-  { title: "نظام الرواتب الخاصة", href: "/admin/special-salaries", icon: Coins, adminOnly: true, dividerAfter: true, gradient: "from-yellow-500 to-orange-500" },
+  { titleKey: "companyRequests", href: "/admin/companies", icon: Building2, adminOnly: true, gradient: "from-violet-500 to-purple-500" },
+  { titleKey: "addNewCompany", href: "/register", icon: PlusCircle, adminOnly: true, gradient: "from-emerald-500 to-green-500" },
+  { titleKey: "generateToken", href: "/admin/tokens/generate", icon: Key, adminOnly: true, gradient: "from-amber-500 to-yellow-500" },
+  { titleKey: "searchToken", href: "/admin/tokens/search", icon: Search, adminOnly: true, gradient: "from-sky-500 to-blue-500" },
+  { titleKey: "technicalSupport", href: "/admin/chat", icon: MessageSquare, adminOnly: true, gradient: "from-indigo-500 to-violet-500" },
+  { titleKey: "adminNotifications", href: "/admin/notifications", icon: Bell, adminOnly: true, gradient: "from-rose-500 to-pink-500" },
+  { titleKey: "specialSalaries", href: "/admin/special-salaries", icon: Coins, adminOnly: true, dividerAfter: true, gradient: "from-yellow-500 to-orange-500" },
   
-  { title: "إدارة الموارد البشرية", href: "/hr", icon: Users, permission: "employees_module", gradient: "from-blue-500 to-indigo-500" },
+  { titleKey: "hrManagement", href: "/hr", icon: Users, permission: "employees_module", gradient: "from-blue-500 to-indigo-500" },
   
-  { title: "قائمة العملاء", href: "/customers", icon: Users, permission: "clients_module", gradient: "from-cyan-500 to-teal-500" },
+  { titleKey: "customersList", href: "/customers", icon: Users, permission: "clients_module", gradient: "from-cyan-500 to-teal-500" },
   
-  { title: "السندات المالية", href: "/financial-vouchers", icon: Receipt, permission: "receipts_module", gradient: "from-indigo-500 to-purple-500" },
-  { title: "مسيرات الرواتب", href: "/salary-payrolls", icon: BadgeDollarSign, permission: "salary_payrolls_module", gradient: "from-teal-500 to-emerald-500" },
-  { title: "الفواتير الضريبية", href: "/sales-invoices", icon: FileText, permission: "sales_module", gradient: "from-blue-500 to-sky-500" },
-  { title: "إشعارات الدائن", href: "/credit-notes", icon: CreditCard, permission: "credit_notes_module", gradient: "from-red-500 to-rose-500" },
-  { title: "إدارة المركبات", href: "/fleet", icon: Car, permission: "sales_module", gradient: "from-yellow-500 to-amber-500" },
+  { titleKey: "financialVouchers", href: "/financial-vouchers", icon: Receipt, permission: "receipts_module", gradient: "from-indigo-500 to-purple-500" },
+  { titleKey: "salaryPayrolls", href: "/salary-payrolls", icon: BadgeDollarSign, permission: "salary_payrolls_module", gradient: "from-teal-500 to-emerald-500" },
+  { titleKey: "taxInvoices", href: "/sales-invoices", icon: FileText, permission: "sales_module", gradient: "from-blue-500 to-sky-500" },
+  { titleKey: "creditNotes", href: "/credit-notes", icon: CreditCard, permission: "credit_notes_module", gradient: "from-red-500 to-rose-500" },
+  { titleKey: "fleetManagement", href: "/fleet", icon: Car, permission: "sales_module", gradient: "from-yellow-500 to-amber-500" },
   
-  { title: "التجارة الإلكترونية", href: "/ecommerce-orders", icon: Store, permission: "ecommerce_orders_module", gradient: "from-pink-500 to-rose-500" },
-  { title: "طلبات اليوم", href: "/ecommerce-orders/today", icon: Calendar, permission: "daily_orders_module", gradient: "from-fuchsia-500 to-pink-500" },
-  { title: "إدارة المتاجر", href: "/ecommerce-stores", icon: Store, permission: "ecommerce_stores_module", gradient: "from-rose-500 to-red-500" },
+  { titleKey: "ecommerce", href: "/ecommerce-orders", icon: Store, permission: "ecommerce_orders_module", gradient: "from-pink-500 to-rose-500" },
+  { titleKey: "todayOrders", href: "/ecommerce-orders/today", icon: Calendar, permission: "daily_orders_module", gradient: "from-fuchsia-500 to-pink-500" },
+  { titleKey: "storeManagement", href: "/ecommerce-stores", icon: Store, permission: "ecommerce_stores_module", gradient: "from-rose-500 to-red-500" },
   
-  { title: "الشحنات الشخصية", href: "/personal-shipments", icon: Truck, permission: "personal_shipments_module", gradient: "from-sky-500 to-cyan-500" },
-  { title: "إدارة الشحنات", href: "/manage-shipments", icon: Package, permission: "manage_shipments_module", gradient: "from-indigo-500 to-blue-500" },
+  { titleKey: "personalShipments", href: "/personal-shipments", icon: Truck, permission: "personal_shipments_module", gradient: "from-sky-500 to-cyan-500" },
+  { titleKey: "shipmentManagement", href: "/manage-shipments", icon: Package, permission: "manage_shipments_module", gradient: "from-indigo-500 to-blue-500" },
   
-  { title: "العمولات الشهرية", href: "/monthly-commissions", icon: HandCoins, permission: "monthly_commissions_module", gradient: "from-amber-500 to-orange-500" },
-  { title: "تقرير العمولات", href: "/commissions-summary", icon: FileSpreadsheet, permission: "commissions_summary_module", gradient: "from-lime-500 to-green-500" },
+  { titleKey: "monthlyCommissions", href: "/monthly-commissions", icon: HandCoins, permission: "monthly_commissions_module", gradient: "from-amber-500 to-orange-500" },
+  { titleKey: "commissionsReport", href: "/commissions-summary", icon: FileSpreadsheet, permission: "commissions_summary_module", gradient: "from-lime-500 to-green-500" },
   
-  { title: "مركز المصروفات", href: "/expenses", icon: BarChart3, permission: "expenses_module", gradient: "from-red-500 to-orange-500" },
-  { title: "القيود اليومية", href: "/journal-entries", icon: FileEdit, permission: "journal_entries_module", gradient: "from-violet-500 to-indigo-500" },
-  { title: "ملخص الربح والخسارة", href: "/profit-loss", icon: PieChart, permission: "income_report_module", gradient: "from-sky-500 to-blue-500" },
+  { titleKey: "expensesCenter", href: "/expenses", icon: BarChart3, permission: "expenses_module", gradient: "from-red-500 to-orange-500" },
+  { titleKey: "journalEntries", href: "/journal-entries", icon: FileEdit, permission: "journal_entries_module", gradient: "from-violet-500 to-indigo-500" },
+  { titleKey: "profitLossSummary", href: "/profit-loss", icon: PieChart, permission: "income_report_module", gradient: "from-sky-500 to-blue-500" },
   
-  { title: "الخطابات الجاهزة", href: "/letters-templates", icon: Mail, permission: "letters_templates_module", gradient: "from-blue-500 to-indigo-500" },
+  { titleKey: "letterTemplates", href: "/letters-templates", icon: Mail, permission: "letters_templates_module", gradient: "from-blue-500 to-indigo-500" },
   
-  { title: "مركز الحسابات", href: "/accounts", icon: BookOpen, permission: "accounts_module", gradient: "from-orange-500 to-amber-500" },
-  { title: "مراكز التكلفة", href: "/cost-centers", icon: Landmark, permission: "cost_centers_module", gradient: "from-slate-500 to-gray-500" },
-  { title: "دفتر الأستاذ العام", href: "/general-ledger", icon: BookOpen, permission: "ledger_module", gradient: "from-zinc-500 to-neutral-500" },
-  { title: "ميزان المراجعة", href: "/trial-balance", icon: Scale, permission: "trial_balance_module", gradient: "from-gray-500 to-slate-500" },
-  { title: "قائمة الدخل", href: "/income-statement", icon: BarChart3, permission: "income_statement_module", gradient: "from-emerald-500 to-teal-500" },
-  { title: "الميزانية العمومية", href: "/balance-sheet", icon: FileText, permission: "balance_sheet_module", gradient: "from-blue-500 to-cyan-500" },
-  { title: "إعدادات الضريبة", href: "/tax-settings", icon: Calculator, permission: "balance_sheet_module", gradient: "from-rose-500 to-pink-500" },
-  { title: "إعدادات النظام", href: "/settings", icon: Settings, gradient: "from-slate-400 to-gray-500" },
+  { titleKey: "accountsCenter", href: "/accounts", icon: BookOpen, permission: "accounts_module", gradient: "from-orange-500 to-amber-500" },
+  { titleKey: "costCenters", href: "/cost-centers", icon: Landmark, permission: "cost_centers_module", gradient: "from-slate-500 to-gray-500" },
+  { titleKey: "generalLedger", href: "/general-ledger", icon: BookOpen, permission: "ledger_module", gradient: "from-zinc-500 to-neutral-500" },
+  { titleKey: "trialBalance", href: "/trial-balance", icon: Scale, permission: "trial_balance_module", gradient: "from-gray-500 to-slate-500" },
+  { titleKey: "incomeStatement", href: "/income-statement", icon: BarChart3, permission: "income_statement_module", gradient: "from-emerald-500 to-teal-500" },
+  { titleKey: "balanceSheet", href: "/balance-sheet", icon: FileText, permission: "balance_sheet_module", gradient: "from-blue-500 to-cyan-500" },
+  { titleKey: "taxSettings", href: "/tax-settings", icon: Calculator, permission: "balance_sheet_module", gradient: "from-rose-500 to-pink-500" },
+  { titleKey: "systemSettings", href: "/settings", icon: Settings, gradient: "from-slate-400 to-gray-500" },
 ];
 
 interface SidebarProps {
@@ -109,6 +111,8 @@ export function Sidebar({ userRole, permissions = {} }: SidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
   const isAdmin = userRole === "admin";
+  const { isRTL } = useLocale();
+  const t = useTranslations('sidebar');
 
   useEffect(() => {
     setMounted(true);
@@ -134,17 +138,28 @@ export function Sidebar({ userRole, permissions = {} }: SidebarProps) {
   };
 
   const itemVariants = {
-    hidden: { opacity: 0, x: 20 },
+    hidden: { opacity: 0, x: isRTL ? 20 : -20 },
     visible: { opacity: 1, x: 0 }
   };
+
+  const ChevronIcon = isRTL ? ChevronLeft : ChevronRight;
 
   return (
     <div className="w-64 h-screen overflow-hidden flex flex-col relative">
       <div className="absolute inset-0 bg-gradient-to-b from-slate-950 via-slate-900 to-black" />
       <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC4wMiI+PGNpcmNsZSBjeD0iMzAiIGN5PSIzMCIgcj0iMiIvPjwvZz48L2c+PC9zdmc+')] opacity-50" />
-      <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-blue-600/10 to-transparent rounded-full blur-3xl" />
-      <div className="absolute bottom-0 left-0 w-64 h-64 bg-gradient-to-tr from-purple-600/10 to-transparent rounded-full blur-3xl" />
-      <div className="absolute left-0 top-0 bottom-0 w-[1px] bg-gradient-to-b from-white/10 via-white/5 to-white/10" />
+      <div className={cn(
+        "absolute top-0 w-64 h-64 bg-gradient-to-br from-blue-600/10 to-transparent rounded-full blur-3xl",
+        isRTL ? "right-0" : "left-0"
+      )} />
+      <div className={cn(
+        "absolute bottom-0 w-64 h-64 bg-gradient-to-tr from-purple-600/10 to-transparent rounded-full blur-3xl",
+        isRTL ? "left-0" : "right-0"
+      )} />
+      <div className={cn(
+        "absolute top-0 bottom-0 w-[1px] bg-gradient-to-b from-white/10 via-white/5 to-white/10",
+        isRTL ? "right-0" : "left-0"
+      )} />
       
       <div className="relative z-10 p-5 border-b border-white/5">
         {mounted && (
@@ -163,7 +178,7 @@ export function Sidebar({ userRole, permissions = {} }: SidebarProps) {
                 <Truck size={28} className="text-white drop-shadow-lg" />
               </div>
               <motion.div 
-                className="absolute -top-1 -right-1"
+                className={cn("absolute -top-1", isRTL ? "-left-1" : "-right-1")}
                 animate={{ scale: [1, 1.2, 1] }}
                 transition={{ duration: 2, repeat: Infinity }}
               >
@@ -222,7 +237,8 @@ export function Sidebar({ userRole, permissions = {} }: SidebarProps) {
                             animate={{ opacity: 1, width: 3 }}
                             exit={{ opacity: 0, width: 0 }}
                             className={cn(
-                              "absolute right-0 top-2 bottom-2 rounded-full",
+                              "absolute top-2 bottom-2 rounded-full",
+                              isRTL ? "right-0" : "left-0",
                               isActive 
                                 ? `bg-gradient-to-b ${item.gradient}` 
                                 : "bg-white/30"
@@ -247,16 +263,16 @@ export function Sidebar({ userRole, permissions = {} }: SidebarProps) {
                         "relative font-bold text-[12px] tracking-wide transition-all duration-300",
                         isActive ? "text-white" : "text-white/50 group-hover:text-white/90"
                       )}>
-                        {item.title}
+                        {t(item.titleKey)}
                       </span>
 
                       {isActive && (
                         <motion.div
                           initial={{ opacity: 0, scale: 0 }}
                           animate={{ opacity: 1, scale: 1 }}
-                          className="absolute left-3"
+                          className={cn("absolute", isRTL ? "right-3" : "left-3")}
                         >
-                          <ChevronLeft size={14} className="text-white/50" />
+                          <ChevronIcon size={14} className="text-white/50" />
                         </motion.div>
                       )}
                     </motion.div>
@@ -287,7 +303,7 @@ export function Sidebar({ userRole, permissions = {} }: SidebarProps) {
           <div className="absolute inset-0 bg-gradient-to-r from-rose-500/20 to-red-500/20 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity" />
           <div className="relative flex items-center justify-center gap-3 px-4 py-3 rounded-xl bg-white/5 border border-white/10 group-hover:border-rose-500/30 transition-all">
             <LogOut size={16} className="text-rose-400 group-hover:text-rose-300 transition-colors" />
-            <span className="font-bold text-[12px] text-white/70 group-hover:text-white transition-colors">تسجيل الخروج</span>
+            <span className="font-bold text-[12px] text-white/70 group-hover:text-white transition-colors">{t('logout')}</span>
           </div>
         </motion.button>
       </div>

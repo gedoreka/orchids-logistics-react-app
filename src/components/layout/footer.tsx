@@ -17,11 +17,14 @@ import {
   Globe
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useLocale, useTranslations } from "@/lib/locale-context";
 
 export function Footer() {
   const [copiedPhone, setCopiedPhone] = useState<string | null>(null);
   const [isOnline, setIsOnline] = useState(true);
   const [systemStatus, setSystemStatus] = useState({ cpu: 23, memory: 45, latency: 42 });
+  const { isRTL } = useLocale();
+  const t = useTranslations('footer');
 
   useEffect(() => {
     const handleOnline = () => setIsOnline(true);
@@ -64,7 +67,7 @@ export function Footer() {
           <div className="flex items-center gap-4">
             <div className="hidden sm:flex items-center gap-1.5 text-white/30 text-[10px] font-bold">
               <Copyright size={10} />
-              <span>2026 جميع الحقوق محفوظة الي شركة زول اسبيد للانشطة المتعددة</span>
+              <span>2026 {t('copyright')}</span>
             </div>
           </div>
 
@@ -86,12 +89,12 @@ export function Footer() {
                   >
                     <Wifi size={12} className="text-emerald-400" />
                   </motion.div>
-                  <span className="text-[10px] font-bold text-emerald-400">متصل</span>
+                  <span className="text-[10px] font-bold text-emerald-400">{t('online')}</span>
                 </>
               ) : (
                 <>
                   <WifiOff size={12} className="text-rose-400" />
-                  <span className="text-[10px] font-bold text-rose-400">غير متصل</span>
+                  <span className="text-[10px] font-bold text-rose-400">{t('offline')}</span>
                 </>
               )}
             </motion.div>
@@ -104,7 +107,7 @@ export function Footer() {
 
             <div className="flex items-center gap-2 px-3 py-1.5 bg-white/5 rounded-xl border border-white/10">
               <Activity size={12} className="text-purple-400" />
-              <span className="text-[10px] font-bold text-white/50">الذاكرة</span>
+              <span className="text-[10px] font-bold text-white/50">{isRTL ? 'الذاكرة' : 'Memory'}</span>
               <span className="text-[10px] font-bold text-purple-400">{systemStatus.memory}%</span>
             </div>
 
