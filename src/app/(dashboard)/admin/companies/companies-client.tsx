@@ -31,6 +31,7 @@ import { toast } from "sonner";
 import { Company } from "@/lib/types";
 import { approveCompany, rejectCompany, toggleCompanyStatus, generateToken } from "@/lib/actions/admin";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
+import Link from "next/link";
 import { cn } from "@/lib/utils";
 
 interface CompaniesClientProps {
@@ -320,15 +321,17 @@ export function CompaniesClient({ initialCompanies, statusFilter, search }: Comp
                 </div>
 
                 {/* Action Buttons with Gradients */}
-                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
-                  <motion.button
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                    className="flex flex-col items-center justify-center gap-2 p-4 rounded-2xl bg-gradient-to-br from-blue-600 to-blue-700 text-white font-black shadow-lg shadow-blue-500/20 hover:shadow-blue-500/40 transition-all"
-                  >
-                    <Eye size={20} />
-                    <span className="text-[10px] uppercase tracking-wider">عرض التفاصيل</span>
-                  </motion.button>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+                    <Link href={`/admin/companies/${company.id}`}>
+                      <motion.button
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                        className="w-full flex flex-col items-center justify-center gap-2 p-4 rounded-2xl bg-gradient-to-br from-blue-600 to-blue-700 text-white font-black shadow-lg shadow-blue-500/20 hover:shadow-blue-500/40 transition-all"
+                      >
+                        <Eye size={20} />
+                        <span className="text-[10px] uppercase tracking-wider">عرض التفاصيل</span>
+                      </motion.button>
+                    </Link>
 
                   <motion.button
                     whileHover={{ scale: 1.02 }}

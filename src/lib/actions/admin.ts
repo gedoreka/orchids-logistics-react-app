@@ -69,3 +69,23 @@ export async function sendAdminNotification(data: {
     return { success: false, error: error.message };
   }
 }
+
+export async function updateCompany(id: number, data: Record<string, any>) {
+  try {
+    const fields = Object.keys(data);
+    const values = Object.values(data);
+    
+    if (fields.length === 0) {
+      return { success: false, error: "No fields to update" };
+    }
+    
+    const setClause = fields.map(field => `${field} = ?`).join(", ");
+    await query(`UPDATE companies SET ${setClause} WHERE id = ?`, [...values, id]);
+    
+    revalidatePath("/admin/companies");
+    revalidatePath(`/admin/companies/${id}`);
+    return { success: true };
+  } catch (error: any) {
+    return { success: false, error: error.message };
+  }
+}

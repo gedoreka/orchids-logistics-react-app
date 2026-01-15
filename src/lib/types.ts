@@ -15,9 +15,12 @@ export interface Company {
   commercial_number?: string;
   vat_number?: string;
   phone?: string;
+  email?: string;
   website?: string;
   currency?: string;
+  logo?: string;
   logo_path?: string;
+  stamp?: string;
   stamp_path?: string;
   digital_seal_path?: string;
   country?: string;
@@ -33,8 +36,12 @@ export interface Company {
   transport_license_number?: string;
   transport_license_type?: string;
   transport_license_image?: string;
+  license_image?: string;
   license_start?: string;
   license_end?: string;
+  access_token?: string;
+  token_expiry?: string;
+  created_at: string;
 }
 
 export interface ResetToken {
