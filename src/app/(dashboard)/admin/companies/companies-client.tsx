@@ -333,14 +333,16 @@ export function CompaniesClient({ initialCompanies, statusFilter, search }: Comp
                       </motion.button>
                     </Link>
 
-                  <motion.button
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                    className="flex flex-col items-center justify-center gap-2 p-4 rounded-2xl bg-gradient-to-br from-indigo-500 to-indigo-600 text-white font-black shadow-lg shadow-indigo-500/20 hover:shadow-indigo-500/40 transition-all"
-                  >
-                    <Lock size={20} />
-                    <span className="text-[10px] uppercase tracking-wider">الصلاحيات</span>
-                  </motion.button>
+                  <Link href={`/admin/companies/${company.id}/permissions`}>
+                      <motion.button
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                        className="w-full flex flex-col items-center justify-center gap-2 p-4 rounded-2xl bg-gradient-to-br from-indigo-500 to-indigo-600 text-white font-black shadow-lg shadow-indigo-500/20 hover:shadow-indigo-500/40 transition-all"
+                      >
+                        <Lock size={20} />
+                        <span className="text-[10px] uppercase tracking-wider">الصلاحيات</span>
+                      </motion.button>
+                    </Link>
 
                   {company.status === 'pending' ? (
                     <>
