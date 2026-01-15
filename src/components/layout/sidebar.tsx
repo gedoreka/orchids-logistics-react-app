@@ -59,7 +59,7 @@ const navItems: NavItem[] = [
   { titleKey: "companyRequests", href: "/admin/companies", icon: Building2, adminOnly: true, gradient: "from-violet-500 to-purple-500" },
   { titleKey: "addNewCompany", href: "/admin/companies/new", icon: PlusCircle, adminOnly: true, gradient: "from-emerald-500 to-green-500" },
   { titleKey: "generateToken", href: "/admin/generate-token", icon: Key, adminOnly: true, gradient: "from-amber-500 to-yellow-500" },
-  { titleKey: "searchToken", href: "/admin/tokens/search", icon: Search, adminOnly: true, gradient: "from-sky-500 to-blue-500" },
+  { titleKey: "searchToken", href: "/admin/search-token", icon: Search, adminOnly: true, gradient: "from-sky-500 to-blue-500" },
   { titleKey: "technicalSupport", href: "/admin/chat", icon: MessageSquare, adminOnly: true, gradient: "from-indigo-500 to-violet-500" },
   { titleKey: "adminNotifications", href: "/admin/notifications", icon: Bell, adminOnly: true, gradient: "from-rose-500 to-pink-500" },
   { titleKey: "specialSalaries", href: "/admin/special-salaries", icon: Coins, adminOnly: true, dividerAfter: true, gradient: "from-yellow-500 to-orange-500" },
