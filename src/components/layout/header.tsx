@@ -203,14 +203,14 @@ export function Header({ user, onToggleSidebar }: { user?: { name: string; role:
                 </button>
               </div>
 
-            <PremiumButton 
-              onClick={() => setIsDriverModalOpen(true)}
-              icon={Truck}
-              label="تطبيق السائقين"
-              colorClass="bg-[#1a1a1a] hover:bg-black"
-              borderClass="border-gray-800"
-              animate={true}
-            />
+              <PremiumButton 
+                onClick={() => setIsDriverModalOpen(true)}
+                icon={Truck}
+                label="تطبيق السائقين"
+                colorClass="bg-gradient-to-r from-[#f39c12] to-[#e67e22]"
+                borderClass="border-[#d68910]"
+                animate={true}
+              />
 
             <PremiumButton 
               onClick={() => router.push("/chat")}
