@@ -5,6 +5,7 @@ import { Sidebar } from "./sidebar";
 import { motion, AnimatePresence } from "framer-motion";
 import { Header } from "./header";
 import { Footer } from "./footer";
+import { GlobalChatNotifications } from "./global-chat-notifications";
 import { X } from "lucide-react";
 
 interface DashboardLayoutProps {
@@ -41,6 +42,8 @@ export function DashboardLayout({ children, user, permissions }: DashboardLayout
       className="h-screen overflow-hidden bg-background text-foreground transition-colors duration-300" 
       dir={isRTL ? "rtl" : "ltr"}
     >
+      <GlobalChatNotifications isAdmin={user?.role === "admin"} />
+      
       <aside className={`hidden lg:flex fixed top-0 ${isRTL ? 'right-0' : 'left-0'} h-screen w-64 z-50`}>
         <Sidebar userRole={user?.role} permissions={permissions} />
       </aside>
