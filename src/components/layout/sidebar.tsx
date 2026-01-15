@@ -65,7 +65,7 @@ const navItems: NavItem[] = [
   { title: "قائمة العملاء", href: "/customers", icon: Users, permission: "clients_module", iconColor: "text-cyan-400" },
   
   { title: "عروض الأسعار", href: "/quotations", icon: FileText, permission: "quotations_module", iconColor: "text-orange-400" },
-  { title: "سندات المبيعات", href: "/sales-receipts", icon: Receipt, permission: "receipts_module", iconColor: "text-green-400" },
+  { title: "السندات المالية", href: "/financial-vouchers", icon: Receipt, permission: "receipts_module", iconColor: "text-indigo-400" },
   { title: "مسيرات الرواتب", href: "/salary-payrolls", icon: BadgeDollarSign, permission: "salary_payrolls_module", iconColor: "text-teal-400" },
   { title: "الفواتير الضريبية", href: "/sales-invoices", icon: FileText, permission: "sales_module", iconColor: "text-blue-400" },
   { title: "إشعارات الدائن", href: "/credit-notes", icon: CreditCard, permission: "credit_notes_module", iconColor: "text-red-400" },
@@ -84,7 +84,6 @@ const navItems: NavItem[] = [
   { title: "مركز المصروفات", href: "/expenses", icon: BarChart3, permission: "expenses_module", iconColor: "text-red-400" },
   { title: "إضافة إيراد جديد", href: "/income/new", icon: DollarSign, permission: "income_module", iconColor: "text-emerald-400" },
   { title: "القيود اليومية", href: "/journal-entries", icon: FileEdit, permission: "journal_entries_module", iconColor: "text-violet-400" },
-  { title: "سندات القبض", href: "/receipt-vouchers", icon: Receipt, permission: "receipt_vouchers_module", iconColor: "text-green-400" },
   { title: "عرض تقارير الدخل", href: "/income-view", icon: PieChart, permission: "income_report_module", iconColor: "text-sky-400" },
   
   { title: "الخطابات الجاهزة", href: "/letters-templates", icon: Mail, permission: "letters_templates_module", iconColor: "text-blue-400" },
