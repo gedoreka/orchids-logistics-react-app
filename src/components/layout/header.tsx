@@ -29,14 +29,13 @@ import {
 import { motion, AnimatePresence } from "framer-motion";
 import { usePathname, useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
-import { useTranslations, useLocale } from 'next-intl';
+import { useLocale, useTranslations } from '@/lib/locale-context';
 import { LanguageSwitcher } from "./language-switcher";
 
 export function Header({ user, onToggleSidebar }: { user?: { name: string; role: string; email: string }, onToggleSidebar?: () => void }) {
   const t = useTranslations('header');
   const tCommon = useTranslations('common');
-  const locale = useLocale();
-  const isRTL = locale === 'ar';
+  const { locale, isRTL } = useLocale();
   
   const [mounted, setMounted] = useState(false);
   const [currentTime, setCurrentTime] = useState(new Date());
@@ -456,8 +455,8 @@ export function Header({ user, onToggleSidebar }: { user?: { name: string; role:
                   </div>
                 </motion.div>
                 <div>
-                  <h3 className="text-2xl font-black text-white mb-1">تطبيق السائق</h3>
-                  <p className="text-white/40 text-sm">نظام إدخال البيانات للسائقين الميدانيين</p>
+                  <h3 className="text-2xl font-black text-white mb-1">{t('driverApp')}</h3>
+                  <p className="text-white/40 text-sm">{isRTL ? 'نظام إدخال البيانات للسائقين الميدانيين' : 'Data entry system for field drivers'}</p>
                 </div>
               </div>
 
@@ -471,7 +470,7 @@ export function Header({ user, onToggleSidebar }: { user?: { name: string; role:
                     <div className="p-2 bg-blue-500/20 rounded-xl">
                       <ExternalLink size={18} className="text-blue-400" />
                     </div>
-                    <span className="font-bold text-sm text-white/90">فتح رابط التطبيق</span>
+                    <span className="font-bold text-sm text-white/90">{isRTL ? 'فتح رابط التطبيق' : 'Open App Link'}</span>
                   </div>
                   <ArrowRight size={18} className="text-white/30 group-hover:-translate-x-1 transition-transform" />
                 </a>
@@ -484,7 +483,7 @@ export function Header({ user, onToggleSidebar }: { user?: { name: string; role:
                     <div className={cn("p-2 rounded-xl", copied ? "bg-emerald-500/20" : "bg-amber-500/20")}>
                       {copied ? <Check size={18} className="text-emerald-400" /> : <Copy size={18} className="text-amber-400" />}
                     </div>
-                    <span className="font-bold text-sm text-white/90">{copied ? "تم النسخ بنجاح" : "نسخ رابط التطبيق"}</span>
+                    <span className="font-bold text-sm text-white/90">{copied ? (isRTL ? "تم النسخ بنجاح" : "Copied!") : (isRTL ? "نسخ رابط التطبيق" : "Copy App Link")}</span>
                   </div>
                 </button>
 
@@ -496,7 +495,7 @@ export function Header({ user, onToggleSidebar }: { user?: { name: string; role:
                     <div className="p-2 bg-purple-500/20 rounded-xl">
                       <QrCode size={18} className="text-purple-400" />
                     </div>
-                    <span className="font-bold text-sm text-white/90">عرض رمز QR</span>
+                    <span className="font-bold text-sm text-white/90">{isRTL ? 'عرض رمز QR' : 'Show QR Code'}</span>
                   </div>
                 </button>
               </div>
@@ -516,7 +515,7 @@ export function Header({ user, onToggleSidebar }: { user?: { name: string; role:
                         className="w-32 h-32"
                       />
                     </div>
-                    <p className="text-slate-600 text-xs font-bold">امسح الكود لفتح التطبيق فوراً</p>
+                    <p className="text-slate-600 text-xs font-bold">{isRTL ? 'امسح الكود لفتح التطبيق فوراً' : 'Scan to open app instantly'}</p>
                   </motion.div>
                 )}
               </AnimatePresence>
@@ -524,10 +523,12 @@ export function Header({ user, onToggleSidebar }: { user?: { name: string; role:
               <div className="relative z-10 p-4 bg-white/5 rounded-2xl border border-white/10">
                 <div className="flex items-center gap-2 mb-2 text-blue-400">
                   <Info size={14} />
-                  <h6 className="text-xs font-bold">معلومات عن التطبيق</h6>
+                  <h6 className="text-xs font-bold">{isRTL ? 'معلومات عن التطبيق' : 'About the App'}</h6>
                 </div>
                 <p className="text-[11px] text-white/40 leading-relaxed">
-                  هذا التطبيق مخصص للسائقين لتسجيل عمليات الشحن والتسليم بشكل فوري، ويتيح للمديرين متابعة سير العمليات من لوحة التحكم.
+                  {isRTL 
+                    ? 'هذا التطبيق مخصص للسائقين لتسجيل عمليات الشحن والتسليم بشكل فوري، ويتيح للمديرين متابعة سير العمليات من لوحة التحكم.'
+                    : 'This app is designed for drivers to instantly record shipping and delivery operations, allowing managers to track operations from the dashboard.'}
                 </p>
               </div>
             </motion.div>

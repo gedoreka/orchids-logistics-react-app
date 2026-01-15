@@ -2,8 +2,7 @@ import type { Metadata } from "next";
 import { Inter, Cairo } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/sonner";
-import { NextIntlClientProvider } from 'next-intl';
-import { getLocale, getMessages } from 'next-intl/server';
+import { LocaleProvider } from "@/lib/locale-context";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -20,29 +19,25 @@ export const metadata: Metadata = {
   description: "نظام إدارة الخدمات اللوجستية المتكامل",
 };
 
-export default async function RootLayout({
+export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const locale = await getLocale();
-  const messages = await getMessages();
-  const isRTL = locale === 'ar';
-
   return (
     <html 
-      lang={locale} 
-      dir={isRTL ? "rtl" : "ltr"} 
+      lang="ar" 
+      dir="rtl" 
       style={{ fontFeatureSettings: '"tnum" on, "lnum" on' }}
       className={`${inter.variable} ${cairo.variable}`}
     >
       <body
-        className={`antialiased ${isRTL ? 'font-cairo' : 'font-inter'}`}
+        className="antialiased font-cairo"
         style={{ fontFeatureSettings: '"tnum" on, "lnum" on' }}
       >
-        <NextIntlClientProvider messages={messages}>
+        <LocaleProvider>
           {children}
-        </NextIntlClientProvider>
+        </LocaleProvider>
         <Toaster position="top-center" richColors />
       </body>
     </html>

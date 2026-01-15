@@ -1,20 +1,18 @@
 "use client";
 
-import { useLocale } from 'next-intl';
 import { useRouter, usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Languages, Check } from 'lucide-react';
 import { useState, useRef, useEffect } from 'react';
+import { useLocale } from '@/lib/locale-context';
 
 const languages = [
-  { code: 'ar', name: 'العربية', flag: '🇸🇦', dir: 'rtl' },
-  { code: 'en', name: 'English', flag: '🇺🇸', dir: 'ltr' },
+  { code: 'ar' as const, name: 'العربية', flag: '🇸🇦', dir: 'rtl' },
+  { code: 'en' as const, name: 'English', flag: '🇺🇸', dir: 'ltr' },
 ];
 
 export function LanguageSwitcher() {
-  const locale = useLocale();
-  const router = useRouter();
-  const pathname = usePathname();
+  const { locale, setLocale } = useLocale();
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -30,12 +28,8 @@ export function LanguageSwitcher() {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const switchLocale = (newLocale: string) => {
-    const currentPath = pathname;
-    const pathWithoutLocale = currentPath.replace(/^\/(ar|en)/, '') || '/';
-    const newPath = newLocale === 'ar' ? pathWithoutLocale : `/${newLocale}${pathWithoutLocale}`;
-    router.push(newPath);
-    router.refresh();
+  const switchLocale = (newLocale: 'ar' | 'en') => {
+    setLocale(newLocale);
     setIsOpen(false);
   };
 
