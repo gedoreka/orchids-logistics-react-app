@@ -124,20 +124,33 @@ export function CompaniesClient({ initialCompanies, statusFilter, search }: Comp
               </div>
 
               <div className="bg-amber-500/10 backdrop-blur-md px-8 py-4 rounded-2xl border border-amber-500/20 flex items-center gap-4">
-                <div className="w-12 h-12 rounded-xl bg-amber-500/20 flex items-center justify-center text-amber-400">
-                  <RefreshCw size={24} className="animate-spin-slow" />
+                  <div className="w-12 h-12 rounded-xl bg-amber-500/20 flex items-center justify-center text-amber-400">
+                    <RefreshCw size={24} className="animate-spin-slow" />
+                  </div>
+                  <div className="text-right">
+                    <span className="block text-amber-400/50 text-[10px] font-black uppercase tracking-widest">قيد المراجعة</span>
+                    <span className="text-2xl font-black text-amber-100">
+                      {companies.filter(c => c.status === 'pending').length}
+                    </span>
+                  </div>
                 </div>
-                <div className="text-right">
-                  <span className="block text-amber-400/50 text-[10px] font-black uppercase tracking-widest">قيد المراجعة</span>
-                  <span className="text-2xl font-black text-amber-100">
-                    {companies.filter(c => c.status === 'pending').length}
-                  </span>
-                </div>
+              </div>
+              
+              <div className="pt-6">
+                <Link href="/admin/companies/new">
+                  <motion.button
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    className="flex items-center gap-3 bg-gradient-to-r from-indigo-500 to-purple-600 text-white px-8 py-4 rounded-2xl font-black shadow-lg shadow-indigo-500/30 hover:shadow-indigo-500/50 transition-all"
+                  >
+                    <Plus size={22} />
+                    إضافة منشأة جديدة
+                  </motion.button>
+                </Link>
               </div>
             </div>
           </div>
         </div>
-      </div>
 
       {/* Search & Filter Glass Section */}
       <div className="bg-white/80 backdrop-blur-xl rounded-3xl border border-white/20 p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)] ring-1 ring-slate-900/5">
