@@ -20,12 +20,19 @@ export async function sendMessage(data: {
   sender_role: string;
   message: string;
   file_path?: string;
+  message_type?: 'text' | 'image' | 'audio' | 'video' | 'file';
 }) {
   try {
     const result = await execute(
-      `INSERT INTO chat_messages (company_id, sender_role, message, file_path, is_read, created_at)
-       VALUES (?, ?, ?, ?, 0, NOW())`,
-      [data.company_id, data.sender_role, data.message, data.file_path || null]
+      `INSERT INTO chat_messages (company_id, sender_role, message, file_path, message_type, is_read, created_at)
+       VALUES (?, ?, ?, ?, ?, 0, NOW())`,
+      [
+        data.company_id, 
+        data.sender_role, 
+        data.message, 
+        data.file_path || null,
+        data.message_type || 'text'
+      ]
     );
     
     revalidatePath("/chat");

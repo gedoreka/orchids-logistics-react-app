@@ -3,17 +3,18 @@ import { query, execute } from "@/lib/db";
 
 async function ensureChatTable() {
   try {
-    await execute(`
-      CREATE TABLE IF NOT EXISTS chat_messages (
-        id INT AUTO_INCREMENT PRIMARY KEY,
-        company_id INT NOT NULL,
-        sender_role ENUM('admin', 'client') NOT NULL,
-        message TEXT NOT NULL,
-        attachment VARCHAR(500) NULL,
-        is_read TINYINT(1) DEFAULT 0,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-      )
-    `);
+      await execute(`
+        CREATE TABLE IF NOT EXISTS chat_messages (
+          id INT AUTO_INCREMENT PRIMARY KEY,
+          company_id INT NOT NULL,
+          sender_role ENUM('admin', 'client') NOT NULL,
+          message TEXT NOT NULL,
+          file_path VARCHAR(500) NULL,
+          message_type ENUM('text', 'image', 'audio', 'video', 'file') DEFAULT 'text',
+          is_read TINYINT(1) DEFAULT 0,
+          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+      `);
   } catch (e) {
     console.log("Table might already exist");
   }
@@ -87,15 +88,15 @@ export async function POST(request: NextRequest) {
     await ensureChatTable();
     
     const body = await request.json();
-    const { company_id, message, sender_role, attachment } = body;
+    const { company_id, message, sender_role, attachment, message_type } = body;
 
     if (!company_id || !message) {
       return NextResponse.json({ error: "بيانات غير مكتملة" }, { status: 400 });
     }
 
     await execute(
-      "INSERT INTO chat_messages (company_id, sender_role, message, file_path) VALUES (?, ?, ?, ?)",
-      [company_id, sender_role || "admin", message, attachment || null]
+      "INSERT INTO chat_messages (company_id, sender_role, message, file_path, message_type) VALUES (?, ?, ?, ?, ?)",
+      [company_id, sender_role || "admin", message, attachment || null, message_type || "text"]
     );
 
     return NextResponse.json({ success: true });

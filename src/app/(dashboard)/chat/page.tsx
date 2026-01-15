@@ -19,11 +19,15 @@ export default async function ChatPage() {
     console.error("Error loading messages:", error);
   }
 
-  return (
-    <ChatClient 
-      initialMessages={initialMessages} 
-      companyId={companyId}
-      senderRole="client"
-    />
-  );
+    return (
+      <div className="flex justify-center items-center min-h-[calc(100vh-4rem)] p-4 md:p-8">
+        <div className="w-full md:w-[75%] max-w-6xl">
+          <ChatClient 
+            initialMessages={initialMessages} 
+            companyId={companyId}
+            senderRole="client"
+          />
+        </div>
+      </div>
+    );
 }

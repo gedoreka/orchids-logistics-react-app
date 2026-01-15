@@ -74,12 +74,12 @@ export function AdminChatClient({ initialCompanies }: AdminChatClientProps) {
                 <div className="flex-1 min-width-0">
                   <div className="flex items-center justify-between gap-2 mb-1">
                     <span className="font-black text-sm truncate">{company.name}</span>
-                    <span className={cn(
-                      "text-[10px] font-bold",
-                      selectedCompanyId === company.id ? "text-white/60" : "text-gray-400"
-                    )}>
-                      {new Date(company.last_message_date).toLocaleTimeString('ar-SA', { hour: '2-digit', minute: '2-digit' })}
-                    </span>
+                      <span className={cn(
+                        "text-[10px] font-bold",
+                        selectedCompanyId === company.id ? "text-white/60" : "text-gray-400"
+                      )}>
+                        {new Date(company.last_message_date).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}
+                      </span>
                   </div>
                   <p className={cn(
                     "text-xs font-bold truncate",
