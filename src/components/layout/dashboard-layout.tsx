@@ -20,12 +20,12 @@ interface DashboardLayoutProps {
 export function DashboardLayout({ children, user, permissions }: DashboardLayoutProps) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
-    return (
-      <div className="flex min-h-screen bg-[#f8fafc]" dir="rtl">
-        {/* Sidebar - Desktop - Fixed */}
-        <div className="hidden lg:block fixed top-0 right-0 h-screen w-64 z-50">
+  return (
+    <div className="min-h-screen bg-[#f8fafc]" dir="rtl">
+      {/* Sidebar - Desktop - Fixed */}
+      <aside className="hidden lg:flex fixed top-0 right-0 h-screen w-64 z-50">
         <Sidebar userRole={user?.role} permissions={permissions} />
-      </div>
+      </aside>
 
       {/* Sidebar - Mobile Drawer */}
       <AnimatePresence>
@@ -43,7 +43,7 @@ export function DashboardLayout({ children, user, permissions }: DashboardLayout
               animate={{ x: 0 }}
               exit={{ x: "100%" }}
               transition={{ type: "spring", damping: 25, stiffness: 200 }}
-              className="absolute top-0 right-0 bottom-0 w-64 bg-[#2c3e50] shadow-2xl overflow-hidden flex flex-col"
+              className="absolute top-0 right-0 bottom-0 w-64 bg-[#0f172a] shadow-2xl overflow-hidden flex flex-col"
             >
               <div className="flex items-center justify-between p-4 border-b border-white/10">
                 <span className="text-white font-black">القائمة الرئيسية</span>
@@ -62,18 +62,18 @@ export function DashboardLayout({ children, user, permissions }: DashboardLayout
         )}
       </AnimatePresence>
       
-      {/* Main Content - with margin for fixed sidebar */}
-      <div className="lg:mr-64 min-h-screen flex flex-col">
-        {/* Main Header */}
+      {/* Main Content Area - with margin for fixed sidebar */}
+      <div className="lg:mr-64 flex flex-col min-h-screen w-full">
+        {/* Header - Fixed at top */}
         <Header user={user} onToggleSidebar={() => setIsSidebarOpen(true)} />
 
-        {/* Main Content Area */}
-        <main className="flex-1 flex flex-col relative">
+        {/* Main Content - Scrollable */}
+        <main className="flex-1 overflow-auto">
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3 }}
-            className="flex-1 flex flex-col"
+            className="min-h-full"
           >
             {children}
           </motion.div>

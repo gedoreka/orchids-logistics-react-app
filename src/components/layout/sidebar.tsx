@@ -52,7 +52,6 @@ interface NavItem {
 const navItems: NavItem[] = [
   { title: "الرئيسية", href: "/dashboard", icon: Home, iconColor: "text-blue-400" },
   
-  // Admin Sections - روابط المدير
   { title: "طلبات تسجيل الشركات", href: "/admin/companies", icon: Building2, adminOnly: true, iconColor: "text-purple-400" },
   { title: "إضافة شركة جديدة", href: "/register", icon: PlusCircle, adminOnly: true, iconColor: "text-emerald-400" },
   { title: "توليد رمز الاشتراك", href: "/admin/tokens/generate", icon: Key, adminOnly: true, iconColor: "text-amber-400" },
@@ -61,13 +60,10 @@ const navItems: NavItem[] = [
   { title: "إشعارات الإدارة", href: "/admin/notifications", icon: Bell, adminOnly: true, iconColor: "text-rose-400" },
   { title: "نظام الرواتب الخاصة", href: "/admin/special-salaries", icon: Coins, adminOnly: true, dividerAfter: true, iconColor: "text-yellow-400" },
   
-  // HR - الموارد البشرية
   { title: "إدارة الموارد البشرية", href: "/hr", icon: Users, permission: "employees_module", iconColor: "text-blue-400" },
   
-  // Clients - العملاء
   { title: "قائمة العملاء", href: "/customers", icon: Users, permission: "clients_module", iconColor: "text-cyan-400" },
   
-  // Sales - المبيعات
   { title: "عروض الأسعار", href: "/quotations", icon: FileText, permission: "quotations_module", iconColor: "text-orange-400" },
   { title: "سندات المبيعات", href: "/sales-receipts", icon: Receipt, permission: "receipts_module", iconColor: "text-green-400" },
   { title: "مسيرات الرواتب", href: "/salary-payrolls", icon: BadgeDollarSign, permission: "salary_payrolls_module", iconColor: "text-teal-400" },
@@ -75,30 +71,24 @@ const navItems: NavItem[] = [
   { title: "إشعارات الدائن", href: "/credit-notes", icon: CreditCard, permission: "credit_notes_module", iconColor: "text-red-400" },
   { title: "إدارة المركبات", href: "/fleet", icon: Car, permission: "sales_module", iconColor: "text-yellow-400" },
   
-  // E-commerce - التجارة الإلكترونية
   { title: "التجارة الإلكترونية", href: "/ecommerce-orders", icon: Store, permission: "ecommerce_orders_module", iconColor: "text-pink-400" },
   { title: "طلبات اليوم", href: "/ecommerce-orders/today", icon: Calendar, permission: "daily_orders_module", iconColor: "text-fuchsia-400" },
   { title: "إدارة المتاجر", href: "/ecommerce-stores", icon: Store, permission: "ecommerce_stores_module", iconColor: "text-rose-400" },
   
-  // Shipments - الشحنات
   { title: "الشحنات الشخصية", href: "/personal-shipments", icon: Truck, permission: "personal_shipments_module", iconColor: "text-sky-400" },
   { title: "إدارة الشحنات", href: "/manage-shipments", icon: Package, permission: "manage_shipments_module", iconColor: "text-indigo-400" },
   
-  // Commissions - العمولات
   { title: "العمولات الشهرية", href: "/monthly-commissions", icon: HandCoins, permission: "monthly_commissions_module", iconColor: "text-amber-400" },
   { title: "تقرير العمولات", href: "/commissions-summary", icon: FileSpreadsheet, permission: "commissions_summary_module", iconColor: "text-lime-400" },
   
-  // Finance - المالية
   { title: "مركز المصروفات", href: "/expenses", icon: BarChart3, permission: "expenses_module", iconColor: "text-red-400" },
   { title: "إضافة إيراد جديد", href: "/income", icon: DollarSign, permission: "income_module", iconColor: "text-emerald-400" },
   { title: "القيود اليومية", href: "/journal-entries", icon: FileEdit, permission: "journal_entries_module", iconColor: "text-violet-400" },
   { title: "سندات القبض", href: "/receipt-vouchers", icon: Receipt, permission: "receipt_vouchers_module", iconColor: "text-green-400" },
   { title: "عرض تقارير الدخل", href: "/income-view", icon: PieChart, permission: "income_report_module", iconColor: "text-sky-400" },
   
-  // Letters - الخطابات
   { title: "الخطابات الجاهزة", href: "/letters-templates", icon: Mail, permission: "letters_templates_module", iconColor: "text-blue-400" },
   
-  // Accounting - المحاسبة
   { title: "مركز الحسابات", href: "/accounts", icon: BookOpen, permission: "accounts_module", iconColor: "text-orange-400" },
   { title: "مراكز التكلفة", href: "/cost-centers", icon: Landmark, permission: "cost_centers_module", iconColor: "text-slate-400" },
   { title: "دفتر الأستاذ العام", href: "/general-ledger", icon: BookOpen, permission: "ledger_module", iconColor: "text-zinc-400" },
@@ -135,12 +125,10 @@ export function Sidebar({ userRole, permissions = {} }: SidebarProps) {
     router.push("/login");
   };
 
-    return (
-      <div className="w-64 h-screen overflow-hidden bg-[#0f172a] flex flex-col transition-all duration-300 shadow-2xl border-l border-white/5 relative z-50">
-      {/* Glossy Background Effect */}
+  return (
+    <div className="w-64 h-screen overflow-hidden bg-[#0f172a] flex flex-col transition-all duration-300 shadow-2xl border-l border-white/5 relative">
       <div className="absolute inset-0 bg-gradient-to-b from-blue-500/5 to-transparent pointer-events-none" />
       
-      {/* Header */}
       <div className="p-4 border-b border-white/5 text-center relative bg-slate-900/50 backdrop-blur-sm">
         <div className="flex flex-col items-center gap-3">
           {mounted && (
@@ -160,9 +148,8 @@ export function Sidebar({ userRole, permissions = {} }: SidebarProps) {
         </div>
       </div>
 
-      {/* Navigation */}
       <nav className="flex-1 p-3 space-y-1.5 overflow-y-auto custom-scrollbar relative">
-        {filteredItems.map((item, index) => {
+        {filteredItems.map((item) => {
           const isActive = pathname === item.href || pathname.startsWith(item.href + "/");
           return (
             <React.Fragment key={item.href}>
@@ -177,7 +164,6 @@ export function Sidebar({ userRole, permissions = {} }: SidebarProps) {
                       : "text-slate-400 hover:text-white hover:bg-slate-800/50 border border-transparent"
                   )}
                 >
-                  {/* Glow Effect for Active/Hover */}
                   <div className={cn(
                     "absolute right-0 top-0 bottom-0 w-1 bg-blue-500 transition-all duration-300",
                     isActive ? "opacity-100 h-full" : "opacity-0 h-0 group-hover:opacity-50 group-hover:h-1/2"
@@ -200,7 +186,6 @@ export function Sidebar({ userRole, permissions = {} }: SidebarProps) {
                     {item.title}
                   </span>
 
-                  {/* Subtle Sparkle on Active */}
                   {isActive && (
                     <motion.div 
                       layoutId="active-pill"
@@ -217,7 +202,6 @@ export function Sidebar({ userRole, permissions = {} }: SidebarProps) {
         })}
       </nav>
 
-      {/* Footer */}
       <div className="p-4 border-t border-white/5 bg-slate-900/30 backdrop-blur-md">
         <motion.button 
           whileHover={{ scale: 1.02 }}
