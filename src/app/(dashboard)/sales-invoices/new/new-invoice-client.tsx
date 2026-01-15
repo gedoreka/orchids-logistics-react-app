@@ -670,11 +670,11 @@ export function NewInvoiceClient({ customers, invoiceNumber, companyId, userName
 
           <div className="overflow-x-auto">
             <table className="w-full">
-                <thead>
-                  <tr className="bg-gray-50 border-b border-gray-100">
-                    <th className="px-3 py-4 text-[10px] font-black text-gray-500 uppercase tracking-wider text-right w-10">#</th>
-                    <th className="px-3 py-4 text-[10px] font-black text-gray-500 uppercase tracking-wider text-right min-w-[180px]">اسم الخدمة</th>
-                    <th className="px-3 py-4 text-[10px] font-black text-gray-500 uppercase tracking-wider text-center w-24">الكمية</th>
+                  <thead>
+                    <tr className="bg-gray-50 border-b border-gray-100">
+                      <th className="px-3 py-4 text-[10px] font-black text-gray-500 uppercase tracking-wider text-right w-10">#</th>
+                      <th className="px-3 py-4 text-[10px] font-black text-gray-500 uppercase tracking-wider text-right min-w-[140px]">اسم الخدمة</th>
+                      <th className="px-3 py-4 text-[10px] font-black text-gray-500 uppercase tracking-wider text-center w-28">الكمية</th>
                     <th className="px-3 py-4 text-[10px] font-black text-gray-500 uppercase tracking-wider text-center w-36">سعر الوحدة</th>
                     <th className="px-3 py-4 text-[10px] font-black text-gray-500 uppercase tracking-wider text-center w-40">الإجمالي (شامل)</th>
                     <th className="px-3 py-4 text-[10px] font-black text-gray-500 uppercase tracking-wider text-center w-28">من تاريخ</th>
@@ -707,13 +707,13 @@ export function NewInvoiceClient({ customers, invoiceNumber, companyId, userName
                         />
                       </td>
                       <td className="px-3 py-3">
-                        <input
-                          type="number"
-                          value={item.quantity || ''}
-                          onChange={(e) => handleItemChange(index, 'quantity', parseFloat(e.target.value) || 0)}
-                          className="w-full min-w-[70px] px-3 py-2.5 rounded-xl bg-gray-50 border-2 border-transparent text-sm font-black text-center focus:border-emerald-500/30 focus:bg-white outline-none transition-all"
-                        />
-                      </td>
+                          <input
+                            type="number"
+                            value={item.quantity || ''}
+                            onChange={(e) => handleItemChange(index, 'quantity', parseFloat(e.target.value) || 0)}
+                            className="w-full min-w-[80px] px-3 py-2.5 rounded-xl bg-gray-50 border-2 border-transparent text-sm font-black text-center focus:border-emerald-500/30 focus:bg-white outline-none transition-all"
+                          />
+                        </td>
                       <td className="px-3 py-3">
                         <div className="w-full min-w-[100px] px-3 py-2.5 rounded-xl bg-blue-50 border-2 border-blue-100 text-center">
                           <span className="text-sm font-black text-blue-700">
@@ -768,18 +768,10 @@ export function NewInvoiceClient({ customers, invoiceNumber, companyId, userName
           </div>
 
           <div className="bg-gray-50 px-6 py-4 border-t border-gray-100">
-            <div className="flex items-center justify-between text-xs font-bold text-gray-500">
-              <span>إجمالي العناصر: {items.length}</span>
-              <button
-                type="button"
-                onClick={addItem}
-                className="text-blue-600 hover:text-blue-700 font-black flex items-center gap-1"
-              >
-                <Plus size={14} />
-                إضافة خدمة جديدة
-              </button>
+              <div className="flex items-center justify-between text-xs font-bold text-gray-500">
+                <span>إجمالي العناصر: {items.length}</span>
+              </div>
             </div>
-          </div>
         </motion.div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
