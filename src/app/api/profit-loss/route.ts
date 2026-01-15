@@ -54,7 +54,6 @@ export async function GET(request: NextRequest) {
         si.invoice_number,
         si.issue_date,
         si.total_amount,
-        si.vat_total,
         si.discount,
         (si.total_amount + COALESCE(si.discount, 0)) as before_discount,
         COALESCE(u.name, 'النظام') as created_by
@@ -67,8 +66,9 @@ export async function GET(request: NextRequest) {
     let invoiceTotal = 0;
     let invoiceTotalWithoutTax = 0;
     for (const inv of invoicesResult) {
-      invoiceTotal += parseFloat(inv.total_amount) || 0;
-      invoiceTotalWithoutTax += (parseFloat(inv.total_amount) || 0) - (parseFloat(inv.vat_total) || 0);
+      const total = parseFloat(inv.total_amount) || 0;
+      invoiceTotal += total;
+      invoiceTotalWithoutTax += total / 1.15;
     }
 
     const { data: manualIncomeData, error: manualIncomeError } = await supabase
