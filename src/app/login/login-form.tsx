@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
   Truck, 
@@ -13,7 +13,9 @@ import {
   ChevronLeft,
   ShieldCheck,
   Globe,
-  BarChart3
+  BarChart3,
+  Sparkles,
+  CheckCircle2
 } from "lucide-react";
 import Link from "next/link";
 import { loginAction } from "@/lib/actions/auth";
@@ -25,6 +27,58 @@ interface LoginFormProps {
   initialEmail?: string;
 }
 
+interface Particle {
+  id: number;
+  x: number;
+  y: number;
+  size: number;
+  duration: number;
+  delay: number;
+}
+
+function ParticleBackground() {
+  const [particles, setParticles] = useState<Particle[]>([]);
+
+  useEffect(() => {
+    const newParticles: Particle[] = Array.from({ length: 50 }, (_, i) => ({
+      id: i,
+      x: Math.random() * 100,
+      y: Math.random() * 100,
+      size: Math.random() * 4 + 1,
+      duration: Math.random() * 20 + 10,
+      delay: Math.random() * 5,
+    }));
+    setParticles(newParticles);
+  }, []);
+
+  return (
+    <div className="absolute inset-0 overflow-hidden pointer-events-none">
+      {particles.map((particle) => (
+        <motion.div
+          key={particle.id}
+          className="absolute rounded-full bg-white/20"
+          style={{
+            left: `${particle.x}%`,
+            top: `${particle.y}%`,
+            width: particle.size,
+            height: particle.size,
+          }}
+          animate={{
+            y: [0, -30, 0],
+            opacity: [0.2, 0.5, 0.2],
+          }}
+          transition={{
+            duration: particle.duration,
+            delay: particle.delay,
+            repeat: Infinity,
+            ease: "easeInOut",
+          }}
+        />
+      ))}
+    </div>
+  );
+}
+
 export default function LoginForm({ initialEmail = "" }: LoginFormProps) {
   const [email, setEmail] = useState(initialEmail);
   const [password, setPassword] = useState("");
@@ -32,6 +86,8 @@ export default function LoginForm({ initialEmail = "" }: LoginFormProps) {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [showWelcome, setShowWelcome] = useState(false);
+  const [userName, setUserName] = useState("");
   const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -47,109 +103,242 @@ export default function LoginForm({ initialEmail = "" }: LoginFormProps) {
     const result = await loginAction(formData);
 
     if (result.success) {
-      toast.success(`مرحباً بك مجدداً، ${result.user?.name || ""}`);
-      router.push("/dashboard");
-      router.refresh();
+      setUserName(result.user?.name || "");
+      setShowWelcome(true);
+      setTimeout(() => {
+        router.push("/dashboard");
+        router.refresh();
+      }, 2500);
     } else {
       setError(result.error || "حدث خطأ ما في البيانات");
       setIsLoading(false);
     }
   };
 
-  return (
-    <div className="min-h-screen w-full flex bg-white overflow-hidden">
-      {/* Left Side: Visual/Branding (Hidden on mobile) */}
-      <div className="hidden lg:flex lg:w-1/2 relative bg-[#1e293b] items-center justify-center p-12 overflow-hidden">
-        {/* Background Pattern/Overlay */}
-        <div className="absolute inset-0 opacity-20 pointer-events-none">
-          <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_50%_50%,#3b82f6,transparent_70%)]" />
-          <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?q=80&w=2070&auto=format&fit=crop')] bg-cover bg-center mix-blend-overlay grayscale" />
-        </div>
-
-        <div className="relative z-10 w-full max-w-md">
+  if (showWelcome) {
+    return (
+      <div className="min-h-screen w-full flex items-center justify-center bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 overflow-hidden relative">
+        <ParticleBackground />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(59,130,246,0.15),transparent_70%)]" />
+        
+        <motion.div
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.5, ease: "easeOut" }}
+          className="relative z-10 text-center px-6"
+        >
           <motion.div
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
+            className="mx-auto mb-8 w-28 h-28 rounded-3xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center shadow-2xl shadow-blue-500/30"
+          >
+            <motion.div
+              animate={{ rotate: 360 }}
+              transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+            >
+              <Sparkles size={48} className="text-white" />
+            </motion.div>
+          </motion.div>
+
+          <motion.h1
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            className="space-y-8"
+            transition={{ delay: 0.4 }}
+            className="text-5xl md:text-6xl font-black text-white mb-4"
           >
-            <div className="flex items-center gap-3">
-              <div className="h-12 w-12 rounded-xl bg-blue-600 flex items-center justify-center text-white shadow-xl shadow-blue-500/20">
-                <Truck size={28} />
-              </div>
-                <h2 className="text-3xl font-black text-white tracking-tight">Logistics Systems Pro</h2>
+            مرحباً بك
+          </motion.h1>
 
-            </div>
+          <motion.p
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.6 }}
+            className="text-2xl md:text-3xl font-bold text-blue-400 mb-8"
+          >
+            {userName || "في نظام اللوجستيات"}
+          </motion.p>
+
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.8 }}
+            className="flex items-center justify-center gap-3"
+          >
+            <div className="h-2 w-2 rounded-full bg-blue-500 animate-bounce" style={{ animationDelay: "0ms" }} />
+            <div className="h-2 w-2 rounded-full bg-blue-500 animate-bounce" style={{ animationDelay: "150ms" }} />
+            <div className="h-2 w-2 rounded-full bg-blue-500 animate-bounce" style={{ animationDelay: "300ms" }} />
+          </motion.div>
+
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 1 }}
+            className="mt-6 text-slate-400 text-sm font-medium"
+          >
+            جاري تجهيز لوحة التحكم...
+          </motion.p>
+        </motion.div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen w-full flex bg-slate-50 dark:bg-slate-950 overflow-hidden">
+      <div className="hidden lg:flex lg:w-1/2 relative bg-gradient-to-br from-slate-900 via-blue-900/90 to-slate-900 items-center justify-center p-12 overflow-hidden">
+        <ParticleBackground />
+        
+        <div className="absolute inset-0 opacity-30 pointer-events-none">
+          <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?q=80&w=2070&auto=format&fit=crop')] bg-cover bg-center" />
+          <div className="absolute inset-0 bg-gradient-to-br from-slate-900/80 via-blue-900/60 to-slate-900/80" />
+        </div>
+
+        <div className="absolute inset-0">
+          <div className="absolute top-0 left-0 w-96 h-96 bg-blue-500/20 rounded-full blur-3xl animate-pulse" />
+          <div className="absolute bottom-0 right-0 w-96 h-96 bg-purple-500/20 rounded-full blur-3xl animate-pulse" style={{ animationDelay: "1s" }} />
+        </div>
+
+        <div className="relative z-10 w-full max-w-lg">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+            className="space-y-10"
+          >
+            <motion.div 
+              className="flex items-center gap-4"
+              whileHover={{ scale: 1.02 }}
+              transition={{ type: "spring", stiffness: 400 }}
+            >
+              <div className="h-16 w-16 rounded-2xl bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center text-white shadow-2xl shadow-blue-500/30 border border-white/10">
+                <Truck size={32} />
+              </div>
+              <div>
+                <h2 className="text-2xl font-black text-white tracking-tight">Logistics Systems Pro</h2>
+                <p className="text-blue-400 text-sm font-bold">Enterprise Edition</p>
+              </div>
+            </motion.div>
 
             <div className="space-y-6">
-              <h1 className="text-5xl font-black text-white leading-[1.1]">
+              <h1 className="text-5xl font-black text-white leading-[1.15]">
                 نظام إدارة <br />
-                <span className="text-blue-500">اللوجستيات المتطور</span>
+                <span className="bg-gradient-to-r from-blue-400 via-cyan-400 to-blue-500 bg-clip-text text-transparent">
+                  اللوجستيات المتطور
+                </span>
               </h1>
-              <p className="text-gray-400 text-lg font-medium leading-relaxed">
+              <p className="text-slate-300 text-lg font-medium leading-relaxed">
                 تحكم كامل في أسطولك، موظفيك، وعملياتك من خلال لوحة تحكم واحدة ذكية واحترافية.
               </p>
             </div>
 
             <div className="grid grid-cols-2 gap-4 pt-4">
               {[
-                { icon: ShieldCheck, label: "أمان عالي" },
-                { icon: BarChart3, label: "تقارير ذكية" },
-                { icon: Globe, label: "تغطية شاملة" },
-                { icon: Truck, label: "تتبع لحظي" }
+                { icon: ShieldCheck, label: "أمان عالي", desc: "تشفير 256-bit" },
+                { icon: BarChart3, label: "تقارير ذكية", desc: "تحليلات فورية" },
+                { icon: Globe, label: "تغطية شاملة", desc: "متعدد الفروع" },
+                { icon: Truck, label: "تتبع لحظي", desc: "GPS مباشر" }
               ].map((item, i) => (
-                <div key={i} className="flex items-center gap-2 text-gray-300 bg-white/5 backdrop-blur-sm border border-white/10 rounded-lg p-3">
-                  <item.icon size={18} className="text-blue-500" />
-                  <span className="text-sm font-bold">{item.label}</span>
-                </div>
+                <motion.div 
+                  key={i} 
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.2 + i * 0.1 }}
+                  whileHover={{ scale: 1.05, y: -2 }}
+                  className="group flex flex-col gap-2 text-white bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-4 hover:bg-white/10 hover:border-white/20 transition-all cursor-default"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 rounded-xl bg-gradient-to-br from-blue-500/20 to-purple-500/20 group-hover:from-blue-500/30 group-hover:to-purple-500/30 transition-colors">
+                      <item.icon size={20} className="text-blue-400" />
+                    </div>
+                    <span className="text-sm font-black">{item.label}</span>
+                  </div>
+                  <span className="text-xs text-slate-400 font-medium mr-11">{item.desc}</span>
+                </motion.div>
               ))}
             </div>
           </motion.div>
         </div>
 
-        {/* Decorative Elements */}
-        <div className="absolute bottom-10 left-10 text-gray-500 text-xs font-bold uppercase tracking-[0.2em]">
-          Powered by Logistics Systems Pro © 2026
+        <div className="absolute bottom-8 left-8 right-8 flex items-center justify-between text-slate-500 text-xs font-bold">
+          <span>© 2026 Logistics Systems Pro</span>
+          <span className="flex items-center gap-2">
+            <span className="h-2 w-2 rounded-full bg-green-500 animate-pulse" />
+            جميع الأنظمة تعمل
+          </span>
         </div>
       </div>
 
-      {/* Right Side: Login Form */}
-      <div className="w-full lg:w-1/2 flex items-center justify-center p-6 sm:p-12 relative">
-        <div className="w-full max-w-[420px]">
-          {/* Mobile Header */}
+      <div className="w-full lg:w-1/2 flex items-center justify-center p-6 sm:p-12 relative bg-white dark:bg-slate-900">
+        <div className="absolute inset-0 bg-gradient-to-br from-blue-50/50 via-transparent to-purple-50/50 dark:from-blue-950/20 dark:to-purple-950/20" />
+        
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="w-full max-w-[440px] relative z-10"
+        >
           <div className="lg:hidden mb-10 text-center">
-            <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-blue-600 text-white shadow-lg">
-              <Truck size={26} />
-            </div>
-            <h1 className="text-2xl font-black text-slate-900 mb-1">Logistics Systems Pro</h1>
-            <p className="text-slate-400 font-bold text-xs uppercase tracking-widest">إدارة اللوجستيات الذكية</p>
+            <motion.div 
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ type: "spring", stiffness: 200 }}
+              className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-600 to-blue-700 text-white shadow-xl shadow-blue-500/30"
+            >
+              <Truck size={30} />
+            </motion.div>
+            <h1 className="text-2xl font-black text-slate-900 dark:text-white mb-1">Logistics Systems Pro</h1>
+            <p className="text-blue-600 dark:text-blue-400 font-bold text-xs uppercase tracking-widest">Enterprise Edition</p>
           </div>
 
           <div className="mb-10 text-right" dir="rtl">
-            <h2 className="text-3xl font-black text-slate-900 mb-2">مرحباً بك مجدداً</h2>
-            <p className="text-slate-500 font-medium text-sm">أدخل بياناتك للوصول إلى لوحة التحكم الخاصة بك</p>
+            <motion.h2 
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.2 }}
+              className="text-4xl font-black text-slate-900 dark:text-white mb-3"
+            >
+              مرحباً بك مجدداً
+            </motion.h2>
+            <motion.p 
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.3 }}
+              className="text-slate-500 dark:text-slate-400 font-medium"
+            >
+              أدخل بياناتك للوصول إلى لوحة التحكم الخاصة بك
+            </motion.p>
           </div>
 
           <AnimatePresence>
             {error && (
               <motion.div
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                className="mb-8 flex items-center gap-3 rounded-xl bg-red-50 p-4 text-red-600 border border-red-100 text-right"
+                initial={{ opacity: 0, y: -10, scale: 0.95 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: -10, scale: 0.95 }}
+                className="mb-8 flex items-center gap-3 rounded-2xl bg-red-50 dark:bg-red-950/30 p-4 text-red-600 dark:text-red-400 border border-red-100 dark:border-red-900/50 text-right backdrop-blur-sm"
                 dir="rtl"
               >
-                <AlertTriangle size={20} className="shrink-0" />
+                <div className="p-2 rounded-xl bg-red-100 dark:bg-red-900/50">
+                  <AlertTriangle size={18} />
+                </div>
                 <span className="text-sm font-bold">{error}</span>
               </motion.div>
             )}
           </AnimatePresence>
 
           <form onSubmit={handleSubmit} className="space-y-6 text-right" dir="rtl">
-            <div className="space-y-2">
-              <label className="text-xs font-bold text-slate-500 mr-1">البريد الإلكتروني</label>
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.4 }}
+              className="space-y-2"
+            >
+              <label className="text-xs font-bold text-slate-500 dark:text-slate-400 mr-1 flex items-center gap-2">
+                <Mail size={12} className="text-blue-500" />
+                البريد الإلكتروني
+              </label>
               <div className="relative group">
-                <div className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-blue-600 transition-colors">
+                <div className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-blue-600 transition-colors duration-300">
                   <Mail size={18} />
                 </div>
                 <input
@@ -158,20 +347,29 @@ export default function LoginForm({ initialEmail = "" }: LoginFormProps) {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="name@company.com"
-                  className="w-full rounded-xl border border-slate-200 bg-slate-50/50 py-3.5 pr-12 pl-4 text-sm font-bold text-slate-900 placeholder:text-slate-300 focus:bg-white focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all duration-200"
+                  className="w-full rounded-2xl border-2 border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/50 py-4 pr-12 pl-4 text-sm font-bold text-slate-900 dark:text-white placeholder:text-slate-300 dark:placeholder:text-slate-600 focus:bg-white dark:focus:bg-slate-800 focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all duration-300"
                 />
+                <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-blue-500 to-purple-500 opacity-0 group-focus-within:opacity-100 transition-opacity duration-300 -z-10 blur-xl" />
               </div>
-            </div>
+            </motion.div>
 
-            <div className="space-y-2">
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.5 }}
+              className="space-y-2"
+            >
               <div className="flex items-center justify-between px-1">
-                <label className="text-xs font-bold text-slate-500">كلمة المرور</label>
-                <Link href="/forgot-password" underline="none" className="text-xs font-bold text-blue-600 hover:text-blue-700 transition-colors">
+                <label className="text-xs font-bold text-slate-500 dark:text-slate-400 flex items-center gap-2">
+                  <Lock size={12} className="text-blue-500" />
+                  كلمة المرور
+                </label>
+                <Link href="/forgot-password" className="text-xs font-bold text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 transition-colors">
                   نسيت كلمة المرور؟
                 </Link>
               </div>
               <div className="relative group">
-                <div className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-blue-600 transition-colors">
+                <div className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-blue-600 transition-colors duration-300">
                   <Lock size={18} />
                 </div>
                 <input
@@ -180,36 +378,51 @@ export default function LoginForm({ initialEmail = "" }: LoginFormProps) {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••"
-                  className="w-full rounded-xl border border-slate-200 bg-slate-50/50 py-3.5 pr-12 pl-12 text-sm font-bold text-slate-900 placeholder:text-slate-300 focus:bg-white focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all duration-200"
+                  className="w-full rounded-2xl border-2 border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/50 py-4 pr-12 pl-12 text-sm font-bold text-slate-900 dark:text-white placeholder:text-slate-300 dark:placeholder:text-slate-600 focus:bg-white dark:focus:bg-slate-800 focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all duration-300"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
+                  className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors p-1"
                 >
                   {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                 </button>
+                <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-blue-500 to-purple-500 opacity-0 group-focus-within:opacity-100 transition-opacity duration-300 -z-10 blur-xl" />
               </div>
-            </div>
+            </motion.div>
 
-            <div className="flex items-center gap-2 px-1">
-              <input
-                type="checkbox"
-                id="remember"
-                checked={remember}
-                onChange={(e) => setRemember(e.target.checked)}
-                className="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500 focus:ring-offset-0"
-              />
-              <label htmlFor="remember" className="text-sm font-bold text-slate-500 cursor-pointer select-none">
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.6 }}
+              className="flex items-center gap-3 px-1"
+            >
+              <div className="relative">
+                <input
+                  type="checkbox"
+                  id="remember"
+                  checked={remember}
+                  onChange={(e) => setRemember(e.target.checked)}
+                  className="peer h-5 w-5 rounded-lg border-2 border-slate-300 dark:border-slate-600 text-blue-600 focus:ring-blue-500 focus:ring-offset-0 cursor-pointer appearance-none checked:bg-blue-600 checked:border-blue-600 transition-all"
+                />
+                <CheckCircle2 size={14} className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-white opacity-0 peer-checked:opacity-100 transition-opacity pointer-events-none" />
+              </div>
+              <label htmlFor="remember" className="text-sm font-bold text-slate-600 dark:text-slate-400 cursor-pointer select-none">
                 تذكرني في المرة القادمة
               </label>
-            </div>
+            </motion.div>
 
-            <button
+            <motion.button
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.7 }}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
               type="submit"
               disabled={isLoading}
-              className="w-full rounded-xl bg-blue-600 py-4 text-white font-black text-base shadow-xl shadow-blue-500/20 hover:bg-blue-700 active:scale-[0.98] transition-all disabled:opacity-70 flex items-center justify-center gap-2"
+              className="relative w-full rounded-2xl bg-gradient-to-r from-blue-600 via-blue-700 to-blue-600 bg-size-200 bg-pos-0 hover:bg-pos-100 py-4 text-white font-black text-base shadow-xl shadow-blue-500/25 hover:shadow-blue-500/40 transition-all duration-500 disabled:opacity-70 flex items-center justify-center gap-3 overflow-hidden group"
             >
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
               {isLoading ? (
                 <div className="h-6 w-6 animate-spin rounded-full border-3 border-white/30 border-t-white" />
               ) : (
@@ -218,23 +431,27 @@ export default function LoginForm({ initialEmail = "" }: LoginFormProps) {
                   تسجيل الدخول
                 </>
               )}
-            </button>
+            </motion.button>
           </form>
 
-          <div className="mt-12 pt-8 border-t border-slate-100 text-center">
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.8 }}
+            className="mt-12 pt-8 border-t border-slate-100 dark:border-slate-800 text-center"
+          >
             <p className="mb-4 text-sm font-medium text-slate-400">ليس لديك حساب منشأة؟</p>
             <Link
               href="/register"
-              className="inline-flex items-center gap-2 py-2.5 px-6 rounded-xl border border-slate-200 text-sm font-black text-slate-900 hover:bg-slate-50 transition-all group"
+              className="inline-flex items-center gap-2 py-3 px-8 rounded-2xl border-2 border-slate-200 dark:border-slate-700 text-sm font-black text-slate-900 dark:text-white hover:bg-slate-50 dark:hover:bg-slate-800 hover:border-slate-300 dark:hover:border-slate-600 transition-all group"
             >
               إنشاء حساب جديد
               <ChevronLeft size={16} className="group-hover:-translate-x-1 transition-transform" />
             </Link>
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
 
-        {/* Mobile Footer Decor */}
-        <div className="absolute bottom-6 left-0 right-0 lg:hidden text-center text-[10px] font-bold text-slate-300 uppercase tracking-widest">
+        <div className="absolute bottom-6 left-0 right-0 lg:hidden text-center text-[10px] font-bold text-slate-300 dark:text-slate-600 uppercase tracking-widest">
           Logistics Systems Pro © 2026
         </div>
       </div>
