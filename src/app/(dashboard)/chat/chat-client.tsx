@@ -255,6 +255,11 @@ export function ChatClient({ initialMessages, companyId, senderRole, companyToke
 
   const startRecording = async () => {
     try {
+      if (!navigator?.mediaDevices?.getUserMedia) {
+        toast.error("متصفحك لا يدعم تسجيل الصوت أو أن الموقع غير آمن (HTTPS)");
+        return;
+      }
+
       const stream = await navigator.mediaDevices.getUserMedia({ 
         audio: {
           echoCancellation: true,
