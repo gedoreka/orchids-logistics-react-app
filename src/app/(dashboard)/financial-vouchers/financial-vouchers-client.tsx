@@ -76,15 +76,32 @@ function FinancialVouchersContent() {
   });
   const [loading, setLoading] = useState(true);
   const [companyInfo, setCompanyInfo] = useState<CompanyInfo | null>(null);
-  const companyId = "1";
+  const [companyId, setCompanyId] = useState<string>("");
 
-  const fetchStats = async () => {
+  const fetchCompanyInfo = async () => {
+    try {
+      const res = await fetch(`/api/company-info`);
+      const data = await res.json();
+      if (data.company) {
+        setCompanyInfo(data.company);
+        setCompanyId(String(data.company_id || data.company.id));
+        return String(data.company_id || data.company.id);
+      }
+      return "";
+    } catch (error) {
+      console.error("Error fetching company info:", error);
+      return "";
+    }
+  };
+
+  const fetchStats = async (cId: string) => {
+    if (!cId) return;
     setLoading(true);
     try {
       const [salesRes, receiptRes, paymentRes] = await Promise.all([
-        fetch(`/api/sales-receipts?company_id=${companyId}`).then(r => r.json()).catch(() => ({ data: [] })),
-        fetch(`/api/receipt-vouchers/metadata?company_id=${companyId}`).then(r => r.json()).catch(() => ({ vouchers: [] })),
-        fetch(`/api/payment-vouchers/metadata?company_id=${companyId}`).then(r => r.json()).catch(() => ({ vouchers: [] }))
+        fetch(`/api/sales-receipts?company_id=${cId}`).then(r => r.json()).catch(() => ({ data: [] })),
+        fetch(`/api/receipt-vouchers/metadata?company_id=${cId}`).then(r => r.json()).catch(() => ({ vouchers: [] })),
+        fetch(`/api/payment-vouchers/metadata?company_id=${cId}`).then(r => r.json()).catch(() => ({ vouchers: [] }))
       ]);
 
       const salesData = salesRes.data || [];
@@ -112,21 +129,16 @@ function FinancialVouchersContent() {
     }
   };
 
-  const fetchCompanyInfo = async () => {
-    try {
-      const res = await fetch(`/api/company-info?company_id=${companyId}`);
-      const data = await res.json();
-      if (data.company) {
-        setCompanyInfo(data.company);
-      }
-    } catch (error) {
-      console.error("Error fetching company info:", error);
-    }
-  };
-
   useEffect(() => {
-    fetchStats();
-    fetchCompanyInfo();
+    const init = async () => {
+      const cId = await fetchCompanyInfo();
+      if (cId) {
+        fetchStats(cId);
+      } else {
+        setLoading(false);
+      }
+    };
+    init();
   }, []);
 
   const totalIncome = stats.salesReceipts.total + stats.receiptVouchers.total;
@@ -176,9 +188,9 @@ function FinancialVouchersContent() {
                   {new Date().toLocaleDateString("en-GB", { year: 'numeric', month: '2-digit', day: '2-digit' })}
                 </span>
                 <button 
-                  onClick={fetchStats}
-                  className="flex items-center gap-2 px-5 py-3 bg-white/10 backdrop-blur-sm rounded-2xl border border-white/20 text-white font-bold hover:bg-white/20 transition-colors"
-                >
+                    onClick={() => fetchStats(companyId)}
+                    className="flex items-center gap-2 px-5 py-3 bg-white/10 backdrop-blur-sm rounded-2xl border border-white/20 text-white font-bold hover:bg-white/20 transition-colors"
+                  >
                   <RefreshCw size={18} className={loading ? "animate-spin" : ""} />
                   تحديث
                 </button>
