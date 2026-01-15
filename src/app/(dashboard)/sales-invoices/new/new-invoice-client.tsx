@@ -391,12 +391,12 @@ export function NewInvoiceClient({ customers, invoiceNumber, companyId, userName
         )}
       </AnimatePresence>
 
-        <motion.div 
-          variants={containerVariants}
-          initial="hidden"
-          animate="visible"
-          className="max-w-[1200px] mx-auto px-4 pt-6 space-y-6"
-        >
+          <motion.div 
+            variants={containerVariants}
+            initial="hidden"
+            animate="visible"
+            className="max-w-[79%] mx-auto px-4 pt-6 space-y-6"
+          >
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
           <motion.div 
             variants={itemVariants}
