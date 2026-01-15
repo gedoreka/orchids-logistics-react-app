@@ -155,7 +155,7 @@ export function DashboardClient({
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100/50 p-2 md:p-4">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100/50 dark:from-slate-900 dark:via-slate-900 dark:to-slate-950 p-2 md:p-4 transition-colors duration-300">
       <motion.div 
         variants={containerVariants}
         initial="hidden"
@@ -218,7 +218,7 @@ export function DashboardClient({
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <motion.div 
             variants={itemVariants}
-            className="group relative overflow-hidden rounded-2xl bg-white/80 backdrop-blur-xl border border-white/60 shadow-2xl shadow-slate-200/50 p-6 hover:shadow-3xl transition-all duration-500"
+            className="group relative overflow-hidden rounded-2xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl border border-white/60 dark:border-slate-700/60 shadow-2xl shadow-slate-200/50 dark:shadow-slate-900/50 p-6 hover:shadow-3xl transition-all duration-500"
           >
             <div className={`absolute top-0 ${isRTL ? 'right-0' : 'left-0'} w-32 h-32 bg-gradient-to-br from-blue-400/10 to-indigo-400/10 rounded-full -translate-y-16 ${isRTL ? 'translate-x-16' : '-translate-x-16'}`} />
             <div className={`absolute bottom-0 ${isRTL ? 'left-0' : 'right-0'} w-24 h-24 bg-gradient-to-tr from-emerald-400/10 to-teal-400/10 rounded-full translate-y-12 ${isRTL ? '-translate-x-12' : 'translate-x-12'}`} />
@@ -229,22 +229,22 @@ export function DashboardClient({
                   <Building2 className="w-5 h-5 text-white" />
                 </div>
                 <div>
-                  <h3 className="font-bold text-slate-800">{t('companyInfo')}</h3>
-                  <p className="text-xs text-slate-400">{t('companyData')}</p>
+                  <h3 className="font-bold text-slate-800 dark:text-slate-100">{t('companyInfo')}</h3>
+                  <p className="text-xs text-slate-400 dark:text-slate-500">{t('companyData')}</p>
                 </div>
               </div>
 
-              <div className="flex items-center gap-4 mb-6 p-4 rounded-xl bg-slate-50/80 border border-slate-100">
+              <div className="flex items-center gap-4 mb-6 p-4 rounded-xl bg-slate-50/80 dark:bg-slate-700/50 border border-slate-100 dark:border-slate-600">
                 {company?.logo ? (
                   <img src={company.logo} alt="Logo" className="w-16 h-16 rounded-xl object-cover shadow-lg" />
                 ) : (
-                  <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-slate-200 to-slate-300 flex items-center justify-center">
-                    <Building2 className="w-8 h-8 text-slate-400" />
+                  <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-slate-200 to-slate-300 dark:from-slate-600 dark:to-slate-700 flex items-center justify-center">
+                    <Building2 className="w-8 h-8 text-slate-400 dark:text-slate-300" />
                   </div>
                 )}
                 <div>
-                  <h4 className="font-bold text-slate-800 text-lg">{company?.name || (isRTL ? "اسم المنشأة" : "Company Name")}</h4>
-                  <p className="text-slate-500 text-sm font-mono">{company?.commercial_number || (isRTL ? "رقم السجل التجاري" : "CR Number")}</p>
+                  <h4 className="font-bold text-slate-800 dark:text-slate-100 text-lg">{company?.name || (isRTL ? "اسم المنشأة" : "Company Name")}</h4>
+                  <p className="text-slate-500 dark:text-slate-400 text-sm font-mono">{company?.commercial_number || (isRTL ? "رقم السجل التجاري" : "CR Number")}</p>
                 </div>
               </div>
 

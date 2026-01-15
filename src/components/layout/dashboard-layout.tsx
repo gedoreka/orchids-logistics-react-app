@@ -23,7 +23,10 @@ export function DashboardLayout({ children, user, permissions }: DashboardLayout
   const { isRTL } = useLocale();
 
   return (
-    <div className="h-screen bg-gradient-to-br from-slate-100 via-slate-50 to-white overflow-hidden" dir={isRTL ? "rtl" : "ltr"}>
+    <div 
+      className="h-screen overflow-hidden bg-background text-foreground transition-colors duration-300" 
+      dir={isRTL ? "rtl" : "ltr"}
+    >
       <aside className={`hidden lg:flex fixed top-0 ${isRTL ? 'right-0' : 'left-0'} h-screen w-64 z-50`}>
         <Sidebar userRole={user?.role} permissions={permissions} />
       </aside>
@@ -70,7 +73,7 @@ export function DashboardLayout({ children, user, permissions }: DashboardLayout
           <Header user={user} onToggleSidebar={() => setIsSidebarOpen(true)} />
         </div>
 
-        <main className="flex-1 overflow-y-auto overflow-x-hidden">
+        <main className="flex-1 overflow-y-auto overflow-x-hidden bg-muted/30 dark:bg-background">
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}

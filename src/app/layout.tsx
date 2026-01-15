@@ -3,6 +3,7 @@ import { Inter, Cairo } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/sonner";
 import { LocaleProvider } from "@/lib/locale-context";
+import { ThemeProvider } from "@/components/theme-provider";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -28,17 +29,26 @@ export default function RootLayout({
     <html 
       lang="ar" 
       dir="rtl" 
+      suppressHydrationWarning
       style={{ fontFeatureSettings: '"tnum" on, "lnum" on' }}
       className={`${inter.variable} ${cairo.variable}`}
     >
       <body
-        className="antialiased font-cairo"
+        className="antialiased font-cairo bg-background text-foreground"
         style={{ fontFeatureSettings: '"tnum" on, "lnum" on' }}
       >
-        <LocaleProvider>
-          {children}
-        </LocaleProvider>
-        <Toaster position="top-center" richColors />
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="light"
+          enableSystem
+          disableTransitionOnChange={false}
+          storageKey="logistics-theme"
+        >
+          <LocaleProvider>
+            {children}
+            <Toaster position="top-center" richColors />
+          </LocaleProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

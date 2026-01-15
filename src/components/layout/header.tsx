@@ -31,6 +31,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { useLocale, useTranslations } from '@/lib/locale-context';
 import { LanguageSwitcher } from "./language-switcher";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 export function Header({ user, onToggleSidebar }: { user?: { name: string; role: string; email: string }, onToggleSidebar?: () => void }) {
   const t = useTranslations('header');
@@ -233,8 +234,9 @@ export function Header({ user, onToggleSidebar }: { user?: { name: string; role:
                 )}
               </div>
 
-              <div className="flex items-center gap-2">
-                  <LanguageSwitcher />
+<div className="flex items-center gap-2">
+                    <ThemeToggle />
+                    <LanguageSwitcher />
 
                 <div ref={notificationRef} className="relative">
                   <motion.button
