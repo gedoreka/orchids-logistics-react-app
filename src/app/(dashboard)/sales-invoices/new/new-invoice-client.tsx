@@ -190,8 +190,28 @@ export function NewInvoiceClient({ customers, invoiceNumber, companyId, userName
   const handleAdjustmentChange = (index: number, field: keyof Adjustment, value: any) => {
     setAdjustments(prev => {
       const newAdj = [...prev];
-      newAdj[index] = { ...newAdj[index], [field]: value };
-      newAdj[index] = calculateAdjustment(newAdj[index]);
+      const updatedAdj = { ...newAdj[index], [field]: value };
+      
+      let vatAmount = 0;
+      let totalWithVat = updatedAdj.amount;
+      
+      if (updatedAdj.is_taxable && updatedAdj.amount > 0) {
+        if (updatedAdj.is_inclusive) {
+          const beforeVat = updatedAdj.amount / 1.15;
+          vatAmount = updatedAdj.amount - beforeVat;
+          totalWithVat = updatedAdj.amount;
+        } else {
+          vatAmount = updatedAdj.amount * 0.15;
+          totalWithVat = updatedAdj.amount + vatAmount;
+        }
+      }
+      
+      newAdj[index] = {
+        ...updatedAdj,
+        vat_amount: vatAmount,
+        total_with_vat: totalWithVat
+      };
+      
       return newAdj;
     });
   };
