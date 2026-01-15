@@ -143,10 +143,10 @@ export default function GenerateTokenPage() {
     try {
       const response = await fetch("/api/admin/companies");
       const data = await response.json();
-      if (data.companies) {
-        setCompanies(data.companies.filter((c: Company) => c.status === 'active'));
-      }
+      const companiesList = Array.isArray(data) ? data : (data.companies || []);
+      setCompanies(companiesList);
     } catch (error) {
+      console.error("Error fetching companies:", error);
       toast.error("فشل في تحميل الشركات");
     } finally {
       setLoadingCompanies(false);
