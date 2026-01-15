@@ -65,60 +65,68 @@ interface Payroll {
   is_draft: number;
 }
 
-interface ProfitLossData {
-  companyInfo: {
-    name: string;
-    logo_path: string | null;
-  };
-  userName: string;
-  month: string;
-  includeTax: boolean;
-  summary: {
-    invoiceTotal: number;
-    invoiceTotalWithTax: number;
-    invoiceTotalWithoutTax: number;
-    manualIncomeTotal: number;
-    receiptVouchersTotal: number;
-    totalIncome: number;
-    expensesTotal: number;
-    payrollsTotal: number;
-    totalExpenses: number;
-    netProfit: number;
-    profitMargin: number;
-  };
-  details: {
-    invoices: Invoice[];
-    manualIncome: ManualIncome[];
-    receiptVouchers: ReceiptVoucher[];
-    expenses: Expense[];
-    payrolls: Payroll[];
-  };
-  counts: {
-    invoices: number;
-    manualIncome: number;
-    receiptVouchers: number;
-    expenses: number;
-    payrolls: number;
-  };
-}
-
-function ProfitLossContent() {
-  const [data, setData] = useState<ProfitLossData | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [selectedMonth, setSelectedMonth] = useState(new Date().toISOString().slice(0, 7));
+  interface ProfitLossData {
+    companyInfo: {
+      name: string;
+      logo_path: string | null;
+    };
+    userName: string;
+    month: string;
+    includeTax: boolean;
+    summary: {
+      invoiceTotal: number;
+      invoiceTotalWithTax: number;
+      invoiceTotalWithoutTax: number;
+      creditNotesTotal: number;
+      manualIncomeTotal: number;
+      receiptVouchersTotal: number;
+      totalIncome: number;
+      expensesTotal: number;
+      paymentVouchersTotal: number;
+      payrollsTotal: number;
+      totalExpenses: number;
+      netProfit: number;
+      profitMargin: number;
+    };
+    details: {
+      invoices: Invoice[];
+      creditNotes: any[];
+      manualIncome: ManualIncome[];
+      receiptVouchers: ReceiptVoucher[];
+      expenses: Expense[];
+      paymentVouchers: any[];
+      payrolls: Payroll[];
+    };
+    counts: {
+      invoices: number;
+      creditNotes: number;
+      manualIncome: number;
+      receiptVouchers: number;
+      expenses: number;
+      paymentVouchers: number;
+      payrolls: number;
+    };
+  }
   
-  // Split selectedMonth into year and month for the dropdowns
-  const [inputYear, setInputYear] = useState(new Date().getFullYear().toString());
-  const [inputMonthIndex, setInputMonthIndex] = useState((new Date().getMonth() + 1).toString().padStart(2, '0'));
-  
-  const [includeTax, setIncludeTax] = useState(true);
-  const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
-    invoices: true,
-    manualIncome: true,
-    receiptVouchers: false,
-    expenses: true,
-    payrolls: true
-  });
+  function ProfitLossContent() {
+    const [data, setData] = useState<ProfitLossData | null>(null);
+    const [loading, setLoading] = useState(true);
+    const [selectedMonth, setSelectedMonth] = useState(new Date().toISOString().slice(0, 7));
+    
+    // Split selectedMonth into year and month for the dropdowns
+    const [inputYear, setInputYear] = useState(new Date().getFullYear().toString());
+    const [inputMonthIndex, setInputMonthIndex] = useState((new Date().getMonth() + 1).toString().padStart(2, '0'));
+    
+    const [includeTax, setIncludeTax] = useState(true);
+    const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
+      invoices: true,
+      creditNotes: false,
+      manualIncome: true,
+      receiptVouchers: false,
+      expenses: true,
+      paymentVouchers: false,
+      payrolls: true
+    });
   const printRef = useRef<HTMLDivElement>(null);
 
   const fetchData = async (monthOverride?: string) => {
@@ -375,6 +383,12 @@ function ProfitLossContent() {
               <span>الفواتير الضريبية:</span>
               <span className="font-bold">{formatNumber(summary.invoiceTotal)}</span>
             </p>
+            {summary.creditNotesTotal > 0 && (
+              <p className="flex justify-between text-red-600">
+                <span>إشعارات الخصم:</span>
+                <span className="font-bold">({formatNumber(summary.creditNotesTotal)})</span>
+              </p>
+            )}
             <p className="flex justify-between">
               <span>سندات الإيراد:</span>
               <span className="font-bold">{formatNumber(summary.manualIncomeTotal)}</span>
@@ -403,11 +417,15 @@ function ProfitLossContent() {
           <p className="text-red-600 font-bold text-lg mb-4">إجمالي المصروفات</p>
           <div className="space-y-2 text-sm text-red-700/80">
             <p className="flex justify-between">
-              <span>مصروفات:</span>
+              <span>مصروفات تشغيلية:</span>
               <span className="font-bold">{formatNumber(summary.expensesTotal)}</span>
             </p>
             <p className="flex justify-between">
-              <span>رواتب:</span>
+              <span>سندات الصرف:</span>
+              <span className="font-bold">{formatNumber(summary.paymentVouchersTotal)}</span>
+            </p>
+            <p className="flex justify-between">
+              <span>رواتب وأجور:</span>
               <span className="font-bold">{formatNumber(summary.payrollsTotal)}</span>
             </p>
           </div>
@@ -587,16 +605,88 @@ function ProfitLossContent() {
         </AnimatePresence>
       </motion.div>
 
-      <motion.div
-        initial={{ opacity: 0, y: 30 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.55 }}
-        className="bg-white rounded-[30px] shadow-xl border border-slate-100 overflow-hidden print:shadow-none"
-      >
-        <button
-          onClick={() => toggleSection("manualIncome")}
-          className="w-full bg-gradient-to-r from-amber-500 to-orange-500 p-6 flex items-center justify-between print:p-4"
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.55 }}
+          className="bg-white rounded-[30px] shadow-xl border border-slate-100 overflow-hidden print:shadow-none"
         >
+          <button
+            onClick={() => toggleSection("creditNotes")}
+            className="w-full bg-gradient-to-r from-red-600 to-rose-600 p-6 flex items-center justify-between print:p-4"
+          >
+            <div className="flex items-center gap-4">
+              <ArrowDown className="w-8 h-8 text-white" />
+              <div className="text-right">
+                <h3 className="text-xl font-black text-white">إشعارات الخصم (تقليل الدخل)</h3>
+                <p className="text-red-200 font-bold">
+                  {counts.creditNotes} إشعار - {formatNumber(summary.creditNotesTotal)} ريال
+                </p>
+              </div>
+            </div>
+            {expandedSections.creditNotes ? <ChevronUp className="w-6 h-6 text-white" /> : <ChevronDown className="w-6 h-6 text-white" />}
+          </button>
+
+          <AnimatePresence>
+            {expandedSections.creditNotes && (
+              <motion.div
+                initial={{ height: 0 }}
+                animate={{ height: "auto" }}
+                exit={{ height: 0 }}
+                className="overflow-hidden"
+              >
+                <div className="overflow-x-auto">
+                  <table className="w-full">
+                    <thead>
+                      <tr className="bg-slate-50 border-b-2 border-slate-100">
+                        <th className="px-6 py-4 text-right text-xs font-black text-slate-500 uppercase">رقم الإشعار</th>
+                        <th className="px-6 py-4 text-right text-xs font-black text-slate-500 uppercase">الفاتورة المرتبطة</th>
+                        <th className="px-6 py-4 text-right text-xs font-black text-slate-500 uppercase">التاريخ</th>
+                        <th className="px-6 py-4 text-right text-xs font-black text-slate-500 uppercase">المبلغ</th>
+                        <th className="px-6 py-4 text-right text-xs font-black text-slate-500 uppercase">السبب</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-50">
+                      {details.creditNotes.length > 0 ? (
+                        details.creditNotes.map((cn) => (
+                          <tr key={cn.id} className="hover:bg-slate-50/70 transition-colors">
+                            <td className="px-6 py-4">
+                              <span className="px-3 py-1.5 bg-red-100 rounded-lg text-sm font-bold text-red-700">
+                                {cn.credit_note_number}
+                              </span>
+                            </td>
+                            <td className="px-6 py-4 text-sm font-bold text-slate-700">{cn.invoice_number}</td>
+                            <td className="px-6 py-4 text-sm font-bold text-slate-600">{formatDate(cn.created_at)}</td>
+                            <td className="px-6 py-4 text-lg font-black text-red-600">{formatNumber(cn.total_amount)} ريال</td>
+                            <td className="px-6 py-4 text-sm text-slate-500">{cn.reason}</td>
+                          </tr>
+                        ))
+                      ) : (
+                        <tr>
+                          <td colSpan={5} className="px-6 py-12 text-center">
+                            <ArrowDown className="w-12 h-12 text-slate-300 mx-auto mb-3" />
+                            <p className="text-slate-400 font-bold">لا توجد إشعارات خصم لهذا الشهر</p>
+                          </td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.56 }}
+          className="bg-white rounded-[30px] shadow-xl border border-slate-100 overflow-hidden print:shadow-none"
+        >
+          <button
+            onClick={() => toggleSection("manualIncome")}
+            className="w-full bg-gradient-to-r from-amber-500 to-orange-500 p-6 flex items-center justify-between print:p-4"
+          >
           <div className="flex items-center gap-4">
             <Banknote className="w-8 h-8 text-white" />
             <div className="text-right">
