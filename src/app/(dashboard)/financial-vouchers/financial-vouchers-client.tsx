@@ -6,7 +6,8 @@ import Link from "next/link";
 import {
   FileText, Receipt, Wallet, ArrowRight, TrendingUp, TrendingDown,
   Sparkles, AlertTriangle, CheckCircle, Clock, DollarSign, 
-  ArrowUpRight, BarChart3, PieChart, Building2, Calendar, RefreshCw
+  ArrowUpRight, BarChart3, PieChart, Building2, Calendar, RefreshCw,
+  ScrollText, FileCheck, Calculator, PlusCircle
 } from "lucide-react";
 
 interface Stats {
@@ -358,52 +359,58 @@ function FinancialVouchersContent() {
           </div>
         </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
             <Link href="/sales-receipts/new">
-              <div className="flex items-center gap-4 p-5 bg-white rounded-2xl border-2 border-slate-100 hover:border-blue-300 hover:shadow-lg transition-all group cursor-pointer">
+              <div className="flex flex-col items-center gap-2 p-4 bg-white rounded-2xl border-2 border-slate-100 hover:border-blue-300 hover:shadow-lg transition-all group cursor-pointer text-center">
                 <div className="p-3 bg-blue-100 rounded-xl group-hover:bg-blue-500 transition-colors">
                   <FileText className="w-5 h-5 text-blue-600 group-hover:text-white transition-colors" />
                 </div>
-                <div>
-                  <p className="font-black text-slate-800">إضافة سند مبيعات</p>
-                  <p className="text-sm text-slate-400">تسجيل عملية بيع جديدة</p>
-                </div>
+                <p className="font-bold text-slate-800 text-sm">سند مبيعات</p>
               </div>
             </Link>
 
             <Link href="/receipt-vouchers">
-              <div className="flex items-center gap-4 p-5 bg-white rounded-2xl border-2 border-slate-100 hover:border-emerald-300 hover:shadow-lg transition-all group cursor-pointer">
+              <div className="flex flex-col items-center gap-2 p-4 bg-white rounded-2xl border-2 border-slate-100 hover:border-emerald-300 hover:shadow-lg transition-all group cursor-pointer text-center">
                 <div className="p-3 bg-emerald-100 rounded-xl group-hover:bg-emerald-500 transition-colors">
                   <Receipt className="w-5 h-5 text-emerald-600 group-hover:text-white transition-colors" />
                 </div>
-                <div>
-                  <p className="font-black text-slate-800">إضافة سند قبض</p>
-                  <p className="text-sm text-slate-400">تسجيل مبلغ مستلم</p>
-                </div>
+                <p className="font-bold text-slate-800 text-sm">سند قبض</p>
               </div>
             </Link>
 
             <Link href="/payment-vouchers">
-              <div className="flex items-center gap-4 p-5 bg-white rounded-2xl border-2 border-slate-100 hover:border-rose-300 hover:shadow-lg transition-all group cursor-pointer">
+              <div className="flex flex-col items-center gap-2 p-4 bg-white rounded-2xl border-2 border-slate-100 hover:border-rose-300 hover:shadow-lg transition-all group cursor-pointer text-center">
                 <div className="p-3 bg-rose-100 rounded-xl group-hover:bg-rose-500 transition-colors">
                   <Wallet className="w-5 h-5 text-rose-600 group-hover:text-white transition-colors" />
                 </div>
-                <div>
-                  <p className="font-black text-slate-800">إضافة سند صرف</p>
-                  <p className="text-sm text-slate-400">تسجيل مصروف جديد</p>
-                </div>
+                <p className="font-bold text-slate-800 text-sm">سند صرف</p>
               </div>
             </Link>
 
             <Link href="/promissory-notes">
-              <div className="flex items-center gap-4 p-5 bg-white rounded-2xl border-2 border-slate-100 hover:border-amber-300 hover:shadow-lg transition-all group cursor-pointer">
+              <div className="flex flex-col items-center gap-2 p-4 bg-white rounded-2xl border-2 border-slate-100 hover:border-amber-300 hover:shadow-lg transition-all group cursor-pointer text-center">
                 <div className="p-3 bg-amber-100 rounded-xl group-hover:bg-amber-500 transition-colors">
-                  <FileText className="w-5 h-5 text-amber-600 group-hover:text-white transition-colors" />
+                  <ScrollText className="w-5 h-5 text-amber-600 group-hover:text-white transition-colors" />
                 </div>
-                <div>
-                  <p className="font-black text-slate-800">سندات لأمر</p>
-                  <p className="text-sm text-slate-400">إصدار سند لأمر إلكتروني</p>
+                <p className="font-bold text-slate-800 text-sm">سند لأمر</p>
+              </div>
+            </Link>
+
+            <Link href="/quotations/new">
+              <div className="flex flex-col items-center gap-2 p-4 bg-white rounded-2xl border-2 border-slate-100 hover:border-purple-300 hover:shadow-lg transition-all group cursor-pointer text-center">
+                <div className="p-3 bg-purple-100 rounded-xl group-hover:bg-purple-500 transition-colors">
+                  <FileCheck className="w-5 h-5 text-purple-600 group-hover:text-white transition-colors" />
                 </div>
+                <p className="font-bold text-slate-800 text-sm">عرض سعر</p>
+              </div>
+            </Link>
+
+            <Link href="/income/new">
+              <div className="flex flex-col items-center gap-2 p-4 bg-white rounded-2xl border-2 border-slate-100 hover:border-cyan-300 hover:shadow-lg transition-all group cursor-pointer text-center">
+                <div className="p-3 bg-cyan-100 rounded-xl group-hover:bg-cyan-500 transition-colors">
+                  <PlusCircle className="w-5 h-5 text-cyan-600 group-hover:text-white transition-colors" />
+                </div>
+                <p className="font-bold text-slate-800 text-sm">سند إيراد</p>
               </div>
             </Link>
           </div>
