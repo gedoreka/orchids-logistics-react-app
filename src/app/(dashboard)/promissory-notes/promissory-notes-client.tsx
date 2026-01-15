@@ -5,9 +5,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   FileText, Plus, Search, Edit2, Trash2, Printer, Download,
   Calendar, User, CreditCard, Building2, MapPin, X, Check,
-  ChevronDown, AlertCircle
+  ChevronDown, AlertCircle, Fingerprint, PenTool
 } from "lucide-react";
-import html2pdf from "html2pdf.js";
 
 interface PromissoryNote {
   id: number;
@@ -220,78 +219,92 @@ export default function PromissoryNotesClient() {
         <style>
           @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap');
           * { margin: 0; padding: 0; box-sizing: border-box; }
-          body { font-family: 'Tajawal', sans-serif; direction: rtl; padding: 40px; background: #fff; color: #000; }
-          .print-container { max-width: 900px; margin: 0 auto; border: 4px double #000; padding: 50px; background: #fff; position: relative; }
-          .header { text-align: center; margin-bottom: 40px; border-bottom: 2px solid #000; padding-bottom: 20px; }
-          .header h1 { font-size: 32px; color: #000; font-weight: 700; letter-spacing: 2px; }
-          .meta-row { display: flex; justify-content: space-between; margin-bottom: 30px; font-size: 16px; }
-          .content { line-height: 2.5; font-size: 18px; text-align: justify; margin-bottom: 40px; color: #000; }
-          .field { border-bottom: 1px dotted #000; min-width: 200px; display: inline-block; text-align: center; padding: 0 10px; font-weight: 700; color: #000; }
-          .signature-section { display: flex; justify-content: space-between; margin-top: 80px; }
-          .signature-box { text-align: center; width: 250px; }
-          .signature-box p { margin-bottom: 15px; font-weight: 700; font-size: 18px; }
-          .signature-line { border-bottom: 1px solid #000; height: 100px; margin-bottom: 10px; }
-          .fingerprint-circle { width: 100px; height: 100px; border: 2px solid #000; border-radius: 50%; margin: 0 auto; display: flex; align-items: center; justify-content: center; }
-          .dots-large { min-width: 300px; display: inline-block; border-bottom: 1px dotted #000; }
+          body { font-family: 'Tajawal', sans-serif; direction: rtl; padding: 20px; background: #fff; color: #000; }
+          .print-container { max-width: 800px; margin: 0 auto; border: 4px double #000; padding: 30px; background: #fff; }
+          .header { text-align: center; margin-bottom: 30px; border-bottom: 2px solid #000; padding-bottom: 20px; }
+          .header h1 { font-size: 28px; color: #000; font-weight: 700; }
+          .header p { color: #000; }
+          .meta-row { display: flex; justify-content: space-between; margin-bottom: 20px; font-size: 14px; color: #000; }
+          .content { line-height: 2.2; font-size: 16px; text-align: justify; margin-bottom: 30px; color: #000; }
+          .field { border-bottom: 2px dotted #000; min-width: 180px; display: inline-block; text-align: center; padding: 4px 16px; font-weight: 700; color: #000; }
+          .field-large { min-width: 250px; }
+          .signature-section { display: flex; justify-content: space-between; margin-top: 50px; padding-top: 30px; border-top: 2px solid #000; }
+          .signature-box { text-align: center; width: 200px; }
+          .signature-box p { margin-bottom: 10px; font-weight: 700; color: #000; }
+          .signature-line { border-bottom: 2px solid #000; height: 70px; margin-bottom: 10px; }
+          .fingerprint-box { width: 90px; height: 90px; border: 2px solid #000; border-radius: 50%; margin: 0 auto; }
+          .info-row { display: flex; gap: 40px; margin-bottom: 20px; }
+          .info-item { flex: 1; }
+          .info-item p.label { font-weight: 700; margin-bottom: 8px; color: #000; }
+          .info-item p.value { border-bottom: 1px dotted #000; padding-bottom: 8px; min-height: 30px; color: #000; }
           @media print { 
             body { padding: 0; } 
-            .no-print { display: none; }
+            .print-container { border: 4px double #000; }
+            @page { margin: 10mm; }
           }
         </style>
       </head>
       <body>
         <div class="print-container">
           <div class="header">
-            <h1>سند لأمـــــــــــر</h1>
-            <p style="margin-top: 10px;">رقم السند: ${selectedNote?.note_number}</p>
+            <h1>سند لأمـــر</h1>
+            <p>رقم السند: ${selectedNote?.note_number}</p>
           </div>
-
+          
           <div class="meta-row">
-            <div><strong>تاريخ الإنشاء:</strong> ${formatDate(selectedNote?.creation_date)} م</div>
-            <div><strong>مكان الإنشاء:</strong> ${selectedNote?.creation_place || ".................."}</div>
+            <div><strong>تاريخ الإنشاء:</strong> ${formatDate(selectedNote?.creation_date || null)} م</div>
+            <div><strong>مكان الإنشاء:</strong> المدينة ${selectedNote?.creation_place || ".................."}، المملكة العربية السعودية</div>
           </div>
-
+          
           <div class="content">
-            <p>
+            <p style="margin-bottom: 16px;">
               أتعهد أنا الموقع أدناه بأن أدفع بموجب هذا السند بدون قيد أو شرط لأمر / 
-              <span class="field" style="min-width: 300px;">${getBeneficiaryName(selectedNote as PromissoryNote)}</span>
+              <span class="field">${getBeneficiaryName(selectedNote!)}</span>
               سجل تجاري رقم: 
-              <span class="field">${getBeneficiaryCommercialNumber(selectedNote as PromissoryNote)}</span>
-              مبلغاً وقدره: 
-              <span class="field" style="min-width: 150px;">${formatAmount(selectedNote?.amount as number)}</span>
-              ريالاً سعودياً لا غير.
+              <span class="field">${getBeneficiaryCommercialNumber(selectedNote!)}</span>
+              مبلغ وقدره: 
+              <span class="field">${formatAmount(selectedNote?.amount || null)}</span>
+              ريال لا غير (
+              <span class="field field-large">${selectedNote?.amount_text || ""}</span>
+              ) ريال
             </p>
-            <p style="margin-top: 20px;">
-              فقط وقدره كتابةً: 
-              <span class="field" style="min-width: 450px;">${selectedNote?.amount_text || "................................................................................................................................"}</span>
-              ريالاً سعودياً.
-            </p>
-            <p style="margin-top: 30px;">
+            
+            <p style="margin-bottom: 16px;">
               <strong>تاريخ الاستحقاق:</strong> 
               <span class="field">${selectedNote?.due_date ? formatDate(selectedNote.due_date) : "لدى الاطلاع"}</span>
-            </p>
-            <p style="margin-top: 20px; font-size: 14px;">
               هذا السند واجب الدفع بدون تعلل بموجب قرار مجلس الوزراء الموقر رقم 692 وتاريخ 26/09/1383 هـ والمتوج بالمرسوم الملكي رقم 37 بتاريخ 11/10/1383 هـ من نظام الأوراق التجارية.
             </p>
+            
+            <p style="font-size: 14px;">
+              * بموجب هذا السند يسقط المدين كافة حقوق التقديم والمطالبة والاحتجاج والإخطار بالامتناع عن الوفاء والمتعلقة بهذا السند.
+            </p>
           </div>
-
-          <div style="margin-top: 60px;">
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 40px;">
-              <div>
-                <p><strong>اسم المحرر:</strong> ${selectedNote?.debtor_name || "................................................"}</p>
-                <p style="margin-top: 15px;"><strong>رقم الهوية:</strong> ${selectedNote?.debtor_id_number || "................................................"}</p>
-                <p style="margin-top: 15px;"><strong>العنوان:</strong> ${selectedNote?.debtor_address || "................................................"}</p>
+          
+          <div style="border-top: 2px solid #000; padding-top: 24px; margin-top: 32px;">
+            <div class="info-row">
+              <div class="info-item">
+                <p class="label">اسم المحرر:</p>
+                <p class="value">${selectedNote?.debtor_name || "................................"}</p>
+              </div>
+              <div class="info-item">
+                <p class="label">رقم الهوية:</p>
+                <p class="value">${selectedNote?.debtor_id_number || "................................"}</p>
               </div>
             </div>
-
+            
+            <div style="margin-bottom: 32px;">
+              <p class="label" style="font-weight: 700; margin-bottom: 8px;">العنوان:</p>
+              <p class="value" style="border-bottom: 1px dotted #000; padding-bottom: 8px; min-height: 30px;">${selectedNote?.debtor_address || "................................................................"}</p>
+            </div>
+            
             <div class="signature-section">
               <div class="signature-box">
-                <p>التوقيع</p>
+                <p>التوقيع:</p>
                 <div class="signature-line"></div>
               </div>
               <div class="signature-box">
-                <p>البصمة</p>
-                <div class="fingerprint-circle"></div>
+                <p>الإبهام (البصمة):</p>
+                <div class="fingerprint-box"></div>
               </div>
             </div>
           </div>
@@ -301,35 +314,119 @@ export default function PromissoryNotesClient() {
     `);
     printWindow.document.close();
     setTimeout(() => {
-      printWindow.focus();
       printWindow.print();
     }, 500);
   };
 
   const handleDownloadPDF = async () => {
-    const element = printRef.current;
-    if (!element) return;
+    if (!selectedNote) return;
+    
+    const printWindow = window.open("", "_blank");
+    if (!printWindow) return;
 
-    const opt = {
-      margin: 10,
-      filename: `promissory-note-${selectedNote?.note_number}.pdf`,
-      image: { type: 'jpeg', quality: 0.98 },
-      html2canvas: { scale: 2, useCORS: true },
-      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-    };
-
-    try {
-      // Temporarily apply print styles for PDF generation
-      const originalStyle = element.getAttribute("style");
-      element.style.color = "black";
-      
-      await html2pdf().set(opt).from(element).save();
-      
-      if (originalStyle) element.setAttribute("style", originalStyle);
-      else element.removeAttribute("style");
-    } catch (error) {
-      console.error("PDF Export error:", error);
-    }
+    printWindow.document.write(`
+      <!DOCTYPE html>
+      <html dir="rtl" lang="ar">
+      <head>
+        <meta charset="UTF-8">
+        <title>سند لأمر - ${selectedNote.note_number}</title>
+        <style>
+          @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap');
+          * { margin: 0; padding: 0; box-sizing: border-box; }
+          body { font-family: 'Tajawal', sans-serif; direction: rtl; padding: 30px; background: #fff; color: #000; }
+          .print-container { max-width: 800px; margin: 0 auto; border: 4px double #000; padding: 40px; background: #fff; }
+          .header { text-align: center; margin-bottom: 30px; border-bottom: 3px solid #000; padding-bottom: 20px; }
+          .header h1 { font-size: 32px; color: #000; font-weight: 700; letter-spacing: 2px; }
+          .header p { color: #000; font-size: 14px; margin-top: 8px; }
+          .meta-row { display: flex; justify-content: space-between; margin-bottom: 24px; font-size: 14px; color: #000; }
+          .content { line-height: 2.4; font-size: 16px; text-align: justify; margin-bottom: 30px; color: #000; }
+          .field { border-bottom: 2px dotted #000; min-width: 180px; display: inline-block; text-align: center; padding: 6px 20px; font-weight: 700; color: #000; }
+          .field-large { min-width: 280px; }
+          .signature-section { display: flex; justify-content: space-between; margin-top: 60px; padding-top: 30px; border-top: 2px solid #000; }
+          .signature-box { text-align: center; width: 200px; }
+          .signature-box p { margin-bottom: 15px; font-weight: 700; color: #000; font-size: 16px; }
+          .signature-line { border-bottom: 2px solid #000; height: 80px; margin-bottom: 10px; }
+          .fingerprint-box { width: 100px; height: 100px; border: 2px solid #000; border-radius: 50%; margin: 0 auto; }
+          .info-row { display: flex; gap: 50px; margin-bottom: 24px; }
+          .info-item { flex: 1; }
+          .info-item p.label { font-weight: 700; margin-bottom: 10px; color: #000; font-size: 15px; }
+          .info-item p.value { border-bottom: 1px dotted #000; padding-bottom: 10px; min-height: 35px; color: #000; }
+        </style>
+      </head>
+      <body>
+        <div class="print-container">
+          <div class="header">
+            <h1>سند لأمـــر</h1>
+            <p>رقم السند: ${selectedNote.note_number}</p>
+          </div>
+          
+          <div class="meta-row">
+            <div><strong>تاريخ الإنشاء:</strong> ${formatDate(selectedNote.creation_date)} م</div>
+            <div><strong>مكان الإنشاء:</strong> المدينة ${selectedNote.creation_place || ".................."}، المملكة العربية السعودية</div>
+          </div>
+          
+          <div class="content">
+            <p style="margin-bottom: 20px;">
+              أتعهد أنا الموقع أدناه بأن أدفع بموجب هذا السند بدون قيد أو شرط لأمر / 
+              <span class="field">${getBeneficiaryName(selectedNote)}</span>
+              سجل تجاري رقم: 
+              <span class="field">${getBeneficiaryCommercialNumber(selectedNote)}</span>
+              مبلغ وقدره: 
+              <span class="field">${formatAmount(selectedNote.amount)}</span>
+              ريال لا غير (
+              <span class="field field-large">${selectedNote.amount_text || ""}</span>
+              ) ريال
+            </p>
+            
+            <p style="margin-bottom: 20px;">
+              <strong>تاريخ الاستحقاق:</strong> 
+              <span class="field">${selectedNote.due_date ? formatDate(selectedNote.due_date) : "لدى الاطلاع"}</span>
+              هذا السند واجب الدفع بدون تعلل بموجب قرار مجلس الوزراء الموقر رقم 692 وتاريخ 26/09/1383 هـ والمتوج بالمرسوم الملكي رقم 37 بتاريخ 11/10/1383 هـ من نظام الأوراق التجارية.
+            </p>
+            
+            <p style="font-size: 14px;">
+              * بموجب هذا السند يسقط المدين كافة حقوق التقديم والمطالبة والاحتجاج والإخطار بالامتناع عن الوفاء والمتعلقة بهذا السند.
+            </p>
+          </div>
+          
+          <div style="border-top: 2px solid #000; padding-top: 30px; margin-top: 40px;">
+            <div class="info-row">
+              <div class="info-item">
+                <p class="label">اسم المحرر:</p>
+                <p class="value">${selectedNote.debtor_name || "................................"}</p>
+              </div>
+              <div class="info-item">
+                <p class="label">رقم الهوية:</p>
+                <p class="value">${selectedNote.debtor_id_number || "................................"}</p>
+              </div>
+            </div>
+            
+            <div style="margin-bottom: 40px;">
+              <p class="label" style="font-weight: 700; margin-bottom: 10px; font-size: 15px;">العنوان:</p>
+              <p class="value" style="border-bottom: 1px dotted #000; padding-bottom: 10px; min-height: 35px;">${selectedNote.debtor_address || "................................................................"}</p>
+            </div>
+            
+            <div class="signature-section">
+              <div class="signature-box">
+                <p>التوقيع:</p>
+                <div class="signature-line"></div>
+              </div>
+              <div class="signature-box">
+                <p>الإبهام (البصمة):</p>
+                <div class="fingerprint-box"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <script>
+          window.onload = function() {
+            window.print();
+          }
+        </script>
+      </body>
+      </html>
+    `);
+    printWindow.document.close();
   };
 
   const filteredNotes = notes.filter(note => 
@@ -721,112 +818,125 @@ export default function PromissoryNotesClient() {
                 exit={{ scale: 0.9, opacity: 0 }}
                 className="bg-white rounded-2xl w-full max-w-4xl max-h-[95vh] overflow-y-auto"
               >
-                  <div className="sticky top-0 bg-slate-800 p-4 flex items-center justify-between z-10">
-                    <h2 className="text-xl font-bold text-white">معاينة السند</h2>
-                    <div className="flex items-center gap-3">
-                      <button
-                        onClick={handleDownloadPDF}
-                        className="flex items-center gap-2 bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-all shadow-lg"
-                      >
-                        <Download className="w-5 h-5" />
-                        تحميل PDF
-                      </button>
+                <div className="sticky top-0 bg-slate-800 p-4 flex items-center justify-between z-10">
+                  <h2 className="text-xl font-bold text-white">معاينة الطباعة</h2>
+                    <div className="flex items-center gap-2">
                       <button
                         onClick={handlePrint}
-                        className="flex items-center gap-2 bg-emerald-500 hover:bg-emerald-600 text-white px-4 py-2 rounded-lg transition-all shadow-lg"
+                        className="flex items-center gap-2 bg-emerald-500 hover:bg-emerald-600 text-white px-4 py-2 rounded-lg transition-all"
                       >
                         <Printer className="w-5 h-5" />
                         طباعة
                       </button>
                       <button
+                        onClick={handleDownloadPDF}
+                        className="flex items-center gap-2 bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-all"
+                      >
+                        <Download className="w-5 h-5" />
+                        تحميل PDF
+                      </button>
+                      <button
                         onClick={() => setShowPrintPreview(false)}
-                        className="bg-slate-700 hover:bg-slate-600 text-white p-2 rounded-lg transition-all"
+                        className="text-slate-400 hover:text-white p-2"
                       >
                         <X className="w-6 h-6" />
                       </button>
                     </div>
-                  </div>
+                </div>
 
-                  <div ref={printRef} className="p-12 bg-white" dir="rtl">
-                    <div className="border-[6px] border-double border-black p-12 bg-white text-black min-h-[1000px] flex flex-col">
-                      <div className="text-center border-b-2 border-black pb-8 mb-10">
-                        <h1 className="text-4xl font-black text-black mb-3 tracking-[10px]">سند لأمـــــــــــر</h1>
-                        <p className="text-black font-bold text-xl">رقم السند: {selectedNote.note_number}</p>
+                  <div ref={printRef} className="p-8" dir="rtl">
+                    <div className="print-container border-4 border-double border-black p-8 bg-white">
+                      <div className="text-center border-b-2 border-black pb-6 mb-6">
+                        <h1 className="text-3xl font-bold text-black mb-2">سند لأمـــر</h1>
+                        <p className="text-black text-sm">رقم السند: {selectedNote.note_number}</p>
                       </div>
 
-                      <div className="flex justify-between mb-10 text-lg font-bold">
+                      <div className="flex justify-between mb-6 text-sm text-black">
                         <div>
-                          تاريخ الإنشاء: <span className="border-b border-dotted border-black px-4">{formatDate(selectedNote.creation_date)} م</span>
+                          <strong>تاريخ الإنشاء:</strong> {formatDate(selectedNote.creation_date)} م
                         </div>
                         <div>
-                          مكان الإنشاء: <span className="border-b border-dotted border-black px-4">{selectedNote.creation_place || ".................."}</span>
+                          <strong>مكان الإنشاء:</strong> المدينة {selectedNote.creation_place || ".................."}، المملكة العربية السعودية
                         </div>
                       </div>
 
-                      <div className="leading-[3] text-justify mb-12 text-xl">
-                        <p className="mb-6">
+                      <div className="leading-loose text-justify mb-8 text-base text-black">
+                        <p className="mb-4">
                           أتعهد أنا الموقع أدناه بأن أدفع بموجب هذا السند بدون قيد أو شرط لأمر / 
-                          <span className="font-bold border-b-2 border-black px-4 mx-1">
+                          <span className="font-bold text-black border-b border-dotted border-black px-2">
                             {getBeneficiaryName(selectedNote)}
                           </span>
                           {" "}سجل تجاري رقم:{" "}
-                          <span className="font-bold border-b-2 border-black px-4 mx-1">
+                          <span className="font-bold text-black border-b border-dotted border-black px-2">
                             {getBeneficiaryCommercialNumber(selectedNote)}
                           </span>
                           {" "}مبلغ وقدره:{" "}
-                          <span className="font-bold border-b-2 border-black px-4 mx-1">
+                          <span className="font-bold text-black border-b-2 border-dotted border-black px-4 py-1 inline-block min-w-[180px]">
                             {formatAmount(selectedNote.amount)}
                           </span>
-                          {" "}ريالاً سعودياً لا غير.
-                        </p>
-
-                        <p className="mb-8">
-                          فقط وقدره كتابةً: 
-                          <span className="font-bold border-b-2 border-black px-4 mx-1 inline-block min-w-[500px]">
-                            {selectedNote.amount_text || "................................................................................................................................"}
+                          {" "}ريال لا غير ({" "}
+                          <span className="font-bold text-black border-b-2 border-dotted border-black px-4 py-1 inline-block min-w-[250px]">
+                            {selectedNote.amount_text || ""}
                           </span>
-                          {" "}ريالاً سعودياً.
+                          {" "}) ريال
                         </p>
 
-                        <p className="mb-8">
+                        <p className="mb-4">
                           <strong>تاريخ الاستحقاق:</strong>{" "}
-                          <span className="font-bold border-b-2 border-black px-4 mx-1">
+                          <span className="font-bold text-black border-b border-dotted border-black px-2">
                             {selectedNote.due_date ? formatDate(selectedNote.due_date) : "لدى الاطلاع"}
                           </span>
+                          {" "}هذا السند واجب الدفع بدون تعلل بموجب قرار مجلس الوزراء الموقر رقم 692 وتاريخ 26/09/1383 هـ والمتوج بالمرسوم الملكي رقم 37 بتاريخ 11/10/1383 هـ من نظام الأوراق التجارية.
                         </p>
-                        
-                        <p className="text-base text-black font-medium leading-relaxed mt-10 p-4 border-2 border-black/10 rounded-xl">
-                          هذا السند واجب الدفع بدون تعلل بموجب قرار مجلس الوزراء الموقر رقم 692 وتاريخ 26/09/1383 هـ والمتوج بالمرسوم الملكي رقم 37 بتاريخ 11/10/1383 هـ من نظام الأوراق التجارية.
+
+                        <p className="text-sm text-black">
+                          * بموجب هذا السند يسقط المدين كافة حقوق التقديم والمطالبة والاحتجاج والإخطار بالامتناع عن الوفاء والمتعلقة بهذا السند.
                         </p>
                       </div>
 
-                      <div className="mt-auto pt-10 border-t-2 border-black/20">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-10 mb-10 text-lg">
-                          <div className="space-y-4">
-                            <p><strong>اسم المحرر:</strong> <span className="border-b border-dotted border-black px-2">{selectedNote.debtor_name || "................................................"}</span></p>
-                            <p><strong>رقم الهوية:</strong> <span className="border-b border-dotted border-black px-2">{selectedNote.debtor_id_number || "................................................"}</span></p>
-                            <p><strong>العنوان:</strong> <span className="border-b border-dotted border-black px-2">{selectedNote.debtor_address || "................................................"}</span></p>
+                      <div className="border-t-2 border-black pt-6 mt-8 text-black">
+                        <div className="grid grid-cols-2 gap-8 mb-8">
+                          <div>
+                            <p className="font-bold mb-2 text-black">اسم المحرر:</p>
+                            <p className="border-b border-dotted border-black pb-2 min-h-[30px] text-black">
+                              {selectedNote.debtor_name || "................................"}
+                            </p>
+                          </div>
+                          <div>
+                            <p className="font-bold mb-2 text-black">رقم الهوية:</p>
+                            <p className="border-b border-dotted border-black pb-2 min-h-[30px] text-black">
+                              {selectedNote.debtor_id_number || "................................"}
+                            </p>
                           </div>
                         </div>
 
-                        <div className="flex justify-between items-end mt-16 px-10">
-                          <div className="text-center w-64">
-                            <p className="font-black text-xl mb-6">التوقيع</p>
-                            <div className="h-32 border-b-2 border-black"></div>
+                        <div className="mb-8">
+                          <p className="font-bold mb-2 text-black">العنوان:</p>
+                          <p className="border-b border-dotted border-black pb-2 min-h-[30px] text-black">
+                            {selectedNote.debtor_address || "................................................................"}
+                          </p>
+                        </div>
+
+                        <div className="flex justify-between items-start mt-12">
+                          <div className="text-center">
+                            <p className="font-bold mb-4 text-black">التوقيع:</p>
+                            <div className="w-48 h-20 border-b-2 border-black">
+                            </div>
                           </div>
-                          <div className="text-center w-64">
-                            <p className="font-black text-xl mb-6">البصمة</p>
-                            <div className="w-32 h-32 border-2 border-black rounded-full mx-auto"></div>
+                          <div className="text-center">
+                            <p className="font-bold mb-4 text-black">الإبهام (البصمة):</p>
+                            <div className="w-24 h-24 border-2 border-black rounded-full">
+                            </div>
                           </div>
                         </div>
                       </div>
                     </div>
                   </div>
-                </motion.div>
               </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
-    );
-  }
+    </div>
+  );
+}
