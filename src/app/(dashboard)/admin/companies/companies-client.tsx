@@ -219,7 +219,7 @@ export function CompaniesClient({ initialCompanies, statusFilter, search }: Comp
                     <div className="flex flex-wrap gap-4 text-slate-400 font-bold text-sm">
                       <div className="flex items-center gap-2">
                         <Calendar size={14} className="text-blue-500" />
-                        <span>منذ {new Date(company.created_at).toLocaleDateString('ar-SA')}</span>
+                        <span>منذ {new Date(company.created_at).toLocaleDateString('en-GB')}</span>
                       </div>
                       <div className="flex items-center gap-2">
                         <Flag size={14} className="text-blue-500" />
@@ -306,7 +306,7 @@ export function CompaniesClient({ initialCompanies, statusFilter, search }: Comp
                         </span>
                         <span className="font-black text-slate-800 text-lg">
                           {company.token_expiry && company.token_expiry !== '0000-00-00' ? (
-                            <span className="text-amber-600">{new Date(company.token_expiry).toLocaleDateString('ar-SA')}</span>
+                            <span className="text-amber-600">{new Date(company.token_expiry).toLocaleDateString('en-GB')}</span>
                           ) : (
                             <span className="text-emerald-600 flex items-center gap-2">
                               تفعيل دائم
