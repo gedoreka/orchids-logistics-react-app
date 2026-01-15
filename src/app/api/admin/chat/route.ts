@@ -43,6 +43,14 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ unread_count: result[0]?.count || 0 });
     }
 
+    if (action === "last_admin_message" && companyId) {
+      const result = await query(
+        "SELECT message, created_at FROM chat_messages WHERE company_id = ? AND sender_role = 'admin' ORDER BY created_at DESC LIMIT 1",
+        [companyId]
+      );
+      return NextResponse.json({ last_message: result[0] });
+    }
+
     if (companyId) {
       const messages = await query(
         `SELECT * FROM chat_messages WHERE company_id = ? ORDER BY created_at ASC`,
