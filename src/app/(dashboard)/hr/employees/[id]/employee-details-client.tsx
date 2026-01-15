@@ -388,6 +388,14 @@ export function EmployeeDetailsClient({
                     <config.icon size={18} className={activeTab === id ? 'text-white' : config.text} />
                   </div>
                   <span className="text-sm font-black flex-1">{config.label}</span>
+                  {id === 'status' && (
+                    <span className={`text-[9px] font-black px-2 py-1 rounded-full ${
+                      iqamaStatus.color === 'red' ? 'bg-red-500/20 text-red-400' :
+                      iqamaStatus.color === 'orange' ? 'bg-orange-500/20 text-orange-400' : 'bg-emerald-500/20 text-emerald-400'
+                    }`}>
+                      {iqamaStatus.color === 'green' ? 'سارية' : iqamaStatus.color === 'orange' ? 'على وشك' : 'منتهية'}
+                    </span>
+                  )}
                   {activeTab === id && (
                     <motion.div 
                       layoutId="activeIndicator"
@@ -400,36 +408,7 @@ export function EmployeeDetailsClient({
           </motion.div>
 
 
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4 }}
-          className={`rounded-2xl p-4 border backdrop-blur-xl ${
-            iqamaStatus.color === 'red' ? 'bg-red-500/10 border-red-500/20' :
-            iqamaStatus.color === 'orange' ? 'bg-orange-500/10 border-orange-500/20' :
-            'bg-emerald-500/10 border-emerald-500/20'
-          }`}
-        >
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className={`p-2.5 rounded-xl ${
-                iqamaStatus.color === 'red' ? 'bg-red-500/20 text-red-400' :
-                iqamaStatus.color === 'orange' ? 'bg-orange-500/20 text-orange-400' : 'bg-emerald-500/20 text-emerald-400'
-              }`}>
-                <Timer size={18} />
-              </div>
-              <span className="text-xs font-black text-white/80">صلاحية الإقامة</span>
-            </div>
-            <span className={`text-2xl font-black ${
-              iqamaStatus.color === 'red' ? 'text-red-400' :
-              iqamaStatus.color === 'orange' ? 'text-orange-400' : 'text-emerald-400'
-            }`}>{iqamaStatus.days !== null ? Math.abs(iqamaStatus.days) : '--'}</span>
-          </div>
-          <p className={`text-[11px] font-bold mt-2 ${
-            iqamaStatus.color === 'red' ? 'text-red-400/80' :
-            iqamaStatus.color === 'orange' ? 'text-orange-400/80' : 'text-emerald-400/80'
-          }`}>{iqamaStatus.text}</p>
-        </motion.div>
+
       </div>
 
         <motion.div 
