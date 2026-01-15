@@ -1,12 +1,11 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Sidebar } from "./sidebar";
 import { motion, AnimatePresence } from "framer-motion";
 import { Header } from "./header";
 import { Footer } from "./footer";
 import { X } from "lucide-react";
-import { useLocale } from "@/lib/locale-context";
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -20,7 +19,22 @@ interface DashboardLayoutProps {
 
 export function DashboardLayout({ children, user, permissions }: DashboardLayoutProps) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const { isRTL } = useLocale();
+  const [isRTL, setIsRTL] = useState(true);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+    const dir = document.documentElement.dir;
+    setIsRTL(dir === 'rtl');
+  }, []);
+
+  if (!mounted) {
+    return (
+      <div className="h-screen overflow-hidden bg-background text-foreground flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-4 border-blue-500 border-t-transparent" />
+      </div>
+    );
+  }
 
   return (
     <div 
