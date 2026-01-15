@@ -21,17 +21,19 @@ export async function sendMessage(data: {
   message: string;
   file_path?: string;
   message_type?: 'text' | 'image' | 'audio' | 'video' | 'file';
+  ticket_id?: string;
 }) {
   try {
     const result = await execute(
-      `INSERT INTO chat_messages (company_id, sender_role, message, file_path, message_type, is_read, created_at)
-       VALUES (?, ?, ?, ?, ?, 0, NOW())`,
+      `INSERT INTO chat_messages (company_id, sender_role, message, file_path, message_type, ticket_id, is_read, created_at)
+       VALUES (?, ?, ?, ?, ?, ?, 0, NOW())`,
       [
         data.company_id, 
         data.sender_role, 
         data.message, 
         data.file_path || null,
-        data.message_type || 'text'
+        data.message_type || 'text',
+        data.ticket_id || null
       ]
     );
     

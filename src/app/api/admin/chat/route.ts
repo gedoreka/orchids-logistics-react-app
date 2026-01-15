@@ -35,6 +35,14 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ unread_count: result[0]?.count || 0 });
     }
 
+    if (action === "client_unread" && companyId) {
+      const result = await query<{ count: number }>(
+        "SELECT COUNT(*) as count FROM chat_messages WHERE company_id = ? AND sender_role = 'admin' AND is_read = 0",
+        [companyId]
+      );
+      return NextResponse.json({ unread_count: result[0]?.count || 0 });
+    }
+
     if (companyId) {
       const messages = await query(
         `SELECT * FROM chat_messages WHERE company_id = ? ORDER BY created_at ASC`,

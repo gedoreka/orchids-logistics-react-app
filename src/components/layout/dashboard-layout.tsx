@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { Sidebar } from "./sidebar";
 import { motion, AnimatePresence } from "framer-motion";
 import { Header } from "./header";
@@ -14,6 +14,7 @@ interface DashboardLayoutProps {
     name: string;
     role: string;
     email: string;
+    company_id?: number;
   };
   permissions?: Record<string, number>;
 }
@@ -22,12 +23,32 @@ export function DashboardLayout({ children, user, permissions }: DashboardLayout
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isRTL, setIsRTL] = useState(true);
   const [mounted, setMounted] = useState(false);
+  const [unreadChatCount, setUnreadChatCount] = useState(0);
+
+  const fetchUnreadCount = useCallback(async () => {
+    if (!user?.company_id || user?.role === "admin") return;
+    try {
+      const response = await fetch(`/api/admin/chat?company_id=${user.company_id}&action=client_unread`);
+      const data = await response.json();
+      if (data.unread_count !== undefined) {
+        setUnreadChatCount(data.unread_count);
+      }
+    } catch (error) {
+      console.error("Error fetching unread count:", error);
+    }
+  }, [user?.company_id, user?.role]);
 
   useEffect(() => {
     setMounted(true);
     const dir = document.documentElement.dir;
     setIsRTL(dir === 'rtl');
   }, []);
+
+  useEffect(() => {
+    fetchUnreadCount();
+    const interval = setInterval(fetchUnreadCount, 5000);
+    return () => clearInterval(interval);
+  }, [fetchUnreadCount]);
 
   if (!mounted) {
     return (
@@ -87,7 +108,7 @@ export function DashboardLayout({ children, user, permissions }: DashboardLayout
       
       <div className={`${isRTL ? 'lg:mr-64' : 'lg:ml-64'} flex flex-col h-screen overflow-hidden`}>
         <div className="flex-shrink-0">
-          <Header user={user} onToggleSidebar={() => setIsSidebarOpen(true)} />
+          <Header user={user} onToggleSidebar={() => setIsSidebarOpen(true)} unreadChatCount={unreadChatCount} />
         </div>
 
         <main className="flex-1 overflow-y-auto overflow-x-hidden bg-muted/30 dark:bg-background">

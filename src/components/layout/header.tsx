@@ -33,7 +33,7 @@ import { useLocale, useTranslations } from '@/lib/locale-context';
 import { LanguageSwitcher } from "./language-switcher";
 import { ThemeToggle } from "@/components/theme-toggle";
 
-export function Header({ user, onToggleSidebar }: { user?: { name: string; role: string; email: string }, onToggleSidebar?: () => void }) {
+export function Header({ user, onToggleSidebar, unreadChatCount = 0 }: { user?: { name: string; role: string; email: string }, onToggleSidebar?: () => void, unreadChatCount?: number }) {
   const t = useTranslations('header');
   const tCommon = useTranslations('common');
   const { locale, isRTL } = useLocale();
@@ -327,10 +327,19 @@ export function Header({ user, onToggleSidebar }: { user?: { name: string; role:
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                   onClick={() => router.push("/chat")}
-                  className="hidden sm:flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 rounded-xl transition-all shadow-lg shadow-emerald-500/20 border border-emerald-400/20"
+                  className="hidden sm:flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 rounded-xl transition-all shadow-lg shadow-emerald-500/20 border border-emerald-400/20 relative"
                 >
                   <MessageSquare size={16} className="text-white" />
                   <span className="text-[11px] font-bold text-white">{t('support')}</span>
+                  {unreadChatCount > 0 && (
+                    <motion.span 
+                      initial={{ scale: 0 }}
+                      animate={{ scale: 1 }}
+                      className="absolute -top-2 -right-2 min-w-[22px] h-[22px] bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center shadow-lg animate-pulse border-2 border-white"
+                    >
+                      {unreadChatCount > 9 ? '9+' : unreadChatCount}
+                    </motion.span>
+                  )}
                 </motion.button>
 
                 <div ref={userDropdownRef} className="relative">
