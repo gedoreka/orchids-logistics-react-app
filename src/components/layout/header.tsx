@@ -126,81 +126,82 @@ export function Header({ user, onToggleSidebar }: { user?: { name: string; role:
 
   return (
     <>
-      <header className="z-40 w-full bg-white/90 backdrop-blur-xl border-b border-gray-100 shadow-2xl no-print sticky top-0">
-        <div className="w-full mx-auto px-6 md:px-12 py-3 flex flex-col xl:flex-row items-center justify-between gap-6">
-          
-            {/* Logo & Basic Nav */}
-            <div className="flex items-center justify-between w-full xl:w-auto gap-8">
-              <div className="flex items-center gap-4">
-                <button 
-                  onClick={onToggleSidebar}
-                  className="lg:hidden p-3 bg-gray-50 hover:bg-gray-100 rounded-2xl transition-all text-gray-600 shadow-inner border border-gray-100"
-                >
-                  <Menu size={24} />
+      <header className="z-40 w-full bg-[#0f172a] border-b border-white/5 shadow-2xl no-print sticky top-0">
+        <div className="absolute inset-0 bg-gradient-to-r from-blue-500/5 via-transparent to-blue-500/5 pointer-events-none" />
+        <div className="w-full mx-auto px-6 md:px-12 py-3 flex flex-col xl:flex-row items-center justify-between gap-6 relative z-10">
+            
+              {/* Logo & Basic Nav */}
+              <div className="flex items-center justify-between w-full xl:w-auto gap-8">
+                <div className="flex items-center gap-4">
+                  <button 
+                    onClick={onToggleSidebar}
+                    className="lg:hidden p-3 bg-white/5 hover:bg-white/10 rounded-2xl transition-all text-white/70 shadow-inner border border-white/10"
+                  >
+                    <Menu size={24} />
+                  </button>
+                </div>
+                
+                {pathname !== "/dashboard" && (
+                  <div className="flex items-center gap-4">
+                    <motion.button 
+                      whileHover={{ scale: 1.02, x: 5 }}
+                      onClick={() => router.back()}
+                      className="flex items-center gap-2 px-5 py-2.5 bg-white/5 text-[12px] font-black text-white/80 hover:bg-white/10 rounded-2xl transition-all shadow-sm border border-white/10 group"
+                    >
+                      <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
+                      <span>رجوع</span>
+                    </motion.button>
+                    
+                    <motion.button 
+                      whileHover={{ scale: 1.02 }}
+                      onClick={() => router.push("/dashboard")}
+                      className="flex items-center gap-2 px-5 py-2.5 bg-white/5 text-[12px] font-black text-white/80 hover:bg-white/10 rounded-2xl transition-all shadow-sm border border-white/10 group"
+                    >
+                      <Home size={18} className="group-hover:scale-110 transition-transform" />
+                      <span>الرئيسية</span>
+                    </motion.button>
+                  </div>
+                )}
+              </div>
+
+              {/* Time & Location - Centered & Compact */}
+              <div className="hidden xl:flex items-center gap-8 bg-white/5 px-8 py-2 rounded-[2rem] border border-white/10 shadow-[inset_0_2px_10px_rgba(0,0,0,0.2)]">
+                {mounted && (
+                    <>
+                      <div className="flex items-center gap-6 text-[10px] font-black text-white/40 uppercase tracking-widest">
+                        <div className="flex items-center gap-3 group">
+                          <div className="w-9 h-9 bg-blue-500/20 rounded-xl flex items-center justify-center text-blue-400 group-hover:bg-blue-500 group-hover:text-white transition-all shadow-sm">
+                            <Calendar size={14} />
+                          </div>
+                          <span className="whitespace-nowrap leading-none">{formatDate(currentTime)}</span>
+                        </div>
+                      </div>
+                      
+                      <div className="w-px h-6 bg-white/10" />
+                    </>
+                )}
+                
+                <div className="flex items-center gap-3 text-[10px] text-white/30 font-black tracking-widest group cursor-help">
+                  <div className="w-7 h-7 bg-red-500/20 rounded-full flex items-center justify-center text-red-400 group-hover:bg-red-500 group-hover:text-white transition-all shadow-sm">
+                    <MapPin size={12} className="animate-bounce" />
+                  </div>
+                  <span className="truncate max-w-[250px] uppercase text-white/50">{location}</span>
+                </div>
+              </div>
+
+            {/* User Actions - Premium Style */}
+            <div className="flex items-center gap-4 w-full xl:w-auto justify-center xl:justify-end">
+              {/* Language Switcher */}
+              <div className="flex items-center bg-white/5 p-1.5 rounded-2xl shrink-0 border border-white/10 shadow-inner mr-2">
+                <button className="flex items-center gap-2 px-5 py-2 text-[10px] font-black bg-blue-600 text-white rounded-xl shadow-md border border-blue-500/50 transition-all hover:scale-105">
+                  <Globe size={14} />
+                  <span>العربية</span>
+                </button>
+                <button className="flex items-center gap-2 px-5 py-2 text-[10px] font-black text-white/40 hover:text-white transition-all hover:bg-white/10 rounded-xl">
+                  <Globe size={14} />
+                  <span>English</span>
                 </button>
               </div>
-              
-              {pathname !== "/dashboard" && (
-                <div className="flex items-center gap-4">
-                  <motion.button 
-                    whileHover={{ scale: 1.02, x: 5 }}
-                    onClick={() => router.back()}
-                    className="flex items-center gap-2 px-5 py-2.5 bg-gray-50 text-[12px] font-black text-gray-700 hover:bg-gray-100 rounded-2xl transition-all shadow-sm border border-gray-200/50 group"
-                  >
-                    <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
-                    <span>رجوع</span>
-                  </motion.button>
-                  
-                  <motion.button 
-                    whileHover={{ scale: 1.02 }}
-                    onClick={() => router.push("/dashboard")}
-                    className="flex items-center gap-2 px-5 py-2.5 bg-gray-50 text-[12px] font-black text-gray-700 hover:bg-gray-100 rounded-2xl transition-all shadow-sm border border-gray-200/50 group"
-                  >
-                    <Home size={18} className="group-hover:scale-110 transition-transform" />
-                    <span>الرئيسية</span>
-                  </motion.button>
-                </div>
-              )}
-            </div>
-
-            {/* Time & Location - Centered & Compact */}
-            <div className="hidden xl:flex items-center gap-8 bg-white/60 px-8 py-2 rounded-[2rem] border border-gray-100 shadow-[inset_0_2px_10px_rgba(0,0,0,0.02)]">
-              {mounted && (
-                  <>
-                    <div className="flex items-center gap-6 text-[10px] font-black text-gray-500 uppercase tracking-widest">
-                      <div className="flex items-center gap-3 group">
-                        <div className="w-9 h-9 bg-blue-500/10 rounded-xl flex items-center justify-center text-blue-500 group-hover:bg-blue-500 group-hover:text-white transition-all shadow-sm">
-                          <Calendar size={14} />
-                        </div>
-                        <span className="whitespace-nowrap leading-none">{formatDate(currentTime)}</span>
-                      </div>
-                    </div>
-                    
-                    <div className="w-px h-6 bg-gray-200" />
-                  </>
-              )}
-              
-              <div className="flex items-center gap-3 text-[10px] text-gray-400 font-black tracking-widest group cursor-help">
-                <div className="w-7 h-7 bg-red-500/10 rounded-full flex items-center justify-center text-red-500 group-hover:bg-red-500 group-hover:text-white transition-all shadow-sm">
-                  <MapPin size={12} className="animate-bounce" />
-                </div>
-                <span className="truncate max-w-[250px] uppercase">{location}</span>
-              </div>
-            </div>
-
-          {/* User Actions - Premium Style */}
-          <div className="flex items-center gap-4 w-full xl:w-auto justify-center xl:justify-end">
-            {/* Language Switcher */}
-            <div className="flex items-center bg-gray-50 p-1.5 rounded-2xl shrink-0 border border-gray-100 shadow-inner mr-2">
-              <button className="flex items-center gap-2 px-5 py-2 text-[10px] font-black bg-white text-blue-600 rounded-xl shadow-md border border-gray-100 transition-all hover:scale-105">
-                <Globe size={14} />
-                <span>العربية</span>
-              </button>
-              <button className="flex items-center gap-2 px-5 py-2 text-[10px] font-black text-gray-400 hover:text-gray-800 transition-all hover:bg-white/50 rounded-xl">
-                <Globe size={14} />
-                <span>English</span>
-              </button>
-            </div>
 
             <PremiumButton 
               onClick={() => setIsDriverModalOpen(true)}

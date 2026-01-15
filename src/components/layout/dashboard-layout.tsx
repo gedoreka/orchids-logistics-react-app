@@ -20,10 +20,10 @@ interface DashboardLayoutProps {
 export function DashboardLayout({ children, user, permissions }: DashboardLayoutProps) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
-  return (
-    <div className="min-h-screen bg-[#f8fafc]" dir="rtl">
-      {/* Sidebar - Desktop - Fixed */}
-      <div className="hidden lg:block fixed top-0 right-0 h-screen w-64 z-50">
+    return (
+      <div className="flex min-h-screen bg-[#f8fafc]" dir="rtl">
+        {/* Sidebar - Desktop - Fixed */}
+        <div className="hidden lg:block fixed top-0 right-0 h-screen w-64 z-50">
         <Sidebar userRole={user?.role} permissions={permissions} />
       </div>
 
