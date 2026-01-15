@@ -1,6 +1,6 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { motion, useMotionValue, useTransform, animate } from "framer-motion";
 import { 
   Users, 
   Package, 
@@ -22,9 +22,12 @@ import {
   Store,
   BadgeDollarSign,
   Receipt,
-  BookOpen
+  BookOpen,
+  TrendingUp,
+  Sparkles,
+  ArrowUpRight
 } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 interface DashboardClientProps {
   user: {
@@ -62,6 +65,23 @@ interface DashboardClientProps {
   isAdmin: boolean;
 }
 
+function AnimatedCounter({ value, duration = 2 }: { value: number; duration?: number }) {
+  const count = useMotionValue(0);
+  const rounded = useTransform(count, (latest) => Math.round(latest).toLocaleString('en-US'));
+  const [displayValue, setDisplayValue] = useState("0");
+
+  useEffect(() => {
+    const controls = animate(count, value, { duration });
+    const unsubscribe = rounded.on("change", (v) => setDisplayValue(v));
+    return () => {
+      controls.stop();
+      unsubscribe();
+    };
+  }, [value, duration, count, rounded]);
+
+  return <span>{displayValue}</span>;
+}
+
 export function DashboardClient({ 
   user, 
   company, 
@@ -81,141 +101,203 @@ export function DashboardClient({
     }
   };
 
-  const getBadgeColor = (badge: string) => {
+  const getSubscriptionGradient = (badge: string) => {
     switch (badge) {
-      case "success": return "bg-green-500";
-      case "warning": return "bg-yellow-500";
-      case "danger": return "bg-red-500";
-      case "primary": return "bg-blue-500";
-      default: return "bg-gray-500";
+      case "success": return "from-emerald-500 to-teal-400";
+      case "warning": return "from-amber-500 to-orange-400";
+      case "danger": return "from-red-500 to-rose-400";
+      case "primary": return "from-blue-500 to-indigo-400";
+      default: return "from-slate-500 to-slate-400";
     }
   };
 
   const quickAccessItems = [
-    { title: "إدارة الموارد البشرية", href: "/hr", icon: Users, color: "bg-gradient-to-br from-blue-500 to-blue-600", permission: "employees_module" },
-    { title: "الفواتير الضريبية", href: "/sales-invoices", icon: FileText, color: "bg-gradient-to-br from-green-500 to-green-600", permission: "sales_module" },
-    { title: "التجارة الإلكترونية", href: "/ecommerce-orders", icon: Store, color: "bg-gradient-to-br from-purple-500 to-purple-600", permission: "ecommerce_orders_module" },
-    { title: "الشحنات", href: "/personal-shipments", icon: Truck, color: "bg-gradient-to-br from-orange-500 to-orange-600", permission: "personal_shipments_module" },
-    { title: "المصروفات", href: "/expenses", icon: BadgeDollarSign, color: "bg-gradient-to-br from-red-500 to-red-600", permission: "expenses_module" },
-    { title: "سندات القبض", href: "/receipt-vouchers", icon: Receipt, color: "bg-gradient-to-br from-teal-500 to-teal-600", permission: "receipt_vouchers_module" },
-    { title: "مركز الحسابات", href: "/accounts", icon: BookOpen, color: "bg-gradient-to-br from-indigo-500 to-indigo-600", permission: "accounts_module" },
-    { title: "قائمة العملاء", href: "/customers", icon: Users, color: "bg-gradient-to-br from-pink-500 to-pink-600", permission: "clients_module" },
+    { title: "إدارة الموارد البشرية", href: "/hr", icon: Users, gradient: "from-blue-600 to-indigo-600", bgGlow: "bg-blue-500/20", permission: "employees_module" },
+    { title: "الفواتير الضريبية", href: "/sales-invoices", icon: FileText, gradient: "from-emerald-600 to-teal-600", bgGlow: "bg-emerald-500/20", permission: "sales_module" },
+    { title: "التجارة الإلكترونية", href: "/ecommerce-orders", icon: Store, gradient: "from-violet-600 to-purple-600", bgGlow: "bg-violet-500/20", permission: "ecommerce_orders_module" },
+    { title: "الشحنات", href: "/personal-shipments", icon: Truck, gradient: "from-orange-600 to-amber-600", bgGlow: "bg-orange-500/20", permission: "personal_shipments_module" },
+    { title: "المصروفات", href: "/expenses", icon: BadgeDollarSign, gradient: "from-rose-600 to-pink-600", bgGlow: "bg-rose-500/20", permission: "expenses_module" },
+    { title: "سندات القبض", href: "/receipt-vouchers", icon: Receipt, gradient: "from-teal-600 to-cyan-600", bgGlow: "bg-teal-500/20", permission: "receipt_vouchers_module" },
+    { title: "مركز الحسابات", href: "/accounts", icon: BookOpen, gradient: "from-indigo-600 to-blue-600", bgGlow: "bg-indigo-500/20", permission: "accounts_module" },
+    { title: "قائمة العملاء", href: "/customers", icon: Users, gradient: "from-pink-600 to-rose-600", bgGlow: "bg-pink-500/20", permission: "clients_module" },
   ];
 
   const filteredQuickAccess = quickAccessItems.filter(item => 
     isAdmin || permissions[item.permission] === 1
   );
 
-      return (
-        <div className="p-4 md:p-6 space-y-4 w-full overflow-x-hidden">
-          {/* Main Dashboard Card */}
-          <motion.div 
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="relative overflow-hidden bg-white border border-gray-100 rounded-xl p-5 shadow-sm"
-          >
-          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500" />
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: { staggerChildren: 0.08 }
+    }
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: "easeOut" } }
+  };
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100/50 p-4 md:p-8">
+      <motion.div 
+        variants={containerVariants}
+        initial="hidden"
+        animate="visible"
+        className="max-w-7xl mx-auto space-y-6"
+      >
+        <motion.div 
+          variants={itemVariants}
+          className="relative overflow-hidden rounded-3xl"
+        >
+          <div className="absolute inset-0 bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900" />
+          <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC4wMyI+PGNpcmNsZSBjeD0iMzAiIGN5PSIzMCIgcj0iMiIvPjwvZz48L2c+PC9zdmc+')] opacity-50" />
+          <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-br from-violet-600/20 to-transparent rounded-full blur-3xl" />
+          <div className="absolute bottom-0 left-0 w-96 h-96 bg-gradient-to-tr from-emerald-600/20 to-transparent rounded-full blur-3xl" />
           
-          <h1 className="text-xl font-black text-center text-gray-800 mb-1">
-            مرحباً بك في لوحة التحكم
-          </h1>
-          <p className="text-center text-gray-500 text-xs mb-4 italic">إدارة شاملة ومتكاملة لجميع عمليات منشأتك</p>
-  
-          <div className="flex justify-center gap-2 flex-wrap">
-            <span className={`px-3 py-1 rounded-lg text-white font-bold text-[10px] flex items-center gap-1.5 ${getBadgeColor(subscription.badge)}`}>
-              <Crown size={12} />
-              {subscription.message}
-            </span>
-            <span className="px-3 py-1 rounded-lg bg-gray-600 text-white font-bold text-[10px] flex items-center gap-1.5">
-              <User size={12} />
-              {isAdmin ? "مدير النظام" : "مدير منشأة"}
-            </span>
-            {company?.name && (
-              <span className="px-3 py-1 rounded-lg bg-blue-600 text-white font-bold text-[10px] flex items-center gap-1.5">
-                <Building2 size={12} />
-                {company.name}
-              </span>
-            )}
+          <div className="relative z-10 p-8 md:p-12">
+            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+              <div className="space-y-4">
+                <motion.div 
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.2 }}
+                  className="flex items-center gap-3"
+                >
+                  <div className="p-2 rounded-xl bg-white/10 backdrop-blur-sm border border-white/10">
+                    <Sparkles className="w-5 h-5 text-amber-400" />
+                  </div>
+                  <span className="text-slate-400 text-sm font-medium tracking-wide">لوحة التحكم المتقدمة</span>
+                </motion.div>
+                
+                <h1 className="text-3xl md:text-4xl font-bold text-white tracking-tight">
+                  مرحباً بك، <span className="bg-gradient-to-r from-emerald-400 to-teal-400 bg-clip-text text-transparent">{user.name}</span>
+                </h1>
+                <p className="text-slate-400 text-sm max-w-md">
+                  إدارة شاملة ومتكاملة لجميع عمليات منشأتك بتصميم عصري ومتطور
+                </p>
+              </div>
+
+              <div className="flex flex-wrap gap-3">
+                <motion.div 
+                  whileHover={{ scale: 1.02 }}
+                  className={`px-5 py-2.5 rounded-2xl bg-gradient-to-r ${getSubscriptionGradient(subscription.badge)} shadow-lg shadow-emerald-500/25 flex items-center gap-2`}
+                >
+                  <Crown className="w-4 h-4 text-white" />
+                  <span className="text-white font-semibold text-sm">{subscription.message}</span>
+                </motion.div>
+                
+                <motion.div 
+                  whileHover={{ scale: 1.02 }}
+                  className="px-5 py-2.5 rounded-2xl bg-white/10 backdrop-blur-sm border border-white/10 flex items-center gap-2"
+                >
+                  <User className="w-4 h-4 text-slate-300" />
+                  <span className="text-slate-300 font-medium text-sm">{isAdmin ? "مدير النظام" : "مدير منشأة"}</span>
+                </motion.div>
+              </div>
+            </div>
           </div>
         </motion.div>
-  
-        {/* Info Cards */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-          {/* Company Info Card */}
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <motion.div 
-            initial={{ opacity: 0, x: -10 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.1 }}
-            className="bg-white rounded-xl p-4 shadow-sm border border-gray-100"
+            variants={itemVariants}
+            className="group relative overflow-hidden rounded-2xl bg-white/80 backdrop-blur-xl border border-white/60 shadow-2xl shadow-slate-200/50 p-6 hover:shadow-3xl transition-all duration-500"
           >
-            <div className="flex items-center gap-2 mb-4 pb-2 border-b border-gray-50">
-              <Building2 className="text-blue-500" size={18} />
-              <h3 className="text-sm font-bold text-gray-800">معلومات المنشأة</h3>
-            </div>
-  
-            <div className="flex items-center gap-3 mb-4">
-              {company?.logo ? (
-                <img src={company.logo} alt="Logo" className="w-12 h-12 rounded-lg object-cover border border-gray-100 shadow-sm" />
-              ) : (
-                <div className="w-12 h-12 rounded-lg bg-gray-50 flex items-center justify-center text-gray-400">
-                  <Building2 size={24} />
+            <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-blue-400/10 to-indigo-400/10 rounded-full -translate-y-16 translate-x-16" />
+            <div className="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-tr from-emerald-400/10 to-teal-400/10 rounded-full translate-y-12 -translate-x-12" />
+            
+            <div className="relative z-10">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="p-3 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 shadow-lg shadow-blue-500/30">
+                  <Building2 className="w-5 h-5 text-white" />
                 </div>
-              )}
-              <div>
-                <h4 className="text-sm font-bold text-gray-800">{company?.name || "اسم المنشأة"}</h4>
-                <p className="text-gray-400 text-[10px]">{company?.commercial_number || "رقم السجل التجاري"}</p>
+                <div>
+                  <h3 className="font-bold text-slate-800">معلومات المنشأة</h3>
+                  <p className="text-xs text-slate-400">بيانات الشركة الأساسية</p>
+                </div>
               </div>
-            </div>
-  
-            <div className="grid grid-cols-2 gap-3">
-              <div className="bg-gray-50/50 p-2.5 rounded-lg border-r-2 border-blue-500">
-                <p className="text-[9px] text-gray-400 font-bold mb-0.5 uppercase">الرقم الضريبي</p>
-                <p className="text-xs font-bold text-gray-700">{company?.vat_number || "غير محدد"}</p>
+
+              <div className="flex items-center gap-4 mb-6 p-4 rounded-xl bg-slate-50/80 border border-slate-100">
+                {company?.logo ? (
+                  <img src={company.logo} alt="Logo" className="w-16 h-16 rounded-xl object-cover shadow-lg" />
+                ) : (
+                  <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-slate-200 to-slate-300 flex items-center justify-center">
+                    <Building2 className="w-8 h-8 text-slate-400" />
+                  </div>
+                )}
+                <div>
+                  <h4 className="font-bold text-slate-800 text-lg">{company?.name || "اسم المنشأة"}</h4>
+                  <p className="text-slate-500 text-sm font-mono">{company?.commercial_number || "رقم السجل التجاري"}</p>
+                </div>
               </div>
-              <div className="bg-gray-50/50 p-2.5 rounded-lg border-r-2 border-green-500">
-                <p className="text-[9px] text-gray-400 font-bold mb-0.5 uppercase">حالة الحساب</p>
-                <span className={`text-[9px] font-bold text-white px-1.5 py-0.5 rounded ${getBadgeColor(subscription.badge)}`}>
-                  {subscription.message}
-                </span>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="p-4 rounded-xl bg-gradient-to-br from-slate-50 to-white border border-slate-100 hover:border-blue-200 transition-colors">
+                  <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-1">الرقم الضريبي</p>
+                  <p className="text-sm font-bold text-slate-700 font-mono">{company?.vat_number || "غير محدد"}</p>
+                </div>
+                <div className="p-4 rounded-xl bg-gradient-to-br from-slate-50 to-white border border-slate-100 hover:border-emerald-200 transition-colors">
+                  <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-1">حالة الحساب</p>
+                  <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold text-white bg-gradient-to-r ${getSubscriptionGradient(subscription.badge)}`}>
+                    <span className="w-1.5 h-1.5 rounded-full bg-white/80 animate-pulse" />
+                    {subscription.message}
+                  </span>
+                </div>
               </div>
             </div>
           </motion.div>
-  
-          {/* System Info Card */}
+
           <motion.div 
-            initial={{ opacity: 0, x: 10 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.2 }}
-            className="bg-white rounded-xl p-4 shadow-sm border border-gray-100"
+            variants={itemVariants}
+            className="group relative overflow-hidden rounded-2xl bg-white/80 backdrop-blur-xl border border-white/60 shadow-2xl shadow-slate-200/50 p-6 hover:shadow-3xl transition-all duration-500"
           >
-            <div className="flex items-center gap-2 mb-4 pb-2 border-b border-gray-50">
-              <Crown className="text-purple-500" size={18} />
-              <h3 className="text-sm font-bold text-gray-800">معلومات النظام</h3>
-            </div>
-  
-            <div className="grid grid-cols-2 gap-3">
-              <div className="bg-gray-50/50 p-2.5 rounded-lg border-r-2 border-blue-500">
-                <p className="text-[9px] text-gray-400 font-bold mb-0.5 uppercase">نوع الحساب</p>
-                <p className="text-xs font-bold text-gray-700">{isAdmin ? "إداري" : "مستخدم"}</p>
+            <div className="absolute top-0 left-0 w-32 h-32 bg-gradient-to-br from-violet-400/10 to-purple-400/10 rounded-full -translate-y-16 -translate-x-16" />
+            <div className="absolute bottom-0 right-0 w-24 h-24 bg-gradient-to-tr from-amber-400/10 to-orange-400/10 rounded-full translate-y-12 translate-x-12" />
+            
+            <div className="relative z-10">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="p-3 rounded-xl bg-gradient-to-br from-violet-500 to-purple-600 shadow-lg shadow-violet-500/30">
+                  <Crown className="w-5 h-5 text-white" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-slate-800">معلومات النظام</h3>
+                  <p className="text-xs text-slate-400">إعدادات الحساب والاشتراك</p>
+                </div>
               </div>
-              <div className="bg-gray-50/50 p-2.5 rounded-lg border-r-2 border-green-500">
-                <p className="text-[9px] text-gray-400 font-bold mb-0.5 uppercase">نوع الاشتراك</p>
-                <p className="text-xs font-bold text-gray-700">
-                  {subscription.type === "premium" ? "دائم" : subscription.type === "active" ? "نشط" : "منتهي"}
-                </p>
+
+              <div className="grid grid-cols-2 gap-4 mb-4">
+                <div className="p-4 rounded-xl bg-gradient-to-br from-slate-50 to-white border border-slate-100 hover:border-violet-200 transition-colors">
+                  <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-1">نوع الحساب</p>
+                  <p className="text-sm font-bold text-slate-700">{isAdmin ? "إداري" : "مستخدم"}</p>
+                </div>
+                <div className="p-4 rounded-xl bg-gradient-to-br from-slate-50 to-white border border-slate-100 hover:border-amber-200 transition-colors">
+                  <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-1">نوع الاشتراك</p>
+                  <p className="text-sm font-bold text-slate-700">
+                    {subscription.type === "premium" ? "دائم" : subscription.type === "active" ? "نشط" : "منتهي"}
+                  </p>
+                </div>
               </div>
-              <div className="bg-gray-50/50 p-2.5 rounded-lg border-r-2 border-orange-500 col-span-2">
-                <p className="text-[9px] text-gray-400 font-bold mb-0.5 uppercase">رمز الوصول</p>
+              
+              <div className="p-4 rounded-xl bg-gradient-to-br from-amber-50 to-orange-50 border border-amber-100">
+                <p className="text-[10px] text-amber-600 font-bold uppercase tracking-wider mb-2">رمز الوصول</p>
                 <div className="flex items-center justify-between">
-                  <span className={`font-mono text-[10px] text-gray-600 ${tokenVisible ? "" : "blur-sm select-none"}`}>
-                    {company?.access_token?.substring(0, 20) || "غير متاح"}...
+                  <span className={`font-mono text-sm text-amber-800 ${tokenVisible ? "" : "blur-sm select-none"}`}>
+                    {company?.access_token?.substring(0, 24) || "غير متاح"}...
                   </span>
                   <div className="flex items-center gap-1">
-                    <button onClick={() => setTokenVisible(!tokenVisible)} className="p-1 hover:bg-gray-100 rounded transition-colors text-gray-400">
-                      {tokenVisible ? <EyeOff size={12} /> : <Eye size={12} />}
+                    <button 
+                      onClick={() => setTokenVisible(!tokenVisible)} 
+                      className="p-2 hover:bg-amber-200/50 rounded-lg transition-colors text-amber-600"
+                    >
+                      {tokenVisible ? <EyeOff size={16} /> : <Eye size={16} />}
                     </button>
-                    <button onClick={copyToken} className="p-1 hover:bg-gray-100 rounded transition-colors text-gray-400">
-                      <Copy size={12} className={copied ? "text-green-500" : ""} />
+                    <button 
+                      onClick={copyToken} 
+                      className="p-2 hover:bg-amber-200/50 rounded-lg transition-colors text-amber-600"
+                    >
+                      <Copy size={16} className={copied ? "text-emerald-600" : ""} />
                     </button>
                   </div>
                 </div>
@@ -223,203 +305,223 @@ export function DashboardClient({
             </div>
           </motion.div>
         </div>
-  
-        {/* Year Filter */}
+
         <motion.div 
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
-          className="bg-white rounded-xl p-3 shadow-sm border border-gray-100 flex items-center justify-between gap-4"
+          variants={itemVariants}
+          className="flex items-center justify-between p-4 rounded-2xl bg-white/80 backdrop-blur-xl border border-white/60 shadow-xl"
         >
-          <div className="flex items-center gap-2 text-gray-700 font-bold text-xs">
-            <Calendar className="text-blue-500" size={16} />
-            <span>السنة المالية</span>
+          <div className="flex items-center gap-3">
+            <div className="p-2.5 rounded-xl bg-gradient-to-br from-indigo-500 to-blue-600 shadow-lg shadow-indigo-500/25">
+              <Calendar className="w-4 h-4 text-white" />
+            </div>
+            <span className="font-bold text-slate-700">السنة المالية</span>
           </div>
-          <select className="px-3 py-1 rounded-lg border border-gray-200 bg-white text-xs font-bold focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all">
+          <select className="px-4 py-2 rounded-xl border border-slate-200 bg-white text-sm font-bold focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all cursor-pointer hover:border-indigo-300">
             {[2024, 2025, 2026, 2027, 2028].map(year => (
               <option key={year} value={year}>{year}</option>
             ))}
           </select>
         </motion.div>
-  
-        {/* Stats Grid */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-          {isAdmin ? (
-            <>
-              <StatCard 
-                icon={Users} 
-                value={stats.users_count || 0} 
-                label="المستخدمين النشطين" 
-                badge="نشط"
-                badgeColor="bg-green-500"
-                iconColor="bg-blue-50"
-                textColor="text-blue-600"
-                delay={0.4}
-              />
-              <StatCard 
-                icon={Clock} 
-                value={stats.pending_requests || 0} 
-                label="طلبات جديدة" 
-                badge="انتظار"
-                badgeColor="bg-yellow-500"
-                iconColor="bg-yellow-50"
-                textColor="text-yellow-600"
-                delay={0.5}
-              />
-              <StatCard 
-                icon={Ban} 
-                value={stats.stopped_companies || 0} 
-                label="شركات متوقفة" 
-                badge="متوقف"
-                badgeColor="bg-red-500"
-                iconColor="bg-red-50"
-                textColor="text-red-600"
-                delay={0.6}
-              />
-              <StatCard 
-                icon={Building2} 
-                value={(stats.users_count || 0) + (stats.pending_requests || 0)} 
-                label="إجمالي الشركات" 
-                badge="الكل"
-                badgeColor="bg-purple-500"
-                iconColor="bg-purple-50"
-                textColor="text-purple-600"
-                delay={0.7}
-              />
-            </>
-          ) : (
-            <>
-              <StatCard 
-                icon={Users} 
-                value={stats.total_employees || 0} 
-                label="إجمالي الموظفين" 
-                badge="موظف"
-                badgeColor="bg-blue-500"
-                iconColor="bg-blue-50"
-                textColor="text-blue-600"
-                delay={0.4}
-              />
-              <StatCard 
-                icon={Package} 
-                value={stats.total_packages || 0} 
-                label="الباقات المضافة" 
-                badge="باقة"
-                badgeColor="bg-green-500"
-                iconColor="bg-green-50"
-                textColor="text-green-600"
-                delay={0.5}
-              />
-              <StatCard 
-                icon={UserCheck} 
-                value={stats.active_employees || 0} 
-                label="الموظفين النشطين" 
-                badge="نشط"
-                badgeColor="bg-teal-500"
-                iconColor="bg-teal-50"
-                textColor="text-teal-600"
-                delay={0.6}
-              />
-              {permissions.credit_notes_module === 1 ? (
-                <StatCard 
-                  icon={CreditCard} 
-                  value={stats.credit_notes_total || 0} 
-                  label="إشعارات الدائن" 
-                  badge="دائن"
-                  badgeColor="bg-red-500"
-                  iconColor="bg-red-50"
-                  textColor="text-red-600"
-                  delay={0.7}
-                  isCurrency
-                  subValue={`${stats.credit_notes_count || 0} إشعار`}
+
+        <motion.div variants={itemVariants}>
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+            {isAdmin ? (
+              <>
+                <LuxuryStatCard 
+                  icon={Users} 
+                  value={stats.users_count || 0} 
+                  label="المستخدمين النشطين" 
+                  trend={12}
+                  gradient="from-blue-500 to-indigo-600"
+                  glowColor="blue"
                 />
-              ) : (
-                <StatCard 
-                  icon={AlertTriangle} 
-                  value={stats.expired_iqama || 0} 
-                  label="إقامات منتهية" 
-                  badge="تنبيه"
-                  badgeColor="bg-red-500"
-                  iconColor="bg-red-50"
-                  textColor="text-red-600"
-                  delay={0.7}
+                <LuxuryStatCard 
+                  icon={Clock} 
+                  value={stats.pending_requests || 0} 
+                  label="طلبات جديدة" 
+                  trend={5}
+                  gradient="from-amber-500 to-orange-600"
+                  glowColor="amber"
                 />
-              )}
-            </>
-          )}
-        </div>
-  
-        {/* Quick Access */}
-        <motion.div 
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.8 }}
-          className="bg-white rounded-xl p-5 shadow-sm border border-gray-100"
-        >
-          <h3 className="text-sm font-black text-gray-800 mb-4 flex items-center gap-2 uppercase tracking-wider">
-            <Bolt className="text-yellow-500" size={16} />
-            الوصول السريع
-          </h3>
-  
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
-            {filteredQuickAccess.map((item, index) => (
-              <motion.a
-                key={item.href}
-                href={item.href}
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: 0.9 + index * 0.05 }}
-                whileHover={{ y: -3 }}
-                className="bg-gray-50/50 hover:bg-white p-3 rounded-lg text-center transition-all border border-transparent hover:border-gray-100 hover:shadow-sm group"
-              >
-                <div className={`w-10 h-10 mx-auto mb-2 rounded-lg ${item.color} flex items-center justify-center shadow-sm group-hover:scale-105 transition-transform`}>
-                  <item.icon className="text-white" size={16} />
-                </div>
-                <span className="font-bold text-gray-700 text-[10px]">{item.title}</span>
-              </motion.a>
-            ))}
+                <LuxuryStatCard 
+                  icon={Ban} 
+                  value={stats.stopped_companies || 0} 
+                  label="شركات متوقفة" 
+                  trend={-3}
+                  gradient="from-rose-500 to-red-600"
+                  glowColor="rose"
+                />
+                <LuxuryStatCard 
+                  icon={Building2} 
+                  value={(stats.users_count || 0) + (stats.pending_requests || 0)} 
+                  label="إجمالي الشركات" 
+                  trend={8}
+                  gradient="from-violet-500 to-purple-600"
+                  glowColor="violet"
+                />
+              </>
+            ) : (
+              <>
+                <LuxuryStatCard 
+                  icon={Users} 
+                  value={stats.total_employees || 0} 
+                  label="إجمالي الموظفين" 
+                  trend={15}
+                  gradient="from-blue-500 to-indigo-600"
+                  glowColor="blue"
+                />
+                <LuxuryStatCard 
+                  icon={Package} 
+                  value={stats.total_packages || 0} 
+                  label="الباقات المضافة" 
+                  trend={8}
+                  gradient="from-emerald-500 to-teal-600"
+                  glowColor="emerald"
+                />
+                <LuxuryStatCard 
+                  icon={UserCheck} 
+                  value={stats.active_employees || 0} 
+                  label="الموظفين النشطين" 
+                  trend={12}
+                  gradient="from-teal-500 to-cyan-600"
+                  glowColor="teal"
+                />
+                {permissions.credit_notes_module === 1 ? (
+                  <LuxuryStatCard 
+                    icon={CreditCard} 
+                    value={stats.credit_notes_total || 0} 
+                    label="إشعارات الدائن" 
+                    trend={-2}
+                    gradient="from-rose-500 to-red-600"
+                    glowColor="rose"
+                    isCurrency
+                    subValue={`${stats.credit_notes_count || 0} إشعار`}
+                  />
+                ) : (
+                  <LuxuryStatCard 
+                    icon={AlertTriangle} 
+                    value={stats.expired_iqama || 0} 
+                    label="إقامات منتهية" 
+                    trend={-5}
+                    gradient="from-rose-500 to-red-600"
+                    glowColor="rose"
+                  />
+                )}
+              </>
+            )}
           </div>
         </motion.div>
-      </div>
-    );
-  }
-  
-  interface StatCardProps {
-    icon: React.ElementType;
-    value: number;
-    label: string;
-    badge: string;
-    badgeColor: string;
-    iconColor: string;
-    textColor: string;
-    delay: number;
-    isCurrency?: boolean;
-    subValue?: string;
-  }
-  
-  function StatCard({ icon: Icon, value, label, badge, badgeColor, iconColor, textColor, delay, isCurrency, subValue }: StatCardProps) {
-    return (
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay }}
-        whileHover={{ y: -3 }}
-        className="bg-white rounded-xl p-4 shadow-sm border border-gray-100 text-center relative overflow-hidden"
-      >
-        <span className={`absolute top-2 left-2 px-1.5 py-0.5 rounded text-[8px] font-black text-white ${badgeColor} uppercase`}>
-          {badge}
-        </span>
-        
-        <div className={`w-10 h-10 mx-auto mb-2 rounded-lg ${iconColor} flex items-center justify-center text-blue-500`}>
-          <Icon className={textColor} size={20} />
+
+        <motion.div 
+          variants={itemVariants}
+          className="relative overflow-hidden rounded-2xl bg-white/80 backdrop-blur-xl border border-white/60 shadow-2xl shadow-slate-200/50 p-6 md:p-8"
+        >
+          <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-amber-400/5 to-orange-400/5 rounded-full -translate-y-32 translate-x-32" />
+          
+          <div className="relative z-10">
+            <div className="flex items-center gap-3 mb-8">
+              <div className="p-3 rounded-xl bg-gradient-to-br from-amber-500 to-orange-600 shadow-lg shadow-amber-500/30">
+                <Bolt className="w-5 h-5 text-white" />
+              </div>
+              <div>
+                <h3 className="font-bold text-slate-800 text-lg">الوصول السريع</h3>
+                <p className="text-xs text-slate-400">انتقل مباشرة إلى الأقسام الرئيسية</p>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+              {filteredQuickAccess.map((item, index) => (
+                <motion.a
+                  key={item.href}
+                  href={item.href}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.1 * index }}
+                  whileHover={{ y: -5, scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  className="group relative overflow-hidden p-5 rounded-2xl bg-gradient-to-br from-white to-slate-50 border border-slate-100 hover:border-slate-200 shadow-lg hover:shadow-xl transition-all duration-300"
+                >
+                  <div className={`absolute inset-0 ${item.bgGlow} opacity-0 group-hover:opacity-100 transition-opacity duration-300`} />
+                  
+                  <div className="relative z-10 text-center">
+                    <div className={`w-14 h-14 mx-auto mb-4 rounded-2xl bg-gradient-to-br ${item.gradient} flex items-center justify-center shadow-lg group-hover:shadow-xl group-hover:scale-110 transition-all duration-300`}>
+                      <item.icon className="w-6 h-6 text-white" />
+                    </div>
+                    <span className="font-bold text-slate-700 text-sm group-hover:text-slate-900 transition-colors">{item.title}</span>
+                    
+                    <div className="absolute top-3 left-3 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <ArrowUpRight className="w-4 h-4 text-slate-400" />
+                    </div>
+                  </div>
+                </motion.a>
+              ))}
+            </div>
+          </div>
+        </motion.div>
+      </motion.div>
+    </div>
+  );
+}
+
+interface LuxuryStatCardProps {
+  icon: React.ElementType;
+  value: number;
+  label: string;
+  trend: number;
+  gradient: string;
+  glowColor: string;
+  isCurrency?: boolean;
+  subValue?: string;
+}
+
+function LuxuryStatCard({ icon: Icon, value, label, trend, gradient, glowColor, isCurrency, subValue }: LuxuryStatCardProps) {
+  const glowClasses: Record<string, string> = {
+    blue: "shadow-blue-200/50 hover:shadow-blue-300/50",
+    emerald: "shadow-emerald-200/50 hover:shadow-emerald-300/50",
+    teal: "shadow-teal-200/50 hover:shadow-teal-300/50",
+    rose: "shadow-rose-200/50 hover:shadow-rose-300/50",
+    amber: "shadow-amber-200/50 hover:shadow-amber-300/50",
+    violet: "shadow-violet-200/50 hover:shadow-violet-300/50",
+  };
+
+  return (
+    <motion.div
+      whileHover={{ y: -5, scale: 1.02 }}
+      className={`group relative overflow-hidden rounded-2xl bg-gradient-to-br from-white to-slate-50/80 p-6 shadow-2xl ${glowClasses[glowColor]} border border-white/60 backdrop-blur-xl hover:shadow-3xl transition-all duration-500`}
+    >
+      <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-slate-100/50 to-transparent rounded-full -translate-y-12 translate-x-12 group-hover:scale-150 transition-transform duration-500" />
+      
+      <div className="relative z-10">
+        <div className="flex items-center justify-between mb-4">
+          <div className={`p-3 rounded-xl bg-gradient-to-br ${gradient} shadow-lg`}>
+            <Icon className="w-5 h-5 text-white" />
+          </div>
+          <div className={`flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold ${trend >= 0 ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700'}`}>
+            <TrendingUp className={`w-3 h-3 ${trend < 0 ? 'rotate-180' : ''}`} />
+            {Math.abs(trend)}%
+          </div>
         </div>
         
-        <h4 className="text-xl font-black text-gray-800 mb-0.5 tracking-tight">
-          {isCurrency ? `${value.toLocaleString('en-US')}` : value.toLocaleString('en-US')}
-          {isCurrency && <span className="text-[10px] mr-1">ر.س</span>}
-        </h4>
-        <p className="text-gray-400 font-bold text-[10px]">{label}</p>
-        {subValue && <p className="text-[8px] text-gray-300 mt-0.5">{subValue}</p>}
-      </motion.div>
-    );
-  }
-
+        <div className="space-y-1">
+          <h4 className="text-3xl font-bold text-slate-800 tracking-tight">
+            <AnimatedCounter value={value} />
+            {isCurrency && <span className="text-sm text-slate-500 mr-1">ر.س</span>}
+          </h4>
+          <p className="text-slate-500 font-medium text-sm">{label}</p>
+          {subValue && <p className="text-xs text-slate-400">{subValue}</p>}
+        </div>
+        
+        <div className="mt-4 pt-4 border-t border-slate-100">
+          <div className="h-2 w-full bg-slate-100 rounded-full overflow-hidden">
+            <motion.div 
+              initial={{ width: 0 }}
+              animate={{ width: `${Math.min(75 + Math.random() * 20, 95)}%` }}
+              transition={{ duration: 1.5, ease: "easeOut" }}
+              className={`h-full bg-gradient-to-r ${gradient} rounded-full`}
+            />
+          </div>
+        </div>
+      </div>
+    </motion.div>
+  );
+}
