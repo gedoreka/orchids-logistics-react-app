@@ -205,7 +205,7 @@ export function Header({ user, onToggleSidebar }: { user?: { name: string; role:
                       onChange={(e) => setSearchQuery(e.target.value)}
                       onFocus={() => setIsSearchFocused(true)}
                       onBlur={() => setIsSearchFocused(false)}
-                      className="flex-1 bg-transparent text-white/90 text-[12px] font-medium placeholder:text-white/30 outline-none"
+                        className="flex-1 !bg-transparent border-none text-white/90 text-[12px] font-medium placeholder:text-white/30 outline-none"
                     />
                   <div className="hidden lg:flex items-center gap-1 px-2 py-1 bg-white/5 rounded-lg border border-white/10">
                     <Command size={10} className="text-white/30" />

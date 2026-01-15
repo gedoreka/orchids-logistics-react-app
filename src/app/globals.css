@@ -237,16 +237,18 @@
 }
 
 /* Input styles */
-input, textarea, select {
-  background: hsl(var(--background));
-  border-color: hsl(var(--border));
-  color: hsl(var(--foreground));
-}
+@layer base {
+  input, textarea, select {
+    background-color: hsl(var(--background));
+    border-color: hsl(var(--border));
+    color: hsl(var(--foreground));
+  }
 
-.dark input, .dark textarea, .dark select {
-  background: hsl(var(--secondary));
-  border-color: hsl(var(--border));
-  color: hsl(var(--foreground));
+  .dark input, .dark textarea, .dark select {
+    background-color: hsl(var(--secondary));
+    border-color: hsl(var(--border));
+    color: hsl(var(--foreground));
+  }
 }
 
 /* Button styles */
