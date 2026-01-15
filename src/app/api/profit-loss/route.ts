@@ -103,9 +103,8 @@ export async function GET(request: NextRequest) {
     const expensesResult = await query<any>(`
       SELECT 
         me.*,
-        COALESCE(e.name, me.employee_name, 'غير محدد') as employee_display_name
+        COALESCE(me.employee_name, 'غير محدد') as employee_display_name
       FROM monthly_expenses me
-      LEFT JOIN employees e ON me.employee_id = e.id
       WHERE me.company_id = ? AND me.expense_date BETWEEN ? AND ?
       ORDER BY me.expense_date DESC
     `, [companyId, monthStart, monthEnd]);
