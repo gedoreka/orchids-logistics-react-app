@@ -82,7 +82,7 @@ const navItems: NavItem[] = [
   { title: "تقرير العمولات", href: "/commissions-summary", icon: FileSpreadsheet, permission: "commissions_summary_module", iconColor: "text-lime-400" },
   
   { title: "مركز المصروفات", href: "/expenses", icon: BarChart3, permission: "expenses_module", iconColor: "text-red-400" },
-  { title: "إضافة إيراد جديد", href: "/income", icon: DollarSign, permission: "income_module", iconColor: "text-emerald-400" },
+  { title: "إضافة إيراد جديد", href: "/income/new", icon: DollarSign, permission: "income_module", iconColor: "text-emerald-400" },
   { title: "القيود اليومية", href: "/journal-entries", icon: FileEdit, permission: "journal_entries_module", iconColor: "text-violet-400" },
   { title: "سندات القبض", href: "/receipt-vouchers", icon: Receipt, permission: "receipt_vouchers_module", iconColor: "text-green-400" },
   { title: "عرض تقارير الدخل", href: "/income-view", icon: PieChart, permission: "income_report_module", iconColor: "text-sky-400" },
