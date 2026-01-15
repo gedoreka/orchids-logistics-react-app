@@ -31,7 +31,10 @@ import {
   FileCheck,
   Camera,
   Sparkles,
-  PlusCircle
+  PlusCircle,
+  Mail,
+  Lock,
+  UserCircle
 } from "lucide-react";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
@@ -80,6 +83,10 @@ const currencies = [
 ];
 
 interface FormData {
+  admin_name: string;
+  email: string;
+  password: string;
+  confirm_password: string;
   name: string;
   commercial_number: string;
   vat_number: string;
@@ -109,6 +116,10 @@ export default function NewCompanyPage() {
   const [createdCompanyName, setCreatedCompanyName] = useState("");
   
   const [formData, setFormData] = useState<FormData>({
+    admin_name: "",
+    email: "",
+    password: "",
+    confirm_password: "",
     name: "",
     commercial_number: "",
     vat_number: "",
@@ -171,13 +182,40 @@ export default function NewCompanyPage() {
       return;
     }
 
+    if (!formData.admin_name) {
+      toast.error("الرجاء إدخال اسم مدير الحساب");
+      return;
+    }
+
+    if (!formData.email) {
+      toast.error("الرجاء إدخال البريد الإلكتروني");
+      return;
+    }
+
+    if (!formData.password) {
+      toast.error("الرجاء إدخال كلمة المرور");
+      return;
+    }
+
+    if (formData.password !== formData.confirm_password) {
+      toast.error("كلمة المرور غير متطابقة");
+      return;
+    }
+
+    if (formData.password.length < 6) {
+      toast.error("كلمة المرور يجب أن تكون 6 أحرف على الأقل");
+      return;
+    }
+
     setIsLoading(true);
 
     try {
       const submitData = new FormData();
       
       Object.entries(formData).forEach(([key, value]) => {
-        submitData.append(key, value);
+        if (key !== 'confirm_password') {
+          submitData.append(key, value);
+        }
       });
 
       if (files.logo) submitData.append("logo", files.logo);
@@ -185,7 +223,7 @@ export default function NewCompanyPage() {
       if (files.digital_seal) submitData.append("digital_seal", files.digital_seal);
       if (files.license_image) submitData.append("license_image", files.license_image);
 
-      const response = await fetch("/api/admin/companies/create-only", {
+      const response = await fetch("/api/admin/companies/create", {
         method: "POST",
         body: submitData
       });
@@ -264,20 +302,104 @@ export default function NewCompanyPage() {
           </Link>
           <div>
             <h1 className="text-3xl font-black text-slate-800">إضافة منشأة جديدة</h1>
-            <p className="text-slate-500">قم بملء البيانات لتسجيل منشأة جديدة في النظام</p>
+            <p className="text-slate-500">قم بملء البيانات لتسجيل منشأة جديدة مع حساب المدير</p>
           </div>
         </div>
         <div className="flex items-center gap-3 bg-indigo-50 px-6 py-3 rounded-2xl">
           <PlusCircle className="text-indigo-600" size={24} />
-          <span className="text-indigo-700 font-bold">تسجيل يدوي</span>
+          <span className="text-indigo-700 font-bold">تسجيل يدوي بواسطة المدير</span>
         </div>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
+        {/* بيانات حساب المدير */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm"
+        >
+          <div className="flex items-center gap-4 mb-6 pb-4 border-b border-slate-100">
+            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-rose-500/20 to-rose-600/10 flex items-center justify-center">
+              <UserCircle size={24} className="text-rose-600" />
+            </div>
+            <div>
+              <h2 className="text-xl font-black text-slate-800">بيانات حساب مدير المنشأة</h2>
+              <span className="text-sm text-slate-500">معلومات تسجيل الدخول للمستخدم المسؤول</span>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <div>
+              <label className="block text-sm font-bold text-slate-700 mb-2 flex items-center gap-2">
+                <User size={16} className="text-rose-500" />
+                اسم مدير الحساب <span className="text-rose-500">*</span>
+              </label>
+              <input
+                type="text"
+                name="admin_name"
+                value={formData.admin_name}
+                onChange={handleInputChange}
+                required
+                className="w-full px-4 py-3 rounded-xl border-2 border-slate-200 focus:border-rose-500 focus:ring-4 focus:ring-rose-500/10 transition-all text-slate-800"
+                placeholder="أدخل اسم مدير الحساب"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-bold text-slate-700 mb-2 flex items-center gap-2">
+                <Mail size={16} className="text-rose-500" />
+                البريد الإلكتروني <span className="text-rose-500">*</span>
+              </label>
+              <input
+                type="email"
+                name="email"
+                value={formData.email}
+                onChange={handleInputChange}
+                required
+                className="w-full px-4 py-3 rounded-xl border-2 border-slate-200 focus:border-rose-500 focus:ring-4 focus:ring-rose-500/10 transition-all text-slate-800"
+                placeholder="example@company.com"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-bold text-slate-700 mb-2 flex items-center gap-2">
+                <Lock size={16} className="text-rose-500" />
+                كلمة المرور <span className="text-rose-500">*</span>
+              </label>
+              <input
+                type="password"
+                name="password"
+                value={formData.password}
+                onChange={handleInputChange}
+                required
+                className="w-full px-4 py-3 rounded-xl border-2 border-slate-200 focus:border-rose-500 focus:ring-4 focus:ring-rose-500/10 transition-all text-slate-800"
+                placeholder="أدخل كلمة المرور (6 أحرف على الأقل)"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-bold text-slate-700 mb-2 flex items-center gap-2">
+                <Lock size={16} className="text-rose-500" />
+                تأكيد كلمة المرور <span className="text-rose-500">*</span>
+              </label>
+              <input
+                type="password"
+                name="confirm_password"
+                value={formData.confirm_password}
+                onChange={handleInputChange}
+                required
+                className="w-full px-4 py-3 rounded-xl border-2 border-slate-200 focus:border-rose-500 focus:ring-4 focus:ring-rose-500/10 transition-all text-slate-800"
+                placeholder="أعد إدخال كلمة المرور"
+              />
+            </div>
+          </div>
+        </motion.div>
+
         {/* بيانات المنشأة الأساسية */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
           className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm"
         >
           <div className="flex items-center gap-4 mb-6 pb-4 border-b border-slate-100">
@@ -396,7 +518,7 @@ export default function NewCompanyPage() {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
+          transition={{ delay: 0.2 }}
           className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm"
         >
           <div className="flex items-center gap-4 mb-6 pb-4 border-b border-slate-100">
@@ -515,7 +637,7 @@ export default function NewCompanyPage() {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
+          transition={{ delay: 0.3 }}
           className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm"
         >
           <div className="flex items-center gap-4 mb-6 pb-4 border-b border-slate-100">
@@ -595,7 +717,7 @@ export default function NewCompanyPage() {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
+          transition={{ delay: 0.4 }}
           className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm"
         >
           <div className="flex items-center gap-4 mb-6 pb-4 border-b border-slate-100">
@@ -696,7 +818,7 @@ export default function NewCompanyPage() {
             ) : (
               <>
                 <Save className="w-5 h-5" />
-                حفظ المنشأة
+                حفظ المنشأة والحساب
               </>
             )}
           </button>
@@ -706,7 +828,7 @@ export default function NewCompanyPage() {
         <div className="bg-indigo-50 border-r-4 border-indigo-500 rounded-xl p-4">
           <p className="text-slate-700 flex items-center gap-2 text-sm">
             <Sparkles className="text-indigo-500" size={18} />
-            سيتم إنشاء المنشأة مباشرة بحالة نشطة، يمكنك لاحقاً إضافة مستخدمين لها من صفحة تفاصيل المنشأة
+            سيتم إنشاء المنشأة مع حساب مدير بحالة نشطة مباشرة، وسيتمكن المستخدم من تسجيل الدخول فوراً
           </p>
         </div>
       </form>
@@ -732,7 +854,7 @@ export default function NewCompanyPage() {
                   <CheckCircle size={32} className="text-white" />
                 </div>
                 <h3 className="text-xl font-black text-slate-800 mb-2">تم إنشاء المنشأة بنجاح!</h3>
-                <p className="text-slate-500 mb-6">تم تسجيل منشأة "{createdCompanyName}" في النظام</p>
+                <p className="text-slate-500 mb-6">تم تسجيل منشأة "{createdCompanyName}" مع حساب المدير في النظام</p>
 
                 <div className="flex gap-3 justify-center">
                   <button
@@ -746,6 +868,10 @@ export default function NewCompanyPage() {
                     onClick={() => {
                       setShowSuccessModal(false);
                       setFormData({
+                        admin_name: "",
+                        email: "",
+                        password: "",
+                        confirm_password: "",
                         name: "",
                         commercial_number: "",
                         vat_number: "",

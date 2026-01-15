@@ -136,18 +136,7 @@ export function CompaniesClient({ initialCompanies, statusFilter, search }: Comp
                 </div>
               </div>
               
-              <div className="pt-6">
-                <Link href="/admin/companies/new">
-                  <motion.button
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                    className="flex items-center gap-3 bg-gradient-to-r from-indigo-500 to-purple-600 text-white px-8 py-4 rounded-2xl font-black shadow-lg shadow-indigo-500/30 hover:shadow-indigo-500/50 transition-all"
-                  >
-                    <Plus size={22} />
-                    إضافة منشأة جديدة
-                  </motion.button>
-                </Link>
-              </div>
+
             </div>
           </div>
         </div>
