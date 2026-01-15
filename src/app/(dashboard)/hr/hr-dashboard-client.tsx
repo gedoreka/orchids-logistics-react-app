@@ -121,14 +121,14 @@ export function HRDashboardClient({ stats, activePackages, recentEmployees, comp
               color="green"
               href={mostUsedPackageId ? `/hr/packages/${mostUsedPackageId}` : "/hr/packages"}
             />
-            <QuickNavCard 
-              icon={<IdCard size={28} />} 
-              title="الهوية الرقمية" 
-              desc="عرض وإصدار بطاقات تعريف الموظفين" 
-              badge="نظام QR" 
-              color="purple"
-              href="/hr/packages"
-            />
+              <QuickNavCard 
+                icon={<FileText size={28} />} 
+                title="تقرير سريان الهويات" 
+                desc="تقرير شامل لصلاحية الإقامات والهويات" 
+                badge={`${stats.expiredIqama} منتهية`} 
+                color="purple"
+                href="/hr/reports/iqama"
+              />
             <QuickNavCard 
               icon={<Bolt size={28} />} 
               title="إدارة المهام" 
