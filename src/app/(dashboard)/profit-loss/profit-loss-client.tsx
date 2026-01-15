@@ -106,6 +106,11 @@ function ProfitLossContent() {
   const [data, setData] = useState<ProfitLossData | null>(null);
   const [loading, setLoading] = useState(true);
   const [selectedMonth, setSelectedMonth] = useState(new Date().toISOString().slice(0, 7));
+  
+  // Split selectedMonth into year and month for the dropdowns
+  const [inputYear, setInputYear] = useState(new Date().getFullYear().toString());
+  const [inputMonthIndex, setInputMonthIndex] = useState((new Date().getMonth() + 1).toString().padStart(2, '0'));
+  
   const [includeTax, setIncludeTax] = useState(true);
   const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
     invoices: true,
@@ -116,13 +121,15 @@ function ProfitLossContent() {
   });
   const printRef = useRef<HTMLDivElement>(null);
 
-  const fetchData = async () => {
+  const fetchData = async (monthOverride?: string) => {
     setLoading(true);
+    const monthToFetch = monthOverride || `${inputYear}-${inputMonthIndex}`;
     try {
-      const res = await fetch(`/api/profit-loss?month=${selectedMonth}&includeTax=${includeTax}`);
+      const res = await fetch(`/api/profit-loss?month=${monthToFetch}&includeTax=${includeTax}`);
       const result = await res.json();
       if (result.error) throw new Error(result.error);
       setData(result);
+      setSelectedMonth(monthToFetch);
     } catch (error: any) {
       console.error(error);
       toast.error("حدث خطأ في جلب البيانات");
@@ -132,8 +139,8 @@ function ProfitLossContent() {
   };
 
   useEffect(() => {
-    fetchData();
-  }, [selectedMonth, includeTax]);
+    fetchData(selectedMonth);
+  }, [includeTax]);
 
   const toggleSection = (section: string) => {
     setExpandedSections(prev => ({ ...prev, [section]: !prev[section] }));
@@ -148,8 +155,13 @@ function ProfitLossContent() {
   };
 
   const getMonthName = (month: string) => {
-    const date = new Date(month + "-01");
-    return date.toLocaleDateString("ar-SA", { month: "long", year: "numeric" });
+    try {
+      const date = new Date(month + "-01");
+      if (isNaN(date.getTime())) return "التاريخ غير صحيح";
+      return date.toLocaleDateString("ar-SA", { month: "long", year: "numeric" });
+    } catch (e) {
+      return "التاريخ غير صحيح";
+    }
   };
 
   const handlePrint = () => {
@@ -191,8 +203,24 @@ function ProfitLossContent() {
   const { summary, details, counts, companyInfo, userName } = data;
   const isProfit = summary.netProfit >= 0;
 
-  return (
-    <div className="max-w-[1800px] mx-auto p-4 md:p-6 space-y-8 print:p-2 print:space-y-4" dir="rtl" ref={printRef}>
+    const years = Array.from({ length: 11 }, (_, i) => (new Date().getFullYear() - 5 + i).toString());
+    const months = [
+      { value: "01", label: "يناير" },
+      { value: "02", label: "فبراير" },
+      { value: "03", label: "مارس" },
+      { value: "04", label: "أبريل" },
+      { value: "05", label: "مايو" },
+      { value: "06", label: "يونيو" },
+      { value: "07", label: "يوليو" },
+      { value: "08", label: "أغسطس" },
+      { value: "09", label: "سبتمبر" },
+      { value: "10", label: "أكتوبر" },
+      { value: "11", label: "نوفمبر" },
+      { value: "12", label: "ديسمبر" },
+    ];
+
+    return (
+      <div className="max-w-[1800px] mx-auto p-4 md:p-6 space-y-8 print:p-2 print:space-y-4" dir="rtl" ref={printRef}>
       <motion.div
         initial={{ opacity: 0, y: -30 }}
         animate={{ opacity: 1, y: 0 }}
@@ -245,27 +273,49 @@ function ProfitLossContent() {
 
       <div className="bg-white rounded-[30px] shadow-xl border border-slate-100 p-6 md:p-8 print:hidden">
         <div className="flex flex-col md:flex-row items-center justify-between gap-6">
-          <div className="flex flex-wrap items-center gap-4">
-            <div>
-              <label className="block text-sm font-black text-slate-700 mb-2">
-                <Filter className="inline w-4 h-4 ml-1" />
-                عرض تقرير شهر:
-              </label>
-              <input
-                type="month"
-                value={selectedMonth}
-                onChange={(e) => setSelectedMonth(e.target.value)}
-                className="h-12 px-4 bg-white border-2 border-slate-200 rounded-xl text-slate-900 font-bold focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 outline-none transition-all"
-              />
+            <div className="flex flex-wrap items-center gap-4">
+              <div className="flex items-center gap-2">
+                <div className="flex flex-col">
+                  <label className="block text-sm font-black text-slate-700 mb-2">
+                    <Calendar className="inline w-4 h-4 ml-1" />
+                    السنة:
+                  </label>
+                  <select
+                    value={inputYear}
+                    onChange={(e) => setInputYear(e.target.value)}
+                    className="h-12 px-4 bg-white border-2 border-slate-200 rounded-xl text-slate-900 font-bold focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 outline-none transition-all"
+                  >
+                    {years.map(year => (
+                      <option key={year} value={year}>{year}</option>
+                    ))}
+                  </select>
+                </div>
+                <div className="flex flex-col">
+                  <label className="block text-sm font-black text-slate-700 mb-2">
+                    <Clock className="inline w-4 h-4 ml-1" />
+                    الشهر:
+                  </label>
+                  <select
+                    value={inputMonthIndex}
+                    onChange={(e) => setInputMonthIndex(e.target.value)}
+                    className="h-12 px-4 bg-white border-2 border-slate-200 rounded-xl text-slate-900 font-bold focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 outline-none transition-all"
+                  >
+                    {months.map(m => (
+                      <option key={m.value} value={m.value}>{m.label}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+              <div className="flex flex-col justify-end pt-7">
+                <button
+                  onClick={() => fetchData()}
+                  className="h-12 px-6 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl font-bold hover:shadow-lg hover:shadow-blue-500/30 transition-all flex items-center gap-2"
+                >
+                  <RefreshCw size={18} />
+                  عرض
+                </button>
+              </div>
             </div>
-            <button
-              onClick={fetchData}
-              className="h-12 px-6 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl font-bold hover:shadow-lg hover:shadow-blue-500/30 transition-all flex items-center gap-2"
-            >
-              <RefreshCw size={18} />
-              عرض
-            </button>
-          </div>
 
           <div className="flex flex-wrap items-center gap-4">
             <button
