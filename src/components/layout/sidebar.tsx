@@ -136,7 +136,7 @@ export function Sidebar({ userRole, permissions = {} }: SidebarProps) {
   };
 
   return (
-    <div className="w-64 h-screen overflow-hidden bg-[#0f172a] flex flex-col z-50 transition-all duration-300 shadow-2xl border-l border-white/5 relative">
+    <div className="w-64 h-full overflow-hidden bg-[#0f172a] flex flex-col transition-all duration-300 shadow-2xl border-l border-white/5 relative">
       {/* Glossy Background Effect */}
       <div className="absolute inset-0 bg-gradient-to-b from-blue-500/5 to-transparent pointer-events-none" />
       
