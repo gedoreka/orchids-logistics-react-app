@@ -48,15 +48,33 @@ export function Header({ user, onToggleSidebar, unreadChatCount = 0 }: { user?: 
   const [searchQuery, setSearchQuery] = useState("");
   const [showUserDropdown, setShowUserDropdown] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
+  const [adminNotifications, setAdminNotifications] = useState<any[]>([]);
+  const [unreadAdminCount, setUnreadAdminCount] = useState(0);
   const pathname = usePathname();
   const router = useRouter();
   const userDropdownRef = useRef<HTMLDivElement>(null);
   const notificationRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    setMounted(true);
-    const timer = setInterval(() => setCurrentTime(new Date()), 1000);
-    return () => clearInterval(timer);
+    const fetchAdminNotifications = async () => {
+      try {
+        const response = await fetch("/api/admin/notifications?limit=5");
+        const data = await response.json();
+        if (data.success) {
+          setAdminNotifications(data.notifications);
+          
+          const lastSeenId = parseInt(localStorage.getItem("last_admin_notification_id") || "0");
+          const unread = data.notifications.filter((n: any) => n.id > lastSeenId).length;
+          setUnreadAdminCount(unread);
+        }
+      } catch (error) {
+        console.error("Error fetching header notifications:", error);
+      }
+    };
+
+    fetchAdminNotifications();
+    const interval = setInterval(fetchAdminNotifications, 60000); // Check every minute
+    return () => clearInterval(interval);
   }, []);
 
   useEffect(() => {
@@ -238,70 +256,84 @@ export function Header({ user, onToggleSidebar, unreadChatCount = 0 }: { user?: 
                     <ThemeToggle />
                     <LanguageSwitcher />
 
-                <div ref={notificationRef} className="relative">
-                  <motion.button
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    onClick={() => setShowNotifications(!showNotifications)}
-                    className="relative p-2.5 bg-white/5 hover:bg-white/10 rounded-xl transition-all border border-white/10"
-                  >
-                    <Bell size={18} className="text-white/60" />
-                    <motion.span 
-                      animate={{ scale: [1, 1.2, 1] }}
-                      transition={{ duration: 2, repeat: Infinity }}
-                      className="absolute top-1.5 right-1.5 w-2 h-2 bg-gradient-to-r from-rose-500 to-red-500 rounded-full shadow-lg shadow-rose-500/50"
-                    />
-                  </motion.button>
+                  <div ref={notificationRef} className="relative">
+                    <motion.button
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      onClick={() => setShowNotifications(!showNotifications)}
+                      className="relative p-2.5 bg-white/5 hover:bg-white/10 rounded-xl transition-all border border-white/10"
+                    >
+                      <Bell size={18} className="text-white/60" />
+                      {unreadAdminCount > 0 && (
+                        <motion.span 
+                          animate={{ scale: [1, 1.2, 1] }}
+                          transition={{ duration: 2, repeat: Infinity }}
+                          className="absolute top-1.5 right-1.5 w-2 h-2 bg-gradient-to-r from-rose-500 to-red-500 rounded-full shadow-lg shadow-rose-500/50"
+                        />
+                      )}
+                    </motion.button>
 
-                  <AnimatePresence>
-                    {showNotifications && (
-                      <motion.div
-                        initial={{ opacity: 0, y: 10, scale: 0.95 }}
-                        animate={{ opacity: 1, y: 0, scale: 1 }}
-                        exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                        className="absolute top-full left-0 mt-2 w-80 bg-slate-900/95 backdrop-blur-xl rounded-2xl border border-white/10 shadow-2xl shadow-black/50 overflow-hidden"
-                      >
-                        <div className="p-4 border-b border-white/10">
-                            <h3 className="font-bold text-white text-sm">{t('notifications')}</h3>
-                            <p className="text-[10px] text-white/40">{isRTL ? 'لديك 3 إشعارات جديدة' : 'You have 3 new notifications'}</p>
-                          </div>
-                        <div className="max-h-64 overflow-y-auto">
-                          {notifications.map((notif) => (
-                            <motion.div
-                              key={notif.id}
-                              whileHover={{ backgroundColor: "rgba(255,255,255,0.05)" }}
-                              className="p-4 border-b border-white/5 cursor-pointer"
-                            >
-                              <div className="flex items-start gap-3">
-                                <div className={cn(
-                                  "p-2 rounded-lg",
-                                  notif.type === "info" && "bg-blue-500/20",
-                                  notif.type === "success" && "bg-emerald-500/20",
-                                  notif.type === "warning" && "bg-amber-500/20"
-                                )}>
-                                  <Bell size={14} className={cn(
-                                    notif.type === "info" && "text-blue-400",
-                                    notif.type === "success" && "text-emerald-400",
-                                    notif.type === "warning" && "text-amber-400"
-                                  )} />
+                    <AnimatePresence>
+                      {showNotifications && (
+                        <motion.div
+                          initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                          animate={{ opacity: 1, y: 0, scale: 1 }}
+                          exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                          className="absolute top-full left-0 mt-2 w-80 bg-slate-900/95 backdrop-blur-xl rounded-2xl border border-white/10 shadow-2xl shadow-black/50 overflow-hidden"
+                        >
+                          <div className="p-4 border-b border-white/10">
+                              <h3 className="font-bold text-white text-sm">{isRTL ? 'تنبيهات النظام' : 'System Alerts'}</h3>
+                              <p className="text-[10px] text-white/40">{isRTL ? `لديك ${unreadAdminCount} تنبيهات جديدة` : `You have ${unreadAdminCount} new alerts`}</p>
+                            </div>
+                          <div className="max-h-64 overflow-y-auto">
+                            {adminNotifications.length > 0 ? adminNotifications.map((notif) => (
+                              <motion.div
+                                key={notif.id}
+                                whileHover={{ backgroundColor: "rgba(255,255,255,0.05)" }}
+                                className="p-4 border-b border-white/5 cursor-pointer"
+                                onClick={() => {
+                                  // Mark as seen by setting last seen ID to this one or higher
+                                  const currentLastSeen = parseInt(localStorage.getItem("last_admin_notification_id") || "0");
+                                  if (notif.id > currentLastSeen) {
+                                    localStorage.setItem("last_admin_notification_id", notif.id.toString());
+                                    setUnreadAdminCount(prev => Math.max(0, prev - 1));
+                                  }
+                                  setShowNotifications(false);
+                                }}
+                              >
+                                <div className="flex items-start gap-3">
+                                  <div className="p-2 rounded-lg bg-blue-500/20">
+                                    <Bell size={14} className="text-blue-400" />
+                                  </div>
+                                  <div className="flex-1">
+                                    <p className="text-[12px] font-bold text-white/90">{notif.title}</p>
+                                    <p className="text-[10px] text-white/40">{new Date(notif.created_at).toLocaleDateString('ar-SA')}</p>
+                                  </div>
                                 </div>
-                                <div className="flex-1">
-                                  <p className="text-[12px] font-bold text-white/90">{notif.title}</p>
-                                  <p className="text-[10px] text-white/40">{notif.time}</p>
-                                </div>
+                              </motion.div>
+                            )) : (
+                              <div className="p-10 text-center opacity-20">
+                                <Bell size={40} className="mx-auto mb-2" />
+                                <p className="text-xs font-bold">{isRTL ? 'لا توجد تنبيهات' : 'No alerts'}</p>
                               </div>
-                            </motion.div>
-                          ))}
-                        </div>
-                          <div className="p-3 border-t border-white/10">
-                            <button className="w-full text-center text-[11px] font-bold text-blue-400 hover:text-blue-300 transition-colors">
-                              {t('viewAll')}
-                            </button>
+                            )}
                           </div>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                </div>
+                            <div className="p-3 border-t border-white/10">
+                              <button 
+                                onClick={() => {
+                                  if (user?.role === 'admin') router.push('/admin/notifications');
+                                  setShowNotifications(false);
+                                }}
+                                className="w-full text-center text-[11px] font-bold text-blue-400 hover:text-blue-300 transition-colors"
+                              >
+                                {isRTL ? 'عرض جميع التنبيهات' : 'View All Alerts'}
+                              </button>
+                            </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
+
 
                 <motion.button
                   whileHover={{ scale: 1.02 }}
