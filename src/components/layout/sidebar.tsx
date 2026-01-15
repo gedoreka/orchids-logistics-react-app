@@ -82,7 +82,7 @@ const navItems: NavItem[] = [
   
   { title: "مركز المصروفات", href: "/expenses", icon: BarChart3, permission: "expenses_module", iconColor: "text-red-400" },
   { title: "القيود اليومية", href: "/journal-entries", icon: FileEdit, permission: "journal_entries_module", iconColor: "text-violet-400" },
-  { title: "عرض تقارير الدخل", href: "/income-view", icon: PieChart, permission: "income_report_module", iconColor: "text-sky-400" },
+  { title: "ملخص الربح والخسارة", href: "/profit-loss", icon: PieChart, permission: "income_report_module", iconColor: "text-sky-400" },
   
   { title: "الخطابات الجاهزة", href: "/letters-templates", icon: Mail, permission: "letters_templates_module", iconColor: "text-blue-400" },
   
