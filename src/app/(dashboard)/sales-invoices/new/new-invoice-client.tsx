@@ -371,12 +371,12 @@ export function NewInvoiceClient({ customers, invoiceNumber, companyId, userName
         )}
       </AnimatePresence>
 
-      <motion.div 
-        variants={containerVariants}
-        initial="hidden"
-        animate="visible"
-        className="max-w-[1800px] mx-auto px-4 pt-6 space-y-6"
-      >
+        <motion.div 
+          variants={containerVariants}
+          initial="hidden"
+          animate="visible"
+          className="max-w-[1200px] mx-auto px-4 pt-6 space-y-6"
+        >
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
           <motion.div 
             variants={itemVariants}
@@ -636,116 +636,114 @@ export function NewInvoiceClient({ customers, invoiceNumber, companyId, userName
                 </div>
               </div>
               <motion.button
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                type="button"
-                onClick={addItem}
-                className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/20 text-white hover:bg-white/30 transition-all font-bold text-xs border border-white/20"
-              >
-                <Plus size={16} />
-                إضافة خدمة
-              </motion.button>
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  type="button"
+                  onClick={addItem}
+                  className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-blue-500 to-indigo-500 text-white hover:from-blue-600 hover:to-indigo-600 transition-all font-bold text-xs shadow-lg shadow-blue-500/30"
+                >
+                  <Plus size={16} />
+                  إضافة خدمة جديدة
+                </motion.button>
             </div>
           </div>
 
           <div className="overflow-x-auto">
             <table className="w-full">
-              <thead>
-                <tr className="bg-gray-50 border-b border-gray-100">
-                  <th className="px-4 py-4 text-[10px] font-black text-gray-500 uppercase tracking-wider text-right w-12">#</th>
-                  <th className="px-4 py-4 text-[10px] font-black text-gray-500 uppercase tracking-wider text-right min-w-[200px]">اسم الخدمة</th>
-                  <th className="px-4 py-4 text-[10px] font-black text-gray-500 uppercase tracking-wider text-center w-20">الكمية</th>
-                  <th className="px-4 py-4 text-[10px] font-black text-gray-500 uppercase tracking-wider text-center w-28">سعر الوحدة</th>
-                  <th className="px-4 py-4 text-[10px] font-black text-gray-500 uppercase tracking-wider text-center w-32">الإجمالي (شامل)</th>
-                  <th className="px-4 py-4 text-[10px] font-black text-gray-500 uppercase tracking-wider text-center w-32">من تاريخ</th>
-                  <th className="px-4 py-4 text-[10px] font-black text-gray-500 uppercase tracking-wider text-center w-32">إلى تاريخ</th>
-                  <th className="px-4 py-4 text-[10px] font-black text-gray-500 uppercase tracking-wider text-center w-24">الضريبة</th>
-                  <th className="px-4 py-4 text-[10px] font-black text-gray-500 uppercase tracking-wider text-center w-16">حذف</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-50">
-                {items.map((item, index) => (
-                  <motion.tr 
-                    key={item.id}
-                    initial={{ opacity: 0, x: -10 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.03 * index }}
-                    className="hover:bg-emerald-50/30 transition-colors group"
-                  >
-                    <td className="px-4 py-3">
-                      <span className="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-gray-100 text-xs font-black text-gray-500 group-hover:bg-emerald-100 group-hover:text-emerald-600 transition-colors">
-                        {index + 1}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3">
-                      <input
-                        type="text"
-                        value={item.product_name}
-                        onChange={(e) => handleItemChange(index, 'product_name', e.target.value)}
-                        placeholder="اسم الخدمة أو المنتج..."
-                        className="w-full px-4 py-2.5 rounded-xl bg-gray-50 border-2 border-transparent text-sm font-bold focus:border-emerald-500/30 focus:bg-white outline-none transition-all"
-                      />
-                    </td>
-                    <td className="px-4 py-3">
-                      <input
-                        type="number"
-                        value={item.quantity || ''}
-                        onChange={(e) => handleItemChange(index, 'quantity', parseFloat(e.target.value) || 0)}
-                        className="w-full px-3 py-2.5 rounded-xl bg-gray-50 border-2 border-transparent text-sm font-black text-center focus:border-emerald-500/30 focus:bg-white outline-none transition-all"
-                      />
-                    </td>
-                    <td className="px-4 py-3">
-                      <input
-                        type="number"
-                        value={item.unit_price ? Number(item.unit_price.toFixed(2)) : ''}
-                        onChange={(e) => handleItemChange(index, 'unit_price', parseFloat(e.target.value) || 0)}
-                        className="w-full px-3 py-2.5 rounded-xl bg-blue-50 border-2 border-blue-100 text-sm font-black text-center text-blue-700 focus:border-blue-300 focus:bg-white outline-none transition-all"
-                      />
-                    </td>
-                    <td className="px-4 py-3">
-                      <input
-                        type="number"
-                        value={item.total_with_vat || ''}
-                        onChange={(e) => handleItemChange(index, 'total_with_vat', parseFloat(e.target.value) || 0)}
-                        className="w-full px-3 py-2.5 rounded-xl bg-emerald-50 border-2 border-emerald-100 text-sm font-black text-center text-emerald-700 focus:border-emerald-300 focus:bg-white outline-none transition-all"
-                      />
-                    </td>
-                    <td className="px-4 py-3">
-                      <input
-                        type="date"
-                        value={item.period_from}
-                        onChange={(e) => handleItemChange(index, 'period_from', e.target.value)}
-                        className="w-full px-3 py-2.5 rounded-xl bg-gray-50 border-2 border-transparent text-xs font-bold focus:border-emerald-500/30 focus:bg-white outline-none transition-all"
-                      />
-                    </td>
-                    <td className="px-4 py-3">
-                      <input
-                        type="date"
-                        value={item.period_to}
-                        onChange={(e) => handleItemChange(index, 'period_to', e.target.value)}
-                        className="w-full px-3 py-2.5 rounded-xl bg-gray-50 border-2 border-transparent text-xs font-bold focus:border-emerald-500/30 focus:bg-white outline-none transition-all"
-                      />
-                    </td>
-                    <td className="px-4 py-3">
-                      <div className="px-3 py-2 rounded-xl bg-amber-50 border border-amber-200 text-center">
-                        <span className="text-xs font-black text-amber-700">{item.vat_amount.toFixed(2)}</span>
-                      </div>
-                    </td>
-                    <td className="px-4 py-3">
-                      <motion.button
-                        whileHover={{ scale: 1.1 }}
-                        whileTap={{ scale: 0.9 }}
-                        type="button"
-                        onClick={() => removeItem(index)}
-                        disabled={items.length === 1}
-                        className="w-9 h-9 flex items-center justify-center rounded-xl text-gray-300 hover:text-red-500 hover:bg-red-50 transition-all disabled:opacity-0"
-                      >
-                        <Trash2 size={16} />
-                      </motion.button>
-                    </td>
-                  </motion.tr>
-                ))}
-              </tbody>
+                <thead>
+                  <tr className="bg-gray-50 border-b border-gray-100">
+                    <th className="px-3 py-4 text-[10px] font-black text-gray-500 uppercase tracking-wider text-right w-10">#</th>
+                    <th className="px-3 py-4 text-[10px] font-black text-gray-500 uppercase tracking-wider text-right min-w-[180px]">اسم الخدمة</th>
+                    <th className="px-3 py-4 text-[10px] font-black text-gray-500 uppercase tracking-wider text-center w-24">الكمية</th>
+                    <th className="px-3 py-4 text-[10px] font-black text-gray-500 uppercase tracking-wider text-center w-36">سعر الوحدة</th>
+                    <th className="px-3 py-4 text-[10px] font-black text-gray-500 uppercase tracking-wider text-center w-40">الإجمالي (شامل)</th>
+                    <th className="px-3 py-4 text-[10px] font-black text-gray-500 uppercase tracking-wider text-center w-28">من تاريخ</th>
+                    <th className="px-3 py-4 text-[10px] font-black text-gray-500 uppercase tracking-wider text-center w-28">إلى تاريخ</th>
+                    <th className="px-3 py-4 text-[10px] font-black text-gray-500 uppercase tracking-wider text-center w-28">الضريبة</th>
+                    <th className="px-3 py-4 text-[10px] font-black text-gray-500 uppercase tracking-wider text-center w-14">حذف</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-50">
+                  {items.map((item, index) => (
+                    <motion.tr 
+                      key={item.id}
+                      initial={{ opacity: 0, x: -10 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: 0.03 * index }}
+                      className="hover:bg-emerald-50/30 transition-colors group"
+                    >
+                      <td className="px-3 py-3">
+                        <span className="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-gray-100 text-xs font-black text-gray-500 group-hover:bg-emerald-100 group-hover:text-emerald-600 transition-colors">
+                          {index + 1}
+                        </span>
+                      </td>
+                      <td className="px-3 py-3">
+                        <input
+                          type="text"
+                          value={item.product_name}
+                          onChange={(e) => handleItemChange(index, 'product_name', e.target.value)}
+                          placeholder="اسم الخدمة أو المنتج..."
+                          className="w-full px-3 py-2.5 rounded-xl bg-gray-50 border-2 border-transparent text-sm font-bold focus:border-emerald-500/30 focus:bg-white outline-none transition-all"
+                        />
+                      </td>
+                      <td className="px-3 py-3">
+                        <input
+                          type="number"
+                          value={item.quantity || ''}
+                          onChange={(e) => handleItemChange(index, 'quantity', parseFloat(e.target.value) || 0)}
+                          className="w-full min-w-[70px] px-3 py-2.5 rounded-xl bg-gray-50 border-2 border-transparent text-sm font-black text-center focus:border-emerald-500/30 focus:bg-white outline-none transition-all"
+                        />
+                      </td>
+                      <td className="px-3 py-3">
+                        <div className="w-full min-w-[100px] px-3 py-2.5 rounded-xl bg-blue-50 border-2 border-blue-100 text-center">
+                          <span className="text-sm font-black text-blue-700">
+                            {item.unit_price ? Number(item.unit_price.toFixed(2)).toLocaleString('en-US', { minimumFractionDigits: 2 }) : '0.00'}
+                          </span>
+                        </div>
+                      </td>
+                      <td className="px-3 py-3">
+                        <input
+                          type="number"
+                          value={item.total_with_vat || ''}
+                          onChange={(e) => handleItemChange(index, 'total_with_vat', parseFloat(e.target.value) || 0)}
+                          className="w-full min-w-[110px] px-3 py-2.5 rounded-xl bg-emerald-50 border-2 border-emerald-100 text-sm font-black text-center text-emerald-700 focus:border-emerald-300 focus:bg-white outline-none transition-all"
+                        />
+                      </td>
+                      <td className="px-3 py-3">
+                        <input
+                          type="date"
+                          value={item.period_from}
+                          onChange={(e) => handleItemChange(index, 'period_from', e.target.value)}
+                          className="w-full px-2 py-2.5 rounded-xl bg-gray-50 border-2 border-transparent text-xs font-bold focus:border-emerald-500/30 focus:bg-white outline-none transition-all"
+                        />
+                      </td>
+                      <td className="px-3 py-3">
+                        <input
+                          type="date"
+                          value={item.period_to}
+                          onChange={(e) => handleItemChange(index, 'period_to', e.target.value)}
+                          className="w-full px-2 py-2.5 rounded-xl bg-gray-50 border-2 border-transparent text-xs font-bold focus:border-emerald-500/30 focus:bg-white outline-none transition-all"
+                        />
+                      </td>
+                      <td className="px-3 py-3">
+                        <div className="min-w-[80px] px-3 py-2.5 rounded-xl bg-amber-50 border border-amber-200 text-center">
+                          <span className="text-xs font-black text-amber-700">{item.vat_amount.toFixed(2)}</span>
+                        </div>
+                      </td>
+                      <td className="px-3 py-3">
+                        <motion.button
+                          whileHover={{ scale: 1.1 }}
+                          whileTap={{ scale: 0.9 }}
+                          type="button"
+                          onClick={() => removeItem(index)}
+                          className="w-9 h-9 flex items-center justify-center rounded-xl bg-red-50 text-red-400 hover:text-red-600 hover:bg-red-100 transition-all"
+                        >
+                          <Trash2 size={16} />
+                        </motion.button>
+                      </td>
+                    </motion.tr>
+                  ))}
+                </tbody>
             </table>
           </div>
 
@@ -755,10 +753,10 @@ export function NewInvoiceClient({ customers, invoiceNumber, companyId, userName
               <button
                 type="button"
                 onClick={addItem}
-                className="text-emerald-600 hover:text-emerald-700 font-black flex items-center gap-1"
+                className="text-blue-600 hover:text-blue-700 font-black flex items-center gap-1"
               >
                 <Plus size={14} />
-                إضافة عنصر آخر
+                إضافة خدمة جديدة
               </button>
             </div>
           </div>
