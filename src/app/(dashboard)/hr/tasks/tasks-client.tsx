@@ -229,15 +229,16 @@ export function TasksClient({
           </motion.div>
         ))}
 
-        {tasks.length === 0 && (
-          <div className="col-span-full py-20 flex flex-col items-center gap-4 opacity-30">
-            <ListTodo size={80} />
-            <span className="text-2xl font-black text-center">لا توجد مهام حالياً</span>
+          {tasks.length === 0 && (
+            <div className="col-span-full py-20 flex flex-col items-center gap-4 opacity-30">
+              <ListTodo size={80} />
+              <span className="text-2xl font-black text-center">لا توجد مهام حالياً</span>
+            </div>
+          )}
           </div>
-        )}
-      </div>
+        </div>
 
-      {/* Add Task Modal */}
+        {/* Add Task Modal */}
       <AnimatePresence>
         {isModalOpen && (
           <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
