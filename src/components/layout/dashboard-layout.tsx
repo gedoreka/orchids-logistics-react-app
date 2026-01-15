@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Header } from "./header";
 import { Footer } from "./footer";
 import { X } from "lucide-react";
+import { useLocale } from "@/lib/locale-context";
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -19,10 +20,11 @@ interface DashboardLayoutProps {
 
 export function DashboardLayout({ children, user, permissions }: DashboardLayoutProps) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const { isRTL } = useLocale();
 
   return (
-    <div className="h-screen bg-gradient-to-br from-slate-100 via-slate-50 to-white overflow-hidden" dir="rtl">
-      <aside className="hidden lg:flex fixed top-0 right-0 h-screen w-64 z-50">
+    <div className="h-screen bg-gradient-to-br from-slate-100 via-slate-50 to-white overflow-hidden" dir={isRTL ? "rtl" : "ltr"}>
+      <aside className={`hidden lg:flex fixed top-0 ${isRTL ? 'right-0' : 'left-0'} h-screen w-64 z-50`}>
         <Sidebar userRole={user?.role} permissions={permissions} />
       </aside>
 
@@ -37,15 +39,15 @@ export function DashboardLayout({ children, user, permissions }: DashboardLayout
               className="absolute inset-0 bg-black/70 backdrop-blur-md"
             />
             <motion.div 
-              initial={{ x: "100%" }}
+              initial={{ x: isRTL ? "100%" : "-100%" }}
               animate={{ x: 0 }}
-              exit={{ x: "100%" }}
+              exit={{ x: isRTL ? "100%" : "-100%" }}
               transition={{ type: "spring", damping: 25, stiffness: 200 }}
-              className="absolute top-0 right-0 bottom-0 w-64 overflow-hidden flex flex-col"
+              className={`absolute top-0 ${isRTL ? 'right-0' : 'left-0'} bottom-0 w-64 overflow-hidden flex flex-col`}
             >
               <div className="absolute inset-0 bg-gradient-to-b from-slate-950 via-slate-900 to-black" />
               <div className="relative z-10 flex items-center justify-between p-4 border-b border-white/10">
-                <span className="text-white font-black text-sm">القائمة الرئيسية</span>
+                <span className="text-white font-black text-sm">{isRTL ? 'القائمة الرئيسية' : 'Main Menu'}</span>
                 <motion.button 
                   whileHover={{ scale: 1.1 }}
                   whileTap={{ scale: 0.9 }}
@@ -63,7 +65,7 @@ export function DashboardLayout({ children, user, permissions }: DashboardLayout
         )}
       </AnimatePresence>
       
-      <div className="lg:mr-64 flex flex-col h-screen overflow-hidden">
+      <div className={`${isRTL ? 'lg:mr-64' : 'lg:ml-64'} flex flex-col h-screen overflow-hidden`}>
         <div className="flex-shrink-0">
           <Header user={user} onToggleSidebar={() => setIsSidebarOpen(true)} />
         </div>
