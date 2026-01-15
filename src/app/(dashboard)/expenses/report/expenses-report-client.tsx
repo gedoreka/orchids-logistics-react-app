@@ -224,6 +224,7 @@ export function ExpensesReportClient({ companyId }: ExpensesReportClientProps) {
   const [editForm, setEditForm] = useState<any>({});
   const [accounts, setAccounts] = useState<AccountOption[]>([]);
   const [costCenters, setCostCenters] = useState<CostCenterOption[]>([]);
+  const [statusUpdating, setStatusUpdating] = useState<number | null>(null);
 
   const monthOptions = generateMonthOptions();
 
@@ -416,6 +417,46 @@ export function ExpensesReportClient({ companyId }: ExpensesReportClientProps) {
 
   const calculateNetAmount = (amount: number, taxValue: number) => {
     return amount - taxValue;
+  };
+
+  const handleToggleDeductionStatus = async (deduction: DeductionItem) => {
+    setStatusUpdating(deduction.id);
+    try {
+      const newStatus = deduction.status === 'completed' ? 'pending' : 'completed';
+      
+      const formData = new FormData();
+      formData.append('id', deduction.id.toString());
+      formData.append('type', 'deduction');
+      formData.append('expense_date', deduction.expense_date?.split('T')[0] || '');
+      formData.append('month_reference', deduction.month_reference || selectedMonth);
+      formData.append('employee_name', deduction.employee_name || '');
+      formData.append('employee_iqama', deduction.employee_iqama || '');
+      formData.append('amount', (deduction.amount || 0).toString());
+      formData.append('account_id', (deduction.account_id || '').toString());
+      formData.append('cost_center_id', (deduction.cost_center_id || '').toString());
+      formData.append('expense_type', deduction.deduction_type || '');
+      formData.append('description', deduction.description || '');
+      formData.append('attachment', deduction.attachment || '');
+      formData.append('status', newStatus);
+
+      const res = await fetch('/api/expenses/report', {
+        method: 'PUT',
+        body: formData
+      });
+      const data = await res.json();
+      
+      if (data.success) {
+        showNotification('success', newStatus === 'completed' ? 'تم تحديث الحالة إلى: مدفوع' : 'تم تحديث الحالة إلى: غير مدفوع');
+        fetchReportData();
+      } else {
+        showNotification('error', data.message || 'حدث خطأ أثناء تغيير الحالة');
+      }
+    } catch (error) {
+      console.error('Status update error:', error);
+      showNotification('error', 'حدث خطأ أثناء تغيير الحالة');
+    } finally {
+      setStatusUpdating(null);
+    }
   };
 
   if (loading) {
@@ -988,8 +1029,8 @@ export function ExpensesReportClient({ companyId }: ExpensesReportClientProps) {
                                       <th className="p-2 text-center text-slate-600 font-bold text-xs">رقم الإقامة</th>
                                       <th className="p-2 text-center text-slate-600 font-bold text-xs">المبلغ</th>
                                       <th className="p-2 text-center text-slate-600 font-bold text-xs">الحساب</th>
-                                      <th className="p-2 text-center text-slate-600 font-bold text-xs">م.التكلفة</th>
-                                        <th className="p-2 text-center text-slate-600 font-bold text-xs">الحالة</th>
+                                        <th className="p-2 text-center text-slate-600 font-bold text-xs">م.التكلفة</th>
+                                        <th className="p-2 text-center text-slate-600 font-bold text-xs">حالة الدفع</th>
                                         <th className="p-2 text-center text-slate-600 font-bold text-xs print:hidden">الإجراءات</th>
                                       </tr>
                                     </thead>
@@ -1007,15 +1048,32 @@ export function ExpensesReportClient({ companyId }: ExpensesReportClientProps) {
                                           <td className="p-2 text-center text-xs">{deduction.account_code || "-"}</td>
                                           <td className="p-2 text-center text-xs">{deduction.center_code || "-"}</td>
                                           <td className="p-2 text-center">
-                                            <Badge
-                                              className={`text-xs ${
+                                            <button
+                                              onClick={() => handleToggleDeductionStatus(deduction)}
+                                              disabled={statusUpdating === deduction.id}
+                                              className={`relative inline-flex h-7 w-14 items-center rounded-full transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 ${
                                                 deduction.status === "completed"
-                                                  ? "bg-emerald-100 text-emerald-700"
-                                                  : "bg-amber-100 text-amber-700"
-                                              }`}
+                                                  ? "bg-emerald-500 focus:ring-emerald-500"
+                                                  : "bg-rose-500 focus:ring-rose-500"
+                                              } ${statusUpdating === deduction.id ? 'opacity-50 cursor-wait' : 'cursor-pointer hover:shadow-lg'}`}
+                                              title={deduction.status === "completed" ? "مدفوع - انقر للتغيير" : "غير مدفوع - انقر للتغيير"}
                                             >
+                                              <span
+                                                className={`inline-block h-5 w-5 transform rounded-full bg-white shadow-md transition-transform duration-300 ${
+                                                  deduction.status === "completed" ? "translate-x-1" : "translate-x-8"
+                                                }`}
+                                              />
+                                              {statusUpdating === deduction.id && (
+                                                <span className="absolute inset-0 flex items-center justify-center">
+                                                  <Loader2 className="w-4 h-4 text-white animate-spin" />
+                                                </span>
+                                              )}
+                                            </button>
+                                            <p className={`text-[9px] mt-0.5 font-bold ${
+                                              deduction.status === "completed" ? "text-emerald-600" : "text-rose-600"
+                                            }`}>
                                               {deduction.status === "completed" ? "مدفوع" : "غير مدفوع"}
-                                            </Badge>
+                                            </p>
                                           </td>
                                           <td className="p-2 text-center print:hidden">
                                             <div className="flex items-center justify-center gap-1">
