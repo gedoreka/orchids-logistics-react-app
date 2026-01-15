@@ -165,9 +165,9 @@ export function EmployeeDetailsClient({
 
   if (!mounted) {
     return (
-      <div className="flex h-[calc(100vh-100px)] max-w-[98%] mx-auto animate-pulse gap-5">
-        <div className="w-80 bg-white/5 rounded-3xl shrink-0 backdrop-blur-xl" />
-        <div className="flex-1 bg-white/5 rounded-3xl backdrop-blur-xl" />
+      <div className="flex h-[calc(100vh-100px)] max-w-[94%] mx-auto animate-pulse gap-5">
+        <div className="w-80 bg-muted/50 rounded-3xl shrink-0 backdrop-blur-xl" />
+        <div className="flex-1 bg-muted/50 rounded-3xl backdrop-blur-xl" />
       </div>
     );
   }
@@ -277,58 +277,58 @@ export function EmployeeDetailsClient({
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
-      className="flex h-[calc(100vh-100px)] max-w-[98%] mx-auto gap-5 overflow-hidden"
-    >
-      <div className="w-[320px] shrink-0 flex flex-col gap-4">
-        <motion.div 
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 0.1 }}
-          className="relative overflow-hidden rounded-3xl"
-        >
-          <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900" />
-          <div className="absolute top-0 right-0 w-40 h-40 bg-gradient-to-br from-blue-500/20 to-purple-500/20 rounded-full -mr-20 -mt-20 blur-3xl" />
-          <div className="absolute bottom-0 left-0 w-32 h-32 bg-gradient-to-tr from-emerald-500/10 to-cyan-500/10 rounded-full -ml-16 -mb-16 blur-2xl" />
-          
-          <div className="relative z-10 p-6">
-            <div className="flex flex-col items-center text-center mb-5">
-              <motion.div 
-                whileHover={{ scale: 1.05 }}
-                className="relative mb-4"
-              >
-                <div className="h-24 w-24 rounded-2xl border-2 border-white/20 overflow-hidden bg-gradient-to-br from-slate-700 to-slate-800 shadow-2xl">
-                  {getPublicUrl(employee.personal_photo) ? (
-                    <img src={getPublicUrl(employee.personal_photo)!} alt={employee.name} className="h-full w-full object-cover" />
-                  ) : (
-                    <div className="h-full w-full flex items-center justify-center text-white/30"><User size={36} /></div>
-                  )}
+        className="flex h-[calc(100vh-100px)] max-w-[94%] mx-auto gap-5 overflow-hidden"
+      >
+        <div className="w-[320px] shrink-0 flex flex-col gap-4">
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 0.1 }}
+            className="relative overflow-hidden rounded-3xl"
+          >
+            <div className="absolute inset-0 bg-gradient-to-br from-blue-600 to-indigo-700 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900" />
+            <div className="absolute top-0 right-0 w-40 h-40 bg-white/10 rounded-full -mr-20 -mt-20 blur-3xl" />
+            
+            <div className="relative z-10 p-6">
+              <div className="flex flex-col items-center text-center mb-5">
+                <motion.div 
+                  whileHover={{ scale: 1.05 }}
+                  className="relative mb-4"
+                >
+                  <div className="h-32 w-32 rounded-3xl border-4 border-white/20 overflow-hidden bg-white/10 shadow-2xl backdrop-blur-md">
+                    {getPublicUrl(employee.personal_photo) ? (
+                      <img src={getPublicUrl(employee.personal_photo)!} alt={employee.name} className="h-full w-full object-cover" />
+                    ) : (
+                      <div className="h-full w-full flex items-center justify-center text-white/50"><User size={48} /></div>
+                    )}
+                  </div>
+                  <div className={`absolute bottom-1 right-1 h-6 w-6 rounded-full border-4 border-indigo-700 dark:border-slate-900 ${employee.is_active === 1 ? 'bg-emerald-400' : 'bg-orange-400'} shadow-lg animate-pulse`} />
+                </motion.div>
+                
+                <h1 className="text-xl font-black text-white mb-1 leading-tight">{employee.name}</h1>
+                <div className="flex items-center gap-2">
+                  <span className="text-xs font-bold text-white/60 bg-white/10 px-3 py-1 rounded-full">#{employee.user_code || '---'}</span>
+                  <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full bg-white/20 text-white`}>
+                    {employee.is_active === 1 ? 'نشط' : 'إجازة'}
+                  </span>
                 </div>
-                <div className={`absolute -bottom-1 -right-1 h-5 w-5 rounded-full border-2 border-slate-900 ${employee.is_active === 1 ? 'bg-emerald-500' : 'bg-orange-500'} animate-pulse`} />
-              </motion.div>
-              
-              <h1 className="text-lg font-black text-white mb-1 leading-tight">{employee.name}</h1>
-              <div className="flex items-center gap-2">
-                <span className="text-xs font-bold text-slate-400 bg-white/5 px-3 py-1 rounded-full">#{employee.user_code || '---'}</span>
-                <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${employee.is_active === 1 ? 'bg-emerald-500/20 text-emerald-400' : 'bg-orange-500/20 text-orange-400'}`}>
-                  {employee.is_active === 1 ? 'نشط' : 'إجازة'}
-                </span>
               </div>
-            </div>
 
-            <div className="space-y-2 text-xs">
-              <div className="flex items-center justify-between bg-white/5 backdrop-blur-sm rounded-xl px-4 py-3 border border-white/5 hover:border-white/10 transition-all">
-                <span className="text-slate-400 flex items-center gap-2"><Briefcase size={14} className="text-blue-400" /> الباقة</span>
-                <span className="text-white font-bold truncate max-w-[140px]">{employee.group_name}</span>
+              <div className="space-y-2 text-xs">
+                <div className="flex items-center justify-between bg-white/10 backdrop-blur-sm rounded-xl px-4 py-3 border border-white/10 hover:border-white/20 transition-all">
+                  <span className="text-white/60 flex items-center gap-2"><Briefcase size={14} className="text-white/80" /> الباقة</span>
+                  <span className="text-white font-bold truncate max-w-[140px]">{employee.group_name}</span>
+                </div>
+                <div className="flex items-center justify-between bg-white/10 backdrop-blur-sm rounded-xl px-4 py-3 border border-white/10 hover:border-white/20 transition-all">
+                  <span className="text-white/60 flex items-center gap-2"><IdCard size={14} className="text-white/80" /> الإقامة</span>
+                  <span className="text-white font-bold font-mono">{employee.iqama_number || '---'}</span>
+                </div>
+                <div className="flex items-center justify-between bg-white/10 backdrop-blur-sm rounded-xl px-4 py-3 border border-white/10 hover:border-white/20 transition-all">
+                  <span className="text-white/60 flex items-center gap-2"><Globe size={14} className="text-white/80" /> الجنسية</span>
+                  <span className="text-white font-bold">{employee.nationality || '---'}</span>
+                </div>
               </div>
-              <div className="flex items-center justify-between bg-white/5 backdrop-blur-sm rounded-xl px-4 py-3 border border-white/5 hover:border-white/10 transition-all">
-                <span className="text-slate-400 flex items-center gap-2"><IdCard size={14} className="text-purple-400" /> الإقامة</span>
-                <span className="text-white font-bold font-mono">{employee.iqama_number || '---'}</span>
-              </div>
-              <div className="flex items-center justify-between bg-white/5 backdrop-blur-sm rounded-xl px-4 py-3 border border-white/5 hover:border-white/10 transition-all">
-                <span className="text-slate-400 flex items-center gap-2"><Globe size={14} className="text-emerald-400" /> الجنسية</span>
-                <span className="text-white font-bold">{employee.nationality || '---'}</span>
-              </div>
-            </div>
+
 
             <div className="flex gap-2 mt-5">
               <Link href={`/hr/packages/${employee.package_id}`} className="flex-1">
@@ -358,46 +358,47 @@ export function EmployeeDetailsClient({
           </div>
         </motion.div>
 
-<motion.div 
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.3 }}
-          className="bg-white/5 backdrop-blur-xl rounded-2xl p-4 border border-white/10 flex-1 overflow-auto"
-        >
-          <p className="text-xs font-black text-white/60 mb-3 flex items-center gap-2">
-            <Sparkles size={14} className="text-yellow-400" />
-            الأقسام والتبويبات
-          </p>
-          <div className="space-y-1.5">
-            {Object.entries(tabConfig).map(([id, config]: [string, any], index) => (
-              <motion.button
-                key={id}
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.1 * index }}
-                whileHover={{ scale: 1.02, x: 3 }}
-                whileTap={{ scale: 0.98 }}
-                onClick={() => setActiveTab(id)}
-                className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-xl transition-all text-right ${
-                  activeTab === id 
-                    ? `bg-gradient-to-r ${config.bg} text-white shadow-lg ${config.glow}` 
-                    : 'bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white border border-white/5 hover:border-white/10'
-                }`}
-              >
-                <div className={`p-2 rounded-lg ${activeTab === id ? 'bg-white/20' : config.light}`}>
-                  <config.icon size={16} className={activeTab === id ? 'text-white' : config.text} />
-                </div>
-                <span className="text-sm font-bold flex-1">{config.label}</span>
-                {activeTab === id && (
-                  <motion.div 
-                    layoutId="activeIndicator"
-                    className="h-2 w-2 rounded-full bg-yellow-400 shadow-lg shadow-yellow-400/50"
-                  />
-                )}
-              </motion.button>
-            ))}
-          </div>
-        </motion.div>
+          <motion.div 
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.3 }}
+            className="bg-white/70 dark:bg-white/5 backdrop-blur-xl rounded-2xl p-4 border border-slate-200 dark:border-white/10 flex-1 overflow-auto shadow-xl shadow-slate-200/50 dark:shadow-none"
+          >
+            <p className="text-xs font-black text-slate-500 dark:text-white/60 mb-3 flex items-center gap-2">
+              <Sparkles size={14} className="text-blue-500 dark:text-yellow-400" />
+              الأقسام والتبويبات
+            </p>
+            <div className="space-y-2">
+              {Object.entries(tabConfig).map(([id, config]: [string, any], index) => (
+                <motion.button
+                  key={id}
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.1 * index }}
+                  whileHover={{ scale: 1.02, x: 3 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={() => setActiveTab(id)}
+                  className={`w-full flex items-center gap-4 px-5 py-4 rounded-xl transition-all text-right ${
+                    activeTab === id 
+                      ? `bg-gradient-to-r ${config.bg} text-white shadow-lg ${config.glow}` 
+                      : 'bg-slate-100/50 dark:bg-white/5 hover:bg-slate-200/50 dark:hover:bg-white/10 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white border border-slate-200/50 dark:border-white/5 hover:border-slate-300 dark:hover:border-white/10'
+                  }`}
+                >
+                  <div className={`p-2.5 rounded-xl ${activeTab === id ? 'bg-white/20' : config.light}`}>
+                    <config.icon size={18} className={activeTab === id ? 'text-white' : config.text} />
+                  </div>
+                  <span className="text-sm font-black flex-1">{config.label}</span>
+                  {activeTab === id && (
+                    <motion.div 
+                      layoutId="activeIndicator"
+                      className="h-2.5 w-2.5 rounded-full bg-white shadow-lg shadow-white/50"
+                    />
+                  )}
+                </motion.button>
+              ))}
+            </div>
+          </motion.div>
+
 
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
@@ -431,34 +432,35 @@ export function EmployeeDetailsClient({
         </motion.div>
       </div>
 
-      <motion.div 
-        initial={{ opacity: 0, scale: 0.98 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ delay: 0.2 }}
-        className="flex-1 bg-white/5 backdrop-blur-xl rounded-3xl border border-white/10 overflow-hidden flex flex-col min-w-0"
-      >
-        <div className={`bg-gradient-to-r ${activeConfig.bg} px-6 py-4 flex items-center justify-between shrink-0`}>
-          <div className="flex items-center gap-4 text-white">
-            <div className="bg-white/20 p-3 rounded-xl backdrop-blur-sm">
-              <activeConfig.icon size={22} />
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.98 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 0.2 }}
+          className="flex-1 bg-white/70 dark:bg-white/5 backdrop-blur-xl rounded-3xl border border-slate-200 dark:border-white/10 overflow-hidden flex flex-col min-w-0 shadow-2xl shadow-slate-200/50 dark:shadow-none"
+        >
+          <div className={`bg-gradient-to-r ${activeConfig.bg} px-6 py-6 flex items-center justify-between shrink-0`}>
+            <div className="flex items-center gap-4 text-white">
+              <div className="bg-white/20 p-3 rounded-xl backdrop-blur-sm shadow-inner">
+                <activeConfig.icon size={24} />
+              </div>
+              <div>
+                <h3 className="text-xl font-black tracking-tight">{activeConfig.label}</h3>
+                <p className="text-xs font-bold opacity-80">عرض وتعديل كافة التفاصيل والمستندات</p>
+              </div>
             </div>
-            <div>
-              <h3 className="text-lg font-black">{activeConfig.label}</h3>
-              <p className="text-xs font-bold opacity-70">عرض وتعديل التفاصيل</p>
-            </div>
-          </div>
-          <div className="flex gap-2">
-            {(activeTab === "general" || activeTab === "bank") && (
-              <motion.button 
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={() => setIsEditing(!isEditing)}
-                className="bg-white/90 hover:bg-white text-gray-900 px-5 py-2.5 rounded-xl text-xs font-black flex items-center gap-2 transition-all shadow-lg"
-              >
-                <Edit3 size={14} />
-                {isEditing ? 'إلغاء التعديل' : 'تعديل البيانات'}
-              </motion.button>
-            )}
+            <div className="flex gap-2">
+              {(activeTab === "general" || activeTab === "bank") && (
+                <motion.button 
+                  whileHover={{ scale: 1.05, y: -2 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => setIsEditing(!isEditing)}
+                  className="bg-white/95 hover:bg-white text-slate-900 px-6 py-3 rounded-xl text-xs font-black flex items-center gap-2 transition-all shadow-xl shadow-black/10"
+                >
+                  <Edit3 size={15} />
+                  {isEditing ? 'إلغاء التعديل' : 'تعديل البيانات'}
+                </motion.button>
+              )}
+
             {activeTab === "violations" && (
               <motion.button 
                 whileHover={{ scale: 1.05 }}
@@ -914,21 +916,21 @@ function GlassField({ label, value, onChange, editable, type = "text", icon }: a
   return (
     <motion.div 
       whileHover={{ scale: 1.01 }}
-      className="bg-white/5 backdrop-blur-xl p-4 rounded-xl border border-white/10 hover:border-white/20 transition-all group"
+      className="bg-white/60 dark:bg-white/5 backdrop-blur-xl p-4 rounded-xl border border-slate-200 dark:border-white/10 hover:border-blue-500/30 transition-all group shadow-sm hover:shadow-md"
     >
       <div className="flex items-center gap-2 mb-2">
-        <div className="text-white/40 group-hover:text-blue-400 transition-colors">{icon}</div>
-        <label className="text-[10px] font-black text-white/40 uppercase tracking-wide">{label}</label>
+        <div className="text-slate-400 dark:text-white/40 group-hover:text-blue-500 transition-colors">{icon}</div>
+        <label className="text-[10px] font-black text-slate-500 dark:text-white/40 uppercase tracking-wide">{label}</label>
       </div>
       {editable ? (
         <input 
           type={type} 
           value={value} 
           onChange={(e) => onChange(e.target.value)} 
-          className="w-full bg-white/10 border border-white/10 rounded-lg py-2.5 px-3 text-sm font-bold text-white focus:border-blue-400 focus:ring-2 focus:ring-blue-400/20 outline-none transition-all" 
+          className="w-full bg-slate-100/50 dark:bg-white/10 border border-slate-200 dark:border-white/10 rounded-lg py-2.5 px-3 text-sm font-bold text-slate-900 dark:text-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition-all" 
         />
       ) : (
-        <div className="text-sm font-bold text-white min-h-[38px] flex items-center">{value || '---'}</div>
+        <div className="text-sm font-bold text-slate-900 dark:text-white min-h-[38px] flex items-center">{value || '---'}</div>
       )}
     </motion.div>
   );
@@ -941,7 +943,7 @@ function GlassDocCard({ label, path }: any) {
       whileHover={{ scale: 1.02 }}
       className="group"
     >
-      <div onClick={() => imageUrl && window.open(imageUrl, '_blank')} className="relative overflow-hidden rounded-2xl border border-white/10 bg-white/5 backdrop-blur-xl aspect-video cursor-pointer hover:border-indigo-500/30 transition-all">
+      <div onClick={() => imageUrl && window.open(imageUrl, '_blank')} className="relative overflow-hidden rounded-2xl border border-slate-200 dark:border-white/10 bg-white/60 dark:bg-white/5 backdrop-blur-xl aspect-video cursor-pointer hover:border-indigo-500/30 transition-all shadow-sm hover:shadow-lg">
         {imageUrl ? (
           <>
             <img src={imageUrl} alt={label} className="h-full w-full object-cover group-hover:scale-110 transition-transform duration-500" />
@@ -950,29 +952,29 @@ function GlassDocCard({ label, path }: any) {
             </div>
           </>
         ) : (
-          <div className="h-full w-full flex flex-col items-center justify-center text-white/30">
+          <div className="h-full w-full flex flex-col items-center justify-center text-slate-400 dark:text-white/30">
             <FileText size={28} className="opacity-30" />
             <span className="text-[11px] font-bold mt-2">لم يُرفع بعد</span>
           </div>
         )}
       </div>
-      <p className="text-xs font-black text-white/70 mt-2 text-center">{label}</p>
+      <p className="text-xs font-black text-slate-600 dark:text-white/70 mt-2 text-center">{label}</p>
     </motion.div>
   );
 }
 
 function GlassStatBox({ label, value, color, unit = "" }: any) {
   const colors: any = {
-    blue: "from-blue-600/20 to-indigo-600/20 border-blue-500/20 text-blue-400",
-    green: "from-emerald-600/20 to-teal-600/20 border-emerald-500/20 text-emerald-400",
-    red: "from-red-600/20 to-rose-600/20 border-red-500/20 text-red-400",
-    purple: "from-purple-600/20 to-violet-600/20 border-purple-500/20 text-purple-400",
-    orange: "from-orange-600/20 to-amber-600/20 border-orange-500/20 text-orange-400"
+    blue: "from-blue-600/10 to-indigo-600/10 border-blue-500/20 text-blue-600 dark:text-blue-400",
+    green: "from-emerald-600/10 to-teal-600/10 border-emerald-500/20 text-emerald-600 dark:text-emerald-400",
+    red: "from-red-600/10 to-rose-600/10 border-red-500/20 text-red-600 dark:text-red-400",
+    purple: "from-purple-600/10 to-violet-600/10 border-purple-500/20 text-purple-600 dark:text-purple-400",
+    orange: "from-orange-600/10 to-amber-600/10 border-orange-500/20 text-orange-600 dark:text-orange-400"
   };
   return (
     <motion.div 
       whileHover={{ scale: 1.02 }}
-      className={`p-5 rounded-2xl border bg-gradient-to-br backdrop-blur-xl text-center ${colors[color]}`}
+      className={`p-5 rounded-2xl border bg-gradient-to-br backdrop-blur-xl text-center shadow-sm ${colors[color]}`}
     >
       <p className="text-[10px] font-black uppercase tracking-wide opacity-70 mb-2">{label}</p>
       <div className="text-2xl font-black">{value.toLocaleString()}{unit && <span className="text-sm mr-1 font-bold opacity-70">{unit}</span>}</div>
