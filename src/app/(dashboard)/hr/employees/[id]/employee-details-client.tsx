@@ -358,59 +358,7 @@ export function EmployeeDetailsClient({
           </div>
         </motion.div>
 
-        <motion.div 
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.2 }}
-          className="bg-white/5 backdrop-blur-xl rounded-2xl p-4 border border-white/10"
-        >
-          <div className="flex items-center justify-between mb-3">
-            <span className="text-xs font-black text-white/60 flex items-center gap-2">
-              <Users size={14} className="text-blue-400" />
-              التنقل السريع
-            </span>
-            <button onClick={() => setIsPopupOpen(true)} className="text-xs font-bold text-blue-400 hover:text-blue-300 transition-colors bg-blue-500/10 px-3 py-1.5 rounded-lg hover:bg-blue-500/20">
-              عرض الكل ({allEmployees.length})
-            </button>
-          </div>
-          <div className="flex gap-3">
-            {prevEmployee ? (
-              <Link href={`/hr/employees/${prevEmployee.id}`} className="flex-1">
-                <motion.div 
-                  whileHover={{ scale: 1.02, x: 3 }}
-                  className="bg-white/5 hover:bg-white/10 p-4 rounded-xl transition-all border border-white/5 hover:border-white/10 group"
-                >
-                  <div className="flex items-center gap-2">
-                    <ChevronRight size={16} className="text-blue-400 group-hover:translate-x-1 transition-transform" />
-                    <div className="min-w-0 flex-1">
-                      <p className="text-[10px] text-slate-500 font-bold mb-0.5">السابق</p>
-                      <p className="text-xs font-black text-white truncate">{prevEmployee.name}</p>
-                    </div>
-                  </div>
-                </motion.div>
-              </Link>
-            ) : <div className="flex-1 bg-white/5 rounded-xl p-4 opacity-30 border border-white/5"><p className="text-xs text-slate-500">لا يوجد</p></div>}
-            
-            {nextEmployee ? (
-              <Link href={`/hr/employees/${nextEmployee.id}`} className="flex-1">
-                <motion.div 
-                  whileHover={{ scale: 1.02, x: -3 }}
-                  className="bg-white/5 hover:bg-white/10 p-4 rounded-xl transition-all border border-white/5 hover:border-white/10 group"
-                >
-                  <div className="flex items-center justify-end gap-2">
-                    <div className="min-w-0 flex-1 text-left">
-                      <p className="text-[10px] text-slate-500 font-bold mb-0.5">التالي</p>
-                      <p className="text-xs font-black text-white truncate">{nextEmployee.name}</p>
-                    </div>
-                    <ChevronLeft size={16} className="text-blue-400 group-hover:-translate-x-1 transition-transform" />
-                  </div>
-                </motion.div>
-              </Link>
-            ) : <div className="flex-1 bg-white/5 rounded-xl p-4 opacity-30 border border-white/5 text-left"><p className="text-xs text-slate-500">لا يوجد</p></div>}
-          </div>
-        </motion.div>
-
-        <motion.div 
+<motion.div 
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: 0.3 }}
