@@ -1,39 +1,50 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Inter, Cairo } from "next/font/google";
 import "./globals.css";
-import { VisualEditsMessenger } from "orchids-visual-edits";
 import { Toaster } from "@/components/ui/sonner";
+import { NextIntlClientProvider } from 'next-intl';
+import { getLocale, getMessages } from 'next-intl/server';
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const inter = Inter({
   subsets: ["latin"],
+  variable: "--font-inter",
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
+const cairo = Cairo({
+  subsets: ["arabic", "latin"],
+  variable: "--font-cairo",
 });
 
 export const metadata: Metadata = {
-  title: "تسجيل الدخول - Logistics Systems Pro",
+  title: "Logistics Systems Pro",
   description: "نظام إدارة الخدمات اللوجستية المتكامل",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const locale = await getLocale();
+  const messages = await getMessages();
+  const isRTL = locale === 'ar';
+
   return (
-    <html lang="ar" dir="rtl" style={{ fontFeatureSettings: '"tnum" on, "lnum" on' }}>
-        <body
-          className={`antialiased font-sans`}
-          style={{ fontFeatureSettings: '"tnum" on, "lnum" on' }}
-        >
+    <html 
+      lang={locale} 
+      dir={isRTL ? "rtl" : "ltr"} 
+      style={{ fontFeatureSettings: '"tnum" on, "lnum" on' }}
+      className={`${inter.variable} ${cairo.variable}`}
+    >
+      <body
+        className={`antialiased ${isRTL ? 'font-cairo' : 'font-inter'}`}
+        style={{ fontFeatureSettings: '"tnum" on, "lnum" on' }}
+      >
+        <NextIntlClientProvider messages={messages}>
           {children}
-          <Toaster position="top-center" richColors />
-          {/* <VisualEditsMessenger /> */}
-        </body>
+        </NextIntlClientProvider>
+        <Toaster position="top-center" richColors />
+      </body>
     </html>
   );
 }

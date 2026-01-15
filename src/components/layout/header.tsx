@@ -4,10 +4,10 @@ import React, { useState, useEffect, useRef } from "react";
 import { 
   Menu,
   ArrowRight, 
+  ArrowLeft,
   Home, 
   Calendar, 
   MapPin, 
-  Globe, 
   Truck, 
   MessageSquare, 
   UserCircle,
@@ -17,7 +17,6 @@ import {
   QrCode,
   Check,
   Info,
-  Sparkles,
   Bell,
   Search,
   ChevronDown,
@@ -30,11 +29,18 @@ import {
 import { motion, AnimatePresence } from "framer-motion";
 import { usePathname, useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
+import { useTranslations, useLocale } from 'next-intl';
+import { LanguageSwitcher } from "./language-switcher";
 
 export function Header({ user, onToggleSidebar }: { user?: { name: string; role: string; email: string }, onToggleSidebar?: () => void }) {
+  const t = useTranslations('header');
+  const tCommon = useTranslations('common');
+  const locale = useLocale();
+  const isRTL = locale === 'ar';
+  
   const [mounted, setMounted] = useState(false);
   const [currentTime, setCurrentTime] = useState(new Date());
-  const [location, setLocation] = useState("الرياض، السعودية");
+  const [location, setLocation] = useState(isRTL ? "الرياض، السعودية" : "Riyadh, Saudi Arabia");
   const [isDriverModalOpen, setIsDriverModalOpen] = useState(false);
   const [showQR, setShowQR] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -89,14 +95,25 @@ export function Header({ user, onToggleSidebar }: { user?: { name: string; role:
   }, []);
 
   const formatDate = (date: Date) => {
-    const weekdays = ['الأحد', 'الإثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'];
-    const months = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
-    const weekday = weekdays[date.getDay()];
-    const day = date.getDate();
-    const month = months[date.getMonth()];
-    const hours = date.getHours().toString().padStart(2, '0');
-    const minutes = date.getMinutes().toString().padStart(2, '0');
-    return `${weekday}، ${day} ${month} - ${hours}:${minutes}`;
+    if (isRTL) {
+      const weekdays = ['الأحد', 'الإثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'];
+      const months = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+      const weekday = weekdays[date.getDay()];
+      const day = date.getDate();
+      const month = months[date.getMonth()];
+      const hours = date.getHours().toString().padStart(2, '0');
+      const minutes = date.getMinutes().toString().padStart(2, '0');
+      return `${weekday}، ${day} ${month} - ${hours}:${minutes}`;
+    } else {
+      const weekdays = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+      const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+      const weekday = weekdays[date.getDay()];
+      const day = date.getDate();
+      const month = months[date.getMonth()];
+      const hours = date.getHours().toString().padStart(2, '0');
+      const minutes = date.getMinutes().toString().padStart(2, '0');
+      return `${weekday}, ${month} ${day} - ${hours}:${minutes}`;
+    }
   };
 
   const copyDriverLink = () => {
@@ -111,10 +128,12 @@ export function Header({ user, onToggleSidebar }: { user?: { name: string; role:
   };
 
   const notifications = [
-    { id: 1, title: "طلب شحن جديد", time: "منذ 5 دقائق", type: "info" },
-    { id: 2, title: "تم تسليم الشحنة #1234", time: "منذ ساعة", type: "success" },
-    { id: 3, title: "تنبيه: إقامة منتهية", time: "منذ ساعتين", type: "warning" },
+    { id: 1, title: isRTL ? "طلب شحن جديد" : "New shipping request", time: isRTL ? "منذ 5 دقائق" : "5 minutes ago", type: "info" },
+    { id: 2, title: isRTL ? "تم تسليم الشحنة #1234" : "Shipment #1234 delivered", time: isRTL ? "منذ ساعة" : "1 hour ago", type: "success" },
+    { id: 3, title: isRTL ? "تنبيه: إقامة منتهية" : "Alert: Expired Iqama", time: isRTL ? "منذ ساعتين" : "2 hours ago", type: "warning" },
   ];
+
+  const BackIcon = isRTL ? ArrowRight : ArrowLeft;
 
   return (
     <>
@@ -137,29 +156,29 @@ export function Header({ user, onToggleSidebar }: { user?: { name: string; role:
                   <Menu size={20} />
                 </motion.button>
 
-                {pathname !== "/dashboard" && (
-                  <div className="hidden sm:flex items-center gap-2">
-                    <motion.button 
-                      whileHover={{ scale: 1.02, x: 3 }}
-                      whileTap={{ scale: 0.98 }}
-                      onClick={() => router.back()}
-                      className="flex items-center gap-2 px-4 py-2 bg-white/5 hover:bg-white/10 rounded-xl transition-all border border-white/10 group"
-                    >
-                      <ArrowRight size={16} className="text-white/60 group-hover:translate-x-1 transition-transform" />
-                      <span className="text-[11px] font-bold text-white/60">رجوع</span>
-                    </motion.button>
-                    
-                    <motion.button 
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
-                      onClick={() => router.push("/dashboard")}
-                      className="flex items-center gap-2 px-4 py-2 bg-white/5 hover:bg-white/10 rounded-xl transition-all border border-white/10 group"
-                    >
-                      <Home size={16} className="text-white/60 group-hover:scale-110 transition-transform" />
-                      <span className="text-[11px] font-bold text-white/60">الرئيسية</span>
-                    </motion.button>
-                  </div>
-                )}
+                  {pathname !== "/dashboard" && (
+                    <div className="hidden sm:flex items-center gap-2">
+                      <motion.button 
+                        whileHover={{ scale: 1.02, x: isRTL ? 3 : -3 }}
+                        whileTap={{ scale: 0.98 }}
+                        onClick={() => router.back()}
+                        className="flex items-center gap-2 px-4 py-2 bg-white/5 hover:bg-white/10 rounded-xl transition-all border border-white/10 group"
+                      >
+                        <BackIcon size={16} className={cn("text-white/60 transition-transform", isRTL ? "group-hover:translate-x-1" : "group-hover:-translate-x-1")} />
+                        <span className="text-[11px] font-bold text-white/60">{tCommon('back')}</span>
+                      </motion.button>
+                      
+                      <motion.button 
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                        onClick={() => router.push("/dashboard")}
+                        className="flex items-center gap-2 px-4 py-2 bg-white/5 hover:bg-white/10 rounded-xl transition-all border border-white/10 group"
+                      >
+                        <Home size={16} className="text-white/60 group-hover:scale-110 transition-transform" />
+                        <span className="text-[11px] font-bold text-white/60">{isRTL ? 'الرئيسية' : 'Home'}</span>
+                      </motion.button>
+                    </div>
+                  )}
               </div>
 
               <div className="flex-1 max-w-xl hidden md:block">
@@ -179,15 +198,15 @@ export function Header({ user, onToggleSidebar }: { user?: { name: string; role:
                     "transition-colors",
                     isSearchFocused ? "text-blue-400" : "text-white/30"
                   )} />
-                  <input
-                    type="text"
-                    placeholder="ابحث في النظام..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    onFocus={() => setIsSearchFocused(true)}
-                    onBlur={() => setIsSearchFocused(false)}
-                    className="flex-1 bg-transparent text-white/90 text-[12px] font-medium placeholder:text-white/30 outline-none"
-                  />
+                    <input
+                      type="text"
+                      placeholder={t('searchPlaceholder')}
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      onFocus={() => setIsSearchFocused(true)}
+                      onBlur={() => setIsSearchFocused(false)}
+                      className="flex-1 bg-transparent text-white/90 text-[12px] font-medium placeholder:text-white/30 outline-none"
+                    />
                   <div className="hidden lg:flex items-center gap-1 px-2 py-1 bg-white/5 rounded-lg border border-white/10">
                     <Command size={10} className="text-white/30" />
                     <span className="text-[9px] font-bold text-white/30">K</span>
@@ -216,15 +235,7 @@ export function Header({ user, onToggleSidebar }: { user?: { name: string; role:
               </div>
 
               <div className="flex items-center gap-2">
-                <div className="hidden sm:flex items-center bg-white/5 p-1 rounded-xl border border-white/10">
-                  <button className="flex items-center gap-1.5 px-3 py-1.5 text-[10px] font-bold bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg shadow-lg shadow-blue-500/20">
-                    <Globe size={12} />
-                    <span>العربية</span>
-                  </button>
-                  <button className="flex items-center gap-1.5 px-3 py-1.5 text-[10px] font-bold text-white/40 hover:text-white/70 transition-colors">
-                    <span>EN</span>
-                  </button>
-                </div>
+                  <LanguageSwitcher />
 
                 <div ref={notificationRef} className="relative">
                   <motion.button
@@ -250,9 +261,9 @@ export function Header({ user, onToggleSidebar }: { user?: { name: string; role:
                         className="absolute top-full left-0 mt-2 w-80 bg-slate-900/95 backdrop-blur-xl rounded-2xl border border-white/10 shadow-2xl shadow-black/50 overflow-hidden"
                       >
                         <div className="p-4 border-b border-white/10">
-                          <h3 className="font-bold text-white text-sm">الإشعارات</h3>
-                          <p className="text-[10px] text-white/40">لديك 3 إشعارات جديدة</p>
-                        </div>
+                            <h3 className="font-bold text-white text-sm">{t('notifications')}</h3>
+                            <p className="text-[10px] text-white/40">{isRTL ? 'لديك 3 إشعارات جديدة' : 'You have 3 new notifications'}</p>
+                          </div>
                         <div className="max-h-64 overflow-y-auto">
                           {notifications.map((notif) => (
                             <motion.div
@@ -281,11 +292,11 @@ export function Header({ user, onToggleSidebar }: { user?: { name: string; role:
                             </motion.div>
                           ))}
                         </div>
-                        <div className="p-3 border-t border-white/10">
-                          <button className="w-full text-center text-[11px] font-bold text-blue-400 hover:text-blue-300 transition-colors">
-                            عرض جميع الإشعارات
-                          </button>
-                        </div>
+                          <div className="p-3 border-t border-white/10">
+                            <button className="w-full text-center text-[11px] font-bold text-blue-400 hover:text-blue-300 transition-colors">
+                              {t('viewAll')}
+                            </button>
+                          </div>
                       </motion.div>
                     )}
                   </AnimatePresence>
@@ -298,7 +309,7 @@ export function Header({ user, onToggleSidebar }: { user?: { name: string; role:
                   className="hidden sm:flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 rounded-xl transition-all shadow-lg shadow-amber-500/20 border border-amber-400/20"
                 >
                   <Truck size={16} className="text-white" />
-                  <span className="text-[11px] font-bold text-white">تطبيق السائق</span>
+                  <span className="text-[11px] font-bold text-white">{t('driverApp')}</span>
                 </motion.button>
 
                 <motion.button
@@ -308,7 +319,7 @@ export function Header({ user, onToggleSidebar }: { user?: { name: string; role:
                   className="hidden sm:flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 rounded-xl transition-all shadow-lg shadow-blue-500/20 border border-blue-400/20"
                 >
                   <Info size={16} className="text-white" />
-                  <span className="text-[11px] font-bold text-white">بياناتي</span>
+                  <span className="text-[11px] font-bold text-white">{t('myData')}</span>
                 </motion.button>
 
                 <motion.button
@@ -318,7 +329,7 @@ export function Header({ user, onToggleSidebar }: { user?: { name: string; role:
                   className="hidden sm:flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 rounded-xl transition-all shadow-lg shadow-emerald-500/20 border border-emerald-400/20"
                 >
                   <MessageSquare size={16} className="text-white" />
-                  <span className="text-[11px] font-bold text-white">الدعم</span>
+                  <span className="text-[11px] font-bold text-white">{t('support')}</span>
                 </motion.button>
 
                 <div ref={userDropdownRef} className="relative">
@@ -334,10 +345,10 @@ export function Header({ user, onToggleSidebar }: { user?: { name: string; role:
                       </div>
                       <span className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 bg-emerald-500 rounded-full border-2 border-slate-950" />
                     </div>
-                    <div className="hidden md:block text-right">
-                      <p className="text-[11px] font-bold text-white/90">{user?.name || "المستخدم"}</p>
-                      <p className="text-[9px] text-white/40">{user?.role === "admin" ? "مدير النظام" : "مدير منشأة"}</p>
-                    </div>
+                      <div className="hidden md:block text-right">
+                        <p className="text-[11px] font-bold text-white/90">{user?.name || (isRTL ? "المستخدم" : "User")}</p>
+                        <p className="text-[9px] text-white/40">{user?.role === "admin" ? (isRTL ? "مدير النظام" : "System Admin") : (isRTL ? "مدير منشأة" : "Manager")}</p>
+                      </div>
                     <ChevronDown size={14} className={cn(
                       "text-white/40 transition-transform",
                       showUserDropdown && "rotate-180"
@@ -363,41 +374,41 @@ export function Header({ user, onToggleSidebar }: { user?: { name: string; role:
                             </div>
                           </div>
                         </div>
-                        <div className="p-2">
-                          <motion.button
-                            whileHover={{ backgroundColor: "rgba(255,255,255,0.05)" }}
-                            onClick={() => { router.push("/user_profile"); setShowUserDropdown(false); }}
-                            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-white/70 hover:text-white transition-colors"
-                          >
-                            <UserCircle size={16} />
-                            <span className="text-[12px] font-bold">الملف الشخصي</span>
-                          </motion.button>
-                          <motion.button
-                            whileHover={{ backgroundColor: "rgba(255,255,255,0.05)" }}
-                            onClick={() => { router.push("/settings"); setShowUserDropdown(false); }}
-                            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-white/70 hover:text-white transition-colors"
-                          >
-                            <Settings size={16} />
-                            <span className="text-[12px] font-bold">الإعدادات</span>
-                          </motion.button>
-                          <motion.button
-                            whileHover={{ backgroundColor: "rgba(255,255,255,0.05)" }}
-                            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-white/70 hover:text-white transition-colors"
-                          >
-                            <Moon size={16} />
-                            <span className="text-[12px] font-bold">الوضع الليلي</span>
-                          </motion.button>
-                        </div>
-                        <div className="p-2 border-t border-white/10">
-                          <motion.button
-                            whileHover={{ backgroundColor: "rgba(239, 68, 68, 0.1)" }}
-                            onClick={handleLogout}
-                            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-rose-400 hover:text-rose-300 transition-colors"
-                          >
-                            <LogOut size={16} />
-                            <span className="text-[12px] font-bold">تسجيل الخروج</span>
-                          </motion.button>
-                        </div>
+                          <div className="p-2">
+                            <motion.button
+                              whileHover={{ backgroundColor: "rgba(255,255,255,0.05)" }}
+                              onClick={() => { router.push("/user_profile"); setShowUserDropdown(false); }}
+                              className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-white/70 hover:text-white transition-colors"
+                            >
+                              <UserCircle size={16} />
+                              <span className="text-[12px] font-bold">{tCommon('profile')}</span>
+                            </motion.button>
+                            <motion.button
+                              whileHover={{ backgroundColor: "rgba(255,255,255,0.05)" }}
+                              onClick={() => { router.push("/settings"); setShowUserDropdown(false); }}
+                              className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-white/70 hover:text-white transition-colors"
+                            >
+                              <Settings size={16} />
+                              <span className="text-[12px] font-bold">{tCommon('settings')}</span>
+                            </motion.button>
+                            <motion.button
+                              whileHover={{ backgroundColor: "rgba(255,255,255,0.05)" }}
+                              className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-white/70 hover:text-white transition-colors"
+                            >
+                              <Moon size={16} />
+                              <span className="text-[12px] font-bold">{t('darkMode')}</span>
+                            </motion.button>
+                          </div>
+                          <div className="p-2 border-t border-white/10">
+                            <motion.button
+                              whileHover={{ backgroundColor: "rgba(239, 68, 68, 0.1)" }}
+                              onClick={handleLogout}
+                              className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-rose-400 hover:text-rose-300 transition-colors"
+                            >
+                              <LogOut size={16} />
+                              <span className="text-[12px] font-bold">{tCommon('logout')}</span>
+                            </motion.button>
+                          </div>
                       </motion.div>
                     )}
                   </AnimatePresence>
