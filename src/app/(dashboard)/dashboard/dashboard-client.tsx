@@ -140,12 +140,12 @@ export function DashboardClient({
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100/50 p-4 md:p-8">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100/50 p-2 md:p-4">
       <motion.div 
         variants={containerVariants}
         initial="hidden"
         animate="visible"
-        className="max-w-7xl mx-auto space-y-6"
+        className="w-full space-y-4"
       >
         <motion.div 
           variants={itemVariants}

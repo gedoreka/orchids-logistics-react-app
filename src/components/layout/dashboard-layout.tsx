@@ -21,13 +21,11 @@ export function DashboardLayout({ children, user, permissions }: DashboardLayout
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   return (
-    <div className="h-screen bg-[#f8fafc] overflow-hidden" dir="rtl">
-      {/* Sidebar - Desktop - Fixed */}
+    <div className="h-screen bg-gradient-to-br from-slate-100 via-slate-50 to-white overflow-hidden" dir="rtl">
       <aside className="hidden lg:flex fixed top-0 right-0 h-screen w-64 z-50">
         <Sidebar userRole={user?.role} permissions={permissions} />
       </aside>
 
-      {/* Sidebar - Mobile Drawer */}
       <AnimatePresence>
         {isSidebarOpen && (
           <div className="fixed inset-0 z-[100] lg:hidden">
@@ -36,25 +34,28 @@ export function DashboardLayout({ children, user, permissions }: DashboardLayout
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setIsSidebarOpen(false)}
-              className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+              className="absolute inset-0 bg-black/70 backdrop-blur-md"
             />
             <motion.div 
               initial={{ x: "100%" }}
               animate={{ x: 0 }}
               exit={{ x: "100%" }}
               transition={{ type: "spring", damping: 25, stiffness: 200 }}
-              className="absolute top-0 right-0 bottom-0 w-64 bg-[#0f172a] shadow-2xl overflow-hidden flex flex-col"
+              className="absolute top-0 right-0 bottom-0 w-64 overflow-hidden flex flex-col"
             >
-              <div className="flex items-center justify-between p-4 border-b border-white/10">
-                <span className="text-white font-black">القائمة الرئيسية</span>
-                <button 
+              <div className="absolute inset-0 bg-gradient-to-b from-slate-950 via-slate-900 to-black" />
+              <div className="relative z-10 flex items-center justify-between p-4 border-b border-white/10">
+                <span className="text-white font-black text-sm">القائمة الرئيسية</span>
+                <motion.button 
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.9 }}
                   onClick={() => setIsSidebarOpen(false)}
-                  className="p-2 text-white/50 hover:text-white transition-colors"
+                  className="p-2 text-white/50 hover:text-white hover:bg-white/10 rounded-xl transition-all"
                 >
-                  <X size={24} />
-                </button>
+                  <X size={20} />
+                </motion.button>
               </div>
-              <div className="flex-1 overflow-y-auto">
+              <div className="relative z-10 flex-1 overflow-y-auto">
                 <Sidebar userRole={user?.role} permissions={permissions} />
               </div>
             </motion.div>
@@ -62,26 +63,22 @@ export function DashboardLayout({ children, user, permissions }: DashboardLayout
         )}
       </AnimatePresence>
       
-      {/* Main Content Area - with margin for fixed sidebar */}
       <div className="lg:mr-64 flex flex-col h-screen overflow-hidden">
-        {/* Header - Fixed at top */}
         <div className="flex-shrink-0">
           <Header user={user} onToggleSidebar={() => setIsSidebarOpen(true)} />
         </div>
 
-        {/* Main Content - Scrollable */}
         <main className="flex-1 overflow-y-auto overflow-x-hidden">
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3 }}
+            transition={{ duration: 0.4, ease: "easeOut" }}
             className="min-h-full w-full"
           >
             {children}
           </motion.div>
         </main>
 
-        {/* Footer */}
         <div className="flex-shrink-0">
           <Footer />
         </div>
