@@ -358,43 +358,55 @@ function FinancialVouchersContent() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <Link href="/sales-receipts/new">
-            <div className="flex items-center gap-4 p-5 bg-white rounded-2xl border-2 border-slate-100 hover:border-blue-300 hover:shadow-lg transition-all group cursor-pointer">
-              <div className="p-3 bg-blue-100 rounded-xl group-hover:bg-blue-500 transition-colors">
-                <FileText className="w-5 h-5 text-blue-600 group-hover:text-white transition-colors" />
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <Link href="/sales-receipts/new">
+              <div className="flex items-center gap-4 p-5 bg-white rounded-2xl border-2 border-slate-100 hover:border-blue-300 hover:shadow-lg transition-all group cursor-pointer">
+                <div className="p-3 bg-blue-100 rounded-xl group-hover:bg-blue-500 transition-colors">
+                  <FileText className="w-5 h-5 text-blue-600 group-hover:text-white transition-colors" />
+                </div>
+                <div>
+                  <p className="font-black text-slate-800">إضافة سند مبيعات</p>
+                  <p className="text-sm text-slate-400">تسجيل عملية بيع جديدة</p>
+                </div>
               </div>
-              <div>
-                <p className="font-black text-slate-800">إضافة سند مبيعات</p>
-                <p className="text-sm text-slate-400">تسجيل عملية بيع جديدة</p>
-              </div>
-            </div>
-          </Link>
+            </Link>
 
-          <Link href="/receipt-vouchers">
-            <div className="flex items-center gap-4 p-5 bg-white rounded-2xl border-2 border-slate-100 hover:border-emerald-300 hover:shadow-lg transition-all group cursor-pointer">
-              <div className="p-3 bg-emerald-100 rounded-xl group-hover:bg-emerald-500 transition-colors">
-                <Receipt className="w-5 h-5 text-emerald-600 group-hover:text-white transition-colors" />
+            <Link href="/receipt-vouchers">
+              <div className="flex items-center gap-4 p-5 bg-white rounded-2xl border-2 border-slate-100 hover:border-emerald-300 hover:shadow-lg transition-all group cursor-pointer">
+                <div className="p-3 bg-emerald-100 rounded-xl group-hover:bg-emerald-500 transition-colors">
+                  <Receipt className="w-5 h-5 text-emerald-600 group-hover:text-white transition-colors" />
+                </div>
+                <div>
+                  <p className="font-black text-slate-800">إضافة سند قبض</p>
+                  <p className="text-sm text-slate-400">تسجيل مبلغ مستلم</p>
+                </div>
               </div>
-              <div>
-                <p className="font-black text-slate-800">إضافة سند قبض</p>
-                <p className="text-sm text-slate-400">تسجيل مبلغ مستلم</p>
-              </div>
-            </div>
-          </Link>
+            </Link>
 
-          <Link href="/payment-vouchers">
-            <div className="flex items-center gap-4 p-5 bg-white rounded-2xl border-2 border-slate-100 hover:border-rose-300 hover:shadow-lg transition-all group cursor-pointer">
-              <div className="p-3 bg-rose-100 rounded-xl group-hover:bg-rose-500 transition-colors">
-                <Wallet className="w-5 h-5 text-rose-600 group-hover:text-white transition-colors" />
+            <Link href="/payment-vouchers">
+              <div className="flex items-center gap-4 p-5 bg-white rounded-2xl border-2 border-slate-100 hover:border-rose-300 hover:shadow-lg transition-all group cursor-pointer">
+                <div className="p-3 bg-rose-100 rounded-xl group-hover:bg-rose-500 transition-colors">
+                  <Wallet className="w-5 h-5 text-rose-600 group-hover:text-white transition-colors" />
+                </div>
+                <div>
+                  <p className="font-black text-slate-800">إضافة سند صرف</p>
+                  <p className="text-sm text-slate-400">تسجيل مصروف جديد</p>
+                </div>
               </div>
-              <div>
-                <p className="font-black text-slate-800">إضافة سند صرف</p>
-                <p className="text-sm text-slate-400">تسجيل مصروف جديد</p>
+            </Link>
+
+            <Link href="/promissory-notes">
+              <div className="flex items-center gap-4 p-5 bg-white rounded-2xl border-2 border-slate-100 hover:border-amber-300 hover:shadow-lg transition-all group cursor-pointer">
+                <div className="p-3 bg-amber-100 rounded-xl group-hover:bg-amber-500 transition-colors">
+                  <FileText className="w-5 h-5 text-amber-600 group-hover:text-white transition-colors" />
+                </div>
+                <div>
+                  <p className="font-black text-slate-800">سندات لأمر</p>
+                  <p className="text-sm text-slate-400">إصدار سند لأمر إلكتروني</p>
+                </div>
               </div>
-            </div>
-          </Link>
-        </div>
+            </Link>
+          </div>
       </motion.div>
 
       {/* Footer */}
