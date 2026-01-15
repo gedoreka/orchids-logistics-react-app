@@ -6,26 +6,34 @@ const createPool = () => mysql.createPool({
   password: process.env.DB_PASSWORD || 'Info@92009',
   database: process.env.DB_NAME || 'u464748164_zoolsys_main',
   waitForConnections: true,
-  connectionLimit: 5,
+  connectionLimit: 3,
   queueLimit: 0,
   connectTimeout: 60000,
   enableKeepAlive: true,
-  keepAliveInitialDelay: 30000,
+  keepAliveInitialDelay: 10000,
+  idleTimeout: 30000,
 });
 
 let pool = createPool();
 
-async function getConnection() {
-  try {
-    const conn = await pool.getConnection();
-    return conn;
-  } catch (error: any) {
-    if (error.code === 'ECONNRESET' || error.code === 'PROTOCOL_CONNECTION_LOST') {
-      pool = createPool();
-      return pool.getConnection();
+const RETRY_ERRORS = ['ECONNRESET', 'PROTOCOL_CONNECTION_LOST', 'EPIPE', 'ECONNREFUSED', 'ETIMEDOUT'];
+
+async function getConnection(retries = 3): Promise<mysql.PoolConnection> {
+  for (let i = 0; i < retries; i++) {
+    try {
+      const conn = await pool.getConnection();
+      await conn.ping();
+      return conn;
+    } catch (error: any) {
+      if (RETRY_ERRORS.includes(error.code) && i < retries - 1) {
+        pool = createPool();
+        await new Promise(r => setTimeout(r, 500 * (i + 1)));
+        continue;
+      }
+      throw error;
     }
-    throw error;
   }
+  throw new Error('Failed to get database connection after retries');
 }
 
 export async function query<T>(queryStr: string, params: any[] = []): Promise<T[]> {
@@ -35,7 +43,7 @@ export async function query<T>(queryStr: string, params: any[] = []): Promise<T[
     const [rows] = await conn.execute(queryStr, params);
     return rows as T[];
   } catch (error: any) {
-    if (error.code === 'ECONNRESET' || error.code === 'PROTOCOL_CONNECTION_LOST') {
+    if (RETRY_ERRORS.includes(error.code)) {
       pool = createPool();
       conn = await getConnection();
       const [rows] = await conn.execute(queryStr, params);
@@ -55,7 +63,7 @@ export async function execute(queryStr: string, params: any[] = []): Promise<any
     const [result] = await conn.execute(queryStr, params);
     return result;
   } catch (error: any) {
-    if (error.code === 'ECONNRESET' || error.code === 'PROTOCOL_CONNECTION_LOST') {
+    if (RETRY_ERRORS.includes(error.code)) {
       pool = createPool();
       conn = await getConnection();
       const [result] = await conn.execute(queryStr, params);
