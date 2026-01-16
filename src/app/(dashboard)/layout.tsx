@@ -3,7 +3,7 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { DashboardLayout } from "@/components/layout/dashboard-layout";
 import { query } from "@/lib/db";
-import { User } from "@/lib/types";
+import { User, SubUser } from "@/lib/types";
 
 export default async function Layout({ children }: { children: React.ReactNode }) {
   const cookieStore = await cookies();
@@ -14,24 +14,39 @@ export default async function Layout({ children }: { children: React.ReactNode }
   }
 
   const session = JSON.parse(sessionCookie.value);
+  const userType = session.user_type || "owner";
   
-  // Refresh user data from DB to ensure it's up to date
-  const users = await query<User>("SELECT id, name, email, role, company_id FROM users WHERE id = ?", [session.user_id]);
+  let user: { name: string; role: string; email: string };
   
-  if (users.length === 0) {
-    redirect("/login");
+  if (userType === "sub_user" && session.sub_user_id) {
+    const subUsers = await query<SubUser>("SELECT id, name, email FROM company_sub_users WHERE id = ?", [session.sub_user_id]);
+    if (subUsers.length === 0) {
+      redirect("/login");
+    }
+    const subUser = subUsers[0];
+    user = {
+      name: subUser.name,
+      role: "sub_user",
+      email: subUser.email
+    };
+  } else {
+    const users = await query<User>("SELECT id, name, email, role, company_id FROM users WHERE id = ?", [session.user_id]);
+    
+    if (users.length === 0) {
+      redirect("/login");
+    }
+    user = {
+      name: users[0].name,
+      role: users[0].role,
+      email: users[0].email
+    };
   }
-
-  const user = users[0];
 
   return (
     <DashboardLayout 
-      user={{
-        name: user.name,
-        role: user.role,
-        email: user.email
-      }}
+      user={user}
       permissions={session.permissions}
+      userType={userType}
     >
       {children}
     </DashboardLayout>

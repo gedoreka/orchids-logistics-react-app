@@ -1,3 +1,5 @@
+export type UserType = 'admin' | 'owner' | 'sub_user';
+
 export interface User {
   id: number;
   name: string;
@@ -5,6 +7,73 @@ export interface User {
   role: string;
   company_id: number;
   is_activated: number;
+  user_type?: UserType;
+}
+
+export interface SubUser {
+  id: number;
+  company_id: number;
+  name: string;
+  email: string;
+  password?: string;
+  profile_image?: string;
+  status: 'active' | 'suspended' | 'deleted';
+  created_at: string;
+  updated_at?: string;
+  last_login_at?: string;
+  created_by: number;
+  max_sessions: number;
+}
+
+export interface SubUserPermission {
+  id: number;
+  sub_user_id: number;
+  permission_key: string;
+  granted_by: number;
+  granted_at: string;
+}
+
+export interface SubUserSession {
+  id: number;
+  session_id: string;
+  sub_user_id: number;
+  ip_address?: string;
+  user_agent?: string;
+  device_info?: string;
+  login_at: string;
+  last_activity: string;
+  is_active: boolean;
+}
+
+export interface SubUserActivityLog {
+  id: number;
+  sub_user_id: number;
+  company_id: number;
+  action_type: string;
+  action_description?: string;
+  ip_address?: string;
+  metadata?: Record<string, unknown>;
+  created_at: string;
+}
+
+export interface PermissionGroup {
+  id: number;
+  company_id: number;
+  name: string;
+  description?: string;
+  permissions: string[];
+  created_at: string;
+  created_by: number;
+}
+
+export interface AuthSession {
+  user_id: number;
+  user_name: string;
+  company_id: number;
+  role: string;
+  permissions: Record<string, number>;
+  user_type: UserType;
+  sub_user_id?: number;
 }
 
 export interface Company {

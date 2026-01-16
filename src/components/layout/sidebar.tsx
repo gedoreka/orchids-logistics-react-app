@@ -49,6 +49,7 @@ interface NavItem {
   icon: React.ElementType;
   adminOnly?: boolean;
   permission?: string;
+  ownerOnly?: boolean;
   dividerAfter?: boolean;
   gradient?: string;
 }
@@ -64,6 +65,8 @@ const navItems: NavItem[] = [
   { titleKey: "adminNotifications", href: "/admin/notifications", icon: Bell, adminOnly: true, gradient: "from-rose-500 to-pink-500" },
   { titleKey: "subscriptionPlans", href: "/admin/subscriptions", icon: Package, adminOnly: true, gradient: "from-violet-500 to-purple-500" },
   { titleKey: "specialSalaries", href: "/admin/special-salaries", icon: Coins, adminOnly: true, dividerAfter: true, gradient: "from-yellow-500 to-orange-500" },
+  
+  { titleKey: "subUsersManagement", href: "/sub-users", icon: Users, ownerOnly: true, gradient: "from-violet-500 to-purple-500" },
   
   { titleKey: "hrManagement", href: "/hr", icon: Users, permission: "employees_module", gradient: "from-blue-500 to-indigo-500" },
   
@@ -101,14 +104,17 @@ const navItems: NavItem[] = [
 interface SidebarProps {
   userRole?: string;
   permissions?: Record<string, number>;
+  userType?: string;
 }
 
-export function Sidebar({ userRole, permissions = {} }: SidebarProps) {
+export function Sidebar({ userRole, permissions = {}, userType }: SidebarProps) {
   const [mounted, setMounted] = useState(false);
   const [hoveredItem, setHoveredItem] = useState<string | null>(null);
   const pathname = usePathname();
   const router = useRouter();
   const isAdmin = userRole === "admin";
+  const isOwner = userType === "owner" || (userRole === "admin" && userType !== "sub_user");
+  const isSubUser = userType === "sub_user";
   const { isRTL } = useLocale();
   const t = useTranslations('sidebar');
 
@@ -118,6 +124,7 @@ export function Sidebar({ userRole, permissions = {} }: SidebarProps) {
 
   const filteredItems = navItems.filter(item => {
     if (item.adminOnly && !isAdmin) return false;
+    if (item.ownerOnly && isSubUser) return false;
     if (item.permission && !isAdmin && permissions[item.permission] !== 1) return false;
     return true;
   });

@@ -18,9 +18,10 @@ interface DashboardLayoutProps {
     company_id?: number;
   };
   permissions?: Record<string, number>;
+  userType?: string;
 }
 
-export function DashboardLayout({ children, user, permissions }: DashboardLayoutProps) {
+export function DashboardLayout({ children, user, permissions, userType }: DashboardLayoutProps) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isRTL, setIsRTL] = useState(true);
   const [mounted, setMounted] = useState(false);
@@ -67,9 +68,9 @@ export function DashboardLayout({ children, user, permissions }: DashboardLayout
       <GlobalChatNotifications isAdmin={user?.role === "admin"} companyId={user?.company_id} />
       <GlobalAdminNotifications />
       
-      <aside className={`hidden lg:flex fixed top-0 ${isRTL ? 'right-0' : 'left-0'} h-screen w-64 z-50`}>
-        <Sidebar userRole={user?.role} permissions={permissions} />
-      </aside>
+        <aside className={`hidden lg:flex fixed top-0 ${isRTL ? 'right-0' : 'left-0'} h-screen w-64 z-50`}>
+          <Sidebar userRole={user?.role} permissions={permissions} userType={userType} />
+        </aside>
 
       <AnimatePresence>
         {isSidebarOpen && (
@@ -101,8 +102,8 @@ export function DashboardLayout({ children, user, permissions }: DashboardLayout
                 </motion.button>
               </div>
               <div className="relative z-10 flex-1 overflow-y-auto">
-                <Sidebar userRole={user?.role} permissions={permissions} />
-              </div>
+                  <Sidebar userRole={user?.role} permissions={permissions} userType={userType} />
+                </div>
             </motion.div>
           </div>
         )}

@@ -173,10 +173,11 @@
     "incomeStatement": "قائمة الدخل",
     "balanceSheet": "الميزانية العمومية",
     "taxSettings": "إعدادات الضريبة",
-    "systemSettings": "إعدادات النظام",
-    "mySubscription": "اشتراكي",
-    "logout": "تسجيل الخروج"
-  },
+      "systemSettings": "إعدادات النظام",
+      "mySubscription": "اشتراكي",
+      "logout": "تسجيل الخروج",
+      "subUsersManagement": "إدارة المستخدمين"
+    },
   "footer": {
     "copyright": "جميع الحقوق محفوظة الي شركة زول اسبيد للانشطة المتعددة",
     "systemStatus": "حالة النظام",

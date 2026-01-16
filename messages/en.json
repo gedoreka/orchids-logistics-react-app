@@ -173,10 +173,11 @@
     "incomeStatement": "Income Statement",
     "balanceSheet": "Balance Sheet",
     "taxSettings": "Tax Settings",
-    "systemSettings": "System Settings",
-    "mySubscription": "My Subscription",
-    "logout": "Logout"
-  },
+      "systemSettings": "System Settings",
+      "mySubscription": "My Subscription",
+      "logout": "Logout",
+      "subUsersManagement": "Users Management"
+    },
   "footer": {
     "copyright": "All rights reserved to ZoolSpeed Multi-Activities Company",
     "systemStatus": "System Status",

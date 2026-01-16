@@ -1,11 +1,12 @@
 "use server";
 
-import { AuthResponse, User, Company, ResetToken } from "@/lib/types";
+import { AuthResponse, User, Company, ResetToken, SubUser, UserType } from "@/lib/types";
 import { cookies } from "next/headers";
 import { query, execute } from "@/lib/db";
 import bcrypt from "bcryptjs";
-import { sendResetCode, sendLoginNotification } from "@/lib/mail";
+import { sendResetCode, sendLoginNotification, sendWelcomeEmail } from "@/lib/mail";
 import { supabase } from "@/lib/supabase-client";
+import { v4 as uuidv4 } from "uuid";
 
   export async function registerAction(formData: FormData): Promise<AuthResponse> {
     try {
@@ -117,7 +118,112 @@ export async function loginAction(formData: FormData): Promise<AuthResponse> {
   const remember = formData.get("remember") === "on";
 
   try {
-    // 1. Fetch user from DB
+    // 1. First check if it's a sub-user
+    const subUsers = await query<SubUser & { password?: string }>(
+      "SELECT * FROM company_sub_users WHERE email = ? AND status = 'active'",
+      [email]
+    );
+
+    if (subUsers.length > 0) {
+      const subUser = subUsers[0];
+      
+      const isPasswordValid = await bcrypt.compare(password, subUser.password || "");
+      if (!isPasswordValid) {
+        return { success: false, error: "كلمة المرور غير صحيحة." };
+      }
+
+      // Check company status
+      const companies = await query<Company>(
+        "SELECT name, status, is_active FROM companies WHERE id = ?",
+        [subUser.company_id]
+      );
+
+      if (companies.length === 0) {
+        return { success: false, error: "لم يتم العثور على بيانات الشركة." };
+      }
+
+      const company = companies[0];
+
+      if (company.status !== "approved") {
+        return { success: false, error: "الشركة غير مقبولة بعد." };
+      }
+
+      if (company.is_active !== 1) {
+        return { success: false, error: "الشركة موقوفة. يرجى التواصل مع الإدارة." };
+      }
+
+      // Load sub-user permissions
+      const permissionsRows = await query<{ permission_key: string }>(
+        "SELECT permission_key FROM sub_user_permissions WHERE sub_user_id = ?",
+        [subUser.id]
+      );
+
+      const permissions: Record<string, number> = {};
+      permissionsRows.forEach((p) => {
+        permissions[p.permission_key] = 1;
+      });
+
+      // Create session for sub-user
+      const sessionId = uuidv4();
+      await execute(
+        "INSERT INTO sub_user_sessions (session_id, sub_user_id, ip_address, login_at, last_activity) VALUES (?, ?, ?, NOW(), NOW())",
+        [sessionId, subUser.id, ""]
+      );
+
+      // Update last login
+      await execute(
+        "UPDATE company_sub_users SET last_login_at = NOW() WHERE id = ?",
+        [subUser.id]
+      );
+
+      // Log activity
+      await execute(
+        "INSERT INTO sub_user_activity_logs (sub_user_id, company_id, action_type, action_description, created_at) VALUES (?, ?, ?, ?, NOW())",
+        [subUser.id, subUser.company_id, "login", "تسجيل دخول"]
+      );
+
+      const cookieStore = await cookies();
+      const sessionData = {
+        user_id: subUser.id,
+        user_name: subUser.name,
+        company_id: subUser.company_id,
+        role: "sub_user",
+        permissions,
+        user_type: "sub_user" as UserType,
+        sub_user_id: subUser.id,
+        session_id: sessionId,
+      };
+
+      cookieStore.set("auth_session", JSON.stringify(sessionData), {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        maxAge: remember ? 30 * 24 * 60 * 60 : undefined,
+        path: "/",
+      });
+
+      if (remember) {
+        cookieStore.set("user_email", email, {
+          maxAge: 30 * 24 * 60 * 60,
+          path: "/",
+        });
+      }
+
+      return {
+        success: true,
+        user: {
+          id: subUser.id,
+          name: subUser.name,
+          email: subUser.email,
+          role: "sub_user",
+          company_id: subUser.company_id,
+          is_activated: 1,
+          user_type: "sub_user",
+        },
+        permissions,
+      };
+    }
+
+    // 2. If not a sub-user, check main users table
     const users = await query<User & { password?: string }>(
       "SELECT * FROM users WHERE email = ?",
       [email]
@@ -182,6 +288,9 @@ export async function loginAction(formData: FormData): Promise<AuthResponse> {
       permissions[p.feature_key] = p.is_enabled;
     });
 
+    // Determine user type
+    const userType: UserType = user.email === "admin@zoolspeed.com" ? "admin" : "owner";
+
     // 5. Set Session
     const cookieStore = await cookies();
     const sessionData = {
@@ -190,6 +299,7 @@ export async function loginAction(formData: FormData): Promise<AuthResponse> {
       company_id: user.company_id,
       role: user.role,
       permissions,
+      user_type: userType,
     };
 
     cookieStore.set("auth_session", JSON.stringify(sessionData), {
@@ -217,6 +327,7 @@ if (remember) {
         role: user.role,
         company_id: user.company_id,
         is_activated: user.is_activated,
+        user_type: userType,
       },
       permissions,
     };
@@ -230,6 +341,30 @@ export async function forgotPasswordAction(formData: FormData): Promise<AuthResp
   const email = (formData.get("email") as string || "").trim().toLowerCase();
 
   try {
+    // First check sub-users
+    const subUsers = await query<SubUser>("SELECT id, name FROM company_sub_users WHERE email = ? AND status = 'active'", [email]);
+    
+    if (subUsers.length > 0) {
+      const subUser = subUsers[0];
+      const token = Math.floor(100000 + Math.random() * 900000).toString();
+
+      await query("DELETE FROM password_resets WHERE email = ?", [email]);
+      await query(
+        "INSERT INTO password_resets (email, token, created_at) VALUES (?, ?, NOW())",
+        [email, token]
+      );
+
+      await sendResetCode(email, subUser.name, token);
+
+      const cookieStore = await cookies();
+      cookieStore.set("reset_email", email, { maxAge: 15 * 60, path: "/" });
+      cookieStore.set("reset_user_name", subUser.name, { maxAge: 15 * 60, path: "/" });
+      cookieStore.set("reset_user_type", "sub_user", { maxAge: 15 * 60, path: "/" });
+
+      return { success: true };
+    }
+
+    // Then check main users
     const users = await query<User>("SELECT id, name FROM users WHERE email = ?", [email]);
 
     if (users.length === 0) {
@@ -245,12 +380,12 @@ export async function forgotPasswordAction(formData: FormData): Promise<AuthResp
       [email, token]
     );
 
-    // Send Real Email using Hostinger SMTP
     await sendResetCode(email, user.name, token);
 
     const cookieStore = await cookies();
     cookieStore.set("reset_email", email, { maxAge: 15 * 60, path: "/" });
     cookieStore.set("reset_user_name", user.name, { maxAge: 15 * 60, path: "/" });
+    cookieStore.set("reset_user_type", "owner", { maxAge: 15 * 60, path: "/" });
 
     return { success: true };
   } catch (error) {
@@ -292,6 +427,7 @@ export async function resetPasswordAction(formData: FormData): Promise<AuthRespo
   const cookieStore = await cookies();
   const email = cookieStore.get("reset_email")?.value;
   const verified = cookieStore.get("token_verified")?.value === "true";
+  const userType = cookieStore.get("reset_user_type")?.value || "owner";
 
   if (!email || !verified) {
     return { success: false, error: "غير مصرح لك بالقيام بهذه العملية." };
@@ -307,12 +443,19 @@ export async function resetPasswordAction(formData: FormData): Promise<AuthRespo
 
   try {
     const hashed = await bcrypt.hash(password, 10);
-    await query("UPDATE users SET password = ? WHERE email = ?", [hashed, email]);
+    
+    if (userType === "sub_user") {
+      await query("UPDATE company_sub_users SET password = ?, updated_at = NOW() WHERE email = ?", [hashed, email]);
+    } else {
+      await query("UPDATE users SET password = ? WHERE email = ?", [hashed, email]);
+    }
+    
     await query("DELETE FROM password_resets WHERE email = ?", [email]);
 
     cookieStore.delete("reset_email");
     cookieStore.delete("reset_user_name");
     cookieStore.delete("token_verified");
+    cookieStore.delete("reset_user_type");
 
     return { success: true };
   } catch (error) {
