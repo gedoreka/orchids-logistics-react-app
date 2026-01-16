@@ -149,7 +149,7 @@ export function Sidebar({ userRole, permissions = {}, userType }: SidebarProps) 
 
   return (
     <div className="w-64 h-screen overflow-hidden flex flex-col relative">
-      <div className="absolute inset-0 bg-gradient-to-b from-slate-950 via-slate-900 to-black" />
+      <div className="absolute inset-0 bg-transparent" />
       <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC4wMiI+PGNpcmNsZSBjeD0iMzAiIGN5PSIzMCIgcj0iMiIvPjwvZz48L2c+PC9zdmc+')] opacity-50" />
       <div className={cn(
         "absolute top-0 w-64 h-64 bg-gradient-to-br from-blue-600/10 to-transparent rounded-full blur-3xl",
@@ -160,8 +160,8 @@ export function Sidebar({ userRole, permissions = {}, userType }: SidebarProps) 
         isRTL ? "left-0" : "right-0"
       )} />
       <div className={cn(
-        "absolute top-0 bottom-0 w-[1px] bg-gradient-to-b from-white/10 via-white/5 to-white/10",
-        isRTL ? "right-0" : "left-0"
+        "absolute top-0 bottom-0 w-[1px] bg-gradient-to-b from-white/5 via-white/10 to-white/5",
+        isRTL ? "left-0" : "right-0"
       )} />
       
       <div className="relative z-10 p-5 border-b border-white/5">
@@ -285,7 +285,7 @@ export function Sidebar({ userRole, permissions = {}, userType }: SidebarProps) 
                 {item.dividerAfter && (
                   <div className="relative my-4 mx-4">
                     <div className="h-[1px] bg-gradient-to-r from-transparent via-white/10 to-transparent" />
-                    <div className="absolute left-1/2 -translate-x-1/2 -top-1.5 bg-slate-900 px-2">
+                    <div className="absolute left-1/2 -translate-x-1/2 -top-1.5 bg-[#0d1525] px-2">
                       <Zap size={10} className="text-white/20" />
                     </div>
                   </div>

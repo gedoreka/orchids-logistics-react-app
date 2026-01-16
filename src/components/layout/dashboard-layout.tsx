@@ -62,15 +62,19 @@ export function DashboardLayout({ children, user, permissions, userType }: Dashb
 
   return (
     <div 
-      className="h-screen overflow-hidden bg-background text-foreground transition-colors duration-300" 
+      className="h-screen overflow-hidden text-foreground transition-colors duration-300" 
       dir={isRTL ? "rtl" : "ltr"}
     >
+      <div className="fixed inset-0 bg-gradient-to-br from-[#0a0e1a] via-[#0d1525] to-[#0a0e1a] -z-10" />
+      <div className="fixed inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-blue-900/20 via-transparent to-transparent -z-10" />
+      <div className="fixed inset-0 bg-[radial-gradient(ellipse_at_bottom_left,_var(--tw-gradient-stops))] from-purple-900/15 via-transparent to-transparent -z-10" />
+      
       <GlobalChatNotifications isAdmin={user?.role === "admin"} companyId={user?.company_id} />
       <GlobalAdminNotifications />
       
-        <aside className={`hidden lg:flex fixed top-0 ${isRTL ? 'right-0' : 'left-0'} h-screen w-64 z-50`}>
-          <Sidebar userRole={user?.role} permissions={permissions} userType={userType} />
-        </aside>
+      <aside className={`hidden lg:flex fixed top-0 ${isRTL ? 'right-0' : 'left-0'} h-screen w-64 z-50`}>
+        <Sidebar userRole={user?.role} permissions={permissions} userType={userType} />
+      </aside>
 
       <AnimatePresence>
         {isSidebarOpen && (
@@ -89,8 +93,8 @@ export function DashboardLayout({ children, user, permissions, userType }: Dashb
               transition={{ type: "spring", damping: 25, stiffness: 200 }}
               className={`absolute top-0 ${isRTL ? 'right-0' : 'left-0'} bottom-0 w-64 overflow-hidden flex flex-col`}
             >
-              <div className="absolute inset-0 bg-gradient-to-b from-slate-950 via-slate-900 to-black" />
-              <div className="relative z-10 flex items-center justify-between p-4 border-b border-white/10">
+              <div className="absolute inset-0 bg-gradient-to-b from-[#0d1525] via-[#0a0e1a] to-[#080c15]" />
+              <div className="relative z-10 flex items-center justify-between p-4 border-b border-white/5">
                 <span className="text-white font-black text-sm">{isRTL ? 'القائمة الرئيسية' : 'Main Menu'}</span>
                 <motion.button 
                   whileHover={{ scale: 1.1 }}
@@ -102,19 +106,19 @@ export function DashboardLayout({ children, user, permissions, userType }: Dashb
                 </motion.button>
               </div>
               <div className="relative z-10 flex-1 overflow-y-auto">
-                  <Sidebar userRole={user?.role} permissions={permissions} userType={userType} />
-                </div>
+                <Sidebar userRole={user?.role} permissions={permissions} userType={userType} />
+              </div>
             </motion.div>
           </div>
         )}
       </AnimatePresence>
       
-        <div className={`${isRTL ? 'lg:mr-64' : 'lg:ml-64'} flex flex-col h-screen`}>
-          <div className="flex-shrink-0 relative z-[100]">
-            <Header user={user} onToggleSidebar={() => setIsSidebarOpen(true)} unreadChatCount={unreadChatCount} />
-          </div>
+      <div className={`${isRTL ? 'lg:mr-64' : 'lg:ml-64'} flex flex-col h-screen`}>
+        <div className="flex-shrink-0 relative z-[100]">
+          <Header user={user} onToggleSidebar={() => setIsSidebarOpen(true)} unreadChatCount={unreadChatCount} />
+        </div>
 
-          <main className="flex-1 overflow-y-auto overflow-x-hidden bg-muted/30 dark:bg-background relative z-0">
+        <main className="flex-1 overflow-y-auto overflow-x-hidden relative z-0">
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}

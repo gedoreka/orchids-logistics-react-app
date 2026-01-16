@@ -596,8 +596,7 @@ export function Header({ user, onToggleSidebar, unreadChatCount = 0, subscriptio
     <>
       <header className="sticky top-0 z-[100] w-full no-print">
         <div className="relative overflow-hidden">
-          <div className="absolute inset-0 bg-slate-950/80 backdrop-blur-2xl" />
-          <div className="absolute inset-0 bg-gradient-to-r from-blue-600/5 via-purple-600/5 to-blue-600/5" />
+          <div className="absolute inset-0 bg-transparent" />
           <div className="absolute bottom-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-white/10 to-transparent" />
           
           <div className="relative z-10 w-full mx-auto px-4 md:px-6 py-3">
