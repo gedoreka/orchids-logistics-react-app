@@ -4,7 +4,7 @@ import { AuthResponse, User, Company, ResetToken } from "@/lib/types";
 import { cookies } from "next/headers";
 import { query, execute } from "@/lib/db";
 import bcrypt from "bcryptjs";
-import { sendResetCode } from "@/lib/mail";
+import { sendResetCode, sendLoginNotification } from "@/lib/mail";
 import { supabase } from "@/lib/supabase-client";
 
   export async function registerAction(formData: FormData): Promise<AuthResponse> {
@@ -135,17 +135,17 @@ export async function loginAction(formData: FormData): Promise<AuthResponse> {
       return { success: false, error: "كلمة المرور غير صحيحة." };
     }
 
-    // 3. Check company status
-    const companies = await query<Company>(
-      "SELECT status, is_active FROM companies WHERE id = ?",
-      [user.company_id]
-    );
+// 3. Check company status
+      const companies = await query<Company>(
+        "SELECT name, status, is_active FROM companies WHERE id = ?",
+        [user.company_id]
+      );
 
-    if (companies.length === 0) {
-      return { success: false, error: "لم يتم العثور على بيانات الشركة." };
-    }
+      if (companies.length === 0) {
+        return { success: false, error: "لم يتم العثور على بيانات الشركة." };
+      }
 
-    const company = companies[0];
+      const company = companies[0];
 
     if (company.status !== "approved") {
       return {
@@ -199,14 +199,16 @@ export async function loginAction(formData: FormData): Promise<AuthResponse> {
       path: "/",
     });
 
-    if (remember) {
-      cookieStore.set("user_email", email, {
-        maxAge: 30 * 24 * 60 * 60,
-        path: "/",
-      });
-    }
+if (remember) {
+        cookieStore.set("user_email", email, {
+          maxAge: 30 * 24 * 60 * 60,
+          path: "/",
+        });
+      }
 
-    return {
+      sendLoginNotification(user.email, user.name, company.name || "الشركة").catch(console.error);
+
+      return {
       success: true,
       user: {
         id: user.id,
