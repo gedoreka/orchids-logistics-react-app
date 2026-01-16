@@ -19,11 +19,19 @@ export async function POST(request: NextRequest) {
     const buffer = Buffer.from(bytes);
 
     const sanitizedOriginalName = file.name
-      .replace(/[^\x00-\x7F]/g, "") // Remove non-ASCII characters
-      .replace(/\s+/g, "_")         // Replace spaces with underscores
-      .replace(/[^a-zA-Z0-9._-]/g, ""); // Remove any other special characters
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^\x00-\x7F]/g, "")
+      .replace(/\s+/g, "_")
+      .replace(/[^a-zA-Z0-9._-]/g, "")
+      .replace(/_{2,}/g, "_")
+      .replace(/^_+|_+$/g, "");
 
-    const fileName = `${Date.now()}_${sanitizedOriginalName || "file"}`;
+    const ext = file.name.split('.').pop() || 'file';
+    const finalName = sanitizedOriginalName && sanitizedOriginalName.length > 0 
+      ? sanitizedOriginalName 
+      : `uploaded_file.${ext}`;
+    const fileName = `${Date.now()}_${finalName}`;
     const { data, error } = await supabase.storage
       .from(bucket)
       .upload(fileName, buffer, {

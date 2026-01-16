@@ -194,29 +194,34 @@ export default function LettersClient() {
     }
   };
 
-  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    setIsUploading(true);
-    const formData = new FormData();
-    formData.append("file", file);
-    formData.append("bucket", "letterheads");
-    try {
-      const res = await fetch("/api/upload", { method: "POST", body: formData });
-      const data = await res.json();
-      if (data.url) {
-        await updateCompanySettings({ letterhead_path: data.url });
-        toast.success("تم رفع الورق المروس بنجاح");
-      } else {
-        toast.error(data.error || "فشل الرفع");
+    const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+      const file = e.target.files?.[0];
+      if (!file) return;
+      setIsUploading(true);
+      const uploadFormData = new FormData();
+      uploadFormData.append("file", file);
+      uploadFormData.append("bucket", "letterheads");
+      try {
+        const res = await fetch("/api/upload", { method: "POST", body: uploadFormData });
+        const data = await res.json();
+        if (data.url) {
+          const success = await updateCompanySettings({ letterhead_path: data.url });
+          if (success) {
+            toast.success("تم رفع الورق المروس بنجاح");
+            fetchData();
+          } else {
+            toast.error("فشل حفظ الرابط في قاعدة البيانات");
+          }
+        } else {
+          toast.error(data.error || "فشل الرفع");
+        }
+      } catch (error) {
+        console.error("Upload error:", error);
+        toast.error("حدث خطأ أثناء الرفع");
+      } finally {
+        setIsUploading(false);
       }
-    } catch (error) {
-      console.error("Upload error:", error);
-      toast.error("حدث خطأ أثناء الرفع");
-    } finally {
-      setIsUploading(false);
-    }
-  };
+    };
 
   const updateCompanySettings = async (updates: Partial<CompanyInfo>) => {
     try {

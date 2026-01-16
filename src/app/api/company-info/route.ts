@@ -56,14 +56,29 @@ export async function PUT(request: NextRequest) {
     const data = await request.json();
     const { letterhead_path, letterhead_top_margin, letterhead_bottom_margin } = data;
 
-    await query(
-      `UPDATE companies SET 
-        letterhead_path = COALESCE(?, letterhead_path),
-        letterhead_top_margin = COALESCE(?, letterhead_top_margin),
-        letterhead_bottom_margin = COALESCE(?, letterhead_bottom_margin)
-      WHERE id = ?`,
-      [letterhead_path, letterhead_top_margin, letterhead_bottom_margin, companyId]
-    );
+    const updates: string[] = [];
+    const params: any[] = [];
+
+    if (letterhead_path !== undefined) {
+      updates.push("letterhead_path = ?");
+      params.push(letterhead_path);
+    }
+    if (letterhead_top_margin !== undefined) {
+      updates.push("letterhead_top_margin = ?");
+      params.push(letterhead_top_margin);
+    }
+    if (letterhead_bottom_margin !== undefined) {
+      updates.push("letterhead_bottom_margin = ?");
+      params.push(letterhead_bottom_margin);
+    }
+
+    if (updates.length > 0) {
+      params.push(companyId);
+      await query(
+        `UPDATE companies SET ${updates.join(", ")} WHERE id = ?`,
+        params
+      );
+    }
 
     return NextResponse.json({ success: true, message: "Company info updated successfully" });
   } catch (error: any) {
