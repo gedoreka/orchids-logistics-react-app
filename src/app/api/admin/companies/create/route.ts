@@ -153,6 +153,11 @@ export async function POST(request: NextRequest) {
       ]
     );
 
+    await execute(
+      "INSERT INTO company_permissions (company_id, feature_key, is_enabled) VALUES (?, 'sub_users_module', 1)",
+      [companyId]
+    );
+
     return NextResponse.json({
       success: true,
       companyId,

@@ -110,6 +110,7 @@ const features: FeatureItem[] = [
   { key: 'tax_settings_module', name: 'إعدادات الضريبة', icon: Calculator, type: 'general', category: 'الحسابات' },
   
   { key: 'letters_templates_module', name: 'الخطابات الجاهزة', icon: Mail, type: 'general', category: 'أخرى' },
+  { key: 'sub_users_module', name: 'إدارة المستخدمين', icon: Users, type: 'general', category: 'الإدارة' },
 ];
 
 export function PermissionsClient({ company, enabledFeatures }: PermissionsClientProps) {
@@ -194,6 +195,7 @@ export function PermissionsClient({ company, enabledFeatures }: PermissionsClien
     'المحاسبة': { bg: 'from-emerald-500/10 to-emerald-600/5', border: 'border-r-emerald-500', icon: 'text-emerald-500' },
     'الحسابات': { bg: 'from-violet-500/10 to-violet-600/5', border: 'border-r-violet-500', icon: 'text-violet-500' },
     'أخرى': { bg: 'from-slate-500/10 to-slate-600/5', border: 'border-r-slate-500', icon: 'text-slate-500' },
+    'الإدارة': { bg: 'from-purple-500/10 to-purple-600/5', border: 'border-r-purple-500', icon: 'text-purple-500' },
   };
 
   return (

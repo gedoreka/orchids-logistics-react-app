@@ -66,8 +66,6 @@ const navItems: NavItem[] = [
   { titleKey: "subscriptionPlans", href: "/admin/subscriptions", icon: Package, adminOnly: true, gradient: "from-violet-500 to-purple-500" },
   { titleKey: "specialSalaries", href: "/admin/special-salaries", icon: Coins, adminOnly: true, dividerAfter: true, gradient: "from-yellow-500 to-orange-500" },
   
-  { titleKey: "subUsersManagement", href: "/sub-users", icon: Users, ownerOnly: true, gradient: "from-violet-500 to-purple-500" },
-  
   { titleKey: "hrManagement", href: "/hr", icon: Users, permission: "employees_module", gradient: "from-blue-500 to-indigo-500" },
   
   { titleKey: "customersList", href: "/customers", icon: Users, permission: "clients_module", gradient: "from-cyan-500 to-teal-500" },
@@ -98,6 +96,8 @@ const navItems: NavItem[] = [
   { titleKey: "trialBalance", href: "/trial-balance", icon: Scale, permission: "trial_balance_module", gradient: "from-gray-500 to-slate-500" },
   { titleKey: "incomeStatement", href: "/income-statement", icon: BarChart3, permission: "income_statement_module", gradient: "from-emerald-500 to-teal-500" },
   { titleKey: "balanceSheet", href: "/balance-sheet", icon: FileText, permission: "balance_sheet_module", gradient: "from-blue-500 to-cyan-500" },
+  
+  { titleKey: "subUsersManagement", href: "/sub-users", icon: Users, permission: "sub_users_module", gradient: "from-violet-500 to-purple-500" },
   { titleKey: "taxSettings", href: "/tax-settings", icon: Calculator, permission: "balance_sheet_module", gradient: "from-rose-500 to-pink-500" },
 ];
 
@@ -113,7 +113,6 @@ export function Sidebar({ userRole, permissions = {}, userType }: SidebarProps) 
   const pathname = usePathname();
   const router = useRouter();
   const isAdmin = userRole === "admin";
-  const isOwner = userType === "owner" || (userRole === "admin" && userType !== "sub_user");
   const isSubUser = userType === "sub_user";
   const { isRTL } = useLocale();
   const t = useTranslations('sidebar');
@@ -124,7 +123,6 @@ export function Sidebar({ userRole, permissions = {}, userType }: SidebarProps) 
 
   const filteredItems = navItems.filter(item => {
     if (item.adminOnly && !isAdmin) return false;
-    if (item.ownerOnly && isSubUser) return false;
     if (item.permission && !isAdmin && permissions[item.permission] !== 1) return false;
     return true;
   });
