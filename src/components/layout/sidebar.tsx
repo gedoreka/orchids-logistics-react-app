@@ -96,8 +96,6 @@ const navItems: NavItem[] = [
   { titleKey: "incomeStatement", href: "/income-statement", icon: BarChart3, permission: "income_statement_module", gradient: "from-emerald-500 to-teal-500" },
   { titleKey: "balanceSheet", href: "/balance-sheet", icon: FileText, permission: "balance_sheet_module", gradient: "from-blue-500 to-cyan-500" },
   { titleKey: "taxSettings", href: "/tax-settings", icon: Calculator, permission: "balance_sheet_module", gradient: "from-rose-500 to-pink-500" },
-  { titleKey: "systemSettings", href: "/settings", icon: Settings, gradient: "from-slate-400 to-gray-500" },
-  { titleKey: "mySubscription", href: "/subscriptions", icon: Package, gradient: "from-violet-500 to-purple-500" },
 ];
 
 interface SidebarProps {
@@ -291,22 +289,7 @@ export function Sidebar({ userRole, permissions = {} }: SidebarProps) {
             );
           })}
         </motion.div>
-      </nav>
-
-      <div className="relative z-10 p-4 border-t border-white/5 bg-black/20 backdrop-blur-xl">
-        <motion.button 
-          whileHover={{ scale: 1.02, y: -2 }}
-          whileTap={{ scale: 0.98 }}
-          onClick={handleLogout}
-          className="relative w-full overflow-hidden group"
-        >
-          <div className="absolute inset-0 bg-gradient-to-r from-rose-500/20 to-red-500/20 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity" />
-          <div className="relative flex items-center justify-center gap-3 px-4 py-3 rounded-xl bg-white/5 border border-white/10 group-hover:border-rose-500/30 transition-all">
-            <LogOut size={16} className="text-rose-400 group-hover:text-rose-300 transition-colors" />
-            <span className="font-bold text-[12px] text-white/70 group-hover:text-white transition-colors">{t('logout')}</span>
-          </div>
-        </motion.button>
+        </nav>
       </div>
-    </div>
-  );
-}
+    );
+  }

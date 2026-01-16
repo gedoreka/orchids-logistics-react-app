@@ -89,15 +89,140 @@ interface BankAccount {
 
 const SURAHS: Surah[] = [
   { number: 1, name: "الفاتحة", englishName: "Al-Fatiha" },
-  { number: 2, name: "البقرة", englishName: "Al-Baqara" },
+  { number: 2, name: "البقرة", englishName: "Al-Baqarah" },
+  { number: 3, name: "آل عمران", englishName: "Aal-Imran" },
+  { number: 4, name: "النساء", englishName: "An-Nisa" },
+  { number: 5, name: "المائدة", englishName: "Al-Ma'idah" },
+  { number: 6, name: "الأنعام", englishName: "Al-An'am" },
+  { number: 7, name: "الأعراف", englishName: "Al-A'raf" },
+  { number: 8, name: "الأنفال", englishName: "Al-Anfal" },
+  { number: 9, name: "التوبة", englishName: "At-Tawbah" },
+  { number: 10, name: "يونس", englishName: "Yunus" },
+  { number: 11, name: "هود", englishName: "Hud" },
+  { number: 12, name: "يوسف", englishName: "Yusuf" },
+  { number: 13, name: "الرعد", englishName: "Ar-Ra'd" },
+  { number: 14, name: "إبراهيم", englishName: "Ibrahim" },
+  { number: 15, name: "الحجر", englishName: "Al-Hijr" },
+  { number: 16, name: "النحل", englishName: "An-Nahl" },
+  { number: 17, name: "الإسراء", englishName: "Al-Isra" },
+  { number: 18, name: "الكهف", englishName: "Al-Kahf" },
+  { number: 19, name: "مريم", englishName: "Maryam" },
+  { number: 20, name: "طه", englishName: "Ta-Ha" },
+  { number: 21, name: "الأنبياء", englishName: "Al-Anbiya" },
+  { number: 22, name: "الحج", englishName: "Al-Hajj" },
+  { number: 23, name: "المؤمنون", englishName: "Al-Mu'minun" },
+  { number: 24, name: "النور", englishName: "An-Nur" },
+  { number: 25, name: "الفرقان", englishName: "Al-Furqan" },
+  { number: 26, name: "الشعراء", englishName: "Ash-Shu'ara" },
+  { number: 27, name: "النمل", englishName: "An-Naml" },
+  { number: 28, name: "القصص", englishName: "Al-Qasas" },
+  { number: 29, name: "العنكبوت", englishName: "Al-Ankabut" },
+  { number: 30, name: "الروم", englishName: "Ar-Rum" },
+  { number: 31, name: "لقمان", englishName: "Luqman" },
+  { number: 32, name: "السجدة", englishName: "As-Sajdah" },
+  { number: 33, name: "الأحزاب", englishName: "Al-Ahzab" },
+  { number: 34, name: "سبأ", englishName: "Saba" },
+  { number: 35, name: "فاطر", englishName: "Fatir" },
   { number: 36, name: "يس", englishName: "Ya-Sin" },
+  { number: 37, name: "الصافات", englishName: "As-Saffat" },
+  { number: 38, name: "ص", englishName: "Sad" },
+  { number: 39, name: "الزمر", englishName: "Az-Zumar" },
+  { number: 40, name: "غافر", englishName: "Ghafir" },
+  { number: 41, name: "فصلت", englishName: "Fussilat" },
+  { number: 42, name: "الشورى", englishName: "Ash-Shura" },
+  { number: 43, name: "الزخرف", englishName: "Az-Zukhruf" },
+  { number: 44, name: "الدخان", englishName: "Ad-Dukhan" },
+  { number: 45, name: "الجاثية", englishName: "Al-Jathiyah" },
+  { number: 46, name: "الأحقاف", englishName: "Al-Ahqaf" },
+  { number: 47, name: "محمد", englishName: "Muhammad" },
+  { number: 48, name: "الفتح", englishName: "Al-Fath" },
+  { number: 49, name: "الحجرات", englishName: "Al-Hujurat" },
+  { number: 50, name: "ق", englishName: "Qaf" },
+  { number: 51, name: "الذاريات", englishName: "Adh-Dhariyat" },
+  { number: 52, name: "الطور", englishName: "At-Tur" },
+  { number: 53, name: "النجم", englishName: "An-Najm" },
+  { number: 54, name: "القمر", englishName: "Al-Qamar" },
   { number: 55, name: "الرحمن", englishName: "Ar-Rahman" },
-  { number: 56, name: "الواقعة", englishName: "Al-Waqi'a" },
+  { number: 56, name: "الواقعة", englishName: "Al-Waqi'ah" },
+  { number: 57, name: "الحديد", englishName: "Al-Hadid" },
+  { number: 58, name: "المجادلة", englishName: "Al-Mujadilah" },
+  { number: 59, name: "الحشر", englishName: "Al-Hashr" },
+  { number: 60, name: "الممتحنة", englishName: "Al-Mumtahanah" },
+  { number: 61, name: "الصف", englishName: "As-Saff" },
+  { number: 62, name: "الجمعة", englishName: "Al-Jumu'ah" },
+  { number: 63, name: "المنافقون", englishName: "Al-Munafiqun" },
+  { number: 64, name: "التغابن", englishName: "At-Taghabun" },
+  { number: 65, name: "الطلاق", englishName: "At-Talaq" },
+  { number: 66, name: "التحريم", englishName: "At-Tahrim" },
   { number: 67, name: "الملك", englishName: "Al-Mulk" },
+  { number: 68, name: "القلم", englishName: "Al-Qalam" },
+  { number: 69, name: "الحاقة", englishName: "Al-Haqqah" },
+  { number: 70, name: "المعارج", englishName: "Al-Ma'arij" },
+  { number: 71, name: "نوح", englishName: "Nuh" },
+  { number: 72, name: "الجن", englishName: "Al-Jinn" },
+  { number: 73, name: "المزمل", englishName: "Al-Muzzammil" },
+  { number: 74, name: "المدثر", englishName: "Al-Muddaththir" },
+  { number: 75, name: "القيامة", englishName: "Al-Qiyamah" },
+  { number: 76, name: "الإنسان", englishName: "Al-Insan" },
+  { number: 77, name: "المرسلات", englishName: "Al-Mursalat" },
   { number: 78, name: "النبأ", englishName: "An-Naba" },
+  { number: 79, name: "النازعات", englishName: "An-Nazi'at" },
+  { number: 80, name: "عبس", englishName: "Abasa" },
+  { number: 81, name: "التكوير", englishName: "At-Takwir" },
+  { number: 82, name: "الانفطار", englishName: "Al-Infitar" },
+  { number: 83, name: "المطففين", englishName: "Al-Mutaffifin" },
+  { number: 84, name: "الانشقاق", englishName: "Al-Inshiqaq" },
+  { number: 85, name: "البروج", englishName: "Al-Buruj" },
+  { number: 86, name: "الطارق", englishName: "At-Tariq" },
+  { number: 87, name: "الأعلى", englishName: "Al-A'la" },
+  { number: 88, name: "الغاشية", englishName: "Al-Ghashiyah" },
+  { number: 89, name: "الفجر", englishName: "Al-Fajr" },
+  { number: 90, name: "البلد", englishName: "Al-Balad" },
+  { number: 91, name: "الشمس", englishName: "Ash-Shams" },
+  { number: 92, name: "الليل", englishName: "Al-Layl" },
+  { number: 93, name: "الضحى", englishName: "Ad-Duha" },
+  { number: 94, name: "الشرح", englishName: "Ash-Sharh" },
+  { number: 95, name: "التين", englishName: "At-Tin" },
+  { number: 96, name: "العلق", englishName: "Al-Alaq" },
+  { number: 97, name: "القدر", englishName: "Al-Qadr" },
+  { number: 98, name: "البينة", englishName: "Al-Bayyinah" },
+  { number: 99, name: "الزلزلة", englishName: "Az-Zalzalah" },
+  { number: 100, name: "العاديات", englishName: "Al-Adiyat" },
+  { number: 101, name: "القارعة", englishName: "Al-Qari'ah" },
+  { number: 102, name: "التكاثر", englishName: "At-Takathur" },
+  { number: 103, name: "العصر", englishName: "Al-Asr" },
+  { number: 104, name: "الهمزة", englishName: "Al-Humazah" },
+  { number: 105, name: "الفيل", englishName: "Al-Fil" },
+  { number: 106, name: "قريش", englishName: "Quraysh" },
+  { number: 107, name: "الماعون", englishName: "Al-Ma'un" },
+  { number: 108, name: "الكوثر", englishName: "Al-Kawthar" },
+  { number: 109, name: "الكافرون", englishName: "Al-Kafirun" },
+  { number: 110, name: "النصر", englishName: "An-Nasr" },
+  { number: 111, name: "المسد", englishName: "Al-Masad" },
   { number: 112, name: "الإخلاص", englishName: "Al-Ikhlas" },
   { number: 113, name: "الفلق", englishName: "Al-Falaq" },
   { number: 114, name: "الناس", englishName: "An-Nas" },
+];
+
+interface IslamicEvent {
+  name: string;
+  nameEn: string;
+  hijriMonth: number;
+  hijriDay: number;
+  icon: string;
+}
+
+const ISLAMIC_EVENTS: IslamicEvent[] = [
+  { name: "رأس السنة الهجرية", nameEn: "Islamic New Year", hijriMonth: 1, hijriDay: 1, icon: "🌙" },
+  { name: "عاشوراء", nameEn: "Ashura", hijriMonth: 1, hijriDay: 10, icon: "📿" },
+  { name: "المولد النبوي", nameEn: "Prophet's Birthday", hijriMonth: 3, hijriDay: 12, icon: "🕌" },
+  { name: "الإسراء والمعراج", nameEn: "Isra & Mi'raj", hijriMonth: 7, hijriDay: 27, icon: "✨" },
+  { name: "ليلة النصف من شعبان", nameEn: "Mid-Sha'ban", hijriMonth: 8, hijriDay: 15, icon: "🌕" },
+  { name: "بداية رمضان", nameEn: "Ramadan Start", hijriMonth: 9, hijriDay: 1, icon: "🌙" },
+  { name: "ليلة القدر", nameEn: "Laylat al-Qadr", hijriMonth: 9, hijriDay: 27, icon: "⭐" },
+  { name: "عيد الفطر", nameEn: "Eid al-Fitr", hijriMonth: 10, hijriDay: 1, icon: "🎉" },
+  { name: "يوم عرفة", nameEn: "Day of Arafah", hijriMonth: 12, hijriDay: 9, icon: "🕋" },
+  { name: "عيد الأضحى", nameEn: "Eid al-Adha", hijriMonth: 12, hijriDay: 10, icon: "🐑" },
 ];
 
 export function Header({ user, onToggleSidebar, unreadChatCount = 0, subscriptionData }: { user?: { name: string; role: string; email: string }, onToggleSidebar?: () => void, unreadChatCount?: number, subscriptionData?: { isActive: boolean; endDate: string | null; daysRemaining: number } }) {
@@ -262,6 +387,17 @@ export function Header({ user, onToggleSidebar, unreadChatCount = 0, subscriptio
     return () => clearInterval(interval);
   }, [calculateNextPrayer]);
 
+  useEffect(() => {
+    const savedSurah = localStorage.getItem('quran_last_surah');
+    if (savedSurah) {
+      setCurrentSurahIndex(parseInt(savedSurah));
+    }
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem('quran_last_surah', currentSurahIndex.toString());
+  }, [currentSurahIndex]);
+
   const playSurah = (index: number) => {
     const surah = SURAHS[index];
     const surahNum = surah.number.toString().padStart(3, "0");
@@ -270,7 +406,14 @@ export function Header({ user, onToggleSidebar, unreadChatCount = 0, subscriptio
       audioRef.current.src = url;
       audioRef.current.play();
       setIsPlaying(true);
+      setCurrentSurahIndex(index);
     }
+  };
+
+  const handleSurahEnded = () => {
+    const newIndex = (currentSurahIndex + 1) % SURAHS.length;
+    setCurrentSurahIndex(newIndex);
+    playSurah(newIndex);
   };
 
   const togglePlay = () => {
@@ -288,11 +431,13 @@ export function Header({ user, onToggleSidebar, unreadChatCount = 0, subscriptio
     }
   };
 
-  const stopAudio = () => {
+  const resetAndStop = () => {
     if (audioRef.current) {
       audioRef.current.pause();
       audioRef.current.currentTime = 0;
       setIsPlaying(false);
+      setCurrentSurahIndex(0);
+      localStorage.setItem('quran_last_surah', '0');
     }
   };
 
@@ -544,40 +689,40 @@ export function Header({ user, onToggleSidebar, unreadChatCount = 0, subscriptio
                       <LanguageSwitcher />
 
                     <motion.button
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
                       onClick={() => setShowPrayerModal(!showPrayerModal)}
-                      className="relative p-2.5 bg-gradient-to-br from-emerald-500/20 to-teal-500/20 hover:from-emerald-500/30 hover:to-teal-500/30 rounded-xl transition-all border border-emerald-500/20"
-                      title={isRTL ? "أوقات الصلاة" : "Prayer Times"}
+                      className="relative hidden sm:flex items-center gap-2 px-4 py-2.5 bg-gradient-to-br from-emerald-500/20 to-teal-500/20 hover:from-emerald-500/30 hover:to-teal-500/30 rounded-xl transition-all border border-emerald-500/20"
                     >
                       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" className="text-emerald-400">
                         <path d="M12 3C7.03 3 3 7.03 3 12s4.03 9 9 9 9-4.03 9-9-4.03-9-9-9zm0 16c-3.86 0-7-3.14-7-7s3.14-7 7-7 7 3.14 7 7-3.14 7-7 7zm.5-11H11v5l4.28 2.54.72-1.21-3.5-2.08V8z" fill="currentColor"/>
                       </svg>
+                      <span className="text-[11px] font-bold text-emerald-400">{isRTL ? 'أوقات الصلاة' : 'Prayer Times'}</span>
                       {nextPrayer && (
-                        <span className="absolute -top-1 -right-1 min-w-[16px] h-[16px] bg-emerald-500 text-white text-[8px] font-bold rounded-full flex items-center justify-center">
+                        <span className="min-w-[20px] h-[20px] bg-emerald-500 text-white text-[9px] font-bold rounded-full flex items-center justify-center">
                           {nextPrayer.remaining.replace(/[سد]/g, '').trim().split(' ')[0]}
                         </span>
                       )}
                     </motion.button>
 
                     <motion.button
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
                       onClick={() => setShowQuranPlayer(!showQuranPlayer)}
                       className={cn(
-                        "relative p-2.5 rounded-xl transition-all border",
+                        "relative hidden sm:flex items-center gap-2 px-4 py-2.5 rounded-xl transition-all border",
                         isPlaying 
                           ? "bg-gradient-to-br from-amber-500/30 to-orange-500/30 border-amber-500/30"
                           : "bg-gradient-to-br from-amber-500/20 to-orange-500/20 hover:from-amber-500/30 hover:to-orange-500/30 border-amber-500/20"
                       )}
-                      title={isRTL ? "القرآن الكريم" : "Holy Quran"}
                     >
                       <BookOpen size={18} className="text-amber-400" />
+                      <span className="text-[11px] font-bold text-amber-400">{isRTL ? 'المصحف الشريف' : 'Holy Quran'}</span>
                       {isPlaying && (
                         <motion.span 
                           animate={{ scale: [1, 1.3, 1] }}
                           transition={{ duration: 1, repeat: Infinity }}
-                          className="absolute -top-1 -right-1 w-3 h-3 bg-amber-500 rounded-full"
+                          className="w-3 h-3 bg-amber-500 rounded-full"
                         />
                       )}
                     </motion.button>
@@ -650,7 +795,7 @@ export function Header({ user, onToggleSidebar, unreadChatCount = 0, subscriptio
                       )} />
                     </motion.button>
                     
-                    <audio ref={audioRef} onEnded={() => setIsPlaying(false)} />
+                    <audio ref={audioRef} onEnded={handleSurahEnded} />
                   </div>
               </div>
             </div>
@@ -810,29 +955,32 @@ export function Header({ user, onToggleSidebar, unreadChatCount = 0, subscriptio
                   <motion.button
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
-                    onClick={stopAudio}
-                    className="w-full flex items-center justify-center gap-2 py-3 bg-white/5 hover:bg-white/10 rounded-2xl transition-all text-white/50 hover:text-white/70 border border-white/10"
+                    onClick={resetAndStop}
+                    className="w-full flex items-center justify-center gap-2 py-3 bg-red-500/10 hover:bg-red-500/20 rounded-2xl transition-all text-red-400 hover:text-red-300 border border-red-500/20"
                   >
                     <Square size={18} />
-                    <span className="text-sm font-bold">{isRTL ? 'إيقاف' : 'Stop'}</span>
+                    <span className="text-sm font-bold">{isRTL ? 'إيقاف والبدء من جديد' : 'Stop & Reset'}</span>
                   </motion.button>
                 </div>
                 
-                <div className="p-4 border-t border-white/10 max-h-48 overflow-y-auto">
-                  <p className="text-xs text-white/40 mb-3">{isRTL ? 'السور المتاحة' : 'Available Surahs'}</p>
-                  <div className="grid grid-cols-2 gap-2">
+                <div className="p-4 border-t border-white/10 max-h-60 overflow-y-auto">
+                  <div className="flex items-center justify-between mb-3">
+                    <p className="text-xs text-white/40">{isRTL ? 'سور القرآن الكريم (114 سورة)' : 'Quran Surahs (114)'}</p>
+                    <p className="text-xs text-amber-400">{currentSurahIndex + 1}/114</p>
+                  </div>
+                  <div className="grid grid-cols-3 gap-2">
                     {SURAHS.map((surah, i) => (
                       <button
                         key={surah.number}
                         onClick={() => { setCurrentSurahIndex(i); playSurah(i); }}
                         className={cn(
-                          "text-right p-3 rounded-xl transition-all text-sm",
+                          "text-right p-2 rounded-xl transition-all text-xs",
                           currentSurahIndex === i 
                             ? "bg-amber-500/20 text-amber-400 font-bold border border-amber-500/30" 
                             : "bg-white/5 hover:bg-white/10 text-white/60 border border-white/5"
                         )}
                       >
-                        {surah.name}
+                        <span className="text-white/30 text-[10px]">{surah.number}.</span> {surah.name}
                       </button>
                     ))}
                   </div>
@@ -1044,6 +1192,19 @@ export function Header({ user, onToggleSidebar, unreadChatCount = 0, subscriptio
                     </div>
                     <span className="text-sm font-bold">{isRTL ? 'بيانات منشأتي' : 'My Facility'}</span>
                   </motion.button>
+                  
+                  {user?.role !== 'admin' && (
+                    <motion.button
+                      whileHover={{ backgroundColor: "rgba(255,255,255,0.05)" }}
+                      onClick={openSubscriptionModal}
+                      className="w-full flex items-center gap-4 px-4 py-3.5 rounded-xl text-white/70 hover:text-white transition-colors"
+                    >
+                      <div className="p-2 rounded-xl bg-amber-500/20">
+                        <Package size={18} className="text-amber-400" />
+                      </div>
+                      <span className="text-sm font-bold">{isRTL ? 'اشتراكي' : 'My Subscription'}</span>
+                    </motion.button>
+                  )}
                   
                   <motion.button
                     whileHover={{ backgroundColor: "rgba(255,255,255,0.05)" }}
