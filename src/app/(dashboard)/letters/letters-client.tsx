@@ -541,6 +541,30 @@ export default function LettersClient() {
     const bottomMargin = margins.bottom;
     const isPdf = letterhead?.toLowerCase().endsWith('.pdf');
 
+    const { jsPDF } = await import('jspdf');
+    const html2canvas = (await import('html2canvas')).default;
+    
+    const pdf = new jsPDF({
+      orientation: 'portrait',
+      unit: 'mm',
+      format: 'a4'
+    });
+
+    if (letterhead && !isPdf) {
+      try {
+        const img = new Image();
+        img.crossOrigin = 'anonymous';
+        await new Promise<void>((resolve, reject) => {
+          img.onload = () => resolve();
+          img.onerror = () => reject(new Error('Failed to load letterhead'));
+          img.src = letterhead;
+        });
+        pdf.addImage(img, 'PNG', 0, 0, 210, 297);
+      } catch (e) {
+        console.error('Could not load letterhead image:', e);
+      }
+    }
+
     const htmlContent = `
       <!DOCTYPE html>
       <html dir="rtl" lang="ar">
@@ -549,14 +573,8 @@ export default function LettersClient() {
         <style>
           @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap');
           * { margin: 0; padding: 0; box-sizing: border-box; }
-          body { font-family: 'Tajawal', sans-serif; direction: rtl; background: #fff; color: #000; line-height: 1.6; }
-          @page { size: A4; margin: 0; }
-          .page-container { width: 210mm; height: 297mm; position: relative; margin: 0 auto; overflow: hidden; }
-          ${!isPdf && letterhead ? `
-          .page-container {
-            background-image: url('${letterhead}');
-            background-size: 100% 100%; background-repeat: no-repeat; background-position: center;
-          }` : ''}
+          body { font-family: 'Tajawal', sans-serif; direction: rtl; background: transparent; color: #000; line-height: 1.6; }
+          .page-container { width: 210mm; height: 297mm; position: relative; margin: 0 auto; overflow: hidden; background: transparent; }
           .letter-content-wrapper { 
             position: absolute; 
             top: ${topMargin}px; 
@@ -584,9 +602,6 @@ export default function LettersClient() {
       </html>
     `;
 
-    const { jsPDF } = await import('jspdf');
-    const html2canvas = (await import('html2canvas')).default;
-    
     const iframe = document.createElement('iframe');
     iframe.style.position = 'absolute';
     iframe.style.left = '-9999px';
@@ -608,19 +623,14 @@ export default function LettersClient() {
       useCORS: true,
       allowTaint: true,
       width: 794,
-      height: 1123
+      height: 1123,
+      backgroundColor: null
     });
     
     document.body.removeChild(iframe);
     
-    const pdf = new jsPDF({
-      orientation: 'portrait',
-      unit: 'mm',
-      format: 'a4'
-    });
-    
-    const imgData = canvas.toDataURL('image/png');
-    pdf.addImage(imgData, 'PNG', 0, 0, 210, 297);
+    const contentImgData = canvas.toDataURL('image/png');
+    pdf.addImage(contentImgData, 'PNG', 0, 0, 210, 297);
     
     return pdf.output('datauristring').split(',')[1];
   };
