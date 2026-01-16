@@ -685,6 +685,7 @@ function InfoTile({ label, value, icon, color, description }: any) {
 
 function SmallFileUploader({ label, field, value, onUpload, isUploading }: any) {
   const inputRef = useRef<HTMLInputElement>(null);
+  const isPdf = value?.toLowerCase()?.endsWith('.pdf');
   
   return (
     <div className="flex flex-col items-center">
@@ -702,9 +703,26 @@ function SmallFileUploader({ label, field, value, onUpload, isUploading }: any) 
           </div>
         ) : value ? (
           <div className="w-full h-full p-2 flex items-center justify-center relative bg-white">
-            <img src={value} alt={label} className="max-w-full max-h-full object-contain" />
-            <div className="absolute inset-0 bg-slate-900/80 opacity-0 group-hover/upload:opacity-100 transition-opacity flex items-center justify-center">
+            {isPdf ? (
+              <div className="flex flex-col items-center gap-1">
+                <FileText size={28} className="text-red-500" />
+                <span className="text-[8px] font-bold text-slate-600">PDF</span>
+              </div>
+            ) : (
+              <img src={value} alt={label} className="max-w-full max-h-full object-contain" />
+            )}
+            <div className="absolute inset-0 bg-slate-900/80 opacity-0 group-hover/upload:opacity-100 transition-opacity flex items-center justify-center gap-2">
               <span className="text-white text-[10px] font-bold">استبدال</span>
+              {value && (
+                <a 
+                  href={value} 
+                  target="_blank" 
+                  onClick={(e) => e.stopPropagation()}
+                  className="text-blue-400 text-[10px] font-bold hover:underline"
+                >
+                  عرض
+                </a>
+              )}
             </div>
           </div>
         ) : (
