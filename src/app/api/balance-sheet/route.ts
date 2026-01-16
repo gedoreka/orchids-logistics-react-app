@@ -22,71 +22,26 @@ export async function GET(request: NextRequest) {
     const fromDate = searchParams.get("from_date") || new Date().getFullYear() + "-01-01";
     const toDate = searchParams.get("to_date") || new Date().toISOString().split("T")[0];
 
-    const fetchAccounts = async (accountType: string) => {
-      const { data: journalEntries, error } = await supabase
-        .from("journal_entries")
-        .select(`
-          id,
-          entry_date,
-          debit,
-          credit,
-          account_id,
-          accounts:account_id (
-            id,
-            account_code,
-            account_name,
-            type
-          )
-        `)
-        .eq("company_id", companyId)
-        .gte("entry_date", fromDate)
-        .lte("entry_date", toDate);
+    const { data: accounts, error: accountsError } = await supabase
+      .from("accounts")
+      .select("id, account_code, account_name, type");
 
-      if (error) {
-        console.error(`Error fetching ${accountType} journal entries:`, error);
-        return [];
-      }
+    if (accountsError) {
+      console.error("Accounts error:", accountsError);
+    }
 
-      const accountBalances: { [key: string]: { account_name: string; account_code: string; net_balance: number } } = {};
-
-      if (journalEntries) {
-        journalEntries.forEach((entry: any) => {
-          const account = entry.accounts;
-          if (!account || account.type !== accountType) return;
-
-          const accountId = account.id;
-          if (!accountBalances[accountId]) {
-            accountBalances[accountId] = {
-              account_name: account.account_name,
-              account_code: account.account_code || "---",
-              net_balance: 0,
-            };
-          }
-
-          if (accountType === "اصل") {
-            accountBalances[accountId].net_balance += (Number(entry.debit) || 0) - (Number(entry.credit) || 0);
-          } else {
-            accountBalances[accountId].net_balance += (Number(entry.credit) || 0) - (Number(entry.debit) || 0);
-          }
-        });
-      }
-
-      return Object.values(accountBalances).filter(a => Math.abs(a.net_balance) > 0.01);
-    };
-
-    const assets = await fetchAccounts("اصل");
-    const liabilities = await fetchAccounts("التزام");
-    const equities = await fetchAccounts("حقوق ملكية");
-
-    const { data: revenueEntries, error: revError } = await supabase
+    let journalQuery = supabase
       .from("journal_entries")
       .select(`
         id,
+        entry_date,
         debit,
         credit,
         account_id,
         accounts:account_id (
           id,
+          account_code,
+          account_name,
           type
         )
       `)
@@ -94,23 +49,116 @@ export async function GET(request: NextRequest) {
       .gte("entry_date", fromDate)
       .lte("entry_date", toDate);
 
-    let netIncome = 0;
-    if (!revError && revenueEntries) {
-      revenueEntries.forEach((entry: any) => {
+    const { data: journalEntries, error: journalError } = await journalQuery;
+
+    if (journalError) {
+      console.error("Journal entries error:", journalError);
+    }
+
+    const assetAccounts: { [key: string]: { account_name: string; account_code: string; net_balance: number } } = {};
+    const liabilityAccounts: { [key: string]: { account_name: string; account_code: string; net_balance: number } } = {};
+    const equityAccounts: { [key: string]: { account_name: string; account_code: string; net_balance: number } } = {};
+    let revenueTotal = 0;
+    let expenseTotal = 0;
+
+    if (journalEntries) {
+      journalEntries.forEach((entry: any) => {
         const account = entry.accounts;
         if (!account) return;
 
-        if (account.type === "ايراد") {
-          netIncome += (Number(entry.credit) || 0) - (Number(entry.debit) || 0);
-        } else if (account.type === "مصروف") {
-          netIncome -= (Number(entry.debit) || 0) - (Number(entry.credit) || 0);
+        const accountId = account.id;
+        const accountType = account.type;
+        const debit = Number(entry.debit) || 0;
+        const credit = Number(entry.credit) || 0;
+
+        if (accountType === "اصل") {
+          if (!assetAccounts[accountId]) {
+            assetAccounts[accountId] = {
+              account_name: account.account_name,
+              account_code: account.account_code || "---",
+              net_balance: 0,
+            };
+          }
+          assetAccounts[accountId].net_balance += debit - credit;
+        } else if (accountType === "التزام") {
+          if (!liabilityAccounts[accountId]) {
+            liabilityAccounts[accountId] = {
+              account_name: account.account_name,
+              account_code: account.account_code || "---",
+              net_balance: 0,
+            };
+          }
+          liabilityAccounts[accountId].net_balance += credit - debit;
+        } else if (accountType === "حقوق ملكية") {
+          if (!equityAccounts[accountId]) {
+            equityAccounts[accountId] = {
+              account_name: account.account_name,
+              account_code: account.account_code || "---",
+              net_balance: 0,
+            };
+          }
+          equityAccounts[accountId].net_balance += credit - debit;
+        } else if (accountType === "ايراد") {
+          revenueTotal += credit - debit;
+        } else if (accountType === "مصروف") {
+          expenseTotal += debit - credit;
         }
       });
     }
 
-    const totalAssets = assets.reduce((sum, a) => sum + Math.abs(a.net_balance), 0);
-    const totalLiabilities = liabilities.reduce((sum, l) => sum + Math.abs(l.net_balance), 0);
-    const totalEquities = equities.reduce((sum, e) => sum + Math.abs(e.net_balance), 0);
+    let expensesQuery = supabase
+      .from("monthly_expenses")
+      .select("id, expense_date, net_amount, amount")
+      .eq("company_id", companyId)
+      .gte("expense_date", fromDate)
+      .lte("expense_date", toDate);
+
+    const { data: expenses, error: expensesError } = await expensesQuery;
+
+    if (!expensesError && expenses) {
+      expenses.forEach((expense: any) => {
+        expenseTotal += Number(expense.net_amount) || Number(expense.amount) || 0;
+      });
+    }
+
+    let payrollsQuery = supabase
+      .from("salary_payrolls")
+      .select("id, payroll_month, total_amount")
+      .eq("company_id", companyId)
+      .gte("payroll_month", fromDate)
+      .lte("payroll_month", toDate);
+
+    const { data: payrolls, error: payrollsError } = await payrollsQuery;
+
+    if (!payrollsError && payrolls) {
+      payrolls.forEach((payroll: any) => {
+        expenseTotal += Number(payroll.total_amount) || 0;
+      });
+    }
+
+    let incomeQuery = supabase
+      .from("income")
+      .select("id, income_date, net_amount, amount")
+      .eq("company_id", companyId)
+      .gte("income_date", fromDate)
+      .lte("income_date", toDate);
+
+    const { data: incomeData, error: incomeError } = await incomeQuery;
+
+    if (!incomeError && incomeData) {
+      incomeData.forEach((income: any) => {
+        revenueTotal += Number(income.net_amount) || Number(income.amount) || 0;
+      });
+    }
+
+    const assets = Object.values(assetAccounts).filter(a => Math.abs(a.net_balance) > 0.01);
+    const liabilities = Object.values(liabilityAccounts).filter(l => Math.abs(l.net_balance) > 0.01);
+    const equities = Object.values(equityAccounts).filter(e => Math.abs(e.net_balance) > 0.01);
+
+    const totalAssets = assets.reduce((sum, a) => sum + a.net_balance, 0);
+    const totalLiabilities = liabilities.reduce((sum, l) => sum + l.net_balance, 0);
+    const totalEquities = equities.reduce((sum, e) => sum + e.net_balance, 0);
+    const netIncome = revenueTotal - expenseTotal;
     const totalEquitiesWithIncome = totalEquities + netIncome;
 
     const difference = totalAssets - (totalLiabilities + totalEquitiesWithIncome);
@@ -126,7 +174,6 @@ export async function GET(request: NextRequest) {
         totalEquities,
         netIncome,
         totalEquitiesWithIncome,
-        totalLiabilitiesAndEquities: totalLiabilities + totalEquitiesWithIncome,
         difference,
         isBalanced,
         assetsCount: assets.length,

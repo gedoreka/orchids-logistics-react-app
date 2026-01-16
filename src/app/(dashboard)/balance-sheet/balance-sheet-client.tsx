@@ -1,329 +1,619 @@
 "use client";
 
-import React from "react";
-import { motion } from "framer-motion";
-import { 
-  Scale, 
-  Printer, 
-  Filter, 
-  TrendingUp, 
-  TrendingDown, 
-  ArrowRightLeft,
+import React, { useState, useEffect, useCallback } from "react";
+import {
+  Scale,
   Building2,
+  TrendingUp,
+  TrendingDown,
   Calendar,
+  Printer,
+  RefreshCw,
+  ChevronDown,
+  ChevronUp,
+  X,
+  FileText,
   CheckCircle2,
-  AlertTriangle
+  AlertTriangle,
+  Layers,
+  FileSpreadsheet,
+  Landmark,
+  Wallet,
+  Users,
+  Search,
+  Filter,
 } from "lucide-react";
-import { useRouter, usePathname, useSearchParams } from "next/navigation";
-import { cn } from "@/lib/utils";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
 
-interface BalanceSheetClientProps {
-  assets: any[];
-  liabilities: any[];
-  equities: any[];
-  netIncome: number;
-  companyName: string;
-  fromDate: string;
-  toDate: string;
+interface AccountItem {
+  account_name: string;
+  account_code: string;
+  net_balance: number;
 }
 
-export function BalanceSheetClient({ 
-  assets, 
-  liabilities, 
-  equities, 
-  netIncome, 
-  companyName,
-  fromDate,
-  toDate
-}: BalanceSheetClientProps) {
-  const router = useRouter();
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
-
-  const updateDateFilter = (key: string, value: string) => {
-    const params = new URLSearchParams(searchParams.toString());
-    params.set(key, value);
-    router.push(`${pathname}?${params.toString()}`);
+interface BalanceSheetClientProps {
+  companyId: number;
+  companyInfo: {
+    name: string;
+    logo_path: string | null;
   };
+}
 
-  const calculateTotal = (list: any[]) => {
-    return list.reduce((sum, item) => sum + Math.abs(Number(item.net_balance)), 0);
+export function BalanceSheetClient({ companyId, companyInfo }: BalanceSheetClientProps) {
+  const [assets, setAssets] = useState<AccountItem[]>([]);
+  const [liabilities, setLiabilities] = useState<AccountItem[]>([]);
+  const [equities, setEquities] = useState<AccountItem[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+  const [stats, setStats] = useState({
+    totalAssets: 0,
+    totalLiabilities: 0,
+    totalEquities: 0,
+    netIncome: 0,
+    totalEquitiesWithIncome: 0,
+    difference: 0,
+    isBalanced: true,
+    assetsCount: 0,
+    liabilitiesCount: 0,
+    equitiesCount: 0,
+  });
+  const [period, setPeriod] = useState({
+    fromDate: new Date().getFullYear() + "-01-01",
+    toDate: new Date().toISOString().split("T")[0],
+  });
+
+  const [filters, setFilters] = useState({
+    fromDate: new Date().getFullYear() + "-01-01",
+    toDate: new Date().toISOString().split("T")[0],
+  });
+  const [showFilters, setShowFilters] = useState(false);
+
+  const fetchData = useCallback(async (isRefresh = false) => {
+    try {
+      if (isRefresh) setRefreshing(true);
+      else setLoading(true);
+
+      const params = new URLSearchParams();
+      params.set("from_date", filters.fromDate);
+      params.set("to_date", filters.toDate);
+
+      const response = await fetch(`/api/balance-sheet?${params.toString()}`);
+      const data = await response.json();
+
+      if (data.error) {
+        console.error(data.error);
+        return;
+      }
+
+      setAssets(data.assets || []);
+      setLiabilities(data.liabilities || []);
+      setEquities(data.equities || []);
+      setStats(data.stats || {});
+      setPeriod(data.period || {});
+    } catch (error) {
+      console.error("Error fetching balance sheet data:", error);
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  }, [filters]);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      fetchData(true);
+    }, 30000);
+    return () => clearInterval(interval);
+  }, [fetchData]);
+
+  const handleExportExcel = () => {
+    const headers = ["القسم", "رمز الحساب", "اسم الحساب", "الرصيد"];
+    const csvRows = [headers.join(",")];
+
+    csvRows.push("الأصول,,,");
+    assets.forEach(a => {
+      csvRows.push([`""`, a.account_code, `"${a.account_name}"`, a.net_balance.toFixed(2)].join(","));
+    });
+    csvRows.push([`""`, "", "إجمالي الأصول", stats.totalAssets.toFixed(2)].join(","));
+
+    csvRows.push("الالتزامات,,,");
+    liabilities.forEach(l => {
+      csvRows.push([`""`, l.account_code, `"${l.account_name}"`, l.net_balance.toFixed(2)].join(","));
+    });
+    csvRows.push([`""`, "", "إجمالي الالتزامات", stats.totalLiabilities.toFixed(2)].join(","));
+
+    csvRows.push("حقوق الملكية,,,");
+    equities.forEach(e => {
+      csvRows.push([`""`, e.account_code, `"${e.account_name}"`, e.net_balance.toFixed(2)].join(","));
+    });
+    if (Math.abs(stats.netIncome) > 0.01) {
+      csvRows.push([`""`, "---", stats.netIncome >= 0 ? "صافي الربح" : "صافي الخسارة", Math.abs(stats.netIncome).toFixed(2)].join(","));
+    }
+    csvRows.push([`""`, "", "إجمالي حقوق الملكية + صافي الدخل", stats.totalEquitiesWithIncome.toFixed(2)].join(","));
+
+    const csvContent = csvRows.join("\n");
+    const blob = new Blob(["\ufeff" + csvContent], { type: "text/csv;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `balance_sheet_${filters.fromDate}_${filters.toDate}.csv`;
+    a.click();
   };
-
-  const totalAssets = calculateTotal(assets);
-  const totalLiabilities = calculateTotal(liabilities);
-  const totalEquities = calculateTotal(equities);
-  const totalEquitiesWithIncome = totalEquities + netIncome;
-
-  const isBalanced = Math.abs(totalAssets - (totalLiabilities + totalEquitiesWithIncome)) < 0.01;
 
   const handlePrint = () => {
     window.print();
   };
 
+  const formatNumber = (num: number) => new Intl.NumberFormat("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(num);
+  const formatDate = (date: string) => new Date(date).toLocaleDateString("ar-SA");
+
+  if (loading) {
+    return (
+      <div className="min-h-[80vh] flex items-center justify-center">
+        <div className="flex flex-col items-center gap-4">
+          <div className="relative">
+            <div className="w-20 h-20 rounded-full border-4 border-blue-500/30 border-t-blue-500 animate-spin" />
+            <Scale className="w-8 h-8 text-blue-500 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />
+          </div>
+          <p className="text-slate-600 font-bold text-lg">جاري تحميل الميزانية العمومية...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="space-y-8 pb-20 print:p-0 print:bg-white">
-      {/* Header - Hidden in Print */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 print:hidden">
-        <div className="flex items-center gap-4">
-          <div className="h-14 w-14 rounded-2xl bg-gradient-to-br from-[#2c3e50] to-[#34495e] flex items-center justify-center text-white shadow-lg shadow-black/10">
-            <Scale size={28} />
-          </div>
-          <div>
-            <h1 className="text-3xl font-black text-gray-900 tracking-tight">الميزانية العمومية</h1>
-            <p className="text-gray-500 font-bold mt-1">تقرير المركز المالي للمنشأة</p>
-          </div>
+    <div className="space-y-6 p-4 md:p-6" dir="rtl">
+      <div className="relative overflow-hidden rounded-[2rem] bg-gradient-to-br from-[#0f172a] via-[#1e293b] to-[#0f172a] text-white shadow-2xl border border-white/10 print:hidden">
+        <div className="absolute inset-0 overflow-hidden">
+          <div className="absolute -top-40 -right-40 w-80 h-80 bg-blue-500/20 rounded-full blur-3xl" />
+          <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-emerald-500/20 rounded-full blur-3xl" />
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-amber-500/10 rounded-full blur-3xl" />
         </div>
-
-        <div className="flex gap-3">
-          <button
-            onClick={handlePrint}
-            className="flex items-center justify-center gap-2 bg-white border-2 border-gray-100 text-gray-700 px-6 py-3 rounded-2xl font-black shadow-sm hover:border-[#3498db] hover:text-[#3498db] transition-all"
-          >
-            <Printer size={20} />
-            <span>طباعة التقرير</span>
-          </button>
-        </div>
-      </div>
-
-      {/* Date Filters - Hidden in Print */}
-      <div className="bg-white/80 backdrop-blur-md rounded-[2rem] border-2 border-gray-100 p-8 shadow-xl flex flex-col md:flex-row gap-6 items-center print:hidden">
-        <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-6 w-full">
-          <div className="space-y-2">
-            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest mr-2 flex items-center gap-2">
-              <Calendar size={12} />
-              من تاريخ
-            </label>
-            <input
-              type="date"
-              value={fromDate}
-              onChange={(e) => updateDateFilter("from_date", e.target.value)}
-              className="w-full bg-gray-50 border-2 border-gray-100 rounded-2xl py-4 px-6 font-bold text-gray-700 focus:border-[#3498db]/30 focus:ring-4 focus:ring-[#3498db]/5 outline-none transition-all shadow-sm"
-            />
-          </div>
-          <div className="space-y-2">
-            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest mr-2 flex items-center gap-2">
-              <Calendar size={12} />
-              إلى تاريخ
-            </label>
-            <input
-              type="date"
-              value={toDate}
-              onChange={(e) => updateDateFilter("to_date", e.target.value)}
-              className="w-full bg-gray-50 border-2 border-gray-100 rounded-2xl py-4 px-6 font-bold text-gray-700 focus:border-[#3498db]/30 focus:ring-4 focus:ring-[#3498db]/5 outline-none transition-all shadow-sm"
-            />
-          </div>
-        </div>
-        <div className="bg-gray-100 p-4 rounded-2xl flex items-center gap-4">
-          <div className="h-10 w-10 rounded-xl bg-white flex items-center justify-center text-gray-400">
-            <Filter size={18} />
-          </div>
-          <div className="text-right">
-            <span className="block text-[10px] font-black text-gray-400 uppercase tracking-widest">الشركة</span>
-            <span className="font-black text-gray-900 text-sm">{companyName}</span>
-          </div>
-        </div>
-      </div>
-
-      {/* Print-only Header */}
-      <div className="hidden print:block text-center border-b-4 border-black pb-8 mb-8">
-        <h1 className="text-4xl font-black mb-2">{companyName}</h1>
-        <h2 className="text-2xl font-black text-gray-600">تقرير الميزانية العمومية</h2>
-        <p className="text-lg font-bold text-gray-500 mt-2">للفترة من {fromDate} إلى {toDate}</p>
-      </div>
-
-      {/* Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 print:grid-cols-3">
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="bg-white rounded-[2.5rem] p-8 border-2 border-gray-100 shadow-sm relative overflow-hidden"
-        >
-          <div className="absolute top-0 right-0 p-6 opacity-5">
-            <TrendingUp size={80} />
-          </div>
-          <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-2">إجمالي الأصول</span>
-          <div className="text-3xl font-black text-green-600 tracking-tighter">
-            {totalAssets.toLocaleString('en-US', { minimumFractionDigits: 2 })} <span className="text-sm font-black opacity-60">ريال</span>
-          </div>
-        </motion.div>
-
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-          className="bg-white rounded-[2.5rem] p-8 border-2 border-gray-100 shadow-sm relative overflow-hidden"
-        >
-          <div className="absolute top-0 right-0 p-6 opacity-5">
-            <TrendingDown size={80} />
-          </div>
-          <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-2">الالتزامات + حقوق الملكية</span>
-          <div className="text-3xl font-black text-blue-600 tracking-tighter">
-            {(totalLiabilities + totalEquitiesWithIncome).toLocaleString('en-US', { minimumFractionDigits: 2 })} <span className="text-sm font-black opacity-60">ريال</span>
-          </div>
-        </motion.div>
-
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-          className={cn(
-            "rounded-[2.5rem] p-8 border-2 shadow-sm relative overflow-hidden",
-            isBalanced ? "bg-green-50 border-green-100" : "bg-red-50 border-red-100"
-          )}
-        >
-          <div className="absolute top-0 right-0 p-6 opacity-10">
-            {isBalanced ? <CheckCircle2 size={80} /> : <AlertTriangle size={80} />}
-          </div>
-          <span className={cn(
-            "text-[10px] font-black uppercase tracking-widest block mb-2",
-            isBalanced ? "text-green-600" : "text-red-600"
-          )}>حالة التوازن</span>
-          <div className={cn(
-            "text-3xl font-black tracking-tighter",
-            isBalanced ? "text-green-700" : "text-red-700"
-          )}>
-            {isBalanced ? "متوازنة" : "غير متوازنة"}
-          </div>
-          <div className="text-xs font-bold mt-2 opacity-60">
-            الفرق: {(totalAssets - (totalLiabilities + totalEquitiesWithIncome)).toFixed(2)} ريال
-          </div>
-        </motion.div>
-      </div>
-
-      {/* Main Tables */}
-      <div className="grid grid-cols-1 xl:grid-cols-2 gap-8 items-start print:grid-cols-2 print:gap-4">
-        {/* Assets Table */}
-        <div className="bg-white rounded-[2.5rem] border-2 border-gray-100 shadow-xl overflow-hidden print:shadow-none print:border-black">
-          <div className="bg-[#2ecc71] p-6 text-white flex items-center justify-between">
-            <h3 className="text-xl font-black flex items-center gap-3">
-              <TrendingUp size={24} />
-              الأصول
-            </h3>
-            <span className="px-4 py-1.5 rounded-full bg-white/20 font-black text-xs uppercase">Assets</span>
-          </div>
-          <div className="p-2 overflow-x-auto">
-            <table className="w-full text-right border-separate border-spacing-y-2">
-              <thead>
-                <tr>
-                  <th className="p-4 text-xs font-black text-gray-400 uppercase tracking-widest">الحساب</th>
-                  <th className="p-4 text-xs font-black text-gray-400 uppercase tracking-widest text-center">الرمز</th>
-                  <th className="p-4 text-xs font-black text-gray-400 uppercase tracking-widest text-left">الصافي (ريال)</th>
-                </tr>
-              </thead>
-              <tbody>
-                {assets.map((item, i) => (
-                  <tr key={i} className="group hover:bg-gray-50 transition-colors">
-                    <td className="p-4 bg-gray-50/50 rounded-r-2xl font-black text-gray-700 group-hover:bg-gray-100 transition-colors">{item.account_name}</td>
-                    <td className="p-4 bg-gray-50/50 text-center font-bold text-gray-400 group-hover:bg-gray-100 transition-colors">
-                      <span className="px-2 py-1 rounded-lg bg-white border border-gray-100">{item.account_code}</span>
-                    </td>
-                    <td className="p-4 bg-gray-50/50 rounded-l-2xl text-left font-black text-gray-900 group-hover:bg-gray-100 transition-colors">
-                      {Math.abs(Number(item.net_balance)).toLocaleString('en-US', { minimumFractionDigits: 2 })}
-                    </td>
-                  </tr>
-                ))}
-                {assets.length === 0 && (
-                  <tr>
-                    <td colSpan={3} className="p-12 text-center text-gray-400 font-bold italic">لا توجد حركات مسجلة</td>
-                  </tr>
+        
+        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 via-emerald-500 to-amber-500" />
+        
+        <div className="relative z-10 p-6 md:p-8">
+          <div className="flex flex-col lg:flex-row items-center justify-between gap-6">
+            <div className="flex items-center gap-5">
+              <div className="relative">
+                {companyInfo.logo_path ? (
+                  <img
+                    src={companyInfo.logo_path}
+                    alt="Logo"
+                    className="w-16 h-16 md:w-20 md:h-20 rounded-2xl border-2 border-white/20 object-cover shadow-2xl"
+                  />
+                ) : (
+                  <div className="w-16 h-16 md:w-20 md:h-20 rounded-2xl bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center shadow-2xl">
+                    <Building2 className="w-8 h-8 md:w-10 md:h-10 text-white" />
+                  </div>
                 )}
-              </tbody>
-              <tfoot>
-                <tr>
-                  <td colSpan={2} className="p-6 text-xl font-black text-gray-900">إجمالي الأصول</td>
-                  <td className="p-6 text-xl font-black text-green-600 text-left border-t-2 border-green-100">
-                    {totalAssets.toLocaleString('en-US', { minimumFractionDigits: 2 })}
-                  </td>
-                </tr>
-              </tfoot>
-            </table>
+                <div className="absolute -bottom-2 -right-2 w-7 h-7 md:w-8 md:h-8 bg-amber-500 rounded-xl flex items-center justify-center shadow-lg">
+                  <Scale className="w-3 h-3 md:w-4 md:h-4 text-white" />
+                </div>
+              </div>
+              <div>
+                <h1 className="text-2xl md:text-4xl font-black tracking-tight bg-gradient-to-r from-white via-blue-200 to-white bg-clip-text text-transparent">
+                  الميزانية العمومية
+                </h1>
+                <p className="text-white/60 font-medium mt-1 text-sm md:text-base">{companyInfo.name}</p>
+                <div className="flex items-center gap-2 mt-2">
+                  <Badge className="bg-blue-500/20 text-blue-300 border-blue-500/30 font-bold text-xs">
+                    <Calendar className="w-3 h-3 ml-1" />
+                    {formatDate(period.fromDate)} - {formatDate(period.toDate)}
+                  </Badge>
+                  {stats.isBalanced ? (
+                    <Badge className="bg-emerald-500/20 text-emerald-300 border-emerald-500/30 font-bold text-xs animate-pulse">
+                      <CheckCircle2 className="w-3 h-3 ml-1" />
+                      متوازنة
+                    </Badge>
+                  ) : (
+                    <Badge className="bg-rose-500/20 text-rose-300 border-rose-500/30 font-bold text-xs animate-pulse">
+                      <AlertTriangle className="w-3 h-3 ml-1" />
+                      غير متوازنة
+                    </Badge>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-2 md:gap-3">
+              <Button
+                onClick={() => fetchData(true)}
+                variant="outline"
+                size="sm"
+                className="bg-white/10 border-white/20 text-white hover:bg-white/20 font-bold rounded-xl"
+                disabled={refreshing}
+              >
+                <RefreshCw className={`w-4 h-4 ml-2 ${refreshing ? "animate-spin" : ""}`} />
+                تحديث
+              </Button>
+              <Button
+                onClick={handleExportExcel}
+                variant="outline"
+                size="sm"
+                className="bg-emerald-500/20 border-emerald-500/30 text-emerald-300 hover:bg-emerald-500/30 font-bold rounded-xl"
+              >
+                <FileSpreadsheet className="w-4 h-4 ml-2" />
+                Excel
+              </Button>
+              <Button
+                onClick={handlePrint}
+                variant="outline"
+                size="sm"
+                className="bg-amber-500/20 border-amber-500/30 text-amber-300 hover:bg-amber-500/30 font-bold rounded-xl"
+              >
+                <Printer className="w-4 h-4 ml-2" />
+                طباعة
+              </Button>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 mt-6 md:mt-8">
+            <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-emerald-500/20 to-emerald-600/10 backdrop-blur-xl border border-emerald-500/20 p-3 md:p-4 group hover:bg-emerald-500/30 transition-all">
+              <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-emerald-400 to-emerald-600" />
+              <div className="flex flex-col items-center text-center gap-2">
+                <div className="p-2 bg-emerald-500/20 rounded-xl">
+                  <Landmark className="w-5 h-5 text-emerald-400" />
+                </div>
+                <span className="text-lg md:text-2xl font-black text-emerald-300 tabular-nums">
+                  {formatNumber(stats.totalAssets)}
+                </span>
+                <span className="text-[10px] md:text-xs font-medium text-emerald-300/50">إجمالي الأصول</span>
+              </div>
+            </div>
+
+            <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-rose-500/20 to-rose-600/10 backdrop-blur-xl border border-rose-500/20 p-3 md:p-4 group hover:bg-rose-500/30 transition-all">
+              <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-rose-400 to-rose-600" />
+              <div className="flex flex-col items-center text-center gap-2">
+                <div className="p-2 bg-rose-500/20 rounded-xl">
+                  <Wallet className="w-5 h-5 text-rose-400" />
+                </div>
+                <span className="text-lg md:text-2xl font-black text-rose-300 tabular-nums">
+                  {formatNumber(stats.totalLiabilities)}
+                </span>
+                <span className="text-[10px] md:text-xs font-medium text-rose-300/50">إجمالي الالتزامات</span>
+              </div>
+            </div>
+
+            <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-blue-500/20 to-blue-600/10 backdrop-blur-xl border border-blue-500/20 p-3 md:p-4 group hover:bg-blue-500/30 transition-all">
+              <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-400 to-blue-600" />
+              <div className="flex flex-col items-center text-center gap-2">
+                <div className="p-2 bg-blue-500/20 rounded-xl">
+                  <Users className="w-5 h-5 text-blue-400" />
+                </div>
+                <span className="text-lg md:text-2xl font-black text-blue-300 tabular-nums">
+                  {formatNumber(stats.totalEquitiesWithIncome)}
+                </span>
+                <span className="text-[10px] md:text-xs font-medium text-blue-300/50">حقوق الملكية + صافي الدخل</span>
+              </div>
+            </div>
+
+            <div className={`relative overflow-hidden rounded-2xl backdrop-blur-xl border p-3 md:p-4 group transition-all ${
+              stats.isBalanced 
+                ? "bg-gradient-to-br from-amber-500/20 to-amber-600/10 border-amber-500/20 hover:bg-amber-500/30" 
+                : "bg-gradient-to-br from-red-500/20 to-red-600/10 border-red-500/20 hover:bg-red-500/30"
+            }`}>
+              <div className={`absolute top-0 left-0 w-full h-1 bg-gradient-to-r ${stats.isBalanced ? "from-amber-400 to-amber-600" : "from-red-400 to-red-600"}`} />
+              <div className="flex flex-col items-center text-center gap-2">
+                <div className={`p-2 rounded-xl ${stats.isBalanced ? "bg-amber-500/20" : "bg-red-500/20"}`}>
+                  <Scale className={`w-5 h-5 ${stats.isBalanced ? "text-amber-400" : "text-red-400"}`} />
+                </div>
+                <span className={`text-lg md:text-2xl font-black tabular-nums ${stats.isBalanced ? "text-amber-300" : "text-red-300"}`}>
+                  {formatNumber(Math.abs(stats.difference))}
+                </span>
+                <span className={`text-[10px] md:text-xs font-medium ${stats.isBalanced ? "text-amber-300/50" : "text-red-300/50"}`}>
+                  الفرق
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <div className={`mt-6 p-4 rounded-2xl text-center ${stats.isBalanced ? "bg-emerald-500/20 border border-emerald-500/30" : "bg-rose-500/20 border border-rose-500/30"}`}>
+            {stats.isBalanced ? (
+              <div className="flex items-center justify-center gap-3">
+                <CheckCircle2 className="w-6 h-6 text-emerald-400" />
+                <span className="text-lg font-bold text-emerald-300">الميزانية متوازنة - الأصول = الالتزامات + حقوق الملكية</span>
+              </div>
+            ) : (
+              <div className="flex items-center justify-center gap-3">
+                <AlertTriangle className="w-6 h-6 text-rose-400" />
+                <span className="text-lg font-bold text-rose-300">الميزانية غير متوازنة - الفرق: {formatNumber(stats.difference)} ر.س</span>
+              </div>
+            )}
           </div>
         </div>
+      </div>
 
-        {/* Liabilities & Equity Table */}
-        <div className="space-y-8">
-          <div className="bg-white rounded-[2.5rem] border-2 border-gray-100 shadow-xl overflow-hidden print:shadow-none print:border-black">
-            <div className="bg-[#3498db] p-6 text-white flex items-center justify-between">
-              <h3 className="text-xl font-black flex items-center gap-3">
-                <ArrowRightLeft size={24} />
-                الالتزامات وحقوق الملكية
-              </h3>
-              <span className="px-4 py-1.5 rounded-full bg-white/20 font-black text-xs uppercase">Liabilities & Equity</span>
+      <Card className="border-none shadow-xl rounded-[2rem] overflow-hidden bg-white/80 backdrop-blur-xl print:hidden">
+        <CardContent className="p-4 md:p-6">
+          <div className="flex flex-col lg:flex-row items-center gap-4">
+            <Button
+              variant="outline"
+              onClick={() => setShowFilters(!showFilters)}
+              className={`rounded-xl font-bold h-12 ${showFilters ? "bg-blue-50 border-blue-300 text-blue-700" : ""}`}
+            >
+              <Filter className="w-4 h-4 ml-2" />
+              تحديد الفترة الزمنية
+              {showFilters ? <ChevronUp className="w-4 h-4 mr-2" /> : <ChevronDown className="w-4 h-4 mr-2" />}
+            </Button>
+          </div>
+
+          {showFilters && (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4 pt-4 border-t border-slate-100">
+              <div>
+                <label className="block text-sm font-bold text-slate-600 mb-2">من تاريخ</label>
+                <Input
+                  type="date"
+                  value={filters.fromDate}
+                  onChange={(e) => setFilters(prev => ({ ...prev, fromDate: e.target.value }))}
+                  className="h-11 rounded-xl"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-bold text-slate-600 mb-2">إلى تاريخ</label>
+                <Input
+                  type="date"
+                  value={filters.toDate}
+                  onChange={(e) => setFilters(prev => ({ ...prev, toDate: e.target.value }))}
+                  className="h-11 rounded-xl"
+                />
+              </div>
+              <div className="flex items-end gap-2">
+                <Button
+                  onClick={() => fetchData()}
+                  className="rounded-xl font-bold h-11 bg-blue-600 hover:bg-blue-700"
+                >
+                  <Search className="w-4 h-4 ml-2" />
+                  تطبيق الفلترة
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => setFilters({ fromDate: new Date().getFullYear() + "-01-01", toDate: new Date().toISOString().split("T")[0] })}
+                  className="rounded-xl font-bold h-11"
+                >
+                  <X className="w-4 h-4 ml-2" />
+                  إعادة تعيين
+                </Button>
+              </div>
             </div>
-            <div className="p-2 overflow-x-auto">
-              <table className="w-full text-right border-separate border-spacing-y-2">
-                <thead>
-                  <tr>
-                    <th className="p-4 text-xs font-black text-gray-400 uppercase tracking-widest">الحساب</th>
-                    <th className="p-4 text-xs font-black text-gray-400 uppercase tracking-widest text-center">الرمز</th>
-                    <th className="p-4 text-xs font-black text-gray-400 uppercase tracking-widest text-left">الصافي (ريال)</th>
+          )}
+        </CardContent>
+      </Card>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <Card className="border-none shadow-xl rounded-[2rem] overflow-hidden bg-white/90 backdrop-blur-xl print:shadow-none print:rounded-none">
+          <CardHeader className="border-b border-emerald-100 bg-gradient-to-r from-emerald-50 to-teal-50 print:bg-emerald-50">
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-lg font-bold text-emerald-800 flex items-center gap-2">
+                <Landmark className="w-5 h-5 text-emerald-600" />
+                الأصول
+              </CardTitle>
+              <Badge className="bg-emerald-100 text-emerald-700 border-emerald-300 font-bold">
+                {formatNumber(stats.totalAssets)} ر.س
+              </Badge>
+            </div>
+          </CardHeader>
+          <CardContent className="p-0">
+            <div className="overflow-x-auto" style={{ maxHeight: "500px" }}>
+              <table className="w-full">
+                <thead className="sticky top-0">
+                  <tr className="bg-gradient-to-r from-emerald-600 to-emerald-700 text-white">
+                    <th className="px-4 py-3 text-right text-sm font-bold w-1/2">اسم الحساب</th>
+                    <th className="px-4 py-3 text-center text-sm font-bold w-1/4">الرمز</th>
+                    <th className="px-4 py-3 text-left text-sm font-bold w-1/4">الصافي</th>
                   </tr>
                 </thead>
-                <tbody>
-                  {/* Liabilities */}
-                  {liabilities.map((item, i) => (
-                    <tr key={`l-${i}`} className="group hover:bg-gray-50 transition-colors">
-                      <td className="p-4 bg-red-50/20 rounded-r-2xl font-black text-gray-700 group-hover:bg-red-50 transition-colors">{item.account_name}</td>
-                      <td className="p-4 bg-red-50/20 text-center font-bold text-gray-400 group-hover:bg-red-50 transition-colors">
-                        <span className="px-2 py-1 rounded-lg bg-white border border-gray-100">{item.account_code}</span>
-                      </td>
-                      <td className="p-4 bg-red-50/20 rounded-l-2xl text-left font-black text-red-600 group-hover:bg-red-50 transition-colors">
-                        {Math.abs(Number(item.net_balance)).toLocaleString('en-US', { minimumFractionDigits: 2 })}
-                      </td>
-                    </tr>
-                  ))}
-                  {/* Equities */}
-                  {equities.map((item, i) => (
-                    <tr key={`e-${i}`} className="group hover:bg-gray-50 transition-colors">
-                      <td className="p-4 bg-blue-50/20 rounded-r-2xl font-black text-gray-700 group-hover:bg-blue-50 transition-colors">{item.account_name}</td>
-                      <td className="p-4 bg-blue-50/20 text-center font-bold text-gray-400 group-hover:bg-blue-50 transition-colors">
-                        <span className="px-2 py-1 rounded-lg bg-white border border-gray-100">{item.account_code}</span>
-                      </td>
-                      <td className="p-4 bg-blue-50/20 rounded-l-2xl text-left font-black text-blue-600 group-hover:bg-blue-50 transition-colors">
-                        {Math.abs(Number(item.net_balance)).toLocaleString('en-US', { minimumFractionDigits: 2 })}
-                      </td>
-                    </tr>
-                  ))}
-                  {/* Net Income */}
-                  {Math.abs(netIncome) > 0.01 && (
-                    <tr className="group">
-                      <td className="p-4 bg-purple-50 rounded-r-2xl font-black text-gray-900 border-r-4 border-purple-500">
-                        صافي {netIncome >= 0 ? "الربح" : "الخسارة"} للفترة
-                      </td>
-                      <td className="p-4 bg-purple-50 text-center font-bold text-gray-400 italic">Retained Earnings</td>
-                      <td className={cn(
-                        "p-4 bg-purple-50 rounded-l-2xl text-left font-black",
-                        netIncome >= 0 ? "text-green-600" : "text-red-600"
-                      )}>
-                        {Math.abs(netIncome).toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                <tbody className="divide-y divide-emerald-100">
+                  {assets.length > 0 ? (
+                    <>
+                      {assets.map((asset, idx) => (
+                        <tr key={idx} className={`hover:bg-emerald-50/50 transition-colors ${idx % 2 === 0 ? "bg-white" : "bg-emerald-50/30"}`}>
+                          <td className="px-4 py-3 text-sm font-medium text-slate-700">{asset.account_name}</td>
+                          <td className="px-4 py-3 text-sm text-center">
+                            <Badge variant="secondary" className="bg-emerald-100 text-emerald-700">{asset.account_code}</Badge>
+                          </td>
+                          <td className="px-4 py-3 text-sm font-bold text-emerald-600 tabular-nums text-left">
+                            {formatNumber(asset.net_balance)} ر.س
+                          </td>
+                        </tr>
+                      ))}
+                      <tr className="bg-gradient-to-r from-emerald-100 to-emerald-50 font-bold">
+                        <td colSpan={2} className="px-4 py-4 text-sm text-emerald-800 text-left">إجمالي الأصول:</td>
+                        <td className="px-4 py-4 text-sm text-emerald-700 font-black tabular-nums text-left">
+                          {formatNumber(stats.totalAssets)} ر.س
+                        </td>
+                      </tr>
+                    </>
+                  ) : (
+                    <tr>
+                      <td colSpan={3} className="px-4 py-12 text-center">
+                        <div className="flex flex-col items-center gap-3">
+                          <Landmark className="w-12 h-12 text-emerald-200" />
+                          <p className="text-slate-400 font-bold">لا توجد حسابات أصول</p>
+                        </div>
                       </td>
                     </tr>
                   )}
                 </tbody>
-                <tfoot>
-                  <tr>
-                    <td colSpan={2} className="p-6 text-xl font-black text-gray-900">إجمالي الالتزامات وحقوق الملكية</td>
-                    <td className="p-6 text-xl font-black text-blue-600 text-left border-t-2 border-blue-100">
-                      {(totalLiabilities + totalEquitiesWithIncome).toLocaleString('en-US', { minimumFractionDigits: 2 })}
-                    </td>
-                  </tr>
-                </tfoot>
               </table>
             </div>
-          </div>
-        </div>
+          </CardContent>
+        </Card>
+
+        <Card className="border-none shadow-xl rounded-[2rem] overflow-hidden bg-white/90 backdrop-blur-xl print:shadow-none print:rounded-none">
+          <CardHeader className="border-b border-blue-100 bg-gradient-to-r from-blue-50 to-indigo-50 print:bg-blue-50">
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-lg font-bold text-blue-800 flex items-center gap-2">
+                <Scale className="w-5 h-5 text-blue-600" />
+                الالتزامات وحقوق الملكية
+              </CardTitle>
+              <Badge className="bg-blue-100 text-blue-700 border-blue-300 font-bold">
+                {formatNumber(stats.totalLiabilities + stats.totalEquitiesWithIncome)} ر.س
+              </Badge>
+            </div>
+          </CardHeader>
+          <CardContent className="p-0">
+            <div className="overflow-x-auto" style={{ maxHeight: "500px" }}>
+              <table className="w-full">
+                <thead className="sticky top-0">
+                  <tr className="bg-gradient-to-r from-blue-600 to-blue-700 text-white">
+                    <th className="px-4 py-3 text-right text-sm font-bold w-1/2">اسم الحساب</th>
+                    <th className="px-4 py-3 text-center text-sm font-bold w-1/4">الرمز</th>
+                    <th className="px-4 py-3 text-left text-sm font-bold w-1/4">الصافي</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-blue-100">
+                  {liabilities.length > 0 && (
+                    <>
+                      <tr className="bg-rose-50">
+                        <td colSpan={3} className="px-4 py-2 text-sm font-bold text-rose-700">الالتزامات</td>
+                      </tr>
+                      {liabilities.map((liability, idx) => (
+                        <tr key={`l-${idx}`} className={`hover:bg-rose-50/50 transition-colors ${idx % 2 === 0 ? "bg-white" : "bg-rose-50/30"}`}>
+                          <td className="px-4 py-3 text-sm font-medium text-slate-700">{liability.account_name}</td>
+                          <td className="px-4 py-3 text-sm text-center">
+                            <Badge variant="secondary" className="bg-rose-100 text-rose-700">{liability.account_code}</Badge>
+                          </td>
+                          <td className="px-4 py-3 text-sm font-bold text-rose-600 tabular-nums text-left">
+                            {formatNumber(liability.net_balance)} ر.س
+                          </td>
+                        </tr>
+                      ))}
+                      <tr className="bg-gradient-to-r from-rose-100 to-rose-50">
+                        <td colSpan={2} className="px-4 py-3 text-sm text-rose-800 text-left font-bold">إجمالي الالتزامات:</td>
+                        <td className="px-4 py-3 text-sm text-rose-700 font-black tabular-nums text-left">
+                          {formatNumber(stats.totalLiabilities)} ر.س
+                        </td>
+                      </tr>
+                    </>
+                  )}
+
+                  {(equities.length > 0 || Math.abs(stats.netIncome) > 0.01) && (
+                    <>
+                      <tr className="bg-blue-50">
+                        <td colSpan={3} className="px-4 py-2 text-sm font-bold text-blue-700">حقوق الملكية</td>
+                      </tr>
+                      {equities.map((equity, idx) => (
+                        <tr key={`e-${idx}`} className={`hover:bg-blue-50/50 transition-colors ${idx % 2 === 0 ? "bg-white" : "bg-blue-50/30"}`}>
+                          <td className="px-4 py-3 text-sm font-medium text-slate-700">{equity.account_name}</td>
+                          <td className="px-4 py-3 text-sm text-center">
+                            <Badge variant="secondary" className="bg-blue-100 text-blue-700">{equity.account_code}</Badge>
+                          </td>
+                          <td className="px-4 py-3 text-sm font-bold text-blue-600 tabular-nums text-left">
+                            {formatNumber(equity.net_balance)} ر.س
+                          </td>
+                        </tr>
+                      ))}
+                      {Math.abs(stats.netIncome) > 0.01 && (
+                        <tr className={`hover:bg-amber-50/50 transition-colors bg-amber-50/30`}>
+                          <td className="px-4 py-3 text-sm font-medium text-slate-700">
+                            صافي {stats.netIncome >= 0 ? "الربح" : "الخسارة"}
+                          </td>
+                          <td className="px-4 py-3 text-sm text-center">
+                            <Badge variant="secondary" className={stats.netIncome >= 0 ? "bg-emerald-100 text-emerald-700" : "bg-rose-100 text-rose-700"}>
+                              {stats.netIncome >= 0 ? "ربح" : "خسارة"}
+                            </Badge>
+                          </td>
+                          <td className={`px-4 py-3 text-sm font-bold tabular-nums text-left ${stats.netIncome >= 0 ? "text-emerald-600" : "text-rose-600"}`}>
+                            {formatNumber(Math.abs(stats.netIncome))} ر.س
+                          </td>
+                        </tr>
+                      )}
+                      <tr className="bg-gradient-to-r from-blue-100 to-blue-50">
+                        <td colSpan={2} className="px-4 py-3 text-sm text-blue-800 text-left font-bold">إجمالي حقوق الملكية + صافي الدخل:</td>
+                        <td className="px-4 py-3 text-sm text-blue-700 font-black tabular-nums text-left">
+                          {formatNumber(stats.totalEquitiesWithIncome)} ر.س
+                        </td>
+                      </tr>
+                    </>
+                  )}
+
+                  <tr className="bg-gradient-to-r from-slate-100 to-slate-50 font-bold">
+                    <td colSpan={2} className="px-4 py-4 text-sm text-slate-800 text-left">الإجمالي (الالتزامات + حقوق الملكية):</td>
+                    <td className="px-4 py-4 text-sm text-slate-700 font-black tabular-nums text-left">
+                      {formatNumber(stats.totalLiabilities + stats.totalEquitiesWithIncome)} ر.س
+                    </td>
+                  </tr>
+
+                  {liabilities.length === 0 && equities.length === 0 && Math.abs(stats.netIncome) < 0.01 && (
+                    <tr>
+                      <td colSpan={3} className="px-4 py-12 text-center">
+                        <div className="flex flex-col items-center gap-3">
+                          <Scale className="w-12 h-12 text-blue-200" />
+                          <p className="text-slate-400 font-bold">لا توجد حسابات التزامات أو حقوق ملكية</p>
+                        </div>
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </CardContent>
+        </Card>
       </div>
 
-      {/* Footer Branding - Only in Print */}
-      <div className="hidden print:flex justify-between items-center mt-20 pt-8 border-t border-gray-200">
-        <div className="text-gray-400 text-sm font-black uppercase tracking-widest">
-          Generated by Logistics Systems Pro
-        </div>
-        <div className="text-gray-400 text-sm font-black">
-          {new Date().toLocaleString('en-US')}
-        </div>
-      </div>
+      <Card className={`border-none shadow-xl rounded-[2rem] overflow-hidden backdrop-blur-xl print:shadow-none print:rounded-none ${
+        stats.isBalanced 
+          ? "bg-gradient-to-br from-emerald-50 via-white to-blue-50" 
+          : "bg-gradient-to-br from-rose-50 via-white to-red-50"
+      }`}>
+        <CardContent className="p-6 md:p-8">
+          <div className="text-center mb-6">
+            <div className={`w-20 h-20 mx-auto mb-4 rounded-2xl flex items-center justify-center ${
+              stats.isBalanced ? "bg-gradient-to-br from-emerald-400 to-emerald-600" : "bg-gradient-to-br from-rose-400 to-rose-600"
+            } shadow-xl`}>
+              {stats.isBalanced ? (
+                <CheckCircle2 className="w-10 h-10 text-white" />
+              ) : (
+                <AlertTriangle className="w-10 h-10 text-white" />
+              )}
+            </div>
+            <h3 className={`text-2xl font-black ${stats.isBalanced ? "text-emerald-700" : "text-rose-700"}`}>
+              {stats.isBalanced ? "الميزانية متوازنة" : "الميزانية غير متوازنة"}
+            </h3>
+            <p className="text-slate-500 mt-2">الأصول = الالتزامات + حقوق الملكية</p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="bg-white/80 rounded-2xl p-5 text-center shadow-lg border border-emerald-100">
+              <p className="text-emerald-600 font-bold text-sm mb-2">الأصول</p>
+              <p className="text-2xl font-black text-emerald-700 tabular-nums">{formatNumber(stats.totalAssets)}</p>
+              <p className="text-emerald-500 text-xs">ر.س</p>
+            </div>
+            <div className="bg-white/80 rounded-2xl p-5 text-center shadow-lg border border-blue-100">
+              <p className="text-blue-600 font-bold text-sm mb-2">الالتزامات + حقوق الملكية</p>
+              <p className="text-2xl font-black text-blue-700 tabular-nums">{formatNumber(stats.totalLiabilities + stats.totalEquitiesWithIncome)}</p>
+              <p className="text-blue-500 text-xs">ر.س</p>
+            </div>
+            <div className={`rounded-2xl p-5 text-center shadow-lg border ${
+              stats.isBalanced 
+                ? "bg-gradient-to-br from-amber-50 to-amber-100 border-amber-200" 
+                : "bg-gradient-to-br from-red-50 to-red-100 border-red-200"
+            }`}>
+              <p className={`font-bold text-sm mb-2 ${stats.isBalanced ? "text-amber-600" : "text-red-600"}`}>
+                الفرق
+              </p>
+              <p className={`text-2xl font-black tabular-nums ${stats.isBalanced ? "text-amber-700" : "text-red-700"}`}>
+                {formatNumber(Math.abs(stats.difference))}
+              </p>
+              <p className={`text-xs ${stats.isBalanced ? "text-amber-500" : "text-red-500"}`}>ر.س</p>
+            </div>
+          </div>
+
+          {!stats.isBalanced && (
+            <div className="mt-6 p-4 bg-rose-100 border border-rose-300 rounded-xl text-center">
+              <AlertTriangle className="w-6 h-6 text-rose-600 mx-auto mb-2" />
+              <p className="text-rose-700 font-bold">تنبيه: هناك اختلاف في توازن الميزانية. يرجى مراجعة القيود المحاسبية.</p>
+            </div>
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 }
