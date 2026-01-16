@@ -1197,17 +1197,17 @@ export function Header({ user, onToggleSidebar, unreadChatCount = 0, subscriptio
                   </motion.button>
                   
                   {user?.role !== 'admin' && (
-                    <motion.button
-                      whileHover={{ backgroundColor: "rgba(255,255,255,0.05)" }}
-                      onClick={openSubscriptionModal}
-                      className="w-full flex items-center gap-4 px-4 py-3.5 rounded-xl text-white/70 hover:text-white transition-colors"
-                    >
-                      <div className="p-2 rounded-xl bg-amber-500/20">
-                        <Package size={18} className="text-amber-400" />
-                      </div>
-                      <span className="text-sm font-bold">{isRTL ? 'اشتراكي' : 'My Subscription'}</span>
-                    </motion.button>
-                  )}
+                      <motion.button
+                        whileHover={{ backgroundColor: "rgba(255,255,255,0.05)" }}
+                        onClick={() => { router.push("/subscriptions"); setShowUserDropdown(false); }}
+                        className="w-full flex items-center gap-4 px-4 py-3.5 rounded-xl text-white/70 hover:text-white transition-colors"
+                      >
+                        <div className="p-2 rounded-xl bg-amber-500/20">
+                          <Package size={18} className="text-amber-400" />
+                        </div>
+                        <span className="text-sm font-bold">{isRTL ? 'اشتراكي' : 'My Subscription'}</span>
+                      </motion.button>
+                    )}
                   
                   <motion.button
                     whileHover={{ backgroundColor: "rgba(255,255,255,0.05)" }}
