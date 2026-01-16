@@ -241,8 +241,9 @@ export default function SubscriptionsClient({ initialPlans, initialBankAccounts,
       duration_unit: formData.get('duration_unit'),
       trial_days: parseInt(formData.get('trial_days') as string) || 0,
       is_active: formData.get('is_active') === 'on' ? 1 : 0,
-      include_all_services: formData.get('include_all_services') === 'on' ? 1 : 0,
+      include_all_services: selectedServices.size === allFeatures.length ? 1 : 0,
       sort_order: parseInt(formData.get('sort_order') as string) || 0,
+      services: Array.from(selectedServices),
     };
 
     try {
@@ -259,9 +260,10 @@ export default function SubscriptionsClient({ initialPlans, initialBankAccounts,
       
       const result = await res.json();
       if (result.success) {
-        toast.success(editingPlan ? 'تم تحديث الباقة' : 'تم إنشاء الباقة');
+        toast.success(editingPlan ? 'تم تحديث الباقة والخدمات بنجاح' : 'تم إنشاء الباقة بنجاح');
         setShowPlanModal(false);
         setEditingPlan(null);
+        setSelectedServices(new Set());
         refreshPlans();
       } else {
         toast.error(result.error);
@@ -270,6 +272,27 @@ export default function SubscriptionsClient({ initialPlans, initialBankAccounts,
       toast.error('حدث خطأ');
     }
     setIsLoading(false);
+  };
+
+  const openPlanModal = (plan?: Plan) => {
+    if (plan) {
+      setEditingPlan(plan);
+      let services: string[] = [];
+      if (plan.include_all_services) {
+        services = allFeatures.map(f => f.key);
+      } else if (plan.services) {
+        try {
+          services = JSON.parse(plan.services);
+        } catch {
+          services = [];
+        }
+      }
+      setSelectedServices(new Set(services));
+    } else {
+      setEditingPlan(null);
+      setSelectedServices(new Set());
+    }
+    setShowPlanModal(true);
   };
 
   const handleDeletePlan = async (id: number) => {
@@ -600,73 +623,65 @@ export default function SubscriptionsClient({ initialPlans, initialBankAccounts,
           </div>
 
           <div className="p-6">
-            {activeTab === 'plans' && (
-              <div className="space-y-4">
-                <div className="flex justify-between items-center">
-                  <h3 className="font-bold text-slate-900 dark:text-white">قائمة الباقات</h3>
-                  <button
-                    onClick={() => { setEditingPlan(null); setShowPlanModal(true); }}
-                    className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl font-bold text-sm hover:from-blue-700 hover:to-indigo-700 transition-all"
-                  >
-                    <Plus size={18} />
-                    إضافة باقة
-                  </button>
-                </div>
+              {activeTab === 'plans' && (
+                <div className="space-y-4">
+                  <div className="flex justify-between items-center">
+                    <h3 className="font-bold text-slate-900 dark:text-white">قائمة الباقات</h3>
+                    <button
+                      onClick={() => openPlanModal()}
+                      className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl font-bold text-sm hover:from-blue-700 hover:to-indigo-700 transition-all"
+                    >
+                      <Plus size={18} />
+                      إضافة باقة
+                    </button>
+                  </div>
 
-                  <div className="grid gap-4">
-                    {plans.map((plan) => (
-                      <motion.div
-                        key={plan.id}
-                        layout
-                        className="bg-slate-50 dark:bg-slate-800 rounded-2xl p-5 border border-slate-200 dark:border-slate-700"
-                      >
-                        <div className="flex items-start justify-between">
-                          <div className="flex items-center gap-4">
-                            <div className={cn(
-                              "w-14 h-14 rounded-2xl flex items-center justify-center",
-                              plan.is_active ? "bg-gradient-to-br from-emerald-500 to-green-600" : "bg-slate-300 dark:bg-slate-600"
-                            )}>
-                              <Package size={24} className="text-white" />
-                            </div>
-                            <div>
-                              <h4 className="font-bold text-lg text-slate-900 dark:text-white">{plan.name}</h4>
-                              <p className="text-sm text-slate-500 dark:text-slate-400">{plan.name_en}</p>
-                              <div className="flex items-center gap-3 mt-2">
-                                <span className="text-2xl font-black text-blue-600">{plan.price} ر.س</span>
-                                <span className="text-sm text-slate-400">/ {plan.duration_value} {plan.duration_unit === 'days' ? 'يوم' : plan.duration_unit === 'months' ? 'شهر' : 'سنة'}</span>
+                    <div className="grid gap-4">
+                      {plans.map((plan) => (
+                        <motion.div
+                          key={plan.id}
+                          layout
+                          className="bg-slate-50 dark:bg-slate-800 rounded-2xl p-5 border border-slate-200 dark:border-slate-700"
+                        >
+                          <div className="flex items-start justify-between">
+                            <div className="flex items-center gap-4">
+                              <div className={cn(
+                                "w-14 h-14 rounded-2xl flex items-center justify-center",
+                                plan.is_active ? "bg-gradient-to-br from-emerald-500 to-green-600" : "bg-slate-300 dark:bg-slate-600"
+                              )}>
+                                <Package size={24} className="text-white" />
+                              </div>
+                              <div>
+                                <h4 className="font-bold text-lg text-slate-900 dark:text-white">{plan.name}</h4>
+                                <p className="text-sm text-slate-500 dark:text-slate-400">{plan.name_en}</p>
+                                <div className="flex items-center gap-3 mt-2">
+                                  <span className="text-2xl font-black text-blue-600">{plan.price} ر.س</span>
+                                  <span className="text-sm text-slate-400">/ {plan.duration_value} {plan.duration_unit === 'days' ? 'يوم' : plan.duration_unit === 'months' ? 'شهر' : 'سنة'}</span>
+                                </div>
                               </div>
                             </div>
+                            <div className="flex items-center gap-2">
+                              <span className={cn(
+                                "px-3 py-1 rounded-full text-xs font-bold",
+                                plan.is_active ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400" : "bg-slate-200 text-slate-600 dark:bg-slate-700 dark:text-slate-400"
+                              )}>
+                                {plan.is_active ? 'نشطة' : 'غير نشطة'}
+                              </span>
+                              <button
+                                onClick={() => openPlanModal(plan)}
+                                className="p-2 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg transition-colors"
+                              >
+                                <Edit size={18} className="text-slate-500" />
+                              </button>
+                              <button
+                                onClick={() => handleDeletePlan(plan.id)}
+                                className="p-2 hover:bg-red-100 dark:hover:bg-red-900/30 rounded-lg transition-colors"
+                              >
+                                <Trash2 size={18} className="text-red-500" />
+                              </button>
+                            </div>
                           </div>
-                          <div className="flex items-center gap-2">
-                            <span className={cn(
-                              "px-3 py-1 rounded-full text-xs font-bold",
-                              plan.is_active ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400" : "bg-slate-200 text-slate-600 dark:bg-slate-700 dark:text-slate-400"
-                            )}>
-                              {plan.is_active ? 'نشطة' : 'غير نشطة'}
-                            </span>
-                            <button
-                              onClick={() => { setEditingPlan(plan); setShowPlanModal(true); }}
-                              className="p-2 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg transition-colors"
-                            >
-                              <Edit size={18} className="text-slate-500" />
-                            </button>
-                            <button
-                              onClick={() => handleDeletePlan(plan.id)}
-                              className="p-2 hover:bg-red-100 dark:hover:bg-red-900/30 rounded-lg transition-colors"
-                            >
-                              <Trash2 size={18} className="text-red-500" />
-                            </button>
-                          </div>
-                        </div>
-                        <div className="mt-4 pt-4 border-t border-slate-200 dark:border-slate-700 flex items-center justify-between">
-                          <div className="flex items-center gap-3">
-                            <button
-                              onClick={() => openServicesModal(plan)}
-                              className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-violet-500/10 to-purple-500/10 hover:from-violet-500/20 hover:to-purple-500/20 text-violet-700 dark:text-violet-400 rounded-xl font-bold text-sm transition-all border border-violet-200 dark:border-violet-800"
-                            >
-                              <Settings size={16} />
-                              إدارة الخدمات
-                            </button>
+                          <div className="mt-4 pt-4 border-t border-slate-200 dark:border-slate-700 flex items-center justify-between">
                             <span className={cn(
                               "px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-2",
                               plan.include_all_services 
@@ -677,8 +692,7 @@ export default function SubscriptionsClient({ initialPlans, initialBankAccounts,
                               {plan.include_all_services ? 'تشمل كل الخدمات' : `${getPlanServicesCount(plan)} خدمة محددة`}
                             </span>
                           </div>
-                        </div>
-                        {plan.description && (
+                          {plan.description && (
                           <p className="mt-3 text-sm text-slate-600 dark:text-slate-400 bg-white dark:bg-slate-900 p-3 rounded-xl">
                             {plan.description}
                           </p>
@@ -857,90 +871,270 @@ export default function SubscriptionsClient({ initialPlans, initialBankAccounts,
         </div>
       </div>
 
-      <AnimatePresence>
-        {showPlanModal && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setShowPlanModal(false)}
-              className="absolute inset-0 bg-black/50 backdrop-blur-sm"
-            />
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.9 }}
-              className="relative w-full max-w-2xl bg-white dark:bg-slate-900 rounded-3xl p-6 shadow-2xl max-h-[90vh] overflow-y-auto"
-            >
-              <h3 className="text-xl font-black text-slate-900 dark:text-white mb-6">
-                {editingPlan ? 'تعديل الباقة' : 'إضافة باقة جديدة'}
-              </h3>
-              <form onSubmit={handleSavePlan} className="space-y-4">
-                <div className="grid md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">اسم الباقة (عربي)</label>
-                    <input name="name" defaultValue={editingPlan?.name} required className="w-full px-4 py-3 bg-slate-100 dark:bg-slate-800 rounded-xl border-0 font-bold" />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">اسم الباقة (انجليزي)</label>
-                    <input name="name_en" defaultValue={editingPlan?.name_en} className="w-full px-4 py-3 bg-slate-100 dark:bg-slate-800 rounded-xl border-0 font-bold" />
-                  </div>
-                </div>
-                <div>
-                  <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">الوصف</label>
-                  <textarea name="description" defaultValue={editingPlan?.description || ''} rows={2} className="w-full px-4 py-3 bg-slate-100 dark:bg-slate-800 rounded-xl border-0 font-bold" />
-                </div>
-                <div className="grid md:grid-cols-3 gap-4">
-                  <div>
-                    <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">السعر (ر.س)</label>
-                    <input name="price" type="number" step="0.01" defaultValue={editingPlan?.price || 0} className="w-full px-4 py-3 bg-slate-100 dark:bg-slate-800 rounded-xl border-0 font-bold" />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">المدة</label>
-                    <input name="duration_value" type="number" defaultValue={editingPlan?.duration_value || 1} className="w-full px-4 py-3 bg-slate-100 dark:bg-slate-800 rounded-xl border-0 font-bold" />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">وحدة المدة</label>
-                    <select name="duration_unit" defaultValue={editingPlan?.duration_unit || 'months'} className="w-full px-4 py-3 bg-slate-100 dark:bg-slate-800 rounded-xl border-0 font-bold">
-                      <option value="days">يوم</option>
-                      <option value="months">شهر</option>
-                      <option value="years">سنة</option>
-                    </select>
+        <AnimatePresence>
+          {showPlanModal && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                onClick={() => setShowPlanModal(false)}
+                className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+              />
+              <motion.div
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.9 }}
+                className="relative w-full max-w-5xl bg-white dark:bg-slate-900 rounded-3xl shadow-2xl max-h-[95vh] overflow-hidden flex flex-col"
+              >
+                <div className="bg-gradient-to-r from-blue-600 to-indigo-600 p-6 text-white flex-shrink-0">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-4">
+                      <div className="w-14 h-14 bg-white/20 rounded-2xl flex items-center justify-center backdrop-blur-sm">
+                        <Package size={28} />
+                      </div>
+                      <div>
+                        <h3 className="text-2xl font-black">{editingPlan ? 'تعديل الباقة' : 'إضافة باقة جديدة'}</h3>
+                        <p className="text-white/80 text-sm">قم بتحديد معلومات الباقة والخدمات المتاحة</p>
+                      </div>
+                    </div>
+                    <button
+                      onClick={() => setShowPlanModal(false)}
+                      className="p-2 hover:bg-white/20 rounded-xl transition-colors"
+                    >
+                      <X size={24} />
+                    </button>
                   </div>
                 </div>
-                <div className="grid md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">فترة تجريبية (أيام)</label>
-                    <input name="trial_days" type="number" defaultValue={editingPlan?.trial_days || 0} className="w-full px-4 py-3 bg-slate-100 dark:bg-slate-800 rounded-xl border-0 font-bold" />
+
+                <form onSubmit={handleSavePlan} className="flex-1 overflow-y-auto p-6 space-y-6">
+                  <div className="bg-slate-50 dark:bg-slate-800 rounded-2xl p-5 border border-slate-200 dark:border-slate-700">
+                    <h4 className="font-black text-slate-900 dark:text-white mb-4 flex items-center gap-2">
+                      <FileText size={20} className="text-blue-500" />
+                      معلومات الباقة
+                    </h4>
+                    <div className="grid md:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">اسم الباقة (عربي)</label>
+                        <input name="name" defaultValue={editingPlan?.name} required className="w-full px-4 py-3 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 font-bold" />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">اسم الباقة (انجليزي)</label>
+                        <input name="name_en" defaultValue={editingPlan?.name_en} className="w-full px-4 py-3 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 font-bold" />
+                      </div>
+                    </div>
+                    <div className="mt-4">
+                      <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">الوصف</label>
+                      <textarea name="description" defaultValue={editingPlan?.description || ''} rows={2} className="w-full px-4 py-3 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 font-bold" />
+                    </div>
+                    <div className="grid md:grid-cols-4 gap-4 mt-4">
+                      <div>
+                        <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">السعر (ر.س)</label>
+                        <input name="price" type="number" step="0.01" defaultValue={editingPlan?.price || 0} className="w-full px-4 py-3 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 font-bold" />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">المدة</label>
+                        <input name="duration_value" type="number" defaultValue={editingPlan?.duration_value || 1} className="w-full px-4 py-3 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 font-bold" />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">وحدة المدة</label>
+                        <select name="duration_unit" defaultValue={editingPlan?.duration_unit || 'months'} className="w-full px-4 py-3 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 font-bold">
+                          <option value="days">يوم</option>
+                          <option value="months">شهر</option>
+                          <option value="years">سنة</option>
+                        </select>
+                      </div>
+                      <div>
+                        <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">فترة تجريبية (أيام)</label>
+                        <input name="trial_days" type="number" defaultValue={editingPlan?.trial_days || 0} className="w-full px-4 py-3 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 font-bold" />
+                      </div>
+                    </div>
+                    <div className="flex gap-6 mt-4">
+                      <label className="flex items-center gap-2 cursor-pointer">
+                        <input name="is_active" type="checkbox" defaultChecked={editingPlan?.is_active !== 0} className="w-5 h-5 rounded accent-blue-600" />
+                        <span className="font-bold text-slate-700 dark:text-slate-300">نشطة</span>
+                      </label>
+                      <input name="sort_order" type="hidden" defaultValue={editingPlan?.sort_order || 0} />
+                    </div>
                   </div>
-                  <div>
-                    <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">ترتيب العرض</label>
-                    <input name="sort_order" type="number" defaultValue={editingPlan?.sort_order || 0} className="w-full px-4 py-3 bg-slate-100 dark:bg-slate-800 rounded-xl border-0 font-bold" />
+
+                  <div className="bg-gradient-to-br from-rose-50 to-rose-100/50 dark:from-rose-900/20 dark:to-rose-800/10 rounded-2xl p-5 border border-rose-200 dark:border-rose-800">
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 bg-gradient-to-br from-rose-500 to-pink-600 rounded-xl flex items-center justify-center">
+                          <Crown size={20} className="text-white" />
+                        </div>
+                        <div>
+                          <h4 className="font-black text-slate-800 dark:text-white">الصلاحيات الإدارية</h4>
+                          <p className="text-xs text-slate-500">صلاحيات متقدمة للمشرفين</p>
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={toggleAllAdmin}
+                        className="flex items-center gap-2 px-3 py-1.5 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 rounded-lg text-xs font-bold transition-all border border-slate-200 dark:border-slate-700"
+                      >
+                        <CheckCheck size={14} />
+                        تحديد الكل
+                      </button>
+                    </div>
+                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
+                      {adminFeatures.map((feature) => (
+                        <div
+                          key={feature.key}
+                          onClick={() => toggleService(feature.key)}
+                          className={cn(
+                            "cursor-pointer rounded-xl p-3 border-2 transition-all duration-200",
+                            selectedServices.has(feature.key)
+                              ? "bg-white dark:bg-slate-800 border-rose-400 shadow-md"
+                              : "bg-white/50 dark:bg-slate-800/50 border-transparent hover:border-slate-300"
+                          )}
+                        >
+                          <div className="flex items-center gap-2">
+                            <div className={cn(
+                              "w-8 h-8 rounded-lg flex items-center justify-center transition-all",
+                              selectedServices.has(feature.key)
+                                ? "bg-gradient-to-br from-rose-500 to-pink-600 text-white"
+                                : "bg-slate-100 dark:bg-slate-700 text-slate-500"
+                            )}>
+                              <feature.icon size={16} />
+                            </div>
+                            <span className="font-bold text-slate-800 dark:text-white text-xs flex-1 truncate">{feature.name}</span>
+                            <div className={cn(
+                              "w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all",
+                              selectedServices.has(feature.key)
+                                ? "bg-emerald-500 border-emerald-500"
+                                : "border-slate-300 dark:border-slate-600"
+                            )}>
+                              {selectedServices.has(feature.key) && <Check size={12} className="text-white" />}
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="bg-gradient-to-br from-emerald-50 to-emerald-100/50 dark:from-emerald-900/20 dark:to-emerald-800/10 rounded-2xl p-5 border border-emerald-200 dark:border-emerald-800">
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-xl flex items-center justify-center">
+                          <Globe size={20} className="text-white" />
+                        </div>
+                        <div>
+                          <h4 className="font-black text-slate-800 dark:text-white">الصلاحيات العامة</h4>
+                          <p className="text-xs text-slate-500">صلاحيات أساسية للمستخدمين</p>
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={toggleAllGeneral}
+                        className="flex items-center gap-2 px-3 py-1.5 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 rounded-lg text-xs font-bold transition-all border border-slate-200 dark:border-slate-700"
+                      >
+                        <CheckCheck size={14} />
+                        تحديد الكل
+                      </button>
+                    </div>
+
+                    <div className="space-y-4">
+                      {categories.filter(Boolean).map((category) => {
+                        const categoryFeaturesList = generalFeatures.filter(f => f.category === category);
+                        const colors = categoryColors[category!] || categoryColors['أخرى'];
+                        
+                        return (
+                          <div key={category} className="space-y-2">
+                            <h5 className="text-sm font-black text-slate-700 dark:text-slate-300 flex items-center gap-2">
+                              <div className={cn("w-1 h-4 rounded-full", colors.border.replace('border-r-', 'bg-'))} />
+                              {category}
+                              <span className="text-xs font-normal text-slate-400">({categoryFeaturesList.length})</span>
+                            </h5>
+                            
+                            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
+                              {categoryFeaturesList.map((feature) => (
+                                <div
+                                  key={feature.key}
+                                  onClick={() => toggleService(feature.key)}
+                                  className={cn(
+                                    "cursor-pointer rounded-xl p-3 border-2 transition-all duration-200",
+                                    colors.border,
+                                    selectedServices.has(feature.key)
+                                      ? `bg-gradient-to-br ${colors.bg} border-emerald-400 shadow-md`
+                                      : "bg-white/80 dark:bg-slate-800/80 border-transparent hover:border-slate-300"
+                                  )}
+                                >
+                                  <div className="flex items-center gap-2">
+                                    <div className={cn(
+                                      "w-8 h-8 rounded-lg flex items-center justify-center transition-all",
+                                      selectedServices.has(feature.key)
+                                        ? "bg-gradient-to-br from-emerald-500 to-teal-600 text-white"
+                                        : "bg-slate-100 dark:bg-slate-700 text-slate-500"
+                                    )}>
+                                      <feature.icon size={16} />
+                                    </div>
+                                    <span className="font-bold text-slate-800 dark:text-white text-xs flex-1 truncate">{feature.name}</span>
+                                    <div className={cn(
+                                      "w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all",
+                                      selectedServices.has(feature.key)
+                                        ? "bg-emerald-500 border-emerald-500"
+                                        : "border-slate-300 dark:border-slate-600"
+                                    )}>
+                                      {selectedServices.has(feature.key) && <Check size={12} className="text-white" />}
+                                    </div>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </form>
+
+                <div className="p-6 bg-slate-50 dark:bg-slate-800 border-t border-slate-200 dark:border-slate-700 flex-shrink-0">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <span className="bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-2">
+                        <CheckCircle2 size={16} />
+                        {selectedServices.size} خدمة محددة من {allFeatures.length}
+                      </span>
+                    </div>
+                    <div className="flex gap-3">
+                      <button
+                        type="button"
+                        onClick={() => setShowPlanModal(false)}
+                        className="px-6 py-3 bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300 font-bold rounded-xl hover:bg-slate-300 dark:hover:bg-slate-600 transition-all"
+                      >
+                        إلغاء
+                      </button>
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          const form = document.querySelector('form');
+                          if (form) {
+                            form.requestSubmit();
+                          }
+                        }}
+                        disabled={isLoading}
+                        className="px-8 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-black rounded-xl hover:from-blue-700 hover:to-indigo-700 transition-all flex items-center gap-2 disabled:opacity-50 shadow-lg shadow-blue-500/30"
+                      >
+                        {isLoading ? (
+                          <>
+                            <RefreshCw className="animate-spin" size={18} />
+                            جاري الحفظ...
+                          </>
+                        ) : (
+                          <>
+                            <Save size={18} />
+                            حفظ الباقة
+                          </>
+                        )}
+                      </button>
+                    </div>
                   </div>
                 </div>
-                <div className="flex gap-6">
-                  <label className="flex items-center gap-2 cursor-pointer">
-                    <input name="is_active" type="checkbox" defaultChecked={editingPlan?.is_active !== 0} className="w-5 h-5 rounded" />
-                    <span className="font-bold text-slate-700 dark:text-slate-300">نشطة</span>
-                  </label>
-                  <label className="flex items-center gap-2 cursor-pointer">
-                    <input name="include_all_services" type="checkbox" defaultChecked={editingPlan?.include_all_services !== 0} className="w-5 h-5 rounded" />
-                    <span className="font-bold text-slate-700 dark:text-slate-300">تشمل كل الخدمات</span>
-                  </label>
-                </div>
-                <div className="flex gap-3 pt-4">
-                  <button type="submit" disabled={isLoading} className="flex-1 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-bold rounded-xl hover:from-blue-700 hover:to-indigo-700 disabled:opacity-50">
-                    {isLoading ? 'جاري الحفظ...' : 'حفظ'}
-                  </button>
-                  <button type="button" onClick={() => setShowPlanModal(false)} className="px-6 py-3 bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300 font-bold rounded-xl">
-                    إلغاء
-                  </button>
-                </div>
-              </form>
-            </motion.div>
-          </div>
-        )}
+              </motion.div>
+            </div>
+          )}
 
         {showBankModal && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
@@ -1125,248 +1319,8 @@ export default function SubscriptionsClient({ initialPlans, initialBankAccounts,
                   </div>
                 </motion.div>
               </div>
-            )}
+              )}
 
-          {showServicesModal && (
-            <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                onClick={() => setShowServicesModal(null)}
-                className="absolute inset-0 bg-slate-950/60 backdrop-blur-md"
-              />
-              <motion.div
-                initial={{ opacity: 0, scale: 0.9, y: 20 }}
-                animate={{ opacity: 1, scale: 1, y: 0 }}
-                exit={{ opacity: 0, scale: 0.9, y: 20 }}
-                className="relative w-full max-w-5xl max-h-[90vh] bg-white dark:bg-slate-900 rounded-[2rem] shadow-[0_20px_50px_rgba(0,0,0,0.3)] border border-slate-200 dark:border-slate-800 overflow-hidden flex flex-col"
-              >
-                <div className="bg-gradient-to-r from-violet-600 to-purple-600 p-6 text-white">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-4">
-                      <div className="w-14 h-14 bg-white/20 rounded-2xl flex items-center justify-center backdrop-blur-sm">
-                        <Settings size={28} />
-                      </div>
-                      <div>
-                        <h3 className="text-2xl font-black">إدارة خدمات الباقة</h3>
-                        <p className="text-white/80 text-sm">{showServicesModal.name} - حدد الخدمات المتاحة للمشتركين</p>
-                      </div>
-                    </div>
-                    <button
-                      onClick={() => setShowServicesModal(null)}
-                      className="p-2 hover:bg-white/20 rounded-xl transition-colors"
-                    >
-                      <X size={24} />
-                    </button>
-                  </div>
-                  <div className="flex items-center gap-4 mt-4">
-                    <span className="bg-white/20 backdrop-blur-sm px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-2">
-                      <CheckCircle2 size={16} />
-                      {selectedServices.size} خدمة محددة
-                    </span>
-                    <span className="bg-white/20 backdrop-blur-sm px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-2">
-                      <Package size={16} />
-                      {allFeatures.length} خدمة متاحة
-                    </span>
-                  </div>
-                </div>
-
-                <div className="flex-1 overflow-y-auto p-6 space-y-8">
-                  <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="bg-gradient-to-br from-rose-50 to-rose-100/50 dark:from-rose-900/20 dark:to-rose-800/10 rounded-2xl p-6 border border-rose-200 dark:border-rose-800"
-                  >
-                    <div className="flex items-center justify-between mb-6">
-                      <div className="flex items-center gap-3">
-                        <div className="w-12 h-12 bg-gradient-to-br from-rose-500 to-pink-600 rounded-xl flex items-center justify-center">
-                          <Crown size={24} className="text-white" />
-                        </div>
-                        <div>
-                          <h4 className="text-lg font-black text-slate-800 dark:text-white">الصلاحيات الإدارية</h4>
-                          <p className="text-sm text-slate-500">صلاحيات متقدمة للمشرفين</p>
-                        </div>
-                      </div>
-                      <button
-                        onClick={toggleAllAdmin}
-                        className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 rounded-xl text-sm font-bold transition-all border border-slate-200 dark:border-slate-700"
-                      >
-                        <CheckCheck size={16} />
-                        تحديد الكل
-                      </button>
-                    </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                      {adminFeatures.map((feature) => (
-                        <motion.div
-                          key={feature.key}
-                          whileHover={{ scale: 1.02 }}
-                          whileTap={{ scale: 0.98 }}
-                          onClick={() => toggleService(feature.key)}
-                          className={cn(
-                            "cursor-pointer rounded-xl p-4 border-2 transition-all duration-300",
-                            selectedServices.has(feature.key)
-                              ? "bg-white dark:bg-slate-800 border-rose-400 shadow-lg"
-                              : "bg-white/50 dark:bg-slate-800/50 border-slate-200 dark:border-slate-700 hover:border-slate-300"
-                          )}
-                        >
-                          <div className="flex items-center gap-3">
-                            <div className={cn(
-                              "w-10 h-10 rounded-lg flex items-center justify-center transition-all",
-                              selectedServices.has(feature.key)
-                                ? "bg-gradient-to-br from-rose-500 to-pink-600 text-white"
-                                : "bg-slate-100 dark:bg-slate-700 text-slate-500"
-                            )}>
-                              <feature.icon size={18} />
-                            </div>
-                            <div className="flex-1 min-w-0">
-                              <h5 className="font-bold text-slate-800 dark:text-white text-sm truncate">{feature.name}</h5>
-                              <span className="text-xs text-rose-500 flex items-center gap-1">
-                                <Shield size={10} />
-                                إداري
-                              </span>
-                            </div>
-                            <div className={cn(
-                              "w-10 h-6 rounded-full transition-all duration-300 relative flex-shrink-0",
-                              selectedServices.has(feature.key) ? "bg-emerald-500" : "bg-slate-300 dark:bg-slate-600"
-                            )}>
-                              <div className={cn(
-                                "absolute top-1 w-4 h-4 rounded-full bg-white shadow transition-all duration-300",
-                                selectedServices.has(feature.key) ? "right-1" : "left-1"
-                              )} />
-                            </div>
-                          </div>
-                        </motion.div>
-                      ))}
-                    </div>
-                  </motion.div>
-
-                  <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.1 }}
-                    className="bg-gradient-to-br from-emerald-50 to-emerald-100/50 dark:from-emerald-900/20 dark:to-emerald-800/10 rounded-2xl p-6 border border-emerald-200 dark:border-emerald-800"
-                  >
-                    <div className="flex items-center justify-between mb-6">
-                      <div className="flex items-center gap-3">
-                        <div className="w-12 h-12 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-xl flex items-center justify-center">
-                          <Globe size={24} className="text-white" />
-                        </div>
-                        <div>
-                          <h4 className="text-lg font-black text-slate-800 dark:text-white">الصلاحيات العامة</h4>
-                          <p className="text-sm text-slate-500">صلاحيات أساسية للمستخدمين</p>
-                        </div>
-                      </div>
-                      <button
-                        onClick={toggleAllGeneral}
-                        className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 rounded-xl text-sm font-bold transition-all border border-slate-200 dark:border-slate-700"
-                      >
-                        <CheckCheck size={16} />
-                        تحديد الكل
-                      </button>
-                    </div>
-
-                    <div className="space-y-6">
-                      {categories.filter(Boolean).map((category) => {
-                        const categoryFeaturesList = generalFeatures.filter(f => f.category === category);
-                        const colors = categoryColors[category!] || categoryColors['أخرى'];
-                        
-                        return (
-                          <div key={category} className="space-y-3">
-                            <h5 className="text-md font-black text-slate-700 dark:text-slate-300 flex items-center gap-2">
-                              <div className={cn("w-1.5 h-6 rounded-full", colors.border.replace('border-r-', 'bg-'))} />
-                              {category}
-                              <span className="text-xs font-normal text-slate-400">({categoryFeaturesList.length})</span>
-                            </h5>
-                            
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                              {categoryFeaturesList.map((feature) => (
-                                <motion.div
-                                  key={feature.key}
-                                  whileHover={{ scale: 1.02 }}
-                                  whileTap={{ scale: 0.98 }}
-                                  onClick={() => toggleService(feature.key)}
-                                  className={cn(
-                                    "cursor-pointer rounded-xl p-4 border-2 border-r-4 transition-all duration-300",
-                                    colors.border,
-                                    selectedServices.has(feature.key)
-                                      ? `bg-gradient-to-br ${colors.bg} border-emerald-400 shadow-lg`
-                                      : "bg-white/80 dark:bg-slate-800/80 border-slate-200 dark:border-slate-700 hover:border-slate-300"
-                                  )}
-                                >
-                                  <div className="flex items-center gap-3">
-                                    <div className={cn(
-                                      "w-10 h-10 rounded-lg flex items-center justify-center transition-all",
-                                      selectedServices.has(feature.key)
-                                        ? "bg-gradient-to-br from-emerald-500 to-teal-600 text-white"
-                                        : "bg-slate-100 dark:bg-slate-700 text-slate-500"
-                                    )}>
-                                      <feature.icon size={18} />
-                                    </div>
-                                    <div className="flex-1 min-w-0">
-                                      <h5 className="font-bold text-slate-800 dark:text-white text-sm truncate">{feature.name}</h5>
-                                      <span className={cn("text-xs flex items-center gap-1", colors.icon)}>
-                                        <Sparkles size={10} />
-                                        {category}
-                                      </span>
-                                    </div>
-                                    <div className={cn(
-                                      "w-10 h-6 rounded-full transition-all duration-300 relative flex-shrink-0",
-                                      selectedServices.has(feature.key) ? "bg-emerald-500" : "bg-slate-300 dark:bg-slate-600"
-                                    )}>
-                                      <div className={cn(
-                                        "absolute top-1 w-4 h-4 rounded-full bg-white shadow transition-all duration-300",
-                                        selectedServices.has(feature.key) ? "right-1" : "left-1"
-                                      )} />
-                                    </div>
-                                  </div>
-                                </motion.div>
-                              ))}
-                            </div>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </motion.div>
-                </div>
-
-                <div className="p-6 bg-slate-50 dark:bg-slate-800 border-t border-slate-200 dark:border-slate-700">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <span className="bg-violet-100 dark:bg-violet-900/30 text-violet-700 dark:text-violet-400 px-4 py-2 rounded-xl text-sm font-bold">
-                        {selectedServices.size} من {allFeatures.length} خدمة محددة
-                      </span>
-                    </div>
-                    <div className="flex gap-3">
-                      <button
-                        onClick={() => setShowServicesModal(null)}
-                        className="px-6 py-3 bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300 font-bold rounded-xl hover:bg-slate-300 dark:hover:bg-slate-600 transition-all"
-                      >
-                        إلغاء
-                      </button>
-                      <button
-                        onClick={handleSaveServices}
-                        disabled={savingServices}
-                        className="px-8 py-3 bg-gradient-to-r from-violet-600 to-purple-600 text-white font-black rounded-xl hover:from-violet-700 hover:to-purple-700 transition-all flex items-center gap-2 disabled:opacity-50 shadow-lg shadow-violet-500/30"
-                      >
-                        {savingServices ? (
-                          <>
-                            <RefreshCw className="animate-spin" size={18} />
-                            جاري الحفظ...
-                          </>
-                        ) : (
-                          <>
-                            <Save size={18} />
-                            حفظ الخدمات
-                          </>
-                        )}
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </motion.div>
-            </div>
-          )}
           </AnimatePresence>
         </div>
       );
