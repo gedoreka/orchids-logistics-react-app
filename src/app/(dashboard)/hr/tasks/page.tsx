@@ -4,10 +4,11 @@ import { query } from "@/lib/db";
 import { TasksClient } from "./tasks-client";
 
 export default async function TasksPage({ searchParams }: { 
-  searchParams: { filter?: string, search?: string }
+  searchParams: Promise<{ filter?: string, search?: string }>
 }) {
-  const filter = (await searchParams).filter || "all";
-  const search = (await searchParams).search || "";
+  const params = await searchParams;
+  const filter = params.filter || "all";
+  const search = params.search || "";
 
   const cookieStore = await cookies();
   const sessionCookie = cookieStore.get("auth_session");
@@ -57,7 +58,7 @@ export default async function TasksPage({ searchParams }: {
 
   // 3. Fetch Employees for assignment
   const employees = await query(
-    "SELECT id, name, user_code, iqama_number FROM employees WHERE company_id = ? AND is_active = 1",
+    "SELECT id, name, user_code, iqama_number, email, job_title, personal_photo FROM employees WHERE company_id = ? AND is_active = 1",
     [companyId]
   );
 
