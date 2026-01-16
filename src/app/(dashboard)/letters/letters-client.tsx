@@ -5,7 +5,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   FileText, Plus, Search, Edit2, Trash2, Printer, Download,
   Calendar, User, Building2, X, Check, Mail, FileSignature,
-  ClipboardList, Receipt, ChevronLeft, Eye, Settings, Upload, MoveVertical
+  ClipboardList, Receipt, ChevronLeft, Eye, Settings, Upload, MoveVertical,
+  Send, AtSign, Loader2
 } from "lucide-react";
 import { toast } from "sonner";
 import * as pdfjsLib from "pdfjs-dist";
@@ -38,6 +39,7 @@ interface GeneratedLetter {
 interface CompanyInfo {
   name: string;
   commercial_number: string;
+  email?: string;
   letterhead_path?: string;
   letterhead_top_margin?: number;
   letterhead_bottom_margin?: number;
@@ -196,6 +198,11 @@ export default function LettersClient() {
   const printRef = useRef<HTMLDivElement>(null);
   const pdfCanvasRef = useRef<HTMLCanvasElement>(null);
   const [pdfRendered, setPdfRendered] = useState(false);
+
+  const [showEmailModal, setShowEmailModal] = useState(false);
+  const [emailLetter, setEmailLetter] = useState<GeneratedLetter | null>(null);
+  const [customEmail, setCustomEmail] = useState("");
+  const [isSendingEmail, setIsSendingEmail] = useState(false);
 
   const renderPdfToCanvas = useCallback(async (pdfUrl: string, canvas: HTMLCanvasElement | null) => {
     if (!canvas || !pdfUrl) return;
@@ -518,10 +525,157 @@ export default function LettersClient() {
       </body>
       </html>
     `);
-    printWindow.document.close();
+      printWindow.document.close();
+    };
+
+  const openEmailModal = (letter: GeneratedLetter) => {
+    setEmailLetter(letter);
+    setCustomEmail("");
+    setShowEmailModal(true);
   };
 
-  const filteredLetters = letters.filter(letter => 
+  const generatePdfBase64 = async (letter: GeneratedLetter): Promise<string> => {
+    const content = generateLetterContent(letter);
+    const letterhead = companyInfo?.letterhead_path;
+    const topMargin = margins.top;
+    const bottomMargin = margins.bottom;
+    const isPdf = letterhead?.toLowerCase().endsWith('.pdf');
+
+    const htmlContent = `
+      <!DOCTYPE html>
+      <html dir="rtl" lang="ar">
+      <head>
+        <meta charset="UTF-8">
+        <style>
+          @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap');
+          * { margin: 0; padding: 0; box-sizing: border-box; }
+          body { font-family: 'Tajawal', sans-serif; direction: rtl; background: #fff; color: #000; line-height: 1.6; }
+          @page { size: A4; margin: 0; }
+          .page-container { width: 210mm; height: 297mm; position: relative; margin: 0 auto; overflow: hidden; }
+          ${!isPdf && letterhead ? `
+          .page-container {
+            background-image: url('${letterhead}');
+            background-size: 100% 100%; background-repeat: no-repeat; background-position: center;
+          }` : ''}
+          .letter-content-wrapper { 
+            position: absolute; 
+            top: ${topMargin}px; 
+            bottom: ${bottomMargin}px; 
+            left: 50px; 
+            right: 50px; 
+            z-index: 1; 
+            overflow: hidden;
+          }
+          .letter-content { font-size: 14px; text-align: justify; line-height: 1.6; }
+          .letter-content p { margin-bottom: 10px; }
+          .field { font-weight: bold; color: #000; }
+          h2 { font-size: 18px; margin-bottom: 15px; }
+          table { width: 100%; border-collapse: collapse; margin: 10px 0; }
+          td, th { padding: 8px; border: 1px solid #000; font-size: 14px; }
+        </style>
+      </head>
+      <body>
+        <div class="page-container">
+          <div class="letter-content-wrapper">
+            <div class="letter-content">${content}</div>
+          </div>
+        </div>
+      </body>
+      </html>
+    `;
+
+    const { jsPDF } = await import('jspdf');
+    const html2canvas = (await import('html2canvas')).default;
+    
+    const iframe = document.createElement('iframe');
+    iframe.style.position = 'absolute';
+    iframe.style.left = '-9999px';
+    iframe.style.width = '794px';
+    iframe.style.height = '1123px';
+    document.body.appendChild(iframe);
+    
+    const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document;
+    if (!iframeDoc) throw new Error('Could not access iframe document');
+    
+    iframeDoc.open();
+    iframeDoc.write(htmlContent);
+    iframeDoc.close();
+    
+    await new Promise(resolve => setTimeout(resolve, 500));
+    
+    const canvas = await html2canvas(iframeDoc.body, {
+      scale: 2,
+      useCORS: true,
+      allowTaint: true,
+      width: 794,
+      height: 1123
+    });
+    
+    document.body.removeChild(iframe);
+    
+    const pdf = new jsPDF({
+      orientation: 'portrait',
+      unit: 'mm',
+      format: 'a4'
+    });
+    
+    const imgData = canvas.toDataURL('image/png');
+    pdf.addImage(imgData, 'PNG', 0, 0, 210, 297);
+    
+    return pdf.output('datauristring').split(',')[1];
+  };
+
+  const handleSendEmail = async (toCompanyEmail: boolean) => {
+    if (!emailLetter) return;
+    
+    const recipientEmail = toCompanyEmail ? companyInfo?.email : customEmail;
+    
+    if (!recipientEmail) {
+      toast.error(toCompanyEmail ? "لا يوجد بريد إلكتروني مسجل للشركة" : "يرجى إدخال البريد الإلكتروني");
+      return;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(recipientEmail)) {
+      toast.error("البريد الإلكتروني غير صحيح");
+      return;
+    }
+
+    setIsSendingEmail(true);
+    
+    try {
+      const pdfBase64 = await generatePdfBase64(emailLetter);
+      
+      const res = await fetch("/api/letters/send-email", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          recipientEmail,
+          letterNumber: emailLetter.letter_number,
+          letterType: emailLetter.template_name_ar,
+          pdfBase64
+        })
+      });
+
+      const data = await res.json();
+      
+      if (data.success) {
+        toast.success(`تم إرسال الخطاب بنجاح إلى ${recipientEmail}`);
+        setShowEmailModal(false);
+        setEmailLetter(null);
+        setCustomEmail("");
+      } else {
+        toast.error(data.error || "فشل إرسال البريد");
+      }
+    } catch (error) {
+      console.error("Error sending email:", error);
+      toast.error("حدث خطأ أثناء إرسال البريد");
+    } finally {
+      setIsSendingEmail(false);
+    }
+  };
+
+    const filteredLetters = letters.filter(letter =>
     letter.letter_number.toLowerCase().includes(searchTerm.toLowerCase()) ||
     letter.template_name_ar.includes(searchTerm)
   );
@@ -652,10 +806,11 @@ export default function LettersClient() {
                         </div>
                       </div>
                       <div className="flex items-center gap-2">
-                        <button onClick={() => openPreview(letter)} className="p-2 bg-blue-500/20 text-blue-400 rounded-lg hover:bg-blue-500/30 transition-all"><Eye className="w-5 h-5" /></button>
-                        <button onClick={() => openEditForm(letter)} className="p-2 bg-yellow-500/20 text-yellow-400 rounded-lg hover:bg-yellow-500/30 transition-all"><Edit2 className="w-5 h-5" /></button>
-                        <button onClick={() => handleDelete(letter.id)} className="p-2 bg-red-500/20 text-red-400 rounded-lg hover:bg-red-500/30 transition-all"><Trash2 className="w-5 h-5" /></button>
-                      </div>
+                          <button onClick={() => openPreview(letter)} className="p-2 bg-blue-500/20 text-blue-400 rounded-lg hover:bg-blue-500/30 transition-all" title="معاينة"><Eye className="w-5 h-5" /></button>
+                          <button onClick={() => openEmailModal(letter)} className="p-2 bg-emerald-500/20 text-emerald-400 rounded-lg hover:bg-emerald-500/30 transition-all" title="إرسال بالبريد"><Send className="w-5 h-5" /></button>
+                          <button onClick={() => openEditForm(letter)} className="p-2 bg-yellow-500/20 text-yellow-400 rounded-lg hover:bg-yellow-500/30 transition-all" title="تعديل"><Edit2 className="w-5 h-5" /></button>
+                          <button onClick={() => handleDelete(letter.id)} className="p-2 bg-red-500/20 text-red-400 rounded-lg hover:bg-red-500/30 transition-all" title="حذف"><Trash2 className="w-5 h-5" /></button>
+                        </div>
                     </div>
                   </motion.div>
                 );
@@ -915,18 +1070,144 @@ export default function LettersClient() {
                             bottom: `${margins.bottom}px`
                           }}
                         >
-                          <AutoFitContent 
-                            content={generateLetterContent(previewLetter)}
-                            maxHeight={1122 - margins.top - margins.bottom}
-                          />
+                            <AutoFitContent 
+                              content={generateLetterContent(previewLetter)}
+                              maxHeight={1122 - margins.top - margins.bottom}
+                            />
+                          </div>
                         </div>
                       </div>
-                    </div>
+                </motion.div>
               </motion.div>
-            </motion.div>
-          )}
-        </AnimatePresence>
+            )}
+          </AnimatePresence>
+
+          {/* Email Modal */}
+          <AnimatePresence>
+            {showEmailModal && emailLetter && (
+              <motion.div 
+                initial={{ opacity: 0 }} 
+                animate={{ opacity: 1 }} 
+                exit={{ opacity: 0 }} 
+                className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4" 
+                onClick={(e) => e.target === e.currentTarget && !isSendingEmail && setShowEmailModal(false)}
+              >
+                <motion.div 
+                  initial={{ scale: 0.9, opacity: 0 }} 
+                  animate={{ scale: 1, opacity: 1 }} 
+                  exit={{ scale: 0.9, opacity: 0 }} 
+                  className="bg-slate-800 rounded-3xl p-8 w-full max-w-lg shadow-2xl border border-white/10"
+                >
+                  <div className="flex items-center justify-between mb-6">
+                    <h2 className="text-2xl font-bold text-white flex items-center gap-3">
+                      <div className="p-3 bg-emerald-500/20 rounded-xl">
+                        <Send className="w-6 h-6 text-emerald-400" />
+                      </div>
+                      إرسال الخطاب بالبريد
+                    </h2>
+                    <button 
+                      onClick={() => !isSendingEmail && setShowEmailModal(false)} 
+                      className="text-slate-400 hover:text-white p-2 rounded-lg hover:bg-white/10 transition-all"
+                      disabled={isSendingEmail}
+                    >
+                      <X className="w-6 h-6" />
+                    </button>
+                  </div>
+
+                  <div className="bg-slate-700/30 rounded-2xl p-4 mb-6 border border-slate-600/50">
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 bg-blue-500/20 rounded-lg">
+                        <FileText className="w-5 h-5 text-blue-400" />
+                      </div>
+                      <div>
+                        <p className="text-white font-bold">{emailLetter.template_name_ar}</p>
+                        <p className="text-slate-400 text-sm">{emailLetter.letter_number}</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="space-y-4">
+                    <button
+                      onClick={() => handleSendEmail(true)}
+                      disabled={isSendingEmail || !companyInfo?.email}
+                      className={`w-full p-5 rounded-2xl border-2 transition-all flex items-center gap-4 ${
+                        companyInfo?.email 
+                          ? "bg-gradient-to-r from-emerald-500/10 to-teal-500/10 border-emerald-500/30 hover:border-emerald-500/60 hover:bg-emerald-500/20" 
+                          : "bg-slate-700/30 border-slate-600/30 opacity-50 cursor-not-allowed"
+                      }`}
+                    >
+                      <div className="p-3 bg-emerald-500/20 rounded-xl">
+                        {isSendingEmail ? (
+                          <Loader2 className="w-6 h-6 text-emerald-400 animate-spin" />
+                        ) : (
+                          <Building2 className="w-6 h-6 text-emerald-400" />
+                        )}
+                      </div>
+                      <div className="text-right flex-1">
+                        <p className="text-white font-bold text-lg">إرسال لبريد الشركة</p>
+                        <p className="text-slate-400 text-sm">
+                          {companyInfo?.email || "لا يوجد بريد مسجل للشركة"}
+                        </p>
+                      </div>
+                      <Send className="w-5 h-5 text-emerald-400" />
+                    </button>
+
+                    <div className="relative">
+                      <div className="absolute inset-0 flex items-center">
+                        <div className="w-full border-t border-slate-600"></div>
+                      </div>
+                      <div className="relative flex justify-center">
+                        <span className="bg-slate-800 px-4 text-slate-400 text-sm">أو</span>
+                      </div>
+                    </div>
+
+                    <div className="bg-slate-700/30 rounded-2xl p-5 border border-slate-600/50">
+                      <div className="flex items-center gap-3 mb-4">
+                        <div className="p-2 bg-blue-500/20 rounded-lg">
+                          <AtSign className="w-5 h-5 text-blue-400" />
+                        </div>
+                        <p className="text-white font-bold">إرسال لبريد آخر</p>
+                      </div>
+                      <div className="flex gap-3">
+                        <input
+                          type="email"
+                          placeholder="أدخل البريد الإلكتروني..."
+                          value={customEmail}
+                          onChange={(e) => setCustomEmail(e.target.value)}
+                          disabled={isSendingEmail}
+                          className="flex-1 bg-slate-800 border border-slate-600 rounded-xl py-3 px-4 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                          dir="ltr"
+                        />
+                        <button
+                          onClick={() => handleSendEmail(false)}
+                          disabled={isSendingEmail || !customEmail}
+                          className={`px-6 rounded-xl font-bold flex items-center gap-2 transition-all ${
+                            customEmail && !isSendingEmail
+                              ? "bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 text-white"
+                              : "bg-slate-700 text-slate-500 cursor-not-allowed"
+                          }`}
+                        >
+                          {isSendingEmail ? (
+                            <Loader2 className="w-5 h-5 animate-spin" />
+                          ) : (
+                            <Send className="w-5 h-5" />
+                          )}
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+
+                  {isSendingEmail && (
+                    <div className="mt-6 bg-blue-500/10 border border-blue-500/30 rounded-xl p-4 flex items-center gap-3">
+                      <Loader2 className="w-5 h-5 text-blue-400 animate-spin" />
+                      <p className="text-blue-400 text-sm">جاري تجهيز وإرسال الخطاب...</p>
+                    </div>
+                  )}
+                </motion.div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
       </div>
-    </div>
-  );
-}
+    );
+  }
