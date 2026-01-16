@@ -33,8 +33,10 @@ import {
     SkipBack,
     SkipForward,
     Square,
-    Volume2,
-    BookOpen,
+      Volume2,
+      Volume1,
+      VolumeX,
+      BookOpen,
     Building2,
     Package,
     RefreshCw,
@@ -258,8 +260,16 @@ export function Header({ user, onToggleSidebar, unreadChatCount = 0, subscriptio
   const [bankAccounts, setBankAccounts] = useState<BankAccount[]>([]);
   const [currentPlanDetails, setCurrentPlanDetails] = useState<any>(null);
   const [receiptImage, setReceiptImage] = useState<string | null>(null);
+  const [volume, setVolume] = useState(1);
+  const [prevVolume, setPrevVolume] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  useEffect(() => {
+    if (audioRef.current) {
+      audioRef.current.volume = volume;
+    }
+  }, [volume]);
   const pathname = usePathname();
   const router = useRouter();
 
@@ -953,9 +963,48 @@ export function Header({ user, onToggleSidebar, unreadChatCount = 0, subscriptio
                     >
                       <SkipForward size={24} className="text-white/70" />
                     </motion.button>
-                  </div>
-                  
-                  <motion.button
+                    </div>
+                    
+                    {/* Volume Control */}
+                    <div className="flex items-center gap-3 mb-6 px-2">
+                      <motion.button
+                        whileHover={{ scale: 1.1 }}
+                        whileTap={{ scale: 0.9 }}
+                        onClick={() => {
+                          if (volume > 0) {
+                            setPrevVolume(volume);
+                            setVolume(0);
+                          } else {
+                            setVolume(prevVolume || 0.5);
+                          }
+                        }}
+                        className="text-amber-400 p-1 hover:bg-white/5 rounded-lg transition-colors"
+                      >
+                        {volume === 0 ? <VolumeX size={18} /> : volume < 0.5 ? <Volume1 size={18} /> : <Volume2 size={18} />}
+                      </motion.button>
+                      <div className="flex-1 h-1.5 bg-white/10 rounded-full relative group cursor-pointer">
+                        <motion.div 
+                          className="absolute inset-y-0 left-0 bg-gradient-to-r from-amber-500 to-orange-500 rounded-full shadow-[0_0_10px_rgba(245,158,11,0.5)]"
+                          style={{ width: `${volume * 100}%` }}
+                        />
+                        <input 
+                          type="range" 
+                          min="0" 
+                          max="1" 
+                          step="0.01" 
+                          value={volume}
+                          onChange={(e) => setVolume(parseFloat(e.target.value))}
+                          className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                        />
+                        <motion.div 
+                          className="absolute top-1/2 -translate-y-1/2 w-3.5 h-3.5 bg-white rounded-full shadow-[0_0_8px_rgba(255,255,255,0.8)] border-2 border-amber-500"
+                          style={{ left: `${volume * 100}%`, x: '-50%' }}
+                        />
+                      </div>
+                      <span className="text-[10px] font-bold text-white/40 w-8">{Math.round(volume * 100)}%</span>
+                    </div>
+                    
+                    <motion.button
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                     onClick={resetAndStop}
