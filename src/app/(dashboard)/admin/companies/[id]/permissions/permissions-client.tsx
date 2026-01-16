@@ -200,49 +200,64 @@ export function PermissionsClient({ company, enabledFeatures }: PermissionsClien
 
   return (
     <>
-      <div className="space-y-10 pb-20 max-w-[1400px] mx-auto">
+      <div className="space-y-6 pb-20 max-w-[1600px] mx-auto">
         {/* Header */}
         <div className="relative group">
           <div className="absolute -inset-1 bg-gradient-to-r from-slate-600 via-indigo-500 to-slate-600 rounded-[2.5rem] blur opacity-25 group-hover:opacity-40 transition duration-1000"></div>
-          <div className="relative bg-slate-900/95 backdrop-blur-2xl rounded-[2.5rem] p-10 md:p-16 text-white shadow-2xl overflow-hidden border border-white/10">
+          <div className="relative bg-slate-900/95 backdrop-blur-2xl rounded-[2.5rem] p-6 md:p-10 text-white shadow-2xl overflow-hidden border border-white/10">
             <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-indigo-500 via-purple-500 via-pink-500 via-amber-500 via-emerald-500 to-indigo-500 bg-[length:200%_100%] animate-gradient-x"></div>
             
             <Link 
               href={`/admin/companies/${company.id}`}
-              className="absolute left-8 top-8 flex items-center gap-2 bg-white/10 hover:bg-white/20 backdrop-blur-xl border border-white/10 px-6 py-3 rounded-full font-bold text-sm transition-all"
+              className="absolute left-6 top-6 flex items-center gap-2 bg-white/10 hover:bg-white/20 backdrop-blur-xl border border-white/10 px-4 py-2 rounded-full font-bold text-xs transition-all"
             >
-              <ArrowRight size={18} />
+              <ArrowRight size={14} />
               العودة للتفاصيل
             </Link>
 
-            <div className="relative z-10 space-y-8 text-center pt-8">
+            <div className="relative z-10 space-y-4 text-center pt-4">
               <motion.div
                 initial={{ scale: 0.9, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
-                className="inline-flex items-center gap-3 bg-white/5 backdrop-blur-xl border border-white/10 px-8 py-3 rounded-full font-black text-xs uppercase tracking-widest"
+                className="inline-flex items-center gap-3 bg-white/5 backdrop-blur-xl border border-white/10 px-5 py-2 rounded-full font-black text-xs uppercase tracking-widest"
               >
-                <Lock className="w-4 h-4 text-amber-400" />
+                <Lock className="w-3.5 h-3.5 text-amber-400" />
                 نظام إدارة الصلاحيات
               </motion.div>
               
-              <h1 className="text-4xl md:text-6xl font-black tracking-tighter bg-clip-text text-transparent bg-gradient-to-b from-white to-white/50">
+              <h1 className="text-3xl md:text-5xl font-black tracking-tighter bg-clip-text text-transparent bg-gradient-to-b from-white to-white/50">
                 {company.name || "منشأة بدون اسم"}
               </h1>
               
-              <div className="flex flex-wrap justify-center gap-4 pt-4">
-                <div className="bg-indigo-500/10 backdrop-blur-md px-6 py-3 rounded-2xl border border-indigo-500/20 flex items-center gap-3">
-                  <Building2 size={18} className="text-indigo-400" />
-                  <span className="text-indigo-100 font-bold">{company.name}</span>
+              <div className="flex flex-wrap justify-center gap-4 pt-2">
+                <div className="bg-indigo-500/10 backdrop-blur-md px-6 py-2.5 rounded-2xl border border-indigo-500/20 flex items-center gap-4">
+                  <div className="w-10 h-10 rounded-xl bg-indigo-500/20 flex items-center justify-center text-indigo-400">
+                    <Building2 size={20} />
+                  </div>
+                  <div className="text-right">
+                    <span className="block text-indigo-400/50 text-[10px] font-black uppercase tracking-widest">اسم المنشأة</span>
+                    <span className="text-xl font-black text-indigo-100">{company.name}</span>
+                  </div>
                 </div>
                 
-                <div className="bg-emerald-500/10 backdrop-blur-md px-6 py-3 rounded-2xl border border-emerald-500/20 flex items-center gap-3">
-                  <CheckCircle size={18} className="text-emerald-400" />
-                  <span className="text-emerald-100 font-bold">{selectedFeatures.size} صلاحية مفعلة</span>
+                <div className="bg-emerald-500/10 backdrop-blur-md px-6 py-2.5 rounded-2xl border border-emerald-500/20 flex items-center gap-4">
+                  <div className="w-10 h-10 rounded-xl bg-emerald-500/20 flex items-center justify-center text-emerald-400">
+                    <CheckCircle size={20} />
+                  </div>
+                  <div className="text-right">
+                    <span className="block text-emerald-400/50 text-[10px] font-black uppercase tracking-widest">صلاحية مفعلة</span>
+                    <span className="text-xl font-black text-emerald-100">{selectedFeatures.size}</span>
+                  </div>
                 </div>
 
-                <div className="bg-purple-500/10 backdrop-blur-md px-6 py-3 rounded-2xl border border-purple-500/20 flex items-center gap-3">
-                  <Settings size={18} className="text-purple-400" />
-                  <span className="text-purple-100 font-bold">{features.length} صلاحية متاحة</span>
+                <div className="bg-purple-500/10 backdrop-blur-md px-6 py-2.5 rounded-2xl border border-purple-500/20 flex items-center gap-4">
+                  <div className="w-10 h-10 rounded-xl bg-purple-500/20 flex items-center justify-center text-purple-400">
+                    <Settings size={20} />
+                  </div>
+                  <div className="text-right">
+                    <span className="block text-purple-400/50 text-[10px] font-black uppercase tracking-widest">صلاحية متاحة</span>
+                    <span className="text-xl font-black text-purple-100">{features.length}</span>
+                  </div>
                 </div>
               </div>
             </div>
@@ -253,35 +268,35 @@ export function PermissionsClient({ company, enabledFeatures }: PermissionsClien
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-white/90 backdrop-blur-xl rounded-3xl border border-slate-200 p-8 md:p-10 shadow-xl hover:shadow-2xl transition-all duration-500"
+          className="bg-white/90 backdrop-blur-xl rounded-3xl border border-slate-200 p-6 md:p-8 shadow-xl hover:shadow-2xl transition-all duration-500"
         >
-          <div className="flex items-center justify-between gap-4 mb-8 pb-6 border-b-2 border-slate-100">
-            <div className="flex items-center gap-4">
-              <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-rose-500/20 to-rose-600/10 flex items-center justify-center">
-                <Crown size={28} className="text-rose-600" />
+          <div className="flex items-center justify-between gap-4 mb-6 pb-4 border-b-2 border-slate-100">
+            <div className="flex items-center gap-3">
+              <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-rose-500/20 to-rose-600/10 flex items-center justify-center">
+                <Crown size={22} className="text-rose-600" />
               </div>
               <div>
-                <h2 className="text-2xl font-black text-slate-800">الصلاحيات الإدارية</h2>
-                <span className="text-sm text-slate-500">صلاحيات متقدمة للمشرفين</span>
+                <h2 className="text-xl font-black text-slate-800">الصلاحيات الإدارية</h2>
+                <span className="text-xs text-slate-500">صلاحيات متقدمة للمشرفين</span>
               </div>
             </div>
-            <div className="flex items-center gap-4">
-              <span className="bg-rose-100 text-rose-700 px-4 py-2 rounded-full text-xs font-bold flex items-center gap-2">
-                <Shield size={14} />
+            <div className="flex items-center gap-3">
+              <span className="bg-rose-100 text-rose-700 px-3 py-1.5 rounded-full text-[10px] font-bold flex items-center gap-2">
+                <Shield size={12} />
                 صلاحيات متقدمة
               </span>
               <button
                 type="button"
                 onClick={toggleAllAdmin}
-                className="flex items-center gap-2 bg-slate-100 hover:bg-slate-200 px-4 py-2 rounded-full text-sm font-bold transition-all"
+                className="flex items-center gap-2 bg-slate-100 hover:bg-slate-200 px-3 py-1.5 rounded-full text-xs font-bold transition-all"
               >
-                <CheckCheck size={16} />
+                <CheckCheck size={14} />
                 تحديد الكل
               </button>
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
             {adminFeatures.map((feature) => (
               <motion.div
                 key={feature.key}
@@ -289,36 +304,36 @@ export function PermissionsClient({ company, enabledFeatures }: PermissionsClien
                 whileTap={{ scale: 0.98 }}
                 onClick={() => toggleFeature(feature.key)}
                 className={cn(
-                  "relative cursor-pointer rounded-2xl p-5 border-2 transition-all duration-300",
+                  "relative cursor-pointer rounded-xl p-4 border-2 transition-all duration-300",
                   selectedFeatures.has(feature.key)
                     ? "bg-gradient-to-br from-rose-50 to-rose-100/50 border-rose-300 shadow-lg shadow-rose-500/10"
                     : "bg-white border-slate-200 hover:border-slate-300"
                 )}
               >
-                <div className="absolute top-0 left-0 right-0 h-1 rounded-t-2xl bg-gradient-to-r from-rose-500 to-pink-500 opacity-0 transition-opacity" 
+                <div className="absolute top-0 left-0 right-0 h-1 rounded-t-xl bg-gradient-to-r from-rose-500 to-pink-500 opacity-0 transition-opacity" 
                      style={{ opacity: selectedFeatures.has(feature.key) ? 1 : 0 }} />
-                <div className="flex items-center gap-4">
+                <div className="flex items-center gap-3">
                   <div className={cn(
-                    "w-12 h-12 rounded-xl flex items-center justify-center transition-all",
+                    "w-10 h-10 rounded-lg flex items-center justify-center transition-all",
                     selectedFeatures.has(feature.key)
                       ? "bg-gradient-to-br from-rose-500 to-pink-600 text-white shadow-lg"
                       : "bg-slate-100 text-slate-500"
                   )}>
-                    <feature.icon size={22} />
+                    <feature.icon size={18} />
                   </div>
                   <div className="flex-1">
-                    <h3 className="font-bold text-slate-800">{feature.name}</h3>
-                    <span className="text-xs text-rose-500 font-semibold flex items-center gap-1">
-                      <Shield size={10} />
+                    <h3 className="font-bold text-slate-800 text-sm">{feature.name}</h3>
+                    <span className="text-[10px] text-rose-500 font-semibold flex items-center gap-1">
+                      <Shield size={8} />
                       إداري
                     </span>
                   </div>
                   <div className={cn(
-                    "w-12 h-7 rounded-full transition-all duration-300 relative",
+                    "w-10 h-6 rounded-full transition-all duration-300 relative",
                     selectedFeatures.has(feature.key) ? "bg-emerald-500" : "bg-slate-300"
                   )}>
                     <div className={cn(
-                      "absolute top-1 w-5 h-5 rounded-full bg-white shadow-md transition-all duration-300",
+                      "absolute top-1 w-4 h-4 rounded-full bg-white shadow-md transition-all duration-300",
                       selectedFeatures.has(feature.key) ? "right-1" : "left-1"
                     )} />
                   </div>
@@ -333,48 +348,48 @@ export function PermissionsClient({ company, enabledFeatures }: PermissionsClien
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
-          className="bg-white/90 backdrop-blur-xl rounded-3xl border border-slate-200 p-8 md:p-10 shadow-xl hover:shadow-2xl transition-all duration-500"
+          className="bg-white/90 backdrop-blur-xl rounded-3xl border border-slate-200 p-6 md:p-8 shadow-xl hover:shadow-2xl transition-all duration-500"
         >
-          <div className="flex items-center justify-between gap-4 mb-8 pb-6 border-b-2 border-slate-100">
-            <div className="flex items-center gap-4">
-              <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-emerald-500/20 to-emerald-600/10 flex items-center justify-center">
-                <Globe size={28} className="text-emerald-600" />
+          <div className="flex items-center justify-between gap-4 mb-6 pb-4 border-b-2 border-slate-100">
+            <div className="flex items-center gap-3">
+              <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-emerald-500/20 to-emerald-600/10 flex items-center justify-center">
+                <Globe size={22} className="text-emerald-600" />
               </div>
               <div>
-                <h2 className="text-2xl font-black text-slate-800">الصلاحيات العامة</h2>
-                <span className="text-sm text-slate-500">صلاحيات أساسية للمستخدمين</span>
+                <h2 className="text-xl font-black text-slate-800">الصلاحيات العامة</h2>
+                <span className="text-xs text-slate-500">صلاحيات أساسية للمستخدمين</span>
               </div>
             </div>
-            <div className="flex items-center gap-4">
-              <span className="bg-emerald-100 text-emerald-700 px-4 py-2 rounded-full text-xs font-bold flex items-center gap-2">
-                <Users size={14} />
+            <div className="flex items-center gap-3">
+              <span className="bg-emerald-100 text-emerald-700 px-3 py-1.5 rounded-full text-[10px] font-bold flex items-center gap-2">
+                <Users size={12} />
                 صلاحيات عامة
               </span>
               <button
                 type="button"
                 onClick={toggleAllGeneral}
-                className="flex items-center gap-2 bg-slate-100 hover:bg-slate-200 px-4 py-2 rounded-full text-sm font-bold transition-all"
+                className="flex items-center gap-2 bg-slate-100 hover:bg-slate-200 px-3 py-1.5 rounded-full text-xs font-bold transition-all"
               >
-                <CheckCheck size={16} />
+                <CheckCheck size={14} />
                 تحديد الكل
               </button>
             </div>
           </div>
 
-          <div className="space-y-8">
+          <div className="space-y-6">
             {categories.filter(Boolean).map((category) => {
               const categoryFeatures = generalFeatures.filter(f => f.category === category);
               const colors = categoryColors[category!] || categoryColors['أخرى'];
               
               return (
-                <div key={category} className="space-y-4">
-                  <h3 className="text-lg font-black text-slate-700 flex items-center gap-3">
-                    <div className={cn("w-2 h-8 rounded-full", colors.border.replace('border-r-', 'bg-'))} />
+                <div key={category} className="space-y-3">
+                  <h3 className="text-base font-black text-slate-700 flex items-center gap-3">
+                    <div className={cn("w-1.5 h-6 rounded-full", colors.border.replace('border-r-', 'bg-'))} />
                     {category}
-                    <span className="text-xs font-normal text-slate-400">({categoryFeatures.length} صلاحيات)</span>
+                    <span className="text-[10px] font-normal text-slate-400">({categoryFeatures.length} صلاحيات)</span>
                   </h3>
                   
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
                     {categoryFeatures.map((feature) => (
                       <motion.div
                         key={feature.key}
@@ -382,35 +397,35 @@ export function PermissionsClient({ company, enabledFeatures }: PermissionsClien
                         whileTap={{ scale: 0.98 }}
                         onClick={() => toggleFeature(feature.key)}
                         className={cn(
-                          "relative cursor-pointer rounded-2xl p-5 border-2 border-r-4 transition-all duration-300",
+                          "relative cursor-pointer rounded-xl p-4 border-2 border-r-4 transition-all duration-300",
                           colors.border,
                           selectedFeatures.has(feature.key)
                             ? `bg-gradient-to-br ${colors.bg} border-emerald-300 shadow-lg`
                             : "bg-white border-slate-200 hover:border-slate-300"
                         )}
                       >
-                        <div className="flex items-center gap-4">
+                        <div className="flex items-center gap-3">
                           <div className={cn(
-                            "w-12 h-12 rounded-xl flex items-center justify-center transition-all",
+                            "w-10 h-10 rounded-lg flex items-center justify-center transition-all",
                             selectedFeatures.has(feature.key)
                               ? "bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-lg"
                               : "bg-slate-100 text-slate-500"
                           )}>
-                            <feature.icon size={22} />
+                            <feature.icon size={18} />
                           </div>
                           <div className="flex-1">
-                            <h3 className="font-bold text-slate-800">{feature.name}</h3>
-                            <span className={cn("text-xs font-semibold flex items-center gap-1", colors.icon)}>
-                              <Sparkles size={10} />
+                            <h3 className="font-bold text-slate-800 text-sm">{feature.name}</h3>
+                            <span className={cn("text-[10px] font-semibold flex items-center gap-1", colors.icon)}>
+                              <Sparkles size={8} />
                               {category}
                             </span>
                           </div>
                           <div className={cn(
-                            "w-12 h-7 rounded-full transition-all duration-300 relative",
+                            "w-10 h-6 rounded-full transition-all duration-300 relative",
                             selectedFeatures.has(feature.key) ? "bg-emerald-500" : "bg-slate-300"
                           )}>
                             <div className={cn(
-                              "absolute top-1 w-5 h-5 rounded-full bg-white shadow-md transition-all duration-300",
+                              "absolute top-1 w-4 h-4 rounded-full bg-white shadow-md transition-all duration-300",
                               selectedFeatures.has(feature.key) ? "right-1" : "left-1"
                             )} />
                           </div>
@@ -428,24 +443,24 @@ export function PermissionsClient({ company, enabledFeatures }: PermissionsClien
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
-          className="flex justify-center pt-8"
+          className="flex justify-center pt-4"
         >
           <button
             type="button"
             onClick={handleSubmit}
             disabled={isLoading}
-            className="relative group flex items-center gap-4 bg-gradient-to-r from-emerald-500 to-teal-600 text-white px-16 py-5 rounded-full font-black text-xl shadow-2xl shadow-emerald-500/30 hover:shadow-emerald-500/50 hover:scale-105 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="relative group flex items-center gap-3 bg-gradient-to-r from-emerald-500 to-teal-600 text-white px-12 py-4 rounded-full font-black text-lg shadow-2xl shadow-emerald-500/30 hover:shadow-emerald-500/50 hover:scale-105 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <div className="absolute inset-0 bg-gradient-to-r from-emerald-400 to-teal-500 rounded-full opacity-0 group-hover:opacity-100 transition-opacity blur-xl"></div>
             <span className="relative flex items-center gap-3">
               {isLoading ? (
                 <>
-                  <RefreshCw className="w-6 h-6 animate-spin" />
+                  <RefreshCw className="w-5 h-5 animate-spin" />
                   جاري الحفظ...
                 </>
               ) : (
                 <>
-                  <Save className="w-6 h-6" />
+                  <Save className="w-5 h-5" />
                   حفظ الصلاحيات
                 </>
               )}
