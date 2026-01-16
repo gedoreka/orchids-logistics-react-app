@@ -11,28 +11,23 @@ import {
   Key, 
   Infinity,
   Calendar,
+  Filter,
   Eye,
+  ShieldAlert,
+  ArrowUpDown,
   RefreshCw,
   Percent,
   IdCard,
+  Flag,
   Phone,
   PlayCircle,
   PauseCircle,
   Lock,
+  ChevronLeft,
+  ChevronRight,
   Plus,
   Trash2,
-  AlertTriangle,
-  MapPin,
-  Clock,
-  Sparkles,
-  Shield,
-  Copy,
-  ExternalLink,
-  MoreVertical,
-  Mail,
-  Globe,
-  ChevronDown,
-  Filter as FilterIcon
+  AlertTriangle
 } from "lucide-react";
 import { toast } from "sonner";
 import { Company } from "@/lib/types";
@@ -54,7 +49,6 @@ export function CompaniesClient({ initialCompanies, statusFilter, search }: Comp
   const [companies, setCompanies] = useState(initialCompanies);
   const [isLoading, setIsLoading] = useState<number | null>(null);
   const [deleteConfirm, setDeleteConfirm] = useState<{ id: number; name: string } | null>(null);
-  const [expandedCard, setExpandedCard] = useState<number | null>(null);
 
   const updateQueryParams = (key: string, value: string) => {
     const params = new URLSearchParams(searchParams.toString());
@@ -105,477 +99,401 @@ export function CompaniesClient({ initialCompanies, statusFilter, search }: Comp
     }
   };
 
-  const copyToClipboard = (text: string) => {
-    navigator.clipboard.writeText(text);
-    toast.success("تم النسخ");
-  };
-
-  const pendingCount = companies.filter(c => c.status === 'pending').length;
-  const approvedCount = companies.filter(c => c.status === 'approved').length;
-  const rejectedCount = companies.filter(c => c.status === 'rejected').length;
-
   return (
-    <div className="min-h-screen">
-      <div className="max-w-[1800px] mx-auto space-y-6 p-4 lg:p-6">
-        
-        {/* Compact Premium Header */}
-        <motion.div 
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="relative overflow-hidden"
-        >
-          <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 rounded-2xl" />
-          <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-purple-500/5 rounded-2xl" />
-          <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-blue-500 via-purple-500 via-pink-500 via-amber-500 to-blue-500 bg-[length:200%_100%] animate-gradient-x" />
+    <div className="space-y-10 pb-20 max-w-[1600px] mx-auto">
+      {/* Premium Header Glass */}
+      <div className="relative group">
+        <div className="absolute -inset-1 bg-gradient-to-r from-blue-600 via-green-500 to-purple-600 rounded-[2.5rem] blur opacity-25 group-hover:opacity-40 transition duration-1000 group-hover:duration-200"></div>
+        <div className="relative bg-slate-900/95 backdrop-blur-2xl rounded-[2.5rem] p-10 md:p-16 text-white shadow-2xl overflow-hidden text-center border border-white/10">
+          {/* Animated top border line like PHP code */}
+          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 via-green-500 via-red-500 via-yellow-500 via-purple-500 to-blue-500 bg-[length:200%_100%] animate-gradient-x"></div>
           
-          <div className="relative p-6 lg:p-8">
-            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
-              {/* Title Section */}
-              <div className="flex items-center gap-4">
-                <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center shadow-lg shadow-blue-500/30">
-                  <Building2 className="w-7 h-7 text-white" />
+          <div className="relative z-10 space-y-8">
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              className="inline-flex items-center gap-3 bg-white/5 backdrop-blur-xl border border-white/10 px-8 py-3 rounded-full font-black text-xs uppercase tracking-widest"
+            >
+              <div className="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></div>
+              نظام إدارة طلبات الشركات
+            </motion.div>
+            
+            <h1 className="text-5xl md:text-7xl font-black tracking-tighter bg-clip-text text-transparent bg-gradient-to-b from-white to-white/50">
+              إدارة طلبات المنشآت
+            </h1>
+            
+            <div className="flex flex-wrap justify-center gap-4 pt-4">
+              <div className="bg-blue-500/10 backdrop-blur-md px-8 py-4 rounded-2xl border border-blue-500/20 flex items-center gap-4">
+                <div className="w-12 h-12 rounded-xl bg-blue-500/20 flex items-center justify-center text-blue-400">
+                  <Building2 size={24} />
                 </div>
-                <div>
-                  <h1 className="text-2xl lg:text-3xl font-black text-white tracking-tight">
-                    إدارة طلبات المنشآت
-                  </h1>
-                  <p className="text-slate-400 text-sm font-medium mt-0.5">
-                    مراجعة وإدارة طلبات تسجيل الشركات
-                  </p>
-                </div>
-              </div>
-
-              {/* Stats Cards */}
-              <div className="flex flex-wrap gap-3">
-                <div className="flex items-center gap-3 bg-white/5 backdrop-blur-xl border border-white/10 px-4 py-2.5 rounded-xl">
-                  <div className="w-9 h-9 rounded-lg bg-blue-500/20 flex items-center justify-center">
-                    <Building2 className="w-4 h-4 text-blue-400" />
-                  </div>
-                  <div>
-                    <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider block">الإجمالي</span>
-                    <span className="text-lg font-black text-white">{companies.length}</span>
-                  </div>
-                </div>
-                
-                <div className="flex items-center gap-3 bg-amber-500/10 backdrop-blur-xl border border-amber-500/20 px-4 py-2.5 rounded-xl">
-                  <div className="w-9 h-9 rounded-lg bg-amber-500/20 flex items-center justify-center">
-                    <Clock className="w-4 h-4 text-amber-400 animate-pulse" />
-                  </div>
-                  <div>
-                    <span className="text-[10px] text-amber-400/70 font-bold uppercase tracking-wider block">قيد المراجعة</span>
-                    <span className="text-lg font-black text-amber-400">{pendingCount}</span>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-3 bg-emerald-500/10 backdrop-blur-xl border border-emerald-500/20 px-4 py-2.5 rounded-xl">
-                  <div className="w-9 h-9 rounded-lg bg-emerald-500/20 flex items-center justify-center">
-                    <CheckCircle className="w-4 h-4 text-emerald-400" />
-                  </div>
-                  <div>
-                    <span className="text-[10px] text-emerald-400/70 font-bold uppercase tracking-wider block">مقبولة</span>
-                    <span className="text-lg font-black text-emerald-400">{approvedCount}</span>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-3 bg-rose-500/10 backdrop-blur-xl border border-rose-500/20 px-4 py-2.5 rounded-xl">
-                  <div className="w-9 h-9 rounded-lg bg-rose-500/20 flex items-center justify-center">
-                    <XCircle className="w-4 h-4 text-rose-400" />
-                  </div>
-                  <div>
-                    <span className="text-[10px] text-rose-400/70 font-bold uppercase tracking-wider block">مرفوضة</span>
-                    <span className="text-lg font-black text-rose-400">{rejectedCount}</span>
-                  </div>
+                <div className="text-right">
+                  <span className="block text-blue-400/50 text-[10px] font-black uppercase tracking-widest">إجمالي الشركات</span>
+                  <span className="text-2xl font-black text-blue-100">{companies.length}</span>
                 </div>
               </div>
-            </div>
-          </div>
-        </motion.div>
-
-        {/* Search & Filter Bar */}
-        <motion.div 
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-          className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl rounded-2xl border border-slate-200/50 dark:border-slate-700/50 p-4 shadow-lg shadow-slate-200/50 dark:shadow-slate-900/50"
-        >
-          <div className="flex flex-col lg:flex-row gap-4 items-center">
-            {/* Search Input */}
-            <div className="relative flex-1 w-full">
-              <Search className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 w-5 h-5" />
-              <input
-                type="text"
-                placeholder="ابحث باسم الشركة، الرقم التجاري، أو الرقم الضريبي..."
-                defaultValue={search}
-                onChange={(e) => updateQueryParams("search", e.target.value)}
-                className="w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl py-3 pr-12 pl-4 font-semibold text-slate-700 dark:text-slate-200 placeholder:text-slate-400 focus:border-blue-500 focus:bg-white dark:focus:bg-slate-900 focus:ring-4 focus:ring-blue-500/10 outline-none transition-all text-sm"
-              />
-            </div>
-
-            {/* Filter Buttons */}
-            <div className="flex gap-2 flex-wrap justify-center">
-              {[
-                { id: "all", label: "الكل", count: companies.length, color: "slate" },
-                { id: "pending", label: "قيد المراجعة", count: pendingCount, color: "amber" },
-                { id: "approved", label: "مقبولة", count: approvedCount, color: "emerald" },
-                { id: "rejected", label: "مرفوضة", count: rejectedCount, color: "rose" },
-              ].map((filter) => (
-                <button
-                  key={filter.id}
-                  onClick={() => updateQueryParams("filter", filter.id)}
-                  className={cn(
-                    "flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-xs transition-all relative",
-                    statusFilter === filter.id
-                      ? filter.color === "slate" 
-                        ? "bg-slate-900 text-white shadow-lg"
-                        : filter.color === "amber"
-                        ? "bg-amber-500 text-white shadow-lg shadow-amber-500/30"
-                        : filter.color === "emerald"
-                        ? "bg-emerald-500 text-white shadow-lg shadow-emerald-500/30"
-                        : "bg-rose-500 text-white shadow-lg shadow-rose-500/30"
-                      : "bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600"
-                  )}
-                >
-                  <span>{filter.label}</span>
-                  <span className={cn(
-                    "px-1.5 py-0.5 rounded-md text-[10px] font-black",
-                    statusFilter === filter.id 
-                      ? "bg-white/20" 
-                      : "bg-slate-200 dark:bg-slate-600"
-                  )}>
-                    {filter.count}
+              
+              <div className="bg-emerald-500/10 backdrop-blur-md px-8 py-4 rounded-2xl border border-emerald-500/20 flex items-center gap-4">
+                <div className="w-12 h-12 rounded-xl bg-emerald-500/20 flex items-center justify-center text-emerald-400">
+                  <CheckCircle size={24} />
+                </div>
+                <div className="text-right">
+                  <span className="block text-emerald-400/50 text-[10px] font-black uppercase tracking-widest">المقبولة</span>
+                  <span className="text-2xl font-black text-emerald-100">
+                    {companies.filter(c => c.status === 'approved').length}
                   </span>
-                </button>
-              ))}
+                </div>
+              </div>
+
+              <div className="bg-amber-500/10 backdrop-blur-md px-8 py-4 rounded-2xl border border-amber-500/20 flex items-center gap-4">
+                  <div className="w-12 h-12 rounded-xl bg-amber-500/20 flex items-center justify-center text-amber-400">
+                    <RefreshCw size={24} className="animate-spin-slow" />
+                  </div>
+                  <div className="text-right">
+                    <span className="block text-amber-400/50 text-[10px] font-black uppercase tracking-widest">قيد المراجعة</span>
+                    <span className="text-2xl font-black text-amber-100">
+                      {companies.filter(c => c.status === 'pending').length}
+                    </span>
+                  </div>
+                </div>
+              </div>
+              
+
             </div>
           </div>
-        </motion.div>
+        </div>
 
-        {/* Companies Table/Cards */}
-        <motion.div 
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.2 }}
-          className="space-y-4"
-        >
-          <AnimatePresence mode="popLayout">
-            {companies.map((company, index) => (
-              <motion.div
-                key={company.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, scale: 0.95 }}
-                transition={{ delay: index * 0.03 }}
-                className="group relative bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm hover:shadow-xl hover:shadow-slate-200/50 dark:hover:shadow-slate-900/50 transition-all duration-300 overflow-hidden"
+      {/* Search & Filter Glass Section */}
+      <div className="bg-white/80 backdrop-blur-xl rounded-3xl border border-white/20 p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)] ring-1 ring-slate-900/5">
+        <div className="grid lg:grid-cols-12 gap-6 items-center">
+          <div className="lg:col-span-7 relative group">
+            <Search className="absolute right-6 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-blue-600 transition-colors" size={20} />
+            <input
+              type="text"
+              placeholder="ابحث باسم الشركة، الرقم التجاري، أو الرقم الضريبي..."
+              defaultValue={search}
+              onChange={(e) => updateQueryParams("search", e.target.value)}
+              className="w-full bg-slate-50 border border-slate-200 rounded-2xl py-4 pr-16 pl-8 font-bold text-slate-700 focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-500/5 outline-none transition-all"
+            />
+          </div>
+
+          <div className="lg:col-span-5 flex flex-wrap gap-2 justify-center lg:justify-end">
+            {[
+              { id: "all", label: "الكل", icon: ArrowUpDown, color: "bg-slate-800" },
+              { id: "approved", label: "مقبولة", icon: CheckCircle, color: "bg-emerald-600" },
+              { id: "rejected", label: "مرفوضة", icon: XCircle, color: "bg-rose-600" },
+              { id: "pending", label: "قيد المراجعة", icon: RefreshCw, color: "bg-amber-600" },
+            ].map((filter) => (
+              <button
+                key={filter.id}
+                onClick={() => updateQueryParams("filter", filter.id)}
+                className={cn(
+                  "flex items-center gap-2 px-5 py-3.5 rounded-xl font-bold text-sm transition-all relative overflow-hidden group",
+                  statusFilter === filter.id
+                    ? `${filter.color} text-white shadow-lg shadow-black/10 scale-105`
+                    : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                )}
               >
-                {/* Status Bar */}
-                <div className={cn(
-                  "absolute top-0 left-0 right-0 h-1",
-                  company.status === 'approved' ? "bg-gradient-to-r from-emerald-400 to-teal-500" :
-                  company.status === 'rejected' ? "bg-gradient-to-r from-rose-400 to-pink-500" :
-                  "bg-gradient-to-r from-amber-400 to-orange-500"
-                )} />
+                <filter.icon size={16} className={cn(statusFilter === filter.id && "animate-pulse")} />
+                <span>{filter.label}</span>
+                {statusFilter === filter.id && (
+                  <motion.div
+                    layoutId="filter-active"
+                    className="absolute inset-0 bg-white/10"
+                    transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
+                  />
+                )}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
 
-                <div className="p-5">
-                  {/* Main Row - Always Visible */}
-                  <div className="flex flex-col xl:flex-row xl:items-center gap-4">
-                    {/* Company Info */}
-                    <div className="flex-1 flex items-start gap-4">
-                      {/* Logo/Avatar */}
-                      <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-slate-100 to-slate-200 dark:from-slate-700 dark:to-slate-600 flex items-center justify-center flex-shrink-0 shadow-inner">
-                        <Building2 className="w-6 h-6 text-slate-500 dark:text-slate-400" />
+      {/* Companies Grid */}
+      <div className="space-y-8">
+        <AnimatePresence mode="popLayout">
+          {companies.map((company, index) => (
+            <motion.div
+              key={company.id}
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              transition={{ delay: index * 0.05 }}
+              className="group relative bg-white rounded-[2.5rem] border border-slate-200 p-8 md:p-10 shadow-sm hover:shadow-2xl hover:shadow-blue-500/5 transition-all duration-500 overflow-hidden"
+            >
+              {/* Top border indicator */}
+              <div className={cn(
+                "absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r",
+                company.status === 'approved' ? "from-emerald-500 to-teal-400" :
+                company.status === 'rejected' ? "from-rose-500 to-pink-400" :
+                "from-amber-500 to-orange-400"
+              )} />
+
+              <div className="flex flex-col gap-10">
+                {/* Company Header */}
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 pb-8 border-b border-slate-100">
+                  <div className="space-y-2">
+                    <h3 className="text-3xl font-black text-slate-900 group-hover:text-blue-600 transition-colors flex items-center gap-3">
+                      {company.name}
+                      {company.is_active ? (
+                        <span className="w-3 h-3 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_10px_rgba(16,185,129,0.5)]"></span>
+                      ) : (
+                        <span className="w-3 h-3 rounded-full bg-slate-300"></span>
+                      )}
+                    </h3>
+                    <div className="flex flex-wrap gap-4 text-slate-400 font-bold text-sm">
+                      <div className="flex items-center gap-2">
+                        <Calendar size={14} className="text-blue-500" />
+                        <span>منذ {new Date(company.created_at).toLocaleDateString('en-GB')}</span>
                       </div>
-                      
-                      {/* Details */}
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 flex-wrap">
-                          <h3 className="text-base font-black text-slate-900 dark:text-white truncate">
-                            {company.name}
-                          </h3>
-                          {company.is_active ? (
-                            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shadow-lg shadow-emerald-500/50" />
+                      <div className="flex items-center gap-2">
+                        <Flag size={14} className="text-blue-500" />
+                        <span>{company.country || 'المملكة العربية السعودية'}</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-wrap gap-2">
+                    <div className={cn(
+                      "flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-black uppercase tracking-widest shadow-sm border",
+                      company.status === 'approved' ? "bg-emerald-50 text-emerald-600 border-emerald-100" :
+                      company.status === 'rejected' ? "bg-rose-50 text-rose-600 border-rose-100" :
+                      "bg-amber-50 text-amber-600 border-amber-100"
+                    )}>
+                      {company.status === 'approved' ? <CheckCircle size={14}/> : company.status === 'rejected' ? <XCircle size={14}/> : <RefreshCw size={14} className="animate-spin-slow"/>}
+                      {company.status === 'approved' ? 'مقبول' : company.status === 'rejected' ? 'مرفوض' : 'قيد المراجعة'}
+                    </div>
+                    <div className={cn(
+                      "flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-black uppercase tracking-widest shadow-sm border",
+                      company.is_active ? "bg-blue-50 text-blue-600 border-blue-100" : "bg-slate-50 text-slate-400 border-slate-100"
+                    )}>
+                      {company.is_active ? <PlayCircle size={14}/> : <PauseCircle size={14}/>}
+                      {company.is_active ? 'نشط' : 'موقوف'}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Company Info Grid */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                  {[
+                    { label: "رقم السجل التجاري", value: company.commercial_number, icon: IdCard, color: "border-blue-500" },
+                    { label: "الرقم الضريبي", value: company.vat_number || '---', icon: Percent, color: "border-indigo-500" },
+                    { label: "رقم الهاتف", value: company.phone || '---', icon: Phone, color: "border-teal-500" },
+                    { label: "المنطقة/المدينة", value: `${company.region || ''} ${company.district || ''}` || '---', icon: Flag, color: "border-purple-500" },
+                  ].map((info, i) => (
+                    <div key={i} className={cn(
+                      "bg-slate-50/50 rounded-2xl p-6 border-2 border-slate-100 transition-all hover:bg-white hover:shadow-xl hover:-translate-y-1 border-r-4",
+                      info.color
+                    )}>
+                      <div className="flex items-center gap-3 mb-2 text-slate-500">
+                        <info.icon size={18} />
+                        <span className="text-[10px] font-black uppercase tracking-widest">{info.label}</span>
+                      </div>
+                      <span className="font-black text-slate-800 text-lg block">{info.value}</span>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Token Section with Premium Glassy look */}
+                <div className="bg-slate-900/5 rounded-3xl p-8 border-2 border-dashed border-slate-200">
+                  <div className="grid md:grid-cols-2 gap-8">
+                    <div className="bg-white/80 rounded-2xl p-6 shadow-sm border border-slate-100 flex items-center justify-between">
+                      <div className="space-y-1">
+                        <span className="flex items-center gap-2 text-slate-400 text-[10px] font-black uppercase tracking-widest">
+                          <Key size={14} className="text-blue-500" />
+                          رمز التفعيل
+                        </span>
+                        <span className={cn(
+                          "font-mono text-xl font-black tracking-widest",
+                          company.access_token ? "text-blue-600" : "text-slate-300 italic text-sm"
+                        )}>
+                          {company.access_token || 'غير منشأ بعد'}
+                        </span>
+                      </div>
+                      {company.access_token && (
+                        <button 
+                          onClick={() => {
+                            navigator.clipboard.writeText(company.access_token!);
+                            toast.success("تم نسخ الرمز");
+                          }}
+                          className="w-10 h-10 rounded-xl bg-slate-100 text-slate-500 hover:bg-blue-600 hover:text-white transition-all flex items-center justify-center"
+                        >
+                          <Plus size={20} className="rotate-45" />
+                        </button>
+                      )}
+                    </div>
+
+                    <div className="bg-white/80 rounded-2xl p-6 shadow-sm border border-slate-100 flex items-center justify-between">
+                      <div className="space-y-1">
+                        <span className="flex items-center gap-2 text-slate-400 text-[10px] font-black uppercase tracking-widest">
+                          <Calendar size={14} className="text-amber-500" />
+                          مدة التفعيل
+                        </span>
+                        <span className="font-black text-slate-800 text-lg">
+                          {company.token_expiry && company.token_expiry !== '0000-00-00' ? (
+                            <span className="text-amber-600">{new Date(company.token_expiry).toLocaleDateString('en-GB')}</span>
                           ) : (
-                            <span className="w-2 h-2 rounded-full bg-slate-300 dark:bg-slate-600" />
-                          )}
-                        </div>
-                        
-                        <div className="flex flex-wrap items-center gap-3 mt-1.5 text-xs text-slate-500 dark:text-slate-400">
-                          <span className="flex items-center gap-1">
-                            <IdCard className="w-3.5 h-3.5" />
-                            {company.commercial_number}
-                          </span>
-                          {company.vat_number && (
-                            <span className="flex items-center gap-1">
-                              <Percent className="w-3.5 h-3.5" />
-                              {company.vat_number}
+                            <span className="text-emerald-600 flex items-center gap-2">
+                              تفعيل دائم
+                              <Infinity size={20} />
                             </span>
                           )}
-                          <span className="flex items-center gap-1">
-                            <Calendar className="w-3.5 h-3.5" />
-                            {new Date(company.created_at).toLocaleDateString('ar-SA')}
-                          </span>
-                        </div>
+                        </span>
                       </div>
                     </div>
+                  </div>
+                </div>
 
-                    {/* Status Badges */}
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <span className={cn(
-                        "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-bold",
-                        company.status === 'approved' ? "bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400" :
-                        company.status === 'rejected' ? "bg-rose-50 dark:bg-rose-500/10 text-rose-600 dark:text-rose-400" :
-                        "bg-amber-50 dark:bg-amber-500/10 text-amber-600 dark:text-amber-400"
-                      )}>
-                        {company.status === 'approved' ? <CheckCircle className="w-3.5 h-3.5" /> : 
-                         company.status === 'rejected' ? <XCircle className="w-3.5 h-3.5" /> : 
-                         <Clock className="w-3.5 h-3.5 animate-pulse" />}
-                        {company.status === 'approved' ? 'مقبول' : company.status === 'rejected' ? 'مرفوض' : 'قيد المراجعة'}
-                      </span>
-                      
-                      <span className={cn(
-                        "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-bold",
-                        company.is_active 
-                          ? "bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400" 
-                          : "bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400"
-                      )}>
-                        {company.is_active ? <PlayCircle className="w-3.5 h-3.5" /> : <PauseCircle className="w-3.5 h-3.5" />}
-                        {company.is_active ? 'نشط' : 'موقوف'}
-                      </span>
-                    </div>
-
-                    {/* Quick Actions */}
-                    <div className="flex items-center gap-2">
-                      {/* Approve/Reject for Pending */}
-                      {company.status === 'pending' && (
-                        <>
-                          <motion.button
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.95 }}
-                            onClick={() => handleAction(company.id, () => approveCompany(company.id))}
-                            disabled={isLoading === company.id}
-                            className="w-10 h-10 rounded-xl bg-emerald-500 text-white shadow-lg shadow-emerald-500/30 hover:shadow-emerald-500/50 flex items-center justify-center transition-all"
-                          >
-                            <CheckCircle className="w-5 h-5" />
-                          </motion.button>
-                          <motion.button
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.95 }}
-                            onClick={() => handleAction(company.id, () => rejectCompany(company.id))}
-                            disabled={isLoading === company.id}
-                            className="w-10 h-10 rounded-xl bg-rose-500 text-white shadow-lg shadow-rose-500/30 hover:shadow-rose-500/50 flex items-center justify-center transition-all"
-                          >
-                            <XCircle className="w-5 h-5" />
-                          </motion.button>
-                        </>
-                      )}
-
-                      {/* Approved/Rejected indicator */}
-                      {company.status !== 'pending' && (
-                        <div className={cn(
-                          "w-10 h-10 rounded-xl flex items-center justify-center",
-                          company.status === 'approved' 
-                            ? "bg-emerald-100 dark:bg-emerald-500/20 text-emerald-500" 
-                            : "bg-rose-100 dark:bg-rose-500/20 text-rose-500"
-                        )}>
-                          {company.status === 'approved' ? <CheckCircle className="w-5 h-5" /> : <XCircle className="w-5 h-5" />}
-                        </div>
-                      )}
-
+{/* Action Buttons with Gradients */}
+                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-7 gap-3">
                       <Link href={`/admin/companies/${company.id}`}>
                         <motion.button
-                          whileHover={{ scale: 1.05 }}
-                          whileTap={{ scale: 0.95 }}
-                          className="w-10 h-10 rounded-xl bg-blue-500 text-white shadow-lg shadow-blue-500/30 hover:shadow-blue-500/50 flex items-center justify-center transition-all"
+                          whileHover={{ scale: 1.02 }}
+                          whileTap={{ scale: 0.98 }}
+                          className="w-full flex flex-col items-center justify-center gap-2 p-4 rounded-2xl bg-gradient-to-br from-blue-600 to-blue-700 text-white font-black shadow-lg shadow-blue-500/20 hover:shadow-blue-500/40 transition-all"
                         >
-                          <Eye className="w-5 h-5" />
+                          <Eye size={20} />
+                          <span className="text-[10px] uppercase tracking-wider">عرض التفاصيل</span>
                         </motion.button>
                       </Link>
 
-                      <button
-                        onClick={() => setExpandedCard(expandedCard === company.id ? null : company.id)}
-                        className={cn(
-                          "w-10 h-10 rounded-xl border-2 flex items-center justify-center transition-all",
-                          expandedCard === company.id 
-                            ? "bg-slate-900 border-slate-900 text-white" 
-                            : "border-slate-200 dark:border-slate-600 text-slate-400 hover:border-slate-300 hover:text-slate-600"
-                        )}
+                    <Link href={`/admin/companies/${company.id}/permissions`}>
+                        <motion.button
+                          whileHover={{ scale: 1.02 }}
+                          whileTap={{ scale: 0.98 }}
+                          className="w-full flex flex-col items-center justify-center gap-2 p-4 rounded-2xl bg-gradient-to-br from-indigo-500 to-indigo-600 text-white font-black shadow-lg shadow-indigo-500/20 hover:shadow-indigo-500/40 transition-all"
+                        >
+                          <Lock size={20} />
+                          <span className="text-[10px] uppercase tracking-wider">الصلاحيات</span>
+                        </motion.button>
+                      </Link>
+
+<motion.button
+                          whileHover={company.status === 'pending' ? { scale: 1.02 } : {}}
+                          whileTap={company.status === 'pending' ? { scale: 0.98 } : {}}
+                          onClick={() => company.status === 'pending' && handleAction(company.id, () => approveCompany(company.id))}
+                          disabled={isLoading === company.id || company.status !== 'pending'}
+                          className={cn(
+                            "flex flex-col items-center justify-center gap-2 p-4 rounded-2xl font-black shadow-lg transition-all",
+                            company.status === 'pending' 
+                              ? "bg-gradient-to-br from-emerald-500 to-emerald-600 text-white shadow-emerald-500/20 hover:shadow-emerald-500/40 cursor-pointer"
+                              : "bg-slate-200 text-slate-400 cursor-not-allowed shadow-none"
+                          )}
+                        >
+                          <CheckCircle size={20} />
+                          <span className="text-[10px] uppercase tracking-wider">
+                            {company.status === 'approved' ? 'تم القبول' : 'قبول الطلب'}
+                          </span>
+                        </motion.button>
+
+                        <motion.button
+                          whileHover={company.status === 'pending' ? { scale: 1.02 } : {}}
+                          whileTap={company.status === 'pending' ? { scale: 0.98 } : {}}
+                          onClick={() => company.status === 'pending' && handleAction(company.id, () => rejectCompany(company.id))}
+                          disabled={isLoading === company.id || company.status !== 'pending'}
+                          className={cn(
+                            "flex flex-col items-center justify-center gap-2 p-4 rounded-2xl font-black shadow-lg transition-all",
+                            company.status === 'pending' 
+                              ? "bg-gradient-to-br from-rose-500 to-rose-600 text-white shadow-rose-500/20 hover:shadow-rose-500/40 cursor-pointer"
+                              : "bg-slate-200 text-slate-400 cursor-not-allowed shadow-none"
+                          )}
+                        >
+                          <XCircle size={20} />
+                          <span className="text-[10px] uppercase tracking-wider">
+                            {company.status === 'rejected' ? 'تم الرفض' : 'رفض الطلب'}
+                          </span>
+                        </motion.button>
+
+                        <motion.button
+                          whileHover={{ scale: 1.02 }}
+                          whileTap={{ scale: 0.98 }}
+                          onClick={() => handleAction(company.id, () => toggleCompanyStatus(company.id, company.is_active))}
+                          disabled={isLoading === company.id}
+                          className={cn(
+                            "flex flex-col items-center justify-center gap-2 p-4 rounded-2xl font-black shadow-lg transition-all",
+                            company.is_active 
+                            ? "bg-gradient-to-br from-amber-500 to-orange-600 text-white shadow-amber-500/20 hover:shadow-amber-500/40" 
+                            : "bg-gradient-to-br from-blue-500 to-cyan-600 text-white shadow-blue-500/20 hover:shadow-blue-500/40"
+                          )}
+                        >
+                          <Power size={20} />
+                          <span className="text-[10px] uppercase tracking-wider">{company.is_active ? 'إيقاف المنشأة' : 'تفعيل المنشأة'}</span>
+                        </motion.button>
+
+                    <motion.button
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      onClick={() => handleAction(company.id, () => generateToken(company.id, 30))}
+                      disabled={isLoading === company.id}
+                      className="flex flex-col items-center justify-center gap-2 p-4 rounded-2xl bg-gradient-to-br from-purple-500 to-purple-700 text-white font-black shadow-lg shadow-purple-500/20 hover:shadow-purple-500/40 transition-all"
+                    >
+                      <Key size={20} />
+                      <span className="text-[10px] uppercase tracking-wider">رمز 30 يوم</span>
+                    </motion.button>
+
+                    <motion.button
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      onClick={() => handleAction(company.id, () => generateToken(company.id, 0))}
+                      disabled={isLoading === company.id}
+                      className="flex flex-col items-center justify-center gap-2 p-4 rounded-2xl bg-gradient-to-br from-teal-400 to-teal-600 text-white font-black shadow-lg shadow-teal-500/20 hover:shadow-teal-500/40 transition-all"
+                    >
+                      <Infinity size={20} />
+                      <span className="text-[10px] uppercase tracking-wider">رمز دائم</span>
+                    </motion.button>
+
+                    {company.id !== 1 && (
+                      <motion.button
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                        onClick={() => setDeleteConfirm({ id: company.id, name: company.name })}
+                        disabled={isLoading === company.id}
+                        className="flex flex-col items-center justify-center gap-2 p-4 rounded-2xl bg-gradient-to-br from-red-600 to-red-800 text-white font-black shadow-lg shadow-red-500/20 hover:shadow-red-500/40 transition-all"
                       >
-                        <ChevronDown className={cn("w-5 h-5 transition-transform", expandedCard === company.id && "rotate-180")} />
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* Expanded Section */}
-                  <AnimatePresence>
-                    {expandedCard === company.id && (
-                      <motion.div
-                        initial={{ height: 0, opacity: 0 }}
-                        animate={{ height: "auto", opacity: 1 }}
-                        exit={{ height: 0, opacity: 0 }}
-                        transition={{ duration: 0.2 }}
-                        className="overflow-hidden"
-                      >
-                        <div className="pt-5 mt-5 border-t border-slate-100 dark:border-slate-700">
-                          {/* Info Grid */}
-                          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-5">
-                            <div className="bg-slate-50 dark:bg-slate-700/50 rounded-xl p-3">
-                              <div className="flex items-center gap-2 text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-1">
-                                <Phone className="w-3.5 h-3.5" />
-                                الهاتف
-                              </div>
-                              <span className="text-sm font-bold text-slate-700 dark:text-slate-200">{company.phone || '---'}</span>
-                            </div>
-                            <div className="bg-slate-50 dark:bg-slate-700/50 rounded-xl p-3">
-                              <div className="flex items-center gap-2 text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-1">
-                                <MapPin className="w-3.5 h-3.5" />
-                                المنطقة
-                              </div>
-                              <span className="text-sm font-bold text-slate-700 dark:text-slate-200">{company.region || company.district || '---'}</span>
-                            </div>
-                            <div className="bg-slate-50 dark:bg-slate-700/50 rounded-xl p-3">
-                              <div className="flex items-center gap-2 text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-1">
-                                <Key className="w-3.5 h-3.5" />
-                                رمز التفعيل
-                              </div>
-                              <div className="flex items-center gap-2">
-                                <span className="text-sm font-mono font-bold text-blue-600 dark:text-blue-400 truncate">
-                                  {company.access_token || '---'}
-                                </span>
-                                {company.access_token && (
-                                  <button 
-                                    onClick={() => copyToClipboard(company.access_token!)}
-                                    className="text-slate-400 hover:text-blue-500 transition-colors"
-                                  >
-                                    <Copy className="w-3.5 h-3.5" />
-                                  </button>
-                                )}
-                              </div>
-                            </div>
-                            <div className="bg-slate-50 dark:bg-slate-700/50 rounded-xl p-3">
-                              <div className="flex items-center gap-2 text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-1">
-                                <Calendar className="w-3.5 h-3.5" />
-                                انتهاء التفعيل
-                              </div>
-                              <span className="text-sm font-bold">
-                                {company.token_expiry && company.token_expiry !== '0000-00-00' ? (
-                                  <span className="text-amber-600 dark:text-amber-400">{new Date(company.token_expiry).toLocaleDateString('ar-SA')}</span>
-                                ) : (
-                                  <span className="text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
-                                    <Infinity className="w-4 h-4" />
-                                    دائم
-                                  </span>
-                                )}
-                              </span>
-                            </div>
-                          </div>
-
-                          {/* Action Buttons */}
-                          <div className="flex flex-wrap gap-2">
-                            <Link href={`/admin/companies/${company.id}/permissions`}>
-                              <motion.button
-                                whileHover={{ scale: 1.02 }}
-                                whileTap={{ scale: 0.98 }}
-                                className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-indigo-500 text-white font-bold text-xs shadow-lg shadow-indigo-500/20 hover:shadow-indigo-500/40 transition-all"
-                              >
-                                <Lock className="w-4 h-4" />
-                                الصلاحيات
-                              </motion.button>
-                            </Link>
-
-                            <motion.button
-                              whileHover={{ scale: 1.02 }}
-                              whileTap={{ scale: 0.98 }}
-                              onClick={() => handleAction(company.id, () => toggleCompanyStatus(company.id, company.is_active))}
-                              disabled={isLoading === company.id}
-                              className={cn(
-                                "inline-flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-xs shadow-lg transition-all",
-                                company.is_active 
-                                  ? "bg-amber-500 text-white shadow-amber-500/20 hover:shadow-amber-500/40" 
-                                  : "bg-cyan-500 text-white shadow-cyan-500/20 hover:shadow-cyan-500/40"
-                              )}
-                            >
-                              <Power className="w-4 h-4" />
-                              {company.is_active ? 'إيقاف المنشأة' : 'تفعيل المنشأة'}
-                            </motion.button>
-
-                            <motion.button
-                              whileHover={{ scale: 1.02 }}
-                              whileTap={{ scale: 0.98 }}
-                              onClick={() => handleAction(company.id, () => generateToken(company.id, 30))}
-                              disabled={isLoading === company.id}
-                              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-purple-500 text-white font-bold text-xs shadow-lg shadow-purple-500/20 hover:shadow-purple-500/40 transition-all"
-                            >
-                              <Key className="w-4 h-4" />
-                              رمز 30 يوم
-                            </motion.button>
-
-                            <motion.button
-                              whileHover={{ scale: 1.02 }}
-                              whileTap={{ scale: 0.98 }}
-                              onClick={() => handleAction(company.id, () => generateToken(company.id, 0))}
-                              disabled={isLoading === company.id}
-                              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-teal-500 text-white font-bold text-xs shadow-lg shadow-teal-500/20 hover:shadow-teal-500/40 transition-all"
-                            >
-                              <Infinity className="w-4 h-4" />
-                              رمز دائم
-                            </motion.button>
-
-                            {company.id !== 1 && (
-                              <motion.button
-                                whileHover={{ scale: 1.02 }}
-                                whileTap={{ scale: 0.98 }}
-                                onClick={() => setDeleteConfirm({ id: company.id, name: company.name })}
-                                disabled={isLoading === company.id}
-                                className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-red-500 text-white font-bold text-xs shadow-lg shadow-red-500/20 hover:shadow-red-500/40 transition-all"
-                              >
-                                <Trash2 className="w-4 h-4" />
-                                حذف
-                              </motion.button>
-                            )}
-                          </div>
-                        </div>
-                      </motion.div>
+                        <Trash2 size={20} />
+                        <span className="text-[10px] uppercase tracking-wider">حذف الشركة</span>
+                      </motion.button>
                     )}
-                  </AnimatePresence>
-                </div>
-
-                {/* Loading Overlay */}
-                {isLoading === company.id && (
-                  <div className="absolute inset-0 bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm z-10 flex items-center justify-center">
-                    <div className="flex items-center gap-3">
-                      <RefreshCw className="w-5 h-5 text-blue-600 animate-spin" />
-                      <span className="font-bold text-blue-600 text-sm">جاري التنفيذ...</span>
-                    </div>
                   </div>
-                )}
-              </motion.div>
-            ))}
-          </AnimatePresence>
+              </div>
 
-          {/* Empty State */}
-          {companies.length === 0 && (
-            <motion.div 
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="py-20 flex flex-col items-center gap-6 text-center"
-            >
-              <div className="w-20 h-20 rounded-2xl bg-slate-100 dark:bg-slate-700 flex items-center justify-center">
-                <Building2 className="w-10 h-10 text-slate-300 dark:text-slate-500" />
-              </div>
-              <div className="space-y-2">
-                <h3 className="text-xl font-black text-slate-800 dark:text-white">لا توجد منشآت</h3>
-                <p className="text-slate-500 dark:text-slate-400 text-sm">لم يتم العثور على شركات تطابق البحث</p>
-              </div>
+              {/* Loading overlay for card */}
+              {isLoading === company.id && (
+                <div className="absolute inset-0 bg-white/60 backdrop-blur-[2px] z-50 flex items-center justify-center">
+                  <div className="flex flex-col items-center gap-4">
+                    <RefreshCw className="w-10 h-10 text-blue-600 animate-spin" />
+                    <span className="font-black text-blue-600 text-xs uppercase tracking-widest">جاري التنفيذ...</span>
+                  </div>
+                </div>
+              )}
+            </motion.div>
+          ))}
+        </AnimatePresence>
+
+        {companies.length === 0 && (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="py-32 flex flex-col items-center gap-8 text-center"
+          >
+            <div className="w-24 h-24 rounded-full bg-slate-100 flex items-center justify-center text-slate-300">
+              <Building2 size={48} />
+            </div>
+            <div className="space-y-3">
+              <h3 className="text-3xl font-black text-slate-800">لا توجد منشآت مطابقة</h3>
+              <p className="font-bold text-slate-400 text-lg">لم يتم العثور على أي شركات تطابق معايير البحث الحالية.</p>
               <button 
                 onClick={() => router.push(pathname)}
-                className="px-6 py-2.5 bg-blue-600 text-white rounded-xl font-bold text-sm hover:bg-blue-700 transition-all shadow-lg shadow-blue-500/20"
+                className="mt-4 px-8 py-3 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700 transition-all shadow-lg shadow-blue-500/20"
               >
-                عرض الكل
+                عرض جميع الشركات
               </button>
-            </motion.div>
-          )}
-        </motion.div>
+            </div>
+          </motion.div>
+)}
+        </div>
 
-        {/* Delete Modal */}
+        {/* Delete Confirmation Modal */}
         <AnimatePresence>
           {deleteConfirm && (
             <motion.div
@@ -590,41 +508,41 @@ export function CompaniesClient({ initialCompanies, statusFilter, search }: Comp
                 animate={{ scale: 1, opacity: 1 }}
                 exit={{ scale: 0.9, opacity: 0 }}
                 onClick={(e) => e.stopPropagation()}
-                className="bg-white dark:bg-slate-800 rounded-2xl p-6 max-w-sm w-full shadow-2xl border border-slate-200 dark:border-slate-700"
+                className="bg-white rounded-3xl p-8 max-w-md w-full shadow-2xl border border-slate-100"
               >
-                <div className="flex flex-col items-center text-center gap-4">
-                  <div className="w-14 h-14 rounded-full bg-red-100 dark:bg-red-500/20 flex items-center justify-center">
-                    <AlertTriangle className="w-7 h-7 text-red-600 dark:text-red-400" />
+                <div className="flex flex-col items-center text-center gap-6">
+                  <div className="w-20 h-20 rounded-full bg-red-100 flex items-center justify-center">
+                    <AlertTriangle size={40} className="text-red-600" />
                   </div>
                   
-                  <div className="space-y-1">
-                    <h3 className="text-lg font-black text-slate-900 dark:text-white">تأكيد الحذف</h3>
-                    <p className="text-slate-500 dark:text-slate-400 text-sm">
-                      حذف <span className="text-red-600 font-bold">{deleteConfirm.name}</span>؟
+                  <div className="space-y-2">
+                    <h3 className="text-2xl font-black text-slate-900">تأكيد الحذف</h3>
+                    <p className="text-slate-500 font-bold">
+                      هل أنت متأكد من حذف شركة <span className="text-red-600 font-black">{deleteConfirm.name}</span>؟
                     </p>
-                    <p className="text-[11px] text-slate-400">
-                      سيتم حذف جميع البيانات المرتبطة نهائياً
+                    <p className="text-xs text-slate-400 font-medium">
+                      سيتم حذف جميع المستخدمين المرتبطين بهذه الشركة نهائياً ولا يمكن استرجاعهم.
                     </p>
                   </div>
 
-                  <div className="flex gap-2 w-full">
+                  <div className="flex gap-3 w-full">
                     <button
                       onClick={() => setDeleteConfirm(null)}
-                      className="flex-1 px-4 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 font-bold text-sm hover:bg-slate-200 dark:hover:bg-slate-600 transition-all"
+                      className="flex-1 px-6 py-4 rounded-2xl bg-slate-100 text-slate-700 font-black hover:bg-slate-200 transition-all"
                     >
                       إلغاء
                     </button>
                     <button
                       onClick={handleDelete}
                       disabled={isLoading === deleteConfirm.id}
-                      className="flex-1 px-4 py-2.5 rounded-xl bg-red-500 text-white font-bold text-sm shadow-lg shadow-red-500/30 hover:bg-red-600 transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+                      className="flex-1 px-6 py-4 rounded-2xl bg-gradient-to-br from-red-600 to-red-700 text-white font-black shadow-lg shadow-red-500/30 hover:shadow-red-500/50 transition-all disabled:opacity-50 flex items-center justify-center gap-2"
                     >
                       {isLoading === deleteConfirm.id ? (
-                        <RefreshCw className="w-4 h-4 animate-spin" />
+                        <RefreshCw size={18} className="animate-spin" />
                       ) : (
-                        <Trash2 className="w-4 h-4" />
+                        <Trash2 size={18} />
                       )}
-                      حذف
+                      حذف نهائي
                     </button>
                   </div>
                 </div>
@@ -632,9 +550,8 @@ export function CompaniesClient({ initialCompanies, statusFilter, search }: Comp
             </motion.div>
           )}
         </AnimatePresence>
-      </div>
 
-      <style jsx global>{`
+        <style jsx global>{`
         @keyframes gradient-x {
           0% { background-position: 0% 50%; }
           50% { background-position: 100% 50%; }
@@ -642,6 +559,13 @@ export function CompaniesClient({ initialCompanies, statusFilter, search }: Comp
         }
         .animate-gradient-x {
           animation: gradient-x 3s ease infinite;
+        }
+        .animate-spin-slow {
+          animation: spin 3s linear infinite;
+        }
+        @keyframes spin {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
         }
       `}</style>
     </div>
