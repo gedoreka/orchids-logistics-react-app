@@ -14,8 +14,8 @@ export default async function TasksPage({ searchParams }: {
   const sessionCookie = cookieStore.get("auth_session");
   const session = JSON.parse(sessionCookie?.value || "{}");
   
-  const companyId = session.company_id;
-  const userId = session.id;
+    const companyId = session.company_id;
+    const userId = session.user_id;
 
   // 1. Fetch Stats
   const totalTasksRes = await query("SELECT COUNT(*) as count FROM employee_tasks WHERE company_id = ?", [companyId]);
@@ -34,7 +34,7 @@ export default async function TasksPage({ searchParams }: {
 
   // 2. Fetch Tasks with filter
   let condition = "et.company_id = ?";
-  let params: any[] = [companyId];
+  let sqlParams: any[] = [companyId];
 
   if (filter === 'pending') condition += " AND et.status = 'pending'";
   else if (filter === 'in_progress') condition += " AND et.status = 'in_progress'";
@@ -43,7 +43,7 @@ export default async function TasksPage({ searchParams }: {
 
   if (search) {
     condition += " AND (et.title LIKE ? OR et.description LIKE ? OR e.name LIKE ?)";
-    params.push(`%${search}%`, `%${search}%`, `%${search}%`);
+    sqlParams.push(`%${search}%`, `%${search}%`, `%${search}%`);
   }
 
   const tasks = await query(
@@ -53,7 +53,7 @@ export default async function TasksPage({ searchParams }: {
      LEFT JOIN users u ON et.created_by = u.id
      WHERE ${condition}
      ORDER BY et.due_date ASC, et.priority DESC`,
-    params
+    sqlParams
   );
 
   // 3. Fetch Employees for assignment
