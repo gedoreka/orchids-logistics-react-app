@@ -246,10 +246,6 @@ export default function SubscriptionsClient({ initialPlans, initialBankAccounts,
     setIsLoading(false);
   };
 
-  const handleDeleteBank = async (id: number) => {
-    setShowDeleteConfirm({ id, type: 'bank' });
-  };
-
   const handlePaymentAction = async (paymentId: number, action: 'approve' | 'reject') => {
     if (action === 'reject' && !rejectionReason.trim()) {
       toast.error('يرجى إدخال سبب الرفض');
