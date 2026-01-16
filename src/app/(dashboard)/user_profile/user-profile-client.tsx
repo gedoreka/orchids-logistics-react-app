@@ -35,7 +35,8 @@ import {
   CreditCard,
   Loader2,
   ArrowLeft,
-  Settings
+  Settings,
+  Sparkles
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
@@ -108,7 +109,6 @@ export function UserProfileClient({ user, company, bankAccounts: initialBankAcco
 
       const data = await res.json();
       
-      // Update local state immediately for instant preview
       setCompanyState((prev: any) => ({ ...prev, [field]: data.url }));
       setHasChanges(true);
       toast.success("تم رفع الملف بنجاح");
@@ -169,42 +169,43 @@ export function UserProfileClient({ user, company, bankAccounts: initialBankAcco
   ];
 
   return (
-    <div className="min-h-screen bg-[#f8fafc] dark:bg-slate-950 p-4 md:p-8 pb-32">
+    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 p-4 md:p-8 pb-32">
       <div className="max-w-6xl mx-auto space-y-8">
         
         {/* Header Section */}
-        <div className="flex flex-col md:flex-row items-center justify-between gap-6 bg-white dark:bg-slate-900 p-8 rounded-[2.5rem] shadow-xl border border-slate-100 dark:border-slate-800 overflow-hidden relative group">
-          <div className="absolute top-0 right-0 w-64 h-64 bg-blue-500/5 rounded-full -mr-32 -mt-32 blur-3xl group-hover:bg-blue-500/10 transition-colors duration-700"></div>
+        <div className="flex flex-col md:flex-row items-center justify-between gap-6 bg-gradient-to-br from-slate-900/80 via-slate-800/50 to-slate-900/80 backdrop-blur-xl p-8 rounded-[2.5rem] shadow-2xl shadow-blue-500/5 border border-white/10 overflow-hidden relative group">
+          <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-br from-blue-600/20 via-purple-600/10 to-transparent rounded-full -mr-48 -mt-48 blur-3xl group-hover:from-blue-500/30 transition-all duration-1000"></div>
+          <div className="absolute bottom-0 left-0 w-64 h-64 bg-gradient-to-tr from-purple-600/15 via-pink-500/10 to-transparent rounded-full -ml-32 -mb-32 blur-3xl"></div>
           
           <div className="flex flex-col md:flex-row items-center gap-8 relative z-10">
             <div className="relative">
-              <div className="w-24 h-24 bg-gradient-to-br from-blue-50 to-white dark:from-slate-800 dark:to-slate-900 rounded-3xl flex items-center justify-center border border-slate-200 dark:border-slate-700 shadow-lg overflow-hidden group/logo">
+              <div className="w-20 h-20 bg-gradient-to-br from-slate-800 via-slate-900 to-slate-800 rounded-2xl flex items-center justify-center border border-white/10 shadow-2xl overflow-hidden group/logo">
                 {companyState?.logo_path ? (
-                  <img src={companyState.logo_path} alt="logo" className="w-full h-full object-contain p-3" />
+                  <img src={companyState.logo_path} alt="logo" className="w-full h-full object-contain p-2" />
                 ) : (
-                  <Building size={40} className="text-blue-500/40" />
+                  <Building size={32} className="text-blue-400/40" />
                 )}
-                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover/logo:opacity-100 transition-opacity flex items-center justify-center">
-                  <Upload size={20} className="text-white" />
+                <div className="absolute inset-0 bg-black/50 opacity-0 group-hover/logo:opacity-100 transition-opacity flex items-center justify-center">
+                  <Upload size={18} className="text-white" />
                 </div>
               </div>
-              <div className="absolute -bottom-2 -right-2 w-8 h-8 bg-emerald-500 rounded-xl border-4 border-white dark:border-slate-900 flex items-center justify-center text-white">
-                <CheckCircle2 size={14} />
+              <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-gradient-to-r from-emerald-500 to-teal-500 rounded-lg border-2 border-slate-900 flex items-center justify-center text-white shadow-lg shadow-emerald-500/30">
+                <CheckCircle2 size={12} />
               </div>
             </div>
 
             <div className="text-center md:text-right">
-              <h1 className="text-3xl md:text-4xl font-black text-slate-900 dark:text-white mb-2 tracking-tight">
+              <h1 className="text-xl md:text-2xl font-black bg-gradient-to-r from-white via-blue-100 to-white bg-clip-text text-transparent mb-2 tracking-tight">
                 {companyState?.name || "اسم الشركة"}
               </h1>
               <div className="flex flex-wrap items-center justify-center md:justify-start gap-4">
-                <span className="flex items-center gap-2 text-slate-500 dark:text-slate-400 text-sm font-medium">
-                  <Mail size={14} className="text-blue-500" />
+                <span className="flex items-center gap-2 text-slate-400 text-sm font-medium">
+                  <Mail size={14} className="text-blue-400" />
                   {user?.email}
                 </span>
-                <span className="w-1 h-1 bg-slate-300 rounded-full"></span>
-                <span className="flex items-center gap-2 text-slate-500 dark:text-slate-400 text-sm font-medium">
-                  <Phone size={14} className="text-blue-500" />
+                <span className="w-1 h-1 bg-slate-600 rounded-full"></span>
+                <span className="flex items-center gap-2 text-slate-400 text-sm font-medium">
+                  <Phone size={14} className="text-blue-400" />
                   {companyState?.phone || "لا يوجد هاتف"}
                 </span>
               </div>
@@ -212,20 +213,20 @@ export function UserProfileClient({ user, company, bankAccounts: initialBankAcco
           </div>
 
           <div className="flex gap-4 relative z-10">
-            <div className="bg-slate-50 dark:bg-slate-800/50 px-6 py-4 rounded-3xl border border-slate-100 dark:border-slate-800 text-center min-w-[140px]">
-              <p className="text-slate-400 text-[10px] font-black uppercase tracking-wider mb-1">السجل التجاري</p>
-              <p className="font-black text-slate-900 dark:text-white text-lg">{companyState?.commercial_number || "---"}</p>
+            <div className="bg-gradient-to-br from-slate-800/80 to-slate-900/80 backdrop-blur px-6 py-4 rounded-2xl border border-white/5 text-center min-w-[130px]">
+              <p className="text-slate-500 text-[10px] font-black uppercase tracking-wider mb-1">السجل التجاري</p>
+              <p className="font-black text-white text-lg">{companyState?.commercial_number || "---"}</p>
             </div>
-            <div className="bg-blue-50 dark:bg-blue-900/20 px-6 py-4 rounded-3xl border border-blue-100 dark:border-blue-900/30 text-center min-w-[140px]">
-              <p className="text-blue-400 text-[10px] font-black uppercase tracking-wider mb-1">الرقم الضريبي</p>
-              <p className="font-black text-blue-600 dark:text-blue-400 text-lg">{companyState?.vat_number?.slice(-6) || "---"}</p>
+            <div className="bg-gradient-to-br from-blue-600/20 to-purple-600/20 backdrop-blur px-6 py-4 rounded-2xl border border-blue-500/20 text-center min-w-[130px]">
+              <p className="text-blue-300 text-[10px] font-black uppercase tracking-wider mb-1">الرقم الضريبي</p>
+              <p className="font-black text-blue-300 text-lg">{companyState?.vat_number?.slice(-6) || "---"}</p>
             </div>
           </div>
         </div>
 
         {/* Centered Modern Tabs */}
         <div className="flex justify-center">
-          <div className="inline-flex bg-white dark:bg-slate-900 p-2 rounded-[2rem] shadow-xl border border-slate-100 dark:border-slate-800 gap-2">
+          <div className="inline-flex bg-gradient-to-br from-slate-900/90 via-slate-800/70 to-slate-900/90 backdrop-blur-xl p-2 rounded-[2rem] shadow-2xl border border-white/10 gap-2">
             {tabs.map((tab) => {
               const isActive = activeTab === tab.id;
               return (
@@ -235,8 +236,8 @@ export function UserProfileClient({ user, company, bankAccounts: initialBankAcco
                   className={cn(
                     "relative flex flex-col items-center justify-center w-24 h-24 rounded-[1.8rem] transition-all duration-500 group",
                     isActive 
-                      ? "bg-blue-600 text-white shadow-lg shadow-blue-500/30 -translate-y-2" 
-                      : "text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800"
+                      ? "bg-gradient-to-br from-blue-600 via-blue-700 to-purple-700 text-white shadow-xl shadow-blue-500/30 -translate-y-2" 
+                      : "text-slate-500 hover:text-slate-300 hover:bg-white/5"
                   )}
                 >
                   <div className={cn(
@@ -251,7 +252,7 @@ export function UserProfileClient({ user, company, bankAccounts: initialBankAcco
                   {isActive && (
                     <motion.div 
                       layoutId="activeTab"
-                      className="absolute -bottom-1 w-8 h-1 bg-white rounded-full"
+                      className="absolute -bottom-1 w-8 h-1 bg-white rounded-full shadow-lg shadow-white/50"
                     />
                   )}
                 </button>
@@ -271,16 +272,16 @@ export function UserProfileClient({ user, company, bankAccounts: initialBankAcco
           >
             {activeTab === "overview" && (
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                <CardSection title="بيانات المالك" icon={<User className="w-5 h-5" />}>
+                <CardSection title="بيانات المالك" icon={<User className="w-5 h-5" />} gradient="from-cyan-500 to-blue-600">
                   <div className="grid grid-cols-2 gap-4">
                     <InfoTile label="الاسم الكامل" value={user?.name} icon={<User />} />
                     <InfoTile label="البريد الإلكتروني" value={user?.email} icon={<Mail />} />
                     <InfoTile label="تاريخ التسجيل" value={user?.created_at?.split('T')[0]} icon={<Calendar />} />
-                    <InfoTile label="حالة العضوية" value="عضو متميز" icon={<Shield />} color="text-emerald-500" />
+                    <InfoTile label="حالة العضوية" value="عضو متميز" icon={<Shield />} color="text-emerald-400" />
                   </div>
                 </CardSection>
 
-                <CardSection title="بيانات المنشأة" icon={<Building className="w-5 h-5" />}>
+                <CardSection title="بيانات المنشأة" icon={<Building className="w-5 h-5" />} gradient="from-violet-500 to-purple-600">
                   <div className="grid grid-cols-2 gap-4">
                     <InfoTile label="الاسم التجاري" value={companyState?.name} icon={<Briefcase />} />
                     <InfoTile label="رقم السجل" value={companyState?.commercial_number} icon={<FileText />} />
@@ -289,7 +290,7 @@ export function UserProfileClient({ user, company, bankAccounts: initialBankAcco
                   </div>
                 </CardSection>
 
-                <CardSection title="العناوين والتواصل" icon={<MapPin className="w-5 h-5" />} className="lg:col-span-2">
+                <CardSection title="العناوين والتواصل" icon={<MapPin className="w-5 h-5" />} gradient="from-emerald-500 to-teal-600" className="lg:col-span-2">
                   <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                     <InfoTile label="الدولة" value={companyState?.country} icon={<Flag />} />
                     <InfoTile label="المدينة/المنطقة" value={companyState?.region} icon={<MapPin />} />
@@ -303,8 +304,10 @@ export function UserProfileClient({ user, company, bankAccounts: initialBankAcco
             {activeTab === "bank" && (
               <div className="space-y-6">
                 <div className="flex items-center justify-between mb-2">
-                  <h3 className="text-xl font-black text-slate-800 dark:text-white flex items-center gap-3">
-                    <Landmark className="text-blue-500" />
+                  <h3 className="text-xl font-black text-white flex items-center gap-3">
+                    <div className="p-2 bg-gradient-to-r from-blue-600 to-cyan-600 rounded-xl">
+                      <Landmark className="text-white" size={20} />
+                    </div>
                     إدارة الحسابات البنكية
                   </h3>
                   <button
@@ -313,7 +316,7 @@ export function UserProfileClient({ user, company, bankAccounts: initialBankAcco
                       setBankFormData({ bank_beneficiary: "", bank_name: "", bank_account: "", bank_iban: "" });
                       setIsBankModalOpen(true);
                     }}
-                    className="flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-2xl font-black text-sm hover:shadow-xl hover:shadow-blue-500/20 transition-all active:scale-95"
+                    className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-cyan-600 text-white rounded-2xl font-black text-sm hover:shadow-xl hover:shadow-blue-500/30 transition-all active:scale-95"
                   >
                     <PlusCircle size={18} />
                     إضافة حساب جديد
@@ -326,16 +329,16 @@ export function UserProfileClient({ user, company, bankAccounts: initialBankAcco
                       <motion.div 
                         layout
                         key={bank.id} 
-                        className="bg-white dark:bg-slate-900 rounded-[2rem] p-6 border border-slate-100 dark:border-slate-800 shadow-lg group relative overflow-hidden"
+                        className="bg-gradient-to-br from-slate-900/90 via-slate-800/70 to-slate-900/90 backdrop-blur-xl rounded-[2rem] p-6 border border-white/10 shadow-xl group relative overflow-hidden"
                       >
-                        <div className="absolute top-0 left-0 w-2 h-full bg-blue-500"></div>
+                        <div className="absolute top-0 left-0 w-1.5 h-full bg-gradient-to-b from-blue-500 via-cyan-500 to-blue-600"></div>
                         <div className="flex justify-between items-start mb-6">
                           <div className="flex items-center gap-4">
-                            <div className="w-14 h-14 bg-blue-50 dark:bg-blue-900/20 rounded-2xl flex items-center justify-center text-blue-600">
+                            <div className="w-14 h-14 bg-gradient-to-br from-blue-600/20 to-cyan-600/20 rounded-2xl flex items-center justify-center text-blue-400 border border-blue-500/20">
                               <University size={24} />
                             </div>
                             <div>
-                              <h4 className="font-black text-lg text-slate-900 dark:text-white">{bank.bank_name}</h4>
+                              <h4 className="font-black text-lg text-white">{bank.bank_name}</h4>
                               <p className="text-sm text-slate-400 font-medium">{bank.bank_beneficiary}</p>
                             </div>
                           </div>
@@ -346,7 +349,7 @@ export function UserProfileClient({ user, company, bankAccounts: initialBankAcco
                                 setBankFormData({ ...bank });
                                 setIsBankModalOpen(true);
                               }} 
-                              className="p-2.5 bg-slate-50 dark:bg-slate-800 text-slate-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded-xl transition-all"
+                              className="p-2.5 bg-white/5 text-slate-400 hover:text-blue-400 hover:bg-blue-500/10 rounded-xl transition-all border border-white/5"
                             >
                               <Edit size={16} />
                             </button>
@@ -360,20 +363,20 @@ export function UserProfileClient({ user, company, bankAccounts: initialBankAcco
                                   }
                                 }
                               }}
-                              className="p-2.5 bg-slate-50 dark:bg-slate-800 text-slate-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-xl transition-all"
+                              className="p-2.5 bg-white/5 text-slate-400 hover:text-red-400 hover:bg-red-500/10 rounded-xl transition-all border border-white/5"
                             >
                               <Trash2 size={16} />
                             </button>
                           </div>
                         </div>
                         <div className="grid grid-cols-2 gap-4">
-                          <div className="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-2xl">
-                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">رقم الحساب</p>
-                            <p className="font-black text-slate-800 dark:text-slate-200">{bank.bank_account}</p>
+                          <div className="bg-white/5 backdrop-blur p-4 rounded-2xl border border-white/5">
+                            <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">رقم الحساب</p>
+                            <p className="font-black text-slate-200">{bank.bank_account}</p>
                           </div>
-                          <div className="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-2xl">
-                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">IBAN</p>
-                            <p className="font-black text-slate-800 dark:text-slate-200 text-xs truncate">{bank.bank_iban}</p>
+                          <div className="bg-white/5 backdrop-blur p-4 rounded-2xl border border-white/5">
+                            <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">IBAN</p>
+                            <p className="font-black text-slate-200 text-xs truncate">{bank.bank_iban}</p>
                           </div>
                         </div>
                       </motion.div>
@@ -388,8 +391,10 @@ export function UserProfileClient({ user, company, bankAccounts: initialBankAcco
             {activeTab === "license" && (
               <div className="space-y-6">
                 <div className="flex items-center justify-between mb-2">
-                  <h3 className="text-xl font-black text-slate-800 dark:text-white flex items-center gap-3">
-                    <Shield className="text-purple-500" />
+                  <h3 className="text-xl font-black text-white flex items-center gap-3">
+                    <div className="p-2 bg-gradient-to-r from-purple-600 to-pink-600 rounded-xl">
+                      <Shield className="text-white" size={20} />
+                    </div>
                     التراخيص والشهادات
                   </h3>
                   <button
@@ -398,7 +403,7 @@ export function UserProfileClient({ user, company, bankAccounts: initialBankAcco
                       setLicenseFormData({ license_number: "", license_type: "", start_date: "", end_date: "", license_image: "" });
                       setIsLicenseModalOpen(true);
                     }}
-                    className="flex items-center gap-2 px-6 py-3 bg-purple-600 text-white rounded-2xl font-black text-sm hover:shadow-xl hover:shadow-purple-500/20 transition-all active:scale-95"
+                    className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-2xl font-black text-sm hover:shadow-xl hover:shadow-purple-500/30 transition-all active:scale-95"
                   >
                     <PlusCircle size={18} />
                     إضافة ترخيص
@@ -411,16 +416,16 @@ export function UserProfileClient({ user, company, bankAccounts: initialBankAcco
                       <motion.div 
                         layout
                         key={license.id} 
-                        className="bg-white dark:bg-slate-900 rounded-[2rem] p-6 border border-slate-100 dark:border-slate-800 shadow-lg group relative overflow-hidden"
+                        className="bg-gradient-to-br from-slate-900/90 via-slate-800/70 to-slate-900/90 backdrop-blur-xl rounded-[2rem] p-6 border border-white/10 shadow-xl group relative overflow-hidden"
                       >
-                        <div className="absolute top-0 left-0 w-2 h-full bg-purple-500"></div>
+                        <div className="absolute top-0 left-0 w-1.5 h-full bg-gradient-to-b from-purple-500 via-pink-500 to-purple-600"></div>
                         <div className="flex justify-between items-start mb-6">
                           <div className="flex items-center gap-4">
-                            <div className="w-14 h-14 bg-purple-50 dark:bg-purple-900/20 rounded-2xl flex items-center justify-center text-purple-600">
+                            <div className="w-14 h-14 bg-gradient-to-br from-purple-600/20 to-pink-600/20 rounded-2xl flex items-center justify-center text-purple-400 border border-purple-500/20">
                               <IdCard size={24} />
                             </div>
                             <div>
-                              <h4 className="font-black text-lg text-slate-900 dark:text-white">{license.license_type}</h4>
+                              <h4 className="font-black text-lg text-white">{license.license_type}</h4>
                               <p className="text-sm text-slate-400 font-medium">رقم: {license.license_number}</p>
                             </div>
                           </div>
@@ -431,7 +436,7 @@ export function UserProfileClient({ user, company, bankAccounts: initialBankAcco
                                 setLicenseFormData({ ...license });
                                 setIsLicenseModalOpen(true);
                               }}
-                              className="p-2.5 bg-slate-50 dark:bg-slate-800 text-slate-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded-xl transition-all"
+                              className="p-2.5 bg-white/5 text-slate-400 hover:text-blue-400 hover:bg-blue-500/10 rounded-xl transition-all border border-white/5"
                             >
                               <Edit size={16} />
                             </button>
@@ -445,28 +450,28 @@ export function UserProfileClient({ user, company, bankAccounts: initialBankAcco
                                   }
                                 }
                               }}
-                              className="p-2.5 bg-slate-50 dark:bg-slate-800 text-slate-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-xl transition-all"
+                              className="p-2.5 bg-white/5 text-slate-400 hover:text-red-400 hover:bg-red-500/10 rounded-xl transition-all border border-white/5"
                             >
                               <Trash2 size={16} />
                             </button>
                           </div>
                         </div>
                         <div className="grid grid-cols-2 gap-4 mb-4">
-                          <div className="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-2xl">
-                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">تاريخ الإصدار</p>
-                            <p className="font-black text-slate-800 dark:text-slate-200">{license.start_date || "---"}</p>
+                          <div className="bg-white/5 backdrop-blur p-4 rounded-2xl border border-white/5">
+                            <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">تاريخ الإصدار</p>
+                            <p className="font-black text-slate-200">{license.start_date || "---"}</p>
                           </div>
-                          <div className="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-2xl">
-                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">تاريخ الانتهاء</p>
-                            <p className="font-black text-slate-800 dark:text-slate-200">{license.end_date || "---"}</p>
+                          <div className="bg-white/5 backdrop-blur p-4 rounded-2xl border border-white/5">
+                            <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">تاريخ الانتهاء</p>
+                            <p className="font-black text-slate-200">{license.end_date || "---"}</p>
                           </div>
                         </div>
                         {license.license_image && (
                           <div className="flex gap-2">
-                            <a href={license.license_image} target="_blank" className="flex-1 flex items-center justify-center gap-2 py-3 bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 rounded-xl text-xs font-black hover:bg-blue-100 transition-all">
+                            <a href={license.license_image} target="_blank" className="flex-1 flex items-center justify-center gap-2 py-3 bg-blue-500/10 text-blue-400 rounded-xl text-xs font-black hover:bg-blue-500/20 transition-all border border-blue-500/20">
                               <Eye size={14} /> عرض الملف
                             </a>
-                            <a href={license.license_image} download className="flex-1 flex items-center justify-center gap-2 py-3 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 rounded-xl text-xs font-black hover:bg-emerald-100 transition-all">
+                            <a href={license.license_image} download className="flex-1 flex items-center justify-center gap-2 py-3 bg-emerald-500/10 text-emerald-400 rounded-xl text-xs font-black hover:bg-emerald-500/20 transition-all border border-emerald-500/20">
                               <Download size={14} /> تحميل
                             </a>
                           </div>
@@ -482,7 +487,7 @@ export function UserProfileClient({ user, company, bankAccounts: initialBankAcco
 
             {activeTab === "files" && (
               <div className="space-y-12">
-                <CardSection title="هوية المنشأة" icon={<ImageIcon className="w-5 h-5" />}>
+                <CardSection title="هوية المنشأة" icon={<ImageIcon className="w-5 h-5" />} gradient="from-amber-500 to-orange-600">
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                     <FileUploader 
                       label="شعار المنشأة" 
@@ -509,7 +514,7 @@ export function UserProfileClient({ user, company, bankAccounts: initialBankAcco
                   </div>
                 </CardSection>
 
-                <CardSection title="الوثائق الرسمية" icon={<FileCheck className="w-5 h-5" />}>
+                <CardSection title="الوثائق الرسمية" icon={<FileCheck className="w-5 h-5" />} gradient="from-rose-500 to-red-600">
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                     <FileUploader 
                       label="السجل التجاري" 
@@ -552,7 +557,7 @@ export function UserProfileClient({ user, company, bankAccounts: initialBankAcco
             <button
               onClick={handleSaveAll}
               disabled={isSaving}
-              className="w-full bg-gradient-to-r from-blue-600 via-blue-700 to-blue-800 text-white py-5 rounded-[2rem] shadow-2xl shadow-blue-500/40 flex items-center justify-center gap-4 font-black text-lg hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50"
+              className="w-full bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 text-white py-5 rounded-[2rem] shadow-2xl shadow-purple-500/40 flex items-center justify-center gap-4 font-black text-lg hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50 border border-white/10"
             >
               {isSaving ? (
                 <Loader2 className="animate-spin" />
@@ -584,7 +589,7 @@ export function UserProfileClient({ user, company, bankAccounts: initialBankAcco
             <FormInput label="رقم الحساب" value={bankFormData.bank_account} onChange={v => setBankFormData({...bankFormData, bank_account: v})} required />
             <FormInput label="IBAN" value={bankFormData.bank_iban} onChange={v => setBankFormData({...bankFormData, bank_iban: v})} required />
           </div>
-          <button type="submit" className="w-full py-4 bg-blue-600 text-white rounded-2xl font-black mt-4">حفظ</button>
+          <button type="submit" className="w-full py-4 bg-gradient-to-r from-blue-600 to-cyan-600 text-white rounded-2xl font-black mt-4 hover:shadow-lg hover:shadow-blue-500/30 transition-all">حفظ</button>
         </form>
       </Modal>
 
@@ -607,24 +612,24 @@ export function UserProfileClient({ user, company, bankAccounts: initialBankAcco
             <FormInput label="تاريخ الانتهاء" type="date" value={licenseFormData.end_date} onChange={v => setLicenseFormData({...licenseFormData, end_date: v})} />
           </div>
           <div className="mt-4">
-            <label className="text-sm font-black text-slate-500 mb-2 block">ملف الترخيص</label>
-            <div className="border-2 border-dashed border-slate-200 rounded-2xl p-6 text-center">
+            <label className="text-sm font-black text-slate-400 mb-2 block">ملف الترخيص</label>
+            <div className="border-2 border-dashed border-white/10 rounded-2xl p-6 text-center bg-white/5">
               {licenseFormData.license_image ? (
                 <div className="flex flex-col items-center gap-2">
-                  <CheckCircle2 className="text-emerald-500 w-10 h-10" />
-                  <p className="text-sm font-black text-slate-700">تم رفع الملف</p>
-                  <button type="button" onClick={() => setLicenseFormData({...licenseFormData, license_image: ""})} className="text-red-500 text-xs font-bold">حذف واستبدال</button>
+                  <CheckCircle2 className="text-emerald-400 w-10 h-10" />
+                  <p className="text-sm font-black text-white">تم رفع الملف</p>
+                  <button type="button" onClick={() => setLicenseFormData({...licenseFormData, license_image: ""})} className="text-red-400 text-xs font-bold">حذف واستبدال</button>
                 </div>
               ) : (
                 <label className="cursor-pointer">
-                  <Upload className="mx-auto text-slate-300 w-10 h-10 mb-2" />
+                  <Upload className="mx-auto text-slate-500 w-10 h-10 mb-2" />
                   <p className="text-sm text-slate-400 font-bold">اضغط هنا لرفع صورة الترخيص</p>
                   <input type="file" className="hidden" accept="image/*,application/pdf" onChange={handleLicenseFileUpload} />
                 </label>
               )}
             </div>
           </div>
-          <button type="submit" className="w-full py-4 bg-purple-600 text-white rounded-2xl font-black mt-4">حفظ الترخيص</button>
+          <button type="submit" className="w-full py-4 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-2xl font-black mt-4 hover:shadow-lg hover:shadow-purple-500/30 transition-all">حفظ الترخيص</button>
         </form>
       </Modal>
     </div>
@@ -632,14 +637,16 @@ export function UserProfileClient({ user, company, bankAccounts: initialBankAcco
 }
 
 // Components
-function CardSection({ title, icon, children, className }: any) {
+function CardSection({ title, icon, children, className, gradient = "from-blue-500 to-cyan-500" }: any) {
   return (
-    <div className={cn("bg-white dark:bg-slate-900 rounded-[2.5rem] shadow-xl border border-slate-100 dark:border-slate-800 overflow-hidden", className)}>
-      <div className="px-8 py-6 border-b border-slate-50 dark:border-slate-800 flex items-center gap-4">
-        <div className="p-3 bg-blue-50 dark:bg-blue-900/20 text-blue-600 rounded-2xl">
+    <div className={cn("bg-gradient-to-br from-slate-900/90 via-slate-800/70 to-slate-900/90 backdrop-blur-xl rounded-[2.5rem] shadow-2xl border border-white/10 overflow-hidden", className)}>
+      <div className="px-8 py-6 border-b border-white/5 flex items-center gap-4 relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/[0.02] to-transparent"></div>
+        <div className={cn("p-3 bg-gradient-to-br rounded-2xl text-white shadow-lg relative z-10", gradient)}>
           {icon}
         </div>
-        <h3 className="text-xl font-black text-slate-800 dark:text-white tracking-tight">{title}</h3>
+        <h3 className="text-xl font-black text-white tracking-tight relative z-10">{title}</h3>
+        <Sparkles size={16} className="text-amber-400/50 absolute top-4 left-4" />
       </div>
       <div className="p-8">{children}</div>
     </div>
@@ -648,17 +655,17 @@ function CardSection({ title, icon, children, className }: any) {
 
 function InfoTile({ label, value, icon, color, description }: any) {
   return (
-    <div className="group bg-slate-50 dark:bg-slate-800/40 p-5 rounded-[2rem] border border-slate-100 dark:border-slate-800 hover:border-blue-200 dark:hover:border-blue-900 transition-all">
+    <div className="group bg-gradient-to-br from-white/[0.08] to-white/[0.02] p-5 rounded-[2rem] border border-white/10 hover:border-blue-500/30 transition-all hover:shadow-lg hover:shadow-blue-500/10">
       <div className="flex items-center gap-3 mb-3">
-        <div className="text-blue-500/50 group-hover:text-blue-500 transition-colors">
+        <div className="text-blue-400/50 group-hover:text-blue-400 transition-colors">
           {React.cloneElement(icon, { size: 16 })}
         </div>
-        <span className="text-[10px] font-black uppercase text-slate-400 tracking-widest">{label}</span>
+        <span className="text-[10px] font-black uppercase text-slate-500 tracking-widest">{label}</span>
       </div>
-      <p className={cn("text-base font-black truncate", color || "text-slate-800 dark:text-white")}>
+      <p className={cn("text-base font-black truncate", color || "text-white")}>
         {value || "---"}
       </p>
-      {description && <p className="text-[10px] text-slate-400 mt-1 font-medium">{description}</p>}
+      {description && <p className="text-[10px] text-slate-500 mt-1 font-medium">{description}</p>}
     </div>
   );
 }
@@ -671,25 +678,25 @@ function FileUploader({ label, field, value, onUpload, isUploading, description 
       <div 
         className={cn(
           "w-full aspect-square rounded-[3rem] border-2 border-dashed flex flex-col items-center justify-center relative overflow-hidden transition-all duration-500 group/upload",
-          value ? "border-emerald-500/30 bg-emerald-50/10" : "border-slate-200 hover:border-blue-400 bg-slate-50/50"
+          value ? "border-emerald-500/30 bg-emerald-500/5" : "border-white/10 hover:border-blue-500/30 bg-white/5"
         )}
       >
         {isUploading ? (
           <div className="flex flex-col items-center gap-3">
-            <Loader2 className="w-10 h-10 text-blue-500 animate-spin" />
-            <span className="text-xs font-black text-blue-500 animate-pulse">جاري الرفع...</span>
+            <Loader2 className="w-10 h-10 text-blue-400 animate-spin" />
+            <span className="text-xs font-black text-blue-400 animate-pulse">جاري الرفع...</span>
           </div>
         ) : value ? (
           <div className="w-full h-full p-6 flex flex-col items-center justify-center gap-4 relative">
             <img src={value} alt={label} className="max-w-full max-h-[140px] object-contain drop-shadow-2xl" />
-            <div className="absolute inset-0 bg-black/60 opacity-0 group-hover/upload:opacity-100 transition-opacity flex flex-col items-center justify-center gap-3">
+            <div className="absolute inset-0 bg-slate-950/80 backdrop-blur opacity-0 group-hover/upload:opacity-100 transition-opacity flex flex-col items-center justify-center gap-3">
               <button 
                 onClick={() => inputRef.current?.click()}
-                className="bg-white text-black px-6 py-2 rounded-full text-xs font-black flex items-center gap-2 hover:scale-110 transition-transform"
+                className="bg-gradient-to-r from-blue-600 to-cyan-600 text-white px-6 py-2 rounded-full text-xs font-black flex items-center gap-2 hover:scale-110 transition-transform shadow-lg"
               >
                 <Edit size={14} /> استبدال
               </button>
-              <a href={value} target="_blank" className="text-white text-[10px] font-bold hover:underline">عرض الملف الحالي</a>
+              <a href={value} target="_blank" className="text-slate-400 text-[10px] font-bold hover:text-white transition-colors">عرض الملف الحالي</a>
             </div>
           </div>
         ) : (
@@ -697,18 +704,18 @@ function FileUploader({ label, field, value, onUpload, isUploading, description 
             onClick={() => inputRef.current?.click()}
             className="flex flex-col items-center gap-4"
           >
-            <div className="w-16 h-16 bg-white dark:bg-slate-800 rounded-3xl shadow-lg flex items-center justify-center text-slate-300 group-hover/upload:text-blue-500 group-hover/upload:scale-110 transition-all">
+            <div className="w-16 h-16 bg-gradient-to-br from-slate-800 to-slate-900 rounded-3xl shadow-xl flex items-center justify-center text-slate-500 group-hover/upload:text-blue-400 group-hover/upload:scale-110 transition-all border border-white/10">
               <Upload size={32} />
             </div>
             <div className="text-center">
-              <span className="text-sm font-black text-slate-700 dark:text-slate-300 block mb-1">اضغط للرفع</span>
-              <span className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">{label}</span>
+              <span className="text-sm font-black text-slate-300 block mb-1">اضغط للرفع</span>
+              <span className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">{label}</span>
             </div>
           </button>
         )}
         <input ref={inputRef} type="file" className="hidden" accept="image/*,.pdf" onChange={(e) => onUpload(e, field)} />
       </div>
-      {description && <p className="text-[10px] text-slate-400 mt-3 font-bold">{description}</p>}
+      {description && <p className="text-[10px] text-slate-500 mt-3 font-bold">{description}</p>}
     </div>
   );
 }
@@ -716,13 +723,13 @@ function FileUploader({ label, field, value, onUpload, isUploading, description 
 function FormInput({ label, value, onChange, type = "text", required = false }: any) {
   return (
     <div className="space-y-1">
-      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mr-2">{label}</label>
+      <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest mr-2">{label}</label>
       <input 
         type={type}
         required={required}
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="w-full bg-slate-50 dark:bg-slate-800 border-2 border-slate-100 dark:border-slate-800 rounded-2xl px-6 py-4 text-sm font-black text-slate-800 dark:text-white focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all"
+        className="w-full bg-white/5 border-2 border-white/10 rounded-2xl px-6 py-4 text-sm font-black text-white focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500/50 transition-all placeholder:text-slate-600"
       />
     </div>
   );
@@ -730,9 +737,9 @@ function FormInput({ label, value, onChange, type = "text", required = false }: 
 
 function EmptyContent({ message, icon }: any) {
   return (
-    <div className="flex flex-col items-center justify-center py-20 bg-slate-50 dark:bg-slate-800/30 rounded-[3rem] border-2 border-dashed border-slate-200 dark:border-slate-800">
-      <div className="text-slate-200 dark:text-slate-700 mb-6">{icon}</div>
-      <p className="text-slate-400 font-black tracking-tight">{message}</p>
+    <div className="flex flex-col items-center justify-center py-20 bg-white/5 backdrop-blur rounded-[3rem] border-2 border-dashed border-white/10">
+      <div className="text-slate-600 mb-6">{icon}</div>
+      <p className="text-slate-500 font-black tracking-tight">{message}</p>
     </div>
   );
 }
@@ -746,18 +753,19 @@ function Modal({ isOpen, onClose, title, children }: any) {
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
         onClick={onClose}
-        className="absolute inset-0 bg-slate-950/40 backdrop-blur-md"
+        className="absolute inset-0 bg-slate-950/80 backdrop-blur-xl"
       />
       <motion.div 
         initial={{ scale: 0.9, opacity: 0, y: 20 }}
         animate={{ scale: 1, opacity: 1, y: 0 }}
         exit={{ scale: 0.9, opacity: 0, y: 20 }}
-        className="relative w-full max-w-2xl bg-white dark:bg-slate-900 rounded-[3rem] shadow-2xl overflow-hidden"
+        className="relative w-full max-w-2xl bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 rounded-[3rem] shadow-2xl overflow-hidden border border-white/10"
       >
-        <div className="px-10 py-8 border-b border-slate-50 dark:border-slate-800 flex justify-between items-center">
-          <h3 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight">{title}</h3>
-          <button onClick={onClose} className="p-3 bg-slate-50 dark:bg-slate-800 rounded-2xl hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors">
-            <X size={20} />
+        <div className="px-10 py-8 border-b border-white/5 flex justify-between items-center relative">
+          <div className="absolute inset-0 bg-gradient-to-r from-blue-600/5 via-purple-600/5 to-pink-600/5"></div>
+          <h3 className="text-2xl font-black text-white tracking-tight relative z-10">{title}</h3>
+          <button onClick={onClose} className="p-3 bg-white/5 rounded-2xl hover:bg-white/10 transition-colors relative z-10 border border-white/10">
+            <X size={20} className="text-slate-400" />
           </button>
         </div>
         <div className="p-10">{children}</div>
