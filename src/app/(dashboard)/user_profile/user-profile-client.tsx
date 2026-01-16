@@ -179,16 +179,16 @@ export function UserProfileClient({ user, company, bankAccounts: initialBankAcco
           
           <div className="flex flex-col md:flex-row items-center gap-8 relative z-10">
             <div className="relative">
-              <div className="w-20 h-20 bg-gradient-to-br from-slate-800 via-slate-900 to-slate-800 rounded-2xl flex items-center justify-center border border-white/10 shadow-2xl overflow-hidden group/logo">
-                {companyState?.logo_path ? (
-                  <img src={companyState.logo_path} alt="logo" className="w-full h-full object-contain p-2" />
-                ) : (
-                  <Building size={32} className="text-blue-400/40" />
-                )}
-                <div className="absolute inset-0 bg-black/50 opacity-0 group-hover/logo:opacity-100 transition-opacity flex items-center justify-center">
-                  <Upload size={18} className="text-white" />
+                <div className="w-20 h-20 bg-white rounded-2xl flex items-center justify-center border border-slate-200 shadow-2xl overflow-hidden group/logo">
+                  {companyState?.logo_path ? (
+                    <img src={companyState.logo_path} alt="logo" className="w-full h-full object-contain p-2" />
+                  ) : (
+                    <Building size={32} className="text-slate-400" />
+                  )}
+                  <div className="absolute inset-0 bg-black/50 opacity-0 group-hover/logo:opacity-100 transition-opacity flex items-center justify-center">
+                    <Upload size={18} className="text-white" />
+                  </div>
                 </div>
-              </div>
               <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-gradient-to-r from-emerald-500 to-teal-500 rounded-lg border-2 border-slate-900 flex items-center justify-center text-white shadow-lg shadow-emerald-500/30">
                 <CheckCircle2 size={12} />
               </div>
@@ -217,10 +217,10 @@ export function UserProfileClient({ user, company, bankAccounts: initialBankAcco
               <p className="text-slate-500 text-[10px] font-black uppercase tracking-wider mb-1">السجل التجاري</p>
               <p className="font-black text-white text-lg">{companyState?.commercial_number || "---"}</p>
             </div>
-            <div className="bg-gradient-to-br from-blue-600/20 to-purple-600/20 backdrop-blur px-6 py-4 rounded-2xl border border-blue-500/20 text-center min-w-[130px]">
-              <p className="text-blue-300 text-[10px] font-black uppercase tracking-wider mb-1">الرقم الضريبي</p>
-              <p className="font-black text-blue-300 text-lg">{companyState?.vat_number?.slice(-6) || "---"}</p>
-            </div>
+              <div className="bg-gradient-to-br from-blue-600/20 to-purple-600/20 backdrop-blur px-6 py-4 rounded-2xl border border-blue-500/20 text-center min-w-[130px]">
+                <p className="text-blue-300 text-[10px] font-black uppercase tracking-wider mb-1">الرقم الضريبي</p>
+                <p className="font-black text-blue-300 text-lg">{companyState?.vat_number || "---"}</p>
+              </div>
           </div>
         </div>
 
@@ -539,6 +539,25 @@ export function UserProfileClient({ user, company, bankAccounts: initialBankAcco
                     />
                   </div>
                 </CardSection>
+
+                <CardSection title="وثائق إضافية" icon={<IdCard className="w-5 h-5" />} gradient="from-indigo-500 to-violet-600">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <FileUploader 
+                      label="العنوان الوطني" 
+                      field="national_address_image" 
+                      value={companyState?.national_address_image} 
+                      onUpload={handleFileUpload} 
+                      isUploading={uploadingField === "national_address_image"}
+                    />
+                    <FileUploader 
+                      label="هوية المالك" 
+                      field="owner_id_image" 
+                      value={companyState?.owner_id_image} 
+                      onUpload={handleFileUpload} 
+                      isUploading={uploadingField === "owner_id_image"}
+                    />
+                  </div>
+                </CardSection>
               </div>
             )}
           </motion.div>
@@ -678,25 +697,25 @@ function FileUploader({ label, field, value, onUpload, isUploading, description 
       <div 
         className={cn(
           "w-full aspect-square rounded-[3rem] border-2 border-dashed flex flex-col items-center justify-center relative overflow-hidden transition-all duration-500 group/upload",
-          value ? "border-emerald-500/30 bg-emerald-500/5" : "border-white/10 hover:border-blue-500/30 bg-white/5"
+          value ? "border-emerald-500/30 bg-white" : "border-white/10 hover:border-blue-500/30 bg-white"
         )}
       >
         {isUploading ? (
           <div className="flex flex-col items-center gap-3">
-            <Loader2 className="w-10 h-10 text-blue-400 animate-spin" />
-            <span className="text-xs font-black text-blue-400 animate-pulse">جاري الرفع...</span>
+            <Loader2 className="w-10 h-10 text-blue-600 animate-spin" />
+            <span className="text-xs font-black text-blue-600 animate-pulse">جاري الرفع...</span>
           </div>
         ) : value ? (
-          <div className="w-full h-full p-6 flex flex-col items-center justify-center gap-4 relative">
-            <img src={value} alt={label} className="max-w-full max-h-[140px] object-contain drop-shadow-2xl" />
-            <div className="absolute inset-0 bg-slate-950/80 backdrop-blur opacity-0 group-hover/upload:opacity-100 transition-opacity flex flex-col items-center justify-center gap-3">
+          <div className="w-full h-full p-6 flex flex-col items-center justify-center gap-4 relative bg-white">
+            <img src={value} alt={label} className="max-w-full max-h-[140px] object-contain drop-shadow-lg" />
+            <div className="absolute inset-0 bg-slate-900/90 backdrop-blur opacity-0 group-hover/upload:opacity-100 transition-opacity flex flex-col items-center justify-center gap-3">
               <button 
                 onClick={() => inputRef.current?.click()}
                 className="bg-gradient-to-r from-blue-600 to-cyan-600 text-white px-6 py-2 rounded-full text-xs font-black flex items-center gap-2 hover:scale-110 transition-transform shadow-lg"
               >
                 <Edit size={14} /> استبدال
               </button>
-              <a href={value} target="_blank" className="text-slate-400 text-[10px] font-bold hover:text-white transition-colors">عرض الملف الحالي</a>
+              <a href={value} target="_blank" className="text-slate-300 text-[10px] font-bold hover:text-white transition-colors">عرض الملف الحالي</a>
             </div>
           </div>
         ) : (
@@ -704,12 +723,12 @@ function FileUploader({ label, field, value, onUpload, isUploading, description 
             onClick={() => inputRef.current?.click()}
             className="flex flex-col items-center gap-4"
           >
-            <div className="w-16 h-16 bg-gradient-to-br from-slate-800 to-slate-900 rounded-3xl shadow-xl flex items-center justify-center text-slate-500 group-hover/upload:text-blue-400 group-hover/upload:scale-110 transition-all border border-white/10">
+            <div className="w-16 h-16 bg-gradient-to-br from-slate-100 to-slate-200 rounded-3xl shadow-xl flex items-center justify-center text-slate-400 group-hover/upload:text-blue-600 group-hover/upload:scale-110 transition-all border border-slate-200">
               <Upload size={32} />
             </div>
             <div className="text-center">
-              <span className="text-sm font-black text-slate-300 block mb-1">اضغط للرفع</span>
-              <span className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">{label}</span>
+              <span className="text-sm font-black text-slate-600 block mb-1">اضغط للرفع</span>
+              <span className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">{label}</span>
             </div>
           </button>
         )}
