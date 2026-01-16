@@ -25,7 +25,6 @@ export async function POST(request: NextRequest) {
       name,
       name_en,
       description,
-      description_en,
       price,
       duration_value,
       duration_unit,
@@ -39,13 +38,12 @@ export async function POST(request: NextRequest) {
 
     const result = await execute(`
       INSERT INTO subscription_plans 
-      (name, name_en, description, description_en, price, duration_value, duration_unit, trial_days, is_active, features, services, include_all_services, sort_order)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      (name, name_en, description, price, duration_value, duration_unit, trial_days, is_active, features, services, include_all_services, sort_order)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `, [
       name,
       name_en || null,
       description || null,
-      description_en || null,
       price || 0,
       duration_value || 1,
       duration_unit || 'months',
