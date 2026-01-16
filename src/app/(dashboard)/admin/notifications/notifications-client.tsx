@@ -49,7 +49,7 @@ export function AdminNotificationsClient({ initialNotifications }: AdminNotifica
       total: notifications.length,
       global: notifications.filter(n => n.sent_to_all).length,
       withImage: notifications.filter(n => n.image_path).length,
-      lastDate: notifications.length > 0 ? new Date(notifications[0].created_at).toLocaleDateString('ar-SA') : '---'
+      lastDate: notifications.length > 0 ? new Date(notifications[0].created_at).toLocaleDateString('en-GB') : '---'
     };
   }, [notifications]);
 
@@ -84,7 +84,7 @@ export function AdminNotificationsClient({ initialNotifications }: AdminNotifica
       {/* Luxurious Header */}
       <div className="relative group">
         <div className="absolute -inset-1 bg-gradient-to-r from-blue-600 via-purple-600 to-emerald-600 rounded-[3rem] blur opacity-25 group-hover:opacity-40 transition duration-1000 group-hover:duration-200"></div>
-        <div className="relative bg-gradient-to-br from-[#1e293b] via-[#334155] to-[#1e293b] rounded-[2.5rem] p-10 md:p-20 text-white shadow-2xl overflow-hidden border border-white/10">
+        <div className="relative bg-gradient-to-br from-[#1e293b] via-[#334155] to-[#1e293b] rounded-[2.5rem] p-6 md:p-10 text-white shadow-2xl overflow-hidden border border-white/10">
           <div className="absolute top-0 right-0 p-12 opacity-5 pointer-events-none rotate-12">
             <Megaphone size={300} />
           </div>
@@ -103,10 +103,10 @@ export function AdminNotificationsClient({ initialNotifications }: AdminNotifica
             </motion.div>
             
             <div className="space-y-4">
-              <h1 className="text-5xl md:text-8xl font-black tracking-tighter leading-none bg-clip-text text-transparent bg-gradient-to-b from-white to-white/60">
+              <h1 className="text-3xl md:text-5xl font-black tracking-tighter leading-none bg-clip-text text-transparent bg-gradient-to-b from-white to-white/60">
                 إشعارات الإدارة
               </h1>
-              <p className="text-white/50 font-bold text-lg md:text-2xl max-w-3xl mx-auto leading-relaxed">
+              <p className="text-white/50 font-bold text-base md:text-lg max-w-3xl mx-auto leading-relaxed">
                 تحكم في التواصل المباشر مع جميع المستخدمين. أرسل التحديثات، التنبيهات، والإعلانات الهامة بلمسة واحدة.
               </p>
             </div>
@@ -116,9 +116,9 @@ export function AdminNotificationsClient({ initialNotifications }: AdminNotifica
                 whileHover={{ scale: 1.05, boxShadow: "0 20px 40px rgba(52, 152, 219, 0.4)" }}
                 whileTap={{ scale: 0.95 }}
                 onClick={() => setIsModalOpen(true)}
-                className="flex items-center justify-center gap-4 bg-gradient-to-r from-[#3498db] via-[#2980b9] to-[#3498db] text-white px-12 py-6 rounded-[2rem] font-black text-2xl shadow-2xl shadow-[#3498db]/30 transition-all border-b-4 border-blue-700/50"
+                className="flex items-center justify-center gap-4 bg-gradient-to-r from-[#3498db] via-[#2980b9] to-[#3498db] text-white px-8 py-4 rounded-[1.5rem] font-black text-xl shadow-2xl shadow-[#3498db]/30 transition-all border-b-4 border-blue-700/50"
               >
-                <Plus size={32} />
+                <Plus size={28} />
                 <span>إنشاء إشعار ملكي</span>
               </motion.button>
             </div>
@@ -139,14 +139,14 @@ export function AdminNotificationsClient({ initialNotifications }: AdminNotifica
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: i * 0.1 }}
-            className="bg-white dark:bg-slate-900 rounded-[2rem] p-8 shadow-xl shadow-slate-200/50 dark:shadow-none border border-slate-100 dark:border-slate-800 flex items-center gap-6 group hover:border-blue-500/30 transition-all cursor-pointer"
+            className="bg-white dark:bg-slate-900 rounded-[2rem] p-6 shadow-xl shadow-slate-200/50 dark:shadow-none border border-slate-100 dark:border-slate-800 flex items-center gap-6 group hover:border-blue-500/30 transition-all cursor-pointer"
           >
-            <div className={cn("w-16 h-16 rounded-2xl bg-gradient-to-br flex items-center justify-center text-white shadow-lg transition-transform group-hover:rotate-6", stat.color)}>
-              <stat.icon size={28} />
+            <div className={cn("w-14 h-14 rounded-2xl bg-gradient-to-br flex items-center justify-center text-white shadow-lg transition-transform group-hover:rotate-6", stat.color)}>
+              <stat.icon size={24} />
             </div>
             <div>
               <p className="text-slate-400 font-bold text-xs uppercase tracking-widest mb-1">{stat.label}</p>
-              <h4 className="text-3xl font-black text-slate-800 dark:text-white tracking-tighter">{stat.value}</h4>
+              <h4 className="text-2xl font-black text-slate-800 dark:text-white tracking-tighter">{stat.value}</h4>
             </div>
           </motion.div>
         ))}
@@ -157,8 +157,8 @@ export function AdminNotificationsClient({ initialNotifications }: AdminNotifica
         <div className="lg:col-span-8 space-y-8">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 px-4">
             <div className="space-y-1">
-              <h2 className="text-3xl font-black text-slate-900 dark:text-white tracking-tight flex items-center gap-3">
-                <History className="text-blue-500" />
+              <h2 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight flex items-center gap-3">
+                <History className="text-blue-500" size={24} />
                 سجل البث الفوري
               </h2>
               <p className="text-slate-400 font-bold text-sm">قائمة بجميع الإشعارات التي تم إرسالها مسبقاً</p>
@@ -171,7 +171,7 @@ export function AdminNotificationsClient({ initialNotifications }: AdminNotifica
                 placeholder="ابحث في السجل..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full bg-white dark:bg-slate-900 border-2 border-slate-100 dark:border-slate-800 rounded-2xl py-4 pr-14 pl-6 font-bold text-slate-600 outline-none focus:border-blue-500/50 focus:ring-4 focus:ring-blue-500/5 transition-all"
+                className="w-full bg-white dark:bg-slate-900 border-2 border-slate-100 dark:border-slate-800 rounded-2xl py-3 pr-14 pl-6 font-bold text-slate-600 outline-none focus:border-blue-500/50 focus:ring-4 focus:ring-blue-500/5 transition-all"
               />
             </div>
           </div>
@@ -185,27 +185,27 @@ export function AdminNotificationsClient({ initialNotifications }: AdminNotifica
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0, scale: 0.95 }}
                   layout
-                  className="bg-white dark:bg-slate-900 rounded-[2.5rem] border-2 border-slate-50 dark:border-slate-800 p-8 md:p-10 shadow-sm hover:shadow-2xl hover:shadow-blue-500/5 transition-all duration-500 group relative overflow-hidden"
+                  className="bg-white dark:bg-slate-900 rounded-[2.5rem] border-2 border-slate-50 dark:border-slate-800 p-6 md:p-8 shadow-sm hover:shadow-2xl hover:shadow-blue-500/5 transition-all duration-500 group relative overflow-hidden"
                 >
                   <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/5 rounded-full -mr-16 -mt-16 blur-2xl transition-all group-hover:bg-blue-500/10"></div>
                   
                   <div className="flex flex-col md:flex-row items-start justify-between gap-8 relative z-10">
                     <div className="flex-1 space-y-6">
                       <div className="flex items-center gap-4">
-                        <div className="h-14 w-14 rounded-2xl bg-blue-50 dark:bg-blue-500/10 flex items-center justify-center text-blue-600">
-                          <Bell size={28} className="group-hover:animate-bounce" />
+                        <div className="h-12 w-12 rounded-2xl bg-blue-50 dark:bg-blue-500/10 flex items-center justify-center text-blue-600">
+                          <Bell size={24} className="group-hover:animate-bounce" />
                         </div>
                         <div className="space-y-1">
-                          <h3 className="text-2xl font-black text-slate-900 dark:text-white leading-none">{notif.title}</h3>
+                          <h3 className="text-xl font-black text-slate-900 dark:text-white leading-none">{notif.title}</h3>
                           <div className="flex items-center gap-2 text-slate-400 font-bold text-xs">
                             <CalendarDays size={14} />
-                            <span>{new Date(notif.created_at).toLocaleString('ar-SA')}</span>
+                            <span>{new Date(notif.created_at).toLocaleString('en-GB')}</span>
                           </div>
                         </div>
                       </div>
                       
                       <div className="bg-slate-50 dark:bg-slate-800/50 rounded-3xl p-6 border border-slate-100 dark:border-slate-800">
-                        <p className="text-slate-600 dark:text-slate-300 font-bold text-lg leading-relaxed">
+                        <p className="text-slate-600 dark:text-slate-300 font-bold text-base leading-relaxed">
                           {notif.message}
                         </p>
                       </div>
