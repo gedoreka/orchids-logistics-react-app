@@ -21,9 +21,35 @@ import {
   RefreshCw,
   UserPlus,
   Settings,
-  LogOut
+  LogOut,
+  Building2,
+  PlusCircle,
+  Key,
+  Bell,
+  MessageSquare,
+  Coins,
+  BadgeDollarSign,
+  Receipt,
+  FileText,
+  Car,
+  Truck,
+  Package,
+  Calendar,
+  HandCoins,
+  BarChart3,
+  FileEdit,
+  CreditCard,
+  Landmark,
+  Calculator,
+  BookOpen,
+  Scale,
+  PieChart,
+  Store,
+  FileSpreadsheet,
+  Home,
+  CheckCircle,
+  Sparkles
 } from "lucide-react";
-import { cn } from "@/lib/utils";
 
 interface SubUser {
   id: number;
@@ -41,25 +67,50 @@ interface Permission {
   key: string;
   label: string;
   description: string;
+  icon: any;
+  category: string;
 }
 
 const AVAILABLE_PERMISSIONS: Permission[] = [
-  { key: "employees_module", label: "إدارة الموظفين", description: "الوصول لصفحة الموظفين" },
-  { key: "clients_module", label: "العملاء", description: "إدارة العملاء" },
-  { key: "receipts_module", label: "السندات المالية", description: "سندات القبض والصرف" },
-  { key: "salary_payrolls_module", label: "كشوف الرواتب", description: "إدارة الرواتب" },
-  { key: "sales_module", label: "المبيعات", description: "الفواتير والمبيعات" },
-  { key: "credit_notes_module", label: "إشعارات الائتمان", description: "إشعارات دائنة ومدينة" },
-  { key: "expenses_module", label: "المصروفات", description: "إدارة المصروفات" },
-  { key: "journal_entries_module", label: "القيود اليومية", description: "القيود المحاسبية" },
-  { key: "income_report_module", label: "تقارير الأرباح", description: "الأرباح والخسائر" },
-  { key: "accounts_module", label: "الحسابات", description: "شجرة الحسابات" },
-  { key: "cost_centers_module", label: "مراكز التكلفة", description: "إدارة مراكز التكلفة" },
-  { key: "ledger_module", label: "الأستاذ العام", description: "دفتر الأستاذ" },
-  { key: "trial_balance_module", label: "ميزان المراجعة", description: "ميزان المراجعة" },
-  { key: "income_statement_module", label: "قائمة الدخل", description: "قائمة الدخل" },
-  { key: "balance_sheet_module", label: "الميزانية العمومية", description: "الميزانية العمومية" },
-  { key: "quotations_module", label: "عروض الأسعار", description: "إدارة عروض الأسعار" },
+  { key: 'employees_module', label: 'إدارة الموارد البشرية', icon: Users, category: 'الموارد البشرية', description: 'الوصول لبيانات الموظفين وعقودهم' },
+  { key: 'salary_payrolls_module', label: 'مسيرات الرواتب', icon: BadgeDollarSign, category: 'الموارد البشرية', description: 'إدارة الرواتب والبدلات والمستقطعات' },
+  
+  { key: 'clients_module', label: 'قائمة العملاء', icon: Users, category: 'العملاء والمبيعات', description: 'إدارة بيانات العملاء والتواصل معهم' },
+  
+  { key: 'receipts_module', label: 'السندات المالية', icon: Receipt, category: 'السندات المالية', description: 'إدارة سندات القبض والصرف العامة' },
+  { key: 'quotations_module', label: 'عروض الأسعار', icon: FileText, category: 'السندات المالية', description: 'إنشاء وإدارة عروض الأسعار للعملاء' },
+  { key: 'sales_module', label: 'الفواتير الضريبية', icon: FileText, category: 'السندات المالية', description: 'إصدار فواتير المبيعات الضريبية' },
+  { key: 'income_module', label: 'إضافة دخل جديد', icon: Coins, category: 'السندات المالية', description: 'تسجيل الدخول والإيرادات الأخرى' },
+  { key: 'credit_notes_module', label: 'إشعارات الدائن الضريبية', icon: CreditCard, category: 'السندات المالية', description: 'إصدار الإشعارات الدائنة والمدينة' },
+  { key: 'receipt_vouchers_module', label: 'سندات القبض', icon: FileSpreadsheet, category: 'السندات المالية', description: 'إدارة سندات القبض المحاسبية' },
+  
+  { key: 'vehicles_list', label: 'إدارة المركبات', icon: Car, category: 'إدارة الأسطول', description: 'متابعة أسطول السيارات والصيانة' },
+  
+  { key: 'ecommerce_orders_module', label: 'طلبات التجارة الإلكترونية', icon: Store, category: 'التجارة الإلكترونية', description: 'إدارة طلبات المتاجر الإلكترونية' },
+  { key: 'daily_orders_module', label: 'عرض الطلبات اليومية', icon: Calendar, category: 'التجارة الإلكترونية', description: 'متابعة الجدول اليومي للطلبات' },
+  { key: 'ecommerce_stores_module', label: 'إدارة المتاجر', icon: Store, category: 'التجارة الإلكترونية', description: 'إعداد وإدارة ربط المتاجر' },
+  
+  { key: 'personal_shipments_module', label: 'شحنات الأفراد', icon: Truck, category: 'الشحن', description: 'تسجيل شحنات الأفراد الجديدة' },
+  { key: 'manage_shipments_module', label: 'إدارة شحنات الأفراد', icon: Package, category: 'الشحن', description: 'متابعة وتحديث حالات الشحن' },
+  
+  { key: 'monthly_commissions_module', label: 'العمولة الشهرية', icon: HandCoins, category: 'العمولات', description: 'احتساب عمولات المناديب والموظفين' },
+  { key: 'commissions_summary_module', label: 'تقرير العمولة الشهرية', icon: FileSpreadsheet, category: 'العمولات', description: 'عرض ملخص العمولات المستحقة' },
+  
+  { key: 'expenses_module', label: 'المصروفات الشهرية', icon: BarChart3, category: 'المحاسبة', description: 'تسجيل وإدارة المصروفات التشغيلية' },
+  { key: 'journal_entries_module', label: 'قيود اليومية', icon: FileEdit, category: 'المحاسبة', description: 'إضافة القيود المحاسبية اليدوية' },
+  { key: 'income_report_module', label: 'عرض الدخل والتقارير', icon: PieChart, category: 'المحاسبة', description: 'تقارير الأرباح والخسائر والتدفق' },
+  { key: 'expenses_report_module', label: 'تقرير المصروفات', icon: BarChart3, category: 'المحاسبة', description: 'تحليل وتفصيل المصروفات' },
+  
+  { key: 'accounts_module', label: 'مركز الحسابات', icon: BookOpen, category: 'الحسابات', description: 'شجرة الحسابات والدليل المحاسبي' },
+  { key: 'cost_centers_module', label: 'مراكز التكلفة', icon: Landmark, category: 'الحسابات', description: 'توزيع التكاليف على المشاريع' },
+  { key: 'ledger_module', label: 'دفتر الأستاذ العام', icon: BookOpen, category: 'الحسابات', description: 'عرض حركات الحسابات التفصيلية' },
+  { key: 'trial_balance_module', label: 'ميزان المراجعة', icon: Scale, category: 'الحسابات', description: 'التأكد من توازن الحسابات' },
+  { key: 'income_statement_module', label: 'قائمة الأرصدة', icon: BarChart3, category: 'الحسابات', description: 'عرض أرصدة الحسابات الإجمالية' },
+  { key: 'balance_sheet_module', label: 'الميزانية العمومية', icon: FileText, category: 'الحسابات', description: 'عرض الأصول والالتزامات' },
+  { key: 'tax_settings_module', label: 'إعدادات الضريبة', icon: Calculator, category: 'الحسابات', description: 'ضبط ضريبة القيمة المضافة' },
+  
+  { key: 'letters_templates_module', label: 'الخطابات الجاهزة', icon: Mail, category: 'أخرى', description: 'نماذج الخطابات والرسائل الجاهزة' },
+  { key: 'sub_users_module', label: 'إدارة المستخدمين', icon: Users, category: 'الإدارة', description: 'إضافة وإدارة صلاحيات المستخدمين' },
 ];
 
 export default function SubUsersPage() {
@@ -504,61 +555,79 @@ export default function SubUsersPage() {
                       توليد كلمة مرور تلقائية
                     </button>
 
-                    <div>
-                      <div className="flex items-center justify-between mb-4">
-                        <label className="text-sm font-bold text-slate-300">
-                          الصلاحيات
-                        </label>
-                        <div className="flex gap-2">
-                          <button
-                            type="button"
-                            onClick={selectAllPermissions}
-                            className="text-xs text-blue-400 hover:text-blue-300"
-                          >
-                            تحديد الكل
-                          </button>
-                          <span className="text-slate-600">|</span>
-                          <button
-                            type="button"
-                            onClick={deselectAllPermissions}
-                            className="text-xs text-red-400 hover:text-red-300"
-                          >
-                            إلغاء الكل
-                          </button>
+                      <div>
+                        <div className="flex items-center justify-between mb-4">
+                          <label className="text-sm font-bold text-slate-300">
+                            الصلاحيات المتاحة
+                          </label>
+                          <div className="flex gap-2">
+                            <button
+                              type="button"
+                              onClick={selectAllPermissions}
+                              className="text-xs text-blue-400 hover:text-blue-300 font-bold"
+                            >
+                              تحديد الكل
+                            </button>
+                            <span className="text-slate-600">|</span>
+                            <button
+                              type="button"
+                              onClick={deselectAllPermissions}
+                              className="text-xs text-red-400 hover:text-red-300 font-bold"
+                            >
+                              إلغاء الكل
+                            </button>
+                          </div>
+                        </div>
+
+                        <div className="space-y-6 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
+                          {Array.from(new Set(AVAILABLE_PERMISSIONS.filter(p => companyPermissions.includes(p.key)).map(p => p.category))).map((category) => (
+                            <div key={category} className="space-y-3">
+                              <h4 className="text-xs font-black text-slate-500 uppercase tracking-wider flex items-center gap-2">
+                                <div className="w-1 h-3 bg-blue-500 rounded-full" />
+                                {category}
+                              </h4>
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                                {AVAILABLE_PERMISSIONS.filter(p => p.category === category && companyPermissions.includes(p.key)).map((perm) => (
+                                  <button
+                                    key={perm.key}
+                                    type="button"
+                                    onClick={() => togglePermission(perm.key)}
+                                    className={cn(
+                                      "flex items-center gap-3 p-3 rounded-xl border transition-all text-right group",
+                                      formData.permissions.includes(perm.key)
+                                        ? "bg-blue-500/10 border-blue-500/50 text-blue-100 shadow-lg shadow-blue-500/5"
+                                        : "bg-slate-800/50 border-slate-700/50 text-slate-400 hover:border-slate-600 hover:bg-slate-800"
+                                    )}
+                                  >
+                                    <div className={cn(
+                                      "w-10 h-10 rounded-lg flex items-center justify-center transition-all",
+                                      formData.permissions.includes(perm.key)
+                                        ? "bg-blue-500 text-white shadow-lg"
+                                        : "bg-slate-700 text-slate-400 group-hover:bg-slate-600"
+                                    )}>
+                                      <perm.icon size={20} />
+                                    </div>
+                                    <div className="flex-1 min-w-0">
+                                      <div className="font-bold text-sm truncate">{perm.label}</div>
+                                      <div className="text-[10px] opacity-50 truncate leading-tight">{perm.description}</div>
+                                    </div>
+                                    <div className={cn(
+                                      "w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all",
+                                      formData.permissions.includes(perm.key)
+                                        ? "border-blue-500 bg-blue-500"
+                                        : "border-slate-600"
+                                    )}>
+                                      {formData.permissions.includes(perm.key) && (
+                                        <Check size={12} className="text-white" />
+                                      )}
+                                    </div>
+                                  </button>
+                                ))}
+                              </div>
+                            </div>
+                          ))}
                         </div>
                       </div>
-
-                      <div className="grid grid-cols-2 gap-2 max-h-64 overflow-y-auto">
-                        {AVAILABLE_PERMISSIONS.filter(p => companyPermissions.includes(p.key)).map((perm) => (
-                          <button
-                            key={perm.key}
-                            type="button"
-                            onClick={() => togglePermission(perm.key)}
-                            className={cn(
-                              "flex items-center gap-3 p-3 rounded-lg border transition-all text-right",
-                              formData.permissions.includes(perm.key)
-                                ? "bg-blue-500/20 border-blue-500 text-blue-300"
-                                : "bg-slate-800 border-slate-700 text-slate-400 hover:border-slate-600"
-                            )}
-                          >
-                            <div className={cn(
-                              "w-5 h-5 rounded flex items-center justify-center",
-                              formData.permissions.includes(perm.key)
-                                ? "bg-blue-500"
-                                : "bg-slate-700"
-                            )}>
-                              {formData.permissions.includes(perm.key) && (
-                                <Check size={14} className="text-white" />
-                              )}
-                            </div>
-                            <div>
-                              <div className="font-bold text-sm">{perm.label}</div>
-                              <div className="text-xs opacity-60">{perm.description}</div>
-                            </div>
-                          </button>
-                        ))}
-                      </div>
-                    </div>
                   </div>
                 </div>
 
