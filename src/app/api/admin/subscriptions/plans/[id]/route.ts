@@ -3,10 +3,11 @@ import { execute, query } from "@/lib/db";
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const plans = await query(`SELECT * FROM subscription_plans WHERE id = ?`, [params.id]);
+    const { id } = await params;
+    const plans = await query(`SELECT * FROM subscription_plans WHERE id = ?`, [id]);
     
     if (plans.length === 0) {
       return NextResponse.json({ success: false, error: "الباقة غير موجودة" }, { status: 404 });
@@ -20,9 +21,10 @@ export async function GET(
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const body = await request.json();
     const {
       name,
@@ -70,7 +72,7 @@ export async function PUT(
       services ? JSON.stringify(services) : null,
       include_all_services !== undefined ? include_all_services : 1,
       sort_order || 0,
-      params.id
+      id
     ]);
 
     return NextResponse.json({ success: true, message: "تم تحديث الباقة بنجاح" });
@@ -81,12 +83,13 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const subscriptions = await query(
       `SELECT id FROM company_subscriptions WHERE plan_id = ? AND status = 'active'`,
-      [params.id]
+      [id]
     );
 
     if (subscriptions.length > 0) {
@@ -96,8 +99,8 @@ export async function DELETE(
       }, { status: 400 });
     }
 
-    await execute(`DELETE FROM plan_permissions WHERE plan_id = ?`, [params.id]);
-    await execute(`DELETE FROM subscription_plans WHERE id = ?`, [params.id]);
+    await execute(`DELETE FROM plan_permissions WHERE plan_id = ?`, [id]);
+    await execute(`DELETE FROM subscription_plans WHERE id = ?`, [id]);
 
     return NextResponse.json({ success: true, message: "تم حذف الباقة بنجاح" });
   } catch (error: any) {

@@ -26,9 +26,103 @@ import {
   Building2,
   FileText,
   Settings,
-  AlertCircle
+  AlertCircle,
+  Users,
+  Receipt,
+  Car,
+  Truck,
+  HandCoins,
+  BarChart3,
+  FileEdit,
+  BookOpen,
+  Scale,
+  PieChart,
+  Mail,
+  BadgeDollarSign,
+  Store,
+  Key,
+  PlusCircle,
+  Bell,
+  MessageSquare,
+  Coins,
+  FileSpreadsheet,
+  Globe,
+  Shield,
+  Save,
+  CheckCheck,
+  Lock
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+
+interface FeatureItem {
+  key: string;
+  name: string;
+  icon: React.ElementType;
+  type: 'admin' | 'general';
+  category?: string;
+}
+
+const allFeatures: FeatureItem[] = [
+  { key: 'admin_requests', name: 'طلبات تسجيل المنشآت', icon: Building2, type: 'admin' },
+  { key: 'admin_create_company', name: 'إضافة منشأة جديدة', icon: PlusCircle, type: 'admin' },
+  { key: 'admin_generate_token', name: 'توليد رمز الاشتراك', icon: Key, type: 'admin' },
+  { key: 'admin_search_token', name: 'البحث عن رمز الاشتراك', icon: Search, type: 'admin' },
+  { key: 'admin_notifications', name: 'إشعارات المدير', icon: Bell, type: 'admin' },
+  { key: 'admin_chat', name: 'الدعم الفني', icon: MessageSquare, type: 'admin' },
+  { key: 'special_salaries', name: 'مسيرات رواتب خاص', icon: Coins, type: 'admin' },
+  
+  { key: 'employees_module', name: 'إدارة الموارد البشرية', icon: Users, type: 'general', category: 'الموارد البشرية' },
+  { key: 'salary_payrolls_module', name: 'مسيرات الرواتب', icon: BadgeDollarSign, type: 'general', category: 'الموارد البشرية' },
+  
+  { key: 'clients_module', name: 'قائمة العملاء', icon: Users, type: 'general', category: 'العملاء والمبيعات' },
+  
+  { key: 'receipts_module', name: 'السندات المالية', icon: Receipt, type: 'general', category: 'السندات المالية' },
+  { key: 'quotations_module', name: 'عروض الأسعار', icon: FileText, type: 'general', category: 'السندات المالية' },
+  { key: 'sales_module', name: 'الفواتير الضريبية', icon: FileText, type: 'general', category: 'السندات المالية' },
+  { key: 'income_module', name: 'إضافة دخل جديد', icon: Coins, type: 'general', category: 'السندات المالية' },
+  { key: 'credit_notes_module', name: 'إشعارات الدائن الضريبية', icon: CreditCard, type: 'general', category: 'السندات المالية' },
+  { key: 'receipt_vouchers_module', name: 'سندات القبض', icon: FileSpreadsheet, type: 'general', category: 'السندات المالية' },
+  
+  { key: 'vehicles_list', name: 'إدارة المركبات', icon: Car, type: 'general', category: 'إدارة الأسطول' },
+  
+  { key: 'ecommerce_orders_module', name: 'طلبات التجارة الإلكترونية', icon: Store, type: 'general', category: 'التجارة الإلكترونية' },
+  { key: 'daily_orders_module', name: 'عرض الطلبات اليومية', icon: Calendar, type: 'general', category: 'التجارة الإلكترونية' },
+  { key: 'ecommerce_stores_module', name: 'إدارة المتاجر', icon: Store, type: 'general', category: 'التجارة الإلكترونية' },
+  
+  { key: 'personal_shipments_module', name: 'شحنات الأفراد', icon: Truck, type: 'general', category: 'الشحن' },
+  { key: 'manage_shipments_module', name: 'إدارة شحنات الأفراد', icon: Package, type: 'general', category: 'الشحن' },
+  
+  { key: 'monthly_commissions_module', name: 'العمولة الشهرية', icon: HandCoins, type: 'general', category: 'العمولات' },
+  { key: 'commissions_summary_module', name: 'تقرير العمولة الشهرية', icon: FileSpreadsheet, type: 'general', category: 'العمولات' },
+  
+  { key: 'expenses_module', name: 'المصروفات الشهرية', icon: BarChart3, type: 'general', category: 'المحاسبة' },
+  { key: 'journal_entries_module', name: 'قيود اليومية', icon: FileEdit, type: 'general', category: 'المحاسبة' },
+  { key: 'income_report_module', name: 'عرض الدخل والتقارير', icon: PieChart, type: 'general', category: 'المحاسبة' },
+  { key: 'expenses_report_module', name: 'تقرير المصروفات', icon: BarChart3, type: 'general', category: 'المحاسبة' },
+  
+  { key: 'accounts_module', name: 'مركز الحسابات', icon: BookOpen, type: 'general', category: 'الحسابات' },
+  { key: 'cost_centers_module', name: 'مراكز التكلفة', icon: Landmark, type: 'general', category: 'الحسابات' },
+  { key: 'ledger_module', name: 'دفتر الأستاذ العام', icon: BookOpen, type: 'general', category: 'الحسابات' },
+  { key: 'trial_balance_module', name: 'ميزان المراجعة', icon: Scale, type: 'general', category: 'الحسابات' },
+  { key: 'income_statement_module', name: 'قائمة الأرصدة', icon: BarChart3, type: 'general', category: 'الحسابات' },
+  { key: 'balance_sheet_module', name: 'الميزانية العمومية', icon: FileText, type: 'general', category: 'الحسابات' },
+  { key: 'tax_settings_module', name: 'إعدادات الضريبة', icon: DollarSign, type: 'general', category: 'الحسابات' },
+  
+  { key: 'letters_templates_module', name: 'الخطابات الجاهزة', icon: Mail, type: 'general', category: 'أخرى' },
+];
+
+const categoryColors: Record<string, { bg: string; border: string; icon: string }> = {
+  'الموارد البشرية': { bg: 'from-blue-500/10 to-blue-600/5', border: 'border-r-blue-500', icon: 'text-blue-500' },
+  'العملاء والمبيعات': { bg: 'from-cyan-500/10 to-cyan-600/5', border: 'border-r-cyan-500', icon: 'text-cyan-500' },
+  'السندات المالية': { bg: 'from-indigo-500/10 to-indigo-600/5', border: 'border-r-indigo-500', icon: 'text-indigo-500' },
+  'إدارة الأسطول': { bg: 'from-amber-500/10 to-amber-600/5', border: 'border-r-amber-500', icon: 'text-amber-500' },
+  'التجارة الإلكترونية': { bg: 'from-pink-500/10 to-pink-600/5', border: 'border-r-pink-500', icon: 'text-pink-500' },
+  'الشحن': { bg: 'from-sky-500/10 to-sky-600/5', border: 'border-r-sky-500', icon: 'text-sky-500' },
+  'العمولات': { bg: 'from-orange-500/10 to-orange-600/5', border: 'border-r-orange-500', icon: 'text-orange-500' },
+  'المحاسبة': { bg: 'from-emerald-500/10 to-emerald-600/5', border: 'border-r-emerald-500', icon: 'text-emerald-500' },
+  'الحسابات': { bg: 'from-violet-500/10 to-violet-600/5', border: 'border-r-violet-500', icon: 'text-violet-500' },
+  'أخرى': { bg: 'from-slate-500/10 to-slate-600/5', border: 'border-r-slate-500', icon: 'text-slate-500' },
+};
 
 interface Plan {
   id: number;
@@ -43,6 +137,7 @@ interface Plan {
   is_active: number;
   include_all_services: number;
   sort_order: number;
+  services?: string;
 }
 
 interface BankAccount {
@@ -95,6 +190,9 @@ export default function SubscriptionsClient({ initialPlans, initialBankAccounts,
   const [showDeleteConfirm, setShowDeleteConfirm] = useState<{ id: number, type: 'plan' | 'bank' } | null>(null);
   const [rejectionReason, setRejectionReason] = useState('');
   const [setupDone, setSetupDone] = useState(true);
+  const [showServicesModal, setShowServicesModal] = useState<Plan | null>(null);
+  const [selectedServices, setSelectedServices] = useState<Set<string>>(new Set());
+  const [savingServices, setSavingServices] = useState(false);
 
   useEffect(() => {
     checkSetup();
@@ -297,19 +395,107 @@ export default function SubscriptionsClient({ initialPlans, initialBankAccounts,
     } catch {}
   };
 
-  const refreshPayments = async () => {
-    try {
-      const res = await fetch(`/api/admin/subscriptions/payments?status=${paymentFilter}`);
-      const data = await res.json();
-      if (data.success) {
-        setPayments(data.requests.map((p: any) => ({
-          ...p,
-          amount: parseFloat(p.amount) || 0,
-          plan_price: parseFloat(p.plan_price) || 0,
-          created_at: p.created_at ? new Date(p.created_at).toISOString() : null,
-        })));
+    const refreshPayments = async () => {
+      try {
+        const res = await fetch(`/api/admin/subscriptions/payments?status=${paymentFilter}`);
+        const data = await res.json();
+        if (data.success) {
+          setPayments(data.requests.map((p: any) => ({
+            ...p,
+            amount: parseFloat(p.amount) || 0,
+            plan_price: parseFloat(p.plan_price) || 0,
+            created_at: p.created_at ? new Date(p.created_at).toISOString() : null,
+          })));
+        }
+      } catch {}
+    };
+
+  const openServicesModal = (plan: Plan) => {
+    let services: string[] = [];
+    if (plan.services) {
+      try {
+        services = JSON.parse(plan.services);
+      } catch {
+        services = [];
       }
-    } catch {}
+    }
+    setSelectedServices(new Set(services));
+    setShowServicesModal(plan);
+  };
+
+  const toggleService = (key: string) => {
+    const newSet = new Set(selectedServices);
+    if (newSet.has(key)) {
+      newSet.delete(key);
+    } else {
+      newSet.add(key);
+    }
+    setSelectedServices(newSet);
+  };
+
+  const toggleAllAdmin = () => {
+    const adminKeys = allFeatures.filter(f => f.type === 'admin').map(f => f.key);
+    const allSelected = adminKeys.every(k => selectedServices.has(k));
+    const newSet = new Set(selectedServices);
+    if (allSelected) {
+      adminKeys.forEach(k => newSet.delete(k));
+    } else {
+      adminKeys.forEach(k => newSet.add(k));
+    }
+    setSelectedServices(newSet);
+  };
+
+  const toggleAllGeneral = () => {
+    const generalKeys = allFeatures.filter(f => f.type === 'general').map(f => f.key);
+    const allSelected = generalKeys.every(k => selectedServices.has(k));
+    const newSet = new Set(selectedServices);
+    if (allSelected) {
+      generalKeys.forEach(k => newSet.delete(k));
+    } else {
+      generalKeys.forEach(k => newSet.add(k));
+    }
+    setSelectedServices(newSet);
+  };
+
+  const handleSaveServices = async () => {
+    if (!showServicesModal) return;
+    setSavingServices(true);
+    try {
+      const res = await fetch(`/api/admin/subscriptions/plans/${showServicesModal.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          ...showServicesModal,
+          services: Array.from(selectedServices),
+          include_all_services: 0
+        })
+      });
+      const result = await res.json();
+      if (result.success) {
+        toast.success('تم حفظ الخدمات المحددة بنجاح');
+        setShowServicesModal(null);
+        refreshPlans();
+      } else {
+        toast.error(result.error || 'حدث خطأ');
+      }
+    } catch {
+      toast.error('حدث خطأ');
+    }
+    setSavingServices(false);
+  };
+
+  const adminFeatures = allFeatures.filter(f => f.type === 'admin');
+  const generalFeatures = allFeatures.filter(f => f.type === 'general');
+  const categories = Array.from(new Set(generalFeatures.map(f => f.category)));
+
+  const getPlanServicesCount = (plan: Plan) => {
+    if (plan.include_all_services) return allFeatures.length;
+    if (!plan.services) return 0;
+    try {
+      return JSON.parse(plan.services).length;
+    } catch {
+      return 0;
+    }
   };
 
   useEffect(() => {
@@ -427,59 +613,79 @@ export default function SubscriptionsClient({ initialPlans, initialBankAccounts,
                   </button>
                 </div>
 
-                <div className="grid gap-4">
-                  {plans.map((plan) => (
-                    <motion.div
-                      key={plan.id}
-                      layout
-                      className="bg-slate-50 dark:bg-slate-800 rounded-2xl p-5 border border-slate-200 dark:border-slate-700"
-                    >
-                      <div className="flex items-start justify-between">
-                        <div className="flex items-center gap-4">
-                          <div className={cn(
-                            "w-14 h-14 rounded-2xl flex items-center justify-center",
-                            plan.is_active ? "bg-gradient-to-br from-emerald-500 to-green-600" : "bg-slate-300 dark:bg-slate-600"
-                          )}>
-                            <Package size={24} className="text-white" />
-                          </div>
-                          <div>
-                            <h4 className="font-bold text-lg text-slate-900 dark:text-white">{plan.name}</h4>
-                            <p className="text-sm text-slate-500 dark:text-slate-400">{plan.name_en}</p>
-                            <div className="flex items-center gap-3 mt-2">
-                              <span className="text-2xl font-black text-blue-600">{plan.price} ر.س</span>
-                              <span className="text-sm text-slate-400">/ {plan.duration_value} {plan.duration_unit === 'days' ? 'يوم' : plan.duration_unit === 'months' ? 'شهر' : 'سنة'}</span>
+                  <div className="grid gap-4">
+                    {plans.map((plan) => (
+                      <motion.div
+                        key={plan.id}
+                        layout
+                        className="bg-slate-50 dark:bg-slate-800 rounded-2xl p-5 border border-slate-200 dark:border-slate-700"
+                      >
+                        <div className="flex items-start justify-between">
+                          <div className="flex items-center gap-4">
+                            <div className={cn(
+                              "w-14 h-14 rounded-2xl flex items-center justify-center",
+                              plan.is_active ? "bg-gradient-to-br from-emerald-500 to-green-600" : "bg-slate-300 dark:bg-slate-600"
+                            )}>
+                              <Package size={24} className="text-white" />
+                            </div>
+                            <div>
+                              <h4 className="font-bold text-lg text-slate-900 dark:text-white">{plan.name}</h4>
+                              <p className="text-sm text-slate-500 dark:text-slate-400">{plan.name_en}</p>
+                              <div className="flex items-center gap-3 mt-2">
+                                <span className="text-2xl font-black text-blue-600">{plan.price} ر.س</span>
+                                <span className="text-sm text-slate-400">/ {plan.duration_value} {plan.duration_unit === 'days' ? 'يوم' : plan.duration_unit === 'months' ? 'شهر' : 'سنة'}</span>
+                              </div>
                             </div>
                           </div>
+                          <div className="flex items-center gap-2">
+                            <span className={cn(
+                              "px-3 py-1 rounded-full text-xs font-bold",
+                              plan.is_active ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400" : "bg-slate-200 text-slate-600 dark:bg-slate-700 dark:text-slate-400"
+                            )}>
+                              {plan.is_active ? 'نشطة' : 'غير نشطة'}
+                            </span>
+                            <button
+                              onClick={() => { setEditingPlan(plan); setShowPlanModal(true); }}
+                              className="p-2 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg transition-colors"
+                            >
+                              <Edit size={18} className="text-slate-500" />
+                            </button>
+                            <button
+                              onClick={() => handleDeletePlan(plan.id)}
+                              className="p-2 hover:bg-red-100 dark:hover:bg-red-900/30 rounded-lg transition-colors"
+                            >
+                              <Trash2 size={18} className="text-red-500" />
+                            </button>
+                          </div>
                         </div>
-                        <div className="flex items-center gap-2">
-                          <span className={cn(
-                            "px-3 py-1 rounded-full text-xs font-bold",
-                            plan.is_active ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400" : "bg-slate-200 text-slate-600 dark:bg-slate-700 dark:text-slate-400"
-                          )}>
-                            {plan.is_active ? 'نشطة' : 'غير نشطة'}
-                          </span>
-                          <button
-                            onClick={() => { setEditingPlan(plan); setShowPlanModal(true); }}
-                            className="p-2 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg transition-colors"
-                          >
-                            <Edit size={18} className="text-slate-500" />
-                          </button>
-                          <button
-                            onClick={() => handleDeletePlan(plan.id)}
-                            className="p-2 hover:bg-red-100 dark:hover:bg-red-900/30 rounded-lg transition-colors"
-                          >
-                            <Trash2 size={18} className="text-red-500" />
-                          </button>
+                        <div className="mt-4 pt-4 border-t border-slate-200 dark:border-slate-700 flex items-center justify-between">
+                          <div className="flex items-center gap-3">
+                            <button
+                              onClick={() => openServicesModal(plan)}
+                              className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-violet-500/10 to-purple-500/10 hover:from-violet-500/20 hover:to-purple-500/20 text-violet-700 dark:text-violet-400 rounded-xl font-bold text-sm transition-all border border-violet-200 dark:border-violet-800"
+                            >
+                              <Settings size={16} />
+                              إدارة الخدمات
+                            </button>
+                            <span className={cn(
+                              "px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-2",
+                              plan.include_all_services 
+                                ? "bg-gradient-to-r from-amber-100 to-orange-100 text-amber-700 dark:from-amber-900/30 dark:to-orange-900/30 dark:text-amber-400"
+                                : "bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-400"
+                            )}>
+                              <CheckCircle2 size={14} />
+                              {plan.include_all_services ? 'تشمل كل الخدمات' : `${getPlanServicesCount(plan)} خدمة محددة`}
+                            </span>
+                          </div>
                         </div>
-                      </div>
-                      {plan.description && (
-                        <p className="mt-3 text-sm text-slate-600 dark:text-slate-400 bg-white dark:bg-slate-900 p-3 rounded-xl">
-                          {plan.description}
-                        </p>
-                      )}
-                    </motion.div>
-                  ))}
-                </div>
+                        {plan.description && (
+                          <p className="mt-3 text-sm text-slate-600 dark:text-slate-400 bg-white dark:bg-slate-900 p-3 rounded-xl">
+                            {plan.description}
+                          </p>
+                        )}
+                      </motion.div>
+                    ))}
+                  </div>
               </div>
             )}
 
@@ -862,66 +1068,307 @@ export default function SubscriptionsClient({ initialPlans, initialBankAccounts,
             </div>
           )}
 
-          {showDeleteConfirm && (
+            {showDeleteConfirm && (
+              <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  onClick={() => setShowDeleteConfirm(null)}
+                  className="absolute inset-0 bg-slate-950/40 backdrop-blur-md"
+                />
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                  animate={{ opacity: 1, scale: 1, y: 0 }}
+                  exit={{ opacity: 0, scale: 0.9, y: 20 }}
+                  className="relative w-full max-w-md bg-white dark:bg-slate-900 rounded-[2.5rem] p-8 shadow-[0_20px_50px_rgba(0,0,0,0.2)] border border-slate-200 dark:border-slate-800 text-center overflow-hidden"
+                >
+                  {/* Background decorative elements */}
+                  <div className="absolute -top-24 -right-24 w-48 h-48 bg-red-500/10 rounded-full blur-3xl" />
+                  <div className="absolute -bottom-24 -left-24 w-48 h-48 bg-orange-500/10 rounded-full blur-3xl" />
+                  
+                  <div className="relative">
+                    <motion.div 
+                      initial={{ scale: 0.5, rotate: -20 }}
+                      animate={{ scale: 1, rotate: 0 }}
+                      className="w-24 h-24 mx-auto mb-6 bg-gradient-to-tr from-red-500 to-orange-500 rounded-[2rem] flex items-center justify-center shadow-lg shadow-red-500/30"
+                    >
+                      <Trash2 size={40} className="text-white" />
+                    </motion.div>
+                    
+                    <h3 className="text-2xl font-black text-slate-900 dark:text-white mb-3">
+                      {showDeleteConfirm.type === 'plan' ? 'حذف الباقة' : 'حذف الحساب البنكي'}
+                    </h3>
+                    
+                    <p className="text-slate-500 dark:text-slate-400 mb-8 leading-relaxed">
+                      {showDeleteConfirm.type === 'plan' 
+                        ? 'هل أنت متأكد من حذف هذه الباقة؟ لا يمكن التراجع عن هذا الإجراء وسيتم إيقاف العروض المرتبطة بها.'
+                        : 'هل أنت متأكد من حذف هذا الحساب؟ لن يتمكن المستخدمون من اختيار هذا الحساب كخيار للدفع.'}
+                    </p>
+                    
+                    <div className="flex flex-col gap-3">
+                      <button
+                        onClick={confirmDelete}
+                        disabled={isLoading}
+                        className="w-full py-4 bg-gradient-to-r from-red-600 to-orange-600 text-white font-black rounded-2xl hover:shadow-lg hover:shadow-red-500/40 transition-all active:scale-95 flex items-center justify-center gap-3 disabled:opacity-50"
+                      >
+                        {isLoading ? <RefreshCw className="animate-spin" size={20} /> : <Trash2 size={20} />}
+                        نعم، أريد الحذف
+                      </button>
+                      <button
+                        onClick={() => setShowDeleteConfirm(null)}
+                        className="w-full py-4 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold rounded-2xl hover:bg-slate-200 dark:hover:bg-slate-700 transition-all"
+                      >
+                        تراجع، إلغاء الأمر
+                      </button>
+                    </div>
+                  </div>
+                </motion.div>
+              </div>
+            )}
+
+          {showServicesModal && (
             <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                onClick={() => setShowDeleteConfirm(null)}
-                className="absolute inset-0 bg-slate-950/40 backdrop-blur-md"
+                onClick={() => setShowServicesModal(null)}
+                className="absolute inset-0 bg-slate-950/60 backdrop-blur-md"
               />
               <motion.div
                 initial={{ opacity: 0, scale: 0.9, y: 20 }}
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.9, y: 20 }}
-                className="relative w-full max-w-md bg-white dark:bg-slate-900 rounded-[2.5rem] p-8 shadow-[0_20px_50px_rgba(0,0,0,0.2)] border border-slate-200 dark:border-slate-800 text-center overflow-hidden"
+                className="relative w-full max-w-5xl max-h-[90vh] bg-white dark:bg-slate-900 rounded-[2rem] shadow-[0_20px_50px_rgba(0,0,0,0.3)] border border-slate-200 dark:border-slate-800 overflow-hidden flex flex-col"
               >
-                {/* Background decorative elements */}
-                <div className="absolute -top-24 -right-24 w-48 h-48 bg-red-500/10 rounded-full blur-3xl" />
-                <div className="absolute -bottom-24 -left-24 w-48 h-48 bg-orange-500/10 rounded-full blur-3xl" />
-                
-                <div className="relative">
-                  <motion.div 
-                    initial={{ scale: 0.5, rotate: -20 }}
-                    animate={{ scale: 1, rotate: 0 }}
-                    className="w-24 h-24 mx-auto mb-6 bg-gradient-to-tr from-red-500 to-orange-500 rounded-[2rem] flex items-center justify-center shadow-lg shadow-red-500/30"
+                <div className="bg-gradient-to-r from-violet-600 to-purple-600 p-6 text-white">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-4">
+                      <div className="w-14 h-14 bg-white/20 rounded-2xl flex items-center justify-center backdrop-blur-sm">
+                        <Settings size={28} />
+                      </div>
+                      <div>
+                        <h3 className="text-2xl font-black">إدارة خدمات الباقة</h3>
+                        <p className="text-white/80 text-sm">{showServicesModal.name} - حدد الخدمات المتاحة للمشتركين</p>
+                      </div>
+                    </div>
+                    <button
+                      onClick={() => setShowServicesModal(null)}
+                      className="p-2 hover:bg-white/20 rounded-xl transition-colors"
+                    >
+                      <X size={24} />
+                    </button>
+                  </div>
+                  <div className="flex items-center gap-4 mt-4">
+                    <span className="bg-white/20 backdrop-blur-sm px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-2">
+                      <CheckCircle2 size={16} />
+                      {selectedServices.size} خدمة محددة
+                    </span>
+                    <span className="bg-white/20 backdrop-blur-sm px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-2">
+                      <Package size={16} />
+                      {allFeatures.length} خدمة متاحة
+                    </span>
+                  </div>
+                </div>
+
+                <div className="flex-1 overflow-y-auto p-6 space-y-8">
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="bg-gradient-to-br from-rose-50 to-rose-100/50 dark:from-rose-900/20 dark:to-rose-800/10 rounded-2xl p-6 border border-rose-200 dark:border-rose-800"
                   >
-                    <Trash2 size={40} className="text-white" />
+                    <div className="flex items-center justify-between mb-6">
+                      <div className="flex items-center gap-3">
+                        <div className="w-12 h-12 bg-gradient-to-br from-rose-500 to-pink-600 rounded-xl flex items-center justify-center">
+                          <Crown size={24} className="text-white" />
+                        </div>
+                        <div>
+                          <h4 className="text-lg font-black text-slate-800 dark:text-white">الصلاحيات الإدارية</h4>
+                          <p className="text-sm text-slate-500">صلاحيات متقدمة للمشرفين</p>
+                        </div>
+                      </div>
+                      <button
+                        onClick={toggleAllAdmin}
+                        className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 rounded-xl text-sm font-bold transition-all border border-slate-200 dark:border-slate-700"
+                      >
+                        <CheckCheck size={16} />
+                        تحديد الكل
+                      </button>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                      {adminFeatures.map((feature) => (
+                        <motion.div
+                          key={feature.key}
+                          whileHover={{ scale: 1.02 }}
+                          whileTap={{ scale: 0.98 }}
+                          onClick={() => toggleService(feature.key)}
+                          className={cn(
+                            "cursor-pointer rounded-xl p-4 border-2 transition-all duration-300",
+                            selectedServices.has(feature.key)
+                              ? "bg-white dark:bg-slate-800 border-rose-400 shadow-lg"
+                              : "bg-white/50 dark:bg-slate-800/50 border-slate-200 dark:border-slate-700 hover:border-slate-300"
+                          )}
+                        >
+                          <div className="flex items-center gap-3">
+                            <div className={cn(
+                              "w-10 h-10 rounded-lg flex items-center justify-center transition-all",
+                              selectedServices.has(feature.key)
+                                ? "bg-gradient-to-br from-rose-500 to-pink-600 text-white"
+                                : "bg-slate-100 dark:bg-slate-700 text-slate-500"
+                            )}>
+                              <feature.icon size={18} />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <h5 className="font-bold text-slate-800 dark:text-white text-sm truncate">{feature.name}</h5>
+                              <span className="text-xs text-rose-500 flex items-center gap-1">
+                                <Shield size={10} />
+                                إداري
+                              </span>
+                            </div>
+                            <div className={cn(
+                              "w-10 h-6 rounded-full transition-all duration-300 relative flex-shrink-0",
+                              selectedServices.has(feature.key) ? "bg-emerald-500" : "bg-slate-300 dark:bg-slate-600"
+                            )}>
+                              <div className={cn(
+                                "absolute top-1 w-4 h-4 rounded-full bg-white shadow transition-all duration-300",
+                                selectedServices.has(feature.key) ? "right-1" : "left-1"
+                              )} />
+                            </div>
+                          </div>
+                        </motion.div>
+                      ))}
+                    </div>
                   </motion.div>
-                  
-                  <h3 className="text-2xl font-black text-slate-900 dark:text-white mb-3">
-                    {showDeleteConfirm.type === 'plan' ? 'حذف الباقة' : 'حذف الحساب البنكي'}
-                  </h3>
-                  
-                  <p className="text-slate-500 dark:text-slate-400 mb-8 leading-relaxed">
-                    {showDeleteConfirm.type === 'plan' 
-                      ? 'هل أنت متأكد من حذف هذه الباقة؟ لا يمكن التراجع عن هذا الإجراء وسيتم إيقاف العروض المرتبطة بها.'
-                      : 'هل أنت متأكد من حذف هذا الحساب؟ لن يتمكن المستخدمون من اختيار هذا الحساب كخيار للدفع.'}
-                  </p>
-                  
-                  <div className="flex flex-col gap-3">
-                    <button
-                      onClick={confirmDelete}
-                      disabled={isLoading}
-                      className="w-full py-4 bg-gradient-to-r from-red-600 to-orange-600 text-white font-black rounded-2xl hover:shadow-lg hover:shadow-red-500/40 transition-all active:scale-95 flex items-center justify-center gap-3 disabled:opacity-50"
-                    >
-                      {isLoading ? <RefreshCw className="animate-spin" size={20} /> : <Trash2 size={20} />}
-                      نعم، أريد الحذف
-                    </button>
-                    <button
-                      onClick={() => setShowDeleteConfirm(null)}
-                      className="w-full py-4 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold rounded-2xl hover:bg-slate-200 dark:hover:bg-slate-700 transition-all"
-                    >
-                      تراجع، إلغاء الأمر
-                    </button>
+
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.1 }}
+                    className="bg-gradient-to-br from-emerald-50 to-emerald-100/50 dark:from-emerald-900/20 dark:to-emerald-800/10 rounded-2xl p-6 border border-emerald-200 dark:border-emerald-800"
+                  >
+                    <div className="flex items-center justify-between mb-6">
+                      <div className="flex items-center gap-3">
+                        <div className="w-12 h-12 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-xl flex items-center justify-center">
+                          <Globe size={24} className="text-white" />
+                        </div>
+                        <div>
+                          <h4 className="text-lg font-black text-slate-800 dark:text-white">الصلاحيات العامة</h4>
+                          <p className="text-sm text-slate-500">صلاحيات أساسية للمستخدمين</p>
+                        </div>
+                      </div>
+                      <button
+                        onClick={toggleAllGeneral}
+                        className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 rounded-xl text-sm font-bold transition-all border border-slate-200 dark:border-slate-700"
+                      >
+                        <CheckCheck size={16} />
+                        تحديد الكل
+                      </button>
+                    </div>
+
+                    <div className="space-y-6">
+                      {categories.filter(Boolean).map((category) => {
+                        const categoryFeaturesList = generalFeatures.filter(f => f.category === category);
+                        const colors = categoryColors[category!] || categoryColors['أخرى'];
+                        
+                        return (
+                          <div key={category} className="space-y-3">
+                            <h5 className="text-md font-black text-slate-700 dark:text-slate-300 flex items-center gap-2">
+                              <div className={cn("w-1.5 h-6 rounded-full", colors.border.replace('border-r-', 'bg-'))} />
+                              {category}
+                              <span className="text-xs font-normal text-slate-400">({categoryFeaturesList.length})</span>
+                            </h5>
+                            
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                              {categoryFeaturesList.map((feature) => (
+                                <motion.div
+                                  key={feature.key}
+                                  whileHover={{ scale: 1.02 }}
+                                  whileTap={{ scale: 0.98 }}
+                                  onClick={() => toggleService(feature.key)}
+                                  className={cn(
+                                    "cursor-pointer rounded-xl p-4 border-2 border-r-4 transition-all duration-300",
+                                    colors.border,
+                                    selectedServices.has(feature.key)
+                                      ? `bg-gradient-to-br ${colors.bg} border-emerald-400 shadow-lg`
+                                      : "bg-white/80 dark:bg-slate-800/80 border-slate-200 dark:border-slate-700 hover:border-slate-300"
+                                  )}
+                                >
+                                  <div className="flex items-center gap-3">
+                                    <div className={cn(
+                                      "w-10 h-10 rounded-lg flex items-center justify-center transition-all",
+                                      selectedServices.has(feature.key)
+                                        ? "bg-gradient-to-br from-emerald-500 to-teal-600 text-white"
+                                        : "bg-slate-100 dark:bg-slate-700 text-slate-500"
+                                    )}>
+                                      <feature.icon size={18} />
+                                    </div>
+                                    <div className="flex-1 min-w-0">
+                                      <h5 className="font-bold text-slate-800 dark:text-white text-sm truncate">{feature.name}</h5>
+                                      <span className={cn("text-xs flex items-center gap-1", colors.icon)}>
+                                        <Sparkles size={10} />
+                                        {category}
+                                      </span>
+                                    </div>
+                                    <div className={cn(
+                                      "w-10 h-6 rounded-full transition-all duration-300 relative flex-shrink-0",
+                                      selectedServices.has(feature.key) ? "bg-emerald-500" : "bg-slate-300 dark:bg-slate-600"
+                                    )}>
+                                      <div className={cn(
+                                        "absolute top-1 w-4 h-4 rounded-full bg-white shadow transition-all duration-300",
+                                        selectedServices.has(feature.key) ? "right-1" : "left-1"
+                                      )} />
+                                    </div>
+                                  </div>
+                                </motion.div>
+                              ))}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </motion.div>
+                </div>
+
+                <div className="p-6 bg-slate-50 dark:bg-slate-800 border-t border-slate-200 dark:border-slate-700">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <span className="bg-violet-100 dark:bg-violet-900/30 text-violet-700 dark:text-violet-400 px-4 py-2 rounded-xl text-sm font-bold">
+                        {selectedServices.size} من {allFeatures.length} خدمة محددة
+                      </span>
+                    </div>
+                    <div className="flex gap-3">
+                      <button
+                        onClick={() => setShowServicesModal(null)}
+                        className="px-6 py-3 bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300 font-bold rounded-xl hover:bg-slate-300 dark:hover:bg-slate-600 transition-all"
+                      >
+                        إلغاء
+                      </button>
+                      <button
+                        onClick={handleSaveServices}
+                        disabled={savingServices}
+                        className="px-8 py-3 bg-gradient-to-r from-violet-600 to-purple-600 text-white font-black rounded-xl hover:from-violet-700 hover:to-purple-700 transition-all flex items-center gap-2 disabled:opacity-50 shadow-lg shadow-violet-500/30"
+                      >
+                        {savingServices ? (
+                          <>
+                            <RefreshCw className="animate-spin" size={18} />
+                            جاري الحفظ...
+                          </>
+                        ) : (
+                          <>
+                            <Save size={18} />
+                            حفظ الخدمات
+                          </>
+                        )}
+                      </button>
+                    </div>
                   </div>
                 </div>
               </motion.div>
             </div>
           )}
-        </AnimatePresence>
-      </div>
-    );
-  }
+          </AnimatePresence>
+        </div>
+      );
+    }
 
