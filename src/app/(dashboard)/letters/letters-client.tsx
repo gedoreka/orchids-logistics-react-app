@@ -59,6 +59,49 @@ const templateColors: Record<string, string> = {
   final_clearance: "from-emerald-500 to-teal-600",
 };
 
+function AutoFitContent({ content, maxHeight }: { content: string; maxHeight: number }) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [fontSize, setFontSize] = useState(16);
+  const [lineHeight, setLineHeight] = useState(1.6);
+
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+    
+    let currentFontSize = 16;
+    let currentLineHeight = 1.6;
+    
+    const checkAndAdjust = () => {
+      if (container.scrollHeight > maxHeight && currentFontSize > 10) {
+        currentFontSize -= 0.5;
+        setFontSize(currentFontSize);
+        requestAnimationFrame(checkAndAdjust);
+      } else if (container.scrollHeight > maxHeight && currentLineHeight > 1.2) {
+        currentLineHeight -= 0.05;
+        setLineHeight(currentLineHeight);
+        requestAnimationFrame(checkAndAdjust);
+      }
+    };
+    
+    setFontSize(16);
+    setLineHeight(1.6);
+    requestAnimationFrame(checkAndAdjust);
+  }, [content, maxHeight]);
+
+  return (
+    <div 
+      ref={containerRef}
+      className="letter-content-auto"
+      style={{ 
+        fontSize: `${fontSize}px`, 
+        lineHeight: lineHeight,
+        textAlign: 'justify'
+      }}
+      dangerouslySetInnerHTML={{ __html: content }}
+    />
+  );
+}
+
 const placeholderLabels: Record<string, string> = {
   employee_name: "اسم الموظف",
   id_number: "رقم الهوية / الإقامة",
@@ -394,23 +437,38 @@ export default function LettersClient() {
         <style>
           @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap');
           * { margin: 0; padding: 0; box-sizing: border-box; }
-          body { font-family: 'Tajawal', sans-serif; direction: rtl; background: #fff; color: #000; line-height: 1.8; }
+          body { font-family: 'Tajawal', sans-serif; direction: rtl; background: #fff; color: #000; line-height: 1.6; }
           @page { size: A4; margin: 0; }
-          .page-container { width: 210mm; min-height: 297mm; position: relative; margin: 0 auto; overflow: hidden; }
+          .page-container { width: 210mm; height: 297mm; position: relative; margin: 0 auto; overflow: hidden; }
           ${!isPdf ? `
           .page-container {
             background-image: url('${letterhead}');
             background-size: 100% 100%; background-repeat: no-repeat; background-position: center;
           }` : ''}
           .letterhead-pdf { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; z-index: -1; }
-          .letter-content-wrapper { position: relative; z-index: 1; padding-top: ${topMargin}px; padding-bottom: ${bottomMargin}px; padding-left: 50px; padding-right: 50px; }
-          .letter-content { font-size: 16px; text-align: justify; }
+          .letter-content-wrapper { 
+            position: absolute; 
+            top: ${topMargin}px; 
+            bottom: ${bottomMargin}px; 
+            left: 50px; 
+            right: 50px; 
+            z-index: 1; 
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+          }
+          .letter-content { 
+            font-size: var(--font-size, 16px); 
+            text-align: justify; 
+            line-height: var(--line-height, 1.6);
+          }
+          .letter-content p { margin-bottom: var(--paragraph-spacing, 12px); }
           .field { font-weight: bold; color: #000; }
-          h2 { font-size: 22px; margin-bottom: 20px; }
-          table { width: 100%; border-collapse: collapse; margin: 15px 0; }
-          td, th { padding: 10px; border: 1px solid #000; }
+          h2 { font-size: calc(var(--font-size, 16px) * 1.4); margin-bottom: 15px; }
+          table { width: 100%; border-collapse: collapse; margin: 10px 0; }
+          td, th { padding: 8px; border: 1px solid #000; font-size: var(--font-size, 16px); }
           @media print { 
-            .page-container { width: 100%; margin: 0; box-shadow: none; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            .page-container { width: 100%; height: 100%; margin: 0; box-shadow: none; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
             .letterhead-pdf { display: block; }
           }
         </style>
@@ -419,11 +477,41 @@ export default function LettersClient() {
         <div class="page-container">
           ${isPdf ? `<iframe src="${letterhead}#toolbar=0&navpanes=0&scrollbar=0" class="letterhead-pdf"></iframe>` : ''}
           <div class="letter-content-wrapper">
-            <div class="letter-content">${content}</div>
+            <div class="letter-content" id="letterContent">${content}</div>
           </div>
         </div>
         <script>
           window.onload = function() {
+            const wrapper = document.querySelector('.letter-content-wrapper');
+            const content = document.getElementById('letterContent');
+            const availableHeight = wrapper.clientHeight;
+            let fontSize = 16;
+            let lineHeight = 1.6;
+            let paragraphSpacing = 12;
+            
+            function adjustContent() {
+              document.documentElement.style.setProperty('--font-size', fontSize + 'px');
+              document.documentElement.style.setProperty('--line-height', lineHeight);
+              document.documentElement.style.setProperty('--paragraph-spacing', paragraphSpacing + 'px');
+            }
+            
+            adjustContent();
+            
+            while (content.scrollHeight > availableHeight && fontSize > 10) {
+              fontSize -= 0.5;
+              adjustContent();
+            }
+            
+            while (content.scrollHeight > availableHeight && lineHeight > 1.2) {
+              lineHeight -= 0.05;
+              adjustContent();
+            }
+            
+            while (content.scrollHeight > availableHeight && paragraphSpacing > 4) {
+              paragraphSpacing -= 1;
+              adjustContent();
+            }
+            
             setTimeout(() => { window.print(); }, 500);
           }
         <\/script>
@@ -793,39 +881,47 @@ export default function LettersClient() {
                   </div>
                 </div>
                   <div className="flex-1 overflow-y-auto bg-slate-200 p-4 md:p-8 flex justify-center">
-                    <div 
-                      className="bg-white shadow-2xl origin-top relative overflow-hidden"
-                      style={{ 
-                        width: '210mm', minHeight: '297mm',
-                        transform: 'scale(0.8)'
-                      }}
-                    >
-                      {companyInfo?.letterhead_path && (
-                        companyInfo.letterhead_path.toLowerCase().endsWith('.pdf') ? (
-                          <iframe 
-                            src={`${companyInfo.letterhead_path}#toolbar=0&navpanes=0&scrollbar=0`} 
-                            className="absolute inset-0 w-full h-full border-none pointer-events-none"
-                            style={{ zIndex: 0 }}
-                          />
-                        ) : (
-                          <div 
-                            className="absolute inset-0"
-                            style={{ 
-                              backgroundImage: `url(${companyInfo.letterhead_path})`,
-                              backgroundSize: '100% 100%',
-                              backgroundRepeat: 'no-repeat',
-                              zIndex: 0
-                            }}
-                          />
-                        )
-                      )}
                       <div 
-                        className="relative z-10"
-                        style={{ padding: `${margins.top}px 50px ${margins.bottom}px` }}
-                        dangerouslySetInnerHTML={{ __html: generateLetterContent(previewLetter) }}
-                      />
+                        className="bg-white shadow-2xl origin-top relative overflow-hidden"
+                        style={{ 
+                          width: '210mm', height: '297mm',
+                          transform: 'scale(0.8)'
+                        }}
+                      >
+                        {companyInfo?.letterhead_path && (
+                          companyInfo.letterhead_path.toLowerCase().endsWith('.pdf') ? (
+                            <iframe 
+                              src={`${companyInfo.letterhead_path}#toolbar=0&navpanes=0&scrollbar=0`} 
+                              className="absolute inset-0 w-full h-full border-none pointer-events-none"
+                              style={{ zIndex: 0 }}
+                            />
+                          ) : (
+                            <div 
+                              className="absolute inset-0"
+                              style={{ 
+                                backgroundImage: `url(${companyInfo.letterhead_path})`,
+                                backgroundSize: '100% 100%',
+                                backgroundRepeat: 'no-repeat',
+                                zIndex: 0
+                              }}
+                            />
+                          )
+                        )}
+                        <div 
+                          ref={printRef}
+                          className="absolute left-[50px] right-[50px] z-10 overflow-hidden"
+                          style={{ 
+                            top: `${margins.top}px`,
+                            bottom: `${margins.bottom}px`
+                          }}
+                        >
+                          <AutoFitContent 
+                            content={generateLetterContent(previewLetter)}
+                            maxHeight={1122 - margins.top - margins.bottom}
+                          />
+                        </div>
+                      </div>
                     </div>
-                  </div>
               </motion.div>
             </motion.div>
           )}
