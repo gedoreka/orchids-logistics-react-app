@@ -1,11 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { execute, query } from "@/lib/db";
-import { v4 as uuidv4 } from 'uuid';
 
 function generateSubscriptionCode() {
   const prefix = 'SUB';
   const timestamp = Date.now().toString(36).toUpperCase();
-  const random = uuidv4().substring(0, 4).toUpperCase();
+  const random = Math.random().toString(36).substring(2, 6).toUpperCase();
   return `${prefix}-${timestamp}-${random}`;
 }
 
