@@ -39,7 +39,19 @@ export async function GET(request: NextRequest) {
       company.email = users[0].email;
     }
 
-    return NextResponse.json({ company, company_id: companyId });
+    // Fetch company permissions from company_permissions table
+    const permissionsRows = await query<{ feature_key: string }>(
+      "SELECT feature_key FROM company_permissions WHERE company_id = ? AND is_enabled = 1",
+      [companyId]
+    );
+
+    // Convert to object format { permission_key: 1 }
+    const permissions: Record<string, number> = {};
+    permissionsRows.forEach((row) => {
+      permissions[row.feature_key] = 1;
+    });
+
+    return NextResponse.json({ company, company_id: companyId, permissions });
   } catch (error) {
     console.error("Error fetching company info:", error);
     return NextResponse.json(

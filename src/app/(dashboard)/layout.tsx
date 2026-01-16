@@ -3,6 +3,7 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { DashboardLayout } from "@/components/layout/dashboard-layout";
 import { query } from "@/lib/db";
+import { supabase } from "@/lib/supabase-client";
 import { User, SubUser } from "@/lib/types";
 
 export default async function Layout({ children }: { children: React.ReactNode }) {
@@ -19,8 +20,12 @@ export default async function Layout({ children }: { children: React.ReactNode }
   let user: { name: string; role: string; email: string };
   
   if (userType === "sub_user" && session.sub_user_id) {
-    const subUsers = await query<SubUser>("SELECT id, name, email FROM company_sub_users WHERE id = ?", [session.sub_user_id]);
-    if (subUsers.length === 0) {
+    const { data: subUsers } = await supabase
+      .from("company_sub_users")
+      .select("id, name, email")
+      .eq("id", session.sub_user_id);
+    
+    if (!subUsers || subUsers.length === 0) {
       redirect("/login");
     }
     const subUser = subUsers[0];
