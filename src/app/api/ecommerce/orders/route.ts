@@ -12,6 +12,7 @@ export async function GET(request: NextRequest) {
     const companyId = searchParams.get("company_id");
     const month = searchParams.get("month");
     const day = searchParams.get("day");
+    const date = searchParams.get("date");
     const status = searchParams.get("status");
 
     if (!companyId) {
@@ -24,13 +25,15 @@ export async function GET(request: NextRequest) {
       .eq("company_id", parseInt(companyId))
       .order("created_at", { ascending: false });
 
-    if (month) {
+    if (date) {
+      query = query.eq("order_date", date);
+    } else if (month) {
       const startDate = `${month}-01`;
       const endDate = new Date(parseInt(month.split("-")[0]), parseInt(month.split("-")[1]), 0).toISOString().split("T")[0];
       query = query.gte("order_date", startDate).lte("order_date", endDate);
     }
 
-    if (day && month) {
+    if (day && month && !date) {
       const dayDate = `${month}-${day.padStart(2, "0")}`;
       query = query.eq("order_date", dayDate);
     }

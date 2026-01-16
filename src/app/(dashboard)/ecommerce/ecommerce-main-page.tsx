@@ -58,9 +58,9 @@ const sections: Section[] = [
   },
   {
     id: "today-orders",
-    title: "طلبات اليوم",
-    titleEn: "Today's Orders",
-    description: "عرض وإدارة جميع الطلبات الواردة لهذا اليوم مع إمكانية الإضافة والتعديل",
+    title: "عرض الطلبات اليومية",
+    titleEn: "Daily Orders View",
+    description: "سجل شامل لإدخال وعرض الطلبات اليومية مع إمكانية الإضافة والتعديل والربط مع المتاجر والسائقين",
     icon: Calendar,
     href: "/ecommerce/today",
     gradient: "from-blue-500 via-indigo-500 to-violet-500",
