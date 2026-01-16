@@ -34,8 +34,18 @@ import {
     SkipForward,
     Square,
     Volume2,
-    BookOpen
+    BookOpen,
+    Building2,
+    Package,
+    RefreshCw,
+    Zap,
+    Upload,
+    Landmark,
+    Star,
+    Shield,
+    CheckCircle2
   } from "lucide-react";
+import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
 import { usePathname, useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
@@ -56,6 +66,25 @@ interface Surah {
   number: number;
   name: string;
   englishName: string;
+}
+
+interface Plan {
+  id: number;
+  name: string;
+  name_en?: string;
+  description?: string;
+  price: number;
+  duration_value: number;
+  duration_unit: string;
+  features?: string;
+}
+
+interface BankAccount {
+  id: number;
+  bank_name: string;
+  account_holder: string;
+  account_number?: string;
+  iban: string;
 }
 
 const SURAHS: Surah[] = [
@@ -97,6 +126,14 @@ export function Header({ user, onToggleSidebar, unreadChatCount = 0, subscriptio
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentSurahIndex, setCurrentSurahIndex] = useState(0);
   const [coords, setCoords] = useState<{ lat: number; lng: number } | null>(null);
+  const [showSubscriptionModal, setShowSubscriptionModal] = useState(false);
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+  const [showPaymentModal, setShowPaymentModal] = useState<{ plan: Plan; type: 'new' | 'renewal' | 'upgrade' } | null>(null);
+  const [availablePlans, setAvailablePlans] = useState<Plan[]>([]);
+  const [bankAccounts, setBankAccounts] = useState<BankAccount[]>([]);
+  const [currentPlanDetails, setCurrentPlanDetails] = useState<any>(null);
+  const [receiptImage, setReceiptImage] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const pathname = usePathname();
   const router = useRouter();
@@ -318,6 +355,78 @@ export function Header({ user, onToggleSidebar, unreadChatCount = 0, subscriptio
   const handleLogout = () => {
     document.cookie = "auth_session=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
     router.push("/login");
+  };
+
+  const fetchSubscriptionData = async () => {
+    try {
+      const res = await fetch('/api/subscriptions');
+      const data = await res.json();
+      if (data.success) {
+        setAvailablePlans(data.plans);
+        setBankAccounts(data.bankAccounts);
+        setCurrentPlanDetails(data.currentSubscription);
+      }
+    } catch (error) {
+      console.error('Error fetching subscription data:', error);
+    }
+  };
+
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setReceiptImage(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleSubmitPayment = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (!showPaymentModal) return;
+    setIsSubmitting(true);
+
+    const formData = new FormData(e.currentTarget);
+    try {
+      const res = await fetch('/api/subscriptions/request', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          plan_id: showPaymentModal.plan.id,
+          bank_account_id: formData.get('bank_account_id'),
+          receipt_image: receiptImage,
+          request_type: showPaymentModal.type,
+          notes: formData.get('notes')
+        })
+      });
+
+      const result = await res.json();
+      if (result.success) {
+        toast.success(isRTL ? 'تم إرسال طلب الدفع بنجاح' : 'Payment request sent successfully');
+        setShowPaymentModal(null);
+        setReceiptImage(null);
+        setShowUpgradeModal(false);
+        setShowSubscriptionModal(false);
+      } else {
+        toast.error(result.error || (isRTL ? 'حدث خطأ' : 'Error occurred'));
+      }
+    } catch (error) {
+      toast.error(isRTL ? 'حدث خطأ في الاتصال' : 'Connection error');
+    }
+    setIsSubmitting(false);
+  };
+
+  const openSubscriptionModal = () => {
+    fetchSubscriptionData();
+    setShowSubscriptionModal(true);
+    setShowUserDropdown(false);
+  };
+
+  const openUpgradeModal = () => {
+    fetchSubscriptionData();
+    setShowUpgradeModal(true);
+    setShowSubscriptionModal(false);
   };
 
   const notifications = [
@@ -831,7 +940,7 @@ export function Header({ user, onToggleSidebar, unreadChatCount = 0, subscriptio
                 initial={{ scale: 0.9, opacity: 0, y: 20 }}
                 animate={{ scale: 1, opacity: 1, y: 0 }}
                 exit={{ scale: 0.9, opacity: 0, y: 20 }}
-                className="relative w-full max-w-sm bg-gradient-to-b from-slate-900 to-slate-950 rounded-3xl shadow-2xl overflow-hidden border border-white/10"
+                className="relative w-full max-w-md bg-gradient-to-b from-slate-900 to-slate-950 rounded-3xl shadow-2xl overflow-hidden border border-white/10 max-h-[90vh] overflow-y-auto"
               >
                 <button 
                   onClick={() => setShowUserDropdown(false)}
@@ -848,6 +957,9 @@ export function Header({ user, onToggleSidebar, unreadChatCount = 0, subscriptio
                     <div>
                       <p className="font-bold text-white text-lg">{user?.name}</p>
                       <p className="text-sm text-white/40">{user?.email}</p>
+                      <p className="text-xs text-white/30 mt-1">
+                        {user?.role === "admin" ? (isRTL ? "مدير النظام" : "System Admin") : (isRTL ? "مدير منشأة" : "Facility Manager")}
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -857,35 +969,67 @@ export function Header({ user, onToggleSidebar, unreadChatCount = 0, subscriptio
                     <div className={cn(
                       "p-4 rounded-2xl",
                       subscriptionData.isActive && subscriptionData.daysRemaining > 7
-                        ? "bg-emerald-500/10 border border-emerald-500/20"
+                        ? "bg-gradient-to-r from-emerald-500/10 to-teal-500/10 border border-emerald-500/20"
                         : subscriptionData.isActive && subscriptionData.daysRemaining > 0
-                        ? "bg-amber-500/10 border border-amber-500/20"
-                        : "bg-red-500/10 border border-red-500/20"
+                        ? "bg-gradient-to-r from-amber-500/10 to-orange-500/10 border border-amber-500/20"
+                        : "bg-gradient-to-r from-red-500/10 to-rose-500/10 border border-red-500/20"
                     )}>
-                      <div className="flex items-center justify-between mb-2">
-                        <span className="text-sm text-white/50">{isRTL ? 'حالة الاشتراك' : 'Subscription'}</span>
-                        <Crown size={18} className={cn(
+                      <div className="flex items-center justify-between mb-3">
+                        <div className="flex items-center gap-2">
+                          <Package size={18} className="text-amber-400" />
+                          <span className="text-sm font-bold text-white">{isRTL ? 'باقتك الحالية' : 'Your Plan'}</span>
+                        </div>
+                        <Crown size={20} className={cn(
                           subscriptionData.isActive ? "text-amber-400" : "text-red-400"
                         )} />
                       </div>
-                      <p className={cn(
-                        "text-base font-bold",
-                        subscriptionData.isActive ? "text-emerald-400" : "text-red-400"
-                      )}>
-                        {subscriptionData.isActive 
-                          ? `${isRTL ? 'متبقي' : 'Remaining'}: ${subscriptionData.daysRemaining} ${isRTL ? 'يوم' : 'days'}`
-                          : isRTL ? 'غير مشترك' : 'Not Subscribed'}
-                      </p>
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className={cn(
+                            "text-lg font-bold",
+                            subscriptionData.isActive ? "text-emerald-400" : "text-red-400"
+                          )}>
+                            {subscriptionData.isActive 
+                              ? `${subscriptionData.daysRemaining} ${isRTL ? 'يوم متبقي' : 'days left'}`
+                              : isRTL ? 'غير مشترك' : 'Not Subscribed'}
+                          </p>
+                          {subscriptionData.endDate && (
+                            <p className="text-xs text-white/40 mt-1">
+                              {isRTL ? 'تنتهي في: ' : 'Expires: '}{new Date(subscriptionData.endDate).toLocaleDateString('ar-SA')}
+                            </p>
+                          )}
+                        </div>
+                        <motion.button
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                          onClick={openSubscriptionModal}
+                          className="p-2 bg-white/10 hover:bg-white/20 rounded-xl transition-all"
+                        >
+                          <Info size={16} className="text-white/60" />
+                        </motion.button>
+                      </div>
                     </div>
-                    <motion.button
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
-                      onClick={() => { router.push("/subscriptions"); setShowUserDropdown(false); }}
-                      className="w-full mt-3 flex items-center justify-center gap-2 py-3 bg-gradient-to-r from-amber-500 to-orange-500 rounded-xl text-white text-sm font-bold"
-                    >
-                      <Crown size={18} />
-                      {isRTL ? 'عرض الباقات' : 'View Plans'}
-                    </motion.button>
+                    
+                    <div className="grid grid-cols-2 gap-2 mt-3">
+                      <motion.button
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                        onClick={openUpgradeModal}
+                        className="flex items-center justify-center gap-2 py-3 bg-gradient-to-r from-purple-500/20 to-pink-500/20 hover:from-purple-500/30 hover:to-pink-500/30 rounded-xl text-purple-400 text-sm font-bold border border-purple-500/20 transition-all"
+                      >
+                        <Zap size={16} />
+                        {isRTL ? 'ترقية الباقة' : 'Upgrade'}
+                      </motion.button>
+                      <motion.button
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                        onClick={openSubscriptionModal}
+                        className="flex items-center justify-center gap-2 py-3 bg-gradient-to-r from-emerald-500/20 to-teal-500/20 hover:from-emerald-500/30 hover:to-teal-500/30 rounded-xl text-emerald-400 text-sm font-bold border border-emerald-500/20 transition-all"
+                      >
+                        <RefreshCw size={16} />
+                        {isRTL ? 'تجديد' : 'Renew'}
+                      </motion.button>
+                    </div>
                   </div>
                 )}
 
@@ -895,28 +1039,427 @@ export function Header({ user, onToggleSidebar, unreadChatCount = 0, subscriptio
                     onClick={() => { router.push("/user_profile"); setShowUserDropdown(false); }}
                     className="w-full flex items-center gap-4 px-4 py-3.5 rounded-xl text-white/70 hover:text-white transition-colors"
                   >
-                    <UserCircle size={20} />
-                    <span className="text-sm font-bold">{tCommon('profile')}</span>
+                    <div className="p-2 rounded-xl bg-blue-500/20">
+                      <Building2 size={18} className="text-blue-400" />
+                    </div>
+                    <span className="text-sm font-bold">{isRTL ? 'بيانات منشأتي' : 'My Facility'}</span>
                   </motion.button>
+                  
                   <motion.button
                     whileHover={{ backgroundColor: "rgba(255,255,255,0.05)" }}
                     onClick={() => { router.push("/settings"); setShowUserDropdown(false); }}
                     className="w-full flex items-center gap-4 px-4 py-3.5 rounded-xl text-white/70 hover:text-white transition-colors"
                   >
-                    <Settings size={20} />
-                    <span className="text-sm font-bold">{tCommon('settings')}</span>
+                    <div className="p-2 rounded-xl bg-slate-500/20">
+                      <Settings size={18} className="text-slate-400" />
+                    </div>
+                    <span className="text-sm font-bold">{isRTL ? 'إعدادات النظام' : 'System Settings'}</span>
                   </motion.button>
                 </div>
+                
                 <div className="p-3 border-t border-white/10">
                   <motion.button
-                    whileHover={{ backgroundColor: "rgba(239, 68, 68, 0.1)" }}
+                    whileHover={{ scale: 1.02, backgroundColor: "rgba(239, 68, 68, 0.1)" }}
+                    whileTap={{ scale: 0.98 }}
                     onClick={handleLogout}
-                    className="w-full flex items-center gap-4 px-4 py-3.5 rounded-xl text-rose-400 hover:text-rose-300 transition-colors"
+                    className="w-full flex items-center justify-center gap-3 px-4 py-4 rounded-xl bg-red-500/10 text-rose-400 hover:text-rose-300 transition-all border border-red-500/20"
                   >
                     <LogOut size={20} />
-                    <span className="text-sm font-bold">{tCommon('logout')}</span>
+                    <span className="text-sm font-bold">{isRTL ? 'تسجيل الخروج' : 'Logout'}</span>
                   </motion.button>
                 </div>
+              </motion.div>
+            </div>
+          )}
+        </AnimatePresence>
+
+        {/* Subscription Details Modal */}
+        <AnimatePresence>
+          {showSubscriptionModal && (
+            <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
+              <motion.div 
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                onClick={() => setShowSubscriptionModal(false)}
+                className="absolute inset-0 bg-black/70 backdrop-blur-md"
+              />
+              <motion.div 
+                initial={{ scale: 0.9, opacity: 0, y: 20 }}
+                animate={{ scale: 1, opacity: 1, y: 0 }}
+                exit={{ scale: 0.9, opacity: 0, y: 20 }}
+                className="relative w-full max-w-lg bg-gradient-to-b from-slate-900 to-slate-950 rounded-3xl shadow-2xl overflow-hidden border border-amber-500/20 max-h-[90vh] overflow-y-auto"
+              >
+                <button 
+                  onClick={() => setShowSubscriptionModal(false)}
+                  className="absolute top-4 left-4 p-2 text-white/30 hover:text-white hover:bg-white/10 rounded-xl transition-all z-10"
+                >
+                  <X size={20} />
+                </button>
+                
+                <div className="p-6 bg-gradient-to-r from-amber-500/20 to-orange-500/20 border-b border-amber-500/20">
+                  <div className="flex items-center gap-4">
+                    <div className="p-4 rounded-2xl bg-gradient-to-br from-amber-500/30 to-orange-500/30">
+                      <Crown size={32} className="text-amber-400" />
+                    </div>
+                    <div>
+                      <h3 className="font-bold text-white text-xl">{isRTL ? 'تفاصيل الاشتراك' : 'Subscription Details'}</h3>
+                      <p className="text-sm text-amber-400">{isRTL ? 'إدارة باقتك وتجديدها' : 'Manage and renew your plan'}</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="p-6 space-y-4">
+                  {subscriptionData && (
+                    <div className={cn(
+                      "p-5 rounded-2xl",
+                      subscriptionData.isActive 
+                        ? "bg-gradient-to-r from-emerald-500/10 to-teal-500/10 border border-emerald-500/20"
+                        : "bg-gradient-to-r from-red-500/10 to-rose-500/10 border border-red-500/20"
+                    )}>
+                      <div className="flex items-center justify-between mb-4">
+                        <div className="flex items-center gap-3">
+                          <div className={cn(
+                            "p-3 rounded-xl",
+                            subscriptionData.isActive ? "bg-emerald-500/20" : "bg-red-500/20"
+                          )}>
+                            <Shield size={24} className={subscriptionData.isActive ? "text-emerald-400" : "text-red-400"} />
+                          </div>
+                          <div>
+                            <p className="font-bold text-white">{isRTL ? 'حالة الاشتراك' : 'Status'}</p>
+                            <p className={cn(
+                              "text-sm font-bold",
+                              subscriptionData.isActive ? "text-emerald-400" : "text-red-400"
+                            )}>
+                              {subscriptionData.isActive ? (isRTL ? 'نشط' : 'Active') : (isRTL ? 'غير نشط' : 'Inactive')}
+                            </p>
+                          </div>
+                        </div>
+                        {subscriptionData.isActive && (
+                          <div className="text-left">
+                            <p className="text-3xl font-black text-white">{subscriptionData.daysRemaining}</p>
+                            <p className="text-xs text-white/40">{isRTL ? 'يوم متبقي' : 'days left'}</p>
+                          </div>
+                        )}
+                      </div>
+                      
+                      {currentPlanDetails && (
+                        <div className="space-y-3 pt-4 border-t border-white/10">
+                          <div className="flex items-center justify-between">
+                            <span className="text-sm text-white/50">{isRTL ? 'اسم الباقة' : 'Plan Name'}</span>
+                            <span className="text-sm font-bold text-white">{currentPlanDetails.plan_name}</span>
+                          </div>
+                          <div className="flex items-center justify-between">
+                            <span className="text-sm text-white/50">{isRTL ? 'السعر' : 'Price'}</span>
+                            <span className="text-sm font-bold text-amber-400">{currentPlanDetails.plan_price} {isRTL ? 'ر.س' : 'SAR'}</span>
+                          </div>
+                          {subscriptionData.endDate && (
+                            <div className="flex items-center justify-between">
+                              <span className="text-sm text-white/50">{isRTL ? 'تاريخ الانتهاء' : 'End Date'}</span>
+                              <span className="text-sm font-bold text-white">{new Date(subscriptionData.endDate).toLocaleDateString('ar-SA')}</span>
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {currentPlanDetails?.features && (
+                    <div className="p-5 rounded-2xl bg-white/5 border border-white/10">
+                      <div className="flex items-center gap-3 mb-4">
+                        <Star size={20} className="text-amber-400" />
+                        <p className="font-bold text-white">{isRTL ? 'مميزات الباقة' : 'Plan Features'}</p>
+                      </div>
+                      <div className="space-y-2">
+                        {(currentPlanDetails.features || '').split(',').map((feature: string, i: number) => (
+                          <div key={i} className="flex items-center gap-3">
+                            <CheckCircle2 size={16} className="text-emerald-400" />
+                            <span className="text-sm text-white/70">{feature.trim()}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  <div className="grid grid-cols-2 gap-3">
+                    <motion.button
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      onClick={() => {
+                        if (currentPlanDetails) {
+                          setShowPaymentModal({ 
+                            plan: { 
+                              id: currentPlanDetails.plan_id, 
+                              name: currentPlanDetails.plan_name,
+                              price: currentPlanDetails.plan_price,
+                              duration_value: currentPlanDetails.duration_value || 30,
+                              duration_unit: currentPlanDetails.duration_unit || 'day'
+                            }, 
+                            type: 'renewal' 
+                          });
+                        }
+                      }}
+                      className="flex items-center justify-center gap-2 py-4 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 rounded-xl text-white text-sm font-bold shadow-lg shadow-emerald-500/30 transition-all"
+                    >
+                      <RefreshCw size={18} />
+                      {isRTL ? 'تجديد الباقة' : 'Renew Plan'}
+                    </motion.button>
+                    <motion.button
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      onClick={openUpgradeModal}
+                      className="flex items-center justify-center gap-2 py-4 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 rounded-xl text-white text-sm font-bold shadow-lg shadow-purple-500/30 transition-all"
+                    >
+                      <Zap size={18} />
+                      {isRTL ? 'ترقية الباقة' : 'Upgrade Plan'}
+                    </motion.button>
+                  </div>
+                </div>
+              </motion.div>
+            </div>
+          )}
+        </AnimatePresence>
+
+        {/* Upgrade Plans Modal */}
+        <AnimatePresence>
+          {showUpgradeModal && (
+            <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
+              <motion.div 
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                onClick={() => setShowUpgradeModal(false)}
+                className="absolute inset-0 bg-black/70 backdrop-blur-md"
+              />
+              <motion.div 
+                initial={{ scale: 0.9, opacity: 0, y: 20 }}
+                animate={{ scale: 1, opacity: 1, y: 0 }}
+                exit={{ scale: 0.9, opacity: 0, y: 20 }}
+                className="relative w-full max-w-2xl bg-gradient-to-b from-slate-900 to-slate-950 rounded-3xl shadow-2xl overflow-hidden border border-purple-500/20 max-h-[90vh] overflow-y-auto"
+              >
+                <button 
+                  onClick={() => setShowUpgradeModal(false)}
+                  className="absolute top-4 left-4 p-2 text-white/30 hover:text-white hover:bg-white/10 rounded-xl transition-all z-10"
+                >
+                  <X size={20} />
+                </button>
+                
+                <div className="p-6 bg-gradient-to-r from-purple-500/20 to-pink-500/20 border-b border-purple-500/20">
+                  <div className="flex items-center gap-4">
+                    <div className="p-4 rounded-2xl bg-gradient-to-br from-purple-500/30 to-pink-500/30">
+                      <Zap size={32} className="text-purple-400" />
+                    </div>
+                    <div>
+                      <h3 className="font-bold text-white text-xl">{isRTL ? 'ترقية الباقة' : 'Upgrade Plan'}</h3>
+                      <p className="text-sm text-purple-400">{isRTL ? 'اختر الباقة المناسبة لاحتياجاتك' : 'Choose the plan that fits your needs'}</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="p-6">
+                  <div className="grid gap-4">
+                    {availablePlans.map((plan, index) => (
+                      <motion.div
+                        key={plan.id}
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: index * 0.1 }}
+                        className={cn(
+                          "p-5 rounded-2xl border transition-all cursor-pointer",
+                          index === 1 
+                            ? "bg-gradient-to-r from-amber-500/10 to-orange-500/10 border-amber-500/30 ring-2 ring-amber-500/20"
+                            : "bg-white/5 border-white/10 hover:border-white/20"
+                        )}
+                      >
+                        <div className="flex items-center justify-between mb-4">
+                          <div className="flex items-center gap-3">
+                            <div className={cn(
+                              "p-3 rounded-xl",
+                              index === 1 ? "bg-amber-500/20" : "bg-white/10"
+                            )}>
+                              <Package size={24} className={index === 1 ? "text-amber-400" : "text-white/60"} />
+                            </div>
+                            <div>
+                              <div className="flex items-center gap-2">
+                                <p className="font-bold text-white text-lg">{plan.name}</p>
+                                {index === 1 && (
+                                  <span className="px-2 py-0.5 bg-amber-500 text-white text-[10px] font-bold rounded-full">
+                                    {isRTL ? 'الأكثر طلباً' : 'Popular'}
+                                  </span>
+                                )}
+                              </div>
+                              <p className="text-sm text-white/40">
+                                {plan.duration_value} {plan.duration_unit === 'day' ? (isRTL ? 'يوم' : 'days') : plan.duration_unit === 'month' ? (isRTL ? 'شهر' : 'months') : (isRTL ? 'سنة' : 'years')}
+                              </p>
+                            </div>
+                          </div>
+                          <div className="text-left">
+                            <p className="text-2xl font-black text-white">{plan.price}</p>
+                            <p className="text-xs text-white/40">{isRTL ? 'ر.س' : 'SAR'}</p>
+                          </div>
+                        </div>
+                        
+                        {plan.description && (
+                          <p className="text-sm text-white/50 mb-4">{plan.description}</p>
+                        )}
+                        
+                        <motion.button
+                          whileHover={{ scale: 1.02 }}
+                          whileTap={{ scale: 0.98 }}
+                          onClick={() => setShowPaymentModal({ plan, type: 'upgrade' })}
+                          className={cn(
+                            "w-full py-3 rounded-xl font-bold text-sm transition-all",
+                            index === 1
+                              ? "bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-lg shadow-amber-500/30"
+                              : "bg-white/10 text-white/70 hover:bg-white/20 hover:text-white"
+                          )}
+                        >
+                          {isRTL ? 'اختيار هذه الباقة' : 'Choose This Plan'}
+                        </motion.button>
+                      </motion.div>
+                    ))}
+                  </div>
+                </div>
+              </motion.div>
+            </div>
+          )}
+        </AnimatePresence>
+
+        {/* Payment Modal */}
+        <AnimatePresence>
+          {showPaymentModal && (
+            <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
+              <motion.div 
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                onClick={() => { setShowPaymentModal(null); setReceiptImage(null); }}
+                className="absolute inset-0 bg-black/70 backdrop-blur-md"
+              />
+              <motion.div 
+                initial={{ scale: 0.9, opacity: 0, y: 20 }}
+                animate={{ scale: 1, opacity: 1, y: 0 }}
+                exit={{ scale: 0.9, opacity: 0, y: 20 }}
+                className="relative w-full max-w-lg bg-gradient-to-b from-slate-900 to-slate-950 rounded-3xl shadow-2xl overflow-hidden border border-emerald-500/20 max-h-[90vh] overflow-y-auto"
+              >
+                <button 
+                  onClick={() => { setShowPaymentModal(null); setReceiptImage(null); }}
+                  className="absolute top-4 left-4 p-2 text-white/30 hover:text-white hover:bg-white/10 rounded-xl transition-all z-10"
+                >
+                  <X size={20} />
+                </button>
+                
+                <div className="p-6 bg-gradient-to-r from-emerald-500/20 to-teal-500/20 border-b border-emerald-500/20">
+                  <div className="flex items-center gap-4">
+                    <div className="p-4 rounded-2xl bg-gradient-to-br from-emerald-500/30 to-teal-500/30">
+                      <Landmark size={32} className="text-emerald-400" />
+                    </div>
+                    <div>
+                      <h3 className="font-bold text-white text-xl">{isRTL ? 'إتمام الدفع' : 'Complete Payment'}</h3>
+                      <p className="text-sm text-emerald-400">
+                        {showPaymentModal.type === 'renewal' ? (isRTL ? 'تجديد الباقة' : 'Plan Renewal') : 
+                         showPaymentModal.type === 'upgrade' ? (isRTL ? 'ترقية الباقة' : 'Plan Upgrade') : 
+                         (isRTL ? 'اشتراك جديد' : 'New Subscription')}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <form onSubmit={handleSubmitPayment} className="p-6 space-y-5">
+                  <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/20">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <Package size={20} className="text-amber-400" />
+                        <span className="font-bold text-white">{showPaymentModal.plan.name}</span>
+                      </div>
+                      <span className="text-lg font-black text-amber-400">{showPaymentModal.plan.price} {isRTL ? 'ر.س' : 'SAR'}</span>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-bold text-white/70 mb-3">{isRTL ? 'اختر الحساب البنكي للتحويل' : 'Select Bank Account'}</label>
+                    <div className="space-y-2">
+                      {bankAccounts.map((bank) => (
+                        <label key={bank.id} className="flex items-center gap-4 p-4 rounded-xl bg-white/5 border border-white/10 hover:border-white/20 cursor-pointer transition-all">
+                          <input type="radio" name="bank_account_id" value={bank.id} required className="w-4 h-4 accent-emerald-500" />
+                          <div className="flex-1">
+                            <p className="font-bold text-white text-sm">{bank.bank_name}</p>
+                            <p className="text-xs text-white/40">{bank.account_holder}</p>
+                            <p className="text-xs text-emerald-400 font-mono mt-1">{bank.iban}</p>
+                          </div>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-bold text-white/70 mb-3">{isRTL ? 'إرفاق إيصال الدفع' : 'Upload Receipt'}</label>
+                    <div className={cn(
+                      "relative p-6 rounded-2xl border-2 border-dashed transition-all text-center",
+                      receiptImage ? "border-emerald-500/50 bg-emerald-500/10" : "border-white/20 bg-white/5 hover:border-white/30"
+                    )}>
+                      <input 
+                        type="file" 
+                        accept="image/*" 
+                        onChange={handleImageUpload}
+                        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                        required
+                      />
+                      {receiptImage ? (
+                        <div className="space-y-3">
+                          <img src={receiptImage} alt="Receipt" className="max-h-32 mx-auto rounded-lg" />
+                          <p className="text-sm text-emerald-400 font-bold">{isRTL ? 'تم رفع الإيصال بنجاح' : 'Receipt uploaded'}</p>
+                        </div>
+                      ) : (
+                        <div className="space-y-3">
+                          <Upload size={32} className="mx-auto text-white/30" />
+                          <p className="text-sm text-white/50">{isRTL ? 'اضغط لرفع صورة الإيصال' : 'Click to upload receipt'}</p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-bold text-white/70 mb-2">{isRTL ? 'ملاحظات (اختياري)' : 'Notes (Optional)'}</label>
+                    <textarea 
+                      name="notes"
+                      rows={2}
+                      className="w-full p-3 rounded-xl bg-white/5 border border-white/10 text-white text-sm placeholder:text-white/30 focus:border-emerald-500/50 focus:ring-0 outline-none resize-none"
+                      placeholder={isRTL ? 'أي ملاحظات إضافية...' : 'Any additional notes...'}
+                    />
+                  </div>
+
+                  <div className="p-4 rounded-xl bg-blue-500/10 border border-blue-500/20">
+                    <div className="flex items-start gap-3">
+                      <AlertCircle size={18} className="text-blue-400 mt-0.5" />
+                      <p className="text-xs text-blue-400/80">
+                        {isRTL 
+                          ? 'سيتم مراجعة طلبك وتفعيل الاشتراك خلال 24 ساعة من التحقق من الدفع'
+                          : 'Your request will be reviewed and activated within 24 hours of payment verification'}
+                      </p>
+                    </div>
+                  </div>
+
+                  <motion.button
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    type="submit"
+                    disabled={isSubmitting}
+                    className="w-full py-4 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 rounded-xl text-white font-bold shadow-lg shadow-emerald-500/30 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                  >
+                    {isSubmitting ? (
+                      <>
+                        <RefreshCw size={20} className="animate-spin" />
+                        {isRTL ? 'جاري الإرسال...' : 'Submitting...'}
+                      </>
+                    ) : (
+                      <>
+                        <CheckCircle2 size={20} />
+                        {isRTL ? 'إرسال طلب الدفع' : 'Submit Payment Request'}
+                      </>
+                    )}
+                  </motion.button>
+                </form>
               </motion.div>
             </div>
           )}
