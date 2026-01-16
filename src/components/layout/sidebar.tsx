@@ -75,15 +75,10 @@ const navItems: NavItem[] = [
   { titleKey: "taxInvoices", href: "/sales-invoices", icon: FileText, permission: "sales_module", gradient: "from-blue-500 to-sky-500" },
   { titleKey: "creditNotes", href: "/credit-notes", icon: CreditCard, permission: "credit_notes_module", gradient: "from-red-500 to-rose-500" },
   { titleKey: "fleetManagement", href: "/fleet", icon: Car, permission: "sales_module", gradient: "from-yellow-500 to-amber-500" },
-  
-  { titleKey: "ecommerce", href: "/ecommerce-orders", icon: Store, permission: "ecommerce_orders_module", gradient: "from-pink-500 to-rose-500" },
-  { titleKey: "todayOrders", href: "/ecommerce-orders/today", icon: Calendar, permission: "daily_orders_module", gradient: "from-fuchsia-500 to-pink-500" },
-  { titleKey: "storeManagement", href: "/ecommerce-stores", icon: Store, permission: "ecommerce_stores_module", gradient: "from-rose-500 to-red-500" },
-  
-  { titleKey: "personalShipments", href: "/personal-shipments", icon: Truck, permission: "personal_shipments_module", gradient: "from-sky-500 to-cyan-500" },
-  { titleKey: "shipmentManagement", href: "/manage-shipments", icon: Package, permission: "manage_shipments_module", gradient: "from-indigo-500 to-blue-500" },
-  
-  { titleKey: "monthlyCommissions", href: "/monthly-commissions", icon: HandCoins, permission: "monthly_commissions_module", gradient: "from-amber-500 to-orange-500" },
+    
+    { titleKey: "ecommerce", href: "/ecommerce", icon: Store, permission: "ecommerce_orders_module", gradient: "from-emerald-500 to-teal-500" },
+    
+    { titleKey: "monthlyCommissions", href: "/monthly-commissions", icon: HandCoins, permission: "monthly_commissions_module", gradient: "from-amber-500 to-orange-500" },
   { titleKey: "commissionsReport", href: "/commissions-summary", icon: FileSpreadsheet, permission: "commissions_summary_module", gradient: "from-lime-500 to-green-500" },
   
   { titleKey: "expensesCenter", href: "/expenses", icon: BarChart3, permission: "expenses_module", gradient: "from-red-500 to-orange-500" },
