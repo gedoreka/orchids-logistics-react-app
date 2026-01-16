@@ -616,33 +616,41 @@ export default function LettersClient() {
                       {/* Visual Margin Preview (Shadow) */}
                       <div className="flex justify-center py-4">
                         <div className="relative bg-white border border-slate-400 w-[210px] h-[297px] overflow-hidden shadow-inner scale-75">
-                          {companyInfo?.letterhead_path && (
-                            companyInfo.letterhead_path.toLowerCase().endsWith('.pdf') ? (
-                              <div className="absolute inset-0 flex items-center justify-center bg-slate-100 text-slate-400 text-[10px] text-center p-2">
-                                معاينة PDF متوفرة في العرض فقط
+                            {companyInfo?.letterhead_path && (
+                              companyInfo.letterhead_path.toLowerCase().endsWith('.pdf') ? (
+                                <div className="absolute inset-0 flex flex-col items-center justify-center bg-slate-50 text-slate-400 p-4 border border-slate-200">
+                                  <FileText className="w-12 h-12 text-red-500 mb-2 opacity-50" />
+                                  <span className="text-[10px] font-bold text-slate-500">تم رفع ملف PDF بنجاح</span>
+                                  <span className="text-[8px] text-slate-400">سيظهر في المعاينة والطباعة</span>
+                                </div>
+                              ) : (
+                                <img 
+                                  src={companyInfo.letterhead_path} 
+                                  className="absolute inset-0 w-full h-full object-fill opacity-40" 
+                                  alt="" 
+                                />
+                              )
+                            )}
+                            {/* Top Margin Shadow */}
+                            <div 
+                              className="absolute top-0 left-0 right-0 bg-blue-500/30 border-b-2 border-blue-500/50 flex items-end justify-center text-[10px] font-bold text-blue-700 pb-2 transition-all duration-300"
+                              style={{ height: `${margins.top * (297/1122)}px` }} // Scale factor A4 height px at 96dpi is ~1122
+                            >
+                              <div className="bg-white/80 px-1 rounded shadow-sm flex items-center gap-1">
+                                <MoveVertical className="w-2 h-2" />
+                                {margins.top}px
                               </div>
-                            ) : (
-                              <img 
-                                src={companyInfo.letterhead_path} 
-                                className="absolute inset-0 w-full h-full object-fill opacity-30" 
-                                alt="" 
-                              />
-                            )
-                          )}
-                          {/* Top Margin Shadow */}
-                          <div 
-                            className="absolute top-0 left-0 right-0 bg-blue-500/20 border-b border-blue-500/50 flex items-end justify-center text-[8px] text-blue-600 pb-1"
-                            style={{ height: `${margins.top * (297/1122)}px` }} // Scale factor A4 height px at 96dpi is ~1122
-                          >
-                            منطقة الترويسة
-                          </div>
-                          {/* Bottom Margin Shadow */}
-                          <div 
-                            className="absolute bottom-0 left-0 right-0 bg-blue-500/20 border-t border-blue-500/50 flex items-start justify-center text-[8px] text-blue-600 pt-1"
-                            style={{ height: `${margins.bottom * (297/1122)}px` }}
-                          >
-                            منطقة التذييل
-                          </div>
+                            </div>
+                            {/* Bottom Margin Shadow */}
+                            <div 
+                              className="absolute bottom-0 left-0 right-0 bg-blue-500/30 border-t-2 border-blue-500/50 flex items-start justify-center text-[10px] font-bold text-blue-700 pt-2 transition-all duration-300"
+                              style={{ height: `${margins.bottom * (297/1122)}px` }}
+                            >
+                              <div className="bg-white/80 px-1 rounded shadow-sm flex items-center gap-1">
+                                <MoveVertical className="w-2 h-2" />
+                                {margins.bottom}px
+                              </div>
+                            </div>
                           {/* Content Area */}
                           <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
                             <div className="border border-dashed border-slate-300 w-[80%] h-[60%] flex items-center justify-center text-[8px] text-slate-400">
