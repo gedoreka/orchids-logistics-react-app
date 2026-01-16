@@ -28,9 +28,7 @@ export async function POST(request: NextRequest) {
       price,
       duration_value,
       duration_unit,
-      trial_days,
       is_active,
-      features,
       services,
       include_all_services,
       sort_order
@@ -38,8 +36,8 @@ export async function POST(request: NextRequest) {
 
     const result = await execute(`
       INSERT INTO subscription_plans 
-      (name, name_en, description, price, duration_value, duration_unit, trial_days, is_active, features, services, include_all_services, sort_order)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      (name, name_en, description, price, duration_value, duration_unit, free_trial_days, is_active, includes_all_services, sort_order)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `, [
       name,
       name_en || null,
@@ -47,17 +45,27 @@ export async function POST(request: NextRequest) {
       price || 0,
       duration_value || 1,
       duration_unit || 'months',
-      trial_days || 0,
+      0,
       is_active !== undefined ? is_active : 1,
-      features ? JSON.stringify(features) : null,
-      services ? JSON.stringify(services) : null,
       include_all_services !== undefined ? include_all_services : 1,
       sort_order || 0
     ]);
 
+    const planId = result.insertId;
+
+    if (services && services.length > 0 && !include_all_services) {
+      for (const serviceKey of services) {
+        await execute(`
+          INSERT INTO plan_permissions (plan_id, permission_key)
+          VALUES (?, ?)
+          ON DUPLICATE KEY UPDATE permission_key = permission_key
+        `, [planId, serviceKey]);
+      }
+    }
+
     return NextResponse.json({ 
       success: true, 
-      id: result.insertId,
+      id: planId,
       message: "تم إنشاء الباقة بنجاح" 
     });
   } catch (error: any) {

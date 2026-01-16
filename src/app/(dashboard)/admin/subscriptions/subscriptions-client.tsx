@@ -129,13 +129,12 @@ interface Plan {
   name: string;
   name_en?: string;
   description?: string;
-  description_en?: string;
   price: number;
   duration_value: number;
   duration_unit: string;
-  trial_days: number;
+  free_trial_days: number;
   is_active: number;
-  include_all_services: number;
+  includes_all_services: number;
   sort_order: number;
   services?: string;
 }
@@ -278,7 +277,7 @@ export default function SubscriptionsClient({ initialPlans, initialBankAccounts,
     if (plan) {
       setEditingPlan(plan);
       let services: string[] = [];
-      if (plan.include_all_services) {
+      if (plan.includes_all_services) {
         services = allFeatures.map(f => f.key);
       } else if (plan.services) {
         try {
@@ -512,7 +511,7 @@ export default function SubscriptionsClient({ initialPlans, initialBankAccounts,
   const categories = Array.from(new Set(generalFeatures.map(f => f.category)));
 
   const getPlanServicesCount = (plan: Plan) => {
-    if (plan.include_all_services) return allFeatures.length;
+    if (plan.includes_all_services) return allFeatures.length;
     if (!plan.services) return 0;
     try {
       return JSON.parse(plan.services).length;
@@ -682,16 +681,16 @@ export default function SubscriptionsClient({ initialPlans, initialBankAccounts,
                             </div>
                           </div>
                           <div className="mt-4 pt-4 border-t border-slate-200 dark:border-slate-700 flex items-center justify-between">
-                            <span className={cn(
-                              "px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-2",
-                              plan.include_all_services 
-                                ? "bg-gradient-to-r from-amber-100 to-orange-100 text-amber-700 dark:from-amber-900/30 dark:to-orange-900/30 dark:text-amber-400"
-                                : "bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-400"
-                            )}>
-                              <CheckCircle2 size={14} />
-                              {plan.include_all_services ? 'تشمل كل الخدمات' : `${getPlanServicesCount(plan)} خدمة محددة`}
-                            </span>
-                          </div>
+                              <span className={cn(
+                                "px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-2",
+                                plan.includes_all_services 
+                                  ? "bg-gradient-to-r from-amber-100 to-orange-100 text-amber-700 dark:from-amber-900/30 dark:to-orange-900/30 dark:text-amber-400"
+                                  : "bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-400"
+                              )}>
+                                <CheckCircle2 size={14} />
+                                {plan.includes_all_services ? 'تشمل كل الخدمات' : `${getPlanServicesCount(plan)} خدمة محددة`}
+                              </span>
+                            </div>
                           {plan.description && (
                           <p className="mt-3 text-sm text-slate-600 dark:text-slate-400 bg-white dark:bg-slate-900 p-3 rounded-xl">
                             {plan.description}

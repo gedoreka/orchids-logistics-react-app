@@ -13,7 +13,13 @@ export async function GET(
       return NextResponse.json({ success: false, error: "الباقة غير موجودة" }, { status: 404 });
     }
 
-    return NextResponse.json({ success: true, plan: plans[0] });
+    const permissions = await query(`SELECT permission_key FROM plan_permissions WHERE plan_id = ?`, [id]);
+    const plan = {
+      ...plans[0],
+      services: JSON.stringify(permissions.map((p: any) => p.permission_key))
+    };
+
+    return NextResponse.json({ success: true, plan });
   } catch (error: any) {
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });
   }
@@ -33,9 +39,7 @@ export async function PUT(
       price,
       duration_value,
       duration_unit,
-      trial_days,
       is_active,
-      features,
       services,
       include_all_services,
       sort_order
@@ -49,11 +53,8 @@ export async function PUT(
         price = ?,
         duration_value = ?,
         duration_unit = ?,
-        trial_days = ?,
         is_active = ?,
-        features = ?,
-        services = ?,
-        include_all_services = ?,
+        includes_all_services = ?,
         sort_order = ?
       WHERE id = ?
     `, [
@@ -63,14 +64,22 @@ export async function PUT(
       price || 0,
       duration_value || 1,
       duration_unit || 'months',
-      trial_days || 0,
       is_active !== undefined ? is_active : 1,
-      features ? JSON.stringify(features) : null,
-      services ? JSON.stringify(services) : null,
       include_all_services !== undefined ? include_all_services : 1,
       sort_order || 0,
       id
     ]);
+
+    await execute(`DELETE FROM plan_permissions WHERE plan_id = ?`, [id]);
+
+    if (services && services.length > 0) {
+      for (const serviceKey of services) {
+        await execute(`
+          INSERT INTO plan_permissions (plan_id, permission_key)
+          VALUES (?, ?)
+        `, [id, serviceKey]);
+      }
+    }
 
     return NextResponse.json({ success: true, message: "تم تحديث الباقة بنجاح" });
   } catch (error: any) {
