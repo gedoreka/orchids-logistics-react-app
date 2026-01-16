@@ -27,7 +27,9 @@ import {
   Building2,
   Clock,
   CheckCircle2,
-  Activity
+  Activity,
+  Mail,
+  FileSignature
 } from "lucide-react";
 import Link from "next/link";
 import { format } from "date-fns";
@@ -223,9 +225,9 @@ export function HRDashboardClient({ stats, activePackages, recentEmployees, comp
           </motion.div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-2 space-y-6">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div className="lg:col-span-2 space-y-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               <motion.div variants={itemVariants}>
                 <Link href="/hr/packages">
                   <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm hover:shadow-xl hover:border-blue-200 transition-all h-full flex flex-col relative overflow-hidden group">
@@ -301,6 +303,26 @@ export function HRDashboardClient({ stats, activePackages, recentEmployees, comp
                     <p className="text-xs font-bold text-gray-500 line-clamp-2 leading-relaxed">{t('tasksManagementDesc')}</p>
                     <div className={`absolute top-0 ${isRTL ? 'left-0' : 'right-0'} p-6 opacity-0 group-hover:opacity-100 transition-opacity`}>
                       <ChevronRight className={`text-orange-300 ${isRTL ? 'rotate-180' : ''}`} />
+                    </div>
+                  </div>
+                </Link>
+              </motion.div>
+
+              <motion.div variants={itemVariants}>
+                <Link href="/letters">
+                  <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm hover:shadow-xl hover:border-indigo-200 transition-all h-full flex flex-col relative overflow-hidden group">
+                    <div className="h-14 w-14 rounded-2xl bg-gradient-to-br from-indigo-500 to-blue-600 flex items-center justify-center text-white mb-4 shadow-lg shadow-indigo-500/20 group-hover:scale-110 transition-transform">
+                      <FileSignature size={28} />
+                    </div>
+                    <div className="flex items-center gap-2 mb-2">
+                      <h3 className="text-lg font-black text-gray-900">{isRTL ? 'الخطابات الجاهزة' : 'Letter Templates'}</h3>
+                      <span className="px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-600 text-[8px] font-black uppercase">
+                        {isRTL ? 'احترافي' : 'Professional'}
+                      </span>
+                    </div>
+                    <p className="text-xs font-bold text-gray-500 line-clamp-2 leading-relaxed">{isRTL ? 'إنشاء وطباعة خطابات رسمية جاهزة للموظفين مثل شهادات الراتب وخطابات العمل' : 'Create and print official letters for employees such as salary certificates and work letters'}</p>
+                    <div className={`absolute top-0 ${isRTL ? 'left-0' : 'right-0'} p-6 opacity-0 group-hover:opacity-100 transition-opacity`}>
+                      <ChevronRight className={`text-indigo-300 ${isRTL ? 'rotate-180' : ''}`} />
                     </div>
                   </div>
                 </Link>
