@@ -486,25 +486,24 @@ export function UserProfileClient({ user, company, bankAccounts: initialBankAcco
             )}
 
             {activeTab === "files" && (
-              <div className="space-y-12">
+              <div className="space-y-8">
                 <CardSection title="هوية المنشأة" icon={<ImageIcon className="w-5 h-5" />} gradient="from-amber-500 to-orange-600">
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                    <FileUploader 
+                  <div className="grid grid-cols-3 md:grid-cols-3 gap-4">
+                    <SmallFileUploader 
                       label="شعار المنشأة" 
                       field="logo_path" 
                       value={companyState?.logo_path} 
                       onUpload={handleFileUpload} 
                       isUploading={uploadingField === "logo_path"}
-                      description="يفضل أن يكون بخلفية شفافة PNG"
                     />
-                    <FileUploader 
+                    <SmallFileUploader 
                       label="ختم الشركة" 
                       field="stamp_path" 
                       value={companyState?.stamp_path} 
                       onUpload={handleFileUpload} 
                       isUploading={uploadingField === "stamp_path"}
                     />
-                    <FileUploader 
+                    <SmallFileUploader 
                       label="توقيع المدير" 
                       field="digital_seal_path" 
                       value={companyState?.digital_seal_path} 
@@ -515,41 +514,36 @@ export function UserProfileClient({ user, company, bankAccounts: initialBankAcco
                 </CardSection>
 
                 <CardSection title="الوثائق الرسمية" icon={<FileCheck className="w-5 h-5" />} gradient="from-rose-500 to-red-600">
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                    <FileUploader 
+                  <div className="grid grid-cols-3 md:grid-cols-5 gap-4">
+                    <SmallFileUploader 
                       label="السجل التجاري" 
                       field="commercial_register_image" 
                       value={companyState?.commercial_register_image} 
                       onUpload={handleFileUpload} 
                       isUploading={uploadingField === "commercial_register_image"}
                     />
-                    <FileUploader 
+                    <SmallFileUploader 
                       label="شهادة الضريبة" 
                       field="vat_certificate_image" 
                       value={companyState?.vat_certificate_image} 
                       onUpload={handleFileUpload} 
                       isUploading={uploadingField === "vat_certificate_image"}
                     />
-                    <FileUploader 
+                    <SmallFileUploader 
                       label="بطاقة الآيبان" 
                       field="bank_account_image" 
                       value={companyState?.bank_account_image} 
                       onUpload={handleFileUpload} 
                       isUploading={uploadingField === "bank_account_image"}
                     />
-                  </div>
-                </CardSection>
-
-                <CardSection title="وثائق إضافية" icon={<IdCard className="w-5 h-5" />} gradient="from-indigo-500 to-violet-600">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    <FileUploader 
+                    <SmallFileUploader 
                       label="العنوان الوطني" 
                       field="national_address_image" 
                       value={companyState?.national_address_image} 
                       onUpload={handleFileUpload} 
                       isUploading={uploadingField === "national_address_image"}
                     />
-                    <FileUploader 
+                    <SmallFileUploader 
                       label="هوية المالك" 
                       field="owner_id_image" 
                       value={companyState?.owner_id_image} 
@@ -689,52 +683,39 @@ function InfoTile({ label, value, icon, color, description }: any) {
   );
 }
 
-function FileUploader({ label, field, value, onUpload, isUploading, description }: any) {
+function SmallFileUploader({ label, field, value, onUpload, isUploading }: any) {
   const inputRef = useRef<HTMLInputElement>(null);
   
   return (
     <div className="flex flex-col items-center">
       <div 
         className={cn(
-          "w-full aspect-square rounded-[3rem] border-2 border-dashed flex flex-col items-center justify-center relative overflow-hidden transition-all duration-500 group/upload",
+          "w-full h-28 rounded-2xl border-2 border-dashed flex flex-col items-center justify-center relative overflow-hidden transition-all duration-300 group/upload cursor-pointer",
           value ? "border-emerald-500/30 bg-white" : "border-white/10 hover:border-blue-500/30 bg-white"
         )}
+        onClick={() => inputRef.current?.click()}
       >
         {isUploading ? (
-          <div className="flex flex-col items-center gap-3">
-            <Loader2 className="w-10 h-10 text-blue-600 animate-spin" />
-            <span className="text-xs font-black text-blue-600 animate-pulse">جاري الرفع...</span>
+          <div className="flex flex-col items-center gap-2">
+            <Loader2 className="w-6 h-6 text-blue-600 animate-spin" />
+            <span className="text-[10px] font-bold text-blue-600">جاري الرفع...</span>
           </div>
         ) : value ? (
-          <div className="w-full h-full p-6 flex flex-col items-center justify-center gap-4 relative bg-white">
-            <img src={value} alt={label} className="max-w-full max-h-[140px] object-contain drop-shadow-lg" />
-            <div className="absolute inset-0 bg-slate-900/90 backdrop-blur opacity-0 group-hover/upload:opacity-100 transition-opacity flex flex-col items-center justify-center gap-3">
-              <button 
-                onClick={() => inputRef.current?.click()}
-                className="bg-gradient-to-r from-blue-600 to-cyan-600 text-white px-6 py-2 rounded-full text-xs font-black flex items-center gap-2 hover:scale-110 transition-transform shadow-lg"
-              >
-                <Edit size={14} /> استبدال
-              </button>
-              <a href={value} target="_blank" className="text-slate-300 text-[10px] font-bold hover:text-white transition-colors">عرض الملف الحالي</a>
+          <div className="w-full h-full p-2 flex items-center justify-center relative bg-white">
+            <img src={value} alt={label} className="max-w-full max-h-full object-contain" />
+            <div className="absolute inset-0 bg-slate-900/80 opacity-0 group-hover/upload:opacity-100 transition-opacity flex items-center justify-center">
+              <span className="text-white text-[10px] font-bold">استبدال</span>
             </div>
           </div>
         ) : (
-          <button 
-            onClick={() => inputRef.current?.click()}
-            className="flex flex-col items-center gap-4"
-          >
-            <div className="w-16 h-16 bg-gradient-to-br from-slate-100 to-slate-200 rounded-3xl shadow-xl flex items-center justify-center text-slate-400 group-hover/upload:text-blue-600 group-hover/upload:scale-110 transition-all border border-slate-200">
-              <Upload size={32} />
-            </div>
-            <div className="text-center">
-              <span className="text-sm font-black text-slate-600 block mb-1">اضغط للرفع</span>
-              <span className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">{label}</span>
-            </div>
-          </button>
+          <div className="flex flex-col items-center gap-2">
+            <Upload size={20} className="text-slate-400 group-hover/upload:text-blue-600 transition-colors" />
+            <span className="text-[10px] text-slate-500 font-bold text-center px-2">{label}</span>
+          </div>
         )}
         <input ref={inputRef} type="file" className="hidden" accept="image/*,.pdf" onChange={(e) => onUpload(e, field)} />
       </div>
-      {description && <p className="text-[10px] text-slate-500 mt-3 font-bold">{description}</p>}
+      {value && <p className="text-[9px] text-slate-400 mt-1 font-bold truncate w-full text-center">{label}</p>}
     </div>
   );
 }
