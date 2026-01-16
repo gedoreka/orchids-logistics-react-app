@@ -138,6 +138,7 @@ export default function LettersClient() {
   const [showSettings, setShowSettings] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [margins, setMargins] = useState({ top: 100, bottom: 100 });
+  const [hasUnsavedMargins, setHasUnsavedMargins] = useState(false);
 
   const [showForm, setShowForm] = useState(false);
   const [selectedTemplate, setSelectedTemplate] = useState<LetterTemplate | null>(null);
@@ -225,10 +226,11 @@ export default function LettersClient() {
         body: JSON.stringify(updates),
       });
       const data = await res.json();
-      if (data.success) {
-        setCompanyInfo(prev => prev ? { ...prev, ...updates } : null);
-        return true;
-      }
+        if (data.success) {
+          setCompanyInfo(prev => ({ ...(prev || {}), ...updates } as CompanyInfo));
+          return true;
+        }
+
     } catch (error) {
       console.error("Update settings error:", error);
       toast.error("حدث خطأ أثناء تحديث الإعدادات");
@@ -572,27 +574,113 @@ export default function LettersClient() {
                       </div>
                     </div>
 
-                  <div className="space-y-4">
-                    <div className="bg-slate-700/50 p-4 rounded-xl border border-slate-600">
-                      <div className="flex justify-between items-center mb-4">
-                        <label className="text-white font-bold flex items-center gap-2"><MoveVertical className="w-5 h-5 text-blue-400" /> الهامش العلوي (Header)</label>
-                        <span className="bg-blue-500 text-white px-2 py-1 rounded text-sm">{margins.top}px</span>
+                      <div className="space-y-4">
+                        <div className="bg-slate-700/50 p-4 rounded-xl border border-slate-600">
+                          <div className="flex justify-between items-center mb-4">
+                            <label className="text-white font-bold flex items-center gap-2"><MoveVertical className="w-5 h-5 text-blue-400" /> الهامش العلوي (Header)</label>
+                            <span className="bg-blue-500 text-white px-2 py-1 rounded text-sm">{margins.top}px</span>
+                          </div>
+                          <input 
+                            type="range" 
+                            min="0" 
+                            max="500" 
+                            step="5" 
+                            value={margins.top} 
+                            onChange={(e) => {
+                              setMargins({ ...margins, top: parseInt(e.target.value) });
+                              setHasUnsavedMargins(true);
+                            }}
+                            className="w-full h-2 bg-slate-600 rounded-lg appearance-none cursor-pointer accent-blue-500" 
+                          />
+                        </div>
+                        <div className="bg-slate-700/50 p-4 rounded-xl border border-slate-600">
+                          <div className="flex justify-between items-center mb-4">
+                            <label className="text-white font-bold flex items-center gap-2"><MoveVertical className="w-5 h-5 text-blue-400" /> الهامش السفلي (Footer)</label>
+                            <span className="bg-blue-500 text-white px-2 py-1 rounded text-sm">{margins.bottom}px</span>
+                          </div>
+                          <input 
+                            type="range" 
+                            min="0" 
+                            max="500" 
+                            step="5" 
+                            value={margins.bottom} 
+                            onChange={(e) => {
+                              setMargins({ ...margins, bottom: parseInt(e.target.value) });
+                              setHasUnsavedMargins(true);
+                            }}
+                            className="w-full h-2 bg-slate-600 rounded-lg appearance-none cursor-pointer accent-blue-500" 
+                          />
+                        </div>
                       </div>
-                      <input type="range" min="0" max="300" step="5" value={margins.top} onChange={(e) => setMargins({ ...margins, top: parseInt(e.target.value) })} onMouseUp={() => updateCompanySettings({ letterhead_top_margin: margins.top })} className="w-full h-2 bg-slate-600 rounded-lg appearance-none cursor-pointer accent-blue-500" />
-                    </div>
-                    <div className="bg-slate-700/50 p-4 rounded-xl border border-slate-600">
-                      <div className="flex justify-between items-center mb-4">
-                        <label className="text-white font-bold flex items-center gap-2"><MoveVertical className="w-5 h-5 text-blue-400" /> الهامش السفلي (Footer)</label>
-                        <span className="bg-blue-500 text-white px-2 py-1 rounded text-sm">{margins.bottom}px</span>
+
+                      {/* Visual Margin Preview (Shadow) */}
+                      <div className="flex justify-center py-4">
+                        <div className="relative bg-white border border-slate-400 w-[210px] h-[297px] overflow-hidden shadow-inner scale-75">
+                          {companyInfo?.letterhead_path && (
+                            companyInfo.letterhead_path.toLowerCase().endsWith('.pdf') ? (
+                              <div className="absolute inset-0 flex items-center justify-center bg-slate-100 text-slate-400 text-[10px] text-center p-2">
+                                معاينة PDF متوفرة في العرض فقط
+                              </div>
+                            ) : (
+                              <img 
+                                src={companyInfo.letterhead_path} 
+                                className="absolute inset-0 w-full h-full object-fill opacity-30" 
+                                alt="" 
+                              />
+                            )
+                          )}
+                          {/* Top Margin Shadow */}
+                          <div 
+                            className="absolute top-0 left-0 right-0 bg-blue-500/20 border-b border-blue-500/50 flex items-end justify-center text-[8px] text-blue-600 pb-1"
+                            style={{ height: `${margins.top * (297/1122)}px` }} // Scale factor A4 height px at 96dpi is ~1122
+                          >
+                            منطقة الترويسة
+                          </div>
+                          {/* Bottom Margin Shadow */}
+                          <div 
+                            className="absolute bottom-0 left-0 right-0 bg-blue-500/20 border-t border-blue-500/50 flex items-start justify-center text-[8px] text-blue-600 pt-1"
+                            style={{ height: `${margins.bottom * (297/1122)}px` }}
+                          >
+                            منطقة التذييل
+                          </div>
+                          {/* Content Area */}
+                          <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                            <div className="border border-dashed border-slate-300 w-[80%] h-[60%] flex items-center justify-center text-[8px] text-slate-400">
+                              منطقة النص
+                            </div>
+                          </div>
+                        </div>
                       </div>
-                      <input type="range" min="0" max="300" step="5" value={margins.bottom} onChange={(e) => setMargins({ ...margins, bottom: parseInt(e.target.value) })} onMouseUp={() => updateCompanySettings({ letterhead_bottom_margin: margins.bottom })} className="w-full h-2 bg-slate-600 rounded-lg appearance-none cursor-pointer accent-blue-500" />
+
+                      <div className="flex gap-3">
+                        <button
+                          onClick={async () => {
+                            const success = await updateCompanySettings({
+                              letterhead_top_margin: margins.top,
+                              letterhead_bottom_margin: margins.bottom
+                            });
+                            if (success) {
+                              setHasUnsavedMargins(false);
+                              toast.success("تم حفظ إعدادات الهوامش");
+                            }
+                          }}
+                          disabled={!hasUnsavedMargins}
+                          className={`flex-1 py-3 rounded-xl font-bold flex items-center justify-center gap-2 transition-all ${
+                            hasUnsavedMargins 
+                              ? "bg-blue-500 hover:bg-blue-600 text-white" 
+                              : "bg-slate-700 text-slate-500 cursor-not-allowed"
+                          }`}
+                        >
+                          <Check className="w-5 h-5" />
+                          حفظ الضبط
+                        </button>
+                      </div>
                     </div>
-                  </div>
-                </div>
-              </motion.div>
-            </motion.div>
-          )}
-        </AnimatePresence>
+                  </motion.div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
 
         {/* Create/Edit Form Modal */}
         <AnimatePresence>
