@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
-import { query, execute } from "@/lib/db";
+import { query } from "@/lib/db";
+import { supabase } from "@/lib/supabase-client";
 import bcrypt from "bcryptjs";
 import { sendWelcomeSubUserEmail } from "@/lib/mail";
 
@@ -22,7 +23,7 @@ async function getSession(): Promise<SessionData | null> {
   }
 }
 
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
     const session = await getSession();
     if (!session) {
@@ -33,25 +34,36 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "غير مصرح للمستخدمين الفرعيين" }, { status: 403 });
     }
 
-    const subUsers = await query(`
-      SELECT 
-        su.id, su.name, su.email, su.profile_image, su.status, 
-        su.created_at, su.last_login_at, su.max_sessions,
-        (SELECT COUNT(*) FROM sub_user_sessions WHERE sub_user_id = su.id AND is_active = true) as active_sessions
-      FROM company_sub_users su
-      WHERE su.company_id = ? AND su.status != 'deleted'
-      ORDER BY su.created_at DESC
-    `, [session.company_id]);
+    const { data: subUsers, error } = await supabase
+      .from("company_sub_users")
+      .select("id, name, email, profile_image, status, created_at, last_login_at, max_sessions")
+      .eq("company_id", session.company_id)
+      .neq("status", "deleted")
+      .order("created_at", { ascending: false });
 
-    for (const user of subUsers as Array<{ id: number; permissions?: string[] }>) {
-      const perms = await query<{ permission_key: string }>(
-        "SELECT permission_key FROM sub_user_permissions WHERE sub_user_id = ?",
-        [user.id]
-      );
-      user.permissions = perms.map(p => p.permission_key);
+    if (error) {
+      console.error("Supabase error:", error);
+      return NextResponse.json({ error: "خطأ في جلب المستخدمين" }, { status: 500 });
     }
 
-    return NextResponse.json({ subUsers });
+    for (const user of subUsers || []) {
+      const { data: perms } = await supabase
+        .from("sub_user_permissions")
+        .select("permission_key")
+        .eq("sub_user_id", user.id);
+      
+      (user as { permissions?: string[] }).permissions = (perms || []).map((p: { permission_key: string }) => p.permission_key);
+
+      const { count } = await supabase
+        .from("sub_user_sessions")
+        .select("*", { count: "exact", head: true })
+        .eq("sub_user_id", user.id)
+        .eq("is_active", true);
+      
+      (user as { active_sessions?: number }).active_sessions = count || 0;
+    }
+
+    return NextResponse.json({ subUsers: subUsers || [] });
   } catch (error) {
     console.error("Error fetching sub-users:", error);
     return NextResponse.json({ error: "خطأ في جلب المستخدمين" }, { status: 500 });
@@ -84,32 +96,48 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "البريد الإلكتروني مستخدم مسبقًا" }, { status: 400 });
     }
 
-    const existingSubUsers = await query(
-      "SELECT id FROM company_sub_users WHERE email = ?",
-      [email.toLowerCase()]
-    );
-    if ((existingSubUsers as Array<{ id: number }>).length > 0) {
+    const { data: existingSubUsers } = await supabase
+      .from("company_sub_users")
+      .select("id")
+      .eq("email", email.toLowerCase());
+    
+    if (existingSubUsers && existingSubUsers.length > 0) {
       return NextResponse.json({ error: "البريد الإلكتروني مستخدم مسبقًا" }, { status: 400 });
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    const result = await execute(
-      `INSERT INTO company_sub_users 
-        (company_id, name, email, password, profile_image, status, created_by, created_at) 
-       VALUES (?, ?, ?, ?, ?, 'active', ?, NOW())`,
-      [session.company_id, name, email.toLowerCase(), hashedPassword, profile_image || null, session.user_id]
-    );
+    const { data: newUser, error: insertError } = await supabase
+      .from("company_sub_users")
+      .insert({
+        company_id: session.company_id,
+        name,
+        email: email.toLowerCase(),
+        password: hashedPassword,
+        profile_image: profile_image || null,
+        status: "active",
+        created_by: session.user_id,
+        created_at: new Date().toISOString(),
+      })
+      .select("id")
+      .single();
 
-    const subUserId = result.insertId;
+    if (insertError) {
+      console.error("Insert error:", insertError);
+      return NextResponse.json({ error: "خطأ في إنشاء المستخدم" }, { status: 500 });
+    }
+
+    const subUserId = newUser.id;
 
     if (permissions && permissions.length > 0) {
-      for (const perm of permissions) {
-        await execute(
-          "INSERT INTO sub_user_permissions (sub_user_id, permission_key, granted_by, granted_at) VALUES (?, ?, ?, NOW())",
-          [subUserId, perm, session.user_id]
-        );
-      }
+      const permissionsToInsert = permissions.map((perm: string) => ({
+        sub_user_id: subUserId,
+        permission_key: perm,
+        granted_by: session.user_id,
+        granted_at: new Date().toISOString(),
+      }));
+
+      await supabase.from("sub_user_permissions").insert(permissionsToInsert);
     }
 
     sendWelcomeSubUserEmail(email, name, password).catch(console.error);

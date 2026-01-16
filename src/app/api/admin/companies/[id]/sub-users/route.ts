@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
-import { query, execute } from "@/lib/db";
+import { supabase } from "@/lib/supabase-client";
 
 async function isAdmin(): Promise<boolean> {
   const cookieStore = await cookies();
@@ -25,17 +25,28 @@ export async function GET(
 
     const { id } = await params;
 
-    const subUsers = await query(`
-      SELECT 
-        su.id, su.name, su.email, su.profile_image, su.status, 
-        su.created_at, su.last_login_at, su.max_sessions,
-        (SELECT COUNT(*) FROM sub_user_sessions WHERE sub_user_id = su.id AND is_active = true) as active_sessions
-      FROM company_sub_users su
-      WHERE su.company_id = ?
-      ORDER BY su.created_at DESC
-    `, [id]);
+    const { data: subUsers, error } = await supabase
+      .from("company_sub_users")
+      .select("id, name, email, profile_image, status, created_at, last_login_at, max_sessions")
+      .eq("company_id", id)
+      .order("created_at", { ascending: false });
 
-    return NextResponse.json({ subUsers });
+    if (error) {
+      console.error("Supabase error:", error);
+      return NextResponse.json({ error: "خطأ في جلب المستخدمين" }, { status: 500 });
+    }
+
+    for (const user of subUsers || []) {
+      const { count } = await supabase
+        .from("sub_user_sessions")
+        .select("*", { count: "exact", head: true })
+        .eq("sub_user_id", user.id)
+        .eq("is_active", true);
+      
+      (user as { active_sessions?: number }).active_sessions = count || 0;
+    }
+
+    return NextResponse.json({ subUsers: subUsers || [] });
   } catch (error) {
     console.error("Error fetching company sub-users:", error);
     return NextResponse.json({ error: "خطأ في جلب المستخدمين" }, { status: 500 });
@@ -58,16 +69,16 @@ export async function PUT(
       return NextResponse.json({ error: "البيانات مطلوبة" }, { status: 400 });
     }
 
-    await execute(
-      "UPDATE company_sub_users SET status = ?, updated_at = NOW() WHERE id = ?",
-      [status, sub_user_id]
-    );
+    await supabase
+      .from("company_sub_users")
+      .update({ status, updated_at: new Date().toISOString() })
+      .eq("id", sub_user_id);
 
     if (status === "suspended") {
-      await execute(
-        "UPDATE sub_user_sessions SET is_active = false WHERE sub_user_id = ?",
-        [sub_user_id]
-      );
+      await supabase
+        .from("sub_user_sessions")
+        .update({ is_active: false })
+        .eq("sub_user_id", sub_user_id);
     }
 
     return NextResponse.json({ success: true, message: "تم تحديث حالة المستخدم" });

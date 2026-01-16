@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
-import { query, execute } from "@/lib/db";
+import { supabase } from "@/lib/supabase-client";
+import { query } from "@/lib/db";
 import bcrypt from "bcryptjs";
 
 interface SessionData {
@@ -33,46 +34,43 @@ export async function GET(
 
     const { id } = await params;
 
-    const subUsers = await query(`
-      SELECT 
-        su.id, su.name, su.email, su.profile_image, su.status, 
-        su.created_at, su.last_login_at, su.max_sessions
-      FROM company_sub_users su
-      WHERE su.id = ? AND su.company_id = ?
-    `, [id, session.company_id]);
+    const { data: subUsers, error } = await supabase
+      .from("company_sub_users")
+      .select("id, name, email, profile_image, status, created_at, last_login_at, max_sessions")
+      .eq("id", id)
+      .eq("company_id", session.company_id);
 
-    if ((subUsers as Array<Record<string, unknown>>).length === 0) {
+    if (error || !subUsers || subUsers.length === 0) {
       return NextResponse.json({ error: "المستخدم غير موجود" }, { status: 404 });
     }
 
-    const subUser = (subUsers as Array<Record<string, unknown>>)[0];
+    const subUser = subUsers[0];
 
-    const perms = await query<{ permission_key: string }>(
-      "SELECT permission_key FROM sub_user_permissions WHERE sub_user_id = ?",
-      [id]
-    );
-    (subUser as { permissions?: string[] }).permissions = perms.map(p => p.permission_key);
+    const { data: perms } = await supabase
+      .from("sub_user_permissions")
+      .select("permission_key")
+      .eq("sub_user_id", id);
+    
+    (subUser as { permissions?: string[] }).permissions = (perms || []).map((p: { permission_key: string }) => p.permission_key);
 
-    const sessions = await query(`
-      SELECT id, session_id, ip_address, user_agent, login_at, last_activity, is_active
-      FROM sub_user_sessions
-      WHERE sub_user_id = ?
-      ORDER BY login_at DESC
-      LIMIT 20
-    `, [id]);
+    const { data: sessions } = await supabase
+      .from("sub_user_sessions")
+      .select("id, session_id, ip_address, user_agent, login_at, last_activity, is_active")
+      .eq("sub_user_id", id)
+      .order("login_at", { ascending: false })
+      .limit(20);
 
-    const activityLogs = await query(`
-      SELECT id, action_type, action_description, ip_address, created_at
-      FROM sub_user_activity_logs
-      WHERE sub_user_id = ?
-      ORDER BY created_at DESC
-      LIMIT 50
-    `, [id]);
+    const { data: activityLogs } = await supabase
+      .from("sub_user_activity_logs")
+      .select("id, action_type, action_description, ip_address, created_at")
+      .eq("sub_user_id", id)
+      .order("created_at", { ascending: false })
+      .limit(50);
 
     return NextResponse.json({ 
       subUser,
-      sessions,
-      activityLogs
+      sessions: sessions || [],
+      activityLogs: activityLogs || []
     });
   } catch (error) {
     console.error("Error fetching sub-user:", error);
@@ -98,12 +96,13 @@ export async function PUT(
     const body = await request.json();
     const { name, email, password, permissions, status, profile_image } = body;
 
-    const existing = await query(
-      "SELECT id FROM company_sub_users WHERE id = ? AND company_id = ?",
-      [id, session.company_id]
-    );
+    const { data: existing } = await supabase
+      .from("company_sub_users")
+      .select("id")
+      .eq("id", id)
+      .eq("company_id", session.company_id);
 
-    if ((existing as Array<{ id: number }>).length === 0) {
+    if (!existing || existing.length === 0) {
       return NextResponse.json({ error: "المستخدم غير موجود" }, { status: 404 });
     }
 
@@ -116,55 +115,48 @@ export async function PUT(
         return NextResponse.json({ error: "البريد الإلكتروني مستخدم" }, { status: 400 });
       }
 
-      const subEmailCheck = await query(
-        "SELECT id FROM company_sub_users WHERE email = ? AND id != ?",
-        [email.toLowerCase(), id]
-      );
-      if ((subEmailCheck as Array<{ id: number }>).length > 0) {
+      const { data: subEmailCheck } = await supabase
+        .from("company_sub_users")
+        .select("id")
+        .eq("email", email.toLowerCase())
+        .neq("id", id);
+      
+      if (subEmailCheck && subEmailCheck.length > 0) {
         return NextResponse.json({ error: "البريد الإلكتروني مستخدم" }, { status: 400 });
       }
     }
 
-    let updateQuery = "UPDATE company_sub_users SET updated_at = NOW()";
-    const updateParams: (string | number | null)[] = [];
+    const updateData: Record<string, string | null> = {
+      updated_at: new Date().toISOString()
+    };
 
-    if (name) {
-      updateQuery += ", name = ?";
-      updateParams.push(name);
-    }
-    if (email) {
-      updateQuery += ", email = ?";
-      updateParams.push(email.toLowerCase());
-    }
-    if (password) {
-      const hashedPassword = await bcrypt.hash(password, 10);
-      updateQuery += ", password = ?";
-      updateParams.push(hashedPassword);
-    }
-    if (status) {
-      updateQuery += ", status = ?";
-      updateParams.push(status);
-    }
-    if (profile_image !== undefined) {
-      updateQuery += ", profile_image = ?";
-      updateParams.push(profile_image);
-    }
+    if (name) updateData.name = name;
+    if (email) updateData.email = email.toLowerCase();
+    if (password) updateData.password = await bcrypt.hash(password, 10);
+    if (status) updateData.status = status;
+    if (profile_image !== undefined) updateData.profile_image = profile_image;
 
-    updateQuery += " WHERE id = ? AND company_id = ?";
-    updateParams.push(id, session.company_id);
-
-    await execute(updateQuery, updateParams);
+    await supabase
+      .from("company_sub_users")
+      .update(updateData)
+      .eq("id", id)
+      .eq("company_id", session.company_id);
 
     if (permissions !== undefined) {
-      await execute("DELETE FROM sub_user_permissions WHERE sub_user_id = ?", [id]);
+      await supabase
+        .from("sub_user_permissions")
+        .delete()
+        .eq("sub_user_id", id);
       
       if (permissions.length > 0) {
-        for (const perm of permissions) {
-          await execute(
-            "INSERT INTO sub_user_permissions (sub_user_id, permission_key, granted_by, granted_at) VALUES (?, ?, ?, NOW())",
-            [id, perm, session.user_id]
-          );
-        }
+        const permissionsToInsert = permissions.map((perm: string) => ({
+          sub_user_id: parseInt(id),
+          permission_key: perm,
+          granted_by: session.user_id,
+          granted_at: new Date().toISOString(),
+        }));
+
+        await supabase.from("sub_user_permissions").insert(permissionsToInsert);
       }
     }
 
@@ -191,15 +183,16 @@ export async function DELETE(
 
     const { id } = await params;
 
-    await execute(
-      "UPDATE company_sub_users SET status = 'deleted', updated_at = NOW() WHERE id = ? AND company_id = ?",
-      [id, session.company_id]
-    );
+    await supabase
+      .from("company_sub_users")
+      .update({ status: "deleted", updated_at: new Date().toISOString() })
+      .eq("id", id)
+      .eq("company_id", session.company_id);
 
-    await execute(
-      "UPDATE sub_user_sessions SET is_active = false WHERE sub_user_id = ?",
-      [id]
-    );
+    await supabase
+      .from("sub_user_sessions")
+      .update({ is_active: false })
+      .eq("sub_user_id", id);
 
     return NextResponse.json({ success: true, message: "تم حذف المستخدم بنجاح" });
   } catch (error) {

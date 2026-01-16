@@ -118,21 +118,22 @@ export async function loginAction(formData: FormData): Promise<AuthResponse> {
   const remember = formData.get("remember") === "on";
 
   try {
-    // 1. First check if it's a sub-user
-    const subUsers = await query<SubUser & { password?: string }>(
-      "SELECT * FROM company_sub_users WHERE email = ? AND status = 'active'",
-      [email]
-    );
+    // 1. First check if it's a sub-user in Supabase
+    const { data: subUsers, error: subUserError } = await supabase
+      .from("company_sub_users")
+      .select("*")
+      .eq("email", email)
+      .eq("status", "active");
 
-    if (subUsers.length > 0) {
-      const subUser = subUsers[0];
+    if (!subUserError && subUsers && subUsers.length > 0) {
+      const subUser = subUsers[0] as SubUser & { password?: string };
       
       const isPasswordValid = await bcrypt.compare(password, subUser.password || "");
       if (!isPasswordValid) {
         return { success: false, error: "كلمة المرور غير صحيحة." };
       }
 
-      // Check company status
+      // Check company status from MySQL
       const companies = await query<Company>(
         "SELECT name, status, is_active FROM companies WHERE id = ?",
         [subUser.company_id]
@@ -152,35 +153,41 @@ export async function loginAction(formData: FormData): Promise<AuthResponse> {
         return { success: false, error: "الشركة موقوفة. يرجى التواصل مع الإدارة." };
       }
 
-      // Load sub-user permissions
-      const permissionsRows = await query<{ permission_key: string }>(
-        "SELECT permission_key FROM sub_user_permissions WHERE sub_user_id = ?",
-        [subUser.id]
-      );
+      // Load sub-user permissions from Supabase
+      const { data: permissionsRows } = await supabase
+        .from("sub_user_permissions")
+        .select("permission_key")
+        .eq("sub_user_id", subUser.id);
 
       const permissions: Record<string, number> = {};
-      permissionsRows.forEach((p) => {
+      (permissionsRows || []).forEach((p: { permission_key: string }) => {
         permissions[p.permission_key] = 1;
       });
 
-      // Create session for sub-user
+      // Create session for sub-user in Supabase
       const sessionId = uuidv4();
-      await execute(
-        "INSERT INTO sub_user_sessions (session_id, sub_user_id, ip_address, login_at, last_activity) VALUES (?, ?, ?, NOW(), NOW())",
-        [sessionId, subUser.id, ""]
-      );
+      await supabase.from("sub_user_sessions").insert({
+        session_id: sessionId,
+        sub_user_id: subUser.id,
+        ip_address: "",
+        login_at: new Date().toISOString(),
+        last_activity: new Date().toISOString(),
+      });
 
-      // Update last login
-      await execute(
-        "UPDATE company_sub_users SET last_login_at = NOW() WHERE id = ?",
-        [subUser.id]
-      );
+      // Update last login in Supabase
+      await supabase
+        .from("company_sub_users")
+        .update({ last_login_at: new Date().toISOString() })
+        .eq("id", subUser.id);
 
-      // Log activity
-      await execute(
-        "INSERT INTO sub_user_activity_logs (sub_user_id, company_id, action_type, action_description, created_at) VALUES (?, ?, ?, ?, NOW())",
-        [subUser.id, subUser.company_id, "login", "تسجيل دخول"]
-      );
+      // Log activity in Supabase
+      await supabase.from("sub_user_activity_logs").insert({
+        sub_user_id: subUser.id,
+        company_id: subUser.company_id,
+        action_type: "login",
+        action_description: "تسجيل دخول",
+        created_at: new Date().toISOString(),
+      });
 
       const cookieStore = await cookies();
       const sessionData = {
@@ -223,7 +230,7 @@ export async function loginAction(formData: FormData): Promise<AuthResponse> {
       };
     }
 
-    // 2. If not a sub-user, check main users table
+    // 2. If not a sub-user, check main users table in MySQL
     const users = await query<User & { password?: string }>(
       "SELECT * FROM users WHERE email = ?",
       [email]
@@ -341,10 +348,14 @@ export async function forgotPasswordAction(formData: FormData): Promise<AuthResp
   const email = (formData.get("email") as string || "").trim().toLowerCase();
 
   try {
-    // First check sub-users
-    const subUsers = await query<SubUser>("SELECT id, name FROM company_sub_users WHERE email = ? AND status = 'active'", [email]);
+    // First check sub-users in Supabase
+    const { data: subUsers } = await supabase
+      .from("company_sub_users")
+      .select("id, name")
+      .eq("email", email)
+      .eq("status", "active");
     
-    if (subUsers.length > 0) {
+    if (subUsers && subUsers.length > 0) {
       const subUser = subUsers[0];
       const token = Math.floor(100000 + Math.random() * 900000).toString();
 
@@ -364,7 +375,7 @@ export async function forgotPasswordAction(formData: FormData): Promise<AuthResp
       return { success: true };
     }
 
-    // Then check main users
+    // Then check main users in MySQL
     const users = await query<User>("SELECT id, name FROM users WHERE email = ?", [email]);
 
     if (users.length === 0) {
@@ -445,7 +456,10 @@ export async function resetPasswordAction(formData: FormData): Promise<AuthRespo
     const hashed = await bcrypt.hash(password, 10);
     
     if (userType === "sub_user") {
-      await query("UPDATE company_sub_users SET password = ?, updated_at = NOW() WHERE email = ?", [hashed, email]);
+      await supabase
+        .from("company_sub_users")
+        .update({ password: hashed, updated_at: new Date().toISOString() })
+        .eq("email", email);
     } else {
       await query("UPDATE users SET password = ? WHERE email = ?", [hashed, email]);
     }
