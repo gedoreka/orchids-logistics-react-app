@@ -2,30 +2,32 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import { 
-  Menu,
-  ArrowRight, 
-  ArrowLeft,
-  Home, 
-  Calendar, 
-  MapPin, 
-  Truck, 
-  MessageSquare, 
-  UserCircle,
-  X,
-  ExternalLink,
-  Copy,
-  QrCode,
-  Check,
-  Info,
-  Bell,
-  Search,
-  ChevronDown,
-  Settings,
-  LogOut,
-  User,
-  Moon,
-  Command
-} from "lucide-react";
+    Menu,
+    ArrowRight, 
+    ArrowLeft,
+    Home, 
+    Calendar, 
+    MapPin, 
+    Truck, 
+    MessageSquare, 
+    UserCircle,
+    X,
+    ExternalLink,
+    Copy,
+    QrCode,
+    Check,
+    Info,
+    Bell,
+    Search,
+    ChevronDown,
+    Settings,
+    LogOut,
+    User,
+    Moon,
+    Command,
+    Crown,
+    AlertCircle
+  } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { usePathname, useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
@@ -33,7 +35,7 @@ import { useLocale, useTranslations } from '@/lib/locale-context';
 import { LanguageSwitcher } from "./language-switcher";
 import { ThemeToggle } from "@/components/theme-toggle";
 
-export function Header({ user, onToggleSidebar, unreadChatCount = 0 }: { user?: { name: string; role: string; email: string }, onToggleSidebar?: () => void, unreadChatCount?: number }) {
+export function Header({ user, onToggleSidebar, unreadChatCount = 0, subscriptionData }: { user?: { name: string; role: string; email: string }, onToggleSidebar?: () => void, unreadChatCount?: number, subscriptionData?: { isActive: boolean; endDate: string | null; daysRemaining: number } }) {
   const t = useTranslations('header');
   const tCommon = useTranslations('common');
   const { locale, isRTL } = useLocale();
@@ -253,8 +255,31 @@ export function Header({ user, onToggleSidebar, unreadChatCount = 0 }: { user?: 
               </div>
 
 <div className="flex items-center gap-2">
-                    <ThemeToggle />
-                    <LanguageSwitcher />
+                      <ThemeToggle />
+                      <LanguageSwitcher />
+
+                  {user?.role !== 'admin' && subscriptionData && (
+                    <motion.button
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      onClick={() => router.push("/subscriptions")}
+                      className={cn(
+                        "hidden sm:flex items-center gap-2 px-4 py-2.5 rounded-xl transition-all shadow-lg border",
+                        subscriptionData.isActive && subscriptionData.daysRemaining > 7
+                          ? "bg-gradient-to-r from-emerald-500 to-green-500 border-emerald-400/20 shadow-emerald-500/20"
+                          : subscriptionData.isActive && subscriptionData.daysRemaining > 0
+                          ? "bg-gradient-to-r from-amber-500 to-orange-500 border-amber-400/20 shadow-amber-500/20"
+                          : "bg-gradient-to-r from-red-500 to-rose-500 border-red-400/20 shadow-red-500/20 animate-pulse"
+                      )}
+                    >
+                      <Crown size={16} className="text-white" />
+                      <span className="text-[11px] font-bold text-white">
+                        {subscriptionData.isActive 
+                          ? `${subscriptionData.daysRemaining} يوم`
+                          : 'اشترك الآن'}
+                      </span>
+                    </motion.button>
+                  )}
 
                   <div ref={notificationRef} className="relative">
                     <motion.button

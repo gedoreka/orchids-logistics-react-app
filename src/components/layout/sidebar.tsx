@@ -62,6 +62,7 @@ const navItems: NavItem[] = [
   { titleKey: "searchToken", href: "/admin/search-token", icon: Search, adminOnly: true, gradient: "from-sky-500 to-blue-500" },
   { titleKey: "technicalSupport", href: "/admin/chat", icon: MessageSquare, adminOnly: true, gradient: "from-indigo-500 to-violet-500" },
   { titleKey: "adminNotifications", href: "/admin/notifications", icon: Bell, adminOnly: true, gradient: "from-rose-500 to-pink-500" },
+  { titleKey: "subscriptionPlans", href: "/admin/subscriptions", icon: Package, adminOnly: true, gradient: "from-violet-500 to-purple-500" },
   { titleKey: "specialSalaries", href: "/admin/special-salaries", icon: Coins, adminOnly: true, dividerAfter: true, gradient: "from-yellow-500 to-orange-500" },
   
   { titleKey: "hrManagement", href: "/hr", icon: Users, permission: "employees_module", gradient: "from-blue-500 to-indigo-500" },
@@ -96,6 +97,7 @@ const navItems: NavItem[] = [
   { titleKey: "balanceSheet", href: "/balance-sheet", icon: FileText, permission: "balance_sheet_module", gradient: "from-blue-500 to-cyan-500" },
   { titleKey: "taxSettings", href: "/tax-settings", icon: Calculator, permission: "balance_sheet_module", gradient: "from-rose-500 to-pink-500" },
   { titleKey: "systemSettings", href: "/settings", icon: Settings, gradient: "from-slate-400 to-gray-500" },
+  { titleKey: "mySubscription", href: "/subscriptions", icon: Package, gradient: "from-violet-500 to-purple-500" },
 ];
 
 interface SidebarProps {

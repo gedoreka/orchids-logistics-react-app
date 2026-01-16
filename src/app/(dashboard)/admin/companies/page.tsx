@@ -32,12 +32,21 @@ export default async function AdminCompaniesPage({
 
   const companies = await query<Company>(sql, params);
 
+  let plans: any[] = [];
+  try {
+    plans = await query(`SELECT id, name, price, duration_value, duration_unit FROM subscription_plans WHERE is_active = 1 ORDER BY sort_order ASC`);
+    plans = plans.map((p: any) => ({ ...p, price: parseFloat(p.price) || 0 }));
+  } catch (e) {
+    console.log('Plans table may not exist yet');
+  }
+
   return (
     <div className="p-6 md:p-10 bg-slate-50 min-h-screen">
       <CompaniesClient 
         initialCompanies={companies} 
         statusFilter={statusFilter}
         search={search}
+        plans={plans}
       />
     </div>
   );

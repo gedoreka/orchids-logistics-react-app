@@ -146,6 +146,7 @@
     "searchToken": "بحث عن رمز اشتراك",
     "technicalSupport": "دعم العملاء",
     "adminNotifications": "إشعارات الإدارة",
+    "subscriptionPlans": "باقات الاشتراك",
     "specialSalaries": "نظام الرواتب الخاصة",
     "hrManagement": "إدارة الموارد البشرية",
     "customersList": "قائمة العملاء",
@@ -173,6 +174,7 @@
     "balanceSheet": "الميزانية العمومية",
     "taxSettings": "إعدادات الضريبة",
     "systemSettings": "إعدادات النظام",
+    "mySubscription": "اشتراكي",
     "logout": "تسجيل الخروج"
   },
   "footer": {

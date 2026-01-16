@@ -146,6 +146,7 @@
     "searchToken": "Search Subscription Token",
     "technicalSupport": "Technical Support",
     "adminNotifications": "Admin Notifications",
+    "subscriptionPlans": "Subscription Plans",
     "specialSalaries": "Special Salaries System",
     "hrManagement": "HR Management",
     "customersList": "Customers List",
@@ -173,6 +174,7 @@
     "balanceSheet": "Balance Sheet",
     "taxSettings": "Tax Settings",
     "systemSettings": "System Settings",
+    "mySubscription": "My Subscription",
     "logout": "Logout"
   },
   "footer": {

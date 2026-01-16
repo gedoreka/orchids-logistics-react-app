@@ -35,20 +35,32 @@ import { approveCompany, rejectCompany, toggleCompanyStatus, generateToken, dele
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
+import { Package, Crown } from "lucide-react";
+
+interface Plan {
+  id: number;
+  name: string;
+  price: number;
+  duration_value: number;
+  duration_unit: string;
+}
 
 interface CompaniesClientProps {
   initialCompanies: Company[];
   statusFilter: string;
   search: string;
+  plans?: Plan[];
 }
 
-export function CompaniesClient({ initialCompanies, statusFilter, search }: CompaniesClientProps) {
+export function CompaniesClient({ initialCompanies, statusFilter, search, plans = [] }: CompaniesClientProps) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const [companies, setCompanies] = useState(initialCompanies);
   const [isLoading, setIsLoading] = useState<number | null>(null);
   const [deleteConfirm, setDeleteConfirm] = useState<{ id: number; name: string } | null>(null);
+  const [assignPlanModal, setAssignPlanModal] = useState<{ companyId: number; companyName: string } | null>(null);
+  const [assigningPlan, setAssigningPlan] = useState(false);
 
   const updateQueryParams = (key: string, value: string) => {
     const params = new URLSearchParams(searchParams.toString());
@@ -97,6 +109,38 @@ export function CompaniesClient({ initialCompanies, statusFilter, search }: Comp
     } finally {
       setIsLoading(null);
     }
+  };
+
+  const handleAssignPlan = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (!assignPlanModal) return;
+    setAssigningPlan(true);
+    const formData = new FormData(e.currentTarget);
+    try {
+      const res = await fetch('/api/admin/subscriptions/assign', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          company_id: assignPlanModal.companyId,
+          plan_id: formData.get('plan_id'),
+          start_date: formData.get('start_date'),
+          end_date: formData.get('end_date'),
+          assigned_by: 1,
+          notes: formData.get('notes')
+        })
+      });
+      const result = await res.json();
+      if (result.success) {
+        toast.success('تم تعيين الباقة بنجاح');
+        setAssignPlanModal(null);
+        router.refresh();
+      } else {
+        toast.error(result.error || 'حدث خطأ');
+      }
+    } catch {
+      toast.error('حدث خطأ');
+    }
+    setAssigningPlan(false);
   };
 
   return (
@@ -443,18 +487,28 @@ export function CompaniesClient({ initialCompanies, statusFilter, search }: Comp
                     </motion.button>
 
                     {company.id !== 1 && (
+                        <motion.button
+                          whileHover={{ scale: 1.02 }}
+                          whileTap={{ scale: 0.98 }}
+                          onClick={() => setDeleteConfirm({ id: company.id, name: company.name })}
+                          disabled={isLoading === company.id}
+                          className="flex flex-col items-center justify-center gap-2 p-4 rounded-2xl bg-gradient-to-br from-red-600 to-red-800 text-white font-black shadow-lg shadow-red-500/20 hover:shadow-red-500/40 transition-all"
+                        >
+                          <Trash2 size={20} />
+                          <span className="text-[10px] uppercase tracking-wider">حذف الشركة</span>
+                        </motion.button>
+                      )}
+
                       <motion.button
                         whileHover={{ scale: 1.02 }}
                         whileTap={{ scale: 0.98 }}
-                        onClick={() => setDeleteConfirm({ id: company.id, name: company.name })}
-                        disabled={isLoading === company.id}
-                        className="flex flex-col items-center justify-center gap-2 p-4 rounded-2xl bg-gradient-to-br from-red-600 to-red-800 text-white font-black shadow-lg shadow-red-500/20 hover:shadow-red-500/40 transition-all"
+                        onClick={() => setAssignPlanModal({ companyId: company.id, companyName: company.name || '' })}
+                        className="flex flex-col items-center justify-center gap-2 p-4 rounded-2xl bg-gradient-to-br from-violet-500 to-purple-700 text-white font-black shadow-lg shadow-purple-500/20 hover:shadow-purple-500/40 transition-all"
                       >
-                        <Trash2 size={20} />
-                        <span className="text-[10px] uppercase tracking-wider">حذف الشركة</span>
+                        <Crown size={20} />
+                        <span className="text-[10px] uppercase tracking-wider">تعيين باقة</span>
                       </motion.button>
-                    )}
-                  </div>
+                    </div>
               </div>
 
               {/* Loading overlay for card */}
@@ -549,9 +603,100 @@ export function CompaniesClient({ initialCompanies, statusFilter, search }: Comp
               </motion.div>
             </motion.div>
           )}
-        </AnimatePresence>
+          </AnimatePresence>
 
-        <style jsx global>{`
+          {/* Assign Plan Modal */}
+          <AnimatePresence>
+            {assignPlanModal && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
+                onClick={() => setAssignPlanModal(null)}
+              >
+                <motion.div
+                  initial={{ scale: 0.9, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  exit={{ scale: 0.9, opacity: 0 }}
+                  onClick={(e) => e.stopPropagation()}
+                  className="bg-white rounded-3xl p-8 max-w-lg w-full shadow-2xl border border-slate-100"
+                >
+                  <div className="flex flex-col items-center text-center gap-6">
+                    <div className="w-20 h-20 rounded-full bg-purple-100 flex items-center justify-center">
+                      <Crown size={40} className="text-purple-600" />
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <h3 className="text-2xl font-black text-slate-900">تعيين باقة اشتراك</h3>
+                      <p className="text-slate-500 font-bold">
+                        لشركة <span className="text-purple-600 font-black">{assignPlanModal.companyName}</span>
+                      </p>
+                    </div>
+
+                    <form onSubmit={handleAssignPlan} className="w-full space-y-4 text-right" dir="rtl">
+                      <div>
+                        <label className="block text-sm font-bold text-slate-700 mb-2">اختر الباقة</label>
+                        <select name="plan_id" required className="w-full px-4 py-3 bg-slate-100 rounded-xl font-bold">
+                          <option value="">-- اختر الباقة --</option>
+                          {plans.map(plan => (
+                            <option key={plan.id} value={plan.id}>
+                              {plan.name} - {plan.price} ر.س / {plan.duration_value} {plan.duration_unit === 'days' ? 'يوم' : plan.duration_unit === 'months' ? 'شهر' : 'سنة'}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-sm font-bold text-slate-700 mb-2">تاريخ البداية</label>
+                          <input 
+                            type="date" 
+                            name="start_date" 
+                            required 
+                            defaultValue={new Date().toISOString().split('T')[0]}
+                            className="w-full px-4 py-3 bg-slate-100 rounded-xl font-bold" 
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-bold text-slate-700 mb-2">تاريخ النهاية</label>
+                          <input 
+                            type="date" 
+                            name="end_date" 
+                            required 
+                            defaultValue={new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]}
+                            className="w-full px-4 py-3 bg-slate-100 rounded-xl font-bold" 
+                          />
+                        </div>
+                      </div>
+                      <div>
+                        <label className="block text-sm font-bold text-slate-700 mb-2">ملاحظات (اختياري)</label>
+                        <textarea name="notes" rows={2} className="w-full px-4 py-3 bg-slate-100 rounded-xl font-bold" placeholder="أي ملاحظات إضافية..." />
+                      </div>
+                      <div className="flex gap-3 pt-4">
+                        <button
+                          type="button"
+                          onClick={() => setAssignPlanModal(null)}
+                          className="flex-1 px-6 py-4 rounded-2xl bg-slate-100 text-slate-700 font-black hover:bg-slate-200 transition-all"
+                        >
+                          إلغاء
+                        </button>
+                        <button
+                          type="submit"
+                          disabled={assigningPlan}
+                          className="flex-1 px-6 py-4 rounded-2xl bg-gradient-to-br from-purple-600 to-purple-700 text-white font-black shadow-lg shadow-purple-500/30 hover:shadow-purple-500/50 transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+                        >
+                          {assigningPlan ? <RefreshCw size={18} className="animate-spin" /> : <Crown size={18} />}
+                          تعيين الباقة
+                        </button>
+                      </div>
+                    </form>
+                  </div>
+                </motion.div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          <style jsx global>{`
         @keyframes gradient-x {
           0% { background-position: 0% 50%; }
           50% { background-position: 100% 50%; }
