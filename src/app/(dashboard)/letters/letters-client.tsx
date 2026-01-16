@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   FileText, Plus, Search, Edit2, Trash2, Printer, Download,
@@ -8,6 +8,9 @@ import {
   ClipboardList, Receipt, ChevronLeft, Eye, Settings, Upload, MoveVertical
 } from "lucide-react";
 import { toast } from "sonner";
+import * as pdfjsLib from "pdfjs-dist";
+
+pdfjsLib.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjsLib.version}/build/pdf.worker.min.mjs`;
 
 interface LetterTemplate {
   id: number;
@@ -148,6 +151,39 @@ export default function LettersClient() {
   const [showPreview, setShowPreview] = useState(false);
   const [previewLetter, setPreviewLetter] = useState<GeneratedLetter | null>(null);
   const printRef = useRef<HTMLDivElement>(null);
+  const pdfCanvasRef = useRef<HTMLCanvasElement>(null);
+  const [pdfRendered, setPdfRendered] = useState(false);
+
+  const renderPdfToCanvas = useCallback(async (pdfUrl: string, canvas: HTMLCanvasElement | null) => {
+    if (!canvas || !pdfUrl) return;
+    try {
+      const loadingTask = pdfjsLib.getDocument(pdfUrl);
+      const pdf = await loadingTask.promise;
+      const page = await pdf.getPage(1);
+      const desiredWidth = 200;
+      const unscaledViewport = page.getViewport({ scale: 1 });
+      const scale = desiredWidth / unscaledViewport.width;
+      const viewport = page.getViewport({ scale });
+      canvas.width = viewport.width;
+      canvas.height = viewport.height;
+      const context = canvas.getContext("2d");
+      if (context) {
+        await page.render({ canvasContext: context, viewport }).promise;
+        setPdfRendered(true);
+      }
+    } catch (error) {
+      console.error("Error rendering PDF:", error);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (showSettings && companyInfo?.letterhead_path?.toLowerCase().endsWith('.pdf')) {
+      setPdfRendered(false);
+      setTimeout(() => {
+        renderPdfToCanvas(companyInfo.letterhead_path!, pdfCanvasRef.current);
+      }, 100);
+    }
+  }, [showSettings, companyInfo?.letterhead_path, renderPdfToCanvas]);
 
   useEffect(() => {
     if (selectedTemplate?.template_key === "salary_receipt" || selectedTemplate?.template_key === "final_clearance") {
@@ -628,9 +664,17 @@ export default function LettersClient() {
                             >
                               {companyInfo?.letterhead_path ? (
                                 companyInfo.letterhead_path.toLowerCase().endsWith('.pdf') ? (
-                                  <div className="absolute inset-0 flex flex-col items-center justify-center bg-gradient-to-b from-slate-100 to-slate-200">
-                                    <FileText className="w-16 h-16 text-red-500 mb-2" />
-                                    <span className="text-[9px] font-bold text-slate-600">ملف PDF</span>
+                                  <div className="absolute inset-0">
+                                    <canvas 
+                                      ref={pdfCanvasRef} 
+                                      className="w-full h-full object-cover"
+                                    />
+                                    {!pdfRendered && (
+                                      <div className="absolute inset-0 flex flex-col items-center justify-center bg-gradient-to-b from-slate-100 to-slate-200">
+                                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mb-2"></div>
+                                        <span className="text-[9px] text-slate-500">جاري تحميل PDF...</span>
+                                      </div>
+                                    )}
                                   </div>
                                 ) : (
                                   <img 
