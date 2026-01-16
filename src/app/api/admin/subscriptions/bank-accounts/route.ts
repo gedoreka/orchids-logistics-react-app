@@ -17,17 +17,16 @@ export async function GET() {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { bank_name, account_holder, account_number, iban, logo_path, is_active, sort_order } = body;
+    const { bank_name, account_holder, account_number, iban, is_active, sort_order } = body;
 
     const result = await execute(`
-      INSERT INTO admin_bank_accounts (bank_name, account_holder, account_number, iban, logo_path, is_active, sort_order)
-      VALUES (?, ?, ?, ?, ?, ?, ?)
+      INSERT INTO admin_bank_accounts (bank_name, account_holder, account_number, iban, is_active, sort_order)
+      VALUES (?, ?, ?, ?, ?, ?)
     `, [
       bank_name,
       account_holder,
       account_number || null,
       iban,
-      logo_path || null,
       is_active !== undefined ? is_active : 1,
       sort_order || 0
     ]);
