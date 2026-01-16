@@ -100,10 +100,6 @@ export function Header({ user, onToggleSidebar, unreadChatCount = 0, subscriptio
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const pathname = usePathname();
   const router = useRouter();
-  const userDropdownRef = useRef<HTMLDivElement>(null);
-  const notificationRef = useRef<HTMLDivElement>(null);
-  const prayerRef = useRef<HTMLDivElement>(null);
-  const quranRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const fetchAdminNotifications = async () => {
@@ -125,25 +121,6 @@ export function Header({ user, onToggleSidebar, unreadChatCount = 0, subscriptio
     fetchAdminNotifications();
     const interval = setInterval(fetchAdminNotifications, 60000); // Check every minute
     return () => clearInterval(interval);
-  }, []);
-
-  useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
-      if (userDropdownRef.current && !userDropdownRef.current.contains(event.target as Node)) {
-        setShowUserDropdown(false);
-      }
-      if (notificationRef.current && !notificationRef.current.contains(event.target as Node)) {
-        setShowNotifications(false);
-      }
-      if (prayerRef.current && !prayerRef.current.contains(event.target as Node)) {
-        setShowPrayerModal(false);
-      }
-      if (quranRef.current && !quranRef.current.contains(event.target as Node)) {
-        setShowQuranPlayer(false);
-      }
-    }
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   useEffect(() => {
@@ -457,7 +434,6 @@ export function Header({ user, onToggleSidebar, unreadChatCount = 0, subscriptio
                       <ThemeToggle />
                       <LanguageSwitcher />
 
-                  <div ref={prayerRef} className="relative">
                     <motion.button
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
@@ -475,70 +451,6 @@ export function Header({ user, onToggleSidebar, unreadChatCount = 0, subscriptio
                       )}
                     </motion.button>
 
-                    <AnimatePresence>
-                      {showPrayerModal && prayerTimes && (
-                        <motion.div
-                          initial={{ opacity: 0, y: 10, scale: 0.95 }}
-                          animate={{ opacity: 1, y: 0, scale: 1 }}
-                          exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                          className="absolute top-full right-0 mt-2 w-72 bg-gradient-to-b from-slate-900/98 to-slate-950/98 backdrop-blur-xl rounded-2xl border border-emerald-500/20 shadow-2xl shadow-emerald-500/10 overflow-hidden z-[9999]"
-                        >
-                          <div className="p-4 bg-gradient-to-r from-emerald-500/20 to-teal-500/20 border-b border-emerald-500/20">
-                            <div className="flex items-center gap-3">
-                              <div className="p-2 rounded-xl bg-emerald-500/30">
-                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" className="text-emerald-400">
-                                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" fill="currentColor"/>
-                                </svg>
-                              </div>
-                              <div>
-                                <h3 className="font-bold text-white text-sm">{isRTL ? 'أوقات الصلاة' : 'Prayer Times'}</h3>
-                                <p className="text-[10px] text-emerald-400">{location}</p>
-                              </div>
-                            </div>
-                          </div>
-                          <div className="p-3 space-y-2">
-                            {[
-                              { name: isRTL ? "الفجر" : "Fajr", time: prayerTimes.Fajr, icon: "🌙" },
-                              { name: isRTL ? "الشروق" : "Sunrise", time: prayerTimes.Sunrise, icon: "🌅" },
-                              { name: isRTL ? "الظهر" : "Dhuhr", time: prayerTimes.Dhuhr, icon: "☀️" },
-                              { name: isRTL ? "العصر" : "Asr", time: prayerTimes.Asr, icon: "🌤️" },
-                              { name: isRTL ? "المغرب" : "Maghrib", time: prayerTimes.Maghrib, icon: "🌇" },
-                              { name: isRTL ? "العشاء" : "Isha", time: prayerTimes.Isha, icon: "🌃" },
-                            ].map((prayer, i) => (
-                              <div 
-                                key={i} 
-                                className={cn(
-                                  "flex items-center justify-between p-2.5 rounded-xl transition-all",
-                                  nextPrayer?.name === prayer.name 
-                                    ? "bg-emerald-500/20 border border-emerald-500/30" 
-                                    : "bg-white/5 hover:bg-white/10"
-                                )}
-                              >
-                                <div className="flex items-center gap-2">
-                                  <span className="text-lg">{prayer.icon}</span>
-                                  <span className="text-[11px] font-bold text-white/80">{prayer.name}</span>
-                                </div>
-                                <span className={cn(
-                                  "text-[12px] font-bold",
-                                  nextPrayer?.name === prayer.name ? "text-emerald-400" : "text-white/60"
-                                )}>{prayer.time}</span>
-                              </div>
-                            ))}
-                          </div>
-                          {nextPrayer && (
-                            <div className="p-3 border-t border-white/10 bg-emerald-500/10">
-                              <div className="flex items-center justify-between">
-                                <span className="text-[10px] text-white/50">{isRTL ? 'الصلاة القادمة' : 'Next Prayer'}</span>
-                                <span className="text-[11px] font-bold text-emerald-400">{nextPrayer.name} - {isRTL ? `بعد ${nextPrayer.remaining}` : `in ${nextPrayer.remaining}`}</span>
-                              </div>
-                            </div>
-                          )}
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
-                  </div>
-
-                  <div ref={quranRef} className="relative">
                     <motion.button
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
@@ -561,97 +473,6 @@ export function Header({ user, onToggleSidebar, unreadChatCount = 0, subscriptio
                       )}
                     </motion.button>
 
-                    <AnimatePresence>
-                      {showQuranPlayer && (
-                        <motion.div
-                          initial={{ opacity: 0, y: 10, scale: 0.95 }}
-                          animate={{ opacity: 1, y: 0, scale: 1 }}
-                          exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                          className="absolute top-full right-0 mt-2 w-80 bg-gradient-to-b from-slate-900/98 to-slate-950/98 backdrop-blur-xl rounded-2xl border border-amber-500/20 shadow-2xl shadow-amber-500/10 overflow-hidden z-[9999]"
-                        >
-                          <div className="p-4 bg-gradient-to-r from-amber-500/20 to-orange-500/20 border-b border-amber-500/20">
-                            <div className="flex items-center gap-3">
-                              <div className="p-2 rounded-xl bg-amber-500/30">
-                                <BookOpen size={20} className="text-amber-400" />
-                              </div>
-                              <div>
-                                <h3 className="font-bold text-white text-sm">{isRTL ? 'القرآن الكريم' : 'Holy Quran'}</h3>
-                                <p className="text-[10px] text-amber-400">{isRTL ? 'مشاري العفاسي' : 'Mishary Alafasy'}</p>
-                              </div>
-                            </div>
-                          </div>
-                          
-                          <div className="p-4">
-                            <div className="text-center mb-4">
-                              <p className="text-lg font-bold text-white">{SURAHS[currentSurahIndex].name}</p>
-                              <p className="text-[11px] text-white/50">{SURAHS[currentSurahIndex].englishName}</p>
-                            </div>
-                            
-                            <div className="flex items-center justify-center gap-3 mb-4">
-                              <motion.button
-                                whileHover={{ scale: 1.1 }}
-                                whileTap={{ scale: 0.9 }}
-                                onClick={prevSurah}
-                                className="p-2.5 bg-white/10 hover:bg-white/20 rounded-xl transition-all"
-                              >
-                                <SkipBack size={18} className="text-white/70" />
-                              </motion.button>
-                              
-                              <motion.button
-                                whileHover={{ scale: 1.05 }}
-                                whileTap={{ scale: 0.95 }}
-                                onClick={togglePlay}
-                                className="p-4 bg-gradient-to-r from-amber-500 to-orange-500 rounded-full shadow-lg shadow-amber-500/30"
-                              >
-                                {isPlaying ? <Pause size={24} className="text-white" /> : <Play size={24} className="text-white" />}
-                              </motion.button>
-                              
-                              <motion.button
-                                whileHover={{ scale: 1.1 }}
-                                whileTap={{ scale: 0.9 }}
-                                onClick={nextSurah}
-                                className="p-2.5 bg-white/10 hover:bg-white/20 rounded-xl transition-all"
-                              >
-                                <SkipForward size={18} className="text-white/70" />
-                              </motion.button>
-                            </div>
-                            
-                            <motion.button
-                              whileHover={{ scale: 1.02 }}
-                              whileTap={{ scale: 0.98 }}
-                              onClick={stopAudio}
-                              className="w-full flex items-center justify-center gap-2 py-2 bg-white/5 hover:bg-white/10 rounded-xl transition-all text-white/50 hover:text-white/70"
-                            >
-                              <Square size={14} />
-                              <span className="text-[11px] font-bold">{isRTL ? 'إيقاف' : 'Stop'}</span>
-                            </motion.button>
-                          </div>
-                          
-                          <div className="p-3 border-t border-white/10 max-h-40 overflow-y-auto">
-                            <p className="text-[10px] text-white/40 mb-2">{isRTL ? 'السور المتاحة' : 'Available Surahs'}</p>
-                            <div className="grid grid-cols-2 gap-1">
-                              {SURAHS.map((surah, i) => (
-                                <button
-                                  key={surah.number}
-                                  onClick={() => { setCurrentSurahIndex(i); playSurah(i); }}
-                                  className={cn(
-                                    "text-right p-2 rounded-lg transition-all text-[10px]",
-                                    currentSurahIndex === i 
-                                      ? "bg-amber-500/20 text-amber-400 font-bold" 
-                                      : "bg-white/5 hover:bg-white/10 text-white/60"
-                                  )}
-                                >
-                                  {surah.name}
-                                </button>
-                              ))}
-                            </div>
-                          </div>
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
-                  </div>
-
-                    <div ref={notificationRef} className="relative">
                       <motion.button
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
@@ -667,66 +488,6 @@ export function Header({ user, onToggleSidebar, unreadChatCount = 0, subscriptio
                           />
                         )}
                       </motion.button>
-
-                      <AnimatePresence>
-                        {showNotifications && (
-                          <motion.div
-                            initial={{ opacity: 0, y: 10, scale: 0.95 }}
-                            animate={{ opacity: 1, y: 0, scale: 1 }}
-                            exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                            className="absolute top-full right-0 mt-2 w-80 bg-slate-900/95 backdrop-blur-xl rounded-2xl border border-white/10 shadow-2xl shadow-black/50 overflow-hidden z-[9999]"
-                          >
-                            <div className="p-4 border-b border-white/10">
-                                <h3 className="font-bold text-white text-sm">{isRTL ? 'تنبيهات النظام' : 'System Alerts'}</h3>
-                                <p className="text-[10px] text-white/40">{isRTL ? `لديك ${unreadAdminCount} تنبيهات جديدة` : `You have ${unreadAdminCount} new alerts`}</p>
-                              </div>
-                            <div className="max-h-64 overflow-y-auto">
-                              {adminNotifications.length > 0 ? adminNotifications.map((notif) => (
-                                <motion.div
-                                  key={notif.id}
-                                  whileHover={{ backgroundColor: "rgba(255,255,255,0.05)" }}
-                                  className="p-4 border-b border-white/5 cursor-pointer"
-                                  onClick={() => {
-                                    const currentLastSeen = parseInt(localStorage.getItem("last_admin_notification_id") || "0");
-                                    if (notif.id > currentLastSeen) {
-                                      localStorage.setItem("last_admin_notification_id", notif.id.toString());
-                                      setUnreadAdminCount(prev => Math.max(0, prev - 1));
-                                    }
-                                    setShowNotifications(false);
-                                  }}
-                                >
-                                  <div className="flex items-start gap-3">
-                                    <div className="p-2 rounded-lg bg-blue-500/20">
-                                      <Bell size={14} className="text-blue-400" />
-                                    </div>
-                                    <div className="flex-1">
-                                      <p className="text-[12px] font-bold text-white/90">{notif.title}</p>
-                                      <p className="text-[10px] text-white/40">{new Date(notif.created_at).toLocaleDateString('ar-SA')}</p>
-                                    </div>
-                                  </div>
-                                </motion.div>
-                              )) : (
-                                <div className="p-10 text-center opacity-20">
-                                  <Bell size={40} className="mx-auto mb-2" />
-                                  <p className="text-xs font-bold">{isRTL ? 'لا توجد تنبيهات' : 'No alerts'}</p>
-                                </div>
-                              )}
-                            </div>
-                              <div className="p-3 border-t border-white/10">
-                                <button 
-                                  onClick={() => {
-                                    if (user?.role === 'admin') router.push('/admin/notifications');
-                                    setShowNotifications(false);
-                                  }}
-                                  className="w-full text-center text-[11px] font-bold text-blue-400 hover:text-blue-300 transition-colors"
-                                >
-                                  {isRTL ? 'عرض جميع التنبيهات' : 'View All Alerts'}
-                                </button>
-                              </div>
-                          </motion.div>
-                        )}
-                      </AnimatePresence>
-                    </div>
 
 
                   <motion.button
@@ -758,7 +519,6 @@ export function Header({ user, onToggleSidebar, unreadChatCount = 0, subscriptio
                     )}
                   </motion.button>
 
-                  <div ref={userDropdownRef} className="relative">
                     <motion.button
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
@@ -780,103 +540,387 @@ export function Header({ user, onToggleSidebar, unreadChatCount = 0, subscriptio
                         showUserDropdown && "rotate-180"
                       )} />
                     </motion.button>
-
-                    <AnimatePresence>
-                      {showUserDropdown && (
-                        <motion.div
-                          initial={{ opacity: 0, y: 10, scale: 0.95 }}
-                          animate={{ opacity: 1, y: 0, scale: 1 }}
-                          exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                          className="absolute top-full left-0 mt-2 w-64 bg-slate-900/95 backdrop-blur-xl rounded-2xl border border-white/10 shadow-2xl shadow-black/50 overflow-hidden z-[9999]"
-                        >
-                          <div className="p-4 border-b border-white/10">
-                            <div className="flex items-center gap-3">
-                              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
-                                <User size={20} className="text-white" />
-                              </div>
-                              <div>
-                                <p className="font-bold text-white text-sm">{user?.name}</p>
-                                <p className="text-[10px] text-white/40">{user?.email}</p>
-                              </div>
-                            </div>
-                          </div>
-                            
-                            {user?.role !== 'admin' && subscriptionData && (
-                              <div className="p-3 border-b border-white/10">
-                                <div className={cn(
-                                  "p-3 rounded-xl",
-                                  subscriptionData.isActive && subscriptionData.daysRemaining > 7
-                                    ? "bg-emerald-500/10 border border-emerald-500/20"
-                                    : subscriptionData.isActive && subscriptionData.daysRemaining > 0
-                                    ? "bg-amber-500/10 border border-amber-500/20"
-                                    : "bg-red-500/10 border border-red-500/20"
-                                )}>
-                                  <div className="flex items-center justify-between mb-2">
-                                    <span className="text-[10px] text-white/50">{isRTL ? 'حالة الاشتراك' : 'Subscription'}</span>
-                                    <Crown size={14} className={cn(
-                                      subscriptionData.isActive ? "text-amber-400" : "text-red-400"
-                                    )} />
-                                  </div>
-                                  <p className={cn(
-                                    "text-[12px] font-bold",
-                                    subscriptionData.isActive ? "text-emerald-400" : "text-red-400"
-                                  )}>
-                                    {subscriptionData.isActive 
-                                      ? `${isRTL ? 'متبقي' : 'Remaining'}: ${subscriptionData.daysRemaining} ${isRTL ? 'يوم' : 'days'}`
-                                      : isRTL ? 'غير مشترك' : 'Not Subscribed'}
-                                  </p>
-                                </div>
-                                <motion.button
-                                  whileHover={{ scale: 1.02 }}
-                                  whileTap={{ scale: 0.98 }}
-                                  onClick={() => { router.push("/subscriptions"); setShowUserDropdown(false); }}
-                                  className="w-full mt-2 flex items-center justify-center gap-2 py-2.5 bg-gradient-to-r from-amber-500 to-orange-500 rounded-xl text-white text-[11px] font-bold"
-                                >
-                                  <Crown size={14} />
-                                  {isRTL ? 'عرض الباقات' : 'View Plans'}
-                                </motion.button>
-                              </div>
-                            )}
-
-                            <div className="p-2">
-                              <motion.button
-                                whileHover={{ backgroundColor: "rgba(255,255,255,0.05)" }}
-                                onClick={() => { router.push("/user_profile"); setShowUserDropdown(false); }}
-                                className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-white/70 hover:text-white transition-colors"
-                              >
-                                <UserCircle size={16} />
-                                <span className="text-[12px] font-bold">{tCommon('profile')}</span>
-                              </motion.button>
-                              <motion.button
-                                whileHover={{ backgroundColor: "rgba(255,255,255,0.05)" }}
-                                onClick={() => { router.push("/settings"); setShowUserDropdown(false); }}
-                                className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-white/70 hover:text-white transition-colors"
-                              >
-                                <Settings size={16} />
-                                <span className="text-[12px] font-bold">{tCommon('settings')}</span>
-                              </motion.button>
-                            </div>
-                            <div className="p-2 border-t border-white/10">
-                              <motion.button
-                                whileHover={{ backgroundColor: "rgba(239, 68, 68, 0.1)" }}
-                                onClick={handleLogout}
-                                className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-rose-400 hover:text-rose-300 transition-colors"
-                              >
-                                <LogOut size={16} />
-                                <span className="text-[12px] font-bold">{tCommon('logout')}</span>
-                              </motion.button>
-                            </div>
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
+                    
+                    <audio ref={audioRef} onEnded={() => setIsPlaying(false)} />
                   </div>
-                  
-                  <audio ref={audioRef} onEnded={() => setIsPlaying(false)} />
-                </div>
+              </div>
             </div>
           </div>
-        </div>
-      </header>
+        </header>
+
+        {/* Prayer Times Modal */}
+        <AnimatePresence>
+          {showPrayerModal && prayerTimes && (
+            <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
+              <motion.div 
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                onClick={() => setShowPrayerModal(false)}
+                className="absolute inset-0 bg-black/70 backdrop-blur-md"
+              />
+              <motion.div 
+                initial={{ scale: 0.9, opacity: 0, y: 20 }}
+                animate={{ scale: 1, opacity: 1, y: 0 }}
+                exit={{ scale: 0.9, opacity: 0, y: 20 }}
+                className="relative w-full max-w-sm bg-gradient-to-b from-slate-900 to-slate-950 rounded-3xl shadow-2xl overflow-hidden border border-emerald-500/20"
+              >
+                <button 
+                  onClick={() => setShowPrayerModal(false)}
+                  className="absolute top-4 left-4 p-2 text-white/30 hover:text-white hover:bg-white/10 rounded-xl transition-all z-10"
+                >
+                  <X size={20} />
+                </button>
+                
+                <div className="p-6 bg-gradient-to-r from-emerald-500/20 to-teal-500/20 border-b border-emerald-500/20">
+                  <div className="flex items-center gap-4">
+                    <div className="p-3 rounded-2xl bg-emerald-500/30">
+                      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" className="text-emerald-400">
+                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" fill="currentColor"/>
+                      </svg>
+                    </div>
+                    <div>
+                      <h3 className="font-bold text-white text-xl">{isRTL ? 'أوقات الصلاة' : 'Prayer Times'}</h3>
+                      <p className="text-sm text-emerald-400">{location}</p>
+                    </div>
+                  </div>
+                </div>
+                <div className="p-4 space-y-3">
+                  {[
+                    { name: isRTL ? "الفجر" : "Fajr", time: prayerTimes.Fajr, icon: "🌙" },
+                    { name: isRTL ? "الشروق" : "Sunrise", time: prayerTimes.Sunrise, icon: "🌅" },
+                    { name: isRTL ? "الظهر" : "Dhuhr", time: prayerTimes.Dhuhr, icon: "☀️" },
+                    { name: isRTL ? "العصر" : "Asr", time: prayerTimes.Asr, icon: "🌤️" },
+                    { name: isRTL ? "المغرب" : "Maghrib", time: prayerTimes.Maghrib, icon: "🌇" },
+                    { name: isRTL ? "العشاء" : "Isha", time: prayerTimes.Isha, icon: "🌃" },
+                  ].map((prayer, i) => (
+                    <div 
+                      key={i} 
+                      className={cn(
+                        "flex items-center justify-between p-4 rounded-2xl transition-all",
+                        nextPrayer?.name === prayer.name 
+                          ? "bg-emerald-500/20 border-2 border-emerald-500/40 shadow-lg shadow-emerald-500/20" 
+                          : "bg-white/5 hover:bg-white/10 border border-white/10"
+                      )}
+                    >
+                      <div className="flex items-center gap-3">
+                        <span className="text-2xl">{prayer.icon}</span>
+                        <span className="text-sm font-bold text-white">{prayer.name}</span>
+                      </div>
+                      <span className={cn(
+                        "text-lg font-bold",
+                        nextPrayer?.name === prayer.name ? "text-emerald-400" : "text-white/60"
+                      )}>{prayer.time}</span>
+                    </div>
+                  ))}
+                </div>
+                {nextPrayer && (
+                  <div className="p-4 border-t border-white/10 bg-emerald-500/10">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-white/60">{isRTL ? 'الصلاة القادمة' : 'Next Prayer'}</span>
+                      <span className="text-sm font-bold text-emerald-400">{nextPrayer.name} - {isRTL ? `بعد ${nextPrayer.remaining}` : `in ${nextPrayer.remaining}`}</span>
+                    </div>
+                  </div>
+                )}
+              </motion.div>
+            </div>
+          )}
+        </AnimatePresence>
+
+        {/* Quran Player Modal */}
+        <AnimatePresence>
+          {showQuranPlayer && (
+            <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
+              <motion.div 
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                onClick={() => setShowQuranPlayer(false)}
+                className="absolute inset-0 bg-black/70 backdrop-blur-md"
+              />
+              <motion.div 
+                initial={{ scale: 0.9, opacity: 0, y: 20 }}
+                animate={{ scale: 1, opacity: 1, y: 0 }}
+                exit={{ scale: 0.9, opacity: 0, y: 20 }}
+                className="relative w-full max-w-md bg-gradient-to-b from-slate-900 to-slate-950 rounded-3xl shadow-2xl overflow-hidden border border-amber-500/20"
+              >
+                <button 
+                  onClick={() => setShowQuranPlayer(false)}
+                  className="absolute top-4 left-4 p-2 text-white/30 hover:text-white hover:bg-white/10 rounded-xl transition-all z-10"
+                >
+                  <X size={20} />
+                </button>
+                
+                <div className="p-6 bg-gradient-to-r from-amber-500/20 to-orange-500/20 border-b border-amber-500/20">
+                  <div className="flex items-center gap-4">
+                    <div className="p-3 rounded-2xl bg-amber-500/30">
+                      <BookOpen size={28} className="text-amber-400" />
+                    </div>
+                    <div>
+                      <h3 className="font-bold text-white text-xl">{isRTL ? 'القرآن الكريم' : 'Holy Quran'}</h3>
+                      <p className="text-sm text-amber-400">{isRTL ? 'مشاري العفاسي' : 'Mishary Alafasy'}</p>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="p-6">
+                  <div className="text-center mb-6">
+                    <p className="text-2xl font-bold text-white mb-1">{SURAHS[currentSurahIndex].name}</p>
+                    <p className="text-sm text-white/50">{SURAHS[currentSurahIndex].englishName}</p>
+                  </div>
+                  
+                  <div className="flex items-center justify-center gap-4 mb-6">
+                    <motion.button
+                      whileHover={{ scale: 1.1 }}
+                      whileTap={{ scale: 0.9 }}
+                      onClick={prevSurah}
+                      className="p-3 bg-white/10 hover:bg-white/20 rounded-2xl transition-all"
+                    >
+                      <SkipBack size={24} className="text-white/70" />
+                    </motion.button>
+                    
+                    <motion.button
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      onClick={togglePlay}
+                      className="p-5 bg-gradient-to-r from-amber-500 to-orange-500 rounded-full shadow-xl shadow-amber-500/40"
+                    >
+                      {isPlaying ? <Pause size={32} className="text-white" /> : <Play size={32} className="text-white" />}
+                    </motion.button>
+                    
+                    <motion.button
+                      whileHover={{ scale: 1.1 }}
+                      whileTap={{ scale: 0.9 }}
+                      onClick={nextSurah}
+                      className="p-3 bg-white/10 hover:bg-white/20 rounded-2xl transition-all"
+                    >
+                      <SkipForward size={24} className="text-white/70" />
+                    </motion.button>
+                  </div>
+                  
+                  <motion.button
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={stopAudio}
+                    className="w-full flex items-center justify-center gap-2 py-3 bg-white/5 hover:bg-white/10 rounded-2xl transition-all text-white/50 hover:text-white/70 border border-white/10"
+                  >
+                    <Square size={18} />
+                    <span className="text-sm font-bold">{isRTL ? 'إيقاف' : 'Stop'}</span>
+                  </motion.button>
+                </div>
+                
+                <div className="p-4 border-t border-white/10 max-h-48 overflow-y-auto">
+                  <p className="text-xs text-white/40 mb-3">{isRTL ? 'السور المتاحة' : 'Available Surahs'}</p>
+                  <div className="grid grid-cols-2 gap-2">
+                    {SURAHS.map((surah, i) => (
+                      <button
+                        key={surah.number}
+                        onClick={() => { setCurrentSurahIndex(i); playSurah(i); }}
+                        className={cn(
+                          "text-right p-3 rounded-xl transition-all text-sm",
+                          currentSurahIndex === i 
+                            ? "bg-amber-500/20 text-amber-400 font-bold border border-amber-500/30" 
+                            : "bg-white/5 hover:bg-white/10 text-white/60 border border-white/5"
+                        )}
+                      >
+                        {surah.name}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </motion.div>
+            </div>
+          )}
+        </AnimatePresence>
+
+        {/* Notifications Modal */}
+        <AnimatePresence>
+          {showNotifications && (
+            <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
+              <motion.div 
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                onClick={() => setShowNotifications(false)}
+                className="absolute inset-0 bg-black/70 backdrop-blur-md"
+              />
+              <motion.div 
+                initial={{ scale: 0.9, opacity: 0, y: 20 }}
+                animate={{ scale: 1, opacity: 1, y: 0 }}
+                exit={{ scale: 0.9, opacity: 0, y: 20 }}
+                className="relative w-full max-w-md bg-gradient-to-b from-slate-900 to-slate-950 rounded-3xl shadow-2xl overflow-hidden border border-white/10"
+              >
+                <button 
+                  onClick={() => setShowNotifications(false)}
+                  className="absolute top-4 left-4 p-2 text-white/30 hover:text-white hover:bg-white/10 rounded-xl transition-all z-10"
+                >
+                  <X size={20} />
+                </button>
+                
+                <div className="p-6 border-b border-white/10">
+                  <div className="flex items-center gap-4">
+                    <div className="p-3 rounded-2xl bg-blue-500/30">
+                      <Bell size={28} className="text-blue-400" />
+                    </div>
+                    <div>
+                      <h3 className="font-bold text-white text-xl">{isRTL ? 'تنبيهات النظام' : 'System Alerts'}</h3>
+                      <p className="text-sm text-white/40">{isRTL ? `لديك ${unreadAdminCount} تنبيهات جديدة` : `You have ${unreadAdminCount} new alerts`}</p>
+                    </div>
+                  </div>
+                </div>
+                <div className="max-h-80 overflow-y-auto">
+                  {adminNotifications.length > 0 ? adminNotifications.map((notif) => (
+                    <motion.div
+                      key={notif.id}
+                      whileHover={{ backgroundColor: "rgba(255,255,255,0.05)" }}
+                      className="p-4 border-b border-white/5 cursor-pointer"
+                      onClick={() => {
+                        const currentLastSeen = parseInt(localStorage.getItem("last_admin_notification_id") || "0");
+                        if (notif.id > currentLastSeen) {
+                          localStorage.setItem("last_admin_notification_id", notif.id.toString());
+                          setUnreadAdminCount(prev => Math.max(0, prev - 1));
+                        }
+                        setShowNotifications(false);
+                      }}
+                    >
+                      <div className="flex items-start gap-3">
+                        <div className="p-2 rounded-xl bg-blue-500/20">
+                          <Bell size={16} className="text-blue-400" />
+                        </div>
+                        <div className="flex-1">
+                          <p className="text-sm font-bold text-white/90">{notif.title}</p>
+                          <p className="text-xs text-white/40">{new Date(notif.created_at).toLocaleDateString('ar-SA')}</p>
+                        </div>
+                      </div>
+                    </motion.div>
+                  )) : (
+                    <div className="p-16 text-center">
+                      <Bell size={48} className="mx-auto mb-3 text-white/20" />
+                      <p className="text-sm font-bold text-white/30">{isRTL ? 'لا توجد تنبيهات' : 'No alerts'}</p>
+                    </div>
+                  )}
+                </div>
+                <div className="p-4 border-t border-white/10">
+                  <button 
+                    onClick={() => {
+                      if (user?.role === 'admin') router.push('/admin/notifications');
+                      setShowNotifications(false);
+                    }}
+                    className="w-full py-3 text-center text-sm font-bold text-blue-400 hover:text-blue-300 transition-colors bg-blue-500/10 rounded-xl hover:bg-blue-500/20"
+                  >
+                    {isRTL ? 'عرض جميع التنبيهات' : 'View All Alerts'}
+                  </button>
+                </div>
+              </motion.div>
+            </div>
+          )}
+        </AnimatePresence>
+
+        {/* User Dropdown Modal */}
+        <AnimatePresence>
+          {showUserDropdown && (
+            <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
+              <motion.div 
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                onClick={() => setShowUserDropdown(false)}
+                className="absolute inset-0 bg-black/70 backdrop-blur-md"
+              />
+              <motion.div 
+                initial={{ scale: 0.9, opacity: 0, y: 20 }}
+                animate={{ scale: 1, opacity: 1, y: 0 }}
+                exit={{ scale: 0.9, opacity: 0, y: 20 }}
+                className="relative w-full max-w-sm bg-gradient-to-b from-slate-900 to-slate-950 rounded-3xl shadow-2xl overflow-hidden border border-white/10"
+              >
+                <button 
+                  onClick={() => setShowUserDropdown(false)}
+                  className="absolute top-4 left-4 p-2 text-white/30 hover:text-white hover:bg-white/10 rounded-xl transition-all z-10"
+                >
+                  <X size={20} />
+                </button>
+                
+                <div className="p-6 border-b border-white/10 bg-gradient-to-r from-blue-500/10 to-purple-500/10">
+                  <div className="flex items-center gap-4">
+                    <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center shadow-xl">
+                      <User size={32} className="text-white" />
+                    </div>
+                    <div>
+                      <p className="font-bold text-white text-lg">{user?.name}</p>
+                      <p className="text-sm text-white/40">{user?.email}</p>
+                    </div>
+                  </div>
+                </div>
+                  
+                {user?.role !== 'admin' && subscriptionData && (
+                  <div className="p-4 border-b border-white/10">
+                    <div className={cn(
+                      "p-4 rounded-2xl",
+                      subscriptionData.isActive && subscriptionData.daysRemaining > 7
+                        ? "bg-emerald-500/10 border border-emerald-500/20"
+                        : subscriptionData.isActive && subscriptionData.daysRemaining > 0
+                        ? "bg-amber-500/10 border border-amber-500/20"
+                        : "bg-red-500/10 border border-red-500/20"
+                    )}>
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-sm text-white/50">{isRTL ? 'حالة الاشتراك' : 'Subscription'}</span>
+                        <Crown size={18} className={cn(
+                          subscriptionData.isActive ? "text-amber-400" : "text-red-400"
+                        )} />
+                      </div>
+                      <p className={cn(
+                        "text-base font-bold",
+                        subscriptionData.isActive ? "text-emerald-400" : "text-red-400"
+                      )}>
+                        {subscriptionData.isActive 
+                          ? `${isRTL ? 'متبقي' : 'Remaining'}: ${subscriptionData.daysRemaining} ${isRTL ? 'يوم' : 'days'}`
+                          : isRTL ? 'غير مشترك' : 'Not Subscribed'}
+                      </p>
+                    </div>
+                    <motion.button
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      onClick={() => { router.push("/subscriptions"); setShowUserDropdown(false); }}
+                      className="w-full mt-3 flex items-center justify-center gap-2 py-3 bg-gradient-to-r from-amber-500 to-orange-500 rounded-xl text-white text-sm font-bold"
+                    >
+                      <Crown size={18} />
+                      {isRTL ? 'عرض الباقات' : 'View Plans'}
+                    </motion.button>
+                  </div>
+                )}
+
+                <div className="p-3 space-y-1">
+                  <motion.button
+                    whileHover={{ backgroundColor: "rgba(255,255,255,0.05)" }}
+                    onClick={() => { router.push("/user_profile"); setShowUserDropdown(false); }}
+                    className="w-full flex items-center gap-4 px-4 py-3.5 rounded-xl text-white/70 hover:text-white transition-colors"
+                  >
+                    <UserCircle size={20} />
+                    <span className="text-sm font-bold">{tCommon('profile')}</span>
+                  </motion.button>
+                  <motion.button
+                    whileHover={{ backgroundColor: "rgba(255,255,255,0.05)" }}
+                    onClick={() => { router.push("/settings"); setShowUserDropdown(false); }}
+                    className="w-full flex items-center gap-4 px-4 py-3.5 rounded-xl text-white/70 hover:text-white transition-colors"
+                  >
+                    <Settings size={20} />
+                    <span className="text-sm font-bold">{tCommon('settings')}</span>
+                  </motion.button>
+                </div>
+                <div className="p-3 border-t border-white/10">
+                  <motion.button
+                    whileHover={{ backgroundColor: "rgba(239, 68, 68, 0.1)" }}
+                    onClick={handleLogout}
+                    className="w-full flex items-center gap-4 px-4 py-3.5 rounded-xl text-rose-400 hover:text-rose-300 transition-colors"
+                  >
+                    <LogOut size={20} />
+                    <span className="text-sm font-bold">{tCommon('logout')}</span>
+                  </motion.button>
+                </div>
+              </motion.div>
+            </div>
+          )}
+        </AnimatePresence>
 
       <AnimatePresence>
         {isDriverModalOpen && (
