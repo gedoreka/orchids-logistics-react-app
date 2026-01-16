@@ -109,7 +109,46 @@ export async function POST() {
       await execute("ALTER TABLE companies ADD COLUMN is_subscription_active TINYINT(1) DEFAULT 0");
     }
 
-    const existingPlans = await query<{ id: number }>("SELECT id FROM subscription_plans LIMIT 1");
+    
+const prColumns = await query<{ Field: string }>("SHOW COLUMNS FROM payment_requests");
+const prColumnNames = prColumns.map(c => c.Field);
+
+if (!prColumnNames.includes('processed_by')) {
+await execute("ALTER TABLE payment_requests ADD COLUMN processed_by INT AFTER rejection_reason");
+}
+if (!prColumnNames.includes('processed_at')) {
+await execute("ALTER TABLE payment_requests ADD COLUMN processed_at TIMESTAMP NULL AFTER processed_by");
+}
+if (!prColumnNames.includes('subscription_id')) {
+await execute("ALTER TABLE payment_requests ADD COLUMN subscription_id INT AFTER processed_at");
+}
+if (!prColumnNames.includes('request_type')) {
+await execute("ALTER TABLE payment_requests ADD COLUMN request_type ENUM('new', 'renewal', 'upgrade') DEFAULT 'new' AFTER subscription_id");
+}
+
+const spColumns = await query<{ Field: string }>("SHOW COLUMNS FROM subscription_plans");
+const spColumnNames = spColumns.map(c => c.Field);
+
+if (!spColumnNames.includes('trial_days')) {
+await execute("ALTER TABLE subscription_plans ADD COLUMN trial_days INT DEFAULT 0");
+}
+if (!spColumnNames.includes('include_all_services')) {
+await execute("ALTER TABLE subscription_plans ADD COLUMN include_all_services TINYINT(1) DEFAULT 1");
+}
+if (!spColumnNames.includes('name_en')) {
+await execute("ALTER TABLE subscription_plans ADD COLUMN name_en VARCHAR(255)");
+}
+if (!spColumnNames.includes('description_en')) {
+await execute("ALTER TABLE subscription_plans ADD COLUMN description_en TEXT");
+}
+if (!spColumnNames.includes('features')) {
+await execute("ALTER TABLE subscription_plans ADD COLUMN features JSON");
+}
+if (!spColumnNames.includes('services')) {
+await execute("ALTER TABLE subscription_plans ADD COLUMN services JSON");
+}
+
+const existingPlans = await query<{ id: number }>("SELECT id FROM subscription_plans LIMIT 1");
     if (existingPlans.length === 0) {
       await execute(`
         INSERT INTO subscription_plans (name, name_en, description, description_en, price, duration_value, duration_unit, trial_days, is_active, include_all_services, sort_order)

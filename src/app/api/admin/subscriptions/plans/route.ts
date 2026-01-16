@@ -45,22 +45,22 @@ export async function POST(request: NextRequest) {
       sort_order
     } = body;
 
-    const result = await execute(`
-      INSERT INTO subscription_plans 
-      (name, name_en, description, price, duration_value, duration_unit, free_trial_days, is_active, includes_all_services, sort_order)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-    `, [
-      name,
-      name_en || null,
-      description || null,
-      price || 0,
-      duration_value || 1,
-      duration_unit || 'months',
-      0,
-      is_active !== undefined ? is_active : 1,
-      include_all_services !== undefined ? include_all_services : 1,
-      sort_order || 0
-    ]);
+const result = await execute(`
+INSERT INTO subscription_plans 
+(name, name_en, description, price, duration_value, duration_unit, trial_days, is_active, include_all_services, sort_order)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+`, [
+name,
+name_en || null,
+description || null,
+price || 0,
+duration_value || 1,
+duration_unit || 'months',
+0,
+is_active !== undefined ? is_active : 1,
+include_all_services !== undefined ? include_all_services : 1,
+sort_order || 0
+]);
 
     const planId = result.insertId;
 
