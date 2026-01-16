@@ -89,3 +89,24 @@ export async function updateCompany(id: number, data: Record<string, any>) {
     return { success: false, error: error.message };
   }
 }
+
+export async function deleteCompany(id: number) {
+  try {
+    if (id === 1) {
+      return { success: false, error: "لا يمكن حذف الشركة الرئيسية للمدير" };
+    }
+
+    const adminUsers = await query<{ id: number }>("SELECT id FROM users WHERE company_id = ? AND role = 'admin'", [id]);
+    if (adminUsers.length > 0) {
+      return { success: false, error: "لا يمكن حذف شركة تحتوي على مدير نظام" };
+    }
+
+    await query("DELETE FROM users WHERE company_id = ?", [id]);
+    await query("DELETE FROM companies WHERE id = ?", [id]);
+    
+    revalidatePath("/admin/companies");
+    return { success: true, message: "تم حذف الشركة وجميع المستخدمين المرتبطين بها" };
+  } catch (error: any) {
+    return { success: false, error: error.message };
+  }
+}

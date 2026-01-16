@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { execute } from "@/lib/db";
+import { execute, query } from "@/lib/db";
 import { v4 as uuidv4 } from 'uuid';
 
 export async function PATCH(
@@ -35,5 +35,31 @@ export async function PATCH(
   } catch (error) {
     console.error("Error updating company:", error);
     return NextResponse.json({ error: "Failed to update company" }, { status: 500 });
+  }
+}
+
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  try {
+    const id = parseInt(params.id);
+    
+    if (id === 1) {
+      return NextResponse.json({ error: "لا يمكن حذف الشركة الرئيسية للمدير" }, { status: 403 });
+    }
+
+    const adminUsers = await query<{ id: number }>("SELECT id FROM users WHERE company_id = ? AND role = 'admin'", [id]);
+    if (adminUsers.length > 0) {
+      return NextResponse.json({ error: "لا يمكن حذف شركة تحتوي على مدير نظام" }, { status: 403 });
+    }
+
+    await execute("DELETE FROM users WHERE company_id = ?", [id]);
+    await execute("DELETE FROM companies WHERE id = ?", [id]);
+
+    return NextResponse.json({ success: true, message: "تم حذف الشركة وجميع المستخدمين المرتبطين بها" });
+  } catch (error) {
+    console.error("Error deleting company:", error);
+    return NextResponse.json({ error: "فشل في حذف الشركة" }, { status: 500 });
   }
 }

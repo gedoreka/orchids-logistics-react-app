@@ -25,11 +25,13 @@ import {
   Lock,
   ChevronLeft,
   ChevronRight,
-  Plus
+  Plus,
+  Trash2,
+  AlertTriangle
 } from "lucide-react";
 import { toast } from "sonner";
 import { Company } from "@/lib/types";
-import { approveCompany, rejectCompany, toggleCompanyStatus, generateToken } from "@/lib/actions/admin";
+import { approveCompany, rejectCompany, toggleCompanyStatus, generateToken, deleteCompany } from "@/lib/actions/admin";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
@@ -46,6 +48,7 @@ export function CompaniesClient({ initialCompanies, statusFilter, search }: Comp
   const searchParams = useSearchParams();
   const [companies, setCompanies] = useState(initialCompanies);
   const [isLoading, setIsLoading] = useState<number | null>(null);
+  const [deleteConfirm, setDeleteConfirm] = useState<{ id: number; name: string } | null>(null);
 
   const updateQueryParams = (key: string, value: string) => {
     const params = new URLSearchParams(searchParams.toString());
@@ -69,6 +72,25 @@ export function CompaniesClient({ initialCompanies, statusFilter, search }: Comp
         router.refresh();
       } else {
         toast.error(result.error || "حدث خطأ");
+      }
+    } catch (error) {
+      toast.error("حدث خطأ غير متوقع");
+    } finally {
+      setIsLoading(null);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!deleteConfirm) return;
+    setIsLoading(deleteConfirm.id);
+    try {
+      const result = await deleteCompany(deleteConfirm.id);
+      if (result.success) {
+        toast.success(result.message || "تم حذف الشركة بنجاح");
+        setDeleteConfirm(null);
+        router.refresh();
+      } else {
+        toast.error(result.error || "حدث خطأ أثناء الحذف");
       }
     } catch (error) {
       toast.error("حدث خطأ غير متوقع");
@@ -322,94 +344,107 @@ export function CompaniesClient({ initialCompanies, statusFilter, search }: Comp
                   </div>
                 </div>
 
-                {/* Action Buttons with Gradients */}
-                  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
-                    <Link href={`/admin/companies/${company.id}`}>
-                      <motion.button
-                        whileHover={{ scale: 1.02 }}
-                        whileTap={{ scale: 0.98 }}
-                        className="w-full flex flex-col items-center justify-center gap-2 p-4 rounded-2xl bg-gradient-to-br from-blue-600 to-blue-700 text-white font-black shadow-lg shadow-blue-500/20 hover:shadow-blue-500/40 transition-all"
-                      >
-                        <Eye size={20} />
-                        <span className="text-[10px] uppercase tracking-wider">عرض التفاصيل</span>
-                      </motion.button>
-                    </Link>
+{/* Action Buttons with Gradients */}
+                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-7 gap-3">
+                      <Link href={`/admin/companies/${company.id}`}>
+                        <motion.button
+                          whileHover={{ scale: 1.02 }}
+                          whileTap={{ scale: 0.98 }}
+                          className="w-full flex flex-col items-center justify-center gap-2 p-4 rounded-2xl bg-gradient-to-br from-blue-600 to-blue-700 text-white font-black shadow-lg shadow-blue-500/20 hover:shadow-blue-500/40 transition-all"
+                        >
+                          <Eye size={20} />
+                          <span className="text-[10px] uppercase tracking-wider">عرض التفاصيل</span>
+                        </motion.button>
+                      </Link>
 
-                  <Link href={`/admin/companies/${company.id}/permissions`}>
-                      <motion.button
-                        whileHover={{ scale: 1.02 }}
-                        whileTap={{ scale: 0.98 }}
-                        className="w-full flex flex-col items-center justify-center gap-2 p-4 rounded-2xl bg-gradient-to-br from-indigo-500 to-indigo-600 text-white font-black shadow-lg shadow-indigo-500/20 hover:shadow-indigo-500/40 transition-all"
-                      >
-                        <Lock size={20} />
-                        <span className="text-[10px] uppercase tracking-wider">الصلاحيات</span>
-                      </motion.button>
-                    </Link>
+                    <Link href={`/admin/companies/${company.id}/permissions`}>
+                        <motion.button
+                          whileHover={{ scale: 1.02 }}
+                          whileTap={{ scale: 0.98 }}
+                          className="w-full flex flex-col items-center justify-center gap-2 p-4 rounded-2xl bg-gradient-to-br from-indigo-500 to-indigo-600 text-white font-black shadow-lg shadow-indigo-500/20 hover:shadow-indigo-500/40 transition-all"
+                        >
+                          <Lock size={20} />
+                          <span className="text-[10px] uppercase tracking-wider">الصلاحيات</span>
+                        </motion.button>
+                      </Link>
 
-                  {company.status === 'pending' ? (
-                    <>
+                    {company.status === 'pending' ? (
+                      <>
+                        <motion.button
+                          whileHover={{ scale: 1.02 }}
+                          whileTap={{ scale: 0.98 }}
+                          onClick={() => handleAction(company.id, () => approveCompany(company.id))}
+                          disabled={isLoading === company.id}
+                          className="flex flex-col items-center justify-center gap-2 p-4 rounded-2xl bg-gradient-to-br from-emerald-500 to-emerald-600 text-white font-black shadow-lg shadow-emerald-500/20 hover:shadow-emerald-500/40 transition-all"
+                        >
+                          <CheckCircle size={20} />
+                          <span className="text-[10px] uppercase tracking-wider">قبول الطلب</span>
+                        </motion.button>
+
+                        <motion.button
+                          whileHover={{ scale: 1.02 }}
+                          whileTap={{ scale: 0.98 }}
+                          onClick={() => handleAction(company.id, () => rejectCompany(company.id))}
+                          disabled={isLoading === company.id}
+                          className="flex flex-col items-center justify-center gap-2 p-4 rounded-2xl bg-gradient-to-br from-rose-500 to-rose-600 text-white font-black shadow-lg shadow-rose-500/20 hover:shadow-rose-500/40 transition-all"
+                        >
+                          <XCircle size={20} />
+                          <span className="text-[10px] uppercase tracking-wider">رفض الطلب</span>
+                        </motion.button>
+                      </>
+                    ) : (
                       <motion.button
                         whileHover={{ scale: 1.02 }}
                         whileTap={{ scale: 0.98 }}
-                        onClick={() => handleAction(company.id, () => approveCompany(company.id))}
+                        onClick={() => handleAction(company.id, () => toggleCompanyStatus(company.id, company.is_active))}
                         disabled={isLoading === company.id}
-                        className="flex flex-col items-center justify-center gap-2 p-4 rounded-2xl bg-gradient-to-br from-emerald-500 to-emerald-600 text-white font-black shadow-lg shadow-emerald-500/20 hover:shadow-emerald-500/40 transition-all"
+                        className={cn(
+                          "flex flex-col items-center justify-center gap-2 p-4 rounded-2xl font-black shadow-lg transition-all",
+                          company.is_active 
+                          ? "bg-gradient-to-br from-amber-500 to-orange-600 text-white shadow-amber-500/20 hover:shadow-amber-500/40" 
+                          : "bg-gradient-to-br from-blue-500 to-cyan-600 text-white shadow-blue-500/20 hover:shadow-blue-500/40"
+                        )}
                       >
-                        <CheckCircle size={20} />
-                        <span className="text-[10px] uppercase tracking-wider">قبول الطلب</span>
+                        <Power size={20} />
+                        <span className="text-[10px] uppercase tracking-wider">{company.is_active ? 'إيقاف المنشأة' : 'تفعيل المنشأة'}</span>
                       </motion.button>
+                    )}
 
-                      <motion.button
-                        whileHover={{ scale: 1.02 }}
-                        whileTap={{ scale: 0.98 }}
-                        onClick={() => handleAction(company.id, () => rejectCompany(company.id))}
-                        disabled={isLoading === company.id}
-                        className="flex flex-col items-center justify-center gap-2 p-4 rounded-2xl bg-gradient-to-br from-rose-500 to-rose-600 text-white font-black shadow-lg shadow-rose-500/20 hover:shadow-rose-500/40 transition-all"
-                      >
-                        <XCircle size={20} />
-                        <span className="text-[10px] uppercase tracking-wider">رفض الطلب</span>
-                      </motion.button>
-                    </>
-                  ) : (
                     <motion.button
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
-                      onClick={() => handleAction(company.id, () => toggleCompanyStatus(company.id, company.is_active))}
+                      onClick={() => handleAction(company.id, () => generateToken(company.id, 30))}
                       disabled={isLoading === company.id}
-                      className={cn(
-                        "flex flex-col items-center justify-center gap-2 p-4 rounded-2xl font-black shadow-lg transition-all",
-                        company.is_active 
-                        ? "bg-gradient-to-br from-amber-500 to-orange-600 text-white shadow-amber-500/20 hover:shadow-amber-500/40" 
-                        : "bg-gradient-to-br from-blue-500 to-cyan-600 text-white shadow-blue-500/20 hover:shadow-blue-500/40"
-                      )}
+                      className="flex flex-col items-center justify-center gap-2 p-4 rounded-2xl bg-gradient-to-br from-purple-500 to-purple-700 text-white font-black shadow-lg shadow-purple-500/20 hover:shadow-purple-500/40 transition-all"
                     >
-                      <Power size={20} />
-                      <span className="text-[10px] uppercase tracking-wider">{company.is_active ? 'إيقاف المنشأة' : 'تفعيل المنشأة'}</span>
+                      <Key size={20} />
+                      <span className="text-[10px] uppercase tracking-wider">رمز 30 يوم</span>
                     </motion.button>
-                  )}
 
-                  <motion.button
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                    onClick={() => handleAction(company.id, () => generateToken(company.id, 30))}
-                    disabled={isLoading === company.id}
-                    className="flex flex-col items-center justify-center gap-2 p-4 rounded-2xl bg-gradient-to-br from-purple-500 to-purple-700 text-white font-black shadow-lg shadow-purple-500/20 hover:shadow-purple-500/40 transition-all"
-                  >
-                    <Key size={20} />
-                    <span className="text-[10px] uppercase tracking-wider">رمز 30 يوم</span>
-                  </motion.button>
+                    <motion.button
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      onClick={() => handleAction(company.id, () => generateToken(company.id, 0))}
+                      disabled={isLoading === company.id}
+                      className="flex flex-col items-center justify-center gap-2 p-4 rounded-2xl bg-gradient-to-br from-teal-400 to-teal-600 text-white font-black shadow-lg shadow-teal-500/20 hover:shadow-teal-500/40 transition-all"
+                    >
+                      <Infinity size={20} />
+                      <span className="text-[10px] uppercase tracking-wider">رمز دائم</span>
+                    </motion.button>
 
-                  <motion.button
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                    onClick={() => handleAction(company.id, () => generateToken(company.id, 0))}
-                    disabled={isLoading === company.id}
-                    className="flex flex-col items-center justify-center gap-2 p-4 rounded-2xl bg-gradient-to-br from-teal-400 to-teal-600 text-white font-black shadow-lg shadow-teal-500/20 hover:shadow-teal-500/40 transition-all"
-                  >
-                    <Infinity size={20} />
-                    <span className="text-[10px] uppercase tracking-wider">رمز دائم</span>
-                  </motion.button>
-                </div>
+                    {company.id !== 1 && (
+                      <motion.button
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                        onClick={() => setDeleteConfirm({ id: company.id, name: company.name })}
+                        disabled={isLoading === company.id}
+                        className="flex flex-col items-center justify-center gap-2 p-4 rounded-2xl bg-gradient-to-br from-red-600 to-red-800 text-white font-black shadow-lg shadow-red-500/20 hover:shadow-red-500/40 transition-all"
+                      >
+                        <Trash2 size={20} />
+                        <span className="text-[10px] uppercase tracking-wider">حذف الشركة</span>
+                      </motion.button>
+                    )}
+                  </div>
               </div>
 
               {/* Loading overlay for card */}
@@ -445,10 +480,68 @@ export function CompaniesClient({ initialCompanies, statusFilter, search }: Comp
               </button>
             </div>
           </motion.div>
-        )}
-      </div>
+)}
+        </div>
 
-      <style jsx global>{`
+        {/* Delete Confirmation Modal */}
+        <AnimatePresence>
+          {deleteConfirm && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
+              onClick={() => setDeleteConfirm(null)}
+            >
+              <motion.div
+                initial={{ scale: 0.9, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0.9, opacity: 0 }}
+                onClick={(e) => e.stopPropagation()}
+                className="bg-white rounded-3xl p-8 max-w-md w-full shadow-2xl border border-slate-100"
+              >
+                <div className="flex flex-col items-center text-center gap-6">
+                  <div className="w-20 h-20 rounded-full bg-red-100 flex items-center justify-center">
+                    <AlertTriangle size={40} className="text-red-600" />
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <h3 className="text-2xl font-black text-slate-900">تأكيد الحذف</h3>
+                    <p className="text-slate-500 font-bold">
+                      هل أنت متأكد من حذف شركة <span className="text-red-600 font-black">{deleteConfirm.name}</span>؟
+                    </p>
+                    <p className="text-xs text-slate-400 font-medium">
+                      سيتم حذف جميع المستخدمين المرتبطين بهذه الشركة نهائياً ولا يمكن استرجاعهم.
+                    </p>
+                  </div>
+
+                  <div className="flex gap-3 w-full">
+                    <button
+                      onClick={() => setDeleteConfirm(null)}
+                      className="flex-1 px-6 py-4 rounded-2xl bg-slate-100 text-slate-700 font-black hover:bg-slate-200 transition-all"
+                    >
+                      إلغاء
+                    </button>
+                    <button
+                      onClick={handleDelete}
+                      disabled={isLoading === deleteConfirm.id}
+                      className="flex-1 px-6 py-4 rounded-2xl bg-gradient-to-br from-red-600 to-red-700 text-white font-black shadow-lg shadow-red-500/30 hover:shadow-red-500/50 transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+                    >
+                      {isLoading === deleteConfirm.id ? (
+                        <RefreshCw size={18} className="animate-spin" />
+                      ) : (
+                        <Trash2 size={18} />
+                      )}
+                      حذف نهائي
+                    </button>
+                  </div>
+                </div>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        <style jsx global>{`
         @keyframes gradient-x {
           0% { background-position: 0% 50%; }
           50% { background-position: 100% 50%; }
