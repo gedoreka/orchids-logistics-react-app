@@ -154,74 +154,106 @@ export function CompanyDetailsClient({ company }: CompanyDetailsClientProps) {
   };
 
   return (
-    <div className="space-y-10 pb-20 max-w-[1400px] mx-auto">
+    <div className="space-y-6 pb-20 max-w-[1600px] mx-auto">
       {/* Premium Header */}
       <div className="relative group">
-        <div className="absolute -inset-1 bg-gradient-to-r from-slate-600 via-blue-500 to-slate-600 rounded-[2.5rem] blur opacity-25 group-hover:opacity-40 transition duration-1000"></div>
-        <div className="relative bg-slate-900/95 backdrop-blur-2xl rounded-[2.5rem] p-10 md:p-16 text-white shadow-2xl overflow-hidden border border-white/10">
+        <div className="absolute -inset-1 bg-gradient-to-r from-slate-600 via-blue-500 to-slate-600 rounded-[2.5rem] blur opacity-25 group-hover:opacity-40 transition duration-1000 group-hover:duration-200"></div>
+        <div className="relative bg-slate-900/95 backdrop-blur-2xl rounded-[2.5rem] p-6 md:p-10 text-white shadow-2xl overflow-hidden text-center border border-white/10">
           <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 via-green-500 via-red-500 via-yellow-500 via-purple-500 to-blue-500 bg-[length:200%_100%] animate-gradient-x"></div>
           
           <Link 
             href="/admin/companies"
-            className="absolute left-8 top-8 flex items-center gap-2 bg-white/10 hover:bg-white/20 backdrop-blur-xl border border-white/10 px-6 py-3 rounded-full font-bold text-sm transition-all"
+            className="absolute left-6 top-6 flex items-center gap-2 bg-white/10 hover:bg-white/20 backdrop-blur-xl border border-white/10 px-4 py-2 rounded-full font-bold text-xs transition-all"
           >
-            <ArrowRight size={18} />
+            <ArrowRight size={14} />
             العودة للقائمة
           </Link>
 
-          <div className="relative z-10 space-y-8 text-center pt-8">
+          <div className="relative z-10 space-y-4">
             <motion.div
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
-              className="inline-flex items-center gap-3 bg-white/5 backdrop-blur-xl border border-white/10 px-8 py-3 rounded-full font-black text-xs uppercase tracking-widest"
+              className="inline-flex items-center gap-3 bg-white/5 backdrop-blur-xl border border-white/10 px-5 py-2 rounded-full font-black text-xs uppercase tracking-widest"
             >
               <div className="w-2 h-2 rounded-full bg-yellow-500 animate-pulse"></div>
               تفاصيل المنشأة
             </motion.div>
             
-            <h1 className="text-4xl md:text-6xl font-black tracking-tighter bg-clip-text text-transparent bg-gradient-to-b from-white to-white/50">
+            <h1 className="text-3xl md:text-5xl font-black tracking-tighter bg-clip-text text-transparent bg-gradient-to-b from-white to-white/50">
               {company.name || "منشأة بدون اسم"}
             </h1>
             
-            <div className="flex flex-wrap justify-center gap-4 pt-4">
-              <div className="bg-blue-500/10 backdrop-blur-md px-6 py-3 rounded-2xl border border-blue-500/20 flex items-center gap-3">
-                <Hash size={18} className="text-blue-400" />
-                <span className="text-blue-100 font-bold">رقم المنشأة: {company.id}</span>
+            <div className="flex flex-wrap justify-center gap-4 pt-2">
+              <div className="bg-blue-500/10 backdrop-blur-md px-6 py-2.5 rounded-2xl border border-blue-500/20 flex items-center gap-4">
+                <div className="w-10 h-10 rounded-xl bg-blue-500/20 flex items-center justify-center text-blue-400">
+                  <Hash size={20} />
+                </div>
+                <div className="text-right">
+                  <span className="block text-blue-400/50 text-[10px] font-black uppercase tracking-widest">رقم المنشأة</span>
+                  <span className="text-xl font-black text-blue-100">{company.id}</span>
+                </div>
               </div>
               
               <div className={cn(
-                "backdrop-blur-md px-6 py-3 rounded-2xl border flex items-center gap-3",
+                "backdrop-blur-md px-6 py-2.5 rounded-2xl border flex items-center gap-4",
                 company.status === 'approved' ? "bg-emerald-500/10 border-emerald-500/20" :
                 company.status === 'rejected' ? "bg-rose-500/10 border-rose-500/20" :
                 "bg-amber-500/10 border-amber-500/20"
               )}>
-                {company.status === 'approved' ? <CheckCircle size={18} className="text-emerald-400" /> :
-                 company.status === 'rejected' ? <XCircle size={18} className="text-rose-400" /> :
-                 <RefreshCw size={18} className="text-amber-400 animate-spin" />}
-                <span className={cn(
-                  "font-bold",
-                  company.status === 'approved' ? "text-emerald-100" :
-                  company.status === 'rejected' ? "text-rose-100" : "text-amber-100"
+                <div className={cn(
+                  "w-10 h-10 rounded-xl flex items-center justify-center",
+                  company.status === 'approved' ? "bg-emerald-500/20 text-emerald-400" :
+                  company.status === 'rejected' ? "bg-rose-500/20 text-rose-400" :
+                  "bg-amber-500/20 text-amber-400"
                 )}>
-                  {company.status === 'approved' ? 'مقبولة' : company.status === 'rejected' ? 'مرفوضة' : 'قيد المراجعة'}
-                </span>
+                  {company.status === 'approved' ? <CheckCircle size={20} /> :
+                   company.status === 'rejected' ? <XCircle size={20} /> :
+                   <RefreshCw size={20} className="animate-spin-slow" />}
+                </div>
+                <div className="text-right">
+                  <span className={cn(
+                    "block text-[10px] font-black uppercase tracking-widest",
+                    company.status === 'approved' ? "text-emerald-400/50" :
+                    company.status === 'rejected' ? "text-rose-400/50" : "text-amber-400/50"
+                  )}>الحالة</span>
+                  <span className={cn(
+                    "text-xl font-black",
+                    company.status === 'approved' ? "text-emerald-100" :
+                    company.status === 'rejected' ? "text-rose-100" : "text-amber-100"
+                  )}>
+                    {company.status === 'approved' ? 'مقبولة' : company.status === 'rejected' ? 'مرفوضة' : 'قيد المراجعة'}
+                  </span>
+                </div>
               </div>
 
               <div className={cn(
-                "backdrop-blur-md px-6 py-3 rounded-2xl border flex items-center gap-3",
+                "backdrop-blur-md px-6 py-2.5 rounded-2xl border flex items-center gap-4",
                 company.is_active ? "bg-teal-500/10 border-teal-500/20" : "bg-slate-500/10 border-slate-500/20"
               )}>
-                {company.is_active ? <PlayCircle size={18} className="text-teal-400" /> : <PauseCircle size={18} className="text-slate-400" />}
-                <span className={company.is_active ? "text-teal-100 font-bold" : "text-slate-300 font-bold"}>
-                  {company.is_active ? 'نشطة' : 'موقوفة'}
-                </span>
+                <div className={cn(
+                  "w-10 h-10 rounded-xl flex items-center justify-center",
+                  company.is_active ? "bg-teal-500/20 text-teal-400" : "bg-slate-500/20 text-slate-400"
+                )}>
+                  {company.is_active ? <PlayCircle size={20} /> : <PauseCircle size={20} />}
+                </div>
+                <div className="text-right">
+                  <span className={company.is_active ? "block text-teal-400/50 text-[10px] font-black uppercase tracking-widest" : "block text-slate-400/50 text-[10px] font-black uppercase tracking-widest"}>التفعيل</span>
+                  <span className={company.is_active ? "text-xl font-black text-teal-100" : "text-xl font-black text-slate-300"}>
+                    {company.is_active ? 'نشطة' : 'موقوفة'}
+                  </span>
+                </div>
               </div>
 
-              <div className="bg-purple-500/10 backdrop-blur-md px-6 py-3 rounded-2xl border border-purple-500/20 flex items-center gap-3">
-                <Calendar size={18} className="text-purple-400" />
-                <span className="text-purple-100 font-bold">
-                  {new Date(company.created_at).toLocaleDateString('en-GB')}
-                </span>
+              <div className="bg-purple-500/10 backdrop-blur-md px-6 py-2.5 rounded-2xl border border-purple-500/20 flex items-center gap-4">
+                <div className="w-10 h-10 rounded-xl bg-purple-500/20 flex items-center justify-center text-purple-400">
+                  <Calendar size={20} />
+                </div>
+                <div className="text-right">
+                  <span className="block text-purple-400/50 text-[10px] font-black uppercase tracking-widest">تاريخ الإنشاء</span>
+                  <span className="text-xl font-black text-purple-100">
+                    {new Date(company.created_at).toLocaleDateString('en-GB')}
+                  </span>
+                </div>
               </div>
             </div>
           </div>
@@ -229,37 +261,37 @@ export function CompanyDetailsClient({ company }: CompanyDetailsClientProps) {
       </div>
 
       {/* Form */}
-      <form onSubmit={handleSubmit} className="space-y-8">
+      <form onSubmit={handleSubmit} className="space-y-6">
         {sections.map((section, sectionIndex) => (
           <motion.div
             key={section.title}
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: sectionIndex * 0.1 }}
-            className="bg-white/90 backdrop-blur-xl rounded-3xl border border-slate-200 p-8 md:p-10 shadow-xl hover:shadow-2xl transition-all duration-500"
+            className="bg-white/90 backdrop-blur-xl rounded-3xl border border-slate-200 p-6 md:p-8 shadow-xl hover:shadow-2xl transition-all duration-500"
           >
-            <div className="flex items-center gap-4 mb-8 pb-6 border-b-2 border-slate-100">
+            <div className="flex items-center gap-3 mb-6 pb-4 border-b-2 border-slate-100">
               <div className={cn(
-                "w-14 h-14 rounded-2xl flex items-center justify-center",
+                "w-11 h-11 rounded-xl flex items-center justify-center",
                 `bg-gradient-to-br ${colorClasses[section.color].bg}`
               )}>
-                <section.icon size={28} className={cn(
+                <section.icon size={22} className={cn(
                   section.color === 'blue' && "text-blue-600",
                   section.color === 'emerald' && "text-emerald-600",
                   section.color === 'amber' && "text-amber-600",
                   section.color === 'purple' && "text-purple-600",
                 )} />
               </div>
-              <h2 className="text-2xl font-black text-slate-800">{section.title}</h2>
+              <h2 className="text-xl font-black text-slate-800">{section.title}</h2>
               <span className={cn(
-                "px-4 py-2 rounded-full text-xs font-bold border",
+                "px-3 py-1.5 rounded-full text-[10px] font-bold border",
                 colorClasses[section.color].badge
               )}>
                 {section.fields.length} حقول
               </span>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {section.fields.map((field, fieldIndex) => (
                 <motion.div
                   key={field.name}
@@ -267,12 +299,12 @@ export function CompanyDetailsClient({ company }: CompanyDetailsClientProps) {
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: sectionIndex * 0.1 + fieldIndex * 0.03 }}
                   className={cn(
-                    "bg-gradient-to-br from-white to-slate-50/50 rounded-2xl p-6 border-2 border-slate-100 transition-all duration-300 hover:shadow-lg hover:-translate-y-1 border-r-4",
+                    "bg-gradient-to-br from-white to-slate-50/50 rounded-xl p-4 border-2 border-slate-100 transition-all duration-300 hover:shadow-lg hover:-translate-y-1 border-r-4",
                     colorClasses[section.color].border
                   )}
                 >
-                  <label className="flex items-center gap-2 text-slate-600 font-bold text-sm mb-3">
-                    <field.icon size={16} className={cn(
+                  <label className="flex items-center gap-2 text-slate-600 font-bold text-xs mb-2">
+                    <field.icon size={14} className={cn(
                       section.color === 'blue' && "text-blue-500",
                       section.color === 'emerald' && "text-emerald-500",
                       section.color === 'amber' && "text-amber-500",
@@ -287,7 +319,7 @@ export function CompanyDetailsClient({ company }: CompanyDetailsClientProps) {
                     value={formData[field.name as keyof typeof formData]}
                     onChange={handleChange}
                     required={field.required}
-                    className="w-full bg-white border-2 border-slate-200 rounded-xl py-3 px-4 font-bold text-slate-800 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 outline-none transition-all"
+                    className="w-full bg-white border-2 border-slate-200 rounded-lg py-2 px-3 font-bold text-sm text-slate-800 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 outline-none transition-all"
                   />
                 </motion.div>
               ))}
@@ -300,34 +332,34 @@ export function CompanyDetailsClient({ company }: CompanyDetailsClientProps) {
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
-            className="bg-white/90 backdrop-blur-xl rounded-3xl border border-slate-200 p-8 md:p-10 shadow-xl"
+            className="bg-white/90 backdrop-blur-xl rounded-3xl border border-slate-200 p-6 md:p-8 shadow-xl"
           >
-            <div className="flex items-center gap-4 mb-8 pb-6 border-b-2 border-slate-100">
-              <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-teal-500/10 to-teal-600/5 flex items-center justify-center">
-                <ImageIcon size={28} className="text-teal-600" />
+            <div className="flex items-center gap-3 mb-6 pb-4 border-b-2 border-slate-100">
+              <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-teal-500/10 to-teal-600/5 flex items-center justify-center">
+                <ImageIcon size={22} className="text-teal-600" />
               </div>
-              <h2 className="text-2xl font-black text-slate-800">الشعار والختم</h2>
+              <h2 className="text-xl font-black text-slate-800">الشعار والختم</h2>
             </div>
 
-            <div className="flex flex-wrap gap-8 justify-center">
+            <div className="flex flex-wrap gap-6 justify-center">
               {(company.logo || company.logo_path) && (
-                <div className="text-center bg-gradient-to-br from-blue-50 to-blue-100/50 rounded-3xl p-8 border-2 border-dashed border-blue-200">
+                <div className="text-center bg-gradient-to-br from-blue-50 to-blue-100/50 rounded-2xl p-6 border-2 border-dashed border-blue-200">
                   <img
                     src={company.logo || company.logo_path}
                     alt="شعار الشركة"
-                    className="max-h-32 max-w-full rounded-xl shadow-lg border-4 border-white mx-auto hover:scale-105 transition-transform"
+                    className="max-h-24 max-w-full rounded-lg shadow-lg border-4 border-white mx-auto hover:scale-105 transition-transform"
                   />
-                  <span className="block mt-4 text-blue-600 font-bold text-sm">الشعار الحالي</span>
+                  <span className="block mt-3 text-blue-600 font-bold text-xs">الشعار الحالي</span>
                 </div>
               )}
               {(company.stamp || company.stamp_path) && (
-                <div className="text-center bg-gradient-to-br from-purple-50 to-purple-100/50 rounded-3xl p-8 border-2 border-dashed border-purple-200">
+                <div className="text-center bg-gradient-to-br from-purple-50 to-purple-100/50 rounded-2xl p-6 border-2 border-dashed border-purple-200">
                   <img
                     src={company.stamp || company.stamp_path}
                     alt="ختم الشركة"
-                    className="max-h-32 max-w-full rounded-xl shadow-lg border-4 border-white mx-auto hover:scale-105 transition-transform"
+                    className="max-h-24 max-w-full rounded-lg shadow-lg border-4 border-white mx-auto hover:scale-105 transition-transform"
                   />
-                  <span className="block mt-4 text-purple-600 font-bold text-sm">الختم الرسمي</span>
+                  <span className="block mt-3 text-purple-600 font-bold text-xs">الختم الرسمي</span>
                 </div>
               )}
             </div>
@@ -338,23 +370,23 @@ export function CompanyDetailsClient({ company }: CompanyDetailsClientProps) {
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
-          className="flex justify-center pt-8"
+          className="flex justify-center pt-4"
         >
           <button
             type="submit"
             disabled={isLoading}
-            className="relative group flex items-center gap-4 bg-gradient-to-r from-emerald-500 to-teal-600 text-white px-16 py-5 rounded-full font-black text-xl shadow-2xl shadow-emerald-500/30 hover:shadow-emerald-500/50 hover:scale-105 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="relative group flex items-center gap-3 bg-gradient-to-r from-emerald-500 to-teal-600 text-white px-12 py-4 rounded-full font-black text-lg shadow-2xl shadow-emerald-500/30 hover:shadow-emerald-500/50 hover:scale-105 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <div className="absolute inset-0 bg-gradient-to-r from-emerald-400 to-teal-500 rounded-full opacity-0 group-hover:opacity-100 transition-opacity blur-xl"></div>
             <span className="relative flex items-center gap-3">
               {isLoading ? (
                 <>
-                  <RefreshCw className="w-6 h-6 animate-spin" />
+                  <RefreshCw className="w-5 h-5 animate-spin" />
                   جاري الحفظ...
                 </>
               ) : (
                 <>
-                  <Save className="w-6 h-6" />
+                  <Save className="w-5 h-5" />
                   حفظ التعديلات
                 </>
               )}
