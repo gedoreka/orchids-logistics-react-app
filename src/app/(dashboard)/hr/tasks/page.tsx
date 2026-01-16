@@ -46,15 +46,19 @@ export default async function TasksPage({ searchParams }: {
     sqlParams.push(`%${search}%`, `%${search}%`, `%${search}%`);
   }
 
-  const tasks = await query(
-    `SELECT et.*, e.name as employee_name, e.iqama_number, u.name as created_by_name
-     FROM employee_tasks et
-     LEFT JOIN employees e ON et.assigned_to = e.id
-     LEFT JOIN users u ON et.created_by = u.id
-     WHERE ${condition}
-     ORDER BY et.due_date ASC, et.priority DESC`,
-    sqlParams
-  );
+    const tasks = (await query(
+      `SELECT et.*, e.name as employee_name, e.iqama_number, u.name as created_by_name
+       FROM employee_tasks et
+       LEFT JOIN employees e ON et.assigned_to = e.id
+       LEFT JOIN users u ON et.created_by = u.id
+       WHERE ${condition}
+       ORDER BY et.due_date ASC, et.priority DESC`,
+      sqlParams
+    )).map((task: any) => ({
+      ...task,
+      due_date: task.due_date ? new Date(task.due_date).toISOString().split('T')[0] : null,
+      created_at: task.created_at ? new Date(task.created_at).toISOString() : null,
+    }));
 
   // 3. Fetch Employees for assignment
   const employees = await query(
