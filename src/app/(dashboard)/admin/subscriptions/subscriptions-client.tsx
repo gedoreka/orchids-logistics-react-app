@@ -92,6 +92,7 @@ export default function SubscriptionsClient({ initialPlans, initialBankAccounts,
   const [paymentFilter, setPaymentFilter] = useState('all');
   const [showReceiptModal, setShowReceiptModal] = useState<string | null>(null);
   const [showRejectModal, setShowRejectModal] = useState<number | null>(null);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState<{ id: number, type: 'plan' | 'bank' } | null>(null);
   const [rejectionReason, setRejectionReason] = useState('');
   const [setupDone, setSetupDone] = useState(true);
 
@@ -174,19 +175,36 @@ export default function SubscriptionsClient({ initialPlans, initialBankAccounts,
   };
 
   const handleDeletePlan = async (id: number) => {
-    if (!confirm('هل أنت متأكد من حذف هذه الباقة؟')) return;
+    setShowDeleteConfirm({ id, type: 'plan' });
+  };
+
+  const handleDeleteBank = async (id: number) => {
+    setShowDeleteConfirm({ id, type: 'bank' });
+  };
+
+  const confirmDelete = async () => {
+    if (!showDeleteConfirm) return;
+    const { id, type } = showDeleteConfirm;
+    setIsLoading(true);
     try {
-      const res = await fetch(`/api/admin/subscriptions/plans/${id}`, { method: 'DELETE' });
+      const url = type === 'plan' 
+        ? `/api/admin/subscriptions/plans/${id}`
+        : `/api/admin/subscriptions/bank-accounts/${id}`;
+      
+      const res = await fetch(url, { method: 'DELETE' });
       const result = await res.json();
       if (result.success) {
-        toast.success('تم حذف الباقة');
-        refreshPlans();
+        toast.success(type === 'plan' ? 'تم حذف الباقة بنجاح' : 'تم حذف الحساب بنجاح');
+        if (type === 'plan') refreshPlans();
+        else refreshBanks();
       } else {
         toast.error(result.error);
       }
     } catch {
-      toast.error('حدث خطأ');
+      toast.error('حدث خطأ أثناء الحذف');
     }
+    setIsLoading(false);
+    setShowDeleteConfirm(null);
   };
 
   const handleSaveBank = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -229,19 +247,7 @@ export default function SubscriptionsClient({ initialPlans, initialBankAccounts,
   };
 
   const handleDeleteBank = async (id: number) => {
-    if (!confirm('هل أنت متأكد من حذف هذا الحساب؟')) return;
-    try {
-      const res = await fetch(`/api/admin/subscriptions/bank-accounts/${id}`, { method: 'DELETE' });
-      const result = await res.json();
-      if (result.success) {
-        toast.success('تم حذف الحساب');
-        refreshBanks();
-      } else {
-        toast.error(result.error);
-      }
-    } catch {
-      toast.error('حدث خطأ');
-    }
+    setShowDeleteConfirm({ id, type: 'bank' });
   };
 
   const handlePaymentAction = async (paymentId: number, action: 'approve' | 'reject') => {
@@ -857,9 +863,69 @@ export default function SubscriptionsClient({ initialPlans, initialBankAccounts,
               </button>
               <img src={showReceiptModal} alt="Receipt" className="max-w-full rounded-2xl" />
             </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
-    </div>
-  );
-}
+            </div>
+          )}
+
+          {showDeleteConfirm && (
+            <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                onClick={() => setShowDeleteConfirm(null)}
+                className="absolute inset-0 bg-slate-950/40 backdrop-blur-md"
+              />
+              <motion.div
+                initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.9, y: 20 }}
+                className="relative w-full max-w-md bg-white dark:bg-slate-900 rounded-[2.5rem] p-8 shadow-[0_20px_50px_rgba(0,0,0,0.2)] border border-slate-200 dark:border-slate-800 text-center overflow-hidden"
+              >
+                {/* Background decorative elements */}
+                <div className="absolute -top-24 -right-24 w-48 h-48 bg-red-500/10 rounded-full blur-3xl" />
+                <div className="absolute -bottom-24 -left-24 w-48 h-48 bg-orange-500/10 rounded-full blur-3xl" />
+                
+                <div className="relative">
+                  <motion.div 
+                    initial={{ scale: 0.5, rotate: -20 }}
+                    animate={{ scale: 1, rotate: 0 }}
+                    className="w-24 h-24 mx-auto mb-6 bg-gradient-to-tr from-red-500 to-orange-500 rounded-[2rem] flex items-center justify-center shadow-lg shadow-red-500/30"
+                  >
+                    <Trash2 size={40} className="text-white" />
+                  </motion.div>
+                  
+                  <h3 className="text-2xl font-black text-slate-900 dark:text-white mb-3">
+                    {showDeleteConfirm.type === 'plan' ? 'حذف الباقة' : 'حذف الحساب البنكي'}
+                  </h3>
+                  
+                  <p className="text-slate-500 dark:text-slate-400 mb-8 leading-relaxed">
+                    {showDeleteConfirm.type === 'plan' 
+                      ? 'هل أنت متأكد من حذف هذه الباقة؟ لا يمكن التراجع عن هذا الإجراء وسيتم إيقاف العروض المرتبطة بها.'
+                      : 'هل أنت متأكد من حذف هذا الحساب؟ لن يتمكن المستخدمون من اختيار هذا الحساب كخيار للدفع.'}
+                  </p>
+                  
+                  <div className="flex flex-col gap-3">
+                    <button
+                      onClick={confirmDelete}
+                      disabled={isLoading}
+                      className="w-full py-4 bg-gradient-to-r from-red-600 to-orange-600 text-white font-black rounded-2xl hover:shadow-lg hover:shadow-red-500/40 transition-all active:scale-95 flex items-center justify-center gap-3 disabled:opacity-50"
+                    >
+                      {isLoading ? <RefreshCw className="animate-spin" size={20} /> : <Trash2 size={20} />}
+                      نعم، أريد الحذف
+                    </button>
+                    <button
+                      onClick={() => setShowDeleteConfirm(null)}
+                      className="w-full py-4 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold rounded-2xl hover:bg-slate-200 dark:hover:bg-slate-700 transition-all"
+                    >
+                      تراجع، إلغاء الأمر
+                    </button>
+                  </div>
+                </div>
+              </motion.div>
+            </div>
+          )}
+        </AnimatePresence>
+      </div>
+    );
+  }
+
