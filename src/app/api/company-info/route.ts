@@ -27,7 +27,19 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ company: null });
     }
 
-    return NextResponse.json({ company: companies[0], company_id: companyId });
+    const company = companies[0];
+
+    // Fetch user email to use as company email
+    const users = await query<any>(
+      "SELECT email FROM users WHERE id = ?",
+      [session.user_id]
+    );
+    
+    if (users && users.length > 0) {
+      company.email = users[0].email;
+    }
+
+    return NextResponse.json({ company, company_id: companyId });
   } catch (error) {
     console.error("Error fetching company info:", error);
     return NextResponse.json(

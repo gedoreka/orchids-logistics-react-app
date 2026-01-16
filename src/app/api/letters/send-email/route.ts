@@ -3,19 +3,34 @@ import { sendEmail } from "@/lib/mail";
 import { query } from "@/lib/db";
 import { cookies } from "next/headers";
 
-async function getCompanyInfo() {
-  const cookieStore = await cookies();
-  const sessionCookie = cookieStore.get("auth_session");
-  if (!sessionCookie) return null;
-  const session = JSON.parse(sessionCookie.value);
-  
-  const companies = await query<any>(
-    "SELECT id, name, email, commercial_number FROM companies WHERE id = ?",
-    [session.company_id]
-  );
-  
-  return companies?.[0] || null;
-}
+  async function getCompanyInfo() {
+    const cookieStore = await cookies();
+    const sessionCookie = cookieStore.get("auth_session");
+    if (!sessionCookie) return null;
+    const session = JSON.parse(sessionCookie.value);
+    
+    const companies = await query<any>(
+      "SELECT id, name, commercial_number FROM companies WHERE id = ?",
+      [session.company_id]
+    );
+    
+    if (!companies || companies.length === 0) return null;
+    
+    const company = companies[0];
+    
+    // Fetch current user email to use as company email
+    const users = await query<any>(
+      "SELECT email FROM users WHERE id = ?",
+      [session.user_id]
+    );
+    
+    if (users && users.length > 0) {
+      company.email = users[0].email;
+    }
+    
+    return company;
+  }
+
 
 export async function POST(request: NextRequest) {
   try {
