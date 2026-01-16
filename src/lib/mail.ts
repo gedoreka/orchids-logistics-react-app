@@ -48,7 +48,7 @@ export async function sendLoginNotification(email: string, name: string, company
   const arabicDate = now.toLocaleDateString('ar-SA', dateOptions);
   const arabicTime = now.toLocaleTimeString('ar-SA', timeOptions);
 
-  const subject = "تم تسجيل دخول جديد إلى حسابك - ZoolSpeed";
+  const subject = "تم تسجيل دخول جديد إلى حسابك - Logistics Systems Pro";
   const html = `
     <!DOCTYPE html>
     <html dir="rtl" lang="ar">
@@ -82,8 +82,8 @@ export async function sendLoginNotification(email: string, name: string, company
                 <span style="font-size: 40px;">✨</span>
               </div>
               <p style="color: #0369a1; font-size: 16px; line-height: 1.8; margin: 0; text-align: center; font-weight: 600;">
-                تم تسجيل دخولك بنجاح إلى نظام ZoolSpeed
-              </p>
+                  تم تسجيل دخولك بنجاح إلى نظام Logistics Systems Pro
+                </p>
             </div>
             
             <div style="background: #f8fafc; border-radius: 20px; padding: 25px; margin-bottom: 30px; border: 1px solid #e2e8f0;">
@@ -130,16 +130,16 @@ export async function sendLoginNotification(email: string, name: string, company
             
             <div style="background: #f8fafc; border-radius: 16px; padding: 20px; text-align: center; border: 1px solid #e2e8f0;">
               <p style="color: #64748b; font-size: 13px; margin: 0 0 8px 0;">هل تحتاج مساعدة؟</p>
-              <p style="color: #0078D4; font-size: 15px; font-weight: 700; margin: 0;">support@zoolspeed.com</p>
+              <p style="color: #0078D4; font-size: 15px; font-weight: 700; margin: 0;">info@zoolspeed.com</p>
             </div>
           </div>
           
           <div style="background: #0f172a; padding: 30px 40px; text-align: center;">
             <div style="margin-bottom: 15px;">
-              <span style="color: #60a5fa; font-size: 18px; font-weight: 800;">ZoolSpeed</span>
+              <span style="color: #60a5fa; font-size: 18px; font-weight: 800;">Logistics Systems Pro</span>
               <span style="color: #475569; font-size: 12px; margin-right: 8px;">| نظام إدارة اللوجستيات</span>
             </div>
-            <p style="color: #64748b; font-size: 11px; margin: 0 0 8px 0;">© ${new Date().getFullYear()} ZoolSpeed. جميع الحقوق محفوظة</p>
+            <p style="color: #64748b; font-size: 11px; margin: 0 0 8px 0;">© ${new Date().getFullYear()} جميع الحقوق محفوظة لشركة زول اسبيد للأنشطة المتعددة</p>
             <p style="color: #475569; font-size: 10px; margin: 0;">هذا البريد مرسل آلياً للأغراض الأمنية</p>
           </div>
           
