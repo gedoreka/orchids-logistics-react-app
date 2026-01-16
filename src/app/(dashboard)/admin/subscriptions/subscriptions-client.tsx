@@ -230,19 +230,18 @@ export default function SubscriptionsClient({ initialPlans, initialBankAccounts,
     e.preventDefault();
     setIsLoading(true);
     const formData = new FormData(e.currentTarget);
+    const servicesArray = Array.from(selectedServices);
     const data = {
       name: formData.get('name'),
       name_en: formData.get('name_en'),
       description: formData.get('description'),
-      description_en: formData.get('description_en'),
       price: parseFloat(formData.get('price') as string) || 0,
       duration_value: parseInt(formData.get('duration_value') as string) || 1,
       duration_unit: formData.get('duration_unit'),
-      trial_days: parseInt(formData.get('trial_days') as string) || 0,
       is_active: formData.get('is_active') === 'on' ? 1 : 0,
-      include_all_services: selectedServices.size === allFeatures.length ? 1 : 0,
+      include_all_services: servicesArray.length === allFeatures.length ? 1 : 0,
       sort_order: parseInt(formData.get('sort_order') as string) || 0,
-      services: Array.from(selectedServices),
+      services: servicesArray,
     };
 
     try {

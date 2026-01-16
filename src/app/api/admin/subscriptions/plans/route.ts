@@ -8,7 +8,18 @@ export async function GET() {
       ORDER BY sort_order ASC, id ASC
     `);
 
-    return NextResponse.json({ success: true, plans });
+    const plansWithServices = await Promise.all(plans.map(async (plan: any) => {
+      const permissions = await query(
+        `SELECT permission_key FROM plan_permissions WHERE plan_id = ?`,
+        [plan.id]
+      );
+      return {
+        ...plan,
+        services: JSON.stringify(permissions.map((p: any) => p.permission_key))
+      };
+    }));
+
+    return NextResponse.json({ success: true, plans: plansWithServices });
   } catch (error: any) {
     console.error("Error fetching plans:", error);
     return NextResponse.json({ 
@@ -53,7 +64,7 @@ export async function POST(request: NextRequest) {
 
     const planId = result.insertId;
 
-    if (services && services.length > 0 && !include_all_services) {
+    if (services && services.length > 0) {
       for (const serviceKey of services) {
         await execute(`
           INSERT INTO plan_permissions (plan_id, permission_key)
