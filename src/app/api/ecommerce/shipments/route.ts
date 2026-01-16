@@ -17,8 +17,8 @@ export async function GET(request: NextRequest) {
     }
 
     let query = supabase
-      .from("personal_shipments")
-      .select("*, ecommerce_captains(name, phone)")
+      .from("individual_shipments")
+      .select("*")
       .eq("company_id", parseInt(companyId))
       .order("created_at", { ascending: false });
 
@@ -42,55 +42,53 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { 
       company_id, 
+      shipment_type,
       sender_name, 
       sender_phone, 
       sender_address,
-      receiver_name,
-      receiver_phone,
-      receiver_address,
-      shipment_type,
-      distance_km,
-      delivery_fee,
-      additional_charge,
-      tips,
+      recipient_name,
+      recipient_phone,
+      recipient_address,
+      package_description,
+      package_weight,
+      shipping_cost,
       payment_method,
+      captain_name,
       notes
     } = body;
 
-    if (!company_id || !sender_name || !receiver_name) {
+    if (!company_id || !sender_name || !sender_phone || !recipient_name || !recipient_phone) {
       return NextResponse.json({ error: "Required fields missing" }, { status: 400 });
     }
 
-    const total_fee = (parseFloat(delivery_fee) || 0) + (parseFloat(additional_charge) || 0) + (parseFloat(tips) || 0);
+    const orderNumber = `SHP-${Date.now()}-${Math.random().toString(36).substr(2, 6).toUpperCase()}`;
 
     const { data, error } = await supabase
-      .from("personal_shipments")
+      .from("individual_shipments")
       .insert({
         company_id: parseInt(company_id),
-        order_number: `SHP-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+        order_number: orderNumber,
+        shipment_type: shipment_type || "طرود",
         sender_name,
         sender_phone,
         sender_address,
-        receiver_name,
-        receiver_phone,
-        receiver_address,
-        shipment_type: shipment_type || "عادي",
-        distance_km: parseFloat(distance_km) || 0,
-        delivery_fee: parseFloat(delivery_fee) || 0,
-        additional_charge: parseFloat(additional_charge) || 0,
-        tips: parseFloat(tips) || 0,
-        total_fee,
+        recipient_name,
+        recipient_phone,
+        recipient_address,
+        package_description,
+        package_weight: parseFloat(package_weight) || 0,
+        shipping_cost: parseFloat(shipping_cost) || 0,
         payment_method: payment_method || "نقدي",
-        payment_status: "غير مدفوع",
-        status: "قيد الانتظار",
-        notes
+        captain_name,
+        notes,
+        status: "pending"
       })
       .select()
       .single();
 
     if (error) throw error;
 
-    return NextResponse.json({ success: true, shipment: data });
+    return NextResponse.json({ success: true, shipment: data, order_number: orderNumber });
   } catch (error) {
     console.error("Error creating shipment:", error);
     return NextResponse.json({ error: "Failed to create shipment" }, { status: 500 });
