@@ -108,12 +108,12 @@ export function DashboardLayout({ children, user, permissions }: DashboardLayout
         )}
       </AnimatePresence>
       
-      <div className={`${isRTL ? 'lg:mr-64' : 'lg:ml-64'} flex flex-col h-screen overflow-hidden`}>
-        <div className="flex-shrink-0">
-          <Header user={user} onToggleSidebar={() => setIsSidebarOpen(true)} unreadChatCount={unreadChatCount} />
-        </div>
+        <div className={`${isRTL ? 'lg:mr-64' : 'lg:ml-64'} flex flex-col h-screen`}>
+          <div className="flex-shrink-0 relative z-[100]">
+            <Header user={user} onToggleSidebar={() => setIsSidebarOpen(true)} unreadChatCount={unreadChatCount} />
+          </div>
 
-        <main className="flex-1 overflow-y-auto overflow-x-hidden bg-muted/30 dark:bg-background">
+          <main className="flex-1 overflow-y-auto overflow-x-hidden bg-muted/30 dark:bg-background relative z-0">
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}

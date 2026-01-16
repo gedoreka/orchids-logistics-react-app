@@ -353,7 +353,7 @@ export function Header({ user, onToggleSidebar, unreadChatCount = 0, subscriptio
 
   return (
     <>
-      <header className="sticky top-0 z-40 w-full no-print">
+      <header className="sticky top-0 z-[100] w-full no-print">
         <div className="relative overflow-hidden">
           <div className="absolute inset-0 bg-slate-950/80 backdrop-blur-2xl" />
           <div className="absolute inset-0 bg-gradient-to-r from-blue-600/5 via-purple-600/5 to-blue-600/5" />
@@ -481,7 +481,7 @@ export function Header({ user, onToggleSidebar, unreadChatCount = 0, subscriptio
                           initial={{ opacity: 0, y: 10, scale: 0.95 }}
                           animate={{ opacity: 1, y: 0, scale: 1 }}
                           exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                          className="absolute top-full right-0 mt-2 w-72 bg-gradient-to-b from-slate-900/98 to-slate-950/98 backdrop-blur-xl rounded-2xl border border-emerald-500/20 shadow-2xl shadow-emerald-500/10 overflow-hidden z-50"
+                          className="absolute top-full right-0 mt-2 w-72 bg-gradient-to-b from-slate-900/98 to-slate-950/98 backdrop-blur-xl rounded-2xl border border-emerald-500/20 shadow-2xl shadow-emerald-500/10 overflow-hidden z-[9999]"
                         >
                           <div className="p-4 bg-gradient-to-r from-emerald-500/20 to-teal-500/20 border-b border-emerald-500/20">
                             <div className="flex items-center gap-3">
@@ -567,7 +567,7 @@ export function Header({ user, onToggleSidebar, unreadChatCount = 0, subscriptio
                           initial={{ opacity: 0, y: 10, scale: 0.95 }}
                           animate={{ opacity: 1, y: 0, scale: 1 }}
                           exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                          className="absolute top-full right-0 mt-2 w-80 bg-gradient-to-b from-slate-900/98 to-slate-950/98 backdrop-blur-xl rounded-2xl border border-amber-500/20 shadow-2xl shadow-amber-500/10 overflow-hidden z-50"
+                          className="absolute top-full right-0 mt-2 w-80 bg-gradient-to-b from-slate-900/98 to-slate-950/98 backdrop-blur-xl rounded-2xl border border-amber-500/20 shadow-2xl shadow-amber-500/10 overflow-hidden z-[9999]"
                         >
                           <div className="p-4 bg-gradient-to-r from-amber-500/20 to-orange-500/20 border-b border-amber-500/20">
                             <div className="flex items-center gap-3">
@@ -674,7 +674,7 @@ export function Header({ user, onToggleSidebar, unreadChatCount = 0, subscriptio
                             initial={{ opacity: 0, y: 10, scale: 0.95 }}
                             animate={{ opacity: 1, y: 0, scale: 1 }}
                             exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                            className="absolute top-full right-0 mt-2 w-80 bg-slate-900/95 backdrop-blur-xl rounded-2xl border border-white/10 shadow-2xl shadow-black/50 overflow-hidden z-50"
+                            className="absolute top-full right-0 mt-2 w-80 bg-slate-900/95 backdrop-blur-xl rounded-2xl border border-white/10 shadow-2xl shadow-black/50 overflow-hidden z-[9999]"
                           >
                             <div className="p-4 border-b border-white/10">
                                 <h3 className="font-bold text-white text-sm">{isRTL ? 'تنبيهات النظام' : 'System Alerts'}</h3>
@@ -787,7 +787,7 @@ export function Header({ user, onToggleSidebar, unreadChatCount = 0, subscriptio
                           initial={{ opacity: 0, y: 10, scale: 0.95 }}
                           animate={{ opacity: 1, y: 0, scale: 1 }}
                           exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                          className="absolute top-full left-0 mt-2 w-64 bg-slate-900/95 backdrop-blur-xl rounded-2xl border border-white/10 shadow-2xl shadow-black/50 overflow-hidden z-50"
+                          className="absolute top-full left-0 mt-2 w-64 bg-slate-900/95 backdrop-blur-xl rounded-2xl border border-white/10 shadow-2xl shadow-black/50 overflow-hidden z-[9999]"
                         >
                           <div className="p-4 border-b border-white/10">
                             <div className="flex items-center gap-3">
