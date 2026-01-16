@@ -5,45 +5,68 @@ import { revalidatePath } from "next/cache";
 
 export async function updateCompanyProfile(companyId: number, data: any) {
   try {
-    const fields = [
+    const allowedFields = [
       "transport_license_number",
       "transport_license_type",
       "license_start",
-      "license_end"
+      "license_end",
+      "logo_path",
+      "stamp_path",
+      "digital_seal_path",
+      "transport_license_image",
+      "commercial_register_image",
+      "commercial_register_issue_date",
+      "commercial_register_expiry_date",
+      "vat_certificate_image",
+      "bank_account_image"
     ];
     
-    let sql = "UPDATE companies SET ";
-    const params = [];
+    const updates: string[] = [];
+    const params: any[] = [];
     
-    fields.forEach((field, index) => {
-      sql += `${field} = ?${index < fields.length - 1 ? ", " : ""}`;
-      params.push(data[field]);
-    });
-    
-    if (data.logo_path) {
-      sql += ", logo_path = ?";
-      params.push(data.logo_path);
-    }
-    if (data.stamp_path) {
-      sql += ", stamp_path = ?";
-      params.push(data.stamp_path);
-    }
-    if (data.digital_seal_path) {
-      sql += ", digital_seal_path = ?";
-      params.push(data.digital_seal_path);
-    }
-    if (data.transport_license_image) {
-      sql += ", transport_license_image = ?";
-      params.push(data.transport_license_image);
+    for (const field of allowedFields) {
+      if (data[field] !== undefined) {
+        updates.push(`${field} = ?`);
+        params.push(data[field] || null);
+      }
     }
     
-    sql += " WHERE id = ?";
+    if (updates.length === 0) {
+      return { success: false, error: "No data to update" };
+    }
+    
     params.push(companyId);
+    await query(`UPDATE companies SET ${updates.join(", ")} WHERE id = ?`, params);
     
-    await query(sql, params);
     revalidatePath("/user_profile");
     return { success: true };
   } catch (error: any) {
+    console.error("Update company error:", error);
+    return { success: false, error: error.message };
+  }
+}
+
+export async function updateCompanyFile(companyId: number, field: string, filePath: string) {
+  try {
+    const allowedFields = [
+      "logo_path",
+      "stamp_path",
+      "digital_seal_path",
+      "transport_license_image",
+      "commercial_register_image",
+      "vat_certificate_image",
+      "bank_account_image"
+    ];
+    
+    if (!allowedFields.includes(field)) {
+      return { success: false, error: "Invalid field" };
+    }
+    
+    await query(`UPDATE companies SET ${field} = ? WHERE id = ?`, [filePath, companyId]);
+    revalidatePath("/user_profile");
+    return { success: true };
+  } catch (error: any) {
+    console.error("Update file error:", error);
     return { success: false, error: error.message };
   }
 }
@@ -77,6 +100,44 @@ export async function updateBankAccount(id: number, companyId: number, data: any
 export async function deleteBankAccount(id: number, companyId: number) {
   try {
     await query("DELETE FROM company_bank_accounts WHERE id = ? AND company_id = ?", [id, companyId]);
+    revalidatePath("/user_profile");
+    return { success: true };
+  } catch (error: any) {
+    return { success: false, error: error.message };
+  }
+}
+
+export async function addLicense(companyId: number, data: any) {
+  try {
+    await query(
+      "INSERT INTO company_licenses (company_id, license_number, license_type, start_date, end_date, license_image) VALUES (?, ?, ?, ?, ?, ?)",
+      [companyId, data.license_number, data.license_type, data.start_date || null, data.end_date || null, data.license_image || null]
+    );
+    revalidatePath("/user_profile");
+    return { success: true };
+  } catch (error: any) {
+    console.error("Add license error:", error);
+    return { success: false, error: error.message };
+  }
+}
+
+export async function updateLicense(id: number, companyId: number, data: any) {
+  try {
+    await query(
+      "UPDATE company_licenses SET license_number = ?, license_type = ?, start_date = ?, end_date = ?, license_image = ?, updated_at = NOW() WHERE id = ? AND company_id = ?",
+      [data.license_number, data.license_type, data.start_date || null, data.end_date || null, data.license_image || null, id, companyId]
+    );
+    revalidatePath("/user_profile");
+    return { success: true };
+  } catch (error: any) {
+    console.error("Update license error:", error);
+    return { success: false, error: error.message };
+  }
+}
+
+export async function deleteLicense(id: number, companyId: number) {
+  try {
+    await query("DELETE FROM company_licenses WHERE id = ? AND company_id = ?", [id, companyId]);
     revalidatePath("/user_profile");
     return { success: true };
   } catch (error: any) {

@@ -16,7 +16,6 @@ export default async function UserProfilePage() {
   const userId = session.user_id;
   const companyId = session.company_id;
 
-  // 1. Fetch User Data
   const userRes = await query("SELECT * FROM users WHERE id = ?", [userId]);
   const user = userRes[0];
 
@@ -24,15 +23,13 @@ export default async function UserProfilePage() {
     notFound();
   }
 
-  // 2. Fetch Company Data
   let company = null;
   if (companyId) {
     const companyRes = await query("SELECT * FROM companies WHERE id = ?", [companyId]);
     company = companyRes[0];
   }
 
-  // 3. Fetch Bank Accounts
-  let bankAccounts = [];
+  let bankAccounts: any[] = [];
   if (companyId) {
     bankAccounts = await query(
       "SELECT * FROM company_bank_accounts WHERE company_id = ? ORDER BY id DESC",
@@ -40,7 +37,14 @@ export default async function UserProfilePage() {
     );
   }
 
-  // Helper function to format dates
+  let licenses: any[] = [];
+  if (companyId) {
+    licenses = await query(
+      "SELECT * FROM company_licenses WHERE company_id = ? ORDER BY id DESC",
+      [companyId]
+    );
+  }
+
   const formatDate = (obj: any) => {
     if (!obj) return obj;
     const newObj = { ...obj };
@@ -62,6 +66,7 @@ export default async function UserProfilePage() {
       user={formatDate(user)}
       company={formatDate(company)}
       bankAccounts={bankAccounts.map(b => formatDate(b))}
+      licenses={licenses.map(l => formatDate(l))}
     />
   );
 }
