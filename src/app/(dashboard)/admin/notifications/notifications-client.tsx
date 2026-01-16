@@ -80,46 +80,46 @@ export function AdminNotificationsClient({ initialNotifications }: AdminNotifica
   };
 
   return (
-    <div className="space-y-10 pb-20 p-4 md:p-8 bg-[#f8fafc] dark:bg-slate-950/50 min-h-screen">
-      {/* Luxurious Header */}
+    <div className="space-y-6 pb-20 p-4 md:p-6 bg-[#f8fafc] dark:bg-slate-950/50 min-h-screen">
+      {/* Compact Header */}
       <div className="relative group">
-        <div className="absolute -inset-1 bg-gradient-to-r from-blue-600 via-purple-600 to-emerald-600 rounded-[3rem] blur opacity-25 group-hover:opacity-40 transition duration-1000 group-hover:duration-200"></div>
-        <div className="relative bg-gradient-to-br from-[#1e293b] via-[#334155] to-[#1e293b] rounded-[2.5rem] p-6 md:p-10 text-white shadow-2xl overflow-hidden border border-white/10">
-          <div className="absolute top-0 right-0 p-12 opacity-5 pointer-events-none rotate-12">
-            <Megaphone size={300} />
+        <div className="absolute -inset-1 bg-gradient-to-r from-blue-600 via-purple-600 to-emerald-600 rounded-[2rem] blur opacity-25 group-hover:opacity-40 transition duration-1000 group-hover:duration-200"></div>
+        <div className="relative bg-gradient-to-br from-[#1e293b] via-[#334155] to-[#1e293b] rounded-[2rem] p-5 md:p-6 text-white shadow-2xl overflow-hidden border border-white/10">
+          <div className="absolute top-0 right-0 p-6 opacity-5 pointer-events-none rotate-12">
+            <Megaphone size={150} />
           </div>
-          <div className="absolute bottom-0 left-0 p-12 opacity-5 pointer-events-none -rotate-12">
-            <Bell size={250} />
+          <div className="absolute bottom-0 left-0 p-6 opacity-5 pointer-events-none -rotate-12">
+            <Bell size={120} />
           </div>
           
-          <div className="relative z-10 flex flex-col items-center text-center space-y-8">
+          <div className="relative z-10 flex flex-col items-center text-center space-y-4">
             <motion.div 
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
-              className="inline-flex items-center gap-3 bg-white/10 backdrop-blur-2xl px-8 py-3 rounded-full border border-white/20 font-black text-sm uppercase tracking-[0.2em]"
+              className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-2xl px-5 py-2 rounded-full border border-white/20 font-black text-xs uppercase tracking-[0.15em]"
             >
-              <Zap size={18} className="text-amber-400 fill-amber-400" />
+              <Zap size={14} className="text-amber-400 fill-amber-400" />
               <span>مركز البث الإداري</span>
             </motion.div>
             
-            <div className="space-y-4">
-              <h1 className="text-3xl md:text-5xl font-black tracking-tighter leading-none bg-clip-text text-transparent bg-gradient-to-b from-white to-white/60">
+            <div className="space-y-2">
+              <h1 className="text-2xl md:text-3xl font-black tracking-tighter leading-none bg-clip-text text-transparent bg-gradient-to-b from-white to-white/60">
                 إشعارات الإدارة
               </h1>
-              <p className="text-white/50 font-bold text-base md:text-lg max-w-3xl mx-auto leading-relaxed">
-                تحكم في التواصل المباشر مع جميع المستخدمين. أرسل التحديثات، التنبيهات، والإعلانات الهامة بلمسة واحدة.
+              <p className="text-white/50 font-bold text-sm max-w-2xl mx-auto leading-relaxed">
+                تحكم في التواصل المباشر مع جميع المستخدمين
               </p>
             </div>
 
-            <div className="pt-4 flex flex-wrap justify-center gap-6">
+            <div className="pt-2 flex flex-wrap justify-center gap-4">
               <motion.button
-                whileHover={{ scale: 1.05, boxShadow: "0 20px 40px rgba(52, 152, 219, 0.4)" }}
+                whileHover={{ scale: 1.05, boxShadow: "0 15px 30px rgba(52, 152, 219, 0.4)" }}
                 whileTap={{ scale: 0.95 }}
                 onClick={() => setIsModalOpen(true)}
-                className="flex items-center justify-center gap-4 bg-gradient-to-r from-[#3498db] via-[#2980b9] to-[#3498db] text-white px-8 py-4 rounded-[1.5rem] font-black text-xl shadow-2xl shadow-[#3498db]/30 transition-all border-b-4 border-blue-700/50"
+                className="flex items-center justify-center gap-3 bg-gradient-to-r from-[#3498db] via-[#2980b9] to-[#3498db] text-white px-6 py-3 rounded-xl font-black text-base shadow-xl shadow-[#3498db]/30 transition-all border-b-2 border-blue-700/50"
               >
-                <Plus size={28} />
-                <span>إنشاء إشعار ملكي</span>
+                <Plus size={20} />
+                <span>إنشاء إشعار</span>
               </motion.button>
             </div>
           </div>
