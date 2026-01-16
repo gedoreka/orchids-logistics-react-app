@@ -163,3 +163,75 @@ export function ThemeToggleWithLabel({ className }: { className?: string }) {
     </motion.button>
   );
 }
+
+export function ThemeToggleHeader({ className, isRTL = true }: { className?: string; isRTL?: boolean }) {
+  const [mounted, setMounted] = React.useState(false);
+  const { resolvedTheme, setTheme } = useTheme();
+
+  React.useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) {
+    return (
+      <div className={cn(
+        "relative hidden sm:flex items-center gap-2 px-3 py-2.5 rounded-xl bg-white/5 border border-white/10",
+        className
+      )}>
+        <div className="w-5 h-5" />
+        <span className="text-[11px] font-bold text-white/60">{isRTL ? 'الوضع' : 'Mode'}</span>
+      </div>
+    );
+  }
+
+  const isDark = resolvedTheme === "dark";
+
+  return (
+    <motion.button
+      whileHover={{ scale: 1.05 }}
+      whileTap={{ scale: 0.95 }}
+      onClick={() => setTheme(isDark ? "light" : "dark")}
+      className={cn(
+        "relative hidden sm:flex items-center gap-2 px-3 py-2.5 rounded-xl overflow-hidden transition-all duration-300 border",
+        isDark
+          ? "bg-gradient-to-br from-indigo-600/20 via-purple-600/20 to-pink-600/20 border-purple-500/20"
+          : "bg-gradient-to-br from-amber-400/20 via-orange-500/20 to-rose-500/20 border-orange-500/20",
+        className
+      )}
+    >
+      <div className="relative w-[18px] h-[18px]">
+        <AnimatePresence mode="wait" initial={false}>
+          {isDark ? (
+            <motion.div
+              key="moon"
+              initial={{ scale: 0, rotate: -90, opacity: 0 }}
+              animate={{ scale: 1, rotate: 0, opacity: 1 }}
+              exit={{ scale: 0, rotate: 90, opacity: 0 }}
+              transition={{ duration: 0.3, ease: "easeInOut" }}
+              className="absolute inset-0 flex items-center justify-center"
+            >
+              <Moon className="w-[18px] h-[18px] text-purple-400" />
+            </motion.div>
+          ) : (
+            <motion.div
+              key="sun"
+              initial={{ scale: 0, rotate: 90, opacity: 0 }}
+              animate={{ scale: 1, rotate: 0, opacity: 1 }}
+              exit={{ scale: 0, rotate: -90, opacity: 0 }}
+              transition={{ duration: 0.3, ease: "easeInOut" }}
+              className="absolute inset-0 flex items-center justify-center"
+            >
+              <Sun className="w-[18px] h-[18px] text-amber-400" />
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+      <span className={cn(
+        "text-[11px] font-bold transition-colors",
+        isDark ? "text-purple-400" : "text-amber-500"
+      )}>
+        {isDark ? (isRTL ? 'الوضع الليلي' : 'Dark Mode') : (isRTL ? 'الوضع النهاري' : 'Light Mode')}
+      </span>
+    </motion.button>
+  );
+}

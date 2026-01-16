@@ -51,7 +51,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { useLocale, useTranslations } from '@/lib/locale-context';
 import { LanguageSwitcher } from "./language-switcher";
-import { ThemeToggle } from "@/components/theme-toggle";
+import { ThemeToggle, ThemeToggleHeader } from "@/components/theme-toggle";
 
 interface PrayerTimes {
   Fajr: string;
@@ -685,8 +685,28 @@ export function Header({ user, onToggleSidebar, unreadChatCount = 0, subscriptio
                 </div>
 
 <div className="flex items-center gap-2">
-                      <ThemeToggle />
                       <LanguageSwitcher />
+
+                      <motion.button
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        onClick={() => setShowNotifications(!showNotifications)}
+                        className="relative hidden sm:flex items-center gap-2 px-3 py-2.5 bg-white/5 hover:bg-white/10 rounded-xl transition-all border border-white/10"
+                      >
+                        <Bell size={18} className="text-white/60" />
+                        <span className="text-[11px] font-bold text-white/60">{isRTL ? 'الإشعارات' : 'Notifications'}</span>
+                        {unreadAdminCount > 0 && (
+                          <motion.span 
+                            animate={{ scale: [1, 1.2, 1] }}
+                            transition={{ duration: 2, repeat: Infinity }}
+                            className="min-w-[18px] h-[18px] bg-gradient-to-r from-rose-500 to-red-500 text-white text-[9px] font-bold rounded-full flex items-center justify-center shadow-lg shadow-rose-500/50"
+                          >
+                            {unreadAdminCount > 9 ? '9+' : unreadAdminCount}
+                          </motion.span>
+                        )}
+                      </motion.button>
+
+                      <ThemeToggleHeader isRTL={isRTL} />
 
                     <motion.button
                       whileHover={{ scale: 1.02 }}
@@ -726,23 +746,6 @@ export function Header({ user, onToggleSidebar, unreadChatCount = 0, subscriptio
                         />
                       )}
                     </motion.button>
-
-                      <motion.button
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
-                        onClick={() => setShowNotifications(!showNotifications)}
-                        className="relative p-2.5 bg-white/5 hover:bg-white/10 rounded-xl transition-all border border-white/10"
-                      >
-                        <Bell size={18} className="text-white/60" />
-                        {unreadAdminCount > 0 && (
-                          <motion.span 
-                            animate={{ scale: [1, 1.2, 1] }}
-                            transition={{ duration: 2, repeat: Infinity }}
-                            className="absolute top-1.5 right-1.5 w-2 h-2 bg-gradient-to-r from-rose-500 to-red-500 rounded-full shadow-lg shadow-rose-500/50"
-                          />
-                        )}
-                      </motion.button>
-
 
                   <motion.button
                     whileHover={{ scale: 1.02 }}
