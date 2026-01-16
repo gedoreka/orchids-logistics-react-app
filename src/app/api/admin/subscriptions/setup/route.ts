@@ -125,6 +125,22 @@ await execute("ALTER TABLE payment_requests ADD COLUMN subscription_id INT AFTER
 if (!prColumnNames.includes('request_type')) {
 await execute("ALTER TABLE payment_requests ADD COLUMN request_type ENUM('new', 'renewal', 'upgrade') DEFAULT 'new' AFTER subscription_id");
 }
+if (!prColumnNames.includes('notes')) {
+await execute("ALTER TABLE payment_requests ADD COLUMN notes TEXT");
+}
+
+const csColumns = await query<{ Field: string }>("SHOW COLUMNS FROM company_subscriptions");
+const csColumnNames = csColumns.map(c => c.Field);
+
+if (!csColumnNames.includes('notes')) {
+await execute("ALTER TABLE company_subscriptions ADD COLUMN notes TEXT");
+}
+if (!csColumnNames.includes('assigned_by')) {
+await execute("ALTER TABLE company_subscriptions ADD COLUMN assigned_by INT");
+}
+if (!csColumnNames.includes('is_manual_assignment')) {
+await execute("ALTER TABLE company_subscriptions ADD COLUMN is_manual_assignment TINYINT(1) DEFAULT 0");
+}
 
 const spColumns = await query<{ Field: string }>("SHOW COLUMNS FROM subscription_plans");
 const spColumnNames = spColumns.map(c => c.Field);
