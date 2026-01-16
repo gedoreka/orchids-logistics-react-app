@@ -618,52 +618,67 @@ export default function LettersClient() {
                         </div>
                       </div>
 
-                      {/* Visual Margin Preview (Shadow) */}
-                      <div className="flex justify-center py-4">
-                        <div className="relative bg-white border border-slate-400 w-[210px] h-[297px] overflow-hidden shadow-inner scale-75">
-                            {companyInfo?.letterhead_path && (
-                              companyInfo.letterhead_path.toLowerCase().endsWith('.pdf') ? (
-                                <div className="absolute inset-0 flex flex-col items-center justify-center bg-slate-50 text-slate-400 p-4 border border-slate-200">
-                                  <FileText className="w-12 h-12 text-red-500 mb-2 opacity-50" />
-                                  <span className="text-[10px] font-bold text-slate-500">تم رفع ملف PDF بنجاح</span>
-                                  <span className="text-[8px] text-slate-400">سيظهر في المعاينة والطباعة</span>
-                                </div>
+                        {/* Visual Margin Preview with Full Letterhead */}
+                        <div className="bg-slate-900/50 rounded-xl p-4">
+                          <p className="text-center text-slate-400 text-sm mb-3">معاينة ضبط الهوامش على الورقة</p>
+                          <div className="flex justify-center">
+                            <div 
+                              className="relative bg-white border-2 border-slate-500 overflow-hidden shadow-2xl"
+                              style={{ width: '200px', height: '283px' }}
+                            >
+                              {companyInfo?.letterhead_path ? (
+                                companyInfo.letterhead_path.toLowerCase().endsWith('.pdf') ? (
+                                  <div className="absolute inset-0 flex flex-col items-center justify-center bg-gradient-to-b from-slate-100 to-slate-200">
+                                    <FileText className="w-16 h-16 text-red-500 mb-2" />
+                                    <span className="text-[9px] font-bold text-slate-600">ملف PDF</span>
+                                  </div>
+                                ) : (
+                                  <img 
+                                    src={companyInfo.letterhead_path} 
+                                    className="absolute inset-0 w-full h-full object-cover" 
+                                    alt="الورق المروس" 
+                                  />
+                                )
                               ) : (
-                                <img 
-                                  src={companyInfo.letterhead_path} 
-                                  className="absolute inset-0 w-full h-full object-fill opacity-40" 
-                                  alt="" 
-                                />
-                              )
-                            )}
-                            {/* Top Margin Shadow */}
-                            <div 
-                              className="absolute top-0 left-0 right-0 bg-blue-500/30 border-b-2 border-blue-500/50 flex items-end justify-center text-[10px] font-bold text-blue-700 pb-2 transition-all duration-300"
-                              style={{ height: `${margins.top * (297/1122)}px` }} // Scale factor A4 height px at 96dpi is ~1122
-                            >
-                              <div className="bg-white/80 px-1 rounded shadow-sm flex items-center gap-1">
-                                <MoveVertical className="w-2 h-2" />
-                                {margins.top}px
+                                <div className="absolute inset-0 flex flex-col items-center justify-center bg-slate-100 text-slate-400">
+                                  <Upload className="w-10 h-10 mb-2 opacity-30" />
+                                  <span className="text-[9px]">لم يتم رفع ورقة</span>
+                                </div>
+                              )}
+                              
+                              {/* Top Margin Overlay */}
+                              <div 
+                                className="absolute top-0 left-0 right-0 bg-blue-500/50 border-b-2 border-blue-600 flex items-end justify-center transition-all duration-200"
+                                style={{ height: `${(margins.top / 1122) * 283}px` }}
+                              >
+                                <div className="bg-blue-600 text-white text-[8px] font-bold px-2 py-0.5 rounded-t-md mb-[-1px] shadow">
+                                  {margins.top}px
+                                </div>
                               </div>
-                            </div>
-                            {/* Bottom Margin Shadow */}
-                            <div 
-                              className="absolute bottom-0 left-0 right-0 bg-blue-500/30 border-t-2 border-blue-500/50 flex items-start justify-center text-[10px] font-bold text-blue-700 pt-2 transition-all duration-300"
-                              style={{ height: `${margins.bottom * (297/1122)}px` }}
-                            >
-                              <div className="bg-white/80 px-1 rounded shadow-sm flex items-center gap-1">
-                                <MoveVertical className="w-2 h-2" />
-                                {margins.bottom}px
+                              
+                              {/* Bottom Margin Overlay */}
+                              <div 
+                                className="absolute bottom-0 left-0 right-0 bg-blue-500/50 border-t-2 border-blue-600 flex items-start justify-center transition-all duration-200"
+                                style={{ height: `${(margins.bottom / 1122) * 283}px` }}
+                              >
+                                <div className="bg-blue-600 text-white text-[8px] font-bold px-2 py-0.5 rounded-b-md mt-[-1px] shadow">
+                                  {margins.bottom}px
+                                </div>
                               </div>
-                            </div>
-                          {/* Content Area */}
-                          <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                            <div className="border border-dashed border-slate-300 w-[80%] h-[60%] flex items-center justify-center text-[8px] text-slate-400">
-                              منطقة النص
+                              
+                              {/* Safe Content Zone Indicator */}
+                              <div 
+                                className="absolute left-2 right-2 border border-dashed border-green-500/60 bg-green-500/10 flex items-center justify-center transition-all duration-200"
+                                style={{ 
+                                  top: `${(margins.top / 1122) * 283}px`,
+                                  bottom: `${(margins.bottom / 1122) * 283}px`
+                                }}
+                              >
+                                <span className="text-[7px] text-green-600 font-bold bg-white/80 px-1 rounded">منطقة النص الآمنة</span>
+                              </div>
                             </div>
                           </div>
                         </div>
-                      </div>
 
                       <div className="flex gap-3">
                         <button
