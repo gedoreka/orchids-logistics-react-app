@@ -38,6 +38,7 @@ interface CompanyInfo {
 }
 
 const templateIcons: Record<string, any> = {
+  salary_receipt: Receipt,
   work_receipt: ClipboardList,
   custody_receipt: Receipt,
   resignation_letter: Mail,
@@ -45,6 +46,7 @@ const templateIcons: Record<string, any> = {
 };
 
 const templateColors: Record<string, string> = {
+  salary_receipt: "from-blue-600 to-cyan-600",
   work_receipt: "from-blue-500 to-indigo-600",
   custody_receipt: "from-amber-500 to-orange-600",
   resignation_letter: "from-rose-500 to-pink-600",
@@ -58,6 +60,7 @@ const placeholderLabels: Record<string, string> = {
   commercial_number: "رقم السجل التجاري",
   start_date: "تاريخ البداية",
   job_title: "المسمى الوظيفي",
+  profession: "المهنة",
   nationality: "الجنسية",
   resignation_day: "يوم الاستقالة",
   resignation_date: "تاريخ الاستقالة",
@@ -72,6 +75,64 @@ const placeholderLabels: Record<string, string> = {
   end_date: "تاريخ النهاية",
   basic_salary: "الراتب الأساسي", housing_allowance: "بدل السكن", transport_allowance: "بدل المواصلات",
   end_service_bonus: "مكافأة نهاية الخدمة", vacation_balance: "رصيد الإجازات", total_amount: "إجمالي المستحقات",
+  payroll_period: "فترة الراتب",
+  period_from: "من تاريخ",
+  period_to: "إلى تاريخ",
+  total_amount_text: "المبلغ كتابة",
+  bank_name: "اسم البنك",
+  account_number: "رقم الحساب",
+  transfer_date: "تاريخ التحويل",
+  due_date: "تاريخ الاستحقاق",
+  actual_receipt_date: "تاريخ الاستلام الفعلي",
+};
+
+// Arabic number to words conversion helper
+const convertAmountToWords = (amount: number): string => {
+  if (isNaN(amount) || amount === 0) return "";
+  
+  const ones = ["", "واحد", "اثنان", "ثلاثة", "أربعة", "خمسة", "ستة", "سبعة", "ثمانية", "تسعة", "عشرة"];
+  const teens = ["عشرة", "أحد عشر", "اثنا عشر", "ثلاثة عشر", "أربعة عشر", "خمسة عشر", "ستة عشر", "سبعة عشر", "ثمانية عشر", "تسعة عشر"];
+  const tens = ["", "عشرة", "عشرون", "ثلاثون", "أربعون", "خمسون", "ستون", "سبعون", "ثمانون", "تسعون"];
+  const hundreds = ["", "مائة", "مائتان", "ثلاثمائة", "أربعمائة", "خمسمائة", "ستمائة", "سبعمائة", "ثمانمائة", "تسمائة"];
+  
+  const processThreeDigits = (num: number): string => {
+    let result = "";
+    const h = Math.floor(num / 100);
+    const rest = num % 100;
+    
+    if (h > 0) result += hundreds[h];
+    
+    if (rest > 0) {
+      if (h > 0) result += " و ";
+      if (rest <= 10) result += ones[rest];
+      else if (rest < 20) result += teens[rest - 10];
+      else {
+        const t = Math.floor(rest / 10);
+        const o = rest % 10;
+        if (o > 0) result += ones[o] + " و ";
+        result += tens[t];
+      }
+    }
+    return result;
+  };
+
+  const thousands = Math.floor(amount / 1000);
+  const rest = Math.floor(amount % 1000);
+  
+  let finalResult = "";
+  if (thousands > 0) {
+    if (thousands === 1) finalResult += "ألف";
+    else if (thousands === 2) finalResult += "ألفان";
+    else if (thousands >= 3 && thousands <= 10) finalResult += ones[thousands] + " آلاف";
+    else finalResult += processThreeDigits(thousands) + " ألف";
+  }
+  
+  if (rest > 0) {
+    if (thousands > 0) finalResult += " و ";
+    finalResult += processThreeDigits(rest);
+  }
+  
+  return finalResult;
 };
 
 export default function LettersClient() {
@@ -89,6 +150,26 @@ export default function LettersClient() {
   const [showPreview, setShowPreview] = useState(false);
   const [previewLetter, setPreviewLetter] = useState<GeneratedLetter | null>(null);
   const printRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (selectedTemplate?.template_key === "salary_receipt" || selectedTemplate?.template_key === "final_clearance") {
+      const basic = parseFloat(formData.basic_salary || "0");
+      const housing = parseFloat(formData.housing_allowance || "0");
+      const transport = parseFloat(formData.transport_allowance || "0");
+      const bonus = parseFloat(formData.end_service_bonus || "0");
+      const vacation = parseFloat(formData.vacation_balance || "0");
+      
+      const total = basic + housing + transport + bonus + vacation;
+      
+      if (total > 0 && total.toString() !== formData.total_amount) {
+        setFormData(prev => ({
+          ...prev,
+          total_amount: total.toString(),
+          total_amount_text: convertAmountToWords(Math.floor(total))
+        }));
+      }
+    }
+  }, [formData.basic_salary, formData.housing_allowance, formData.transport_allowance, formData.end_service_bonus, formData.vacation_balance, selectedTemplate]);
 
   const fetchData = async () => {
     try {
@@ -495,13 +576,17 @@ export default function LettersClient() {
                         <label className="block text-slate-300 mb-2 text-sm font-medium">
                           {placeholderLabels[placeholder] || placeholder}
                         </label>
-                        <input
-                          type={placeholder.includes("date") ? "date" : "text"}
-                          value={formData[placeholder] || ""}
-                          onChange={(e) => setFormData({ ...formData, [placeholder]: e.target.value })}
-                          className="w-full bg-slate-700 border border-slate-600 rounded-xl py-3 px-4 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                          placeholder={`أدخل ${placeholderLabels[placeholder] || placeholder}`}
-                        />
+                          <input
+                            type={placeholder.includes("date") ? "date" : "text"}
+                            value={formData[placeholder] || ""}
+                            onChange={(e) => setFormData({ ...formData, [placeholder]: e.target.value })}
+                            readOnly={placeholder === "total_amount" || placeholder === "total_amount_text"}
+                            className={`w-full bg-slate-700 border border-slate-600 rounded-xl py-3 px-4 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                              (placeholder === "total_amount" || placeholder === "total_amount_text") ? "opacity-75 cursor-not-allowed bg-slate-800" : ""
+                            }`}
+                            placeholder={`أدخل ${placeholderLabels[placeholder] || placeholder}`}
+                          />
+
                       </div>
                     ))}
                   </div>

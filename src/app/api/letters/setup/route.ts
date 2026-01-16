@@ -49,6 +49,95 @@ export async function GET() {
     // Insert system templates
     const templates = [
       {
+        key: 'salary_receipt',
+        name: 'Salary Receipt Acknowledgment',
+        name_ar: 'إقرار استلام راتب',
+        content: `<div class="letter-content" dir="rtl">
+<div style="text-align: center; margin-bottom: 20px;">
+<p style="font-weight: bold; margin: 0;">بسم الله الرحمن الرحيم</p>
+<p style="font-weight: bold; margin: 0;">وزارة الموارد البشرية والتنمية الاجتماعية</p>
+<p style="font-weight: bold; margin: 0;">نظام العمل السعودي - اللائحة التنفيذية لنظام العمل</p>
+</div>
+
+<h2 style="text-align: center; font-size: 22px; font-weight: bold; margin-bottom: 25px; border-bottom: 2px solid #000; padding-bottom: 10px;">إقرار استلام راتب رسمي ومعتمد</h2>
+
+<div style="margin-bottom: 20px;">
+<h3 style="font-size: 18px; font-weight: bold; border-right: 4px solid #000; padding-right: 10px; margin-bottom: 10px;">بيانات المنشأة / الشركة:</h3>
+<p>اسم المنشأة: <span class="field">{company_name}</span></p>
+<p>السجل التجاري: <span class="field">{commercial_number}</span></p>
+</div>
+
+<div style="margin-bottom: 20px;">
+<h3 style="font-size: 18px; font-weight: bold; border-right: 4px solid #000; padding-right: 10px; margin-bottom: 10px;">بيانات الموظف:</h3>
+<p>اسم الموظف: <span class="field">{employee_name}</span></p>
+<p>رقم الهوية / الإقامة: <span class="field">{id_number}</span></p>
+<p>المسمى الوظيفي: <span class="field">{job_title}</span></p>
+<p>المهنة: <span class="field">{profession}</span></p>
+</div>
+
+<p>فترة الراتب: <span class="field">{payroll_period}</span> (شهرية / نصف شهرية / أسبوعية)</p>
+<p>للفترة من: <span class="field">{period_from}</span> إلى <span class="field">{period_to}</span></p>
+
+<div style="margin: 20px 0; border: 1px solid #000; padding: 15px;">
+<h3 style="font-size: 16px; font-weight: bold; margin-bottom: 10px;">تفاصيل الراتب الشهري:</h3>
+<table style="width: 100%; border-collapse: collapse;">
+<tr><td style="padding: 5px; border-bottom: 1px solid #ddd;">الراتب الأساسي</td><td style="text-align: left; padding: 5px; border-bottom: 1px solid #ddd; font-weight: bold;">{basic_salary} ريال</td></tr>
+<tr><td style="padding: 5px; border-bottom: 1px solid #ddd;">بدل سكن</td><td style="text-align: left; padding: 5px; border-bottom: 1px solid #ddd; font-weight: bold;">{housing_allowance} ريال</td></tr>
+<tr style="background: #f5f5f5;"><td style="padding: 10px; font-weight: bold;">إجمالي المستحقات (أ)</td><td style="text-align: left; padding: 10px; font-weight: bold;">{total_amount} ريال</td></tr>
+</table>
+</div>
+
+<div style="margin-bottom: 20px;">
+<h3 style="font-size: 16px; font-weight: bold; margin-bottom: 5px;">صافي الراتب المستحق:</h3>
+<p>صافي الراتب كتابة: <span class="field">{total_amount_text}</span> ريال سعودي فقط.</p>
+<p>صافي الراتب رقمياً: <span class="field">{total_amount}</span> ريال سعودي فقط.</p>
+</div>
+
+<div style="margin-bottom: 20px;">
+<h3 style="font-size: 16px; font-weight: bold; margin-bottom: 5px;">طريقة الدفع:</h3>
+<p>☐ نقداً &nbsp;&nbsp;&nbsp; ☐ تحويل بنكي</p>
+<p>اسم البنك: <span class="field">{bank_name}</span></p>
+<p>رقم الحساب: <span class="field">{account_number}</span></p>
+<p>تاريخ التحويل: <span class="field">{transfer_date}</span></p>
+</div>
+
+<div style="margin-bottom: 20px;">
+<p>تاريخ استحقاق الراتب: <span class="field">{due_date}</span></p>
+<p>تاريخ الاستلام الفعلي: <span class="field">{actual_receipt_date}</span></p>
+</div>
+
+<div style="margin-bottom: 25px; padding: 10px; border: 1px dashed #000;">
+<h3 style="font-size: 16px; font-weight: bold; margin-bottom: 10px;">إقرار الموظف:</h3>
+<p style="text-align: justify; font-size: 14px;">أقرّ بأنني استلمت راتبي الصافي للفترة المذكورة أعلاه، وقيمة الخصومات موضحة وفقاً لأنظمة العمل السعودية، ولم يتبقَ لي أي مستحقات مالية لدى صاحب العمل عن هذه الفترة.</p>
+<div style="display: flex; justify-content: space-between; margin-top: 15px;">
+<p>توقيع الموظف: ...........................</p>
+<p>الاسم: {employee_name}</p>
+<p>التاريخ: {actual_receipt_date}</p>
+</div>
+</div>
+
+<div style="margin-bottom: 25px; padding: 10px; border: 1px dashed #000;">
+<h3 style="font-size: 16px; font-weight: bold; margin-bottom: 10px;">إقرار صاحب العمل / المفوض:</h3>
+<p style="text-align: justify; font-size: 14px;">أقرّ بأن جميع البيانات والتفاصيل المذكورة أعلاه صحيحة وواقعية، وتم دفع الراتب وفقاً لأحكام نظام العمل السعودي ولائحته التنفيذية.</p>
+<div style="display: flex; justify-content: space-between; margin-top: 15px;">
+<p>توقيع المسؤول المالي: ...........................</p>
+<p>الاسم: ...........................</p>
+<p>تاريخ: {actual_receipt_date}</p>
+</div>
+<p style="text-align: center; margin-top: 10px;">ختم الشركة / المؤسسة:</p>
+<div style="width: 80px; height: 80px; border: 1px dashed #000; margin: 0 auto;"></div>
+</div>
+
+<div style="font-size: 12px; color: #666; border-top: 1px solid #eee; padding-top: 10px;">
+<p>• يُعد هذا الإيصال وثيقة رسمية تستخدم كدليل على سداد الراتب.</p>
+<p>• يحق للموظف الاحتفاظ بصورة من هذا الإيصال.</p>
+<p>• يتم الرجوع إلى نظام العمل السعودي في حال أي نزاع.</p>
+<p>• جميع المبالغ بالريال السعودي.</p>
+</div>
+</div>`,
+        placeholders: JSON.stringify(["company_name", "commercial_number", "employee_name", "id_number", "job_title", "profession", "payroll_period", "period_from", "period_to", "basic_salary", "housing_allowance", "total_amount", "total_amount_text", "bank_name", "account_number", "transfer_date", "due_date", "actual_receipt_date"])
+      },
+      {
         key: 'work_receipt',
         name: 'Work Receipt Acknowledgment',
         name_ar: 'إقرار استلام عمل',
