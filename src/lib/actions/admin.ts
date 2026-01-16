@@ -1,6 +1,6 @@
 "use server";
 
-import { query } from "@/lib/db";
+import { query, execute } from "@/lib/db";
 import { revalidatePath } from "next/cache";
 
 export async function approveCompany(id: number) {
@@ -101,12 +101,32 @@ export async function deleteCompany(id: number) {
       return { success: false, error: "لا يمكن حذف شركة تحتوي على مدير نظام" };
     }
 
-    await query("DELETE FROM users WHERE company_id = ?", [id]);
-    await query("DELETE FROM companies WHERE id = ?", [id]);
+    await execute("DELETE FROM multi_shift_notifications WHERE company_id = ?", [id]);
+    await execute("DELETE FROM multi_shift_assignments WHERE company_id = ?", [id]);
+    await execute("DELETE FROM multi_shift_settings WHERE company_id = ?", [id]);
+    await execute("DELETE FROM multi_shifts WHERE company_id = ?", [id]);
+    await execute("DELETE FROM leave_requests WHERE company_id = ?", [id]);
+    await execute("DELETE FROM employee_tasks WHERE company_id = ?", [id]);
+    await execute("DELETE FROM shifts WHERE company_id = ?", [id]);
+    await execute("DELETE FROM maintenance_requests WHERE company_id = ?", [id]);
+    await execute("DELETE FROM vehicles WHERE company_id = ?", [id]);
+    await execute("DELETE FROM spares WHERE company_id = ?", [id]);
+    await execute("DELETE FROM spares_categories WHERE company_id = ?", [id]);
+    await execute("DELETE FROM payrolls WHERE company_id = ?", [id]);
+    await execute("DELETE FROM payroll_headers WHERE company_id = ?", [id]);
+    await execute("DELETE FROM credit_notes WHERE company_id = ?", [id]);
+    await execute("DELETE FROM company_bank_accounts WHERE company_id = ?", [id]);
+    await execute("DELETE FROM company_documents WHERE company_id = ?", [id]);
+    await execute("DELETE FROM company_features WHERE company_id = ?", [id]);
+    await execute("DELETE FROM company_permissions WHERE company_id = ?", [id]);
+    await execute("DELETE FROM zatca_certificates WHERE company_id = ?", [id]);
+    await execute("DELETE FROM users WHERE company_id = ?", [id]);
+    await execute("DELETE FROM companies WHERE id = ?", [id]);
     
     revalidatePath("/admin/companies");
-    return { success: true, message: "تم حذف الشركة وجميع المستخدمين المرتبطين بها" };
+    return { success: true, message: "تم حذف الشركة وجميع البيانات المرتبطة بها" };
   } catch (error: any) {
+    console.error("Delete company error:", error);
     return { success: false, error: error.message };
   }
 }
