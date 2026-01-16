@@ -339,6 +339,7 @@ export default function LettersClient() {
     const letterhead = companyInfo?.letterhead_path;
     const topMargin = margins.top;
     const bottomMargin = margins.bottom;
+    const isPdf = letterhead?.toLowerCase().endsWith('.pdf');
     const printWindow = window.open("", "_blank");
     if (!printWindow) return;
     printWindow.document.write(`
@@ -352,25 +353,37 @@ export default function LettersClient() {
           * { margin: 0; padding: 0; box-sizing: border-box; }
           body { font-family: 'Tajawal', sans-serif; direction: rtl; background: #fff; color: #000; line-height: 1.8; }
           @page { size: A4; margin: 0; }
-          .page-container { width: 210mm; min-height: 297mm; position: relative; margin: 0 auto; 
-            background-image: ${letterhead ? `url('${letterhead}')` : 'none'};
-            background-size: 100% 100%; background-repeat: no-repeat; background-position: center; }
-          .letter-content-wrapper { padding-top: ${topMargin}px; padding-bottom: ${bottomMargin}px; padding-left: 50px; padding-right: 50px; }
+          .page-container { width: 210mm; min-height: 297mm; position: relative; margin: 0 auto; overflow: hidden; }
+          ${!isPdf ? `
+          .page-container {
+            background-image: url('${letterhead}');
+            background-size: 100% 100%; background-repeat: no-repeat; background-position: center;
+          }` : ''}
+          .letterhead-pdf { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; z-index: -1; }
+          .letter-content-wrapper { position: relative; z-index: 1; padding-top: ${topMargin}px; padding-bottom: ${bottomMargin}px; padding-left: 50px; padding-right: 50px; }
           .letter-content { font-size: 16px; text-align: justify; }
           .field { font-weight: bold; color: #000; }
           h2 { font-size: 22px; margin-bottom: 20px; }
           table { width: 100%; border-collapse: collapse; margin: 15px 0; }
           td, th { padding: 10px; border: 1px solid #000; }
-          @media print { .page-container { width: 100%; margin: 0; box-shadow: none; -webkit-print-color-adjust: exact; print-color-adjust: exact; } }
+          @media print { 
+            .page-container { width: 100%; margin: 0; box-shadow: none; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            .letterhead-pdf { display: block; }
+          }
         </style>
       </head>
       <body>
         <div class="page-container">
+          ${isPdf ? `<iframe src="${letterhead}#toolbar=0&navpanes=0&scrollbar=0" class="letterhead-pdf"></iframe>` : ''}
           <div class="letter-content-wrapper">
             <div class="letter-content">${content}</div>
           </div>
         </div>
-        <script>window.onload = function() { window.print(); }<\/script>
+        <script>
+          window.onload = function() {
+            setTimeout(() => { window.print(); }, 500);
+          }
+        <\/script>
       </body>
       </html>
     `);
@@ -530,26 +543,34 @@ export default function LettersClient() {
                   <button onClick={() => setShowSettings(false)} className="text-slate-400 hover:text-white"><X className="w-6 h-6" /></button>
                 </div>
                 <div className="space-y-6">
-                  <div className="bg-slate-700/50 p-6 rounded-xl border border-slate-600">
-                    <label className="block text-white font-bold mb-4 flex items-center gap-2"><Upload className="w-5 h-5 text-blue-400" /> الورق المروس (Image)</label>
-                    <div className="relative group">
-                      <input type="file" accept="image/*" onChange={handleFileUpload} className="hidden" id="letterhead-upload" />
-                      <label htmlFor="letterhead-upload" className="cursor-pointer block border-2 border-dashed border-slate-500 hover:border-blue-500 rounded-xl p-8 text-center transition-all bg-slate-800/50">
-                        {isUploading ? <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto"></div> :
-                          companyInfo?.letterhead_path ? (
-                            <div className="relative">
-                              <img src={companyInfo.letterhead_path} alt="Letterhead" className="max-h-40 mx-auto rounded shadow-lg" />
-                              <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity rounded">
-                                <span className="text-white text-sm">تغيير الصورة</span>
+                    <div className="bg-slate-700/50 p-6 rounded-xl border border-slate-600">
+                      <label className="block text-white font-bold mb-4 flex items-center gap-2"><Upload className="w-5 h-5 text-blue-400" /> الورق المروس (Image or PDF)</label>
+                      <div className="relative group">
+                        <input type="file" accept="image/*,.pdf" onChange={handleFileUpload} className="hidden" id="letterhead-upload" />
+                        <label htmlFor="letterhead-upload" className="cursor-pointer block border-2 border-dashed border-slate-500 hover:border-blue-500 rounded-xl p-8 text-center transition-all bg-slate-800/50">
+                          {isUploading ? <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto"></div> :
+                            companyInfo?.letterhead_path ? (
+                              <div className="relative">
+                                {companyInfo.letterhead_path.toLowerCase().endsWith('.pdf') ? (
+                                  <div className="flex flex-col items-center gap-2">
+                                    <FileText className="w-20 h-20 text-red-500" />
+                                    <span className="text-white text-sm">تم رفع ملف PDF بنجاح</span>
+                                    <span className="text-slate-400 text-xs">(ملاحظة: يفضل استخدام الصور لضمان أفضل جودة في المعاينة)</span>
+                                  </div>
+                                ) : (
+                                  <img src={companyInfo.letterhead_path} alt="Letterhead" className="max-h-40 mx-auto rounded shadow-lg" />
+                                )}
+                                <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity rounded">
+                                  <span className="text-white text-sm">تغيير الملف</span>
+                                </div>
                               </div>
-                            </div>
-                          ) : (
-                            <div className="text-slate-400"><Upload className="w-12 h-12 mx-auto mb-2 opacity-20" /><p>اسحب الصورة هنا أو اضغط للرفع</p></div>
-                          )
-                        }
-                      </label>
+                            ) : (
+                              <div className="text-slate-400"><Upload className="w-12 h-12 mx-auto mb-2 opacity-20" /><p>اسحب الملف هنا أو اضغط للرفع</p></div>
+                            )
+                          }
+                        </label>
+                      </div>
                     </div>
-                  </div>
 
                   <div className="space-y-4">
                     <div className="bg-slate-700/50 p-4 rounded-xl border border-slate-600">
@@ -611,18 +632,40 @@ export default function LettersClient() {
                     <button onClick={() => setShowPreview(false)} className="text-slate-400 hover:text-white p-2"><X className="w-6 h-6" /></button>
                   </div>
                 </div>
-                <div className="flex-1 overflow-y-auto bg-slate-200 p-4 md:p-8 flex justify-center">
-                  <div 
-                    className="bg-white shadow-2xl origin-top"
-                    style={{ 
-                      width: '210mm', minHeight: '297mm', padding: `${margins.top}px 50px ${margins.bottom}px`,
-                      backgroundImage: companyInfo?.letterhead_path ? `url(${companyInfo.letterhead_path})` : 'none',
-                      backgroundSize: '100% 100%', backgroundRepeat: 'no-repeat',
-                      transform: 'scale(0.8)'
-                    }}
-                    dangerouslySetInnerHTML={{ __html: generateLetterContent(previewLetter) }}
-                  />
-                </div>
+                  <div className="flex-1 overflow-y-auto bg-slate-200 p-4 md:p-8 flex justify-center">
+                    <div 
+                      className="bg-white shadow-2xl origin-top relative overflow-hidden"
+                      style={{ 
+                        width: '210mm', minHeight: '297mm',
+                        transform: 'scale(0.8)'
+                      }}
+                    >
+                      {companyInfo?.letterhead_path && (
+                        companyInfo.letterhead_path.toLowerCase().endsWith('.pdf') ? (
+                          <iframe 
+                            src={`${companyInfo.letterhead_path}#toolbar=0&navpanes=0&scrollbar=0`} 
+                            className="absolute inset-0 w-full h-full border-none pointer-events-none"
+                            style={{ zIndex: 0 }}
+                          />
+                        ) : (
+                          <div 
+                            className="absolute inset-0"
+                            style={{ 
+                              backgroundImage: `url(${companyInfo.letterhead_path})`,
+                              backgroundSize: '100% 100%',
+                              backgroundRepeat: 'no-repeat',
+                              zIndex: 0
+                            }}
+                          />
+                        )
+                      )}
+                      <div 
+                        className="relative z-10"
+                        style={{ padding: `${margins.top}px 50px ${margins.bottom}px` }}
+                        dangerouslySetInnerHTML={{ __html: generateLetterContent(previewLetter) }}
+                      />
+                    </div>
+                  </div>
               </motion.div>
             </motion.div>
           )}
