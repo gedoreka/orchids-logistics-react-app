@@ -483,59 +483,95 @@ export function ExpensesReportClient({ companyId }: ExpensesReportClientProps) {
 
   return (
     <div
-      className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-slate-100 rtl print:bg-white"
+      className="rtl print:bg-white pb-10"
       dir="rtl"
     >
-      <div className="w-[98%] mx-auto py-4 space-y-4 print:w-full print:p-2">
+      <div className="w-[98%] mx-auto py-4 space-y-6 print:w-full print:p-2">
         {/* Header Section */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           className="print:shadow-none"
         >
-          <Card className="overflow-hidden border-none shadow-xl bg-gradient-to-br from-[#1e3a5f] via-[#2d4a6f] to-[#1e3a5f] text-white rounded-3xl print:rounded-none print:shadow-none">
-            <div className="h-1 bg-gradient-to-r from-blue-400 via-emerald-400 via-amber-400 via-rose-400 to-purple-400 print:hidden" />
+          <Card className="overflow-hidden border-none shadow-2xl bg-[#0d1525]/40 backdrop-blur-xl text-white rounded-[2rem] border border-white/5 print:rounded-none print:shadow-none">
+            <div className="h-1 bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500 print:hidden" />
             
-            <CardContent className="p-5">
-              <div className="flex flex-col lg:flex-row items-center justify-between gap-4">
-                <div className="flex items-center gap-4">
-                  {companyInfo?.logo_path ? (
-                    <img
-                      src={companyInfo.logo_path}
-                      alt="Logo"
-                      className="w-16 h-16 rounded-full border-2 border-white/20 object-cover shadow-lg"
-                    />
-                  ) : (
-                    <div className="w-16 h-16 rounded-full bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center shadow-lg border-2 border-white/20">
-                      <Building2 className="w-8 h-8 text-white" />
-                    </div>
-                  )}
+            <CardContent className="p-6">
+              <div className="flex flex-col lg:flex-row items-center justify-between gap-6">
+                <div className="flex items-center gap-5">
+                  <div className="relative group">
+                    <div className="absolute -inset-1 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl blur opacity-25 group-hover:opacity-50 transition duration-1000 group-hover:duration-200"></div>
+                    {companyInfo?.logo_path ? (
+                      <div className="relative w-16 h-16 rounded-2xl bg-white p-2.5 flex items-center justify-center shadow-2xl border border-white/10 overflow-hidden">
+                        <img
+                          src={companyInfo.logo_path}
+                          alt="Logo"
+                          className="w-full h-full object-contain"
+                        />
+                      </div>
+                    ) : (
+                      <div className="relative w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center shadow-2xl border border-white/10">
+                        <Building2 className="w-8 h-8 text-white" />
+                      </div>
+                    )}
+                  </div>
                   <div>
-                    <h2 className="text-lg font-bold text-white/90">
+                    <h2 className="text-xl font-black text-white bg-clip-text text-transparent bg-gradient-to-l from-white via-white/90 to-white/70">
                       {companyInfo?.name || "اسم الشركة"}
                     </h2>
-                    <p className="text-blue-200 text-xs">
+                    <p className="text-blue-400 text-xs font-bold tracking-wider mt-0.5">
                       نظام إدارة المنصرفات والرواتب
                     </p>
                   </div>
                 </div>
 
                 <div className="text-center flex-1">
-                  <h1 className="text-xl lg:text-2xl font-bold flex items-center justify-center gap-3">
-                    <TrendingUp className="w-7 h-7 text-amber-400" />
-                    التقرير المالي الشهري
-                  </h1>
+                  <div className="inline-flex items-center gap-3 px-6 py-2 rounded-full bg-white/5 border border-white/10 backdrop-blur-md">
+                    <TrendingUp className="w-5 h-5 text-blue-400" />
+                    <h1 className="text-lg lg:text-xl font-black tracking-tight text-white/90">
+                      التقرير المالي الشهري
+                    </h1>
+                  </div>
                 </div>
 
-                <div className="bg-white/10 backdrop-blur-lg rounded-2xl px-4 py-3 border border-white/20 print:hidden">
-                  <div className="flex items-center gap-3">
-                    <Calendar className="w-6 h-6 text-amber-400" />
-                    <div>
-                      <p className="text-xs text-blue-200">الشهر المختار</p>
-                      <p className="text-base font-bold">
+                <div className="flex items-center gap-4 print:hidden">
+                  <div className="bg-white/5 backdrop-blur-2xl rounded-2xl px-5 py-3 border border-white/10 shadow-inner flex items-center gap-4">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8 text-white/40 hover:text-white hover:bg-white/10 rounded-full transition-all"
+                      onClick={() => {
+                        const date = new Date(selectedMonth + "-01");
+                        date.setMonth(date.getMonth() - 1);
+                        setSelectedMonth(`${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`);
+                      }}
+                    >
+                      <motion.div whileTap={{ x: 3 }}>
+                        <ChevronDown className="w-5 h-5 rotate-90" />
+                      </motion.div>
+                    </Button>
+
+                    <div className="text-center min-w-[100px]">
+                      <p className="text-[10px] text-blue-400 font-bold mb-0.5">الفترة المحددة</p>
+                      <p className="text-base font-black text-white leading-none">
                         {getMonthName(selectedMonth)}
                       </p>
                     </div>
+
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8 text-white/40 hover:text-white hover:bg-white/10 rounded-full transition-all"
+                      onClick={() => {
+                        const date = new Date(selectedMonth + "-01");
+                        date.setMonth(date.getMonth() + 1);
+                        setSelectedMonth(`${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`);
+                      }}
+                    >
+                      <motion.div whileTap={{ x: -3 }}>
+                        <ChevronDown className="w-5 h-5 -rotate-90" />
+                      </motion.div>
+                    </Button>
                   </div>
                 </div>
               </div>
@@ -543,7 +579,7 @@ export function ExpensesReportClient({ companyId }: ExpensesReportClientProps) {
           </Card>
         </motion.div>
 
-        {/* Stats Cards - Main Totals (Always Visible) */}
+        {/* Stats Cards - Main Totals */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -555,77 +591,77 @@ export function ExpensesReportClient({ companyId }: ExpensesReportClientProps) {
               label: "إجمالي المنصرفات",
               value: stats.totalExpenses,
               count: stats.expensesCount,
-              countLabel: "عملية",
               icon: Wallet,
-              gradient: "from-blue-600 to-blue-700",
-              bgGradient: "from-blue-50 to-white",
-              accent: "blue",
-              description: "تشمل المنصرفات التشغيلية والرواتب"
+              color: "text-blue-400",
+              bgColor: "bg-blue-400/10",
+              border: "border-blue-400/20",
+              glow: "bg-blue-400/5",
+              accent: "blue"
             },
             {
               label: "إجمالي الاستقطاعات",
               value: stats.totalDeductions,
               count: stats.deductionsCount,
-              countLabel: "عملية",
               icon: HandCoins,
-              gradient: "from-rose-600 to-rose-700",
-              bgGradient: "from-rose-50 to-white",
-              accent: "rose",
-              description: "إجمالي الخصومات والاستقطاعات"
+              color: "text-rose-400",
+              bgColor: "bg-rose-400/10",
+              border: "border-rose-400/20",
+              glow: "bg-rose-400/5",
+              accent: "rose"
             },
             {
               label: "مسيرات الرواتب",
               value: stats.totalPayrolls,
               count: stats.payrollsCount,
-              countLabel: "مسير",
               icon: FileText,
-              gradient: "from-emerald-600 to-emerald-700",
-              bgGradient: "from-emerald-50 to-white",
+              color: "text-emerald-400",
+              bgColor: "bg-emerald-400/10",
+              border: "border-emerald-400/20",
+              glow: "bg-emerald-400/5",
               accent: "emerald",
-              description: "كشوفات الرواتب المعتمدة",
               link: "/salary-payrolls"
             },
             {
               label: "المجموع الكلي",
               value: stats.totalAll,
               count: stats.expensesCount + stats.deductionsCount + stats.payrollsCount,
-              countLabel: "عملية إجمالية",
               icon: Calculator,
-              gradient: "from-amber-600 to-amber-700",
-              bgGradient: "from-amber-50 to-white",
-              accent: "amber",
-              description: "صافي التدفقات المالية للشهر"
+              color: "text-amber-400",
+              bgColor: "bg-amber-400/10",
+              border: "border-amber-400/20",
+              glow: "bg-amber-400/5",
+              accent: "amber"
             },
           ].map((stat, idx) => (
             <motion.div
               key={idx}
-              whileHover={{ y: -5, scale: 1.02 }}
-              transition={{ type: "spring", stiffness: 300 }}
+              whileHover={{ y: -5 }}
               onClick={() => stat.link && (window.location.href = stat.link)}
-              className={`relative group ${stat.link ? "cursor-pointer" : ""}`}
+              className={`relative ${stat.link ? "cursor-pointer" : ""}`}
             >
-              <Card className={`border-none shadow-xl rounded-[2.5rem] overflow-hidden bg-gradient-to-br ${stat.bgGradient} relative z-10 h-full border-b-4 border-${stat.accent}-500/30`}>
-                <CardContent className="p-6">
-                  <div className="flex flex-col items-center text-center space-y-4">
-                    <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${stat.gradient} flex items-center justify-center shadow-lg group-hover:rotate-6 transition-transform duration-300`}>
-                      <stat.icon className="w-7 h-7 text-white" />
+              <Card className={`border-none shadow-2xl rounded-2xl overflow-hidden bg-[#0d1525]/40 backdrop-blur-xl relative z-10 h-full border-t border-white/5`}>
+                <div className={`absolute top-0 right-0 w-24 h-24 ${stat.glow} blur-3xl -z-10`} />
+                <CardContent className="p-5">
+                  <div className="flex items-center gap-4">
+                    <div className={`w-12 h-12 rounded-xl ${stat.bgColor} flex items-center justify-center border ${stat.border} shadow-inner`}>
+                      <stat.icon className={`w-6 h-6 ${stat.color}`} />
                     </div>
                     
-                    <div className="space-y-1">
-                      <p className={`text-sm font-bold text-${stat.accent}-700 tracking-wide`}>{stat.label}</p>
-                      <div className="flex items-baseline justify-center gap-1">
-                        <span className="text-2xl font-black text-slate-800">{formatNumber(stat.value)}</span>
-                        <span className="text-[10px] font-bold text-slate-400">ر.س</span>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">{stat.label}</p>
+                      <div className="flex items-baseline gap-1 mt-0.5">
+                        <span className="text-xl font-black text-white truncate">{formatNumber(stat.value)}</span>
+                        <span className="text-[9px] font-bold text-slate-500">ر.س</span>
                       </div>
                     </div>
+                  </div>
 
-                    <div className="w-full pt-3 border-t border-slate-100 flex items-center justify-between">
-                      <div className="flex items-center gap-1.5">
-                        <div className={`w-2 h-2 rounded-full bg-${stat.accent}-500 animate-pulse`} />
-                        <span className="text-xs font-bold text-slate-600">{stat.count} {stat.countLabel}</span>
-                      </div>
-                      <Info className="w-3.5 h-3.5 text-slate-300" />
+                  <div className="mt-4 pt-3 border-t border-white/5 flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <div className={`w-1.5 h-1.5 rounded-full ${stat.bgColor.replace('/10', '')}`} />
+                      <span className="text-[10px] font-black text-slate-500 uppercase">{stat.count} عملية</span>
                     </div>
+                    <Info className="w-3.5 h-3.5 text-slate-600" />
                   </div>
                 </CardContent>
               </Card>
@@ -640,7 +676,7 @@ export function ExpensesReportClient({ companyId }: ExpensesReportClientProps) {
           transition={{ delay: 0.2 }}
           className="print:hidden"
         >
-          <div className="bg-white/40 backdrop-blur-xl p-2 rounded-[3rem] shadow-inner border border-white/50 inline-flex w-full">
+          <div className="bg-[#0d1525]/30 backdrop-blur-xl p-2 rounded-[2.5rem] shadow-2xl border border-white/5 inline-flex w-full">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-2 w-full">
               {[
                 {
@@ -648,7 +684,7 @@ export function ExpensesReportClient({ companyId }: ExpensesReportClientProps) {
                   label: "عرض المنصرفات",
                   icon: Wallet,
                   color: "blue",
-                  gradient: "from-blue-500 to-blue-700",
+                  gradient: "from-blue-600 to-indigo-600",
                   sub: "كشف تفصيلي للمصروفات والرواتب"
                 },
                 {
@@ -656,7 +692,7 @@ export function ExpensesReportClient({ companyId }: ExpensesReportClientProps) {
                   label: "عرض الاستقطاعات",
                   icon: HandCoins,
                   color: "rose",
-                  gradient: "from-rose-500 to-rose-700",
+                  gradient: "from-rose-600 to-pink-600",
                   sub: "كشف تفصيلي للخصومات والجزاءات"
                 },
                 {
@@ -664,42 +700,35 @@ export function ExpensesReportClient({ companyId }: ExpensesReportClientProps) {
                   label: "التقرير الشامل",
                   icon: BarChart3,
                   color: "purple",
-                  gradient: "from-blue-600 via-purple-600 to-rose-600",
+                  gradient: "from-indigo-600 via-purple-600 to-pink-600",
                   sub: "رؤية موحدة لجميع الحركات المالية"
                 }
               ].map((tab) => (
                 <button
                   key={tab.id}
                   onClick={() => setReportType(tab.id)}
-                  className={`relative flex items-center gap-4 p-4 rounded-[2.2rem] transition-all duration-500 group overflow-hidden ${
+                  className={`relative flex items-center gap-4 p-4 rounded-2xl transition-all duration-500 group overflow-hidden ${
                     reportType === tab.id
-                      ? `bg-gradient-to-r ${tab.gradient} text-white shadow-2xl scale-[1.02] z-10`
-                      : "bg-transparent text-slate-600 hover:bg-white/60"
+                      ? `bg-gradient-to-r ${tab.gradient} text-white shadow-2xl scale-[1.01] z-10`
+                      : "bg-transparent text-slate-400 hover:bg-white/5"
                   }`}
                 >
-                  <div className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all duration-300 ${
+                  <div className={`w-11 h-11 rounded-xl flex items-center justify-center transition-all duration-300 ${
                     reportType === tab.id
                       ? "bg-white/20 rotate-6"
-                      : `bg-${tab.color}-100 text-${tab.color}-600 group-hover:rotate-12`
+                      : `bg-white/5 text-slate-400 group-hover:rotate-12`
                   }`}>
-                    <tab.icon className="w-6 h-6" />
+                    <tab.icon className="w-5 h-5" />
                   </div>
                   
                   <div className="text-right flex-1">
-                    <p className={`text-base font-bold ${reportType === tab.id ? "text-white" : "text-slate-800"}`}>
+                    <p className={`text-sm font-black ${reportType === tab.id ? "text-white" : "text-slate-200"}`}>
                       {tab.label}
                     </p>
-                    <p className={`text-[10px] ${reportType === tab.id ? "text-white/70" : "text-slate-500"}`}>
+                    <p className={`text-[10px] font-medium ${reportType === tab.id ? "text-white/70" : "text-slate-500"}`}>
                       {tab.sub}
                     </p>
                   </div>
-
-                  {reportType === tab.id && (
-                    <motion.div
-                      layoutId="activeGlow"
-                      className="absolute inset-0 bg-white/10 blur-xl rounded-full"
-                    />
-                  )}
                 </button>
               ))}
             </div>
@@ -713,20 +742,20 @@ export function ExpensesReportClient({ companyId }: ExpensesReportClientProps) {
           transition={{ delay: 0.3 }}
           className="print:hidden"
         >
-          <Card className="border-none shadow-md rounded-[2.5rem] bg-white/60 backdrop-blur-md border border-white/50">
+          <Card className="border-none shadow-2xl rounded-[2rem] bg-[#0d1525]/40 backdrop-blur-xl border border-white/5">
             <CardContent className="p-4">
               <div className="flex flex-col lg:flex-row items-center justify-between gap-4">
                 <div className="flex items-center gap-3 flex-wrap">
-                  <div className="flex items-center gap-2 text-slate-700 text-sm font-bold bg-white/80 px-5 py-2.5 rounded-[1.5rem] border border-slate-100 shadow-sm">
-                    <Filter className="w-4 h-4 text-blue-600" />
-                    <span>اختر الفترة:</span>
+                  <div className="flex items-center gap-2 text-slate-400 text-xs font-bold bg-white/5 px-4 py-2.5 rounded-xl border border-white/5 shadow-inner">
+                    <Filter className="w-4 h-4 text-blue-400" />
+                    <span>الفترة:</span>
                     <Select value={selectedMonth} onValueChange={setSelectedMonth}>
-                      <SelectTrigger className="w-[180px] border-none bg-transparent font-black focus:ring-0 text-slate-800">
+                      <SelectTrigger className="w-[160px] border-none bg-transparent font-black focus:ring-0 text-white h-auto p-0">
                         <SelectValue />
                       </SelectTrigger>
-                      <SelectContent className="rounded-2xl border-slate-100 shadow-2xl bg-white/95 backdrop-blur-lg">
+                      <SelectContent className="rounded-2xl border-white/10 shadow-2xl bg-[#0d1525] text-white backdrop-blur-xl">
                         {monthOptions.map((opt) => (
-                          <SelectItem key={opt.value} value={opt.value} className="font-bold text-slate-700">
+                          <SelectItem key={opt.value} value={opt.value} className="font-bold hover:bg-white/10 focus:bg-white/10">
                             {opt.label}
                           </SelectItem>
                         ))}
@@ -735,19 +764,19 @@ export function ExpensesReportClient({ companyId }: ExpensesReportClientProps) {
                   </div>
                   <Button
                     onClick={fetchReportData}
-                    className="bg-gradient-to-r from-blue-600 to-indigo-700 hover:from-blue-700 hover:to-indigo-800 text-white rounded-[1.5rem] px-8 py-6 shadow-xl shadow-blue-200 transition-all active:scale-95 font-bold"
+                    className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-xl px-6 h-11 shadow-xl transition-all active:scale-95 font-bold text-sm"
                   >
-                    <Search className="w-5 h-5 ml-2" />
-                    تحديث التقرير
+                    <Search className="w-4 h-4 ml-2" />
+                    تحديث
                   </Button>
                 </div>
 
-                <div className="flex items-center gap-1 flex-wrap bg-white/80 p-1.5 rounded-[1.8rem] border border-slate-100 shadow-inner">
+                <div className="flex items-center gap-1 flex-wrap bg-white/5 p-1.5 rounded-2xl border border-white/5">
                   <Button
                     onClick={handlePrint}
                     variant="ghost"
                     size="sm"
-                    className="text-slate-600 hover:text-blue-600 hover:bg-blue-50 rounded-xl px-5 h-10 font-bold transition-colors"
+                    className="text-slate-400 hover:text-white hover:bg-white/10 rounded-xl px-4 h-9 font-bold transition-all"
                   >
                     <Printer className="w-4 h-4 ml-2" />
                     طباعة
@@ -756,26 +785,26 @@ export function ExpensesReportClient({ companyId }: ExpensesReportClientProps) {
                     onClick={handleExportExcel}
                     variant="ghost"
                     size="sm"
-                    className="text-slate-600 hover:text-emerald-600 hover:bg-emerald-50 rounded-xl px-5 h-10 font-bold transition-colors"
+                    className="text-slate-400 hover:text-emerald-400 hover:bg-emerald-400/10 rounded-xl px-4 h-9 font-bold transition-all"
                   >
                     <FileSpreadsheet className="w-4 h-4 ml-2" />
-                    تصدير Excel
+                    Excel
                   </Button>
                   <Button
                     onClick={() => setShowAnalysisModal(true)}
                     variant="ghost"
                     size="sm"
-                    className="text-slate-600 hover:text-amber-600 hover:bg-amber-50 rounded-xl px-5 h-10 font-bold transition-colors"
+                    className="text-slate-400 hover:text-amber-400 hover:bg-amber-400/10 rounded-xl px-4 h-9 font-bold transition-all"
                   >
                     <BarChart3 className="w-4 h-4 ml-2" />
-                    تحليل ذكي
+                    تحليل
                   </Button>
-                  <div className="w-px h-8 bg-slate-200 mx-2" />
+                  <div className="w-px h-6 bg-white/10 mx-2" />
                   <Button
                     onClick={() => (window.location.href = "/expenses")}
                     variant="ghost"
                     size="sm"
-                    className="text-slate-600 hover:text-rose-600 hover:bg-rose-50 rounded-xl px-5 h-10 font-bold transition-colors"
+                    className="text-slate-400 hover:text-rose-400 hover:bg-rose-400/10 rounded-xl px-4 h-9 font-bold transition-all"
                   >
                     <Home className="w-4 h-4 ml-2" />
                     الرئيسية
@@ -793,19 +822,26 @@ export function ExpensesReportClient({ companyId }: ExpensesReportClientProps) {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4 }}
           >
-            <Card className="border-none shadow-lg rounded-3xl overflow-hidden">
-              <CardHeader className="bg-gradient-to-r from-blue-600 to-blue-700 text-white p-4">
+            <Card className="border-none shadow-2xl rounded-[2rem] overflow-hidden bg-[#0d1525]/40 backdrop-blur-xl border border-white/5">
+              <CardHeader className="bg-gradient-to-r from-blue-600/20 to-indigo-600/20 border-b border-white/5 p-5">
                 <div className="flex items-center justify-between">
-                  <CardTitle className="flex items-center gap-2 text-base">
-                    <Wallet className="w-5 h-5" />
+                  <CardTitle className="flex items-center gap-3 text-white text-lg font-black">
+                    <div className="w-10 h-10 rounded-xl bg-blue-500/20 flex items-center justify-center border border-blue-500/30">
+                      <Wallet className="w-5 h-5 text-blue-400" />
+                    </div>
                     المنصرفات الشهرية
                   </CardTitle>
-                  <Badge className="bg-white/20 text-white text-sm px-3 py-1">
-                    {stats.expensesCount} عملية - {formatNumber(stats.totalExpenses)} ر.س
-                  </Badge>
+                  <div className="flex items-center gap-2">
+                    <Badge variant="outline" className="border-blue-500/30 text-blue-400 bg-blue-500/5 px-4 py-1.5 rounded-xl font-bold">
+                      {stats.expensesCount} عملية
+                    </Badge>
+                    <Badge className="bg-blue-600 text-white px-4 py-1.5 rounded-xl font-black shadow-lg shadow-blue-600/20">
+                      {formatNumber(stats.totalExpenses)} ر.س
+                    </Badge>
+                  </div>
                 </div>
               </CardHeader>
-              <CardContent className="p-4 space-y-4">
+              <CardContent className="p-6 space-y-6">
                 {Object.keys(expensesGrouped).length > 0 ? (
                   Object.entries(expensesGrouped).map(([group, expenses]) => {
                     const groupKey = `expense-${group}`;
@@ -818,25 +854,24 @@ export function ExpensesReportClient({ companyId }: ExpensesReportClientProps) {
                     return (
                       <div
                         key={group}
-                        className="border border-slate-200 rounded-3xl overflow-hidden"
+                        className="rounded-3xl overflow-hidden border border-white/5 bg-white/[0.02]"
                       >
                         <button
                           onClick={() => toggleGroup(groupKey)}
-                          className="w-full bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-white p-3 flex items-center justify-between hover:opacity-95 transition-all"
+                          className="w-full bg-white/5 p-4 flex items-center justify-between hover:bg-white/10 transition-all group"
                         >
-                          <div className="flex items-center gap-3">
-                            <Folder className="w-5 h-5" />
-                            <span className="text-sm font-bold">{group}</span>
+                          <div className="flex items-center gap-4">
+                            <div className="w-8 h-8 rounded-lg bg-indigo-500/20 flex items-center justify-center border border-indigo-500/30 group-hover:rotate-12 transition-transform">
+                              <Folder className="w-4 h-4 text-indigo-400" />
+                            </div>
+                            <span className="text-sm font-black text-slate-200">{group}</span>
                           </div>
-                          <div className="flex items-center gap-2">
-                            <Badge className="bg-white/20 text-white text-xs px-2 py-0.5">
-                              {expenses.length} عملية
-                            </Badge>
-                            <Badge className="bg-white/20 text-white text-xs px-2 py-0.5">
-                              {formatNumber(groupTotal)} ر.س
-                            </Badge>
+                          <div className="flex items-center gap-4">
+                            <span className="text-xs font-bold text-slate-500">{expenses.length} عملية</span>
+                            <div className="h-4 w-px bg-white/10" />
+                            <span className="text-sm font-black text-white">{formatNumber(groupTotal)} ر.س</span>
                             <motion.div animate={{ rotate: isExpanded ? 180 : 0 }}>
-                              <ChevronDown className="w-4 h-4" />
+                              <ChevronDown className="w-4 h-4 text-slate-500" />
                             </motion.div>
                           </div>
                         </button>
@@ -849,85 +884,82 @@ export function ExpensesReportClient({ companyId }: ExpensesReportClientProps) {
                               exit={{ height: 0, opacity: 0 }}
                               transition={{ duration: 0.3 }}
                             >
-                              <div className="max-h-[300px] overflow-y-auto scrollbar-thin">
-                                <table className="w-full text-sm">
-                                  <thead className="bg-slate-50 sticky top-0 z-10">
-                                    <tr>
-                                      <th className="p-2 text-center text-slate-600 font-bold text-xs">#</th>
-                                      <th className="p-2 text-center text-slate-600 font-bold text-xs">التاريخ</th>
-                                      <th className="p-2 text-center text-slate-600 font-bold text-xs">المستفيد</th>
-                                      <th className="p-2 text-center text-slate-600 font-bold text-xs">رقم الإقامة</th>
-                                      <th className="p-2 text-center text-slate-600 font-bold text-xs">المبلغ</th>
-                                      <th className="p-2 text-center text-slate-600 font-bold text-xs">الضريبة</th>
-                                      <th className="p-2 text-center text-slate-600 font-bold text-xs">الصافي</th>
-                                      <th className="p-2 text-center text-slate-600 font-bold text-xs">الحساب</th>
-                                      <th className="p-2 text-center text-slate-600 font-bold text-xs">م.التكلفة</th>
-                                        <th className="p-2 text-center text-slate-600 font-bold text-xs print:hidden">الإجراءات</th>
+                              <div className="max-h-[400px] overflow-y-auto scrollbar-thin px-2 pb-2">
+                                <table className="w-full text-sm border-separate border-spacing-y-1.5">
+                                  <thead className="sticky top-0 z-10">
+                                    <tr className="bg-[#0d1525]/80 backdrop-blur-md">
+                                      <th className="p-3 text-right text-slate-500 font-bold text-[10px] uppercase tracking-wider rounded-r-xl">التاريخ</th>
+                                      <th className="p-3 text-right text-slate-500 font-bold text-[10px] uppercase tracking-wider">المستفيد</th>
+                                      <th className="p-3 text-center text-slate-500 font-bold text-[10px] uppercase tracking-wider">المبلغ</th>
+                                      <th className="p-3 text-center text-slate-500 font-bold text-[10px] uppercase tracking-wider">الضريبة</th>
+                                      <th className="p-3 text-center text-slate-500 font-bold text-[10px] uppercase tracking-wider">الصافي</th>
+                                      <th className="p-3 text-center text-slate-500 font-bold text-[10px] uppercase tracking-wider">مركز التكلفة</th>
+                                      <th className="p-3 text-center text-slate-500 font-bold text-[10px] uppercase tracking-wider rounded-l-xl print:hidden">الإجراءات</th>
+                                    </tr>
+                                  </thead>
+                                  <tbody>
+                                    {expenses.map((expense) => (
+                                      <tr
+                                        key={expense.id}
+                                        className="bg-white/[0.03] hover:bg-white/[0.06] transition-all group"
+                                      >
+                                        <td className="p-3 text-right text-xs font-medium text-slate-400 rounded-r-xl">
+                                          {formatDate(expense.expense_date)}
+                                        </td>
+                                        <td className="p-3 text-right">
+                                          <div className="flex flex-col">
+                                            <span className="text-xs font-black text-white group-hover:text-blue-400 transition-colors">
+                                              {expense.employee_name || "-"}
+                                            </span>
+                                            <span className="text-[10px] text-slate-500">{expense.employee_iqama || "-"}</span>
+                                          </div>
+                                        </td>
+                                        <td className="p-3 text-center">
+                                          <span className="text-xs font-bold text-slate-300">{formatNumber(expense.amount || 0)}</span>
+                                        </td>
+                                        <td className="p-3 text-center">
+                                          <span className="text-xs text-slate-500">{formatNumber(expense.tax_value || 0)}</span>
+                                        </td>
+                                        <td className="p-3 text-center">
+                                          <span className="text-xs font-black text-blue-400">{formatNumber(expense.net_amount || expense.amount || 0)}</span>
+                                        </td>
+                                        <td className="p-3 text-center">
+                                          <Badge variant="outline" className="border-white/5 text-[10px] text-slate-500 font-medium">
+                                            {expense.center_code || "-"}
+                                          </Badge>
+                                        </td>
+                                        <td className="p-3 text-center rounded-l-xl print:hidden">
+                                          <div className="flex items-center justify-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                            <Button
+                                              size="icon"
+                                              variant="ghost"
+                                              onClick={() => showItemDetails(expense)}
+                                              className="h-7 w-7 text-blue-400 hover:bg-blue-400/10 hover:text-blue-300 rounded-lg"
+                                            >
+                                              <Eye className="w-3.5 h-3.5" />
+                                            </Button>
+                                            <Button
+                                              size="icon"
+                                              variant="ghost"
+                                              onClick={() => handleEditClick(expense)}
+                                              className="h-7 w-7 text-amber-400 hover:bg-amber-400/10 hover:text-amber-300 rounded-lg"
+                                            >
+                                              <Pencil className="w-3.5 h-3.5" />
+                                            </Button>
+                                            <Button
+                                              size="icon"
+                                              variant="ghost"
+                                              onClick={() => handleDeleteClick(expense)}
+                                              className="h-7 w-7 text-rose-400 hover:bg-rose-400/10 hover:text-rose-300 rounded-lg"
+                                            >
+                                              <Trash2 className="w-3.5 h-3.5" />
+                                            </Button>
+                                          </div>
+                                        </td>
                                       </tr>
-                                    </thead>
-                                    <tbody>
-                                      {expenses.map((expense, idx) => (
-                                        <tr
-                                          key={expense.id}
-                                          className="border-b border-slate-100 hover:bg-blue-50/50 transition-colors"
-                                        >
-                                          <td className="p-2 text-center text-slate-500 text-xs">{idx + 1}</td>
-                                          <td className="p-2 text-center text-xs">{formatDate(expense.expense_date)}</td>
-                                          <td className="p-2 text-center font-medium text-xs">{expense.employee_name || "-"}</td>
-                                          <td className="p-2 text-center text-slate-500 text-xs">{expense.employee_iqama || "-"}</td>
-                                          <td className="p-2 text-center font-bold text-blue-600 text-xs">{formatNumber(expense.amount || 0)}</td>
-                                          <td className="p-2 text-center text-slate-500 text-xs">{formatNumber(expense.tax_value || 0)}</td>
-                                          <td className="p-2 text-center font-bold text-emerald-600 text-xs">{formatNumber(expense.net_amount || expense.amount || 0)}</td>
-                                          <td className="p-2 text-center text-xs">{expense.account_code || "-"}</td>
-                                          <td className="p-2 text-center text-xs">{expense.center_code || "-"}</td>
-                                          <td className="p-2 text-center print:hidden">
-                                            <div className="flex items-center justify-center gap-1">
-                                              <Button
-                                                size="sm"
-                                                variant="ghost"
-                                                onClick={() => showItemDetails(expense)}
-                                                className="text-blue-600 hover:bg-blue-100 h-7 px-2"
-                                                title="عرض التفاصيل"
-                                              >
-                                                <Eye className="w-3.5 h-3.5" />
-                                              </Button>
-                                              <Button
-                                                size="sm"
-                                                variant="ghost"
-                                                onClick={() => handleEditClick(expense)}
-                                                className="text-amber-600 hover:bg-amber-100 h-7 px-2"
-                                                title="تعديل"
-                                              >
-                                                <Pencil className="w-3.5 h-3.5" />
-                                              </Button>
-                                              <Button
-                                                size="sm"
-                                                variant="ghost"
-                                                onClick={() => handleDeleteClick(expense)}
-                                                className="text-rose-600 hover:bg-rose-100 h-7 px-2"
-                                                title="حذف"
-                                              >
-                                                <Trash2 className="w-3.5 h-3.5" />
-                                              </Button>
-                                            </div>
-                                          </td>
-                                        </tr>
-                                      ))}
+                                    ))}
                                   </tbody>
                                 </table>
-                              </div>
-
-                              <div className="bg-gradient-to-r from-slate-50 to-slate-100 p-3 border-t border-slate-200">
-                                <div className="flex items-center justify-between">
-                                  <div className="flex items-center gap-2 text-slate-600 text-sm">
-                                    <Calculator className="w-4 h-4" />
-                                    <span className="font-bold">الإجمالي الفرعي لـ {group}:</span>
-                                  </div>
-                                  <span className="text-base font-bold text-slate-800">
-                                    {formatNumber(groupTotal)} ريال سعودي
-                                  </span>
-                                </div>
-                                <p className="text-xs text-slate-500 mt-0.5">({expenses.length} عملية)</p>
                               </div>
                             </motion.div>
                           )}
@@ -936,16 +968,15 @@ export function ExpensesReportClient({ companyId }: ExpensesReportClientProps) {
                     );
                   })
                 ) : (
-                  <div className="text-center py-10">
-                    <div className="w-14 h-14 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                      <Wallet className="w-7 h-7 text-slate-300" />
+                  <div className="text-center py-16 border-2 border-dashed border-white/5 rounded-3xl">
+                    <div className="w-20 h-20 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-4 border border-white/10">
+                      <Wallet className="w-10 h-10 text-slate-600" />
                     </div>
-                    <h4 className="text-sm font-bold text-slate-600">لا توجد منصرفات لهذا الشهر</h4>
-                    <p className="text-xs text-slate-400 mt-1">لم يتم إضافة أي منصرفات للشهر المحدد</p>
+                    <h4 className="text-base font-black text-slate-300">لا توجد منصرفات مسجلة</h4>
+                    <p className="text-sm text-slate-500 mt-2">لم يتم العثور على أي بيانات منصرفات للفترة المحددة</p>
                     <Button
-                      size="sm"
-                      className="mt-4 bg-blue-600 hover:bg-blue-700"
                       onClick={() => (window.location.href = "/expenses/new")}
+                      className="mt-6 bg-blue-600 hover:bg-blue-700 text-white rounded-xl px-8"
                     >
                       إضافة منصرف جديد
                     </Button>
@@ -963,19 +994,26 @@ export function ExpensesReportClient({ companyId }: ExpensesReportClientProps) {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.5 }}
           >
-            <Card className="border-none shadow-lg rounded-3xl overflow-hidden">
-              <CardHeader className="bg-gradient-to-r from-rose-600 to-rose-700 text-white p-4">
+            <Card className="border-none shadow-2xl rounded-[2rem] overflow-hidden bg-[#0d1525]/40 backdrop-blur-xl border border-white/5">
+              <CardHeader className="bg-gradient-to-r from-rose-600/20 to-pink-600/20 border-b border-white/5 p-5">
                 <div className="flex items-center justify-between">
-                  <CardTitle className="flex items-center gap-2 text-base">
-                    <HandCoins className="w-5 h-5" />
+                  <CardTitle className="flex items-center gap-3 text-white text-lg font-black">
+                    <div className="w-10 h-10 rounded-xl bg-rose-500/20 flex items-center justify-center border border-rose-500/30">
+                      <HandCoins className="w-5 h-5 text-rose-400" />
+                    </div>
                     الاستقطاعات الشهرية
                   </CardTitle>
-                  <Badge className="bg-white/20 text-white text-sm px-3 py-1">
-                    {stats.deductionsCount} عملية - {formatNumber(stats.totalDeductions)} ر.س
-                  </Badge>
+                  <div className="flex items-center gap-2">
+                    <Badge variant="outline" className="border-rose-500/30 text-rose-400 bg-rose-500/5 px-4 py-1.5 rounded-xl font-bold">
+                      {stats.deductionsCount} عملية
+                    </Badge>
+                    <Badge className="bg-rose-600 text-white px-4 py-1.5 rounded-xl font-black shadow-lg shadow-rose-600/20">
+                      {formatNumber(stats.totalDeductions)} ر.س
+                    </Badge>
+                  </div>
                 </div>
               </CardHeader>
-              <CardContent className="p-4 space-y-4">
+              <CardContent className="p-6 space-y-6">
                 {Object.keys(deductionsGrouped).length > 0 ? (
                   Object.entries(deductionsGrouped).map(([group, deductions]) => {
                     const groupKey = `deduction-${group}`;
@@ -988,25 +1026,24 @@ export function ExpensesReportClient({ companyId }: ExpensesReportClientProps) {
                     return (
                       <div
                         key={group}
-                        className="border border-slate-200 rounded-3xl overflow-hidden"
+                        className="rounded-3xl overflow-hidden border border-white/5 bg-white/[0.02]"
                       >
                         <button
                           onClick={() => toggleGroup(groupKey)}
-                          className="w-full bg-gradient-to-r from-rose-500 via-red-500 to-orange-500 text-white p-3 flex items-center justify-between hover:opacity-95 transition-all"
+                          className="w-full bg-white/5 p-4 flex items-center justify-between hover:bg-white/10 transition-all group"
                         >
-                          <div className="flex items-center gap-3">
-                            <Folder className="w-5 h-5" />
-                            <span className="text-sm font-bold">{group}</span>
+                          <div className="flex items-center gap-4">
+                            <div className="w-8 h-8 rounded-lg bg-pink-500/20 flex items-center justify-center border border-pink-500/30 group-hover:rotate-12 transition-transform">
+                              <Folder className="w-4 h-4 text-pink-400" />
+                            </div>
+                            <span className="text-sm font-black text-slate-200">{group}</span>
                           </div>
-                          <div className="flex items-center gap-2">
-                            <Badge className="bg-white/20 text-white text-xs px-2 py-0.5">
-                              {deductions.length} عملية
-                            </Badge>
-                            <Badge className="bg-white/20 text-white text-xs px-2 py-0.5">
-                              {formatNumber(groupTotal)} ر.س
-                            </Badge>
+                          <div className="flex items-center gap-4">
+                            <span className="text-xs font-bold text-slate-500">{deductions.length} عملية</span>
+                            <div className="h-4 w-px bg-white/10" />
+                            <span className="text-sm font-black text-white">{formatNumber(groupTotal)} ر.س</span>
                             <motion.div animate={{ rotate: isExpanded ? 180 : 0 }}>
-                              <ChevronDown className="w-4 h-4" />
+                              <ChevronDown className="w-4 h-4 text-slate-500" />
                             </motion.div>
                           </div>
                         </button>
@@ -1019,110 +1056,95 @@ export function ExpensesReportClient({ companyId }: ExpensesReportClientProps) {
                               exit={{ height: 0, opacity: 0 }}
                               transition={{ duration: 0.3 }}
                             >
-                              <div className="max-h-[300px] overflow-y-auto scrollbar-thin">
-                                <table className="w-full text-sm">
-                                  <thead className="bg-slate-50 sticky top-0 z-10">
-                                    <tr>
-                                      <th className="p-2 text-center text-slate-600 font-bold text-xs">#</th>
-                                      <th className="p-2 text-center text-slate-600 font-bold text-xs">التاريخ</th>
-                                      <th className="p-2 text-center text-slate-600 font-bold text-xs">الموظف</th>
-                                      <th className="p-2 text-center text-slate-600 font-bold text-xs">رقم الإقامة</th>
-                                      <th className="p-2 text-center text-slate-600 font-bold text-xs">المبلغ</th>
-                                      <th className="p-2 text-center text-slate-600 font-bold text-xs">الحساب</th>
-                                        <th className="p-2 text-center text-slate-600 font-bold text-xs">م.التكلفة</th>
-                                        <th className="p-2 text-center text-slate-600 font-bold text-xs">حالة الدفع</th>
-                                        <th className="p-2 text-center text-slate-600 font-bold text-xs print:hidden">الإجراءات</th>
-                                      </tr>
-                                    </thead>
-                                    <tbody>
-                                      {deductions.map((deduction, idx) => (
-                                        <tr
-                                          key={deduction.id}
-                                          className="border-b border-slate-100 hover:bg-rose-50/50 transition-colors"
-                                        >
-                                          <td className="p-2 text-center text-slate-500 text-xs">{idx + 1}</td>
-                                          <td className="p-2 text-center text-xs">{formatDate(deduction.expense_date)}</td>
-                                          <td className="p-2 text-center font-medium text-xs">{deduction.employee_name || "-"}</td>
-                                          <td className="p-2 text-center text-slate-500 text-xs">{deduction.employee_iqama || "-"}</td>
-                                          <td className="p-2 text-center font-bold text-rose-600 text-xs">{formatNumber(deduction.amount || 0)}</td>
-                                          <td className="p-2 text-center text-xs">{deduction.account_code || "-"}</td>
-                                          <td className="p-2 text-center text-xs">{deduction.center_code || "-"}</td>
-                                          <td className="p-2 text-center">
-                                            <button
-                                              onClick={() => handleToggleDeductionStatus(deduction)}
-                                              disabled={statusUpdating === deduction.id}
-                                              className={`relative inline-flex h-7 w-14 items-center rounded-full transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 ${
-                                                deduction.status === "completed"
-                                                  ? "bg-emerald-500 focus:ring-emerald-500"
-                                                  : "bg-rose-500 focus:ring-rose-500"
-                                              } ${statusUpdating === deduction.id ? 'opacity-50 cursor-wait' : 'cursor-pointer hover:shadow-lg'}`}
-                                              title={deduction.status === "completed" ? "مدفوع - انقر للتغيير" : "غير مدفوع - انقر للتغيير"}
+                              <div className="max-h-[400px] overflow-y-auto scrollbar-thin px-2 pb-2">
+                                <table className="w-full text-sm border-separate border-spacing-y-1.5">
+                                  <thead className="sticky top-0 z-10">
+                                    <tr className="bg-[#0d1525]/80 backdrop-blur-md">
+                                      <th className="p-3 text-right text-slate-500 font-bold text-[10px] uppercase tracking-wider rounded-r-xl">التاريخ</th>
+                                      <th className="p-3 text-right text-slate-500 font-bold text-[10px] uppercase tracking-wider">الموظف</th>
+                                      <th className="p-3 text-center text-slate-500 font-bold text-[10px] uppercase tracking-wider">المبلغ</th>
+                                      <th className="p-3 text-center text-slate-500 font-bold text-[10px] uppercase tracking-wider">الحساب</th>
+                                      <th className="p-3 text-center text-slate-500 font-bold text-[10px] uppercase tracking-wider">حالة الدفع</th>
+                                      <th className="p-3 text-center text-slate-500 font-bold text-[10px] uppercase tracking-wider rounded-l-xl print:hidden">الإجراءات</th>
+                                    </tr>
+                                  </thead>
+                                  <tbody>
+                                    {deductions.map((deduction) => (
+                                      <tr
+                                        key={deduction.id}
+                                        className="bg-white/[0.03] hover:bg-white/[0.06] transition-all group"
+                                      >
+                                        <td className="p-3 text-right text-xs font-medium text-slate-400 rounded-r-xl">
+                                          {formatDate(deduction.expense_date)}
+                                        </td>
+                                        <td className="p-3 text-right">
+                                          <div className="flex flex-col">
+                                            <span className="text-xs font-black text-white group-hover:text-rose-400 transition-colors">
+                                              {deduction.employee_name || "-"}
+                                            </span>
+                                            <span className="text-[10px] text-slate-500">{deduction.employee_iqama || "-"}</span>
+                                          </div>
+                                        </td>
+                                        <td className="p-3 text-center">
+                                          <span className="text-xs font-black text-rose-400">{formatNumber(deduction.amount || 0)}</span>
+                                        </td>
+                                        <td className="p-3 text-center">
+                                          <span className="text-xs text-slate-500">{deduction.account_code || "-"}</span>
+                                        </td>
+                                        <td className="p-3 text-center">
+                                          <button
+                                            onClick={() => handleToggleDeductionStatus(deduction)}
+                                            disabled={statusUpdating === deduction.id}
+                                            className={`relative inline-flex h-5 w-10 items-center rounded-full transition-all duration-300 ${
+                                              deduction.status === "completed" ? "bg-emerald-500/20" : "bg-rose-500/20"
+                                            } ${statusUpdating === deduction.id ? 'opacity-50 cursor-wait' : 'cursor-pointer'}`}
+                                          >
+                                            <span
+                                              className={`inline-block h-3.5 w-3.5 transform rounded-full transition-transform duration-300 ${
+                                                deduction.status === "completed" 
+                                                  ? "translate-x-1 bg-emerald-500" 
+                                                  : "translate-x-5.5 bg-rose-500"
+                                              }`}
+                                            />
+                                          </button>
+                                          <p className={`text-[8px] mt-1 font-black uppercase ${
+                                            deduction.status === "completed" ? "text-emerald-400" : "text-rose-400"
+                                          }`}>
+                                            {deduction.status === "completed" ? "مدفوع" : "غير مدفوع"}
+                                          </p>
+                                        </td>
+                                        <td className="p-3 text-center rounded-l-xl print:hidden">
+                                          <div className="flex items-center justify-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                            <Button
+                                              size="icon"
+                                              variant="ghost"
+                                              onClick={() => showItemDetails(deduction)}
+                                              className="h-7 w-7 text-rose-400 hover:bg-rose-400/10 hover:text-rose-300 rounded-lg"
                                             >
-                                              <span
-                                                className={`inline-block h-5 w-5 transform rounded-full bg-white shadow-md transition-transform duration-300 ${
-                                                  deduction.status === "completed" ? "translate-x-1" : "translate-x-8"
-                                                }`}
-                                              />
-                                              {statusUpdating === deduction.id && (
-                                                <span className="absolute inset-0 flex items-center justify-center">
-                                                  <Loader2 className="w-4 h-4 text-white animate-spin" />
-                                                </span>
-                                              )}
-                                            </button>
-                                            <p className={`text-[9px] mt-0.5 font-bold ${
-                                              deduction.status === "completed" ? "text-emerald-600" : "text-rose-600"
-                                            }`}>
-                                              {deduction.status === "completed" ? "مدفوع" : "غير مدفوع"}
-                                            </p>
-                                          </td>
-                                          <td className="p-2 text-center print:hidden">
-                                            <div className="flex items-center justify-center gap-1">
-                                              <Button
-                                                size="sm"
-                                                variant="ghost"
-                                                onClick={() => showItemDetails(deduction)}
-                                                className="text-rose-600 hover:bg-rose-100 h-7 px-2"
-                                                title="عرض التفاصيل"
-                                              >
-                                                <Eye className="w-3.5 h-3.5" />
-                                              </Button>
-                                              <Button
-                                                size="sm"
-                                                variant="ghost"
-                                                onClick={() => handleEditClick(deduction)}
-                                                className="text-amber-600 hover:bg-amber-100 h-7 px-2"
-                                                title="تعديل"
-                                              >
-                                                <Pencil className="w-3.5 h-3.5" />
-                                              </Button>
-                                              <Button
-                                                size="sm"
-                                                variant="ghost"
-                                                onClick={() => handleDeleteClick(deduction)}
-                                                className="text-red-600 hover:bg-red-100 h-7 px-2"
-                                                title="حذف"
-                                              >
-                                                <Trash2 className="w-3.5 h-3.5" />
-                                              </Button>
-                                            </div>
-                                          </td>
-                                        </tr>
-                                      ))}
+                                              <Eye className="w-3.5 h-3.5" />
+                                            </Button>
+                                            <Button
+                                              size="icon"
+                                              variant="ghost"
+                                              onClick={() => handleEditClick(deduction)}
+                                              className="h-7 w-7 text-amber-400 hover:bg-amber-400/10 hover:text-amber-300 rounded-lg"
+                                            >
+                                              <Pencil className="w-3.5 h-3.5" />
+                                            </Button>
+                                            <Button
+                                              size="icon"
+                                              variant="ghost"
+                                              onClick={() => handleDeleteClick(deduction)}
+                                              className="h-7 w-7 text-red-400 hover:bg-red-400/10 hover:text-red-300 rounded-lg"
+                                            >
+                                              <Trash2 className="w-3.5 h-3.5" />
+                                            </Button>
+                                          </div>
+                                        </td>
+                                      </tr>
+                                    ))}
                                   </tbody>
                                 </table>
-                              </div>
-
-                              <div className="bg-gradient-to-r from-slate-50 to-slate-100 p-3 border-t border-slate-200">
-                                <div className="flex items-center justify-between">
-                                  <div className="flex items-center gap-2 text-slate-600 text-sm">
-                                    <Calculator className="w-4 h-4" />
-                                    <span className="font-bold">الإجمالي الفرعي لـ {group}:</span>
-                                  </div>
-                                  <span className="text-base font-bold text-slate-800">
-                                    {formatNumber(groupTotal)} ريال سعودي
-                                  </span>
-                                </div>
-                                <p className="text-xs text-slate-500 mt-0.5">({deductions.length} عملية)</p>
                               </div>
                             </motion.div>
                           )}
@@ -1131,16 +1153,15 @@ export function ExpensesReportClient({ companyId }: ExpensesReportClientProps) {
                     );
                   })
                 ) : (
-                  <div className="text-center py-10">
-                    <div className="w-14 h-14 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                      <HandCoins className="w-7 h-7 text-slate-300" />
+                  <div className="text-center py-16 border-2 border-dashed border-white/5 rounded-3xl">
+                    <div className="w-20 h-20 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-4 border border-white/10">
+                      <HandCoins className="w-10 h-10 text-slate-600" />
                     </div>
-                    <h4 className="text-sm font-bold text-slate-600">لا توجد استقطاعات لهذا الشهر</h4>
-                    <p className="text-xs text-slate-400 mt-1">لم يتم إضافة أي استقطاعات للشهر المحدد</p>
+                    <h4 className="text-base font-black text-slate-300">لا توجد استقطاعات مسجلة</h4>
+                    <p className="text-sm text-slate-500 mt-2">لم يتم العثور على أي بيانات استقطاعات للفترة المحددة</p>
                     <Button
-                      size="sm"
-                      className="mt-4 bg-rose-600 hover:bg-rose-700"
                       onClick={() => (window.location.href = "/expenses/deductions")}
+                      className="mt-6 bg-rose-600 hover:bg-rose-700 text-white rounded-xl px-8"
                     >
                       إضافة استقطاع جديد
                     </Button>
@@ -1158,58 +1179,73 @@ export function ExpensesReportClient({ companyId }: ExpensesReportClientProps) {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.6 }}
           >
-            <Card className="border-none shadow-lg rounded-3xl overflow-hidden">
-              <CardHeader className="bg-gradient-to-r from-emerald-600 to-emerald-700 text-white p-4">
+            <Card className="border-none shadow-2xl rounded-[2rem] overflow-hidden bg-[#0d1525]/40 backdrop-blur-xl border border-white/5">
+              <CardHeader className="bg-gradient-to-r from-emerald-600/20 to-teal-600/20 border-b border-white/5 p-5">
                 <div className="flex items-center justify-between">
-                  <CardTitle className="flex items-center gap-2 text-base">
-                    <FileText className="w-5 h-5" />
+                  <CardTitle className="flex items-center gap-3 text-white text-lg font-black">
+                    <div className="w-10 h-10 rounded-xl bg-emerald-500/20 flex items-center justify-center border border-emerald-500/30">
+                      <FileText className="w-5 h-5 text-emerald-400" />
+                    </div>
                     مسيرات الرواتب
                   </CardTitle>
-                  <Badge className="bg-white/20 text-white text-sm px-3 py-1">
-                    {payrolls.length} مسير - {formatNumber(stats.totalPayrolls)} ر.س
-                  </Badge>
+                  <div className="flex items-center gap-2">
+                    <Badge variant="outline" className="border-emerald-500/30 text-emerald-400 bg-emerald-500/5 px-4 py-1.5 rounded-xl font-bold">
+                      {payrolls.length} مسير
+                    </Badge>
+                    <Badge className="bg-emerald-600 text-white px-4 py-1.5 rounded-xl font-black shadow-lg shadow-emerald-600/20">
+                      {formatNumber(stats.totalPayrolls)} ر.س
+                    </Badge>
+                  </div>
                 </div>
               </CardHeader>
-              <CardContent className="p-4">
-                <table className="w-full text-sm">
-                  <thead className="bg-slate-50">
-                    <tr>
-                      <th className="p-2 text-center text-slate-600 font-bold text-xs">#</th>
-                      <th className="p-2 text-center text-slate-600 font-bold text-xs">شهر المسير</th>
-                      <th className="p-2 text-center text-slate-600 font-bold text-xs">المبلغ الإجمالي</th>
-                      <th className="p-2 text-center text-slate-600 font-bold text-xs">عدد الموظفين</th>
-                      <th className="p-2 text-center text-slate-600 font-bold text-xs">تاريخ الإنشاء</th>
-                      <th className="p-2 text-center text-slate-600 font-bold text-xs print:hidden">الإجراءات</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {payrolls.map((payroll, idx) => (
-                      <tr
-                        key={payroll.id}
-                        className="border-b border-slate-100 hover:bg-emerald-50/50 transition-colors"
-                      >
-                        <td className="p-2 text-center text-slate-500 text-xs">{idx + 1}</td>
-                        <td className="p-2 text-center font-medium text-xs">{payroll.payroll_month}</td>
-                        <td className="p-2 text-center font-bold text-emerald-600 text-xs">{formatNumber(payroll.total_amount || 0)} ر.س</td>
-                        <td className="p-2 text-center">
-                          <Badge className="bg-emerald-100 text-emerald-700 text-xs">{payroll.employee_count} موظف</Badge>
-                        </td>
-                        <td className="p-2 text-center text-slate-500 text-xs">{formatDate(payroll.created_at)}</td>
-                        <td className="p-2 text-center print:hidden">
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => (window.location.href = `/salary-payrolls/${payroll.id}`)}
-                            className="text-emerald-600 border-emerald-200 hover:bg-emerald-50 text-xs h-7"
-                          >
-                            <Eye className="w-3 h-3 ml-1" />
-                            عرض
-                          </Button>
-                        </td>
+              <CardContent className="p-6">
+                <div className="overflow-x-auto scrollbar-thin">
+                  <table className="w-full text-sm border-separate border-spacing-y-1.5">
+                    <thead>
+                      <tr className="bg-white/5 rounded-xl">
+                        <th className="p-4 text-right text-slate-500 font-bold text-[10px] uppercase rounded-r-xl">شهر المسير</th>
+                        <th className="p-4 text-center text-slate-500 font-bold text-[10px] uppercase">المبلغ الإجمالي</th>
+                        <th className="p-4 text-center text-slate-500 font-bold text-[10px] uppercase">الموظفين</th>
+                        <th className="p-4 text-center text-slate-500 font-bold text-[10px] uppercase">تاريخ الإنشاء</th>
+                        <th className="p-4 text-center text-slate-500 font-bold text-[10px] uppercase rounded-l-xl print:hidden">الإجراءات</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
+                    </thead>
+                    <tbody>
+                      {payrolls.map((payroll) => (
+                        <tr
+                          key={payroll.id}
+                          className="bg-white/[0.03] hover:bg-white/[0.06] transition-all group"
+                        >
+                          <td className="p-4 text-right rounded-r-xl font-black text-white group-hover:text-emerald-400 transition-colors">
+                            {payroll.payroll_month}
+                          </td>
+                          <td className="p-4 text-center font-black text-emerald-400">
+                            {formatNumber(payroll.total_amount || 0)} ر.س
+                          </td>
+                          <td className="p-4 text-center">
+                            <Badge className="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-bold px-3">
+                              {payroll.employee_count} موظف
+                            </Badge>
+                          </td>
+                          <td className="p-4 text-center text-slate-500 text-xs">
+                            {formatDate(payroll.created_at)}
+                          </td>
+                          <td className="p-4 text-center rounded-l-xl print:hidden">
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => (window.location.href = `/salary-payrolls/${payroll.id}`)}
+                              className="bg-emerald-500/10 border-emerald-500/20 text-emerald-400 hover:bg-emerald-500 hover:text-white transition-all rounded-xl font-bold"
+                            >
+                              <Eye className="w-4 h-4 ml-2" />
+                              عرض التفاصيل
+                            </Button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
               </CardContent>
             </Card>
           </motion.div>
@@ -1221,27 +1257,39 @@ export function ExpensesReportClient({ companyId }: ExpensesReportClientProps) {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.7 }}
         >
-          <Card className="border-none shadow-xl rounded-3xl overflow-hidden bg-gradient-to-r from-rose-600 via-rose-700 to-red-700 text-white">
-            <CardContent className="p-5 text-center">
-              <div className="flex items-center justify-center gap-3 mb-3">
-                <Calculator className="w-7 h-7 text-amber-300" />
-                <h2 className="text-lg font-bold">
-                  الإجمالي النهائي لشهر {getMonthName(selectedMonth)}
-                </h2>
+          <Card className="border-none shadow-2xl rounded-[2.5rem] overflow-hidden bg-gradient-to-r from-blue-600 via-indigo-700 to-purple-800 text-white relative">
+            <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_top_right,_var(--tw-gradient-stops))] from-white/10 via-transparent to-transparent pointer-events-none" />
+            <CardContent className="p-8 text-center relative z-10">
+              <div className="flex items-center justify-center gap-4 mb-4">
+                <div className="w-12 h-12 rounded-2xl bg-white/10 backdrop-blur-md flex items-center justify-center border border-white/20">
+                  <Calculator className="w-7 h-7 text-white" />
+                </div>
+                <div>
+                  <h2 className="text-xl lg:text-2xl font-black tracking-tight">
+                    الإجمالي النهائي لشهر {getMonthName(selectedMonth)}
+                  </h2>
+                  <p className="text-blue-200 text-xs font-bold uppercase tracking-widest mt-0.5">الملخص المالي الموحد</p>
+                </div>
               </div>
-              <p className="text-3xl font-bold mb-3">
-                {formatNumber(stats.totalAll)} ريال سعودي
-              </p>
-              <div className="flex flex-wrap items-center justify-center gap-4 text-sm">
-                <span className="bg-white/10 px-3 py-1.5 rounded-xl">
-                  منصرفات: {formatNumber(stats.totalExpenses)} ر.س
+              
+              <div className="inline-block px-8 py-4 bg-white/10 backdrop-blur-2xl rounded-[2rem] border border-white/20 shadow-2xl mb-8">
+                <span className="text-4xl lg:text-5xl font-black tracking-tighter">
+                  {formatNumber(stats.totalAll)}
                 </span>
-                <span className="bg-white/10 px-3 py-1.5 rounded-xl">
-                  استقطاعات: {formatNumber(stats.totalDeductions)} ر.س
-                </span>
-                <span className="bg-white/10 px-3 py-1.5 rounded-xl">
-                  رواتب: {formatNumber(stats.totalPayrolls)} ر.س
-                </span>
+                <span className="text-sm font-bold text-blue-200 mr-3">ريال سعودي</span>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-3xl mx-auto">
+                {[
+                  { label: "إجمالي المنصرفات", val: stats.totalExpenses, color: "blue" },
+                  { label: "إجمالي الاستقطاعات", val: stats.totalDeductions, color: "rose" },
+                  { label: "إجمالي الرواتب", val: stats.totalPayrolls, color: "emerald" }
+                ].map((item, idx) => (
+                  <div key={idx} className="bg-black/20 backdrop-blur-lg p-4 rounded-2xl border border-white/5">
+                    <p className="text-xs font-bold text-slate-300 mb-1">{item.label}</p>
+                    <p className="text-lg font-black">{formatNumber(item.val)} <span className="text-[10px] text-slate-400">ر.س</span></p>
+                  </div>
+                ))}
               </div>
             </CardContent>
           </Card>
