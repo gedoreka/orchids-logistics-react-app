@@ -1251,17 +1251,17 @@ export function ExpensesReportClient({ companyId }: ExpensesReportClientProps) {
 
         {/* Details Modal */}
           <Dialog open={showDetailsModal} onOpenChange={setShowDetailsModal}>
-            <DialogContent className="max-w-2xl rtl max-h-[90vh] overflow-y-auto" dir="rtl">
-              <DialogHeader>
-                <DialogTitle className="flex items-center gap-2 text-base">
-                  <Eye className="w-5 h-5 text-blue-600" />
-                  عرض تفاصيل العملية
+            <DialogContent className="max-w-2xl rtl max-h-[90vh] overflow-y-auto bg-gradient-to-br from-blue-50/90 via-rose-50/90 via-emerald-50/90 to-amber-50/90 backdrop-blur-md" dir="rtl">
+              <DialogHeader className="bg-gradient-to-r from-blue-600 via-purple-600 to-rose-600 text-white p-4 -m-6 mb-4 rounded-t-lg">
+                <DialogTitle className="flex items-center gap-2 text-lg font-bold">
+                  <Eye className="w-6 h-6" />
+                  تفاصيل {selectedItem && "expense_type" in selectedItem ? "المنصرف" : "الاستقطاع"}
                 </DialogTitle>
               </DialogHeader>
             {selectedItem && (
               <div className="space-y-3 p-3">
                 <div className="grid grid-cols-2 gap-3">
-                  <div className="bg-slate-50 p-3 rounded-xl">
+                  <div className="bg-white/80 backdrop-blur-sm p-3 rounded-xl border border-white/50 shadow-sm">
                     <p className="text-xs text-slate-500">النوع</p>
                     <p className="font-bold text-slate-800 text-sm">
                       {"expense_type" in selectedItem
@@ -1269,29 +1269,29 @@ export function ExpensesReportClient({ companyId }: ExpensesReportClientProps) {
                         : selectedItem.deduction_type}
                     </p>
                   </div>
-                  <div className="bg-slate-50 p-3 rounded-xl">
+                  <div className="bg-white/80 backdrop-blur-sm p-3 rounded-xl border border-white/50 shadow-sm">
                     <p className="text-xs text-slate-500">التاريخ</p>
                     <p className="font-bold text-slate-800 text-sm">{formatDate(selectedItem.expense_date)}</p>
                   </div>
-                  <div className="bg-slate-50 p-3 rounded-xl">
+                  <div className="bg-white/80 backdrop-blur-sm p-3 rounded-xl border border-white/50 shadow-sm">
                     <p className="text-xs text-slate-500">اسم المستفيد</p>
                     <p className="font-bold text-slate-800 text-sm">{selectedItem.employee_name || "-"}</p>
                   </div>
-                  <div className="bg-slate-50 p-3 rounded-xl">
+                  <div className="bg-white/80 backdrop-blur-sm p-3 rounded-xl border border-white/50 shadow-sm">
                     <p className="text-xs text-slate-500">رقم الإقامة</p>
                     <p className="font-bold text-slate-800 text-sm">{selectedItem.employee_iqama || "-"}</p>
                   </div>
-                  <div className="bg-blue-50 p-3 rounded-xl">
+                  <div className="bg-blue-100/80 backdrop-blur-sm p-3 rounded-xl border border-blue-200/50 shadow-sm">
                     <p className="text-xs text-blue-600">المبلغ</p>
                     <p className="font-bold text-lg text-blue-700">{formatNumber(selectedItem.amount || 0)} ر.س</p>
                   </div>
                   {"tax_value" in selectedItem && (
                     <>
-                      <div className="bg-slate-50 p-3 rounded-xl">
+                      <div className="bg-white/80 backdrop-blur-sm p-3 rounded-xl border border-white/50 shadow-sm">
                         <p className="text-xs text-slate-500">الضريبة</p>
                         <p className="font-bold text-slate-800 text-sm">{formatNumber(selectedItem.tax_value || 0)} ر.س</p>
                       </div>
-                      <div className="bg-emerald-50 p-3 rounded-xl">
+                      <div className="bg-emerald-100/80 backdrop-blur-sm p-3 rounded-xl border border-emerald-200/50 shadow-sm">
                         <p className="text-xs text-emerald-600">الصافي</p>
                         <p className="font-bold text-base text-emerald-700">
                           {formatNumber(selectedItem.net_amount || selectedItem.amount || 0)} ر.س
@@ -1299,13 +1299,13 @@ export function ExpensesReportClient({ companyId }: ExpensesReportClientProps) {
                       </div>
                     </>
                   )}
-                  <div className="bg-slate-50 p-3 rounded-xl">
+                  <div className="bg-white/80 backdrop-blur-sm p-3 rounded-xl border border-white/50 shadow-sm">
                     <p className="text-xs text-slate-500">الحساب</p>
                     <p className="font-bold text-slate-800 text-sm">{selectedItem.account_code || "-"}</p>
                   </div>
                 </div>
                 {selectedItem.description && (
-                  <div className="bg-slate-50 p-3 rounded-xl">
+                  <div className="bg-white/80 backdrop-blur-sm p-3 rounded-xl border border-white/50 shadow-sm">
                     <p className="text-xs text-slate-500">الوصف</p>
                     <p className="font-medium text-slate-800 text-sm">{selectedItem.description}</p>
                   </div>
