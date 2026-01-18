@@ -202,6 +202,8 @@ const generateMonthOptions = () => {
 };
 
 export function ExpensesReportClient({ companyId }: ExpensesReportClientProps) {
+  const { resolvedTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState<ReportData | null>(null);
   const [selectedMonth, setSelectedMonth] = useState(() => {
@@ -228,6 +230,12 @@ export function ExpensesReportClient({ companyId }: ExpensesReportClientProps) {
   const [statusUpdating, setStatusUpdating] = useState<number | null>(null);
 
   const monthOptions = generateMonthOptions();
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const isDark = mounted ? resolvedTheme === "dark" : true;
 
   const fetchReportData = useCallback(async () => {
     setLoading(true);
@@ -482,6 +490,20 @@ export function ExpensesReportClient({ companyId }: ExpensesReportClientProps) {
 
   const { companyInfo, stats, expensesGrouped, deductionsGrouped, payrolls } = data;
 
+  const cardBg = isDark ? "bg-[#111827]" : "bg-white";
+  const cardBorder = isDark ? "border-white/5" : "border-gray-200";
+  const textPrimary = isDark ? "text-white" : "text-gray-900";
+  const textSecondary = isDark ? "text-slate-400" : "text-gray-600";
+  const textMuted = isDark ? "text-slate-500" : "text-gray-500";
+  const bgMuted = isDark ? "bg-white/5" : "bg-gray-100";
+  const hoverBg = isDark ? "hover:bg-white/10" : "hover:bg-gray-200";
+  const tableHeaderBg = isDark ? "bg-[#0d1525]/80" : "bg-gray-100";
+  const tableRowBg = isDark ? "bg-white/[0.03]" : "bg-gray-50";
+  const tableRowHover = isDark ? "hover:bg-white/[0.06]" : "hover:bg-gray-100";
+  const selectBg = isDark ? "bg-[#0d1525]" : "bg-white";
+  const groupBg = isDark ? "bg-white/[0.02]" : "bg-gray-50";
+  const groupHeaderBg = isDark ? "bg-white/5" : "bg-gray-100";
+
   return (
     <div
       className="rtl print:bg-white pb-10 min-h-screen bg-[#030712]"
@@ -494,7 +516,7 @@ export function ExpensesReportClient({ companyId }: ExpensesReportClientProps) {
           animate={{ opacity: 1, y: 0 }}
           className="print:shadow-none"
         >
-          <Card className="overflow-hidden border-none shadow-xl bg-[#111827] text-white rounded-2xl border border-white/5 print:rounded-none print:shadow-none">
+          <Card className={`overflow-hidden border-none shadow-xl ${cardBg} ${textPrimary} rounded-2xl border ${cardBorder} print:rounded-none print:shadow-none`}>
             
             <CardContent className="p-5">
               <div className="flex flex-col lg:flex-row items-center justify-between gap-4">
@@ -515,60 +537,60 @@ export function ExpensesReportClient({ companyId }: ExpensesReportClientProps) {
                     )}
                   </div>
                   <div>
-                    <h2 className="text-base font-bold text-white">
-                      {companyInfo?.name || "اسم الشركة"}
-                    </h2>
-                    <p className="text-slate-400 text-[10px] font-medium">
-                      نظام إدارة المنصرفات والرواتب
-                    </p>
-                  </div>
-                </div>
-
-                <div className="text-center">
-                  <h1 className="text-lg font-bold text-white">
-                    التقرير المالي الشهري
-                  </h1>
-                </div>
-
-                <div className="flex items-center gap-3 print:hidden">
-                  <div className="bg-white/5 rounded-xl px-4 py-2 border border-white/10 flex items-center gap-3">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-7 w-7 text-white/50 hover:text-white hover:bg-white/10 rounded-lg transition-all"
-                      onClick={() => {
-                        const date = new Date(selectedMonth + "-01");
-                        date.setMonth(date.getMonth() - 1);
-                        setSelectedMonth(`${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`);
-                      }}
-                    >
-                      <ChevronDown className="w-4 h-4 rotate-90" />
-                    </Button>
-
-                    <div className="text-center min-w-[90px]">
-                      <p className="text-sm font-bold text-white leading-none">
-                        {getMonthName(selectedMonth)}
+                      <h2 className={`text-base font-bold ${textPrimary}`}>
+                        {companyInfo?.name || "اسم الشركة"}
+                      </h2>
+                      <p className={`${textSecondary} text-[10px] font-medium`}>
+                        نظام إدارة المنصرفات والرواتب
                       </p>
                     </div>
+                  </div>
 
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-7 w-7 text-white/50 hover:text-white hover:bg-white/10 rounded-lg transition-all"
-                      onClick={() => {
-                        const date = new Date(selectedMonth + "-01");
-                        date.setMonth(date.getMonth() + 1);
-                        setSelectedMonth(`${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`);
-                      }}
-                    >
-                      <ChevronDown className="w-4 h-4 -rotate-90" />
-                    </Button>
+                  <div className="text-center">
+                    <h1 className={`text-lg font-bold ${textPrimary}`}>
+                      التقرير المالي الشهري
+                    </h1>
+                  </div>
+
+                  <div className="flex items-center gap-3 print:hidden">
+                    <div className={`${bgMuted} rounded-xl px-4 py-2 border ${cardBorder} flex items-center gap-3`}>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className={`h-7 w-7 ${textMuted} ${hoverBg} rounded-lg transition-all`}
+                        onClick={() => {
+                          const date = new Date(selectedMonth + "-01");
+                          date.setMonth(date.getMonth() - 1);
+                          setSelectedMonth(`${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`);
+                        }}
+                      >
+                        <ChevronDown className="w-4 h-4 rotate-90" />
+                      </Button>
+
+                      <div className="text-center min-w-[90px]">
+                        <p className={`text-sm font-bold ${textPrimary} leading-none`}>
+                          {getMonthName(selectedMonth)}
+                        </p>
+                      </div>
+
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className={`h-7 w-7 ${textMuted} ${hoverBg} rounded-lg transition-all`}
+                        onClick={() => {
+                          const date = new Date(selectedMonth + "-01");
+                          date.setMonth(date.getMonth() + 1);
+                          setSelectedMonth(`${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`);
+                        }}
+                      >
+                        <ChevronDown className="w-4 h-4 -rotate-90" />
+                      </Button>
+                    </div>
                   </div>
                 </div>
-              </div>
-            </CardContent>
-          </Card>
-        </motion.div>
+              </CardContent>
+            </Card>
+          </motion.div>
 
         {/* Navigation Tabs - Selection Options */}
         <motion.div
@@ -577,7 +599,7 @@ export function ExpensesReportClient({ companyId }: ExpensesReportClientProps) {
           transition={{ delay: 0.2 }}
           className="print:hidden"
         >
-          <div className="bg-[#111827] p-2 rounded-[2.5rem] shadow-2xl border border-white/5 inline-flex w-full">
+          <div className={`${cardBg} p-2 rounded-[2.5rem] shadow-2xl border ${cardBorder} inline-flex w-full`}>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-2 w-full">
               {[
                 {
@@ -611,22 +633,22 @@ export function ExpensesReportClient({ companyId }: ExpensesReportClientProps) {
                   className={`relative flex items-center gap-4 p-4 rounded-2xl transition-all duration-300 group overflow-hidden ${
                     reportType === tab.id
                       ? `bg-gradient-to-r ${tab.gradient} text-white shadow-xl scale-[1.01] z-10`
-                      : "bg-white/5 text-slate-400 hover:bg-white/10"
+                      : `${bgMuted} ${textSecondary} ${hoverBg}`
                   }`}
                 >
                   <div className={`w-11 h-11 rounded-xl flex items-center justify-center transition-all duration-300 ${
                     reportType === tab.id
                       ? "bg-white/20"
-                      : `bg-white/5 text-slate-300 group-hover:bg-white/10`
+                      : `${isDark ? "bg-white/5" : "bg-gray-200"} ${isDark ? "text-slate-300" : "text-gray-600"} ${isDark ? "group-hover:bg-white/10" : "group-hover:bg-gray-300"}`
                   }`}>
                     <tab.icon className="w-5 h-5" />
                   </div>
                   
                   <div className="text-right flex-1">
-                    <p className={`text-sm font-black ${reportType === tab.id ? "text-white" : "text-white/90"}`}>
+                    <p className={`text-sm font-black ${reportType === tab.id ? "text-white" : (isDark ? "text-white/90" : "text-gray-900")}`}>
                       {tab.label}
                     </p>
-                    <p className={`text-[10px] font-medium ${reportType === tab.id ? "text-white/80" : "text-slate-500"}`}>
+                    <p className={`text-[10px] font-medium ${reportType === tab.id ? "text-white/80" : textMuted}`}>
                       {tab.sub}
                     </p>
                   </div>
@@ -643,20 +665,20 @@ export function ExpensesReportClient({ companyId }: ExpensesReportClientProps) {
           transition={{ delay: 0.3 }}
           className="print:hidden"
         >
-          <Card className="border-none shadow-2xl rounded-[2rem] bg-[#111827] border border-white/5">
+          <Card className={`border-none shadow-2xl rounded-[2rem] ${cardBg} border ${cardBorder}`}>
             <CardContent className="p-4">
               <div className="flex flex-col lg:flex-row items-center justify-between gap-4">
                 <div className="flex items-center gap-3 flex-wrap">
-                  <div className="flex items-center gap-2 text-slate-400 text-xs font-bold bg-white/5 px-4 py-2.5 rounded-xl border border-white/5 shadow-inner">
+                  <div className={`flex items-center gap-2 ${textSecondary} text-xs font-bold ${bgMuted} px-4 py-2.5 rounded-xl border ${cardBorder} shadow-inner`}>
                     <Filter className="w-4 h-4 text-blue-400" />
                     <span>الفترة:</span>
                     <Select value={selectedMonth} onValueChange={setSelectedMonth}>
-                      <SelectTrigger className="w-[160px] border-none bg-transparent font-black focus:ring-0 text-white h-auto p-0">
+                      <SelectTrigger className={`w-[160px] border-none bg-transparent font-black focus:ring-0 ${textPrimary} h-auto p-0`}>
                         <SelectValue />
                       </SelectTrigger>
-                      <SelectContent className="rounded-2xl border-white/10 shadow-2xl bg-[#0d1525] text-white backdrop-blur-xl">
+                      <SelectContent className={`rounded-2xl ${cardBorder} shadow-2xl ${selectBg} ${textPrimary} backdrop-blur-xl`}>
                         {monthOptions.map((opt) => (
-                          <SelectItem key={opt.value} value={opt.value} className="font-bold hover:bg-white/10 focus:bg-white/10">
+                          <SelectItem key={opt.value} value={opt.value} className={`font-bold ${hoverBg}`}>
                             {opt.label}
                           </SelectItem>
                         ))}
@@ -672,12 +694,12 @@ export function ExpensesReportClient({ companyId }: ExpensesReportClientProps) {
                   </Button>
                 </div>
 
-                <div className="flex items-center gap-1 flex-wrap bg-white/5 p-1.5 rounded-2xl border border-white/5">
+                <div className={`flex items-center gap-1 flex-wrap ${bgMuted} p-1.5 rounded-2xl border ${cardBorder}`}>
                   <Button
                     onClick={handlePrint}
                     variant="ghost"
                     size="sm"
-                    className="text-slate-300 hover:text-white hover:bg-white/10 rounded-xl px-4 h-9 font-bold transition-all"
+                    className={`${textSecondary} hover:${textPrimary} ${hoverBg} rounded-xl px-4 h-9 font-bold transition-all`}
                   >
                     <Printer className="w-4 h-4 ml-2" />
                     طباعة
@@ -686,7 +708,7 @@ export function ExpensesReportClient({ companyId }: ExpensesReportClientProps) {
                     onClick={handleExportExcel}
                     variant="ghost"
                     size="sm"
-                    className="text-slate-300 hover:text-emerald-400 hover:bg-emerald-400/10 rounded-xl px-4 h-9 font-bold transition-all"
+                    className={`${textSecondary} hover:text-emerald-400 hover:bg-emerald-400/10 rounded-xl px-4 h-9 font-bold transition-all`}
                   >
                     <FileSpreadsheet className="w-4 h-4 ml-2" />
                     Excel
@@ -695,17 +717,17 @@ export function ExpensesReportClient({ companyId }: ExpensesReportClientProps) {
                     onClick={() => setShowAnalysisModal(true)}
                     variant="ghost"
                     size="sm"
-                    className="text-slate-300 hover:text-amber-400 hover:bg-amber-400/10 rounded-xl px-4 h-9 font-bold transition-all"
+                    className={`${textSecondary} hover:text-amber-400 hover:bg-amber-400/10 rounded-xl px-4 h-9 font-bold transition-all`}
                   >
                     <BarChart3 className="w-4 h-4 ml-2" />
                     تحليل
                   </Button>
-                  <div className="w-px h-6 bg-white/10 mx-2" />
+                  <div className={`w-px h-6 ${isDark ? "bg-white/10" : "bg-gray-300"} mx-2`} />
                   <Button
                     onClick={() => (window.location.href = "/expenses")}
                     variant="ghost"
                     size="sm"
-                    className="text-slate-300 hover:text-rose-400 hover:bg-rose-400/10 rounded-xl px-4 h-9 font-bold transition-all"
+                    className={`${textSecondary} hover:text-rose-400 hover:bg-rose-400/10 rounded-xl px-4 h-9 font-bold transition-all`}
                   >
                     <Home className="w-4 h-4 ml-2" />
                     الرئيسية
@@ -723,10 +745,10 @@ export function ExpensesReportClient({ companyId }: ExpensesReportClientProps) {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4 }}
           >
-            <Card className="border-none shadow-2xl rounded-[2rem] overflow-hidden bg-[#111827] border border-white/5">
-              <CardHeader className="bg-white/5 border-b border-white/5 p-5">
+            <Card className={`border-none shadow-2xl rounded-[2rem] overflow-hidden ${cardBg} border ${cardBorder}`}>
+              <CardHeader className={`${bgMuted} border-b ${cardBorder} p-5`}>
                 <div className="flex items-center justify-between">
-                  <CardTitle className="flex items-center gap-3 text-white text-lg font-black">
+                  <CardTitle className={`flex items-center gap-3 ${textPrimary} text-lg font-black`}>
                     <div className="w-10 h-10 rounded-xl bg-blue-500/20 flex items-center justify-center border border-blue-500/30">
                       <Wallet className="w-5 h-5 text-blue-400" />
                     </div>
@@ -755,24 +777,24 @@ export function ExpensesReportClient({ companyId }: ExpensesReportClientProps) {
                     return (
                       <div
                         key={group}
-                        className="rounded-3xl overflow-hidden border border-white/5 bg-white/[0.02]"
+                        className={`rounded-3xl overflow-hidden border ${cardBorder} ${groupBg}`}
                       >
                         <button
                           onClick={() => toggleGroup(groupKey)}
-                          className="w-full bg-white/5 p-4 flex items-center justify-between hover:bg-white/10 transition-all group"
+                          className={`w-full ${groupHeaderBg} p-4 flex items-center justify-between ${hoverBg} transition-all group`}
                         >
                           <div className="flex items-center gap-4">
                             <div className="w-8 h-8 rounded-lg bg-indigo-500/20 flex items-center justify-center border border-indigo-500/30 group-hover:rotate-12 transition-transform">
                               <Folder className="w-4 h-4 text-indigo-400" />
                             </div>
-                            <span className="text-sm font-black text-slate-200">{group}</span>
+                            <span className={`text-sm font-black ${isDark ? "text-slate-200" : "text-gray-800"}`}>{group}</span>
                           </div>
                           <div className="flex items-center gap-4">
-                            <span className="text-xs font-bold text-slate-500">{expenses.length} عملية</span>
-                            <div className="h-4 w-px bg-white/10" />
-                            <span className="text-sm font-black text-white">{formatNumber(groupTotal)} ر.س</span>
+                            <span className={`text-xs font-bold ${textMuted}`}>{expenses.length} عملية</span>
+                            <div className={`h-4 w-px ${isDark ? "bg-white/10" : "bg-gray-300"}`} />
+                            <span className={`text-sm font-black ${textPrimary}`}>{formatNumber(groupTotal)} ر.س</span>
                             <motion.div animate={{ rotate: isExpanded ? 180 : 0 }}>
-                              <ChevronDown className="w-4 h-4 text-slate-500" />
+                              <ChevronDown className={`w-4 h-4 ${textMuted}`} />
                             </motion.div>
                           </div>
                         </button>
@@ -788,44 +810,44 @@ export function ExpensesReportClient({ companyId }: ExpensesReportClientProps) {
                               <div className="max-h-[400px] overflow-y-auto scrollbar-thin px-2 pb-2">
                                 <table className="w-full text-sm border-separate border-spacing-y-1.5">
                                   <thead className="sticky top-0 z-10">
-                                    <tr className="bg-[#0d1525]/80 backdrop-blur-md">
-                                      <th className="p-3 text-right text-slate-500 font-bold text-[10px] uppercase tracking-wider rounded-r-xl">التاريخ</th>
-                                      <th className="p-3 text-right text-slate-500 font-bold text-[10px] uppercase tracking-wider">المستفيد</th>
-                                      <th className="p-3 text-center text-slate-500 font-bold text-[10px] uppercase tracking-wider">المبلغ</th>
-                                      <th className="p-3 text-center text-slate-500 font-bold text-[10px] uppercase tracking-wider">الضريبة</th>
-                                      <th className="p-3 text-center text-slate-500 font-bold text-[10px] uppercase tracking-wider">الصافي</th>
-                                      <th className="p-3 text-center text-slate-500 font-bold text-[10px] uppercase tracking-wider">مركز التكلفة</th>
-                                      <th className="p-3 text-center text-slate-500 font-bold text-[10px] uppercase tracking-wider rounded-l-xl print:hidden">الإجراءات</th>
+                                    <tr className={`${tableHeaderBg} backdrop-blur-md`}>
+                                      <th className={`p-3 text-right ${textMuted} font-bold text-[10px] uppercase tracking-wider rounded-r-xl`}>التاريخ</th>
+                                      <th className={`p-3 text-right ${textMuted} font-bold text-[10px] uppercase tracking-wider`}>المستفيد</th>
+                                      <th className={`p-3 text-center ${textMuted} font-bold text-[10px] uppercase tracking-wider`}>المبلغ</th>
+                                      <th className={`p-3 text-center ${textMuted} font-bold text-[10px] uppercase tracking-wider`}>الضريبة</th>
+                                      <th className={`p-3 text-center ${textMuted} font-bold text-[10px] uppercase tracking-wider`}>الصافي</th>
+                                      <th className={`p-3 text-center ${textMuted} font-bold text-[10px] uppercase tracking-wider`}>مركز التكلفة</th>
+                                      <th className={`p-3 text-center ${textMuted} font-bold text-[10px] uppercase tracking-wider rounded-l-xl print:hidden`}>الإجراءات</th>
                                     </tr>
                                   </thead>
                                   <tbody>
                                     {expenses.map((expense) => (
                                       <tr
                                         key={expense.id}
-                                        className="bg-white/[0.03] hover:bg-white/[0.06] transition-all group"
+                                        className={`${tableRowBg} ${tableRowHover} transition-all group`}
                                       >
-                                        <td className="p-3 text-right text-xs font-medium text-slate-400 rounded-r-xl">
+                                        <td className={`p-3 text-right text-xs font-medium ${textSecondary} rounded-r-xl`}>
                                           {formatDate(expense.expense_date)}
                                         </td>
                                         <td className="p-3 text-right">
                                           <div className="flex flex-col">
-                                            <span className="text-xs font-black text-white group-hover:text-blue-400 transition-colors">
+                                            <span className={`text-xs font-black ${textPrimary} group-hover:text-blue-400 transition-colors`}>
                                               {expense.employee_name || "-"}
                                             </span>
-                                            <span className="text-[10px] text-slate-500">{expense.employee_iqama || "-"}</span>
+                                            <span className={`text-[10px] ${textMuted}`}>{expense.employee_iqama || "-"}</span>
                                           </div>
                                         </td>
                                         <td className="p-3 text-center">
-                                          <span className="text-xs font-bold text-slate-300">{formatNumber(expense.amount || 0)}</span>
+                                          <span className={`text-xs font-bold ${isDark ? "text-slate-300" : "text-gray-700"}`}>{formatNumber(expense.amount || 0)}</span>
                                         </td>
                                         <td className="p-3 text-center">
-                                          <span className="text-xs text-slate-500">{formatNumber(expense.tax_value || 0)}</span>
+                                          <span className={`text-xs ${textMuted}`}>{formatNumber(expense.tax_value || 0)}</span>
                                         </td>
                                         <td className="p-3 text-center">
                                           <span className="text-xs font-black text-blue-400">{formatNumber(expense.net_amount || expense.amount || 0)}</span>
                                         </td>
                                         <td className="p-3 text-center">
-                                          <Badge variant="outline" className="border-white/5 text-[10px] text-slate-500 font-medium">
+                                          <Badge variant="outline" className={`${cardBorder} text-[10px] ${textMuted} font-medium`}>
                                             {expense.center_code || "-"}
                                           </Badge>
                                         </td>
@@ -869,12 +891,12 @@ export function ExpensesReportClient({ companyId }: ExpensesReportClientProps) {
                     );
                   })
                 ) : (
-                  <div className="text-center py-16 border-2 border-dashed border-white/5 rounded-3xl">
-                    <div className="w-20 h-20 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-4 border border-white/10">
-                      <Wallet className="w-10 h-10 text-slate-600" />
+                  <div className={`text-center py-16 border-2 border-dashed ${cardBorder} rounded-3xl`}>
+                    <div className={`w-20 h-20 ${bgMuted} rounded-full flex items-center justify-center mx-auto mb-4 border ${cardBorder}`}>
+                      <Wallet className={`w-10 h-10 ${isDark ? "text-slate-600" : "text-gray-400"}`} />
                     </div>
-                    <h4 className="text-base font-black text-slate-300">لا توجد منصرفات مسجلة</h4>
-                    <p className="text-sm text-slate-500 mt-2">لم يتم العثور على أي بيانات منصرفات للفترة المحددة</p>
+                    <h4 className={`text-base font-black ${isDark ? "text-slate-300" : "text-gray-700"}`}>لا توجد منصرفات مسجلة</h4>
+                    <p className={`text-sm ${textMuted} mt-2`}>لم يتم العثور على أي بيانات منصرفات للفترة المحددة</p>
                     <Button
                       onClick={() => (window.location.href = "/expenses/new")}
                       className="mt-6 bg-blue-600 hover:bg-blue-700 text-white rounded-xl px-8"
@@ -895,10 +917,10 @@ export function ExpensesReportClient({ companyId }: ExpensesReportClientProps) {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.5 }}
           >
-            <Card className="border-none shadow-2xl rounded-[2rem] overflow-hidden bg-[#111827] border border-white/5">
-              <CardHeader className="bg-white/5 border-b border-white/5 p-5">
+            <Card className={`border-none shadow-2xl rounded-[2rem] overflow-hidden ${cardBg} border ${cardBorder}`}>
+              <CardHeader className={`${bgMuted} border-b ${cardBorder} p-5`}>
                 <div className="flex items-center justify-between">
-                  <CardTitle className="flex items-center gap-3 text-white text-lg font-black">
+                  <CardTitle className={`flex items-center gap-3 ${textPrimary} text-lg font-black`}>
                     <div className="w-10 h-10 rounded-xl bg-rose-500/20 flex items-center justify-center border border-rose-500/30">
                       <HandCoins className="w-5 h-5 text-rose-400" />
                     </div>
@@ -927,24 +949,24 @@ export function ExpensesReportClient({ companyId }: ExpensesReportClientProps) {
                     return (
                       <div
                         key={group}
-                        className="rounded-3xl overflow-hidden border border-white/5 bg-white/[0.02]"
+                        className={`rounded-3xl overflow-hidden border ${cardBorder} ${groupBg}`}
                       >
                         <button
                           onClick={() => toggleGroup(groupKey)}
-                          className="w-full bg-white/5 p-4 flex items-center justify-between hover:bg-white/10 transition-all group"
+                          className={`w-full ${groupHeaderBg} p-4 flex items-center justify-between ${hoverBg} transition-all group`}
                         >
                           <div className="flex items-center gap-4">
                             <div className="w-8 h-8 rounded-lg bg-pink-500/20 flex items-center justify-center border border-pink-500/30 group-hover:rotate-12 transition-transform">
                               <Folder className="w-4 h-4 text-pink-400" />
                             </div>
-                            <span className="text-sm font-black text-slate-200">{group}</span>
+                            <span className={`text-sm font-black ${isDark ? "text-slate-200" : "text-gray-800"}`}>{group}</span>
                           </div>
                           <div className="flex items-center gap-4">
-                            <span className="text-xs font-bold text-slate-500">{deductions.length} عملية</span>
-                            <div className="h-4 w-px bg-white/10" />
-                            <span className="text-sm font-black text-white">{formatNumber(groupTotal)} ر.س</span>
+                            <span className={`text-xs font-bold ${textMuted}`}>{deductions.length} عملية</span>
+                            <div className={`h-4 w-px ${isDark ? "bg-white/10" : "bg-gray-300"}`} />
+                            <span className={`text-sm font-black ${textPrimary}`}>{formatNumber(groupTotal)} ر.س</span>
                             <motion.div animate={{ rotate: isExpanded ? 180 : 0 }}>
-                              <ChevronDown className="w-4 h-4 text-slate-500" />
+                              <ChevronDown className={`w-4 h-4 ${textMuted}`} />
                             </motion.div>
                           </div>
                         </button>
@@ -960,37 +982,37 @@ export function ExpensesReportClient({ companyId }: ExpensesReportClientProps) {
                               <div className="max-h-[400px] overflow-y-auto scrollbar-thin px-2 pb-2">
                                 <table className="w-full text-sm border-separate border-spacing-y-1.5">
                                   <thead className="sticky top-0 z-10">
-                                    <tr className="bg-[#0d1525]/80 backdrop-blur-md">
-                                      <th className="p-3 text-right text-slate-500 font-bold text-[10px] uppercase tracking-wider rounded-r-xl">التاريخ</th>
-                                      <th className="p-3 text-right text-slate-500 font-bold text-[10px] uppercase tracking-wider">الموظف</th>
-                                      <th className="p-3 text-center text-slate-500 font-bold text-[10px] uppercase tracking-wider">المبلغ</th>
-                                      <th className="p-3 text-center text-slate-500 font-bold text-[10px] uppercase tracking-wider">الحساب</th>
-                                      <th className="p-3 text-center text-slate-500 font-bold text-[10px] uppercase tracking-wider">حالة الدفع</th>
-                                      <th className="p-3 text-center text-slate-500 font-bold text-[10px] uppercase tracking-wider rounded-l-xl print:hidden">الإجراءات</th>
+                                    <tr className={`${tableHeaderBg} backdrop-blur-md`}>
+                                      <th className={`p-3 text-right ${textMuted} font-bold text-[10px] uppercase tracking-wider rounded-r-xl`}>التاريخ</th>
+                                      <th className={`p-3 text-right ${textMuted} font-bold text-[10px] uppercase tracking-wider`}>الموظف</th>
+                                      <th className={`p-3 text-center ${textMuted} font-bold text-[10px] uppercase tracking-wider`}>المبلغ</th>
+                                      <th className={`p-3 text-center ${textMuted} font-bold text-[10px] uppercase tracking-wider`}>الحساب</th>
+                                      <th className={`p-3 text-center ${textMuted} font-bold text-[10px] uppercase tracking-wider`}>حالة الدفع</th>
+                                      <th className={`p-3 text-center ${textMuted} font-bold text-[10px] uppercase tracking-wider rounded-l-xl print:hidden`}>الإجراءات</th>
                                     </tr>
                                   </thead>
                                   <tbody>
                                     {deductions.map((deduction) => (
                                       <tr
                                         key={deduction.id}
-                                        className="bg-white/[0.03] hover:bg-white/[0.06] transition-all group"
+                                        className={`${tableRowBg} ${tableRowHover} transition-all group`}
                                       >
-                                        <td className="p-3 text-right text-xs font-medium text-slate-400 rounded-r-xl">
+                                        <td className={`p-3 text-right text-xs font-medium ${textSecondary} rounded-r-xl`}>
                                           {formatDate(deduction.expense_date)}
                                         </td>
                                         <td className="p-3 text-right">
                                           <div className="flex flex-col">
-                                            <span className="text-xs font-black text-white group-hover:text-rose-400 transition-colors">
+                                            <span className={`text-xs font-black ${textPrimary} group-hover:text-rose-400 transition-colors`}>
                                               {deduction.employee_name || "-"}
                                             </span>
-                                            <span className="text-[10px] text-slate-500">{deduction.employee_iqama || "-"}</span>
+                                            <span className={`text-[10px] ${textMuted}`}>{deduction.employee_iqama || "-"}</span>
                                           </div>
                                         </td>
                                         <td className="p-3 text-center">
                                           <span className="text-xs font-black text-rose-400">{formatNumber(deduction.amount || 0)}</span>
                                         </td>
                                         <td className="p-3 text-center">
-                                          <span className="text-xs text-slate-500">{deduction.account_code || "-"}</span>
+                                          <span className={`text-xs ${textMuted}`}>{deduction.account_code || "-"}</span>
                                         </td>
                                         <td className="p-3 text-center">
                                           <button
@@ -1054,12 +1076,12 @@ export function ExpensesReportClient({ companyId }: ExpensesReportClientProps) {
                     );
                   })
                 ) : (
-                  <div className="text-center py-16 border-2 border-dashed border-white/5 rounded-3xl">
-                    <div className="w-20 h-20 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-4 border border-white/10">
-                      <HandCoins className="w-10 h-10 text-slate-600" />
+                  <div className={`text-center py-16 border-2 border-dashed ${cardBorder} rounded-3xl`}>
+                    <div className={`w-20 h-20 ${bgMuted} rounded-full flex items-center justify-center mx-auto mb-4 border ${cardBorder}`}>
+                      <HandCoins className={`w-10 h-10 ${isDark ? "text-slate-600" : "text-gray-400"}`} />
                     </div>
-                    <h4 className="text-base font-black text-slate-300">لا توجد استقطاعات مسجلة</h4>
-                    <p className="text-sm text-slate-500 mt-2">لم يتم العثور على أي بيانات استقطاعات للفترة المحددة</p>
+                    <h4 className={`text-base font-black ${isDark ? "text-slate-300" : "text-gray-700"}`}>لا توجد استقطاعات مسجلة</h4>
+                    <p className={`text-sm ${textMuted} mt-2`}>لم يتم العثور على أي بيانات استقطاعات للفترة المحددة</p>
                     <Button
                       onClick={() => (window.location.href = "/expenses/deductions")}
                       className="mt-6 bg-rose-600 hover:bg-rose-700 text-white rounded-xl px-8"
@@ -1080,10 +1102,10 @@ export function ExpensesReportClient({ companyId }: ExpensesReportClientProps) {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.6 }}
           >
-            <Card className="border-none shadow-2xl rounded-[2rem] overflow-hidden bg-[#111827] border border-white/5">
-              <CardHeader className="bg-white/5 border-b border-white/5 p-5">
+            <Card className={`border-none shadow-2xl rounded-[2rem] overflow-hidden ${cardBg} border ${cardBorder}`}>
+              <CardHeader className={`${bgMuted} border-b ${cardBorder} p-5`}>
                 <div className="flex items-center justify-between">
-                  <CardTitle className="flex items-center gap-3 text-white text-lg font-black">
+                  <CardTitle className={`flex items-center gap-3 ${textPrimary} text-lg font-black`}>
                     <div className="w-10 h-10 rounded-xl bg-emerald-500/20 flex items-center justify-center border border-emerald-500/30">
                       <FileText className="w-5 h-5 text-emerald-400" />
                     </div>
@@ -1103,21 +1125,21 @@ export function ExpensesReportClient({ companyId }: ExpensesReportClientProps) {
                 <div className="overflow-x-auto scrollbar-thin">
                   <table className="w-full text-sm border-separate border-spacing-y-1.5">
                     <thead>
-                      <tr className="bg-white/5 rounded-xl">
-                        <th className="p-4 text-right text-slate-500 font-bold text-[10px] uppercase rounded-r-xl">شهر المسير</th>
-                        <th className="p-4 text-center text-slate-500 font-bold text-[10px] uppercase">المبلغ الإجمالي</th>
-                        <th className="p-4 text-center text-slate-500 font-bold text-[10px] uppercase">الموظفين</th>
-                        <th className="p-4 text-center text-slate-500 font-bold text-[10px] uppercase">تاريخ الإنشاء</th>
-                        <th className="p-4 text-center text-slate-500 font-bold text-[10px] uppercase rounded-l-xl print:hidden">الإجراءات</th>
+                      <tr className={`${bgMuted} rounded-xl`}>
+                        <th className={`p-4 text-right ${textMuted} font-bold text-[10px] uppercase rounded-r-xl`}>شهر المسير</th>
+                        <th className={`p-4 text-center ${textMuted} font-bold text-[10px] uppercase`}>المبلغ الإجمالي</th>
+                        <th className={`p-4 text-center ${textMuted} font-bold text-[10px] uppercase`}>الموظفين</th>
+                        <th className={`p-4 text-center ${textMuted} font-bold text-[10px] uppercase`}>تاريخ الإنشاء</th>
+                        <th className={`p-4 text-center ${textMuted} font-bold text-[10px] uppercase rounded-l-xl print:hidden`}>الإجراءات</th>
                       </tr>
                     </thead>
                     <tbody>
                       {payrolls.map((payroll) => (
                         <tr
                           key={payroll.id}
-                          className="bg-white/[0.03] hover:bg-white/[0.06] transition-all group"
+                          className={`${tableRowBg} ${tableRowHover} transition-all group`}
                         >
-                          <td className="p-4 text-right rounded-r-xl font-black text-white group-hover:text-emerald-400 transition-colors">
+                          <td className={`p-4 text-right rounded-r-xl font-black ${textPrimary} group-hover:text-emerald-400 transition-colors`}>
                             {payroll.payroll_month}
                           </td>
                           <td className="p-4 text-center font-black text-emerald-400">
@@ -1128,7 +1150,7 @@ export function ExpensesReportClient({ companyId }: ExpensesReportClientProps) {
                               {payroll.employee_count} موظف
                             </Badge>
                           </td>
-                          <td className="p-4 text-center text-slate-500 text-xs">
+                          <td className={`p-4 text-center ${textMuted} text-xs`}>
                             {formatDate(payroll.created_at)}
                           </td>
                           <td className="p-4 text-center rounded-l-xl print:hidden">
@@ -1158,24 +1180,24 @@ export function ExpensesReportClient({ companyId }: ExpensesReportClientProps) {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.7 }}
         >
-          <Card className="border-none shadow-xl rounded-2xl overflow-hidden bg-[#111827] text-white relative border border-white/5">
+          <Card className={`border-none shadow-xl rounded-2xl overflow-hidden ${cardBg} ${textPrimary} relative border ${cardBorder}`}>
             <CardContent className="p-6 text-center relative z-10">
               <div className="flex items-center justify-center gap-3 mb-4">
                 <div className="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center">
                   <Calculator className="w-5 h-5 text-white" />
                 </div>
                 <div className="text-right">
-                  <h2 className="text-lg font-bold text-white">
+                  <h2 className={`text-lg font-bold ${textPrimary}`}>
                     الإجمالي النهائي لشهر {getMonthName(selectedMonth)}
                   </h2>
                 </div>
               </div>
               
-              <div className="inline-block px-6 py-3 bg-white/5 rounded-xl border border-white/10">
-                <span className="text-3xl font-bold text-white">
+              <div className={`inline-block px-6 py-3 ${bgMuted} rounded-xl border ${cardBorder}`}>
+                <span className={`text-3xl font-bold ${textPrimary}`}>
                   {formatNumber(stats.totalAll)}
                 </span>
-                <span className="text-sm font-medium text-slate-400 mr-2">ريال سعودي</span>
+                <span className={`text-sm font-medium ${textSecondary} mr-2`}>ريال سعودي</span>
               </div>
             </CardContent>
           </Card>
