@@ -136,348 +136,351 @@ export function PackageViewClient({
     );
   }
 
-  return (
-    <motion.div 
-      variants={containerVariants}
-      initial="hidden"
-      animate="visible"
-      className="flex flex-col h-[calc(100vh-140px)] space-y-5 max-w-[95%] mx-auto px-4 overflow-hidden"
-    >
-      <motion.div variants={itemVariants} className="flex flex-col md:flex-row md:items-center justify-between gap-4 shrink-0">
-        <div className="flex items-center gap-3">
-          <div className="h-12 w-12 rounded-2xl bg-gradient-to-br from-purple-500 to-violet-600 flex items-center justify-center shadow-lg shadow-purple-500/30">
-            <Package className="text-white" size={22} />
-          </div>
-          <div>
-            <div className="flex items-center gap-2 text-xs font-bold text-gray-400">
-              <Link href="/hr" className="hover:text-purple-600 transition-colors flex items-center gap-1">
-                <LayoutDashboard size={12} />
-                شؤون الموظفين
-              </Link>
-              <ArrowRight size={12} className="rotate-180" />
-              <Link href="/hr/packages" className="hover:text-purple-600 transition-colors">الباقات</Link>
-              <ArrowRight size={12} className="rotate-180" />
-              <span className="text-purple-600">{packageData.group_name}</span>
-            </div>
-            <h1 className="text-xl font-black text-gray-900">{packageData.group_name}</h1>
-          </div>
-        </div>
-
-        <div className="flex items-center gap-3">
-          <div className="hidden md:flex items-center gap-2 px-4 py-2 bg-purple-50 border border-purple-200 rounded-xl">
-            <div className="w-2 h-2 rounded-full bg-purple-500 animate-pulse"></div>
-            <span className="text-xs font-black text-purple-700">{stats.total_employees} موظف</span>
-          </div>
-          
-          {prevPackage && (
-            <Link href={`/hr/packages/${prevPackage.id}`}>
-              <motion.button
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                className="h-10 px-4 rounded-xl bg-white border border-gray-200 text-xs font-black text-gray-600 hover:border-purple-300 hover:text-purple-600 transition-all flex items-center gap-2 shadow-sm"
-              >
-                <ChevronRight size={16} />
-                السابقة
-              </motion.button>
-            </Link>
-          )}
-          {nextPackage && (
-            <Link href={`/hr/packages/${nextPackage.id}`}>
-              <motion.button
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                className="h-10 px-4 rounded-xl bg-white border border-gray-200 text-xs font-black text-gray-600 hover:border-purple-300 hover:text-purple-600 transition-all flex items-center gap-2 shadow-sm"
-              >
-                التالية
-                <ChevronLeft size={16} />
-              </motion.button>
-            </Link>
-          )}
-          
-          <Link href={`/hr/packages/${packageData.id}/add-employees`}>
-            <motion.button
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-purple-600 to-violet-600 text-white hover:from-purple-700 hover:to-violet-700 transition-all font-black text-sm shadow-lg shadow-purple-500/30"
-            >
-              <UserPlus size={18} />
-              إضافة موظفين
-            </motion.button>
-          </Link>
-        </div>
-      </motion.div>
-
+    return (
       <motion.div 
-        variants={itemVariants}
-        className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-slate-800 to-slate-900 p-6 text-white shadow-xl shrink-0"
+        variants={containerVariants}
+        initial="hidden"
+        animate="visible"
+        className="min-h-screen pb-20 max-w-[95%] mx-auto px-4 pt-6"
       >
-        <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
-          <div className="flex items-center gap-5">
-            <div className="h-16 w-16 rounded-2xl bg-gradient-to-br from-purple-500 to-violet-600 flex items-center justify-center text-white shadow-lg shadow-purple-500/30">
-              <Package size={32} />
-            </div>
-            <div>
-              <div className="flex items-center gap-3 mb-2">
-                <h2 className="text-2xl font-black tracking-tight">{packageData.group_name}</h2>
-                <span className={`px-3 py-1 rounded-xl text-[10px] font-black uppercase ${
-                  packageData.work_type === 'target' 
-                    ? 'bg-blue-500/20 text-blue-300 border border-blue-500/30' 
-                    : packageData.work_type === 'salary'
-                    ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
-                    : 'bg-amber-500/20 text-amber-300 border border-amber-500/30'
-                }`}>
-                  {packageData.work_type === 'target' ? 'نظام التارجت' : packageData.work_type === 'salary' ? 'نظام الراتب' : 'نظام العمولة'}
-                </span>
+        <motion.div 
+          variants={itemVariants}
+          className="bg-gradient-to-r from-slate-700 to-slate-800 rounded-2xl shadow-lg overflow-hidden"
+        >
+          <div className="p-6 border-b border-white/10">
+            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+              <div className="flex items-center gap-3">
+                <div className="h-12 w-12 rounded-2xl bg-white/10 flex items-center justify-center">
+                  <Package className="text-white" size={22} />
+                </div>
+                <div>
+                  <div className="flex items-center gap-2 text-xs font-bold text-white/60">
+                    <Link href="/hr" className="hover:text-white transition-colors flex items-center gap-1">
+                      <LayoutDashboard size={12} />
+                      شؤون الموظفين
+                    </Link>
+                    <ArrowRight size={12} className="rotate-180" />
+                    <Link href="/hr/packages" className="hover:text-white transition-colors">الباقات</Link>
+                    <ArrowRight size={12} className="rotate-180" />
+                    <span className="text-purple-300">{packageData.group_name}</span>
+                  </div>
+                  <h1 className="text-xl font-black text-white">{packageData.group_name}</h1>
+                </div>
               </div>
-              <div className="flex items-center gap-4 text-slate-400 text-xs font-bold">
-                <span className="flex items-center gap-1.5">
-                  <Target size={14} className="text-blue-400" />
-                  التارجت: {packageData.monthly_target}
-                </span>
-                <span className="h-1 w-1 rounded-full bg-slate-600" />
-                <span className="flex items-center gap-1.5">
-                  <Trophy size={14} className="text-amber-400" />
-                  البونص: {packageData.bonus_after_target} ر.س
-                </span>
-              </div>
-            </div>
-          </div>
 
-          <div className="flex flex-wrap items-center gap-3">
-            <StatCard 
-              icon={<Users size={18} />}
-              label="إجمالي الموظفين"
-              value={stats.total_employees}
-              color="purple"
-            />
-            <StatCard 
-              icon={<IdCard size={18} />}
-              label="اكتمال الإقامات"
-              value={`${stats.iqama_complete}/${stats.total_employees}`}
-              color="blue"
-            />
-            <StatCard 
-              icon={<FileImage size={18} />}
-              label="اكتمال الصور"
-              value={`${stats.photo_complete}/${stats.total_employees}`}
-              color="emerald"
-            />
-            <StatCard 
-              icon={<FileCheck size={18} />}
-              label="اكتمال الرخص"
-              value={`${stats.license_complete}/${stats.total_employees}`}
-              color="amber"
-            />
-          </div>
-        </div>
-
-        <div className="absolute top-0 right-0 w-96 h-96 bg-purple-500/10 rounded-full -mr-48 -mt-48 blur-3xl" />
-        <div className="absolute bottom-0 left-0 w-64 h-64 bg-blue-500/10 rounded-full -ml-32 -mb-32 blur-3xl" />
-      </motion.div>
-
-      <motion.div 
-        variants={itemVariants}
-        className="bg-white rounded-2xl border border-gray-100 p-4 shadow-sm shrink-0"
-      >
-        <form onSubmit={handleSearch} className="flex flex-col md:flex-row gap-3">
-          <div className="flex-1 relative">
-            <Search className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
-            <input 
-              type="text"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="ابحث عن موظف بالاسم، رقم الإقامة، أو الكود..."
-              className="w-full h-12 pr-12 pl-4 rounded-xl bg-gray-50 border-2 border-gray-100 text-sm font-bold focus:border-purple-300 focus:bg-white outline-none transition-all"
-            />
-          </div>
-          
-          <div className="flex gap-2">
-            {['all', 'active', 'soon', 'expired', 'on_leave'].map((f) => (
-              <motion.button
-                key={f}
-                type="button"
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                onClick={() => handleFilterChange(f)}
-                className={`h-12 px-4 rounded-xl text-xs font-black transition-all ${
-                  filter === f 
-                    ? 'bg-gradient-to-r from-purple-600 to-violet-600 text-white shadow-lg shadow-purple-500/20' 
-                    : 'bg-gray-50 text-gray-500 hover:bg-gray-100 border border-gray-100'
-                }`}
-              >
-                {f === 'all' && 'الكل'}
-                {f === 'active' && 'سارية'}
-                {f === 'soon' && 'تنتهي قريباً'}
-                {f === 'expired' && 'منتهية'}
-                {f === 'on_leave' && 'إجازة'}
-              </motion.button>
-            ))}
-          </div>
-
-          <motion.button 
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            type="submit" 
-            className="h-12 px-8 rounded-xl bg-gray-900 text-white text-xs font-black hover:bg-gray-800 transition-all shadow-lg"
-          >
-            بحث
-          </motion.button>
-        </form>
-      </motion.div>
-
-      <motion.div 
-        variants={itemVariants}
-        className="flex-1 bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden flex flex-col min-h-0"
-      >
-        <div className="bg-gradient-to-r from-slate-700 to-slate-800 px-6 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="h-10 w-10 rounded-xl bg-white/10 flex items-center justify-center">
-                <Users className="text-white" size={20} />
-              </div>
-              <div>
-                <h3 className="text-white font-black">قائمة الموظفين</h3>
-                <p className="text-slate-400 text-xs font-bold">{employees.length} موظف في القائمة</p>
-              </div>
-            </div>
-            <div className="flex items-center gap-2">
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="h-9 px-4 rounded-lg bg-white/10 text-white text-xs font-bold hover:bg-white/20 transition-all flex items-center gap-2"
-              >
-                <Download size={14} />
-                تصدير
-              </motion.button>
-            </div>
-          </div>
-        </div>
-
-        <div className="flex-1 overflow-auto scrollbar-hide">
-          <table className="w-full text-right border-separate border-spacing-0">
-            <thead className="sticky top-0 z-20">
-              <tr className="bg-gray-50">
-                <th className="px-6 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest border-b border-gray-100">الموظف</th>
-                <th className="px-6 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest border-b border-gray-100">الرقم الوظيفي</th>
-                <th className="px-6 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest border-b border-gray-100">رقم الإقامة</th>
-                <th className="px-6 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest border-b border-gray-100">انتهاء الإقامة</th>
-                <th className="px-6 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest border-b border-gray-100">الراتب</th>
-                <th className="px-6 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest border-b border-gray-100">الحالة</th>
-                <th className="px-6 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest text-center border-b border-gray-100">الإجراءات</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-50">
-              <AnimatePresence>
-                {employees.map((emp, index) => (
-                  <motion.tr 
-                    key={emp.id} 
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: index * 0.03 }}
-                    className={`hover:bg-purple-50/30 transition-colors group ${emp.is_active === 0 ? 'bg-orange-50/30' : ''}`}
+              <div className="flex items-center gap-3">
+                <div className="hidden md:flex items-center gap-2 px-4 py-2 bg-white/10 border border-white/10 rounded-xl">
+                  <div className="w-2 h-2 rounded-full bg-purple-400 animate-pulse"></div>
+                  <span className="text-xs font-black text-white/80">{stats.total_employees} موظف</span>
+                </div>
+                
+                {prevPackage && (
+                  <Link href={`/hr/packages/${prevPackage.id}`}>
+                    <motion.button
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      className="h-10 px-4 rounded-xl bg-white/10 border border-white/10 text-xs font-black text-white hover:bg-white/20 transition-all flex items-center gap-2"
+                    >
+                      <ChevronRight size={16} />
+                      السابقة
+                    </motion.button>
+                  </Link>
+                )}
+                {nextPackage && (
+                  <Link href={`/hr/packages/${nextPackage.id}`}>
+                    <motion.button
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      className="h-10 px-4 rounded-xl bg-white/10 border border-white/10 text-xs font-black text-white hover:bg-white/20 transition-all flex items-center gap-2"
+                    >
+                      التالية
+                      <ChevronLeft size={16} />
+                    </motion.button>
+                  </Link>
+                )}
+                
+                <Link href={`/hr/packages/${packageData.id}/add-employees`}>
+                  <motion.button
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-purple-500 to-violet-500 text-white hover:from-purple-600 hover:to-violet-600 transition-all font-black text-sm shadow-lg"
                   >
-                    <td className="px-6 py-4">
-                      <div className="flex items-center gap-3">
-                        <div className="h-11 w-11 rounded-xl bg-gradient-to-br from-purple-100 to-violet-100 flex items-center justify-center text-purple-600 font-black text-sm overflow-hidden shadow-sm group-hover:shadow-md transition-all">
-                          {emp.personal_photo ? (
-                            <img src={getPublicUrl(emp.personal_photo) || ""} alt="" className="h-full w-full object-cover" />
-                          ) : (
-                            emp.name.charAt(0)
-                          )}
-                        </div>
-                        <div>
-                          <p className="text-sm font-black text-gray-900">{emp.name}</p>
-                          <p className="text-[10px] font-bold text-gray-400">{emp.nationality || 'غير محدد'}</p>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4">
-                      <span className="text-xs font-black text-purple-600 bg-purple-50 px-3 py-1.5 rounded-lg border border-purple-100">#{emp.user_code}</span>
-                    </td>
-                    <td className="px-6 py-4">
-                      <span className="text-sm font-bold text-gray-600">{emp.iqama_number}</span>
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="flex items-center gap-2">
-                        <input 
-                          type="date"
-                          defaultValue={emp.iqama_expiry ? (() => {
-                            const d = new Date(emp.iqama_expiry);
-                            return !isNaN(d.getTime()) ? d.toISOString().split('T')[0] : "";
-                          })() : ""}
-                          onChange={(e) => handleUpdateExpiry(emp.id, e.target.value)}
-                          className="bg-gray-50 border border-gray-100 rounded-lg px-3 py-1.5 text-xs font-bold text-gray-600 focus:ring-2 focus:ring-purple-500/20 focus:border-purple-300 cursor-pointer hover:border-purple-200 transition-all"
-                        />
-                        <ExpiryBadge date={emp.iqama_expiry} />
-                      </div>
-                    </td>
-                    <td className="px-6 py-4">
-                      <span className="text-sm font-black text-gray-900">{Number(emp.basic_salary).toLocaleString('en-US')} <span className="text-gray-400 text-xs">ر.س</span></span>
-                    </td>
-                    <td className="px-6 py-4">
-                      {emp.is_active === 1 ? (
-                        <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gradient-to-r from-emerald-50 to-teal-50 text-emerald-700 text-[10px] font-black uppercase border border-emerald-200">
-                          <CheckCircle2 size={12} />
-                          نشط
-                        </span>
-                      ) : (
-                        <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gradient-to-r from-orange-50 to-amber-50 text-orange-700 text-[10px] font-black uppercase border border-orange-200">
-                          <Umbrella size={12} />
-                          في إجازة
-                        </span>
-                      )}
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="flex items-center justify-center gap-2">
-                        <Link href={`/hr/employees/${emp.id}`}>
-                          <motion.button 
-                            whileHover={{ scale: 1.1 }}
-                            whileTap={{ scale: 0.9 }}
-                            className="h-9 w-9 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center hover:bg-blue-600 hover:text-white transition-all shadow-sm"
-                          >
-                            <Eye size={16} />
-                          </motion.button>
-                        </Link>
-                        <motion.button 
-                          whileHover={{ scale: 1.1 }}
-                          whileTap={{ scale: 0.9 }}
-                          onClick={() => handleDelete(emp.id)}
-                          className="h-9 w-9 rounded-xl bg-red-50 text-red-600 flex items-center justify-center hover:bg-red-600 hover:text-white transition-all shadow-sm"
-                        >
-                          <Trash2 size={16} />
-                        </motion.button>
-                      </div>
-                    </td>
-                  </motion.tr>
-                ))}
-              </AnimatePresence>
-              {employees.length === 0 && (
-                <tr>
-                  <td colSpan={7} className="px-6 py-20 text-center">
-                    <div className="h-24 w-24 rounded-3xl bg-gray-100 flex items-center justify-center mx-auto mb-4">
-                      <Users size={48} className="text-gray-300" />
-                    </div>
-                    <p className="text-lg font-black text-gray-400 mb-2">لا يوجد موظفين يطابقون البحث</p>
-                    <p className="text-sm font-bold text-gray-300">جرب تغيير معايير البحث أو الفلتر</p>
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
-
-        <div className="bg-gray-50 px-6 py-4 border-t border-gray-100 shrink-0">
-          <div className="flex items-center justify-between text-xs font-bold text-gray-500">
-            <span>إجمالي الموظفين: {employees.length}</span>
-            <div className="flex items-center gap-2">
-              <Sparkles size={14} className="text-purple-500" />
-              <span>باقة {packageData.group_name}</span>
+                    <UserPlus size={18} />
+                    إضافة موظفين
+                  </motion.button>
+                </Link>
+              </div>
             </div>
           </div>
+
+          <div className="p-6 border-b border-white/10">
+            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+              <div className="flex items-center gap-5">
+                <div className="h-16 w-16 rounded-2xl bg-gradient-to-br from-purple-500 to-violet-600 flex items-center justify-center text-white shadow-lg shadow-purple-500/30">
+                  <Package size={32} />
+                </div>
+                <div>
+                  <div className="flex items-center gap-3 mb-2">
+                    <h2 className="text-2xl font-black tracking-tight text-white">{packageData.group_name}</h2>
+                    <span className={`px-3 py-1 rounded-xl text-[10px] font-black uppercase ${
+                      packageData.work_type === 'target' 
+                        ? 'bg-blue-500/20 text-blue-300 border border-blue-500/30' 
+                        : packageData.work_type === 'salary'
+                        ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
+                        : 'bg-amber-500/20 text-amber-300 border border-amber-500/30'
+                    }`}>
+                      {packageData.work_type === 'target' ? 'نظام التارجت' : packageData.work_type === 'salary' ? 'نظام الراتب' : 'نظام العمولة'}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-4 text-slate-400 text-xs font-bold">
+                    <span className="flex items-center gap-1.5">
+                      <Target size={14} className="text-blue-400" />
+                      التارجت: {packageData.monthly_target}
+                    </span>
+                    <span className="h-1 w-1 rounded-full bg-slate-600" />
+                    <span className="flex items-center gap-1.5">
+                      <Trophy size={14} className="text-amber-400" />
+                      البونص: {packageData.bonus_after_target} ر.س
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex flex-wrap items-center gap-3">
+                <StatCard 
+                  icon={<Users size={18} />}
+                  label="إجمالي الموظفين"
+                  value={stats.total_employees}
+                  color="purple"
+                />
+                <StatCard 
+                  icon={<IdCard size={18} />}
+                  label="اكتمال الإقامات"
+                  value={`${stats.iqama_complete}/${stats.total_employees}`}
+                  color="blue"
+                />
+                <StatCard 
+                  icon={<FileImage size={18} />}
+                  label="اكتمال الصور"
+                  value={`${stats.photo_complete}/${stats.total_employees}`}
+                  color="emerald"
+                />
+                <StatCard 
+                  icon={<FileCheck size={18} />}
+                  label="اكتمال الرخص"
+                  value={`${stats.license_complete}/${stats.total_employees}`}
+                  color="amber"
+                />
+              </div>
+            </div>
+          </div>
+
+          <div className="p-6 border-b border-white/10">
+            <form onSubmit={handleSearch} className="flex flex-col md:flex-row gap-3">
+              <div className="flex-1 relative">
+                <Search className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+                <input 
+                  type="text"
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  placeholder="ابحث عن موظف بالاسم، رقم الإقامة، أو الكود..."
+                  className="w-full h-12 pr-12 pl-4 rounded-xl bg-white/10 border border-white/10 text-sm font-bold text-white placeholder-slate-400 focus:ring-2 focus:ring-purple-500/30 focus:bg-white/20 outline-none transition-all"
+                />
+              </div>
+              
+              <div className="flex gap-2 flex-wrap">
+                {['all', 'active', 'soon', 'expired', 'on_leave'].map((f) => (
+                  <motion.button
+                    key={f}
+                    type="button"
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={() => handleFilterChange(f)}
+                    className={`h-12 px-4 rounded-xl text-xs font-black transition-all ${
+                      filter === f 
+                        ? 'bg-gradient-to-r from-purple-500 to-violet-500 text-white shadow-lg' 
+                        : 'bg-white/10 text-white/70 hover:bg-white/20 border border-white/10'
+                    }`}
+                  >
+                    {f === 'all' && 'الكل'}
+                    {f === 'active' && 'سارية'}
+                    {f === 'soon' && 'تنتهي قريباً'}
+                    {f === 'expired' && 'منتهية'}
+                    {f === 'on_leave' && 'إجازة'}
+                  </motion.button>
+                ))}
+              </div>
+
+              <motion.button 
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                type="submit" 
+                className="h-12 px-8 rounded-xl bg-white text-gray-900 text-xs font-black hover:bg-gray-100 transition-all shadow-lg"
+              >
+                بحث
+              </motion.button>
+            </form>
+          </div>
+
+          <div className="px-6 py-4 border-b border-white/10">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="h-10 w-10 rounded-xl bg-white/10 flex items-center justify-center">
+                  <Users className="text-white" size={20} />
+                </div>
+                <div>
+                  <h3 className="text-white font-black">قائمة الموظفين</h3>
+                  <p className="text-slate-400 text-xs font-bold">{employees.length} موظف في القائمة</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  className="h-9 px-4 rounded-lg bg-white/10 text-white text-xs font-bold hover:bg-white/20 transition-all flex items-center gap-2"
+                >
+                  <Download size={14} />
+                  تصدير
+                </motion.button>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-gray-50">
+            <div className="overflow-auto max-h-[500px] scrollbar-hide">
+              <table className="w-full text-right border-separate border-spacing-0">
+                <thead className="sticky top-0 z-20">
+                  <tr className="bg-gray-100">
+                    <th className="px-6 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest border-b border-gray-200">الموظف</th>
+                    <th className="px-6 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest border-b border-gray-200">الرقم الوظيفي</th>
+                    <th className="px-6 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest border-b border-gray-200">رقم الإقامة</th>
+                    <th className="px-6 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest border-b border-gray-200">انتهاء الإقامة</th>
+                    <th className="px-6 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest border-b border-gray-200">الراتب</th>
+                    <th className="px-6 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest border-b border-gray-200">الحالة</th>
+                    <th className="px-6 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest text-center border-b border-gray-200">الإجراءات</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-100">
+                  <AnimatePresence>
+                    {employees.map((emp, index) => (
+                      <motion.tr 
+                        key={emp.id} 
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: index * 0.03 }}
+                        className={`hover:bg-purple-50/30 transition-colors group bg-white ${emp.is_active === 0 ? 'bg-orange-50/30' : ''}`}
+                      >
+                        <td className="px-6 py-4">
+                          <div className="flex items-center gap-3">
+                            <div className="h-11 w-11 rounded-xl bg-gradient-to-br from-purple-100 to-violet-100 flex items-center justify-center text-purple-600 font-black text-sm overflow-hidden shadow-sm group-hover:shadow-md transition-all">
+                              {emp.personal_photo ? (
+                                <img src={getPublicUrl(emp.personal_photo) || ""} alt="" className="h-full w-full object-cover" />
+                              ) : (
+                                emp.name.charAt(0)
+                              )}
+                            </div>
+                            <div>
+                              <p className="text-sm font-black text-gray-900">{emp.name}</p>
+                              <p className="text-[10px] font-bold text-gray-400">{emp.nationality || 'غير محدد'}</p>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4">
+                          <span className="text-xs font-black text-purple-600 bg-purple-50 px-3 py-1.5 rounded-lg border border-purple-100">#{emp.user_code}</span>
+                        </td>
+                        <td className="px-6 py-4">
+                          <span className="text-sm font-bold text-gray-600">{emp.iqama_number}</span>
+                        </td>
+                        <td className="px-6 py-4">
+                          <div className="flex items-center gap-2">
+                            <input 
+                              type="date"
+                              defaultValue={emp.iqama_expiry ? (() => {
+                                const d = new Date(emp.iqama_expiry);
+                                return !isNaN(d.getTime()) ? d.toISOString().split('T')[0] : "";
+                              })() : ""}
+                              onChange={(e) => handleUpdateExpiry(emp.id, e.target.value)}
+                              className="bg-gray-50 border border-gray-100 rounded-lg px-3 py-1.5 text-xs font-bold text-gray-600 focus:ring-2 focus:ring-purple-500/20 focus:border-purple-300 cursor-pointer hover:border-purple-200 transition-all"
+                            />
+                            <ExpiryBadge date={emp.iqama_expiry} />
+                          </div>
+                        </td>
+                        <td className="px-6 py-4">
+                          <span className="text-sm font-black text-gray-900">{Number(emp.basic_salary).toLocaleString('en-US')} <span className="text-gray-400 text-xs">ر.س</span></span>
+                        </td>
+                        <td className="px-6 py-4">
+                          {emp.is_active === 1 ? (
+                            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gradient-to-r from-emerald-50 to-teal-50 text-emerald-700 text-[10px] font-black uppercase border border-emerald-200">
+                              <CheckCircle2 size={12} />
+                              نشط
+                            </span>
+                          ) : (
+                            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gradient-to-r from-orange-50 to-amber-50 text-orange-700 text-[10px] font-black uppercase border border-orange-200">
+                              <Umbrella size={12} />
+                              في إجازة
+                            </span>
+                          )}
+                        </td>
+                        <td className="px-6 py-4">
+                          <div className="flex items-center justify-center gap-2">
+                            <Link href={`/hr/employees/${emp.id}`}>
+                              <motion.button 
+                                whileHover={{ scale: 1.1 }}
+                                whileTap={{ scale: 0.9 }}
+                                className="h-9 w-9 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center hover:bg-blue-600 hover:text-white transition-all shadow-sm"
+                              >
+                                <Eye size={16} />
+                              </motion.button>
+                            </Link>
+                            <motion.button 
+                              whileHover={{ scale: 1.1 }}
+                              whileTap={{ scale: 0.9 }}
+                              onClick={() => handleDelete(emp.id)}
+                              className="h-9 w-9 rounded-xl bg-red-50 text-red-600 flex items-center justify-center hover:bg-red-600 hover:text-white transition-all shadow-sm"
+                            >
+                              <Trash2 size={16} />
+                            </motion.button>
+                          </div>
+                        </td>
+                      </motion.tr>
+                    ))}
+                  </AnimatePresence>
+                  {employees.length === 0 && (
+                    <tr>
+                      <td colSpan={7} className="px-6 py-20 text-center bg-white">
+                        <div className="h-24 w-24 rounded-3xl bg-gray-100 flex items-center justify-center mx-auto mb-4">
+                          <Users size={48} className="text-gray-300" />
+                        </div>
+                        <p className="text-lg font-black text-gray-400 mb-2">لا يوجد موظفين يطابقون البحث</p>
+                        <p className="text-sm font-bold text-gray-300">جرب تغيير معايير البحث أو الفلتر</p>
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div className="bg-slate-600 px-6 py-4">
+            <div className="flex items-center justify-between text-xs font-bold text-white/70">
+              <span>إجمالي الموظفين: {employees.length}</span>
+              <div className="flex items-center gap-2">
+                <Sparkles size={14} className="text-purple-400" />
+                <span>باقة {packageData.group_name}</span>
+              </div>
+            </div>
+          </div>
+        </motion.div>
+
+        <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-[10px] font-black text-gray-400 uppercase tracking-widest pt-4">
+          <div className="flex items-center gap-2">
+            <Sparkles size={12} className="text-purple-500" />
+            <span>نظام إدارة الموظفين - ZoolSpeed Logistics</span>
+          </div>
+          <span>جميع الحقوق محفوظة © {new Date().getFullYear()}</span>
         </div>
       </motion.div>
-    </motion.div>
-  );
+    );
 }
 
 function StatCard({ icon, label, value, color }: { icon: React.ReactNode; label: string; value: string | number; color: string }) {
