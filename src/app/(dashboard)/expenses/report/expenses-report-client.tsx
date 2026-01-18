@@ -493,14 +493,14 @@ export function ExpensesReportClient({ companyId }: ExpensesReportClientProps) {
           animate={{ opacity: 1, y: 0 }}
           className="print:shadow-none"
         >
-          <Card className="overflow-hidden border-none shadow-2xl bg-[#111827] text-white rounded-[2rem] border border-white/5 print:rounded-none print:shadow-none">
+          <Card className="overflow-hidden border-none shadow-xl bg-[#111827] text-white rounded-2xl border border-white/5 print:rounded-none print:shadow-none">
             
-            <CardContent className="p-8">
-              <div className="flex flex-col lg:flex-row items-center justify-between gap-6">
-                <div className="flex items-center gap-5 lg:w-1/3">
-                  <div className="relative group">
+            <CardContent className="p-5">
+              <div className="flex flex-col lg:flex-row items-center justify-between gap-4">
+                <div className="flex items-center gap-4">
+                  <div className="relative">
                     {companyInfo?.logo_path ? (
-                      <div className="relative w-16 h-16 rounded-2xl bg-white p-2.5 flex items-center justify-center shadow-xl border border-white/10 overflow-hidden">
+                      <div className="relative w-12 h-12 rounded-xl bg-white p-2 flex items-center justify-center shadow-lg border border-white/10 overflow-hidden">
                         <img
                           src={companyInfo.logo_path}
                           alt="Logo"
@@ -508,50 +508,44 @@ export function ExpensesReportClient({ companyId }: ExpensesReportClientProps) {
                         />
                       </div>
                     ) : (
-                      <div className="relative w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center shadow-2xl border border-white/10">
-                        <Building2 className="w-8 h-8 text-white" />
+                      <div className="relative w-12 h-12 rounded-xl bg-blue-600 flex items-center justify-center shadow-lg border border-white/10">
+                        <Building2 className="w-6 h-6 text-white" />
                       </div>
                     )}
                   </div>
                   <div>
-                    <h2 className="text-xl font-black text-white">
+                    <h2 className="text-base font-bold text-white">
                       {companyInfo?.name || "اسم الشركة"}
                     </h2>
-                    <p className="text-blue-400 text-[10px] font-bold tracking-widest mt-0.5">
+                    <p className="text-slate-400 text-[10px] font-medium">
                       نظام إدارة المنصرفات والرواتب
                     </p>
                   </div>
                 </div>
 
-                <div className="text-center lg:w-1/3">
-                  <div className="inline-flex items-center gap-3 px-8 py-3 rounded-full bg-white/5 border border-white/10">
-                    <TrendingUp className="w-5 h-5 text-blue-400" />
-                    <h1 className="text-xl lg:text-2xl font-black tracking-tight text-white">
-                      التقرير المالي الشهري
-                    </h1>
-                  </div>
+                <div className="text-center">
+                  <h1 className="text-lg font-bold text-white">
+                    التقرير المالي الشهري
+                  </h1>
                 </div>
 
-                <div className="flex items-center justify-end gap-4 lg:w-1/3 print:hidden">
-                  <div className="bg-white/5 rounded-2xl px-5 py-3 border border-white/10 flex items-center gap-4">
+                <div className="flex items-center gap-3 print:hidden">
+                  <div className="bg-white/5 rounded-xl px-4 py-2 border border-white/10 flex items-center gap-3">
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="h-8 w-8 text-white/40 hover:text-white hover:bg-white/10 rounded-full transition-all"
+                      className="h-7 w-7 text-white/50 hover:text-white hover:bg-white/10 rounded-lg transition-all"
                       onClick={() => {
                         const date = new Date(selectedMonth + "-01");
                         date.setMonth(date.getMonth() - 1);
                         setSelectedMonth(`${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`);
                       }}
                     >
-                      <motion.div whileTap={{ x: 3 }}>
-                        <ChevronDown className="w-5 h-5 rotate-90" />
-                      </motion.div>
+                      <ChevronDown className="w-4 h-4 rotate-90" />
                     </Button>
 
-                    <div className="text-center min-w-[100px]">
-                      <p className="text-[10px] text-blue-400 font-bold mb-0.5">الفترة المحددة</p>
-                      <p className="text-base font-black text-white leading-none">
+                    <div className="text-center min-w-[90px]">
+                      <p className="text-sm font-bold text-white leading-none">
                         {getMonthName(selectedMonth)}
                       </p>
                     </div>
@@ -559,112 +553,20 @@ export function ExpensesReportClient({ companyId }: ExpensesReportClientProps) {
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="h-8 w-8 text-white/40 hover:text-white hover:bg-white/10 rounded-full transition-all"
+                      className="h-7 w-7 text-white/50 hover:text-white hover:bg-white/10 rounded-lg transition-all"
                       onClick={() => {
                         const date = new Date(selectedMonth + "-01");
                         date.setMonth(date.getMonth() + 1);
                         setSelectedMonth(`${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`);
                       }}
                     >
-                      <motion.div whileTap={{ x: -3 }}>
-                        <ChevronDown className="w-5 h-5 -rotate-90" />
-                      </motion.div>
+                      <ChevronDown className="w-4 h-4 -rotate-90" />
                     </Button>
                   </div>
                 </div>
               </div>
             </CardContent>
           </Card>
-        </motion.div>
-
-        {/* Stats Cards - Main Totals */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-          className="grid grid-cols-2 lg:grid-cols-4 gap-4"
-        >
-          {[
-            {
-              label: "إجمالي المنصرفات",
-              value: stats.totalExpenses,
-              count: stats.expensesCount,
-              icon: Wallet,
-              color: "text-blue-400",
-              bgColor: "bg-blue-400/10",
-              border: "border-blue-400/20",
-              glow: "bg-blue-400/5",
-              accent: "blue"
-            },
-            {
-              label: "إجمالي الاستقطاعات",
-              value: stats.totalDeductions,
-              count: stats.deductionsCount,
-              icon: HandCoins,
-              color: "text-rose-400",
-              bgColor: "bg-rose-400/10",
-              border: "border-rose-400/20",
-              glow: "bg-rose-400/5",
-              accent: "rose"
-            },
-            {
-              label: "مسيرات الرواتب",
-              value: stats.totalPayrolls,
-              count: stats.payrollsCount,
-              icon: FileText,
-              color: "text-emerald-400",
-              bgColor: "bg-emerald-400/10",
-              border: "border-emerald-400/20",
-              glow: "bg-emerald-400/5",
-              accent: "emerald",
-              link: "/salary-payrolls"
-            },
-            {
-              label: "المجموع الكلي",
-              value: stats.totalAll,
-              count: stats.expensesCount + stats.deductionsCount + stats.payrollsCount,
-              icon: Calculator,
-              color: "text-amber-400",
-              bgColor: "bg-amber-400/10",
-              border: "border-amber-400/20",
-              glow: "bg-amber-400/5",
-              accent: "amber"
-            },
-          ].map((stat, idx) => (
-            <motion.div
-              key={idx}
-              whileHover={{ y: -5 }}
-              onClick={() => stat.link && (window.location.href = stat.link)}
-              className={`relative ${stat.link ? "cursor-pointer" : ""}`}
-            >
-              <Card className={`border-none shadow-2xl rounded-2xl overflow-hidden bg-[#111827] relative z-10 h-full border border-white/5`}>
-                <div className={`absolute top-0 right-0 w-24 h-24 ${stat.glow} blur-3xl -z-10`} />
-                <CardContent className="p-5">
-                  <div className="flex items-center gap-4">
-                    <div className={`w-10 h-10 rounded-xl ${stat.bgColor} flex items-center justify-center border ${stat.border} shadow-inner`}>
-                      <stat.icon className={`w-5 h-5 ${stat.color}`} />
-                    </div>
-                    
-                    <div className="flex-1 min-w-0">
-                      <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{stat.label}</p>
-                      <div className="flex items-baseline gap-1 mt-0.5">
-                        <span className="text-lg font-black text-white truncate">{formatNumber(stat.value)}</span>
-                        <span className="text-[9px] font-bold text-slate-500">ر.س</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="mt-4 pt-3 border-t border-white/5 flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <div className={`w-1.5 h-1.5 rounded-full ${stat.bgColor.replace('/10', '')}`} />
-                      <span className="text-[10px] font-black text-slate-300 uppercase">{stat.count} عملية</span>
-                    </div>
-                    <Info className="w-3.5 h-3.5 text-slate-500" />
-                  </div>
-                </CardContent>
-              </Card>
-            </motion.div>
-          ))}
         </motion.div>
 
         {/* Navigation Tabs - Selection Options */}
@@ -1255,39 +1157,24 @@ export function ExpensesReportClient({ companyId }: ExpensesReportClientProps) {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.7 }}
         >
-          <Card className="border-none shadow-2xl rounded-[2.5rem] overflow-hidden bg-gradient-to-r from-blue-600 via-indigo-700 to-purple-800 text-white relative">
-            <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_top_right,_var(--tw-gradient-stops))] from-white/10 via-transparent to-transparent pointer-events-none" />
-            <CardContent className="p-8 text-center relative z-10">
-              <div className="flex items-center justify-center gap-4 mb-4">
-                <div className="w-12 h-12 rounded-2xl bg-white/10 backdrop-blur-md flex items-center justify-center border border-white/20">
-                  <Calculator className="w-7 h-7 text-white" />
+          <Card className="border-none shadow-xl rounded-2xl overflow-hidden bg-[#111827] text-white relative border border-white/5">
+            <CardContent className="p-6 text-center relative z-10">
+              <div className="flex items-center justify-center gap-3 mb-4">
+                <div className="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center">
+                  <Calculator className="w-5 h-5 text-white" />
                 </div>
-                <div>
-                  <h2 className="text-xl lg:text-2xl font-black tracking-tight">
+                <div className="text-right">
+                  <h2 className="text-lg font-bold text-white">
                     الإجمالي النهائي لشهر {getMonthName(selectedMonth)}
                   </h2>
-                  <p className="text-blue-200 text-xs font-bold uppercase tracking-widest mt-0.5">الملخص المالي الموحد</p>
                 </div>
               </div>
               
-              <div className="inline-block px-8 py-4 bg-white/10 backdrop-blur-2xl rounded-[2rem] border border-white/20 shadow-2xl mb-8">
-                <span className="text-4xl lg:text-5xl font-black tracking-tighter">
+              <div className="inline-block px-6 py-3 bg-white/5 rounded-xl border border-white/10">
+                <span className="text-3xl font-bold text-white">
                   {formatNumber(stats.totalAll)}
                 </span>
-                <span className="text-sm font-bold text-blue-200 mr-3">ريال سعودي</span>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-3xl mx-auto">
-                {[
-                  { label: "إجمالي المنصرفات", val: stats.totalExpenses, color: "blue" },
-                  { label: "إجمالي الاستقطاعات", val: stats.totalDeductions, color: "rose" },
-                  { label: "إجمالي الرواتب", val: stats.totalPayrolls, color: "emerald" }
-                ].map((item, idx) => (
-                  <div key={idx} className="bg-black/20 backdrop-blur-lg p-4 rounded-2xl border border-white/5">
-                    <p className="text-xs font-bold text-slate-300 mb-1">{item.label}</p>
-                    <p className="text-lg font-black">{formatNumber(item.val)} <span className="text-[10px] text-slate-400">ر.س</span></p>
-                  </div>
-                ))}
+                <span className="text-sm font-medium text-slate-400 mr-2">ريال سعودي</span>
               </div>
             </CardContent>
           </Card>
