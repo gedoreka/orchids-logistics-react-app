@@ -1231,20 +1231,9 @@ export function ExpensesReportClient({ companyId }: ExpensesReportClientProps) {
                   الإجمالي النهائي لشهر {getMonthName(selectedMonth)}
                 </h2>
               </div>
-              <p className="text-3xl font-bold mb-3">
+              <p className="text-3xl font-bold">
                 {formatNumber(stats.totalAll)} ريال سعودي
               </p>
-              <div className="flex flex-wrap items-center justify-center gap-4 text-sm">
-                <span className="bg-white/10 px-3 py-1.5 rounded-xl">
-                  منصرفات: {formatNumber(stats.totalExpenses)} ر.س
-                </span>
-                <span className="bg-white/10 px-3 py-1.5 rounded-xl">
-                  استقطاعات: {formatNumber(stats.totalDeductions)} ر.س
-                </span>
-                <span className="bg-white/10 px-3 py-1.5 rounded-xl">
-                  رواتب: {formatNumber(stats.totalPayrolls)} ر.س
-                </span>
-              </div>
             </CardContent>
           </Card>
         </motion.div>
