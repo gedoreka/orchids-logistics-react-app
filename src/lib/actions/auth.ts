@@ -5,6 +5,7 @@ import { cookies } from "next/headers";
 import bcrypt from "bcryptjs";
 import { sendResetCode, sendLoginNotification, sendWelcomeEmail } from "@/lib/mail";
 import { supabase } from "@/lib/supabase-client";
+import { query, execute } from "@/lib/db";
 import { v4 as uuidv4 } from "uuid";
 
 export async function registerAction(formData: FormData): Promise<AuthResponse> {
@@ -60,70 +61,31 @@ export async function registerAction(formData: FormData): Promise<AuthResponse> 
     const digital_seal_path = await uploadFile(digitalSealFile, 'seals');
     const transport_license_image = await uploadFile(licenseImageFile, 'licenses');
 
-    const { data: existingUsers } = await supabase
-      .from("users")
-      .select("id")
-      .eq("email", user_email);
+    const existingUsers = await query<any>("SELECT id FROM users WHERE email = ?", [user_email]);
 
     if (existingUsers && existingUsers.length > 0) {
       return { success: false, error: "البريد الإلكتروني مسجل مسبقاً." };
     }
 
-    const { data: companyData, error: companyError } = await supabase
-      .from("companies")
-      .insert({
-        name,
-        status: 'pending',
-        is_active: 0,
-        commercial_number,
-        vat_number,
-        phone,
-        website,
-        currency,
-        logo_path,
-        stamp_path,
-        digital_seal_path,
-        country,
-        region,
-        district,
-        street,
-        postal_code,
-        short_address,
-        bank_beneficiary,
-        bank_name,
-        bank_account,
-        bank_iban,
-        transport_license_number,
-        transport_license_type,
-        transport_license_image,
-        license_start: license_start || null,
-        license_end: license_end || null,
-        created_at: new Date().toISOString()
-      })
-      .select("id")
-      .single();
-
-    if (companyError) throw companyError;
-    const companyId = companyData.id;
+    const companyResult = await execute(
+      `INSERT INTO companies (name, status, is_active, commercial_number, vat_number, phone, website, currency, logo_path, stamp_path, digital_seal_path, country, region, district, street, postal_code, short_address, bank_beneficiary, bank_name, bank_account, bank_iban, transport_license_number, transport_license_type, transport_license_image, license_start, license_end, created_at) VALUES (?, 'pending', 0, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())`,
+      [name, commercial_number, vat_number, phone, website, currency, logo_path, stamp_path, digital_seal_path, country, region, district, street, postal_code, short_address, bank_beneficiary, bank_name, bank_account, bank_iban, transport_license_number, transport_license_type, transport_license_image, license_start || null, license_end || null]
+    );
+    
+    const companyId = companyResult.insertId;
 
     const hashedPassword = await bcrypt.hash(password, 10);
-    await supabase.from("users").insert({
-      name,
-      email: user_email,
-      password: hashedPassword,
-      role: 'admin',
-      company_id: companyId,
-      is_activated: 0,
-      created_at: new Date().toISOString()
-    });
+    await execute(
+      "INSERT INTO users (name, email, password, role, company_id, is_activated, created_at) VALUES (?, ?, ?, 'admin', ?, 0, NOW())",
+      [name, user_email, hashedPassword, companyId]
+    );
 
     const features = ['dashboard', 'drivers', 'vehicles', 'tracking', 'reports', 'settings'];
     for (const feature of features) {
-      await supabase.from("company_permissions").insert({
-        company_id: companyId,
-        feature_key: feature,
-        is_enabled: true
-      });
+      await execute(
+        "INSERT INTO company_permissions (company_id, feature_key, is_enabled) VALUES (?, ?, 1)",
+        [companyId, feature]
+      );
     }
 
     return { success: true };
@@ -139,69 +101,63 @@ export async function loginAction(formData: FormData): Promise<AuthResponse> {
   const remember = formData.get("remember") === "on";
 
   try {
-    const { data: subUsers, error: subUserError } = await supabase
-      .from("company_sub_users")
-      .select("*")
-      .eq("email", email)
-      .eq("status", "active");
+    const subUsers = await query<SubUser & { password?: string }>(
+      "SELECT * FROM company_sub_users WHERE email = ? AND status = 'active'",
+      [email]
+    );
 
-    if (!subUserError && subUsers && subUsers.length > 0) {
-      const subUser = subUsers[0] as SubUser & { password?: string };
+    if (subUsers && subUsers.length > 0) {
+      const subUser = subUsers[0];
       
       const isPasswordValid = await bcrypt.compare(password, subUser.password || "");
       if (!isPasswordValid) {
         return { success: false, error: "كلمة المرور غير صحيحة." };
       }
 
-      const { data: companies } = await supabase
-        .from("companies")
-        .select("name, status, is_active")
-        .eq("id", subUser.company_id)
-        .single();
+      const companies = await query<{ name: string; status: string; is_active: number }>(
+        "SELECT name, status, is_active FROM companies WHERE id = ?",
+        [subUser.company_id]
+      );
 
-      if (!companies) {
+      if (!companies || companies.length === 0) {
         return { success: false, error: "لم يتم العثور على بيانات الشركة." };
       }
 
-      if (companies.status !== "approved") {
+      const company = companies[0];
+
+      if (company.status !== "approved") {
         return { success: false, error: "الشركة غير مقبولة بعد." };
       }
 
-      if (companies.is_active !== 1) {
+      if (company.is_active !== 1) {
         return { success: false, error: "الشركة موقوفة. يرجى التواصل مع الإدارة." };
       }
 
-      const { data: permissionsRows } = await supabase
-        .from("sub_user_permissions")
-        .select("permission_key")
-        .eq("sub_user_id", subUser.id);
+      const permissionsRows = await query<{ permission_key: string }>(
+        "SELECT permission_key FROM sub_user_permissions WHERE sub_user_id = ?",
+        [subUser.id]
+      );
 
       const permissions: Record<string, number> = {};
-      (permissionsRows || []).forEach((p: { permission_key: string }) => {
+      (permissionsRows || []).forEach((p) => {
         permissions[p.permission_key] = 1;
       });
 
       const sessionId = uuidv4();
-      await supabase.from("sub_user_sessions").insert({
-        session_id: sessionId,
-        sub_user_id: subUser.id,
-        ip_address: "",
-        login_at: new Date().toISOString(),
-        last_activity: new Date().toISOString(),
-      });
+      await execute(
+        "INSERT INTO sub_user_sessions (session_id, sub_user_id, ip_address, login_at, last_activity) VALUES (?, ?, '', NOW(), NOW())",
+        [sessionId, subUser.id]
+      );
 
-      await supabase
-        .from("company_sub_users")
-        .update({ last_login_at: new Date().toISOString() })
-        .eq("id", subUser.id);
+      await execute(
+        "UPDATE company_sub_users SET last_login_at = NOW() WHERE id = ?",
+        [subUser.id]
+      );
 
-      await supabase.from("sub_user_activity_logs").insert({
-        sub_user_id: subUser.id,
-        company_id: subUser.company_id,
-        action_type: "login",
-        action_description: "تسجيل دخول",
-        created_at: new Date().toISOString(),
-      });
+      await execute(
+        "INSERT INTO sub_user_activity_logs (sub_user_id, company_id, action_type, action_description, created_at) VALUES (?, ?, 'login', 'تسجيل دخول', NOW())",
+        [subUser.id, subUser.company_id]
+      );
 
       const cookieStore = await cookies();
       const sessionData = {
@@ -244,31 +200,32 @@ export async function loginAction(formData: FormData): Promise<AuthResponse> {
       };
     }
 
-    const { data: users, error: userError } = await supabase
-      .from("users")
-      .select("*")
-      .eq("email", email);
+    const users = await query<User & { password?: string }>(
+      "SELECT * FROM users WHERE email = ?",
+      [email]
+    );
 
-    if (userError || !users || users.length === 0) {
+    if (!users || users.length === 0) {
       return { success: false, error: "البريد الإلكتروني غير مسجل." };
     }
 
-    const user = users[0] as User & { password?: string };
+    const user = users[0];
 
     const isPasswordValid = await bcrypt.compare(password, user.password || "");
     if (!isPasswordValid) {
       return { success: false, error: "كلمة المرور غير صحيحة." };
     }
 
-    const { data: company } = await supabase
-      .from("companies")
-      .select("name, status, is_active")
-      .eq("id", user.company_id)
-      .single();
+    const companies = await query<{ name: string; status: string; is_active: number }>(
+      "SELECT name, status, is_active FROM companies WHERE id = ?",
+      [user.company_id]
+    );
 
-    if (!company) {
+    if (!companies || companies.length === 0) {
       return { success: false, error: "لم يتم العثور على بيانات الشركة." };
     }
+
+    const company = companies[0];
 
     if (company.status !== "approved") {
       return {
@@ -291,13 +248,13 @@ export async function loginAction(formData: FormData): Promise<AuthResponse> {
       };
     }
 
-    const { data: permissionsRows } = await supabase
-      .from("company_permissions")
-      .select("feature_key, is_enabled")
-      .eq("company_id", user.company_id);
+    const permissionsRows = await query<{ feature_key: string; is_enabled: number }>(
+      "SELECT feature_key, is_enabled FROM company_permissions WHERE company_id = ?",
+      [user.company_id]
+    );
 
     const permissions: Record<string, number> = {};
-    (permissionsRows || []).forEach((p: { feature_key: string; is_enabled: boolean | number }) => {
+    (permissionsRows || []).forEach((p) => {
       permissions[p.feature_key] = p.is_enabled ? 1 : 0;
     });
 
@@ -352,22 +309,20 @@ export async function forgotPasswordAction(formData: FormData): Promise<AuthResp
   const email = (formData.get("email") as string || "").trim().toLowerCase();
 
   try {
-    const { data: subUsers } = await supabase
-      .from("company_sub_users")
-      .select("id, name")
-      .eq("email", email)
-      .eq("status", "active");
+    const subUsers = await query<{ id: number; name: string }>(
+      "SELECT id, name FROM company_sub_users WHERE email = ? AND status = 'active'",
+      [email]
+    );
     
     if (subUsers && subUsers.length > 0) {
       const subUser = subUsers[0];
       const token = Math.floor(100000 + Math.random() * 900000).toString();
 
-      await supabase.from("password_resets").delete().eq("email", email);
-      await supabase.from("password_resets").insert({
-        email,
-        token,
-        created_at: new Date().toISOString()
-      });
+      await execute("DELETE FROM password_resets WHERE email = ?", [email]);
+      await execute(
+        "INSERT INTO password_resets (email, token, created_at) VALUES (?, ?, NOW())",
+        [email, token]
+      );
 
       await sendResetCode(email, subUser.name, token);
 
@@ -379,10 +334,10 @@ export async function forgotPasswordAction(formData: FormData): Promise<AuthResp
       return { success: true };
     }
 
-    const { data: users } = await supabase
-      .from("users")
-      .select("id, name")
-      .eq("email", email);
+    const users = await query<{ id: number; name: string }>(
+      "SELECT id, name FROM users WHERE email = ?",
+      [email]
+    );
 
     if (!users || users.length === 0) {
       return { success: false, error: "البريد الإلكتروني غير مسجل في النظام." };
@@ -391,12 +346,11 @@ export async function forgotPasswordAction(formData: FormData): Promise<AuthResp
     const user = users[0];
     const token = Math.floor(100000 + Math.random() * 900000).toString();
 
-    await supabase.from("password_resets").delete().eq("email", email);
-    await supabase.from("password_resets").insert({
-      email,
-      token,
-      created_at: new Date().toISOString()
-    });
+    await execute("DELETE FROM password_resets WHERE email = ?", [email]);
+    await execute(
+      "INSERT INTO password_resets (email, token, created_at) VALUES (?, ?, NOW())",
+      [email, token]
+    );
 
     await sendResetCode(email, user.name, token);
 
@@ -422,14 +376,10 @@ export async function verifyTokenAction(formData: FormData): Promise<AuthRespons
   }
 
   try {
-    const fifteenMinutesAgo = new Date(Date.now() - 15 * 60 * 1000).toISOString();
-    
-    const { data: tokens } = await supabase
-      .from("password_resets")
-      .select("*")
-      .eq("email", email)
-      .eq("token", token)
-      .gte("created_at", fifteenMinutesAgo);
+    const tokens = await query<any>(
+      "SELECT * FROM password_resets WHERE email = ? AND token = ? AND created_at > DATE_SUB(NOW(), INTERVAL 15 MINUTE)",
+      [email, token]
+    );
 
     if (!tokens || tokens.length === 0) {
       return { success: false, error: "رمز التحقق غير صحيح أو منتهي الصلاحية." };
@@ -467,18 +417,18 @@ export async function resetPasswordAction(formData: FormData): Promise<AuthRespo
     const hashed = await bcrypt.hash(password, 10);
     
     if (userType === "sub_user") {
-      await supabase
-        .from("company_sub_users")
-        .update({ password: hashed, updated_at: new Date().toISOString() })
-        .eq("email", email);
+      await execute(
+        "UPDATE company_sub_users SET password = ?, updated_at = NOW() WHERE email = ?",
+        [hashed, email]
+      );
     } else {
-      await supabase
-        .from("users")
-        .update({ password: hashed })
-        .eq("email", email);
+      await execute(
+        "UPDATE users SET password = ? WHERE email = ?",
+        [hashed, email]
+      );
     }
     
-    await supabase.from("password_resets").delete().eq("email", email);
+    await execute("DELETE FROM password_resets WHERE email = ?", [email]);
 
     cookieStore.delete("reset_email");
     cookieStore.delete("reset_user_name");
