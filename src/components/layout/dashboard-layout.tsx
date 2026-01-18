@@ -65,9 +65,9 @@ export function DashboardLayout({ children, user, permissions, userType }: Dashb
       className="h-screen overflow-hidden text-foreground transition-colors duration-300" 
       dir={isRTL ? "rtl" : "ltr"}
     >
-      <div className="fixed inset-0 bg-gradient-to-br from-[#0a0e1a] via-[#0d1525] to-[#0a0e1a] -z-10" />
-      <div className="fixed inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-blue-900/20 via-transparent to-transparent -z-10" />
-      <div className="fixed inset-0 bg-[radial-gradient(ellipse_at_bottom_left,_var(--tw-gradient-stops))] from-purple-900/15 via-transparent to-transparent -z-10" />
+      <div className="fixed inset-0 bg-[#f8f9fa] -z-10" />
+      <div className="fixed inset-0 bg-[radial-gradient(circle_at_top_right,_rgba(59,130,246,0.03),transparent)] -z-10" />
+      <div className="fixed inset-0 bg-[radial-gradient(circle_at_bottom_left,_rgba(139,92,246,0.02),transparent)] -z-10" />
       
       <GlobalChatNotifications isAdmin={user?.role === "admin"} companyId={user?.company_id} />
       <GlobalAdminNotifications />
