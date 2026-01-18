@@ -340,313 +340,306 @@ export function PackagesClient({ initialPackages, companyId }: PackagesClientPro
     visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: "easeOut" } }
   };
 
-  return (
-    <div className="min-h-screen pb-20">
-      <motion.div 
-        variants={containerVariants}
-        initial="hidden"
-        animate="visible"
-        className="max-w-[95%] mx-auto px-4 pt-6 space-y-6"
-      >
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-          <motion.div 
-            variants={itemVariants}
-            className="flex items-center gap-3"
-          >
-            <div className="h-12 w-12 rounded-2xl bg-gradient-to-br from-purple-500 to-violet-600 flex items-center justify-center shadow-lg shadow-purple-500/30">
-              <Package className="text-white" size={22} />
-            </div>
-            <div>
-              <div className="flex items-center gap-2 text-xs font-bold text-gray-400">
-                <Link href="/hr" className="hover:text-purple-600 transition-colors flex items-center gap-1">
-                  <LayoutDashboard size={12} />
-                  شؤون الموظفين
-                </Link>
-                <ArrowRight size={12} className="rotate-180" />
-                <span className="text-purple-600">إدارة الباقات</span>
-              </div>
-              <h1 className="text-xl font-black text-gray-900">باقات الموظفين</h1>
-            </div>
-          </motion.div>
-
-          <motion.div 
-            variants={itemVariants}
-            className="flex items-center gap-3"
-          >
-            <div className="hidden md:flex items-center gap-2 px-4 py-2 bg-purple-50 border border-purple-200 rounded-xl">
-              <div className="w-2 h-2 rounded-full bg-purple-500 animate-pulse"></div>
-              <span className="text-xs font-black text-purple-700">{packages.length} باقة</span>
-            </div>
-            <motion.button
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              onClick={() => setIsModalOpen(true)}
-              className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-purple-600 to-violet-600 text-white hover:from-purple-700 hover:to-violet-700 transition-all font-black text-sm shadow-lg shadow-purple-500/30"
-            >
-              <Plus size={18} />
-              إنشاء باقة جديدة
-            </motion.button>
-          </motion.div>
-        </div>
-
-<motion.div 
-            variants={itemVariants}
-            className="bg-gradient-to-r from-slate-700 to-slate-800 rounded-2xl p-6 shadow-lg"
-          >
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-              <div className="relative overflow-hidden rounded-xl bg-white/10 p-5">
-                <div className="flex items-start justify-between">
-                  <div className="text-white/90"><Package size={22} /></div>
-                  <span className="text-[10px] font-black text-white/70 bg-white/10 px-2 py-0.5 rounded-full">إجمالي</span>
-                </div>
-                <div className="mt-4">
-                  <p className="text-white/70 text-[10px] font-black uppercase tracking-wider">إجمالي الباقات</p>
-                  <motion.p 
-                    initial={{ opacity: 0, scale: 0.5 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ delay: 0.2, type: "spring" }}
-                    className="text-3xl font-black text-white mt-1"
-                  >
-                    {stats.total}
-                  </motion.p>
-                  <p className="text-white/60 text-[10px] font-bold mt-1">جميع مجموعات العمل</p>
-                </div>
-              </div>
-              
-              <div className="relative overflow-hidden rounded-xl bg-white/10 p-5">
-                <div className="flex items-start justify-between">
-                  <div className="text-white/90"><Target size={22} /></div>
-                  <span className="text-[10px] font-black text-white/90 bg-white/20 px-2 py-0.5 rounded-full">تارجت</span>
-                </div>
-                <div className="mt-4">
-                  <p className="text-white/70 text-[10px] font-black uppercase tracking-wider">نظام التارجت</p>
-                  <motion.p 
-                    initial={{ opacity: 0, scale: 0.5 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ delay: 0.3, type: "spring" }}
-                    className="text-3xl font-black text-white mt-1"
-                  >
-                    {stats.targetType}
-                  </motion.p>
-                  <p className="text-white/60 text-[10px] font-bold mt-1">باقات بنظام الهدف</p>
-                </div>
-              </div>
-              
-              <div className="relative overflow-hidden rounded-xl bg-white/10 p-5">
-                <div className="flex items-start justify-between">
-                  <div className="text-white/90"><DollarSign size={22} /></div>
-                  <span className="text-[10px] font-black text-white/90 bg-white/20 px-2 py-0.5 rounded-full">راتب</span>
-                </div>
-                <div className="mt-4">
-                  <p className="text-white/70 text-[10px] font-black uppercase tracking-wider">نظام الراتب</p>
-                  <motion.p 
-                    initial={{ opacity: 0, scale: 0.5 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ delay: 0.4, type: "spring" }}
-                    className="text-3xl font-black text-white mt-1"
-                  >
-                    {stats.salaryType}
-                  </motion.p>
-                  <p className="text-white/60 text-[10px] font-bold mt-1">باقات بنظام الراتب</p>
-                </div>
-              </div>
-              
-              <div className="relative overflow-hidden rounded-xl bg-white/10 p-5">
-                <div className="flex items-start justify-between">
-                  <div className="text-white/90"><Zap size={22} /></div>
-                  <span className="text-[10px] font-black text-white/90 bg-white/20 px-2 py-0.5 rounded-full">عمولة</span>
-                </div>
-                <div className="mt-4">
-                  <p className="text-white/70 text-[10px] font-black uppercase tracking-wider">نظام العمولة</p>
-                  <motion.p 
-                    initial={{ opacity: 0, scale: 0.5 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ delay: 0.5, type: "spring" }}
-                    className="text-3xl font-black text-white mt-1"
-                  >
-                    {stats.commissionType}
-                  </motion.p>
-                  <p className="text-white/60 text-[10px] font-bold mt-1">باقات بنظام العمولة</p>
-                </div>
-              </div>
-            </div>
-          </motion.div>
-
-        <motion.div
-          variants={itemVariants}
-          className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden"
+    return (
+      <div className="min-h-screen pb-20">
+        <motion.div 
+          variants={containerVariants}
+          initial="hidden"
+          animate="visible"
+          className="max-w-[95%] mx-auto px-4 pt-6"
         >
-          <div className="bg-gradient-to-r from-slate-700 to-slate-800 px-6 py-4">
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-              <div className="flex items-center gap-3">
-                <div className="h-10 w-10 rounded-xl bg-white/10 flex items-center justify-center">
-                  <Package className="text-white" size={20} />
-                </div>
-                <div>
-                  <h3 className="text-white font-black">قائمة الباقات</h3>
-                  <p className="text-slate-400 text-xs font-bold">{filteredPackages.length} باقة في القائمة</p>
-                </div>
-              </div>
-              
-              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
-                <div className="relative flex-1 sm:min-w-[300px]">
-                  <Search className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
-                  <input
-                    type="text"
-                    placeholder="البحث باسم الباقة..."
-                    className="w-full pr-12 pl-4 py-2.5 bg-white/10 border border-white/10 rounded-xl text-sm font-bold text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-purple-500/30 focus:bg-white/20 transition-all"
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                  />
-                </div>
-                <motion.button
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/10 text-white hover:bg-white/20 transition-all font-bold text-xs border border-white/10"
-                >
-                  <Filter size={16} />
-                  تصفية
-                </motion.button>
-              </div>
-            </div>
-          </div>
-
-          <div className="p-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-              <AnimatePresence>
-                {filteredPackages.map((pkg, index) => (
-                  <motion.div
-                    key={pkg.id}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, scale: 0.9 }}
-                    transition={{ delay: index * 0.05 }}
-                    className="group bg-gray-50 rounded-2xl border border-gray-100 p-6 hover:shadow-xl hover:border-purple-200 hover:bg-white transition-all duration-500 relative overflow-hidden"
-                  >
-                    <div className="absolute top-0 right-0 p-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <motion.button
-                        whileHover={{ scale: 1.1 }}
-                        whileTap={{ scale: 0.9 }}
-                        onClick={() => handleDelete(pkg.id)}
-                        className="h-8 w-8 rounded-lg bg-red-50 text-red-600 flex items-center justify-center hover:bg-red-600 hover:text-white transition-all shadow-sm"
-                      >
-                        <Trash2 size={14} />
-                      </motion.button>
-                    </div>
-
-                    <div className="space-y-5">
-                      <div className="h-14 w-14 rounded-2xl bg-gradient-to-br from-purple-100 to-violet-100 flex items-center justify-center text-purple-600 group-hover:from-purple-500 group-hover:to-violet-600 group-hover:text-white transition-all shadow-sm group-hover:shadow-lg group-hover:shadow-purple-500/20">
-                        <Package size={26} />
-                      </div>
-
-                      <div>
-                        <h3 className="text-lg font-black text-gray-900 mb-2 line-clamp-1">{pkg.group_name}</h3>
-                        <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-wider ${
-                          pkg.work_type === 'target' 
-                            ? 'bg-gradient-to-r from-blue-50 to-indigo-50 text-blue-700 border border-blue-200' 
-                            : pkg.work_type === 'salary' 
-                            ? 'bg-gradient-to-r from-emerald-50 to-teal-50 text-emerald-700 border border-emerald-200' 
-                            : 'bg-gradient-to-r from-amber-50 to-orange-50 text-orange-700 border border-orange-200'
-                        }`}>
-                          {pkg.work_type === 'target' && <Target size={12} />}
-                          {pkg.work_type === 'salary' && <DollarSign size={12} />}
-                          {pkg.work_type === 'commission' && <Zap size={12} />}
-                          {pkg.work_type === 'target' ? 'نظام التارجت' : pkg.work_type === 'salary' ? 'نظام الراتب' : 'نظام العمولة'}
-                        </span>
-                      </div>
-
-                      <div className="grid grid-cols-2 gap-3">
-                        <div className="bg-white rounded-xl p-4 border border-gray-100 group-hover:border-purple-100 transition-colors">
-                          <div className="flex items-center gap-1.5 text-gray-400 mb-1">
-                            <Target size={12} />
-                            <span className="text-[9px] font-black uppercase tracking-wider">التارجت</span>
-                          </div>
-                          <div className="text-xl font-black text-gray-900">{pkg.monthly_target}</div>
-                        </div>
-                        <div className="bg-white rounded-xl p-4 border border-gray-100 group-hover:border-purple-100 transition-colors">
-                          <div className="flex items-center gap-1.5 text-gray-400 mb-1">
-                            <Trophy size={12} />
-                            <span className="text-[9px] font-black uppercase tracking-wider">البونص</span>
-                          </div>
-                          <div className="text-xl font-black text-gray-900">{pkg.bonus_after_target}</div>
-                        </div>
-                      </div>
-
-                      <div className="pt-2 flex gap-2">
-                        <motion.button 
-                          whileHover={{ scale: 1.02 }}
-                          whileTap={{ scale: 0.98 }}
-                          onClick={() => {
-                            setSelectedPackage(pkg);
-                            setIsAddEmployeesModalOpen(true);
-                          }}
-                          className="flex-1 flex items-center justify-center gap-2 bg-gradient-to-r from-purple-600 to-violet-600 text-white py-3.5 rounded-xl text-xs font-black shadow-lg shadow-purple-500/20 hover:from-purple-700 hover:to-violet-700 transition-all"
-                        >
-                          <UserPlus size={16} />
-                          <span>إضافة موظفين</span>
-                        </motion.button>
-                        <Link 
-                          href={`/hr/packages/${pkg.id}`}
-                          className="h-[50px] w-[50px] rounded-xl bg-white border border-gray-200 flex items-center justify-center text-gray-500 hover:bg-purple-50 hover:border-purple-200 hover:text-purple-600 transition-all group-hover:shadow-lg"
-                        >
-                          <Eye size={20} />
-                        </Link>
-                      </div>
-                    </div>
-                  </motion.div>
-                ))}
-              </AnimatePresence>
-
-              {filteredPackages.length === 0 && (
-                <div className="col-span-full py-16 flex flex-col items-center gap-4">
-                  <div className="h-24 w-24 rounded-3xl bg-gray-100 flex items-center justify-center">
-                    <Package size={48} className="text-gray-300" />
+          <motion.div 
+            variants={itemVariants}
+            className="bg-gradient-to-r from-slate-700 to-slate-800 rounded-2xl shadow-lg overflow-hidden"
+          >
+            <div className="p-6 border-b border-white/10">
+              <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+                <div className="flex items-center gap-3">
+                  <div className="h-12 w-12 rounded-2xl bg-white/10 flex items-center justify-center">
+                    <Package className="text-white" size={22} />
                   </div>
-                  <p className="text-lg font-black text-gray-400">لا توجد باقات مطابقة للبحث</p>
-                  <p className="text-sm font-bold text-gray-300">جرب البحث بكلمات مختلفة أو أنشئ باقة جديدة</p>
+                  <div>
+                    <div className="flex items-center gap-2 text-xs font-bold text-white/60">
+                      <Link href="/hr" className="hover:text-white transition-colors flex items-center gap-1">
+                        <LayoutDashboard size={12} />
+                        شؤون الموظفين
+                      </Link>
+                      <ArrowRight size={12} className="rotate-180" />
+                      <span className="text-purple-300">إدارة الباقات</span>
+                    </div>
+                    <h1 className="text-xl font-black text-white">باقات الموظفين</h1>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-3">
+                  <div className="hidden md:flex items-center gap-2 px-4 py-2 bg-white/10 border border-white/10 rounded-xl">
+                    <div className="w-2 h-2 rounded-full bg-purple-400 animate-pulse"></div>
+                    <span className="text-xs font-black text-white/80">{packages.length} باقة</span>
+                  </div>
                   <motion.button
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                     onClick={() => setIsModalOpen(true)}
-                    className="mt-2 flex items-center gap-2 px-5 py-2.5 rounded-xl bg-purple-100 text-purple-700 hover:bg-purple-200 transition-all font-bold text-sm"
+                    className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-purple-500 to-violet-500 text-white hover:from-purple-600 hover:to-violet-600 transition-all font-black text-sm shadow-lg"
                   >
-                    <Plus size={16} />
+                    <Plus size={18} />
                     إنشاء باقة جديدة
                   </motion.button>
                 </div>
-              )}
-            </div>
-          </div>
-
-          <div className="bg-gray-50 px-6 py-4 border-t border-gray-100">
-            <div className="flex items-center justify-between text-xs font-bold text-gray-500">
-              <span>إجمالي الباقات: {filteredPackages.length}</span>
-              <div className="flex items-center gap-4">
-                <span className="flex items-center gap-1">
-                  <Target size={14} className="text-blue-500" />
-                  {stats.targetType} تارجت
-                </span>
-                <span className="flex items-center gap-1">
-                  <DollarSign size={14} className="text-emerald-500" />
-                  {stats.salaryType} راتب
-                </span>
-                <span className="flex items-center gap-1">
-                  <Zap size={14} className="text-amber-500" />
-                  {stats.commissionType} عمولة
-                </span>
               </div>
             </div>
+
+            <div className="p-6 border-b border-white/10">
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                <div className="relative overflow-hidden rounded-xl bg-white/10 p-5">
+                  <div className="flex items-start justify-between">
+                    <div className="text-white/90"><Package size={22} /></div>
+                    <span className="text-[10px] font-black text-white/70 bg-white/10 px-2 py-0.5 rounded-full">إجمالي</span>
+                  </div>
+                  <div className="mt-4">
+                    <p className="text-white/70 text-[10px] font-black uppercase tracking-wider">إجمالي الباقات</p>
+                    <motion.p 
+                      initial={{ opacity: 0, scale: 0.5 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={{ delay: 0.2, type: "spring" }}
+                      className="text-3xl font-black text-white mt-1"
+                    >
+                      {stats.total}
+                    </motion.p>
+                    <p className="text-white/60 text-[10px] font-bold mt-1">جميع مجموعات العمل</p>
+                  </div>
+                </div>
+                
+                <div className="relative overflow-hidden rounded-xl bg-white/10 p-5">
+                  <div className="flex items-start justify-between">
+                    <div className="text-white/90"><Target size={22} /></div>
+                    <span className="text-[10px] font-black text-white/90 bg-white/20 px-2 py-0.5 rounded-full">تارجت</span>
+                  </div>
+                  <div className="mt-4">
+                    <p className="text-white/70 text-[10px] font-black uppercase tracking-wider">نظام التارجت</p>
+                    <motion.p 
+                      initial={{ opacity: 0, scale: 0.5 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={{ delay: 0.3, type: "spring" }}
+                      className="text-3xl font-black text-white mt-1"
+                    >
+                      {stats.targetType}
+                    </motion.p>
+                    <p className="text-white/60 text-[10px] font-bold mt-1">باقات بنظام الهدف</p>
+                  </div>
+                </div>
+                
+                <div className="relative overflow-hidden rounded-xl bg-white/10 p-5">
+                  <div className="flex items-start justify-between">
+                    <div className="text-white/90"><DollarSign size={22} /></div>
+                    <span className="text-[10px] font-black text-white/90 bg-white/20 px-2 py-0.5 rounded-full">راتب</span>
+                  </div>
+                  <div className="mt-4">
+                    <p className="text-white/70 text-[10px] font-black uppercase tracking-wider">نظام الراتب</p>
+                    <motion.p 
+                      initial={{ opacity: 0, scale: 0.5 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={{ delay: 0.4, type: "spring" }}
+                      className="text-3xl font-black text-white mt-1"
+                    >
+                      {stats.salaryType}
+                    </motion.p>
+                    <p className="text-white/60 text-[10px] font-bold mt-1">باقات بنظام الراتب</p>
+                  </div>
+                </div>
+                
+                <div className="relative overflow-hidden rounded-xl bg-white/10 p-5">
+                  <div className="flex items-start justify-between">
+                    <div className="text-white/90"><Zap size={22} /></div>
+                    <span className="text-[10px] font-black text-white/90 bg-white/20 px-2 py-0.5 rounded-full">عمولة</span>
+                  </div>
+                  <div className="mt-4">
+                    <p className="text-white/70 text-[10px] font-black uppercase tracking-wider">نظام العمولة</p>
+                    <motion.p 
+                      initial={{ opacity: 0, scale: 0.5 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={{ delay: 0.5, type: "spring" }}
+                      className="text-3xl font-black text-white mt-1"
+                    >
+                      {stats.commissionType}
+                    </motion.p>
+                    <p className="text-white/60 text-[10px] font-bold mt-1">باقات بنظام العمولة</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="px-6 py-4 border-b border-white/10">
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div className="flex items-center gap-3">
+                  <div className="h-10 w-10 rounded-xl bg-white/10 flex items-center justify-center">
+                    <Package className="text-white" size={20} />
+                  </div>
+                  <div>
+                    <h3 className="text-white font-black">قائمة الباقات</h3>
+                    <p className="text-slate-400 text-xs font-bold">{filteredPackages.length} باقة في القائمة</p>
+                  </div>
+                </div>
+                
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+                  <div className="relative flex-1 sm:min-w-[300px]">
+                    <Search className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+                    <input
+                      type="text"
+                      placeholder="البحث باسم الباقة..."
+                      className="w-full pr-12 pl-4 py-2.5 bg-white/10 border border-white/10 rounded-xl text-sm font-bold text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-purple-500/30 focus:bg-white/20 transition-all"
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                    />
+                  </div>
+                  <motion.button
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/10 text-white hover:bg-white/20 transition-all font-bold text-xs border border-white/10"
+                  >
+                    <Filter size={16} />
+                    تصفية
+                  </motion.button>
+                </div>
+              </div>
+            </div>
+
+            <div className="p-6 bg-gray-50">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                <AnimatePresence>
+                  {filteredPackages.map((pkg, index) => (
+                    <motion.div
+                      key={pkg.id}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, scale: 0.9 }}
+                      transition={{ delay: index * 0.05 }}
+                      className="group bg-white rounded-2xl border border-gray-100 p-6 hover:shadow-xl hover:border-purple-200 transition-all duration-500 relative overflow-hidden"
+                    >
+                      <div className="absolute top-0 right-0 p-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <motion.button
+                          whileHover={{ scale: 1.1 }}
+                          whileTap={{ scale: 0.9 }}
+                          onClick={() => handleDelete(pkg.id)}
+                          className="h-8 w-8 rounded-lg bg-red-50 text-red-600 flex items-center justify-center hover:bg-red-600 hover:text-white transition-all shadow-sm"
+                        >
+                          <Trash2 size={14} />
+                        </motion.button>
+                      </div>
+
+                      <div className="space-y-5">
+                        <div className="h-14 w-14 rounded-2xl bg-gradient-to-br from-purple-100 to-violet-100 flex items-center justify-center text-purple-600 group-hover:from-purple-500 group-hover:to-violet-600 group-hover:text-white transition-all shadow-sm group-hover:shadow-lg group-hover:shadow-purple-500/20">
+                          <Package size={26} />
+                        </div>
+
+                        <div>
+                          <h3 className="text-lg font-black text-gray-900 mb-2 line-clamp-1">{pkg.group_name}</h3>
+                          <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-wider ${
+                            pkg.work_type === 'target' 
+                              ? 'bg-gradient-to-r from-blue-50 to-indigo-50 text-blue-700 border border-blue-200' 
+                              : pkg.work_type === 'salary' 
+                              ? 'bg-gradient-to-r from-emerald-50 to-teal-50 text-emerald-700 border border-emerald-200' 
+                              : 'bg-gradient-to-r from-amber-50 to-orange-50 text-orange-700 border border-orange-200'
+                          }`}>
+                            {pkg.work_type === 'target' && <Target size={12} />}
+                            {pkg.work_type === 'salary' && <DollarSign size={12} />}
+                            {pkg.work_type === 'commission' && <Zap size={12} />}
+                            {pkg.work_type === 'target' ? 'نظام التارجت' : pkg.work_type === 'salary' ? 'نظام الراتب' : 'نظام العمولة'}
+                          </span>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-3">
+                          <div className="bg-gray-50 rounded-xl p-4 border border-gray-100 group-hover:border-purple-100 transition-colors">
+                            <div className="flex items-center gap-1.5 text-gray-400 mb-1">
+                              <Target size={12} />
+                              <span className="text-[9px] font-black uppercase tracking-wider">التارجت</span>
+                            </div>
+                            <div className="text-xl font-black text-gray-900">{pkg.monthly_target}</div>
+                          </div>
+                          <div className="bg-gray-50 rounded-xl p-4 border border-gray-100 group-hover:border-purple-100 transition-colors">
+                            <div className="flex items-center gap-1.5 text-gray-400 mb-1">
+                              <Trophy size={12} />
+                              <span className="text-[9px] font-black uppercase tracking-wider">البونص</span>
+                            </div>
+                            <div className="text-xl font-black text-gray-900">{pkg.bonus_after_target}</div>
+                          </div>
+                        </div>
+
+                        <div className="pt-2 flex gap-2">
+                          <motion.button 
+                            whileHover={{ scale: 1.02 }}
+                            whileTap={{ scale: 0.98 }}
+                            onClick={() => {
+                              setSelectedPackage(pkg);
+                              setIsAddEmployeesModalOpen(true);
+                            }}
+                            className="flex-1 flex items-center justify-center gap-2 bg-gradient-to-r from-purple-600 to-violet-600 text-white py-3.5 rounded-xl text-xs font-black shadow-lg shadow-purple-500/20 hover:from-purple-700 hover:to-violet-700 transition-all"
+                          >
+                            <UserPlus size={16} />
+                            <span>إضافة موظفين</span>
+                          </motion.button>
+                          <Link 
+                            href={`/hr/packages/${pkg.id}`}
+                            className="h-[50px] w-[50px] rounded-xl bg-gray-50 border border-gray-200 flex items-center justify-center text-gray-500 hover:bg-purple-50 hover:border-purple-200 hover:text-purple-600 transition-all group-hover:shadow-lg"
+                          >
+                            <Eye size={20} />
+                          </Link>
+                        </div>
+                      </div>
+                    </motion.div>
+                  ))}
+                </AnimatePresence>
+
+                {filteredPackages.length === 0 && (
+                  <div className="col-span-full py-16 flex flex-col items-center gap-4">
+                    <div className="h-24 w-24 rounded-3xl bg-gray-100 flex items-center justify-center">
+                      <Package size={48} className="text-gray-300" />
+                    </div>
+                    <p className="text-lg font-black text-gray-400">لا توجد باقات مطابقة للبحث</p>
+                    <p className="text-sm font-bold text-gray-300">جرب البحث بكلمات مختلفة أو أنشئ باقة جديدة</p>
+                    <motion.button
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      onClick={() => setIsModalOpen(true)}
+                      className="mt-2 flex items-center gap-2 px-5 py-2.5 rounded-xl bg-purple-100 text-purple-700 hover:bg-purple-200 transition-all font-bold text-sm"
+                    >
+                      <Plus size={16} />
+                      إنشاء باقة جديدة
+                    </motion.button>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <div className="bg-slate-600 px-6 py-4">
+              <div className="flex items-center justify-between text-xs font-bold text-white/70">
+                <span>إجمالي الباقات: {filteredPackages.length}</span>
+                <div className="flex items-center gap-4">
+                  <span className="flex items-center gap-1">
+                    <Target size={14} className="text-blue-300" />
+                    {stats.targetType} تارجت
+                  </span>
+                  <span className="flex items-center gap-1">
+                    <DollarSign size={14} className="text-emerald-300" />
+                    {stats.salaryType} راتب
+                  </span>
+                  <span className="flex items-center gap-1">
+                    <Zap size={14} className="text-amber-300" />
+                    {stats.commissionType} عمولة
+                  </span>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+
+          <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-[10px] font-black text-gray-400 uppercase tracking-widest pt-4">
+            <div className="flex items-center gap-2">
+              <Sparkles size={12} className="text-purple-500" />
+              <span>نظام إدارة الباقات - ZoolSpeed Logistics</span>
+            </div>
+            <span>جميع الحقوق محفوظة © {new Date().getFullYear()}</span>
           </div>
         </motion.div>
-
-        <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-[10px] font-black text-gray-400 uppercase tracking-widest pt-4">
-          <div className="flex items-center gap-2">
-            <Sparkles size={12} className="text-purple-500" />
-            <span>نظام إدارة الباقات - ZoolSpeed Logistics</span>
-          </div>
-          <span>جميع الحقوق محفوظة © {new Date().getFullYear()}</span>
-        </div>
-      </motion.div>
 
       <AnimatePresence>
         {isModalOpen && (
