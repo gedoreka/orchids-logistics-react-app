@@ -93,7 +93,7 @@ export function DashboardClient({
 }: DashboardClientProps) {
   const [tokenVisible, setTokenVisible] = useState(false);
   const [copied, setCopied] = useState(false);
-  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
+  const [selectedYear, setSelectedYear] = useState(2025);
   const [yearlyStats, setYearlyStats] = useState({
     total_invoices_amount: stats.total_invoices_amount || 0,
     yearly_expenses: stats.yearly_expenses || 0

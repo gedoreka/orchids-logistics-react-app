@@ -31,8 +31,8 @@ export async function GET(request: NextRequest) {
     );
 
     return NextResponse.json({
-      total_invoices_amount: invoicesResult[0]?.total || 0,
-      yearly_expenses: expensesResult[0]?.total || 0,
+      total_invoices_amount: parseFloat(invoicesResult[0]?.total as unknown as string) || 0,
+      yearly_expenses: parseFloat(expensesResult[0]?.total as unknown as string) || 0,
       year
     });
   } catch (error) {
