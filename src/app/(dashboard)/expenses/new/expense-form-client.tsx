@@ -398,8 +398,7 @@ export default function ExpenseFormClient({ user }: { user: User }) {
     });
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = async () => {
     if (Object.keys(sections).length === 0) return;
 
     setSubmitting(true);
@@ -570,8 +569,8 @@ export default function ExpenseFormClient({ user }: { user: User }) {
             </motion.div>
           </div>
 
-          {/* Sections - Inside the main card */}
-          <form onSubmit={handleSubmit} className="space-y-6 p-6">
+            {/* Sections - Inside the main card */}
+            <div className="space-y-6 p-6">
             <AnimatePresence>
               {Object.entries(sections).map(([type, rows]) => (
                 <motion.div 
@@ -781,26 +780,28 @@ export default function ExpenseFormClient({ user }: { user: User }) {
         </AnimatePresence>
 
           {Object.keys(sections).length > 0 && (
-            <motion.div 
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="flex justify-center pt-8 pb-16"
-            >
-              <button 
-                type="submit"
-                disabled={submitting}
-                className={`bg-green-600 hover:bg-green-700 text-white px-8 py-3 rounded-xl font-bold transition-all flex items-center space-x-3 space-x-reverse shadow-xl shadow-green-100 transform active:scale-95 ${submitting ? 'opacity-50 cursor-not-allowed' : ''}`}
+              <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="flex justify-center pt-8 pb-8"
               >
-                {submitting ? (
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                ) : (
-                  <Save className="w-5 h-5" />
-                )}
-                <span className="text-lg">حفظ كافة المصروفات</span>
-              </button>
-            </motion.div>
-          )}
-      </form>
+                <button 
+                  type="button"
+                  onClick={handleSubmit}
+                  disabled={submitting}
+                  className={`bg-green-600 hover:bg-green-700 text-white px-8 py-3 rounded-xl font-bold transition-all flex items-center space-x-3 space-x-reverse shadow-xl shadow-green-200/50 transform active:scale-95 ${submitting ? 'opacity-50 cursor-not-allowed' : ''}`}
+                >
+                  {submitting ? (
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                  ) : (
+                    <Save className="w-5 h-5" />
+                  )}
+                  <span className="text-lg">حفظ كافة المصروفات</span>
+                </button>
+              </motion.div>
+            )}
+        </div>
+        </motion.div>
 
       {/* Success Notification */}
       <AnimatePresence>
