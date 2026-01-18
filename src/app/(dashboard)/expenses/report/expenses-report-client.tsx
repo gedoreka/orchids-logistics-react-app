@@ -828,34 +828,34 @@ export function ExpensesReportClient({ companyId }: ExpensesReportClientProps) {
                                             {expense.center_code || "-"}
                                           </Badge>
                                         </td>
-                                        <td className="p-3 text-center rounded-l-xl print:hidden">
-                                          <div className="flex items-center justify-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                                            <Button
-                                              size="icon"
-                                              variant="ghost"
-                                              onClick={() => showItemDetails(expense)}
-                                              className="h-7 w-7 text-blue-400 hover:bg-blue-400/10 hover:text-blue-300 rounded-lg"
-                                            >
-                                              <Eye className="w-3.5 h-3.5" />
-                                            </Button>
-                                            <Button
-                                              size="icon"
-                                              variant="ghost"
-                                              onClick={() => handleEditClick(expense)}
-                                              className="h-7 w-7 text-amber-400 hover:bg-amber-400/10 hover:text-amber-300 rounded-lg"
-                                            >
-                                              <Pencil className="w-3.5 h-3.5" />
-                                            </Button>
-                                            <Button
-                                              size="icon"
-                                              variant="ghost"
-                                              onClick={() => handleDeleteClick(expense)}
-                                              className="h-7 w-7 text-rose-400 hover:bg-rose-400/10 hover:text-rose-300 rounded-lg"
-                                            >
-                                              <Trash2 className="w-3.5 h-3.5" />
-                                            </Button>
-                                          </div>
-                                        </td>
+                                          <td className="p-3 text-center rounded-l-xl print:hidden">
+                                            <div className="flex items-center justify-center gap-1 transition-opacity">
+                                              <Button
+                                                size="icon"
+                                                variant="ghost"
+                                                onClick={() => showItemDetails(expense)}
+                                                className="h-7 w-7 text-blue-400 hover:bg-blue-400/10 hover:text-blue-300 rounded-lg"
+                                              >
+                                                <Eye className="w-3.5 h-3.5" />
+                                              </Button>
+                                              <Button
+                                                size="icon"
+                                                variant="ghost"
+                                                onClick={() => handleEditClick(expense)}
+                                                className="h-7 w-7 text-amber-400 hover:bg-amber-400/10 hover:text-amber-300 rounded-lg"
+                                              >
+                                                <Pencil className="w-3.5 h-3.5" />
+                                              </Button>
+                                              <Button
+                                                size="icon"
+                                                variant="ghost"
+                                                onClick={() => handleDeleteClick(expense)}
+                                                className="h-7 w-7 text-rose-400 hover:bg-rose-400/10 hover:text-rose-300 rounded-lg"
+                                              >
+                                                <Trash2 className="w-3.5 h-3.5" />
+                                              </Button>
+                                            </div>
+                                          </td>
                                       </tr>
                                     ))}
                                   </tbody>
@@ -1013,34 +1013,34 @@ export function ExpensesReportClient({ companyId }: ExpensesReportClientProps) {
                                             {deduction.status === "completed" ? "مدفوع" : "غير مدفوع"}
                                           </p>
                                         </td>
-                                        <td className="p-3 text-center rounded-l-xl print:hidden">
-                                          <div className="flex items-center justify-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                                            <Button
-                                              size="icon"
-                                              variant="ghost"
-                                              onClick={() => showItemDetails(deduction)}
-                                              className="h-7 w-7 text-rose-400 hover:bg-rose-400/10 hover:text-rose-300 rounded-lg"
-                                            >
-                                              <Eye className="w-3.5 h-3.5" />
-                                            </Button>
-                                            <Button
-                                              size="icon"
-                                              variant="ghost"
-                                              onClick={() => handleEditClick(deduction)}
-                                              className="h-7 w-7 text-amber-400 hover:bg-amber-400/10 hover:text-amber-300 rounded-lg"
-                                            >
-                                              <Pencil className="w-3.5 h-3.5" />
-                                            </Button>
-                                            <Button
-                                              size="icon"
-                                              variant="ghost"
-                                              onClick={() => handleDeleteClick(deduction)}
-                                              className="h-7 w-7 text-red-400 hover:bg-red-400/10 hover:text-red-300 rounded-lg"
-                                            >
-                                              <Trash2 className="w-3.5 h-3.5" />
-                                            </Button>
-                                          </div>
-                                        </td>
+                                          <td className="p-3 text-center rounded-l-xl print:hidden">
+                                            <div className="flex items-center justify-center gap-1 transition-opacity">
+                                              <Button
+                                                size="icon"
+                                                variant="ghost"
+                                                onClick={() => showItemDetails(deduction)}
+                                                className="h-7 w-7 text-rose-400 hover:bg-rose-400/10 hover:text-rose-300 rounded-lg"
+                                              >
+                                                <Eye className="w-3.5 h-3.5" />
+                                              </Button>
+                                              <Button
+                                                size="icon"
+                                                variant="ghost"
+                                                onClick={() => handleEditClick(deduction)}
+                                                className="h-7 w-7 text-amber-400 hover:bg-amber-400/10 hover:text-amber-300 rounded-lg"
+                                              >
+                                                <Pencil className="w-3.5 h-3.5" />
+                                              </Button>
+                                              <Button
+                                                size="icon"
+                                                variant="ghost"
+                                                onClick={() => handleDeleteClick(deduction)}
+                                                className="h-7 w-7 text-red-400 hover:bg-red-400/10 hover:text-red-300 rounded-lg"
+                                              >
+                                                <Trash2 className="w-3.5 h-3.5" />
+                                              </Button>
+                                            </div>
+                                          </td>
                                       </tr>
                                     ))}
                                   </tbody>
@@ -1180,138 +1180,150 @@ export function ExpensesReportClient({ companyId }: ExpensesReportClientProps) {
           </Card>
         </motion.div>
 
-        {/* Details Modal */}
+          {/* Details Modal */}
           <Dialog open={showDetailsModal} onOpenChange={setShowDetailsModal}>
-            <DialogContent className="max-w-2xl rtl max-h-[90vh] overflow-y-auto" dir="rtl">
-              <DialogHeader>
-                <DialogTitle className="flex items-center gap-2 text-base">
-                  <Eye className="w-5 h-5 text-blue-600" />
-                  عرض تفاصيل العملية
+            <DialogContent className="max-w-2xl rtl max-h-[90vh] overflow-y-auto p-0 border-none bg-slate-50" dir="rtl">
+              <DialogHeader className="p-6 bg-[#111827] text-white">
+                <DialogTitle className="flex items-center gap-3 text-lg font-black">
+                  <div className="w-10 h-10 rounded-xl bg-blue-500/20 flex items-center justify-center border border-blue-500/30">
+                    <Eye className="w-5 h-5 text-blue-400" />
+                  </div>
+                  تفاصيل العملية المالية
                 </DialogTitle>
               </DialogHeader>
-            {selectedItem && (
-              <div className="space-y-3 p-3">
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="bg-slate-50 p-3 rounded-xl">
-                    <p className="text-xs text-slate-500">النوع</p>
-                    <p className="font-bold text-slate-800 text-sm">
-                      {"expense_type" in selectedItem
-                        ? selectedItem.expense_type
-                        : selectedItem.deduction_type}
-                    </p>
-                  </div>
-                  <div className="bg-slate-50 p-3 rounded-xl">
-                    <p className="text-xs text-slate-500">التاريخ</p>
-                    <p className="font-bold text-slate-800 text-sm">{formatDate(selectedItem.expense_date)}</p>
-                  </div>
-                  <div className="bg-slate-50 p-3 rounded-xl">
-                    <p className="text-xs text-slate-500">اسم المستفيد</p>
-                    <p className="font-bold text-slate-800 text-sm">{selectedItem.employee_name || "-"}</p>
-                  </div>
-                  <div className="bg-slate-50 p-3 rounded-xl">
-                    <p className="text-xs text-slate-500">رقم الإقامة</p>
-                    <p className="font-bold text-slate-800 text-sm">{selectedItem.employee_iqama || "-"}</p>
-                  </div>
-                  <div className="bg-blue-50 p-3 rounded-xl">
-                    <p className="text-xs text-blue-600">المبلغ</p>
-                    <p className="font-bold text-lg text-blue-700">{formatNumber(selectedItem.amount || 0)} ر.س</p>
-                  </div>
-                  {"tax_value" in selectedItem && (
-                    <>
-                      <div className="bg-slate-50 p-3 rounded-xl">
-                        <p className="text-xs text-slate-500">الضريبة</p>
-                        <p className="font-bold text-slate-800 text-sm">{formatNumber(selectedItem.tax_value || 0)} ر.س</p>
+
+              {selectedItem && (
+                <div className="p-6 space-y-6">
+                  {/* Info Cards Grid */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {[
+                      { label: "نوع العملية", value: "expense_type" in selectedItem ? selectedItem.expense_type : selectedItem.deduction_type, icon: Folder, color: "text-blue-600" },
+                      { label: "تاريخ العملية", value: formatDate(selectedItem.expense_date), icon: Calendar, color: "text-amber-600" },
+                      { label: "اسم المستفيد", value: selectedItem.employee_name || "-", icon: Info, color: "text-indigo-600" },
+                      { label: "رقم الإقامة", value: selectedItem.employee_iqama || "-", icon: FileText, color: "text-slate-600" },
+                      { label: "مركز التكلفة", value: (selectedItem as any).center_name || "-", icon: Building2, color: "text-purple-600" },
+                      { label: "الحساب", value: selectedItem.account_name || selectedItem.account_code || "-", icon: Wallet, color: "text-emerald-600" },
+                    ].map((item, idx) => (
+                      <div key={idx} className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition-all flex items-center gap-4 group">
+                        <div className={`w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center border border-slate-100 group-hover:bg-white group-hover:border-slate-200 transition-all ${item.color}`}>
+                          <item.icon className="w-5 h-5" />
+                        </div>
+                        <div>
+                          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">{item.label}</p>
+                          <p className="text-sm font-black text-slate-800">{item.value}</p>
+                        </div>
                       </div>
-                      <div className="bg-emerald-50 p-3 rounded-xl">
-                        <p className="text-xs text-emerald-600">الصافي</p>
-                        <p className="font-bold text-base text-emerald-700">
-                          {formatNumber(selectedItem.net_amount || selectedItem.amount || 0)} ر.س
-                        </p>
+                    ))}
+                  </div>
+
+                  {/* Financial Details */}
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="bg-white p-5 rounded-2xl border border-blue-100 shadow-sm text-center">
+                      <p className="text-xs font-bold text-blue-500 mb-1">المبلغ الإجمالي</p>
+                      <p className="text-xl font-black text-blue-700">{formatNumber(selectedItem.amount || 0)} <span className="text-[10px]">ر.س</span></p>
+                    </div>
+                    {"tax_value" in selectedItem && (
+                      <>
+                        <div className="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm text-center">
+                          <p className="text-xs font-bold text-slate-400 mb-1">قيمة الضريبة</p>
+                          <p className="text-xl font-black text-slate-600">{formatNumber(selectedItem.tax_value || 0)} <span className="text-[10px]">ر.س</span></p>
+                        </div>
+                        <div className="bg-emerald-50 p-5 rounded-2xl border border-emerald-100 shadow-sm text-center">
+                          <p className="text-xs font-bold text-emerald-500 mb-1">المبلغ الصافي</p>
+                          <p className="text-xl font-black text-emerald-700">{formatNumber(selectedItem.net_amount || selectedItem.amount || 0)} <span className="text-[10px]">ر.س</span></p>
+                        </div>
+                      </>
+                    )}
+                  </div>
+
+                  {/* Description */}
+                  {selectedItem.description && (
+                    <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+                      <div className="flex items-center gap-2 mb-2">
+                        <FileText className="w-4 h-4 text-slate-400" />
+                        <p className="text-xs font-bold text-slate-400">الوصف والملاحظات</p>
                       </div>
-                    </>
+                      <p className="text-sm font-medium text-slate-700 leading-relaxed">
+                        {selectedItem.description}
+                      </p>
+                    </div>
                   )}
-                  <div className="bg-slate-50 p-3 rounded-xl">
-                    <p className="text-xs text-slate-500">الحساب</p>
-                    <p className="font-bold text-slate-800 text-sm">{selectedItem.account_code || "-"}</p>
-                  </div>
-                </div>
-                {selectedItem.description && (
-                  <div className="bg-slate-50 p-3 rounded-xl">
-                    <p className="text-xs text-slate-500">الوصف</p>
-                    <p className="font-medium text-slate-800 text-sm">{selectedItem.description}</p>
-                  </div>
-                )}
-                
-                {(() => {
+
+                  {/* Attachments Section */}
+                  {(() => {
                     const attachment = selectedItem.attachment;
                     const attachmentUrl = getAttachmentUrl(attachment);
-                  
-                  if (!attachmentUrl) return null;
-                  
-                  return (
-                    <div className="bg-gradient-to-br from-amber-50 to-orange-50 p-4 rounded-xl border border-amber-200">
-                      <div className="flex items-center gap-2 mb-3">
-                        <Paperclip className="w-5 h-5 text-amber-600" />
-                        <p className="text-sm font-bold text-amber-800">المرفقات</p>
+                    
+                    if (!attachmentUrl) return null;
+                    
+                    return (
+                      <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+                        <div className="flex items-center justify-between mb-4">
+                          <div className="flex items-center gap-2">
+                            <Paperclip className="w-5 h-5 text-blue-600" />
+                            <p className="text-sm font-black text-slate-800">المرفقات والمستندات</p>
+                          </div>
+                          <Badge variant="outline" className="text-[10px] font-bold border-slate-200 text-slate-400">
+                            1 ملف
+                          </Badge>
+                        </div>
+
+                        {isImageFile(attachment || '') ? (
+                          <div className="space-y-4">
+                            <div className="relative rounded-2xl overflow-hidden border border-slate-100 bg-slate-50 group">
+                              <img 
+                                src={attachmentUrl} 
+                                alt="المرفق"
+                                className="w-full max-h-[400px] object-contain transition-transform duration-500 group-hover:scale-[1.02]"
+                                onError={(e) => {
+                                  (e.target as HTMLImageElement).style.display = 'none';
+                                  const parent = (e.target as HTMLImageElement).parentElement;
+                                  if (parent) {
+                                    parent.innerHTML = '<div class="p-12 text-center text-slate-400 font-bold"><p>لا يمكن تحميل ملف المعاينة</p></div>';
+                                  }
+                                }}
+                              />
+                            </div>
+                            <Button
+                              onClick={() => window.open(attachmentUrl, '_blank')}
+                              className="w-full bg-[#111827] hover:bg-slate-800 text-white rounded-xl py-6 font-bold shadow-lg"
+                            >
+                              <ExternalLink className="w-4 h-4 ml-2" />
+                              فتح المرفق بدقة كاملة
+                            </Button>
+                          </div>
+                        ) : (
+                          <div className="flex items-center gap-4 p-4 bg-slate-50 rounded-2xl border border-slate-100 group">
+                            <div className="w-16 h-16 bg-white rounded-xl flex items-center justify-center border border-slate-200 group-hover:rotate-6 transition-transform">
+                              <File className="w-8 h-8 text-blue-600" />
+                            </div>
+                            <div className="flex-1">
+                              <p className="text-sm font-black text-slate-800 truncate max-w-[250px]">
+                                {attachment?.split('/').pop() || 'مستند مالي'}
+                              </p>
+                              <div className="flex items-center gap-2 mt-1">
+                                <Badge className="bg-blue-100 text-blue-600 border-none text-[8px] font-black uppercase">
+                                  {attachment?.split('.').pop() || 'FILE'}
+                                </Badge>
+                                <span className="text-[10px] text-slate-400 font-bold">جاهز للمعاينة</span>
+                              </div>
+                            </div>
+                            <Button
+                              onClick={() => window.open(attachmentUrl, '_blank')}
+                              size="sm"
+                              className="bg-blue-600 hover:bg-blue-700 text-white rounded-xl px-6 h-10 font-black shadow-lg shadow-blue-600/20"
+                            >
+                              عرض
+                            </Button>
+                          </div>
+                        )}
                       </div>
-                      
-                      {isImageFile(attachment || '') ? (
-                        <div className="space-y-3">
-                          <div className="relative rounded-xl overflow-hidden border border-amber-200 bg-white">
-                            <img 
-                              src={attachmentUrl} 
-                              alt="المرفق"
-                              className="w-full max-h-[400px] object-contain"
-                              onError={(e) => {
-                                (e.target as HTMLImageElement).style.display = 'none';
-                                const parent = (e.target as HTMLImageElement).parentElement;
-                                if (parent) {
-                                  parent.innerHTML = '<div class="p-8 text-center text-slate-500"><p>لا يمكن تحميل الصورة</p></div>';
-                                }
-                              }}
-                            />
-                          </div>
-                          <a
-                            href={attachmentUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="inline-flex items-center gap-2 px-4 py-2 bg-amber-600 text-white rounded-xl hover:bg-amber-700 transition-colors text-sm font-medium"
-                          >
-                            <ExternalLink className="w-4 h-4" />
-                            فتح في نافذة جديدة
-                          </a>
-                        </div>
-                      ) : (
-                        <div className="flex items-center gap-3 p-4 bg-white rounded-xl border border-amber-200">
-                          <div className="w-12 h-12 bg-amber-100 rounded-xl flex items-center justify-center">
-                            <File className="w-6 h-6 text-amber-600" />
-                          </div>
-                          <div className="flex-1">
-                            <p className="text-sm font-medium text-slate-800 truncate max-w-[200px]">
-                              {attachment?.split('/').pop() || 'مرفق'}
-                            </p>
-                            <p className="text-xs text-slate-500">
-                              {attachment?.split('.').pop()?.toUpperCase() || 'ملف'}
-                            </p>
-                          </div>
-                          <a
-                            href={attachmentUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="inline-flex items-center gap-2 px-4 py-2 bg-amber-600 text-white rounded-xl hover:bg-amber-700 transition-colors text-sm font-medium"
-                          >
-                            <ExternalLink className="w-4 h-4" />
-                            عرض
-                          </a>
-                        </div>
-                      )}
-                    </div>
-                  );
-                })()}
-              </div>
-            )}
-          </DialogContent>
-        </Dialog>
+                    );
+                  })()}
+                </div>
+              )}
+            </DialogContent>
+          </Dialog>
 
         {/* Analysis Modal */}
         <Dialog open={showAnalysisModal} onOpenChange={setShowAnalysisModal}>
