@@ -57,7 +57,7 @@ interface DashboardClientProps {
       stopped_companies?: number;
       total_employees?: number;
       total_invoices_amount?: number;
-      active_employees?: number;
+      yearly_expenses?: number;
       expired_iqama?: number;
       credit_notes_count?: number;
       credit_notes_total?: number;
@@ -395,12 +395,13 @@ export function DashboardClient({
                   isCurrency
                 />
                 <LuxuryStatCard 
-                  icon={UserCheck} 
-                  value={stats.active_employees || 0} 
-                  label={t('activeEmployees')}
+                  icon={BadgeDollarSign} 
+                  value={stats.yearly_expenses || 0} 
+                  label={isRTL ? "إجمالي المصروفات السنوية" : "Total Yearly Expenses"}
                   trend={12}
                   gradient="from-teal-500 to-cyan-600"
                   glowColor="teal"
+                  isCurrency
                 />
                 {permissions.credit_notes_module === 1 ? (
                   <LuxuryStatCard 

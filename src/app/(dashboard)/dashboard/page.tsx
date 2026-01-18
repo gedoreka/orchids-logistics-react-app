@@ -41,7 +41,7 @@ export default async function DashboardPage() {
       stopped_companies: 0,
       total_employees: 0,
       total_invoices_amount: 0,
-      active_employees: 0,
+      yearly_expenses: 0,
       expired_iqama: 0,
       credit_notes_count: 0,
       credit_notes_total: 0,
@@ -102,11 +102,11 @@ export default async function DashboardPage() {
       );
       stats.total_invoices_amount = invoicesResult[0]?.total || 0;
 
-      const activeResult = await query<{ count: number }>(
-        "SELECT COUNT(*) as count FROM employees WHERE company_id = ? AND is_active = 1",
+      const yearlyExpensesResult = await query<{ total: number }>(
+        "SELECT COALESCE(SUM(amount), 0) as total FROM monthly_expenses WHERE company_id = ? AND YEAR(expense_date) = YEAR(CURDATE())",
         [session.company_id]
       );
-      stats.active_employees = activeResult[0]?.count || 0;
+      stats.yearly_expenses = yearlyExpensesResult[0]?.total || 0;
 
       const expiredResult = await query<{ count: number }>(
         "SELECT COUNT(*) as count FROM employees WHERE company_id = ? AND iqama_expiry <= CURDATE()",
