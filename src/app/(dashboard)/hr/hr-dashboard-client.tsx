@@ -354,52 +354,7 @@ export function HRDashboardClient({ stats, activePackages, recentEmployees, comp
                   </div>
                 </motion.div>
 
-                {/* Alerts */}
-                {stats.expiredIqama > 0 && (
-                  <motion.div variants={itemVariants}>
-                    <Link href="/hr/reports/iqama?filter=expired">
-                      <div className="bg-gradient-to-br from-rose-500 to-red-600 rounded-[2.5rem] p-8 flex items-center gap-6 group shadow-2xl shadow-rose-500/30 hover:-translate-y-1 transition-all cursor-pointer">
-                        <div className="h-16 w-16 rounded-2xl bg-white/20 flex items-center justify-center text-white backdrop-blur-md border border-white/20 group-hover:scale-110 transition-transform">
-                          <AlertTriangle size={32} />
-                        </div>
-                        <div className="flex-1">
-                          <h4 className="text-lg font-black text-white leading-tight">{t('expiredIqamaAlert')}</h4>
-                          <p className="text-sm font-bold text-rose-100 mt-1 opacity-90">{t('expiredIqamaAlertDesc').replace('{count}', String(stats.expiredIqama))}</p>
-                        </div>
-                        <ChevronRight className={`text-white/60 group-hover:text-white transition-colors ${isRTL ? 'rotate-180' : ''}`} size={32} />
-                      </div>
-                    </Link>
-                  </motion.div>
-                )}
 
-                {/* System Status */}
-                <motion.div variants={itemVariants} className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-[2.5rem] p-8 text-white shadow-2xl border border-white/5">
-                  <div className="flex items-center gap-4 mb-6">
-                    <div className="h-12 w-12 rounded-2xl bg-white/10 flex items-center justify-center border border-white/10">
-                      <BadgeCheck className="text-emerald-400" size={24} />
-                    </div>
-                    <div>
-                      <h4 className="font-black text-base">{isRTL ? 'حالة النظام' : 'System Status'}</h4>
-                      <p className="text-slate-400 text-xs font-bold">{isRTL ? 'جميع الأنظمة تعمل' : 'All systems operational'}</p>
-                    </div>
-                  </div>
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between p-3 rounded-2xl bg-white/5 border border-white/5">
-                      <span className="text-slate-400 text-xs font-bold">{isRTL ? 'قاعدة البيانات' : 'Database'}</span>
-                      <span className="flex items-center gap-2 text-emerald-400 font-black text-xs">
-                        <CheckCircle2 size={16} />
-                        {isRTL ? 'متصل' : 'Connected'}
-                      </span>
-                    </div>
-                    <div className="flex items-center justify-between p-3 rounded-2xl bg-white/5 border border-white/5">
-                      <span className="text-slate-400 text-xs font-bold">{isRTL ? 'التزامن' : 'Sync'}</span>
-                      <span className="flex items-center gap-2 text-emerald-400 font-black text-xs">
-                        <Activity size={16} />
-                        {isRTL ? 'محدث' : 'Updated'}
-                      </span>
-                    </div>
-                  </div>
-                </motion.div>
               </div>
             </div>
 
