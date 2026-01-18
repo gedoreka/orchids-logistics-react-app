@@ -965,18 +965,18 @@ export function ExpensesReportClient({ companyId }: ExpensesReportClientProps) {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.5 }}
           >
-            <Card className="border-none shadow-lg rounded-3xl overflow-hidden">
-              <CardHeader className="bg-gradient-to-r from-rose-600 to-rose-700 text-white p-4">
-                <div className="flex items-center justify-between">
-                  <CardTitle className="flex items-center gap-2 text-base">
-                    <HandCoins className="w-5 h-5" />
-                    الاستقطاعات الشهرية
-                  </CardTitle>
-                  <Badge className="bg-white/20 text-white text-sm px-3 py-1">
-                    {stats.deductionsCount} عملية - {formatNumber(stats.totalDeductions)} ر.س
-                  </Badge>
-                </div>
-              </CardHeader>
+              <Card className="border-none shadow-lg rounded-3xl overflow-hidden bg-white/80 backdrop-blur-sm">
+                <CardHeader className="bg-gradient-to-r from-rose-50 to-rose-100/80 p-4 border-b border-rose-200/50">
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="flex items-center gap-2 text-base text-gray-900 font-extrabold">
+                      <HandCoins className="w-5 h-5 text-rose-600" />
+                      الاستقطاعات الشهرية
+                    </CardTitle>
+                    <Badge className="bg-rose-600 text-white text-sm px-3 py-1">
+                      {stats.deductionsCount} عملية - {formatNumber(stats.totalDeductions)} ر.س
+                    </Badge>
+                  </div>
+                </CardHeader>
               <CardContent className="p-4 space-y-4">
                 {Object.keys(deductionsGrouped).length > 0 ? (
                   Object.entries(deductionsGrouped).map(([group, deductions]) => {
