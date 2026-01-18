@@ -1,6 +1,6 @@
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import { supabase } from "@/lib/supabase-client";
+import { query } from "@/lib/db";
 import { DashboardClient } from "./dashboard-client";
 
 interface Company {
@@ -51,13 +51,13 @@ export default async function DashboardPage() {
 
   try {
     if (session.company_id) {
-      const { data: companies } = await supabase
-        .from("companies")
-        .select("*")
-        .eq("id", session.company_id);
+      const companies = await query<Company>(
+        "SELECT * FROM companies WHERE id = ?",
+        [session.company_id]
+      );
       
       if (companies && companies.length > 0) {
-        company = companies[0] as Company;
+        company = companies[0];
         
         const tokenExpiry = company.token_expiry;
         if (!tokenExpiry || tokenExpiry === "0000-00-00") {
@@ -90,51 +90,46 @@ export default async function DashboardPage() {
         }
       }
 
-      const { count: empCount } = await supabase
-        .from("employees")
-        .select("*", { count: "exact", head: true })
-        .eq("company_id", session.company_id);
-      stats.total_employees = empCount || 0;
+      const empResult = await query<{ count: number }>(
+        "SELECT COUNT(*) as count FROM employees WHERE company_id = ?",
+        [session.company_id]
+      );
+      stats.total_employees = empResult[0]?.count || 0;
 
-      const { count: pkgCount } = await supabase
-        .from("employee_packages")
-        .select("*", { count: "exact", head: true })
-        .eq("company_id", session.company_id);
-      stats.total_packages = pkgCount || 0;
+      const pkgResult = await query<{ count: number }>(
+        "SELECT COUNT(*) as count FROM employee_packages WHERE company_id = ?",
+        [session.company_id]
+      );
+      stats.total_packages = pkgResult[0]?.count || 0;
 
-      const { count: activeCount } = await supabase
-        .from("employees")
-        .select("*", { count: "exact", head: true })
-        .eq("company_id", session.company_id)
-        .eq("is_active", 1);
-      stats.active_employees = activeCount || 0;
+      const activeResult = await query<{ count: number }>(
+        "SELECT COUNT(*) as count FROM employees WHERE company_id = ? AND is_active = 1",
+        [session.company_id]
+      );
+      stats.active_employees = activeResult[0]?.count || 0;
 
-      const { count: expiredCount } = await supabase
-        .from("employees")
-        .select("*", { count: "exact", head: true })
-        .eq("company_id", session.company_id)
-        .lte("iqama_expiry", new Date().toISOString().split('T')[0]);
-      stats.expired_iqama = expiredCount || 0;
+      const expiredResult = await query<{ count: number }>(
+        "SELECT COUNT(*) as count FROM employees WHERE company_id = ? AND iqama_expiry <= CURDATE()",
+        [session.company_id]
+      );
+      stats.expired_iqama = expiredResult[0]?.count || 0;
     }
 
     if (isAdmin) {
-      const { count: usersCount } = await supabase
-        .from("users")
-        .select("*", { count: "exact", head: true })
-        .eq("is_activated", 1);
-      stats.users_count = usersCount || 0;
+      const usersResult = await query<{ count: number }>(
+        "SELECT COUNT(*) as count FROM users WHERE is_activated = 1"
+      );
+      stats.users_count = usersResult[0]?.count || 0;
 
-      const { count: pendingCount } = await supabase
-        .from("companies")
-        .select("*", { count: "exact", head: true })
-        .eq("status", "pending");
-      stats.pending_requests = pendingCount || 0;
+      const pendingResult = await query<{ count: number }>(
+        "SELECT COUNT(*) as count FROM companies WHERE status = 'pending'"
+      );
+      stats.pending_requests = pendingResult[0]?.count || 0;
 
-      const { count: stoppedCount } = await supabase
-        .from("companies")
-        .select("*", { count: "exact", head: true })
-        .eq("status", "stopped");
-      stats.stopped_companies = stoppedCount || 0;
+      const stoppedResult = await query<{ count: number }>(
+        "SELECT COUNT(*) as count FROM companies WHERE status = 'stopped'"
+      );
+      stats.stopped_companies = stoppedResult[0]?.count || 0;
     }
   } catch (error) {
     console.error("Error fetching dashboard data:", error);
