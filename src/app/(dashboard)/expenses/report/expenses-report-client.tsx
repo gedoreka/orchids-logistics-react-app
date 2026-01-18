@@ -644,57 +644,57 @@ export function ExpensesReportClient({ companyId }: ExpensesReportClientProps) {
         >
           <div className="bg-gradient-to-r from-blue-100/80 via-rose-100/80 via-emerald-100/80 to-amber-100/80 backdrop-blur-xl p-2 rounded-[3rem] shadow-inner border border-white/50 inline-flex w-full">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-2 w-full">
-              {[
-                {
-                  id: "expenses" as const,
-                  label: "عرض المنصرفات",
-                  icon: Wallet,
-                  color: "blue",
-                  gradient: "from-blue-500 to-blue-700",
-                  sub: "كشف تفصيلي للمصروفات والرواتب"
-                },
-                {
-                  id: "deductions" as const,
-                  label: "عرض الاستقطاعات",
-                  icon: HandCoins,
-                  color: "rose",
-                  gradient: "from-rose-500 to-rose-700",
-                  sub: "كشف تفصيلي للخصومات والجزاءات"
-                },
-                {
-                  id: "all" as const,
-                  label: "التقرير الشامل",
-                  icon: BarChart3,
-                  color: "purple",
-                  gradient: "from-blue-600 via-purple-600 to-rose-600",
-                  sub: "رؤية موحدة لجميع الحركات المالية"
-                }
-              ].map((tab) => (
-                <button
-                  key={tab.id}
-                  onClick={() => setReportType(tab.id)}
-                  className={`relative flex items-center gap-4 p-4 rounded-[2.2rem] transition-all duration-500 group overflow-hidden ${
-                    reportType === tab.id
-                      ? `bg-gradient-to-r ${tab.gradient} text-white shadow-2xl scale-[1.02] z-10`
-                      : "bg-transparent text-slate-600 hover:bg-white/60"
-                  }`}
-                >
-                  <div className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all duration-300 ${
-                    reportType === tab.id
-                      ? "bg-white/20 rotate-6"
-                      : `bg-${tab.color}-100 text-${tab.color}-600 group-hover:rotate-12`
-                  }`}>
-                    <tab.icon className="w-6 h-6" />
-                  </div>
-                  
-                  <div className="text-right flex-1">
-                    <p className={`text-base font-bold ${reportType === tab.id ? "text-white" : "text-slate-800"}`}>
-                      {tab.label}
-                    </p>
-                    <p className={`text-[10px] ${reportType === tab.id ? "text-white/70" : "text-slate-500"}`}>
-                      {tab.sub}
-                    </p>
-                  </div>
+                {[
+                  {
+                    id: "expenses" as const,
+                    label: "عرض المنصرفات",
+                    icon: Wallet,
+                    color: "blue",
+                    gradient: "from-blue-500 to-blue-700",
+                    sub: "كشف تفصيلي للمصروفات والرواتب"
+                  },
+                  {
+                    id: "deductions" as const,
+                    label: "عرض الاستقطاعات",
+                    icon: HandCoins,
+                    color: "rose",
+                    gradient: "from-rose-500 to-rose-700",
+                    sub: "كشف تفصيلي للخصومات والجزاءات"
+                  },
+                  {
+                    id: "all" as const,
+                    label: "التقرير الشامل",
+                    icon: BarChart3,
+                    color: "purple",
+                    gradient: "from-blue-600 via-purple-600 to-rose-600",
+                    sub: "رؤية موحدة لجميع الحركات المالية"
+                  }
+                ].map((tab) => (
+                  <button
+                    key={tab.id}
+                    onClick={() => setReportType(tab.id)}
+                    className={`relative flex items-center justify-center gap-4 p-4 rounded-[2.2rem] transition-all duration-500 group overflow-hidden ${
+                      reportType === tab.id
+                        ? `bg-gradient-to-r ${tab.gradient} text-white shadow-2xl scale-[1.02] z-10`
+                        : "bg-transparent text-slate-600 hover:bg-white/60"
+                    }`}
+                  >
+                    <div className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all duration-300 ${
+                      reportType === tab.id
+                        ? "bg-white/20 rotate-6"
+                        : `bg-${tab.color}-100 text-${tab.color}-600 group-hover:rotate-12`
+                    }`}>
+                      <tab.icon className="w-6 h-6" />
+                    </div>
+                    
+                    <div className="text-center">
+                      <p className={`text-base font-bold ${reportType === tab.id ? "text-white" : "text-slate-800"}`}>
+                        {tab.label}
+                      </p>
+                      <p className={`text-[10px] ${reportType === tab.id ? "text-white/70" : "text-slate-500"}`}>
+                        {tab.sub}
+                      </p>
+                    </div>
 
                   {reportType === tab.id && (
                     <motion.div
@@ -717,8 +717,8 @@ export function ExpensesReportClient({ companyId }: ExpensesReportClientProps) {
         >
           <Card className="border-none shadow-md rounded-[2rem] bg-gradient-to-r from-blue-100/80 via-rose-100/80 via-emerald-100/80 to-amber-100/80 backdrop-blur-md border border-white/50">
               <CardContent className="p-3">
-              <div className="flex flex-col lg:flex-row items-center justify-between gap-4">
-                <div className="flex items-center gap-3 flex-wrap">
+                <div className="flex flex-col lg:flex-row items-center justify-center gap-6">
+                  <div className="flex items-center gap-3 flex-wrap">
                   <div className="flex items-center gap-2 text-slate-700 text-sm font-bold bg-white/80 px-5 py-2.5 rounded-[1.5rem] border border-slate-100 shadow-sm">
                     <Filter className="w-4 h-4 text-blue-600" />
                     <span>اختر الفترة:</span>
