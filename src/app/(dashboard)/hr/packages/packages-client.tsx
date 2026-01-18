@@ -386,10 +386,10 @@ export function PackagesClient({ initialPackages, companyId }: PackagesClientPro
               <Plus size={18} />
               إنشاء باقة جديدة
             </motion.button>
-          </motion.div>
-        </div>
+            </motion.div>
+          </div>
 
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
           <motion.div variants={itemVariants}>
             <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-purple-500 to-violet-600 p-5 shadow-lg shadow-purple-500/30">
               <div className="flex items-start justify-between">
