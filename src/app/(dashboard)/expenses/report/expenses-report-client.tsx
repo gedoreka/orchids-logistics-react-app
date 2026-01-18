@@ -642,7 +642,7 @@ export function ExpensesReportClient({ companyId }: ExpensesReportClientProps) {
           transition={{ delay: 0.2 }}
           className="print:hidden"
         >
-          <div className="bg-white/40 backdrop-blur-xl p-2 rounded-[3rem] shadow-inner border border-white/50 inline-flex w-full">
+          <div className="bg-gradient-to-r from-blue-100/80 via-rose-100/80 via-emerald-100/80 to-amber-100/80 backdrop-blur-xl p-2 rounded-[3rem] shadow-inner border border-white/50 inline-flex w-full">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-2 w-full">
               {[
                 {
@@ -715,7 +715,7 @@ export function ExpensesReportClient({ companyId }: ExpensesReportClientProps) {
           transition={{ delay: 0.3 }}
           className="print:hidden"
         >
-          <Card className="border-none shadow-md rounded-[2.5rem] bg-white/60 backdrop-blur-md border border-white/50">
+          <Card className="border-none shadow-md rounded-[2.5rem] bg-gradient-to-r from-blue-100/80 via-rose-100/80 via-emerald-100/80 to-amber-100/80 backdrop-blur-md border border-white/50">
             <CardContent className="p-4">
               <div className="flex flex-col lg:flex-row items-center justify-between gap-4">
                 <div className="flex items-center gap-3 flex-wrap">
@@ -744,45 +744,45 @@ export function ExpensesReportClient({ companyId }: ExpensesReportClientProps) {
                   </Button>
                 </div>
 
-                <div className="flex items-center gap-1 flex-wrap bg-white/80 p-1.5 rounded-[1.8rem] border border-slate-100 shadow-inner">
-                  <Button
-                    onClick={handlePrint}
-                    variant="ghost"
-                    size="sm"
-                    className="text-slate-600 hover:text-blue-600 hover:bg-blue-50 rounded-xl px-5 h-10 font-bold transition-colors"
-                  >
-                    <Printer className="w-4 h-4 ml-2" />
-                    طباعة
-                  </Button>
-                  <Button
-                    onClick={handleExportExcel}
-                    variant="ghost"
-                    size="sm"
-                    className="text-slate-600 hover:text-emerald-600 hover:bg-emerald-50 rounded-xl px-5 h-10 font-bold transition-colors"
-                  >
-                    <FileSpreadsheet className="w-4 h-4 ml-2" />
-                    تصدير Excel
-                  </Button>
-                  <Button
-                    onClick={() => setShowAnalysisModal(true)}
-                    variant="ghost"
-                    size="sm"
-                    className="text-slate-600 hover:text-amber-600 hover:bg-amber-50 rounded-xl px-5 h-10 font-bold transition-colors"
-                  >
-                    <BarChart3 className="w-4 h-4 ml-2" />
-                    تحليل ذكي
-                  </Button>
-                  <div className="w-px h-8 bg-slate-200 mx-2" />
-                  <Button
-                    onClick={() => (window.location.href = "/expenses")}
-                    variant="ghost"
-                    size="sm"
-                    className="text-slate-600 hover:text-rose-600 hover:bg-rose-50 rounded-xl px-5 h-10 font-bold transition-colors"
-                  >
-                    <Home className="w-4 h-4 ml-2" />
-                    الرئيسية
-                  </Button>
-                </div>
+                  <div className="flex items-center gap-1 flex-wrap bg-white p-1.5 rounded-[1.8rem] border border-slate-100 shadow-inner">
+                    <Button
+                      onClick={handlePrint}
+                      variant="ghost"
+                      size="sm"
+                      className="text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-xl px-5 h-10 font-bold transition-colors"
+                    >
+                      <Printer className="w-4 h-4 ml-2 text-blue-600" />
+                      طباعة
+                    </Button>
+                    <Button
+                      onClick={handleExportExcel}
+                      variant="ghost"
+                      size="sm"
+                      className="text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 rounded-xl px-5 h-10 font-bold transition-colors"
+                    >
+                      <FileSpreadsheet className="w-4 h-4 ml-2 text-emerald-600" />
+                      تصدير Excel
+                    </Button>
+                    <Button
+                      onClick={() => setShowAnalysisModal(true)}
+                      variant="ghost"
+                      size="sm"
+                      className="text-amber-600 hover:text-amber-700 hover:bg-amber-50 rounded-xl px-5 h-10 font-bold transition-colors"
+                    >
+                      <BarChart3 className="w-4 h-4 ml-2 text-amber-600" />
+                      تحليل ذكي
+                    </Button>
+                    <div className="w-px h-8 bg-slate-200 mx-2" />
+                    <Button
+                      onClick={() => (window.location.href = "/expenses")}
+                      variant="ghost"
+                      size="sm"
+                      className="text-rose-600 hover:text-rose-700 hover:bg-rose-50 rounded-xl px-5 h-10 font-bold transition-colors"
+                    >
+                      <Home className="w-4 h-4 ml-2 text-rose-600" />
+                      الرئيسية
+                    </Button>
+                  </div>
               </div>
             </CardContent>
           </Card>
@@ -855,16 +855,16 @@ export function ExpensesReportClient({ companyId }: ExpensesReportClientProps) {
                                   <table className="w-full text-sm">
                                     <thead className="bg-white sticky top-0 z-10 border-b-2 border-slate-200">
                                       <tr>
-                                        <th className="p-2 text-center text-black font-bold text-xs">#</th>
-                                        <th className="p-2 text-center text-black font-bold text-xs">التاريخ</th>
-                                        <th className="p-2 text-center text-black font-bold text-xs">المستفيد</th>
-                                        <th className="p-2 text-center text-black font-bold text-xs">رقم الإقامة</th>
-                                        <th className="p-2 text-center text-black font-bold text-xs">المبلغ</th>
-                                        <th className="p-2 text-center text-black font-bold text-xs">الضريبة</th>
-                                        <th className="p-2 text-center text-black font-bold text-xs">الصافي</th>
-                                        <th className="p-2 text-center text-black font-bold text-xs">الحساب</th>
-                                        <th className="p-2 text-center text-black font-bold text-xs">م.التكلفة</th>
-                                          <th className="p-2 text-center text-black font-bold text-xs print:hidden">الإجراءات</th>
+                                        <th className="p-2 text-center text-gray-900 font-extrabold text-xs">#</th>
+                                        <th className="p-2 text-center text-gray-900 font-extrabold text-xs">التاريخ</th>
+                                        <th className="p-2 text-center text-gray-900 font-extrabold text-xs">المستفيد</th>
+                                        <th className="p-2 text-center text-gray-900 font-extrabold text-xs">رقم الإقامة</th>
+                                        <th className="p-2 text-center text-gray-900 font-extrabold text-xs">المبلغ</th>
+                                        <th className="p-2 text-center text-gray-900 font-extrabold text-xs">الضريبة</th>
+                                        <th className="p-2 text-center text-gray-900 font-extrabold text-xs">الصافي</th>
+                                        <th className="p-2 text-center text-gray-900 font-extrabold text-xs">الحساب</th>
+                                        <th className="p-2 text-center text-gray-900 font-extrabold text-xs">م.التكلفة</th>
+                                          <th className="p-2 text-center text-gray-900 font-extrabold text-xs print:hidden">الإجراءات</th>
                                         </tr>
                                       </thead>
                                       <tbody className="bg-white">
@@ -873,15 +873,15 @@ export function ExpensesReportClient({ companyId }: ExpensesReportClientProps) {
                                             key={expense.id}
                                             className="border-b border-slate-200 hover:bg-slate-50 transition-colors bg-white"
                                           >
-                                            <td className="p-2 text-center text-black text-xs">{idx + 1}</td>
-                                            <td className="p-2 text-center text-black text-xs">{formatDate(expense.expense_date)}</td>
-                                            <td className="p-2 text-center font-medium text-black text-xs">{expense.employee_name || "-"}</td>
-                                            <td className="p-2 text-center text-black text-xs">{expense.employee_iqama || "-"}</td>
-                                            <td className="p-2 text-center font-bold text-red-600 text-xs">{formatNumber(expense.amount || 0)}</td>
-                                            <td className="p-2 text-center text-red-600 text-xs">{formatNumber(expense.tax_value || 0)}</td>
-                                            <td className="p-2 text-center font-bold text-red-600 text-xs">{formatNumber(expense.net_amount || expense.amount || 0)}</td>
-                                            <td className="p-2 text-center text-black text-xs">{expense.account_code || "-"}</td>
-                                            <td className="p-2 text-center text-black text-xs">{expense.center_code || "-"}</td>
+                                            <td className="p-2 text-center text-gray-900 font-semibold text-xs">{idx + 1}</td>
+                                            <td className="p-2 text-center text-gray-900 font-semibold text-xs">{formatDate(expense.expense_date)}</td>
+                                            <td className="p-2 text-center font-bold text-gray-900 text-xs">{expense.employee_name || "-"}</td>
+                                            <td className="p-2 text-center text-gray-900 font-semibold text-xs">{expense.employee_iqama || "-"}</td>
+                                            <td className="p-2 text-center font-extrabold text-red-600 text-xs">{formatNumber(expense.amount || 0)}</td>
+                                            <td className="p-2 text-center font-bold text-red-600 text-xs">{formatNumber(expense.tax_value || 0)}</td>
+                                            <td className="p-2 text-center font-extrabold text-red-600 text-xs">{formatNumber(expense.net_amount || expense.amount || 0)}</td>
+                                            <td className="p-2 text-center text-gray-900 font-semibold text-xs">{expense.account_code || "-"}</td>
+                                            <td className="p-2 text-center text-gray-900 font-semibold text-xs">{expense.center_code || "-"}</td>
                                           <td className="p-2 text-center print:hidden">
                                             <div className="flex items-center justify-center gap-1">
                                               <Button
@@ -1025,15 +1025,15 @@ export function ExpensesReportClient({ companyId }: ExpensesReportClientProps) {
                                   <table className="w-full text-sm">
                                     <thead className="bg-white sticky top-0 z-10 border-b-2 border-slate-200">
                                       <tr>
-                                        <th className="p-2 text-center text-black font-bold text-xs">#</th>
-                                        <th className="p-2 text-center text-black font-bold text-xs">التاريخ</th>
-                                        <th className="p-2 text-center text-black font-bold text-xs">الموظف</th>
-                                        <th className="p-2 text-center text-black font-bold text-xs">رقم الإقامة</th>
-                                        <th className="p-2 text-center text-black font-bold text-xs">المبلغ</th>
-                                        <th className="p-2 text-center text-black font-bold text-xs">الحساب</th>
-                                          <th className="p-2 text-center text-black font-bold text-xs">م.التكلفة</th>
-                                          <th className="p-2 text-center text-black font-bold text-xs">حالة الدفع</th>
-                                          <th className="p-2 text-center text-black font-bold text-xs print:hidden">الإجراءات</th>
+                                        <th className="p-2 text-center text-gray-900 font-extrabold text-xs">#</th>
+                                        <th className="p-2 text-center text-gray-900 font-extrabold text-xs">التاريخ</th>
+                                        <th className="p-2 text-center text-gray-900 font-extrabold text-xs">الموظف</th>
+                                        <th className="p-2 text-center text-gray-900 font-extrabold text-xs">رقم الإقامة</th>
+                                        <th className="p-2 text-center text-gray-900 font-extrabold text-xs">المبلغ</th>
+                                        <th className="p-2 text-center text-gray-900 font-extrabold text-xs">الحساب</th>
+                                          <th className="p-2 text-center text-gray-900 font-extrabold text-xs">م.التكلفة</th>
+                                          <th className="p-2 text-center text-gray-900 font-extrabold text-xs">حالة الدفع</th>
+                                          <th className="p-2 text-center text-gray-900 font-extrabold text-xs print:hidden">الإجراءات</th>
                                         </tr>
                                       </thead>
                                       <tbody className="bg-white">
@@ -1042,13 +1042,13 @@ export function ExpensesReportClient({ companyId }: ExpensesReportClientProps) {
                                             key={deduction.id}
                                             className="border-b border-slate-200 hover:bg-slate-50 transition-colors bg-white"
                                           >
-                                            <td className="p-2 text-center text-black text-xs">{idx + 1}</td>
-                                            <td className="p-2 text-center text-black text-xs">{formatDate(deduction.expense_date)}</td>
-                                            <td className="p-2 text-center font-medium text-black text-xs">{deduction.employee_name || "-"}</td>
-                                            <td className="p-2 text-center text-black text-xs">{deduction.employee_iqama || "-"}</td>
-                                            <td className="p-2 text-center font-bold text-red-600 text-xs">{formatNumber(deduction.amount || 0)}</td>
-                                            <td className="p-2 text-center text-black text-xs">{deduction.account_code || "-"}</td>
-                                            <td className="p-2 text-center text-black text-xs">{deduction.center_code || "-"}</td>
+                                            <td className="p-2 text-center text-gray-900 font-semibold text-xs">{idx + 1}</td>
+                                            <td className="p-2 text-center text-gray-900 font-semibold text-xs">{formatDate(deduction.expense_date)}</td>
+                                            <td className="p-2 text-center font-bold text-gray-900 text-xs">{deduction.employee_name || "-"}</td>
+                                            <td className="p-2 text-center text-gray-900 font-semibold text-xs">{deduction.employee_iqama || "-"}</td>
+                                            <td className="p-2 text-center font-extrabold text-red-600 text-xs">{formatNumber(deduction.amount || 0)}</td>
+                                            <td className="p-2 text-center text-gray-900 font-semibold text-xs">{deduction.account_code || "-"}</td>
+                                            <td className="p-2 text-center text-gray-900 font-semibold text-xs">{deduction.center_code || "-"}</td>
                                           <td className="p-2 text-center">
                                             <button
                                               onClick={() => handleToggleDeductionStatus(deduction)}
