@@ -31,6 +31,11 @@ import {
   X,
   Save,
   Loader2,
+  ChevronLeft,
+  ChevronRight,
+  TrendingDown,
+  DollarSign,
+  PieChart,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -52,6 +57,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { cn } from "@/lib/utils";
 
 interface ExpenseItem {
   id: number;
@@ -185,8 +191,8 @@ const generateMonthOptions = () => {
   const currentYear = currentDate.getFullYear();
   const currentMonth = currentDate.getMonth() + 1;
   const monthNames = [
-    "January", "February", "March", "April", "May", "June",
-    "July", "August", "September", "October", "November", "December"
+    "يناير", "فبراير", "مارس", "أبريل", "مايو", "يونيو",
+    "يوليو", "أغسطس", "سبتمبر", "أكتوبر", "نوفمبر", "ديسمبر"
   ];
   
   for (let year = currentYear; year >= currentYear - 2; year--) {
@@ -208,7 +214,7 @@ export function ExpensesReportClient({ companyId }: ExpensesReportClientProps) {
     return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
   });
   const [reportType, setReportType] = useState<"expenses" | "deductions" | "all">(
-    "expenses"
+    "all"
   );
   const [expandedGroups, setExpandedGroups] = useState<Record<string, boolean>>(
     {}
@@ -295,7 +301,6 @@ export function ExpensesReportClient({ companyId }: ExpensesReportClientProps) {
         setAccounts(accountsData.accounts || []);
       }
       
-      // metadata API returns costCenters directly in the root or centersData.costCenters
       if (centersData.costCenters) {
         setCostCenters(centersData.costCenters);
       }
@@ -311,7 +316,6 @@ export function ExpensesReportClient({ companyId }: ExpensesReportClientProps) {
 
   const handleEditClick = async (item: ExpenseItem | DeductionItem) => {
     setSelectedItem(item);
-    // Fetch metadata first to ensure lists are populated
     await fetchMetadata();
     
     setEditForm({
@@ -415,10 +419,6 @@ export function ExpensesReportClient({ companyId }: ExpensesReportClientProps) {
     }
   };
 
-  const calculateNetAmount = (amount: number, taxValue: number) => {
-    return amount - taxValue;
-  };
-
   const handleToggleDeductionStatus = async (deduction: DeductionItem) => {
     setStatusUpdating(deduction.id);
     try {
@@ -461,20 +461,25 @@ export function ExpensesReportClient({ companyId }: ExpensesReportClientProps) {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#f0f2f5] flex items-center justify-center">
+      <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center gap-4">
         <motion.div
           animate={{ rotate: 360 }}
           transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
           className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full"
         />
+        <p className="text-slate-500 font-medium animate-pulse">جاري تحميل البيانات...</p>
       </div>
     );
   }
 
   if (!data) {
     return (
-      <div className="min-h-screen bg-[#f0f2f5] flex items-center justify-center">
-        <p className="text-slate-500">لا توجد بيانات</p>
+      <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center gap-4">
+        <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center">
+          <AlertTriangle className="w-8 h-8 text-slate-400" />
+        </div>
+        <p className="text-slate-500 font-bold">لا توجد بيانات متاحة حالياً</p>
+        <Button onClick={() => window.location.reload()} variant="outline">إعادة المحاولة</Button>
       </div>
     );
   }
@@ -482,297 +487,265 @@ export function ExpensesReportClient({ companyId }: ExpensesReportClientProps) {
   const { companyInfo, stats, expensesGrouped, deductionsGrouped, payrolls } = data;
 
   return (
-    <div
-      className="rtl print:bg-white pb-10 min-h-screen bg-[#f0f2f5]"
-      dir="rtl"
-    >
-      <div className="w-[98%] mx-auto py-4 space-y-6 print:w-full print:p-2">
-        {/* Header Section */}
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="print:shadow-none"
-        >
-          <Card className="overflow-hidden border-none shadow-lg bg-white text-slate-800 rounded-2xl print:rounded-none print:shadow-none" style={{ boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}>
+    <div className="min-h-screen bg-slate-50 pb-20 rtl" dir="rtl">
+      {/* Top Banner & Navigation */}
+      <div className="bg-white border-b sticky top-0 z-30 print:static print:border-none">
+        <div className="max-w-[1600px] mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+          <div className="flex items-center gap-4">
+             {companyInfo?.logo_path ? (
+               <img src={companyInfo.logo_path} alt="Logo" className="w-10 h-10 object-contain" />
+             ) : (
+               <div className="w-10 h-10 rounded-lg bg-blue-600 flex items-center justify-center shadow-lg shadow-blue-200">
+                 <Building2 className="w-5 h-5 text-white" />
+               </div>
+             )}
+             <div>
+               <h1 className="text-sm font-black text-slate-900 leading-tight">التقرير المالي</h1>
+               <p className="text-[10px] text-slate-500 font-bold">{companyInfo?.name}</p>
+             </div>
+          </div>
+
+          <div className="hidden md:flex items-center bg-slate-100 p-1 rounded-xl border">
+             {[
+               { id: 'all', label: 'الكل', icon: PieChart },
+               { id: 'expenses', label: 'المنصرفات', icon: Wallet },
+               { id: 'deductions', label: 'الاستقطاعات', icon: HandCoins },
+             ].map((tab) => (
+               <button
+                 key={tab.id}
+                 onClick={() => setReportType(tab.id as any)}
+                 className={cn(
+                   "flex items-center gap-2 px-4 py-1.5 rounded-lg text-xs font-bold transition-all",
+                   reportType === tab.id 
+                     ? "bg-white text-blue-600 shadow-sm" 
+                     : "text-slate-500 hover:text-slate-700"
+                 )}
+               >
+                 <tab.icon className="w-3.5 h-3.5" />
+                 {tab.label}
+               </button>
+             ))}
+          </div>
+
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handlePrint}
+              className="rounded-lg h-9 px-3 border-slate-200 text-slate-600 hover:bg-slate-50 font-bold"
+            >
+              <Printer className="w-4 h-4 ml-1.5" />
+              <span className="hidden sm:inline">طباعة</span>
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleExportExcel}
+              className="rounded-lg h-9 px-3 border-slate-200 text-emerald-600 hover:bg-emerald-50 font-bold"
+            >
+              <FileSpreadsheet className="w-4 h-4 ml-1.5" />
+              <span className="hidden sm:inline">Excel</span>
+            </Button>
+            <div className="w-px h-6 bg-slate-200 mx-1" />
+            <Button
+              size="sm"
+              className="rounded-lg h-9 px-4 bg-blue-600 hover:bg-blue-700 text-white font-bold shadow-lg shadow-blue-100"
+              onClick={() => window.location.href = "/expenses/new"}
+            >
+              <Wallet className="w-4 h-4 ml-1.5" />
+              إضافة عملية
+            </Button>
+          </div>
+        </div>
+      </div>
+
+      <div className="max-w-[1600px] mx-auto px-4 sm:px-6 py-8 space-y-8">
+        {/* Date Selector and Summary Header */}
+        <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6 bg-white p-6 rounded-3xl border border-slate-200 shadow-sm">
+          <div className="space-y-1">
+            <h2 className="text-2xl font-black text-slate-900 flex items-center gap-3">
+              تقرير شهر {getMonthName(selectedMonth)}
+              <Badge variant="outline" className="bg-blue-50 text-blue-600 border-blue-100 px-3 py-1 font-bold">
+                {reportType === 'all' ? 'تقرير شامل' : reportType === 'expenses' ? 'منصرفات' : 'استقطاعات'}
+              </Badge>
+            </h2>
+            <p className="text-sm text-slate-500 font-medium">ملخص الحركات المالية والالتزامات للفترة المحددة</p>
+          </div>
+
+          <div className="flex items-center gap-3 w-full lg:w-auto">
+            <div className="flex items-center bg-slate-50 rounded-2xl border border-slate-200 p-1 flex-1 lg:flex-none">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-10 w-10 text-slate-400 hover:text-slate-900"
+                onClick={() => {
+                  const date = new Date(selectedMonth + "-01");
+                  date.setMonth(date.getMonth() - 1);
+                  setSelectedMonth(`${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`);
+                }}
+              >
+                <ChevronRight className="w-5 h-5" />
+              </Button>
+              
+              <div className="px-4 text-center min-w-[140px]">
+                <span className="text-sm font-black text-slate-800">{getMonthName(selectedMonth)}</span>
+              </div>
+
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-10 w-10 text-slate-400 hover:text-slate-900"
+                onClick={() => {
+                  const date = new Date(selectedMonth + "-01");
+                  date.setMonth(date.getMonth() + 1);
+                  setSelectedMonth(`${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`);
+                }}
+              >
+                <ChevronLeft className="w-5 h-5" />
+              </Button>
+            </div>
             
-            <CardContent className="p-5">
-              <div className="flex flex-col lg:flex-row items-center justify-between gap-4">
-                <div className="flex items-center gap-4">
-                  <div className="relative">
-                    {companyInfo?.logo_path ? (
-                      <div className="relative w-12 h-12 rounded-xl bg-slate-100 p-2 flex items-center justify-center shadow-md border border-slate-200 overflow-hidden">
-                        <img
-                          src={companyInfo.logo_path}
-                          alt="Logo"
-                          className="w-full h-full object-contain"
-                        />
-                      </div>
-                    ) : (
-                      <div className="relative w-12 h-12 rounded-xl bg-blue-600 flex items-center justify-center shadow-md">
-                        <Building2 className="w-6 h-6 text-white" />
-                      </div>
-                    )}
+            <Select value={selectedMonth} onValueChange={setSelectedMonth}>
+              <SelectTrigger className="w-[180px] h-12 rounded-2xl border-slate-200 font-bold bg-white hidden sm:flex">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent className="rounded-2xl">
+                {monthOptions.map((opt) => (
+                  <SelectItem key={opt.value} value={opt.value} className="font-bold">
+                    {opt.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+
+        {/* Key Stats Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          {[
+            { 
+              label: "إجمالي المصاريف", 
+              value: stats.totalExpenses, 
+              count: stats.expensesCount,
+              icon: Wallet, 
+              color: "blue",
+              bg: "bg-blue-500",
+              light: "bg-blue-50",
+              text: "text-blue-600"
+            },
+            { 
+              label: "إجمالي الرواتب", 
+              value: stats.totalPayrolls, 
+              count: stats.payrollsCount,
+              icon: FileText, 
+              color: "emerald",
+              bg: "bg-emerald-500",
+              light: "bg-emerald-50",
+              text: "text-emerald-600"
+            },
+            { 
+              label: "إجمالي الاستقطاعات", 
+              value: stats.totalDeductions, 
+              count: stats.deductionsCount,
+              icon: HandCoins, 
+              color: "rose",
+              bg: "bg-rose-500",
+              light: "bg-rose-50",
+              text: "text-rose-600"
+            },
+            { 
+              label: "المجموع الكلي", 
+              value: stats.totalAll, 
+              count: stats.expensesCount + stats.deductionsCount + stats.payrollsCount,
+              icon: Calculator, 
+              color: "indigo",
+              bg: "bg-slate-900",
+              light: "bg-slate-100",
+              text: "text-slate-900"
+            }
+          ].map((stat, idx) => (
+            <motion.div
+              key={idx}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 * idx }}
+              className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm relative overflow-hidden group hover:border-blue-300 transition-all"
+            >
+              <div className={cn("absolute top-0 left-0 w-1 h-full", stat.bg)} />
+              <div className="flex items-start justify-between">
+                <div className="space-y-4">
+                  <div className={cn("w-12 h-12 rounded-2xl flex items-center justify-center transition-transform group-hover:scale-110", stat.light, stat.text)}>
+                    <stat.icon className="w-6 h-6" />
                   </div>
                   <div>
-                    <h2 className="text-base font-bold text-slate-800">
-                      {companyInfo?.name || "اسم الشركة"}
-                    </h2>
-                    <p className="text-slate-500 text-[10px] font-medium">
-                      نظام إدارة المنصرفات والرواتب
-                    </p>
+                    <p className="text-xs font-black text-slate-400 uppercase tracking-wider">{stat.label}</p>
+                    <h3 className="text-2xl font-black text-slate-900 mt-1">
+                      {formatNumber(stat.value)} <span className="text-xs text-slate-500 mr-1 font-medium">ر.س</span>
+                    </h3>
                   </div>
+                  <Badge variant="outline" className="border-slate-100 text-[10px] font-bold text-slate-500 px-2 py-0.5">
+                    {stat.count} حركات مسجلة
+                  </Badge>
                 </div>
-
-                <div className="text-center">
-                  <h1 className="text-lg font-bold text-slate-800">
-                    التقرير المالي الشهري
-                  </h1>
-                </div>
-
-                <div className="flex items-center gap-3 print:hidden">
-                  <div className="bg-slate-100 rounded-xl px-4 py-2 border border-slate-200 flex items-center gap-3">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-7 w-7 text-slate-400 hover:text-slate-700 hover:bg-slate-200 rounded-lg transition-all"
-                      onClick={() => {
-                        const date = new Date(selectedMonth + "-01");
-                        date.setMonth(date.getMonth() - 1);
-                        setSelectedMonth(`${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`);
-                      }}
-                    >
-                      <ChevronDown className="w-4 h-4 rotate-90" />
-                    </Button>
-
-                    <div className="text-center min-w-[90px]">
-                      <p className="text-sm font-bold text-slate-700 leading-none">
-                        {getMonthName(selectedMonth)}
-                      </p>
-                    </div>
-
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-7 w-7 text-slate-400 hover:text-slate-700 hover:bg-slate-200 rounded-lg transition-all"
-                      onClick={() => {
-                        const date = new Date(selectedMonth + "-01");
-                        date.setMonth(date.getMonth() + 1);
-                        setSelectedMonth(`${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`);
-                      }}
-                    >
-                      <ChevronDown className="w-4 h-4 -rotate-90" />
-                    </Button>
-                  </div>
+                <div className="opacity-10 group-hover:opacity-20 transition-opacity">
+                  <TrendingUp className="w-12 h-12" />
                 </div>
               </div>
-            </CardContent>
-          </Card>
-        </motion.div>
+            </motion.div>
+          ))}
+        </div>
 
-        {/* Navigation Tabs - Selection Options */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-          className="print:hidden"
-        >
-          <div className="bg-white p-2 rounded-[2.5rem] shadow-lg border border-slate-200 inline-flex w-full" style={{ boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-2 w-full">
-              {[
-                {
-                  id: "expenses" as const,
-                  label: "عرض المنصرفات",
-                  icon: Wallet,
-                  color: "blue",
-                  gradient: "from-blue-600 to-blue-700",
-                  sub: "كشف تفصيلي للمصروفات والرواتب"
-                },
-                {
-                  id: "deductions" as const,
-                  label: "عرض الاستقطاعات",
-                  icon: HandCoins,
-                  color: "rose",
-                  gradient: "from-rose-600 to-rose-700",
-                  sub: "كشف تفصيلي للخصومات والجزاءات"
-                },
-                {
-                  id: "all" as const,
-                  label: "التقرير الشامل",
-                  icon: BarChart3,
-                  color: "purple",
-                  gradient: "from-indigo-600 to-purple-700",
-                  sub: "رؤية موحدة لجميع الحركات المالية"
-                }
-              ].map((tab) => (
-                <button
-                  key={tab.id}
-                  onClick={() => setReportType(tab.id)}
-                  className={`relative flex items-center gap-4 p-4 rounded-2xl transition-all duration-300 group overflow-hidden ${
-                    reportType === tab.id
-                      ? `bg-gradient-to-r ${tab.gradient} text-white shadow-xl scale-[1.01] z-10`
-                      : "bg-slate-100 text-slate-600 hover:bg-slate-200"
-                  }`}
+        {/* Main Content Sections */}
+        <div className="space-y-12">
+          {/* Expenses Section */}
+          {(reportType === "expenses" || reportType === "all") && (
+            <section className="space-y-6">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-blue-100 flex items-center justify-center text-blue-600">
+                    <Wallet className="w-5 h-5" />
+                  </div>
+                  <h3 className="text-xl font-black text-slate-900">تفاصيل المنصرفات</h3>
+                </div>
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  className="text-blue-600 font-bold hover:bg-blue-50 rounded-xl"
+                  onClick={() => setShowAnalysisModal(true)}
                 >
-                  <div className={`w-11 h-11 rounded-xl flex items-center justify-center transition-all duration-300 ${
-                    reportType === tab.id
-                      ? "bg-white/20"
-                      : `bg-white text-slate-500 group-hover:bg-white/80`
-                  }`}>
-                    <tab.icon className="w-5 h-5" />
-                  </div>
-                  
-                  <div className="text-right flex-1">
-                    <p className={`text-sm font-black ${reportType === tab.id ? "text-white" : "text-slate-700"}`}>
-                      {tab.label}
-                    </p>
-                    <p className={`text-[10px] font-medium ${reportType === tab.id ? "text-white/80" : "text-slate-500"}`}>
-                      {tab.sub}
-                    </p>
-                  </div>
-                </button>
-              ))}
-            </div>
-          </div>
-        </motion.div>
-
-        {/* Control Bar - Advanced Filters */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
-          className="print:hidden"
-        >
-          <Card className="border-none shadow-lg rounded-[2rem] bg-white border border-slate-200" style={{ boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}>
-            <CardContent className="p-4">
-              <div className="flex flex-col lg:flex-row items-center justify-between gap-4">
-                <div className="flex items-center gap-3 flex-wrap">
-                  <div className="flex items-center gap-2 text-slate-600 text-xs font-bold bg-slate-100 px-4 py-2.5 rounded-xl border border-slate-200 shadow-inner">
-                    <Filter className="w-4 h-4 text-blue-600" />
-                    <span>الفترة:</span>
-                    <Select value={selectedMonth} onValueChange={setSelectedMonth}>
-                      <SelectTrigger className="w-[160px] border-none bg-transparent font-black focus:ring-0 text-slate-800 h-auto p-0">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent className="rounded-2xl border-slate-200 shadow-2xl bg-white text-slate-800">
-                        {monthOptions.map((opt) => (
-                          <SelectItem key={opt.value} value={opt.value} className="font-bold hover:bg-slate-100 focus:bg-slate-100">
-                            {opt.label}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <Button
-                    onClick={fetchReportData}
-                    className="bg-blue-600 hover:bg-blue-700 text-white rounded-xl px-6 h-11 shadow-xl transition-all active:scale-95 font-bold text-sm"
-                  >
-                    <Search className="w-4 h-4 ml-2" />
-                    تحديث
-                  </Button>
-                </div>
-
-                <div className="flex items-center gap-1 flex-wrap bg-slate-100 p-1.5 rounded-2xl border border-slate-200">
-                  <Button
-                    onClick={handlePrint}
-                    variant="ghost"
-                    size="sm"
-                    className="text-slate-600 hover:text-slate-800 hover:bg-white rounded-xl px-4 h-9 font-bold transition-all"
-                  >
-                    <Printer className="w-4 h-4 ml-2" />
-                    طباعة
-                  </Button>
-                  <Button
-                    onClick={handleExportExcel}
-                    variant="ghost"
-                    size="sm"
-                    className="text-slate-600 hover:text-emerald-600 hover:bg-emerald-50 rounded-xl px-4 h-9 font-bold transition-all"
-                  >
-                    <FileSpreadsheet className="w-4 h-4 ml-2" />
-                    Excel
-                  </Button>
-                  <Button
-                    onClick={() => setShowAnalysisModal(true)}
-                    variant="ghost"
-                    size="sm"
-                    className="text-slate-600 hover:text-amber-600 hover:bg-amber-50 rounded-xl px-4 h-9 font-bold transition-all"
-                  >
-                    <BarChart3 className="w-4 h-4 ml-2" />
-                    تحليل
-                  </Button>
-                  <div className="w-px h-6 bg-slate-300 mx-2" />
-                  <Button
-                    onClick={() => (window.location.href = "/expenses")}
-                    variant="ghost"
-                    size="sm"
-                    className="text-slate-600 hover:text-rose-600 hover:bg-rose-50 rounded-xl px-4 h-9 font-bold transition-all"
-                  >
-                    <Home className="w-4 h-4 ml-2" />
-                    الرئيسية
-                  </Button>
-                </div>
+                  <BarChart3 className="w-4 h-4 ml-2" />
+                  تحليل البيانات
+                </Button>
               </div>
-            </CardContent>
-          </Card>
-        </motion.div>
 
-        {/* Expenses Section */}
-        {(reportType === "expenses" || reportType === "all") && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4 }}
-          >
-            <Card className="border-none shadow-lg rounded-[2rem] overflow-hidden bg-white border border-slate-200" style={{ boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}>
-              <CardHeader className="bg-slate-50 border-b border-slate-200 p-5">
-                <div className="flex items-center justify-between">
-                  <CardTitle className="flex items-center gap-3 text-slate-800 text-lg font-black">
-                    <div className="w-10 h-10 rounded-xl bg-blue-100 flex items-center justify-center border border-blue-200">
-                      <Wallet className="w-5 h-5 text-blue-600" />
-                    </div>
-                    المنصرفات الشهرية
-                  </CardTitle>
-                  <div className="flex items-center gap-2">
-                    <Badge variant="outline" className="border-blue-200 text-blue-600 bg-blue-50 px-4 py-1.5 rounded-xl font-bold">
-                      {stats.expensesCount} عملية
-                    </Badge>
-                    <Badge className="bg-blue-600 text-white px-4 py-1.5 rounded-xl font-black shadow-lg shadow-blue-600/20">
-                      {formatNumber(stats.totalExpenses)} ر.س
-                    </Badge>
-                  </div>
-                </div>
-              </CardHeader>
-              <CardContent className="p-6 space-y-6">
-                {Object.keys(expensesGrouped).length > 0 ? (
-                  Object.entries(expensesGrouped).map(([group, expenses]) => {
+              {Object.keys(expensesGrouped).length > 0 ? (
+                <div className="grid grid-cols-1 gap-4">
+                  {Object.entries(expensesGrouped).map(([group, expenses], idx) => {
                     const groupKey = `expense-${group}`;
                     const isExpanded = expandedGroups[groupKey] !== false;
-                    const groupTotal = expenses.reduce(
-                      (sum, e) => sum + parseFloat(String(e.amount || 0)),
-                      0
-                    );
+                    const groupTotal = expenses.reduce((sum, e) => sum + parseFloat(String(e.amount || 0)), 0);
 
                     return (
-                      <div
-                        key={group}
-                        className="rounded-3xl overflow-hidden border border-slate-200 bg-slate-50"
-                      >
+                      <Card key={group} className="border-none shadow-sm rounded-3xl overflow-hidden bg-white border border-slate-200">
                         <button
                           onClick={() => toggleGroup(groupKey)}
-                          className="w-full bg-slate-100 p-4 flex items-center justify-between hover:bg-slate-200 transition-all group"
+                          className="w-full px-6 py-4 flex items-center justify-between hover:bg-slate-50 transition-all border-b"
                         >
                           <div className="flex items-center gap-4">
-                            <div className="w-8 h-8 rounded-lg bg-indigo-100 flex items-center justify-center border border-indigo-200 group-hover:rotate-12 transition-transform">
-                              <Folder className="w-4 h-4 text-indigo-600" />
+                            <div className="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center text-slate-500 group-hover:bg-blue-100 group-hover:text-blue-600 transition-colors">
+                              <Folder className="w-5 h-5" />
                             </div>
-                            <span className="text-sm font-black text-slate-700">{group}</span>
+                            <div className="text-right">
+                              <h4 className="text-sm font-black text-slate-800">{group}</h4>
+                              <p className="text-[10px] text-slate-500 font-bold">{expenses.length} عملية مسجلة</p>
+                            </div>
                           </div>
-                          <div className="flex items-center gap-4">
-                            <span className="text-xs font-bold text-slate-500">{expenses.length} عملية</span>
-                            <div className="h-4 w-px bg-slate-300" />
-                            <span className="text-sm font-black text-slate-800">{formatNumber(groupTotal)} ر.س</span>
-                            <motion.div animate={{ rotate: isExpanded ? 180 : 0 }}>
-                              <ChevronDown className="w-4 h-4 text-slate-500" />
-                            </motion.div>
+                          <div className="flex items-center gap-6">
+                            <div className="text-left">
+                              <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">إجمالي التصنيف</p>
+                              <p className="text-base font-black text-slate-900">{formatNumber(groupTotal)} <span className="text-[10px]">ر.س</span></p>
+                            </div>
+                            <ChevronDown className={cn("w-5 h-5 text-slate-400 transition-transform duration-300", isExpanded && "rotate-180")} />
                           </div>
                         </button>
 
@@ -782,80 +755,52 @@ export function ExpensesReportClient({ companyId }: ExpensesReportClientProps) {
                               initial={{ height: 0, opacity: 0 }}
                               animate={{ height: "auto", opacity: 1 }}
                               exit={{ height: 0, opacity: 0 }}
-                              transition={{ duration: 0.3 }}
+                              className="overflow-hidden"
                             >
-                              <div className="max-h-[400px] overflow-y-auto scrollbar-thin px-2 pb-2 bg-white">
-                                <table className="w-full text-sm border-separate border-spacing-y-1.5">
-                                  <thead className="sticky top-0 z-10">
-                                    <tr className="bg-slate-100/90 backdrop-blur-md">
-                                      <th className="p-3 text-right text-slate-600 font-bold text-[10px] uppercase tracking-wider rounded-r-xl">التاريخ</th>
-                                      <th className="p-3 text-right text-slate-600 font-bold text-[10px] uppercase tracking-wider">المستفيد</th>
-                                      <th className="p-3 text-center text-slate-600 font-bold text-[10px] uppercase tracking-wider">المبلغ</th>
-                                      <th className="p-3 text-center text-slate-600 font-bold text-[10px] uppercase tracking-wider">الضريبة</th>
-                                      <th className="p-3 text-center text-slate-600 font-bold text-[10px] uppercase tracking-wider">الصافي</th>
-                                      <th className="p-3 text-center text-slate-600 font-bold text-[10px] uppercase tracking-wider">مركز التكلفة</th>
-                                      <th className="p-3 text-center text-slate-600 font-bold text-[10px] uppercase tracking-wider rounded-l-xl print:hidden">الإجراءات</th>
+                              <div className="overflow-x-auto">
+                                <table className="w-full text-sm">
+                                  <thead>
+                                    <tr className="bg-slate-50/50 text-slate-400 text-[10px] font-black uppercase tracking-widest border-b">
+                                      <th className="px-6 py-4 text-right">التاريخ</th>
+                                      <th className="px-6 py-4 text-right">المستفيد</th>
+                                      <th className="px-6 py-4 text-right">المبلغ</th>
+                                      <th className="px-6 py-4 text-right">الضريبة</th>
+                                      <th className="px-6 py-4 text-right">الصافي</th>
+                                      <th className="px-6 py-4 text-right">مركز التكلفة</th>
+                                      <th className="px-6 py-4 text-center print:hidden">الإجراءات</th>
                                     </tr>
                                   </thead>
-                                  <tbody>
+                                  <tbody className="divide-y divide-slate-100">
                                     {expenses.map((expense) => (
-                                      <tr
-                                        key={expense.id}
-                                        className="bg-slate-50 hover:bg-blue-50 transition-all group"
-                                      >
-                                        <td className="p-3 text-right text-xs font-medium text-slate-600 rounded-r-xl">
-                                          {formatDate(expense.expense_date)}
-                                        </td>
-                                        <td className="p-3 text-right">
+                                      <tr key={expense.id} className="hover:bg-blue-50/30 transition-colors group">
+                                        <td className="px-6 py-4 whitespace-nowrap text-slate-600 font-medium">{formatDate(expense.expense_date)}</td>
+                                        <td className="px-6 py-4 whitespace-nowrap">
                                           <div className="flex flex-col">
-                                            <span className="text-xs font-black text-slate-800 group-hover:text-blue-600 transition-colors">
-                                              {expense.employee_name || "-"}
-                                            </span>
-                                            <span className="text-[10px] text-slate-500">{expense.employee_iqama || "-"}</span>
+                                            <span className="font-bold text-slate-900">{expense.employee_name || "بدون اسم"}</span>
+                                            <span className="text-[10px] text-slate-400 font-bold">{expense.employee_iqama || "-"}</span>
                                           </div>
                                         </td>
-                                        <td className="p-3 text-center">
-                                          <span className="text-xs font-bold text-slate-700">{formatNumber(expense.amount || 0)}</span>
-                                        </td>
-                                        <td className="p-3 text-center">
-                                          <span className="text-xs text-slate-500">{formatNumber(expense.tax_value || 0)}</span>
-                                        </td>
-                                        <td className="p-3 text-center">
-                                          <span className="text-xs font-black text-blue-600">{formatNumber(expense.net_amount || expense.amount || 0)}</span>
-                                        </td>
-                                        <td className="p-3 text-center">
-                                          <Badge variant="outline" className="border-slate-200 text-[10px] text-slate-600 font-medium">
+                                        <td className="px-6 py-4 whitespace-nowrap font-bold text-slate-700">{formatNumber(expense.amount)}</td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-slate-500">{formatNumber(expense.tax_value)}</td>
+                                        <td className="px-6 py-4 whitespace-nowrap font-black text-blue-600">{formatNumber(expense.net_amount || expense.amount)}</td>
+                                        <td className="px-6 py-4 whitespace-nowrap">
+                                          <Badge variant="outline" className="border-slate-200 text-slate-500 font-bold text-[10px] rounded-lg">
                                             {expense.center_code || "-"}
                                           </Badge>
                                         </td>
-                                          <td className="p-3 text-center rounded-l-xl print:hidden">
-                                            <div className="flex items-center justify-center gap-1 transition-opacity">
-                                              <Button
-                                                size="icon"
-                                                variant="ghost"
-                                                onClick={() => showItemDetails(expense)}
-                                                className="h-7 w-7 text-blue-600 hover:bg-blue-100 hover:text-blue-700 rounded-lg"
-                                              >
-                                                <Eye className="w-3.5 h-3.5" />
-                                              </Button>
-                                              <Button
-                                                size="icon"
-                                                variant="ghost"
-                                                onClick={() => handleEditClick(expense)}
-                                                className="h-7 w-7 text-amber-600 hover:bg-amber-100 hover:text-amber-700 rounded-lg"
-                                              >
-                                                <Pencil className="w-3.5 h-3.5" />
-                                              </Button>
-                                              <Button
-                                                size="icon"
-                                                variant="ghost"
-                                                onClick={() => handleDeleteClick(expense)}
-                                                className="h-7 w-7 text-rose-600 hover:bg-rose-100 hover:text-rose-700 rounded-lg"
-                                              >
-                                                <Trash2 className="w-3.5 h-3.5" />
-                                              </Button>
-                                            </div>
-                                          </td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-center print:hidden">
+                                          <div className="flex items-center justify-center gap-1">
+                                            <Button size="icon" variant="ghost" className="h-8 w-8 text-blue-600 hover:bg-blue-100 rounded-lg" onClick={() => showItemDetails(expense)}>
+                                              <Eye className="w-4 h-4" />
+                                            </Button>
+                                            <Button size="icon" variant="ghost" className="h-8 w-8 text-amber-600 hover:bg-amber-100 rounded-lg" onClick={() => handleEditClick(expense)}>
+                                              <Pencil className="w-4 h-4" />
+                                            </Button>
+                                            <Button size="icon" variant="ghost" className="h-8 w-8 text-rose-600 hover:bg-rose-100 rounded-lg" onClick={() => handleDeleteClick(expense)}>
+                                              <Trash2 className="w-4 h-4" />
+                                            </Button>
+                                          </div>
+                                        </td>
                                       </tr>
                                     ))}
                                   </tbody>
@@ -864,87 +809,62 @@ export function ExpensesReportClient({ companyId }: ExpensesReportClientProps) {
                             </motion.div>
                           )}
                         </AnimatePresence>
-                      </div>
+                      </Card>
                     );
-                  })
-                ) : (
-                  <div className="text-center py-16 border-2 border-dashed border-slate-200 rounded-3xl bg-slate-50">
-                    <div className="w-20 h-20 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4 border border-slate-200">
-                      <Wallet className="w-10 h-10 text-slate-400" />
-                    </div>
-                    <h4 className="text-base font-black text-slate-600">لا توجد منصرفات مسجلة</h4>
-                    <p className="text-sm text-slate-500 mt-2">لم يتم العثور على أي بيانات منصرفات للفترة المحددة</p>
-                    <Button
-                      onClick={() => (window.location.href = "/expenses/new")}
-                      className="mt-6 bg-blue-600 hover:bg-blue-700 text-white rounded-xl px-8"
-                    >
-                      إضافة منصرف جديد
-                    </Button>
+                  })}
+                </div>
+              ) : (
+                <div className="bg-white p-12 rounded-[2.5rem] border-2 border-dashed border-slate-200 text-center flex flex-col items-center gap-4">
+                  <div className="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center">
+                    <Wallet className="w-10 h-10 text-slate-300" />
                   </div>
-                )}
-              </CardContent>
-            </Card>
-          </motion.div>
-        )}
-
-        {/* Deductions Section */}
-        {(reportType === "deductions" || reportType === "all") && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.5 }}
-          >
-            <Card className="border-none shadow-lg rounded-[2rem] overflow-hidden bg-white border border-slate-200" style={{ boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}>
-              <CardHeader className="bg-slate-50 border-b border-slate-200 p-5">
-                <div className="flex items-center justify-between">
-                  <CardTitle className="flex items-center gap-3 text-slate-800 text-lg font-black">
-                    <div className="w-10 h-10 rounded-xl bg-rose-100 flex items-center justify-center border border-rose-200">
-                      <HandCoins className="w-5 h-5 text-rose-600" />
-                    </div>
-                    الاستقطاعات الشهرية
-                  </CardTitle>
-                  <div className="flex items-center gap-2">
-                    <Badge variant="outline" className="border-rose-200 text-rose-600 bg-rose-50 px-4 py-1.5 rounded-xl font-bold">
-                      {stats.deductionsCount} عملية
-                    </Badge>
-                    <Badge className="bg-rose-600 text-white px-4 py-1.5 rounded-xl font-black shadow-lg shadow-rose-600/20">
-                      {formatNumber(stats.totalDeductions)} ر.س
-                    </Badge>
+                  <div className="space-y-1">
+                    <h4 className="text-lg font-black text-slate-800">لا توجد منصرفات مسجلة</h4>
+                    <p className="text-sm text-slate-500 font-medium">لم يتم العثور على أي حركات مالية في هذا التصنيف للشهر المحدد</p>
                   </div>
                 </div>
-              </CardHeader>
-              <CardContent className="p-6 space-y-6">
-                {Object.keys(deductionsGrouped).length > 0 ? (
-                  Object.entries(deductionsGrouped).map(([group, deductions]) => {
+              )}
+            </section>
+          )}
+
+          {/* Deductions Section */}
+          {(reportType === "deductions" || reportType === "all") && (
+            <section className="space-y-6">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-rose-100 flex items-center justify-center text-rose-600">
+                  <HandCoins className="w-5 h-5" />
+                </div>
+                <h3 className="text-xl font-black text-slate-900">تفاصيل الاستقطاعات</h3>
+              </div>
+
+              {Object.keys(deductionsGrouped).length > 0 ? (
+                <div className="grid grid-cols-1 gap-4">
+                  {Object.entries(deductionsGrouped).map(([group, deductions]) => {
                     const groupKey = `deduction-${group}`;
                     const isExpanded = expandedGroups[groupKey] !== false;
-                    const groupTotal = deductions.reduce(
-                      (sum, d) => sum + parseFloat(String(d.amount || 0)),
-                      0
-                    );
+                    const groupTotal = deductions.reduce((sum, d) => sum + parseFloat(String(d.amount || 0)), 0);
 
                     return (
-                      <div
-                        key={group}
-                        className="rounded-3xl overflow-hidden border border-slate-200 bg-slate-50"
-                      >
+                      <Card key={group} className="border-none shadow-sm rounded-3xl overflow-hidden bg-white border border-slate-200">
                         <button
                           onClick={() => toggleGroup(groupKey)}
-                          className="w-full bg-slate-100 p-4 flex items-center justify-between hover:bg-slate-200 transition-all group"
+                          className="w-full px-6 py-4 flex items-center justify-between hover:bg-slate-50 transition-all border-b"
                         >
                           <div className="flex items-center gap-4">
-                            <div className="w-8 h-8 rounded-lg bg-pink-100 flex items-center justify-center border border-pink-200 group-hover:rotate-12 transition-transform">
-                              <Folder className="w-4 h-4 text-pink-600" />
+                            <div className="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center text-slate-500 group-hover:bg-rose-100 group-hover:text-rose-600 transition-colors">
+                              <Folder className="w-5 h-5" />
                             </div>
-                            <span className="text-sm font-black text-slate-700">{group}</span>
+                            <div className="text-right">
+                              <h4 className="text-sm font-black text-slate-800">{group}</h4>
+                              <p className="text-[10px] text-slate-500 font-bold">{deductions.length} استقطاع مسجل</p>
+                            </div>
                           </div>
-                          <div className="flex items-center gap-4">
-                            <span className="text-xs font-bold text-slate-500">{deductions.length} عملية</span>
-                            <div className="h-4 w-px bg-slate-300" />
-                            <span className="text-sm font-black text-slate-800">{formatNumber(groupTotal)} ر.س</span>
-                            <motion.div animate={{ rotate: isExpanded ? 180 : 0 }}>
-                              <ChevronDown className="w-4 h-4 text-slate-500" />
-                            </motion.div>
+                          <div className="flex items-center gap-6">
+                            <div className="text-left">
+                              <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">إجمالي الاستقطاع</p>
+                              <p className="text-base font-black text-rose-600">{formatNumber(groupTotal)} <span className="text-[10px]">ر.س</span></p>
+                            </div>
+                            <ChevronDown className={cn("w-5 h-5 text-slate-400 transition-transform duration-300", isExpanded && "rotate-180")} />
                           </div>
                         </button>
 
@@ -954,93 +874,69 @@ export function ExpensesReportClient({ companyId }: ExpensesReportClientProps) {
                               initial={{ height: 0, opacity: 0 }}
                               animate={{ height: "auto", opacity: 1 }}
                               exit={{ height: 0, opacity: 0 }}
-                              transition={{ duration: 0.3 }}
+                              className="overflow-hidden"
                             >
-                              <div className="max-h-[400px] overflow-y-auto scrollbar-thin px-2 pb-2 bg-white">
-                                <table className="w-full text-sm border-separate border-spacing-y-1.5">
-                                  <thead className="sticky top-0 z-10">
-                                    <tr className="bg-slate-100/90 backdrop-blur-md">
-                                      <th className="p-3 text-right text-slate-600 font-bold text-[10px] uppercase tracking-wider rounded-r-xl">التاريخ</th>
-                                      <th className="p-3 text-right text-slate-600 font-bold text-[10px] uppercase tracking-wider">الموظف</th>
-                                      <th className="p-3 text-center text-slate-600 font-bold text-[10px] uppercase tracking-wider">المبلغ</th>
-                                      <th className="p-3 text-center text-slate-600 font-bold text-[10px] uppercase tracking-wider">الحساب</th>
-                                      <th className="p-3 text-center text-slate-600 font-bold text-[10px] uppercase tracking-wider">حالة الدفع</th>
-                                      <th className="p-3 text-center text-slate-600 font-bold text-[10px] uppercase tracking-wider rounded-l-xl print:hidden">الإجراءات</th>
+                              <div className="overflow-x-auto">
+                                <table className="w-full text-sm">
+                                  <thead>
+                                    <tr className="bg-slate-50/50 text-slate-400 text-[10px] font-black uppercase tracking-widest border-b">
+                                      <th className="px-6 py-4 text-right">التاريخ</th>
+                                      <th className="px-6 py-4 text-right">الموظف</th>
+                                      <th className="px-6 py-4 text-right">المبلغ</th>
+                                      <th className="px-6 py-4 text-right">الحساب</th>
+                                      <th className="px-6 py-4 text-center">حالة الدفع</th>
+                                      <th className="px-6 py-4 text-center print:hidden">الإجراءات</th>
                                     </tr>
                                   </thead>
-                                  <tbody>
+                                  <tbody className="divide-y divide-slate-100">
                                     {deductions.map((deduction) => (
-                                      <tr
-                                        key={deduction.id}
-                                        className="bg-slate-50 hover:bg-rose-50 transition-all group"
-                                      >
-                                        <td className="p-3 text-right text-xs font-medium text-slate-600 rounded-r-xl">
-                                          {formatDate(deduction.expense_date)}
-                                        </td>
-                                        <td className="p-3 text-right">
+                                      <tr key={deduction.id} className="hover:bg-rose-50/30 transition-colors group">
+                                        <td className="px-6 py-4 whitespace-nowrap text-slate-600 font-medium">{formatDate(deduction.expense_date)}</td>
+                                        <td className="px-6 py-4 whitespace-nowrap">
                                           <div className="flex flex-col">
-                                            <span className="text-xs font-black text-slate-800 group-hover:text-rose-600 transition-colors">
-                                              {deduction.employee_name || "-"}
-                                            </span>
-                                            <span className="text-[10px] text-slate-500">{deduction.employee_iqama || "-"}</span>
+                                            <span className="font-bold text-slate-900">{deduction.employee_name || "بدون اسم"}</span>
+                                            <span className="text-[10px] text-slate-400 font-bold">{deduction.employee_iqama || "-"}</span>
                                           </div>
                                         </td>
-                                        <td className="p-3 text-center">
-                                          <span className="text-xs font-black text-rose-600">{formatNumber(deduction.amount || 0)}</span>
+                                        <td className="px-6 py-4 whitespace-nowrap font-black text-rose-600">{formatNumber(deduction.amount)}</td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-slate-500 font-bold">{deduction.account_code || "-"}</td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-center">
+                                           <div className="flex flex-col items-center gap-1.5">
+                                             <button
+                                              onClick={() => handleToggleDeductionStatus(deduction)}
+                                              disabled={statusUpdating === deduction.id}
+                                              className={cn(
+                                                "relative inline-flex h-6 w-12 items-center rounded-full transition-all duration-300",
+                                                deduction.status === "completed" ? "bg-emerald-500" : "bg-slate-200",
+                                                statusUpdating === deduction.id && "opacity-50 cursor-wait"
+                                              )}
+                                            >
+                                              <span className={cn(
+                                                "inline-block h-4 w-4 transform rounded-full bg-white transition-transform duration-300",
+                                                deduction.status === "completed" ? "translate-x-1" : "translate-x-7"
+                                              )} />
+                                            </button>
+                                            <span className={cn(
+                                              "text-[9px] font-black uppercase tracking-tighter",
+                                              deduction.status === "completed" ? "text-emerald-600" : "text-slate-400"
+                                            )}>
+                                              {deduction.status === "completed" ? "مدفوع" : "غير مدفوع"}
+                                            </span>
+                                           </div>
                                         </td>
-                                        <td className="p-3 text-center">
-                                          <span className="text-xs text-slate-600">{deduction.account_code || "-"}</span>
+                                        <td className="px-6 py-4 whitespace-nowrap text-center print:hidden">
+                                          <div className="flex items-center justify-center gap-1">
+                                            <Button size="icon" variant="ghost" className="h-8 w-8 text-rose-600 hover:bg-rose-100 rounded-lg" onClick={() => showItemDetails(deduction)}>
+                                              <Eye className="w-4 h-4" />
+                                            </Button>
+                                            <Button size="icon" variant="ghost" className="h-8 w-8 text-amber-600 hover:bg-amber-100 rounded-lg" onClick={() => handleEditClick(deduction)}>
+                                              <Pencil className="w-4 h-4" />
+                                            </Button>
+                                            <Button size="icon" variant="ghost" className="h-8 w-8 text-rose-600 hover:bg-rose-100 rounded-lg" onClick={() => handleDeleteClick(deduction)}>
+                                              <Trash2 className="w-4 h-4" />
+                                            </Button>
+                                          </div>
                                         </td>
-                                        <td className="p-3 text-center">
-                                          <button
-                                            onClick={() => handleToggleDeductionStatus(deduction)}
-                                            disabled={statusUpdating === deduction.id}
-                                            className={`relative inline-flex h-5 w-10 items-center rounded-full transition-all duration-300 ${
-                                              deduction.status === "completed" ? "bg-emerald-100" : "bg-rose-100"
-                                            } ${statusUpdating === deduction.id ? 'opacity-50 cursor-wait' : 'cursor-pointer'}`}
-                                          >
-                                            <span
-                                              className={`inline-block h-3.5 w-3.5 transform rounded-full transition-transform duration-300 ${
-                                                deduction.status === "completed" 
-                                                  ? "translate-x-1 bg-emerald-500" 
-                                                  : "translate-x-5.5 bg-rose-500"
-                                              }`}
-                                            />
-                                          </button>
-                                          <p className={`text-[8px] mt-1 font-black uppercase ${
-                                            deduction.status === "completed" ? "text-emerald-600" : "text-rose-600"
-                                          }`}>
-                                            {deduction.status === "completed" ? "مدفوع" : "غير مدفوع"}
-                                          </p>
-                                        </td>
-                                          <td className="p-3 text-center rounded-l-xl print:hidden">
-                                            <div className="flex items-center justify-center gap-1 transition-opacity">
-                                              <Button
-                                                size="icon"
-                                                variant="ghost"
-                                                onClick={() => showItemDetails(deduction)}
-                                                className="h-7 w-7 text-rose-600 hover:bg-rose-100 hover:text-rose-700 rounded-lg"
-                                              >
-                                                <Eye className="w-3.5 h-3.5" />
-                                              </Button>
-                                              <Button
-                                                size="icon"
-                                                variant="ghost"
-                                                onClick={() => handleEditClick(deduction)}
-                                                className="h-7 w-7 text-amber-600 hover:bg-amber-100 hover:text-amber-700 rounded-lg"
-                                              >
-                                                <Pencil className="w-3.5 h-3.5" />
-                                              </Button>
-                                              <Button
-                                                size="icon"
-                                                variant="ghost"
-                                                onClick={() => handleDeleteClick(deduction)}
-                                                className="h-7 w-7 text-red-600 hover:bg-red-100 hover:text-red-700 rounded-lg"
-                                              >
-                                                <Trash2 className="w-3.5 h-3.5" />
-                                              </Button>
-                                            </div>
-                                          </td>
                                       </tr>
                                     ))}
                                   </tbody>
@@ -1049,96 +945,70 @@ export function ExpensesReportClient({ companyId }: ExpensesReportClientProps) {
                             </motion.div>
                           )}
                         </AnimatePresence>
-                      </div>
+                      </Card>
                     );
-                  })
-                ) : (
-                  <div className="text-center py-16 border-2 border-dashed border-slate-200 rounded-3xl bg-slate-50">
-                    <div className="w-20 h-20 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4 border border-slate-200">
-                      <HandCoins className="w-10 h-10 text-slate-400" />
-                    </div>
-                    <h4 className="text-base font-black text-slate-600">لا توجد استقطاعات مسجلة</h4>
-                    <p className="text-sm text-slate-500 mt-2">لم يتم العثور على أي بيانات استقطاعات للفترة المحددة</p>
-                    <Button
-                      onClick={() => (window.location.href = "/expenses/deductions")}
-                      className="mt-6 bg-rose-600 hover:bg-rose-700 text-white rounded-xl px-8"
-                    >
-                      إضافة استقطاع جديد
-                    </Button>
+                  })}
+                </div>
+              ) : (
+                <div className="bg-white p-12 rounded-[2.5rem] border-2 border-dashed border-slate-200 text-center flex flex-col items-center gap-4">
+                  <div className="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center">
+                    <HandCoins className="w-10 h-10 text-slate-300" />
                   </div>
-                )}
-              </CardContent>
-            </Card>
-          </motion.div>
-        )}
-
-        {/* Payrolls Section */}
-        {(reportType === "expenses" || reportType === "all") && payrolls.length > 0 && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.6 }}
-          >
-            <Card className="border-none shadow-lg rounded-[2rem] overflow-hidden bg-white border border-slate-200" style={{ boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}>
-              <CardHeader className="bg-slate-50 border-b border-slate-200 p-5">
-                <div className="flex items-center justify-between">
-                  <CardTitle className="flex items-center gap-3 text-slate-800 text-lg font-black">
-                    <div className="w-10 h-10 rounded-xl bg-emerald-100 flex items-center justify-center border border-emerald-200">
-                      <FileText className="w-5 h-5 text-emerald-600" />
-                    </div>
-                    مسيرات الرواتب
-                  </CardTitle>
-                  <div className="flex items-center gap-2">
-                    <Badge variant="outline" className="border-emerald-200 text-emerald-600 bg-emerald-50 px-4 py-1.5 rounded-xl font-bold">
-                      {payrolls.length} مسير
-                    </Badge>
-                    <Badge className="bg-emerald-600 text-white px-4 py-1.5 rounded-xl font-black shadow-lg shadow-emerald-600/20">
-                      {formatNumber(stats.totalPayrolls)} ر.س
-                    </Badge>
+                  <div className="space-y-1">
+                    <h4 className="text-lg font-black text-slate-800">لا توجد استقطاعات مسجلة</h4>
+                    <p className="text-sm text-slate-500 font-medium">لم يتم العثور على أي استقطاعات في هذا التصنيف للشهر المحدد</p>
                   </div>
                 </div>
-              </CardHeader>
-              <CardContent className="p-6">
-                <div className="overflow-x-auto scrollbar-thin">
-                  <table className="w-full text-sm border-separate border-spacing-y-1.5">
+              )}
+            </section>
+          )}
+
+          {/* Payrolls Section */}
+          {(reportType === "expenses" || reportType === "all") && payrolls.length > 0 && (
+            <section className="space-y-6">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-emerald-100 flex items-center justify-center text-emerald-600">
+                  <FileText className="w-5 h-5" />
+                </div>
+                <h3 className="text-xl font-black text-slate-900">مسيرات الرواتب المعتمدة</h3>
+              </div>
+
+              <Card className="border-none shadow-sm rounded-3xl overflow-hidden bg-white border border-slate-200">
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm">
                     <thead>
-                      <tr className="bg-slate-100 rounded-xl">
-                        <th className="p-4 text-right text-slate-600 font-bold text-[10px] uppercase rounded-r-xl">شهر المسير</th>
-                        <th className="p-4 text-center text-slate-600 font-bold text-[10px] uppercase">المبلغ الإجمالي</th>
-                        <th className="p-4 text-center text-slate-600 font-bold text-[10px] uppercase">الموظفين</th>
-                        <th className="p-4 text-center text-slate-600 font-bold text-[10px] uppercase">تاريخ الإنشاء</th>
-                        <th className="p-4 text-center text-slate-600 font-bold text-[10px] uppercase rounded-l-xl print:hidden">الإجراءات</th>
+                      <tr className="bg-slate-50 text-slate-400 text-[10px] font-black uppercase tracking-widest border-b">
+                        <th className="px-6 py-5 text-right">شهر المسير</th>
+                        <th className="px-6 py-5 text-center">المبلغ الإجمالي</th>
+                        <th className="px-6 py-5 text-center">عدد الموظفين</th>
+                        <th className="px-6 py-5 text-center">تاريخ الاعتماد</th>
+                        <th className="px-6 py-5 text-center print:hidden">الإجراءات</th>
                       </tr>
                     </thead>
-                    <tbody>
+                    <tbody className="divide-y divide-slate-100">
                       {payrolls.map((payroll) => (
-                        <tr
-                          key={payroll.id}
-                          className="bg-slate-50 hover:bg-emerald-50 transition-all group"
-                        >
-                          <td className="p-4 text-right rounded-r-xl font-black text-slate-800 group-hover:text-emerald-600 transition-colors">
-                            {payroll.payroll_month}
+                        <tr key={payroll.id} className="hover:bg-emerald-50/30 transition-colors">
+                          <td className="px-6 py-5 whitespace-nowrap font-black text-slate-900">{payroll.payroll_month}</td>
+                          <td className="px-6 py-5 whitespace-nowrap text-center">
+                            <span className="text-lg font-black text-emerald-600">{formatNumber(payroll.total_amount)}</span>
+                            <span className="text-[10px] text-slate-400 mr-1 font-bold">ر.س</span>
                           </td>
-                          <td className="p-4 text-center font-black text-emerald-600">
-                            {formatNumber(payroll.total_amount || 0)} ر.س
-                          </td>
-                          <td className="p-4 text-center">
-                            <Badge className="bg-emerald-100 text-emerald-600 border border-emerald-200 font-bold px-3">
+                          <td className="px-6 py-5 whitespace-nowrap text-center">
+                            <Badge className="bg-emerald-50 text-emerald-700 border-emerald-100 font-black px-3 py-1 rounded-lg">
                               {payroll.employee_count} موظف
                             </Badge>
                           </td>
-                          <td className="p-4 text-center text-slate-600 text-xs">
+                          <td className="px-6 py-5 whitespace-nowrap text-center text-slate-500 font-medium">
                             {formatDate(payroll.created_at)}
                           </td>
-                          <td className="p-4 text-center rounded-l-xl print:hidden">
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={() => (window.location.href = `/salary-payrolls/${payroll.id}`)}
-                              className="bg-emerald-50 border-emerald-200 text-emerald-600 hover:bg-emerald-500 hover:text-white transition-all rounded-xl font-bold"
+                          <td className="px-6 py-5 whitespace-nowrap text-center print:hidden">
+                            <Button 
+                              variant="outline" 
+                              size="sm" 
+                              className="rounded-xl border-emerald-200 text-emerald-600 hover:bg-emerald-600 hover:text-white font-black px-4 h-9 shadow-sm"
+                              onClick={() => window.location.href = `/salary-payrolls/${payroll.id}`}
                             >
-                              <Eye className="w-4 h-4 ml-2" />
-                              عرض التفاصيل
+                              عرض المسير الكامل
                             </Button>
                           </td>
                         </tr>
@@ -1146,644 +1016,330 @@ export function ExpensesReportClient({ companyId }: ExpensesReportClientProps) {
                     </tbody>
                   </table>
                 </div>
-              </CardContent>
-            </Card>
-          </motion.div>
-        )}
+              </Card>
+            </section>
+          )}
+        </div>
+      </div>
 
-        {/* Final Total */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.7 }}
-        >
-          <Card className="border-none shadow-lg rounded-2xl overflow-hidden bg-white text-slate-800 relative border border-slate-200" style={{ boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}>
-            <CardContent className="p-6 text-center relative z-10">
-              <div className="flex items-center justify-center gap-3 mb-4">
-                <div className="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center">
-                  <Calculator className="w-5 h-5 text-white" />
-                </div>
-                <div className="text-right">
-                  <h2 className="text-lg font-bold text-slate-800">
-                    الإجمالي النهائي لشهر {getMonthName(selectedMonth)}
-                  </h2>
-                </div>
+      {/* Item Details Modal */}
+      <Dialog open={showDetailsModal} onOpenChange={setShowDetailsModal}>
+        <DialogContent className="max-w-2xl p-0 overflow-hidden rounded-[2rem] border-none bg-white rtl" dir="rtl">
+          <div className="bg-slate-900 px-8 py-6 text-white flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 rounded-2xl bg-white/10 flex items-center justify-center border border-white/20">
+                <Info className="w-6 h-6 text-blue-400" />
               </div>
-              
-              <div className="inline-block px-6 py-3 bg-slate-100 rounded-xl border border-slate-200">
-                <span className="text-3xl font-bold text-slate-800">
-                  {formatNumber(stats.totalAll)}
-                </span>
-                <span className="text-sm font-medium text-slate-500 mr-2">ريال سعودي</span>
-              </div>
-            </CardContent>
-          </Card>
-        </motion.div>
-
-          {/* Details Modal */}
-          <Dialog open={showDetailsModal} onOpenChange={setShowDetailsModal}>
-            <DialogContent className="max-w-2xl rtl max-h-[90vh] overflow-y-auto p-0 border-none bg-slate-50" dir="rtl">
-              <DialogHeader className="p-6 bg-[#111827] text-white">
-                <DialogTitle className="flex items-center gap-3 text-lg font-black">
-                  <div className="w-10 h-10 rounded-xl bg-blue-500/20 flex items-center justify-center border border-blue-500/30">
-                    <Eye className="w-5 h-5 text-blue-400" />
-                  </div>
-                  تفاصيل العملية المالية
-                </DialogTitle>
-              </DialogHeader>
-
-              {selectedItem && (
-                <div className="p-6 space-y-6">
-                  {/* Info Cards Grid */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {[
-                      { label: "نوع العملية", value: "expense_type" in selectedItem ? selectedItem.expense_type : selectedItem.deduction_type, icon: Folder, color: "text-blue-600" },
-                      { label: "تاريخ العملية", value: formatDate(selectedItem.expense_date), icon: Calendar, color: "text-amber-600" },
-                      { label: "اسم المستفيد", value: selectedItem.employee_name || "-", icon: Info, color: "text-indigo-600" },
-                      { label: "رقم الإقامة", value: selectedItem.employee_iqama || "-", icon: FileText, color: "text-slate-600" },
-                      { label: "مركز التكلفة", value: (selectedItem as any).center_name || "-", icon: Building2, color: "text-purple-600" },
-                      { label: "الحساب", value: selectedItem.account_name || selectedItem.account_code || "-", icon: Wallet, color: "text-emerald-600" },
-                    ].map((item, idx) => (
-                      <div key={idx} className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition-all flex items-center gap-4 group">
-                        <div className={`w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center border border-slate-100 group-hover:bg-white group-hover:border-slate-200 transition-all ${item.color}`}>
-                          <item.icon className="w-5 h-5" />
-                        </div>
-                        <div>
-                          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">{item.label}</p>
-                          <p className="text-sm font-black text-slate-800">{item.value}</p>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-
-                  {/* Financial Details */}
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div className="bg-white p-5 rounded-2xl border border-blue-100 shadow-sm text-center">
-                      <p className="text-xs font-bold text-blue-500 mb-1">المبلغ الإجمالي</p>
-                      <p className="text-xl font-black text-blue-700">{formatNumber(selectedItem.amount || 0)} <span className="text-[10px]">ر.س</span></p>
-                    </div>
-                    {"tax_value" in selectedItem && (
-                      <>
-                        <div className="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm text-center">
-                          <p className="text-xs font-bold text-slate-400 mb-1">قيمة الضريبة</p>
-                          <p className="text-xl font-black text-slate-600">{formatNumber(selectedItem.tax_value || 0)} <span className="text-[10px]">ر.س</span></p>
-                        </div>
-                        <div className="bg-emerald-50 p-5 rounded-2xl border border-emerald-100 shadow-sm text-center">
-                          <p className="text-xs font-bold text-emerald-500 mb-1">المبلغ الصافي</p>
-                          <p className="text-xl font-black text-emerald-700">{formatNumber(selectedItem.net_amount || selectedItem.amount || 0)} <span className="text-[10px]">ر.س</span></p>
-                        </div>
-                      </>
-                    )}
-                  </div>
-
-                  {/* Description */}
-                  {selectedItem.description && (
-                    <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
-                      <div className="flex items-center gap-2 mb-2">
-                        <FileText className="w-4 h-4 text-slate-400" />
-                        <p className="text-xs font-bold text-slate-400">الوصف والملاحظات</p>
-                      </div>
-                      <p className="text-sm font-medium text-slate-700 leading-relaxed">
-                        {selectedItem.description}
-                      </p>
-                    </div>
-                  )}
-
-                  {/* Attachments Section */}
-                  {(() => {
-                    const attachment = selectedItem.attachment;
-                    const attachmentUrl = getAttachmentUrl(attachment);
-                    
-                    if (!attachmentUrl) return null;
-                    
-                    return (
-                      <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
-                        <div className="flex items-center justify-between mb-4">
-                          <div className="flex items-center gap-2">
-                            <Paperclip className="w-5 h-5 text-blue-600" />
-                            <p className="text-sm font-black text-slate-800">المرفقات والمستندات</p>
-                          </div>
-                          <Badge variant="outline" className="text-[10px] font-bold border-slate-200 text-slate-400">
-                            1 ملف
-                          </Badge>
-                        </div>
-
-                        {isImageFile(attachment || '') ? (
-                          <div className="space-y-4">
-                            <div className="relative rounded-2xl overflow-hidden border border-slate-100 bg-slate-50 group">
-                              <img 
-                                src={attachmentUrl} 
-                                alt="المرفق"
-                                className="w-full max-h-[400px] object-contain transition-transform duration-500 group-hover:scale-[1.02]"
-                                onError={(e) => {
-                                  (e.target as HTMLImageElement).style.display = 'none';
-                                  const parent = (e.target as HTMLImageElement).parentElement;
-                                  if (parent) {
-                                    parent.innerHTML = '<div class="p-12 text-center text-slate-400 font-bold"><p>لا يمكن تحميل ملف المعاينة</p></div>';
-                                  }
-                                }}
-                              />
-                            </div>
-                            <Button
-                              onClick={() => window.open(attachmentUrl, '_blank')}
-                              className="w-full bg-[#111827] hover:bg-slate-800 text-white rounded-xl py-6 font-bold shadow-lg"
-                            >
-                              <ExternalLink className="w-4 h-4 ml-2" />
-                              فتح المرفق بدقة كاملة
-                            </Button>
-                          </div>
-                        ) : (
-                          <div className="flex items-center gap-4 p-4 bg-slate-50 rounded-2xl border border-slate-100 group">
-                            <div className="w-16 h-16 bg-white rounded-xl flex items-center justify-center border border-slate-200 group-hover:rotate-6 transition-transform">
-                              <File className="w-8 h-8 text-blue-600" />
-                            </div>
-                            <div className="flex-1">
-                              <p className="text-sm font-black text-slate-800 truncate max-w-[250px]">
-                                {attachment?.split('/').pop() || 'مستند مالي'}
-                              </p>
-                              <div className="flex items-center gap-2 mt-1">
-                                <Badge className="bg-blue-100 text-blue-600 border-none text-[8px] font-black uppercase">
-                                  {attachment?.split('.').pop() || 'FILE'}
-                                </Badge>
-                                <span className="text-[10px] text-slate-400 font-bold">جاهز للمعاينة</span>
-                              </div>
-                            </div>
-                            <Button
-                              onClick={() => window.open(attachmentUrl, '_blank')}
-                              size="sm"
-                              className="bg-blue-600 hover:bg-blue-700 text-white rounded-xl px-6 h-10 font-black shadow-lg shadow-blue-600/20"
-                            >
-                              عرض
-                            </Button>
-                          </div>
-                        )}
-                      </div>
-                    );
-                  })()}
-                </div>
-              )}
-            </DialogContent>
-          </Dialog>
-
-        {/* Analysis Modal */}
-        <Dialog open={showAnalysisModal} onOpenChange={setShowAnalysisModal}>
-          <DialogContent className="max-w-md rtl" dir="rtl">
-            <DialogHeader>
-              <DialogTitle className="flex items-center gap-2 text-base">
-                <BarChart3 className="w-5 h-5 text-amber-600" />
-                تحليل البيانات
-              </DialogTitle>
-            </DialogHeader>
-            <div className="space-y-3 p-3">
-              <h4 className="font-bold text-slate-800 text-sm">
-                تحليل شهر {getMonthName(selectedMonth)}
-              </h4>
-              <hr />
-              <div className="space-y-2">
-                <div className="flex justify-between items-center p-2 bg-blue-50 rounded-xl text-sm">
-                  <span className="text-slate-600">إجمالي المنصرفات:</span>
-                  <span className="font-bold text-blue-700">{formatNumber(stats.totalExpenses)} ر.س</span>
-                </div>
-                <div className="flex justify-between items-center p-2 bg-rose-50 rounded-xl text-sm">
-                  <span className="text-slate-600">إجمالي الاستقطاعات:</span>
-                  <span className="font-bold text-rose-700">{formatNumber(stats.totalDeductions)} ر.س</span>
-                </div>
-                <div className="flex justify-between items-center p-2 bg-emerald-50 rounded-xl text-sm">
-                  <span className="text-slate-600">إجمالي الرواتب:</span>
-                  <span className="font-bold text-emerald-700">{formatNumber(stats.totalPayrolls)} ر.س</span>
-                </div>
-                <div className="flex justify-between items-center p-2 bg-amber-50 rounded-xl text-sm">
-                  <span className="text-slate-600">المجموع الكلي:</span>
-                  <span className="font-bold text-amber-700">{formatNumber(stats.totalAll)} ر.س</span>
-                </div>
-              </div>
-              <hr />
-              <div className="flex justify-between items-center p-2 bg-purple-50 rounded-xl text-sm">
-                <span className="text-slate-600">متوسط المنصرف اليومي:</span>
-                <span className="font-bold text-purple-700">
-                  {formatNumber(
-                    stats.totalExpenses /
-                      new Date(
-                        parseInt(selectedMonth.split("-")[0]),
-                        parseInt(selectedMonth.split("-")[1]),
-                        0
-                      ).getDate()
-                  )} ر.س
-                </span>
+              <div>
+                <h3 className="text-lg font-black">تفاصيل العملية المالية</h3>
+                <p className="text-white/50 text-[10px] font-bold uppercase tracking-wider">سجل رقم: #{selectedItem?.id}</p>
               </div>
             </div>
-          </DialogContent>
-          </Dialog>
-        </div>
+            <button onClick={() => setShowDetailsModal(false)} className="w-10 h-10 rounded-full hover:bg-white/10 flex items-center justify-center transition-colors">
+              <X className="w-5 h-5" />
+            </button>
+          </div>
 
-        {/* Delete Confirmation Modal */}
-        <AnimatePresence>
-          {showDeleteModal && (
-            <Dialog open={showDeleteModal} onOpenChange={setShowDeleteModal}>
-              <DialogContent className="max-w-md rtl" dir="rtl">
-                <div className="text-center py-4">
-                  <motion.div
-                    initial={{ scale: 0 }}
-                    animate={{ scale: 1 }}
-                    className="w-20 h-20 mx-auto mb-4 rounded-full bg-gradient-to-br from-red-100 to-rose-100 flex items-center justify-center"
-                  >
-                    <AlertTriangle className="w-10 h-10 text-red-500" />
-                  </motion.div>
-                  <h3 className="text-xl font-bold text-slate-800 mb-2">هل أنت متأكد؟</h3>
-                  <p className="text-slate-500 mb-6">
-                    سيتم حذف{" "}
-                    {selectedItem && "expense_type" in selectedItem ? "المنصرف" : "الاستقطاع"}{" "}
-                    "{selectedItem && ("expense_type" in selectedItem ? selectedItem.expense_type : selectedItem?.deduction_type)}" نهائياً.
-                    <br />
-                    <span className="text-red-500 font-medium">لا يمكن التراجع عن هذا الإجراء!</span>
-                  </p>
-                  <div className="flex items-center justify-center gap-3">
-                    <Button
-                      onClick={handleDelete}
-                      disabled={deleteLoading}
-                      className="bg-gradient-to-r from-red-500 to-rose-600 hover:from-red-600 hover:to-rose-700 text-white px-6 py-2 rounded-xl"
-                    >
-                      {deleteLoading ? (
-                        <>
-                          <Loader2 className="w-4 h-4 ml-2 animate-spin" />
-                          جاري الحذف...
-                        </>
-                      ) : (
-                        <>
-                          <Trash2 className="w-4 h-4 ml-2" />
-                          نعم، احذفها
-                        </>
-                      )}
-                    </Button>
-                    <Button
-                      onClick={() => setShowDeleteModal(false)}
-                      variant="outline"
-                      className="px-6 py-2 rounded-xl"
-                    >
-                      إلغاء
-                    </Button>
+          {selectedItem && (
+            <div className="p-8 space-y-8">
+              <div className="grid grid-cols-2 gap-6">
+                <div className="space-y-6">
+                  <div className="space-y-1">
+                    <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest">نوع التصنيف</p>
+                    <p className="text-base font-black text-slate-900">{"expense_type" in selectedItem ? selectedItem.expense_type : selectedItem.deduction_type}</p>
+                  </div>
+                  <div className="space-y-1">
+                    <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest">المستفيد / الموظف</p>
+                    <p className="text-base font-black text-slate-900">{selectedItem.employee_name || "بدون اسم"}</p>
+                    <p className="text-xs text-slate-500 font-medium">الإقامة: {selectedItem.employee_iqama || "-"}</p>
+                  </div>
+                  <div className="space-y-1">
+                    <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest">التاريخ المرجعي</p>
+                    <p className="text-base font-black text-slate-900">{formatDate(selectedItem.expense_date)}</p>
                   </div>
                 </div>
-              </DialogContent>
-            </Dialog>
-          )}
-        </AnimatePresence>
 
-        {/* Edit Modal */}
-        <AnimatePresence>
-          {showEditModal && selectedItem && (
-            <Dialog open={showEditModal} onOpenChange={setShowEditModal}>
-              <DialogContent className="max-w-2xl rtl max-h-[90vh] overflow-y-auto" dir="rtl">
-                <DialogHeader>
-                  <DialogTitle className="flex items-center gap-2 text-base">
-                    <Pencil className="w-5 h-5 text-amber-600" />
-                    تعديل {("expense_type" in selectedItem) ? "المنصرف" : "الاستقطاع"}
-                  </DialogTitle>
-                </DialogHeader>
-                <div className="space-y-4 p-2">
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="expense_date">تاريخ العملية</Label>
-                      <Input
-                        id="expense_date"
-                        type="date"
-                        value={editForm.expense_date || ''}
-                        onChange={(e) => setEditForm({...editForm, expense_date: e.target.value})}
-                        className="rounded-xl"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="month_reference">الشهر المرجعي</Label>
-                      <Input
-                        id="month_reference"
-                        type="month"
-                        value={editForm.month_reference || ''}
-                        onChange={(e) => setEditForm({...editForm, month_reference: e.target.value})}
-                        className="rounded-xl"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="employee_name">اسم المستفيد</Label>
-                      <Input
-                        id="employee_name"
-                        type="text"
-                        value={editForm.employee_name || ''}
-                        onChange={(e) => setEditForm({...editForm, employee_name: e.target.value})}
-                        className="rounded-xl"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="employee_iqama">رقم الإقامة</Label>
-                      <Input
-                        id="employee_iqama"
-                        type="text"
-                        value={editForm.employee_iqama || ''}
-                        onChange={(e) => setEditForm({...editForm, employee_iqama: e.target.value})}
-                        className="rounded-xl"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="amount">المبلغ</Label>
-                      <Input
-                        id="amount"
-                        type="number"
-                        step="0.01"
-                        value={editForm.amount || 0}
-                        onChange={(e) => {
-                          const amount = parseFloat(e.target.value) || 0;
-                          const taxValue = editForm.tax_value || 0;
-                          setEditForm({
-                            ...editForm,
-                            amount,
-                            net_amount: amount - taxValue
-                          });
-                        }}
-                        className="rounded-xl"
-                      />
-                    </div>
-                    {"tax_value" in selectedItem && (
-                      <>
-                        <div className="space-y-2">
-                          <Label htmlFor="tax_value">قيمة الضريبة</Label>
-                          <Input
-                            id="tax_value"
-                            type="number"
-                            step="0.01"
-                            value={editForm.tax_value || 0}
-                            onChange={(e) => {
-                              const taxValue = parseFloat(e.target.value) || 0;
-                              const amount = editForm.amount || 0;
-                              setEditForm({
-                                ...editForm,
-                                tax_value: taxValue,
-                                net_amount: amount - taxValue
-                              });
-                            }}
-                            className="rounded-xl"
-                          />
-                        </div>
-                        <div className="space-y-2">
-                          <Label htmlFor="net_amount">المبلغ الصافي</Label>
-                          <Input
-                            id="net_amount"
-                            type="number"
-                            step="0.01"
-                            value={editForm.net_amount || 0}
-                            readOnly
-                            className="rounded-xl bg-slate-50"
-                          />
-                        </div>
-                      </>
-                    )}
-                    <div className="space-y-2">
-                      <Label htmlFor="account_id">الحساب</Label>
-                      <Select 
-                        value={String(editForm.account_id || '')} 
-                        onValueChange={(value) => setEditForm({...editForm, account_id: parseInt(value)})}
-                      >
-                        <SelectTrigger className="rounded-xl">
-                          <SelectValue placeholder="اختر الحساب" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {accounts.map((acc) => (
-                            <SelectItem key={acc.id} value={String(acc.id)}>
-                              {acc.account_code} - {acc.account_name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="cost_center_id">مركز التكلفة</Label>
-                      <Select 
-                        value={String(editForm.cost_center_id || '')} 
-                        onValueChange={(value) => setEditForm({...editForm, cost_center_id: parseInt(value)})}
-                      >
-                        <SelectTrigger className="rounded-xl">
-                          <SelectValue placeholder="اختر مركز التكلفة" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {costCenters.map((cc) => (
-                            <SelectItem key={cc.id} value={String(cc.id)}>
-                              {cc.center_code} - {cc.center_name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    {"status" in selectedItem && (
-                      <div className="space-y-2">
-                        <Label htmlFor="status">الحالة</Label>
-                        <Select 
-                          value={editForm.status || ''} 
-                          onValueChange={(value) => setEditForm({...editForm, status: value})}
-                        >
-                          <SelectTrigger className="rounded-xl">
-                            <SelectValue placeholder="اختر الحالة" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="pending">غير مدفوع</SelectItem>
-                            <SelectItem value="completed">مدفوع</SelectItem>
-                            <SelectItem value="approved">معتمد</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                    )}
+                <div className="bg-slate-50 rounded-3xl p-6 border border-slate-100 flex flex-col justify-between">
+                  <div className="text-left">
+                    <Badge className="bg-blue-600 text-white font-black px-3 py-1 rounded-lg shadow-lg shadow-blue-200">
+                      القيمة المالية
+                    </Badge>
                   </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="description">الوصف</Label>
-                    <Textarea
-                      id="description"
-                      value={editForm.description || ''}
-                      onChange={(e) => setEditForm({...editForm, description: e.target.value})}
-                      className="rounded-xl min-h-[80px]"
-                    />
+                  <div className="mt-4">
+                    <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest text-left">إجمالي المبلغ</p>
+                    <h4 className="text-3xl font-black text-slate-900 text-left">
+                      {formatNumber(selectedItem.amount)}
+                      <span className="text-sm font-medium text-slate-500 mr-2">ر.س</span>
+                    </h4>
                   </div>
-                  
-                  {editForm.attachment && (
-                    <div className="bg-gradient-to-br from-amber-50 to-orange-50 p-4 rounded-xl border border-amber-200">
-                      <div className="flex items-center gap-2 mb-3">
-                        <Paperclip className="w-5 h-5 text-amber-600" />
-                        <p className="text-sm font-bold text-amber-800">المرفق الحالي</p>
-                      </div>
-                      {isImageFile(editForm.attachment) ? (
-                        <div className="space-y-3">
-                          <div className="relative rounded-xl overflow-hidden border border-amber-200 bg-white">
-                            <img 
-                              src={getAttachmentUrl(editForm.attachment) || ''} 
-                              alt="المرفق"
-                              className="w-full max-h-[200px] object-contain"
-                            />
-                          </div>
-                          <p className="text-xs text-amber-700">
-                            سيتم الاحتفاظ بهذا المرفق إذا لم تقم بتغييره
-                          </p>
-                        </div>
-                      ) : (
-                        <div className="flex items-center gap-3 p-3 bg-white rounded-xl border border-amber-200">
-                          <File className="w-8 h-8 text-amber-600" />
-                          <div>
-                            <p className="text-sm font-medium text-slate-800">{editForm.attachment.split('/').pop()}</p>
-                            <p className="text-xs text-slate-500">سيتم الاحتفاظ بالمرفق</p>
-                          </div>
-                          <a
-                              href={getAttachmentUrl(editForm.attachment) || ''}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="mr-auto text-amber-600 hover:text-amber-700"
-                            >
-                              <ExternalLink className="w-5 h-5" />
-                            </a>
-                          </div>
-                        )}
-                      </div>
-                    )}
-
-                    <div className="space-y-2 mt-4 p-4 border-2 border-dashed border-slate-200 rounded-2xl bg-slate-50/50 hover:bg-slate-50 transition-colors">
-                      <Label htmlFor="new_file" className="flex items-center gap-2 cursor-pointer">
-                        <Paperclip className="w-5 h-5 text-blue-600" />
-                        <span className="font-bold text-slate-700">تغيير المرفق (اختياري)</span>
-                      </Label>
-                      <Input
-                        id="new_file"
-                        type="file"
-                        className="hidden"
-                        onChange={(e) => {
-                          const file = e.target.files?.[0];
-                          if (file) {
-                            setEditForm({ ...editForm, newFile: file });
-                          }
-                        }}
-                      />
-                      {editForm.newFile ? (
-                        <div className="flex items-center gap-3 p-2 bg-blue-50 rounded-xl border border-blue-100">
-                          <CheckCircle2 className="w-5 h-5 text-emerald-500" />
-                          <span className="text-sm font-medium text-blue-700 truncate max-w-[150px]">{editForm.newFile.name}</span>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            type="button"
-                            className="mr-auto text-rose-500 hover:text-rose-600"
-                            onClick={() => setEditForm({ ...editForm, newFile: null })}
-                          >
-                            <X className="w-4 h-4" />
-                          </Button>
-                        </div>
-                      ) : (
-                        <p className="text-xs text-slate-500 mr-7">
-                          انقر هنا لرفع مستند جديد، أو اتركها فارغة للاحتفاظ بالمستند الحالي
-                        </p>
-                      )}
+                  {"tax_value" in selectedItem && (
+                    <div className="mt-4 pt-4 border-t border-slate-200 space-y-2">
+                       <div className="flex justify-between items-center text-xs">
+                          <span className="text-slate-500 font-bold">الضريبة:</span>
+                          <span className="font-black text-slate-700">{formatNumber(selectedItem.tax_value)} ر.س</span>
+                       </div>
+                       <div className="flex justify-between items-center text-sm">
+                          <span className="text-slate-900 font-black">الصافي:</span>
+                          <span className="font-black text-blue-600">{formatNumber(selectedItem.net_amount || selectedItem.amount)} ر.س</span>
+                       </div>
                     </div>
-                  </div>
-                <DialogFooter className="flex gap-3 mt-4">
-                  <Button
-                    onClick={handleEditSubmit}
-                    disabled={editLoading}
-                    className="bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white px-6 rounded-xl"
-                  >
-                    {editLoading ? (
-                      <>
-                        <Loader2 className="w-4 h-4 ml-2 animate-spin" />
-                        جاري الحفظ...
-                      </>
-                    ) : (
-                      <>
-                        <Save className="w-4 h-4 ml-2" />
-                        حفظ التعديلات
-                      </>
-                    )}
-                  </Button>
-                  <Button
-                    onClick={() => setShowEditModal(false)}
-                    variant="outline"
-                    className="rounded-xl"
-                  >
-                    إلغاء
-                  </Button>
-                </DialogFooter>
-              </DialogContent>
-            </Dialog>
-          )}
-        </AnimatePresence>
-
-        {/* Notification */}
-        <AnimatePresence>
-          {notification.show && (
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9, y: -50 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.9, y: -50 }}
-              className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-[100]"
-            >
-              <div className={`px-8 py-6 rounded-2xl shadow-2xl flex items-center gap-4 ${
-                notification.type === 'success' 
-                  ? 'bg-gradient-to-r from-emerald-500 to-green-600 text-white' 
-                  : 'bg-gradient-to-r from-red-500 to-rose-600 text-white'
-              }`}>
-                <div className="w-14 h-14 rounded-full bg-white/20 flex items-center justify-center">
-                  {notification.type === 'success' ? (
-                    <CheckCircle2 className="w-8 h-8" />
-                  ) : (
-                    <X className="w-8 h-8" />
                   )}
                 </div>
-                <div>
-                  <h4 className="font-bold text-lg">
-                    {notification.type === 'success' ? 'تمت العملية بنجاح' : 'حدث خطأ'}
-                  </h4>
-                  <p className="text-white/90">{notification.message}</p>
+              </div>
+
+              <div className="space-y-4">
+                 <div className="p-4 rounded-2xl bg-amber-50 border border-amber-100">
+                    <p className="text-[10px] text-amber-600 font-black uppercase tracking-widest mb-1">الملاحظات والوصف</p>
+                    <p className="text-sm text-slate-700 leading-relaxed font-medium">
+                      {selectedItem.description || "لا توجد ملاحظات إضافية مسجلة لهذه العملية."}
+                    </p>
+                 </div>
+
+                 {selectedItem.attachment && (
+                   <div className="p-4 rounded-2xl border border-slate-200 bg-white flex items-center justify-between group">
+                     <div className="flex items-center gap-4">
+                        <div className="w-12 h-12 rounded-xl bg-slate-100 flex items-center justify-center text-slate-400 group-hover:bg-blue-100 group-hover:text-blue-600 transition-colors">
+                          <Paperclip className="w-6 h-6" />
+                        </div>
+                        <div>
+                          <p className="text-sm font-black text-slate-900">المستند المرفق</p>
+                          <p className="text-[10px] text-slate-500 font-bold">عرض الوثيقة المؤيدة للعملية</p>
+                        </div>
+                     </div>
+                     <Button 
+                       onClick={() => window.open(getAttachmentUrl(selectedItem.attachment) || '', '_blank')}
+                       className="bg-slate-900 hover:bg-slate-800 text-white font-black rounded-xl"
+                     >
+                       <ExternalLink className="w-4 h-4 ml-2" />
+                       فتح المرفق
+                     </Button>
+                   </div>
+                 )}
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Analysis Modal */}
+      <Dialog open={showAnalysisModal} onOpenChange={setShowAnalysisModal}>
+        <DialogContent className="max-w-md p-0 overflow-hidden rounded-[2rem] border-none bg-white rtl" dir="rtl">
+          <div className="bg-amber-600 px-8 py-6 text-white">
+            <h3 className="text-lg font-black flex items-center gap-3">
+              <BarChart3 className="w-6 h-6" />
+              تحليل البيانات المالية
+            </h3>
+          </div>
+          <div className="p-8 space-y-6">
+            <div className="space-y-4">
+              {[
+                { label: "إجمالي المنصرفات", val: stats.totalExpenses, color: "blue" },
+                { label: "إجمالي الرواتب", val: stats.totalPayrolls, color: "emerald" },
+                { label: "إجمالي الاستقطاعات", val: stats.totalDeductions, color: "rose" },
+              ].map((item, idx) => (
+                <div key={idx} className="space-y-1.5">
+                  <div className="flex justify-between items-end">
+                    <span className="text-xs font-black text-slate-600">{item.label}</span>
+                    <span className="text-sm font-black text-slate-900">{formatNumber(item.val)} ر.س</span>
+                  </div>
+                  <div className="h-2 w-full bg-slate-100 rounded-full overflow-hidden">
+                    <motion.div
+                      initial={{ width: 0 }}
+                      animate={{ width: `${(item.val / stats.totalAll) * 100}%` }}
+                      className={cn("h-full", 
+                        item.color === 'blue' ? 'bg-blue-500' : 
+                        item.color === 'emerald' ? 'bg-emerald-500' : 'bg-rose-500'
+                      )}
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div className="p-6 rounded-3xl bg-slate-50 border border-slate-200 text-center">
+              <p className="text-xs text-slate-400 font-black uppercase tracking-widest mb-1">المجموع النهائي</p>
+              <h4 className="text-3xl font-black text-slate-900">
+                {formatNumber(stats.totalAll)}
+                <span className="text-sm font-medium text-slate-500 mr-2">ر.س</span>
+              </h4>
+              <div className="mt-4 pt-4 border-t border-slate-200 flex items-center justify-center gap-4">
+                 <div className="text-center">
+                    <p className="text-[10px] text-slate-400 font-bold">متوسط يومي</p>
+                    <p className="text-sm font-black text-slate-700">{formatNumber(stats.totalAll / 30)}</p>
+                 </div>
+                 <div className="w-px h-8 bg-slate-200" />
+                 <div className="text-center">
+                    <p className="text-[10px] text-slate-400 font-bold">عدد العمليات</p>
+                    <p className="text-sm font-black text-slate-700">{stats.expensesCount + stats.deductionsCount}</p>
+                 </div>
+              </div>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Confirmation */}
+      <Dialog open={showDeleteModal} onOpenChange={setShowDeleteModal}>
+        <DialogContent className="max-w-sm p-8 text-center rounded-[2rem] border-none bg-white rtl" dir="rtl">
+          <div className="w-20 h-20 bg-rose-50 rounded-full flex items-center justify-center mx-auto mb-6">
+            <Trash2 className="w-10 h-10 text-rose-500" />
+          </div>
+          <h3 className="text-xl font-black text-slate-900 mb-2">تأكيد الحذف</h3>
+          <p className="text-sm text-slate-500 font-medium mb-8 leading-relaxed">
+            هل أنت متأكد من رغبتك في حذف هذه العملية؟ سيتم إزالتها نهائياً من سجلات الشهر الحالي.
+          </p>
+          <div className="flex flex-col gap-3">
+             <Button 
+               disabled={deleteLoading}
+               onClick={handleDelete}
+               className="w-full bg-rose-600 hover:bg-rose-700 text-white font-black py-6 rounded-2xl shadow-lg shadow-rose-100"
+             >
+               {deleteLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : "نعم، تأكيد الحذف"}
+             </Button>
+             <Button 
+               variant="ghost" 
+               onClick={() => setShowDeleteModal(false)}
+               className="w-full text-slate-500 font-bold py-6 rounded-2xl"
+             >
+               إلغاء التراجع
+             </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit Modal */}
+      <Dialog open={showEditModal} onOpenChange={setShowEditModal}>
+        <DialogContent className="max-w-3xl p-0 overflow-hidden rounded-[2.5rem] border-none bg-white rtl" dir="rtl">
+           <div className="bg-slate-900 px-8 py-6 text-white">
+              <h3 className="text-lg font-black flex items-center gap-3">
+                <Pencil className="w-6 h-6 text-amber-400" />
+                تعديل بيانات العملية
+              </h3>
+           </div>
+           
+           <div className="p-8 space-y-6 max-h-[70vh] overflow-y-auto scrollbar-thin">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <Label className="text-xs font-black text-slate-700">تاريخ العملية</Label>
+                  <Input type="date" value={editForm.expense_date} onChange={e => setEditForm({...editForm, expense_date: e.target.value})} className="h-12 rounded-xl border-slate-200 font-bold" />
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-xs font-black text-slate-700">الشهر المرجعي</Label>
+                  <Input type="month" value={editForm.month_reference} onChange={e => setEditForm({...editForm, month_reference: e.target.value})} className="h-12 rounded-xl border-slate-200 font-bold" />
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-xs font-black text-slate-700">اسم المستفيد / الموظف</Label>
+                  <Input value={editForm.employee_name} onChange={e => setEditForm({...editForm, employee_name: e.target.value})} className="h-12 rounded-xl border-slate-200 font-bold" />
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-xs font-black text-slate-700">رقم الإقامة</Label>
+                  <Input value={editForm.employee_iqama} onChange={e => setEditForm({...editForm, employee_iqama: e.target.value})} className="h-12 rounded-xl border-slate-200 font-bold" />
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-xs font-black text-slate-700">المبلغ الإجمالي</Label>
+                  <Input type="number" value={editForm.amount} onChange={e => setEditForm({...editForm, amount: parseFloat(e.target.value) || 0})} className="h-12 rounded-xl border-slate-200 font-bold" />
+                </div>
+                { "tax_value" in editForm && (
+                  <div className="space-y-2">
+                    <Label className="text-xs font-black text-slate-700">قيمة الضريبة</Label>
+                    <Input type="number" value={editForm.tax_value} onChange={e => setEditForm({...editForm, tax_value: parseFloat(e.target.value) || 0})} className="h-12 rounded-xl border-slate-200 font-bold" />
+                  </div>
+                )}
+                <div className="space-y-2">
+                  <Label className="text-xs font-black text-slate-700">الحساب</Label>
+                  <Select value={String(editForm.account_id)} onValueChange={v => setEditForm({...editForm, account_id: parseInt(v)})}>
+                    <SelectTrigger className="h-12 rounded-xl border-slate-200 font-bold">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent className="rounded-xl">
+                      {accounts.map(acc => (
+                        <SelectItem key={acc.id} value={String(acc.id)} className="font-bold">{acc.account_code} - {acc.account_name}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-xs font-black text-slate-700">مركز التكلفة</Label>
+                  <Select value={String(editForm.cost_center_id)} onValueChange={v => setEditForm({...editForm, cost_center_id: parseInt(v)})}>
+                    <SelectTrigger className="h-12 rounded-xl border-slate-200 font-bold">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent className="rounded-xl">
+                      {costCenters.map(cc => (
+                        <SelectItem key={cc.id} value={String(cc.id)} className="font-bold">{cc.center_code} - {cc.center_name}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
               </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
+
+              <div className="space-y-2">
+                <Label className="text-xs font-black text-slate-700">الوصف والملاحظات</Label>
+                <Textarea value={editForm.description} onChange={e => setEditForm({...editForm, description: e.target.value})} className="rounded-2xl border-slate-200 font-medium min-h-[100px]" />
+              </div>
+
+              <div className="p-6 rounded-3xl bg-slate-50 border-2 border-dashed border-slate-200 flex flex-col items-center gap-3">
+                 <input type="file" id="edit-file" className="hidden" onChange={e => setEditForm({...editForm, newFile: e.target.files?.[0]})} />
+                 <label htmlFor="edit-file" className="flex flex-col items-center cursor-pointer group">
+                    <div className="w-12 h-12 rounded-2xl bg-white flex items-center justify-center border group-hover:bg-blue-600 group-hover:text-white transition-all">
+                      <Paperclip className="w-6 h-6" />
+                    </div>
+                    <p className="mt-2 text-sm font-black text-slate-700">انقر لتغيير المرفق</p>
+                    <p className="text-[10px] text-slate-400 font-bold">{editForm.newFile ? `تم اختيار: ${editForm.newFile.name}` : editForm.attachment ? "يوجد مرفق حالي" : "لم يتم رفع مرفق"}</p>
+                 </label>
+              </div>
+           </div>
+
+           <div className="p-8 bg-slate-50 border-t flex items-center justify-end gap-3">
+              <Button variant="ghost" onClick={() => setShowEditModal(false)} className="rounded-xl font-bold px-6">إلغاء</Button>
+              <Button 
+                disabled={editLoading}
+                onClick={handleEditSubmit}
+                className="bg-blue-600 hover:bg-blue-700 text-white font-black px-8 h-12 rounded-xl shadow-lg shadow-blue-100"
+              >
+                {editLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : "حفظ التعديلات"}
+              </Button>
+           </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Notification Toast */}
+      <AnimatePresence>
+        {notification.show && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9, y: 50 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.9, y: 50 }}
+            className="fixed bottom-10 left-1/2 -translate-x-1/2 z-[100]"
+          >
+            <div className={cn(
+              "px-8 py-4 rounded-3xl shadow-2xl flex items-center gap-4 border-2 backdrop-blur-md",
+              notification.type === 'success' 
+                ? "bg-emerald-500/90 border-emerald-400 text-white" 
+                : "bg-rose-500/90 border-rose-400 text-white"
+            )}>
+              {notification.type === 'success' ? <CheckCircle2 className="w-6 h-6" /> : <AlertTriangle className="w-6 h-6" />}
+              <span className="font-black text-sm">{notification.message}</span>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       <style jsx global>{`
         @media print {
-          body {
-            background: white !important;
-            -webkit-print-color-adjust: exact;
-            print-color-adjust: exact;
-          }
-          .print\\:hidden {
-            display: none !important;
-          }
-          .print\\:shadow-none {
-            box-shadow: none !important;
-          }
-          .print\\:rounded-none {
-            border-radius: 0 !important;
-          }
-          .print\\:w-full {
-            width: 100% !important;
-          }
-          .print\\:p-2 {
-            padding: 0.5rem !important;
-          }
-          .print\\:bg-white {
-            background: white !important;
-          }
-          @page {
-            size: A4 portrait;
-            margin: 0.5cm;
-          }
+          .print\\:hidden { display: none !important; }
+          .print\\:static { position: static !important; }
+          .print\\:border-none { border: none !important; }
+          body { background: white !important; padding: 0 !important; }
+          .max-w-\\[1600px\\] { max-width: 100% !important; margin: 0 !important; }
+          .rounded-3xl, .rounded-\\[2.5rem\\], .rounded-2xl { border-radius: 0 !important; }
+          .shadow-sm, .shadow-lg { box-shadow: none !important; }
+          .border { border: 1px solid #e2e8f0 !important; }
+          section { page-break-inside: avoid; margin-bottom: 2rem !important; }
         }
-        
-        .scrollbar-thin::-webkit-scrollbar {
-          width: 6px;
-        }
-        .scrollbar-thin::-webkit-scrollbar-track {
-          background: #f1f5f9;
-          border-radius: 3px;
-        }
-        .scrollbar-thin::-webkit-scrollbar-thumb {
-          background: #cbd5e1;
-          border-radius: 3px;
-        }
-        .scrollbar-thin::-webkit-scrollbar-thumb:hover {
-          background: #94a3b8;
-        }
+        .scrollbar-thin::-webkit-scrollbar { width: 4px; }
+        .scrollbar-thin::-webkit-scrollbar-track { background: transparent; }
+        .scrollbar-thin::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
       `}</style>
     </div>
   );
