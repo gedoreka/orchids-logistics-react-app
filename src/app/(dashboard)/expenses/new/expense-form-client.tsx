@@ -78,7 +78,7 @@ const defaultExpenseValues: Record<string, string> = {
 
 const headersMap: Record<string, string[]> = {
   iqama: ['التاريخ', 'نوع المصروف', 'المبلغ', 'رقم الإقامة', 'الموظف', 'الحساب', 'مركز التكلفة', 'الوصف', 'المستند', 'حذف'],
-  fuel: ['التاريخ', 'نوع المصروف', 'المبلغ', 'ضريبة؟', 'شامل؟', 'قيمة الضريبة', 'الصافي', 'الحساب', 'مركز التكلفة', 'الوصف', 'المستند', 'حذف'],
+  fuel: ['التاريخ', 'نوع المصروف', 'المبلغ', 'ضريبة 15%', 'الصافي', 'الحساب', 'مركز التكلفة', 'الوصف', 'المستند', 'حذف'],
   traffic: ['التاريخ', 'نوع المصروف', 'المبلغ', 'السائق', 'رقم الإقامة', 'مركز التكلفة', 'الحساب', 'الوصف', 'المستند', 'حذف'],
   advances: ['التاريخ', 'نوع المصروف', 'المبلغ', 'الموظف', 'رقم الإقامة', 'الحساب', 'مركز التكلفة', 'الوصف', 'المستند*', 'حذف'],
   default: ['التاريخ', 'نوع المصروف', 'المبلغ', 'الحساب', 'مركز التكلفة', 'الوصف', 'المستند', 'حذف']
@@ -369,39 +369,26 @@ export default function ExpenseFormClient({ user }: { user: User }) {
         if (row.id === id) {
           let updatedRow = { ...row, [field]: value };
           
-          // Logic for taxable/inclusive sync
-          if (field === 'tax_inclusive' && value === true) {
-            updatedRow.taxable = true;
-          }
-          if (field === 'taxable' && value === false) {
-            updatedRow.tax_inclusive = false;
-          }
-
-          // Auto calculations for fuel
-          if (type === 'fuel') {
-            const amtStr = String(updatedRow.amount || "0").trim();
-            const amt = parseFloat(amtStr) || 0;
+            // Logic for taxable/inclusive sync - removed tax_inclusive logic
             
-            if (updatedRow.taxable) {
-              if (updatedRow.tax_inclusive) {
-                // If tax inclusive: base = total / 1.15, tax = total - base
-                const base = amt / 1.15;
-                const tax = amt - base;
-                updatedRow.tax_value = tax.toFixed(2);
-                updatedRow.net_amount = amt.toFixed(2);
-              } else {
-                // If not inclusive: tax = base * 0.15, net = base + tax
+            // Auto calculations for fuel
+            if (type === 'fuel') {
+              const amtStr = String(updatedRow.amount || "0").trim();
+              const amt = parseFloat(amtStr) || 0;
+              
+              if (updatedRow.taxable) {
+                // If taxable checked: calculate 15% tax and add to net
                 const tax = amt * 0.15;
                 updatedRow.tax_value = tax.toFixed(2);
                 updatedRow.net_amount = (amt + tax).toFixed(2);
+              } else {
+                // No tax - net equals amount
+                updatedRow.tax_value = "0";
+                updatedRow.net_amount = amt.toFixed(2);
               }
             } else {
-              updatedRow.tax_value = "0";
-              updatedRow.net_amount = amt.toFixed(2);
+              updatedRow.net_amount = updatedRow.amount;
             }
-          } else {
-            updatedRow.net_amount = updatedRow.amount;
-          }
 
           return updatedRow;
         }
@@ -468,118 +455,124 @@ export default function ExpenseFormClient({ user }: { user: User }) {
     );
   }
 
-  return (
-    <div className="max-w-[98%] mx-auto px-4 py-8 space-y-8 rtl" dir="rtl">
-      {/* Header */}
-      <motion.div 
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-slate-900 to-slate-800 p-8 text-white shadow-xl border border-white/10"
-      >
-        <div className="relative z-10 flex flex-col items-center justify-center text-center space-y-4">
-          <div className="p-3 bg-white/10 rounded-full backdrop-blur-sm">
-            <Plus className="w-8 h-8 text-blue-400" />
-          </div>
-            <h1 className="text-2xl font-bold tracking-tight glow-text-white">إضافة مصروفات متعددة</h1>
-            <p className="text-slate-300 max-w-2xl">
-              أضف وتعديل مصروفات الشركة بشكل منظم وسهل مع الحساب التلقائي والربط بالموظفين
-            </p>
-          </div>
-          <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 via-green-500 to-red-500"></div>
-        </motion.div>
-  
-        {/* Subtype Management Banner */}
-        <motion.div 
-          className="bg-white p-4 rounded-2xl shadow-lg border border-slate-100 flex flex-col md:flex-row items-center justify-between gap-4"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
+    return (
+      <div className="max-w-[98%] mx-auto px-4 py-8 rtl" dir="rtl">
+        {/* Main Card Container */}
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="bg-gradient-to-b from-slate-800 via-slate-700 to-slate-600 rounded-3xl shadow-2xl overflow-hidden border border-slate-500/30"
         >
-          <div className="flex items-center space-x-4 space-x-reverse">
-            <div className="p-2.5 bg-indigo-50 rounded-xl text-indigo-600">
-              <Tags className="w-5 h-5" />
+          {/* Header */}
+          <div className="relative overflow-hidden bg-gradient-to-r from-slate-900 to-slate-800 p-8 text-white border-b border-slate-600/50">
+            <div className="relative z-10 flex flex-col items-center justify-center text-center space-y-4">
+              <div className="p-3 bg-white/10 rounded-full backdrop-blur-sm">
+                <Plus className="w-8 h-8 text-blue-400" />
+              </div>
+              <h1 className="text-2xl font-bold tracking-tight glow-text-white">إضافة مصروفات متعددة</h1>
+              <p className="text-slate-300 max-w-2xl">
+                أضف وتعديل مصروفات الشركة بشكل منظم وسهل مع الحساب التلقائي والربط بالموظفين
+              </p>
             </div>
-            <div>
-              <h3 className="text-base font-bold text-slate-900 glow-text">إدارة أنواع المصروفات المخصصة</h3>
-              <p className="text-xs text-slate-500">يمكنك إضافة وتعديل أنواع المصروفات المخصصة لك فقط التي تظهر في القوائم المنسدلة.</p>
-            </div>
+            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 via-green-500 to-red-500"></div>
           </div>
-          <button 
-            onClick={() => setShowSubtypeManager(true)}
-            className="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 px-4 py-2 rounded-xl font-bold transition-all flex items-center space-x-2 space-x-reverse border border-indigo-100 text-sm"
-          >
-            <Settings className="w-4 h-4" />
-            <span>إدارة الأنواع المخصصة</span>
-          </button>
-        </motion.div>
-  
-        {/* Info Bar */}
-        <motion.div 
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          className="grid grid-cols-1 md:grid-cols-3 gap-4"
-        >
-          <div className="bg-white/80 backdrop-blur-md p-4 rounded-xl border border-white/20 shadow-md flex items-center space-x-3 space-x-reverse">
-            <div className="p-2.5 bg-blue-50 rounded-lg text-blue-600">
-              <History className="w-5 h-5" />
-            </div>
-            <div>
-              <p className="text-xs text-slate-500">الشهر الحالي</p>
-              <p className="text-base font-bold text-slate-900 glow-text">{new Date().toLocaleString('en-US', { month: 'long', year: 'numeric' })}</p>
-            </div>
-          </div>
-          <div className="bg-white/80 backdrop-blur-md p-4 rounded-xl border border-white/20 shadow-md flex items-center space-x-3 space-x-reverse">
-            <div className="p-2.5 bg-green-50 rounded-lg text-green-600">
-              <FileText className="w-5 h-5" />
-            </div>
-            <div>
-              <p className="text-xs text-slate-500">رقم القيد التالي</p>
-              <p className="text-base font-bold text-slate-900 glow-text">{metadata?.voucherNumber}</p>
-            </div>
-          </div>
-          <div className="bg-white/80 backdrop-blur-md p-4 rounded-xl border border-white/20 shadow-md flex items-center space-x-3 space-x-reverse">
-            <div className="p-2.5 bg-purple-50 rounded-lg text-purple-600">
-              <Bolt className="w-5 h-5" />
-            </div>
-            <div>
-              <p className="text-xs text-slate-500">حالة القيد</p>
-              <p className="text-base font-bold text-slate-900 glow-text">جديد</p>
-            </div>
-          </div>
-        </motion.div>
-  
-        {/* Expense Type Selector */}
-        <motion.div 
-          className="bg-white p-6 rounded-2xl shadow-lg border border-slate-100"
-          whileHover={{ y: -5 }}
-          transition={{ type: "spring", stiffness: 300 }}
-        >
-          <div className="flex items-center space-x-2 space-x-reverse mb-4">
-            <Tags className="w-5 h-5 text-blue-600" />
-            <h2 className="text-lg font-bold text-slate-900 glow-text">اختر نوع المصروف لإضافته</h2>
-          </div>
-          <div className="flex flex-col md:flex-row gap-4">
-            <select 
-              className="flex-1 bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all text-sm"
-              value={selectedTypeToAdd}
-              onChange={(e) => setSelectedTypeToAdd(e.target.value)}
+    
+          {/* Content Area */}
+          <div className="p-6 space-y-6">
+            {/* Subtype Management Banner */}
+            <motion.div 
+              className="bg-white/95 backdrop-blur-sm p-4 rounded-2xl shadow-lg border border-white/50 flex flex-col md:flex-row items-center justify-between gap-4"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
             >
-              <option value="">-- اختر نوع المصروف --</option>
-              {Object.entries(mainTypes).map(([key, label]) => (
-                <option key={key} value={key}>{label}</option>
-              ))}
-            </select>
-            <button 
-              onClick={() => addSection(selectedTypeToAdd)}
-              className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2.5 rounded-xl font-bold transition-all flex items-center justify-center space-x-2 space-x-reverse shadow-lg shadow-blue-200 text-sm"
+              <div className="flex items-center space-x-4 space-x-reverse">
+                <div className="p-2.5 bg-indigo-50 rounded-xl text-indigo-600">
+                  <Tags className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="text-base font-bold text-slate-900 glow-text">إدارة أنواع المصروفات المخصصة</h3>
+                  <p className="text-xs text-slate-500">يمكنك إضافة وتعديل أنواع المصروفات المخصصة لك فقط التي تظهر في القوائم المنسدلة.</p>
+                </div>
+              </div>
+              <button 
+                onClick={() => setShowSubtypeManager(true)}
+                className="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 px-4 py-2 rounded-xl font-bold transition-all flex items-center space-x-2 space-x-reverse border border-indigo-100 text-sm"
+              >
+                <Settings className="w-4 h-4" />
+                <span>إدارة الأنواع المخصصة</span>
+              </button>
+            </motion.div>
+    
+            {/* Info Bar */}
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="grid grid-cols-1 md:grid-cols-3 gap-4"
             >
-              <Plus className="w-4 h-4" />
-              <span>إضافة النوع</span>
-            </button>
+              <div className="bg-white/95 backdrop-blur-md p-4 rounded-xl border border-white/50 shadow-md flex items-center space-x-3 space-x-reverse">
+                <div className="p-2.5 bg-blue-50 rounded-lg text-blue-600">
+                  <History className="w-5 h-5" />
+                </div>
+                <div>
+                  <p className="text-xs text-slate-500">الشهر الحالي</p>
+                  <p className="text-base font-bold text-slate-900 glow-text">{new Date().toLocaleString('en-US', { month: 'long', year: 'numeric' })}</p>
+                </div>
+              </div>
+              <div className="bg-white/95 backdrop-blur-md p-4 rounded-xl border border-white/50 shadow-md flex items-center space-x-3 space-x-reverse">
+                <div className="p-2.5 bg-green-50 rounded-lg text-green-600">
+                  <FileText className="w-5 h-5" />
+                </div>
+                <div>
+                  <p className="text-xs text-slate-500">رقم القيد التالي</p>
+                  <p className="text-base font-bold text-slate-900 glow-text">{metadata?.voucherNumber}</p>
+                </div>
+              </div>
+              <div className="bg-white/95 backdrop-blur-md p-4 rounded-xl border border-white/50 shadow-md flex items-center space-x-3 space-x-reverse">
+                <div className="p-2.5 bg-purple-50 rounded-lg text-purple-600">
+                  <Bolt className="w-5 h-5" />
+                </div>
+                <div>
+                  <p className="text-xs text-slate-500">حالة القيد</p>
+                  <p className="text-base font-bold text-slate-900 glow-text">جديد</p>
+                </div>
+              </div>
+            </motion.div>
+    
+            {/* Expense Type Selector */}
+            <motion.div 
+              className="bg-white/95 backdrop-blur-sm p-6 rounded-2xl shadow-lg border border-white/50"
+              whileHover={{ y: -2 }}
+              transition={{ type: "spring", stiffness: 300 }}
+            >
+              <div className="flex items-center space-x-2 space-x-reverse mb-4">
+                <Tags className="w-5 h-5 text-blue-600" />
+                <h2 className="text-lg font-bold text-slate-900 glow-text">اختر نوع المصروف لإضافته</h2>
+              </div>
+              <div className="flex flex-col md:flex-row gap-4">
+                <select 
+                  className="flex-1 bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all text-sm"
+                  value={selectedTypeToAdd}
+                  onChange={(e) => setSelectedTypeToAdd(e.target.value)}
+                >
+                  <option value="">-- اختر نوع المصروف --</option>
+                  {Object.entries(mainTypes).map(([key, label]) => (
+                    <option key={key} value={key}>{label}</option>
+                  ))}
+                </select>
+                <button 
+                  onClick={() => addSection(selectedTypeToAdd)}
+                  className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2.5 rounded-xl font-bold transition-all flex items-center justify-center space-x-2 space-x-reverse shadow-lg shadow-blue-200 text-sm"
+                >
+                  <Plus className="w-4 h-4" />
+                  <span>إضافة النوع</span>
+                </button>
+              </div>
+            </motion.div>
           </div>
         </motion.div>
-  
+
         {/* Sections */}
-        <form onSubmit={handleSubmit} className="space-y-8">
+        <form onSubmit={handleSubmit} className="space-y-8 mt-8">
           <AnimatePresence>
             {Object.entries(sections).map(([type, rows]) => (
                 <motion.div 
@@ -659,30 +652,13 @@ export default function ExpenseFormClient({ user }: { user: User }) {
                               <td className="px-2 py-4 text-center">
                                 <input 
                                   type="checkbox" 
-                                  className="w-4 h-4 rounded text-blue-600"
+                                  className="w-5 h-5 rounded text-blue-600 cursor-pointer"
                                   checked={row.taxable}
                                   onChange={(e) => updateRow(type, row.id, 'taxable', e.target.checked)}
                                 />
                               </td>
-                              <td className="px-2 py-4 text-center">
-                                <input 
-                                  type="checkbox" 
-                                  className="w-4 h-4 rounded text-green-600"
-                                  checked={row.tax_inclusive}
-                                  onChange={(e) => updateRow(type, row.id, 'tax_inclusive', e.target.checked)}
-                                />
-                              </td>
                               <td className="px-2 py-4">
-                                <input 
-                                  type="number" 
-                                  className="w-20 bg-transparent border-none focus:ring-0 text-sm"
-                                  placeholder="0.00"
-                                  value={row.tax_value}
-                                  readOnly
-                                />
-                              </td>
-                              <td className="px-2 py-4">
-                                <span className="text-sm font-bold text-slate-700">{row.net_amount}</span>
+                                <span className="text-sm font-bold text-green-600 bg-green-50 px-3 py-1 rounded-lg">{row.net_amount}</span>
                               </td>
                             </>
                           )}
