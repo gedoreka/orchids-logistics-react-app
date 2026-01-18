@@ -185,7 +185,21 @@ export async function loginAction(formData: FormData): Promise<AuthResponse> {
       });
     }
 
-    sendLoginNotification(user.email, user.name, company.name || "الشركة").catch(console.error);
+      const today = new Date().toISOString().split('T')[0];
+      const lastLoginNotification = await query<{ last_notification_date: string }>(
+        "SELECT DATE(last_login_notification) as last_notification_date FROM users WHERE id = ?",
+        [user.id]
+      );
+      
+      const lastNotificationDate = lastLoginNotification?.[0]?.last_notification_date;
+      
+      if (!lastNotificationDate || lastNotificationDate !== today) {
+        await execute(
+          "UPDATE users SET last_login_notification = NOW() WHERE id = ?",
+          [user.id]
+        );
+        sendLoginNotification(user.email, user.name, company.name || "الشركة").catch(console.error);
+      }
 
     return {
       success: true,
