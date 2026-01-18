@@ -135,13 +135,21 @@ export default async function DashboardPage() {
     console.error("Error fetching dashboard data:", error);
   }
 
-  return (
-    <DashboardClient
-      user={{
-        name: session.name || session.user_name || "مستخدم",
-        email: session.email,
-        role: session.role || "user",
-      }}
+    const getUserTypeName = () => {
+      if (isAdmin) return { ar: "صاحب النظام", en: "System Owner" };
+      if (session.user_type === "sub_user") return { ar: "موظف الشركة", en: "Company Employee" };
+      return { ar: "مدير المنشأة", en: "Company Manager" };
+    };
+
+    return (
+      <DashboardClient
+        user={{
+          name: session.name || session.user_name || "مستخدم",
+          email: session.email,
+          role: session.role || "user",
+          userType: session.user_type || "user",
+          userTypeName: getUserTypeName(),
+        }}
         company={company ? {
           name: company.name,
           logo: company.logo_path,

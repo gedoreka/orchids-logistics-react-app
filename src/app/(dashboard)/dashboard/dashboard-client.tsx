@@ -35,6 +35,8 @@ interface DashboardClientProps {
     name: string;
     email: string;
     role: string;
+    userType?: string;
+    userTypeName?: { ar: string; en: string };
   };
   company: {
     name: string;
@@ -235,7 +237,9 @@ export function DashboardClient({
                   className="px-5 py-2.5 rounded-2xl bg-white/10 backdrop-blur-sm border border-white/10 flex items-center gap-2"
                 >
                   <User className="w-4 h-4 text-slate-300" />
-                  <span className="text-slate-300 font-medium text-sm">{isAdmin ? t('admin') : (isRTL ? "مدير منشأة" : "Manager")}</span>
+                  <span className="text-slate-300 font-medium text-sm">
+                    {user.userTypeName ? (isRTL ? user.userTypeName.ar : user.userTypeName.en) : (isAdmin ? t('admin') : (isRTL ? "مدير منشأة" : "Manager"))}
+                  </span>
                 </motion.div>
               </div>
             </div>
@@ -312,7 +316,9 @@ export function DashboardClient({
               <div className="grid grid-cols-2 gap-4 mb-4">
                 <div className="p-4 rounded-xl bg-gradient-to-br from-slate-50 to-white border border-slate-100 hover:border-violet-200 transition-colors">
                   <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-1">{t('accountType')}</p>
-                  <p className="text-sm font-bold text-slate-700">{isAdmin ? t('admin') : t('user')}</p>
+                  <p className="text-sm font-bold text-slate-700">
+                    {user.userTypeName ? (isRTL ? user.userTypeName.ar : user.userTypeName.en) : (isAdmin ? t('admin') : t('user'))}
+                  </p>
                 </div>
                 <div className="p-4 rounded-xl bg-gradient-to-br from-slate-50 to-white border border-slate-100 hover:border-amber-200 transition-colors">
                   <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-1">{t('subscriptionType')}</p>
