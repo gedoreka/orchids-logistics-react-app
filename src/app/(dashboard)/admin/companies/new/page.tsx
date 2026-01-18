@@ -590,14 +590,19 @@ export default function NewCompanyPage() {
                 <div className={cn(
                   "w-10 h-10 rounded-xl flex items-center justify-center transition-all",
                   activeSection === section.id
-                    ? "bg-white shadow-md"
+                    ? "bg-white/20 backdrop-blur-sm shadow-md"
                     : "bg-slate-100 group-hover:bg-slate-200"
                 )}>
                   <section.icon className={cn(
                     "w-5 h-5 transition-colors",
                     activeSection === section.id 
-                      ? "text-" + section.accentColor + "-500" 
-                      : "text-slate-500"
+                      ? "text-white" 
+                      : section.accentColor === "violet" ? "text-violet-500" 
+                      : section.accentColor === "indigo" ? "text-indigo-500"
+                      : section.accentColor === "emerald" ? "text-emerald-500"
+                      : section.accentColor === "amber" ? "text-amber-500"
+                      : section.accentColor === "rose" ? "text-rose-500"
+                      : "text-indigo-500"
                   )} />
                 </div>
                 <div className="flex-1 min-w-0">
