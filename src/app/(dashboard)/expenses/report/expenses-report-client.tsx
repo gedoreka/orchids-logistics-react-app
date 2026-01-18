@@ -499,8 +499,8 @@ export function ExpensesReportClient({ companyId }: ExpensesReportClientProps) {
 
             
             <CardContent className="p-5">
-              <div className="flex flex-col lg:flex-row items-center justify-between gap-4">
-                <div className="flex items-center gap-4">
+              <div className="relative flex flex-col lg:flex-row items-center justify-between gap-4">
+                <div className="flex items-center gap-4 lg:w-[200px]">
                   {companyInfo?.logo_path ? (
                     <img
                       src={companyInfo.logo_path}
@@ -522,14 +522,14 @@ export function ExpensesReportClient({ companyId }: ExpensesReportClientProps) {
                   </div>
                 </div>
 
-                <div className="text-center flex-1">
+                <div className="lg:absolute lg:left-1/2 lg:top-1/2 lg:-translate-x-1/2 lg:-translate-y-1/2 text-center">
                   <h1 className="text-xl lg:text-2xl font-bold flex items-center justify-center gap-3">
                     <TrendingUp className="w-7 h-7 text-amber-400" />
                     التقرير المالي الشهري
                   </h1>
                 </div>
 
-                <div className="bg-white/10 backdrop-blur-lg rounded-2xl px-4 py-3 border border-white/20 print:hidden">
+                <div className="bg-white/10 backdrop-blur-lg rounded-2xl px-4 py-3 border border-white/20 print:hidden lg:w-[200px]">
                   <div className="flex items-center gap-3">
                     <Calendar className="w-6 h-6 text-amber-400" />
                     <div>
