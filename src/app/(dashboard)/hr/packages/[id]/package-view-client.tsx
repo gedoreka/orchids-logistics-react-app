@@ -346,7 +346,7 @@ export function PackageViewClient({
           </div>
 
           <div className="bg-gray-50">
-            <div className="overflow-auto max-h-[500px] scrollbar-hide">
+            <div className="overflow-auto max-h-[650px] scrollbar-hide">
               <table className="w-full text-right border-separate border-spacing-0">
                 <thead className="sticky top-0 z-20">
                   <tr className="bg-gray-100">
