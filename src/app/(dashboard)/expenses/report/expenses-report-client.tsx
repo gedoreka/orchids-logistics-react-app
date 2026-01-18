@@ -487,7 +487,7 @@ export function ExpensesReportClient({ companyId }: ExpensesReportClientProps) {
         dir="rtl"
       >
 
-      <div className="w-[98%] mx-auto py-4 space-y-3 print:w-full print:p-2">
+      <div className="w-[98%] mx-auto py-4 space-y-2 print:w-full print:p-2">
         {/* Header Section */}
           <motion.div
             initial={{ opacity: 0, y: -20 }}
@@ -715,8 +715,8 @@ export function ExpensesReportClient({ companyId }: ExpensesReportClientProps) {
           transition={{ delay: 0.3 }}
           className="print:hidden"
         >
-          <Card className="border-none shadow-md rounded-full bg-gradient-to-r from-blue-100/80 via-rose-100/80 via-emerald-100/80 to-amber-100/80 backdrop-blur-md border border-white/50">
-            <CardContent className="p-4">
+          <Card className="border-none shadow-md rounded-[2rem] bg-gradient-to-r from-blue-100/80 via-rose-100/80 via-emerald-100/80 to-amber-100/80 backdrop-blur-md border border-white/50">
+              <CardContent className="p-3">
               <div className="flex flex-col lg:flex-row items-center justify-between gap-4">
                 <div className="flex items-center gap-3 flex-wrap">
                   <div className="flex items-center gap-2 text-slate-700 text-sm font-bold bg-white/80 px-5 py-2.5 rounded-[1.5rem] border border-slate-100 shadow-sm">
