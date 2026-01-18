@@ -539,17 +539,18 @@ export function EmployeeDetailsClient({
                 </form>
               )}
 
-              {activeTab === "documents" && (
-                <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
-                  <GlassDocCard label="الصورة الشخصية" path={employee.personal_photo} />
-                  <GlassDocCard label="صورة الإقامة" path={employee.iqama_file} />
-                  <GlassDocCard label="رخصة القيادة" path={employee.license_file} />
-                  <GlassDocCard label="استمارة المركبة" path={employee.vehicle_file} />
-                  <GlassDocCard label="تصريح أجير" path={employee.agir_permit_file} />
-                  <GlassDocCard label="عقد العمل" path={employee.work_contract_file} />
-                  <GlassDocCard label="بطاقة التشغيل" path={employee.vehicle_operation_card} />
-                </div>
-              )}
+{activeTab === "documents" && (
+                  <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+                    <GlassDocCard label="الصورة الشخصية" path={employee.personal_photo} />
+                    <GlassDocCard label="صورة الإقامة" path={employee.iqama_file} />
+                    <GlassDocCard label="رخصة القيادة" path={employee.license_file} />
+                    <GlassDocCard label="استمارة المركبة" path={employee.vehicle_file} />
+                    <GlassDocCard label="تصريح أجير" path={employee.agir_permit_file} />
+                    <GlassDocCard label="عقد العمل" path={employee.work_contract_file} />
+                    <GlassDocCard label="بطاقة التشغيل" path={employee.vehicle_operation_card} />
+                    <GlassDocCard label="بطاقة السائق" path={employee.driver_card} />
+                  </div>
+                )}
 
               {activeTab === "status" && (
                 <div className="space-y-5">
