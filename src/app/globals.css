@@ -212,12 +212,28 @@
   }
 }
 
-/* Dashboard content */
-.dashboard-content {
-  width: 100%;
-  max-width: 100%;
-  overflow-x: hidden;
-}
+  /* Dashboard content */
+  .dashboard-content {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+  
+  /* Standard container override for 85% width */
+  .container {
+    width: 95% !important;
+    max-width: 95% !important;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  
+  @media (min-width: 1024px) {
+    .container {
+      width: 85% !important;
+      max-width: 85% !important;
+    }
+  }
+
 
 /* Theme transition classes */
 .theme-transition {
