@@ -69,6 +69,7 @@ export default async function ExpensesPage({
       companyInfo={companyInfo}
       stats={stats}
       recentActivity={recentActivity}
+      currentMonth={currentMonth}
     />
   );
 }

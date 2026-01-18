@@ -14,11 +14,14 @@ import {
   ChartBar,
   Building2,
   Calendar,
-  DollarSign
+  ChevronLeft,
+  ChevronRight,
+  TrendingDown,
+  Receipt,
+  Users
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 
 interface ExpensesClientProps {
@@ -34,11 +37,12 @@ interface ExpensesClientProps {
     total: number;
   };
   recentActivity: any[];
+  currentMonth: string;
 }
 
-export function ExpensesClient({ companyId, companyInfo, stats, recentActivity }: ExpensesClientProps) {
-  const [currentMonth] = useState(new Date().toISOString().slice(0, 7));
+export function ExpensesClient({ companyId, companyInfo, stats, recentActivity, currentMonth }: ExpensesClientProps) {
   const router = useRouter();
+  const [selectedMonth, setSelectedMonth] = useState(currentMonth);
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -62,96 +66,156 @@ export function ExpensesClient({ companyId, companyInfo, stats, recentActivity }
     }
   };
 
-    return (
-        <div className="min-h-screen p-4 md:p-6 font-tajawal rtl w-full overflow-x-hidden" dir="rtl">
-          <motion.div 
-            className="w-full space-y-6"
-            initial="hidden"
-            animate="visible"
-            variants={containerVariants}
-          >
-          {/* Header Section */}
-          <motion.div 
-            className="relative overflow-hidden rounded-[2.5rem] p-10 bg-gradient-to-br from-[#1e293b] via-[#334155] to-[#1e293b] text-white shadow-2xl border border-white/10"
-            variants={itemVariants}
-          >
-            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 via-emerald-500 via-rose-500 via-amber-500 via-purple-500 to-blue-500 animate-gradient-x" />
-            
-            <div className="relative z-10 flex flex-col items-center justify-center text-center space-y-8">
-              <div className="flex items-center gap-6">
+  const formatMonthDisplay = (monthStr: string) => {
+    const [year, month] = monthStr.split('-');
+    const months = [
+      'يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو',
+      'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'
+    ];
+    return `${months[parseInt(month) - 1]} ${year}`;
+  };
+
+  const changeMonth = (direction: 'prev' | 'next') => {
+    const [year, month] = selectedMonth.split('-').map(Number);
+    let newMonth = direction === 'prev' ? month - 1 : month + 1;
+    let newYear = year;
+    
+    if (newMonth < 1) {
+      newMonth = 12;
+      newYear--;
+    } else if (newMonth > 12) {
+      newMonth = 1;
+      newYear++;
+    }
+    
+    const newMonthStr = `${newYear}-${String(newMonth).padStart(2, '0')}`;
+    setSelectedMonth(newMonthStr);
+    router.push(`/expenses?month=${newMonthStr}`);
+  };
+
+  const statsData = [
+    { 
+      label: "إجمالي المنصرفات", 
+      value: stats.expenses, 
+      icon: TrendingDown, 
+      gradient: "from-blue-500 to-blue-600",
+      bgColor: "bg-blue-500/10",
+      textColor: "text-blue-400"
+    },
+    { 
+      label: "إجمالي الاستقطاعات", 
+      value: stats.deductions, 
+      icon: HandCoins, 
+      gradient: "from-rose-500 to-rose-600",
+      bgColor: "bg-rose-500/10",
+      textColor: "text-rose-400"
+    },
+    { 
+      label: "إجمالي الرواتب", 
+      value: stats.payrolls, 
+      icon: Users, 
+      gradient: "from-amber-500 to-amber-600",
+      bgColor: "bg-amber-500/10",
+      textColor: "text-amber-400"
+    },
+    { 
+      label: "المجموع الكلي", 
+      value: stats.total, 
+      icon: Receipt, 
+      gradient: "from-emerald-500 to-emerald-600",
+      bgColor: "bg-emerald-500/10",
+      textColor: "text-emerald-400"
+    },
+  ];
+
+  return (
+    <div className="min-h-screen p-4 md:p-6 font-tajawal rtl w-full overflow-x-hidden" dir="rtl">
+      <motion.div 
+        className="w-full space-y-6"
+        initial="hidden"
+        animate="visible"
+        variants={containerVariants}
+      >
+        {/* Header Banner */}
+        <motion.div 
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="relative overflow-hidden rounded-[2.5rem] bg-gradient-to-br from-[#1e293b] via-[#334155] to-[#1e293b] p-8 text-white shadow-2xl border border-white/10"
+        >
+          <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 via-emerald-500 via-rose-500 via-amber-500 via-purple-500 to-blue-500 animate-gradient-x" />
+          
+          <div className="relative z-10">
+            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+              {/* Left Section: Logo & Title */}
+              <div className="flex items-center gap-5">
                 {companyInfo.logo_path ? (
-                  <div className="w-20 h-20 rounded-full bg-white p-1 shadow-2xl">
+                  <div className="w-16 h-16 rounded-2xl bg-white p-1.5 shadow-2xl">
                     <img 
                       src={companyInfo.logo_path} 
                       alt="Logo" 
-                      className="w-full h-full rounded-full object-cover"
+                      className="w-full h-full rounded-xl object-cover"
                     />
                   </div>
                 ) : (
-                  <div className="w-20 h-20 rounded-full bg-blue-600 flex items-center justify-center shadow-2xl border-4 border-white/20">
-                    <Building2 className="w-10 h-10 text-white" />
+                  <div className="w-16 h-16 rounded-2xl bg-white/10 backdrop-blur-md flex items-center justify-center shadow-2xl border border-white/10">
+                    <Building2 className="w-8 h-8 text-blue-400" />
                   </div>
                 )}
-                <div className="text-right space-y-2">
-                  <h1 className="text-3xl md:text-4xl font-black tracking-tight bg-gradient-to-r from-white via-blue-100 to-white bg-clip-text text-transparent">مركز المنصرفات الشهرية</h1>
-                  <div className="bg-white/10 backdrop-blur-md px-6 py-2 rounded-2xl border border-white/10 shadow-xl inline-block">
-                    <p className="text-xl font-bold text-blue-200">{companyInfo.name || "اسم الشركة"}</p>
-                  </div>
+                <div className="space-y-1">
+                  <h1 className="text-2xl md:text-3xl font-black tracking-tight bg-gradient-to-r from-white via-blue-100 to-white bg-clip-text text-transparent">
+                    مركز المنصرفات الشهرية
+                  </h1>
+                  <p className="text-sm font-medium text-slate-300">{companyInfo.name || "اسم الشركة"}</p>
                 </div>
               </div>
 
-              {/* Premium Stats Grid */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 w-full pt-4">
-
-              {[
-                { 
-                  label: "إجمالي المنصرفات", 
-                  value: stats.expenses, 
-                  icon: Wallet, 
-                  color: "from-blue-500 to-blue-700",
-                  shadow: "shadow-blue-500/20"
-                },
-                { 
-                  label: "إجمالي الاستقطاعات", 
-                  value: stats.deductions, 
-                  icon: HandCoins, 
-                  color: "from-rose-500 to-rose-700",
-                  shadow: "shadow-rose-500/20"
-                },
-                { 
-                  label: "إجمالي الرواتب", 
-                  value: stats.payrolls, 
-                  icon: FileText, 
-                  color: "from-amber-500 to-amber-700",
-                  shadow: "shadow-amber-500/20"
-                },
-                { 
-                  label: "المجموع الكلي", 
-                  value: stats.total, 
-                  icon: PieChart, 
-                  color: "from-purple-500 to-purple-700",
-                  shadow: "shadow-purple-500/20"
-                },
-              ].map((stat, idx) => (
-                <motion.div 
-                  key={idx}
-                  whileHover={{ scale: 1.02 }}
-                  className={`bg-white/90 backdrop-blur-lg rounded-2xl p-4 text-slate-800 shadow-xl border border-white/50 relative overflow-hidden group`}
-                >
-                  <div className={`absolute top-0 right-0 w-1 h-full bg-gradient-to-b ${stat.color}`} />
-                  <div className="flex flex-col items-center space-y-2">
-                    <div className={`p-2.5 rounded-xl bg-gradient-to-br ${stat.color} text-white shadow-lg`}>
-                      <stat.icon className="w-5 h-5" />
-                    </div>
-                    <span className="text-2xl font-black text-slate-900 tabular-nums">
-                      {new Intl.NumberFormat('en-US', { minimumFractionDigits: 2 }).format(stat.value)}
-                    </span>
-                    <span className="text-xs font-medium text-slate-500">{stat.label}</span>
+              {/* Month Selector */}
+              <div className="flex items-center gap-3">
+                <div className="flex items-center bg-white/10 backdrop-blur-md rounded-2xl border border-white/10 overflow-hidden">
+                  <button 
+                    onClick={() => changeMonth('next')}
+                    className="p-3 hover:bg-white/10 transition-colors"
+                  >
+                    <ChevronRight className="w-5 h-5 text-white" />
+                  </button>
+                  <div className="px-5 py-2 flex items-center gap-2 min-w-[160px] justify-center">
+                    <Calendar className="w-4 h-4 text-blue-400" />
+                    <span className="font-bold text-white text-sm">{formatMonthDisplay(selectedMonth)}</span>
                   </div>
-                </motion.div>
+                  <button 
+                    onClick={() => changeMonth('prev')}
+                    className="p-3 hover:bg-white/10 transition-colors"
+                  >
+                    <ChevronLeft className="w-5 h-5 text-white" />
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* Stats Grid */}
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mt-8">
+              {statsData.map((stat, idx) => (
+                <div 
+                  key={idx}
+                  className={`${stat.bgColor} backdrop-blur-md rounded-2xl p-4 border border-white/5 text-center group hover:scale-[1.02] transition-transform`}
+                >
+                  <div className="flex flex-col items-center gap-2">
+                    <div className={`p-2.5 rounded-xl bg-gradient-to-br ${stat.gradient} shadow-lg`}>
+                      <stat.icon className="w-5 h-5 text-white" />
+                    </div>
+                    <span className="text-2xl font-black text-white tabular-nums">
+                      {new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(stat.value)}
+                    </span>
+                    <span className={`text-[10px] font-bold ${stat.textColor} uppercase tracking-wider`}>{stat.label}</span>
+                  </div>
+                </div>
               ))}
             </div>
           </div>
+          
+          {/* Decorative elements */}
+          <div className="absolute -bottom-12 -right-12 w-48 h-48 bg-blue-500/10 rounded-full blur-3xl" />
+          <div className="absolute -top-12 -left-12 w-48 h-48 bg-purple-500/10 rounded-full blur-3xl" />
         </motion.div>
 
         {/* Main Action Cards */}
