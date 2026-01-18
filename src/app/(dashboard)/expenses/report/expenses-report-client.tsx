@@ -461,7 +461,7 @@ export function ExpensesReportClient({ companyId }: ExpensesReportClientProps) {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-slate-100 flex items-center justify-center">
+      <div className="min-h-screen bg-transparent flex items-center justify-center">
         <motion.div
           animate={{ rotate: 360 }}
           transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
@@ -481,20 +481,22 @@ export function ExpensesReportClient({ companyId }: ExpensesReportClientProps) {
 
   const { companyInfo, stats, expensesGrouped, deductionsGrouped, payrolls } = data;
 
-  return (
-    <div
-      className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-slate-100 rtl print:bg-white"
-      dir="rtl"
-    >
+    return (
+      <div
+        className="min-h-screen bg-transparent rtl print:bg-white"
+        dir="rtl"
+      >
+
       <div className="w-[98%] mx-auto py-4 space-y-4 print:w-full print:p-2">
         {/* Header Section */}
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="print:shadow-none"
-        >
-          <Card className="overflow-hidden border-none shadow-xl bg-gradient-to-br from-[#1e3a5f] via-[#2d4a6f] to-[#1e3a5f] text-white rounded-3xl print:rounded-none print:shadow-none">
-            <div className="h-1 bg-gradient-to-r from-blue-400 via-emerald-400 via-amber-400 via-rose-400 to-purple-400 print:hidden" />
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="print:shadow-none"
+          >
+            <Card className="overflow-hidden border-none shadow-xl bg-gradient-to-br from-[#1e293b] via-[#334155] to-[#1e293b] text-white rounded-3xl print:rounded-none print:shadow-none">
+              <div className="h-1 bg-gradient-to-r from-blue-500 via-emerald-500 via-rose-500 via-amber-500 via-purple-500 to-blue-500 animate-gradient-x print:hidden" />
+
             
             <CardContent className="p-5">
               <div className="flex flex-col lg:flex-row items-center justify-between gap-4">
