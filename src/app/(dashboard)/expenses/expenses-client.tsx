@@ -80,11 +80,13 @@ export function ExpensesClient({ companyId, companyInfo, stats, recentActivity }
             <div className="relative z-10 flex flex-col items-center justify-center text-center space-y-8">
               <div className="flex items-center gap-6">
                 {companyInfo.logo_path ? (
-                  <img 
-                    src={companyInfo.logo_path} 
-                    alt="Logo" 
-                    className="w-20 h-20 rounded-full border-4 border-white/20 object-cover shadow-2xl"
-                  />
+                  <div className="w-20 h-20 rounded-full bg-white p-1 shadow-2xl">
+                    <img 
+                      src={companyInfo.logo_path} 
+                      alt="Logo" 
+                      className="w-full h-full rounded-full object-cover"
+                    />
+                  </div>
                 ) : (
                   <div className="w-20 h-20 rounded-full bg-blue-600 flex items-center justify-center shadow-2xl border-4 border-white/20">
                     <Building2 className="w-10 h-10 text-white" />
@@ -185,11 +187,11 @@ export function ExpensesClient({ companyId, companyInfo, stats, recentActivity }
           {/* Recent Activity */}
           <motion.div className="lg:col-span-2 space-y-4" variants={itemVariants}>
             <div className="flex items-center justify-between px-2">
-              <h2 className="text-xl font-bold text-slate-800 flex items-center gap-3">
-                <History className="w-6 h-6 text-blue-600" />
+              <h2 className="text-xl font-bold text-white flex items-center gap-3">
+                <History className="w-6 h-6 text-blue-400" />
                 النشاط الأخير
               </h2>
-              <Button variant="ghost" className="text-blue-600 font-bold hover:bg-blue-50 h-8 text-sm">عرض الكل</Button>
+              <Button variant="ghost" className="text-blue-400 font-bold hover:bg-white/10 h-8 text-sm">عرض الكل</Button>
             </div>
             
             <Card className="border-none shadow-xl rounded-[2.5rem] overflow-hidden bg-white/80 backdrop-blur-xl">
@@ -236,8 +238,8 @@ export function ExpensesClient({ companyId, companyInfo, stats, recentActivity }
 
           {/* Quick Actions */}
           <motion.div className="space-y-4" variants={itemVariants}>
-            <h2 className="text-xl font-bold text-slate-800 flex items-center gap-3 px-2">
-              <PlusCircle className="w-6 h-6 text-rose-600" />
+            <h2 className="text-xl font-bold text-white flex items-center gap-3 px-2">
+              <PlusCircle className="w-6 h-6 text-rose-400" />
               إجراءات سريعة
             </h2>
             
