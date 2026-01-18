@@ -155,16 +155,15 @@ export function PackageViewClient({
                 </div>
                 <div>
                   <div className="flex items-center gap-2 text-xs font-bold text-white/60">
-                    <Link href="/hr" className="hover:text-white transition-colors flex items-center gap-1">
-                      <LayoutDashboard size={12} />
-                      شؤون الموظفين
-                    </Link>
-                    <ArrowRight size={12} className="rotate-180" />
-                    <Link href="/hr/packages" className="hover:text-white transition-colors">الباقات</Link>
-                    <ArrowRight size={12} className="rotate-180" />
-                    <span className="text-purple-300">{packageData.group_name}</span>
-                  </div>
-                  <h1 className="text-xl font-black text-white">{packageData.group_name}</h1>
+                      <Link href="/hr" className="hover:text-white transition-colors flex items-center gap-1">
+                        <LayoutDashboard size={12} />
+                        شؤون الموظفين
+                      </Link>
+                      <ArrowRight size={12} className="rotate-180" />
+                      <Link href="/hr/packages" className="hover:text-white transition-colors">الباقات</Link>
+                      <ArrowRight size={12} className="rotate-180" />
+                      <span className="text-purple-300">{packageData.group_name}</span>
+                    </div>
                 </div>
               </div>
 
