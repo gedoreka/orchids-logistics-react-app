@@ -851,37 +851,37 @@ export function ExpensesReportClient({ companyId }: ExpensesReportClientProps) {
                               exit={{ height: 0, opacity: 0 }}
                               transition={{ duration: 0.3 }}
                             >
-                              <div className="max-h-[300px] overflow-y-auto scrollbar-thin">
-                                <table className="w-full text-sm">
-                                  <thead className="bg-slate-50 sticky top-0 z-10">
-                                    <tr>
-                                      <th className="p-2 text-center text-slate-600 font-bold text-xs">#</th>
-                                      <th className="p-2 text-center text-slate-600 font-bold text-xs">التاريخ</th>
-                                      <th className="p-2 text-center text-slate-600 font-bold text-xs">المستفيد</th>
-                                      <th className="p-2 text-center text-slate-600 font-bold text-xs">رقم الإقامة</th>
-                                      <th className="p-2 text-center text-slate-600 font-bold text-xs">المبلغ</th>
-                                      <th className="p-2 text-center text-slate-600 font-bold text-xs">الضريبة</th>
-                                      <th className="p-2 text-center text-slate-600 font-bold text-xs">الصافي</th>
-                                      <th className="p-2 text-center text-slate-600 font-bold text-xs">الحساب</th>
-                                      <th className="p-2 text-center text-slate-600 font-bold text-xs">م.التكلفة</th>
-                                        <th className="p-2 text-center text-slate-600 font-bold text-xs print:hidden">الإجراءات</th>
-                                      </tr>
-                                    </thead>
-                                    <tbody>
-                                      {expenses.map((expense, idx) => (
-                                        <tr
-                                          key={expense.id}
-                                          className="border-b border-slate-100 hover:bg-blue-50/50 transition-colors"
-                                        >
-                                          <td className="p-2 text-center text-slate-500 text-xs">{idx + 1}</td>
-                                          <td className="p-2 text-center text-xs">{formatDate(expense.expense_date)}</td>
-                                          <td className="p-2 text-center font-medium text-xs">{expense.employee_name || "-"}</td>
-                                          <td className="p-2 text-center text-slate-500 text-xs">{expense.employee_iqama || "-"}</td>
-                                          <td className="p-2 text-center font-bold text-blue-600 text-xs">{formatNumber(expense.amount || 0)}</td>
-                                          <td className="p-2 text-center text-slate-500 text-xs">{formatNumber(expense.tax_value || 0)}</td>
-                                          <td className="p-2 text-center font-bold text-emerald-600 text-xs">{formatNumber(expense.net_amount || expense.amount || 0)}</td>
-                                          <td className="p-2 text-center text-xs">{expense.account_code || "-"}</td>
-                                          <td className="p-2 text-center text-xs">{expense.center_code || "-"}</td>
+                                <div className="max-h-[300px] overflow-y-auto scrollbar-thin bg-white">
+                                  <table className="w-full text-sm">
+                                    <thead className="bg-white sticky top-0 z-10 border-b-2 border-slate-200">
+                                      <tr>
+                                        <th className="p-2 text-center text-black font-bold text-xs">#</th>
+                                        <th className="p-2 text-center text-black font-bold text-xs">التاريخ</th>
+                                        <th className="p-2 text-center text-black font-bold text-xs">المستفيد</th>
+                                        <th className="p-2 text-center text-black font-bold text-xs">رقم الإقامة</th>
+                                        <th className="p-2 text-center text-black font-bold text-xs">المبلغ</th>
+                                        <th className="p-2 text-center text-black font-bold text-xs">الضريبة</th>
+                                        <th className="p-2 text-center text-black font-bold text-xs">الصافي</th>
+                                        <th className="p-2 text-center text-black font-bold text-xs">الحساب</th>
+                                        <th className="p-2 text-center text-black font-bold text-xs">م.التكلفة</th>
+                                          <th className="p-2 text-center text-black font-bold text-xs print:hidden">الإجراءات</th>
+                                        </tr>
+                                      </thead>
+                                      <tbody className="bg-white">
+                                        {expenses.map((expense, idx) => (
+                                          <tr
+                                            key={expense.id}
+                                            className="border-b border-slate-200 hover:bg-slate-50 transition-colors bg-white"
+                                          >
+                                            <td className="p-2 text-center text-black text-xs">{idx + 1}</td>
+                                            <td className="p-2 text-center text-black text-xs">{formatDate(expense.expense_date)}</td>
+                                            <td className="p-2 text-center font-medium text-black text-xs">{expense.employee_name || "-"}</td>
+                                            <td className="p-2 text-center text-black text-xs">{expense.employee_iqama || "-"}</td>
+                                            <td className="p-2 text-center font-bold text-red-600 text-xs">{formatNumber(expense.amount || 0)}</td>
+                                            <td className="p-2 text-center text-red-600 text-xs">{formatNumber(expense.tax_value || 0)}</td>
+                                            <td className="p-2 text-center font-bold text-red-600 text-xs">{formatNumber(expense.net_amount || expense.amount || 0)}</td>
+                                            <td className="p-2 text-center text-black text-xs">{expense.account_code || "-"}</td>
+                                            <td className="p-2 text-center text-black text-xs">{expense.center_code || "-"}</td>
                                           <td className="p-2 text-center print:hidden">
                                             <div className="flex items-center justify-center gap-1">
                                               <Button
@@ -1021,34 +1021,34 @@ export function ExpensesReportClient({ companyId }: ExpensesReportClientProps) {
                               exit={{ height: 0, opacity: 0 }}
                               transition={{ duration: 0.3 }}
                             >
-                              <div className="max-h-[300px] overflow-y-auto scrollbar-thin">
-                                <table className="w-full text-sm">
-                                  <thead className="bg-slate-50 sticky top-0 z-10">
-                                    <tr>
-                                      <th className="p-2 text-center text-slate-600 font-bold text-xs">#</th>
-                                      <th className="p-2 text-center text-slate-600 font-bold text-xs">التاريخ</th>
-                                      <th className="p-2 text-center text-slate-600 font-bold text-xs">الموظف</th>
-                                      <th className="p-2 text-center text-slate-600 font-bold text-xs">رقم الإقامة</th>
-                                      <th className="p-2 text-center text-slate-600 font-bold text-xs">المبلغ</th>
-                                      <th className="p-2 text-center text-slate-600 font-bold text-xs">الحساب</th>
-                                        <th className="p-2 text-center text-slate-600 font-bold text-xs">م.التكلفة</th>
-                                        <th className="p-2 text-center text-slate-600 font-bold text-xs">حالة الدفع</th>
-                                        <th className="p-2 text-center text-slate-600 font-bold text-xs print:hidden">الإجراءات</th>
-                                      </tr>
-                                    </thead>
-                                    <tbody>
-                                      {deductions.map((deduction, idx) => (
-                                        <tr
-                                          key={deduction.id}
-                                          className="border-b border-slate-100 hover:bg-rose-50/50 transition-colors"
-                                        >
-                                          <td className="p-2 text-center text-slate-500 text-xs">{idx + 1}</td>
-                                          <td className="p-2 text-center text-xs">{formatDate(deduction.expense_date)}</td>
-                                          <td className="p-2 text-center font-medium text-xs">{deduction.employee_name || "-"}</td>
-                                          <td className="p-2 text-center text-slate-500 text-xs">{deduction.employee_iqama || "-"}</td>
-                                          <td className="p-2 text-center font-bold text-rose-600 text-xs">{formatNumber(deduction.amount || 0)}</td>
-                                          <td className="p-2 text-center text-xs">{deduction.account_code || "-"}</td>
-                                          <td className="p-2 text-center text-xs">{deduction.center_code || "-"}</td>
+                                <div className="max-h-[300px] overflow-y-auto scrollbar-thin bg-white">
+                                  <table className="w-full text-sm">
+                                    <thead className="bg-white sticky top-0 z-10 border-b-2 border-slate-200">
+                                      <tr>
+                                        <th className="p-2 text-center text-black font-bold text-xs">#</th>
+                                        <th className="p-2 text-center text-black font-bold text-xs">التاريخ</th>
+                                        <th className="p-2 text-center text-black font-bold text-xs">الموظف</th>
+                                        <th className="p-2 text-center text-black font-bold text-xs">رقم الإقامة</th>
+                                        <th className="p-2 text-center text-black font-bold text-xs">المبلغ</th>
+                                        <th className="p-2 text-center text-black font-bold text-xs">الحساب</th>
+                                          <th className="p-2 text-center text-black font-bold text-xs">م.التكلفة</th>
+                                          <th className="p-2 text-center text-black font-bold text-xs">حالة الدفع</th>
+                                          <th className="p-2 text-center text-black font-bold text-xs print:hidden">الإجراءات</th>
+                                        </tr>
+                                      </thead>
+                                      <tbody className="bg-white">
+                                        {deductions.map((deduction, idx) => (
+                                          <tr
+                                            key={deduction.id}
+                                            className="border-b border-slate-200 hover:bg-slate-50 transition-colors bg-white"
+                                          >
+                                            <td className="p-2 text-center text-black text-xs">{idx + 1}</td>
+                                            <td className="p-2 text-center text-black text-xs">{formatDate(deduction.expense_date)}</td>
+                                            <td className="p-2 text-center font-medium text-black text-xs">{deduction.employee_name || "-"}</td>
+                                            <td className="p-2 text-center text-black text-xs">{deduction.employee_iqama || "-"}</td>
+                                            <td className="p-2 text-center font-bold text-red-600 text-xs">{formatNumber(deduction.amount || 0)}</td>
+                                            <td className="p-2 text-center text-black text-xs">{deduction.account_code || "-"}</td>
+                                            <td className="p-2 text-center text-black text-xs">{deduction.center_code || "-"}</td>
                                           <td className="p-2 text-center">
                                             <button
                                               onClick={() => handleToggleDeductionStatus(deduction)}
