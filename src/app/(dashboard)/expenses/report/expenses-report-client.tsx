@@ -894,10 +894,10 @@ export function ExpensesReportClient({ companyId }: ExpensesReportClientProps) {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.5 }}
           >
-            <Card className="border-none shadow-2xl rounded-[2rem] overflow-hidden bg-[#111827] border border-white/5">
-              <CardHeader className="bg-white/5 border-b border-white/5 p-5">
+            <Card className={`border-none shadow-2xl rounded-[2rem] overflow-hidden ${isDark ? 'bg-[#111827] border-white/5' : 'bg-white border-slate-200'}`}>
+              <CardHeader className={`border-b p-5 ${isDark ? 'bg-white/5 border-white/5' : 'bg-slate-50 border-slate-200'}`}>
                 <div className="flex items-center justify-between">
-                  <CardTitle className="flex items-center gap-3 text-white text-lg font-black">
+                  <CardTitle className={`flex items-center gap-3 text-lg font-black ${isDark ? 'text-white' : 'text-slate-900'}`}>
                     <div className="w-10 h-10 rounded-xl bg-rose-500/20 flex items-center justify-center border border-rose-500/30">
                       <HandCoins className="w-5 h-5 text-rose-400" />
                     </div>
@@ -926,24 +926,24 @@ export function ExpensesReportClient({ companyId }: ExpensesReportClientProps) {
                     return (
                       <div
                         key={group}
-                        className="rounded-3xl overflow-hidden border border-white/5 bg-white/[0.02]"
+                        className={`rounded-3xl overflow-hidden border ${isDark ? 'border-white/5 bg-white/[0.02]' : 'border-slate-200 bg-slate-50'}`}
                       >
                         <button
                           onClick={() => toggleGroup(groupKey)}
-                          className="w-full bg-white/5 p-4 flex items-center justify-between hover:bg-white/10 transition-all group"
+                          className={`w-full p-4 flex items-center justify-between transition-all group ${isDark ? 'bg-white/5 hover:bg-white/10' : 'bg-slate-100 hover:bg-slate-200'}`}
                         >
                           <div className="flex items-center gap-4">
                             <div className="w-8 h-8 rounded-lg bg-pink-500/20 flex items-center justify-center border border-pink-500/30 group-hover:rotate-12 transition-transform">
                               <Folder className="w-4 h-4 text-pink-400" />
                             </div>
-                            <span className="text-sm font-black text-slate-200">{group}</span>
+                            <span className={`text-sm font-black ${isDark ? 'text-slate-200' : 'text-slate-800'}`}>{group}</span>
                           </div>
                           <div className="flex items-center gap-4">
-                            <span className="text-xs font-bold text-slate-500">{deductions.length} عملية</span>
-                            <div className="h-4 w-px bg-white/10" />
-                            <span className="text-sm font-black text-white">{formatNumber(groupTotal)} ر.س</span>
+                            <span className={`text-xs font-bold ${isDark ? 'text-slate-500' : 'text-slate-500'}`}>{deductions.length} عملية</span>
+                            <div className={`h-4 w-px ${isDark ? 'bg-white/10' : 'bg-slate-300'}`} />
+                            <span className={`text-sm font-black ${isDark ? 'text-white' : 'text-slate-900'}`}>{formatNumber(groupTotal)} ر.س</span>
                             <motion.div animate={{ rotate: isExpanded ? 180 : 0 }}>
-                              <ChevronDown className="w-4 h-4 text-slate-500" />
+                              <ChevronDown className={`w-4 h-4 ${isDark ? 'text-slate-500' : 'text-slate-400'}`} />
                             </motion.div>
                           </div>
                         </button>
@@ -959,37 +959,37 @@ export function ExpensesReportClient({ companyId }: ExpensesReportClientProps) {
                               <div className="max-h-[400px] overflow-y-auto scrollbar-thin px-2 pb-2">
                                 <table className="w-full text-sm border-separate border-spacing-y-1.5">
                                   <thead className="sticky top-0 z-10">
-                                    <tr className="bg-[#0d1525]/80 backdrop-blur-md">
-                                      <th className="p-3 text-right text-slate-500 font-bold text-[10px] uppercase tracking-wider rounded-r-xl">التاريخ</th>
-                                      <th className="p-3 text-right text-slate-500 font-bold text-[10px] uppercase tracking-wider">الموظف</th>
-                                      <th className="p-3 text-center text-slate-500 font-bold text-[10px] uppercase tracking-wider">المبلغ</th>
-                                      <th className="p-3 text-center text-slate-500 font-bold text-[10px] uppercase tracking-wider">الحساب</th>
-                                      <th className="p-3 text-center text-slate-500 font-bold text-[10px] uppercase tracking-wider">حالة الدفع</th>
-                                      <th className="p-3 text-center text-slate-500 font-bold text-[10px] uppercase tracking-wider rounded-l-xl print:hidden">الإجراءات</th>
+                                    <tr className={`${isDark ? 'bg-[#0d1525]/80' : 'bg-slate-100/80'} backdrop-blur-md`}>
+                                      <th className={`p-3 text-right font-bold text-[10px] uppercase tracking-wider rounded-r-xl ${isDark ? 'text-slate-500' : 'text-slate-500'}`}>التاريخ</th>
+                                      <th className={`p-3 text-right font-bold text-[10px] uppercase tracking-wider ${isDark ? 'text-slate-500' : 'text-slate-500'}`}>الموظف</th>
+                                      <th className={`p-3 text-center font-bold text-[10px] uppercase tracking-wider ${isDark ? 'text-slate-500' : 'text-slate-500'}`}>المبلغ</th>
+                                      <th className={`p-3 text-center font-bold text-[10px] uppercase tracking-wider ${isDark ? 'text-slate-500' : 'text-slate-500'}`}>الحساب</th>
+                                      <th className={`p-3 text-center font-bold text-[10px] uppercase tracking-wider ${isDark ? 'text-slate-500' : 'text-slate-500'}`}>حالة الدفع</th>
+                                      <th className={`p-3 text-center font-bold text-[10px] uppercase tracking-wider rounded-l-xl print:hidden ${isDark ? 'text-slate-500' : 'text-slate-500'}`}>الإجراءات</th>
                                     </tr>
                                   </thead>
                                   <tbody>
                                     {deductions.map((deduction) => (
                                       <tr
                                         key={deduction.id}
-                                        className="bg-white/[0.03] hover:bg-white/[0.06] transition-all group"
+                                        className={`transition-all group ${isDark ? 'bg-white/[0.03] hover:bg-white/[0.06]' : 'bg-white hover:bg-slate-50'}`}
                                       >
-                                        <td className="p-3 text-right text-xs font-medium text-slate-400 rounded-r-xl">
+                                        <td className={`p-3 text-right text-xs font-medium rounded-r-xl ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
                                           {formatDate(deduction.expense_date)}
                                         </td>
                                         <td className="p-3 text-right">
                                           <div className="flex flex-col">
-                                            <span className="text-xs font-black text-white group-hover:text-rose-400 transition-colors">
+                                            <span className={`text-xs font-black transition-colors ${isDark ? 'text-white group-hover:text-rose-400' : 'text-slate-900 group-hover:text-rose-600'}`}>
                                               {deduction.employee_name || "-"}
                                             </span>
-                                            <span className="text-[10px] text-slate-500">{deduction.employee_iqama || "-"}</span>
+                                            <span className={`text-[10px] ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>{deduction.employee_iqama || "-"}</span>
                                           </div>
                                         </td>
                                         <td className="p-3 text-center">
                                           <span className="text-xs font-black text-rose-400">{formatNumber(deduction.amount || 0)}</span>
                                         </td>
                                         <td className="p-3 text-center">
-                                          <span className="text-xs text-slate-500">{deduction.account_code || "-"}</span>
+                                          <span className={`text-xs ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>{deduction.account_code || "-"}</span>
                                         </td>
                                         <td className="p-3 text-center">
                                           <button
@@ -1053,12 +1053,12 @@ export function ExpensesReportClient({ companyId }: ExpensesReportClientProps) {
                     );
                   })
                 ) : (
-                  <div className="text-center py-16 border-2 border-dashed border-white/5 rounded-3xl">
-                    <div className="w-20 h-20 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-4 border border-white/10">
-                      <HandCoins className="w-10 h-10 text-slate-600" />
+                  <div className={`text-center py-16 border-2 border-dashed rounded-3xl ${isDark ? 'border-white/5' : 'border-slate-200'}`}>
+                    <div className={`w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4 border ${isDark ? 'bg-white/5 border-white/10' : 'bg-slate-100 border-slate-200'}`}>
+                      <HandCoins className={`w-10 h-10 ${isDark ? 'text-slate-600' : 'text-slate-400'}`} />
                     </div>
-                    <h4 className="text-base font-black text-slate-300">لا توجد استقطاعات مسجلة</h4>
-                    <p className="text-sm text-slate-500 mt-2">لم يتم العثور على أي بيانات استقطاعات للفترة المحددة</p>
+                    <h4 className={`text-base font-black ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>لا توجد استقطاعات مسجلة</h4>
+                    <p className={`text-sm mt-2 ${isDark ? 'text-slate-500' : 'text-slate-500'}`}>لم يتم العثور على أي بيانات استقطاعات للفترة المحددة</p>
                     <Button
                       onClick={() => (window.location.href = "/expenses/deductions")}
                       className="mt-6 bg-rose-600 hover:bg-rose-700 text-white rounded-xl px-8"
@@ -1079,10 +1079,10 @@ export function ExpensesReportClient({ companyId }: ExpensesReportClientProps) {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.6 }}
           >
-            <Card className="border-none shadow-2xl rounded-[2rem] overflow-hidden bg-[#111827] border border-white/5">
-              <CardHeader className="bg-white/5 border-b border-white/5 p-5">
+            <Card className={`border-none shadow-2xl rounded-[2rem] overflow-hidden ${isDark ? 'bg-[#111827] border-white/5' : 'bg-white border-slate-200'}`}>
+              <CardHeader className={`border-b p-5 ${isDark ? 'bg-white/5 border-white/5' : 'bg-slate-50 border-slate-200'}`}>
                 <div className="flex items-center justify-between">
-                  <CardTitle className="flex items-center gap-3 text-white text-lg font-black">
+                  <CardTitle className={`flex items-center gap-3 text-lg font-black ${isDark ? 'text-white' : 'text-slate-900'}`}>
                     <div className="w-10 h-10 rounded-xl bg-emerald-500/20 flex items-center justify-center border border-emerald-500/30">
                       <FileText className="w-5 h-5 text-emerald-400" />
                     </div>
@@ -1102,21 +1102,21 @@ export function ExpensesReportClient({ companyId }: ExpensesReportClientProps) {
                 <div className="overflow-x-auto scrollbar-thin">
                   <table className="w-full text-sm border-separate border-spacing-y-1.5">
                     <thead>
-                      <tr className="bg-white/5 rounded-xl">
-                        <th className="p-4 text-right text-slate-500 font-bold text-[10px] uppercase rounded-r-xl">شهر المسير</th>
-                        <th className="p-4 text-center text-slate-500 font-bold text-[10px] uppercase">المبلغ الإجمالي</th>
-                        <th className="p-4 text-center text-slate-500 font-bold text-[10px] uppercase">الموظفين</th>
-                        <th className="p-4 text-center text-slate-500 font-bold text-[10px] uppercase">تاريخ الإنشاء</th>
-                        <th className="p-4 text-center text-slate-500 font-bold text-[10px] uppercase rounded-l-xl print:hidden">الإجراءات</th>
+                      <tr className={`rounded-xl ${isDark ? 'bg-white/5' : 'bg-slate-100'}`}>
+                        <th className={`p-4 text-right font-bold text-[10px] uppercase rounded-r-xl ${isDark ? 'text-slate-500' : 'text-slate-500'}`}>شهر المسير</th>
+                        <th className={`p-4 text-center font-bold text-[10px] uppercase ${isDark ? 'text-slate-500' : 'text-slate-500'}`}>المبلغ الإجمالي</th>
+                        <th className={`p-4 text-center font-bold text-[10px] uppercase ${isDark ? 'text-slate-500' : 'text-slate-500'}`}>الموظفين</th>
+                        <th className={`p-4 text-center font-bold text-[10px] uppercase ${isDark ? 'text-slate-500' : 'text-slate-500'}`}>تاريخ الإنشاء</th>
+                        <th className={`p-4 text-center font-bold text-[10px] uppercase rounded-l-xl print:hidden ${isDark ? 'text-slate-500' : 'text-slate-500'}`}>الإجراءات</th>
                       </tr>
                     </thead>
                     <tbody>
                       {payrolls.map((payroll) => (
                         <tr
                           key={payroll.id}
-                          className="bg-white/[0.03] hover:bg-white/[0.06] transition-all group"
+                          className={`transition-all group ${isDark ? 'bg-white/[0.03] hover:bg-white/[0.06]' : 'bg-white hover:bg-slate-50'}`}
                         >
-                          <td className="p-4 text-right rounded-r-xl font-black text-white group-hover:text-emerald-400 transition-colors">
+                          <td className={`p-4 text-right rounded-r-xl font-black transition-colors ${isDark ? 'text-white group-hover:text-emerald-400' : 'text-slate-900 group-hover:text-emerald-600'}`}>
                             {payroll.payroll_month}
                           </td>
                           <td className="p-4 text-center font-black text-emerald-400">
@@ -1127,7 +1127,7 @@ export function ExpensesReportClient({ companyId }: ExpensesReportClientProps) {
                               {payroll.employee_count} موظف
                             </Badge>
                           </td>
-                          <td className="p-4 text-center text-slate-500 text-xs">
+                          <td className={`p-4 text-center text-xs ${isDark ? 'text-slate-500' : 'text-slate-500'}`}>
                             {formatDate(payroll.created_at)}
                           </td>
                           <td className="p-4 text-center rounded-l-xl print:hidden">
@@ -1157,24 +1157,24 @@ export function ExpensesReportClient({ companyId }: ExpensesReportClientProps) {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.7 }}
         >
-          <Card className="border-none shadow-xl rounded-2xl overflow-hidden bg-[#111827] text-white relative border border-white/5">
+          <Card className={`border-none shadow-xl rounded-2xl overflow-hidden relative ${isDark ? 'bg-[#111827] text-white border-white/5' : 'bg-white text-slate-900 border-slate-200'}`}>
             <CardContent className="p-6 text-center relative z-10">
               <div className="flex items-center justify-center gap-3 mb-4">
                 <div className="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center">
                   <Calculator className="w-5 h-5 text-white" />
                 </div>
                 <div className="text-right">
-                  <h2 className="text-lg font-bold text-white">
+                  <h2 className={`text-lg font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}>
                     الإجمالي النهائي لشهر {getMonthName(selectedMonth)}
                   </h2>
                 </div>
               </div>
               
-              <div className="inline-block px-6 py-3 bg-white/5 rounded-xl border border-white/10">
-                <span className="text-3xl font-bold text-white">
+              <div className={`inline-block px-6 py-3 rounded-xl border ${isDark ? 'bg-white/5 border-white/10' : 'bg-slate-100 border-slate-200'}`}>
+                <span className={`text-3xl font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}>
                   {formatNumber(stats.totalAll)}
                 </span>
-                <span className="text-sm font-medium text-slate-400 mr-2">ريال سعودي</span>
+                <span className={`text-sm font-medium mr-2 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>ريال سعودي</span>
               </div>
             </CardContent>
           </Card>
