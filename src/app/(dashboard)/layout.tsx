@@ -2,8 +2,7 @@ import React from "react";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { DashboardLayout } from "@/components/layout/dashboard-layout";
-import { supabase } from "@/lib/supabase-client";
-import { User, SubUser } from "@/lib/types";
+import { query } from "@/lib/db";
 
 export default async function Layout({ children }: { children: React.ReactNode }) {
   const cookieStore = await cookies();
@@ -19,10 +18,10 @@ export default async function Layout({ children }: { children: React.ReactNode }
   let user: { name: string; role: string; email: string };
   
   if (userType === "sub_user" && session.sub_user_id) {
-    const { data: subUsers } = await supabase
-      .from("company_sub_users")
-      .select("id, name, email")
-      .eq("id", session.sub_user_id);
+    const subUsers = await query<{ id: number; name: string; email: string }>(
+      "SELECT id, name, email FROM company_sub_users WHERE id = ?",
+      [session.sub_user_id]
+    );
     
     if (!subUsers || subUsers.length === 0) {
       redirect("/login");
@@ -33,21 +32,21 @@ export default async function Layout({ children }: { children: React.ReactNode }
       role: "sub_user",
       email: subUser.email
     };
-    } else {
-      const { data: users } = await supabase
-        .from("users")
-        .select("id, name, email, role, company_id")
-        .eq("id", session.user_id);
-      
-      if (!users || users.length === 0) {
-        redirect("/login");
-      }
-      user = {
-        name: users[0].name,
-        role: users[0].role,
-        email: users[0].email
-      };
+  } else {
+    const users = await query<{ id: number; name: string; email: string; role: string; company_id: number }>(
+      "SELECT id, name, email, role, company_id FROM users WHERE id = ?",
+      [session.user_id]
+    );
+    
+    if (!users || users.length === 0) {
+      redirect("/login");
     }
+    user = {
+      name: users[0].name,
+      role: users[0].role,
+      email: users[0].email
+    };
+  }
 
   return (
     <DashboardLayout 
