@@ -218,32 +218,87 @@ export function ExpensesClient({ companyId, companyInfo, stats, recentActivity, 
           <div className="absolute -top-12 -left-12 w-48 h-48 bg-purple-500/10 rounded-full blur-3xl" />
         </motion.div>
 
-        {/* Main Action Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {[
-            { title: "إضافة المنصرفات", sub: "اضغط هنا للإضافة", icon: Wallet, color: "bg-blue-600", link: "/expenses/new" },
-            { title: "إضافة الاستقطاعات", sub: "اضغط هنا للإضافة", icon: HandCoins, color: "bg-rose-600", link: "/expenses/deductions" },
-            { title: "تقرير المنصرفات", sub: "اضغط هنا للعرض", icon: ChartBar, color: "bg-emerald-600", link: "/expenses/report" },
-            { title: "التحليلات", sub: "اضغط هنا للعرض", icon: PieChart, color: "bg-purple-600", link: "/expenses/analysis" },
-          ].map((card, idx) => (
-            <motion.div
-              key={idx}
-              variants={itemVariants}
-              whileHover={{ y: -5 }}
-              className="group cursor-pointer"
-              onClick={() => router.push(card.link)}
-            >
-              <Card className="border-none shadow-lg hover:shadow-2xl transition-all duration-300 rounded-[2rem] overflow-hidden bg-white/80 backdrop-blur-xl">
-                <CardContent className="p-6 text-center space-y-3">
-                  <div className={`mx-auto w-12 h-12 rounded-2xl ${card.color} flex items-center justify-center text-white shadow-xl group-hover:scale-110 transition-transform duration-300`}>
-                    <card.icon className="w-6 h-6" />
-                  </div>
-                  <h3 className="text-lg font-bold text-slate-800">{card.title}</h3>
-                  <p className="text-xs font-semibold text-blue-600 group-hover:translate-x-1 transition-transform">{card.sub}</p>
-                </CardContent>
-              </Card>
-            </motion.div>
-          ))}
+        {/* Action Buttons Row */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          {/* Add Expenses Button */}
+          <motion.button
+            variants={itemVariants}
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            onClick={() => router.push('/expenses/new')}
+            className="relative group overflow-hidden rounded-2xl bg-gradient-to-br from-blue-500 to-blue-600 p-5 shadow-lg hover:shadow-xl transition-all"
+          >
+            <div className="absolute inset-0 bg-gradient-to-br from-blue-400 to-blue-700 opacity-0 group-hover:opacity-100 transition-opacity" />
+            <div className="relative flex items-center gap-4">
+              <div className="w-12 h-12 rounded-xl bg-white/20 backdrop-blur flex items-center justify-center">
+                <PlusCircle className="w-6 h-6 text-white" />
+              </div>
+              <div className="text-right">
+                <h3 className="text-lg font-bold text-white">إضافة منصرف</h3>
+                <p className="text-xs text-blue-100">+ منصرف شهري جديد</p>
+              </div>
+            </div>
+          </motion.button>
+
+          {/* Add Deductions Button */}
+          <motion.button
+            variants={itemVariants}
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            onClick={() => router.push('/expenses/deductions')}
+            className="relative group overflow-hidden rounded-2xl bg-gradient-to-br from-rose-500 to-rose-600 p-5 shadow-lg hover:shadow-xl transition-all"
+          >
+            <div className="absolute inset-0 bg-gradient-to-br from-rose-400 to-rose-700 opacity-0 group-hover:opacity-100 transition-opacity" />
+            <div className="relative flex items-center gap-4">
+              <div className="w-12 h-12 rounded-xl bg-white/20 backdrop-blur flex items-center justify-center">
+                <PlusCircle className="w-6 h-6 text-white" />
+              </div>
+              <div className="text-right">
+                <h3 className="text-lg font-bold text-white">إضافة استقطاع</h3>
+                <p className="text-xs text-rose-100">+ استقطاع شهري جديد</p>
+              </div>
+            </div>
+          </motion.button>
+
+          {/* Reports Button */}
+          <motion.button
+            variants={itemVariants}
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            onClick={() => router.push('/expenses/report')}
+            className="relative group overflow-hidden rounded-2xl bg-gradient-to-br from-emerald-500 to-emerald-600 p-5 shadow-lg hover:shadow-xl transition-all"
+          >
+            <div className="absolute inset-0 bg-gradient-to-br from-emerald-400 to-emerald-700 opacity-0 group-hover:opacity-100 transition-opacity" />
+            <div className="relative flex items-center gap-4">
+              <div className="w-12 h-12 rounded-xl bg-white/20 backdrop-blur flex items-center justify-center">
+                <ChartBar className="w-6 h-6 text-white" />
+              </div>
+              <div className="text-right">
+                <h3 className="text-lg font-bold text-white">تقرير المنصرفات</h3>
+                <p className="text-xs text-emerald-100">عرض التقرير الشهري</p>
+              </div>
+            </div>
+          </motion.button>
+
+          {/* Analytics Button */}
+          <motion.button
+            variants={itemVariants}
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            onClick={() => router.push('/expenses/analysis')}
+            className="relative group overflow-hidden rounded-2xl bg-gradient-to-br from-purple-500 to-purple-600 p-5 shadow-lg hover:shadow-xl transition-all"
+          >
+            <div className="absolute inset-0 bg-gradient-to-br from-purple-400 to-purple-700 opacity-0 group-hover:opacity-100 transition-opacity" />
+            <div className="relative flex items-center gap-4">
+              <div className="w-12 h-12 rounded-xl bg-white/20 backdrop-blur flex items-center justify-center">
+                <PieChart className="w-6 h-6 text-white" />
+              </div>
+              <div className="text-right">
+                <h3 className="text-lg font-bold text-white">التحليلات</h3>
+                <p className="text-xs text-purple-100">تحليل المنصرفات</p>
+              </div>
+            </div>
+          </motion.button>
         </div>
 
         {/* Recent Activity & Quick Actions Grid */}
