@@ -93,9 +93,36 @@ export function DashboardClient({
 }: DashboardClientProps) {
   const [tokenVisible, setTokenVisible] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
+  const [yearlyStats, setYearlyStats] = useState({
+    total_invoices_amount: stats.total_invoices_amount || 0,
+    yearly_expenses: stats.yearly_expenses || 0
+  });
+  const [loadingStats, setLoadingStats] = useState(false);
   const { isRTL } = useLocale();
   const t = useTranslations('dashboard');
   const tCommon = useTranslations('common');
+
+  useEffect(() => {
+    async function fetchYearlyStats() {
+      setLoadingStats(true);
+      try {
+        const res = await fetch(`/api/dashboard/yearly-stats?year=${selectedYear}`);
+        if (res.ok) {
+          const data = await res.json();
+          setYearlyStats({
+            total_invoices_amount: data.total_invoices_amount || 0,
+            yearly_expenses: data.yearly_expenses || 0
+          });
+        }
+      } catch (error) {
+        console.error("Error fetching yearly stats:", error);
+      } finally {
+        setLoadingStats(false);
+      }
+    }
+    fetchYearlyStats();
+  }, [selectedYear]);
 
   const copyToken = () => {
     if (company?.access_token) {
@@ -331,7 +358,11 @@ export function DashboardClient({
             </div>
             <span className="font-bold text-slate-700">{t('fiscalYear')}</span>
           </div>
-          <select className="px-4 py-2 rounded-xl border border-slate-200 bg-white text-sm font-bold focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all cursor-pointer hover:border-indigo-300">
+          <select 
+            value={selectedYear}
+            onChange={(e) => setSelectedYear(Number(e.target.value))}
+            className="px-4 py-2 rounded-xl border border-slate-200 bg-white text-sm font-bold focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all cursor-pointer hover:border-indigo-300"
+          >
             {[2024, 2025, 2026, 2027, 2028].map(year => (
               <option key={year} value={year}>{year}</option>
             ))}
@@ -387,21 +418,23 @@ export function DashboardClient({
                 />
                 <LuxuryStatCard 
                   icon={Receipt} 
-                  value={stats.total_invoices_amount || 0} 
+                  value={yearlyStats.total_invoices_amount} 
                   label={isRTL ? "إجمالي الفواتير الضريبية" : "Total Tax Invoices"}
                   trend={8}
                   gradient="from-emerald-500 to-teal-600"
                   glowColor="emerald"
                   isCurrency
+                  loading={loadingStats}
                 />
                 <LuxuryStatCard 
                   icon={BadgeDollarSign} 
-                  value={stats.yearly_expenses || 0} 
+                  value={yearlyStats.yearly_expenses} 
                   label={isRTL ? "إجمالي المصروفات السنوية" : "Total Yearly Expenses"}
                   trend={12}
                   gradient="from-teal-500 to-cyan-600"
                   glowColor="teal"
                   isCurrency
+                  loading={loadingStats}
                 />
                 {permissions.credit_notes_module === 1 ? (
                   <LuxuryStatCard 
@@ -491,9 +524,10 @@ interface LuxuryStatCardProps {
   glowColor: string;
   isCurrency?: boolean;
   subValue?: string;
+  loading?: boolean;
 }
 
-function LuxuryStatCard({ icon: Icon, value, label, trend, gradient, glowColor, isCurrency, subValue }: LuxuryStatCardProps) {
+function LuxuryStatCard({ icon: Icon, value, label, trend, gradient, glowColor, isCurrency, subValue, loading }: LuxuryStatCardProps) {
   const { isRTL } = useLocale();
   const glowClasses: Record<string, string> = {
     blue: "shadow-blue-200/50 hover:shadow-blue-300/50",
@@ -523,13 +557,19 @@ function LuxuryStatCard({ icon: Icon, value, label, trend, gradient, glowColor, 
         </div>
         
         <div className="space-y-1">
-          <h4 className="text-3xl font-bold text-slate-800 tracking-tight">
-            <AnimatedCounter value={value} />
-            {isCurrency && <span className={`text-sm text-slate-500 ${isRTL ? 'mr-1' : 'ml-1'}`}>{isRTL ? 'ر.س' : 'SAR'}</span>}
-          </h4>
-          <p className="text-slate-500 font-medium text-sm">{label}</p>
-          {subValue && <p className="text-xs text-slate-400">{subValue}</p>}
-        </div>
+            <h4 className="text-3xl font-bold text-slate-800 tracking-tight">
+              {loading ? (
+                <span className="inline-block w-20 h-8 bg-slate-200 animate-pulse rounded" />
+              ) : (
+                <>
+                  <AnimatedCounter value={value} />
+                  {isCurrency && <span className={`text-sm text-slate-500 ${isRTL ? 'mr-1' : 'ml-1'}`}>{isRTL ? 'ر.س' : 'SAR'}</span>}
+                </>
+              )}
+            </h4>
+            <p className="text-slate-500 font-medium text-sm">{label}</p>
+            {subValue && <p className="text-xs text-slate-400">{subValue}</p>}
+          </div>
         
         <div className="mt-4 pt-4 border-t border-slate-100">
           <div className="h-2 w-full bg-slate-100 rounded-full overflow-hidden">
