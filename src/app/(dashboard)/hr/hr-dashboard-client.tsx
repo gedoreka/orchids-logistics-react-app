@@ -120,14 +120,13 @@ export function HRDashboardClient({ stats, activePackages, recentEmployees, comp
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
               {[
                 { 
-                  href: "/hr/packages", 
-                  color: "from-blue-500 to-indigo-600", 
-                  icon: <Users size={24} />, 
-                  label: t('totalEmployees'), 
-                  value: stats.totalEmployees, 
-                  subLabel: `${stats.completionRate}% ${isRTL ? 'نشط' : 'Active'}`,
-                  progress: stats.completionRate
-                },
+                    href: "/hr/packages", 
+                    color: "from-blue-500 to-indigo-600", 
+                    icon: <Users size={24} />, 
+                    label: t('totalEmployees'), 
+                    value: stats.totalEmployees, 
+                    subLabel: `${stats.completionRate}% ${isRTL ? 'نشط' : 'Active'}`
+                  },
                 { 
                   href: "/hr/packages", 
                   color: "from-emerald-500 to-teal-600", 
@@ -168,16 +167,7 @@ export function HRDashboardClient({ stats, activePackages, recentEmployees, comp
                       <div className="mt-6 relative z-10">
                         <p className="text-white/70 text-[10px] font-black uppercase tracking-widest">{stat.label}</p>
                         <p className="text-4xl font-black text-white mt-2">{stat.value}</p>
-                        {stat.progress !== undefined && (
-                          <div className="h-2 w-full bg-white/20 rounded-full overflow-hidden mt-4">
-                            <motion.div 
-                              initial={{ width: 0 }}
-                              animate={{ width: `${stat.progress}%` }}
-                              transition={{ delay: 0.5 + idx * 0.1, duration: 1 }}
-                              className="h-full bg-white/80 rounded-full"
-                            />
-                          </div>
-                        )}
+
                       </div>
                       <div className="absolute -bottom-6 -left-6 w-32 h-32 bg-white/10 rounded-full blur-3xl group-hover:bg-white/20 transition-all"></div>
                     </div>
