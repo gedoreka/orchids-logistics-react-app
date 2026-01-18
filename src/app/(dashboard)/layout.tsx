@@ -2,7 +2,6 @@ import React from "react";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { DashboardLayout } from "@/components/layout/dashboard-layout";
-import { query } from "@/lib/db";
 import { supabase } from "@/lib/supabase-client";
 import { User, SubUser } from "@/lib/types";
 
@@ -34,18 +33,21 @@ export default async function Layout({ children }: { children: React.ReactNode }
       role: "sub_user",
       email: subUser.email
     };
-  } else {
-    const users = await query<User>("SELECT id, name, email, role, company_id FROM users WHERE id = ?", [session.user_id]);
-    
-    if (users.length === 0) {
-      redirect("/login");
+    } else {
+      const { data: users } = await supabase
+        .from("users")
+        .select("id, name, email, role, company_id")
+        .eq("id", session.user_id);
+      
+      if (!users || users.length === 0) {
+        redirect("/login");
+      }
+      user = {
+        name: users[0].name,
+        role: users[0].role,
+        email: users[0].email
+      };
     }
-    user = {
-      name: users[0].name,
-      role: users[0].role,
-      email: users[0].email
-    };
-  }
 
   return (
     <DashboardLayout 
