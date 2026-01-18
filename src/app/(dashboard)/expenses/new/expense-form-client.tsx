@@ -480,122 +480,122 @@ export default function ExpenseFormClient({ user }: { user: User }) {
           <div className="p-3 bg-white/10 rounded-full backdrop-blur-sm">
             <Plus className="w-8 h-8 text-blue-400" />
           </div>
-          <h1 className="text-2xl font-bold tracking-tight">إضافة مصروفات متعددة</h1>
-          <p className="text-slate-300 max-w-2xl">
-            أضف وتعديل مصروفات الشركة بشكل منظم وسهل مع الحساب التلقائي والربط بالموظفين
-          </p>
-        </div>
-        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 via-green-500 to-red-500"></div>
-      </motion.div>
-
-      {/* Subtype Management Banner */}
-      <motion.div 
-        className="bg-white p-4 rounded-2xl shadow-lg border border-slate-100 flex flex-col md:flex-row items-center justify-between gap-4"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-      >
-        <div className="flex items-center space-x-4 space-x-reverse">
-          <div className="p-2.5 bg-indigo-50 rounded-xl text-indigo-600">
-            <Tags className="w-5 h-5" />
+            <h1 className="text-2xl font-bold tracking-tight glow-text-white">إضافة مصروفات متعددة</h1>
+            <p className="text-slate-300 max-w-2xl">
+              أضف وتعديل مصروفات الشركة بشكل منظم وسهل مع الحساب التلقائي والربط بالموظفين
+            </p>
           </div>
-          <div>
-            <h3 className="text-base font-bold text-slate-900">إدارة أنواع المصروفات المخصصة</h3>
-            <p className="text-xs text-slate-500">يمكنك إضافة وتعديل أنواع المصروفات المخصصة لك فقط التي تظهر في القوائم المنسدلة.</p>
-          </div>
-        </div>
-        <button 
-          onClick={() => setShowSubtypeManager(true)}
-          className="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 px-4 py-2 rounded-xl font-bold transition-all flex items-center space-x-2 space-x-reverse border border-indigo-100 text-sm"
+          <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 via-green-500 to-red-500"></div>
+        </motion.div>
+  
+        {/* Subtype Management Banner */}
+        <motion.div 
+          className="bg-white p-4 rounded-2xl shadow-lg border border-slate-100 flex flex-col md:flex-row items-center justify-between gap-4"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
         >
-          <Settings className="w-4 h-4" />
-          <span>إدارة الأنواع المخصصة</span>
-        </button>
-      </motion.div>
-
-      {/* Info Bar */}
-      <motion.div 
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        className="grid grid-cols-1 md:grid-cols-3 gap-4"
-      >
-        <div className="bg-white/80 backdrop-blur-md p-4 rounded-xl border border-white/20 shadow-md flex items-center space-x-3 space-x-reverse">
-          <div className="p-2.5 bg-blue-50 rounded-lg text-blue-600">
-            <History className="w-5 h-5" />
+          <div className="flex items-center space-x-4 space-x-reverse">
+            <div className="p-2.5 bg-indigo-50 rounded-xl text-indigo-600">
+              <Tags className="w-5 h-5" />
+            </div>
+            <div>
+              <h3 className="text-base font-bold text-slate-900 glow-text">إدارة أنواع المصروفات المخصصة</h3>
+              <p className="text-xs text-slate-500">يمكنك إضافة وتعديل أنواع المصروفات المخصصة لك فقط التي تظهر في القوائم المنسدلة.</p>
+            </div>
           </div>
-          <div>
-            <p className="text-xs text-slate-500">الشهر الحالي</p>
-            <p className="text-base font-bold text-slate-900">{new Date().toLocaleString('en-US', { month: 'long', year: 'numeric' })}</p>
-          </div>
-        </div>
-        <div className="bg-white/80 backdrop-blur-md p-4 rounded-xl border border-white/20 shadow-md flex items-center space-x-3 space-x-reverse">
-          <div className="p-2.5 bg-green-50 rounded-lg text-green-600">
-            <FileText className="w-5 h-5" />
-          </div>
-          <div>
-            <p className="text-xs text-slate-500">رقم القيد التالي</p>
-            <p className="text-base font-bold text-slate-900">{metadata?.voucherNumber}</p>
-          </div>
-        </div>
-        <div className="bg-white/80 backdrop-blur-md p-4 rounded-xl border border-white/20 shadow-md flex items-center space-x-3 space-x-reverse">
-          <div className="p-2.5 bg-purple-50 rounded-lg text-purple-600">
-            <Bolt className="w-5 h-5" />
-          </div>
-          <div>
-            <p className="text-xs text-slate-500">حالة القيد</p>
-            <p className="text-base font-bold text-slate-900">جديد</p>
-          </div>
-        </div>
-      </motion.div>
-
-      {/* Expense Type Selector */}
-      <motion.div 
-        className="bg-white p-6 rounded-2xl shadow-lg border border-slate-100"
-        whileHover={{ y: -5 }}
-        transition={{ type: "spring", stiffness: 300 }}
-      >
-        <div className="flex items-center space-x-2 space-x-reverse mb-4">
-          <Tags className="w-5 h-5 text-blue-600" />
-          <h2 className="text-lg font-bold text-slate-900">اختر نوع المصروف لإضافته</h2>
-        </div>
-        <div className="flex flex-col md:flex-row gap-4">
-          <select 
-            className="flex-1 bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all text-sm"
-            value={selectedTypeToAdd}
-            onChange={(e) => setSelectedTypeToAdd(e.target.value)}
-          >
-            <option value="">-- اختر نوع المصروف --</option>
-            {Object.entries(mainTypes).map(([key, label]) => (
-              <option key={key} value={key}>{label}</option>
-            ))}
-          </select>
           <button 
-            onClick={() => addSection(selectedTypeToAdd)}
-            className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2.5 rounded-xl font-bold transition-all flex items-center justify-center space-x-2 space-x-reverse shadow-lg shadow-blue-200 text-sm"
+            onClick={() => setShowSubtypeManager(true)}
+            className="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 px-4 py-2 rounded-xl font-bold transition-all flex items-center space-x-2 space-x-reverse border border-indigo-100 text-sm"
           >
-            <Plus className="w-4 h-4" />
-            <span>إضافة النوع</span>
+            <Settings className="w-4 h-4" />
+            <span>إدارة الأنواع المخصصة</span>
           </button>
-        </div>
-      </motion.div>
-
-      {/* Sections */}
-      <form onSubmit={handleSubmit} className="space-y-8">
-        <AnimatePresence>
-          {Object.entries(sections).map(([type, rows]) => (
-              <motion.div 
-                key={type}
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.95 }}
-                className="bg-white rounded-2xl shadow-xl border border-slate-100 overflow-hidden"
-              >
-                <div className="bg-slate-50 p-4 border-b border-slate-100 flex items-center justify-between">
-                  <div className="flex items-center space-x-3 space-x-reverse">
-                    <div className="p-2 bg-blue-100 rounded-lg text-blue-600">
-                      <Building2 className="w-4 h-4" />
+        </motion.div>
+  
+        {/* Info Bar */}
+        <motion.div 
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="grid grid-cols-1 md:grid-cols-3 gap-4"
+        >
+          <div className="bg-white/80 backdrop-blur-md p-4 rounded-xl border border-white/20 shadow-md flex items-center space-x-3 space-x-reverse">
+            <div className="p-2.5 bg-blue-50 rounded-lg text-blue-600">
+              <History className="w-5 h-5" />
+            </div>
+            <div>
+              <p className="text-xs text-slate-500">الشهر الحالي</p>
+              <p className="text-base font-bold text-slate-900 glow-text">{new Date().toLocaleString('en-US', { month: 'long', year: 'numeric' })}</p>
+            </div>
+          </div>
+          <div className="bg-white/80 backdrop-blur-md p-4 rounded-xl border border-white/20 shadow-md flex items-center space-x-3 space-x-reverse">
+            <div className="p-2.5 bg-green-50 rounded-lg text-green-600">
+              <FileText className="w-5 h-5" />
+            </div>
+            <div>
+              <p className="text-xs text-slate-500">رقم القيد التالي</p>
+              <p className="text-base font-bold text-slate-900 glow-text">{metadata?.voucherNumber}</p>
+            </div>
+          </div>
+          <div className="bg-white/80 backdrop-blur-md p-4 rounded-xl border border-white/20 shadow-md flex items-center space-x-3 space-x-reverse">
+            <div className="p-2.5 bg-purple-50 rounded-lg text-purple-600">
+              <Bolt className="w-5 h-5" />
+            </div>
+            <div>
+              <p className="text-xs text-slate-500">حالة القيد</p>
+              <p className="text-base font-bold text-slate-900 glow-text">جديد</p>
+            </div>
+          </div>
+        </motion.div>
+  
+        {/* Expense Type Selector */}
+        <motion.div 
+          className="bg-white p-6 rounded-2xl shadow-lg border border-slate-100"
+          whileHover={{ y: -5 }}
+          transition={{ type: "spring", stiffness: 300 }}
+        >
+          <div className="flex items-center space-x-2 space-x-reverse mb-4">
+            <Tags className="w-5 h-5 text-blue-600" />
+            <h2 className="text-lg font-bold text-slate-900 glow-text">اختر نوع المصروف لإضافته</h2>
+          </div>
+          <div className="flex flex-col md:flex-row gap-4">
+            <select 
+              className="flex-1 bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all text-sm"
+              value={selectedTypeToAdd}
+              onChange={(e) => setSelectedTypeToAdd(e.target.value)}
+            >
+              <option value="">-- اختر نوع المصروف --</option>
+              {Object.entries(mainTypes).map(([key, label]) => (
+                <option key={key} value={key}>{label}</option>
+              ))}
+            </select>
+            <button 
+              onClick={() => addSection(selectedTypeToAdd)}
+              className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2.5 rounded-xl font-bold transition-all flex items-center justify-center space-x-2 space-x-reverse shadow-lg shadow-blue-200 text-sm"
+            >
+              <Plus className="w-4 h-4" />
+              <span>إضافة النوع</span>
+            </button>
+          </div>
+        </motion.div>
+  
+        {/* Sections */}
+        <form onSubmit={handleSubmit} className="space-y-8">
+          <AnimatePresence>
+            {Object.entries(sections).map(([type, rows]) => (
+                <motion.div 
+                  key={type}
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.95 }}
+                  className="bg-white rounded-2xl shadow-xl border border-slate-100 overflow-hidden"
+                >
+                  <div className="bg-slate-50 p-4 border-b border-slate-100 flex items-center justify-between">
+                    <div className="flex items-center space-x-3 space-x-reverse">
+                      <div className="p-2 bg-blue-100 rounded-lg text-blue-600">
+                        <Building2 className="w-4 h-4" />
+                      </div>
+                      <h3 className="text-base font-bold text-slate-900 glow-text">{mainTypes[type as keyof typeof mainTypes]}</h3>
                     </div>
-                    <h3 className="text-base font-bold text-slate-900">{mainTypes[type as keyof typeof mainTypes]}</h3>
-                  </div>
                   <button 
                     type="button"
                     onClick={() => removeSection(type)}
@@ -874,6 +874,12 @@ export default function ExpenseFormClient({ user }: { user: User }) {
 
       <style jsx global>{`
         .rtl { direction: rtl; }
+        .glow-text {
+          text-shadow: 0 0 8px rgba(59, 130, 246, 0.2), 0 0 15px rgba(59, 130, 246, 0.1);
+        }
+        .glow-text-white {
+          text-shadow: 0 0 10px rgba(255, 255, 255, 0.4), 0 0 20px rgba(59, 130, 246, 0.3);
+        }
         input[type="date"]::-webkit-calendar-picker-indicator {
           cursor: pointer;
           filter: invert(0.5);
