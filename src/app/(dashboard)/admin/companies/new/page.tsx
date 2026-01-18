@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Building2,
@@ -38,44 +38,14 @@ import {
   Shield,
   Zap,
   Star,
-  ChevronDown
+  ChevronDown,
+  Layers
 } from "lucide-react";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
-
-const regions: Record<string, string[]> = {
-  "السعودية": [
-    "الرياض", "مكة المكرمة", "المدينة المنورة", "المنطقة الشرقية", "القصيم", "عسير",
-    "تبوك", "حائل", "الجوف", "الباحة", "نجران", "جازان", "الحدود الشمالية"
-  ],
-  "السودان": ["الخرطوم", "بحري", "أم درمان"],
-  "مصر": ["القاهرة", "الإسكندرية", "الجيزة"]
-};
-
-const districts: Record<string, string[]> = {
-  "الرياض": ["الربيع", "الندى", "الصحافة", "النرجس", "العارض", "النفل", "العقيق", "الوادي",
-              "الغدير", "الياسمين", "الفلاح", "بنبان", "القيروان", "حطين", "الملقا", "الروضة"],
-  "مكة المكرمة": ["التنعيم", "الخالدية", "الرصيفة", "الزاهر", "الزهراء", "السليمانية", "الشامية"],
-  "المدينة المنورة": ["العزيزية", "الملك فهد", "الربوة", "سيد الشهداء", "قباء", "العنابس"],
-  "المنطقة الشرقية": ["السوق", "الربيع", "النخيل", "الدانة", "النهضة", "البادية", "الجلوية"],
-  "القصيم": ["خضراء", "الصباخ", "واسط", "الجنوب", "الخليج", "الضاحي", "السادة"],
-  "عسير": ["المروج", "العزيزية", "الهضبة", "الوردتين", "القابل", "الخشع", "السروات"],
-  "تبوك": ["سلطانة", "رايس", "طيبة", "الورود", "الهجن", "النهضة", "الندى", "النخيل"],
-  "حائل": ["النسية", "برزان", "حدري البلاد", "الوسيطاء", "الوادي", "النقرة"],
-  "الجوف": ["السليمانية", "الفاروق", "الربوة", "الناصفة", "الحماد", "الوادي"],
-  "الباحة": ["الباهر", "شهبة", "رغدان", "الحازم", "بني سعد", "البارك", "الروضة"],
-  "نجران": ["الشرفة الشمالية", "الشرفة الجنوبية", "الشبهان", "الرويكبة"],
-  "جازان": ["القلعة", "النور", "الصفا", "الشاطئ", "السويس", "السهيلية", "الروابي"],
-  "الحدود الشمالية": ["المساعدية", "المروج", "الصالحية", "الناصرية", "الفيصلية"],
-  "الخرطوم": ["كافوري", "الصحافة", "جبرة", "اللاماب", "المنشية"],
-  "بحري": ["شمبات", "الدناقلة", "الختمية"],
-  "أم درمان": ["الثورة", "أبو سعد", "الصالحة", "الفتيحاب"],
-  "القاهرة": ["مدينة نصر", "المعادي", "الزمالك", "شبرا", "مصر الجديدة"],
-  "الإسكندرية": ["سيدي جابر", "محرم بك", "العجمي", "سموحة"],
-  "الجيزة": ["الدقي", "العجوزة", "الهرم", "فيصل"]
-};
+import { locationLibrary } from "@/lib/location-data";
 
 const currencies = [
   { code: "SAR", name: "ريال سعودي" },
@@ -83,8 +53,19 @@ const currencies = [
   { code: "AED", name: "درهم إماراتي" },
   { code: "EUR", name: "يورو" },
   { code: "EGP", name: "جنيه مصري" },
-  { code: "SDG", name: "جنيه سوداني" }
+  { code: "SDG", name: "جنيه سوداني" },
+  { code: "KWD", name: "دينار كويتي" },
+  { code: "BHD", name: "دينار بحريني" }
 ];
+
+interface Plan {
+  id: number;
+  name: string;
+  price: number;
+  duration_value: number;
+  duration_unit: string;
+  description: string;
+}
 
 interface FormData {
   admin_name: string;
@@ -98,7 +79,10 @@ interface FormData {
   website: string;
   currency: string;
   country: string;
+  country_code: string;
   region: string;
+  region_code: string;
+  city: string;
   district: string;
   street: string;
   postal_code: string;
@@ -111,6 +95,7 @@ interface FormData {
   transport_license_type: string;
   license_start: string;
   license_end: string;
+  plan_id: string;
 }
 
 export default function NewCompanyPage() {
@@ -119,6 +104,7 @@ export default function NewCompanyPage() {
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [createdCompanyName, setCreatedCompanyName] = useState("");
   const [activeSection, setActiveSection] = useState<number | null>(0);
+  const [plans, setPlans] = useState<Plan[]>([]);
   
   const [formData, setFormData] = useState<FormData>({
     admin_name: "",
@@ -131,8 +117,11 @@ export default function NewCompanyPage() {
     phone: "",
     website: "",
     currency: "SAR",
-    country: "السعودية",
+    country: "Saudi Arabia",
+    country_code: "SA",
     region: "",
+    region_code: "",
+    city: "",
     district: "",
     street: "",
     postal_code: "",
@@ -144,7 +133,8 @@ export default function NewCompanyPage() {
     transport_license_number: "",
     transport_license_type: "",
     license_start: "",
-    license_end: ""
+    license_end: "",
+    plan_id: ""
   });
 
   const [files, setFiles] = useState<{
@@ -154,22 +144,50 @@ export default function NewCompanyPage() {
     license_image?: File;
   }>({});
 
-  const [availableRegions, setAvailableRegions] = useState<string[]>(regions["السعودية"] || []);
-  const [availableDistricts, setAvailableDistricts] = useState<string[]>([]);
+  useEffect(() => {
+    fetchPlans();
+  }, []);
+
+  const fetchPlans = async () => {
+    try {
+      const res = await fetch("/api/admin/subscriptions/plans");
+      const data = await res.json();
+      if (data.success) {
+        setPlans(data.plans);
+      }
+    } catch (error) {
+      console.error("Error fetching plans:", error);
+    }
+  };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-
-    if (name === "country") {
-      setAvailableRegions(regions[value] || []);
-      setAvailableDistricts([]);
-      setFormData(prev => ({ ...prev, region: "", district: "" }));
-    }
-
-    if (name === "region") {
-      setAvailableDistricts(districts[value] || []);
-      setFormData(prev => ({ ...prev, district: "" }));
+    
+    if (name === "country_code") {
+      const country = locationLibrary.countries.find(c => c.code === value);
+      setFormData(prev => ({ 
+        ...prev, 
+        country_code: value, 
+        country: country?.name || "",
+        region: "", 
+        region_code: "",
+        city: "",
+        district: "" 
+      }));
+    } else if (name === "region_code") {
+      const regions = locationLibrary.getRegions(formData.country_code);
+      const region = regions.find(r => r.code === value);
+      setFormData(prev => ({ 
+        ...prev, 
+        region_code: value, 
+        region: region?.name || "",
+        city: "",
+        district: "" 
+      }));
+    } else if (name === "city") {
+      setFormData(prev => ({ ...prev, city: value, district: "" }));
+    } else {
+      setFormData(prev => ({ ...prev, [name]: value }));
     }
   };
 
@@ -207,8 +225,8 @@ export default function NewCompanyPage() {
       return;
     }
 
-    if (formData.password.length < 6) {
-      toast.error("كلمة المرور يجب أن تكون 6 أحرف على الأقل");
+    if (!formData.plan_id) {
+      toast.error("الرجاء اختيار باقة الاشتراك");
       return;
     }
 
@@ -319,8 +337,7 @@ export default function NewCompanyPage() {
       subtitle: "معلومات تسجيل الدخول للمستخدم المسؤول",
       icon: UserCircle,
       gradient: "from-violet-500 via-purple-500 to-fuchsia-500",
-      bgGradient: "from-violet-500/10 via-purple-500/5 to-fuchsia-500/10",
-      iconBg: "from-violet-500/20 to-purple-600/20",
+      bgGradient: "from-violet-500 via-purple-500 to-fuchsia-500",
       accentColor: "violet"
     },
     {
@@ -329,8 +346,7 @@ export default function NewCompanyPage() {
       subtitle: "معلومات المنشأة الرئيسية",
       icon: Building2,
       gradient: "from-blue-500 via-indigo-500 to-violet-500",
-      bgGradient: "from-blue-500/10 via-indigo-500/5 to-violet-500/10",
-      iconBg: "from-blue-500/20 to-indigo-600/20",
+      bgGradient: "from-blue-500 via-indigo-500 to-violet-500",
       accentColor: "indigo"
     },
     {
@@ -339,8 +355,7 @@ export default function NewCompanyPage() {
       subtitle: "عنوان المنشأة الرسمي",
       icon: MapPin,
       gradient: "from-emerald-500 via-teal-500 to-cyan-500",
-      bgGradient: "from-emerald-500/10 via-teal-500/5 to-cyan-500/10",
-      iconBg: "from-emerald-500/20 to-teal-600/20",
+      bgGradient: "from-emerald-500 via-teal-500 to-cyan-500",
       accentColor: "emerald"
     },
     {
@@ -349,8 +364,7 @@ export default function NewCompanyPage() {
       subtitle: "معلومات الحساب المصرفي",
       icon: Landmark,
       gradient: "from-amber-500 via-orange-500 to-red-500",
-      bgGradient: "from-amber-500/10 via-orange-500/5 to-red-500/10",
-      iconBg: "from-amber-500/20 to-orange-600/20",
+      bgGradient: "from-amber-500 via-orange-500 to-red-500",
       accentColor: "amber"
     },
     {
@@ -359,9 +373,17 @@ export default function NewCompanyPage() {
       subtitle: "معلومات رخصة النشاط",
       icon: FileCheck,
       gradient: "from-rose-500 via-pink-500 to-fuchsia-500",
-      bgGradient: "from-rose-500/10 via-pink-500/5 to-fuchsia-500/10",
-      iconBg: "from-rose-500/20 to-pink-600/20",
+      bgGradient: "from-rose-500 via-pink-500 to-fuchsia-500",
       accentColor: "rose"
+    },
+    {
+      id: 5,
+      title: "تحديد الباقة",
+      subtitle: "اختر خطة الاشتراك المناسبة",
+      icon: Layers,
+      gradient: "from-indigo-500 via-blue-500 to-cyan-500",
+      bgGradient: "from-indigo-500 via-blue-500 to-cyan-500",
+      accentColor: "indigo"
     }
   ];
 
@@ -503,7 +525,7 @@ export default function NewCompanyPage() {
           className="relative"
         >
           <div className="absolute inset-0 bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 rounded-3xl opacity-90" />
-          <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC4xIj48cGF0aCBkPSJNMzYgMzRjMC0yIDItNCAyLTRzLTItMi00LTItNC0yLTQtMi00IDItNCAyLTQgMi0yIDQtMiA0LTIgNCAyIDQgMiA0IDQgMiA0IDIgNC0yIDQtMiA0LTIgNC0yIDQgMiA0IDIgMiA0LTIgNC00IDItNCIvPjwvZz48L2c+PC9zdmc+')] opacity-30 rounded-3xl" />
+          <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC4xIj48cGF0aCBkPSJNMzYgMzRjMC0yIDItNCAyLTRzLTItMi00LTItNC0yLTQtMi00IDItNCAyLTQtMi0yIDQtMiA0LTIgNCAyIDQgMiA0IDQgMiA0IDIgNC0yIDQtMiA0LTIgNC0yIDQgMiA0IDIgMiA0LTIgNC00IDItNCIvPjwvZz48L2c+PC9zdmc+')] opacity-30 rounded-3xl" />
           
           <div className="relative px-8 py-8">
             <div className="flex items-center justify-between">
@@ -522,7 +544,7 @@ export default function NewCompanyPage() {
                     </div>
                     <div>
                       <h1 className="text-3xl font-black text-white tracking-tight">إضافة منشأة جديدة</h1>
-                      <p className="text-white/80 text-sm">قم بملء البيانات لتسجيل منشأة جديدة مع حساب المدير</p>
+                      <p className="text-white/80 text-sm">قم بملء البيانات لتسجيل منشأة جديدة مع اختيار الباقة</p>
                     </div>
                   </div>
                 </div>
@@ -545,7 +567,7 @@ export default function NewCompanyPage() {
           </div>
         </motion.div>
 
-        <div className="grid grid-cols-5 gap-3 mb-8">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 mb-8">
           {sections.map((section, idx) => (
             <motion.button
               key={section.id}
@@ -568,18 +590,20 @@ export default function NewCompanyPage() {
                 <div className={cn(
                   "w-10 h-10 rounded-xl flex items-center justify-center transition-all",
                   activeSection === section.id
-                    ? "bg-gradient-to-br " + section.gradient + " shadow-lg"
+                    ? "bg-white shadow-md"
                     : "bg-slate-100 group-hover:bg-slate-200"
                 )}>
                   <section.icon className={cn(
                     "w-5 h-5 transition-colors",
-                    activeSection === section.id ? "text-white" : "text-slate-500"
+                    activeSection === section.id 
+                      ? "text-" + section.accentColor + "-500" 
+                      : "text-slate-500"
                   )} />
                 </div>
                 <div className="flex-1 min-w-0">
                   <h3 className={cn(
-                    "font-bold text-sm truncate transition-colors",
-                    activeSection === section.id ? "text-slate-800" : "text-slate-700"
+                    "font-bold text-xs truncate transition-colors",
+                    activeSection === section.id ? "text-white" : "text-black"
                   )}>{section.title}</h3>
                 </div>
               </div>
@@ -710,23 +734,27 @@ export default function NewCompanyPage() {
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 relative">
                     <SelectField 
                       label="الدولة" 
-                      name="country" 
+                      name="country_code" 
                       icon={Flag} 
                       accentColor="emerald"
                       placeholder="اختر الدولة"
-                      options={[
-                        { value: "السعودية", label: "السعودية" },
-                        { value: "السودان", label: "السودان" },
-                        { value: "مصر", label: "مصر" }
-                      ]}
+                      options={locationLibrary.countries.map(c => ({ value: c.code, label: c.nativeName }))}
                     />
                     <SelectField 
                       label="المنطقة" 
-                      name="region" 
+                      name="region_code" 
                       icon={Map} 
                       accentColor="emerald"
                       placeholder="اختر المنطقة"
-                      options={availableRegions.map(r => ({ value: r, label: r }))}
+                      options={locationLibrary.getRegions(formData.country_code).map(r => ({ value: r.code, label: r.name }))}
+                    />
+                    <SelectField 
+                      label="المدينة" 
+                      name="city" 
+                      icon={Navigation} 
+                      accentColor="emerald"
+                      placeholder="اختر المدينة"
+                      options={locationLibrary.getCities(formData.country_code, formData.region_code).map(c => ({ value: c.name, label: c.name }))}
                     />
                     <SelectField 
                       label="الحي" 
@@ -734,7 +762,7 @@ export default function NewCompanyPage() {
                       icon={Home} 
                       accentColor="emerald"
                       placeholder="اختر الحي"
-                      options={availableDistricts.map(d => ({ value: d, label: d }))}
+                      options={locationLibrary.getDistricts(formData.city).map(d => ({ value: d, label: d }))}
                     />
                     <InputField label="الشارع" name="street" placeholder="أدخل اسم الشارع" icon={Navigation} accentColor="emerald" />
                     <InputField label="الرمز البريدي" name="postal_code" placeholder="أدخل الرمز البريدي" icon={Hash} accentColor="emerald" />
@@ -810,6 +838,67 @@ export default function NewCompanyPage() {
                 </div>
               </motion.div>
             )}
+
+            {(activeSection === 5 || activeSection === null) && (
+              <motion.div
+                key="package"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ delay: 0.5 }}
+                className="relative overflow-hidden"
+              >
+                <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/5 via-blue-500/3 to-cyan-500/5 rounded-3xl" />
+                <div className="relative bg-white/80 backdrop-blur-xl rounded-3xl border border-slate-200/80 shadow-xl shadow-slate-200/50 p-8">
+                  <div className="absolute top-0 left-0 w-64 h-64 bg-gradient-to-br from-indigo-500/10 to-transparent rounded-full blur-3xl" />
+                  
+                  <div className="flex items-center gap-5 mb-8 pb-6 border-b border-slate-100 relative">
+                    <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-indigo-500 via-blue-500 to-cyan-500 flex items-center justify-center shadow-lg shadow-indigo-500/30">
+                      <Layers size={28} className="text-white" />
+                    </div>
+                    <div>
+                      <h2 className="text-2xl font-black text-slate-800 tracking-tight">تحديد الباقة</h2>
+                      <p className="text-slate-500 text-sm mt-1">اختر باقة الاشتراك المناسبة للمنشأة</p>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 relative">
+                    {plans.map((plan) => (
+                      <motion.div
+                        key={plan.id}
+                        whileHover={{ scale: 1.02 }}
+                        onClick={() => setFormData(prev => ({ ...prev, plan_id: plan.id.toString() }))}
+                        className={cn(
+                          "relative p-6 rounded-2xl border-2 transition-all cursor-pointer overflow-hidden group",
+                          formData.plan_id === plan.id.toString()
+                            ? "border-indigo-500 bg-indigo-50/50 shadow-lg"
+                            : "border-slate-100 bg-white hover:border-indigo-200"
+                        )}
+                      >
+                        {formData.plan_id === plan.id.toString() && (
+                          <div className="absolute top-4 left-4">
+                            <CheckCircle className="w-6 h-6 text-indigo-500" />
+                          </div>
+                        )}
+                        <h3 className="text-xl font-bold text-slate-800 mb-2">{plan.name}</h3>
+                        <div className="flex items-baseline gap-1 mb-4">
+                          <span className="text-3xl font-black text-indigo-600">{plan.price}</span>
+                          <span className="text-sm text-slate-500 font-medium">{formData.currency} / {plan.duration_value} {plan.duration_unit}</span>
+                        </div>
+                        <p className="text-sm text-slate-500 line-clamp-2">{plan.description}</p>
+                        <div className="absolute bottom-0 right-0 w-24 h-24 bg-gradient-to-br from-indigo-500/5 to-transparent rounded-full -mr-12 -mb-12 transition-transform group-hover:scale-110" />
+                      </motion.div>
+                    ))}
+                    {plans.length === 0 && (
+                      <div className="col-span-full py-12 text-center bg-slate-50 rounded-2xl border-2 border-dashed border-slate-200">
+                        <RefreshCw className="w-10 h-10 text-slate-300 mx-auto mb-3 animate-spin" />
+                        <p className="text-slate-500 font-medium">جاري تحميل باقات الاشتراك...</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </motion.div>
+            )}
           </AnimatePresence>
 
           <motion.div
@@ -822,7 +911,7 @@ export default function NewCompanyPage() {
                 <Sparkles className="w-5 h-5 text-white" />
               </div>
               <p className="text-slate-700 text-sm">
-                سيتم إنشاء المنشأة مع حساب مدير بحالة نشطة مباشرة، وسيتمكن المستخدم من تسجيل الدخول فوراً
+                سيتم إنشاء المنشأة وتفعيل الباقة المختارة مباشرة، وسيصل بريد تفعيل للمدير
               </p>
             </div>
             
@@ -849,7 +938,7 @@ export default function NewCompanyPage() {
                 ) : (
                   <>
                     <Save className="w-5 h-5" />
-                    حفظ المنشأة والحساب
+                    إكمال التسجيل وتفعيل الباقة
                   </>
                 )}
               </motion.button>
@@ -885,7 +974,7 @@ export default function NewCompanyPage() {
                     <CheckCircle size={40} className="text-white" />
                   </motion.div>
                   <h3 className="text-2xl font-black text-slate-800 mb-3">تم إنشاء المنشأة بنجاح!</h3>
-                  <p className="text-slate-500 mb-8">تم تسجيل منشأة "<span className="font-bold text-slate-700">{createdCompanyName}</span>" مع حساب المدير في النظام</p>
+                  <p className="text-slate-500 mb-8">تم تسجيل منشأة "<span className="font-bold text-slate-700">{createdCompanyName}</span>" وتفعيل الباقة بنجاح</p>
 
                   <div className="flex gap-4 justify-center">
                     <motion.button
@@ -902,6 +991,7 @@ export default function NewCompanyPage() {
                       whileTap={{ scale: 0.98 }}
                       onClick={() => {
                         setShowSuccessModal(false);
+                        setActiveSection(0);
                         setFormData({
                           admin_name: "",
                           email: "",
@@ -913,8 +1003,11 @@ export default function NewCompanyPage() {
                           phone: "",
                           website: "",
                           currency: "SAR",
-                          country: "السعودية",
+                          country: "Saudi Arabia",
+                          country_code: "SA",
                           region: "",
+                          region_code: "",
+                          city: "",
                           district: "",
                           street: "",
                           postal_code: "",
@@ -926,7 +1019,8 @@ export default function NewCompanyPage() {
                           transport_license_number: "",
                           transport_license_type: "",
                           license_start: "",
-                          license_end: ""
+                          license_end: "",
+                          plan_id: ""
                         });
                         setFiles({});
                       }}
