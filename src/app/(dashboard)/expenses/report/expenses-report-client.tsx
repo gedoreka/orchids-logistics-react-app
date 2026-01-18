@@ -864,9 +864,9 @@ export function ExpensesReportClient({ companyId }: ExpensesReportClientProps) {
                                         <th className="p-2 text-center text-gray-900 font-extrabold text-xs">الصافي</th>
                                         <th className="p-2 text-center text-gray-900 font-extrabold text-xs">الحساب</th>
                                         <th className="p-2 text-center text-gray-900 font-extrabold text-xs">م.التكلفة</th>
-                                          <th className="p-2 text-center text-gray-900 font-extrabold text-xs print:hidden">الإجراءات</th>
-                                        </tr>
-                                      </thead>
+                                            <th className="p-2 text-left text-gray-900 font-extrabold text-xs print:hidden">الإجراءات</th>
+                                          </tr>
+                                        </thead>
                                       <tbody className="bg-white">
                                         {expenses.map((expense, idx) => (
                                           <tr
@@ -882,40 +882,40 @@ export function ExpensesReportClient({ companyId }: ExpensesReportClientProps) {
                                             <td className="p-2 text-center font-extrabold text-red-600 text-xs">{formatNumber(expense.net_amount || expense.amount || 0)}</td>
                                             <td className="p-2 text-center text-gray-900 font-semibold text-xs">{expense.account_code || "-"}</td>
                                             <td className="p-2 text-center text-gray-900 font-semibold text-xs">{expense.center_code || "-"}</td>
-                                           <td className="p-2 text-center print:hidden">
-                                              <div className="flex items-center justify-center gap-3">
-                                                <Button
-                                                  size="sm"
-                                                  variant="ghost"
-                                                  onClick={() => showItemDetails(expense)}
-                                                  className="text-blue-600 hover:bg-blue-100 h-9 px-3 gap-2"
-                                                  title="عرض التفاصيل"
-                                                >
-                                                  <Eye className="w-4 h-4" />
-                                                  <span className="text-xs">عرض التفاصيل</span>
-                                                </Button>
-                                                <Button
-                                                  size="sm"
-                                                  variant="ghost"
-                                                  onClick={() => handleEditClick(expense)}
-                                                  className="text-amber-600 hover:bg-amber-100 h-9 px-3 gap-2"
-                                                  title="تعديل"
-                                                >
-                                                  <Pencil className="w-4 h-4" />
-                                                  <span className="text-xs">تعديل العملية</span>
-                                                </Button>
-                                                <Button
-                                                  size="sm"
-                                                  variant="ghost"
-                                                  onClick={() => handleDeleteClick(expense)}
-                                                  className="text-rose-600 hover:bg-rose-100 h-9 px-3 gap-2"
-                                                  title="حذف"
-                                                >
-                                                  <Trash2 className="w-4 h-4" />
-                                                  <span className="text-xs">حذف العملية</span>
-                                                </Button>
-                                              </div>
-                                            </td>
+                                             <td className="p-2 text-left print:hidden">
+                                                <div className="flex items-center justify-end gap-1.5">
+                                                  <Button
+                                                    size="sm"
+                                                    variant="ghost"
+                                                    onClick={() => showItemDetails(expense)}
+                                                    className="text-blue-600 hover:bg-blue-100 h-9 px-2 gap-1.5"
+                                                    title="عرض التفاصيل"
+                                                  >
+                                                    <Eye className="w-4 h-4" />
+                                                    <span className="text-xs">عرض التفاصيل</span>
+                                                  </Button>
+                                                  <Button
+                                                    size="sm"
+                                                    variant="ghost"
+                                                    onClick={() => handleEditClick(expense)}
+                                                    className="text-amber-600 hover:bg-amber-100 h-9 px-2 gap-1.5"
+                                                    title="تعديل"
+                                                  >
+                                                    <Pencil className="w-4 h-4" />
+                                                    <span className="text-xs">تعديل العملية</span>
+                                                  </Button>
+                                                  <Button
+                                                    size="sm"
+                                                    variant="ghost"
+                                                    onClick={() => handleDeleteClick(expense)}
+                                                    className="text-rose-600 hover:bg-rose-100 h-9 px-2 gap-1.5"
+                                                    title="حذف"
+                                                  >
+                                                    <Trash2 className="w-4 h-4" />
+                                                    <span className="text-xs">حذف العملية</span>
+                                                  </Button>
+                                                </div>
+                                              </td>
                                         </tr>
                                       ))}
                                   </tbody>
@@ -1036,9 +1036,9 @@ export function ExpensesReportClient({ companyId }: ExpensesReportClientProps) {
                                         <th className="p-2 text-center text-gray-900 font-extrabold text-xs">الحساب</th>
                                           <th className="p-2 text-center text-gray-900 font-extrabold text-xs">م.التكلفة</th>
                                           <th className="p-2 text-center text-gray-900 font-extrabold text-xs">حالة الدفع</th>
-                                          <th className="p-2 text-center text-gray-900 font-extrabold text-xs print:hidden">الإجراءات</th>
-                                        </tr>
-                                      </thead>
+                                            <th className="p-2 text-left text-gray-900 font-extrabold text-xs print:hidden">الإجراءات</th>
+                                          </tr>
+                                        </thead>
                                       <tbody className="bg-white">
                                         {deductions.map((deduction, idx) => (
                                           <tr
@@ -1080,40 +1080,40 @@ export function ExpensesReportClient({ companyId }: ExpensesReportClientProps) {
                                               {deduction.status === "completed" ? "مدفوع" : "غير مدفوع"}
                                             </p>
                                           </td>
-                                           <td className="p-2 text-center print:hidden">
-                                              <div className="flex items-center justify-center gap-3">
-                                                <Button
-                                                  size="sm"
-                                                  variant="ghost"
-                                                  onClick={() => showItemDetails(deduction)}
-                                                  className="text-rose-600 hover:bg-rose-100 h-9 px-3 gap-2"
-                                                  title="عرض التفاصيل"
-                                                >
-                                                  <Eye className="w-4 h-4" />
-                                                  <span className="text-xs">عرض التفاصيل</span>
-                                                </Button>
-                                                <Button
-                                                  size="sm"
-                                                  variant="ghost"
-                                                  onClick={() => handleEditClick(deduction)}
-                                                  className="text-amber-600 hover:bg-amber-100 h-9 px-3 gap-2"
-                                                  title="تعديل"
-                                                >
-                                                  <Pencil className="w-4 h-4" />
-                                                  <span className="text-xs">تعديل العملية</span>
-                                                </Button>
-                                                <Button
-                                                  size="sm"
-                                                  variant="ghost"
-                                                  onClick={() => handleDeleteClick(deduction)}
-                                                  className="text-red-600 hover:bg-red-100 h-9 px-3 gap-2"
-                                                  title="حذف"
-                                                >
-                                                  <Trash2 className="w-4 h-4" />
-                                                  <span className="text-xs">حذف العملية</span>
-                                                </Button>
-                                              </div>
-                                            </td>
+                                             <td className="p-2 text-left print:hidden">
+                                                <div className="flex items-center justify-end gap-1.5">
+                                                  <Button
+                                                    size="sm"
+                                                    variant="ghost"
+                                                    onClick={() => showItemDetails(deduction)}
+                                                    className="text-rose-600 hover:bg-rose-100 h-9 px-2 gap-1.5"
+                                                    title="عرض التفاصيل"
+                                                  >
+                                                    <Eye className="w-4 h-4" />
+                                                    <span className="text-xs">عرض التفاصيل</span>
+                                                  </Button>
+                                                  <Button
+                                                    size="sm"
+                                                    variant="ghost"
+                                                    onClick={() => handleEditClick(deduction)}
+                                                    className="text-amber-600 hover:bg-amber-100 h-9 px-2 gap-1.5"
+                                                    title="تعديل"
+                                                  >
+                                                    <Pencil className="w-4 h-4" />
+                                                    <span className="text-xs">تعديل العملية</span>
+                                                  </Button>
+                                                  <Button
+                                                    size="sm"
+                                                    variant="ghost"
+                                                    onClick={() => handleDeleteClick(deduction)}
+                                                    className="text-red-600 hover:bg-red-100 h-9 px-2 gap-1.5"
+                                                    title="حذف"
+                                                  >
+                                                    <Trash2 className="w-4 h-4" />
+                                                    <span className="text-xs">حذف العملية</span>
+                                                  </Button>
+                                                </div>
+                                              </td>
                                         </tr>
                                       ))}
                                   </tbody>
@@ -1203,17 +1203,17 @@ export function ExpensesReportClient({ companyId }: ExpensesReportClientProps) {
                           <Badge className="bg-emerald-100 text-emerald-700 text-xs">{payroll.employee_count} موظف</Badge>
                         </td>
                         <td className="p-2 text-center text-slate-500 text-xs">{formatDate(payroll.created_at)}</td>
-                         <td className="p-2 text-center print:hidden">
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={() => (window.location.href = `/salary-payrolls/${payroll.id}`)}
-                              className="text-emerald-600 border-emerald-200 hover:bg-emerald-50 text-xs h-9 px-3 gap-2"
-                            >
-                              <Eye className="w-4 h-4" />
-                              عرض التفاصيل
-                            </Button>
-                          </td>
+                                           <td className="p-2 text-left print:hidden">
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => (window.location.href = `/salary-payrolls/${payroll.id}`)}
+                                className="text-emerald-600 border-emerald-200 hover:bg-emerald-50 text-xs h-9 px-2 gap-1.5"
+                              >
+                                <Eye className="w-4 h-4" />
+                                عرض التفاصيل
+                              </Button>
+                            </td>
                       </tr>
                     ))}
                   </tbody>
