@@ -569,18 +569,17 @@ export default function ExpenseFormClient({ user }: { user: User }) {
               </div>
             </motion.div>
           </div>
-        </motion.div>
 
-        {/* Sections */}
-        <form onSubmit={handleSubmit} className="space-y-8 mt-8">
-          <AnimatePresence>
-            {Object.entries(sections).map(([type, rows]) => (
+          {/* Sections - Inside the main card */}
+          <form onSubmit={handleSubmit} className="space-y-6 p-6">
+            <AnimatePresence>
+              {Object.entries(sections).map(([type, rows]) => (
                 <motion.div 
                   key={type}
                   initial={{ opacity: 0, scale: 0.95 }}
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0, scale: 0.95 }}
-                  className="bg-white rounded-2xl shadow-xl border border-slate-100 overflow-hidden"
+                  className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-lg border border-white/50 overflow-hidden"
                 >
                   <div className="bg-slate-50 p-4 border-b border-slate-100 flex items-center justify-between">
                     <div className="flex items-center space-x-3 space-x-reverse">
