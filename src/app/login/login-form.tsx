@@ -112,17 +112,28 @@ export default function LoginForm({ initialEmail = "" }: LoginFormProps) {
 
     const result = await loginAction(formData);
 
-    if (result.success) {
-      setUserName(result.user?.name || "");
-      if (result.user?.company_name) {
-        localStorage.setItem("last_company_name", result.user.company_name);
-      }
-      setShowWelcome(true);
-      setTimeout(() => {
-        router.push("/dashboard");
-        router.refresh();
-      }, 2500);
-    } else {
+      if (result.success) {
+        setUserName(result.user?.name || "");
+        if (result.user?.company_name) {
+          localStorage.setItem("last_company_name", result.user.company_name);
+        }
+        
+        const today = new Date().toDateString();
+        const lastWelcomeDate = localStorage.getItem("last_welcome_date");
+        const shouldShowWelcome = lastWelcomeDate !== today;
+        
+        if (shouldShowWelcome) {
+          localStorage.setItem("last_welcome_date", today);
+          setShowWelcome(true);
+          setTimeout(() => {
+            router.push("/dashboard");
+            router.refresh();
+          }, 2500);
+        } else {
+          router.push("/dashboard");
+          router.refresh();
+        }
+      } else {
       setError(result.error || "حدث خطأ ما في البيانات");
       setIsLoading(false);
     }
