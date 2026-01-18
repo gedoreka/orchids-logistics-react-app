@@ -499,47 +499,14 @@ export function ExpensesReportClient({ companyId }: ExpensesReportClientProps) {
 
             
             <CardContent className="p-5">
-              <div className="relative flex flex-col lg:flex-row items-center justify-between gap-4">
-                <div className="flex items-center gap-4 lg:w-[200px]">
-                  {companyInfo?.logo_path ? (
-                    <img
-                      src={companyInfo.logo_path}
-                      alt="Logo"
-                      className="w-16 h-16 rounded-full border-2 border-white/20 object-cover shadow-lg"
-                    />
-                  ) : (
-                    <div className="w-16 h-16 rounded-full bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center shadow-lg border-2 border-white/20">
-                      <Building2 className="w-8 h-8 text-white" />
-                    </div>
-                  )}
-                  <div>
-                    <h2 className="text-lg font-bold text-white/90">
-                      {companyInfo?.name || "اسم الشركة"}
-                    </h2>
-                    <p className="text-blue-200 text-xs">
-                      نظام إدارة المنصرفات والرواتب
-                    </p>
-                  </div>
-                </div>
-
-                <div className="lg:absolute lg:left-1/2 lg:top-1/2 lg:-translate-x-1/2 lg:-translate-y-1/2 text-center">
-                  <h1 className="text-xl lg:text-2xl font-bold flex items-center justify-center gap-3">
-                    <TrendingUp className="w-7 h-7 text-amber-400" />
-                    التقرير المالي الشهري
-                  </h1>
-                </div>
-
-                <div className="bg-white/10 backdrop-blur-lg rounded-2xl px-4 py-3 border border-white/20 print:hidden lg:w-[200px]">
-                  <div className="flex items-center gap-3">
-                    <Calendar className="w-6 h-6 text-amber-400" />
-                    <div>
-                      <p className="text-xs text-blue-200">الشهر المختار</p>
-                      <p className="text-base font-bold">
-                        {getMonthName(selectedMonth)}
-                      </p>
-                    </div>
-                  </div>
-                </div>
+              <div className="flex flex-col items-center justify-center gap-2">
+                <h1 className="text-xl lg:text-2xl font-bold flex items-center justify-center gap-3">
+                  <TrendingUp className="w-7 h-7 text-amber-400" />
+                  التقرير المالي الشهري
+                </h1>
+                <p className="text-blue-200 text-sm">
+                  نظام إدارة المنصرفات والرواتب
+                </p>
               </div>
             </CardContent>
           </Card>
