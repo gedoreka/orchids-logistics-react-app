@@ -762,19 +762,8 @@ export function ExpensesReportClient({ companyId }: ExpensesReportClientProps) {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4 }}
           >
-            <Card className="border-none shadow-lg rounded-3xl overflow-hidden">
-              <CardHeader className="bg-gradient-to-r from-blue-600 to-blue-700 text-white p-4">
-                <div className="flex items-center justify-between">
-                  <CardTitle className="flex items-center gap-2 text-base">
-                    <Wallet className="w-5 h-5" />
-                    المنصرفات الشهرية
-                  </CardTitle>
-                  <Badge className="bg-white/20 text-white text-sm px-3 py-1">
-                    {stats.expensesCount} عملية - {formatNumber(stats.totalExpenses)} ر.س
-                  </Badge>
-                </div>
-              </CardHeader>
-              <CardContent className="p-4 space-y-4">
+              <Card className="border-none shadow-lg rounded-3xl overflow-hidden">
+                <CardContent className="p-4 space-y-4">
                 {Object.keys(expensesGrouped).length > 0 ? (
                   Object.entries(expensesGrouped).map(([group, expenses]) => {
                     const groupKey = `expense-${group}`;
