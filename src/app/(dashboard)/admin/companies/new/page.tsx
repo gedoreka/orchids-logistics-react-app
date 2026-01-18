@@ -762,13 +762,13 @@ export default function NewCompanyPage() {
                       options={locationLibrary.getCities(formData.country_code, formData.region_code).map(c => ({ value: c.name, label: c.name }))}
                     />
                     <SelectField 
-                      label="الحي" 
-                      name="district" 
-                      icon={Home} 
-                      accentColor="emerald"
-                      placeholder="اختر الحي"
-                      options={locationLibrary.getDistricts(formData.city).map(d => ({ value: d, label: d }))}
-                    />
+                        label="الحي" 
+                        name="district" 
+                        icon={Home} 
+                        accentColor="emerald"
+                        placeholder="اختر الحي"
+                        options={locationLibrary.getDistricts(formData.country_code, formData.city).map(d => ({ value: d, label: d }))}
+                      />
                     <InputField label="الشارع" name="street" placeholder="أدخل اسم الشارع" icon={Navigation} accentColor="emerald" />
                     <InputField label="الرمز البريدي" name="postal_code" placeholder="أدخل الرمز البريدي" icon={Hash} accentColor="emerald" />
                     <InputField label="العنوان المختصر" name="short_address" placeholder="أدخل العنوان المختصر" icon={MapPin} accentColor="emerald" />
