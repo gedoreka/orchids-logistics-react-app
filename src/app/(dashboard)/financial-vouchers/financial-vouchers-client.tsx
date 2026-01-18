@@ -9,7 +9,6 @@ import {
   ArrowUpRight, BarChart3, PieChart, Building2, Calendar, RefreshCw,
   ScrollText, FileCheck, Calculator, PlusCircle
 } from "lucide-react";
-import { cn } from "@/lib/utils";
 
 interface Stats {
   salesReceipts: { count: number; total: number };
@@ -217,6 +216,7 @@ function FinancialVouchersContent() {
     const totalExpense = stats.paymentVouchers.total;
     const netBalance = totalIncome - totalExpense;
 
+    return (
     return (
       <div className="max-w-[95%] mx-auto p-4 md:p-8 space-y-8" dir="rtl">
         {/* Hero Header */}

@@ -324,10 +324,11 @@ export function PayrollsListClient({ payrolls: initialPayrolls, stats, companyId
                     <span>إنشاء مسير جديد</span>
                   </button>
                 </Link>
-                </div>
-              )}
-            </motion.div>
+              </div>
+            )}
           </div>
         </div>
-    );
+      </div>
+    </div>
+  );
 }

@@ -323,11 +323,11 @@ export function CustomersClient({ customers: initialCustomers, stats, companyId 
                     <span>{t('addCustomer')}</span>
                   </button>
                 </Link>
-                </div>
-              )}
-            </motion.div>
-  
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              </div>
+            )}
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <Link href="/customers/new">
               <div className="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all text-center group cursor-pointer">
                 <div className="h-12 w-12 rounded-xl bg-blue-500 flex items-center justify-center text-white mx-auto mb-3 group-hover:scale-105 transition-transform">
