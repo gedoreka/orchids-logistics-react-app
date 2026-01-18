@@ -217,100 +217,125 @@ function FinancialVouchersContent() {
     const netBalance = totalIncome - totalExpense;
 
     return (
-      <div className="max-w-[1800px] mx-auto p-4 md:p-6 space-y-6" dir="rtl">
+    return (
+      <div className="max-w-[95%] mx-auto p-4 md:p-8 space-y-8" dir="rtl">
         {/* Hero Header */}
         <motion.div
           initial={{ opacity: 0, y: -30 }}
           animate={{ opacity: 1, y: 0 }}
-          className="relative overflow-hidden rounded-[30px] bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 p-8 md:p-10 shadow-2xl"
+          className="relative overflow-hidden rounded-[2.5rem] bg-gradient-to-br from-[#1e293b] via-[#334155] to-[#1e293b] p-10 text-white shadow-2xl border border-white/10"
         >
-          <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-blue-500 via-emerald-500 to-rose-500" />
+          <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 via-emerald-500 via-rose-500 via-amber-500 via-purple-500 to-blue-500 animate-gradient-x" />
           
           <div className="relative z-10">
-            <div className="flex flex-col lg:flex-row items-center justify-between gap-8">
-              <div className="text-center lg:text-right">
+            <div className="flex flex-col lg:flex-row items-center justify-between gap-10">
+              <div className="text-center lg:text-right space-y-4">
                 <motion.div 
                   initial={{ scale: 0 }}
                   animate={{ scale: 1 }}
                   transition={{ delay: 0.2, type: "spring" }}
-                  className="inline-flex items-center gap-2 px-4 py-1.5 bg-white/10 backdrop-blur-md rounded-full border border-white/10 mb-4"
+                  className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-md rounded-2xl border border-white/10 mb-2"
                 >
-                  <Sparkles className="w-4 h-4 text-yellow-400" />
-                  <span className="text-white/80 font-bold text-xs uppercase tracking-wider">مركز إدارة السندات المالية</span>
+                  <Sparkles className="w-4 h-4 text-yellow-400 animate-pulse" />
+                  <span className="text-blue-200 font-black text-[10px] uppercase tracking-widest">مركز إدارة السندات المالية</span>
                 </motion.div>
                 
-                <h1 className="text-4xl md:text-5xl font-black text-white tracking-tight mb-3">
+                <h1 className="text-4xl md:text-6xl font-black text-white tracking-tight bg-gradient-to-r from-white via-blue-100 to-white bg-clip-text text-transparent">
                   السندات المالية
                 </h1>
-                <p className="text-lg text-slate-400 max-w-2xl">
-                  إدارة شاملة للمبيعات والمقبوضات والمصروفات والسندات القانونية
+                <p className="text-lg text-slate-300 max-w-2xl font-medium leading-relaxed">
+                  إدارة شاملة للمبيعات والمقبوضات والمصروفات والسندات القانونية باحترافية عالية
                 </p>
                 
-                <div className="flex flex-wrap justify-center lg:justify-start gap-3 mt-6">
-                  <span className="flex items-center gap-2 px-4 py-2 bg-blue-500/20 backdrop-blur-sm rounded-xl border border-blue-500/30 text-blue-300 font-bold text-sm">
-                    <Building2 size={16} />
+                <div className="flex flex-wrap justify-center lg:justify-start gap-4 mt-8">
+                  <div className="flex items-center gap-3 px-6 py-3 bg-blue-500/20 backdrop-blur-md rounded-2xl border border-blue-500/30 text-blue-200 font-black text-sm shadow-xl">
+                    <Building2 size={18} className="text-blue-400" />
                     {companyInfo?.name || "جاري التحميل..."}
-                  </span>
+                  </div>
                   <button 
                       onClick={() => fetchStats(companyId)}
-                      className="flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-sm rounded-xl border border-white/20 text-white font-bold text-sm hover:bg-white/20 transition-colors"
+                      className="flex items-center gap-3 px-6 py-3 bg-white/10 backdrop-blur-md rounded-2xl border border-white/20 text-white font-black text-sm hover:bg-white/20 transition-all shadow-xl active:scale-95"
                     >
-                    <RefreshCw size={16} className={loading ? "animate-spin" : ""} />
-                    تحديث
+                    <RefreshCw size={18} className={cn("text-blue-400", loading ? "animate-spin" : "")} />
+                    تحديث البيانات
                   </button>
                 </div>
               </div>
 
               {/* Summary Cards */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-3 w-full lg:w-auto">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 w-full lg:w-auto">
                 <motion.div 
                   initial={{ opacity: 0, x: 30 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: 0.3 }}
-                  className="bg-gradient-to-br from-emerald-500/20 to-teal-600/20 backdrop-blur-md rounded-2xl p-5 border border-emerald-500/30 min-w-[180px]"
+                  className="bg-white/10 backdrop-blur-xl rounded-[2rem] p-6 border border-white/10 shadow-2xl min-w-[200px] group hover:bg-white/20 transition-all"
                 >
-                  <div className="flex items-center gap-2 mb-2">
-                    <TrendingUp className="w-4 h-4 text-emerald-400" />
-                    <span className="text-emerald-300 font-bold text-xs">إجمالي الدخل</span>
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className="p-2 bg-emerald-500/20 rounded-lg text-emerald-400 group-hover:scale-110 transition-transform">
+                      <TrendingUp className="w-5 h-5" />
+                    </div>
+                    <span className="text-emerald-300 font-black text-xs uppercase tracking-wider">إجمالي الدخل</span>
                   </div>
-                  <p className="text-2xl font-black text-white">{totalIncome.toLocaleString()}</p>
-                  <p className="text-emerald-400 text-[10px] font-bold">ريال سعودي</p>
+                  <p className="text-3xl font-black text-white tracking-tight">{totalIncome.toLocaleString()}</p>
+                  <p className="text-emerald-400/60 text-[10px] font-black mt-1">ريال سعودي</p>
                 </motion.div>
 
                 <motion.div 
                   initial={{ opacity: 0, x: 30 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: 0.4 }}
-                  className="bg-gradient-to-br from-rose-500/20 to-orange-600/20 backdrop-blur-md rounded-2xl p-5 border border-rose-500/30 min-w-[180px]"
+                  className="bg-white/10 backdrop-blur-xl rounded-[2rem] p-6 border border-white/10 shadow-2xl min-w-[200px] group hover:bg-white/20 transition-all"
                 >
-                  <div className="flex items-center gap-2 mb-2">
-                    <TrendingDown className="w-4 h-4 text-rose-400" />
-                    <span className="text-rose-300 font-bold text-xs">إجمالي المصروفات</span>
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className="p-2 bg-rose-500/20 rounded-lg text-rose-400 group-hover:scale-110 transition-transform">
+                      <TrendingDown className="w-5 h-5" />
+                    </div>
+                    <span className="text-rose-300 font-black text-xs uppercase tracking-wider">المصروفات</span>
                   </div>
-                  <p className="text-2xl font-black text-white">{totalExpense.toLocaleString()}</p>
-                  <p className="text-rose-400 text-[10px] font-bold">ريال سعودي</p>
+                  <p className="text-3xl font-black text-white tracking-tight">{totalExpense.toLocaleString()}</p>
+                  <p className="text-rose-400/60 text-[10px] font-black mt-1">ريال سعودي</p>
                 </motion.div>
 
                 <motion.div 
                   initial={{ opacity: 0, x: 30 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: 0.5 }}
-                  className={`bg-gradient-to-br ${netBalance >= 0 ? 'from-blue-500/20 to-indigo-600/20 border-blue-500/30' : 'from-amber-500/20 to-orange-600/20 border-amber-500/30'} backdrop-blur-md rounded-2xl p-5 border min-w-[180px]`}
+                  className={cn(
+                    "backdrop-blur-xl rounded-[2rem] p-6 border shadow-2xl min-w-[200px] group transition-all",
+                    netBalance >= 0 
+                      ? "bg-blue-500/10 border-blue-500/20 hover:bg-blue-500/20" 
+                      : "bg-amber-500/10 border-amber-500/20 hover:bg-amber-500/20"
+                  )}
                 >
-                  <div className="flex items-center gap-2 mb-2">
-                    <DollarSign className={`w-4 h-4 ${netBalance >= 0 ? 'text-blue-400' : 'text-amber-400'}`} />
-                    <span className={`${netBalance >= 0 ? 'text-blue-300' : 'text-amber-300'} font-bold text-xs`}>الرصيد الصافي</span>
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className={cn(
+                      "p-2 rounded-lg group-hover:scale-110 transition-transform",
+                      netBalance >= 0 ? "bg-blue-500/20 text-blue-400" : "bg-amber-500/20 text-amber-400"
+                    )}>
+                      <DollarSign className="w-5 h-5" />
+                    </div>
+                    <span className={cn(
+                      "font-black text-xs uppercase tracking-wider",
+                      netBalance >= 0 ? "text-blue-300" : "text-amber-300"
+                    )}>الرصيد الصافي</span>
                   </div>
-                  <p className="text-2xl font-black text-white">{netBalance.toLocaleString()}</p>
-                  <p className={`${netBalance >= 0 ? 'text-blue-400' : 'text-amber-400'} text-[10px] font-bold`}>ريال سعودي</p>
+                  <p className="text-3xl font-black text-white tracking-tight">{netBalance.toLocaleString()}</p>
+                  <p className={cn(
+                    "text-[10px] font-black mt-1",
+                    netBalance >= 0 ? "text-blue-400/60" : "text-amber-400/60"
+                  )}>ريال سعودي</p>
                 </motion.div>
               </div>
             </div>
           </div>
+          
+          {/* Decorative elements */}
+          <div className="absolute -bottom-12 -right-12 w-48 h-48 bg-blue-500/10 rounded-full blur-3xl" />
+          <div className="absolute -top-12 -left-12 w-48 h-48 bg-purple-500/10 rounded-full blur-3xl" />
         </motion.div>
 
         {/* Voucher Cards Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
           {voucherTypes.map((voucher, index) => {
             const statData = stats[voucher.stats.key];
             return (
@@ -319,50 +344,67 @@ function FinancialVouchersContent() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.1 }}
-                whileHover={{ y: -5 }}
+                whileHover={{ y: -8 }}
                 className="group"
               >
                 <Link href={voucher.href}>
-                  <div className={`relative overflow-hidden bg-white rounded-2xl shadow-lg ${voucher.shadowColor} hover:shadow-xl transition-all duration-300 border border-slate-100 hover:${voucher.borderColor}`}>
-                    <div className={`h-1.5 bg-gradient-to-r ${voucher.gradient}`} />
+                  <div className="relative overflow-hidden bg-white/80 backdrop-blur-xl rounded-[2.5rem] shadow-xl border border-white/50 hover:shadow-2xl transition-all duration-300">
+                    <div className={`h-1.5 bg-gradient-to-r ${voucher.gradient} opacity-80 group-hover:opacity-100 transition-opacity`} />
                     
-                    <div className="p-6">
-                      <div className="flex items-start justify-between mb-4">
-                        <div className={`p-3 ${voucher.iconBg} rounded-xl shadow-md transform group-hover:scale-110 transition-transform duration-300`}>
-                          <voucher.icon className="w-6 h-6 text-white" />
+                    <div className="p-8">
+                      <div className="flex items-start justify-between mb-6">
+                        <div className={cn(
+                          "p-4 rounded-[1.5rem] shadow-xl transform group-hover:scale-110 transition-transform duration-300",
+                          voucher.iconBg
+                        )}>
+                          <voucher.icon className="w-8 h-8 text-white" />
                         </div>
-                        <ArrowUpRight className="w-5 h-5 text-slate-300 group-hover:text-slate-600 transition-colors" />
+                        <div className="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center text-slate-300 group-hover:bg-blue-600 group-hover:text-white transition-all">
+                          <ArrowUpRight size={20} />
+                        </div>
                       </div>
 
-                      <h3 className="text-xl font-black text-slate-800 mb-1">{voucher.title}</h3>
-                      <p className="text-slate-400 text-xs mb-4 line-clamp-1">{voucher.description}</p>
+                      <h3 className="text-2xl font-black text-slate-900 mb-2">{voucher.title}</h3>
+                      <p className="text-slate-500 text-xs font-bold mb-6 line-clamp-1">{voucher.description}</p>
 
-                      <div className={`bg-gradient-to-r ${voucher.bgGradient} rounded-xl p-4 mb-4`}>
+                      <div className={cn(
+                        "rounded-[1.5rem] p-5 mb-6 shadow-inner border border-white/50",
+                        voucher.bgGradient
+                      )}>
                         <div className="flex items-center justify-between mb-2">
-                          <span className="text-slate-600 font-bold text-[10px] uppercase tracking-wider">{voucher.stats.label}</span>
-                          <span className={`px-2 py-0.5 ${voucher.iconBg} text-white text-[10px] font-black rounded-full`}>
+                          <span className="text-slate-500 font-black text-[10px] uppercase tracking-widest">{voucher.stats.label}</span>
+                          <span className={cn(
+                            "px-4 py-1.5 text-white text-[10px] font-black rounded-full shadow-lg",
+                            voucher.iconBg
+                          )}>
                             {statData.count} سند
                           </span>
                         </div>
-                        <p className="text-2xl font-black text-slate-800">
-                          {statData.total.toLocaleString()}
-                          <span className="text-xs font-bold text-slate-500 mr-1.5 text-[10px]">ر.س</span>
-                        </p>
+                        <div className="flex items-baseline gap-1">
+                          <p className="text-3xl font-black text-slate-900 tracking-tight">
+                            {statData.total.toLocaleString()}
+                          </p>
+                          <span className="text-sm font-black text-slate-400">ر.س</span>
+                        </div>
                       </div>
 
-                      <div className="space-y-1.5">
+                      <div className="space-y-3 mb-8">
                         {voucher.features.map((feature, fIndex) => (
-                          <div key={fIndex} className="flex items-center gap-2 text-xs text-slate-500">
-                            <CheckCircle className="w-3.5 h-3.5 text-emerald-500" />
-                            <span className="font-medium line-clamp-1">{feature}</span>
+                          <div key={fIndex} className="flex items-center gap-3 text-xs text-slate-600 font-bold">
+                            <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                            <span className="line-clamp-1">{feature}</span>
                           </div>
                         ))}
                       </div>
 
-                      <div className={`mt-6 py-3 px-4 bg-gradient-to-r ${voucher.gradient} rounded-xl text-center group-hover:shadow-md transition-all`}>
-                        <span className="text-white font-black text-sm flex items-center justify-center gap-2">
+                      <div className={cn(
+                        "py-4 px-6 bg-gradient-to-r rounded-2xl text-center group-hover:shadow-xl transition-all shadow-lg active:scale-95",
+                        voucher.gradient,
+                        voucher.shadowColor
+                      )}>
+                        <span className="text-white font-black text-sm flex items-center justify-center gap-3">
                           إدارة {voucher.title}
-                          <ArrowRight className="w-4 h-4 transform group-hover:translate-x-1 transition-transform" />
+                          <ArrowRight className="w-5 h-5 transform group-hover:translate-x-1 transition-transform" />
                         </span>
                       </div>
                     </div>
@@ -378,60 +420,30 @@ function FinancialVouchersContent() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.6 }}
-          className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm"
+          className="bg-white/80 backdrop-blur-xl rounded-[2.5rem] p-8 border border-white/50 shadow-2xl"
         >
-          <div className="flex items-center gap-3 mb-6">
-            <div className="p-2 bg-slate-100 rounded-lg">
-              <BarChart3 className="w-5 h-5 text-slate-600" />
+          <div className="flex items-center gap-4 mb-8">
+            <div className="p-3 bg-slate-100 rounded-2xl text-slate-600 border border-slate-200">
+              <BarChart3 className="w-6 h-6" />
             </div>
             <div>
-              <h3 className="text-lg font-black text-slate-800">إجراءات سريعة</h3>
-              <p className="text-slate-400 text-xs font-medium">الوصول المباشر للعمليات</p>
+              <h3 className="text-xl font-black text-slate-900">إجراءات سريعة</h3>
+              <p className="text-slate-500 text-sm font-bold">الوصول المباشر للعمليات الأكثر استخداماً</p>
             </div>
           </div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
-            <Link href="/sales-receipts/new" className="flex flex-col items-center gap-2 p-3 bg-slate-50 rounded-xl border border-slate-100 hover:border-blue-200 hover:bg-blue-50 transition-all group cursor-pointer text-center">
-              <div className="p-2.5 bg-blue-100 rounded-lg group-hover:bg-blue-500 transition-colors">
-                <FileText className="w-4 h-4 text-blue-600 group-hover:text-white" />
-              </div>
-              <p className="font-bold text-slate-700 text-xs">سند مبيعات</p>
-            </Link>
-
-            <Link href="/receipt-vouchers" className="flex flex-col items-center gap-2 p-3 bg-slate-50 rounded-xl border border-slate-100 hover:border-emerald-200 hover:bg-emerald-50 transition-all group cursor-pointer text-center">
-              <div className="p-2.5 bg-emerald-100 rounded-lg group-hover:bg-emerald-500 transition-colors">
-                <Receipt className="w-4 h-4 text-emerald-600 group-hover:text-white" />
-              </div>
-              <p className="font-bold text-slate-700 text-xs">سند قبض</p>
-            </Link>
-
-            <Link href="/payment-vouchers" className="flex flex-col items-center gap-2 p-3 bg-slate-50 rounded-xl border border-slate-100 hover:border-rose-200 hover:bg-rose-50 transition-all group cursor-pointer text-center">
-              <div className="p-2.5 bg-rose-100 rounded-lg group-hover:bg-rose-500 transition-colors">
-                <Wallet className="w-4 h-4 text-rose-600 group-hover:text-white" />
-              </div>
-              <p className="font-bold text-slate-700 text-xs">سند صرف</p>
-            </Link>
-
-            <Link href="/promissory-notes" className="flex flex-col items-center gap-2 p-3 bg-slate-50 rounded-xl border border-slate-100 hover:border-amber-200 hover:bg-amber-50 transition-all group cursor-pointer text-center">
-              <div className="p-2.5 bg-amber-100 rounded-lg group-hover:bg-amber-500 transition-colors">
-                <ScrollText className="w-4 h-4 text-amber-600 group-hover:text-white" />
-              </div>
-              <p className="font-bold text-slate-700 text-xs">سند لأمر</p>
-            </Link>
-
-            <Link href="/quotations/new" className="flex flex-col items-center gap-2 p-3 bg-slate-50 rounded-xl border border-slate-100 hover:border-purple-200 hover:bg-purple-50 transition-all group cursor-pointer text-center">
-              <div className="p-2.5 bg-purple-100 rounded-lg group-hover:bg-purple-500 transition-colors">
-                <FileCheck className="w-4 h-4 text-purple-600 group-hover:text-white" />
-              </div>
-              <p className="font-bold text-slate-700 text-xs">عرض سعر</p>
-            </Link>
-
-            <Link href="/income/new" className="flex flex-col items-center gap-2 p-3 bg-slate-50 rounded-xl border border-slate-100 hover:border-cyan-200 hover:bg-cyan-50 transition-all group cursor-pointer text-center">
-              <div className="p-2.5 bg-cyan-100 rounded-lg group-hover:bg-cyan-500 transition-colors">
-                <PlusCircle className="w-4 h-4 text-cyan-600 group-hover:text-white" />
-              </div>
-              <p className="font-bold text-slate-700 text-xs">سند إيراد</p>
-            </Link>
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+            {voucherTypes.map((tool) => (
+              <Link key={tool.id} href={tool.href} className="flex flex-col items-center gap-4 p-5 bg-slate-50/50 rounded-[2rem] border border-slate-100 hover:border-blue-200 hover:bg-white hover:shadow-2xl transition-all group cursor-pointer text-center active:scale-95">
+                <div className={cn(
+                  "p-4 rounded-2xl group-hover:scale-110 transition-transform shadow-md",
+                  tool.iconBg
+                )}>
+                  <tool.icon className="w-6 h-6 text-white" />
+                </div>
+                <p className="font-black text-slate-800 text-xs tracking-tight">{tool.title}</p>
+              </Link>
+            ))}
           </div>
         </motion.div>
 

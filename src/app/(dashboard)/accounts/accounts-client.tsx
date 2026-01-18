@@ -135,91 +135,98 @@ export function AccountsClient({ initialAccounts, companyId }: AccountsClientPro
   };
 
   return (
-    <div className="w-full max-w-[98%] mx-auto px-6 py-6 space-y-6 rtl" dir="rtl">
+    <div className="w-full max-w-[98%] mx-auto px-6 py-6 space-y-8 rtl" dir="rtl">
       {/* Header */}
       <motion.div 
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-slate-900 to-slate-800 p-8 text-white shadow-xl border border-white/10"
+        className="relative overflow-hidden rounded-[2.5rem] bg-gradient-to-br from-[#1e293b] via-[#334155] to-[#1e293b] p-10 text-white shadow-2xl border border-white/10"
       >
-        <div className="relative z-10 flex flex-col items-center justify-center text-center space-y-4">
-          <div className="p-3 bg-white/10 rounded-full backdrop-blur-sm">
-            <BookOpen className="w-8 h-8 text-blue-400" />
+        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 via-emerald-500 via-rose-500 via-amber-500 via-purple-500 to-blue-500 animate-gradient-x"></div>
+        
+        <div className="relative z-10 flex flex-col items-center justify-center text-center space-y-6">
+          <div className="p-4 bg-white/10 rounded-[2rem] backdrop-blur-md border border-white/10 shadow-2xl group-hover:scale-110 transition-transform">
+            <BookOpen className="w-10 h-10 text-blue-400" />
           </div>
-          <h1 className="text-2xl font-bold tracking-tight">مركز الحسابات</h1>
-          <p className="text-slate-300 max-w-2xl">
-            إدارة شجرة الحسابات والتصنيفات المالية لتنظيم العمليات المحاسبية
-          </p>
+          <div className="space-y-2">
+            <h1 className="text-3xl font-black tracking-tight bg-gradient-to-r from-white via-blue-100 to-white bg-clip-text text-transparent">مركز الحسابات</h1>
+            <p className="text-slate-300 max-w-2xl font-medium">
+              إدارة شجرة الحسابات والتصنيفات المالية لتنظيم العمليات المحاسبية
+            </p>
+          </div>
         </div>
-        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500"></div>
+
+        {/* Decorative elements */}
+        <div className="absolute -bottom-12 -right-12 w-48 h-48 bg-blue-500/10 rounded-full blur-3xl" />
+        <div className="absolute -top-12 -left-12 w-48 h-48 bg-purple-500/10 rounded-full blur-3xl" />
       </motion.div>
 
       {/* Stats Cards */}
       <motion.div 
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        className="grid grid-cols-1 md:grid-cols-4 gap-4"
+        className="grid grid-cols-1 md:grid-cols-4 gap-6"
       >
-        <div className="bg-white p-5 rounded-2xl border border-slate-100 shadow-lg flex items-center space-x-4 space-x-reverse group hover:border-blue-200 transition-colors">
-          <div className="p-3 bg-blue-50 rounded-xl text-blue-600 group-hover:scale-110 transition-transform">
+        <div className="bg-white/80 backdrop-blur-xl p-6 rounded-[2rem] border border-white/50 shadow-xl flex items-center space-x-4 space-x-reverse group hover:border-blue-200 transition-all hover:shadow-2xl hover:-translate-y-1">
+          <div className="p-4 bg-gradient-to-br from-blue-500 to-blue-700 rounded-2xl text-white shadow-lg group-hover:scale-110 transition-transform">
             <Wallet className="w-6 h-6" />
           </div>
           <div>
-            <p className="text-xs text-slate-500 font-bold">إجمالي الحسابات</p>
-            <p className="text-2xl font-black text-slate-900">{stats.total}</p>
+            <p className="text-xs text-slate-500 font-black mb-1">إجمالي الحسابات</p>
+            <p className="text-3xl font-black text-slate-900 tracking-tight">{stats.total}</p>
           </div>
         </div>
-        <div className="bg-white p-5 rounded-2xl border border-slate-100 shadow-lg flex items-center space-x-4 space-x-reverse group hover:border-rose-200 transition-colors">
-          <div className="p-3 bg-rose-50 rounded-xl text-rose-600 group-hover:scale-110 transition-transform">
+        <div className="bg-white/80 backdrop-blur-xl p-6 rounded-[2rem] border border-white/50 shadow-xl flex items-center space-x-4 space-x-reverse group hover:border-rose-200 transition-all hover:shadow-2xl hover:-translate-y-1">
+          <div className="p-4 bg-gradient-to-br from-rose-500 to-rose-700 rounded-2xl text-white shadow-lg group-hover:scale-110 transition-transform">
             <TrendingDown className="w-6 h-6" />
           </div>
           <div>
-            <p className="text-xs text-slate-500 font-bold">حسابات المصروفات</p>
-            <p className="text-2xl font-black text-slate-900">{stats.expenses}</p>
+            <p className="text-xs text-slate-500 font-black mb-1">حسابات المصروفات</p>
+            <p className="text-3xl font-black text-slate-900 tracking-tight">{stats.expenses}</p>
           </div>
         </div>
-        <div className="bg-white p-5 rounded-2xl border border-slate-100 shadow-lg flex items-center space-x-4 space-x-reverse group hover:border-emerald-200 transition-colors">
-          <div className="p-3 bg-emerald-50 rounded-xl text-emerald-600 group-hover:scale-110 transition-transform">
+        <div className="bg-white/80 backdrop-blur-xl p-6 rounded-[2rem] border border-white/50 shadow-xl flex items-center space-x-4 space-x-reverse group hover:border-emerald-200 transition-all hover:shadow-2xl hover:-translate-y-1">
+          <div className="p-4 bg-gradient-to-br from-emerald-500 to-emerald-700 rounded-2xl text-white shadow-lg group-hover:scale-110 transition-transform">
             <TrendingUp className="w-6 h-6" />
           </div>
           <div>
-            <p className="text-xs text-slate-500 font-bold">حسابات الدخل</p>
-            <p className="text-2xl font-black text-slate-900">{stats.income}</p>
+            <p className="text-xs text-slate-500 font-black mb-1">حسابات الدخل</p>
+            <p className="text-3xl font-black text-slate-900 tracking-tight">{stats.income}</p>
           </div>
         </div>
-        <div className="bg-white p-5 rounded-2xl border border-slate-100 shadow-lg flex items-center space-x-4 space-x-reverse group hover:border-purple-200 transition-colors">
-          <div className="p-3 bg-purple-50 rounded-xl text-purple-600 group-hover:scale-110 transition-transform">
+        <div className="bg-white/80 backdrop-blur-xl p-6 rounded-[2rem] border border-white/50 shadow-xl flex items-center space-x-4 space-x-reverse group hover:border-purple-200 transition-all hover:shadow-2xl hover:-translate-y-1">
+          <div className="p-4 bg-gradient-to-br from-purple-500 to-purple-700 rounded-2xl text-white shadow-lg group-hover:scale-110 transition-transform">
             <BarChart3 className="w-6 h-6" />
           </div>
           <div>
-            <p className="text-xs text-slate-500 font-bold">أخرى</p>
-            <p className="text-2xl font-black text-slate-900">{stats.total - stats.expenses - stats.income}</p>
+            <p className="text-xs text-slate-500 font-black mb-1">أخرى</p>
+            <p className="text-3xl font-black text-slate-900 tracking-tight">{stats.total - stats.expenses - stats.income}</p>
           </div>
         </div>
       </motion.div>
 
       {/* Search and Filter Bar */}
       <motion.div 
-        className="bg-white p-6 rounded-2xl shadow-lg border border-slate-100 flex flex-col md:flex-row gap-4 items-center justify-between"
+        className="bg-white/80 backdrop-blur-xl p-6 rounded-[2rem] shadow-xl border border-white/50 flex flex-col md:flex-row gap-4 items-center justify-between"
         whileHover={{ y: -2 }}
       >
         <div className="flex-1 relative w-full md:w-auto">
-          <Search className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 w-5 h-5" />
+          <Search className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-400 w-5 h-5" />
           <input
             type="text"
             placeholder="البحث عن حساب بالاسم أو الرمز..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 pr-12 pl-4 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all text-sm"
+            className="w-full bg-slate-50/50 border border-slate-200 rounded-2xl py-4 pr-14 pl-6 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all text-sm font-bold shadow-sm"
           />
         </div>
         <div className="flex items-center gap-4 w-full md:w-auto">
           <div className="relative flex-1 md:flex-none">
-            <Filter className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4" />
+            <Filter className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4" />
             <select
               value={filterType}
               onChange={(e) => setFilterType(e.target.value)}
-              className="w-full md:w-48 bg-slate-50 border border-slate-200 rounded-xl py-3 pr-10 pl-4 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all appearance-none text-sm font-bold"
+              className="w-full md:w-56 bg-slate-50/50 border border-slate-200 rounded-2xl py-4 pr-11 pl-6 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all appearance-none text-sm font-black text-slate-700 shadow-sm cursor-pointer"
             >
               <option value="all">جميع الأنواع</option>
               <option value="مصروف">المصروفات</option>
@@ -228,11 +235,11 @@ export function AccountsClient({ initialAccounts, companyId }: AccountsClientPro
               <option value="التزام">الالتزامات</option>
               <option value="حقوق ملكية">حقوق الملكية</option>
             </select>
-            <ChevronDown className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4 pointer-events-none" />
+            <ChevronDown className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4 pointer-events-none" />
           </div>
           <button
             onClick={() => handleOpenModal()}
-            className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-xl font-bold transition-all flex items-center space-x-2 space-x-reverse shadow-lg shadow-blue-200 text-sm whitespace-nowrap"
+            className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-2xl font-black transition-all flex items-center space-x-2 space-x-reverse shadow-xl shadow-blue-500/20 text-sm whitespace-nowrap active:scale-95"
           >
             <Plus className="w-5 h-5" />
             <span>إضافة حساب</span>
@@ -244,17 +251,17 @@ export function AccountsClient({ initialAccounts, companyId }: AccountsClientPro
       <motion.div 
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="bg-white rounded-2xl shadow-xl border border-slate-100 overflow-hidden"
+        className="bg-white/80 backdrop-blur-xl rounded-[2.5rem] shadow-2xl border border-white/50 overflow-hidden"
       >
         <div className="overflow-x-auto">
           <table className="w-full text-right border-collapse min-w-[800px]">
             <thead>
-              <tr className="bg-slate-50 border-b border-slate-100">
-                <th className="px-6 py-4 text-xs font-black text-slate-400 uppercase tracking-wider">#</th>
-                <th className="px-6 py-4 text-xs font-black text-slate-400 uppercase tracking-wider">رمز الحساب</th>
-                <th className="px-6 py-4 text-xs font-black text-slate-400 uppercase tracking-wider">اسم الحساب</th>
-                <th className="px-6 py-4 text-xs font-black text-slate-400 uppercase tracking-wider">النوع</th>
-                <th className="px-6 py-4 text-xs font-black text-slate-400 uppercase tracking-wider text-center">الإجراءات</th>
+              <tr className="bg-slate-50/50 border-b border-slate-100">
+                <th className="px-8 py-6 text-xs font-black text-slate-400 uppercase tracking-widest">#</th>
+                <th className="px-8 py-6 text-xs font-black text-slate-400 uppercase tracking-widest">رمز الحساب</th>
+                <th className="px-8 py-6 text-xs font-black text-slate-400 uppercase tracking-widest">اسم الحساب</th>
+                <th className="px-8 py-6 text-xs font-black text-slate-400 uppercase tracking-widest">النوع</th>
+                <th className="px-8 py-6 text-xs font-black text-slate-400 uppercase tracking-widest text-center">الإجراءات</th>
               </tr>
             </thead>
             <tbody>
@@ -270,32 +277,32 @@ export function AccountsClient({ initialAccounts, companyId }: AccountsClientPro
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, x: -20 }}
                         transition={{ delay: index * 0.03 }}
-                        className="border-b border-slate-50 hover:bg-slate-50/50 transition-colors group"
+                        className="border-b border-slate-50/50 hover:bg-blue-50/30 transition-colors group"
                       >
-                        <td className="px-6 py-4">
-                          <span className="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center text-xs font-black text-slate-500 group-hover:bg-blue-600 group-hover:text-white transition-colors">
+                        <td className="px-8 py-5">
+                          <span className="w-10 h-10 rounded-xl bg-slate-100/50 flex items-center justify-center text-xs font-black text-slate-500 group-hover:bg-blue-600 group-hover:text-white transition-all duration-300">
                             {index + 1}
                           </span>
                         </td>
-                        <td className="px-6 py-4">
+                        <td className="px-8 py-5">
                           <div className="flex items-center space-x-2 space-x-reverse">
                             <Hash className="w-4 h-4 text-slate-300" />
-                            <span className="font-mono font-bold text-slate-700 bg-slate-100 px-3 py-1 rounded-lg text-sm">
+                            <span className="font-mono font-black text-slate-700 bg-slate-100/50 px-4 py-1.5 rounded-xl text-xs border border-slate-200">
                               {account.account_code}
                             </span>
                           </div>
                         </td>
-                        <td className="px-6 py-4">
-                          <div className="flex items-center space-x-3 space-x-reverse">
-                            <div className={cn("p-2 rounded-lg", typeConfig.bgColor)}>
-                              <TypeIcon className={cn("w-4 h-4", typeConfig.color)} />
+                        <td className="px-8 py-5">
+                          <div className="flex items-center space-x-4 space-x-reverse">
+                            <div className={cn("p-2.5 rounded-xl shadow-sm border", typeConfig.bgColor, typeConfig.borderColor)}>
+                              <TypeIcon className={cn("w-5 h-5", typeConfig.color)} />
                             </div>
-                            <span className="font-bold text-slate-900">{account.account_name}</span>
+                            <span className="font-black text-slate-800">{account.account_name}</span>
                           </div>
                         </td>
-                        <td className="px-6 py-4">
+                        <td className="px-8 py-5">
                           <span className={cn(
-                            "inline-flex items-center px-3 py-1.5 rounded-full text-xs font-black border",
+                            "inline-flex items-center px-4 py-2 rounded-xl text-[10px] font-black border shadow-sm",
                             typeConfig.bgColor,
                             typeConfig.color,
                             typeConfig.borderColor
@@ -303,18 +310,18 @@ export function AccountsClient({ initialAccounts, companyId }: AccountsClientPro
                             {typeConfig.label}
                           </span>
                         </td>
-                        <td className="px-6 py-4">
-                          <div className="flex items-center justify-center gap-2">
+                        <td className="px-8 py-5">
+                          <div className="flex items-center justify-center gap-3">
                             <button
                               onClick={() => handleOpenModal(account)}
-                              className="p-2 rounded-xl bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white transition-all"
+                              className="p-3 rounded-xl bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white transition-all shadow-sm hover:shadow-md hover:-translate-y-0.5"
                               title="تعديل"
                             >
                               <Edit2 className="w-4 h-4" />
                             </button>
                             <button
                               onClick={() => setDeleteConfirm(account.id)}
-                              className="p-2 rounded-xl bg-red-50 text-red-600 hover:bg-red-600 hover:text-white transition-all"
+                              className="p-3 rounded-xl bg-red-50 text-red-600 hover:bg-red-600 hover:text-white transition-all shadow-sm hover:shadow-md hover:-translate-y-0.5"
                               title="حذف"
                             >
                               <Trash2 className="w-4 h-4" />
@@ -326,11 +333,15 @@ export function AccountsClient({ initialAccounts, companyId }: AccountsClientPro
                   })
                 ) : (
                   <tr>
-                    <td colSpan={5} className="px-6 py-20 text-center">
-                      <div className="flex flex-col items-center space-y-4 text-slate-400">
-                        <FileText className="w-16 h-16 opacity-30" />
-                        <p className="font-bold text-lg">لا توجد حسابات مطابقة</p>
-                        <p className="text-sm">جرب تغيير معايير البحث أو الفلتر</p>
+                    <td colSpan={5} className="px-8 py-32 text-center">
+                      <div className="flex flex-col items-center space-y-6 text-slate-400">
+                        <div className="w-24 h-24 bg-slate-50 rounded-full flex items-center justify-center">
+                          <FileText className="w-12 h-12 opacity-20" />
+                        </div>
+                        <div className="space-y-2">
+                          <p className="font-black text-2xl text-slate-900">لا توجد حسابات مطابقة</p>
+                          <p className="text-sm font-medium">جرب تغيير معايير البحث أو الفلتر للعثور على ما تبحث عنه</p>
+                        </div>
                       </div>
                     </td>
                   </tr>
@@ -341,12 +352,24 @@ export function AccountsClient({ initialAccounts, companyId }: AccountsClientPro
         </div>
         
         {/* Table Footer */}
-        <div className="bg-slate-50 px-6 py-4 border-t border-slate-100 flex items-center justify-between">
+        <div className="bg-slate-50/50 px-8 py-6 border-t border-slate-100 flex items-center justify-between">
           <p className="text-sm text-slate-500 font-bold">
-            عرض <span className="text-slate-900">{filteredAccounts.length}</span> من أصل <span className="text-slate-900">{accounts.length}</span> حساب
+            عرض <span className="text-slate-900 font-black px-1">{filteredAccounts.length}</span> من أصل <span className="text-slate-900 font-black px-1">{accounts.length}</span> حساب
           </p>
         </div>
       </motion.div>
+
+      <style jsx global>{`
+        @keyframes gradient-x {
+          0% { background-position: 0% 50%; }
+          50% { background-position: 100% 50%; }
+          100% { background-position: 0% 50%; }
+        }
+        .animate-gradient-x {
+          background-size: 200% 100%;
+          animation: gradient-x 3s ease infinite;
+        }
+      `}</style>
 
       {/* Add/Edit Modal */}
       <AnimatePresence>

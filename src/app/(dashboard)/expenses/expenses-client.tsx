@@ -63,43 +63,44 @@ export function ExpensesClient({ companyId, companyInfo, stats, recentActivity }
   };
 
     return (
-        <div className="min-h-screen bg-slate-50/50 p-4 md:p-6 font-tajawal rtl w-full overflow-x-hidden" dir="rtl">
+        <div className="min-h-screen p-4 md:p-6 font-tajawal rtl w-full overflow-x-hidden" dir="rtl">
           <motion.div 
             className="w-full space-y-6"
             initial="hidden"
-          animate="visible"
-          variants={containerVariants}
-        >
-        {/* Header Section */}
-        <motion.div 
-          className="relative overflow-hidden rounded-[2rem] p-8 bg-gradient-to-br from-[#1e293b] via-[#334155] to-[#1e293b] text-white shadow-2xl border border-white/10"
-          variants={itemVariants}
-        >
-          <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 via-emerald-500 via-rose-500 via-amber-500 via-purple-500 to-blue-500 animate-gradient-x" />
-          
-          <div className="relative z-10 flex flex-col items-center justify-center text-center space-y-6">
-            <div className="flex items-center gap-4">
-              {companyInfo.logo_path ? (
-                <img 
-                  src={companyInfo.logo_path} 
-                  alt="Logo" 
-                  className="w-16 h-16 rounded-full border-2 border-white/20 object-cover shadow-lg"
-                />
-              ) : (
-                <div className="w-16 h-16 rounded-full bg-blue-600 flex items-center justify-center shadow-lg">
-                  <Building2 className="w-8 h-8 text-white" />
-                </div>
-              )}
-              <div className="text-right">
-                <h1 className="text-2xl md:text-3xl font-bold tracking-tight">مركز المنصرفات الشهرية</h1>
-                <div className="mt-2 bg-white/10 backdrop-blur-md px-4 py-2 rounded-xl border border-white/10">
-                  <p className="text-xl font-semibold text-blue-200">{companyInfo.name || "اسم الشركة"}</p>
+            animate="visible"
+            variants={containerVariants}
+          >
+          {/* Header Section */}
+          <motion.div 
+            className="relative overflow-hidden rounded-[2.5rem] p-10 bg-gradient-to-br from-[#1e293b] via-[#334155] to-[#1e293b] text-white shadow-2xl border border-white/10"
+            variants={itemVariants}
+          >
+            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 via-emerald-500 via-rose-500 via-amber-500 via-purple-500 to-blue-500 animate-gradient-x" />
+            
+            <div className="relative z-10 flex flex-col items-center justify-center text-center space-y-8">
+              <div className="flex items-center gap-6">
+                {companyInfo.logo_path ? (
+                  <img 
+                    src={companyInfo.logo_path} 
+                    alt="Logo" 
+                    className="w-20 h-20 rounded-full border-4 border-white/20 object-cover shadow-2xl"
+                  />
+                ) : (
+                  <div className="w-20 h-20 rounded-full bg-blue-600 flex items-center justify-center shadow-2xl border-4 border-white/20">
+                    <Building2 className="w-10 h-10 text-white" />
+                  </div>
+                )}
+                <div className="text-right space-y-2">
+                  <h1 className="text-3xl md:text-4xl font-black tracking-tight bg-gradient-to-r from-white via-blue-100 to-white bg-clip-text text-transparent">مركز المنصرفات الشهرية</h1>
+                  <div className="bg-white/10 backdrop-blur-md px-6 py-2 rounded-2xl border border-white/10 shadow-xl inline-block">
+                    <p className="text-xl font-bold text-blue-200">{companyInfo.name || "اسم الشركة"}</p>
+                  </div>
                 </div>
               </div>
-            </div>
 
-            {/* Premium Stats Grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 w-full pt-4">
+              {/* Premium Stats Grid */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 w-full pt-4">
+
               {[
                 { 
                   label: "إجمالي المنصرفات", 

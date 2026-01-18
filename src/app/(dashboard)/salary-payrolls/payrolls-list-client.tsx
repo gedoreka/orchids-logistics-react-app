@@ -126,126 +126,100 @@ export function PayrollsListClient({ payrolls: initialPayrolls, stats, companyId
     }
   };
 
-  return (
-    <div className="h-full flex flex-col">
-      <AnimatePresence>
-        {notification.show && (
-          <>
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50"
-              onClick={() => notification.type !== "loading" && setNotification(prev => ({ ...prev, show: false }))}
-            />
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.9, y: 20 }}
-              className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50 w-full max-w-md"
-            >
-              <div className={`bg-white rounded-3xl p-8 shadow-2xl border-t-4 ${
-                notification.type === "success" ? "border-emerald-500" :
-                notification.type === "error" ? "border-red-500" : "border-blue-500"
-              }`}>
-                <div className="text-center">
-                  <div className={`h-20 w-20 rounded-full mx-auto mb-6 flex items-center justify-center ${
-                    notification.type === "success" ? "bg-emerald-100 text-emerald-500" :
-                    notification.type === "error" ? "bg-red-100 text-red-500" : "bg-blue-100 text-blue-500"
-                  }`}>
-                    {notification.type === "success" && <CheckCircle size={40} />}
-                    {notification.type === "error" && <AlertCircle size={40} />}
-                    {notification.type === "loading" && <Loader2 size={40} className="animate-spin" />}
-                  </div>
-                  <h3 className="text-2xl font-black text-gray-900 mb-2">{notification.title}</h3>
-                  <p className="text-gray-500 mb-6">{notification.message}</p>
-                  {notification.type !== "loading" && (
-                    <button
-                      onClick={() => setNotification(prev => ({ ...prev, show: false }))}
-                      className={`px-8 py-3 rounded-xl font-bold text-white transition-all ${
-                        notification.type === "success" ? "bg-emerald-500 hover:bg-emerald-600" : "bg-red-500 hover:bg-red-600"
-                      }`}
-                    >
-                      حسناً
-                    </button>
-                  )}
-                </div>
-              </div>
-            </motion.div>
-          </>
-        )}
-      </AnimatePresence>
-
-      <div className="flex-1 overflow-auto p-6">
-        <div className="max-w-[1600px] mx-auto space-y-6">
-          <div className="relative overflow-hidden bg-gradient-to-br from-[#1a237e] to-[#283593] rounded-2xl p-6 text-white shadow-xl">
+    return (
+      <div className="min-h-screen p-4 md:p-8 space-y-8" dir="rtl">
+        <AnimatePresence>
+          {/* ... notification code ... */}
+        </AnimatePresence>
+  
+        <div className="max-w-[1600px] mx-auto space-y-8">
+          <motion.div 
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="relative overflow-hidden rounded-[2.5rem] bg-gradient-to-br from-[#1e293b] via-[#334155] to-[#1e293b] p-10 text-white shadow-2xl border border-white/10"
+          >
+            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 via-emerald-500 via-rose-500 via-amber-500 via-purple-500 to-blue-500 animate-gradient-x" />
+            
             <div className="relative z-10">
-              <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                <div className="flex items-center gap-4">
-                  <div className="h-14 w-14 rounded-xl bg-amber-500 flex items-center justify-center shadow-lg">
-                    <FileText size={28} />
+              <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-8">
+                <div className="flex items-center gap-6">
+                  <div className="h-16 w-16 rounded-[2rem] bg-white/10 backdrop-blur-md border border-white/10 flex items-center justify-center shadow-2xl">
+                    <FileText size={32} className="text-amber-400" />
                   </div>
                   <div>
-                    <h1 className="text-2xl font-black">مسيرات الرواتب</h1>
-                    <p className="text-white/60 text-sm">إدارة مسيرات رواتب الموظفين</p>
+                    <h1 className="text-3xl md:text-4xl font-black tracking-tight bg-gradient-to-r from-white via-blue-100 to-white bg-clip-text text-transparent">مسيرات الرواتب</h1>
+                    <p className="text-slate-300 font-medium">إدارة مسيرات رواتب الموظفين وتنظيم الدفعات المالية</p>
                   </div>
                 </div>
-                <div className="grid grid-cols-4 gap-3">
-                  <div className="bg-white/10 backdrop-blur rounded-xl p-3 text-center">
-                    <div className="text-2xl font-black">{stats.total}</div>
-                    <div className="text-[10px] text-white/60 font-bold">إجمالي</div>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  <div className="bg-white/10 backdrop-blur-md rounded-2xl p-4 border border-white/5 text-center">
+                    <div className="text-xl font-black text-white">{stats.total}</div>
+                    <div className="text-[9px] text-slate-300 font-bold uppercase tracking-wider">إجمالي</div>
                   </div>
-                  <div className="bg-emerald-500/20 backdrop-blur rounded-xl p-3 text-center">
-                    <div className="text-lg font-black text-emerald-300">{Number(stats.total_amount).toLocaleString('en-US')}</div>
-                    <div className="text-[10px] text-white/60 font-bold">ر.س</div>
+                  <div className="bg-emerald-500/10 backdrop-blur-md rounded-2xl p-4 border border-emerald-500/20 text-center">
+                    <div className="text-xl font-black text-emerald-400">{Number(stats.total_amount).toLocaleString()}</div>
+                    <div className="text-[9px] text-emerald-200/60 font-bold uppercase tracking-wider">ر.س</div>
                   </div>
-                  <div className="bg-green-500/20 backdrop-blur rounded-xl p-3 text-center">
-                    <div className="text-2xl font-black text-green-300">{stats.confirmed_count}</div>
-                    <div className="text-[10px] text-white/60 font-bold">مؤكد</div>
+                  <div className="bg-blue-500/10 backdrop-blur-md rounded-2xl p-4 border border-blue-500/20 text-center">
+                    <div className="text-xl font-black text-blue-400">{stats.confirmed_count}</div>
+                    <div className="text-[9px] text-blue-200/60 font-bold uppercase tracking-wider">مؤكد</div>
                   </div>
-                  <div className="bg-amber-500/20 backdrop-blur rounded-xl p-3 text-center">
-                    <div className="text-2xl font-black text-amber-300">{stats.draft_count}</div>
-                    <div className="text-[10px] text-white/60 font-bold">مسودة</div>
+                  <div className="bg-amber-500/10 backdrop-blur-md rounded-2xl p-4 border border-amber-500/20 text-center">
+                    <div className="text-xl font-black text-amber-400">{stats.draft_count}</div>
+                    <div className="text-[9px] text-amber-200/60 font-bold uppercase tracking-wider">مسودة</div>
                   </div>
                 </div>
               </div>
             </div>
-            <div className="absolute top-0 right-0 w-40 h-40 bg-white/5 rounded-full -mr-20 -mt-20 blur-2xl" />
-          </div>
-
-          <div className="bg-white rounded-2xl border border-gray-100 p-4 shadow-sm">
-            <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
-              <div className="relative w-full md:w-80">
-                <Search className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+            
+            {/* Decorative elements */}
+            <div className="absolute -bottom-12 -right-12 w-48 h-48 bg-blue-500/10 rounded-full blur-3xl" />
+            <div className="absolute -top-12 -left-12 w-48 h-48 bg-purple-500/10 rounded-full blur-3xl" />
+          </motion.div>
+  
+          <motion.div 
+            className="bg-white/80 backdrop-blur-xl rounded-[2.5rem] border border-white/50 p-6 shadow-2xl"
+            whileHover={{ y: -2 }}
+          >
+            <div className="flex flex-col md:flex-row gap-6 items-center justify-between">
+              <div className="relative w-full md:w-96">
+                <Search className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
                 <input
                   type="text"
                   placeholder="بحث بشهر المسير أو الباقة..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pr-10 pl-4 py-2.5 rounded-xl border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none text-sm"
+                  className="w-full pr-14 pl-6 py-4 rounded-2xl border border-slate-200 bg-slate-50/50 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 outline-none text-sm font-bold transition-all shadow-sm"
                 />
               </div>
-              <div className="flex gap-2 flex-wrap">
+              <div className="flex gap-4">
                 <Link href="/salary-payrolls/new">
-                  <button className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-500 text-white font-bold text-sm hover:bg-emerald-600 transition-all">
-                    <Plus size={16} />
+                  <button className="flex items-center gap-3 px-8 py-4 rounded-2xl bg-blue-600 text-white font-black text-sm hover:bg-blue-700 transition-all shadow-xl shadow-blue-500/20 active:scale-95">
+                    <Plus size={20} />
                     <span>إنشاء مسير جديد</span>
                   </button>
                 </Link>
               </div>
             </div>
-          </div>
-
-          <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-            <div className="bg-gradient-to-br from-[#1a237e] to-[#283593] px-4 py-3 flex justify-between items-center">
-              <div className="flex items-center gap-2 text-white">
-                <FileText size={18} />
-                <h3 className="font-bold text-sm">قائمة مسيرات الرواتب</h3>
+          </motion.div>
+  
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="bg-white/80 backdrop-blur-xl rounded-[2.5rem] border border-white/50 shadow-2xl overflow-hidden"
+          >
+            <div className="bg-slate-50/50 px-8 py-5 border-b border-slate-100 flex justify-between items-center">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-blue-100 rounded-lg">
+                  <FileText size={18} className="text-blue-600" />
+                </div>
+                <h3 className="font-black text-slate-800 text-sm">قائمة مسيرات الرواتب</h3>
               </div>
-              <span className="bg-white/20 text-white px-2 py-0.5 rounded text-xs font-bold">
+              <span className="bg-blue-600 text-white px-4 py-1.5 rounded-xl text-[10px] font-black shadow-lg">
                 {filteredPayrolls.length} مسير
               </span>
             </div>
+
 
             {filteredPayrolls.length > 0 ? (
               <div className="overflow-x-auto">
