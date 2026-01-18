@@ -389,95 +389,88 @@ export function PackagesClient({ initialPackages, companyId }: PackagesClientPro
           </motion.div>
         </div>
 
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-          <motion.div variants={itemVariants}>
-            <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-purple-500 to-violet-600 p-5 shadow-lg shadow-purple-500/30">
-              <div className="flex items-start justify-between">
-                <div className="text-white/90"><Package size={22} /></div>
-                <span className="text-[10px] font-black text-white/70 bg-white/10 px-2 py-0.5 rounded-full">إجمالي</span>
+<motion.div 
+            variants={itemVariants}
+            className="bg-gradient-to-r from-slate-700 to-slate-800 rounded-2xl p-6 shadow-lg"
+          >
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+              <div className="relative overflow-hidden rounded-xl bg-white/10 p-5">
+                <div className="flex items-start justify-between">
+                  <div className="text-white/90"><Package size={22} /></div>
+                  <span className="text-[10px] font-black text-white/70 bg-white/10 px-2 py-0.5 rounded-full">إجمالي</span>
+                </div>
+                <div className="mt-4">
+                  <p className="text-white/70 text-[10px] font-black uppercase tracking-wider">إجمالي الباقات</p>
+                  <motion.p 
+                    initial={{ opacity: 0, scale: 0.5 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: 0.2, type: "spring" }}
+                    className="text-3xl font-black text-white mt-1"
+                  >
+                    {stats.total}
+                  </motion.p>
+                  <p className="text-white/60 text-[10px] font-bold mt-1">جميع مجموعات العمل</p>
+                </div>
               </div>
-              <div className="mt-4">
-                <p className="text-white/70 text-[10px] font-black uppercase tracking-wider">إجمالي الباقات</p>
-                <motion.p 
-                  initial={{ opacity: 0, scale: 0.5 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ delay: 0.2, type: "spring" }}
-                  className="text-3xl font-black text-white mt-1"
-                >
-                  {stats.total}
-                </motion.p>
-                <p className="text-white/60 text-[10px] font-bold mt-1">جميع مجموعات العمل</p>
+              
+              <div className="relative overflow-hidden rounded-xl bg-white/10 p-5">
+                <div className="flex items-start justify-between">
+                  <div className="text-white/90"><Target size={22} /></div>
+                  <span className="text-[10px] font-black text-white/90 bg-white/20 px-2 py-0.5 rounded-full">تارجت</span>
+                </div>
+                <div className="mt-4">
+                  <p className="text-white/70 text-[10px] font-black uppercase tracking-wider">نظام التارجت</p>
+                  <motion.p 
+                    initial={{ opacity: 0, scale: 0.5 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: 0.3, type: "spring" }}
+                    className="text-3xl font-black text-white mt-1"
+                  >
+                    {stats.targetType}
+                  </motion.p>
+                  <p className="text-white/60 text-[10px] font-bold mt-1">باقات بنظام الهدف</p>
+                </div>
               </div>
-              <div className="absolute -bottom-4 -left-4 w-24 h-24 bg-white/10 rounded-full blur-2xl"></div>
+              
+              <div className="relative overflow-hidden rounded-xl bg-white/10 p-5">
+                <div className="flex items-start justify-between">
+                  <div className="text-white/90"><DollarSign size={22} /></div>
+                  <span className="text-[10px] font-black text-white/90 bg-white/20 px-2 py-0.5 rounded-full">راتب</span>
+                </div>
+                <div className="mt-4">
+                  <p className="text-white/70 text-[10px] font-black uppercase tracking-wider">نظام الراتب</p>
+                  <motion.p 
+                    initial={{ opacity: 0, scale: 0.5 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: 0.4, type: "spring" }}
+                    className="text-3xl font-black text-white mt-1"
+                  >
+                    {stats.salaryType}
+                  </motion.p>
+                  <p className="text-white/60 text-[10px] font-bold mt-1">باقات بنظام الراتب</p>
+                </div>
+              </div>
+              
+              <div className="relative overflow-hidden rounded-xl bg-white/10 p-5">
+                <div className="flex items-start justify-between">
+                  <div className="text-white/90"><Zap size={22} /></div>
+                  <span className="text-[10px] font-black text-white/90 bg-white/20 px-2 py-0.5 rounded-full">عمولة</span>
+                </div>
+                <div className="mt-4">
+                  <p className="text-white/70 text-[10px] font-black uppercase tracking-wider">نظام العمولة</p>
+                  <motion.p 
+                    initial={{ opacity: 0, scale: 0.5 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: 0.5, type: "spring" }}
+                    className="text-3xl font-black text-white mt-1"
+                  >
+                    {stats.commissionType}
+                  </motion.p>
+                  <p className="text-white/60 text-[10px] font-bold mt-1">باقات بنظام العمولة</p>
+                </div>
+              </div>
             </div>
           </motion.div>
-          
-          <motion.div variants={itemVariants}>
-            <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 p-5 shadow-lg shadow-blue-500/30">
-              <div className="flex items-start justify-between">
-                <div className="text-white/90"><Target size={22} /></div>
-                <span className="text-[10px] font-black text-white/90 bg-white/20 px-2 py-0.5 rounded-full">تارجت</span>
-              </div>
-              <div className="mt-4">
-                <p className="text-white/70 text-[10px] font-black uppercase tracking-wider">نظام التارجت</p>
-                <motion.p 
-                  initial={{ opacity: 0, scale: 0.5 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ delay: 0.3, type: "spring" }}
-                  className="text-3xl font-black text-white mt-1"
-                >
-                  {stats.targetType}
-                </motion.p>
-                <p className="text-white/60 text-[10px] font-bold mt-1">باقات بنظام الهدف</p>
-              </div>
-              <div className="absolute -bottom-4 -left-4 w-24 h-24 bg-white/10 rounded-full blur-2xl"></div>
-            </div>
-          </motion.div>
-          
-          <motion.div variants={itemVariants}>
-            <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 p-5 shadow-lg shadow-emerald-500/30">
-              <div className="flex items-start justify-between">
-                <div className="text-white/90"><DollarSign size={22} /></div>
-                <span className="text-[10px] font-black text-white/90 bg-white/20 px-2 py-0.5 rounded-full">راتب</span>
-              </div>
-              <div className="mt-4">
-                <p className="text-white/70 text-[10px] font-black uppercase tracking-wider">نظام الراتب</p>
-                <motion.p 
-                  initial={{ opacity: 0, scale: 0.5 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ delay: 0.4, type: "spring" }}
-                  className="text-3xl font-black text-white mt-1"
-                >
-                  {stats.salaryType}
-                </motion.p>
-                <p className="text-white/60 text-[10px] font-bold mt-1">باقات بنظام الراتب</p>
-              </div>
-              <div className="absolute -bottom-4 -left-4 w-24 h-24 bg-white/10 rounded-full blur-2xl"></div>
-            </div>
-          </motion.div>
-          
-          <motion.div variants={itemVariants}>
-            <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-amber-500 to-orange-600 p-5 shadow-lg shadow-amber-500/30">
-              <div className="flex items-start justify-between">
-                <div className="text-white/90"><Zap size={22} /></div>
-                <span className="text-[10px] font-black text-white/90 bg-white/20 px-2 py-0.5 rounded-full">عمولة</span>
-              </div>
-              <div className="mt-4">
-                <p className="text-white/70 text-[10px] font-black uppercase tracking-wider">نظام العمولة</p>
-                <motion.p 
-                  initial={{ opacity: 0, scale: 0.5 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ delay: 0.5, type: "spring" }}
-                  className="text-3xl font-black text-white mt-1"
-                >
-                  {stats.commissionType}
-                </motion.p>
-                <p className="text-white/60 text-[10px] font-bold mt-1">باقات بنظام العمولة</p>
-              </div>
-              <div className="absolute -bottom-4 -left-4 w-24 h-24 bg-white/10 rounded-full blur-2xl"></div>
-            </div>
-          </motion.div>
-        </div>
 
         <motion.div
           variants={itemVariants}
