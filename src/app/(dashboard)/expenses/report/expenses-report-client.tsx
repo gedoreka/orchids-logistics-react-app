@@ -461,7 +461,7 @@ export function ExpensesReportClient({ companyId }: ExpensesReportClientProps) {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-slate-100 flex items-center justify-center">
+      <div className="min-h-screen bg-[#030712] flex items-center justify-center">
         <motion.div
           animate={{ rotate: 360 }}
           transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
@@ -473,7 +473,7 @@ export function ExpensesReportClient({ companyId }: ExpensesReportClientProps) {
 
   if (!data) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen bg-[#030712] flex items-center justify-center">
         <p className="text-slate-500">لا توجد بيانات</p>
       </div>
     );
@@ -483,7 +483,7 @@ export function ExpensesReportClient({ companyId }: ExpensesReportClientProps) {
 
   return (
     <div
-      className="rtl print:bg-white pb-10"
+      className="rtl print:bg-white pb-10 min-h-screen bg-[#030712]"
       dir="rtl"
     >
       <div className="w-[98%] mx-auto py-4 space-y-6 print:w-full print:p-2">
@@ -493,16 +493,14 @@ export function ExpensesReportClient({ companyId }: ExpensesReportClientProps) {
           animate={{ opacity: 1, y: 0 }}
           className="print:shadow-none"
         >
-          <Card className="overflow-hidden border-none shadow-2xl bg-[#0d1525]/40 backdrop-blur-xl text-white rounded-[2rem] border border-white/5 print:rounded-none print:shadow-none">
-            <div className="h-1 bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500 print:hidden" />
+          <Card className="overflow-hidden border-none shadow-2xl bg-[#111827] text-white rounded-[2rem] border border-white/5 print:rounded-none print:shadow-none">
             
-            <CardContent className="p-6">
+            <CardContent className="p-8">
               <div className="flex flex-col lg:flex-row items-center justify-between gap-6">
-                <div className="flex items-center gap-5">
+                <div className="flex items-center gap-5 lg:w-1/3">
                   <div className="relative group">
-                    <div className="absolute -inset-1 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl blur opacity-25 group-hover:opacity-50 transition duration-1000 group-hover:duration-200"></div>
                     {companyInfo?.logo_path ? (
-                      <div className="relative w-16 h-16 rounded-2xl bg-white p-2.5 flex items-center justify-center shadow-2xl border border-white/10 overflow-hidden">
+                      <div className="relative w-16 h-16 rounded-2xl bg-white p-2.5 flex items-center justify-center shadow-xl border border-white/10 overflow-hidden">
                         <img
                           src={companyInfo.logo_path}
                           alt="Logo"
@@ -516,26 +514,26 @@ export function ExpensesReportClient({ companyId }: ExpensesReportClientProps) {
                     )}
                   </div>
                   <div>
-                    <h2 className="text-xl font-black text-white bg-clip-text text-transparent bg-gradient-to-l from-white via-white/90 to-white/70">
+                    <h2 className="text-xl font-black text-white">
                       {companyInfo?.name || "اسم الشركة"}
                     </h2>
-                    <p className="text-blue-400 text-xs font-bold tracking-wider mt-0.5">
+                    <p className="text-blue-400 text-[10px] font-bold tracking-widest mt-0.5">
                       نظام إدارة المنصرفات والرواتب
                     </p>
                   </div>
                 </div>
 
-                <div className="text-center flex-1">
-                  <div className="inline-flex items-center gap-3 px-6 py-2 rounded-full bg-white/5 border border-white/10 backdrop-blur-md">
+                <div className="text-center lg:w-1/3">
+                  <div className="inline-flex items-center gap-3 px-8 py-3 rounded-full bg-white/5 border border-white/10">
                     <TrendingUp className="w-5 h-5 text-blue-400" />
-                    <h1 className="text-lg lg:text-xl font-black tracking-tight text-white/90">
+                    <h1 className="text-xl lg:text-2xl font-black tracking-tight text-white">
                       التقرير المالي الشهري
                     </h1>
                   </div>
                 </div>
 
-                <div className="flex items-center gap-4 print:hidden">
-                  <div className="bg-white/5 backdrop-blur-2xl rounded-2xl px-5 py-3 border border-white/10 shadow-inner flex items-center gap-4">
+                <div className="flex items-center justify-end gap-4 lg:w-1/3 print:hidden">
+                  <div className="bg-white/5 rounded-2xl px-5 py-3 border border-white/10 flex items-center gap-4">
                     <Button
                       variant="ghost"
                       size="icon"
@@ -639,18 +637,18 @@ export function ExpensesReportClient({ companyId }: ExpensesReportClientProps) {
               onClick={() => stat.link && (window.location.href = stat.link)}
               className={`relative ${stat.link ? "cursor-pointer" : ""}`}
             >
-              <Card className={`border-none shadow-2xl rounded-2xl overflow-hidden bg-[#0d1525]/40 backdrop-blur-xl relative z-10 h-full border-t border-white/5`}>
+              <Card className={`border-none shadow-2xl rounded-2xl overflow-hidden bg-[#111827] relative z-10 h-full border border-white/5`}>
                 <div className={`absolute top-0 right-0 w-24 h-24 ${stat.glow} blur-3xl -z-10`} />
                 <CardContent className="p-5">
                   <div className="flex items-center gap-4">
-                    <div className={`w-12 h-12 rounded-xl ${stat.bgColor} flex items-center justify-center border ${stat.border} shadow-inner`}>
-                      <stat.icon className={`w-6 h-6 ${stat.color}`} />
+                    <div className={`w-10 h-10 rounded-xl ${stat.bgColor} flex items-center justify-center border ${stat.border} shadow-inner`}>
+                      <stat.icon className={`w-5 h-5 ${stat.color}`} />
                     </div>
                     
                     <div className="flex-1 min-w-0">
-                      <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">{stat.label}</p>
+                      <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{stat.label}</p>
                       <div className="flex items-baseline gap-1 mt-0.5">
-                        <span className="text-xl font-black text-white truncate">{formatNumber(stat.value)}</span>
+                        <span className="text-lg font-black text-white truncate">{formatNumber(stat.value)}</span>
                         <span className="text-[9px] font-bold text-slate-500">ر.س</span>
                       </div>
                     </div>
@@ -659,9 +657,9 @@ export function ExpensesReportClient({ companyId }: ExpensesReportClientProps) {
                   <div className="mt-4 pt-3 border-t border-white/5 flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       <div className={`w-1.5 h-1.5 rounded-full ${stat.bgColor.replace('/10', '')}`} />
-                      <span className="text-[10px] font-black text-slate-500 uppercase">{stat.count} عملية</span>
+                      <span className="text-[10px] font-black text-slate-300 uppercase">{stat.count} عملية</span>
                     </div>
-                    <Info className="w-3.5 h-3.5 text-slate-600" />
+                    <Info className="w-3.5 h-3.5 text-slate-500" />
                   </div>
                 </CardContent>
               </Card>
@@ -676,7 +674,7 @@ export function ExpensesReportClient({ companyId }: ExpensesReportClientProps) {
           transition={{ delay: 0.2 }}
           className="print:hidden"
         >
-          <div className="bg-[#0d1525]/30 backdrop-blur-xl p-2 rounded-[2.5rem] shadow-2xl border border-white/5 inline-flex w-full">
+          <div className="bg-[#111827] p-2 rounded-[2.5rem] shadow-2xl border border-white/5 inline-flex w-full">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-2 w-full">
               {[
                 {
@@ -684,7 +682,7 @@ export function ExpensesReportClient({ companyId }: ExpensesReportClientProps) {
                   label: "عرض المنصرفات",
                   icon: Wallet,
                   color: "blue",
-                  gradient: "from-blue-600 to-indigo-600",
+                  gradient: "from-blue-600 to-blue-700",
                   sub: "كشف تفصيلي للمصروفات والرواتب"
                 },
                 {
@@ -692,7 +690,7 @@ export function ExpensesReportClient({ companyId }: ExpensesReportClientProps) {
                   label: "عرض الاستقطاعات",
                   icon: HandCoins,
                   color: "rose",
-                  gradient: "from-rose-600 to-pink-600",
+                  gradient: "from-rose-600 to-rose-700",
                   sub: "كشف تفصيلي للخصومات والجزاءات"
                 },
                 {
@@ -700,32 +698,32 @@ export function ExpensesReportClient({ companyId }: ExpensesReportClientProps) {
                   label: "التقرير الشامل",
                   icon: BarChart3,
                   color: "purple",
-                  gradient: "from-indigo-600 via-purple-600 to-pink-600",
+                  gradient: "from-indigo-600 to-purple-700",
                   sub: "رؤية موحدة لجميع الحركات المالية"
                 }
               ].map((tab) => (
                 <button
                   key={tab.id}
                   onClick={() => setReportType(tab.id)}
-                  className={`relative flex items-center gap-4 p-4 rounded-2xl transition-all duration-500 group overflow-hidden ${
+                  className={`relative flex items-center gap-4 p-4 rounded-2xl transition-all duration-300 group overflow-hidden ${
                     reportType === tab.id
-                      ? `bg-gradient-to-r ${tab.gradient} text-white shadow-2xl scale-[1.01] z-10`
-                      : "bg-transparent text-slate-400 hover:bg-white/5"
+                      ? `bg-gradient-to-r ${tab.gradient} text-white shadow-xl scale-[1.01] z-10`
+                      : "bg-white/5 text-slate-400 hover:bg-white/10"
                   }`}
                 >
                   <div className={`w-11 h-11 rounded-xl flex items-center justify-center transition-all duration-300 ${
                     reportType === tab.id
-                      ? "bg-white/20 rotate-6"
-                      : `bg-white/5 text-slate-400 group-hover:rotate-12`
+                      ? "bg-white/20"
+                      : `bg-white/5 text-slate-300 group-hover:bg-white/10`
                   }`}>
                     <tab.icon className="w-5 h-5" />
                   </div>
                   
                   <div className="text-right flex-1">
-                    <p className={`text-sm font-black ${reportType === tab.id ? "text-white" : "text-slate-200"}`}>
+                    <p className={`text-sm font-black ${reportType === tab.id ? "text-white" : "text-white/90"}`}>
                       {tab.label}
                     </p>
-                    <p className={`text-[10px] font-medium ${reportType === tab.id ? "text-white/70" : "text-slate-500"}`}>
+                    <p className={`text-[10px] font-medium ${reportType === tab.id ? "text-white/80" : "text-slate-500"}`}>
                       {tab.sub}
                     </p>
                   </div>
@@ -742,7 +740,7 @@ export function ExpensesReportClient({ companyId }: ExpensesReportClientProps) {
           transition={{ delay: 0.3 }}
           className="print:hidden"
         >
-          <Card className="border-none shadow-2xl rounded-[2rem] bg-[#0d1525]/40 backdrop-blur-xl border border-white/5">
+          <Card className="border-none shadow-2xl rounded-[2rem] bg-[#111827] border border-white/5">
             <CardContent className="p-4">
               <div className="flex flex-col lg:flex-row items-center justify-between gap-4">
                 <div className="flex items-center gap-3 flex-wrap">
@@ -764,7 +762,7 @@ export function ExpensesReportClient({ companyId }: ExpensesReportClientProps) {
                   </div>
                   <Button
                     onClick={fetchReportData}
-                    className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-xl px-6 h-11 shadow-xl transition-all active:scale-95 font-bold text-sm"
+                    className="bg-blue-600 hover:bg-blue-700 text-white rounded-xl px-6 h-11 shadow-xl transition-all active:scale-95 font-bold text-sm"
                   >
                     <Search className="w-4 h-4 ml-2" />
                     تحديث
@@ -776,7 +774,7 @@ export function ExpensesReportClient({ companyId }: ExpensesReportClientProps) {
                     onClick={handlePrint}
                     variant="ghost"
                     size="sm"
-                    className="text-slate-400 hover:text-white hover:bg-white/10 rounded-xl px-4 h-9 font-bold transition-all"
+                    className="text-slate-300 hover:text-white hover:bg-white/10 rounded-xl px-4 h-9 font-bold transition-all"
                   >
                     <Printer className="w-4 h-4 ml-2" />
                     طباعة
@@ -785,7 +783,7 @@ export function ExpensesReportClient({ companyId }: ExpensesReportClientProps) {
                     onClick={handleExportExcel}
                     variant="ghost"
                     size="sm"
-                    className="text-slate-400 hover:text-emerald-400 hover:bg-emerald-400/10 rounded-xl px-4 h-9 font-bold transition-all"
+                    className="text-slate-300 hover:text-emerald-400 hover:bg-emerald-400/10 rounded-xl px-4 h-9 font-bold transition-all"
                   >
                     <FileSpreadsheet className="w-4 h-4 ml-2" />
                     Excel
@@ -794,7 +792,7 @@ export function ExpensesReportClient({ companyId }: ExpensesReportClientProps) {
                     onClick={() => setShowAnalysisModal(true)}
                     variant="ghost"
                     size="sm"
-                    className="text-slate-400 hover:text-amber-400 hover:bg-amber-400/10 rounded-xl px-4 h-9 font-bold transition-all"
+                    className="text-slate-300 hover:text-amber-400 hover:bg-amber-400/10 rounded-xl px-4 h-9 font-bold transition-all"
                   >
                     <BarChart3 className="w-4 h-4 ml-2" />
                     تحليل
@@ -804,7 +802,7 @@ export function ExpensesReportClient({ companyId }: ExpensesReportClientProps) {
                     onClick={() => (window.location.href = "/expenses")}
                     variant="ghost"
                     size="sm"
-                    className="text-slate-400 hover:text-rose-400 hover:bg-rose-400/10 rounded-xl px-4 h-9 font-bold transition-all"
+                    className="text-slate-300 hover:text-rose-400 hover:bg-rose-400/10 rounded-xl px-4 h-9 font-bold transition-all"
                   >
                     <Home className="w-4 h-4 ml-2" />
                     الرئيسية
@@ -822,8 +820,8 @@ export function ExpensesReportClient({ companyId }: ExpensesReportClientProps) {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4 }}
           >
-            <Card className="border-none shadow-2xl rounded-[2rem] overflow-hidden bg-[#0d1525]/40 backdrop-blur-xl border border-white/5">
-              <CardHeader className="bg-gradient-to-r from-blue-600/20 to-indigo-600/20 border-b border-white/5 p-5">
+            <Card className="border-none shadow-2xl rounded-[2rem] overflow-hidden bg-[#111827] border border-white/5">
+              <CardHeader className="bg-white/5 border-b border-white/5 p-5">
                 <div className="flex items-center justify-between">
                   <CardTitle className="flex items-center gap-3 text-white text-lg font-black">
                     <div className="w-10 h-10 rounded-xl bg-blue-500/20 flex items-center justify-center border border-blue-500/30">
@@ -994,8 +992,8 @@ export function ExpensesReportClient({ companyId }: ExpensesReportClientProps) {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.5 }}
           >
-            <Card className="border-none shadow-2xl rounded-[2rem] overflow-hidden bg-[#0d1525]/40 backdrop-blur-xl border border-white/5">
-              <CardHeader className="bg-gradient-to-r from-rose-600/20 to-pink-600/20 border-b border-white/5 p-5">
+            <Card className="border-none shadow-2xl rounded-[2rem] overflow-hidden bg-[#111827] border border-white/5">
+              <CardHeader className="bg-white/5 border-b border-white/5 p-5">
                 <div className="flex items-center justify-between">
                   <CardTitle className="flex items-center gap-3 text-white text-lg font-black">
                     <div className="w-10 h-10 rounded-xl bg-rose-500/20 flex items-center justify-center border border-rose-500/30">
@@ -1179,8 +1177,8 @@ export function ExpensesReportClient({ companyId }: ExpensesReportClientProps) {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.6 }}
           >
-            <Card className="border-none shadow-2xl rounded-[2rem] overflow-hidden bg-[#0d1525]/40 backdrop-blur-xl border border-white/5">
-              <CardHeader className="bg-gradient-to-r from-emerald-600/20 to-teal-600/20 border-b border-white/5 p-5">
+            <Card className="border-none shadow-2xl rounded-[2rem] overflow-hidden bg-[#111827] border border-white/5">
+              <CardHeader className="bg-white/5 border-b border-white/5 p-5">
                 <div className="flex items-center justify-between">
                   <CardTitle className="flex items-center gap-3 text-white text-lg font-black">
                     <div className="w-10 h-10 rounded-xl bg-emerald-500/20 flex items-center justify-center border border-emerald-500/30">
