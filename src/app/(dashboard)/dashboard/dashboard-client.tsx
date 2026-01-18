@@ -51,17 +51,17 @@ interface DashboardClientProps {
     badge: string;
     remaining_days?: number;
   };
-  stats: {
-    users_count?: number;
-    pending_requests?: number;
-    stopped_companies?: number;
-    total_employees?: number;
-    total_packages?: number;
-    active_employees?: number;
-    expired_iqama?: number;
-    credit_notes_count?: number;
-    credit_notes_total?: number;
-  };
+    stats: {
+      users_count?: number;
+      pending_requests?: number;
+      stopped_companies?: number;
+      total_employees?: number;
+      total_invoices_amount?: number;
+      active_employees?: number;
+      expired_iqama?: number;
+      credit_notes_count?: number;
+      credit_notes_total?: number;
+    };
   permissions: Record<string, number>;
   isAdmin: boolean;
 }
@@ -386,12 +386,13 @@ export function DashboardClient({
                   glowColor="blue"
                 />
                 <LuxuryStatCard 
-                  icon={Package} 
-                  value={stats.total_packages || 0} 
-                  label={t('addedPackages')}
+                  icon={Receipt} 
+                  value={stats.total_invoices_amount || 0} 
+                  label={isRTL ? "إجمالي الفواتير الضريبية" : "Total Tax Invoices"}
                   trend={8}
                   gradient="from-emerald-500 to-teal-600"
                   glowColor="emerald"
+                  isCurrency
                 />
                 <LuxuryStatCard 
                   icon={UserCheck} 

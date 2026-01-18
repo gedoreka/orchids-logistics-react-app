@@ -35,17 +35,17 @@ export default async function DashboardPage() {
     remaining_days: undefined as number | undefined
   };
 
-  let stats = {
-    users_count: 0,
-    pending_requests: 0,
-    stopped_companies: 0,
-    total_employees: 0,
-    total_packages: 0,
-    active_employees: 0,
-    expired_iqama: 0,
-    credit_notes_count: 0,
-    credit_notes_total: 0,
-  };
+    let stats = {
+      users_count: 0,
+      pending_requests: 0,
+      stopped_companies: 0,
+      total_employees: 0,
+      total_invoices_amount: 0,
+      active_employees: 0,
+      expired_iqama: 0,
+      credit_notes_count: 0,
+      credit_notes_total: 0,
+    };
 
   const permissions = session.permissions || {};
 
@@ -96,11 +96,11 @@ export default async function DashboardPage() {
       );
       stats.total_employees = empResult[0]?.count || 0;
 
-      const pkgResult = await query<{ count: number }>(
-        "SELECT COUNT(*) as count FROM employee_packages WHERE company_id = ?",
+      const invoicesResult = await query<{ total: number }>(
+        "SELECT COALESCE(SUM(total_amount), 0) as total FROM sales_invoices WHERE company_id = ?",
         [session.company_id]
       );
-      stats.total_packages = pkgResult[0]?.count || 0;
+      stats.total_invoices_amount = invoicesResult[0]?.total || 0;
 
       const activeResult = await query<{ count: number }>(
         "SELECT COUNT(*) as count FROM employees WHERE company_id = ? AND is_active = 1",
