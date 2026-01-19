@@ -17,7 +17,6 @@ import {
   BarChart3, 
   Settings, 
   LogOut,
-  Mail,
   Scale,
   BookOpen,
   PieChart,
@@ -85,8 +84,6 @@ const navItems: NavItem[] = [
     { titleKey: "journalEntries", href: "/journal-entries", icon: FileEdit, permission: "journal_entries_module", gradient: "from-violet-500 to-indigo-500" },
     { titleKey: "profitLossSummary", href: "/profit-loss", icon: PieChart, permission: "income_report_module", gradient: "from-sky-500 to-blue-500" },
     
-    { titleKey: "emailClient", href: "#email", icon: Mail, gradient: "from-blue-500 to-indigo-500", onClick: (setShowEmailModal: any) => setShowEmailModal(true) },
-    
     { titleKey: "accountsCenter", href: "/accounts", icon: BookOpen, permission: "accounts_module", gradient: "from-orange-500 to-amber-500" },
   { titleKey: "costCenters", href: "/cost-centers", icon: Landmark, permission: "cost_centers_module", gradient: "from-slate-500 to-gray-500" },
   { titleKey: "generalLedger", href: "/general-ledger", icon: BookOpen, permission: "ledger_module", gradient: "from-zinc-500 to-neutral-500" },
@@ -124,15 +121,9 @@ export function Sidebar({ userRole, permissions = {}, userType }: SidebarProps) 
       return true;
     });
 
-    const handleItemClick = (item: NavItem) => {
-      if (item.onClick) {
-        // We'll handle this via a custom event or by passing the setter
-        const event = new CustomEvent('open-email-modal');
-        window.dispatchEvent(event);
-      } else {
+      const handleItemClick = (item: NavItem) => {
         router.push(item.href);
-      }
-    };
+      };
 
     const handleLogout = async () => {
     document.cookie = "auth_session=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
