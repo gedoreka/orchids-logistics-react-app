@@ -36,7 +36,8 @@ import {
   Search,
   Check,
   Trash,
-  Sparkles
+  Sparkles,
+  AlertTriangle
 } from "lucide-react";
 import { format, differenceInDays, parseISO } from "date-fns";
 import { toast } from "sonner";
@@ -803,22 +804,45 @@ className="bg-slate-100 backdrop-blur-xl p-5 rounded-2xl border border-slate-200
                         animate={{ opacity: 1, height: 'auto' }}
                         exit={{ opacity: 0, height: 0 }}
 className="bg-slate-100 backdrop-blur-xl p-5 rounded-2xl border border-slate-200 overflow-hidden"
-                        >
-                          <form onSubmit={editingViolation ? handleUpdateViolation : handleAddViolation} className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                            <select value={editingViolation ? editingViolation.violation_type : newViolation.violation_type} onChange={(e) => editingViolation ? setEditingViolation({...editingViolation, violation_type: e.target.value}) : setNewViolation({...newViolation, violation_type: e.target.value})} className="bg-white border border-slate-300 rounded-xl py-3 px-4 text-sm font-bold text-slate-900 focus:border-red-500 outline-none">
-                              <option value="traffic" className="bg-white">مرورية</option>
-                              <option value="general" className="bg-white">عامة</option>
-                            </select>
-                            <input type="date" value={editingViolation ? editingViolation.violation_date : newViolation.violation_date} onChange={(e) => editingViolation ? setEditingViolation({...editingViolation, violation_date: e.target.value}) : setNewViolation({...newViolation, violation_date: e.target.value})} className="bg-white border border-slate-300 rounded-xl py-3 px-4 text-sm font-bold text-slate-900 focus:border-red-500 outline-none" required />
-                            <input type="number" placeholder="المبلغ" value={editingViolation ? editingViolation.violation_amount : newViolation.violation_amount} onChange={(e) => editingViolation ? setEditingViolation({...editingViolation, violation_amount: Number(e.target.value)}) : setNewViolation({...newViolation, violation_amount: Number(e.target.value)})} className="bg-white border border-slate-300 rounded-xl py-3 px-4 text-sm font-bold text-slate-900 placeholder-slate-400 focus:border-red-500 outline-none" required />
-                            <input type="number" placeholder="المخصوم" value={editingViolation ? editingViolation.deducted_amount : newViolation.deducted_amount} onChange={(e) => editingViolation ? setEditingViolation({...editingViolation, deducted_amount: Number(e.target.value)}) : setNewViolation({...newViolation, deducted_amount: Number(e.target.value)})} className="bg-white border border-slate-300 rounded-xl py-3 px-4 text-sm font-bold text-slate-900 placeholder-slate-400 focus:border-red-500 outline-none" required />
-                            <input type="text" placeholder="الوصف" value={editingViolation ? editingViolation.violation_description : newViolation.violation_description} onChange={(e) => editingViolation ? setEditingViolation({...editingViolation, violation_description: e.target.value}) : setNewViolation({...newViolation, violation_description: e.target.value})} className="bg-white border border-slate-300 rounded-xl py-3 px-4 text-sm font-bold text-slate-900 placeholder-slate-400 focus:border-red-500 outline-none col-span-2 md:col-span-3" />
-                            <div className="flex gap-3">
-                              <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} type="submit" className="flex-1 bg-gradient-to-r from-red-600 to-rose-600 text-white py-3 rounded-xl text-sm font-black shadow-lg shadow-red-500/30">{editingViolation ? 'تحديث' : 'إضافة'}</motion.button>
-                              <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} type="button" onClick={() => {setEditingViolation(null); setShowViolationForm(false);}} className="px-4 bg-slate-200 rounded-xl text-sm font-bold text-slate-700 hover:bg-slate-300">✕</motion.button>
-                            </div>
-                          </form>
-                        </motion.div>
+                          >
+                            <h3 className="text-lg font-black text-slate-900 mb-4 flex items-center gap-2">
+                              <AlertTriangle size={20} className="text-red-500" />
+                              {editingViolation ? 'تعديل مخالفة' : 'إضافة مخالفة جديدة'}
+                            </h3>
+                            <form onSubmit={editingViolation ? handleUpdateViolation : handleAddViolation} className="space-y-4">
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                  <label className="block text-sm font-black text-slate-700 mb-2">نوع المخالفة</label>
+                                  <select value={editingViolation ? editingViolation.violation_type : newViolation.violation_type} onChange={(e) => editingViolation ? setEditingViolation({...editingViolation, violation_type: e.target.value}) : setNewViolation({...newViolation, violation_type: e.target.value})} className="w-full bg-white border border-slate-300 rounded-xl py-3 px-4 text-sm font-bold text-slate-900 focus:border-red-500 outline-none">
+                                    <option value="traffic" className="bg-white">مرورية</option>
+                                    <option value="general" className="bg-white">عامة</option>
+                                  </select>
+                                </div>
+                                <div>
+                                  <label className="block text-sm font-black text-slate-700 mb-2">تاريخ المخالفة</label>
+                                  <input type="date" value={editingViolation ? editingViolation.violation_date : newViolation.violation_date} onChange={(e) => editingViolation ? setEditingViolation({...editingViolation, violation_date: e.target.value}) : setNewViolation({...newViolation, violation_date: e.target.value})} className="w-full bg-white border border-slate-300 rounded-xl py-3 px-4 text-sm font-bold text-slate-900 focus:border-red-500 outline-none" required />
+                                </div>
+                              </div>
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                  <label className="block text-sm font-black text-slate-700 mb-2">مبلغ المخالفة (ر.س)</label>
+                                  <input type="number" placeholder="أدخل مبلغ المخالفة الكامل" value={editingViolation ? editingViolation.violation_amount : newViolation.violation_amount} onChange={(e) => editingViolation ? setEditingViolation({...editingViolation, violation_amount: Number(e.target.value)}) : setNewViolation({...newViolation, violation_amount: Number(e.target.value)})} className="w-full bg-white border border-slate-300 rounded-xl py-3 px-4 text-sm font-bold text-slate-900 placeholder-slate-400 focus:border-red-500 outline-none" required />
+                                </div>
+                                <div>
+                                  <label className="block text-sm font-black text-slate-700 mb-2">المبلغ المخصوم من الراتب (ر.س)</label>
+                                  <input type="number" placeholder="المبلغ الذي سيخصم من الراتب" value={editingViolation ? editingViolation.deducted_amount : newViolation.deducted_amount} onChange={(e) => editingViolation ? setEditingViolation({...editingViolation, deducted_amount: Number(e.target.value)}) : setNewViolation({...newViolation, deducted_amount: Number(e.target.value)})} className="w-full bg-white border border-slate-300 rounded-xl py-3 px-4 text-sm font-bold text-slate-900 placeholder-slate-400 focus:border-red-500 outline-none" required />
+                                </div>
+                              </div>
+                              <div>
+                                <label className="block text-sm font-black text-slate-700 mb-2">وصف المخالفة</label>
+                                <input type="text" placeholder="وصف تفصيلي للمخالفة (اختياري)" value={editingViolation ? editingViolation.violation_description : newViolation.violation_description} onChange={(e) => editingViolation ? setEditingViolation({...editingViolation, violation_description: e.target.value}) : setNewViolation({...newViolation, violation_description: e.target.value})} className="w-full bg-white border border-slate-300 rounded-xl py-3 px-4 text-sm font-bold text-slate-900 placeholder-slate-400 focus:border-red-500 outline-none" />
+                              </div>
+                              <div className="flex gap-3 pt-2">
+                                <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} type="submit" className="flex-1 bg-gradient-to-r from-red-600 to-rose-600 text-white py-3 rounded-xl text-sm font-black shadow-lg shadow-red-500/30">{editingViolation ? 'تحديث المخالفة' : 'إضافة المخالفة'}</motion.button>
+                                <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} type="button" onClick={() => {setEditingViolation(null); setShowViolationForm(false);}} className="px-6 bg-slate-200 rounded-xl text-sm font-bold text-slate-700 hover:bg-slate-300">إلغاء</motion.button>
+                              </div>
+                            </form>
+                          </motion.div>
                       )}
                     </AnimatePresence>
 
