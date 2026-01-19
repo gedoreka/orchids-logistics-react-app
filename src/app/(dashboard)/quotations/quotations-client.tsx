@@ -56,7 +56,8 @@ interface ProductItem {
   id: string;
   product_name: string;
   quantity: number;
-  price: number;
+  unit_price: number;
+  total_price: number;
   vat_amount: number;
   price_with_vat: number;
 }
