@@ -666,8 +666,12 @@ export function Header({ user, onToggleSidebar, unreadChatCount = 0, subscriptio
       }
     }, [selectedEmailAccount, user?.company_id]);
 
+    const isFetchingEmailsRef = useRef(false);
+    const isFetchingUnreadRef = useRef(false);
+
       const fetchEmails = useCallback(async (accountId: string, folder: string = 'INBOX') => {
-        if (!accountId || !user?.company_id) return;
+        if (!accountId || !user?.company_id || isFetchingEmailsRef.current) return;
+        isFetchingEmailsRef.current = true;
         setIsLoadingEmails(true);
         try {
           const res = await fetch(`/api/email/fetch?accountId=${accountId}&company_id=${user.company_id}&folder=${folder}&limit=10`);
@@ -677,18 +681,28 @@ export function Header({ user, onToggleSidebar, unreadChatCount = 0, subscriptio
               const unread = data.emails.filter((e: EmailMessage) => !e.isRead).length;
               setTotalUnreadEmails(unread);
             } else if (data.error) {
-              toast.error(data.error);
+              // Only show toast if it's not a background refresh or if it's a critical error
+              if (!showEmailModal) {
+                console.error('Email background fetch error:', data.error);
+              } else {
+                toast.error(data.error);
+              }
               setEmails([]);
             }
         } catch (error) {
           console.error('Error fetching emails:', error);
-          toast.error(isRTL ? 'حدث خطأ في جلب الرسائل' : 'Error fetching emails');
+          if (showEmailModal) {
+            toast.error(isRTL ? 'حدث خطأ في جلب الرسائل' : 'Error fetching emails');
+          }
+        } finally {
+          setIsLoadingEmails(false);
+          isFetchingEmailsRef.current = false;
         }
-        setIsLoadingEmails(false);
-      }, [isRTL, user?.company_id]);
+      }, [isRTL, user?.company_id, showEmailModal]);
 
     const fetchUnreadCount = useCallback(async () => {
-      if (emailAccounts.length === 0 || !user?.company_id) return;
+      if (emailAccounts.length === 0 || !user?.company_id || isFetchingUnreadRef.current) return;
+      isFetchingUnreadRef.current = true;
       let total = 0;
       for (const account of emailAccounts) {
         try {
@@ -702,6 +716,7 @@ export function Header({ user, onToggleSidebar, unreadChatCount = 0, subscriptio
         }
       }
       setTotalUnreadEmails(total);
+      isFetchingUnreadRef.current = false;
     }, [emailAccounts, user?.company_id]);
 
       useEffect(() => {
@@ -718,13 +733,14 @@ export function Header({ user, onToggleSidebar, unreadChatCount = 0, subscriptio
       if (selectedEmailAccount) {
         fetchEmails(selectedEmailAccount.id, emailFolder);
       }
-    }, [selectedEmailAccount, emailFolder, fetchEmails]);
+    }, [selectedEmailAccount, emailFolder]); // Removed fetchEmails from deps to avoid loop if it changes
 
     useEffect(() => {
       if (showEmailModal && selectedEmailAccount) {
+        // Refresh every 30 seconds instead of 10
         emailRefreshIntervalRef.current = setInterval(() => {
           fetchEmails(selectedEmailAccount.id, emailFolder);
-        }, 10000);
+        }, 30000);
       }
       return () => {
         if (emailRefreshIntervalRef.current) {

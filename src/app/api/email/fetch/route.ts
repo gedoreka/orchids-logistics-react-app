@@ -47,24 +47,31 @@ async function fetchEmails(
       });
 
       const timeout = setTimeout(() => {
-        imap.end();
+        try {
+          imap.end();
+        } catch (e) {}
         reject(new Error("Connection timeout"));
-      }, 60000);
+      }, 45000);
 
     const emails: EmailMessage[] = [];
     const parsePromises: Promise<void>[] = [];
+    let isFinished = false;
 
     imap.once("ready", () => {
       imap.openBox(folder, true, (err, box) => {
         if (err) {
-          imap.end();
+          isFinished = true;
+          clearTimeout(timeout);
+          try { imap.end(); } catch (e) {}
           reject(err);
           return;
         }
 
         const totalMessages = box.messages.total;
         if (totalMessages === 0) {
-          imap.end();
+          isFinished = true;
+          clearTimeout(timeout);
+          try { imap.end(); } catch (e) {}
           resolve([]);
           return;
         }
@@ -123,25 +130,37 @@ async function fetchEmails(
         });
 
         f.once("error", (fetchErr) => {
-          imap.end();
-          reject(fetchErr);
+          if (!isFinished) {
+            isFinished = true;
+            clearTimeout(timeout);
+            try { imap.end(); } catch (e) {}
+            reject(fetchErr);
+          }
         });
 
         f.once("end", () => {
-          imap.end();
+          try { imap.end(); } catch (e) {}
         });
       });
     });
 
     imap.once("error", (err: Error) => {
-      reject(err);
+      if (!isFinished) {
+        isFinished = true;
+        clearTimeout(timeout);
+        try { imap.end(); } catch (e) {}
+        reject(err);
+      }
     });
 
     imap.once("end", async () => {
-      clearTimeout(timeout);
-      await Promise.all(parsePromises);
-      emails.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-      resolve(emails);
+      if (!isFinished) {
+        isFinished = true;
+        clearTimeout(timeout);
+        await Promise.all(parsePromises);
+        emails.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+        resolve(emails);
+      }
     });
 
     imap.connect();
@@ -158,9 +177,14 @@ async function getUnreadCount(
   folder: string = "INBOX"
 ): Promise<number> {
   return new Promise((resolve, reject) => {
+    let isFinished = false;
     const timeout = setTimeout(() => {
-      resolve(0);
-    }, 8000);
+      if (!isFinished) {
+        isFinished = true;
+        try { imap.end(); } catch (e) {}
+        resolve(0);
+      }
+    }, 15000);
 
     const imap = new Imap({
       user: config.user,
@@ -169,31 +193,43 @@ async function getUnreadCount(
       port: config.port,
       tls: true,
       tlsOptions: { rejectUnauthorized: false },
-      connTimeout: 5000,
-      authTimeout: 3000,
+      connTimeout: 10000,
+      authTimeout: 5000,
     });
 
     imap.once("ready", () => {
       imap.openBox(folder, true, (err, box) => {
         if (err) {
-          imap.end();
-          reject(err);
+          if (!isFinished) {
+            isFinished = true;
+            clearTimeout(timeout);
+            try { imap.end(); } catch (e) {}
+            reject(err);
+          }
           return;
         }
-      imap.search(["UNSEEN"], (searchErr, results) => {
+        imap.search(["UNSEEN"], (searchErr, results) => {
+          if (!isFinished) {
+            isFinished = true;
             clearTimeout(timeout);
-            imap.end();
+            try { imap.end(); } catch (e) {}
             if (searchErr) {
               reject(searchErr);
               return;
             }
             resolve(results.length);
-          });
+          }
+        });
       });
     });
 
     imap.once("error", (err: Error) => {
-      reject(err);
+      if (!isFinished) {
+        isFinished = true;
+        clearTimeout(timeout);
+        try { imap.end(); } catch (e) {}
+        reject(err);
+      }
     });
 
     imap.connect();
