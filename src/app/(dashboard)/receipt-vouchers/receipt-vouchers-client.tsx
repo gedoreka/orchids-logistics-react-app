@@ -8,7 +8,7 @@ import {
   Search, Edit3, Trash2, Printer, Mail, Eye, ChevronDown, ChevronUp,
   CheckCircle, AlertCircle, X, ArrowDown, ArrowUp, Building2,
   Banknote, StickyNote, Sparkles, Filter, Download, RefreshCw,
-  Plus, Loader2
+  Plus, Loader2, TrendingUp, FileSpreadsheet
 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
