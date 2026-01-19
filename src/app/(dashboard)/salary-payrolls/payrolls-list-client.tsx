@@ -173,10 +173,10 @@ export function PayrollsListClient({ payrolls: initialPayrolls, stats, companyId
           <AnimatePresence>
             {notification.show && (
               <motion.div
-                initial={{ opacity: 0, y: -50, x: 50 }}
+                initial={{ opacity: 0, y: 50, x: 0 }}
                 animate={{ opacity: 1, y: 0, x: 0 }}
-                exit={{ opacity: 0, y: -50 }}
-                className={`fixed top-6 left-6 z-50 flex items-center gap-3 px-6 py-4 rounded-2xl shadow-2xl backdrop-blur-xl border ${
+                exit={{ opacity: 0, y: 50 }}
+                className={`fixed bottom-10 left-10 z-[150] flex items-center gap-3 px-6 py-4 rounded-2xl shadow-2xl backdrop-blur-xl border ${
                   notification.type === "success"
                     ? "bg-emerald-500/90 border-emerald-400/50 text-white"
                     : notification.type === "error"
