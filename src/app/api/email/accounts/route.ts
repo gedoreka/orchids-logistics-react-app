@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
-import { cookies } from "next/headers";
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -40,11 +39,11 @@ const EMAIL_PROVIDERS = {
 
 export async function GET(request: NextRequest) {
   try {
-    const cookieStore = await cookies();
-    const companyId = cookieStore.get("company_id")?.value;
+    const { searchParams } = new URL(request.url);
+    const companyId = searchParams.get("company_id");
 
     if (!companyId) {
-      return NextResponse.json({ error: "غير مصرح" }, { status: 401 });
+      return NextResponse.json({ error: "company_id مطلوب" }, { status: 400 });
     }
 
     const { data, error } = await supabase
@@ -55,7 +54,7 @@ export async function GET(request: NextRequest) {
 
     if (error) throw error;
 
-    const accounts = data.map((acc) => ({
+    const accounts = (data || []).map((acc) => ({
       ...acc,
       password: "********",
     }));
@@ -72,15 +71,12 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const cookieStore = await cookies();
-    const companyId = cookieStore.get("company_id")?.value;
-
-    if (!companyId) {
-      return NextResponse.json({ error: "غير مصرح" }, { status: 401 });
-    }
-
     const body = await request.json();
-    const { email, password, provider, imap_host, imap_port, smtp_host, smtp_port } = body;
+    const { company_id, email, password, provider, imap_host, imap_port, smtp_host, smtp_port } = body;
+
+    if (!company_id) {
+      return NextResponse.json({ error: "company_id مطلوب" }, { status: 400 });
+    }
 
     if (!email || !password || !provider) {
       return NextResponse.json(
@@ -99,7 +95,7 @@ export async function POST(request: NextRequest) {
     const { data: existing } = await supabase
       .from("company_email_accounts")
       .select("id")
-      .eq("company_id", parseInt(companyId))
+      .eq("company_id", parseInt(company_id))
       .eq("email", email)
       .single();
 
@@ -113,7 +109,7 @@ export async function POST(request: NextRequest) {
     const { data, error } = await supabase
       .from("company_email_accounts")
       .insert({
-        company_id: parseInt(companyId),
+        company_id: parseInt(company_id),
         email,
         password,
         provider,
@@ -142,18 +138,12 @@ export async function POST(request: NextRequest) {
 
 export async function DELETE(request: NextRequest) {
   try {
-    const cookieStore = await cookies();
-    const companyId = cookieStore.get("company_id")?.value;
-
-    if (!companyId) {
-      return NextResponse.json({ error: "غير مصرح" }, { status: 401 });
-    }
-
     const { searchParams } = new URL(request.url);
     const accountId = searchParams.get("id");
+    const companyId = searchParams.get("company_id");
 
-    if (!accountId) {
-      return NextResponse.json({ error: "معرف الحساب مطلوب" }, { status: 400 });
+    if (!accountId || !companyId) {
+      return NextResponse.json({ error: "معرف الحساب و company_id مطلوبين" }, { status: 400 });
     }
 
     const { error } = await supabase

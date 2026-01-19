@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
-import { cookies } from "next/headers";
 import nodemailer from "nodemailer";
 
 const supabase = createClient(
@@ -10,15 +9,8 @@ const supabase = createClient(
 
 export async function POST(request: NextRequest) {
   try {
-    const cookieStore = await cookies();
-    const companyId = cookieStore.get("company_id")?.value;
-
-    if (!companyId) {
-      return NextResponse.json({ error: "غير مصرح" }, { status: 401 });
-    }
-
     const body = await request.json();
-    const { accountId, to, cc, bcc, subject, body: emailBody, attachments } = body;
+    const { accountId, company_id, to, cc, bcc, subject, body: emailBody, attachments } = body;
 
     if (!accountId || !to || !subject) {
       return NextResponse.json(
@@ -27,12 +19,16 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { data: account, error: accountError } = await supabase
+    let query = supabase
       .from("company_email_accounts")
       .select("*")
-      .eq("id", accountId)
-      .eq("company_id", parseInt(companyId))
-      .single();
+      .eq("id", accountId);
+
+    if (company_id) {
+      query = query.eq("company_id", parseInt(company_id));
+    }
+
+    const { data: account, error: accountError } = await query.single();
 
     if (accountError || !account) {
       return NextResponse.json(

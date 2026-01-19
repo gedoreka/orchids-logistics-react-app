@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
-import { cookies } from "next/headers";
 import Imap from "imap";
 import { simpleParser } from "mailparser";
 
@@ -183,15 +182,9 @@ async function getUnreadCount(
 
 export async function GET(request: NextRequest) {
   try {
-    const cookieStore = await cookies();
-    const companyId = cookieStore.get("company_id")?.value;
-
-    if (!companyId) {
-      return NextResponse.json({ error: "غير مصرح" }, { status: 401 });
-    }
-
     const { searchParams } = new URL(request.url);
     const accountId = searchParams.get("accountId");
+    const companyId = searchParams.get("company_id");
     const folder = searchParams.get("folder") || "INBOX";
     const action = searchParams.get("action") || "fetch";
     const limit = parseInt(searchParams.get("limit") || "20");
@@ -200,12 +193,16 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "معرف الحساب مطلوب" }, { status: 400 });
     }
 
-    const { data: account, error: accountError } = await supabase
+    let query = supabase
       .from("company_email_accounts")
       .select("*")
-      .eq("id", accountId)
-      .eq("company_id", parseInt(companyId))
-      .single();
+      .eq("id", accountId);
+
+    if (companyId) {
+      query = query.eq("company_id", parseInt(companyId));
+    }
+
+    const { data: account, error: accountError } = await query.single();
 
     if (accountError || !account) {
       return NextResponse.json(

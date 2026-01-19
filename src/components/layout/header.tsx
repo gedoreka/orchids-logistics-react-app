@@ -259,7 +259,7 @@ const ISLAMIC_EVENTS: IslamicEvent[] = [
   { name: "عيد الأضحى", nameEn: "Eid al-Adha", hijriMonth: 12, hijriDay: 10, icon: "🐑" },
 ];
 
-export function Header({ user, onToggleSidebar, unreadChatCount = 0, subscriptionData }: { user?: { name: string; role: string; email: string }, onToggleSidebar?: () => void, unreadChatCount?: number, subscriptionData?: { isActive: boolean; endDate: string | null; daysRemaining: number } }) {
+export function Header({ user, onToggleSidebar, unreadChatCount = 0, subscriptionData }: { user?: { name: string; role: string; email: string; company_id?: number }, onToggleSidebar?: () => void, unreadChatCount?: number, subscriptionData?: { isActive: boolean; endDate: string | null; daysRemaining: number } }) {
   const t = useTranslations('header');
   const tCommon = useTranslations('common');
   const { locale, isRTL } = useLocale();
@@ -651,8 +651,9 @@ export function Header({ user, onToggleSidebar, unreadChatCount = 0, subscriptio
     };
 
     const fetchEmailAccounts = useCallback(async () => {
+      if (!user?.company_id) return;
       try {
-        const res = await fetch('/api/email/accounts');
+        const res = await fetch(`/api/email/accounts?company_id=${user.company_id}`);
         const data = await res.json();
         if (data.accounts) {
           setEmailAccounts(data.accounts);
@@ -663,13 +664,13 @@ export function Header({ user, onToggleSidebar, unreadChatCount = 0, subscriptio
       } catch (error) {
         console.error('Error fetching email accounts:', error);
       }
-    }, [selectedEmailAccount]);
+    }, [selectedEmailAccount, user?.company_id]);
 
     const fetchEmails = useCallback(async (accountId: string, folder: string = 'INBOX') => {
-      if (!accountId) return;
+      if (!accountId || !user?.company_id) return;
       setIsLoadingEmails(true);
       try {
-        const res = await fetch(`/api/email/fetch?accountId=${accountId}&folder=${folder}&limit=30`);
+        const res = await fetch(`/api/email/fetch?accountId=${accountId}&company_id=${user.company_id}&folder=${folder}&limit=30`);
         const data = await res.json();
         if (data.emails) {
           setEmails(data.emails);
@@ -684,14 +685,14 @@ export function Header({ user, onToggleSidebar, unreadChatCount = 0, subscriptio
         console.error('Error fetching emails:', error);
       }
       setIsLoadingEmails(false);
-    }, [isRTL]);
+    }, [isRTL, user?.company_id]);
 
     const fetchUnreadCount = useCallback(async () => {
-      if (emailAccounts.length === 0) return;
+      if (emailAccounts.length === 0 || !user?.company_id) return;
       let total = 0;
       for (const account of emailAccounts) {
         try {
-          const res = await fetch(`/api/email/fetch?accountId=${account.id}&action=unread`);
+          const res = await fetch(`/api/email/fetch?accountId=${account.id}&company_id=${user.company_id}&action=unread`);
           const data = await res.json();
           if (data.unreadCount) {
             total += data.unreadCount;
@@ -701,7 +702,7 @@ export function Header({ user, onToggleSidebar, unreadChatCount = 0, subscriptio
         }
       }
       setTotalUnreadEmails(total);
-    }, [emailAccounts]);
+    }, [emailAccounts, user?.company_id]);
 
     useEffect(() => {
       fetchEmailAccounts();
@@ -736,12 +737,16 @@ export function Header({ user, onToggleSidebar, unreadChatCount = 0, subscriptio
         toast.error(isRTL ? 'البريد وكلمة المرور مطلوبين' : 'Email and password required');
         return;
       }
+      if (!user?.company_id) {
+        toast.error(isRTL ? 'خطأ في تحديد الشركة' : 'Company ID error');
+        return;
+      }
       setIsAddingAccount(true);
       try {
         const res = await fetch('/api/email/accounts', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(newEmailAccount)
+          body: JSON.stringify({ ...newEmailAccount, company_id: user.company_id })
         });
         const data = await res.json();
         if (data.success) {
@@ -759,8 +764,9 @@ export function Header({ user, onToggleSidebar, unreadChatCount = 0, subscriptio
     };
 
     const handleDeleteEmailAccount = async (accountId: string) => {
+      if (!user?.company_id) return;
       try {
-        const res = await fetch(`/api/email/accounts?id=${accountId}`, { method: 'DELETE' });
+        const res = await fetch(`/api/email/accounts?id=${accountId}&company_id=${user.company_id}`, { method: 'DELETE' });
         const data = await res.json();
         if (data.success) {
           toast.success(isRTL ? 'تم حذف حساب البريد' : 'Email account deleted');
@@ -787,6 +793,7 @@ export function Header({ user, onToggleSidebar, unreadChatCount = 0, subscriptio
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             accountId: selectedEmailAccount.id,
+            company_id: user?.company_id,
             to: composeData.to,
             cc: composeData.cc || undefined,
             subject: composeData.subject,
