@@ -416,32 +416,37 @@ export function PayrollsListClient({ payrolls: initialPayrolls, stats, companyId
                             </span>
                           )}
                         </td>
-                        <td className="px-4 py-3">
-                          <div className="flex items-center justify-center gap-1 flex-wrap">
-                            <Link href={`/salary-payrolls/${payroll.id}`}>
-                              <button className="h-7 w-7 rounded-lg bg-blue-500/20 text-blue-400 flex items-center justify-center hover:bg-blue-500 hover:text-white transition-all border border-blue-500/30" title="عرض">
-                                <Eye size={14} />
+                          <td className="px-4 py-3">
+                            <div className="flex items-center justify-center gap-2 flex-wrap">
+                              <Link href={`/salary-payrolls/${payroll.id}`}>
+                                <button className="h-7 px-2.5 rounded-lg bg-blue-500/10 text-blue-400 flex items-center gap-1.5 hover:bg-blue-500 hover:text-white transition-all border border-blue-500/30 whitespace-nowrap" title="عرض المسير">
+                                  <Eye size={12} />
+                                  <span className="text-[11px] font-black">عرض المسير</span>
+                                </button>
+                              </Link>
+                              <Link href={`/salary-payrolls/${payroll.id}/edit`}>
+                                <button className="h-7 px-2.5 rounded-lg bg-amber-500/10 text-amber-400 flex items-center gap-1.5 hover:bg-amber-500 hover:text-white transition-all border border-amber-500/30 whitespace-nowrap" title="تعديل المسير">
+                                  <Edit size={12} />
+                                  <span className="text-[11px] font-black">تعديل المسير</span>
+                                </button>
+                              </Link>
+                              <button 
+                                onClick={() => openDeleteConfirm(payroll)}
+                                disabled={deleteLoading === payroll.id}
+                                className="h-7 px-2.5 rounded-lg bg-red-500/10 text-red-400 flex items-center gap-1.5 hover:bg-red-500 hover:text-white transition-all disabled:opacity-50 border border-red-500/30 whitespace-nowrap"
+                                title="حذف المسير"
+                              >
+                                {deleteLoading === payroll.id ? (
+                                  <div className="h-3 w-3 border-2 border-current border-t-transparent rounded-full animate-spin" />
+                                ) : (
+                                  <>
+                                    <Trash2 size={12} />
+                                    <span className="text-[11px] font-black">حذف المسير</span>
+                                  </>
+                                )}
                               </button>
-                            </Link>
-                            <Link href={`/salary-payrolls/${payroll.id}/edit`}>
-                              <button className="h-7 w-7 rounded-lg bg-amber-500/20 text-amber-400 flex items-center justify-center hover:bg-amber-500 hover:text-white transition-all border border-amber-500/30" title="تعديل">
-                                <Edit size={14} />
-                              </button>
-                            </Link>
-                            <button 
-                              onClick={() => openDeleteConfirm(payroll)}
-                              disabled={deleteLoading === payroll.id}
-                              className="h-7 w-7 rounded-lg bg-red-500/20 text-red-400 flex items-center justify-center hover:bg-red-500 hover:text-white transition-all disabled:opacity-50 border border-red-500/30"
-                              title="حذف"
-                            >
-                              {deleteLoading === payroll.id ? (
-                                <div className="h-3 w-3 border-2 border-current border-t-transparent rounded-full animate-spin" />
-                              ) : (
-                                <Trash2 size={14} />
-                              )}
-                            </button>
-                          </div>
-                        </td>
+                            </div>
+                          </td>
                       </tr>
                     ))}
                   </tbody>

@@ -212,35 +212,35 @@ export function PayrollViewClient({ payroll, company, companyId }: PayrollViewCl
                       <p className="text-slate-400 font-medium text-sm">{payroll.payroll_month} - {getWorkTypeLabel(workType)}</p>
                     </div>
                   </div>
-                  <div className="flex flex-wrap gap-2">
-                    <Link href="/salary-payrolls">
-                      <button className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/10 text-white font-bold text-sm hover:bg-white/20 transition-all border border-white/10">
-                        <ArrowRight size={16} />
-                        <span>القائمة</span>
+                    <div className="flex flex-wrap gap-2 print:hidden">
+                      <Link href="/salary-payrolls">
+                        <button className="h-8 px-3 rounded-xl bg-white/10 text-white font-black text-xs hover:bg-white/20 transition-all border border-white/20 flex items-center gap-2">
+                          <ArrowRight size={14} />
+                          <span>العودة للقائمة</span>
+                        </button>
+                      </Link>
+                      <Link href={`/salary-payrolls/${payroll.id}/edit`}>
+                        <button className="h-8 px-3 rounded-xl bg-amber-500/20 text-amber-400 font-black text-xs hover:bg-amber-500 hover:text-white transition-all border border-amber-500/30 flex items-center gap-2">
+                          <Edit size={14} />
+                          <span>تعديل المسير</span>
+                        </button>
+                      </Link>
+                      <button 
+                        onClick={handlePrint}
+                        className="h-8 px-3 rounded-xl bg-blue-500/20 text-blue-400 font-black text-xs hover:bg-blue-500 hover:text-white transition-all border border-blue-500/30 flex items-center gap-2"
+                      >
+                        <Printer size={14} />
+                        <span>طباعة المسير</span>
                       </button>
-                    </Link>
-                    <Link href={`/salary-payrolls/${payroll.id}/edit`}>
-                      <button className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-amber-500 text-white font-bold text-sm hover:bg-amber-600 transition-all">
-                        <Edit size={16} />
-                        <span>تعديل</span>
+                      <button 
+                        onClick={handleDelete}
+                        disabled={deleteLoading}
+                        className="h-8 px-3 rounded-xl bg-red-500/20 text-red-400 font-black text-xs hover:bg-red-500 hover:text-white transition-all border border-red-500/30 disabled:opacity-50 flex items-center gap-2"
+                      >
+                        {deleteLoading ? <Loader2 size={14} className="animate-spin" /> : <Trash2 size={14} />}
+                        <span>حذف المسير</span>
                       </button>
-                    </Link>
-                    <button 
-                      onClick={handlePrint}
-                      className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-blue-500 text-white font-bold text-sm hover:bg-blue-600 transition-all"
-                    >
-                      <Printer size={16} />
-                      <span>طباعة</span>
-                    </button>
-                    <button 
-                      onClick={handleDelete}
-                      disabled={deleteLoading}
-                      className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-red-500 text-white font-bold text-sm hover:bg-red-600 transition-all disabled:opacity-50"
-                    >
-                      {deleteLoading ? <Loader2 size={16} className="animate-spin" /> : <Trash2 size={16} />}
-                      <span>حذف</span>
-                    </button>
-                  </div>
+                    </div>
                 </div>
 
                 <div className="hidden print:block text-center mb-6">
@@ -412,27 +412,27 @@ export function PayrollViewClient({ payroll, company, companyId }: PayrollViewCl
                   </div>
                 </div>
 
-                <div className="flex justify-center gap-3 print:hidden">
-                  <Link href="/salary-payrolls">
-                    <button className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-white/10 text-white font-bold text-sm hover:bg-white/20 transition-all border border-white/10">
-                      <ArrowRight size={16} />
-                      <span>العودة</span>
+                  <div className="flex justify-center gap-3 print:hidden">
+                    <Link href="/salary-payrolls">
+                      <button className="h-9 px-4 rounded-xl bg-white/10 text-white font-black text-xs hover:bg-white/20 transition-all border border-white/20 flex items-center gap-2">
+                        <ArrowRight size={14} />
+                        <span>العودة للقائمة</span>
+                      </button>
+                    </Link>
+                    <Link href={`/salary-payrolls/${payroll.id}/edit`}>
+                      <button className="h-9 px-4 rounded-xl bg-amber-500/20 text-amber-400 font-black text-xs hover:bg-amber-500 hover:text-white transition-all border border-amber-500/30 flex items-center gap-2">
+                        <Edit size={14} />
+                        <span>تعديل المسير</span>
+                      </button>
+                    </Link>
+                    <button 
+                      onClick={handlePrint}
+                      className="h-9 px-4 rounded-xl bg-blue-500/20 text-blue-400 font-black text-xs hover:bg-blue-500 hover:text-white transition-all border border-blue-500/30 flex items-center gap-2"
+                    >
+                      <Printer size={14} />
+                      <span>طباعة المسير</span>
                     </button>
-                  </Link>
-                  <Link href={`/salary-payrolls/${payroll.id}/edit`}>
-                    <button className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-amber-500 text-white font-bold text-sm hover:bg-amber-600 transition-all">
-                      <Edit size={16} />
-                      <span>تعديل</span>
-                    </button>
-                  </Link>
-                  <button 
-                    onClick={handlePrint}
-                    className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-blue-500 text-white font-bold text-sm hover:bg-blue-600 transition-all"
-                  >
-                    <Printer size={16} />
-                    <span>طباعة</span>
-                  </button>
-                </div>
+                  </div>
               </div>
 
               <div className="absolute -bottom-12 -right-12 w-48 h-48 bg-blue-500/10 rounded-full blur-3xl print:hidden" />
