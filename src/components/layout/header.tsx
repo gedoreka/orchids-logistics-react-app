@@ -55,8 +55,9 @@ import {
       Minimize2,
       Inbox,
       AlertTriangle,
+      Plus,
       PlusCircle
-    } from "lucide-react";
+      } from "lucide-react";
 
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
