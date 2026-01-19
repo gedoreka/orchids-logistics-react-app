@@ -31,23 +31,25 @@ async function fetchEmails(
     port: number;
   },
   folder: string = "INBOX",
-  limit: number = 10
-): Promise<EmailMessage[]> {
-  return new Promise((resolve, reject) => {
-    const timeout = setTimeout(() => {
-      reject(new Error("Connection timeout"));
-    }, 45000);
+    limit: number = 10
+  ): Promise<EmailMessage[]> {
+    return new Promise((resolve, reject) => {
+      const imap = new Imap({
+        user: config.user,
+        password: config.password,
+        host: config.host,
+        port: config.port,
+        tls: true,
+        tlsOptions: { rejectUnauthorized: false },
+        connTimeout: 30000,
+        authTimeout: 20000,
+        keepalive: true,
+      });
 
-    const imap = new Imap({
-      user: config.user,
-      password: config.password,
-      host: config.host,
-      port: config.port,
-      tls: true,
-      tlsOptions: { rejectUnauthorized: false },
-      connTimeout: 15000,
-      authTimeout: 10000,
-    });
+      const timeout = setTimeout(() => {
+        imap.end();
+        reject(new Error("Connection timeout"));
+      }, 60000);
 
     const emails: EmailMessage[] = [];
     const parsePromises: Promise<void>[] = [];

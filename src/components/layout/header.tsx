@@ -2082,9 +2082,9 @@ export function Header({ user, onToggleSidebar, unreadChatCount = 0, subscriptio
                     "relative bg-gradient-to-b from-slate-900 to-slate-950 rounded-3xl shadow-2xl overflow-hidden border border-blue-500/20 transition-all duration-300",
                       isEmailMaximized 
                         ? "w-full h-full max-w-full max-h-full rounded-none" 
-                        : "w-[95vw] max-w-7xl max-h-[90vh]"
-                    )}
-                  >
+                          : "w-[98vw] max-w-[1600px] max-h-[95vh]"
+                      )}
+                    >
                   <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-blue-500/10 to-transparent rounded-full blur-3xl" />
                   
                   <div className="flex items-center justify-between p-4 border-b border-white/10 bg-gradient-to-r from-blue-500/20 to-indigo-500/20">
@@ -2199,8 +2199,8 @@ export function Header({ user, onToggleSidebar, unreadChatCount = 0, subscriptio
                       </div>
                     </div>
   
-                      <div className="flex-1 flex flex-row-reverse">
-                        <div className={cn("overflow-y-auto", selectedEmail ? "w-[40%] border-l border-white/10" : "w-full")}>
+                        <div className="flex-1 flex flex-row-reverse">
+                          <div className={cn("overflow-y-auto", selectedEmail ? "w-[45%] border-l border-white/10" : "w-full")}>
                         {isLoadingEmails ? (
                           <div className="flex items-center justify-center h-full">
                             <Loader2 size={32} className="animate-spin text-blue-400" />
@@ -2253,8 +2253,8 @@ export function Header({ user, onToggleSidebar, unreadChatCount = 0, subscriptio
                         )}
                       </div>
   
-                        {selectedEmail && (
-                          <div className="w-[60%] p-6 overflow-y-auto border-r border-white/10">
+                          {selectedEmail && (
+                            <div className="w-[55%] p-6 overflow-y-auto border-r border-white/10">
                         <div className="flex items-center justify-between mb-6">
                           <button 
                             onClick={() => setSelectedEmail(null)}
