@@ -749,70 +749,70 @@ export function NewPayrollClient({ packages, debts, companyId, userName }: NewPa
                                         min="0"
                                       />
                                     </td>
-                                    <td className="px-3 py-2 border-l border-gray-100">
-                                      <input
-                                        type="text"
-                                        value={row.target_deduction.toFixed(2)}
-                                        readOnly
-                                        className="w-16 px-2 py-1 rounded-lg border border-gray-100 bg-gray-50 text-center text-sm text-red-600"
-                                      />
-                                    </td>
-                                    <td className="px-3 py-2 border-l border-gray-100">
-                                      <input
-                                        type="text"
-                                        value={row.monthly_bonus.toFixed(2)}
-                                        readOnly
-                                        className="w-16 px-2 py-1 rounded-lg border border-gray-100 bg-gray-50 text-center text-sm text-emerald-600"
-                                      />
-                                    </td>
-                                  </>
-                                )}
-                                <td className="px-3 py-2 border-l border-gray-100">
-                                  <input
-                                    type="number"
-                                    value={row.operator_deduction}
-                                    onChange={(e) => handleRowChange(realIndex, 'operator_deduction', parseFloat(e.target.value) || 0)}
-                                    className="w-16 px-2 py-1 rounded-lg border border-gray-200 text-center text-sm focus:border-blue-400 focus:ring-1 focus:ring-blue-200"
-                                    min="0"
-                                  />
-                                </td>
-                                <td className="px-3 py-2 border-l border-gray-100">
-                                  <input
-                                    type="number"
-                                    value={row.internal_deduction}
-                                    onChange={(e) => handleRowChange(realIndex, 'internal_deduction', parseFloat(e.target.value) || 0)}
-                                    className="w-16 px-2 py-1 rounded-lg border border-gray-200 text-center text-sm focus:border-blue-400 focus:ring-1 focus:ring-blue-200"
-                                    min="0"
-                                  />
-                                </td>
-                                <td className="px-3 py-2 border-l border-gray-100">
-                                  <input
-                                    type="number"
-                                    value={row.wallet_deduction}
-                                    onChange={(e) => handleRowChange(realIndex, 'wallet_deduction', parseFloat(e.target.value) || 0)}
-                                    className="w-16 px-2 py-1 rounded-lg border border-gray-200 text-center text-sm focus:border-blue-400 focus:ring-1 focus:ring-blue-200"
-                                    min="0"
-                                  />
-                                </td>
-                                <td className="px-3 py-2 border-l border-gray-100">
-                                  <input
-                                    type="number"
-                                    value={row.internal_bonus}
-                                    onChange={(e) => handleRowChange(realIndex, 'internal_bonus', parseFloat(e.target.value) || 0)}
-                                    className="w-16 px-2 py-1 rounded-lg border border-gray-200 text-center text-sm focus:border-blue-400 focus:ring-1 focus:ring-blue-200"
-                                    min="0"
-                                  />
-                                </td>
-                                <td className="px-3 py-2 border-l border-gray-100">
-                                  <input
-                                    type="text"
-                                    value={row.net_salary.toFixed(2)}
-                                    readOnly
-                                    className={`w-20 px-2 py-1 rounded-lg border text-center text-sm font-bold ${
-                                      row.net_salary < 0 ? 'bg-red-100 border-red-200 text-red-600' : 'bg-emerald-50 border-emerald-200 text-emerald-600'
-                                    }`}
-                                  />
-                                </td>
+                                      <td className="px-3 py-2 border-l border-gray-100">
+                                        <input
+                                          type="text"
+                                          value={(Number(row.target_deduction) || 0).toFixed(2)}
+                                          readOnly
+                                          className="w-16 px-2 py-1 rounded-lg border border-gray-100 bg-gray-50 text-center text-sm text-red-600"
+                                        />
+                                      </td>
+                                      <td className="px-3 py-2 border-l border-gray-100">
+                                        <input
+                                          type="text"
+                                          value={(Number(row.monthly_bonus) || 0).toFixed(2)}
+                                          readOnly
+                                          className="w-16 px-2 py-1 rounded-lg border border-gray-100 bg-gray-50 text-center text-sm text-emerald-600"
+                                        />
+                                      </td>
+                                    </>
+                                  )}
+                                  <td className="px-3 py-2 border-l border-gray-100">
+                                    <input
+                                      type="number"
+                                      value={row.operator_deduction}
+                                      onChange={(e) => handleRowChange(realIndex, 'operator_deduction', parseFloat(e.target.value) || 0)}
+                                      className="w-16 px-2 py-1 rounded-lg border border-gray-200 text-center text-sm focus:border-blue-400 focus:ring-1 focus:ring-blue-200"
+                                      min="0"
+                                    />
+                                  </td>
+                                  <td className="px-3 py-2 border-l border-gray-100">
+                                    <input
+                                      type="number"
+                                      value={row.internal_deduction}
+                                      onChange={(e) => handleRowChange(realIndex, 'internal_deduction', parseFloat(e.target.value) || 0)}
+                                      className="w-16 px-2 py-1 rounded-lg border border-gray-200 text-center text-sm focus:border-blue-400 focus:ring-1 focus:ring-blue-200"
+                                      min="0"
+                                    />
+                                  </td>
+                                  <td className="px-3 py-2 border-l border-gray-100">
+                                    <input
+                                      type="number"
+                                      value={row.wallet_deduction}
+                                      onChange={(e) => handleRowChange(realIndex, 'wallet_deduction', parseFloat(e.target.value) || 0)}
+                                      className="w-16 px-2 py-1 rounded-lg border border-gray-200 text-center text-sm focus:border-blue-400 focus:ring-1 focus:ring-blue-200"
+                                      min="0"
+                                    />
+                                  </td>
+                                  <td className="px-3 py-2 border-l border-gray-100">
+                                    <input
+                                      type="number"
+                                      value={row.internal_bonus}
+                                      onChange={(e) => handleRowChange(realIndex, 'internal_bonus', parseFloat(e.target.value) || 0)}
+                                      className="w-16 px-2 py-1 rounded-lg border border-gray-200 text-center text-sm focus:border-blue-400 focus:ring-1 focus:ring-blue-200"
+                                      min="0"
+                                    />
+                                  </td>
+                                  <td className="px-3 py-2 border-l border-gray-100">
+                                    <input
+                                      type="text"
+                                      value={(Number(row.net_salary) || 0).toFixed(2)}
+                                      readOnly
+                                      className={`w-20 px-2 py-1 rounded-lg border text-center text-sm font-bold ${
+                                        row.net_salary < 0 ? 'bg-red-100 border-red-200 text-red-600' : 'bg-emerald-50 border-emerald-200 text-emerald-600'
+                                      }`}
+                                    />
+                                  </td>
                                 <td className="px-3 py-2">
                                   <select
                                     value={row.payment_method}
