@@ -666,24 +666,26 @@ export function Header({ user, onToggleSidebar, unreadChatCount = 0, subscriptio
       }
     }, [selectedEmailAccount, user?.company_id]);
 
-    const fetchEmails = useCallback(async (accountId: string, folder: string = 'INBOX') => {
-      if (!accountId || !user?.company_id) return;
-      setIsLoadingEmails(true);
-      try {
-        const res = await fetch(`/api/email/fetch?accountId=${accountId}&company_id=${user.company_id}&folder=${folder}&limit=30`);
-        const data = await res.json();
-          if (data.emails) {
-            setEmails(data.emails);
-            const unread = data.emails.filter((e: EmailMessage) => !e.isRead).length;
-            setTotalUnreadEmails(unread);
-          } else if (data.error) {
-            toast.error(data.error);
-          }
-      } catch (error) {
-        console.error('Error fetching emails:', error);
-      }
-      setIsLoadingEmails(false);
-    }, [isRTL, user?.company_id]);
+      const fetchEmails = useCallback(async (accountId: string, folder: string = 'INBOX') => {
+        if (!accountId || !user?.company_id) return;
+        setIsLoadingEmails(true);
+        try {
+          const res = await fetch(`/api/email/fetch?accountId=${accountId}&company_id=${user.company_id}&folder=${folder}&limit=15`);
+          const data = await res.json();
+            if (data.emails) {
+              setEmails(data.emails);
+              const unread = data.emails.filter((e: EmailMessage) => !e.isRead).length;
+              setTotalUnreadEmails(unread);
+            } else if (data.error) {
+              toast.error(data.error);
+              setEmails([]);
+            }
+        } catch (error) {
+          console.error('Error fetching emails:', error);
+          toast.error(isRTL ? 'حدث خطأ في جلب الرسائل' : 'Error fetching emails');
+        }
+        setIsLoadingEmails(false);
+      }, [isRTL, user?.company_id]);
 
     const fetchUnreadCount = useCallback(async () => {
       if (emailAccounts.length === 0 || !user?.company_id) return;
@@ -2072,17 +2074,17 @@ export function Header({ user, onToggleSidebar, unreadChatCount = 0, subscriptio
                 onClick={() => { if (!isEmailMaximized) setShowEmailModal(false); }}
                 className="absolute inset-0 bg-black/70 backdrop-blur-md"
               />
-              <motion.div 
-                initial={{ scale: 0.9, opacity: 0, y: 20 }}
-                animate={{ scale: 1, opacity: 1, y: 0 }}
-                exit={{ scale: 0.9, opacity: 0, y: 20 }}
-                className={cn(
-                  "relative bg-gradient-to-b from-slate-900 to-slate-950 rounded-3xl shadow-2xl overflow-hidden border border-blue-500/20 transition-all duration-300",
-                  isEmailMaximized 
-                    ? "w-full h-full max-w-full max-h-full rounded-none" 
-                    : "w-full max-w-4xl max-h-[85vh]"
-                )}
-              >
+                <motion.div 
+                  initial={{ scale: 0.9, opacity: 0, y: 20 }}
+                  animate={{ scale: 1, opacity: 1, y: 0 }}
+                  exit={{ scale: 0.9, opacity: 0, y: 20 }}
+                  className={cn(
+                    "relative bg-gradient-to-b from-slate-900 to-slate-950 rounded-3xl shadow-2xl overflow-hidden border border-blue-500/20 transition-all duration-300",
+                    isEmailMaximized 
+                      ? "w-full h-full max-w-full max-h-full rounded-none" 
+                      : "w-[95vw] max-w-6xl max-h-[90vh]"
+                  )}
+                >
                 <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-blue-500/10 to-transparent rounded-full blur-3xl" />
                 
                 <div className="flex items-center justify-between p-4 border-b border-white/10 bg-gradient-to-r from-blue-500/20 to-indigo-500/20">
@@ -2117,11 +2119,11 @@ export function Header({ user, onToggleSidebar, unreadChatCount = 0, subscriptio
                   </div>
                 </div>
 
-                  <div className={cn("flex", isEmailMaximized ? "h-[calc(100%-80px)]" : "h-[60vh]")}>
-                    <div className={cn(
-                      "w-64 p-4 flex flex-col gap-4 bg-white/5",
-                      isRTL ? "border-r border-white/10" : "border-l border-white/10"
-                    )}>
+                    <div className={cn("flex", isEmailMaximized ? "h-[calc(100%-80px)]" : "h-[75vh]")}>
+                      <div className={cn(
+                        "w-56 p-4 flex flex-col gap-4 bg-white/5 shrink-0",
+                        isRTL ? "border-l border-white/10" : "border-r border-white/10"
+                      )}>
                       <motion.button
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
@@ -2197,8 +2199,8 @@ export function Header({ user, onToggleSidebar, unreadChatCount = 0, subscriptio
                     </div>
                   </div>
 
-                  <div className="flex-1 flex">
-                    <div className={cn("border-l border-white/10 overflow-y-auto", selectedEmail ? "w-2/5" : "w-full")}>
+                    <div className="flex-1 flex flex-row-reverse">
+                      <div className={cn("overflow-y-auto", selectedEmail ? "w-[45%] border-l border-white/10" : "w-full")}>
                       {isLoadingEmails ? (
                         <div className="flex items-center justify-center h-full">
                           <Loader2 size={32} className="animate-spin text-blue-400" />
@@ -2251,8 +2253,8 @@ export function Header({ user, onToggleSidebar, unreadChatCount = 0, subscriptio
                       )}
                     </div>
 
-                    {selectedEmail && (
-                      <div className="flex-1 p-6 overflow-y-auto">
+                      {selectedEmail && (
+                        <div className="w-[55%] p-6 overflow-y-auto border-r border-white/10">
                         <div className="flex items-center justify-between mb-6">
                           <button 
                             onClick={() => setSelectedEmail(null)}

@@ -31,9 +31,13 @@ async function fetchEmails(
     port: number;
   },
   folder: string = "INBOX",
-  limit: number = 20
+  limit: number = 10
 ): Promise<EmailMessage[]> {
   return new Promise((resolve, reject) => {
+    const timeout = setTimeout(() => {
+      reject(new Error("Connection timeout"));
+    }, 15000);
+
     const imap = new Imap({
       user: config.user,
       password: config.password,
@@ -41,8 +45,8 @@ async function fetchEmails(
       port: config.port,
       tls: true,
       tlsOptions: { rejectUnauthorized: false },
-      connTimeout: 30000,
-      authTimeout: 15000,
+      connTimeout: 8000,
+      authTimeout: 5000,
     });
 
     const emails: EmailMessage[] = [];
@@ -132,6 +136,7 @@ async function fetchEmails(
     });
 
     imap.once("end", async () => {
+      clearTimeout(timeout);
       await Promise.all(parsePromises);
       emails.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
       resolve(emails);
@@ -151,6 +156,10 @@ async function getUnreadCount(
   folder: string = "INBOX"
 ): Promise<number> {
   return new Promise((resolve, reject) => {
+    const timeout = setTimeout(() => {
+      resolve(0);
+    }, 8000);
+
     const imap = new Imap({
       user: config.user,
       password: config.password,
@@ -158,8 +167,8 @@ async function getUnreadCount(
       port: config.port,
       tls: true,
       tlsOptions: { rejectUnauthorized: false },
-      connTimeout: 30000,
-      authTimeout: 15000,
+      connTimeout: 5000,
+      authTimeout: 3000,
     });
 
     imap.once("ready", () => {
@@ -169,14 +178,15 @@ async function getUnreadCount(
           reject(err);
           return;
         }
-        imap.search(["UNSEEN"], (searchErr, results) => {
-          imap.end();
-          if (searchErr) {
-            reject(searchErr);
-            return;
-          }
-          resolve(results.length);
-        });
+      imap.search(["UNSEEN"], (searchErr, results) => {
+            clearTimeout(timeout);
+            imap.end();
+            if (searchErr) {
+              reject(searchErr);
+              return;
+            }
+            resolve(results.length);
+          });
       });
     });
 
