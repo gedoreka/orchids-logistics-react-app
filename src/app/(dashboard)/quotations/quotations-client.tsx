@@ -56,8 +56,8 @@ interface ProductItem {
   id: string;
   product_name: string;
   quantity: number;
+  price: number;
   unit_price: number;
-  total_price: number;
   vat_amount: number;
   price_with_vat: number;
 }
@@ -115,13 +115,14 @@ export function QuotationsClient({
   const vatRate = 15;
   
   const calculateItemTotals = (quantity: number, price: number) => {
+    const unitPrice = quantity > 0 ? price / quantity : 0;
     const vatAmount = (price * vatRate) / 100;
     const priceWithVat = price + vatAmount;
-    return { vatAmount, priceWithVat };
+    return { unitPrice, vatAmount, priceWithVat };
   };
   
   const [items, setItems] = useState<ProductItem[]>([
-    { id: "1", product_name: "", quantity: 1, price: 0, vat_amount: 0, price_with_vat: 0 }
+    { id: "1", product_name: "", quantity: 1, price: 0, unit_price: 0, vat_amount: 0, price_with_vat: 0 }
   ]);
 
   const router = useRouter();
@@ -160,9 +161,11 @@ export function QuotationsClient({
       
       const updatedItem = { ...item, [field]: value };
       
-      if (field === 'price') {
-        const price = Number(value);
-        const { vatAmount, priceWithVat } = calculateItemTotals(item.quantity, price);
+      if (field === 'price' || field === 'quantity') {
+        const quantity = field === 'quantity' ? Number(value) : item.quantity;
+        const price = field === 'price' ? Number(value) : item.price;
+        const { unitPrice, vatAmount, priceWithVat } = calculateItemTotals(quantity, price);
+        updatedItem.unit_price = unitPrice;
         updatedItem.vat_amount = vatAmount;
         updatedItem.price_with_vat = priceWithVat;
       }
@@ -177,6 +180,7 @@ export function QuotationsClient({
       product_name: "",
       quantity: 1,
       price: 0,
+      unit_price: 0,
       vat_amount: 0,
       price_with_vat: 0
     }]);
@@ -254,7 +258,7 @@ export function QuotationsClient({
             due_date: ""
           });
           setUseCustomClient(false);
-          setItems([{ id: "1", product_name: "", quantity: 1, price: 0, vat_amount: 0, price_with_vat: 0 }]);
+          setItems([{ id: "1", product_name: "", quantity: 1, price: 0, unit_price: 0, vat_amount: 0, price_with_vat: 0 }]);
         }, 1500);
       } else {
         const data = await res.json();
@@ -696,11 +700,12 @@ export function QuotationsClient({
                               {/* Table Header */}
                               <div className="bg-white/5 rounded-xl p-4 border border-white/10">
                                   <div className="grid grid-cols-12 gap-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">
-                                      <div className="col-span-3">اسم المنتج</div>
+                                      <div className="col-span-2">اسم المنتج</div>
                                       <div className="col-span-1 text-center">الكمية</div>
                                       <div className="col-span-2 text-center">السعر</div>
+                                      <div className="col-span-2 text-center">سعر الوحدة</div>
                                       <div className="col-span-2 text-center">الضريبة (15%)</div>
-                                      <div className="col-span-3 text-center">شامل الضريبة</div>
+                                      <div className="col-span-2 text-center">شامل الضريبة</div>
                                       <div className="col-span-1"></div>
                                   </div>
                               </div>
@@ -714,7 +719,7 @@ export function QuotationsClient({
                                           className="bg-white/5 rounded-2xl p-4 border border-white/10 group relative"
                                       >
                                           <div className="grid grid-cols-12 gap-4 items-center">
-                                              <div className="col-span-3">
+                                              <div className="col-span-2">
                                                   <input
                                                       type="text"
                                                       value={item.product_name}
@@ -745,12 +750,18 @@ export function QuotationsClient({
                                                   </div>
                                               </div>
                                               <div className="col-span-2 text-center">
+                                                  <div className="bg-blue-500/10 rounded-lg py-2 px-3 border border-blue-500/20">
+                                                      <span className="text-blue-400 font-bold text-sm">{item.unit_price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                                                      <span className="text-blue-400/50 text-[10px] mr-1">ر.س</span>
+                                                  </div>
+                                              </div>
+                                              <div className="col-span-2 text-center">
                                                   <div className="bg-amber-500/10 rounded-lg py-2 px-3 border border-amber-500/20">
                                                       <span className="text-amber-400 font-bold text-sm">{item.vat_amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                                                       <span className="text-amber-400/50 text-[10px] mr-1">ر.س</span>
                                                   </div>
                                               </div>
-                                              <div className="col-span-3 text-center">
+                                              <div className="col-span-2 text-center">
                                                   <div className="bg-emerald-500/10 rounded-lg py-2 px-3 border border-emerald-500/20">
                                                       <span className="text-emerald-400 font-black text-sm">{item.price_with_vat.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                                                       <span className="text-emerald-400/50 text-[10px] mr-1">ر.س</span>
