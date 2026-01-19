@@ -56,8 +56,7 @@ interface ProductItem {
   id: string;
   product_name: string;
   quantity: number;
-  unit_price: number;
-  total_price: number;
+  price: number;
   vat_amount: number;
   price_with_vat: number;
 }
@@ -114,15 +113,14 @@ export function QuotationsClient({
   
   const vatRate = 15;
   
-  const calculateItemTotals = (quantity: number, unitPrice: number) => {
-    const totalPrice = quantity * unitPrice;
-    const vatAmount = (totalPrice * vatRate) / 100;
-    const priceWithVat = totalPrice + vatAmount;
-    return { totalPrice, vatAmount, priceWithVat };
+  const calculateItemTotals = (quantity: number, price: number) => {
+    const vatAmount = (price * vatRate) / 100;
+    const priceWithVat = price + vatAmount;
+    return { vatAmount, priceWithVat };
   };
   
   const [items, setItems] = useState<ProductItem[]>([
-    { id: "1", product_name: "", quantity: 1, unit_price: 0, total_price: 0, vat_amount: 0, price_with_vat: 0 }
+    { id: "1", product_name: "", quantity: 1, price: 0, vat_amount: 0, price_with_vat: 0 }
   ]);
 
   const router = useRouter();
@@ -131,7 +129,7 @@ export function QuotationsClient({
     let subtotal = 0;
     let totalVat = 0;
     items.forEach(item => {
-      subtotal += item.total_price;
+      subtotal += item.price;
       totalVat += item.vat_amount;
     });
     const total = subtotal + totalVat;
@@ -161,11 +159,9 @@ export function QuotationsClient({
       
       const updatedItem = { ...item, [field]: value };
       
-      if (field === 'quantity' || field === 'unit_price') {
-        const quantity = field === 'quantity' ? Number(value) : item.quantity;
-        const unitPrice = field === 'unit_price' ? Number(value) : item.unit_price;
-        const { totalPrice, vatAmount, priceWithVat } = calculateItemTotals(quantity, unitPrice);
-        updatedItem.total_price = totalPrice;
+      if (field === 'price') {
+        const price = Number(value);
+        const { vatAmount, priceWithVat } = calculateItemTotals(item.quantity, price);
         updatedItem.vat_amount = vatAmount;
         updatedItem.price_with_vat = priceWithVat;
       }
@@ -179,8 +175,7 @@ export function QuotationsClient({
       id: Date.now().toString(),
       product_name: "",
       quantity: 1,
-      unit_price: 0,
-      total_price: 0,
+      price: 0,
       vat_amount: 0,
       price_with_vat: 0
     }]);
@@ -213,7 +208,7 @@ export function QuotationsClient({
       return;
     }
 
-    const validItems = items.filter(item => item.product_name && item.quantity > 0 && item.unit_price > 0);
+    const validItems = items.filter(item => item.product_name && item.quantity > 0 && item.price > 0);
     if (validItems.length === 0) {
       showNotification("error", "خطأ في البيانات", "يرجى إضافة منتج واحد على الأقل");
       return;
@@ -258,7 +253,7 @@ export function QuotationsClient({
             due_date: ""
           });
           setUseCustomClient(false);
-          setItems([{ id: "1", product_name: "", quantity: 1, unit_price: 0, total_price: 0, vat_amount: 0, price_with_vat: 0 }]);
+          setItems([{ id: "1", product_name: "", quantity: 1, price: 0, vat_amount: 0, price_with_vat: 0 }]);
         }, 1500);
       } else {
         const data = await res.json();
@@ -702,10 +697,10 @@ export function QuotationsClient({
                                   <div className="grid grid-cols-12 gap-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">
                                       <div className="col-span-3">اسم المنتج</div>
                                       <div className="col-span-1 text-center">الكمية</div>
-                                      <div className="col-span-2 text-center">سعر الوحدة</div>
                                       <div className="col-span-2 text-center">السعر</div>
                                       <div className="col-span-2 text-center">الضريبة (15%)</div>
-                                      <div className="col-span-2 text-center">شامل الضريبة</div>
+                                      <div className="col-span-3 text-center">شامل الضريبة</div>
+                                      <div className="col-span-1"></div>
                                   </div>
                               </div>
 
@@ -741,29 +736,30 @@ export function QuotationsClient({
                                                       <input
                                                           type="number"
                                                           step="0.01"
-                                                          value={item.unit_price}
-                                                          onChange={(e) => handleItemChange(item.id, 'unit_price', parseFloat(e.target.value) || 0)}
+                                                          value={item.price}
+                                                          onChange={(e) => handleItemChange(item.id, 'price', parseFloat(e.target.value) || 0)}
+                                                          placeholder="أدخل السعر..."
                                                           className="w-full px-2 py-2 bg-white/5 border border-white/10 rounded-xl text-white text-sm font-bold focus:bg-white/10 focus:border-purple-500 outline-none transition-all text-center"
                                                       />
                                                   </div>
                                               </div>
                                               <div className="col-span-2 text-center">
-                                                  <span className="text-white font-bold text-sm">{item.total_price.toLocaleString()}</span>
-                                                  <span className="text-slate-500 text-[10px] mr-1">ر.س</span>
+                                                  <div className="bg-amber-500/10 rounded-lg py-2 px-3 border border-amber-500/20">
+                                                      <span className="text-amber-400 font-bold text-sm">{item.vat_amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                                                      <span className="text-amber-400/50 text-[10px] mr-1">ر.س</span>
+                                                  </div>
                                               </div>
-                                              <div className="col-span-2 text-center">
-                                                  <span className="text-amber-400 font-bold text-sm">{item.vat_amount.toLocaleString()}</span>
-                                                  <span className="text-amber-400/50 text-[10px] mr-1">ر.س</span>
-                                              </div>
-                                              <div className="col-span-2 flex items-center justify-between">
-                                                  <div className="text-center flex-1">
-                                                      <span className="text-emerald-400 font-black text-sm">{item.price_with_vat.toLocaleString()}</span>
+                                              <div className="col-span-3 text-center">
+                                                  <div className="bg-emerald-500/10 rounded-lg py-2 px-3 border border-emerald-500/20">
+                                                      <span className="text-emerald-400 font-black text-sm">{item.price_with_vat.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                                                       <span className="text-emerald-400/50 text-[10px] mr-1">ر.س</span>
                                                   </div>
+                                              </div>
+                                              <div className="col-span-1 flex justify-center">
                                                   <button
                                                       onClick={() => removeItem(item.id)}
                                                       disabled={items.length === 1}
-                                                      className="h-8 w-8 bg-rose-500/10 text-rose-400 rounded-lg border border-rose-500/20 hover:bg-rose-500 hover:text-white transition-all flex items-center justify-center disabled:opacity-30"
+                                                      className="h-9 w-9 bg-rose-500/10 text-rose-400 rounded-lg border border-rose-500/20 hover:bg-rose-500 hover:text-white transition-all flex items-center justify-center disabled:opacity-30"
                                                   >
                                                       <Trash2 size={14} />
                                                   </button>

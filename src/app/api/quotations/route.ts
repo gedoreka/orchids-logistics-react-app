@@ -141,11 +141,10 @@ export async function POST(request: NextRequest) {
     const quotationId = result.insertId;
 
     for (const item of items) {
-      const qty = parseFloat(item.quantity) || 0;
-      const unitPrice = parseFloat(item.unit_price) || 0;
-      const total = qty * unitPrice;
-      const vatAmount = (total * vatRate) / 100;
-      const totalWithVat = total + vatAmount;
+      const qty = parseFloat(item.quantity) || 1;
+      const price = parseFloat(item.price) || 0;
+      const vatAmount = parseFloat(item.vat_amount) || (price * vatRate / 100);
+      const totalWithVat = parseFloat(item.price_with_vat) || (price + vatAmount);
 
       totalAmount += totalWithVat;
 
@@ -158,7 +157,7 @@ export async function POST(request: NextRequest) {
           item.product_name,
           '',
           qty,
-          unitPrice,
+          price,
           vatRate,
           vatAmount,
           totalWithVat
