@@ -51,7 +51,7 @@ async function fetchEmails(
           imap.end();
         } catch (e) {}
         reject(new Error("Connection timeout"));
-      }, 45000);
+      }, 90000); // Increased to 90 seconds
 
     const emails: EmailMessage[] = [];
     const parsePromises: Promise<void>[] = [];
@@ -80,51 +80,61 @@ async function fetchEmails(
         const fetchRange = `${start}:${totalMessages}`;
 
         const f = imap.seq.fetch(fetchRange, {
-          bodies: "",
+          bodies: ["HEADER.FIELDS (FROM TO SUBJECT DATE)", "1"], // Fetch headers and the first part (usually text)
           struct: true,
         });
 
         f.on("message", (msg, seqno) => {
           let uid = 0;
           const flags: string[] = [];
+          let headerData = "";
+          let bodyData = "";
 
           msg.on("attributes", (attrs) => {
             uid = attrs.uid;
             flags.push(...(attrs.flags || []));
           });
 
-          msg.on("body", (stream) => {
+          msg.on("body", (stream, info) => {
             let buffer = "";
             stream.on("data", (chunk) => {
               buffer += chunk.toString("utf8");
             });
 
-            const parsePromise = new Promise<void>((resolveParse) => {
-              stream.once("end", async () => {
-                try {
-                  const parsed = await simpleParser(buffer);
-                  const fromAddr = parsed.from?.value?.[0];
-                  emails.push({
-                    id: seqno,
-                    uid,
-                    subject: parsed.subject || "(بدون موضوع)",
-                    from: fromAddr?.name || fromAddr?.address || "غير معروف",
-                    fromEmail: fromAddr?.address || "",
-                    to: parsed.to?.text || "",
-                    date: parsed.date?.toISOString() || new Date().toISOString(),
-                    snippet: (parsed.text || "").substring(0, 200),
-                    body: parsed.html || parsed.text || "",
-                    isRead: flags.includes("\\Seen"),
-                    hasAttachments: (parsed.attachments?.length || 0) > 0,
-                    folder,
-                  });
-                } catch (parseErr) {
-                  console.error("Error parsing email:", parseErr);
-                } finally {
-                  resolveParse();
-                }
-              });
+            stream.once("end", () => {
+              if (info.which === "1") {
+                bodyData = buffer;
+              } else {
+                headerData = buffer;
+              }
             });
+          });
+
+          msg.once("end", () => {
+            const parsePromise = (async () => {
+              try {
+                // Combine headers and body for parser
+                const fullMsg = headerData + "\r\n" + bodyData;
+                const parsed = await simpleParser(fullMsg);
+                const fromAddr = parsed.from?.value?.[0];
+                emails.push({
+                  id: seqno,
+                  uid,
+                  subject: parsed.subject || "(بدون موضوع)",
+                  from: fromAddr?.name || fromAddr?.address || "غير معروف",
+                  fromEmail: fromAddr?.address || "",
+                  to: parsed.to?.text || "",
+                  date: parsed.date?.toISOString() || new Date().toISOString(),
+                  snippet: (parsed.text || "").substring(0, 200),
+                  body: parsed.html || parsed.text || "",
+                  isRead: flags.includes("\\Seen"),
+                  hasAttachments: (parsed.attachments?.length || 0) > 0,
+                  folder,
+                });
+              } catch (parseErr) {
+                console.error("Error parsing email:", parseErr);
+              }
+            })();
             parsePromises.push(parsePromise);
           });
         });

@@ -669,36 +669,48 @@ export function Header({ user, onToggleSidebar, unreadChatCount = 0, subscriptio
     const isFetchingEmailsRef = useRef(false);
     const isFetchingUnreadRef = useRef(false);
 
+      const fetchIdRef = useRef(0);
+
       const fetchEmails = useCallback(async (accountId: string, folder: string = 'INBOX') => {
-        if (!accountId || !user?.company_id || isFetchingEmailsRef.current) return;
+        if (!accountId || !user?.company_id) return;
+        
+        const currentFetchId = ++fetchIdRef.current;
         isFetchingEmailsRef.current = true;
-        setIsLoadingEmails(true);
+        
+        // Only show full loading if we have no emails or if we are switching folders
+        if (emails.length === 0 || emailFolder !== folder) {
+          setIsLoadingEmails(true);
+        }
+        
         try {
           const res = await fetch(`/api/email/fetch?accountId=${accountId}&company_id=${user.company_id}&folder=${folder}&limit=10`);
           const data = await res.json();
+          
+          // Only update state if this is still the most recent request
+          if (currentFetchId === fetchIdRef.current) {
             if (data.emails) {
               setEmails(data.emails);
               const unread = data.emails.filter((e: EmailMessage) => !e.isRead).length;
               setTotalUnreadEmails(unread);
             } else if (data.error) {
-              // Only show toast if it's not a background refresh or if it's a critical error
-              if (!showEmailModal) {
-                console.error('Email background fetch error:', data.error);
-              } else {
+              console.error('Email fetch error:', data.error);
+              if (showEmailModal && emails.length === 0) {
                 toast.error(data.error);
               }
-              setEmails([]);
             }
+          }
         } catch (error) {
-          console.error('Error fetching emails:', error);
-          if (showEmailModal) {
-            toast.error(isRTL ? 'حدث خطأ في جلب الرسائل' : 'Error fetching emails');
+          if (currentFetchId === fetchIdRef.current) {
+            console.error('Error fetching emails:', error);
           }
         } finally {
-          setIsLoadingEmails(false);
-          isFetchingEmailsRef.current = false;
+          if (currentFetchId === fetchIdRef.current) {
+            setIsLoadingEmails(false);
+            isFetchingEmailsRef.current = false;
+          }
         }
-      }, [isRTL, user?.company_id, showEmailModal]);
+      }, [isRTL, user?.company_id, showEmailModal, emails.length, emailFolder]);
+
 
     const fetchUnreadCount = useCallback(async () => {
       if (emailAccounts.length === 0 || !user?.company_id || isFetchingUnreadRef.current) return;
