@@ -23,7 +23,6 @@ import {
     Settings,
     LogOut,
     User,
-    Moon,
     Command,
     Crown,
     AlertCircle,
@@ -45,7 +44,18 @@ import {
     Landmark,
     Star,
     Shield,
-    CheckCircle2
+    CheckCircle2,
+    Mail,
+    Inbox,
+    Send,
+    Trash2,
+    Paperclip,
+    Plus,
+    Loader2,
+    Maximize2,
+    Minimize2,
+    MailOpen,
+    AlertTriangle
   } from "lucide-react";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
@@ -53,7 +63,29 @@ import { usePathname, useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { useLocale, useTranslations } from '@/lib/locale-context';
 import { LanguageSwitcher } from "./language-switcher";
-import { ThemeToggle, ThemeToggleHeader } from "@/components/theme-toggle";
+
+interface EmailAccount {
+  id: string;
+  email: string;
+  provider: string;
+  is_active: boolean;
+  last_sync_at: string | null;
+}
+
+interface EmailMessage {
+  id: number;
+  uid: number;
+  subject: string;
+  from: string;
+  fromEmail: string;
+  to: string;
+  date: string;
+  snippet: string;
+  body: string;
+  isRead: boolean;
+  hasAttachments: boolean;
+  folder: string;
+}
 
 interface PrayerTimes {
   Fajr: string;
@@ -263,7 +295,41 @@ export function Header({ user, onToggleSidebar, unreadChatCount = 0, subscriptio
   const [volume, setVolume] = useState(1);
   const [prevVolume, setPrevVolume] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const audioRef = useRef<HTMLAudioElement | null>(null);
+    const audioRef = useRef<HTMLAudioElement | null>(null);
+    
+    const [showEmailModal, setShowEmailModal] = useState(false);
+    const [showEmailSettings, setShowEmailSettings] = useState(false);
+    const [showComposeEmail, setShowComposeEmail] = useState(false);
+    const [emailAccounts, setEmailAccounts] = useState<EmailAccount[]>([]);
+    const [selectedEmailAccount, setSelectedEmailAccount] = useState<EmailAccount | null>(null);
+    const [emails, setEmails] = useState<EmailMessage[]>([]);
+    const [selectedEmail, setSelectedEmail] = useState<EmailMessage | null>(null);
+    const [emailFolder, setEmailFolder] = useState<'INBOX' | 'Spam'>('INBOX');
+    const [isLoadingEmails, setIsLoadingEmails] = useState(false);
+    const [totalUnreadEmails, setTotalUnreadEmails] = useState(0);
+    const [isEmailMaximized, setIsEmailMaximized] = useState(false);
+    const [emailProviders] = useState({
+      hostinger: { name: "Hostinger", imap_host: "imap.hostinger.com", smtp_host: "smtp.hostinger.com" },
+      gmail: { name: "Gmail", imap_host: "imap.gmail.com", smtp_host: "smtp.gmail.com" },
+      outlook: { name: "Outlook/Hotmail", imap_host: "outlook.office365.com", smtp_host: "smtp.office365.com" },
+      custom: { name: "Custom", imap_host: "", smtp_host: "" }
+    });
+    const [newEmailAccount, setNewEmailAccount] = useState({
+      email: '',
+      password: '',
+      provider: 'hostinger',
+      imap_host: '',
+      smtp_host: ''
+    });
+    const [composeData, setComposeData] = useState({
+      to: '',
+      cc: '',
+      subject: '',
+      body: ''
+    });
+    const [isSendingEmail, setIsSendingEmail] = useState(false);
+    const [isAddingAccount, setIsAddingAccount] = useState(false);
+    const emailRefreshIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     if (audioRef.current) {
@@ -579,12 +645,184 @@ export function Header({ user, onToggleSidebar, unreadChatCount = 0, subscriptio
   };
 
   const openUpgradeModal = () => {
-    fetchSubscriptionData();
-    setShowUpgradeModal(true);
-    setShowSubscriptionModal(false);
-  };
+      fetchSubscriptionData();
+      setShowUpgradeModal(true);
+      setShowSubscriptionModal(false);
+    };
 
-  const notifications = [
+    const fetchEmailAccounts = useCallback(async () => {
+      try {
+        const res = await fetch('/api/email/accounts');
+        const data = await res.json();
+        if (data.accounts) {
+          setEmailAccounts(data.accounts);
+          if (data.accounts.length > 0 && !selectedEmailAccount) {
+            setSelectedEmailAccount(data.accounts[0]);
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching email accounts:', error);
+      }
+    }, [selectedEmailAccount]);
+
+    const fetchEmails = useCallback(async (accountId: string, folder: string = 'INBOX') => {
+      if (!accountId) return;
+      setIsLoadingEmails(true);
+      try {
+        const res = await fetch(`/api/email/fetch?accountId=${accountId}&folder=${folder}&limit=30`);
+        const data = await res.json();
+        if (data.emails) {
+          setEmails(data.emails);
+          const unread = data.emails.filter((e: EmailMessage) => !e.isRead).length;
+          setTotalUnreadEmails(unread);
+        } else if (data.error) {
+          if (data.requiresAuth) {
+            toast.error(isRTL ? 'بيانات الدخول غير صحيحة' : 'Invalid credentials');
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching emails:', error);
+      }
+      setIsLoadingEmails(false);
+    }, [isRTL]);
+
+    const fetchUnreadCount = useCallback(async () => {
+      if (emailAccounts.length === 0) return;
+      let total = 0;
+      for (const account of emailAccounts) {
+        try {
+          const res = await fetch(`/api/email/fetch?accountId=${account.id}&action=unread`);
+          const data = await res.json();
+          if (data.unreadCount) {
+            total += data.unreadCount;
+          }
+        } catch (error) {
+          console.error('Error fetching unread count:', error);
+        }
+      }
+      setTotalUnreadEmails(total);
+    }, [emailAccounts]);
+
+    useEffect(() => {
+      fetchEmailAccounts();
+    }, [fetchEmailAccounts]);
+
+    useEffect(() => {
+      if (selectedEmailAccount) {
+        fetchEmails(selectedEmailAccount.id, emailFolder);
+      }
+    }, [selectedEmailAccount, emailFolder, fetchEmails]);
+
+    useEffect(() => {
+      if (showEmailModal && selectedEmailAccount) {
+        emailRefreshIntervalRef.current = setInterval(() => {
+          fetchEmails(selectedEmailAccount.id, emailFolder);
+        }, 10000);
+      }
+      return () => {
+        if (emailRefreshIntervalRef.current) {
+          clearInterval(emailRefreshIntervalRef.current);
+        }
+      };
+    }, [showEmailModal, selectedEmailAccount, emailFolder, fetchEmails]);
+
+    useEffect(() => {
+      const unreadInterval = setInterval(fetchUnreadCount, 30000);
+      return () => clearInterval(unreadInterval);
+    }, [fetchUnreadCount]);
+
+    const handleAddEmailAccount = async () => {
+      if (!newEmailAccount.email || !newEmailAccount.password) {
+        toast.error(isRTL ? 'البريد وكلمة المرور مطلوبين' : 'Email and password required');
+        return;
+      }
+      setIsAddingAccount(true);
+      try {
+        const res = await fetch('/api/email/accounts', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(newEmailAccount)
+        });
+        const data = await res.json();
+        if (data.success) {
+          toast.success(isRTL ? 'تم إضافة حساب البريد بنجاح' : 'Email account added successfully');
+          setNewEmailAccount({ email: '', password: '', provider: 'hostinger', imap_host: '', smtp_host: '' });
+          fetchEmailAccounts();
+          setShowEmailSettings(false);
+        } else {
+          toast.error(data.error || (isRTL ? 'حدث خطأ' : 'Error occurred'));
+        }
+      } catch (error) {
+        toast.error(isRTL ? 'حدث خطأ في الاتصال' : 'Connection error');
+      }
+      setIsAddingAccount(false);
+    };
+
+    const handleDeleteEmailAccount = async (accountId: string) => {
+      try {
+        const res = await fetch(`/api/email/accounts?id=${accountId}`, { method: 'DELETE' });
+        const data = await res.json();
+        if (data.success) {
+          toast.success(isRTL ? 'تم حذف حساب البريد' : 'Email account deleted');
+          fetchEmailAccounts();
+          if (selectedEmailAccount?.id === accountId) {
+            setSelectedEmailAccount(null);
+            setEmails([]);
+          }
+        }
+      } catch (error) {
+        toast.error(isRTL ? 'حدث خطأ' : 'Error occurred');
+      }
+    };
+
+    const handleSendEmail = async () => {
+      if (!selectedEmailAccount || !composeData.to || !composeData.subject) {
+        toast.error(isRTL ? 'المستلم والموضوع مطلوبين' : 'Recipient and subject required');
+        return;
+      }
+      setIsSendingEmail(true);
+      try {
+        const res = await fetch('/api/email/send', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            accountId: selectedEmailAccount.id,
+            to: composeData.to,
+            cc: composeData.cc || undefined,
+            subject: composeData.subject,
+            body: composeData.body
+          })
+        });
+        const data = await res.json();
+        if (data.success) {
+          toast.success(isRTL ? 'تم إرسال البريد بنجاح' : 'Email sent successfully');
+          setComposeData({ to: '', cc: '', subject: '', body: '' });
+          setShowComposeEmail(false);
+        } else {
+          toast.error(data.error || (isRTL ? 'حدث خطأ' : 'Error occurred'));
+        }
+      } catch (error) {
+        toast.error(isRTL ? 'حدث خطأ في الاتصال' : 'Connection error');
+      }
+      setIsSendingEmail(false);
+    };
+
+    const formatEmailDate = (dateStr: string) => {
+      const date = new Date(dateStr);
+      const now = new Date();
+      const diff = now.getTime() - date.getTime();
+      const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+      if (days === 0) {
+        return date.toLocaleTimeString('ar-SA', { hour: '2-digit', minute: '2-digit' });
+      } else if (days === 1) {
+        return isRTL ? 'أمس' : 'Yesterday';
+      } else if (days < 7) {
+        return date.toLocaleDateString('ar-SA', { weekday: 'long' });
+      }
+      return date.toLocaleDateString('ar-SA', { month: 'short', day: 'numeric' });
+    };
+
+    const notifications = [
     { id: 1, title: isRTL ? "طلب شحن جديد" : "New shipping request", time: isRTL ? "منذ 5 دقائق" : "5 minutes ago", type: "info" },
     { id: 2, title: isRTL ? "تم تسليم الشحنة #1234" : "Shipment #1234 delivered", time: isRTL ? "منذ ساعة" : "1 hour ago", type: "success" },
     { id: 3, title: isRTL ? "تنبيه: إقامة منتهية" : "Alert: Expired Iqama", time: isRTL ? "منذ ساعتين" : "2 hours ago", type: "warning" },
@@ -715,9 +953,26 @@ export function Header({ user, onToggleSidebar, unreadChatCount = 0, subscriptio
                         )}
                       </motion.button>
 
-                      <ThemeToggleHeader isRTL={isRTL} />
+                        <motion.button
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                          onClick={() => setShowEmailModal(true)}
+                          className="relative hidden sm:flex items-center gap-2 px-3 py-2.5 bg-gradient-to-br from-blue-500/20 to-indigo-500/20 hover:from-blue-500/30 hover:to-indigo-500/30 rounded-xl transition-all border border-blue-500/20"
+                        >
+                          <Mail size={18} className="text-blue-400" />
+                          <span className="text-[11px] font-bold text-blue-400">{isRTL ? 'البريد' : 'Email'}</span>
+                          {totalUnreadEmails > 0 && (
+                            <motion.span 
+                              animate={{ scale: [1, 1.2, 1] }}
+                              transition={{ duration: 2, repeat: Infinity }}
+                              className="min-w-[18px] h-[18px] bg-gradient-to-r from-blue-500 to-indigo-500 text-white text-[9px] font-bold rounded-full flex items-center justify-center shadow-lg shadow-blue-500/50"
+                            >
+                              {totalUnreadEmails > 9 ? '9+' : totalUnreadEmails}
+                            </motion.span>
+                          )}
+                        </motion.button>
 
-                    <motion.button
+                      <motion.button
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
                       onClick={() => setShowPrayerModal(!showPrayerModal)}
@@ -1790,10 +2045,507 @@ export function Header({ user, onToggleSidebar, unreadChatCount = 0, subscriptio
                     : 'This app is designed for drivers to instantly record shipping and delivery operations, allowing managers to track operations from the dashboard.'}
                 </p>
               </div>
-            </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
+              </motion.div>
+            </div>
+          )}
+        </AnimatePresence>
+
+        {/* Email Modal */}
+        <AnimatePresence>
+          {showEmailModal && (
+            <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
+              <motion.div 
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                onClick={() => { if (!isEmailMaximized) setShowEmailModal(false); }}
+                className="absolute inset-0 bg-black/70 backdrop-blur-md"
+              />
+              <motion.div 
+                initial={{ scale: 0.9, opacity: 0, y: 20 }}
+                animate={{ scale: 1, opacity: 1, y: 0 }}
+                exit={{ scale: 0.9, opacity: 0, y: 20 }}
+                className={cn(
+                  "relative bg-gradient-to-b from-slate-900 to-slate-950 rounded-3xl shadow-2xl overflow-hidden border border-blue-500/20 transition-all duration-300",
+                  isEmailMaximized 
+                    ? "w-full h-full max-w-full max-h-full rounded-none" 
+                    : "w-full max-w-4xl max-h-[85vh]"
+                )}
+              >
+                <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-blue-500/10 to-transparent rounded-full blur-3xl" />
+                
+                <div className="flex items-center justify-between p-4 border-b border-white/10 bg-gradient-to-r from-blue-500/20 to-indigo-500/20">
+                  <div className="flex items-center gap-4">
+                    <div className="p-3 rounded-2xl bg-gradient-to-br from-blue-500/30 to-indigo-500/30">
+                      <Mail size={24} className="text-blue-400" />
+                    </div>
+                    <div>
+                      <h3 className="font-bold text-white text-lg">{isRTL ? 'البريد الإلكتروني' : 'Email Client'}</h3>
+                      <p className="text-sm text-blue-400">{isRTL ? 'إدارة رسائلك بسهولة' : 'Manage your emails easily'}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <button 
+                      onClick={() => setIsEmailMaximized(!isEmailMaximized)}
+                      className="p-2 text-white/30 hover:text-white hover:bg-white/10 rounded-xl transition-all"
+                    >
+                      {isEmailMaximized ? <Minimize2 size={20} /> : <Maximize2 size={20} />}
+                    </button>
+                    <button 
+                      onClick={() => setShowEmailSettings(true)}
+                      className="p-2 text-white/30 hover:text-white hover:bg-white/10 rounded-xl transition-all"
+                    >
+                      <Settings size={20} />
+                    </button>
+                    <button 
+                      onClick={() => setShowEmailModal(false)}
+                      className="p-2 text-white/30 hover:text-white hover:bg-white/10 rounded-xl transition-all"
+                    >
+                      <X size={20} />
+                    </button>
+                  </div>
+                </div>
+
+                <div className={cn("flex", isEmailMaximized ? "h-[calc(100%-80px)]" : "h-[60vh]")}>
+                  <div className="w-64 border-l border-white/10 p-4 flex flex-col gap-4 bg-white/5">
+                    <motion.button
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      onClick={() => setShowComposeEmail(true)}
+                      className="w-full flex items-center justify-center gap-2 py-3 bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 rounded-xl text-white font-bold shadow-lg shadow-blue-500/30"
+                    >
+                      <Plus size={18} />
+                      {isRTL ? 'رسالة جديدة' : 'Compose'}
+                    </motion.button>
+
+                    <div className="space-y-1">
+                      <button
+                        onClick={() => setEmailFolder('INBOX')}
+                        className={cn(
+                          "w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all text-right",
+                          emailFolder === 'INBOX' 
+                            ? "bg-blue-500/20 text-blue-400 border border-blue-500/30" 
+                            : "text-white/60 hover:bg-white/10"
+                        )}
+                      >
+                        <Inbox size={18} />
+                        <span className="font-bold text-sm">{isRTL ? 'الوارد' : 'Inbox'}</span>
+                        {totalUnreadEmails > 0 && (
+                          <span className="mr-auto min-w-[20px] h-[20px] bg-blue-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center">
+                            {totalUnreadEmails}
+                          </span>
+                        )}
+                      </button>
+                      <button
+                        onClick={() => setEmailFolder('Spam')}
+                        className={cn(
+                          "w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all text-right",
+                          emailFolder === 'Spam' 
+                            ? "bg-amber-500/20 text-amber-400 border border-amber-500/30" 
+                            : "text-white/60 hover:bg-white/10"
+                        )}
+                      >
+                        <AlertTriangle size={18} />
+                        <span className="font-bold text-sm">{isRTL ? 'البريد المزعج' : 'Spam'}</span>
+                      </button>
+                    </div>
+
+                    <div className="flex-1 border-t border-white/10 pt-4">
+                      <p className="text-xs text-white/40 mb-3 font-bold">{isRTL ? 'حسابات البريد' : 'Email Accounts'}</p>
+                      <div className="space-y-2">
+                        {emailAccounts.length === 0 ? (
+                          <div className="text-center py-6">
+                            <Mail size={32} className="mx-auto mb-2 text-white/20" />
+                            <p className="text-xs text-white/40">{isRTL ? 'لا توجد حسابات' : 'No accounts'}</p>
+                            <button 
+                              onClick={() => setShowEmailSettings(true)}
+                              className="text-xs text-blue-400 hover:underline mt-2"
+                            >
+                              {isRTL ? 'إضافة حساب' : 'Add account'}
+                            </button>
+                          </div>
+                        ) : emailAccounts.map((account) => (
+                          <button
+                            key={account.id}
+                            onClick={() => setSelectedEmailAccount(account)}
+                            className={cn(
+                              "w-full p-3 rounded-xl transition-all text-right",
+                              selectedEmailAccount?.id === account.id 
+                                ? "bg-blue-500/20 border border-blue-500/30" 
+                                : "bg-white/5 hover:bg-white/10 border border-white/5"
+                            )}
+                          >
+                            <p className="text-sm font-bold text-white truncate">{account.email}</p>
+                            <p className="text-[10px] text-white/40">{account.provider}</p>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex-1 flex">
+                    <div className={cn("border-l border-white/10 overflow-y-auto", selectedEmail ? "w-2/5" : "w-full")}>
+                      {isLoadingEmails ? (
+                        <div className="flex items-center justify-center h-full">
+                          <Loader2 size={32} className="animate-spin text-blue-400" />
+                        </div>
+                      ) : emails.length === 0 ? (
+                        <div className="flex flex-col items-center justify-center h-full text-center p-8">
+                          <Inbox size={64} className="text-white/10 mb-4" />
+                          <p className="text-white/40 font-bold">{isRTL ? 'لا توجد رسائل' : 'No emails'}</p>
+                          <p className="text-white/20 text-sm">{isRTL ? 'صندوق الوارد فارغ' : 'Inbox is empty'}</p>
+                        </div>
+                      ) : (
+                        <div className="divide-y divide-white/5">
+                          {emails.map((email) => (
+                            <motion.div
+                              key={email.uid}
+                              whileHover={{ backgroundColor: "rgba(255,255,255,0.05)" }}
+                              onClick={() => setSelectedEmail(email)}
+                              className={cn(
+                                "p-4 cursor-pointer transition-all",
+                                selectedEmail?.uid === email.uid && "bg-blue-500/10 border-r-2 border-blue-500",
+                                !email.isRead && "bg-blue-500/5"
+                              )}
+                            >
+                              <div className="flex items-start gap-3">
+                                <div className={cn(
+                                  "w-10 h-10 rounded-xl flex items-center justify-center text-white font-bold text-sm",
+                                  !email.isRead ? "bg-blue-500/30" : "bg-white/10"
+                                )}>
+                                  {email.from.charAt(0).toUpperCase()}
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                  <div className="flex items-center justify-between gap-2">
+                                    <p className={cn(
+                                      "text-sm truncate",
+                                      !email.isRead ? "font-bold text-white" : "text-white/70"
+                                    )}>{email.from}</p>
+                                    <span className="text-[10px] text-white/40 whitespace-nowrap">{formatEmailDate(email.date)}</span>
+                                  </div>
+                                  <p className={cn(
+                                    "text-sm truncate",
+                                    !email.isRead ? "font-bold text-white/90" : "text-white/60"
+                                  )}>{email.subject}</p>
+                                  <p className="text-xs text-white/40 truncate">{email.snippet}</p>
+                                </div>
+                                {email.hasAttachments && <Paperclip size={14} className="text-white/30" />}
+                              </div>
+                            </motion.div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+
+                    {selectedEmail && (
+                      <div className="flex-1 p-6 overflow-y-auto">
+                        <div className="flex items-center justify-between mb-6">
+                          <button 
+                            onClick={() => setSelectedEmail(null)}
+                            className="p-2 text-white/30 hover:text-white hover:bg-white/10 rounded-xl transition-all sm:hidden"
+                          >
+                            <ArrowRight size={20} />
+                          </button>
+                          <div className="flex items-center gap-2">
+                            <button className="p-2 text-white/30 hover:text-white hover:bg-white/10 rounded-xl transition-all">
+                              <Trash2 size={18} />
+                            </button>
+                          </div>
+                        </div>
+                        
+                        <h2 className="text-xl font-bold text-white mb-4">{selectedEmail.subject}</h2>
+                        
+                        <div className="flex items-center gap-4 mb-6 p-4 bg-white/5 rounded-xl">
+                          <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500/30 to-indigo-500/30 flex items-center justify-center text-white font-bold">
+                            {selectedEmail.from.charAt(0).toUpperCase()}
+                          </div>
+                          <div>
+                            <p className="font-bold text-white">{selectedEmail.from}</p>
+                            <p className="text-sm text-white/40">{selectedEmail.fromEmail}</p>
+                            <p className="text-xs text-white/30">{new Date(selectedEmail.date).toLocaleString('ar-SA')}</p>
+                          </div>
+                        </div>
+                        
+                        <div 
+                          className="prose prose-invert max-w-none text-white/80"
+                          dangerouslySetInnerHTML={{ __html: selectedEmail.body }}
+                        />
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </motion.div>
+            </div>
+          )}
+        </AnimatePresence>
+
+        {/* Email Settings Modal */}
+        <AnimatePresence>
+          {showEmailSettings && (
+            <div className="fixed inset-0 z-[10000] flex items-center justify-center p-4">
+              <motion.div 
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                onClick={() => setShowEmailSettings(false)}
+                className="absolute inset-0 bg-black/70 backdrop-blur-md"
+              />
+              <motion.div 
+                initial={{ scale: 0.9, opacity: 0, y: 20 }}
+                animate={{ scale: 1, opacity: 1, y: 0 }}
+                exit={{ scale: 0.9, opacity: 0, y: 20 }}
+                className="relative w-full max-w-lg bg-gradient-to-b from-slate-900 to-slate-950 rounded-3xl shadow-2xl overflow-hidden border border-blue-500/20 max-h-[90vh] overflow-y-auto"
+              >
+                <button 
+                  onClick={() => setShowEmailSettings(false)}
+                  className="absolute top-4 left-4 p-2 text-white/30 hover:text-white hover:bg-white/10 rounded-xl transition-all z-10"
+                >
+                  <X size={20} />
+                </button>
+                
+                <div className="p-6 bg-gradient-to-r from-blue-500/20 to-indigo-500/20 border-b border-blue-500/20">
+                  <div className="flex items-center gap-4">
+                    <div className="p-4 rounded-2xl bg-gradient-to-br from-blue-500/30 to-indigo-500/30">
+                      <Settings size={28} className="text-blue-400" />
+                    </div>
+                    <div>
+                      <h3 className="font-bold text-white text-xl">{isRTL ? 'إعدادات البريد' : 'Email Settings'}</h3>
+                      <p className="text-sm text-blue-400">{isRTL ? 'إدارة حسابات البريد الإلكتروني' : 'Manage email accounts'}</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="p-6 space-y-6">
+                  <div className="p-5 bg-white/5 rounded-2xl border border-white/10">
+                    <h4 className="font-bold text-white mb-4 flex items-center gap-2">
+                      <Plus size={18} className="text-blue-400" />
+                      {isRTL ? 'إضافة حساب جديد' : 'Add New Account'}
+                    </h4>
+                    
+                    <div className="space-y-4">
+                      <div>
+                        <label className="block text-sm font-bold text-white/70 mb-2">{isRTL ? 'مزود الخدمة' : 'Provider'}</label>
+                        <select
+                          value={newEmailAccount.provider}
+                          onChange={(e) => setNewEmailAccount(prev => ({ ...prev, provider: e.target.value }))}
+                          className="w-full p-3 rounded-xl bg-white/5 border border-white/10 text-white text-sm focus:border-blue-500/50 focus:ring-0 outline-none"
+                        >
+                          <option value="hostinger">Hostinger</option>
+                          <option value="gmail">Gmail</option>
+                          <option value="outlook">Outlook / Hotmail</option>
+                          <option value="custom">{isRTL ? 'مخصص' : 'Custom'}</option>
+                        </select>
+                      </div>
+                      
+                      <div>
+                        <label className="block text-sm font-bold text-white/70 mb-2">{isRTL ? 'البريد الإلكتروني' : 'Email'}</label>
+                        <input
+                          type="email"
+                          value={newEmailAccount.email}
+                          onChange={(e) => setNewEmailAccount(prev => ({ ...prev, email: e.target.value }))}
+                          placeholder="email@example.com"
+                          className="w-full p-3 rounded-xl bg-white/5 border border-white/10 text-white text-sm placeholder:text-white/30 focus:border-blue-500/50 focus:ring-0 outline-none"
+                        />
+                      </div>
+                      
+                      <div>
+                        <label className="block text-sm font-bold text-white/70 mb-2">{isRTL ? 'كلمة المرور' : 'Password'}</label>
+                        <input
+                          type="password"
+                          value={newEmailAccount.password}
+                          onChange={(e) => setNewEmailAccount(prev => ({ ...prev, password: e.target.value }))}
+                          placeholder="••••••••"
+                          className="w-full p-3 rounded-xl bg-white/5 border border-white/10 text-white text-sm placeholder:text-white/30 focus:border-blue-500/50 focus:ring-0 outline-none"
+                        />
+                      </div>
+
+                      {newEmailAccount.provider === 'custom' && (
+                        <>
+                          <div>
+                            <label className="block text-sm font-bold text-white/70 mb-2">IMAP Host</label>
+                            <input
+                              type="text"
+                              value={newEmailAccount.imap_host}
+                              onChange={(e) => setNewEmailAccount(prev => ({ ...prev, imap_host: e.target.value }))}
+                              placeholder="imap.example.com"
+                              className="w-full p-3 rounded-xl bg-white/5 border border-white/10 text-white text-sm placeholder:text-white/30 focus:border-blue-500/50 focus:ring-0 outline-none"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-sm font-bold text-white/70 mb-2">SMTP Host</label>
+                            <input
+                              type="text"
+                              value={newEmailAccount.smtp_host}
+                              onChange={(e) => setNewEmailAccount(prev => ({ ...prev, smtp_host: e.target.value }))}
+                              placeholder="smtp.example.com"
+                              className="w-full p-3 rounded-xl bg-white/5 border border-white/10 text-white text-sm placeholder:text-white/30 focus:border-blue-500/50 focus:ring-0 outline-none"
+                            />
+                          </div>
+                        </>
+                      )}
+
+                      {newEmailAccount.provider === 'gmail' && (
+                        <div className="p-3 bg-amber-500/10 rounded-xl border border-amber-500/20">
+                          <div className="flex items-start gap-2">
+                            <AlertCircle size={16} className="text-amber-400 mt-0.5" />
+                            <p className="text-xs text-amber-400/80">
+                              {isRTL 
+                                ? 'لاستخدام Gmail، يجب تفعيل "كلمات مرور التطبيقات" من إعدادات حسابك في Google'
+                                : 'To use Gmail, enable "App Passwords" in your Google account settings'}
+                            </p>
+                          </div>
+                        </div>
+                      )}
+                      
+                      <motion.button
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                        onClick={handleAddEmailAccount}
+                        disabled={isAddingAccount}
+                        className="w-full py-3 bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 rounded-xl text-white font-bold shadow-lg shadow-blue-500/30 transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+                      >
+                        {isAddingAccount ? (
+                          <Loader2 size={18} className="animate-spin" />
+                        ) : (
+                          <Plus size={18} />
+                        )}
+                        {isRTL ? 'إضافة الحساب' : 'Add Account'}
+                      </motion.button>
+                    </div>
+                  </div>
+
+                  {emailAccounts.length > 0 && (
+                    <div className="p-5 bg-white/5 rounded-2xl border border-white/10">
+                      <h4 className="font-bold text-white mb-4">{isRTL ? 'الحسابات المضافة' : 'Added Accounts'}</h4>
+                      <div className="space-y-3">
+                        {emailAccounts.map((account) => (
+                          <div key={account.id} className="flex items-center justify-between p-4 bg-white/5 rounded-xl border border-white/10">
+                            <div className="flex items-center gap-3">
+                              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500/30 to-indigo-500/30 flex items-center justify-center">
+                                <Mail size={18} className="text-blue-400" />
+                              </div>
+                              <div>
+                                <p className="font-bold text-white text-sm">{account.email}</p>
+                                <p className="text-xs text-white/40">{account.provider}</p>
+                              </div>
+                            </div>
+                            <button
+                              onClick={() => handleDeleteEmailAccount(account.id)}
+                              className="p-2 text-red-400/60 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-all"
+                            >
+                              <Trash2 size={18} />
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </motion.div>
+            </div>
+          )}
+        </AnimatePresence>
+
+        {/* Compose Email Modal */}
+        <AnimatePresence>
+          {showComposeEmail && (
+            <div className="fixed inset-0 z-[10000] flex items-center justify-center p-4">
+              <motion.div 
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                onClick={() => setShowComposeEmail(false)}
+                className="absolute inset-0 bg-black/70 backdrop-blur-md"
+              />
+              <motion.div 
+                initial={{ scale: 0.9, opacity: 0, y: 20 }}
+                animate={{ scale: 1, opacity: 1, y: 0 }}
+                exit={{ scale: 0.9, opacity: 0, y: 20 }}
+                className="relative w-full max-w-2xl bg-gradient-to-b from-slate-900 to-slate-950 rounded-3xl shadow-2xl overflow-hidden border border-blue-500/20"
+              >
+                <button 
+                  onClick={() => setShowComposeEmail(false)}
+                  className="absolute top-4 left-4 p-2 text-white/30 hover:text-white hover:bg-white/10 rounded-xl transition-all z-10"
+                >
+                  <X size={20} />
+                </button>
+                
+                <div className="p-6 bg-gradient-to-r from-blue-500/20 to-indigo-500/20 border-b border-blue-500/20">
+                  <div className="flex items-center gap-4">
+                    <div className="p-4 rounded-2xl bg-gradient-to-br from-blue-500/30 to-indigo-500/30">
+                      <Send size={28} className="text-blue-400" />
+                    </div>
+                    <div>
+                      <h3 className="font-bold text-white text-xl">{isRTL ? 'رسالة جديدة' : 'New Message'}</h3>
+                      <p className="text-sm text-blue-400">{selectedEmailAccount?.email}</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="p-6 space-y-4">
+                  <div>
+                    <label className="block text-sm font-bold text-white/70 mb-2">{isRTL ? 'إلى' : 'To'}</label>
+                    <input
+                      type="email"
+                      value={composeData.to}
+                      onChange={(e) => setComposeData(prev => ({ ...prev, to: e.target.value }))}
+                      placeholder="email@example.com"
+                      className="w-full p-3 rounded-xl bg-white/5 border border-white/10 text-white text-sm placeholder:text-white/30 focus:border-blue-500/50 focus:ring-0 outline-none"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-bold text-white/70 mb-2">{isRTL ? 'نسخة (اختياري)' : 'CC (Optional)'}</label>
+                    <input
+                      type="email"
+                      value={composeData.cc}
+                      onChange={(e) => setComposeData(prev => ({ ...prev, cc: e.target.value }))}
+                      placeholder="email@example.com"
+                      className="w-full p-3 rounded-xl bg-white/5 border border-white/10 text-white text-sm placeholder:text-white/30 focus:border-blue-500/50 focus:ring-0 outline-none"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-bold text-white/70 mb-2">{isRTL ? 'الموضوع' : 'Subject'}</label>
+                    <input
+                      type="text"
+                      value={composeData.subject}
+                      onChange={(e) => setComposeData(prev => ({ ...prev, subject: e.target.value }))}
+                      placeholder={isRTL ? 'موضوع الرسالة' : 'Email subject'}
+                      className="w-full p-3 rounded-xl bg-white/5 border border-white/10 text-white text-sm placeholder:text-white/30 focus:border-blue-500/50 focus:ring-0 outline-none"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-bold text-white/70 mb-2">{isRTL ? 'نص الرسالة' : 'Message'}</label>
+                    <textarea
+                      rows={8}
+                      value={composeData.body}
+                      onChange={(e) => setComposeData(prev => ({ ...prev, body: e.target.value }))}
+                      placeholder={isRTL ? 'اكتب رسالتك هنا...' : 'Write your message here...'}
+                      className="w-full p-3 rounded-xl bg-white/5 border border-white/10 text-white text-sm placeholder:text-white/30 focus:border-blue-500/50 focus:ring-0 outline-none resize-none"
+                    />
+                  </div>
+                  
+                  <motion.button
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={handleSendEmail}
+                    disabled={isSendingEmail}
+                    className="w-full py-4 bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 rounded-xl text-white font-bold shadow-lg shadow-blue-500/30 transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+                  >
+                    {isSendingEmail ? (
+                      <Loader2 size={20} className="animate-spin" />
+                    ) : (
+                      <Send size={20} />
+                    )}
+                    {isRTL ? 'إرسال الرسالة' : 'Send Message'}
+                  </motion.button>
+                </div>
+              </motion.div>
+            </div>
+          )}
+        </AnimatePresence>
     </>
   );
 }
