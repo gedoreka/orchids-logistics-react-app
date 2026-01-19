@@ -326,9 +326,8 @@ export function PayrollsListClient({ payrolls: initialPayrolls, stats, companyId
                 </Link>
               </div>
             )}
-          </div>
+          </motion.div>
         </div>
       </div>
-    </div>
-  );
-}
+    );
+  }

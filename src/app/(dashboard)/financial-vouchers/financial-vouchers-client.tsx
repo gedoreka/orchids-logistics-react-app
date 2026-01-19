@@ -219,7 +219,7 @@ function FinancialVouchersContent() {
 
     return (
       <div className="max-w-[95%] mx-auto p-4 md:p-8 space-y-8" dir="rtl">
-        {/* Hero Header */}
+        {/* Unified Card Container */}
         <motion.div
           initial={{ opacity: 0, y: -30 }}
           animate={{ opacity: 1, y: 0 }}
@@ -227,7 +227,8 @@ function FinancialVouchersContent() {
         >
           <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 via-emerald-500 via-rose-500 via-amber-500 via-purple-500 to-blue-500 animate-gradient-x" />
           
-          <div className="relative z-10">
+          <div className="relative z-10 space-y-10">
+            {/* Hero Header Section */}
             <div className="flex flex-col lg:flex-row items-center justify-between gap-10">
               <div className="text-center lg:text-right space-y-4">
                 <motion.div 
@@ -327,124 +328,130 @@ function FinancialVouchersContent() {
                 </motion.div>
               </div>
             </div>
+
+            {/* Divider */}
+            <div className="border-t border-white/10" />
+
+            {/* Voucher Cards Grid Section */}
+            <div>
+              <div className="flex items-center gap-3 mb-6">
+                <div className="p-2 bg-white/10 rounded-xl">
+                  <FileText className="w-5 h-5 text-blue-400" />
+                </div>
+                <h2 className="text-xl font-black text-white">قوالب السندات</h2>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                {voucherTypes.map((voucher, index) => {
+                  const statData = stats[voucher.stats.key];
+                  return (
+                    <motion.div
+                      key={voucher.id}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: index * 0.1 }}
+                      whileHover={{ y: -4 }}
+                      className="group"
+                    >
+                      <Link href={voucher.href}>
+                        <div className="relative overflow-hidden bg-white/10 backdrop-blur-xl rounded-[2rem] shadow-xl border border-white/10 hover:bg-white/15 hover:shadow-2xl transition-all duration-300">
+                          <div className={`h-1 bg-gradient-to-r ${voucher.gradient} opacity-80 group-hover:opacity-100 transition-opacity`} />
+                          
+                          <div className="p-6">
+                            <div className="flex items-start justify-between mb-4">
+                              <div className={cn(
+                                "p-3 rounded-xl shadow-xl transform group-hover:scale-110 transition-transform duration-300",
+                                voucher.iconBg
+                              )}>
+                                <voucher.icon className="w-6 h-6 text-white" />
+                              </div>
+                              <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-white/50 group-hover:bg-white/20 group-hover:text-white transition-all">
+                                <ArrowUpRight size={16} />
+                              </div>
+                            </div>
+
+                            <h3 className="text-lg font-black text-white mb-1">{voucher.title}</h3>
+                            <p className="text-slate-400 text-xs font-medium mb-4 line-clamp-1">{voucher.description}</p>
+
+                            <div className="rounded-xl p-4 mb-4 bg-white/5 border border-white/10">
+                              <div className="flex items-center justify-between mb-2">
+                                <span className="text-slate-400 font-bold text-[10px] uppercase tracking-widest">{voucher.stats.label}</span>
+                                <span className={cn(
+                                  "px-3 py-1 text-white text-[10px] font-black rounded-full shadow-lg",
+                                  voucher.iconBg
+                                )}>
+                                  {statData.count} سند
+                                </span>
+                              </div>
+                              <div className="flex items-baseline gap-1">
+                                <p className="text-2xl font-black text-white tracking-tight">
+                                  {statData.total.toLocaleString()}
+                                </p>
+                                <span className="text-sm font-bold text-slate-500">ر.س</span>
+                              </div>
+                            </div>
+
+                            <div className="space-y-2 mb-4">
+                              {voucher.features.map((feature, fIndex) => (
+                                <div key={fIndex} className="flex items-center gap-2 text-xs text-slate-400 font-medium">
+                                  <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                                  <span className="line-clamp-1">{feature}</span>
+                                </div>
+                              ))}
+                            </div>
+
+                            <div className={cn(
+                              "py-3 px-4 bg-gradient-to-r rounded-xl text-center group-hover:shadow-xl transition-all shadow-lg active:scale-95",
+                              voucher.gradient,
+                              voucher.shadowColor
+                            )}>
+                              <span className="text-white font-black text-xs flex items-center justify-center gap-2">
+                                إدارة {voucher.title}
+                                <ArrowRight className="w-4 h-4 transform group-hover:translate-x-1 transition-transform" />
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      </Link>
+                    </motion.div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Divider */}
+            <div className="border-t border-white/10" />
+
+            {/* Quick Actions Section */}
+            <div>
+              <div className="flex items-center gap-3 mb-6">
+                <div className="p-2 bg-white/10 rounded-xl">
+                  <BarChart3 className="w-5 h-5 text-blue-400" />
+                </div>
+                <div>
+                  <h3 className="text-xl font-black text-white">إجراءات سريعة</h3>
+                  <p className="text-slate-400 text-sm font-medium">الوصول المباشر للعمليات الأكثر استخداماً</p>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+                {voucherTypes.map((tool) => (
+                  <Link key={tool.id} href={tool.href} className="flex flex-col items-center gap-3 p-4 bg-white/5 rounded-2xl border border-white/10 hover:border-white/20 hover:bg-white/10 transition-all group cursor-pointer text-center active:scale-95">
+                    <div className={cn(
+                      "p-3 rounded-xl group-hover:scale-110 transition-transform shadow-md",
+                      tool.iconBg
+                    )}>
+                      <tool.icon className="w-5 h-5 text-white" />
+                    </div>
+                    <p className="font-bold text-white text-xs tracking-tight">{tool.title}</p>
+                  </Link>
+                ))}
+              </div>
+            </div>
           </div>
           
           {/* Decorative elements */}
           <div className="absolute -bottom-12 -right-12 w-48 h-48 bg-blue-500/10 rounded-full blur-3xl" />
           <div className="absolute -top-12 -left-12 w-48 h-48 bg-purple-500/10 rounded-full blur-3xl" />
-        </motion.div>
-
-        {/* Voucher Cards Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
-          {voucherTypes.map((voucher, index) => {
-            const statData = stats[voucher.stats.key];
-            return (
-              <motion.div
-                key={voucher.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.1 }}
-                whileHover={{ y: -8 }}
-                className="group"
-              >
-                <Link href={voucher.href}>
-                  <div className="relative overflow-hidden bg-white/80 backdrop-blur-xl rounded-[2.5rem] shadow-xl border border-white/50 hover:shadow-2xl transition-all duration-300">
-                    <div className={`h-1.5 bg-gradient-to-r ${voucher.gradient} opacity-80 group-hover:opacity-100 transition-opacity`} />
-                    
-                    <div className="p-8">
-                      <div className="flex items-start justify-between mb-6">
-                        <div className={cn(
-                          "p-4 rounded-[1.5rem] shadow-xl transform group-hover:scale-110 transition-transform duration-300",
-                          voucher.iconBg
-                        )}>
-                          <voucher.icon className="w-8 h-8 text-white" />
-                        </div>
-                        <div className="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center text-slate-300 group-hover:bg-blue-600 group-hover:text-white transition-all">
-                          <ArrowUpRight size={20} />
-                        </div>
-                      </div>
-
-                      <h3 className="text-2xl font-black text-slate-900 mb-2">{voucher.title}</h3>
-                      <p className="text-slate-500 text-xs font-bold mb-6 line-clamp-1">{voucher.description}</p>
-
-                      <div className={cn(
-                        "rounded-[1.5rem] p-5 mb-6 shadow-inner border border-white/50",
-                        voucher.bgGradient
-                      )}>
-                        <div className="flex items-center justify-between mb-2">
-                          <span className="text-slate-500 font-black text-[10px] uppercase tracking-widest">{voucher.stats.label}</span>
-                          <span className={cn(
-                            "px-4 py-1.5 text-white text-[10px] font-black rounded-full shadow-lg",
-                            voucher.iconBg
-                          )}>
-                            {statData.count} سند
-                          </span>
-                        </div>
-                        <div className="flex items-baseline gap-1">
-                          <p className="text-3xl font-black text-slate-900 tracking-tight">
-                            {statData.total.toLocaleString()}
-                          </p>
-                          <span className="text-sm font-black text-slate-400">ر.س</span>
-                        </div>
-                      </div>
-
-                      <div className="space-y-3 mb-8">
-                        {voucher.features.map((feature, fIndex) => (
-                          <div key={fIndex} className="flex items-center gap-3 text-xs text-slate-600 font-bold">
-                            <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-                            <span className="line-clamp-1">{feature}</span>
-                          </div>
-                        ))}
-                      </div>
-
-                      <div className={cn(
-                        "py-4 px-6 bg-gradient-to-r rounded-2xl text-center group-hover:shadow-xl transition-all shadow-lg active:scale-95",
-                        voucher.gradient,
-                        voucher.shadowColor
-                      )}>
-                        <span className="text-white font-black text-sm flex items-center justify-center gap-3">
-                          إدارة {voucher.title}
-                          <ArrowRight className="w-5 h-5 transform group-hover:translate-x-1 transition-transform" />
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </Link>
-              </motion.div>
-            );
-          })}
-        </div>
-
-        {/* Quick Actions */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.6 }}
-          className="bg-white/80 backdrop-blur-xl rounded-[2.5rem] p-8 border border-white/50 shadow-2xl"
-        >
-          <div className="flex items-center gap-4 mb-8">
-            <div className="p-3 bg-slate-100 rounded-2xl text-slate-600 border border-slate-200">
-              <BarChart3 className="w-6 h-6" />
-            </div>
-            <div>
-              <h3 className="text-xl font-black text-slate-900">إجراءات سريعة</h3>
-              <p className="text-slate-500 text-sm font-bold">الوصول المباشر للعمليات الأكثر استخداماً</p>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
-            {voucherTypes.map((tool) => (
-              <Link key={tool.id} href={tool.href} className="flex flex-col items-center gap-4 p-5 bg-slate-50/50 rounded-[2rem] border border-slate-100 hover:border-blue-200 hover:bg-white hover:shadow-2xl transition-all group cursor-pointer text-center active:scale-95">
-                <div className={cn(
-                  "p-4 rounded-2xl group-hover:scale-110 transition-transform shadow-md",
-                  tool.iconBg
-                )}>
-                  <tool.icon className="w-6 h-6 text-white" />
-                </div>
-                <p className="font-black text-slate-800 text-xs tracking-tight">{tool.title}</p>
-              </Link>
-            ))}
-          </div>
         </motion.div>
 
         {/* Footer */}
