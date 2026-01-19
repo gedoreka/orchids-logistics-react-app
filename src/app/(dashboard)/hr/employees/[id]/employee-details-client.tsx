@@ -942,26 +942,52 @@ className="bg-slate-100 backdrop-blur-xl p-5 rounded-2xl border border-slate-200
                         animate={{ opacity: 1, height: 'auto' }}
                         exit={{ opacity: 0, height: 0 }}
 className="bg-slate-100 backdrop-blur-xl p-5 rounded-2xl border border-slate-200 overflow-hidden"
-                        >
-                          <form onSubmit={editingLetter ? handleUpdateLetter : handleAddLetter} className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                            <select value={editingLetter ? editingLetter.letter_type : newLetter.letter_type} onChange={(e) => editingLetter ? setEditingLetter({...editingLetter, letter_type: e.target.value}) : setNewLetter({...newLetter, letter_type: e.target.value})} className="bg-white border border-slate-300 rounded-xl py-3 px-4 text-sm font-bold text-slate-900 focus:border-rose-500 outline-none">
-                              <option value="annual_leave" className="bg-white">إجازة سنوية</option>
-                              <option value="sick_leave" className="bg-white">إجازة مرضية</option>
-                              <option value="personal_leave" className="bg-white">إجازة شخصية</option>
-                              <option value="absence" className="bg-white">غياب</option>
-                              <option value="other" className="bg-white">أخرى</option>
-                            </select>
-                            <input type="date" placeholder="البداية" value={editingLetter ? editingLetter.start_date : newLetter.start_date} onChange={(e) => editingLetter ? setEditingLetter({...editingLetter, start_date: e.target.value}) : setNewLetter({...newLetter, start_date: e.target.value})} className="bg-white border border-slate-300 rounded-xl py-3 px-4 text-sm font-bold text-slate-900 focus:border-rose-500 outline-none" required />
-                            <input type="date" placeholder="النهاية" value={editingLetter ? editingLetter.end_date : newLetter.end_date} onChange={(e) => editingLetter ? setEditingLetter({...editingLetter, end_date: e.target.value}) : setNewLetter({...newLetter, end_date: e.target.value})} className="bg-white border border-slate-300 rounded-xl py-3 px-4 text-sm font-bold text-slate-900 focus:border-rose-500 outline-none" required />
-                            <input type="number" placeholder="المدة (أيام)" value={editingLetter ? editingLetter.duration_days : newLetter.duration_days} onChange={(e) => editingLetter ? setEditingLetter({...editingLetter, duration_days: Number(e.target.value)}) : setNewLetter({...newLetter, duration_days: Number(e.target.value)})} className="bg-white border border-slate-300 rounded-xl py-3 px-4 text-sm font-bold text-slate-900 placeholder-slate-400 focus:border-rose-500 outline-none" required />
-                            <input type="number" placeholder="مبلغ المخالفة" value={editingLetter ? editingLetter.violation_amount : newLetter.violation_amount} onChange={(e) => editingLetter ? setEditingLetter({...editingLetter, violation_amount: Number(e.target.value)}) : setNewLetter({...newLetter, violation_amount: Number(e.target.value)})} className="bg-white border border-slate-300 rounded-xl py-3 px-4 text-sm font-bold text-slate-900 placeholder-slate-400 focus:border-rose-500 outline-none" />
-                            <textarea placeholder="التفاصيل" value={editingLetter ? editingLetter.letter_details : newLetter.letter_details} onChange={(e) => editingLetter ? setEditingLetter({...editingLetter, letter_details: e.target.value}) : setNewLetter({...newLetter, letter_details: e.target.value})} rows={1} className="bg-white border border-slate-300 rounded-xl py-3 px-4 text-sm font-bold text-slate-900 placeholder-slate-400 focus:border-rose-500 outline-none col-span-2 md:col-span-3" />
-                            <div className="col-span-2 md:col-span-3 flex justify-end gap-3">
-                              <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} type="button" onClick={() => {setEditingLetter(null); setShowLetterForm(false);}} className="px-5 py-3 bg-slate-200 rounded-xl text-sm font-bold text-slate-700 hover:bg-slate-300">إلغاء</motion.button>
-                              <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} type="submit" className="px-8 py-3 bg-gradient-to-r from-rose-600 to-pink-600 text-white rounded-xl text-sm font-black shadow-lg shadow-rose-500/30">{editingLetter ? 'تحديث' : 'حفظ'}</motion.button>
-                            </div>
-                          </form>
-                        </motion.div>
+                          >
+                            <h3 className="text-lg font-black text-slate-900 mb-4 flex items-center gap-2">
+                              <Mail size={20} className="text-rose-500" />
+                              {editingLetter ? 'تعديل خطاب / إجازة' : 'إضافة خطاب / إجازة جديدة'}
+                            </h3>
+                            <form onSubmit={editingLetter ? handleUpdateLetter : handleAddLetter} className="space-y-4">
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                  <label className="block text-sm font-black text-slate-700 mb-2">نوع الخطاب / الإجازة</label>
+                                  <select value={editingLetter ? editingLetter.letter_type : newLetter.letter_type} onChange={(e) => editingLetter ? setEditingLetter({...editingLetter, letter_type: e.target.value}) : setNewLetter({...newLetter, letter_type: e.target.value})} className="w-full bg-white border border-slate-300 rounded-xl py-3 px-4 text-sm font-bold text-slate-900 focus:border-rose-500 outline-none">
+                                    <option value="annual_leave" className="bg-white">إجازة سنوية</option>
+                                    <option value="sick_leave" className="bg-white">إجازة مرضية</option>
+                                    <option value="personal_leave" className="bg-white">إجازة شخصية</option>
+                                    <option value="absence" className="bg-white">غياب</option>
+                                    <option value="other" className="bg-white">أخرى</option>
+                                  </select>
+                                </div>
+                                <div>
+                                  <label className="block text-sm font-black text-slate-700 mb-2">عدد الأيام</label>
+                                  <input type="number" placeholder="أدخل عدد أيام الإجازة" value={editingLetter ? editingLetter.duration_days : newLetter.duration_days} onChange={(e) => editingLetter ? setEditingLetter({...editingLetter, duration_days: Number(e.target.value)}) : setNewLetter({...newLetter, duration_days: Number(e.target.value)})} className="w-full bg-white border border-slate-300 rounded-xl py-3 px-4 text-sm font-bold text-slate-900 placeholder-slate-400 focus:border-rose-500 outline-none" required />
+                                </div>
+                              </div>
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                  <label className="block text-sm font-black text-slate-700 mb-2">تاريخ البداية</label>
+                                  <input type="date" value={editingLetter ? editingLetter.start_date : newLetter.start_date} onChange={(e) => editingLetter ? setEditingLetter({...editingLetter, start_date: e.target.value}) : setNewLetter({...newLetter, start_date: e.target.value})} className="w-full bg-white border border-slate-300 rounded-xl py-3 px-4 text-sm font-bold text-slate-900 focus:border-rose-500 outline-none" required />
+                                </div>
+                                <div>
+                                  <label className="block text-sm font-black text-slate-700 mb-2">تاريخ النهاية</label>
+                                  <input type="date" value={editingLetter ? editingLetter.end_date : newLetter.end_date} onChange={(e) => editingLetter ? setEditingLetter({...editingLetter, end_date: e.target.value}) : setNewLetter({...newLetter, end_date: e.target.value})} className="w-full bg-white border border-slate-300 rounded-xl py-3 px-4 text-sm font-bold text-slate-900 focus:border-rose-500 outline-none" required />
+                                </div>
+                              </div>
+                              <div>
+                                <label className="block text-sm font-black text-slate-700 mb-2">مبلغ الخصم / المخالفة (ر.س) - اختياري</label>
+                                <input type="number" placeholder="المبلغ الذي سيخصم بسبب هذا الخطاب (إن وجد)" value={editingLetter ? editingLetter.violation_amount : newLetter.violation_amount} onChange={(e) => editingLetter ? setEditingLetter({...editingLetter, violation_amount: Number(e.target.value)}) : setNewLetter({...newLetter, violation_amount: Number(e.target.value)})} className="w-full bg-white border border-slate-300 rounded-xl py-3 px-4 text-sm font-bold text-slate-900 placeholder-slate-400 focus:border-rose-500 outline-none" />
+                              </div>
+                              <div>
+                                <label className="block text-sm font-black text-slate-700 mb-2">التفاصيل والملاحظات</label>
+                                <textarea placeholder="أدخل تفاصيل إضافية أو ملاحظات (اختياري)" value={editingLetter ? editingLetter.letter_details : newLetter.letter_details} onChange={(e) => editingLetter ? setEditingLetter({...editingLetter, letter_details: e.target.value}) : setNewLetter({...newLetter, letter_details: e.target.value})} rows={2} className="w-full bg-white border border-slate-300 rounded-xl py-3 px-4 text-sm font-bold text-slate-900 placeholder-slate-400 focus:border-rose-500 outline-none" />
+                              </div>
+                              <div className="flex gap-3 pt-2">
+                                <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} type="submit" className="flex-1 bg-gradient-to-r from-rose-600 to-pink-600 text-white py-3 rounded-xl text-sm font-black shadow-lg shadow-rose-500/30">{editingLetter ? 'تحديث الخطاب' : 'إضافة الخطاب'}</motion.button>
+                                <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} type="button" onClick={() => {setEditingLetter(null); setShowLetterForm(false);}} className="px-6 bg-slate-200 rounded-xl text-sm font-bold text-slate-700 hover:bg-slate-300">إلغاء</motion.button>
+                              </div>
+                            </form>
+                          </motion.div>
                       )}
                     </AnimatePresence>
 
