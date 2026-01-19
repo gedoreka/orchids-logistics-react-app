@@ -61,7 +61,21 @@ interface NotificationState {
 export function PayrollEditClient({ payroll, companyId }: PayrollEditClientProps) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
-  const [items, setItems] = useState<PayrollItem[]>(payroll.items || []);
+  const [items, setItems] = useState<PayrollItem[]>(() => {
+    return (payroll.items || []).map(item => ({
+      ...item,
+      basic_salary: Number(item.basic_salary) || 0,
+      target: Number(item.target) || 0,
+      successful_orders: Number(item.successful_orders) || 0,
+      target_deduction: Number(item.target_deduction) || 0,
+      monthly_bonus: Number(item.monthly_bonus) || 0,
+      operator_deduction: Number(item.operator_deduction) || 0,
+      internal_deduction: Number(item.internal_deduction) || 0,
+      wallet_deduction: Number(item.wallet_deduction) || 0,
+      internal_bonus: Number(item.internal_bonus) || 0,
+      net_salary: Number(item.net_salary) || 0,
+    }));
+  });
   const [notification, setNotification] = useState<NotificationState>({
     show: false,
     type: "success",
@@ -131,9 +145,16 @@ export function PayrollEditClient({ payroll, companyId }: PayrollEditClientProps
     let totalDeductions = 0;
 
     items.forEach(item => {
-      if (item.net_salary >= 0) totalSalary += item.net_salary;
-      totalOrders += item.successful_orders;
-      totalDeductions += item.target_deduction + item.operator_deduction + item.internal_deduction + item.wallet_deduction;
+      const netSalary = Number(item.net_salary) || 0;
+      const orders = Number(item.successful_orders) || 0;
+      const targetDed = Number(item.target_deduction) || 0;
+      const operatorDed = Number(item.operator_deduction) || 0;
+      const internalDed = Number(item.internal_deduction) || 0;
+      const walletDed = Number(item.wallet_deduction) || 0;
+      
+      if (netSalary >= 0) totalSalary += netSalary;
+      totalOrders += orders;
+      totalDeductions += targetDed + operatorDed + internalDed + walletDed;
     });
 
     return { totalSalary, totalOrders, totalDeductions };
