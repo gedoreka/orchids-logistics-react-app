@@ -361,3 +361,92 @@ export async function deleteTask(id: number) {
     return { success: false, error: error.message };
   }
 }
+
+export async function getEmployeeBankAccounts(employeeId: number) {
+  try {
+    const accounts = await query(
+      "SELECT * FROM employee_bank_accounts WHERE employee_id = ? ORDER BY is_primary DESC, created_at DESC",
+      [employeeId]
+    );
+    return { success: true, data: accounts };
+  } catch (error: any) {
+    return { success: false, error: error.message, data: [] };
+  }
+}
+
+export async function addBankAccount(data: {
+  employee_id: number;
+  bank_name: string;
+  account_number: string;
+  iban: string;
+  is_primary?: boolean;
+}) {
+  try {
+    if (data.is_primary) {
+      await query(
+        "UPDATE employee_bank_accounts SET is_primary = false WHERE employee_id = ?",
+        [data.employee_id]
+      );
+    }
+    await query(
+      `INSERT INTO employee_bank_accounts (employee_id, bank_name, account_number, iban, is_primary) 
+       VALUES (?, ?, ?, ?, ?)`,
+      [data.employee_id, data.bank_name, data.account_number, data.iban, data.is_primary || false]
+    );
+    revalidatePath(`/hr/employees/${data.employee_id}`);
+    return { success: true };
+  } catch (error: any) {
+    return { success: false, error: error.message };
+  }
+}
+
+export async function updateBankAccount(id: number, employeeId: number, data: {
+  bank_name: string;
+  account_number: string;
+  iban: string;
+  is_primary?: boolean;
+}) {
+  try {
+    if (data.is_primary) {
+      await query(
+        "UPDATE employee_bank_accounts SET is_primary = false WHERE employee_id = ?",
+        [employeeId]
+      );
+    }
+    await query(
+      `UPDATE employee_bank_accounts SET bank_name = ?, account_number = ?, iban = ?, is_primary = ? WHERE id = ?`,
+      [data.bank_name, data.account_number, data.iban, data.is_primary || false, id]
+    );
+    revalidatePath(`/hr/employees/${employeeId}`);
+    return { success: true };
+  } catch (error: any) {
+    return { success: false, error: error.message };
+  }
+}
+
+export async function deleteBankAccount(id: number, employeeId: number) {
+  try {
+    await query("DELETE FROM employee_bank_accounts WHERE id = ?", [id]);
+    revalidatePath(`/hr/employees/${employeeId}`);
+    return { success: true };
+  } catch (error: any) {
+    return { success: false, error: error.message };
+  }
+}
+
+export async function setPrimaryBankAccount(id: number, employeeId: number) {
+  try {
+    await query(
+      "UPDATE employee_bank_accounts SET is_primary = false WHERE employee_id = ?",
+      [employeeId]
+    );
+    await query(
+      "UPDATE employee_bank_accounts SET is_primary = true WHERE id = ?",
+      [id]
+    );
+    revalidatePath(`/hr/employees/${employeeId}`);
+    return { success: true };
+  } catch (error: any) {
+    return { success: false, error: error.message };
+  }
+}

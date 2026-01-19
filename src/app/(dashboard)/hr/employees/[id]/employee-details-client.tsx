@@ -50,7 +50,11 @@ import {
   deleteViolation,
   updateViolation,
   deleteLetter,
-  updateLetter
+  updateLetter,
+  addBankAccount,
+  updateBankAccount,
+  deleteBankAccount,
+  setPrimaryBankAccount
 } from "@/lib/actions/hr";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -62,6 +66,7 @@ type EmployeeDetailsClientProps = {
   letters: any[];
   stats: any;
   monthlyData: any[];
+  bankAccounts: any[];
 };
 
 function getPublicUrl(path: string | null) {
@@ -82,7 +87,8 @@ export function EmployeeDetailsClient({
   violations, 
   letters, 
   stats, 
-  monthlyData 
+  monthlyData,
+  bankAccounts 
 }: EmployeeDetailsClientProps) {
   const tabConfig: Record<string, any> = {
     general: { icon: User, label: "البيانات الشخصية", bg: "from-blue-600 to-indigo-600", color: "blue", light: "bg-blue-500/10", text: "text-blue-400", glow: "shadow-blue-500/20" },
@@ -160,6 +166,14 @@ export function EmployeeDetailsClient({
   const [newExpiryDate, setNewExpiryDate] = useState(employee.iqama_expiry || "");
   const [editingViolation, setEditingViolation] = useState<any>(null);
   const [editingLetter, setEditingLetter] = useState<any>(null);
+  const [showBankForm, setShowBankForm] = useState(false);
+  const [editingBank, setEditingBank] = useState<any>(null);
+  const [newBankAccount, setNewBankAccount] = useState({
+    bank_name: "",
+    account_number: "",
+    iban: "",
+    is_primary: false
+  });
 
   useEffect(() => { setMounted(true); }, []);
 
@@ -260,6 +274,40 @@ export function EmployeeDetailsClient({
     e.preventDefault();
     const result = await updateIqamaExpiry(employee.id, newExpiryDate);
     if (result.success) { toast.success("تم تحديث تاريخ انتهاء الإقامة"); router.refresh(); } else { toast.error(result.error); }
+  };
+
+  const handleAddBankAccount = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const result = await addBankAccount({ employee_id: employee.id, ...newBankAccount });
+    if (result.success) {
+      toast.success("تم إضافة الحساب البنكي");
+      setNewBankAccount({ bank_name: "", account_number: "", iban: "", is_primary: false });
+      setShowBankForm(false);
+      router.refresh();
+    } else { toast.error(result.error); }
+  };
+
+  const handleUpdateBankAccount = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingBank) return;
+    const result = await updateBankAccount(editingBank.id, employee.id, editingBank);
+    if (result.success) {
+      toast.success("تم تحديث الحساب البنكي");
+      setEditingBank(null);
+      router.refresh();
+    } else { toast.error(result.error); }
+  };
+
+  const handleDeleteBankAccount = async (id: number) => {
+    if (confirm("هل أنت متأكد من حذف هذا الحساب البنكي؟")) {
+      const result = await deleteBankAccount(id, employee.id);
+      if (result.success) { toast.success("تم حذف الحساب البنكي"); router.refresh(); } else { toast.error(result.error); }
+    }
+  };
+
+  const handleSetPrimaryBank = async (id: number) => {
+    const result = await setPrimaryBankAccount(id, employee.id);
+    if (result.success) { toast.success("تم تعيين الحساب كأساسي"); router.refresh(); } else { toast.error(result.error); }
   };
 
   const activeConfig = tabConfig[activeTab] || tabConfig.general;
@@ -428,7 +476,7 @@ export function EmployeeDetailsClient({
               </div>
             </div>
             <div className="flex gap-2">
-              {(activeTab === "general" || activeTab === "bank") && (
+              {activeTab === "general" && (
                 <motion.button 
                   whileHover={{ scale: 1.05, y: -2 }}
                   whileTap={{ scale: 0.95 }}
@@ -460,6 +508,17 @@ export function EmployeeDetailsClient({
               >
                 <PlusCircle size={14} />
                 {showLetterForm ? 'إلغاء' : 'إضافة خطاب'}
+              </motion.button>
+            )}
+            {activeTab === "bank" && (
+              <motion.button 
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => setShowBankForm(!showBankForm)}
+                className="bg-white/90 hover:bg-white text-gray-900 px-5 py-2.5 rounded-xl text-xs font-black flex items-center gap-2 transition-all shadow-lg"
+              >
+                <PlusCircle size={14} />
+                {showBankForm ? 'إلغاء' : 'إضافة حساب'}
               </motion.button>
             )}
           </div>
@@ -513,30 +572,115 @@ export function EmployeeDetailsClient({
               )}
 
               {activeTab === "bank" && (
-                <form onSubmit={handleUpdateBank}>
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-4xl">
-                    <GlassField label="اسم البنك" value={bankInfo.bank_name} onChange={(v: string) => setBankInfo({...bankInfo, bank_name: v})} editable={isEditing} icon={<Building size={14} />} />
-                    <GlassField label="رقم الحساب" value={bankInfo.bank_account} onChange={(v: string) => setBankInfo({...bankInfo, bank_account: v})} editable={isEditing} icon={<Hash size={14} />} />
-                    <GlassField label="رقم الآيبان" value={bankInfo.iban} onChange={(v: string) => setBankInfo({...bankInfo, iban: v})} editable={isEditing} icon={<CreditCard size={14} />} />
-                  </div>
-                  {isEditing && (
-                    <motion.div 
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      className="mt-6 flex justify-center"
-                    >
-                      <motion.button 
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
-                        type="submit" 
-                        className="bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white px-10 py-3 rounded-xl font-black text-sm flex items-center gap-3 shadow-lg shadow-emerald-500/30"
+                <div className="space-y-5">
+                  <AnimatePresence>
+                    {(showBankForm || editingBank) && (
+                      <motion.div 
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: 'auto' }}
+                        exit={{ opacity: 0, height: 0 }}
+                        className="bg-white/5 backdrop-blur-xl p-5 rounded-2xl border border-white/10 overflow-hidden"
                       >
-                        <Save size={18} />
-                        حفظ بيانات البنك
-                      </motion.button>
-                    </motion.div>
+                        <form onSubmit={editingBank ? handleUpdateBankAccount : handleAddBankAccount} className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                          <input 
+                            type="text" 
+                            placeholder="اسم البنك" 
+                            value={editingBank ? editingBank.bank_name : newBankAccount.bank_name} 
+                            onChange={(e) => editingBank ? setEditingBank({...editingBank, bank_name: e.target.value}) : setNewBankAccount({...newBankAccount, bank_name: e.target.value})} 
+                            className="bg-white/10 border border-white/10 rounded-xl py-3 px-4 text-sm font-bold text-white placeholder-white/30 focus:border-emerald-400 outline-none" 
+                            required 
+                          />
+                          <input 
+                            type="text" 
+                            placeholder="رقم الحساب" 
+                            value={editingBank ? editingBank.account_number : newBankAccount.account_number} 
+                            onChange={(e) => editingBank ? setEditingBank({...editingBank, account_number: e.target.value}) : setNewBankAccount({...newBankAccount, account_number: e.target.value})} 
+                            className="bg-white/10 border border-white/10 rounded-xl py-3 px-4 text-sm font-bold text-white placeholder-white/30 focus:border-emerald-400 outline-none" 
+                          />
+                          <input 
+                            type="text" 
+                            placeholder="رقم الآيبان" 
+                            value={editingBank ? editingBank.iban : newBankAccount.iban} 
+                            onChange={(e) => editingBank ? setEditingBank({...editingBank, iban: e.target.value}) : setNewBankAccount({...newBankAccount, iban: e.target.value})} 
+                            className="bg-white/10 border border-white/10 rounded-xl py-3 px-4 text-sm font-bold text-white placeholder-white/30 focus:border-emerald-400 outline-none" 
+                          />
+                          <div className="flex gap-3">
+                            <label className="flex items-center gap-2 text-sm font-bold text-white/70 cursor-pointer">
+                              <input 
+                                type="checkbox" 
+                                checked={editingBank ? editingBank.is_primary : newBankAccount.is_primary} 
+                                onChange={(e) => editingBank ? setEditingBank({...editingBank, is_primary: e.target.checked}) : setNewBankAccount({...newBankAccount, is_primary: e.target.checked})} 
+                                className="w-4 h-4 rounded accent-emerald-500"
+                              />
+                              أساسي
+                            </label>
+                            <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} type="submit" className="flex-1 bg-gradient-to-r from-emerald-600 to-teal-600 text-white py-3 rounded-xl text-sm font-black shadow-lg shadow-emerald-500/30">{editingBank ? 'تحديث' : 'إضافة'}</motion.button>
+                            <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} type="button" onClick={() => {setEditingBank(null); setShowBankForm(false);}} className="px-4 bg-white/10 rounded-xl text-sm font-bold text-white/70 hover:bg-white/20">✕</motion.button>
+                          </div>
+                        </form>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+
+                  {bankAccounts.length > 0 ? (
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                      {bankAccounts.map((account: any, idx: number) => (
+                        <motion.div 
+                          key={account.id} 
+                          initial={{ opacity: 0, y: 20 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ delay: idx * 0.1 }}
+                          whileHover={{ scale: 1.01 }}
+                          className={`p-5 rounded-2xl backdrop-blur-xl border transition-all group relative overflow-hidden ${
+                            account.is_primary 
+                              ? 'bg-emerald-500/10 border-emerald-500/30' 
+                              : 'bg-white/5 border-white/10 hover:border-emerald-500/30'
+                          }`}
+                        >
+                          {account.is_primary && (
+                            <div className="absolute top-0 right-0 w-1 h-full bg-gradient-to-b from-emerald-500 to-teal-500 rounded-r-xl" />
+                          )}
+                          <div className="flex items-start justify-between mb-4">
+                            <div className="flex items-center gap-3">
+                              <div className={`h-12 w-12 rounded-xl flex items-center justify-center ${account.is_primary ? 'bg-emerald-500/20 text-emerald-400' : 'bg-white/10 text-white/50'}`}>
+                                <University size={22} />
+                              </div>
+                              <div>
+                                <h4 className="text-base font-black text-white">{account.bank_name || 'بدون اسم'}</h4>
+                                {account.is_primary && (
+                                  <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400">الحساب الأساسي</span>
+                                )}
+                              </div>
+                            </div>
+                            <div className="flex gap-2">
+                              {!account.is_primary && (
+                                <motion.button whileHover={{ scale: 1.1 }} onClick={() => handleSetPrimaryBank(account.id)} className="p-2 text-emerald-400 hover:bg-emerald-500/20 rounded-lg" title="تعيين كأساسي"><Check size={14} /></motion.button>
+                              )}
+                              <motion.button whileHover={{ scale: 1.1 }} onClick={() => setEditingBank(account)} className="p-2 text-blue-400 hover:bg-blue-500/20 rounded-lg"><Edit3 size={14} /></motion.button>
+                              <motion.button whileHover={{ scale: 1.1 }} onClick={() => handleDeleteBankAccount(account.id)} className="p-2 text-red-400 hover:bg-red-500/20 rounded-lg"><Trash size={14} /></motion.button>
+                            </div>
+                          </div>
+                          <div className="space-y-3">
+                            <div className="flex items-center justify-between bg-white/5 rounded-xl px-4 py-3">
+                              <span className="text-xs font-bold text-white/50 flex items-center gap-2"><Hash size={12} /> رقم الحساب</span>
+                              <span className="text-sm font-black text-white font-mono">{account.account_number || '---'}</span>
+                            </div>
+                            <div className="flex items-center justify-between bg-white/5 rounded-xl px-4 py-3">
+                              <span className="text-xs font-bold text-white/50 flex items-center gap-2"><CreditCard size={12} /> رقم الآيبان</span>
+                              <span className="text-sm font-black text-white font-mono">{account.iban || '---'}</span>
+                            </div>
+                          </div>
+                        </motion.div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="py-16 text-center text-white/30 font-bold bg-white/5 backdrop-blur-xl rounded-2xl border-2 border-dashed border-white/10">
+                      <University size={40} className="mx-auto mb-3 opacity-30" />
+                      لا توجد حسابات بنكية مسجلة
+                      <p className="text-sm mt-2 text-white/20">اضغط على "إضافة حساب" لإضافة حساب بنكي جديد</p>
+                    </div>
                   )}
-                </form>
+                </div>
               )}
 
 {activeTab === "documents" && (

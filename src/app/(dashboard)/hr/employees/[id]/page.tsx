@@ -80,6 +80,12 @@ export default async function EmployeeDetailsPage({ params }: { params: { id: st
     [employee.iqama_number, companyId]
   );
 
+  // 7. Fetch Bank Accounts
+  const bankAccounts = await query(
+    "SELECT * FROM employee_bank_accounts WHERE employee_id = ? ORDER BY is_primary DESC, created_at DESC",
+    [employeeId]
+  );
+
   // Helper function to format dates to strings
     const formatDate = (obj: any) => {
       if (!obj) return obj;
@@ -105,6 +111,7 @@ export default async function EmployeeDetailsPage({ params }: { params: { id: st
       letters={letters.map(l => formatDate(l))}
       stats={stats}
       monthlyData={monthlyData}
+      bankAccounts={bankAccounts.map(b => formatDate(b))}
     />
   );
 }
