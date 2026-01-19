@@ -185,220 +185,237 @@ export function PayrollViewClient({ payroll, company, companyId }: PayrollViewCl
         )}
       </AnimatePresence>
 
-      <div className="flex-1 overflow-auto p-6 print:p-0">
-        <div className="max-w-[1400px] mx-auto space-y-6">
-          <div className="relative overflow-hidden bg-gradient-to-br from-[#1a237e] to-[#283593] rounded-2xl p-6 text-white shadow-xl print:hidden">
-            <div className="relative z-10">
-              <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                <div className="flex items-center gap-4">
-                  <div className="h-14 w-14 rounded-xl bg-amber-500 flex items-center justify-center shadow-lg">
-                    <FileText size={28} />
+        <div className="flex-1 overflow-auto p-4 md:p-8 print:p-0" dir="rtl">
+          <div className="max-w-[1600px] mx-auto">
+            <motion.div 
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="relative overflow-hidden rounded-[2.5rem] bg-gradient-to-br from-[#1e293b] via-[#334155] to-[#1e293b] p-8 text-white shadow-2xl border border-white/10 print:bg-white print:text-gray-900 print:shadow-none print:border-gray-200 print:rounded-none"
+            >
+              <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 via-emerald-500 via-rose-500 via-amber-500 via-purple-500 to-blue-500 animate-gradient-x print:hidden" />
+              
+              <div className="relative z-10 space-y-8">
+                {/* Header Section */}
+                <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6 print:hidden">
+                  <div className="flex items-center gap-5">
+                    <div className="h-14 w-14 rounded-2xl bg-white/10 backdrop-blur-md border border-white/10 flex items-center justify-center shadow-2xl">
+                      <FileText size={28} className="text-amber-400" />
+                    </div>
+                    <div>
+                      <h1 className="text-2xl md:text-3xl font-black tracking-tight bg-gradient-to-r from-white via-blue-100 to-white bg-clip-text text-transparent">تفاصيل مسير الرواتب</h1>
+                      <p className="text-slate-400 font-medium text-sm">{payroll.payroll_month}</p>
+                    </div>
                   </div>
-                  <div>
-                    <h1 className="text-2xl font-black">تفاصيل مسير الرواتب</h1>
-                    <p className="text-white/60 text-sm">{payroll.payroll_month}</p>
+                  <div className="flex flex-wrap gap-2">
+                    <Link href="/salary-payrolls">
+                      <button className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/10 text-white font-bold text-sm hover:bg-white/20 transition-all border border-white/10">
+                        <ArrowRight size={16} />
+                        <span>القائمة</span>
+                      </button>
+                    </Link>
+                    <Link href={`/salary-payrolls/${payroll.id}/edit`}>
+                      <button className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-amber-500 text-white font-bold text-sm hover:bg-amber-600 transition-all">
+                        <Edit size={16} />
+                        <span>تعديل</span>
+                      </button>
+                    </Link>
+                    <button 
+                      onClick={handlePrint}
+                      className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-blue-500 text-white font-bold text-sm hover:bg-blue-600 transition-all"
+                    >
+                      <Printer size={16} />
+                      <span>طباعة</span>
+                    </button>
+                    <button 
+                      onClick={handleDelete}
+                      disabled={deleteLoading}
+                      className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-red-500 text-white font-bold text-sm hover:bg-red-600 transition-all disabled:opacity-50"
+                    >
+                      {deleteLoading ? <Loader2 size={16} className="animate-spin" /> : <Trash2 size={16} />}
+                      <span>حذف</span>
+                    </button>
                   </div>
                 </div>
-                <div className="flex flex-wrap gap-2">
+
+                {/* Print Header */}
+                <div className="hidden print:block text-center mb-6">
+                  <h1 className="text-2xl font-black text-gray-900">مسير رواتب {payroll.payroll_month}</h1>
+                  <p className="text-gray-500">{company.name}</p>
+                </div>
+
+                {/* Stats Cards */}
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  <div className="bg-white/5 backdrop-blur-md rounded-2xl p-4 border border-white/10 print:bg-gray-50 print:border-gray-200">
+                    <div className="flex items-center gap-3">
+                      <div className="h-10 w-10 rounded-xl bg-blue-500/20 flex items-center justify-center text-blue-400 print:bg-blue-100 print:text-blue-600">
+                        <Calendar size={18} />
+                      </div>
+                      <div>
+                        <p className="text-xs text-slate-400 print:text-gray-500">شهر المسير</p>
+                        <p className="font-bold text-white print:text-gray-900">{payroll.payroll_month}</p>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="bg-white/5 backdrop-blur-md rounded-2xl p-4 border border-white/10 print:bg-gray-50 print:border-gray-200">
+                    <div className="flex items-center gap-3">
+                      <div className="h-10 w-10 rounded-xl bg-purple-500/20 flex items-center justify-center text-purple-400 print:bg-purple-100 print:text-purple-600">
+                        <Layers size={18} />
+                      </div>
+                      <div>
+                        <p className="text-xs text-slate-400 print:text-gray-500">الباقة</p>
+                        <p className="font-bold text-white print:text-gray-900">{payroll.package_name || 'غير محدد'}</p>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="bg-white/5 backdrop-blur-md rounded-2xl p-4 border border-white/10 print:bg-gray-50 print:border-gray-200">
+                    <div className="flex items-center gap-3">
+                      <div className="h-10 w-10 rounded-xl bg-teal-500/20 flex items-center justify-center text-teal-400 print:bg-teal-100 print:text-teal-600">
+                        <Users size={18} />
+                      </div>
+                      <div>
+                        <p className="text-xs text-slate-400 print:text-gray-500">عدد الموظفين</p>
+                        <p className="font-bold text-white print:text-gray-900">{payroll.items?.length || 0}</p>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="bg-white/5 backdrop-blur-md rounded-2xl p-4 border border-white/10 print:bg-gray-50 print:border-gray-200">
+                    <div className="flex items-center gap-3">
+                      <div className={`h-10 w-10 rounded-xl flex items-center justify-center ${
+                        payroll.is_draft ? 'bg-amber-500/20 text-amber-400 print:bg-amber-100 print:text-amber-600' : 'bg-emerald-500/20 text-emerald-400 print:bg-emerald-100 print:text-emerald-600'
+                      }`}>
+                        {payroll.is_draft ? <Clock size={18} /> : <CheckCircle size={18} />}
+                      </div>
+                      <div>
+                        <p className="text-xs text-slate-400 print:text-gray-500">الحالة</p>
+                        <p className="font-bold text-white print:text-gray-900">{payroll.is_draft ? 'مسودة' : 'تم التأكيد'}</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Company & Payroll Info */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="bg-white/5 backdrop-blur-md rounded-2xl p-5 border border-white/10 print:bg-gray-50 print:border-gray-200">
+                    <div className="flex items-center gap-3 mb-4">
+                      <Building2 size={18} className="text-slate-400 print:text-gray-500" />
+                      <h3 className="font-bold text-white print:text-gray-900">بيانات المنشأة</h3>
+                    </div>
+                    <div className="space-y-3">
+                      <p className="text-sm"><span className="text-slate-400 print:text-gray-500">الاسم:</span> <span className="font-bold text-white print:text-gray-900">{company.name}</span></p>
+                      <p className="text-sm"><span className="text-slate-400 print:text-gray-500">الرقم الضريبي:</span> <span className="font-bold text-white print:text-gray-900">{company.vat_number}</span></p>
+                      <p className="text-sm"><span className="text-slate-400 print:text-gray-500">العنوان:</span> <span className="font-bold text-white print:text-gray-900">{company.short_address}</span></p>
+                    </div>
+                  </div>
+                  <div className="bg-white/5 backdrop-blur-md rounded-2xl p-5 border border-white/10 print:bg-gray-50 print:border-gray-200">
+                    <div className="flex items-center gap-3 mb-4">
+                      <User size={18} className="text-slate-400 print:text-gray-500" />
+                      <h3 className="font-bold text-white print:text-gray-900">معلومات المسير</h3>
+                    </div>
+                    <div className="space-y-3">
+                      <p className="text-sm"><span className="text-slate-400 print:text-gray-500">أنشئ بواسطة:</span> <span className="font-bold text-white print:text-gray-900">{payroll.saved_by || 'مدير النظام'}</span></p>
+                      <p className="text-sm"><span className="text-slate-400 print:text-gray-500">تاريخ الإنشاء:</span> <span className="font-bold text-white print:text-gray-900">{payroll.created_at ? format(new Date(payroll.created_at), 'yyyy/MM/dd HH:mm') : '-'}</span></p>
+                      <p className="text-sm"><span className="text-slate-400 print:text-gray-500">نظام العمل:</span> <span className="font-bold text-white print:text-gray-900">{getWorkTypeLabel(payroll.work_type)}</span></p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Salary Details Table */}
+                <div className="bg-white/5 backdrop-blur-md rounded-2xl border border-white/10 overflow-hidden print:bg-white print:border-gray-200">
+                  <div className="px-6 py-4 border-b border-white/10 flex justify-between items-center print:bg-gray-100 print:border-gray-200">
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 bg-blue-500/20 rounded-lg print:bg-blue-100">
+                        <FileText size={16} className="text-blue-400 print:text-blue-600" />
+                      </div>
+                      <h3 className="font-black text-white text-sm print:text-gray-900">تفاصيل الرواتب</h3>
+                    </div>
+                    <span className="bg-blue-500/20 text-blue-300 px-3 py-1 rounded-lg text-[10px] font-black border border-blue-500/30 print:bg-blue-100 print:text-blue-700 print:border-blue-200">
+                      {payroll.items?.length || 0} موظف
+                    </span>
+                  </div>
+
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-sm">
+                      <thead className="bg-white/5 print:bg-gray-50">
+                        <tr className="border-b border-white/10 print:border-gray-200">
+                          <th className="text-right px-3 py-3 text-xs font-bold text-slate-400 print:text-gray-600">#</th>
+                          <th className="text-right px-3 py-3 text-xs font-bold text-slate-400 print:text-gray-600">الاسم</th>
+                          <th className="text-right px-3 py-3 text-xs font-bold text-slate-400 print:text-gray-600">الإقامة</th>
+                          <th className="text-right px-3 py-3 text-xs font-bold text-slate-400 print:text-gray-600">الكود</th>
+                          <th className="text-right px-3 py-3 text-xs font-bold text-slate-400 print:text-gray-600">الراتب</th>
+                          <th className="text-right px-3 py-3 text-xs font-bold text-slate-400 print:text-gray-600">التارقت</th>
+                          <th className="text-right px-3 py-3 text-xs font-bold text-slate-400 print:text-gray-600">الطلبات</th>
+                          <th className="text-right px-3 py-3 text-xs font-bold text-slate-400 print:text-gray-600">خصم</th>
+                          <th className="text-right px-3 py-3 text-xs font-bold text-slate-400 print:text-gray-600">بونص</th>
+                          <th className="text-right px-3 py-3 text-xs font-bold text-slate-400 print:text-gray-600">خ.مشغل</th>
+                          <th className="text-right px-3 py-3 text-xs font-bold text-slate-400 print:text-gray-600">خ.داخلي</th>
+                          <th className="text-right px-3 py-3 text-xs font-bold text-slate-400 print:text-gray-600">خ.محفظة</th>
+                          <th className="text-right px-3 py-3 text-xs font-bold text-slate-400 print:text-gray-600">مكافأة</th>
+                          <th className="text-right px-3 py-3 text-xs font-bold text-slate-400 print:text-gray-600">صافي</th>
+                          <th className="text-right px-3 py-3 text-xs font-bold text-slate-400 print:text-gray-600">الدفع</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-white/5 print:divide-gray-100">
+                        {payroll.items?.map((item, index) => (
+                          <tr key={item.id} className={`hover:bg-white/5 transition-colors ${item.net_salary < 0 ? 'bg-red-500/10 print:bg-red-50' : ''}`}>
+                            <td className="px-3 py-3 text-slate-400 print:text-gray-500">{index + 1}</td>
+                            <td className="px-3 py-3 font-bold text-white whitespace-nowrap print:text-gray-900">{item.employee_name}</td>
+                            <td className="px-3 py-3 text-slate-300 whitespace-nowrap print:text-gray-600">{item.iqama_number}</td>
+                            <td className="px-3 py-3 text-slate-300 print:text-gray-600">{item.user_code}</td>
+                            <td className="px-3 py-3 font-bold text-white print:text-gray-900">{Number(item.basic_salary || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}</td>
+                            <td className="px-3 py-3 text-slate-300 print:text-gray-600">{item.target || 0}</td>
+                            <td className="px-3 py-3 font-bold text-blue-400 print:text-blue-600">{item.successful_orders || 0}</td>
+                            <td className="px-3 py-3 text-red-400 print:text-red-600">{Number(item.target_deduction || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}</td>
+                            <td className="px-3 py-3 text-emerald-400 print:text-emerald-600">{Number(item.monthly_bonus || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}</td>
+                            <td className="px-3 py-3 text-red-400 print:text-red-600">{Number(item.operator_deduction || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}</td>
+                            <td className="px-3 py-3 text-red-400 print:text-red-600">{Number(item.internal_deduction || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}</td>
+                            <td className="px-3 py-3 text-red-400 print:text-red-600">{Number(item.wallet_deduction || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}</td>
+                            <td className="px-3 py-3 text-emerald-400 print:text-emerald-600">{Number(item.internal_bonus || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}</td>
+                            <td className={`px-3 py-3 font-bold ${item.net_salary < 0 ? 'text-red-400 print:text-red-600' : 'text-emerald-400 print:text-emerald-600'}`}>
+                              {Number(item.net_salary || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                            </td>
+                            <td className="px-3 py-3 text-slate-300 print:text-gray-600">{item.payment_method}</td>
+                          </tr>
+                        ))}
+                        <tr className="bg-emerald-500/10 font-bold print:bg-emerald-50">
+                          <td colSpan={13} className="px-3 py-4 text-left text-emerald-400 print:text-emerald-700">الإجمالي:</td>
+                          <td className="px-3 py-4 text-emerald-400 print:text-emerald-700">{Number(payroll.total_net || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })} ريال</td>
+                          <td></td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+
+                {/* Action Buttons */}
+                <div className="flex justify-center gap-3 print:hidden">
                   <Link href="/salary-payrolls">
-                    <button className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/10 text-white font-bold text-sm hover:bg-white/20 transition-all border border-white/10">
+                    <button className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-white/10 text-white font-bold text-sm hover:bg-white/20 transition-all border border-white/10">
                       <ArrowRight size={16} />
-                      <span>القائمة</span>
+                      <span>العودة</span>
                     </button>
                   </Link>
-                  <Link href={`/payrolls/${payroll.id}/edit`}>
-                    <button className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-amber-500 text-white font-bold text-sm hover:bg-amber-600 transition-all">
+                  <Link href={`/salary-payrolls/${payroll.id}/edit`}>
+                    <button className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-amber-500 text-white font-bold text-sm hover:bg-amber-600 transition-all">
                       <Edit size={16} />
                       <span>تعديل</span>
                     </button>
                   </Link>
                   <button 
                     onClick={handlePrint}
-                    className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-blue-500 text-white font-bold text-sm hover:bg-blue-600 transition-all"
+                    className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-blue-500 text-white font-bold text-sm hover:bg-blue-600 transition-all"
                   >
                     <Printer size={16} />
                     <span>طباعة</span>
                   </button>
-                  <button 
-                    onClick={handleDelete}
-                    disabled={deleteLoading}
-                    className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-red-500 text-white font-bold text-sm hover:bg-red-600 transition-all disabled:opacity-50"
-                  >
-                    {deleteLoading ? <Loader2 size={16} className="animate-spin" /> : <Trash2 size={16} />}
-                    <span>حذف</span>
-                  </button>
                 </div>
               </div>
-            </div>
-            <div className="absolute top-0 right-0 w-40 h-40 bg-white/5 rounded-full -mr-20 -mt-20 blur-2xl" />
-          </div>
 
-          <div className="print:block hidden text-center mb-6">
-            <h1 className="text-2xl font-black text-gray-900">مسير رواتب {payroll.payroll_month}</h1>
-            <p className="text-gray-500">{company.name}</p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4 print:shadow-none print:border">
-              <div className="flex items-center gap-3">
-                <div className="h-10 w-10 rounded-lg bg-blue-50 flex items-center justify-center text-blue-500">
-                  <Calendar size={18} />
-                </div>
-                <div>
-                  <p className="text-xs text-gray-500">شهر المسير</p>
-                  <p className="font-bold text-gray-900">{payroll.payroll_month}</p>
-                </div>
-              </div>
-            </div>
-            <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4 print:shadow-none print:border">
-              <div className="flex items-center gap-3">
-                <div className="h-10 w-10 rounded-lg bg-purple-50 flex items-center justify-center text-purple-500">
-                  <Layers size={18} />
-                </div>
-                <div>
-                  <p className="text-xs text-gray-500">الباقة</p>
-                  <p className="font-bold text-gray-900">{payroll.package_name || 'غير محدد'}</p>
-                </div>
-              </div>
-            </div>
-            <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4 print:shadow-none print:border">
-              <div className="flex items-center gap-3">
-                <div className="h-10 w-10 rounded-lg bg-teal-50 flex items-center justify-center text-teal-500">
-                  <Users size={18} />
-                </div>
-                <div>
-                  <p className="text-xs text-gray-500">عدد الموظفين</p>
-                  <p className="font-bold text-gray-900">{payroll.items?.length || 0}</p>
-                </div>
-              </div>
-            </div>
-            <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4 print:shadow-none print:border">
-              <div className="flex items-center gap-3">
-                <div className={`h-10 w-10 rounded-lg flex items-center justify-center ${
-                  payroll.is_draft ? 'bg-amber-50 text-amber-500' : 'bg-emerald-50 text-emerald-500'
-                }`}>
-                  {payroll.is_draft ? <Clock size={18} /> : <CheckCircle size={18} />}
-                </div>
-                <div>
-                  <p className="text-xs text-gray-500">الحالة</p>
-                  <p className="font-bold text-gray-900">{payroll.is_draft ? 'مسودة' : 'تم التأكيد'}</p>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4 print:shadow-none print:border">
-              <div className="flex items-center gap-3 mb-3">
-                <Building2 size={18} className="text-gray-400" />
-                <h3 className="font-bold text-gray-900">بيانات المنشأة</h3>
-              </div>
-              <div className="space-y-2">
-                <p className="text-sm"><span className="text-gray-500">الاسم:</span> <span className="font-bold">{company.name}</span></p>
-                <p className="text-sm"><span className="text-gray-500">الرقم الضريبي:</span> <span className="font-bold">{company.vat_number}</span></p>
-                <p className="text-sm"><span className="text-gray-500">العنوان:</span> <span className="font-bold">{company.short_address}</span></p>
-              </div>
-            </div>
-            <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4 print:shadow-none print:border">
-              <div className="flex items-center gap-3 mb-3">
-                <User size={18} className="text-gray-400" />
-                <h3 className="font-bold text-gray-900">معلومات المسير</h3>
-              </div>
-              <div className="space-y-2">
-                <p className="text-sm"><span className="text-gray-500">أنشئ بواسطة:</span> <span className="font-bold">{payroll.saved_by || 'مدير النظام'}</span></p>
-                <p className="text-sm"><span className="text-gray-500">تاريخ الإنشاء:</span> <span className="font-bold">{payroll.created_at ? format(new Date(payroll.created_at), 'yyyy/MM/dd HH:mm') : '-'}</span></p>
-                <p className="text-sm"><span className="text-gray-500">نظام العمل:</span> <span className="font-bold">{getWorkTypeLabel(payroll.work_type)}</span></p>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden print:shadow-none print:border">
-            <div className="bg-gradient-to-br from-[#1a237e] to-[#283593] px-4 py-3 flex justify-between items-center print:bg-gray-100">
-              <div className="flex items-center gap-2 text-white print:text-gray-800">
-                <FileText size={18} />
-                <h3 className="font-bold text-sm">تفاصيل الرواتب</h3>
-              </div>
-              <span className="bg-white/20 text-white px-2 py-0.5 rounded text-xs font-bold print:bg-gray-200 print:text-gray-800">
-                {payroll.items?.length || 0} موظف
-              </span>
-            </div>
-
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead className="bg-gray-50">
-                  <tr className="border-b border-gray-100">
-                    <th className="text-right px-3 py-2 text-xs font-bold text-gray-600">#</th>
-                    <th className="text-right px-3 py-2 text-xs font-bold text-gray-600">الاسم</th>
-                    <th className="text-right px-3 py-2 text-xs font-bold text-gray-600">الإقامة</th>
-                    <th className="text-right px-3 py-2 text-xs font-bold text-gray-600">الكود</th>
-                    <th className="text-right px-3 py-2 text-xs font-bold text-gray-600">الراتب</th>
-                    <th className="text-right px-3 py-2 text-xs font-bold text-gray-600">التارقت</th>
-                    <th className="text-right px-3 py-2 text-xs font-bold text-gray-600">الطلبات</th>
-                    <th className="text-right px-3 py-2 text-xs font-bold text-gray-600">خصم</th>
-                    <th className="text-right px-3 py-2 text-xs font-bold text-gray-600">بونص</th>
-                    <th className="text-right px-3 py-2 text-xs font-bold text-gray-600">خ.مشغل</th>
-                    <th className="text-right px-3 py-2 text-xs font-bold text-gray-600">خ.داخلي</th>
-                    <th className="text-right px-3 py-2 text-xs font-bold text-gray-600">خ.محفظة</th>
-                    <th className="text-right px-3 py-2 text-xs font-bold text-gray-600">مكافأة</th>
-                    <th className="text-right px-3 py-2 text-xs font-bold text-gray-600">صافي</th>
-                    <th className="text-right px-3 py-2 text-xs font-bold text-gray-600">الدفع</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-50">
-                  {payroll.items?.map((item, index) => (
-                    <tr key={item.id} className={`hover:bg-gray-50/50 ${item.net_salary < 0 ? 'bg-red-50' : ''}`}>
-                      <td className="px-3 py-2 text-gray-500">{index + 1}</td>
-                      <td className="px-3 py-2 font-bold text-gray-900 whitespace-nowrap">{item.employee_name}</td>
-                      <td className="px-3 py-2 text-gray-600 whitespace-nowrap">{item.iqama_number}</td>
-                      <td className="px-3 py-2 text-gray-600">{item.user_code}</td>
-                      <td className="px-3 py-2 font-bold">{Number(item.basic_salary || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}</td>
-                      <td className="px-3 py-2 text-gray-600">{item.target || 0}</td>
-                      <td className="px-3 py-2 font-bold text-blue-600">{item.successful_orders || 0}</td>
-                      <td className="px-3 py-2 text-red-600">{Number(item.target_deduction || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}</td>
-                      <td className="px-3 py-2 text-emerald-600">{Number(item.monthly_bonus || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}</td>
-                      <td className="px-3 py-2 text-red-600">{Number(item.operator_deduction || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}</td>
-                      <td className="px-3 py-2 text-red-600">{Number(item.internal_deduction || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}</td>
-                      <td className="px-3 py-2 text-red-600">{Number(item.wallet_deduction || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}</td>
-                      <td className="px-3 py-2 text-emerald-600">{Number(item.internal_bonus || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}</td>
-                      <td className={`px-3 py-2 font-bold ${item.net_salary < 0 ? 'text-red-600' : 'text-emerald-600'}`}>
-                        {Number(item.net_salary || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}
-                      </td>
-                      <td className="px-3 py-2 text-gray-600">{item.payment_method}</td>
-                    </tr>
-                  ))}
-                  <tr className="bg-emerald-50 font-bold">
-                    <td colSpan={13} className="px-3 py-3 text-left text-emerald-800">الإجمالي:</td>
-                    <td className="px-3 py-3 text-emerald-800">{Number(payroll.total_net || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })} ريال</td>
-                    <td></td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-
-          <div className="flex justify-center gap-3 pb-6 print:hidden">
-            <Link href="/salary-payrolls">
-              <button className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gray-100 text-gray-700 font-bold text-sm hover:bg-gray-200 transition-all">
-                <ArrowRight size={16} />
-                <span>العودة</span>
-              </button>
-            </Link>
-            <Link href={`/payrolls/${payroll.id}/edit`}>
-              <button className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-amber-500 text-white font-bold text-sm hover:bg-amber-600 transition-all">
-                <Edit size={16} />
-                <span>تعديل</span>
-              </button>
-            </Link>
-            <button 
-              onClick={handlePrint}
-              className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-blue-500 text-white font-bold text-sm hover:bg-blue-600 transition-all"
-            >
-              <Printer size={16} />
-              <span>طباعة</span>
-            </button>
+              {/* Decorative elements */}
+              <div className="absolute -bottom-12 -right-12 w-48 h-48 bg-blue-500/10 rounded-full blur-3xl print:hidden" />
+              <div className="absolute -top-12 -left-12 w-48 h-48 bg-purple-500/10 rounded-full blur-3xl print:hidden" />
+            </motion.div>
           </div>
         </div>
-      </div>
     </div>
   );
 }
