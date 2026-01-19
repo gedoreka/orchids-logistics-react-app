@@ -18,7 +18,10 @@ import {
   FileSpreadsheet,
   Printer,
   Download,
-  Clock
+  Clock,
+  X,
+  AlertTriangle,
+  ShieldAlert
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -55,6 +58,14 @@ interface NotificationState {
   message: string;
 }
 
+interface DeleteConfirmState {
+  show: boolean;
+  payrollId: number | null;
+  payrollMonth: string;
+  employeeCount: number;
+  totalAmount: number;
+}
+
 export function PayrollsListClient({ payrolls: initialPayrolls, stats, companyId }: PayrollsListClientProps) {
   const [payrolls, setPayrolls] = useState(initialPayrolls);
   const [searchTerm, setSearchTerm] = useState("");
@@ -64,6 +75,13 @@ export function PayrollsListClient({ payrolls: initialPayrolls, stats, companyId
     type: "success",
     title: "",
     message: ""
+  });
+  const [deleteConfirm, setDeleteConfirm] = useState<DeleteConfirmState>({
+    show: false,
+    payrollId: null,
+    payrollMonth: "",
+    employeeCount: 0,
+    totalAmount: 0
   });
   const router = useRouter();
 
@@ -83,10 +101,32 @@ export function PayrollsListClient({ payrolls: initialPayrolls, stats, companyId
     }
   };
 
-  const handleDelete = async (id: number, month: string) => {
-    if (!confirm(`هل أنت متأكد من حذف مسير "${month}"؟`)) return;
+  const openDeleteConfirm = (payroll: Payroll) => {
+    setDeleteConfirm({
+      show: true,
+      payrollId: payroll.id,
+      payrollMonth: payroll.payroll_month,
+      employeeCount: payroll.employee_count,
+      totalAmount: payroll.total_amount
+    });
+  };
+
+  const closeDeleteConfirm = () => {
+    setDeleteConfirm({
+      show: false,
+      payrollId: null,
+      payrollMonth: "",
+      employeeCount: 0,
+      totalAmount: 0
+    });
+  };
+
+  const handleDelete = async () => {
+    if (!deleteConfirm.payrollId) return;
     
+    const id = deleteConfirm.payrollId;
     setDeleteLoading(id);
+    closeDeleteConfirm();
     showNotification("loading", "جاري الحذف", "جاري حذف المسير...");
     
     try {
@@ -150,6 +190,93 @@ export function PayrollsListClient({ payrolls: initialPayrolls, stats, companyId
                   <p className="text-xs opacity-90">{notification.message}</p>
                 </div>
               </motion.div>
+            )}
+          </AnimatePresence>
+
+          <AnimatePresence>
+            {deleteConfirm.show && (
+              <>
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50"
+                  onClick={closeDeleteConfirm}
+                />
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                  animate={{ opacity: 1, scale: 1, y: 0 }}
+                  exit={{ opacity: 0, scale: 0.9, y: 20 }}
+                  className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50 w-full max-w-md"
+                >
+                  <div className="bg-white rounded-3xl shadow-2xl overflow-hidden">
+                    <div className="bg-gradient-to-r from-red-500 to-rose-600 p-6 text-white relative overflow-hidden">
+                      <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16 blur-2xl" />
+                      <div className="relative z-10 flex items-center gap-4">
+                        <div className="h-16 w-16 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center">
+                          <ShieldAlert size={32} />
+                        </div>
+                        <div>
+                          <h2 className="text-xl font-black">تأكيد الحذف</h2>
+                          <p className="text-white/70 text-sm">هل أنت متأكد من هذا الإجراء؟</p>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div className="p-6 space-y-4">
+                      <div className="bg-red-50 border-2 border-red-100 rounded-2xl p-4">
+                        <div className="flex items-start gap-3">
+                          <AlertTriangle size={24} className="text-red-500 mt-0.5 flex-shrink-0" />
+                          <div>
+                            <p className="font-bold text-red-900 text-sm">أنت على وشك حذف مسير الرواتب التالي:</p>
+                            <p className="text-red-700 font-black text-lg mt-1">{deleteConfirm.payrollMonth}</p>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-3">
+                        <div className="bg-gray-50 rounded-xl p-3 border border-gray-100 text-center">
+                          <div className="flex items-center justify-center gap-1.5 text-blue-600 mb-1">
+                            <Users size={14} />
+                            <span className="text-xs font-bold">عدد الموظفين</span>
+                          </div>
+                          <p className="text-lg font-black text-gray-900">{deleteConfirm.employeeCount}</p>
+                        </div>
+                        <div className="bg-gray-50 rounded-xl p-3 border border-gray-100 text-center">
+                          <div className="flex items-center justify-center gap-1.5 text-emerald-600 mb-1">
+                            <DollarSign size={14} />
+                            <span className="text-xs font-bold">إجمالي المسير</span>
+                          </div>
+                          <p className="text-lg font-black text-gray-900">{Number(deleteConfirm.totalAmount || 0).toLocaleString()}</p>
+                        </div>
+                      </div>
+
+                      <div className="bg-amber-50 border border-amber-200 rounded-xl p-3">
+                        <p className="text-amber-800 text-xs font-bold text-center">
+                          سيتم حذف جميع بيانات المسير بشكل نهائي ولا يمكن التراجع عن هذا الإجراء
+                        </p>
+                      </div>
+
+                      <div className="flex gap-3 pt-2">
+                        <button
+                          onClick={closeDeleteConfirm}
+                          className="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-gray-100 text-gray-700 font-bold text-sm hover:bg-gray-200 transition-all"
+                        >
+                          <X size={16} />
+                          <span>إلغاء</span>
+                        </button>
+                        <button
+                          onClick={handleDelete}
+                          className="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-gradient-to-r from-red-500 to-rose-600 text-white font-bold text-sm hover:from-red-600 hover:to-rose-700 transition-all shadow-lg shadow-red-500/25"
+                        >
+                          <Trash2 size={16} />
+                          <span>تأكيد الحذف</span>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </motion.div>
+              </>
             )}
           </AnimatePresence>
     
@@ -302,7 +429,7 @@ export function PayrollsListClient({ payrolls: initialPayrolls, stats, companyId
                               </button>
                             </Link>
                             <button 
-                              onClick={() => handleDelete(payroll.id, payroll.payroll_month)}
+                              onClick={() => openDeleteConfirm(payroll)}
                               disabled={deleteLoading === payroll.id}
                               className="h-7 w-7 rounded-lg bg-red-500/20 text-red-400 flex items-center justify-center hover:bg-red-500 hover:text-white transition-all disabled:opacity-50 border border-red-500/30"
                               title="حذف"
