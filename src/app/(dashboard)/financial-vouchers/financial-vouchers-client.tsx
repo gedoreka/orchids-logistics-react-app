@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, Suspense } from "react";
 import { motion } from "framer-motion";
+import { cn } from "@/lib/utils";
 import Link from "next/link";
 import {
   FileText, Receipt, Wallet, ArrowRight, TrendingUp, TrendingDown,
