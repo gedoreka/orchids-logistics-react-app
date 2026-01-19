@@ -36,7 +36,7 @@ async function fetchEmails(
   return new Promise((resolve, reject) => {
     const timeout = setTimeout(() => {
       reject(new Error("Connection timeout"));
-    }, 15000);
+    }, 45000);
 
     const imap = new Imap({
       user: config.user,
@@ -45,8 +45,8 @@ async function fetchEmails(
       port: config.port,
       tls: true,
       tlsOptions: { rejectUnauthorized: false },
-      connTimeout: 8000,
-      authTimeout: 5000,
+      connTimeout: 15000,
+      authTimeout: 10000,
     });
 
     const emails: EmailMessage[] = [];

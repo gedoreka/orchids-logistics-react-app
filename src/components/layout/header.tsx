@@ -670,7 +670,7 @@ export function Header({ user, onToggleSidebar, unreadChatCount = 0, subscriptio
         if (!accountId || !user?.company_id) return;
         setIsLoadingEmails(true);
         try {
-          const res = await fetch(`/api/email/fetch?accountId=${accountId}&company_id=${user.company_id}&folder=${folder}&limit=15`);
+          const res = await fetch(`/api/email/fetch?accountId=${accountId}&company_id=${user.company_id}&folder=${folder}&limit=10`);
           const data = await res.json();
             if (data.emails) {
               setEmails(data.emails);
@@ -2080,181 +2080,181 @@ export function Header({ user, onToggleSidebar, unreadChatCount = 0, subscriptio
                   exit={{ scale: 0.9, opacity: 0, y: 20 }}
                   className={cn(
                     "relative bg-gradient-to-b from-slate-900 to-slate-950 rounded-3xl shadow-2xl overflow-hidden border border-blue-500/20 transition-all duration-300",
-                    isEmailMaximized 
-                      ? "w-full h-full max-w-full max-h-full rounded-none" 
-                      : "w-[95vw] max-w-6xl max-h-[90vh]"
-                  )}
-                >
-                <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-blue-500/10 to-transparent rounded-full blur-3xl" />
-                
-                <div className="flex items-center justify-between p-4 border-b border-white/10 bg-gradient-to-r from-blue-500/20 to-indigo-500/20">
-                  <div className="flex items-center gap-4">
-                    <div className="p-3 rounded-2xl bg-gradient-to-br from-blue-500/30 to-indigo-500/30">
-                      <Mail size={24} className="text-blue-400" />
-                    </div>
-                    <div>
-                      <h3 className="font-bold text-white text-lg">{isRTL ? 'البريد الإلكتروني' : 'Email Client'}</h3>
-                      <p className="text-sm text-blue-400">{isRTL ? 'إدارة رسائلك بسهولة' : 'Manage your emails easily'}</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <button 
-                      onClick={() => setIsEmailMaximized(!isEmailMaximized)}
-                      className="p-2 text-white/30 hover:text-white hover:bg-white/10 rounded-xl transition-all"
-                    >
-                      {isEmailMaximized ? <Minimize2 size={20} /> : <Maximize2 size={20} />}
-                    </button>
-                    <button 
-                      onClick={() => setShowEmailSettings(true)}
-                      className="p-2 text-white/30 hover:text-white hover:bg-white/10 rounded-xl transition-all"
-                    >
-                      <Settings size={20} />
-                    </button>
-                    <button 
-                      onClick={() => setShowEmailModal(false)}
-                      className="p-2 text-white/30 hover:text-white hover:bg-white/10 rounded-xl transition-all"
-                    >
-                      <X size={20} />
-                    </button>
-                  </div>
-                </div>
-
-                    <div className={cn("flex", isEmailMaximized ? "h-[calc(100%-80px)]" : "h-[75vh]")}>
-                      <div className={cn(
-                        "w-56 p-4 flex flex-col gap-4 bg-white/5 shrink-0",
-                        isRTL ? "border-l border-white/10" : "border-r border-white/10"
-                      )}>
-                      <motion.button
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
-                      onClick={() => setShowComposeEmail(true)}
-                      className="w-full flex items-center justify-center gap-2 py-3 bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 rounded-xl text-white font-bold shadow-lg shadow-blue-500/30"
-                    >
-                      <Plus size={18} />
-                      {isRTL ? 'رسالة جديدة' : 'Compose'}
-                    </motion.button>
-
-                    <div className="space-y-1">
-                      <button
-                        onClick={() => setEmailFolder('INBOX')}
-                        className={cn(
-                          "w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all text-right",
-                          emailFolder === 'INBOX' 
-                            ? "bg-blue-500/20 text-blue-400 border border-blue-500/30" 
-                            : "text-white/60 hover:bg-white/10"
-                        )}
-                      >
-                        <Inbox size={18} />
-                        <span className="font-bold text-sm">{isRTL ? 'الوارد' : 'Inbox'}</span>
-                        {totalUnreadEmails > 0 && (
-                          <span className="mr-auto min-w-[20px] h-[20px] bg-blue-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center">
-                            {totalUnreadEmails}
-                          </span>
-                        )}
-                      </button>
-                      <button
-                        onClick={() => setEmailFolder('Spam')}
-                        className={cn(
-                          "w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all text-right",
-                          emailFolder === 'Spam' 
-                            ? "bg-amber-500/20 text-amber-400 border border-amber-500/30" 
-                            : "text-white/60 hover:bg-white/10"
-                        )}
-                      >
-                        <AlertTriangle size={18} />
-                        <span className="font-bold text-sm">{isRTL ? 'البريد المزعج' : 'Spam'}</span>
-                      </button>
-                    </div>
-
-                    <div className="flex-1 border-t border-white/10 pt-4">
-                      <p className="text-xs text-white/40 mb-3 font-bold">{isRTL ? 'حسابات البريد' : 'Email Accounts'}</p>
-                      <div className="space-y-2">
-                        {emailAccounts.length === 0 ? (
-                          <div className="text-center py-6">
-                            <Mail size={32} className="mx-auto mb-2 text-white/20" />
-                            <p className="text-xs text-white/40">{isRTL ? 'لا توجد حسابات' : 'No accounts'}</p>
-                            <button 
-                              onClick={() => setShowEmailSettings(true)}
-                              className="text-xs text-blue-400 hover:underline mt-2"
-                            >
-                              {isRTL ? 'إضافة حساب' : 'Add account'}
-                            </button>
-                          </div>
-                        ) : emailAccounts.map((account) => (
-                          <button
-                            key={account.id}
-                            onClick={() => setSelectedEmailAccount(account)}
-                            className={cn(
-                              "w-full p-3 rounded-xl transition-all text-right",
-                              selectedEmailAccount?.id === account.id 
-                                ? "bg-blue-500/20 border border-blue-500/30" 
-                                : "bg-white/5 hover:bg-white/10 border border-white/5"
-                            )}
-                          >
-                            <p className="text-sm font-bold text-white truncate">{account.email}</p>
-                            <p className="text-[10px] text-white/40">{account.provider}</p>
-                          </button>
-                        ))}
+                      isEmailMaximized 
+                        ? "w-full h-full max-w-full max-h-full rounded-none" 
+                        : "w-[95vw] max-w-7xl max-h-[90vh]"
+                    )}
+                  >
+                  <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-blue-500/10 to-transparent rounded-full blur-3xl" />
+                  
+                  <div className="flex items-center justify-between p-4 border-b border-white/10 bg-gradient-to-r from-blue-500/20 to-indigo-500/20">
+                    <div className="flex items-center gap-4">
+                      <div className="p-3 rounded-2xl bg-gradient-to-br from-blue-500/30 to-indigo-500/30">
+                        <Mail size={24} className="text-blue-400" />
+                      </div>
+                      <div>
+                        <h3 className="font-bold text-white text-lg">{isRTL ? 'البريد الإلكتروني' : 'Email Client'}</h3>
+                        <p className="text-sm text-blue-400">{isRTL ? 'إدارة رسائلك بسهولة' : 'Manage your emails easily'}</p>
                       </div>
                     </div>
+                    <div className="flex items-center gap-2">
+                      <button 
+                        onClick={() => setIsEmailMaximized(!isEmailMaximized)}
+                        className="p-2 text-white/30 hover:text-white hover:bg-white/10 rounded-xl transition-all"
+                      >
+                        {isEmailMaximized ? <Minimize2 size={20} /> : <Maximize2 size={20} />}
+                      </button>
+                      <button 
+                        onClick={() => setShowEmailSettings(true)}
+                        className="p-2 text-white/30 hover:text-white hover:bg-white/10 rounded-xl transition-all"
+                      >
+                        <Settings size={20} />
+                      </button>
+                      <button 
+                        onClick={() => setShowEmailModal(false)}
+                        className="p-2 text-white/30 hover:text-white hover:bg-white/10 rounded-xl transition-all"
+                      >
+                        <X size={20} />
+                      </button>
+                    </div>
                   </div>
-
-                    <div className="flex-1 flex flex-row-reverse">
-                      <div className={cn("overflow-y-auto", selectedEmail ? "w-[45%] border-l border-white/10" : "w-full")}>
-                      {isLoadingEmails ? (
-                        <div className="flex items-center justify-center h-full">
-                          <Loader2 size={32} className="animate-spin text-blue-400" />
-                        </div>
-                      ) : emails.length === 0 ? (
-                        <div className="flex flex-col items-center justify-center h-full text-center p-8">
-                          <Inbox size={64} className="text-white/10 mb-4" />
-                          <p className="text-white/40 font-bold">{isRTL ? 'لا توجد رسائل' : 'No emails'}</p>
-                          <p className="text-white/20 text-sm">{isRTL ? 'صندوق الوارد فارغ' : 'Inbox is empty'}</p>
-                        </div>
-                      ) : (
-                        <div className="divide-y divide-white/5">
-                          {emails.map((email) => (
-                            <motion.div
-                              key={email.uid}
-                              whileHover={{ backgroundColor: "rgba(255,255,255,0.05)" }}
-                              onClick={() => setSelectedEmail(email)}
+  
+                      <div className={cn("flex", isEmailMaximized ? "h-[calc(100%-80px)]" : "h-[75vh]")}>
+                        <div className={cn(
+                          "w-56 p-4 flex flex-col gap-4 bg-white/5 shrink-0",
+                          isRTL ? "border-l border-white/10" : "border-r border-white/10"
+                        )}>
+                        <motion.button
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                        onClick={() => setShowComposeEmail(true)}
+                        className="w-full flex items-center justify-center gap-2 py-3 bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 rounded-xl text-white font-bold shadow-lg shadow-blue-500/30"
+                      >
+                        <Plus size={18} />
+                        {isRTL ? 'رسالة جديدة' : 'Compose'}
+                      </motion.button>
+  
+                      <div className="space-y-1">
+                        <button
+                          onClick={() => setEmailFolder('INBOX')}
+                          className={cn(
+                            "w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all text-right",
+                            emailFolder === 'INBOX' 
+                              ? "bg-blue-500/20 text-blue-400 border border-blue-500/30" 
+                              : "text-white/60 hover:bg-white/10"
+                          )}
+                        >
+                          <Inbox size={18} />
+                          <span className="font-bold text-sm">{isRTL ? 'الوارد' : 'Inbox'}</span>
+                          {totalUnreadEmails > 0 && (
+                            <span className="mr-auto min-w-[20px] h-[20px] bg-blue-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center">
+                              {totalUnreadEmails}
+                            </span>
+                          )}
+                        </button>
+                        <button
+                          onClick={() => setEmailFolder('Spam')}
+                          className={cn(
+                            "w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all text-right",
+                            emailFolder === 'Spam' 
+                              ? "bg-amber-500/20 text-amber-400 border border-amber-500/30" 
+                              : "text-white/60 hover:bg-white/10"
+                          )}
+                        >
+                          <AlertTriangle size={18} />
+                          <span className="font-bold text-sm">{isRTL ? 'البريد المزعج' : 'Spam'}</span>
+                        </button>
+                      </div>
+  
+                      <div className="flex-1 border-t border-white/10 pt-4">
+                        <p className="text-xs text-white/40 mb-3 font-bold">{isRTL ? 'حسابات البريد' : 'Email Accounts'}</p>
+                        <div className="space-y-2">
+                          {emailAccounts.length === 0 ? (
+                            <div className="text-center py-6">
+                              <Mail size={32} className="mx-auto mb-2 text-white/20" />
+                              <p className="text-xs text-white/40">{isRTL ? 'لا توجد حسابات' : 'No accounts'}</p>
+                              <button 
+                                onClick={() => setShowEmailSettings(true)}
+                                className="text-xs text-blue-400 hover:underline mt-2"
+                              >
+                                {isRTL ? 'إضافة حساب' : 'Add account'}
+                              </button>
+                            </div>
+                          ) : emailAccounts.map((account) => (
+                            <button
+                              key={account.id}
+                              onClick={() => setSelectedEmailAccount(account)}
                               className={cn(
-                                "p-4 cursor-pointer transition-all",
-                                selectedEmail?.uid === email.uid && "bg-blue-500/10 border-r-2 border-blue-500",
-                                !email.isRead && "bg-blue-500/5"
+                                "w-full p-3 rounded-xl transition-all text-right",
+                                selectedEmailAccount?.id === account.id 
+                                  ? "bg-blue-500/20 border border-blue-500/30" 
+                                  : "bg-white/5 hover:bg-white/10 border border-white/5"
                               )}
                             >
-                              <div className="flex items-start gap-3">
-                                <div className={cn(
-                                  "w-10 h-10 rounded-xl flex items-center justify-center text-white font-bold text-sm",
-                                  !email.isRead ? "bg-blue-500/30" : "bg-white/10"
-                                )}>
-                                  {email.from.charAt(0).toUpperCase()}
-                                </div>
-                                <div className="flex-1 min-w-0">
-                                  <div className="flex items-center justify-between gap-2">
-                                    <p className={cn(
-                                      "text-sm truncate",
-                                      !email.isRead ? "font-bold text-white" : "text-white/70"
-                                    )}>{email.from}</p>
-                                    <span className="text-[10px] text-white/40 whitespace-nowrap">{formatEmailDate(email.date)}</span>
-                                  </div>
-                                  <p className={cn(
-                                    "text-sm truncate",
-                                    !email.isRead ? "font-bold text-white/90" : "text-white/60"
-                                  )}>{email.subject}</p>
-                                  <p className="text-xs text-white/40 truncate">{email.snippet}</p>
-                                </div>
-                                {email.hasAttachments && <Paperclip size={14} className="text-white/30" />}
-                              </div>
-                            </motion.div>
+                              <p className="text-sm font-bold text-white truncate">{account.email}</p>
+                              <p className="text-[10px] text-white/40">{account.provider}</p>
+                            </button>
                           ))}
                         </div>
-                      )}
+                      </div>
                     </div>
-
-                      {selectedEmail && (
-                        <div className="w-[55%] p-6 overflow-y-auto border-r border-white/10">
+  
+                      <div className="flex-1 flex flex-row-reverse">
+                        <div className={cn("overflow-y-auto", selectedEmail ? "w-[40%] border-l border-white/10" : "w-full")}>
+                        {isLoadingEmails ? (
+                          <div className="flex items-center justify-center h-full">
+                            <Loader2 size={32} className="animate-spin text-blue-400" />
+                          </div>
+                        ) : emails.length === 0 ? (
+                          <div className="flex flex-col items-center justify-center h-full text-center p-8">
+                            <Inbox size={64} className="text-white/10 mb-4" />
+                            <p className="text-white/40 font-bold">{isRTL ? 'لا توجد رسائل' : 'No emails'}</p>
+                            <p className="text-white/20 text-sm">{isRTL ? 'صندوق الوارد فارغ' : 'Inbox is empty'}</p>
+                          </div>
+                        ) : (
+                          <div className="divide-y divide-white/5">
+                            {emails.map((email) => (
+                              <motion.div
+                                key={email.uid}
+                                whileHover={{ backgroundColor: "rgba(255,255,255,0.05)" }}
+                                onClick={() => setSelectedEmail(email)}
+                                className={cn(
+                                  "p-4 cursor-pointer transition-all",
+                                  selectedEmail?.uid === email.uid && "bg-blue-500/10 border-r-2 border-blue-500",
+                                  !email.isRead && "bg-blue-500/5"
+                                )}
+                              >
+                                <div className="flex items-start gap-3">
+                                  <div className={cn(
+                                    "w-10 h-10 rounded-xl flex items-center justify-center text-white font-bold text-sm",
+                                    !email.isRead ? "bg-blue-500/30" : "bg-white/10"
+                                  )}>
+                                    {email.from.charAt(0).toUpperCase()}
+                                  </div>
+                                  <div className="flex-1 min-w-0">
+                                    <div className="flex items-center justify-between gap-2">
+                                      <p className={cn(
+                                        "text-sm truncate",
+                                        !email.isRead ? "font-bold text-white" : "text-white/70"
+                                      )}>{email.from}</p>
+                                      <span className="text-[10px] text-white/40 whitespace-nowrap">{formatEmailDate(email.date)}</span>
+                                    </div>
+                                    <p className={cn(
+                                      "text-sm truncate",
+                                      !email.isRead ? "font-bold text-white/90" : "text-white/60"
+                                    )}>{email.subject}</p>
+                                    <p className="text-xs text-white/40 truncate">{email.snippet}</p>
+                                  </div>
+                                  {email.hasAttachments && <Paperclip size={14} className="text-white/30" />}
+                                </div>
+                              </motion.div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+  
+                        {selectedEmail && (
+                          <div className="w-[60%] p-6 overflow-y-auto border-r border-white/10">
                         <div className="flex items-center justify-between mb-6">
                           <button 
                             onClick={() => setSelectedEmail(null)}
