@@ -127,129 +127,136 @@ export function PayrollsListClient({ payrolls: initialPayrolls, stats, companyId
   };
 
     return (
-      <div className="min-h-screen p-4 md:p-8 space-y-8" dir="rtl">
-        <AnimatePresence>
-          {/* ... notification code ... */}
-        </AnimatePresence>
-  
-        <div className="max-w-[1600px] mx-auto space-y-8">
-          <motion.div 
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="relative overflow-hidden rounded-[2.5rem] bg-gradient-to-br from-[#1e293b] via-[#334155] to-[#1e293b] p-10 text-white shadow-2xl border border-white/10"
-          >
-            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 via-emerald-500 via-rose-500 via-amber-500 via-purple-500 to-blue-500 animate-gradient-x" />
-            
-            <div className="relative z-10">
-              <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-8">
-                <div className="flex items-center gap-6">
-                  <div className="h-16 w-16 rounded-[2rem] bg-white/10 backdrop-blur-md border border-white/10 flex items-center justify-center shadow-2xl">
-                    <FileText size={32} className="text-amber-400" />
+        <div className="min-h-screen p-4 md:p-8" dir="rtl">
+          <AnimatePresence>
+            {notification.show && (
+              <motion.div
+                initial={{ opacity: 0, y: -50, x: 50 }}
+                animate={{ opacity: 1, y: 0, x: 0 }}
+                exit={{ opacity: 0, y: -50 }}
+                className={`fixed top-6 left-6 z-50 flex items-center gap-3 px-6 py-4 rounded-2xl shadow-2xl backdrop-blur-xl border ${
+                  notification.type === "success"
+                    ? "bg-emerald-500/90 border-emerald-400/50 text-white"
+                    : notification.type === "error"
+                    ? "bg-rose-500/90 border-rose-400/50 text-white"
+                    : "bg-blue-500/90 border-blue-400/50 text-white"
+                }`}
+              >
+                {notification.type === "success" && <CheckCircle size={20} />}
+                {notification.type === "error" && <AlertCircle size={20} />}
+                {notification.type === "loading" && <Loader2 size={20} className="animate-spin" />}
+                <div>
+                  <p className="font-black text-sm">{notification.title}</p>
+                  <p className="text-xs opacity-90">{notification.message}</p>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+    
+          <div className="max-w-[1600px] mx-auto">
+            <motion.div 
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="relative overflow-hidden rounded-[2.5rem] bg-gradient-to-br from-[#1e293b] via-[#334155] to-[#1e293b] p-8 text-white shadow-2xl border border-white/10"
+            >
+              <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 via-emerald-500 via-rose-500 via-amber-500 via-purple-500 to-blue-500 animate-gradient-x" />
+              
+              <div className="relative z-10 space-y-8">
+                {/* Header Section */}
+                <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+                  <div className="flex items-center gap-5">
+                    <div className="h-14 w-14 rounded-2xl bg-white/10 backdrop-blur-md border border-white/10 flex items-center justify-center shadow-2xl">
+                      <FileText size={28} className="text-amber-400" />
+                    </div>
+                    <div>
+                      <h1 className="text-2xl md:text-3xl font-black tracking-tight bg-gradient-to-r from-white via-blue-100 to-white bg-clip-text text-transparent">مسيرات الرواتب</h1>
+                      <p className="text-slate-400 font-medium text-sm">إدارة مسيرات رواتب الموظفين وتنظيم الدفعات المالية</p>
+                    </div>
                   </div>
-                  <div>
-                    <h1 className="text-3xl md:text-4xl font-black tracking-tight bg-gradient-to-r from-white via-blue-100 to-white bg-clip-text text-transparent">مسيرات الرواتب</h1>
-                    <p className="text-slate-300 font-medium">إدارة مسيرات رواتب الموظفين وتنظيم الدفعات المالية</p>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                    <div className="bg-white/10 backdrop-blur-md rounded-xl p-3 border border-white/5 text-center">
+                      <div className="text-lg font-black text-white">{stats.total}</div>
+                      <div className="text-[9px] text-slate-300 font-bold uppercase tracking-wider">إجمالي</div>
+                    </div>
+                    <div className="bg-emerald-500/10 backdrop-blur-md rounded-xl p-3 border border-emerald-500/20 text-center">
+                      <div className="text-lg font-black text-emerald-400">{Number(stats.total_amount).toLocaleString()}</div>
+                      <div className="text-[9px] text-emerald-200/60 font-bold uppercase tracking-wider">ر.س</div>
+                    </div>
+                    <div className="bg-blue-500/10 backdrop-blur-md rounded-xl p-3 border border-blue-500/20 text-center">
+                      <div className="text-lg font-black text-blue-400">{stats.confirmed_count}</div>
+                      <div className="text-[9px] text-blue-200/60 font-bold uppercase tracking-wider">مؤكد</div>
+                    </div>
+                    <div className="bg-amber-500/10 backdrop-blur-md rounded-xl p-3 border border-amber-500/20 text-center">
+                      <div className="text-lg font-black text-amber-400">{stats.draft_count}</div>
+                      <div className="text-[9px] text-amber-200/60 font-bold uppercase tracking-wider">مسودة</div>
+                    </div>
                   </div>
                 </div>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  <div className="bg-white/10 backdrop-blur-md rounded-2xl p-4 border border-white/5 text-center">
-                    <div className="text-xl font-black text-white">{stats.total}</div>
-                    <div className="text-[9px] text-slate-300 font-bold uppercase tracking-wider">إجمالي</div>
+              
+                {/* Search and Action Section */}
+                <div className="flex flex-col md:flex-row gap-4 items-center justify-between bg-white/5 rounded-2xl p-4 border border-white/10">
+                  <div className="relative w-full md:w-96">
+                    <Search className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+                    <input
+                      type="text"
+                      placeholder="بحث بشهر المسير أو الباقة..."
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      className="w-full pr-12 pl-4 py-3 rounded-xl border border-white/10 bg-white/5 text-white placeholder-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none text-sm font-bold transition-all"
+                    />
                   </div>
-                  <div className="bg-emerald-500/10 backdrop-blur-md rounded-2xl p-4 border border-emerald-500/20 text-center">
-                    <div className="text-xl font-black text-emerald-400">{Number(stats.total_amount).toLocaleString()}</div>
-                    <div className="text-[9px] text-emerald-200/60 font-bold uppercase tracking-wider">ر.س</div>
-                  </div>
-                  <div className="bg-blue-500/10 backdrop-blur-md rounded-2xl p-4 border border-blue-500/20 text-center">
-                    <div className="text-xl font-black text-blue-400">{stats.confirmed_count}</div>
-                    <div className="text-[9px] text-blue-200/60 font-bold uppercase tracking-wider">مؤكد</div>
-                  </div>
-                  <div className="bg-amber-500/10 backdrop-blur-md rounded-2xl p-4 border border-amber-500/20 text-center">
-                    <div className="text-xl font-black text-amber-400">{stats.draft_count}</div>
-                    <div className="text-[9px] text-amber-200/60 font-bold uppercase tracking-wider">مسودة</div>
-                  </div>
+                  <Link href="/salary-payrolls/new">
+                    <button className="flex items-center gap-3 px-6 py-3 rounded-xl bg-gradient-to-r from-blue-500 to-blue-600 text-white font-black text-sm hover:from-blue-600 hover:to-blue-700 transition-all shadow-xl shadow-blue-500/20 active:scale-95">
+                      <Plus size={18} />
+                      <span>إنشاء مسير جديد</span>
+                    </button>
+                  </Link>
                 </div>
-              </div>
-            </div>
-            
-            {/* Decorative elements */}
-            <div className="absolute -bottom-12 -right-12 w-48 h-48 bg-blue-500/10 rounded-full blur-3xl" />
-            <div className="absolute -top-12 -left-12 w-48 h-48 bg-purple-500/10 rounded-full blur-3xl" />
-          </motion.div>
-  
-          <motion.div 
-            className="bg-white/80 backdrop-blur-xl rounded-[2.5rem] border border-white/50 p-6 shadow-2xl"
-            whileHover={{ y: -2 }}
-          >
-            <div className="flex flex-col md:flex-row gap-6 items-center justify-between">
-              <div className="relative w-full md:w-96">
-                <Search className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
-                <input
-                  type="text"
-                  placeholder="بحث بشهر المسير أو الباقة..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pr-14 pl-6 py-4 rounded-2xl border border-slate-200 bg-slate-50/50 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 outline-none text-sm font-bold transition-all shadow-sm"
-                />
-              </div>
-              <div className="flex gap-4">
-                <Link href="/salary-payrolls/new">
-                  <button className="flex items-center gap-3 px-8 py-4 rounded-2xl bg-blue-600 text-white font-black text-sm hover:bg-blue-700 transition-all shadow-xl shadow-blue-500/20 active:scale-95">
-                    <Plus size={20} />
-                    <span>إنشاء مسير جديد</span>
-                  </button>
-                </Link>
-              </div>
-            </div>
-          </motion.div>
-  
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="bg-white/80 backdrop-blur-xl rounded-[2.5rem] border border-white/50 shadow-2xl overflow-hidden"
-          >
-            <div className="bg-slate-50/50 px-8 py-5 border-b border-slate-100 flex justify-between items-center">
-              <div className="flex items-center gap-3">
-                <div className="p-2 bg-blue-100 rounded-lg">
-                  <FileText size={18} className="text-blue-600" />
-                </div>
-                <h3 className="font-black text-slate-800 text-sm">قائمة مسيرات الرواتب</h3>
-              </div>
-              <span className="bg-blue-600 text-white px-4 py-1.5 rounded-xl text-[10px] font-black shadow-lg">
-                {filteredPayrolls.length} مسير
-              </span>
-            </div>
+
+                {/* Payrolls List Section */}
+                <div className="bg-white/5 rounded-2xl border border-white/10 overflow-hidden">
+                  <div className="px-6 py-4 border-b border-white/10 flex justify-between items-center">
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 bg-blue-500/20 rounded-lg">
+                        <FileText size={16} className="text-blue-400" />
+                      </div>
+                      <h3 className="font-black text-white text-sm">قائمة مسيرات الرواتب</h3>
+                    </div>
+                    <span className="bg-blue-500/20 text-blue-300 px-3 py-1 rounded-lg text-[10px] font-black border border-blue-500/30">
+                      {filteredPayrolls.length} مسير
+                    </span>
+                  </div>
 
 
             {filteredPayrolls.length > 0 ? (
               <div className="overflow-x-auto">
                 <table className="w-full">
-                  <thead className="bg-gray-50">
-                    <tr className="border-b border-gray-100">
-                      <th className="text-right px-4 py-3 text-xs font-bold text-gray-600">#</th>
-                      <th className="text-right px-4 py-3 text-xs font-bold text-gray-600">شهر المسير</th>
-                      <th className="text-right px-4 py-3 text-xs font-bold text-gray-600">الباقة</th>
-                      <th className="text-right px-4 py-3 text-xs font-bold text-gray-600">عدد الموظفين</th>
-                      <th className="text-right px-4 py-3 text-xs font-bold text-gray-600">إجمالي الرواتب</th>
-                      <th className="text-right px-4 py-3 text-xs font-bold text-gray-600">الحالة</th>
-                      <th className="text-center px-4 py-3 text-xs font-bold text-gray-600">الإجراءات</th>
+                  <thead className="bg-white/5">
+                    <tr className="border-b border-white/10">
+                      <th className="text-right px-4 py-3 text-xs font-bold text-slate-400">#</th>
+                      <th className="text-right px-4 py-3 text-xs font-bold text-slate-400">شهر المسير</th>
+                      <th className="text-right px-4 py-3 text-xs font-bold text-slate-400">الباقة</th>
+                      <th className="text-right px-4 py-3 text-xs font-bold text-slate-400">عدد الموظفين</th>
+                      <th className="text-right px-4 py-3 text-xs font-bold text-slate-400">إجمالي الرواتب</th>
+                      <th className="text-right px-4 py-3 text-xs font-bold text-slate-400">الحالة</th>
+                      <th className="text-center px-4 py-3 text-xs font-bold text-slate-400">الإجراءات</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-gray-50">
+                  <tbody className="divide-y divide-white/5">
                     {filteredPayrolls.map((payroll) => (
-                      <tr key={payroll.id} className="hover:bg-gray-50/50 transition-colors">
-                        <td className="px-4 py-3 text-sm text-gray-500">{payroll.id}</td>
+                      <tr key={payroll.id} className="hover:bg-white/5 transition-colors">
+                        <td className="px-4 py-3 text-sm text-slate-400">{payroll.id}</td>
                         <td className="px-4 py-3">
                           <div className="flex items-center gap-2">
-                            <div className="h-8 w-8 rounded-lg bg-blue-50 flex items-center justify-center text-blue-500">
+                            <div className="h-8 w-8 rounded-lg bg-blue-500/20 flex items-center justify-center text-blue-400">
                               <Calendar size={14} />
                             </div>
-                            <span className="font-bold text-gray-900 text-sm">{payroll.payroll_month}</span>
+                            <span className="font-bold text-white text-sm">{payroll.payroll_month}</span>
                           </div>
                         </td>
                         <td className="px-4 py-3">
                           <div className="flex flex-col gap-1">
-                            <span className="font-bold text-gray-900 text-sm">{payroll.package_name || 'غير محدد'}</span>
+                            <span className="font-bold text-white text-sm">{payroll.package_name || 'غير محدد'}</span>
                             <span className={`text-xs px-2 py-0.5 rounded-full inline-block w-fit ${getWorkTypeBadge(payroll.work_type)}`}>
                               {getWorkTypeLabel(payroll.work_type)}
                             </span>
@@ -257,26 +264,26 @@ export function PayrollsListClient({ payrolls: initialPayrolls, stats, companyId
                         </td>
                         <td className="px-4 py-3">
                           <div className="flex items-center gap-1 text-sm">
-                            <Users size={14} className="text-gray-400" />
-                            <span className="font-bold">{payroll.employee_count}</span>
-                            <span className="text-gray-400 text-xs">موظف</span>
+                            <Users size={14} className="text-slate-400" />
+                            <span className="font-bold text-white">{payroll.employee_count}</span>
+                            <span className="text-slate-400 text-xs">موظف</span>
                           </div>
                         </td>
                         <td className="px-4 py-3">
-                          <div className="flex items-center gap-1 text-sm font-bold text-emerald-600">
+                          <div className="flex items-center gap-1 text-sm font-bold text-emerald-400">
                             <DollarSign size={14} />
                             {Number(payroll.total_amount || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}
-                            <span className="text-xs text-gray-400">ر.س</span>
+                            <span className="text-xs text-slate-400">ر.س</span>
                           </div>
                         </td>
                         <td className="px-4 py-3">
                           {payroll.is_draft ? (
-                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-100 text-amber-700 text-xs font-bold">
+                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-400 text-xs font-bold border border-amber-500/30">
                               <Clock size={10} />
                               مسودة
                             </span>
                           ) : (
-                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 text-xs font-bold">
+                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 text-xs font-bold border border-emerald-500/30">
                               <CheckCircle size={10} />
                               تم التأكيد
                             </span>
@@ -284,20 +291,20 @@ export function PayrollsListClient({ payrolls: initialPayrolls, stats, companyId
                         </td>
                         <td className="px-4 py-3">
                           <div className="flex items-center justify-center gap-1 flex-wrap">
-                            <Link href={`/payrolls/${payroll.id}`}>
-                              <button className="h-7 w-7 rounded-lg bg-blue-50 text-blue-500 flex items-center justify-center hover:bg-blue-500 hover:text-white transition-all" title="عرض">
+                            <Link href={`/salary-payrolls/${payroll.id}`}>
+                              <button className="h-7 w-7 rounded-lg bg-blue-500/20 text-blue-400 flex items-center justify-center hover:bg-blue-500 hover:text-white transition-all border border-blue-500/30" title="عرض">
                                 <Eye size={14} />
                               </button>
                             </Link>
-                            <Link href={`/payrolls/${payroll.id}/edit`}>
-                              <button className="h-7 w-7 rounded-lg bg-amber-50 text-amber-500 flex items-center justify-center hover:bg-amber-500 hover:text-white transition-all" title="تعديل">
+                            <Link href={`/salary-payrolls/${payroll.id}/edit`}>
+                              <button className="h-7 w-7 rounded-lg bg-amber-500/20 text-amber-400 flex items-center justify-center hover:bg-amber-500 hover:text-white transition-all border border-amber-500/30" title="تعديل">
                                 <Edit size={14} />
                               </button>
                             </Link>
                             <button 
                               onClick={() => handleDelete(payroll.id, payroll.payroll_month)}
                               disabled={deleteLoading === payroll.id}
-                              className="h-7 w-7 rounded-lg bg-red-50 text-red-500 flex items-center justify-center hover:bg-red-500 hover:text-white transition-all disabled:opacity-50"
+                              className="h-7 w-7 rounded-lg bg-red-500/20 text-red-400 flex items-center justify-center hover:bg-red-500 hover:text-white transition-all disabled:opacity-50 border border-red-500/30"
                               title="حذف"
                             >
                               {deleteLoading === payroll.id ? (
@@ -315,9 +322,9 @@ export function PayrollsListClient({ payrolls: initialPayrolls, stats, companyId
               </div>
             ) : (
               <div className="py-16 text-center">
-                <FileText size={48} className="mx-auto text-gray-200 mb-4" />
-                <h4 className="text-lg font-bold text-gray-600 mb-2">لا توجد مسيرات رواتب</h4>
-                <p className="text-gray-400 text-sm mb-4">ابدأ بإنشاء مسير رواتب جديد</p>
+                <FileText size={48} className="mx-auto text-slate-600 mb-4" />
+                <h4 className="text-lg font-bold text-white mb-2">لا توجد مسيرات رواتب</h4>
+                <p className="text-slate-400 text-sm mb-4">ابدأ بإنشاء مسير رواتب جديد</p>
                 <Link href="/salary-payrolls/new">
                   <button className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-emerald-500 text-white font-bold text-sm hover:bg-emerald-600 transition-all">
                     <Plus size={16} />
@@ -326,8 +333,14 @@ export function PayrollsListClient({ payrolls: initialPayrolls, stats, companyId
                 </Link>
               </div>
             )}
-          </motion.div>
+                </div>
+              </div>
+
+              {/* Decorative elements */}
+              <div className="absolute -bottom-12 -right-12 w-48 h-48 bg-blue-500/10 rounded-full blur-3xl" />
+              <div className="absolute -top-12 -left-12 w-48 h-48 bg-purple-500/10 rounded-full blur-3xl" />
+            </motion.div>
+          </div>
         </div>
-      </div>
     );
   }
