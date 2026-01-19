@@ -6,7 +6,6 @@ import {
   FileText,
   Calendar,
   Users,
-  DollarSign,
   ArrowRight,
   Trash2,
   Printer,
@@ -17,7 +16,6 @@ import {
   Building2,
   Clock,
   User,
-  Target,
   Layers
 } from "lucide-react";
 import Link from "next/link";
@@ -41,6 +39,7 @@ interface PayrollItem {
   net_salary: number;
   payment_method: string;
   housing_allowance: number;
+  nationality: string;
 }
 
 interface Payroll {
@@ -88,6 +87,9 @@ export function PayrollViewClient({ payroll, company, companyId }: PayrollViewCl
     message: ""
   });
 
+  const workType = payroll.work_type || 'salary';
+  const isSalaryType = workType === 'salary';
+
   const showNotification = (type: "success" | "error" | "loading", title: string, message: string) => {
     setNotification({ show: true, type, title, message });
   };
@@ -133,6 +135,11 @@ export function PayrollViewClient({ payroll, company, companyId }: PayrollViewCl
       case 'commission': return 'نظام العمولة';
       default: return type;
     }
+  };
+
+  const getColSpan = () => {
+    if (isSalaryType) return 5;
+    return 13;
   };
 
   return (
@@ -195,7 +202,6 @@ export function PayrollViewClient({ payroll, company, companyId }: PayrollViewCl
               <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 via-emerald-500 via-rose-500 via-amber-500 via-purple-500 to-blue-500 animate-gradient-x print:hidden" />
               
               <div className="relative z-10 space-y-8">
-                {/* Header Section */}
                 <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6 print:hidden">
                   <div className="flex items-center gap-5">
                     <div className="h-14 w-14 rounded-2xl bg-white/10 backdrop-blur-md border border-white/10 flex items-center justify-center shadow-2xl">
@@ -203,7 +209,7 @@ export function PayrollViewClient({ payroll, company, companyId }: PayrollViewCl
                     </div>
                     <div>
                       <h1 className="text-2xl md:text-3xl font-black tracking-tight bg-gradient-to-r from-white via-blue-100 to-white bg-clip-text text-transparent">تفاصيل مسير الرواتب</h1>
-                      <p className="text-slate-400 font-medium text-sm">{payroll.payroll_month}</p>
+                      <p className="text-slate-400 font-medium text-sm">{payroll.payroll_month} - {getWorkTypeLabel(workType)}</p>
                     </div>
                   </div>
                   <div className="flex flex-wrap gap-2">
@@ -237,13 +243,11 @@ export function PayrollViewClient({ payroll, company, companyId }: PayrollViewCl
                   </div>
                 </div>
 
-                {/* Print Header */}
                 <div className="hidden print:block text-center mb-6">
                   <h1 className="text-2xl font-black text-gray-900">مسير رواتب {payroll.payroll_month}</h1>
                   <p className="text-gray-500">{company.name}</p>
                 </div>
 
-                {/* Stats Cards */}
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                   <div className="bg-white/5 backdrop-blur-md rounded-2xl p-4 border border-white/10 print:bg-gray-50 print:border-gray-200">
                     <div className="flex items-center gap-3">
@@ -293,7 +297,6 @@ export function PayrollViewClient({ payroll, company, companyId }: PayrollViewCl
                   </div>
                 </div>
 
-                {/* Company & Payroll Info */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="bg-white/5 backdrop-blur-md rounded-2xl p-5 border border-white/10 print:bg-gray-50 print:border-gray-200">
                     <div className="flex items-center gap-3 mb-4">
@@ -319,7 +322,6 @@ export function PayrollViewClient({ payroll, company, companyId }: PayrollViewCl
                   </div>
                 </div>
 
-                {/* Salary Details Table */}
                 <div className="bg-white/5 backdrop-blur-md rounded-2xl border border-white/10 overflow-hidden print:bg-white print:border-gray-200">
                   <div className="px-6 py-4 border-b border-white/10 flex justify-between items-center print:bg-gray-100 print:border-gray-200">
                     <div className="flex items-center gap-3">
@@ -340,45 +342,69 @@ export function PayrollViewClient({ payroll, company, companyId }: PayrollViewCl
                           <th className="text-right px-3 py-3 text-xs font-bold text-slate-400 print:text-gray-600">#</th>
                           <th className="text-right px-3 py-3 text-xs font-bold text-slate-400 print:text-gray-600">الاسم</th>
                           <th className="text-right px-3 py-3 text-xs font-bold text-slate-400 print:text-gray-600">الإقامة</th>
-                          <th className="text-right px-3 py-3 text-xs font-bold text-slate-400 print:text-gray-600">الكود</th>
+                          {!isSalaryType && (
+                            <th className="text-right px-3 py-3 text-xs font-bold text-slate-400 print:text-gray-600">الكود</th>
+                          )}
                           <th className="text-right px-3 py-3 text-xs font-bold text-slate-400 print:text-gray-600">الراتب</th>
-                          <th className="text-right px-3 py-3 text-xs font-bold text-slate-400 print:text-gray-600">التارقت</th>
-                          <th className="text-right px-3 py-3 text-xs font-bold text-slate-400 print:text-gray-600">الطلبات</th>
-                          <th className="text-right px-3 py-3 text-xs font-bold text-slate-400 print:text-gray-600">خصم</th>
-                          <th className="text-right px-3 py-3 text-xs font-bold text-slate-400 print:text-gray-600">بونص</th>
-                          <th className="text-right px-3 py-3 text-xs font-bold text-slate-400 print:text-gray-600">خ.مشغل</th>
-                          <th className="text-right px-3 py-3 text-xs font-bold text-slate-400 print:text-gray-600">خ.داخلي</th>
-                          <th className="text-right px-3 py-3 text-xs font-bold text-slate-400 print:text-gray-600">خ.محفظة</th>
-                          <th className="text-right px-3 py-3 text-xs font-bold text-slate-400 print:text-gray-600">مكافأة</th>
+                          {isSalaryType ? (
+                            <>
+                              <th className="text-right px-3 py-3 text-xs font-bold text-slate-400 print:text-gray-600">السكن</th>
+                              <th className="text-right px-3 py-3 text-xs font-bold text-slate-400 print:text-gray-600">خصم داخلي</th>
+                              <th className="text-right px-3 py-3 text-xs font-bold text-slate-400 print:text-gray-600">مكافأة</th>
+                            </>
+                          ) : (
+                            <>
+                              <th className="text-right px-3 py-3 text-xs font-bold text-slate-400 print:text-gray-600">التارقت</th>
+                              <th className="text-right px-3 py-3 text-xs font-bold text-slate-400 print:text-gray-600">الطلبات</th>
+                              <th className="text-right px-3 py-3 text-xs font-bold text-slate-400 print:text-gray-600">خصم تارقت</th>
+                              <th className="text-right px-3 py-3 text-xs font-bold text-slate-400 print:text-gray-600">بونص</th>
+                              <th className="text-right px-3 py-3 text-xs font-bold text-slate-400 print:text-gray-600">خ.مشغل</th>
+                              <th className="text-right px-3 py-3 text-xs font-bold text-slate-400 print:text-gray-600">خ.داخلي</th>
+                              <th className="text-right px-3 py-3 text-xs font-bold text-slate-400 print:text-gray-600">خ.محفظة</th>
+                              <th className="text-right px-3 py-3 text-xs font-bold text-slate-400 print:text-gray-600">مكافأة</th>
+                            </>
+                          )}
                           <th className="text-right px-3 py-3 text-xs font-bold text-slate-400 print:text-gray-600">صافي</th>
                           <th className="text-right px-3 py-3 text-xs font-bold text-slate-400 print:text-gray-600">الدفع</th>
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-white/5 print:divide-gray-100">
                         {payroll.items?.map((item, index) => (
-                          <tr key={item.id} className={`hover:bg-white/5 transition-colors ${item.net_salary < 0 ? 'bg-red-500/10 print:bg-red-50' : ''}`}>
+                          <tr key={item.id} className={`hover:bg-white/5 transition-colors ${Number(item.net_salary) < 0 ? 'bg-red-500/10 print:bg-red-50' : ''}`}>
                             <td className="px-3 py-3 text-slate-400 print:text-gray-500">{index + 1}</td>
                             <td className="px-3 py-3 font-bold text-white whitespace-nowrap print:text-gray-900">{item.employee_name}</td>
                             <td className="px-3 py-3 text-slate-300 whitespace-nowrap print:text-gray-600">{item.iqama_number}</td>
-                            <td className="px-3 py-3 text-slate-300 print:text-gray-600">{item.user_code}</td>
-                            <td className="px-3 py-3 font-bold text-white print:text-gray-900">{Number(item.basic_salary || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}</td>
-                            <td className="px-3 py-3 text-slate-300 print:text-gray-600">{item.target || 0}</td>
-                            <td className="px-3 py-3 font-bold text-blue-400 print:text-blue-600">{item.successful_orders || 0}</td>
-                            <td className="px-3 py-3 text-red-400 print:text-red-600">{Number(item.target_deduction || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}</td>
-                            <td className="px-3 py-3 text-emerald-400 print:text-emerald-600">{Number(item.monthly_bonus || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}</td>
-                            <td className="px-3 py-3 text-red-400 print:text-red-600">{Number(item.operator_deduction || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}</td>
-                            <td className="px-3 py-3 text-red-400 print:text-red-600">{Number(item.internal_deduction || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}</td>
-                            <td className="px-3 py-3 text-red-400 print:text-red-600">{Number(item.wallet_deduction || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}</td>
-                            <td className="px-3 py-3 text-emerald-400 print:text-emerald-600">{Number(item.internal_bonus || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}</td>
-                            <td className={`px-3 py-3 font-bold ${item.net_salary < 0 ? 'text-red-400 print:text-red-600' : 'text-emerald-400 print:text-emerald-600'}`}>
-                              {Number(item.net_salary || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                            {!isSalaryType && (
+                              <td className="px-3 py-3 text-slate-300 print:text-gray-600">{item.user_code}</td>
+                            )}
+                            <td className="px-3 py-3 font-bold text-white print:text-gray-900">{Number(item.basic_salary || 0).toLocaleString('en-US')}</td>
+                            {isSalaryType ? (
+                              <>
+                                <td className="px-3 py-3 text-slate-300 print:text-gray-600">{Number(item.housing_allowance || 0).toLocaleString('en-US')}</td>
+                                <td className="px-3 py-3 text-red-400 print:text-red-600">{Number(item.internal_deduction || 0).toLocaleString('en-US')}</td>
+                                <td className="px-3 py-3 text-emerald-400 print:text-emerald-600">{Number(item.internal_bonus || 0).toLocaleString('en-US')}</td>
+                              </>
+                            ) : (
+                              <>
+                                <td className="px-3 py-3 text-slate-300 print:text-gray-600">{item.target || 0}</td>
+                                <td className="px-3 py-3 font-bold text-blue-400 print:text-blue-600">{item.successful_orders || 0}</td>
+                                <td className="px-3 py-3 text-red-400 print:text-red-600">{Number(item.target_deduction || 0).toLocaleString('en-US')}</td>
+                                <td className="px-3 py-3 text-emerald-400 print:text-emerald-600">{Number(item.monthly_bonus || 0).toLocaleString('en-US')}</td>
+                                <td className="px-3 py-3 text-red-400 print:text-red-600">{Number(item.operator_deduction || 0).toLocaleString('en-US')}</td>
+                                <td className="px-3 py-3 text-red-400 print:text-red-600">{Number(item.internal_deduction || 0).toLocaleString('en-US')}</td>
+                                <td className="px-3 py-3 text-red-400 print:text-red-600">{Number(item.wallet_deduction || 0).toLocaleString('en-US')}</td>
+                                <td className="px-3 py-3 text-emerald-400 print:text-emerald-600">{Number(item.internal_bonus || 0).toLocaleString('en-US')}</td>
+                              </>
+                            )}
+                            <td className={`px-3 py-3 font-bold ${Number(item.net_salary) < 0 ? 'text-red-400 print:text-red-600' : 'text-emerald-400 print:text-emerald-600'}`}>
+                              {Number(item.net_salary || 0).toLocaleString('en-US')}
                             </td>
                             <td className="px-3 py-3 text-slate-300 print:text-gray-600">{item.payment_method}</td>
                           </tr>
                         ))}
                         <tr className="bg-emerald-500/10 font-bold print:bg-emerald-50">
-                          <td colSpan={13} className="px-3 py-4 text-left text-emerald-400 print:text-emerald-700">الإجمالي:</td>
-                          <td className="px-3 py-4 text-emerald-400 print:text-emerald-700">{Number(payroll.total_net || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })} ريال</td>
+                          <td colSpan={getColSpan()} className="px-3 py-4 text-left text-emerald-400 print:text-emerald-700">الإجمالي:</td>
+                          <td className="px-3 py-4 text-emerald-400 print:text-emerald-700">{Number(payroll.total_net || 0).toLocaleString('en-US')} ريال</td>
                           <td></td>
                         </tr>
                       </tbody>
@@ -386,7 +412,6 @@ export function PayrollViewClient({ payroll, company, companyId }: PayrollViewCl
                   </div>
                 </div>
 
-                {/* Action Buttons */}
                 <div className="flex justify-center gap-3 print:hidden">
                   <Link href="/salary-payrolls">
                     <button className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-white/10 text-white font-bold text-sm hover:bg-white/20 transition-all border border-white/10">
@@ -410,7 +435,6 @@ export function PayrollViewClient({ payroll, company, companyId }: PayrollViewCl
                 </div>
               </div>
 
-              {/* Decorative elements */}
               <div className="absolute -bottom-12 -right-12 w-48 h-48 bg-blue-500/10 rounded-full blur-3xl print:hidden" />
               <div className="absolute -top-12 -left-12 w-48 h-48 bg-purple-500/10 rounded-full blur-3xl print:hidden" />
             </motion.div>
