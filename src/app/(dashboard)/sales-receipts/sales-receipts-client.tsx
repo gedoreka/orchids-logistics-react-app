@@ -17,11 +17,17 @@ import {
   Loader2,
   DollarSign,
   User,
-  TrendingUp
+  TrendingUp,
+  Sparkles,
+  Building2,
+  RefreshCw,
+  ArrowRight,
+  TrendingDown
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { format } from "date-fns";
+import { cn } from "@/lib/utils";
 
 interface SalesReceipt {
   id: number;
@@ -107,7 +113,7 @@ export function SalesReceiptsClient({ receipts: initialReceipts, stats, companyI
   };
 
   return (
-    <div className="h-full flex flex-col">
+    <div className="max-w-[95%] mx-auto p-4 md:p-8 space-y-8" dir="rtl">
       <AnimatePresence>
         {notification.show && (
           <>
@@ -124,27 +130,30 @@ export function SalesReceiptsClient({ receipts: initialReceipts, stats, companyI
               exit={{ opacity: 0, scale: 0.9, y: 20 }}
               className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50 w-full max-w-md"
             >
-              <div className={`bg-white rounded-3xl p-8 shadow-2xl border-t-4 ${
+              <div className={cn(
+                "bg-white rounded-[2.5rem] p-8 shadow-2xl border-t-8",
                 notification.type === "success" ? "border-emerald-500" :
                 notification.type === "error" ? "border-red-500" : "border-blue-500"
-              }`}>
+              )}>
                 <div className="text-center">
-                  <div className={`h-20 w-20 rounded-full mx-auto mb-6 flex items-center justify-center ${
+                  <div className={cn(
+                    "h-20 w-20 rounded-full mx-auto mb-6 flex items-center justify-center",
                     notification.type === "success" ? "bg-emerald-100 text-emerald-500" :
                     notification.type === "error" ? "bg-red-100 text-red-500" : "bg-blue-100 text-blue-500"
-                  }`}>
+                  )}>
                     {notification.type === "success" && <CheckCircle size={40} />}
                     {notification.type === "error" && <AlertCircle size={40} />}
                     {notification.type === "loading" && <Loader2 size={40} className="animate-spin" />}
                   </div>
                   <h3 className="text-2xl font-black text-gray-900 mb-2">{notification.title}</h3>
-                  <p className="text-gray-500 mb-6">{notification.message}</p>
+                  <p className="text-gray-500 mb-6 font-medium">{notification.message}</p>
                   {notification.type !== "loading" && (
                     <button
                       onClick={() => setNotification(prev => ({ ...prev, show: false }))}
-                      className={`px-8 py-3 rounded-xl font-bold text-white transition-all ${
+                      className={cn(
+                        "w-full py-4 rounded-2xl font-black text-white transition-all shadow-lg active:scale-95",
                         notification.type === "success" ? "bg-emerald-500 hover:bg-emerald-600" : "bg-red-500 hover:bg-red-600"
-                      }`}
+                      )}
                     >
                       حسناً
                     </button>
@@ -156,182 +165,270 @@ export function SalesReceiptsClient({ receipts: initialReceipts, stats, companyI
         )}
       </AnimatePresence>
 
-      <div className="flex-1 overflow-auto p-6">
-        <div className="max-w-[1600px] mx-auto space-y-6">
-          <div className="relative overflow-hidden bg-gradient-to-br from-[#1a237e] to-[#283593] rounded-2xl p-6 text-white shadow-xl">
-            <div className="relative z-10">
-              <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                <div className="flex items-center gap-4">
-                  <div className="h-14 w-14 rounded-xl bg-teal-500 flex items-center justify-center shadow-lg">
-                    <Receipt size={28} />
-                  </div>
-                  <div>
-                    <h1 className="text-2xl font-black">إيصالات المبيعات</h1>
-                    <p className="text-white/60 text-sm">إدارة سندات قبض المبيعات</p>
-                  </div>
-                </div>
-                <div className="grid grid-cols-4 gap-3">
-                  <div className="bg-white/10 backdrop-blur rounded-xl p-3 text-center">
-                    <div className="text-2xl font-black">{stats.total}</div>
-                    <div className="text-[10px] text-white/60 font-bold">إجمالي</div>
-                  </div>
-                  <div className="bg-emerald-500/20 backdrop-blur rounded-xl p-3 text-center">
-                    <div className="text-lg font-black text-emerald-300">{Number(stats.total_amount).toLocaleString('en-US')}</div>
-                    <div className="text-[10px] text-white/60 font-bold">ر.س</div>
-                  </div>
-                  <div className="bg-blue-500/20 backdrop-blur rounded-xl p-3 text-center">
-                    <div className="text-2xl font-black text-blue-300">{stats.linked}</div>
-                    <div className="text-[10px] text-white/60 font-bold">مرتبط</div>
-                  </div>
-                  <div className="bg-gray-500/20 backdrop-blur rounded-xl p-3 text-center">
-                    <div className="text-2xl font-black text-gray-300">{stats.unlinked}</div>
-                    <div className="text-[10px] text-white/60 font-bold">غير مرتبط</div>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div className="absolute top-0 right-0 w-40 h-40 bg-white/5 rounded-full -mr-20 -mt-20 blur-2xl" />
-          </div>
-
-          <div className="bg-white rounded-2xl border border-gray-100 p-4 shadow-sm">
-            <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
-              <div className="relative w-full md:w-80">
-                <Search className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
-                <input
-                  type="text"
-                  placeholder="بحث برقم الإيصال أو اسم العميل..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pr-10 pl-4 py-2.5 rounded-xl border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none text-sm"
-                />
-              </div>
-              <div className="flex gap-2 flex-wrap">
+      <motion.div
+        initial={{ opacity: 0, y: -30 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="relative overflow-hidden rounded-[2.5rem] bg-gradient-to-br from-[#1e293b] via-[#334155] to-[#1e293b] p-10 text-white shadow-2xl border border-white/10"
+      >
+        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 via-emerald-500 via-rose-500 via-amber-500 via-purple-500 to-blue-500 animate-gradient-x" />
+        
+        <div className="relative z-10 space-y-10">
+          {/* Header Section */}
+          <div className="flex flex-col lg:flex-row items-center justify-between gap-10">
+            <div className="text-center lg:text-right space-y-4">
+              <motion.div 
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                transition={{ delay: 0.2, type: "spring" }}
+                className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-md rounded-2xl border border-white/10 mb-2"
+              >
+                <Sparkles className="w-4 h-4 text-yellow-400 animate-pulse" />
+                <span className="text-blue-200 font-black text-[10px] uppercase tracking-widest">إدارة سندات المبيعات</span>
+              </motion.div>
+              
+              <h1 className="text-4xl md:text-6xl font-black text-white tracking-tight bg-gradient-to-r from-white via-blue-100 to-white bg-clip-text text-transparent">
+                إيصالات المبيعات
+              </h1>
+              <p className="text-lg text-slate-300 max-w-2xl font-medium leading-relaxed">
+                متابعة وتسجيل جميع إيصالات المبيعات والربط مع الفواتير الضريبية
+              </p>
+              
+              <div className="flex flex-wrap justify-center lg:justify-start gap-4 mt-8">
                 <Link href="/sales-receipts/new">
-                  <button className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-teal-500 text-white font-bold text-sm hover:bg-teal-600 transition-all">
-                    <Plus size={16} />
-                    <span>إضافة إيصال جديد</span>
+                  <button className="flex items-center gap-3 px-6 py-3 bg-teal-500 text-white font-black text-sm rounded-2xl hover:bg-teal-600 transition-all shadow-xl active:scale-95">
+                    <Plus size={18} />
+                    إضافة إيصال جديد
                   </button>
                 </Link>
-                <button className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-blue-500 text-white font-bold text-sm hover:bg-blue-600 transition-all">
-                  <FileSpreadsheet size={16} />
-                  <span>تصدير</span>
+                <button 
+                    onClick={() => router.refresh()}
+                    className="flex items-center gap-3 px-6 py-3 bg-white/10 backdrop-blur-md rounded-2xl border border-white/20 text-white font-black text-sm hover:bg-white/20 transition-all shadow-xl active:scale-95"
+                  >
+                  <RefreshCw size={18} className="text-blue-400" />
+                  تحديث البيانات
                 </button>
               </div>
             </div>
+
+            {/* Summary Stats */}
+            <div className="grid grid-cols-2 gap-4 w-full lg:w-auto">
+              <motion.div 
+                initial={{ opacity: 0, x: 30 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.3 }}
+                className="bg-white/10 backdrop-blur-xl rounded-[2rem] p-6 border border-white/10 shadow-2xl min-w-[160px] group hover:bg-white/20 transition-all"
+              >
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="p-2 bg-blue-500/20 rounded-lg text-blue-400 group-hover:scale-110 transition-transform">
+                    <Receipt className="w-5 h-5" />
+                  </div>
+                  <span className="text-blue-300 font-black text-[10px] uppercase tracking-wider">الإجمالي</span>
+                </div>
+                <p className="text-3xl font-black text-white tracking-tight">{stats.total}</p>
+                <p className="text-blue-400/60 text-[10px] font-black mt-1">سند مبيعات</p>
+              </motion.div>
+
+              <motion.div 
+                initial={{ opacity: 0, x: 30 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.4 }}
+                className="bg-white/10 backdrop-blur-xl rounded-[2rem] p-6 border border-white/10 shadow-2xl min-w-[160px] group hover:bg-white/20 transition-all"
+              >
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="p-2 bg-emerald-500/20 rounded-lg text-emerald-400 group-hover:scale-110 transition-transform">
+                    <TrendingUp className="w-5 h-5" />
+                  </div>
+                  <span className="text-emerald-300 font-black text-[10px] uppercase tracking-wider">القيمة الإجمالية</span>
+                </div>
+                <p className="text-2xl font-black text-white tracking-tight">{Number(stats.total_amount).toLocaleString()}</p>
+                <p className="text-emerald-400/60 text-[10px] font-black mt-1">ريال سعودي</p>
+              </motion.div>
+
+              <motion.div 
+                initial={{ opacity: 0, x: 30 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.5 }}
+                className="bg-white/10 backdrop-blur-xl rounded-[2rem] p-6 border border-white/10 shadow-2xl min-w-[160px] group hover:bg-white/20 transition-all"
+              >
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="p-2 bg-purple-500/20 rounded-lg text-purple-400 group-hover:scale-110 transition-transform">
+                    <LinkIcon className="w-5 h-5" />
+                  </div>
+                  <span className="text-purple-300 font-black text-[10px] uppercase tracking-wider">مرتبط</span>
+                </div>
+                <p className="text-3xl font-black text-white tracking-tight">{stats.linked}</p>
+                <p className="text-purple-400/60 text-[10px] font-black mt-1">سند مرتبط</p>
+              </motion.div>
+
+              <motion.div 
+                initial={{ opacity: 0, x: 30 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.6 }}
+                className="bg-white/10 backdrop-blur-xl rounded-[2rem] p-6 border border-white/10 shadow-2xl min-w-[160px] group hover:bg-white/20 transition-all"
+              >
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="p-2 bg-amber-500/20 rounded-lg text-amber-400 group-hover:scale-110 transition-transform">
+                    <Unlink className="w-5 h-5" />
+                  </div>
+                  <span className="text-amber-300 font-black text-[10px] uppercase tracking-wider">غير مرتبط</span>
+                </div>
+                <p className="text-3xl font-black text-white tracking-tight">{stats.unlinked}</p>
+                <p className="text-amber-400/60 text-[10px] font-black mt-1">سند معلق</p>
+              </motion.div>
+            </div>
           </div>
 
-          <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-            <div className="bg-gradient-to-br from-[#1a237e] to-[#283593] px-4 py-3 flex justify-between items-center">
-              <div className="flex items-center gap-2 text-white">
-                <Receipt size={18} />
-                <h3 className="font-bold text-sm">قائمة إيصالات المبيعات</h3>
+          {/* Divider */}
+          <div className="border-t border-white/10" />
+
+          {/* Search & Filter Bar */}
+          <div className="bg-white/5 backdrop-blur-xl rounded-3xl p-6 border border-white/10 flex flex-col md:flex-row gap-4 items-center justify-between">
+            <div className="relative w-full md:w-96">
+              <Search className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
+              <input
+                type="text"
+                placeholder="بحث برقم الإيصال أو اسم العميل..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full pr-12 pl-4 py-3 bg-white/10 border border-white/10 rounded-2xl text-white font-medium focus:bg-white/20 focus:border-blue-500/50 outline-none transition-all placeholder:text-slate-500"
+              />
+            </div>
+            <div className="flex gap-3 w-full md:w-auto">
+              <button className="flex-1 md:flex-none flex items-center justify-center gap-2 px-6 py-3 bg-blue-500/20 text-blue-300 font-bold rounded-2xl border border-blue-500/30 hover:bg-blue-500/30 transition-all">
+                <FileSpreadsheet size={18} />
+                تصدير البيانات
+              </button>
+            </div>
+          </div>
+
+          {/* Table Section */}
+          <div className="bg-white/5 backdrop-blur-xl rounded-[2rem] border border-white/10 overflow-hidden shadow-2xl">
+            <div className="p-6 border-b border-white/10 flex items-center justify-between bg-white/5">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-blue-500/20 rounded-xl">
+                  <Receipt className="w-5 h-5 text-blue-400" />
+                </div>
+                <h3 className="font-black text-lg">سجل إيصالات المبيعات</h3>
               </div>
-              <span className="bg-white/20 text-white px-2 py-0.5 rounded text-xs font-bold">
-                {filteredReceipts.length} إيصال
+              <span className="px-4 py-1.5 bg-white/10 rounded-full text-[10px] font-black uppercase tracking-widest text-slate-400">
+                {filteredReceipts.length} إيصال موجود
               </span>
             </div>
 
-            {filteredReceipts.length > 0 ? (
-              <div className="overflow-x-auto max-h-[calc(100vh-450px)]">
-                <table className="w-full">
-                  <thead className="sticky top-0 bg-gray-50 z-10">
-                    <tr className="border-b border-gray-100">
-                      <th className="text-right px-4 py-3 text-xs font-bold text-gray-600">رقم الإيصال</th>
-                      <th className="text-right px-4 py-3 text-xs font-bold text-gray-600">العميل</th>
-                      <th className="text-right px-4 py-3 text-xs font-bold text-gray-600">التاريخ</th>
-                      <th className="text-right px-4 py-3 text-xs font-bold text-gray-600">المبلغ</th>
-                      <th className="text-right px-4 py-3 text-xs font-bold text-gray-600">مرتبط بفاتورة</th>
-                      <th className="text-center px-4 py-3 text-xs font-bold text-gray-600">الإجراءات</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-50">
-                    {filteredReceipts.map((receipt) => (
-                      <tr 
+            <div className="overflow-x-auto">
+              <table className="w-full text-right">
+                <thead>
+                  <tr className="bg-white/5 border-b border-white/5">
+                    <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">رقم الإيصال</th>
+                    <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">العميل</th>
+                    <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">التاريخ</th>
+                    <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">المبلغ</th>
+                    <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">الحالة</th>
+                    <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">الإجراءات</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-white/5">
+                  {filteredReceipts.length > 0 ? (
+                    filteredReceipts.map((receipt, idx) => (
+                      <motion.tr 
                         key={receipt.id}
-                        className="hover:bg-gray-50/50 transition-colors"
+                        initial={{ opacity: 0, x: -10 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: 0.05 * idx }}
+                        className="hover:bg-white/5 transition-colors group"
                       >
-                        <td className="px-4 py-3">
-                          <code className="px-2 py-1 bg-teal-50 text-teal-600 rounded text-xs font-bold">
+                        <td className="px-6 py-5">
+                          <span className="px-3 py-1.5 bg-blue-500/10 text-blue-400 rounded-lg text-xs font-black border border-blue-500/20">
                             {receipt.receipt_number}
-                          </code>
+                          </span>
                         </td>
-                        <td className="px-4 py-3">
-                          <div className="flex items-center gap-2">
-                            <div className="h-8 w-8 rounded-lg bg-purple-50 flex items-center justify-center text-purple-500">
-                              <User size={14} />
+                        <td className="px-6 py-5">
+                          <div className="flex items-center gap-3">
+                            <div className="h-9 w-9 rounded-xl bg-white/5 flex items-center justify-center text-slate-400 group-hover:bg-blue-500/20 group-hover:text-blue-400 transition-all">
+                              <User size={16} />
                             </div>
-                            <span className="font-bold text-gray-900 text-sm">
-                              {receipt.client_name || "غير محدد"}
-                            </span>
+                            <span className="font-bold text-sm text-slate-200">{receipt.client_name || "غير محدد"}</span>
                           </div>
                         </td>
-                        <td className="px-4 py-3">
-                          <div className="flex items-center gap-1 text-xs text-gray-600">
-                            <Calendar size={12} />
+                        <td className="px-6 py-5">
+                          <div className="flex items-center gap-2 text-xs text-slate-400 font-bold">
+                            <Calendar size={14} className="text-slate-500" />
                             {receipt.receipt_date ? format(new Date(receipt.receipt_date), 'yyyy/MM/dd') : '-'}
                           </div>
                         </td>
-                        <td className="px-4 py-3">
-                          <div className="flex items-center gap-1 text-sm font-bold text-emerald-600">
-                            <DollarSign size={14} />
-                            {Number(receipt.amount || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}
-                            <span className="text-xs text-gray-400">ر.س</span>
+                        <td className="px-6 py-5">
+                          <div className="flex items-baseline gap-1 text-emerald-400">
+                            <span className="text-lg font-black">{Number(receipt.amount || 0).toLocaleString()}</span>
+                            <span className="text-[10px] font-bold text-emerald-400/50 uppercase">ر.س</span>
                           </div>
                         </td>
-                          <td className="px-4 py-3">
+                        <td className="px-6 py-5 text-center">
                           {receipt.invoice_number ? (
-                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-blue-50 text-blue-600 text-xs font-bold">
-                              <LinkIcon size={10} />
-                              {receipt.invoice_number}
+                            <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-500/10 text-emerald-400 text-[10px] font-black rounded-full border border-emerald-500/20">
+                              <LinkIcon size={12} />
+                              مرتبط بالفاتورة {receipt.invoice_number}
                             </span>
                           ) : (
-                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-gray-100 text-gray-500 text-xs font-bold">
-                              <Unlink size={10} />
+                            <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-amber-500/10 text-amber-400 text-[10px] font-black rounded-full border border-amber-500/20">
+                              <Unlink size={12} />
                               غير مرتبط
                             </span>
                           )}
                         </td>
-                        <td className="px-4 py-3">
-                          <div className="flex items-center justify-center gap-1">
+                        <td className="px-6 py-5">
+                          <div className="flex items-center justify-center gap-2">
                             <Link href={`/sales-receipts/${receipt.id}`}>
-                              <button className="h-7 w-7 rounded-lg bg-blue-50 text-blue-500 flex items-center justify-center hover:bg-blue-500 hover:text-white transition-all" title="عرض">
-                                <Eye size={14} />
+                              <button className="h-9 w-9 rounded-xl bg-blue-500/10 text-blue-400 flex items-center justify-center hover:bg-blue-500 hover:text-white transition-all shadow-lg active:scale-95" title="عرض التفاصيل">
+                                <Eye size={16} />
                               </button>
                             </Link>
                             <button 
                               onClick={() => handleDelete(receipt.id, receipt.receipt_number)}
                               disabled={deleteLoading === receipt.id}
-                              className="h-7 w-7 rounded-lg bg-red-50 text-red-500 flex items-center justify-center hover:bg-red-500 hover:text-white transition-all disabled:opacity-50"
-                              title="حذف"
+                              className="h-9 w-9 rounded-xl bg-rose-500/10 text-rose-400 flex items-center justify-center hover:bg-rose-500 hover:text-white transition-all shadow-lg active:scale-95 disabled:opacity-50"
+                              title="حذف السند"
                             >
                               {deleteLoading === receipt.id ? (
-                                <div className="h-3 w-3 border-2 border-current border-t-transparent rounded-full animate-spin" />
+                                <Loader2 size={16} className="animate-spin" />
                               ) : (
-                                <Trash2 size={14} />
+                                <Trash2 size={16} />
                               )}
                             </button>
                           </div>
                         </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            ) : (
-              <div className="py-16 text-center">
-                <Receipt size={48} className="mx-auto text-gray-200 mb-4" />
-                <h4 className="text-lg font-bold text-gray-600 mb-2">لا توجد إيصالات مبيعات</h4>
-                <p className="text-gray-400 text-sm mb-4">ابدأ بإضافة أول إيصال مبيعات</p>
-                <Link href="/sales-receipts/new">
-                  <button className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-teal-500 text-white font-bold text-sm hover:bg-teal-600 transition-all">
-                    <Plus size={16} />
-                    <span>إضافة إيصال جديد</span>
-                  </button>
-                </Link>
-              </div>
-            )}
+                      </motion.tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan={6} className="px-6 py-20 text-center">
+                        <div className="flex flex-col items-center gap-4 opacity-40">
+                          <Receipt size={64} className="text-slate-400" />
+                          <div className="space-y-1">
+                            <p className="text-xl font-black text-slate-300">لا توجد إيصالات مبيعات</p>
+                            <p className="text-sm font-medium text-slate-500">ابدأ بإضافة أول إيصال مبيعات من الزر أعلاه</p>
+                          </div>
+                        </div>
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
+
+        {/* Decorative elements */}
+        <div className="absolute -bottom-24 -right-24 w-96 h-96 bg-blue-500/10 rounded-full blur-[100px] pointer-events-none" />
+        <div className="absolute -top-24 -left-24 w-96 h-96 bg-emerald-500/10 rounded-full blur-[100px] pointer-events-none" />
+      </motion.div>
+
+      {/* Footer */}
+      <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-[10px] font-black text-slate-500 uppercase tracking-widest pt-4 opacity-60">
+        <div className="flex items-center gap-2">
+          <Sparkles size={10} className="text-blue-500" />
+          <span>نظام الخدمات اللوجستية المتكامل - إدارة المبيعات</span>
+        </div>
+        <span>جميع الحقوق محفوظة © {new Date().getFullYear()}</span>
       </div>
     </div>
   );

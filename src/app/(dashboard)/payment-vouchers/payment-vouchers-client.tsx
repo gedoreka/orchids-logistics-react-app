@@ -8,9 +8,11 @@ import {
   Search, Edit3, Trash2, Printer, Eye, ChevronDown, ChevronUp,
   CheckCircle, AlertCircle, X, ArrowDown, ArrowUp, Building2,
   Banknote, StickyNote, Sparkles, RefreshCw, Download, Target,
-  BadgeCheck, Clock, FileCheck, Send, Ban
+  BadgeCheck, Clock, FileCheck, Send, Ban, Loader2, Plus, FileSpreadsheet,
+  TrendingDown, TrendingUp
 } from "lucide-react";
 import { toast } from "sonner";
+import { cn } from "@/lib/utils";
 
 interface Account {
   id: number;
@@ -280,20 +282,14 @@ function PaymentVouchersContent() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-[60vh]">
-        <div className="text-center space-y-4">
-          <div className="relative w-20 h-20 mx-auto">
-            <div className="absolute inset-0 border-4 border-rose-200 rounded-full animate-pulse" />
-            <div className="absolute inset-0 border-4 border-rose-600 border-t-transparent rounded-full animate-spin" />
-          </div>
-          <p className="text-slate-500 font-bold">جاري تحميل سندات الصرف...</p>
-        </div>
+      <div className="flex items-center justify-center min-h-screen">
+        <Loader2 className="w-10 h-10 text-rose-500 animate-spin" />
       </div>
     );
   }
 
   return (
-    <div className="max-w-[1800px] mx-auto p-4 md:p-6 space-y-8" dir="rtl">
+    <div className="max-w-[95%] mx-auto p-4 md:p-8 space-y-8" dir="rtl">
       {/* Print Styles */}
       <style jsx global>{`
         @media print {
@@ -304,438 +300,424 @@ function PaymentVouchersContent() {
         }
       `}</style>
 
-      {/* Header */}
       <motion.div
         initial={{ opacity: 0, y: -30 }}
         animate={{ opacity: 1, y: 0 }}
-        className="relative overflow-hidden rounded-[30px] bg-gradient-to-br from-rose-900 via-rose-800 to-rose-900 p-8 md:p-12 shadow-2xl"
+        className="relative overflow-hidden rounded-[2.5rem] bg-gradient-to-br from-[#1e293b] via-[#334155] to-[#1e293b] p-10 text-white shadow-2xl border border-white/10"
       >
-        <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-rose-500 via-orange-500 to-amber-500" />
-        <div className="absolute -top-32 -left-32 w-80 h-80 bg-rose-500/10 rounded-full blur-3xl" />
-        <div className="absolute -bottom-32 -right-32 w-80 h-80 bg-orange-500/10 rounded-full blur-3xl" />
-
-        <div className="relative z-10 flex flex-col lg:flex-row items-center justify-between gap-8">
-          <div className="flex items-center gap-6">
-            <div className="p-5 bg-gradient-to-br from-rose-500 to-orange-600 rounded-3xl shadow-2xl shadow-rose-500/30">
-              <Wallet className="w-12 h-12 text-white" />
-            </div>
-            <div className="text-center lg:text-right">
-              <h1 className="text-4xl md:text-5xl font-black text-white tracking-tight">
+        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 via-rose-500 via-amber-500 via-purple-500 to-blue-500 animate-gradient-x" />
+        
+        <div className="relative z-10 space-y-10">
+          {/* Header Section */}
+          <div className="flex flex-col lg:flex-row items-center justify-between gap-10">
+            <div className="text-center lg:text-right space-y-4">
+              <motion.div 
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                transition={{ delay: 0.2, type: "spring" }}
+                className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-md rounded-2xl border border-white/10 mb-2"
+              >
+                <Sparkles className="w-4 h-4 text-yellow-400 animate-pulse" />
+                <span className="text-blue-200 font-black text-[10px] uppercase tracking-widest">إدارة سندات الصرف</span>
+              </motion.div>
+              
+              <h1 className="text-4xl md:text-6xl font-black text-white tracking-tight bg-gradient-to-r from-white via-rose-100 to-white bg-clip-text text-transparent">
                 سندات الصرف
               </h1>
-              <p className="text-rose-300 mt-2 text-lg">إدارة المدفوعات والمصروفات المالية</p>
-            </div>
-          </div>
-
-          <div className="flex flex-wrap items-center justify-center gap-4">
-            <div className="bg-white/10 backdrop-blur-md rounded-2xl px-6 py-4 border border-white/10">
-              <p className="text-xs text-rose-300 font-bold uppercase tracking-wider">رقم السند الجديد</p>
-              <p className="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-rose-300 to-orange-300">
-                {voucherNumber}
+              <p className="text-lg text-slate-300 max-w-2xl font-medium leading-relaxed">
+                إدارة شاملة للمصروفات والمدفوعات والمستحقات المالية للجهات المختلفة
               </p>
-            </div>
-            <div className="bg-rose-500/20 backdrop-blur-md rounded-2xl px-6 py-4 border border-rose-500/30">
-              <p className="text-xs text-rose-200 font-bold uppercase tracking-wider">إجمالي السندات</p>
-              <p className="text-3xl font-black text-rose-300">{vouchers.length}</p>
-            </div>
-          </div>
-        </div>
-
-          <div className="relative z-10 flex flex-wrap justify-center lg:justify-start gap-4 mt-8">
-            <span className="flex items-center gap-2 px-5 py-2.5 bg-blue-500/20 backdrop-blur-sm rounded-xl border border-blue-500/30 text-blue-200 font-bold">
-              <User size={18} />
-              المسؤول: المدير
-            </span>
-            <span className="flex items-center gap-2 px-5 py-2.5 bg-purple-500/20 backdrop-blur-sm rounded-xl border border-purple-500/30 text-purple-200 font-bold">
-              <Calendar size={18} />
-              {new Date().toLocaleDateString("en-GB")}
-            </span>
-          </div>
-        </motion.div>
-
-      {/* Action Bar */}
-      <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-        <button
-          onClick={() => { setShowForm(!showForm); if (showForm) resetForm(); }}
-          className={`flex items-center gap-3 px-8 py-4 rounded-2xl font-black text-lg shadow-xl transition-all transform hover:-translate-y-1 active:scale-95 ${
-            showForm
-              ? "bg-slate-200 text-slate-700 hover:bg-slate-300"
-              : "bg-gradient-to-r from-rose-600 to-orange-600 text-white hover:shadow-rose-500/30"
-          }`}
-        >
-          {showForm ? <X size={24} /> : <PlusCircle size={24} />}
-          {showForm ? "إغلاق النموذج" : "إضافة سند صرف جديد"}
-        </button>
-
-        <div className="relative w-full md:w-96">
-          <Search className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
-          <input
-            type="text"
-            placeholder="البحث برقم السند أو اسم المستفيد..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full h-14 pr-12 pl-4 bg-white border-2 border-slate-200 rounded-2xl text-slate-800 font-bold focus:border-rose-500 focus:ring-4 focus:ring-rose-500/20 outline-none transition-all"
-          />
-        </div>
-      </div>
-
-      {/* Form */}
-      <AnimatePresence>
-        {showForm && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "auto" }}
-            exit={{ opacity: 0, height: 0 }}
-            className="overflow-hidden"
-          >
-            <div className="bg-white rounded-[30px] shadow-2xl border border-slate-100 overflow-hidden">
-              <div className="bg-gradient-to-r from-rose-600 via-rose-700 to-orange-600 p-6 md:p-8">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-4">
-                    <div className="p-3 bg-white/20 rounded-2xl">
-                      <Wallet className="w-8 h-8 text-white" />
-                    </div>
-                    <div>
-                      <h2 className="text-2xl font-black text-white">
-                        {editingId ? "تعديل سند الصرف" : "إضافة سند صرف جديد"}
-                      </h2>
-                      <p className="text-rose-200 font-bold">تسجيل مدفوعات ومصروفات</p>
-                    </div>
-                  </div>
-                  <div className="bg-white/20 backdrop-blur-sm px-6 py-3 rounded-2xl border border-white/20">
-                    <span className="text-white text-xl font-black">{voucherNumber}</span>
-                  </div>
-                </div>
-              </div>
-
-              <form onSubmit={handleSubmit} className="p-6 md:p-8 space-y-8">
-                {/* Basic Info */}
-                <div className="bg-gradient-to-r from-slate-50 to-rose-50 rounded-2xl p-6 border-r-4 border-rose-500">
-                  <h3 className="text-lg font-black text-slate-800 mb-6 flex items-center gap-3">
-                    <FileText className="w-5 h-5 text-rose-500" />
-                    المعلومات الأساسية
-                  </h3>
-                  <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-                    <div>
-                      <label className="block text-sm font-black text-slate-700 mb-2">رقم السند</label>
-                      <input type="text" value={voucherNumber} readOnly className="w-full h-12 px-4 bg-slate-100 border-2 border-slate-200 rounded-xl text-slate-500 font-bold cursor-not-allowed" />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-black text-slate-700 mb-2">تاريخ الصرف *</label>
-                      <input type="date" value={form.voucher_date} onChange={(e) => setForm({ ...form, voucher_date: e.target.value })} required className="w-full h-12 px-4 bg-white border-2 border-slate-200 rounded-xl font-bold focus:border-rose-500 outline-none" />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-black text-slate-700 mb-2">نوع المستفيد</label>
-                      <select value={form.payee_type} onChange={(e) => setForm({ ...form, payee_type: e.target.value })} className="w-full h-12 px-4 bg-white border-2 border-slate-200 rounded-xl font-bold focus:border-rose-500 outline-none">
-                        {payeeTypes.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
-                      </select>
-                    </div>
-                    <div>
-                      <label className="block text-sm font-black text-slate-700 mb-2">حالة السند</label>
-                      <select value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value })} className="w-full h-12 px-4 bg-white border-2 border-slate-200 rounded-xl font-bold focus:border-rose-500 outline-none">
-                        {statusOptions.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
-                      </select>
-                    </div>
-                  </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
-                    <div>
-                      <label className="block text-sm font-black text-slate-700 mb-2">اسم المستفيد *</label>
-                      <input type="text" value={form.payee_name} onChange={(e) => setForm({ ...form, payee_name: e.target.value })} placeholder="أدخل اسم المستفيد" required className="w-full h-12 px-4 bg-white border-2 border-slate-200 rounded-xl font-bold focus:border-rose-500 outline-none" />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-black text-slate-700 mb-2">رقم هوية المستفيد</label>
-                      <input type="text" value={form.payee_id} onChange={(e) => setForm({ ...form, payee_id: e.target.value })} placeholder="رقم الهوية/السجل التجاري" className="w-full h-12 px-4 bg-white border-2 border-slate-200 rounded-xl font-bold focus:border-rose-500 outline-none" />
-                    </div>
-                  </div>
-                </div>
-
-                {/* Payment Method */}
-                <div className="bg-gradient-to-r from-slate-50 to-purple-50 rounded-2xl p-6 border-r-4 border-purple-500">
-                  <h3 className="text-lg font-black text-slate-800 mb-6 flex items-center gap-3">
-                    <CreditCard className="w-5 h-5 text-purple-500" />
-                    طريقة الدفع والفرع
-                  </h3>
-                  <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-                    <div>
-                      <label className="block text-sm font-black text-slate-700 mb-2">طريقة الصرف</label>
-                      <select value={form.payment_method} onChange={(e) => setForm({ ...form, payment_method: e.target.value })} className="w-full h-12 px-4 bg-white border-2 border-slate-200 rounded-xl font-bold focus:border-rose-500 outline-none">
-                        {paymentMethods.map(m => <option key={m.value} value={m.value}>{m.label}</option>)}
-                      </select>
-                    </div>
-                    <div>
-                      <label className="block text-sm font-black text-slate-700 mb-2">رمز الفرع</label>
-                      <input type="text" value={form.branch_code} onChange={(e) => setForm({ ...form, branch_code: e.target.value })} placeholder="رمز الفرع" className="w-full h-12 px-4 bg-white border-2 border-slate-200 rounded-xl font-bold focus:border-rose-500 outline-none" />
-                    </div>
-                    <div className="md:col-span-2">
-                      <label className="block text-sm font-black text-slate-700 mb-2">اسم الفرع</label>
-                      <input type="text" value={form.branch_name} onChange={(e) => setForm({ ...form, branch_name: e.target.value })} placeholder="اسم الفرع" className="w-full h-12 px-4 bg-white border-2 border-slate-200 rounded-xl font-bold focus:border-rose-500 outline-none" />
-                    </div>
-                  </div>
-                  {(form.payment_method === "شيك" || form.payment_method === "تحويل بنكي") && (
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
-                      <div>
-                        <label className="block text-sm font-black text-slate-700 mb-2">اسم البنك</label>
-                        <input type="text" value={form.bank_name} onChange={(e) => setForm({ ...form, bank_name: e.target.value })} placeholder="اسم البنك" className="w-full h-12 px-4 bg-white border-2 border-slate-200 rounded-xl font-bold focus:border-rose-500 outline-none" />
-                      </div>
-                      {form.payment_method === "شيك" && (
-                        <div>
-                          <label className="block text-sm font-black text-slate-700 mb-2">رقم الشيك</label>
-                          <input type="text" value={form.check_number} onChange={(e) => setForm({ ...form, check_number: e.target.value })} placeholder="رقم الشيك" className="w-full h-12 px-4 bg-white border-2 border-slate-200 rounded-xl font-bold focus:border-rose-500 outline-none" />
-                        </div>
-                      )}
-                    </div>
+              
+              <div className="flex flex-wrap justify-center lg:justify-start gap-4 mt-8">
+                <button 
+                  onClick={() => { setShowForm(!showForm); if (showForm) resetForm(); }}
+                  className={cn(
+                    "flex items-center gap-3 px-6 py-3 font-black text-sm rounded-2xl transition-all shadow-xl active:scale-95",
+                    showForm ? "bg-white/10 text-white border border-white/20" : "bg-rose-500 text-white hover:bg-rose-600"
                   )}
-                </div>
-
-                {/* Accounts */}
-                <div className="bg-gradient-to-r from-slate-50 to-amber-50 rounded-2xl p-6 border-r-4 border-amber-500">
-                  <h3 className="text-lg font-black text-slate-800 mb-6 flex items-center gap-3">
-                    <Landmark className="w-5 h-5 text-amber-500" />
-                    معلومات الحسابات
-                  </h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                    <div>
-                      <label className="block text-sm font-black text-slate-700 mb-2"><ArrowDown className="inline w-4 h-4 ml-1 text-red-400" />حساب مدين</label>
-                      <select value={form.debit_account_code} onChange={(e) => setForm({ ...form, debit_account_code: e.target.value })} className="w-full h-12 px-4 bg-white border-2 border-slate-200 rounded-xl font-bold focus:border-rose-500 outline-none">
-                        <option value="">-- اختر الحساب --</option>
-                        {accounts.map(a => <option key={a.id} value={a.account_code}>{a.account_code} - {a.account_name}</option>)}
-                      </select>
-                    </div>
-                    <div>
-                      <label className="block text-sm font-black text-slate-700 mb-2">مركز تكلفة مدين</label>
-                      <select value={form.debit_cost_center} onChange={(e) => setForm({ ...form, debit_cost_center: e.target.value })} className="w-full h-12 px-4 bg-white border-2 border-slate-200 rounded-xl font-bold focus:border-rose-500 outline-none">
-                        <option value="">-- اختر --</option>
-                        {costCenters.map(c => <option key={c.id} value={c.center_code}>{c.center_code} - {c.center_name}</option>)}
-                      </select>
-                    </div>
-                    <div>
-                      <label className="block text-sm font-black text-slate-700 mb-2"><ArrowUp className="inline w-4 h-4 ml-1 text-green-400" />حساب دائن</label>
-                      <select value={form.credit_account_code} onChange={(e) => setForm({ ...form, credit_account_code: e.target.value })} className="w-full h-12 px-4 bg-white border-2 border-slate-200 rounded-xl font-bold focus:border-rose-500 outline-none">
-                        <option value="">-- اختر الحساب --</option>
-                        {accounts.map(a => <option key={a.id} value={a.account_code}>{a.account_code} - {a.account_name}</option>)}
-                      </select>
-                    </div>
-                    <div>
-                      <label className="block text-sm font-black text-slate-700 mb-2">مركز تكلفة دائن</label>
-                      <select value={form.credit_cost_center} onChange={(e) => setForm({ ...form, credit_cost_center: e.target.value })} className="w-full h-12 px-4 bg-white border-2 border-slate-200 rounded-xl font-bold focus:border-rose-500 outline-none">
-                        <option value="">-- اختر --</option>
-                        {costCenters.map(c => <option key={c.id} value={c.center_code}>{c.center_code} - {c.center_name}</option>)}
-                      </select>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Financial */}
-                <div className="bg-gradient-to-r from-slate-50 to-rose-50 rounded-2xl p-6 border-r-4 border-rose-600">
-                  <h3 className="text-lg font-black text-slate-800 mb-6 flex items-center gap-3">
-                    <Calculator className="w-5 h-5 text-rose-600" />
-                    المعلومات المالية
-                  </h3>
-                  <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
-                    <div>
-                      <label className="block text-sm font-black text-slate-700 mb-2">المبلغ *</label>
-                      <input type="number" step="0.01" value={form.amount} onChange={(e) => setForm({ ...form, amount: e.target.value })} placeholder="0.00" required className="w-full h-12 px-4 bg-white border-2 border-slate-200 rounded-xl font-bold focus:border-rose-500 outline-none" />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-black text-slate-700 mb-2">نسبة الضريبة %</label>
-                      <input type="number" step="0.01" value={form.tax_rate} onChange={(e) => setForm({ ...form, tax_rate: e.target.value })} placeholder="0" className="w-full h-12 px-4 bg-white border-2 border-slate-200 rounded-xl font-bold focus:border-rose-500 outline-none" />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-black text-slate-700 mb-2">قيمة الضريبة</label>
-                      <input type="text" value={form.tax_value} readOnly className="w-full h-12 px-4 bg-amber-50 border-2 border-amber-200 rounded-xl text-amber-700 font-bold cursor-not-allowed" />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-black text-slate-700 mb-2">صافي المبلغ</label>
-                      <input type="text" value={form.total_amount} readOnly className="w-full h-12 px-4 bg-rose-50 border-2 border-rose-200 rounded-xl text-rose-700 font-black cursor-not-allowed" />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-black text-slate-700 mb-2">العملة</label>
-                      <select value={form.currency} onChange={(e) => setForm({ ...form, currency: e.target.value })} className="w-full h-12 px-4 bg-white border-2 border-slate-200 rounded-xl font-bold focus:border-rose-500 outline-none">
-                        <option value="SAR">ريال سعودي</option>
-                        <option value="USD">دولار أمريكي</option>
-                        <option value="EUR">يورو</option>
-                      </select>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Purpose & Additional */}
-                <div className="bg-gradient-to-r from-slate-50 to-cyan-50 rounded-2xl p-6 border-r-4 border-cyan-500">
-                  <h3 className="text-lg font-black text-slate-800 mb-6 flex items-center gap-3">
-                    <Target className="w-5 h-5 text-cyan-500" />
-                    الغرض والتفاصيل
-                  </h3>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-                    <div className="md:col-span-2">
-                      <label className="block text-sm font-black text-slate-700 mb-2">الغرض من الصرف</label>
-                      <input type="text" value={form.payment_purpose} onChange={(e) => setForm({ ...form, payment_purpose: e.target.value })} placeholder="سبب الصرف..." className="w-full h-12 px-4 bg-white border-2 border-slate-200 rounded-xl font-bold focus:border-rose-500 outline-none" />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-black text-slate-700 mb-2">رقم المستند</label>
-                      <input type="text" value={form.document_number} onChange={(e) => setForm({ ...form, document_number: e.target.value })} placeholder="رقم المستند" className="w-full h-12 px-4 bg-white border-2 border-slate-200 rounded-xl font-bold focus:border-rose-500 outline-none" />
-                    </div>
-                  </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                      <label className="block text-sm font-black text-slate-700 mb-2">الوصف</label>
-                      <textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} rows={3} placeholder="وصف السند..." className="w-full px-4 py-3 bg-white border-2 border-slate-200 rounded-xl font-medium focus:border-rose-500 outline-none resize-none" />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-black text-slate-700 mb-2">ملاحظات</label>
-                      <textarea value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} rows={3} placeholder="ملاحظات إضافية..." className="w-full px-4 py-3 bg-white border-2 border-slate-200 rounded-xl font-medium focus:border-rose-500 outline-none resize-none" />
-                    </div>
-                  </div>
-                </div>
-
-                {/* Submit */}
-                <div className="flex items-center justify-between pt-6 border-t border-slate-100">
-                  <p className="text-sm text-slate-500">أعد بواسطة: <span className="font-bold text-rose-600">{form.prepared_by}</span></p>
-                  <div className="flex gap-4">
-                    {editingId && <button type="button" onClick={resetForm} className="px-8 py-4 bg-slate-200 hover:bg-slate-300 text-slate-700 rounded-2xl font-black transition-all">إلغاء</button>}
-                    <button type="submit" disabled={submitting} className={`flex items-center gap-3 px-10 py-4 rounded-2xl font-black text-white shadow-xl transition-all active:scale-95 ${submitting ? "bg-slate-400 cursor-not-allowed" : "bg-gradient-to-r from-rose-600 to-orange-600 hover:shadow-rose-500/30 hover:-translate-y-1"}`}>
-                      {submitting ? <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" /> : <Save className="w-5 h-5" />}
-                      {editingId ? "حفظ التعديلات" : "حفظ السند"}
-                    </button>
-                  </div>
-                </div>
-              </form>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* Vouchers List */}
-      <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="bg-white rounded-[30px] shadow-2xl border border-slate-100 overflow-hidden">
-        <div className="bg-gradient-to-r from-slate-800 via-rose-900 to-slate-800 p-6 md:p-8">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-6">
-            <div className="flex items-center gap-4">
-              <div className="p-3 bg-white/20 rounded-2xl"><Wallet className="w-8 h-8 text-white" /></div>
-              <div>
-                <h2 className="text-2xl font-black text-white">سجل سندات الصرف</h2>
-                <p className="text-slate-400 font-bold">جميع المدفوعات والمصروفات</p>
+                >
+                  {showForm ? <X size={18} /> : <Plus size={18} />}
+                  {showForm ? "إلغاء النموذج" : "إضافة سند صرف جديد"}
+                </button>
+                <button 
+                    onClick={fetchData}
+                    className="flex items-center gap-3 px-6 py-3 bg-white/10 backdrop-blur-md rounded-2xl border border-white/20 text-white font-black text-sm hover:bg-white/20 transition-all shadow-xl active:scale-95"
+                  >
+                  <RefreshCw size={18} className={cn("text-blue-400", loading ? "animate-spin" : "")} />
+                  تحديث البيانات
+                </button>
               </div>
             </div>
-            <div className="flex items-center gap-3">
-              <span className="bg-rose-500/20 text-rose-300 px-5 py-2.5 rounded-xl border border-rose-500/30 font-bold">{filteredVouchers.length} سند</span>
-              <button onClick={fetchData} className="p-3 bg-white/10 hover:bg-white/20 rounded-xl transition-colors"><RefreshCw className="w-5 h-5 text-white" /></button>
+
+            {/* Summary Stats */}
+            <div className="grid grid-cols-2 gap-4 w-full lg:w-auto">
+              <motion.div 
+                initial={{ opacity: 0, x: 30 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.3 }}
+                className="bg-white/10 backdrop-blur-xl rounded-[2rem] p-6 border border-white/10 shadow-2xl min-w-[160px] group hover:bg-white/20 transition-all"
+              >
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="p-2 bg-rose-500/20 rounded-lg text-rose-400 group-hover:scale-110 transition-transform">
+                    <Wallet className="w-5 h-5" />
+                  </div>
+                  <span className="text-rose-300 font-black text-[10px] uppercase tracking-wider">العدد الإجمالي</span>
+                </div>
+                <p className="text-3xl font-black text-white tracking-tight">{vouchers.length}</p>
+                <p className="text-rose-400/60 text-[10px] font-black mt-1">سند صرف</p>
+              </motion.div>
+
+              <motion.div 
+                initial={{ opacity: 0, x: 30 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.4 }}
+                className="bg-white/10 backdrop-blur-xl rounded-[2rem] p-6 border border-white/10 shadow-2xl min-w-[160px] group hover:bg-white/20 transition-all"
+              >
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="p-2 bg-emerald-500/20 rounded-lg text-emerald-400 group-hover:scale-110 transition-transform">
+                    <TrendingDown className="w-5 h-5" />
+                  </div>
+                  <span className="text-emerald-300 font-black text-[10px] uppercase tracking-wider">السند القادم</span>
+                </div>
+                <p className="text-2xl font-black text-white tracking-tight">{voucherNumber}</p>
+                <p className="text-emerald-400/60 text-[10px] font-black mt-1">تسلسلي</p>
+              </motion.div>
+            </div>
+          </div>
+
+          <AnimatePresence>
+            {showForm && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: "auto" }}
+                exit={{ opacity: 0, height: 0 }}
+                className="overflow-hidden"
+              >
+                <div className="bg-white/5 backdrop-blur-xl rounded-[2rem] border border-white/10 overflow-hidden shadow-2xl">
+                    <div className="p-8 border-b border-white/10 bg-white/5">
+                        <div className="flex items-center gap-4">
+                            <div className="p-3 bg-rose-500/20 rounded-2xl text-rose-400">
+                                <PlusCircle className="w-8 h-8" />
+                            </div>
+                            <div>
+                                <h2 className="text-2xl font-black text-white">
+                                    {editingId ? "تعديل سند الصرف" : "إنشاء سند صرف جديد"}
+                                </h2>
+                                <p className="text-slate-400 font-bold tracking-wide">يرجى تعبئة بيانات السند المالية</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <form onSubmit={handleSubmit} className="p-8 space-y-8">
+                        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+                            <div className="space-y-2">
+                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mr-2">تاريخ الصرف</label>
+                                <div className="relative">
+                                    <Calendar className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+                                    <input
+                                        type="date"
+                                        value={form.voucher_date}
+                                        onChange={(e) => setForm({ ...form, voucher_date: e.target.value })}
+                                        className="w-full pr-12 pl-4 py-3 bg-white/5 border border-white/10 rounded-2xl text-white font-bold focus:bg-white/10 focus:border-rose-500 outline-none transition-all"
+                                        required
+                                    />
+                                </div>
+                            </div>
+                            <div className="space-y-2">
+                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mr-2">نوع المستفيد</label>
+                                <select 
+                                    value={form.payee_type} 
+                                    onChange={(e) => setForm({ ...form, payee_type: e.target.value })}
+                                    className="w-full px-6 py-3 bg-white/5 border border-white/10 rounded-2xl text-white font-bold focus:bg-white/10 focus:border-rose-500 outline-none appearance-none"
+                                >
+                                    {payeeTypes.map(t => <option key={t.value} value={t.value} className="bg-slate-800">{t.label}</option>)}
+                                </select>
+                            </div>
+                            <div className="space-y-2 md:col-span-2">
+                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mr-2">اسم المستفيد</label>
+                                <div className="relative">
+                                    <User className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+                                    <input
+                                        type="text"
+                                        value={form.payee_name}
+                                        onChange={(e) => setForm({ ...form, payee_name: e.target.value })}
+                                        placeholder="اسم الشخص أو الشركة..."
+                                        className="w-full pr-12 pl-4 py-3 bg-white/5 border border-white/10 rounded-2xl text-white font-bold focus:bg-white/10 focus:border-rose-500 outline-none transition-all"
+                                        required
+                                    />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                            <div className="space-y-2">
+                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mr-2">طريقة الصرف</label>
+                                <select 
+                                    value={form.payment_method} 
+                                    onChange={(e) => setForm({ ...form, payment_method: e.target.value })}
+                                    className="w-full px-6 py-3 bg-white/5 border border-white/10 rounded-2xl text-white font-bold focus:bg-white/10 focus:border-rose-500 outline-none appearance-none"
+                                >
+                                    {paymentMethods.map(m => <option key={m.value} value={m.value} className="bg-slate-800">{m.label}</option>)}
+                                </select>
+                            </div>
+                            <div className="space-y-2">
+                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mr-2">المبلغ</label>
+                                <div className="relative">
+                                    <DollarSign className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+                                    <input
+                                        type="number"
+                                        step="0.01"
+                                        value={form.amount}
+                                        onChange={(e) => setForm({ ...form, amount: e.target.value })}
+                                        placeholder="0.00"
+                                        className="w-full pr-12 pl-4 py-3 bg-white/5 border border-white/10 rounded-2xl text-white font-bold focus:bg-white/10 focus:border-rose-500 outline-none transition-all"
+                                        required
+                                    />
+                                </div>
+                            </div>
+                            <div className="space-y-2">
+                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mr-2">صافي المبلغ الصافي</label>
+                                <input
+                                    type="text"
+                                    value={form.total_amount}
+                                    readOnly
+                                    className="w-full px-6 py-3 bg-rose-500/20 border border-rose-500/30 rounded-2xl text-rose-400 font-black cursor-not-allowed"
+                                />
+                            </div>
+                        </div>
+
+                        <div className="space-y-2">
+                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mr-2">الغرض من الصرف</label>
+                            <textarea
+                                value={form.payment_purpose}
+                                onChange={(e) => setForm({ ...form, payment_purpose: e.target.value })}
+                                rows={2}
+                                placeholder="اكتب سبب الصرف هنا..."
+                                className="w-full px-6 py-4 bg-white/5 border border-white/10 rounded-2xl text-white font-medium focus:bg-white/10 focus:border-rose-500 outline-none transition-all resize-none"
+                            />
+                        </div>
+
+                        <div className="flex justify-end gap-4">
+                            <button
+                                type="button"
+                                onClick={resetForm}
+                                className="px-10 py-4 bg-white/5 text-white font-black rounded-2xl border border-white/10 hover:bg-white/10 transition-all active:scale-95"
+                            >
+                                إلغاء
+                            </button>
+                            <button
+                                type="submit"
+                                disabled={submitting}
+                                className="flex items-center gap-3 px-10 py-4 bg-rose-500 text-white font-black rounded-2xl shadow-xl shadow-rose-500/20 hover:bg-rose-600 transition-all active:scale-95 disabled:opacity-50"
+                            >
+                                {submitting ? <Loader2 className="animate-spin" size={20} /> : <Save size={20} />}
+                                {editingId ? "حفظ التعديلات" : "حفظ السند"}
+                            </button>
+                        </div>
+                    </form>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          {/* Divider */}
+          <div className="border-t border-white/10" />
+
+          {/* Search & Table Section */}
+          <div className="space-y-6">
+            <div className="bg-white/5 backdrop-blur-xl rounded-3xl p-6 border border-white/10 flex flex-col md:flex-row gap-4 items-center justify-between">
+                <div className="relative w-full md:w-96">
+                <Search className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
+                <input
+                    type="text"
+                    placeholder="بحث برقم السند أو اسم المستفيد..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="w-full pr-12 pl-4 py-3 bg-white/10 border border-white/10 rounded-2xl text-white font-medium focus:bg-white/20 focus:border-blue-500/50 outline-none transition-all placeholder:text-slate-500"
+                />
+                </div>
+                <div className="flex gap-3 w-full md:w-auto">
+                    <button className="flex-1 md:flex-none flex items-center justify-center gap-2 px-6 py-3 bg-blue-500/20 text-blue-300 font-bold rounded-2xl border border-blue-500/30 hover:bg-blue-500/30 transition-all">
+                        <FileSpreadsheet size={18} />
+                        تصدير البيانات
+                    </button>
+                </div>
+            </div>
+
+            <div className="bg-white/5 backdrop-blur-xl rounded-[2rem] border border-white/10 overflow-hidden shadow-2xl">
+                <div className="p-6 border-b border-white/10 flex items-center justify-between bg-white/5">
+                    <div className="flex items-center gap-3">
+                        <div className="p-2 bg-rose-500/20 rounded-xl">
+                            <Wallet className="w-5 h-5 text-rose-400" />
+                        </div>
+                        <h3 className="font-black text-lg">سجل سندات الصرف</h3>
+                    </div>
+                    <span className="px-4 py-1.5 bg-white/10 rounded-full text-[10px] font-black uppercase tracking-widest text-slate-400">
+                        {filteredVouchers.length} سند مسجل
+                    </span>
+                </div>
+
+                <div className="overflow-x-auto">
+                    <table className="w-full text-right">
+                        <thead>
+                            <tr className="bg-white/5 border-b border-white/5">
+                                <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">رقم السند</th>
+                                <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">التاريخ</th>
+                                <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">المستفيد</th>
+                                <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">طريقة الصرف</th>
+                                <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">الحالة</th>
+                                <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">المبلغ</th>
+                                <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">الإجراءات</th>
+                            </tr>
+                        </thead>
+                        <tbody className="divide-y divide-white/5">
+                            {filteredVouchers.length > 0 ? (
+                                filteredVouchers.map((voucher, idx) => {
+                                    const statusInfo = getStatusInfo(voucher.status);
+                                    return (
+                                        <motion.tr 
+                                            key={voucher.id}
+                                            initial={{ opacity: 0, x: -10 }}
+                                            animate={{ opacity: 1, x: 0 }}
+                                            transition={{ delay: 0.05 * idx }}
+                                            className="hover:bg-white/5 transition-colors group"
+                                        >
+                                            <td className="px-6 py-5">
+                                                <span className="px-3 py-1.5 bg-rose-500/10 text-rose-400 rounded-lg text-xs font-black border border-rose-500/20">
+                                                    {voucher.voucher_number}
+                                                </span>
+                                            </td>
+                                            <td className="px-6 py-5">
+                                                <div className="flex items-center gap-2 text-xs text-slate-400 font-bold">
+                                                    <Calendar size={14} className="text-slate-500" />
+                                                    {voucher.voucher_date}
+                                                </div>
+                                            </td>
+                                            <td className="px-6 py-5">
+                                                <div className="flex items-center gap-3">
+                                                    <div className="h-9 w-9 rounded-xl bg-white/5 flex items-center justify-center text-slate-400 group-hover:bg-rose-500/20 group-hover:text-rose-400 transition-all">
+                                                        <User size={16} />
+                                                    </div>
+                                                    <span className="font-bold text-sm text-slate-200 truncate max-w-[150px]">{voucher.payee_name}</span>
+                                                </div>
+                                            </td>
+                                            <td className="px-6 py-5">
+                                                <span className="px-3 py-1 bg-purple-500/10 text-purple-400 text-[10px] font-black rounded-full border border-purple-500/20">
+                                                    {voucher.payment_method}
+                                                </span>
+                                            </td>
+                                            <td className="px-6 py-5">
+                                                <span className={cn("inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-black border", statusInfo.color.includes('emerald') ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20" : statusInfo.color.includes('amber') ? "bg-amber-500/10 text-amber-400 border-amber-500/20" : statusInfo.color.includes('blue') ? "bg-blue-500/10 text-blue-400 border-blue-500/20" : "bg-white/10 text-slate-400 border-white/10")}>
+                                                    <statusInfo.icon size={12} />
+                                                    {statusInfo.label}
+                                                </span>
+                                            </td>
+                                            <td className="px-6 py-5">
+                                                <div className="flex items-baseline gap-1 text-rose-400">
+                                                    <span className="text-lg font-black">{Number(voucher.total_amount).toLocaleString()}</span>
+                                                    <span className="text-[10px] font-bold text-rose-400/50 uppercase">{voucher.currency}</span>
+                                                </div>
+                                            </td>
+                                            <td className="px-6 py-5">
+                                                <div className="flex items-center justify-center gap-2">
+                                                    <button 
+                                                        onClick={() => handleEdit(voucher)}
+                                                        className="h-9 w-9 rounded-xl bg-amber-500/10 text-amber-400 flex items-center justify-center hover:bg-amber-500 hover:text-white transition-all shadow-lg active:scale-95"
+                                                        title="تعديل"
+                                                    >
+                                                        <Edit3 size={16} />
+                                                    </button>
+                                                    <button 
+                                                        onClick={() => handlePrint(voucher)}
+                                                        className="h-9 w-9 rounded-xl bg-purple-500/10 text-purple-400 flex items-center justify-center hover:bg-purple-500 hover:text-white transition-all shadow-lg active:scale-95"
+                                                        title="طباعة"
+                                                    >
+                                                        <Printer size={16} />
+                                                    </button>
+                                                    <button 
+                                                        onClick={() => handleDelete(voucher.id)}
+                                                        className="h-9 w-9 rounded-xl bg-rose-500/10 text-rose-400 flex items-center justify-center hover:bg-rose-500 hover:text-white transition-all shadow-lg active:scale-95"
+                                                        title="حذف"
+                                                    >
+                                                        <Trash2 size={16} />
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </motion.tr>
+                                    );
+                                })
+                            ) : (
+                                <tr>
+                                    <td colSpan={7} className="px-6 py-20 text-center">
+                                        <div className="flex flex-col items-center gap-4 opacity-40">
+                                            <Wallet size={64} className="text-slate-400" />
+                                            <div className="space-y-1">
+                                                <p className="text-xl font-black text-slate-300">لا توجد سندات صرف</p>
+                                                <p className="text-sm font-medium text-slate-500">ابدأ بإضافة أول سند صرف من الزر أعلاه</p>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            )}
+                        </tbody>
+                    </table>
+                </div>
             </div>
           </div>
         </div>
 
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead>
-              <tr className="bg-slate-50 border-b-2 border-slate-100">
-                <th className="px-6 py-5 text-right text-[11px] font-black text-slate-500 uppercase">رقم السند</th>
-                <th className="px-6 py-5 text-right text-[11px] font-black text-slate-500 uppercase">التاريخ</th>
-                <th className="px-6 py-5 text-right text-[11px] font-black text-slate-500 uppercase">المستفيد</th>
-                <th className="px-6 py-5 text-right text-[11px] font-black text-slate-500 uppercase">طريقة الدفع</th>
-                <th className="px-6 py-5 text-right text-[11px] font-black text-slate-500 uppercase">الحالة</th>
-                <th className="px-6 py-5 text-right text-[11px] font-black text-slate-500 uppercase">المبلغ</th>
-                <th className="px-6 py-5 text-center text-[11px] font-black text-slate-500 uppercase">الإجراءات</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-50">
-              {filteredVouchers.length > 0 ? filteredVouchers.map((v, idx) => {
-                const statusInfo = getStatusInfo(v.status);
-                return (
-                  <React.Fragment key={v.id}>
-                    <motion.tr initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: idx * 0.03 }} className="hover:bg-slate-50/70 transition-colors cursor-pointer" onClick={() => setExpandedId(expandedId === v.id ? null : v.id)}>
-                      <td className="px-6 py-5"><span className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-rose-100 text-sm font-black text-rose-700">{v.voucher_number}</span></td>
-                      <td className="px-6 py-5 text-sm font-bold text-slate-600">{v.voucher_date}</td>
-                      <td className="px-6 py-5 text-sm font-bold text-slate-800">{v.payee_name}</td>
-                      <td className="px-6 py-5"><span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-purple-100 text-xs font-bold text-purple-700">{v.payment_method}</span></td>
-                      <td className="px-6 py-5"><span className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-bold ${statusInfo.color}`}><statusInfo.icon size={14} />{statusInfo.label}</span></td>
-                      <td className="px-6 py-5"><span className="text-lg font-black text-rose-600">{Number(v.total_amount).toLocaleString("en-US", { minimumFractionDigits: 2 })} <small className="text-[10px] opacity-70">{v.currency}</small></span></td>
-                      <td className="px-6 py-5">
-                        <div className="flex items-center justify-center gap-2">
-                          <button onClick={(e) => { e.stopPropagation(); handleEdit(v); }} className="p-2.5 rounded-xl bg-amber-100 text-amber-700 hover:bg-amber-200 transition-colors" title="تعديل"><Edit3 size={18} /></button>
-                          <button onClick={(e) => { e.stopPropagation(); handlePrint(v); }} className="p-2.5 rounded-xl bg-purple-100 text-purple-700 hover:bg-purple-200 transition-colors" title="طباعة"><Printer size={18} /></button>
-                          <button onClick={(e) => { e.stopPropagation(); handleDelete(v.id); }} className="p-2.5 rounded-xl bg-red-100 text-red-700 hover:bg-red-200 transition-colors" title="حذف"><Trash2 size={18} /></button>
-                          <button className="p-2.5 rounded-xl bg-slate-100 text-slate-600 hover:bg-slate-200 transition-colors">{expandedId === v.id ? <ChevronUp size={18} /> : <ChevronDown size={18} />}</button>
-                        </div>
-                      </td>
-                    </motion.tr>
-                    <AnimatePresence>
-                      {expandedId === v.id && (
-                        <motion.tr initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-                          <td colSpan={7} className="bg-slate-50/50 px-8 py-6">
-                            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-                              <div><p className="text-xs font-bold text-slate-400 uppercase mb-1">الغرض</p><p className="text-sm font-bold text-slate-700">{v.payment_purpose || "---"}</p></div>
-                              <div><p className="text-xs font-bold text-slate-400 uppercase mb-1">رقم المستند</p><p className="text-sm font-bold text-slate-700">{v.document_number || "---"}</p></div>
-                              <div><p className="text-xs font-bold text-slate-400 uppercase mb-1">البنك</p><p className="text-sm font-bold text-slate-700">{v.bank_name || "---"}</p></div>
-                              <div><p className="text-xs font-bold text-slate-400 uppercase mb-1">نسبة الضريبة</p><p className="text-sm font-bold text-slate-700">{v.tax_rate}%</p></div>
-                              <div className="md:col-span-2"><p className="text-xs font-bold text-slate-400 uppercase mb-1">الوصف</p><p className="text-sm text-slate-600">{v.description || "---"}</p></div>
-                              <div className="md:col-span-2"><p className="text-xs font-bold text-slate-400 uppercase mb-1">ملاحظات</p><p className="text-sm text-slate-600">{v.notes || "---"}</p></div>
-                            </div>
-                          </td>
-                        </motion.tr>
-                      )}
-                    </AnimatePresence>
-                  </React.Fragment>
-                );
-              }) : (
-                <tr><td colSpan={7} className="px-6 py-20 text-center">
-                  <div className="flex flex-col items-center gap-4">
-                    <div className="w-20 h-20 bg-slate-100 rounded-3xl flex items-center justify-center"><Wallet size={36} className="text-slate-300" /></div>
-                    <p className="text-slate-400 font-bold text-lg">لا توجد سندات صرف</p>
-                  </div>
-                </td></tr>
-              )}
-            </tbody>
-          </table>
-        </div>
+        {/* Decorative elements */}
+        <div className="absolute -bottom-24 -right-24 w-96 h-96 bg-rose-500/10 rounded-full blur-[100px] pointer-events-none" />
+        <div className="absolute -top-24 -left-24 w-96 h-96 bg-orange-500/10 rounded-full blur-[100px] pointer-events-none" />
       </motion.div>
 
-      {/* Print Area */}
-      {printVoucher && (
-        <div className="print-area fixed inset-0 bg-white z-[200] p-8 hidden print:block" ref={printRef}>
-          <div className="max-w-4xl mx-auto border-2 border-slate-300 rounded-lg p-8">
-            <div className="text-center border-b-2 pb-6 mb-6">
-              <h1 className="text-3xl font-black text-slate-800">سند صرف</h1>
-              <p className="text-lg text-slate-500">Payment Voucher</p>
-              <div className="flex justify-between mt-4">
-                <div><span className="font-bold">رقم السند:</span> {printVoucher.voucher_number}</div>
-                <div><span className="font-bold">التاريخ:</span> {printVoucher.voucher_date}</div>
-              </div>
-            </div>
-            <div className="grid grid-cols-2 gap-6 mb-6">
-              <div><span className="font-bold">المستفيد:</span> {printVoucher.payee_name}</div>
-              <div><span className="font-bold">طريقة الدفع:</span> {printVoucher.payment_method}</div>
-              <div><span className="font-bold">المبلغ:</span> {Number(printVoucher.amount).toLocaleString()} {printVoucher.currency}</div>
-              <div><span className="font-bold">الصافي:</span> {Number(printVoucher.total_amount).toLocaleString()} {printVoucher.currency}</div>
-            </div>
-            <div className="mb-6"><span className="font-bold">الغرض:</span> {printVoucher.payment_purpose || "---"}</div>
-            <div className="mb-6"><span className="font-bold">الوصف:</span> {printVoucher.description || "---"}</div>
-            <div className="flex justify-between mt-12 pt-6 border-t">
-              <div className="text-center"><div className="w-32 border-b border-slate-400 mb-2"></div><p>المُعد</p></div>
-              <div className="text-center"><div className="w-32 border-b border-slate-400 mb-2"></div><p>المُعتمد</p></div>
-              <div className="text-center"><div className="w-32 border-b border-slate-400 mb-2"></div><p>المستلم</p></div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Success Modal */}
-      <AnimatePresence>
-        {showSuccess && (
-          <>
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100]" onClick={() => setShowSuccess(false)} />
-            <motion.div initial={{ opacity: 0, scale: 0.8, y: 100 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.8, y: 100 }} className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[101] bg-gradient-to-br from-rose-600 to-orange-700 text-white p-10 rounded-[30px] shadow-2xl text-center min-w-[400px]">
-              <div className="w-24 h-24 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-6 animate-bounce"><CheckCircle className="w-14 h-14 text-white" /></div>
-              <h2 className="text-3xl font-black mb-4">تم الحفظ بنجاح!</h2>
-              <p className="text-lg opacity-90 mb-8">تم تسجيل سند الصرف بنجاح في النظام.</p>
-              <button onClick={() => setShowSuccess(false)} className="bg-white text-rose-700 px-10 py-3 rounded-2xl font-black text-lg hover:bg-rose-50 transition-colors">متابعة</button>
-            </motion.div>
-          </>
-        )}
-      </AnimatePresence>
-
       {/* Footer */}
-      <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-[10px] font-black text-slate-400 uppercase tracking-widest pt-6">
-        <div className="flex items-center gap-2"><Sparkles size={12} className="text-rose-500" /><span>نظام ZoolSpeed Logistics</span></div>
+      <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-[10px] font-black text-slate-500 uppercase tracking-widest pt-4 opacity-60">
+        <div className="flex items-center gap-2">
+          <Sparkles size={10} className="text-rose-500" />
+          <span>نظام ZoolSpeed Logistics - إدارة سندات الصرف</span>
+        </div>
         <span>جميع الحقوق محفوظة © {new Date().getFullYear()}</span>
       </div>
+
+      <AnimatePresence>
+          {showSuccess && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.8, y: 50 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.8, y: 50 }}
+              className="fixed bottom-10 left-1/2 -translate-x-1/2 z-[101] bg-emerald-600 text-white px-8 py-4 rounded-[2rem] shadow-2xl flex items-center gap-4 font-black"
+            >
+              <CheckCircle size={24} />
+              <span>تم حفظ السند بنجاح!</span>
+            </motion.div>
+          )}
+      </AnimatePresence>
+
+      {/* Print Area Container (Hidden) */}
+      {printVoucher && (
+        <div className="print-area fixed inset-0 bg-white z-[200] p-8 hidden print:block text-black" dir="rtl">
+            {/* Simple print layout */}
+            <div className="p-8 border-4 border-double border-slate-800 rounded-lg">
+                <div className="text-center mb-8 border-b-2 pb-4">
+                    <h1 className="text-2xl font-black">سند صرف</h1>
+                    <p className="text-sm">Payment Voucher</p>
+                </div>
+                <div className="grid grid-cols-2 gap-4 mb-8">
+                    <div><strong>رقم السند:</strong> {printVoucher.voucher_number}</div>
+                    <div><strong>التاريخ:</strong> {printVoucher.voucher_date}</div>
+                    <div><strong>المستفيد:</strong> {printVoucher.payee_name}</div>
+                    <div><strong>المبلغ:</strong> {printVoucher.total_amount} {printVoucher.currency}</div>
+                </div>
+                <div className="mb-8"><strong>البيان:</strong> {printVoucher.payment_purpose}</div>
+                <div className="flex justify-between mt-20">
+                    <div>توقيع المُعد</div>
+                    <div>توقيع المُعتمد</div>
+                    <div>توقيع المستلم</div>
+                </div>
+            </div>
+        </div>
+      )}
     </div>
   );
 }
