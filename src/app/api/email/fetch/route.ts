@@ -58,100 +58,128 @@ async function fetchEmails(
     let isFinished = false;
 
     imap.once("ready", () => {
-      imap.openBox(folder, true, (err, box) => {
-        if (err) {
+      // Determine folder candidates to try
+      const folderCandidates = [folder];
+      if (folder === "Spam") {
+        folderCandidates.push("INBOX.Spam", "Junk", "INBOX.Junk");
+      } else if (folder !== "INBOX" && !folder.startsWith("INBOX.")) {
+        folderCandidates.push(`INBOX.${folder}`);
+      }
+
+      const tryOpenBox = (candidates: string[]) => {
+        if (candidates.length === 0) {
           isFinished = true;
           clearTimeout(timeout);
           try { imap.end(); } catch (e) {}
-          reject(err);
+          reject(new Error(`المجلد غير موجود: ${folder}`));
           return;
         }
 
-        const totalMessages = box.messages.total;
-        if (totalMessages === 0) {
-          isFinished = true;
-          clearTimeout(timeout);
-          try { imap.end(); } catch (e) {}
-          resolve([]);
-          return;
-        }
-
-        const start = Math.max(1, totalMessages - limit + 1);
-        const fetchRange = `${start}:${totalMessages}`;
-
-        const f = imap.seq.fetch(fetchRange, {
-          bodies: ["HEADER.FIELDS (FROM TO SUBJECT DATE)", "1"], // Fetch headers and the first part (usually text)
-          struct: true,
-        });
-
-        f.on("message", (msg, seqno) => {
-          let uid = 0;
-          const flags: string[] = [];
-          let headerData = "";
-          let bodyData = "";
-
-          msg.on("attributes", (attrs) => {
-            uid = attrs.uid;
-            flags.push(...(attrs.flags || []));
-          });
-
-          msg.on("body", (stream, info) => {
-            let buffer = "";
-            stream.on("data", (chunk) => {
-              buffer += chunk.toString("utf8");
-            });
-
-            stream.once("end", () => {
-              if (info.which === "1") {
-                bodyData = buffer;
-              } else {
-                headerData = buffer;
-              }
-            });
-          });
-
-          msg.once("end", () => {
-            const parsePromise = (async () => {
-              try {
-                // Combine headers and body for parser
-                const fullMsg = headerData + "\r\n" + bodyData;
-                const parsed = await simpleParser(fullMsg);
-                const fromAddr = parsed.from?.value?.[0];
-                emails.push({
-                  id: seqno,
-                  uid,
-                  subject: parsed.subject || "(بدون موضوع)",
-                  from: fromAddr?.name || fromAddr?.address || "غير معروف",
-                  fromEmail: fromAddr?.address || "",
-                  to: parsed.to?.text || "",
-                  date: parsed.date?.toISOString() || new Date().toISOString(),
-                  snippet: (parsed.text || "").substring(0, 200),
-                  body: parsed.html || parsed.text || "",
-                  isRead: flags.includes("\\Seen"),
-                  hasAttachments: (parsed.attachments?.length || 0) > 0,
-                  folder,
-                });
-              } catch (parseErr) {
-                console.error("Error parsing email:", parseErr);
-              }
-            })();
-            parsePromises.push(parsePromise);
-          });
-        });
-
-        f.once("error", (fetchErr) => {
-          if (!isFinished) {
+        const currentFolder = candidates[0];
+        imap.openBox(currentFolder, true, (err, box) => {
+          if (err) {
+            // If it's a namespace error or nonexistent mailbox, try next candidate
+            const errMsg = err.message.toLowerCase();
+            if (errMsg.includes("nonexistent") || errMsg.includes("namespace") || errMsg.includes("not exist")) {
+              tryOpenBox(candidates.slice(1));
+              return;
+            }
+            
             isFinished = true;
             clearTimeout(timeout);
             try { imap.end(); } catch (e) {}
-            reject(fetchErr);
+            reject(err);
+            return;
           }
-        });
 
-        f.once("end", () => {
-          try { imap.end(); } catch (e) {}
+          const totalMessages = box.messages.total;
+          if (totalMessages === 0) {
+            isFinished = true;
+            clearTimeout(timeout);
+            try { imap.end(); } catch (e) {}
+            resolve([]);
+            return;
+          }
+
+          const start = Math.max(1, totalMessages - limit + 1);
+          const fetchRange = `${start}:${totalMessages}`;
+
+          const f = imap.seq.fetch(fetchRange, {
+            bodies: ["HEADER.FIELDS (FROM TO SUBJECT DATE)", "1"], // Fetch headers and the first part (usually text)
+            struct: true,
+          });
+
+          f.on("message", (msg, seqno) => {
+            let uid = 0;
+            const flags: string[] = [];
+            let headerData = "";
+            let bodyData = "";
+
+            msg.on("attributes", (attrs) => {
+              uid = attrs.uid;
+              flags.push(...(attrs.flags || []));
+            });
+
+            msg.on("body", (stream, info) => {
+              let buffer = "";
+              stream.on("data", (chunk) => {
+                buffer += chunk.toString("utf8");
+              });
+
+              stream.once("end", () => {
+                if (info.which === "1") {
+                  bodyData = buffer;
+                } else {
+                  headerData = buffer;
+                }
+              });
+            });
+
+            msg.once("end", () => {
+              const parsePromise = (async () => {
+                try {
+                  // Combine headers and body for parser
+                  const fullMsg = headerData + "\r\n" + bodyData;
+                  const parsed = await simpleParser(fullMsg);
+                  const fromAddr = parsed.from?.value?.[0];
+                  emails.push({
+                    id: seqno,
+                    uid,
+                    subject: parsed.subject || "(بدون موضوع)",
+                    from: fromAddr?.name || fromAddr?.address || "غير معروف",
+                    fromEmail: fromAddr?.address || "",
+                    to: parsed.to?.text || "",
+                    date: parsed.date?.toISOString() || new Date().toISOString(),
+                    snippet: (parsed.text || "").substring(0, 200),
+                    body: parsed.html || parsed.text || "",
+                    isRead: flags.includes("\\Seen"),
+                    hasAttachments: (parsed.attachments?.length || 0) > 0,
+                    folder: currentFolder,
+                  });
+                } catch (parseErr) {
+                  console.error("Error parsing email:", parseErr);
+                }
+              })();
+              parsePromises.push(parsePromise);
+            });
+          });
+
+          f.once("error", (fetchErr) => {
+            if (!isFinished) {
+              isFinished = true;
+              clearTimeout(timeout);
+              try { imap.end(); } catch (e) {}
+              reject(fetchErr);
+            }
+          });
+
+          f.once("end", () => {
+            try { imap.end(); } catch (e) {}
+          });
         });
-      });
+      };
+
+      tryOpenBox(folderCandidates);
     });
 
     imap.once("error", (err: Error) => {
@@ -208,29 +236,57 @@ async function getUnreadCount(
     });
 
     imap.once("ready", () => {
-      imap.openBox(folder, true, (err, box) => {
-        if (err) {
+      const folderCandidates = [folder];
+      if (folder === "Spam") {
+        folderCandidates.push("INBOX.Spam", "Junk", "INBOX.Junk");
+      } else if (folder !== "INBOX" && !folder.startsWith("INBOX.")) {
+        folderCandidates.push(`INBOX.${folder}`);
+      }
+
+      const tryOpenBox = (candidates: string[]) => {
+        if (candidates.length === 0) {
           if (!isFinished) {
             isFinished = true;
             clearTimeout(timeout);
             try { imap.end(); } catch (e) {}
-            reject(err);
+            resolve(0); // If folder doesn't exist, assume 0 unread
           }
           return;
         }
-        imap.search(["UNSEEN"], (searchErr, results) => {
-          if (!isFinished) {
-            isFinished = true;
-            clearTimeout(timeout);
-            try { imap.end(); } catch (e) {}
-            if (searchErr) {
-              reject(searchErr);
+
+        const currentFolder = candidates[0];
+        imap.openBox(currentFolder, true, (err, box) => {
+          if (err) {
+            const errMsg = err.message.toLowerCase();
+            if (errMsg.includes("nonexistent") || errMsg.includes("namespace") || errMsg.includes("not exist")) {
+              tryOpenBox(candidates.slice(1));
               return;
             }
-            resolve(results.length);
+
+            if (!isFinished) {
+              isFinished = true;
+              clearTimeout(timeout);
+              try { imap.end(); } catch (e) {}
+              reject(err);
+            }
+            return;
           }
+          imap.search(["UNSEEN"], (searchErr, results) => {
+            if (!isFinished) {
+              isFinished = true;
+              clearTimeout(timeout);
+              try { imap.end(); } catch (e) {}
+              if (searchErr) {
+                reject(searchErr);
+                return;
+              }
+              resolve(results.length);
+            }
+          });
         });
-      });
+      };
+
+      tryOpenBox(folderCandidates);
     });
 
     imap.once("error", (err: Error) => {
