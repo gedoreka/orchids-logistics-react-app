@@ -81,11 +81,13 @@ const navItems: NavItem[] = [
     { titleKey: "monthlyCommissions", href: "/monthly-commissions", icon: HandCoins, permission: "monthly_commissions_module", gradient: "from-amber-500 to-orange-500" },
   { titleKey: "commissionsReport", href: "/commissions-summary", icon: FileSpreadsheet, permission: "commissions_summary_module", gradient: "from-lime-500 to-green-500" },
   
-  { titleKey: "expensesCenter", href: "/expenses", icon: BarChart3, permission: "expenses_module", gradient: "from-red-500 to-orange-500" },
-  { titleKey: "journalEntries", href: "/journal-entries", icon: FileEdit, permission: "journal_entries_module", gradient: "from-violet-500 to-indigo-500" },
-  { titleKey: "profitLossSummary", href: "/profit-loss", icon: PieChart, permission: "income_report_module", gradient: "from-sky-500 to-blue-500" },
-  
-  { titleKey: "accountsCenter", href: "/accounts", icon: BookOpen, permission: "accounts_module", gradient: "from-orange-500 to-amber-500" },
+    { titleKey: "expensesCenter", href: "/expenses", icon: BarChart3, permission: "expenses_module", gradient: "from-red-500 to-orange-500" },
+    { titleKey: "journalEntries", href: "/journal-entries", icon: FileEdit, permission: "journal_entries_module", gradient: "from-violet-500 to-indigo-500" },
+    { titleKey: "profitLossSummary", href: "/profit-loss", icon: PieChart, permission: "income_report_module", gradient: "from-sky-500 to-blue-500" },
+    
+    { titleKey: "emailClient", href: "#email", icon: Mail, gradient: "from-blue-500 to-indigo-500", onClick: (setShowEmailModal: any) => setShowEmailModal(true) },
+    
+    { titleKey: "accountsCenter", href: "/accounts", icon: BookOpen, permission: "accounts_module", gradient: "from-orange-500 to-amber-500" },
   { titleKey: "costCenters", href: "/cost-centers", icon: Landmark, permission: "cost_centers_module", gradient: "from-slate-500 to-gray-500" },
   { titleKey: "generalLedger", href: "/general-ledger", icon: BookOpen, permission: "ledger_module", gradient: "from-zinc-500 to-neutral-500" },
   { titleKey: "trialBalance", href: "/trial-balance", icon: Scale, permission: "trial_balance_module", gradient: "from-gray-500 to-slate-500" },
@@ -116,13 +118,23 @@ export function Sidebar({ userRole, permissions = {}, userType }: SidebarProps) 
     setMounted(true);
   }, []);
 
-  const filteredItems = navItems.filter(item => {
-    if (item.adminOnly && !isAdmin) return false;
-    if (item.permission && !isAdmin && permissions[item.permission] !== 1) return false;
-    return true;
-  });
+    const filteredItems = navItems.filter(item => {
+      if (item.adminOnly && !isAdmin) return false;
+      if (item.permission && !isAdmin && permissions[item.permission] !== 1) return false;
+      return true;
+    });
 
-  const handleLogout = async () => {
+    const handleItemClick = (item: NavItem) => {
+      if (item.onClick) {
+        // We'll handle this via a custom event or by passing the setter
+        const event = new CustomEvent('open-email-modal');
+        window.dispatchEvent(event);
+      } else {
+        router.push(item.href);
+      }
+    };
+
+    const handleLogout = async () => {
     document.cookie = "auth_session=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
     router.push("/login");
   };
@@ -208,7 +220,10 @@ export function Sidebar({ userRole, permissions = {}, userType }: SidebarProps) 
             return (
               <React.Fragment key={item.href}>
                 <motion.div variants={itemVariants}>
-                  <Link href={item.href}>
+                  <div
+                    onClick={() => handleItemClick(item)}
+                    className="cursor-pointer"
+                  >
                     <motion.div
                       onHoverStart={() => setHoveredItem(item.href)}
                       onHoverEnd={() => setHoveredItem(null)}
@@ -264,18 +279,18 @@ export function Sidebar({ userRole, permissions = {}, userType }: SidebarProps) 
                         {t(item.titleKey)}
                       </span>
 
-                      {isActive && (
-                        <motion.div
-                          initial={{ opacity: 0, scale: 0 }}
-                          animate={{ opacity: 1, scale: 1 }}
-                          className={cn("absolute", isRTL ? "right-3" : "left-3")}
-                        >
-                          <ChevronIcon size={14} className="text-white/50" />
-                        </motion.div>
-                      )}
-                    </motion.div>
-                  </Link>
-                </motion.div>
+                        {isActive && (
+                          <motion.div
+                            initial={{ opacity: 0, scale: 0 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            className={cn("absolute", isRTL ? "right-3" : "left-3")}
+                          >
+                            <ChevronIcon size={14} className="text-white/50" />
+                          </motion.div>
+                        )}
+                      </motion.div>
+                    </div>
+                  </motion.div>
                 
                 {item.dividerAfter && (
                   <div className="relative my-4 mx-4">

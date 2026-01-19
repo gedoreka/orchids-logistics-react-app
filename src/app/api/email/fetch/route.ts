@@ -46,6 +46,7 @@ async function fetchEmails(
     });
 
     const emails: EmailMessage[] = [];
+    const parsePromises: Promise<void>[] = [];
 
     imap.once("ready", () => {
       imap.openBox(folder, true, (err, box) => {
@@ -84,28 +85,34 @@ async function fetchEmails(
             stream.on("data", (chunk) => {
               buffer += chunk.toString("utf8");
             });
-            stream.once("end", async () => {
-              try {
-                const parsed = await simpleParser(buffer);
-                const fromAddr = parsed.from?.value?.[0];
-                emails.push({
-                  id: seqno,
-                  uid,
-                  subject: parsed.subject || "(بدون موضوع)",
-                  from: fromAddr?.name || fromAddr?.address || "غير معروف",
-                  fromEmail: fromAddr?.address || "",
-                  to: parsed.to?.text || "",
-                  date: parsed.date?.toISOString() || new Date().toISOString(),
-                  snippet: (parsed.text || "").substring(0, 200),
-                  body: parsed.html || parsed.text || "",
-                  isRead: flags.includes("\\Seen"),
-                  hasAttachments: (parsed.attachments?.length || 0) > 0,
-                  folder,
-                });
-              } catch (parseErr) {
-                console.error("Error parsing email:", parseErr);
-              }
+
+            const parsePromise = new Promise<void>((resolveParse) => {
+              stream.once("end", async () => {
+                try {
+                  const parsed = await simpleParser(buffer);
+                  const fromAddr = parsed.from?.value?.[0];
+                  emails.push({
+                    id: seqno,
+                    uid,
+                    subject: parsed.subject || "(بدون موضوع)",
+                    from: fromAddr?.name || fromAddr?.address || "غير معروف",
+                    fromEmail: fromAddr?.address || "",
+                    to: parsed.to?.text || "",
+                    date: parsed.date?.toISOString() || new Date().toISOString(),
+                    snippet: (parsed.text || "").substring(0, 200),
+                    body: parsed.html || parsed.text || "",
+                    isRead: flags.includes("\\Seen"),
+                    hasAttachments: (parsed.attachments?.length || 0) > 0,
+                    folder,
+                  });
+                } catch (parseErr) {
+                  console.error("Error parsing email:", parseErr);
+                } finally {
+                  resolveParse();
+                }
+              });
             });
+            parsePromises.push(parsePromise);
           });
         });
 
@@ -124,7 +131,8 @@ async function fetchEmails(
       reject(err);
     });
 
-    imap.once("end", () => {
+    imap.once("end", async () => {
+      await Promise.all(parsePromises);
       emails.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
       resolve(emails);
     });

@@ -704,6 +704,12 @@ export function Header({ user, onToggleSidebar, unreadChatCount = 0, subscriptio
       setTotalUnreadEmails(total);
     }, [emailAccounts, user?.company_id]);
 
+      useEffect(() => {
+        const handleOpenEmail = () => setShowEmailModal(true);
+        window.addEventListener('open-email-modal', handleOpenEmail);
+        return () => window.removeEventListener('open-email-modal', handleOpenEmail);
+      }, []);
+
     useEffect(() => {
       fetchEmailAccounts();
     }, [fetchEmailAccounts]);
@@ -2113,9 +2119,12 @@ export function Header({ user, onToggleSidebar, unreadChatCount = 0, subscriptio
                   </div>
                 </div>
 
-                <div className={cn("flex", isEmailMaximized ? "h-[calc(100%-80px)]" : "h-[60vh]")}>
-                  <div className="w-64 border-l border-white/10 p-4 flex flex-col gap-4 bg-white/5">
-                    <motion.button
+                  <div className={cn("flex", isEmailMaximized ? "h-[calc(100%-80px)]" : "h-[60vh]")}>
+                    <div className={cn(
+                      "w-64 p-4 flex flex-col gap-4 bg-white/5",
+                      isRTL ? "border-r border-white/10" : "border-l border-white/10"
+                    )}>
+                      <motion.button
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
                       onClick={() => setShowComposeEmail(true)}
