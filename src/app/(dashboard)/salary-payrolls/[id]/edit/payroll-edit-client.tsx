@@ -4,7 +4,6 @@ import React, { useState, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
   FileText,
-  Calendar,
   Save,
   ArrowRight,
   CheckCircle,
@@ -23,6 +22,9 @@ interface PayrollItem {
   iqama_number: string;
   user_code: string;
   basic_salary: number;
+  housing_allowance: number;
+  nationality: string;
+  job_title: string;
   target: number;
   successful_orders: number;
   target_deduction: number;
@@ -33,6 +35,9 @@ interface PayrollItem {
   internal_bonus: number;
   net_salary: number;
   payment_method: string;
+  achieved_tier: string;
+  tier_bonus: number;
+  extra_amount: number;
 }
 
 interface Payroll {
@@ -61,10 +66,14 @@ interface NotificationState {
 export function PayrollEditClient({ payroll, companyId }: PayrollEditClientProps) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+  const workType = payroll.work_type || 'salary';
+  const isSalaryType = workType === 'salary';
+  
   const [items, setItems] = useState<PayrollItem[]>(() => {
     return (payroll.items || []).map(item => ({
       ...item,
       basic_salary: Number(item.basic_salary) || 0,
+      housing_allowance: Number(item.housing_allowance) || 0,
       target: Number(item.target) || 0,
       successful_orders: Number(item.successful_orders) || 0,
       target_deduction: Number(item.target_deduction) || 0,
@@ -74,6 +83,8 @@ export function PayrollEditClient({ payroll, companyId }: PayrollEditClientProps
       wallet_deduction: Number(item.wallet_deduction) || 0,
       internal_bonus: Number(item.internal_bonus) || 0,
       net_salary: Number(item.net_salary) || 0,
+      tier_bonus: Number(item.tier_bonus) || 0,
+      extra_amount: Number(item.extra_amount) || 0,
     }));
   });
   const [notification, setNotification] = useState<NotificationState>({
@@ -90,45 +101,45 @@ export function PayrollEditClient({ payroll, companyId }: PayrollEditClientProps
     }
   };
 
-    const calculateRow = useCallback((item: PayrollItem): PayrollItem => {
-      const workType = payroll.work_type || 'salary';
-      let net = 0;
-      let targetDeduction = 0;
-      let monthlyBonus = 0;
+  const calculateRow = useCallback((item: PayrollItem): PayrollItem => {
+    let net = 0;
+    let targetDeduction = 0;
+    let monthlyBonus = 0;
 
-      const basicSalaryVal = Number(item.basic_salary) || 0;
-      const internalBonusVal = Number(item.internal_bonus) || 0;
-      const operatorVal = Number(item.operator_deduction) || 0;
-      const internalVal = Number(item.internal_deduction) || 0;
-      const walletVal = Number(item.wallet_deduction) || 0;
-      const successfulOrdersVal = Number(item.successful_orders) || 0;
+    const basicSalaryVal = Number(item.basic_salary) || 0;
+    const housingVal = Number(item.housing_allowance) || 0;
+    const internalBonusVal = Number(item.internal_bonus) || 0;
+    const operatorVal = Number(item.operator_deduction) || 0;
+    const internalVal = Number(item.internal_deduction) || 0;
+    const walletVal = Number(item.wallet_deduction) || 0;
+    const successfulOrdersVal = Number(item.successful_orders) || 0;
 
+    if (isSalaryType) {
+      net = basicSalaryVal + housingVal + internalBonusVal - internalVal;
+    } else if (workType === 'target') {
+      const target = Number(item.target || payroll.monthly_target || 0);
+      const bonusPerOrder = Number(payroll.bonus_after_target) || 10;
       const totalDeductions = operatorVal + internalVal + walletVal;
-
-      if (workType === 'salary') {
-        net = basicSalaryVal + internalBonusVal - totalDeductions;
-      } else if (workType === 'target') {
-        const target = Number(item.target || payroll.monthly_target || 0);
-        const bonusPerOrder = Number(payroll.bonus_after_target) || 10;
-        
-        if (successfulOrdersVal < target) {
-          targetDeduction = target > 0 ? (target - successfulOrdersVal) * (basicSalaryVal / target) : 0;
-        } else {
-          monthlyBonus = (successfulOrdersVal - target) * bonusPerOrder;
-        }
-        
-        net = basicSalaryVal + monthlyBonus + internalBonusVal - targetDeduction - totalDeductions;
+      
+      if (successfulOrdersVal < target) {
+        targetDeduction = target > 0 ? (target - successfulOrdersVal) * (basicSalaryVal / target) : 0;
       } else {
-        net = basicSalaryVal + internalBonusVal - totalDeductions;
+        monthlyBonus = (successfulOrdersVal - target) * bonusPerOrder;
       }
+      
+      net = basicSalaryVal + monthlyBonus + internalBonusVal - targetDeduction - totalDeductions;
+    } else {
+      const totalDeductions = operatorVal + internalVal + walletVal;
+      net = basicSalaryVal + internalBonusVal - totalDeductions;
+    }
 
-      return {
-        ...item,
-        target_deduction: targetDeduction,
-        monthly_bonus: monthlyBonus,
-        net_salary: net
-      };
-    }, [payroll]);
+    return {
+      ...item,
+      target_deduction: targetDeduction,
+      monthly_bonus: monthlyBonus,
+      net_salary: net
+    };
+  }, [payroll, isSalaryType, workType]);
 
   const handleRowChange = (index: number, field: keyof PayrollItem, value: number | string) => {
     setItems(prev => {
@@ -154,7 +165,12 @@ export function PayrollEditClient({ payroll, companyId }: PayrollEditClientProps
       
       if (netSalary >= 0) totalSalary += netSalary;
       totalOrders += orders;
-      totalDeductions += targetDed + operatorDed + internalDed + walletDed;
+      
+      if (isSalaryType) {
+        totalDeductions += internalDed;
+      } else {
+        totalDeductions += targetDed + operatorDed + internalDed + walletDed;
+      }
     });
 
     return { totalSalary, totalOrders, totalDeductions };
@@ -185,6 +201,16 @@ export function PayrollEditClient({ payroll, companyId }: PayrollEditClientProps
       showNotification("error", "خطأ", "حدث خطأ أثناء الحفظ");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const getWorkTypeLabel = () => {
+    switch (workType) {
+      case 'salary': return 'رواتب ثابتة';
+      case 'target': return 'نظام التارقت';
+      case 'tiers': return 'نظام الشرائح';
+      case 'commission': return 'نظام العمولة';
+      default: return workType;
     }
   };
 
@@ -251,7 +277,7 @@ export function PayrollEditClient({ payroll, companyId }: PayrollEditClientProps
                   </div>
                   <div>
                     <h1 className="text-2xl font-black">تعديل مسير الرواتب</h1>
-                    <p className="text-white/60 text-sm">{payroll.payroll_month} - {payroll.package_name}</p>
+                    <p className="text-white/60 text-sm">{payroll.payroll_month} - {payroll.package_name} ({getWorkTypeLabel()})</p>
                   </div>
                 </div>
                 <Link href={`/salary-payrolls/${payroll.id}`}>
@@ -280,18 +306,31 @@ export function PayrollEditClient({ payroll, companyId }: PayrollEditClientProps
               <table className="w-full text-sm">
                 <thead className="bg-gray-50">
                   <tr className="border-b border-gray-100">
+                    <th className="text-right px-3 py-2 text-xs font-bold text-gray-600">#</th>
                     <th className="text-right px-3 py-2 text-xs font-bold text-gray-600">الاسم</th>
                     <th className="text-right px-3 py-2 text-xs font-bold text-gray-600">الإقامة</th>
-                    <th className="text-right px-3 py-2 text-xs font-bold text-gray-600">الكود</th>
+                    {!isSalaryType && (
+                      <th className="text-right px-3 py-2 text-xs font-bold text-gray-600">الكود</th>
+                    )}
                     <th className="text-right px-3 py-2 text-xs font-bold text-gray-600">الراتب</th>
-                    <th className="text-right px-3 py-2 text-xs font-bold text-gray-600">التارقت</th>
-                    <th className="text-right px-3 py-2 text-xs font-bold text-gray-600">الطلبات</th>
-                    <th className="text-right px-3 py-2 text-xs font-bold text-gray-600">خصم</th>
-                    <th className="text-right px-3 py-2 text-xs font-bold text-gray-600">بونص</th>
-                    <th className="text-right px-3 py-2 text-xs font-bold text-gray-600">مشغل</th>
-                    <th className="text-right px-3 py-2 text-xs font-bold text-gray-600">داخلي</th>
-                    <th className="text-right px-3 py-2 text-xs font-bold text-gray-600">محفظة</th>
-                    <th className="text-right px-3 py-2 text-xs font-bold text-gray-600">مكافأة</th>
+                    {isSalaryType ? (
+                      <>
+                        <th className="text-right px-3 py-2 text-xs font-bold text-gray-600">السكن</th>
+                        <th className="text-right px-3 py-2 text-xs font-bold text-gray-600">خصم داخلي</th>
+                        <th className="text-right px-3 py-2 text-xs font-bold text-gray-600">مكافأة</th>
+                      </>
+                    ) : (
+                      <>
+                        <th className="text-right px-3 py-2 text-xs font-bold text-gray-600">التارقت</th>
+                        <th className="text-right px-3 py-2 text-xs font-bold text-gray-600">الطلبات</th>
+                        <th className="text-right px-3 py-2 text-xs font-bold text-gray-600">خصم تارقت</th>
+                        <th className="text-right px-3 py-2 text-xs font-bold text-gray-600">بونص</th>
+                        <th className="text-right px-3 py-2 text-xs font-bold text-gray-600">خصم مشغل</th>
+                        <th className="text-right px-3 py-2 text-xs font-bold text-gray-600">خصم داخلي</th>
+                        <th className="text-right px-3 py-2 text-xs font-bold text-gray-600">خصم محفظة</th>
+                        <th className="text-right px-3 py-2 text-xs font-bold text-gray-600">مكافأة</th>
+                      </>
+                    )}
                     <th className="text-right px-3 py-2 text-xs font-bold text-gray-600">صافي</th>
                     <th className="text-right px-3 py-2 text-xs font-bold text-gray-600">الدفع</th>
                   </tr>
@@ -299,91 +338,123 @@ export function PayrollEditClient({ payroll, companyId }: PayrollEditClientProps
                 <tbody className="divide-y divide-gray-50">
                   {items.map((item, index) => (
                     <tr key={item.id} className={`hover:bg-gray-50/50 ${item.net_salary < 0 ? 'bg-red-50' : ''}`}>
+                      <td className="px-3 py-2 text-gray-400 text-center text-xs">{index + 1}</td>
                       <td className="px-3 py-2 font-bold text-gray-900 whitespace-nowrap">{item.employee_name}</td>
                       <td className="px-3 py-2 text-gray-600 whitespace-nowrap">{item.iqama_number}</td>
-                      <td className="px-3 py-2 text-gray-600">{item.user_code}</td>
-                      <td className="px-3 py-2 font-bold">{item.basic_salary}</td>
-                      <td className="px-3 py-2 text-gray-600">{item.target}</td>
+                      {!isSalaryType && (
+                        <td className="px-3 py-2 text-gray-600">{item.user_code}</td>
+                      )}
+                      <td className="px-3 py-2 font-bold">{Number(item.basic_salary).toLocaleString('en-US')}</td>
+                      
+                      {isSalaryType ? (
+                        <>
+                          <td className="px-3 py-2 text-gray-600">{Number(item.housing_allowance).toLocaleString('en-US')}</td>
+                          <td className="px-3 py-2">
+                            <input
+                              type="number"
+                              value={item.internal_deduction}
+                              onChange={(e) => handleRowChange(index, 'internal_deduction', parseFloat(e.target.value) || 0)}
+                              className="w-20 px-2 py-1 rounded-lg border border-gray-200 text-center text-sm"
+                              min="0"
+                            />
+                          </td>
+                          <td className="px-3 py-2">
+                            <input
+                              type="number"
+                              value={item.internal_bonus}
+                              onChange={(e) => handleRowChange(index, 'internal_bonus', parseFloat(e.target.value) || 0)}
+                              className="w-20 px-2 py-1 rounded-lg border border-gray-200 text-center text-sm"
+                              min="0"
+                            />
+                          </td>
+                        </>
+                      ) : (
+                        <>
+                          <td className="px-3 py-2 text-gray-600">{item.target}</td>
+                          <td className="px-3 py-2">
+                            <input
+                              type="number"
+                              value={item.successful_orders}
+                              onChange={(e) => handleRowChange(index, 'successful_orders', parseFloat(e.target.value) || 0)}
+                              className="w-16 px-2 py-1 rounded-lg border border-gray-200 text-center text-sm"
+                              min="0"
+                            />
+                          </td>
+                          <td className="px-3 py-2">
+                            <input
+                              type="text"
+                              value={(Number(item.target_deduction) || 0).toFixed(2)}
+                              readOnly
+                              className="w-16 px-2 py-1 rounded-lg border border-gray-100 bg-gray-50 text-center text-sm text-red-600"
+                            />
+                          </td>
+                          <td className="px-3 py-2">
+                            <input
+                              type="text"
+                              value={(Number(item.monthly_bonus) || 0).toFixed(2)}
+                              readOnly
+                              className="w-16 px-2 py-1 rounded-lg border border-gray-100 bg-gray-50 text-center text-sm text-emerald-600"
+                            />
+                          </td>
+                          <td className="px-3 py-2">
+                            <input
+                              type="number"
+                              value={item.operator_deduction}
+                              onChange={(e) => handleRowChange(index, 'operator_deduction', parseFloat(e.target.value) || 0)}
+                              className="w-16 px-2 py-1 rounded-lg border border-gray-200 text-center text-sm"
+                              min="0"
+                            />
+                          </td>
+                          <td className="px-3 py-2">
+                            <input
+                              type="number"
+                              value={item.internal_deduction}
+                              onChange={(e) => handleRowChange(index, 'internal_deduction', parseFloat(e.target.value) || 0)}
+                              className="w-16 px-2 py-1 rounded-lg border border-gray-200 text-center text-sm"
+                              min="0"
+                            />
+                          </td>
+                          <td className="px-3 py-2">
+                            <input
+                              type="number"
+                              value={item.wallet_deduction}
+                              onChange={(e) => handleRowChange(index, 'wallet_deduction', parseFloat(e.target.value) || 0)}
+                              className="w-16 px-2 py-1 rounded-lg border border-gray-200 text-center text-sm"
+                              min="0"
+                            />
+                          </td>
+                          <td className="px-3 py-2">
+                            <input
+                              type="number"
+                              value={item.internal_bonus}
+                              onChange={(e) => handleRowChange(index, 'internal_bonus', parseFloat(e.target.value) || 0)}
+                              className="w-16 px-2 py-1 rounded-lg border border-gray-200 text-center text-sm"
+                              min="0"
+                            />
+                          </td>
+                        </>
+                      )}
+                      
                       <td className="px-3 py-2">
                         <input
-                          type="number"
-                          value={item.successful_orders}
-                          onChange={(e) => handleRowChange(index, 'successful_orders', parseFloat(e.target.value) || 0)}
-                          className="w-16 px-2 py-1 rounded-lg border border-gray-200 text-center text-sm"
-                          min="0"
+                          type="text"
+                          value={(Number(item.net_salary) || 0).toFixed(2)}
+                          readOnly
+                          className={`w-24 px-2 py-1 rounded-lg border text-center text-sm font-bold ${
+                            item.net_salary < 0 ? 'bg-red-100 border-red-200 text-red-600' : 'bg-emerald-50 border-emerald-200 text-emerald-600'
+                          }`}
                         />
-                      </td>
-                      <td className="px-3 py-2">
-                          <input
-                            type="text"
-                            value={(Number(item.target_deduction) || 0).toFixed(2)}
-                            readOnly
-                            className="w-16 px-2 py-1 rounded-lg border border-gray-100 bg-gray-50 text-center text-sm"
-                          />
-                        </td>
-                        <td className="px-3 py-2">
-                          <input
-                            type="text"
-                            value={(Number(item.monthly_bonus) || 0).toFixed(2)}
-                            readOnly
-                            className="w-16 px-2 py-1 rounded-lg border border-gray-100 bg-gray-50 text-center text-sm"
-                          />
-                        </td>
-                        <td className="px-3 py-2">
-                          <input
-                            type="number"
-                            value={item.operator_deduction}
-                            onChange={(e) => handleRowChange(index, 'operator_deduction', parseFloat(e.target.value) || 0)}
-                            className="w-16 px-2 py-1 rounded-lg border border-gray-200 text-center text-sm"
-                            min="0"
-                          />
-                        </td>
-                        <td className="px-3 py-2">
-                          <input
-                            type="number"
-                            value={item.internal_deduction}
-                            onChange={(e) => handleRowChange(index, 'internal_deduction', parseFloat(e.target.value) || 0)}
-                            className="w-16 px-2 py-1 rounded-lg border border-gray-200 text-center text-sm"
-                            min="0"
-                          />
-                        </td>
-                        <td className="px-3 py-2">
-                          <input
-                            type="number"
-                            value={item.wallet_deduction}
-                            onChange={(e) => handleRowChange(index, 'wallet_deduction', parseFloat(e.target.value) || 0)}
-                            className="w-16 px-2 py-1 rounded-lg border border-gray-200 text-center text-sm"
-                            min="0"
-                          />
-                        </td>
-                        <td className="px-3 py-2">
-                          <input
-                            type="number"
-                            value={item.internal_bonus}
-                            onChange={(e) => handleRowChange(index, 'internal_bonus', parseFloat(e.target.value) || 0)}
-                            className="w-16 px-2 py-1 rounded-lg border border-gray-200 text-center text-sm"
-                            min="0"
-                          />
-                        </td>
-                        <td className="px-3 py-2">
-                          <input
-                            type="text"
-                            value={(Number(item.net_salary) || 0).toFixed(2)}
-                            readOnly
-                            className={`w-20 px-2 py-1 rounded-lg border text-center text-sm font-bold ${
-                              item.net_salary < 0 ? 'bg-red-100 border-red-200 text-red-600' : 'bg-emerald-50 border-emerald-200 text-emerald-600'
-                            }`}
-                          />
                       </td>
                       <td className="px-3 py-2">
                         <select
                           value={item.payment_method}
                           onChange={(e) => handleRowChange(index, 'payment_method', e.target.value)}
-                          className="w-20 px-2 py-1 rounded-lg border border-gray-200 text-sm"
+                          className="w-24 px-2 py-1 rounded-lg border border-gray-200 text-sm"
                         >
+                          <option value="غير محدد">غير محدد</option>
                           <option value="مدد">مدد</option>
                           <option value="كاش">كاش</option>
-                          <option value="تحويل">تحويل</option>
+                          <option value="تحويل">تحويل بنكي</option>
                         </select>
                       </td>
                     </tr>
@@ -403,13 +474,15 @@ export function PayrollEditClient({ payroll, companyId }: PayrollEditClientProps
                     {totals.totalSalary.toLocaleString('en-US', { minimumFractionDigits: 2 })} ريال
                   </p>
                 </div>
-                <div className="bg-white rounded-xl p-4 border border-gray-100 text-center">
-                  <div className="flex items-center justify-center gap-2 text-blue-600 mb-2">
-                    <Target size={18} />
-                    <span className="text-sm font-bold">الطلبات الناجحة</span>
+                {!isSalaryType && (
+                  <div className="bg-white rounded-xl p-4 border border-gray-100 text-center">
+                    <div className="flex items-center justify-center gap-2 text-blue-600 mb-2">
+                      <Target size={18} />
+                      <span className="text-sm font-bold">الطلبات الناجحة</span>
+                    </div>
+                    <p className="text-2xl font-black text-blue-600">{totals.totalOrders}</p>
                   </div>
-                  <p className="text-2xl font-black text-blue-600">{totals.totalOrders}</p>
-                </div>
+                )}
                 <div className="bg-white rounded-xl p-4 border border-gray-100 text-center">
                   <div className="flex items-center justify-center gap-2 text-red-600 mb-2">
                     <AlertCircle size={18} />
@@ -423,8 +496,8 @@ export function PayrollEditClient({ payroll, companyId }: PayrollEditClientProps
             </div>
           </div>
 
-            <div className="flex justify-center gap-4 pb-6">
-              <Link href={`/salary-payrolls/${payroll.id}`}>
+          <div className="flex justify-center gap-4 pb-6">
+            <Link href={`/salary-payrolls/${payroll.id}`}>
               <button className="flex items-center gap-2 px-6 py-3 rounded-xl bg-gray-100 text-gray-700 font-bold text-sm hover:bg-gray-200 transition-all">
                 <ArrowRight size={16} />
                 <span>إلغاء</span>

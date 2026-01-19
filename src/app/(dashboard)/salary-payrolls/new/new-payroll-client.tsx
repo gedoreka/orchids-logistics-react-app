@@ -127,6 +127,9 @@ export function NewPayrollClient({ packages, debts, companyId, userName }: NewPa
   const [employeeRows, setEmployeeRows] = useState<EmployeeRow[]>([]);
   const [tierSystemActive, setTierSystemActive] = useState(false);
 
+  const workType = selectedPackage?.work_type || 'salary';
+  const isSalaryType = workType === 'salary';
+
   const showNotification = (type: "success" | "error" | "loading", title: string, message: string) => {
     setNotification({ show: true, type, title, message });
     if (type !== "loading") {
@@ -158,6 +161,7 @@ export function NewPayrollClient({ packages, debts, companyId, userName }: NewPa
           value_per_order: Number(s.value_per_order) || 0
         })));
 
+        const pkgWorkType = data.package?.work_type || 'salary';
         const rows: EmployeeRow[] = (data.employees || []).map((emp: Employee) => {
           const basicSalary = Number(emp.basic_salary) || 0;
           const housingAllowance = Number(emp.housing_allowance) || 0;
@@ -181,7 +185,7 @@ export function NewPayrollClient({ packages, debts, companyId, userName }: NewPa
             internal_deduction: 0,
             wallet_deduction: 0,
             internal_bonus: 0,
-            net_salary: basicSalary + housingAllowance,
+            net_salary: pkgWorkType === 'salary' ? basicSalary + housingAllowance : basicSalary,
             payment_method: 'غير محدد',
             achieved_tier: '',
             tier_bonus: 0,
@@ -245,7 +249,7 @@ export function NewPayrollClient({ packages, debts, companyId, userName }: NewPa
   };
 
   const calculateRow = useCallback((row: EmployeeRow): EmployeeRow => {
-    const workType = selectedPackage?.work_type || 'salary';
+    const currentWorkType = selectedPackage?.work_type || 'salary';
     let net = 0;
     let targetDeduction = 0;
     let monthlyBonus = 0;
@@ -261,13 +265,12 @@ export function NewPayrollClient({ packages, debts, companyId, userName }: NewPa
     const basicSalaryVal = Number(row.basic_salary) || 0;
     const housingVal = Number(row.housing_allowance) || 0;
 
-    const totalDeductions = operatorVal + internalVal + walletVal;
-
-    if (workType === 'salary') {
-      net = basicSalaryVal + housingVal + rewardVal - totalDeductions;
-    } else if (workType === 'target') {
+    if (currentWorkType === 'salary') {
+      net = basicSalaryVal + housingVal + rewardVal - internalVal;
+    } else if (currentWorkType === 'target') {
       const target = Number(row.target || selectedPackage?.monthly_target || 0);
       const bonusPerOrder = Number(row.bonus_per_order || selectedPackage?.bonus_after_target || 0);
+      const totalDeductions = operatorVal + internalVal + walletVal;
       
       if (ordersVal < target) {
         targetDeduction = target > 0 ? (target - ordersVal) * (basicSalaryVal / target) : 0;
@@ -276,7 +279,9 @@ export function NewPayrollClient({ packages, debts, companyId, userName }: NewPa
       }
       
       net = basicSalaryVal + monthlyBonus + rewardVal - targetDeduction - totalDeductions;
-    } else if (workType === 'tiers') {
+    } else if (currentWorkType === 'tiers') {
+      const totalDeductions = operatorVal + internalVal + walletVal;
+      
       if (tierSystemActive) {
         const result = calculateTierSystem(
           ordersVal,
@@ -322,7 +327,8 @@ export function NewPayrollClient({ packages, debts, companyId, userName }: NewPa
           }
         }
       }
-    } else if (workType === 'commission') {
+    } else if (currentWorkType === 'commission') {
+      const totalDeductions = operatorVal + internalVal + walletVal;
       const commissionRate = (Number(selectedPackage?.bonus_after_target) || 0) / 100;
       const commission = ordersVal * commissionRate;
       net = basicSalaryVal + commission + rewardVal - totalDeductions;
@@ -364,9 +370,21 @@ export function NewPayrollClient({ packages, debts, companyId, userName }: NewPa
     let totalDeductions = 0;
 
     employeeRows.forEach(row => {
-      if (row.net_salary >= 0) totalSalary += row.net_salary;
-      totalOrders += row.successful_orders;
-      totalDeductions += row.target_deduction + row.operator_deduction + row.internal_deduction + row.wallet_deduction;
+      const netSalary = Number(row.net_salary) || 0;
+      const orders = Number(row.successful_orders) || 0;
+      const targetDed = Number(row.target_deduction) || 0;
+      const operatorDed = Number(row.operator_deduction) || 0;
+      const internalDed = Number(row.internal_deduction) || 0;
+      const walletDed = Number(row.wallet_deduction) || 0;
+      
+      if (netSalary >= 0) totalSalary += netSalary;
+      totalOrders += orders;
+      
+      if (isSalaryType) {
+        totalDeductions += internalDed;
+      } else {
+        totalDeductions += targetDed + operatorDed + internalDed + walletDed;
+      }
     });
 
     return { totalSalary, totalOrders, totalDeductions };
@@ -594,20 +612,24 @@ export function NewPayrollClient({ packages, debts, companyId, userName }: NewPa
                     </div>
                     <p className="font-bold text-gray-900">{getWorkTypeLabel(selectedPackage.work_type)}</p>
                   </div>
-                  <div className="bg-white rounded-xl p-3 border border-blue-100">
-                    <div className="flex items-center gap-2 text-blue-600 mb-1">
-                      <Target size={14} />
-                      <span className="text-xs font-bold">التارقت الشهري</span>
-                    </div>
-                    <p className="font-bold text-gray-900">{selectedPackage.monthly_target || 0} طلب</p>
-                  </div>
-                  <div className="bg-white rounded-xl p-3 border border-blue-100">
-                    <div className="flex items-center gap-2 text-blue-600 mb-1">
-                      <Gift size={14} />
-                      <span className="text-xs font-bold">قيمة البونص</span>
-                    </div>
-                    <p className="font-bold text-gray-900">{selectedPackage.bonus_after_target || 0} ريال لكل طلب</p>
-                  </div>
+                  {!isSalaryType && (
+                    <>
+                      <div className="bg-white rounded-xl p-3 border border-blue-100">
+                        <div className="flex items-center gap-2 text-blue-600 mb-1">
+                          <Target size={14} />
+                          <span className="text-xs font-bold">التارقت الشهري</span>
+                        </div>
+                        <p className="font-bold text-gray-900">{selectedPackage.monthly_target || 0} طلب</p>
+                      </div>
+                      <div className="bg-white rounded-xl p-3 border border-blue-100">
+                        <div className="flex items-center gap-2 text-blue-600 mb-1">
+                          <Gift size={14} />
+                          <span className="text-xs font-bold">قيمة البونص</span>
+                        </div>
+                        <p className="font-bold text-gray-900">{selectedPackage.bonus_after_target || 0} ريال لكل طلب</p>
+                      </div>
+                    </>
+                  )}
                 </div>
 
                 {selectedPackage.work_type === 'tiers' && (
@@ -651,9 +673,9 @@ export function NewPayrollClient({ packages, debts, companyId, userName }: NewPa
                       <div className="flex items-center gap-2 text-white">
                         <Calculator size={18} />
                         <h3 className="font-bold text-sm">
-                          {selectedPackage.work_type === 'salary' ? 'جدول الرواتب' :
-                           selectedPackage.work_type === 'target' ? 'جدول التارقت' :
-                           selectedPackage.work_type === 'tiers' ? 'جدول الشرائح' : 'جدول الرواتب'}
+                          {isSalaryType ? 'جدول الرواتب' :
+                           workType === 'target' ? 'جدول التارقت' :
+                           workType === 'tiers' ? 'جدول الشرائح' : 'جدول الرواتب'}
                         </h3>
                       </div>
                       <div className="flex items-center gap-3">
@@ -688,29 +710,30 @@ export function NewPayrollClient({ packages, debts, companyId, userName }: NewPa
                             <th className="text-right px-3 py-2.5 text-xs font-bold text-gray-700 whitespace-nowrap border-l border-gray-200">#</th>
                             <th className="text-right px-3 py-2.5 text-xs font-bold text-gray-700 whitespace-nowrap border-l border-gray-200">اسم الموظف</th>
                             <th className="text-right px-3 py-2.5 text-xs font-bold text-gray-700 whitespace-nowrap border-l border-gray-200">الإقامة</th>
-                            {selectedPackage.work_type !== 'salary' && (
+                            {!isSalaryType && (
                               <th className="text-right px-3 py-2.5 text-xs font-bold text-gray-700 whitespace-nowrap border-l border-gray-200">الكود</th>
                             )}
                             <th className="text-right px-3 py-2.5 text-xs font-bold text-gray-700 whitespace-nowrap border-l border-gray-200">الراتب</th>
-                            {selectedPackage.work_type === 'salary' && (
+                            {isSalaryType ? (
                               <>
                                 <th className="text-right px-3 py-2.5 text-xs font-bold text-gray-700 whitespace-nowrap border-l border-gray-200">السكن</th>
                                 <th className="text-right px-3 py-2.5 text-xs font-bold text-gray-700 whitespace-nowrap border-l border-gray-200">الجنسية</th>
+                                <th className="text-right px-3 py-2.5 text-xs font-bold text-gray-700 whitespace-nowrap border-l border-gray-200">خصم داخلي</th>
+                                <th className="text-right px-3 py-2.5 text-xs font-bold text-gray-700 whitespace-nowrap border-l border-gray-200">مكافأة</th>
                               </>
-                            )}
-                            {selectedPackage.work_type !== 'salary' && (
+                            ) : (
                               <>
                                 <th className="text-right px-3 py-2.5 text-xs font-bold text-gray-700 whitespace-nowrap border-l border-gray-200">التارقت</th>
                                 <th className="text-right px-3 py-2.5 text-xs font-bold text-gray-700 whitespace-nowrap border-l border-gray-200">البونص</th>
                                 <th className="text-right px-3 py-2.5 text-xs font-bold text-gray-700 whitespace-nowrap border-l border-gray-200">الطلبات</th>
                                 <th className="text-right px-3 py-2.5 text-xs font-bold text-gray-700 whitespace-nowrap border-l border-gray-200">خصم</th>
                                 <th className="text-right px-3 py-2.5 text-xs font-bold text-gray-700 whitespace-nowrap border-l border-gray-200">بونص</th>
+                                <th className="text-right px-3 py-2.5 text-xs font-bold text-gray-700 whitespace-nowrap border-l border-gray-200">مشغل</th>
+                                <th className="text-right px-3 py-2.5 text-xs font-bold text-gray-700 whitespace-nowrap border-l border-gray-200">داخلي</th>
+                                <th className="text-right px-3 py-2.5 text-xs font-bold text-gray-700 whitespace-nowrap border-l border-gray-200">محفظة</th>
+                                <th className="text-right px-3 py-2.5 text-xs font-bold text-gray-700 whitespace-nowrap border-l border-gray-200">مكافأة</th>
                               </>
                             )}
-                            <th className="text-right px-3 py-2.5 text-xs font-bold text-gray-700 whitespace-nowrap border-l border-gray-200">مشغل</th>
-                            <th className="text-right px-3 py-2.5 text-xs font-bold text-gray-700 whitespace-nowrap border-l border-gray-200">داخلي</th>
-                            <th className="text-right px-3 py-2.5 text-xs font-bold text-gray-700 whitespace-nowrap border-l border-gray-200">محفظة</th>
-                            <th className="text-right px-3 py-2.5 text-xs font-bold text-gray-700 whitespace-nowrap border-l border-gray-200">مكافأة</th>
                             <th className="text-right px-3 py-2.5 text-xs font-bold text-gray-700 whitespace-nowrap border-l border-gray-200">صافي</th>
                             <th className="text-right px-3 py-2.5 text-xs font-bold text-gray-700 whitespace-nowrap">التحويل</th>
                           </tr>
@@ -726,17 +749,35 @@ export function NewPayrollClient({ packages, debts, companyId, userName }: NewPa
                                 <td className="px-3 py-2 text-gray-400 text-center border-l border-gray-100 text-xs">{realIndex + 1}</td>
                                 <td className="px-3 py-2 font-bold text-gray-900 whitespace-nowrap border-l border-gray-100">{row.employee_name}</td>
                                 <td className="px-3 py-2 text-gray-600 whitespace-nowrap border-l border-gray-100">{row.iqama_number}</td>
-                                {selectedPackage.work_type !== 'salary' && (
+                                {!isSalaryType && (
                                   <td className="px-3 py-2 text-gray-600 whitespace-nowrap border-l border-gray-100">{row.user_code}</td>
                                 )}
                                 <td className="px-3 py-2 font-bold text-gray-900 border-l border-gray-100">{row.basic_salary.toLocaleString('en-US')}</td>
-                                {selectedPackage.work_type === 'salary' && (
+                                
+                                {isSalaryType ? (
                                   <>
                                     <td className="px-3 py-2 text-gray-600 border-l border-gray-100">{row.housing_allowance.toLocaleString('en-US')}</td>
                                     <td className="px-3 py-2 text-gray-600 border-l border-gray-100">{row.nationality}</td>
+                                    <td className="px-3 py-2 border-l border-gray-100">
+                                      <input
+                                        type="number"
+                                        value={row.internal_deduction}
+                                        onChange={(e) => handleRowChange(realIndex, 'internal_deduction', parseFloat(e.target.value) || 0)}
+                                        className="w-20 px-2 py-1 rounded-lg border border-gray-200 text-center text-sm focus:border-blue-400 focus:ring-1 focus:ring-blue-200"
+                                        min="0"
+                                      />
+                                    </td>
+                                    <td className="px-3 py-2 border-l border-gray-100">
+                                      <input
+                                        type="number"
+                                        value={row.internal_bonus}
+                                        onChange={(e) => handleRowChange(realIndex, 'internal_bonus', parseFloat(e.target.value) || 0)}
+                                        className="w-20 px-2 py-1 rounded-lg border border-gray-200 text-center text-sm focus:border-blue-400 focus:ring-1 focus:ring-blue-200"
+                                        min="0"
+                                      />
+                                    </td>
                                   </>
-                                )}
-                                {selectedPackage.work_type !== 'salary' && (
+                                ) : (
                                   <>
                                     <td className="px-3 py-2 text-gray-600 border-l border-gray-100">{row.target}</td>
                                     <td className="px-3 py-2 text-gray-600 border-l border-gray-100">{row.bonus_per_order}</td>
@@ -749,80 +790,81 @@ export function NewPayrollClient({ packages, debts, companyId, userName }: NewPa
                                         min="0"
                                       />
                                     </td>
-                                      <td className="px-3 py-2 border-l border-gray-100">
-                                        <input
-                                          type="text"
-                                          value={(Number(row.target_deduction) || 0).toFixed(2)}
-                                          readOnly
-                                          className="w-16 px-2 py-1 rounded-lg border border-gray-100 bg-gray-50 text-center text-sm text-red-600"
-                                        />
-                                      </td>
-                                      <td className="px-3 py-2 border-l border-gray-100">
-                                        <input
-                                          type="text"
-                                          value={(Number(row.monthly_bonus) || 0).toFixed(2)}
-                                          readOnly
-                                          className="w-16 px-2 py-1 rounded-lg border border-gray-100 bg-gray-50 text-center text-sm text-emerald-600"
-                                        />
-                                      </td>
-                                    </>
-                                  )}
-                                  <td className="px-3 py-2 border-l border-gray-100">
-                                    <input
-                                      type="number"
-                                      value={row.operator_deduction}
-                                      onChange={(e) => handleRowChange(realIndex, 'operator_deduction', parseFloat(e.target.value) || 0)}
-                                      className="w-16 px-2 py-1 rounded-lg border border-gray-200 text-center text-sm focus:border-blue-400 focus:ring-1 focus:ring-blue-200"
-                                      min="0"
-                                    />
-                                  </td>
-                                  <td className="px-3 py-2 border-l border-gray-100">
-                                    <input
-                                      type="number"
-                                      value={row.internal_deduction}
-                                      onChange={(e) => handleRowChange(realIndex, 'internal_deduction', parseFloat(e.target.value) || 0)}
-                                      className="w-16 px-2 py-1 rounded-lg border border-gray-200 text-center text-sm focus:border-blue-400 focus:ring-1 focus:ring-blue-200"
-                                      min="0"
-                                    />
-                                  </td>
-                                  <td className="px-3 py-2 border-l border-gray-100">
-                                    <input
-                                      type="number"
-                                      value={row.wallet_deduction}
-                                      onChange={(e) => handleRowChange(realIndex, 'wallet_deduction', parseFloat(e.target.value) || 0)}
-                                      className="w-16 px-2 py-1 rounded-lg border border-gray-200 text-center text-sm focus:border-blue-400 focus:ring-1 focus:ring-blue-200"
-                                      min="0"
-                                    />
-                                  </td>
-                                  <td className="px-3 py-2 border-l border-gray-100">
-                                    <input
-                                      type="number"
-                                      value={row.internal_bonus}
-                                      onChange={(e) => handleRowChange(realIndex, 'internal_bonus', parseFloat(e.target.value) || 0)}
-                                      className="w-16 px-2 py-1 rounded-lg border border-gray-200 text-center text-sm focus:border-blue-400 focus:ring-1 focus:ring-blue-200"
-                                      min="0"
-                                    />
-                                  </td>
-                                  <td className="px-3 py-2 border-l border-gray-100">
-                                    <input
-                                      type="text"
-                                      value={(Number(row.net_salary) || 0).toFixed(2)}
-                                      readOnly
-                                      className={`w-20 px-2 py-1 rounded-lg border text-center text-sm font-bold ${
-                                        row.net_salary < 0 ? 'bg-red-100 border-red-200 text-red-600' : 'bg-emerald-50 border-emerald-200 text-emerald-600'
-                                      }`}
-                                    />
-                                  </td>
+                                    <td className="px-3 py-2 border-l border-gray-100">
+                                      <input
+                                        type="text"
+                                        value={(Number(row.target_deduction) || 0).toFixed(2)}
+                                        readOnly
+                                        className="w-16 px-2 py-1 rounded-lg border border-gray-100 bg-gray-50 text-center text-sm text-red-600"
+                                      />
+                                    </td>
+                                    <td className="px-3 py-2 border-l border-gray-100">
+                                      <input
+                                        type="text"
+                                        value={(Number(row.monthly_bonus) || 0).toFixed(2)}
+                                        readOnly
+                                        className="w-16 px-2 py-1 rounded-lg border border-gray-100 bg-gray-50 text-center text-sm text-emerald-600"
+                                      />
+                                    </td>
+                                    <td className="px-3 py-2 border-l border-gray-100">
+                                      <input
+                                        type="number"
+                                        value={row.operator_deduction}
+                                        onChange={(e) => handleRowChange(realIndex, 'operator_deduction', parseFloat(e.target.value) || 0)}
+                                        className="w-16 px-2 py-1 rounded-lg border border-gray-200 text-center text-sm focus:border-blue-400 focus:ring-1 focus:ring-blue-200"
+                                        min="0"
+                                      />
+                                    </td>
+                                    <td className="px-3 py-2 border-l border-gray-100">
+                                      <input
+                                        type="number"
+                                        value={row.internal_deduction}
+                                        onChange={(e) => handleRowChange(realIndex, 'internal_deduction', parseFloat(e.target.value) || 0)}
+                                        className="w-16 px-2 py-1 rounded-lg border border-gray-200 text-center text-sm focus:border-blue-400 focus:ring-1 focus:ring-blue-200"
+                                        min="0"
+                                      />
+                                    </td>
+                                    <td className="px-3 py-2 border-l border-gray-100">
+                                      <input
+                                        type="number"
+                                        value={row.wallet_deduction}
+                                        onChange={(e) => handleRowChange(realIndex, 'wallet_deduction', parseFloat(e.target.value) || 0)}
+                                        className="w-16 px-2 py-1 rounded-lg border border-gray-200 text-center text-sm focus:border-blue-400 focus:ring-1 focus:ring-blue-200"
+                                        min="0"
+                                      />
+                                    </td>
+                                    <td className="px-3 py-2 border-l border-gray-100">
+                                      <input
+                                        type="number"
+                                        value={row.internal_bonus}
+                                        onChange={(e) => handleRowChange(realIndex, 'internal_bonus', parseFloat(e.target.value) || 0)}
+                                        className="w-16 px-2 py-1 rounded-lg border border-gray-200 text-center text-sm focus:border-blue-400 focus:ring-1 focus:ring-blue-200"
+                                        min="0"
+                                      />
+                                    </td>
+                                  </>
+                                )}
+                                
+                                <td className="px-3 py-2 border-l border-gray-100">
+                                  <input
+                                    type="text"
+                                    value={(Number(row.net_salary) || 0).toFixed(2)}
+                                    readOnly
+                                    className={`w-24 px-2 py-1 rounded-lg border text-center text-sm font-bold ${
+                                      row.net_salary < 0 ? 'bg-red-100 border-red-200 text-red-600' : 'bg-emerald-50 border-emerald-200 text-emerald-600'
+                                    }`}
+                                  />
+                                </td>
                                 <td className="px-3 py-2">
                                   <select
                                     value={row.payment_method}
                                     onChange={(e) => handleRowChange(realIndex, 'payment_method', e.target.value)}
-                                    className="w-20 px-2 py-1 rounded-lg border border-gray-200 text-sm focus:border-blue-400 focus:ring-1 focus:ring-blue-200"
+                                    className="w-24 px-2 py-1 rounded-lg border border-gray-200 text-sm focus:border-blue-400 focus:ring-1 focus:ring-blue-200"
                                   >
                                     <option value="غير محدد">غير محدد</option>
                                     <option value="مدد">مدد</option>
                                     <option value="كاش">كاش</option>
-                                    <option value="تحويل">تحويل</option>
+                                    <option value="تحويل">تحويل بنكي</option>
                                   </select>
                                 </td>
                               </tr>
@@ -843,13 +885,15 @@ export function NewPayrollClient({ packages, debts, companyId, userName }: NewPa
                             {totals.totalSalary.toLocaleString('en-US', { minimumFractionDigits: 2 })} ريال
                           </p>
                         </div>
-                        <div className="bg-white rounded-xl p-3 border border-gray-100 text-center">
-                          <div className="flex items-center justify-center gap-1.5 text-blue-600 mb-1">
-                            <Target size={14} />
-                            <span className="text-xs font-bold">الطلبات الناجحة</span>
+                        {!isSalaryType && (
+                          <div className="bg-white rounded-xl p-3 border border-gray-100 text-center">
+                            <div className="flex items-center justify-center gap-1.5 text-blue-600 mb-1">
+                              <Target size={14} />
+                              <span className="text-xs font-bold">الطلبات الناجحة</span>
+                            </div>
+                            <p className="text-lg font-black text-blue-600">{totals.totalOrders}</p>
                           </div>
-                          <p className="text-lg font-black text-blue-600">{totals.totalOrders}</p>
-                        </div>
+                        )}
                         <div className="bg-white rounded-xl p-3 border border-gray-100 text-center">
                           <div className="flex items-center justify-center gap-1.5 text-red-600 mb-1">
                             <AlertCircle size={14} />
