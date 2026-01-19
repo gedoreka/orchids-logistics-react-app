@@ -49,9 +49,15 @@ import {
     Send,
     AtSign,
     Loader2,
-    Trash2,
-    Eye
-  } from "lucide-react";
+      Trash2,
+      Eye,
+      Maximize2,
+      Minimize2,
+      Inbox,
+      AlertTriangle,
+      PlusCircle
+    } from "lucide-react";
+
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
 import { usePathname, useRouter } from "next/navigation";
@@ -287,18 +293,23 @@ export function Header({ user, onToggleSidebar, unreadChatCount = 0, subscriptio
   const [bankAccounts, setBankAccounts] = useState<BankAccount[]>([]);
   const [currentPlanDetails, setCurrentPlanDetails] = useState<any>(null);
   const [receiptImage, setReceiptImage] = useState<string | null>(null);
-  const [volume, setVolume] = useState(1);
+    const [volume, setVolume] = useState(1);
     const [prevVolume, setPrevVolume] = useState(1);
     const [isSubmitting, setIsSubmitting] = useState(false);
     
     // Email states
     const [showEmailModal, setShowEmailModal] = useState(false);
+    const [isEmailMaximized, setIsEmailMaximized] = useState(false);
+    const [activeEmailFolder, setActiveEmailFolder] = useState("INBOX");
+    const [showEmailSettings, setShowEmailSettings] = useState(false);
     const [emailAccounts, setEmailAccounts] = useState<EmailAccount[]>([]);
     const [selectedEmailAccount, setSelectedEmailAccount] = useState<EmailAccount | null>(null);
     const [emails, setEmails] = useState<EmailMessage[]>([]);
     const [loadingEmails, setLoadingEmails] = useState(false);
     const [unreadEmailCount, setUnreadEmailCount] = useState(0);
     const [fetchingUnread, setFetchingUnread] = useState(false);
+    const [isAddingAccount, setIsAddingAccount] = useState(false);
+
     
     const audioRef = useRef<HTMLAudioElement | null>(null);
     
@@ -506,28 +517,91 @@ export function Header({ user, onToggleSidebar, unreadChatCount = 0, subscriptio
     }
   };
 
-    const fetchEmails = async (accountId: string) => {
+    const fetchEmails = async (accountId: string, folder: string = "INBOX") => {
       if (!user?.company_id) return;
       setLoadingEmails(true);
+      setActiveEmailFolder(folder);
       try {
-        const res = await fetch(`/api/email/fetch?accountId=${accountId}&company_id=${user.company_id}&limit=20`);
+        const res = await fetch(`/api/email/fetch?accountId=${accountId}&company_id=${user.company_id}&folder=${folder}&limit=30`);
         const data = await res.json();
         if (data.emails) {
           setEmails(data.emails);
         } else if (data.error) {
           toast.error(data.error);
+          setEmails([]);
         }
       } catch (error) {
         console.error("Error fetching emails:", error);
         toast.error(isRTL ? "خطأ في جلب الرسائل" : "Error fetching emails");
+        setEmails([]);
       } finally {
         setLoadingEmails(false);
       }
     };
 
+
     const handleSelectAccount = (account: EmailAccount) => {
       setSelectedEmailAccount(account);
-      fetchEmails(account.id);
+      fetchEmails(account.id, "INBOX");
+    };
+
+    const handleAddAccount = async (e: React.FormEvent<HTMLFormElement>) => {
+      e.preventDefault();
+      if (!user?.company_id) return;
+      setIsAddingAccount(true);
+      const formData = new FormData(e.currentTarget);
+      const accountData = {
+        company_id: user.company_id,
+        email: formData.get("email"),
+        password: formData.get("password"),
+        provider: formData.get("provider"),
+        imap_host: formData.get("imap_host"),
+        imap_port: parseInt(formData.get("imap_port") as string || "993"),
+        smtp_host: formData.get("smtp_host"),
+        smtp_port: parseInt(formData.get("smtp_port") as string || "465"),
+      };
+
+      try {
+        const res = await fetch("/api/email/accounts", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(accountData),
+        });
+        const data = await res.json();
+        if (data.success) {
+          toast.success(isRTL ? "تم إضافة الحساب بنجاح" : "Account added successfully");
+          setEmailAccounts([...emailAccounts, data.account]);
+          setShowEmailSettings(false);
+        } else {
+          toast.error(data.error || (isRTL ? "حدث خطأ" : "An error occurred"));
+        }
+      } catch (error) {
+        toast.error(isRTL ? "خطأ في الاتصال" : "Connection error");
+      } finally {
+        setIsAddingAccount(false);
+      }
+    };
+
+    const handleDeleteAccount = async (id: string) => {
+      if (!user?.company_id || !confirm(isRTL ? "هل أنت متأكد من حذف هذا الحساب؟" : "Are you sure you want to delete this account?")) return;
+      try {
+        const res = await fetch(`/api/email/accounts?id=${id}&company_id=${user.company_id}`, {
+          method: "DELETE",
+        });
+        const data = await res.json();
+        if (data.success) {
+          toast.success(isRTL ? "تم حذف الحساب" : "Account deleted");
+          setEmailAccounts(emailAccounts.filter(a => a.id !== id));
+          if (selectedEmailAccount?.id === id) {
+            setSelectedEmailAccount(emailAccounts.find(a => a.id !== id) || null);
+            setEmails([]);
+          }
+        } else {
+          toast.error(data.error);
+        }
+      } catch (error) {
+        toast.error(isRTL ? "خطأ في الحذف" : "Error deleting account");
+      }
     };
 
     useEffect(() => {
@@ -1812,137 +1886,337 @@ export function Header({ user, onToggleSidebar, unreadChatCount = 0, subscriptio
           )}
           </AnimatePresence>
   
-          {/* Email Modal */}
-          <AnimatePresence>
-            {showEmailModal && (
-              <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
-                <motion.div 
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  onClick={() => setShowEmailModal(false)}
-                  className="absolute inset-0 bg-black/70 backdrop-blur-md"
-                />
-                <motion.div 
-                  initial={{ scale: 0.9, opacity: 0, y: 20 }}
-                  animate={{ scale: 1, opacity: 1, y: 0 }}
-                  exit={{ scale: 0.9, opacity: 0, y: 20 }}
-                  className="relative w-full max-w-5xl h-[80vh] bg-gradient-to-b from-slate-900 to-slate-950 rounded-3xl shadow-2xl overflow-hidden border border-blue-500/20 flex flex-col"
-                >
-                  <div className="p-6 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 border-b border-white/10 flex items-center justify-between">
-                    <div className="flex items-center gap-4">
-                      <div className="p-3 rounded-2xl bg-blue-500/20">
-                        <Mail size={24} className="text-blue-400" />
+            {/* Email Modal */}
+            <AnimatePresence>
+              {showEmailModal && (
+                <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
+                  <motion.div 
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    onClick={() => setShowEmailModal(false)}
+                    className="absolute inset-0 bg-black/70 backdrop-blur-md"
+                  />
+                  <motion.div 
+                    initial={{ scale: 0.9, opacity: 0, y: 20 }}
+                    animate={{ 
+                      scale: 1, 
+                      opacity: 1, 
+                      y: 0,
+                      width: isEmailMaximized ? "98vw" : "100%",
+                      height: isEmailMaximized ? "95vh" : "80vh",
+                      maxWidth: isEmailMaximized ? "none" : "1024px"
+                    }}
+                    exit={{ scale: 0.9, opacity: 0, y: 20 }}
+                    className="relative bg-gradient-to-b from-slate-900 to-slate-950 rounded-3xl shadow-2xl overflow-hidden border border-blue-500/20 flex flex-col transition-all duration-300"
+                  >
+                    {/* Modal Header */}
+                    <div className="p-4 md:p-6 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 border-b border-white/10 flex items-center justify-between shrink-0">
+                      <div className="flex items-center gap-4">
+                        <div className="p-3 rounded-2xl bg-blue-500/20">
+                          <Mail size={24} className="text-blue-400" />
+                        </div>
+                        <div>
+                          <h3 className="font-bold text-white text-lg md:text-xl">
+                            {showEmailSettings ? (isRTL ? 'إعدادات البريد' : 'Email Settings') : (isRTL ? 'بريد الشركة' : 'Company Email')}
+                          </h3>
+                          <p className="text-sm text-blue-400 truncate max-w-[200px]">
+                            {showEmailSettings ? (isRTL ? 'إدارة الحسابات' : 'Manage Accounts') : (selectedEmailAccount?.email || (isRTL ? 'اختر حساباً' : 'Select an account'))}
+                          </p>
+                        </div>
                       </div>
-                      <div>
-                        <h3 className="font-bold text-white text-xl">{isRTL ? 'بريد الشركة' : 'Company Email'}</h3>
-                        <p className="text-sm text-blue-400">{selectedEmailAccount?.email || (isRTL ? 'اختر حساباً' : 'Select an account')}</p>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <motion.button
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
-                        onClick={() => selectedEmailAccount && fetchEmails(selectedEmailAccount.id)}
-                        className="p-2.5 text-white/40 hover:text-white hover:bg-white/10 rounded-xl transition-all"
-                      >
-                        <RefreshCw size={20} className={loadingEmails ? "animate-spin" : ""} />
-                      </motion.button>
-                      <button 
-                        onClick={() => setShowEmailModal(false)}
-                        className="p-2.5 text-white/30 hover:text-white hover:bg-white/10 rounded-xl transition-all"
-                      >
-                        <X size={24} />
-                      </button>
-                    </div>
-                  </div>
-  
-                  <div className="flex-1 flex overflow-hidden">
-                    {/* Accounts Sidebar */}
-                    <div className="w-64 border-l border-white/5 bg-black/20 p-4 space-y-2 overflow-y-auto">
-                      <p className="text-[10px] font-bold text-white/30 uppercase tracking-widest mb-4 px-2">{isRTL ? 'الحسابات' : 'Accounts'}</p>
-                      {emailAccounts.map((account) => (
-                        <button
-                          key={account.id}
-                          onClick={() => handleSelectAccount(account)}
-                          className={cn(
-                            "w-full flex items-center gap-3 p-3 rounded-xl transition-all text-right",
-                            selectedEmailAccount?.id === account.id 
-                              ? "bg-blue-500/20 border border-blue-500/30 text-white" 
-                              : "hover:bg-white/5 text-white/50 border border-transparent"
-                          )}
-                        >
-                          <div className={cn(
-                            "w-8 h-8 rounded-lg flex items-center justify-center",
-                            selectedEmailAccount?.id === account.id ? "bg-blue-500 text-white" : "bg-white/5"
-                          )}>
-                            <AtSign size={14} />
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <p className="text-xs font-bold truncate">{account.email}</p>
-                            <p className="text-[10px] opacity-40 uppercase">{account.provider}</p>
-                          </div>
-                        </button>
-                      ))}
                       
-                      {emailAccounts.length === 0 && (
-                        <div className="text-center py-8">
-                          <AtSign size={32} className="mx-auto text-white/10 mb-2" />
-                          <p className="text-[10px] text-white/30">{isRTL ? 'لا يوجد حسابات مضافة' : 'No accounts added'}</p>
-                        </div>
-                      )}
+                      <div className="flex items-center gap-2">
+                        <motion.button
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                          onClick={() => setShowEmailSettings(!showEmailSettings)}
+                          className={cn(
+                            "p-2.5 rounded-xl transition-all border",
+                            showEmailSettings 
+                              ? "bg-blue-500 text-white border-blue-400" 
+                              : "bg-white/5 text-white/40 hover:text-white border-white/10"
+                          )}
+                          title={isRTL ? "الإعدادات" : "Settings"}
+                        >
+                          <Settings size={20} />
+                        </motion.button>
+
+                        <motion.button
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                          onClick={() => setIsEmailMaximized(!isEmailMaximized)}
+                          className="p-2.5 bg-white/5 text-white/40 hover:text-white rounded-xl transition-all border border-white/10"
+                        >
+                          {isEmailMaximized ? <Minimize2 size={20} /> : <Maximize2 size={20} />}
+                        </motion.button>
+
+                        {!showEmailSettings && (
+                          <motion.button
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                            onClick={() => selectedEmailAccount && fetchEmails(selectedEmailAccount.id, activeEmailFolder)}
+                            className="p-2.5 bg-white/5 text-white/40 hover:text-white rounded-xl transition-all border border-white/10"
+                          >
+                            <RefreshCw size={20} className={loadingEmails ? "animate-spin" : ""} />
+                          </motion.button>
+                        )}
+                        
+                        <button 
+                          onClick={() => setShowEmailModal(false)}
+                          className="p-2.5 bg-white/5 text-white/30 hover:text-white hover:bg-white/10 rounded-xl transition-all border border-white/10"
+                        >
+                          <X size={20} />
+                        </button>
+                      </div>
                     </div>
-  
-                    {/* Emails List */}
-                    <div className="flex-1 flex flex-col min-w-0">
-                      {loadingEmails ? (
-                        <div className="flex-1 flex flex-col items-center justify-center gap-4">
-                          <Loader2 size={40} className="text-blue-500 animate-spin" />
-                          <p className="text-sm text-white/40">{isRTL ? 'جاري جلب الرسائل...' : 'Fetching emails...'}</p>
-                        </div>
-                      ) : emails.length > 0 ? (
-                        <div className="flex-1 overflow-y-auto p-4 space-y-3">
-                          {emails.map((email) => (
-                            <motion.div
-                              key={email.uid}
-                              initial={{ opacity: 0, y: 10 }}
-                              animate={{ opacity: 1, y: 0 }}
-                              className={cn(
-                                "group relative p-4 rounded-2xl border transition-all cursor-pointer",
-                                !email.isRead 
-                                  ? "bg-white/5 border-blue-500/30 shadow-lg shadow-blue-500/5" 
-                                  : "bg-transparent border-white/5 hover:bg-white/5"
-                              )}
-                            >
-                              <div className="flex justify-between items-start gap-4 mb-1">
-                                <div className="flex items-center gap-3 min-w-0">
-                                  {!email.isRead && <div className="w-2 h-2 rounded-full bg-blue-500" />}
-                                  <span className="font-bold text-sm text-white/90 truncate">{email.from}</span>
+    
+                    <div className="flex-1 flex overflow-hidden">
+                      {/* Left Sidebar: Folders & Accounts */}
+                      <div className="w-20 md:w-64 border-l border-white/5 bg-black/20 flex flex-col shrink-0">
+                        {/* Accounts Section */}
+                        <div className="p-4 border-b border-white/5">
+                          <p className="hidden md:block text-[10px] font-bold text-white/30 uppercase tracking-widest mb-3 px-2">
+                            {isRTL ? 'الحسابات' : 'Accounts'}
+                          </p>
+                          <div className="space-y-2">
+                            {emailAccounts.map((account) => (
+                              <button
+                                key={account.id}
+                                onClick={() => handleSelectAccount(account)}
+                                className={cn(
+                                  "w-full flex items-center gap-3 p-2 md:p-3 rounded-xl transition-all",
+                                  selectedEmailAccount?.id === account.id 
+                                    ? "bg-blue-500/20 border border-blue-500/30 text-white" 
+                                    : "hover:bg-white/5 text-white/40 border border-transparent"
+                                )}
+                              >
+                                <div className={cn(
+                                  "w-8 h-8 rounded-lg flex items-center justify-center shrink-0",
+                                  selectedEmailAccount?.id === account.id ? "bg-blue-500 text-white" : "bg-white/10"
+                                )}>
+                                  <AtSign size={14} />
                                 </div>
-                                <span className="text-[10px] text-white/30 whitespace-nowrap">
-                                  {new Date(email.date).toLocaleDateString('ar-SA')}
-                                </span>
-                              </div>
-                              <h4 className="text-xs font-bold text-blue-400 mb-1 truncate">{email.subject}</h4>
-                              <p className="text-[11px] text-white/40 line-clamp-2">{email.snippet}</p>
-                            </motion.div>
-                          ))}
-                        </div>
-                      ) : (
-                        <div className="flex-1 flex flex-col items-center justify-center p-12 text-center">
-                          <div className="w-20 h-20 rounded-full bg-white/5 flex items-center justify-center mb-6">
-                            <Mail size={40} className="text-white/10" />
+                                <div className="hidden md:block flex-1 min-w-0 text-right">
+                                  <p className="text-xs font-bold truncate">{account.email}</p>
+                                  <p className="text-[10px] opacity-40 uppercase">{account.provider}</p>
+                                </div>
+                              </button>
+                            ))}
+                            {emailAccounts.length === 0 && (
+                              <button 
+                                onClick={() => setShowEmailSettings(true)}
+                                className="w-full flex items-center gap-3 p-3 rounded-xl bg-blue-500/10 text-blue-400 border border-blue-500/20 hover:bg-blue-500/20 transition-all"
+                              >
+                                <Plus size={16} className="mx-auto md:mx-0" />
+                                <span className="hidden md:block text-xs font-bold">{isRTL ? 'أضف حساب' : 'Add Account'}</span>
+                              </button>
+                            )}
                           </div>
-                          <h4 className="text-lg font-bold text-white mb-2">{isRTL ? 'لا توجد رسائل' : 'No messages'}</h4>
-                          <p className="text-sm text-white/30 max-w-xs">{isRTL ? 'هذا المجلد فارغ حالياً أو لم يتم جلب الرسائل بعد.' : 'This folder is currently empty or messages haven\'t been fetched yet.'}</p>
                         </div>
-                      )}
+
+                        {/* Folders Section */}
+                        {!showEmailSettings && selectedEmailAccount && (
+                          <div className="flex-1 p-4 space-y-1 overflow-y-auto">
+                            <p className="hidden md:block text-[10px] font-bold text-white/30 uppercase tracking-widest mb-3 px-2">
+                              {isRTL ? 'المجلدات' : 'Folders'}
+                            </p>
+                            {[
+                              { id: "INBOX", name: isRTL ? "صندوق الوارد" : "Inbox", icon: Inbox, color: "text-blue-400" },
+                              { id: "Sent", name: isRTL ? "المرسل" : "Sent", icon: Send, color: "text-emerald-400" },
+                              { id: "Trash", name: isRTL ? "المحذوفات" : "Trash", icon: Trash2, color: "text-rose-400" },
+                              { id: "Spam", name: isRTL ? "الرسائل المزعجة" : "Spam", icon: AlertTriangle, color: "text-amber-400" },
+                            ].map((folder) => (
+                              <button
+                                key={folder.id}
+                                onClick={() => fetchEmails(selectedEmailAccount.id, folder.id)}
+                                className={cn(
+                                  "w-full flex items-center gap-3 p-3 rounded-xl transition-all",
+                                  activeEmailFolder === folder.id 
+                                    ? "bg-white/10 text-white shadow-sm" 
+                                    : "text-white/40 hover:text-white/70 hover:bg-white/5"
+                                )}
+                              >
+                                <folder.icon size={18} className={cn(activeEmailFolder === folder.id ? folder.color : "text-inherit")} />
+                                <span className="hidden md:block text-sm font-medium">{folder.name}</span>
+                              </button>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+    
+                      {/* Main Content Area */}
+                      <div className="flex-1 flex flex-col min-w-0 bg-white/[0.02]">
+                        {showEmailSettings ? (
+                          /* Settings View */
+                          <div className="flex-1 overflow-y-auto p-6">
+                            <div className="max-w-2xl mx-auto space-y-8">
+                              {/* Account Management */}
+                              <section>
+                                <h4 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
+                                  <Settings size={20} className="text-blue-400" />
+                                  {isRTL ? 'إدارة الحسابات' : 'Account Management'}
+                                </h4>
+                                <div className="grid gap-3">
+                                  {emailAccounts.map(account => (
+                                    <div key={account.id} className="flex items-center justify-between p-4 bg-white/5 border border-white/10 rounded-2xl group">
+                                      <div className="flex items-center gap-4">
+                                        <div className="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center">
+                                          <Mail size={20} className="text-blue-400" />
+                                        </div>
+                                        <div>
+                                          <p className="font-bold text-white text-sm">{account.email}</p>
+                                          <p className="text-xs text-white/40">{account.provider} • IMAP: {account.is_active ? (isRTL ? 'متصل' : 'Connected') : (isRTL ? 'فشل الاتصال' : 'Connection Failed')}</p>
+                                        </div>
+                                      </div>
+                                      <button 
+                                        onClick={() => handleDeleteAccount(account.id)}
+                                        className="p-2 text-white/20 hover:text-rose-400 hover:bg-rose-500/10 rounded-xl transition-all"
+                                      >
+                                        <Trash2 size={18} />
+                                      </button>
+                                    </div>
+                                  ))}
+                                </div>
+                              </section>
+
+                              {/* Add New Account Form */}
+                              <section className="p-6 bg-white/5 border border-white/10 rounded-3xl">
+                                <h4 className="text-lg font-bold text-white mb-6 flex items-center gap-2">
+                                  <PlusCircle size={20} className="text-emerald-400" />
+                                  {isRTL ? 'إضافة حساب جديد' : 'Add New Account'}
+                                </h4>
+                                <form onSubmit={handleAddAccount} className="space-y-4">
+                                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div className="space-y-1.5">
+                                      <label className="text-xs font-bold text-white/50 px-1">{isRTL ? 'البريد الإلكتروني' : 'Email Address'}</label>
+                                      <input 
+                                        name="email" 
+                                        type="email" 
+                                        required 
+                                        placeholder="user@example.com"
+                                        className="w-full bg-black/40 border border-white/10 rounded-xl p-3 text-sm text-white focus:border-blue-500/50 outline-none transition-all"
+                                      />
+                                    </div>
+                                    <div className="space-y-1.5">
+                                      <label className="text-xs font-bold text-white/50 px-1">{isRTL ? 'كلمة المرور' : 'Password'}</label>
+                                      <input 
+                                        name="password" 
+                                        type="password" 
+                                        required 
+                                        placeholder="••••••••"
+                                        className="w-full bg-black/40 border border-white/10 rounded-xl p-3 text-sm text-white focus:border-blue-500/50 outline-none transition-all"
+                                      />
+                                    </div>
+                                  </div>
+                                  
+                                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div className="space-y-1.5">
+                                      <label className="text-xs font-bold text-white/50 px-1">{isRTL ? 'مزود الخدمة' : 'Provider'}</label>
+                                      <select 
+                                        name="provider" 
+                                        defaultValue="hostinger"
+                                        className="w-full bg-black/40 border border-white/10 rounded-xl p-3 text-sm text-white focus:border-blue-500/50 outline-none transition-all"
+                                      >
+                                        <option value="hostinger">Hostinger</option>
+                                        <option value="gmail">Gmail</option>
+                                        <option value="outlook">Outlook</option>
+                                        <option value="custom">Custom IMAP/SMTP</option>
+                                      </select>
+                                    </div>
+                                    <div className="flex items-end">
+                                      <button 
+                                        type="submit" 
+                                        disabled={isAddingAccount}
+                                        className="w-full bg-blue-600 hover:bg-blue-500 disabled:bg-blue-600/50 text-white font-bold py-3 rounded-xl transition-all shadow-lg shadow-blue-600/20 flex items-center justify-center gap-2"
+                                      >
+                                        {isAddingAccount ? <RefreshCw size={18} className="animate-spin" /> : <Plus size={18} />}
+                                        {isRTL ? 'حفظ الحساب' : 'Save Account'}
+                                      </button>
+                                    </div>
+                                  </div>
+                                </form>
+                              </section>
+                            </div>
+                          </div>
+                        ) : (
+                          /* Messages List View */
+                          <div className="flex-1 flex flex-col min-w-0">
+                            {loadingEmails ? (
+                              <div className="flex-1 flex flex-col items-center justify-center gap-4">
+                                <Loader2 size={40} className="text-blue-500 animate-spin" />
+                                <p className="text-sm text-white/40">{isRTL ? 'جاري جلب الرسائل...' : 'Fetching emails...'}</p>
+                              </div>
+                            ) : emails.length > 0 ? (
+                              <div className="flex-1 overflow-y-auto p-4 space-y-3">
+                                <div className="flex items-center justify-between mb-4 px-2">
+                                  <h4 className="text-sm font-bold text-white/60">
+                                    {activeEmailFolder === "INBOX" ? (isRTL ? 'صندوق الوارد' : 'Inbox') : 
+                                     activeEmailFolder === "Sent" ? (isRTL ? 'المرسل' : 'Sent') :
+                                     activeEmailFolder === "Trash" ? (isRTL ? 'المحذوفات' : 'Trash') : (isRTL ? 'الرسائل المزعجة' : 'Spam')}
+                                  </h4>
+                                  <span className="text-[10px] bg-blue-500/20 text-blue-400 px-2 py-1 rounded-lg font-bold">
+                                    {emails.length} {isRTL ? 'رسالة' : 'messages'}
+                                  </span>
+                                </div>
+                                {emails.map((email) => (
+                                  <motion.div
+                                    key={email.uid}
+                                    initial={{ opacity: 0, y: 10 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    className={cn(
+                                      "group relative p-4 rounded-2xl border transition-all cursor-pointer",
+                                      !email.isRead 
+                                        ? "bg-white/5 border-blue-500/30 shadow-lg shadow-blue-500/5" 
+                                        : "bg-transparent border-white/5 hover:bg-white/5"
+                                    )}
+                                  >
+                                    <div className="flex justify-between items-start gap-4 mb-1">
+                                      <div className="flex items-center gap-3 min-w-0">
+                                        {!email.isRead && <div className="w-2 h-2 rounded-full bg-blue-500" />}
+                                        <span className="font-bold text-sm text-white/90 truncate">{email.from}</span>
+                                      </div>
+                                      <span className="text-[10px] text-white/30 whitespace-nowrap">
+                                        {new Date(email.date).toLocaleDateString('ar-SA')}
+                                      </span>
+                                    </div>
+                                    <h4 className="text-xs font-bold text-blue-400 mb-1 truncate">{email.subject}</h4>
+                                    <p className="text-[11px] text-white/40 line-clamp-2 leading-relaxed">{email.snippet}</p>
+                                    
+                                    <div className="absolute left-4 bottom-4 opacity-0 group-hover:opacity-100 transition-opacity">
+                                      <button className="p-1.5 bg-white/10 hover:bg-white/20 rounded-lg text-white/60">
+                                        <Eye size={14} />
+                                      </button>
+                                    </div>
+                                  </motion.div>
+                                ))}
+                              </div>
+                            ) : (
+                              <div className="flex-1 flex flex-col items-center justify-center p-12 text-center">
+                                <div className="w-20 h-20 rounded-full bg-white/5 flex items-center justify-center mb-6">
+                                  <Mail size={40} className="text-white/10" />
+                                </div>
+                                <h4 className="text-lg font-bold text-white mb-2">{isRTL ? 'لا توجد رسائل' : 'No messages'}</h4>
+                                <p className="text-sm text-white/30 max-w-xs">{isRTL ? 'هذا المجلد فارغ حالياً أو لم يتم جلب الرسائل بعد.' : 'This folder is currently empty or messages haven\'t been fetched yet.'}</p>
+                                {!selectedEmailAccount && (
+                                  <button 
+                                    onClick={() => setShowEmailSettings(true)}
+                                    className="mt-6 px-6 py-2 bg-blue-600 text-white rounded-xl text-sm font-bold hover:bg-blue-500 transition-all"
+                                  >
+                                    {isRTL ? 'أضف حساب بريد الآن' : 'Add Email Account Now'}
+                                  </button>
+                                )}
+                              </div>
+                            )}
+                          </div>
+                        )}
+                      </div>
                     </div>
-                  </div>
-                </motion.div>
-              </div>
-            )}
-          </AnimatePresence>
+                  </motion.div>
+                </div>
+              )}
+            </AnimatePresence>
+
   
           <AnimatePresence>
             {isDriverModalOpen && (
