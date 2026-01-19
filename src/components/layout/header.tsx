@@ -775,15 +775,27 @@ export function Header({ user, onToggleSidebar, unreadChatCount = 0, subscriptio
                       )}
                     </motion.button>
 
-                  <motion.button
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                    onClick={() => setIsDriverModalOpen(true)}
-                    className="hidden sm:flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 rounded-xl transition-all shadow-lg shadow-amber-500/20 border border-amber-400/20"
-                  >
-                    <Truck size={16} className="text-white" />
-                    <span className="text-[11px] font-bold text-white">{t('driverApp')}</span>
-                  </motion.button>
+                    <motion.button
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      onClick={() => router.push("/letters")}
+                      className="hidden sm:flex items-center gap-2 px-4 py-2.5 bg-gradient-to-br from-blue-500/20 to-indigo-500/20 hover:from-blue-500/30 hover:to-indigo-500/30 rounded-xl transition-all border border-blue-500/20"
+                    >
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" className="text-blue-400">
+                        <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z" fill="currentColor"/>
+                      </svg>
+                      <span className="text-[11px] font-bold text-blue-400">{isRTL ? 'البريد' : 'Email'}</span>
+                    </motion.button>
+
+                    <motion.button
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      onClick={() => setIsDriverModalOpen(true)}
+                      className="hidden sm:flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 rounded-xl transition-all shadow-lg shadow-amber-500/20 border border-amber-400/20"
+                    >
+                      <Truck size={16} className="text-white" />
+                      <span className="text-[11px] font-bold text-white">{t('driverApp')}</span>
+                    </motion.button>
 
                   <motion.button
                     whileHover={{ scale: 1.02 }}
