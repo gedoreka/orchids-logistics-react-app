@@ -8,29 +8,24 @@ import {
   Search, 
   Eye,
   Edit,
+  Edit2,
   Trash2,
   Calendar,
   Clock,
   CheckCircle,
-  XCircle,
   AlertCircle,
   FileSpreadsheet,
   Loader2,
-  DollarSign,
   User,
   Sparkles,
   Building2,
   RefreshCw,
-  TrendingUp,
   FileCheck,
   PlusCircle,
-  ArrowRight,
-  Package,
   Hash,
-  Percent,
   X,
-  Check,
-  Save
+  Save,
+  MapPin
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -54,14 +49,17 @@ interface Customer {
   customer_name: string;
   company_name: string;
   vat_number: string;
+  address?: string;
 }
 
 interface ProductItem {
   id: string;
   product_name: string;
-  description: string;
   quantity: number;
-  price: number;
+  unit_price: number;
+  total_price: number;
+  vat_amount: number;
+  price_with_vat: number;
 }
 
 interface QuotationsClientProps {
@@ -103,28 +101,41 @@ export function QuotationsClient({
     message: ""
   });
   
+  const [useCustomClient, setUseCustomClient] = useState(false);
   const [formData, setFormData] = useState({
     quotation_number: nextQuotationNumber,
     client_id: "",
+    client_name: "",
+    client_commercial_number: "",
+    client_address: "",
     issue_date: new Date().toISOString().split('T')[0],
     due_date: ""
   });
   
+  const vatRate = 15;
+  
+  const calculateItemTotals = (quantity: number, unitPrice: number) => {
+    const totalPrice = quantity * unitPrice;
+    const vatAmount = (totalPrice * vatRate) / 100;
+    const priceWithVat = totalPrice + vatAmount;
+    return { totalPrice, vatAmount, priceWithVat };
+  };
+  
   const [items, setItems] = useState<ProductItem[]>([
-    { id: "1", product_name: "", description: "", quantity: 1, price: 0 }
+    { id: "1", product_name: "", quantity: 1, unit_price: 0, total_price: 0, vat_amount: 0, price_with_vat: 0 }
   ]);
 
   const router = useRouter();
-  const vatRate = 15;
 
   const calculateTotals = () => {
     let subtotal = 0;
+    let totalVat = 0;
     items.forEach(item => {
-      subtotal += item.quantity * item.price;
+      subtotal += item.total_price;
+      totalVat += item.vat_amount;
     });
-    const vatAmount = (subtotal * vatRate) / 100;
-    const total = subtotal + vatAmount;
-    return { subtotal, vatAmount, total };
+    const total = subtotal + totalVat;
+    return { subtotal, vatAmount: totalVat, total };
   };
 
   const { subtotal, vatAmount, total } = calculateTotals();
@@ -145,18 +156,33 @@ export function QuotationsClient({
   };
 
   const handleItemChange = (id: string, field: keyof ProductItem, value: string | number) => {
-    setItems(prev => prev.map(item => 
-      item.id === id ? { ...item, [field]: value } : item
-    ));
+    setItems(prev => prev.map(item => {
+      if (item.id !== id) return item;
+      
+      const updatedItem = { ...item, [field]: value };
+      
+      if (field === 'quantity' || field === 'unit_price') {
+        const quantity = field === 'quantity' ? Number(value) : item.quantity;
+        const unitPrice = field === 'unit_price' ? Number(value) : item.unit_price;
+        const { totalPrice, vatAmount, priceWithVat } = calculateItemTotals(quantity, unitPrice);
+        updatedItem.total_price = totalPrice;
+        updatedItem.vat_amount = vatAmount;
+        updatedItem.price_with_vat = priceWithVat;
+      }
+      
+      return updatedItem;
+    }));
   };
 
   const addItem = () => {
     setItems(prev => [...prev, {
       id: Date.now().toString(),
       product_name: "",
-      description: "",
       quantity: 1,
-      price: 0
+      unit_price: 0,
+      total_price: 0,
+      vat_amount: 0,
+      price_with_vat: 0
     }]);
   };
 
@@ -166,9 +192,19 @@ export function QuotationsClient({
     }
   };
 
+  const getSelectedCustomer = () => {
+    if (!formData.client_id) return null;
+    return customers.find(c => c.id === Number(formData.client_id));
+  };
+
   const handleSubmit = async (status: 'draft' | 'confirmed') => {
-    if (!formData.client_id) {
+    if (!useCustomClient && !formData.client_id) {
       showNotification("error", "خطأ في البيانات", "يرجى اختيار العميل");
+      return;
+    }
+
+    if (useCustomClient && !formData.client_name) {
+      showNotification("error", "خطأ في البيانات", "يرجى إدخال اسم العميل");
       return;
     }
 
@@ -177,7 +213,7 @@ export function QuotationsClient({
       return;
     }
 
-    const validItems = items.filter(item => item.product_name && item.quantity > 0 && item.price > 0);
+    const validItems = items.filter(item => item.product_name && item.quantity > 0 && item.unit_price > 0);
     if (validItems.length === 0) {
       showNotification("error", "خطأ في البيانات", "يرجى إضافة منتج واحد على الأقل");
       return;
@@ -186,13 +222,22 @@ export function QuotationsClient({
     setLoading(true);
     showNotification("loading", "جاري الحفظ", "جاري حفظ عرض السعر...");
 
+    const selectedCustomer = getSelectedCustomer();
+    
     try {
       const res = await fetch("/api/quotations", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          ...formData,
+          quotation_number: formData.quotation_number,
           company_id: companyId,
+          client_id: useCustomClient ? null : formData.client_id,
+          client_name: useCustomClient ? formData.client_name : (selectedCustomer?.customer_name || selectedCustomer?.company_name),
+          client_commercial_number: useCustomClient ? formData.client_commercial_number : selectedCustomer?.vat_number,
+          client_address: useCustomClient ? formData.client_address : selectedCustomer?.address,
+          use_custom_client: useCustomClient ? 1 : 0,
+          issue_date: formData.issue_date,
+          due_date: formData.due_date,
           status,
           items: validItems
         })
@@ -203,14 +248,17 @@ export function QuotationsClient({
         setTimeout(() => {
           setShowForm(false);
           router.refresh();
-          // Reset form
           setFormData({
             quotation_number: nextQuotationNumber,
             client_id: "",
+            client_name: "",
+            client_commercial_number: "",
+            client_address: "",
             issue_date: new Date().toISOString().split('T')[0],
             due_date: ""
           });
-          setItems([{ id: "1", product_name: "", description: "", quantity: 1, price: 0 }]);
+          setUseCustomClient(false);
+          setItems([{ id: "1", product_name: "", quantity: 1, unit_price: 0, total_price: 0, vat_amount: 0, price_with_vat: 0 }]);
         }, 1500);
       } else {
         const data = await res.json();
@@ -275,6 +323,8 @@ export function QuotationsClient({
       );
     }
   };
+
+  const selectedCustomer = getSelectedCustomer();
 
   return (
     <div className="max-w-[95%] mx-auto p-4 md:p-8 space-y-8" dir="rtl">
@@ -510,24 +560,128 @@ export function QuotationsClient({
                           </div>
 
                           {/* Customer Section */}
-                          <div className="space-y-2">
-                              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mr-2">اختر العميل</label>
-                              <div className="relative">
-                                  <User className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
-                                  <select
-                                      value={formData.client_id}
-                                      onChange={(e) => setFormData({...formData, client_id: e.target.value})}
-                                      className="w-full pr-12 pl-4 py-3 bg-white/5 border border-white/10 rounded-2xl text-white font-bold focus:bg-white/10 focus:border-purple-500 outline-none transition-all appearance-none"
-                                      required
+                          <div className="bg-white/5 rounded-2xl p-6 border border-white/10 space-y-4">
+                              <div className="flex items-center justify-between">
+                                  <div className="space-y-1">
+                                      <h3 className="text-lg font-black text-white">بيانات العميل</h3>
+                                      <p className="text-xs text-slate-400 font-bold">
+                                          {useCustomClient 
+                                              ? "أدخل بيانات العميل يدوياً" 
+                                              : "اختر من قائمة العملاء المسجلين"}
+                                      </p>
+                                  </div>
+                                  <button
+                                      type="button"
+                                      onClick={() => setUseCustomClient(!useCustomClient)}
+                                      className={cn(
+                                          "flex items-center gap-2 px-4 py-2 rounded-xl font-black text-xs transition-all border",
+                                          useCustomClient 
+                                              ? "bg-rose-500/20 text-rose-400 border-rose-500/30" 
+                                              : "bg-amber-500/20 text-amber-400 border-amber-500/30"
+                                      )}
                                   >
-                                      <option value="" className="bg-slate-800">اختر العميل...</option>
-                                      {customers.map(c => (
-                                          <option key={c.id} value={c.id} className="bg-slate-800">
-                                              {c.customer_name || c.company_name} - {c.vat_number}
-                                          </option>
-                                      ))}
-                                  </select>
+                                      <Edit2 size={14} />
+                                      {useCustomClient ? "إلغاء الإدخال اليدوي" : "إدخال يدوي للعميل"}
+                                  </button>
                               </div>
+
+                              <AnimatePresence mode="wait">
+                                  {!useCustomClient ? (
+                                      <motion.div
+                                          key="select-customer"
+                                          initial={{ opacity: 0, y: -10 }}
+                                          animate={{ opacity: 1, y: 0 }}
+                                          exit={{ opacity: 0, y: -10 }}
+                                          className="space-y-4"
+                                      >
+                                          <div className="relative">
+                                              <User className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+                                              <select
+                                                  value={formData.client_id}
+                                                  onChange={(e) => setFormData({...formData, client_id: e.target.value})}
+                                                  className="w-full pr-12 pl-4 py-3 bg-white/5 border border-white/10 rounded-2xl text-white font-bold focus:bg-white/10 focus:border-purple-500 outline-none transition-all appearance-none"
+                                                  required
+                                              >
+                                                  <option value="" className="bg-slate-800">اختر العميل...</option>
+                                                  {customers.map(c => (
+                                                      <option key={c.id} value={c.id} className="bg-slate-800">
+                                                          {c.customer_name || c.company_name} - {c.vat_number}
+                                                      </option>
+                                                  ))}
+                                              </select>
+                                          </div>
+                                          
+                                          {selectedCustomer && (
+                                              <div className="bg-blue-500/5 rounded-xl p-4 border border-blue-500/10 flex items-center gap-4">
+                                                  <div className="p-2 bg-blue-500/20 rounded-lg text-blue-400">
+                                                      <Building2 size={20} />
+                                                  </div>
+                                                  <div className="flex-1">
+                                                      <p className="text-[10px] text-blue-400 font-bold mb-1">العميل المختار:</p>
+                                                      <p className="text-sm font-black text-white">
+                                                          {selectedCustomer.customer_name || selectedCustomer.company_name}
+                                                      </p>
+                                                      <p className="text-[10px] text-blue-400/70 font-bold">
+                                                          سجل تجاري: {selectedCustomer.vat_number || "غير محدد"}
+                                                      </p>
+                                                  </div>
+                                                  <span className="px-2 py-1 bg-emerald-500/20 text-emerald-400 text-[10px] font-black rounded-lg border border-emerald-500/20">
+                                                      مسجل
+                                                  </span>
+                                              </div>
+                                          )}
+                                      </motion.div>
+                                  ) : (
+                                      <motion.div
+                                          key="manual-customer"
+                                          initial={{ opacity: 0, y: -10 }}
+                                          animate={{ opacity: 1, y: 0 }}
+                                          exit={{ opacity: 0, y: -10 }}
+                                          className="grid grid-cols-1 md:grid-cols-3 gap-6"
+                                      >
+                                          <div className="space-y-2">
+                                              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mr-2">اسم العميل</label>
+                                              <div className="relative">
+                                                  <User className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+                                                  <input
+                                                      type="text"
+                                                      value={formData.client_name}
+                                                      onChange={(e) => setFormData({...formData, client_name: e.target.value})}
+                                                      placeholder="اسم العميل أو الشركة..."
+                                                      className="w-full pr-12 pl-4 py-3 bg-white/5 border border-white/10 rounded-2xl text-white font-bold focus:bg-white/10 focus:border-purple-500 outline-none transition-all"
+                                                      required={useCustomClient}
+                                                  />
+                                              </div>
+                                          </div>
+                                          <div className="space-y-2">
+                                              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mr-2">رقم السجل التجاري</label>
+                                              <div className="relative">
+                                                  <Hash className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+                                                  <input
+                                                      type="text"
+                                                      value={formData.client_commercial_number}
+                                                      onChange={(e) => setFormData({...formData, client_commercial_number: e.target.value})}
+                                                      placeholder="رقم السجل التجاري..."
+                                                      className="w-full pr-12 pl-4 py-3 bg-white/5 border border-white/10 rounded-2xl text-white font-bold focus:bg-white/10 focus:border-purple-500 outline-none transition-all"
+                                                  />
+                                              </div>
+                                          </div>
+                                          <div className="space-y-2">
+                                              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mr-2">العنوان</label>
+                                              <div className="relative">
+                                                  <MapPin className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+                                                  <input
+                                                      type="text"
+                                                      value={formData.client_address}
+                                                      onChange={(e) => setFormData({...formData, client_address: e.target.value})}
+                                                      placeholder="عنوان العميل..."
+                                                      className="w-full pr-12 pl-4 py-3 bg-white/5 border border-white/10 rounded-2xl text-white font-bold focus:bg-white/10 focus:border-purple-500 outline-none transition-all"
+                                                  />
+                                              </div>
+                                          </div>
+                                      </motion.div>
+                                  )}
+                              </AnimatePresence>
                           </div>
 
                           {/* Items Section */}
@@ -543,64 +697,75 @@ export function QuotationsClient({
                                   </button>
                               </div>
 
-                              <div className="space-y-4">
-                                  {items.map((item, index) => (
+                              {/* Table Header */}
+                              <div className="bg-white/5 rounded-xl p-4 border border-white/10">
+                                  <div className="grid grid-cols-12 gap-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                                      <div className="col-span-3">اسم المنتج</div>
+                                      <div className="col-span-1 text-center">الكمية</div>
+                                      <div className="col-span-2 text-center">سعر الوحدة</div>
+                                      <div className="col-span-2 text-center">السعر</div>
+                                      <div className="col-span-2 text-center">الضريبة (15%)</div>
+                                      <div className="col-span-2 text-center">شامل الضريبة</div>
+                                  </div>
+                              </div>
+
+                              <div className="space-y-3">
+                                  {items.map((item) => (
                                       <motion.div 
                                           key={item.id}
                                           initial={{ opacity: 0, x: -20 }}
                                           animate={{ opacity: 1, x: 0 }}
-                                          className="bg-white/5 rounded-2xl p-6 border border-white/10 group relative"
+                                          className="bg-white/5 rounded-2xl p-4 border border-white/10 group relative"
                                       >
-                                          <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
-                                              <div className="md:col-span-4 space-y-2">
-                                                  <label className="text-[10px] font-black text-slate-500 mr-2">اسم المنتج</label>
+                                          <div className="grid grid-cols-12 gap-4 items-center">
+                                              <div className="col-span-3">
                                                   <input
                                                       type="text"
                                                       value={item.product_name}
                                                       onChange={(e) => handleItemChange(item.id, 'product_name', e.target.value)}
-                                                      placeholder="مثال: شحن حاوية 40 قدم"
-                                                      className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-2xl text-white font-bold focus:bg-white/10 focus:border-purple-500 outline-none transition-all"
+                                                      placeholder="اسم المنتج..."
+                                                      className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-xl text-white text-sm font-bold focus:bg-white/10 focus:border-purple-500 outline-none transition-all"
                                                   />
                                               </div>
-                                              <div className="md:col-span-3 space-y-2">
-                                                  <label className="text-[10px] font-black text-slate-500 mr-2">الوصف</label>
-                                                  <input
-                                                      type="text"
-                                                      value={item.description}
-                                                      onChange={(e) => handleItemChange(item.id, 'description', e.target.value)}
-                                                      placeholder="وصف اختياري"
-                                                      className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-2xl text-white font-bold focus:bg-white/10 focus:border-purple-500 outline-none transition-all"
-                                                  />
-                                              </div>
-                                              <div className="md:col-span-2 space-y-2">
-                                                  <label className="text-[10px] font-black text-slate-500 mr-2">الكمية</label>
+                                              <div className="col-span-1">
                                                   <input
                                                       type="number"
                                                       value={item.quantity}
                                                       onChange={(e) => handleItemChange(item.id, 'quantity', parseFloat(e.target.value) || 0)}
-                                                      className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-2xl text-white font-bold focus:bg-white/10 focus:border-purple-500 outline-none transition-all"
+                                                      className="w-full px-2 py-2 bg-white/5 border border-white/10 rounded-xl text-white text-sm font-bold focus:bg-white/10 focus:border-purple-500 outline-none transition-all text-center"
+                                                      min="1"
                                                   />
                                               </div>
-                                              <div className="md:col-span-2 space-y-2">
-                                                  <label className="text-[10px] font-black text-slate-500 mr-2">السعر</label>
+                                              <div className="col-span-2">
                                                   <div className="relative">
                                                       <input
                                                           type="number"
                                                           step="0.01"
-                                                          value={item.price}
-                                                          onChange={(e) => handleItemChange(item.id, 'price', parseFloat(e.target.value) || 0)}
-                                                          className="w-full pr-10 pl-4 py-3 bg-white/5 border border-white/10 rounded-2xl text-white font-bold focus:bg-white/10 focus:border-purple-500 outline-none transition-all text-left"
+                                                          value={item.unit_price}
+                                                          onChange={(e) => handleItemChange(item.id, 'unit_price', parseFloat(e.target.value) || 0)}
+                                                          className="w-full px-2 py-2 bg-white/5 border border-white/10 rounded-xl text-white text-sm font-bold focus:bg-white/10 focus:border-purple-500 outline-none transition-all text-center"
                                                       />
-                                                      <span className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 font-bold text-xs">ر.س</span>
                                                   </div>
                                               </div>
-                                              <div className="md:col-span-1 flex items-end">
+                                              <div className="col-span-2 text-center">
+                                                  <span className="text-white font-bold text-sm">{item.total_price.toLocaleString()}</span>
+                                                  <span className="text-slate-500 text-[10px] mr-1">ر.س</span>
+                                              </div>
+                                              <div className="col-span-2 text-center">
+                                                  <span className="text-amber-400 font-bold text-sm">{item.vat_amount.toLocaleString()}</span>
+                                                  <span className="text-amber-400/50 text-[10px] mr-1">ر.س</span>
+                                              </div>
+                                              <div className="col-span-2 flex items-center justify-between">
+                                                  <div className="text-center flex-1">
+                                                      <span className="text-emerald-400 font-black text-sm">{item.price_with_vat.toLocaleString()}</span>
+                                                      <span className="text-emerald-400/50 text-[10px] mr-1">ر.س</span>
+                                                  </div>
                                                   <button
                                                       onClick={() => removeItem(item.id)}
                                                       disabled={items.length === 1}
-                                                      className="w-full h-12 bg-rose-500/10 text-rose-400 rounded-2xl border border-rose-500/20 hover:bg-rose-500 hover:text-white transition-all flex items-center justify-center disabled:opacity-30"
+                                                      className="h-8 w-8 bg-rose-500/10 text-rose-400 rounded-lg border border-rose-500/20 hover:bg-rose-500 hover:text-white transition-all flex items-center justify-center disabled:opacity-30"
                                                   >
-                                                      <Trash2 size={18} />
+                                                      <Trash2 size={14} />
                                                   </button>
                                               </div>
                                           </div>
@@ -617,7 +782,7 @@ export function QuotationsClient({
                                       <p className="text-xl font-black text-white">{subtotal.toLocaleString()} <span className="text-xs text-slate-500">ر.س</span></p>
                                   </div>
                                   <div>
-                                      <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">الضريبة ({vatRate}%)</p>
+                                      <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">إجمالي الضريبة ({vatRate}%)</p>
                                       <p className="text-xl font-black text-amber-400">{vatAmount.toLocaleString()} <span className="text-xs text-amber-400/50">ر.س</span></p>
                                   </div>
                               </div>
