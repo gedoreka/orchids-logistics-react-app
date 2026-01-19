@@ -24,7 +24,13 @@ import {
   TrendingUp,
   FileCheck,
   PlusCircle,
-  ArrowRight
+  ArrowRight,
+  Package,
+  Hash,
+  Percent,
+  X,
+  Check,
+  Save
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -43,6 +49,21 @@ interface Quotation {
   status: string;
 }
 
+interface Customer {
+  id: number;
+  customer_name: string;
+  company_name: string;
+  vat_number: string;
+}
+
+interface ProductItem {
+  id: string;
+  product_name: string;
+  description: string;
+  quantity: number;
+  price: number;
+}
+
 interface QuotationsClientProps {
   quotations: Quotation[];
   stats: {
@@ -52,6 +73,8 @@ interface QuotationsClientProps {
     expired: number;
   };
   companyId: number;
+  customers: Customer[];
+  nextQuotationNumber: string;
 }
 
 interface NotificationState {
@@ -61,17 +84,50 @@ interface NotificationState {
   message: string;
 }
 
-export function QuotationsClient({ quotations: initialQuotations, stats, companyId }: QuotationsClientProps) {
+export function QuotationsClient({ 
+  quotations: initialQuotations, 
+  stats, 
+  companyId, 
+  customers,
+  nextQuotationNumber 
+}: QuotationsClientProps) {
   const [quotations, setQuotations] = useState(initialQuotations);
   const [searchTerm, setSearchTerm] = useState("");
   const [deleteLoading, setDeleteLoading] = useState<number | null>(null);
+  const [showForm, setShowForm] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [notification, setNotification] = useState<NotificationState>({
     show: false,
     type: "success",
     title: "",
     message: ""
   });
+  
+  const [formData, setFormData] = useState({
+    quotation_number: nextQuotationNumber,
+    client_id: "",
+    issue_date: new Date().toISOString().split('T')[0],
+    due_date: ""
+  });
+  
+  const [items, setItems] = useState<ProductItem[]>([
+    { id: "1", product_name: "", description: "", quantity: 1, price: 0 }
+  ]);
+
   const router = useRouter();
+  const vatRate = 15;
+
+  const calculateTotals = () => {
+    let subtotal = 0;
+    items.forEach(item => {
+      subtotal += item.quantity * item.price;
+    });
+    const vatAmount = (subtotal * vatRate) / 100;
+    const total = subtotal + vatAmount;
+    return { subtotal, vatAmount, total };
+  };
+
+  const { subtotal, vatAmount, total } = calculateTotals();
 
   const filteredQuotations = quotations.filter(q => {
     const search = searchTerm.toLowerCase();
@@ -85,6 +141,85 @@ export function QuotationsClient({ quotations: initialQuotations, stats, company
     setNotification({ show: true, type, title, message });
     if (type !== "loading") {
       setTimeout(() => setNotification(prev => ({ ...prev, show: false })), 3000);
+    }
+  };
+
+  const handleItemChange = (id: string, field: keyof ProductItem, value: string | number) => {
+    setItems(prev => prev.map(item => 
+      item.id === id ? { ...item, [field]: value } : item
+    ));
+  };
+
+  const addItem = () => {
+    setItems(prev => [...prev, {
+      id: Date.now().toString(),
+      product_name: "",
+      description: "",
+      quantity: 1,
+      price: 0
+    }]);
+  };
+
+  const removeItem = (id: string) => {
+    if (items.length > 1) {
+      setItems(prev => prev.filter(item => item.id !== id));
+    }
+  };
+
+  const handleSubmit = async (status: 'draft' | 'confirmed') => {
+    if (!formData.client_id) {
+      showNotification("error", "خطأ في البيانات", "يرجى اختيار العميل");
+      return;
+    }
+
+    if (!formData.due_date) {
+      showNotification("error", "خطأ في البيانات", "يرجى تحديد تاريخ الانتهاء");
+      return;
+    }
+
+    const validItems = items.filter(item => item.product_name && item.quantity > 0 && item.price > 0);
+    if (validItems.length === 0) {
+      showNotification("error", "خطأ في البيانات", "يرجى إضافة منتج واحد على الأقل");
+      return;
+    }
+
+    setLoading(true);
+    showNotification("loading", "جاري الحفظ", "جاري حفظ عرض السعر...");
+
+    try {
+      const res = await fetch("/api/quotations", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ...formData,
+          company_id: companyId,
+          status,
+          items: validItems
+        })
+      });
+
+      if (res.ok) {
+        showNotification("success", "تم الحفظ بنجاح", status === 'confirmed' ? "تم حفظ وتأكيد عرض السعر" : "تم حفظ عرض السعر كمسودة");
+        setTimeout(() => {
+          setShowForm(false);
+          router.refresh();
+          // Reset form
+          setFormData({
+            quotation_number: nextQuotationNumber,
+            client_id: "",
+            issue_date: new Date().toISOString().split('T')[0],
+            due_date: ""
+          });
+          setItems([{ id: "1", product_name: "", description: "", quantity: 1, price: 0 }]);
+        }, 1500);
+      } else {
+        const data = await res.json();
+        showNotification("error", "فشل الحفظ", data.error || "فشل حفظ عرض السعر");
+      }
+    } catch {
+      showNotification("error", "خطأ", "حدث خطأ أثناء الحفظ");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -150,14 +285,14 @@ export function QuotationsClient({ quotations: initialQuotations, stats, company
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50"
+              className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[100]"
               onClick={() => notification.type !== "loading" && setNotification(prev => ({ ...prev, show: false }))}
             />
             <motion.div
               initial={{ opacity: 0, scale: 0.9, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.9, y: 20 }}
-              className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50 w-full max-w-md"
+              className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[110] w-full max-w-md p-4"
             >
               <div className={cn(
                 "bg-white rounded-[2.5rem] p-8 shadow-2xl border-t-8",
@@ -223,12 +358,16 @@ export function QuotationsClient({ quotations: initialQuotations, stats, company
               </p>
               
               <div className="flex flex-wrap justify-center lg:justify-start gap-4 mt-8">
-                <Link href="/quotations/new">
-                  <button className="flex items-center gap-3 px-6 py-3 bg-purple-500 text-white font-black text-sm rounded-2xl hover:bg-purple-600 transition-all shadow-xl active:scale-95">
-                    <Plus size={18} />
-                    إنشاء عرض سعر جديد
-                  </button>
-                </Link>
+                <button 
+                  onClick={() => setShowForm(!showForm)}
+                  className={cn(
+                    "flex items-center gap-3 px-6 py-3 font-black text-sm rounded-2xl transition-all shadow-xl active:scale-95",
+                    showForm ? "bg-white/10 text-white border border-white/20" : "bg-purple-500 text-white hover:bg-purple-600 shadow-purple-500/20"
+                  )}
+                >
+                  {showForm ? <X size={18} /> : <Plus size={18} />}
+                  {showForm ? "إلغاء النموذج" : "إنشاء عرض سعر جديد"}
+                </button>
                 <button 
                     onClick={() => router.refresh()}
                     className="flex items-center gap-3 px-6 py-3 bg-white/10 backdrop-blur-md rounded-2xl border border-white/20 text-white font-black text-sm hover:bg-white/20 transition-all shadow-xl active:scale-95"
@@ -306,6 +445,218 @@ export function QuotationsClient({ quotations: initialQuotations, stats, company
               </motion.div>
             </div>
           </div>
+
+          <AnimatePresence>
+            {showForm && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: "auto" }}
+                exit={{ opacity: 0, height: 0 }}
+                className="overflow-hidden"
+              >
+                <div className="bg-white/5 backdrop-blur-xl rounded-[2rem] border border-white/10 overflow-hidden shadow-2xl">
+                    <div className="p-8 border-b border-white/10 bg-white/5">
+                        <div className="flex items-center gap-4">
+                            <div className="p-3 bg-purple-500/20 rounded-2xl text-purple-400">
+                                <PlusCircle className="w-8 h-8" />
+                            </div>
+                            <div>
+                                  <h2 className="text-2xl font-black text-white">إنشاء عرض سعر جديد</h2>
+                                  <p className="text-slate-400 font-bold tracking-wide">يرجى تعبئة بيانات العرض والمنتجات بعناية</p>
+                              </div>
+                          </div>
+                      </div>
+
+                      <div className="p-8 space-y-8">
+                          {/* Info Section */}
+                          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                              <div className="space-y-2">
+                                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mr-2">رقم العرض</label>
+                                  <div className="relative">
+                                      <Hash className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+                                      <input
+                                          type="text"
+                                          value={formData.quotation_number}
+                                          readOnly
+                                          className="w-full pr-12 pl-4 py-3 bg-white/5 border border-white/10 rounded-2xl text-white font-bold outline-none opacity-60"
+                                      />
+                                  </div>
+                              </div>
+                              <div className="space-y-2">
+                                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mr-2">تاريخ الإصدار</label>
+                                  <div className="relative">
+                                      <Calendar className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+                                      <input
+                                          type="date"
+                                          value={formData.issue_date}
+                                          onChange={(e) => setFormData({...formData, issue_date: e.target.value})}
+                                          className="w-full pr-12 pl-4 py-3 bg-white/5 border border-white/10 rounded-2xl text-white font-bold focus:bg-white/10 focus:border-purple-500 outline-none transition-all"
+                                      />
+                                  </div>
+                              </div>
+                              <div className="space-y-2">
+                                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mr-2">تاريخ الانتهاء</label>
+                                  <div className="relative">
+                                      <Clock className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+                                      <input
+                                          type="date"
+                                          value={formData.due_date}
+                                          onChange={(e) => setFormData({...formData, due_date: e.target.value})}
+                                          className="w-full pr-12 pl-4 py-3 bg-white/5 border border-white/10 rounded-2xl text-white font-bold focus:bg-white/10 focus:border-purple-500 outline-none transition-all"
+                                          required
+                                      />
+                                  </div>
+                              </div>
+                          </div>
+
+                          {/* Customer Section */}
+                          <div className="space-y-2">
+                              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mr-2">اختر العميل</label>
+                              <div className="relative">
+                                  <User className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+                                  <select
+                                      value={formData.client_id}
+                                      onChange={(e) => setFormData({...formData, client_id: e.target.value})}
+                                      className="w-full pr-12 pl-4 py-3 bg-white/5 border border-white/10 rounded-2xl text-white font-bold focus:bg-white/10 focus:border-purple-500 outline-none transition-all appearance-none"
+                                      required
+                                  >
+                                      <option value="" className="bg-slate-800">اختر العميل...</option>
+                                      {customers.map(c => (
+                                          <option key={c.id} value={c.id} className="bg-slate-800">
+                                              {c.customer_name || c.company_name} - {c.vat_number}
+                                          </option>
+                                      ))}
+                                  </select>
+                              </div>
+                          </div>
+
+                          {/* Items Section */}
+                          <div className="space-y-4">
+                              <div className="flex items-center justify-between">
+                                  <h3 className="text-lg font-black text-white">المنتجات / الخدمات</h3>
+                                  <button
+                                      onClick={addItem}
+                                      className="flex items-center gap-2 px-4 py-2 bg-emerald-500/20 text-emerald-400 font-bold text-xs rounded-xl border border-emerald-500/30 hover:bg-emerald-500/30 transition-all"
+                                  >
+                                      <Plus size={14} />
+                                      إضافة منتج
+                                  </button>
+                              </div>
+
+                              <div className="space-y-4">
+                                  {items.map((item, index) => (
+                                      <motion.div 
+                                          key={item.id}
+                                          initial={{ opacity: 0, x: -20 }}
+                                          animate={{ opacity: 1, x: 0 }}
+                                          className="bg-white/5 rounded-2xl p-6 border border-white/10 group relative"
+                                      >
+                                          <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
+                                              <div className="md:col-span-4 space-y-2">
+                                                  <label className="text-[10px] font-black text-slate-500 mr-2">اسم المنتج</label>
+                                                  <input
+                                                      type="text"
+                                                      value={item.product_name}
+                                                      onChange={(e) => handleItemChange(item.id, 'product_name', e.target.value)}
+                                                      placeholder="مثال: شحن حاوية 40 قدم"
+                                                      className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-2xl text-white font-bold focus:bg-white/10 focus:border-purple-500 outline-none transition-all"
+                                                  />
+                                              </div>
+                                              <div className="md:col-span-3 space-y-2">
+                                                  <label className="text-[10px] font-black text-slate-500 mr-2">الوصف</label>
+                                                  <input
+                                                      type="text"
+                                                      value={item.description}
+                                                      onChange={(e) => handleItemChange(item.id, 'description', e.target.value)}
+                                                      placeholder="وصف اختياري"
+                                                      className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-2xl text-white font-bold focus:bg-white/10 focus:border-purple-500 outline-none transition-all"
+                                                  />
+                                              </div>
+                                              <div className="md:col-span-2 space-y-2">
+                                                  <label className="text-[10px] font-black text-slate-500 mr-2">الكمية</label>
+                                                  <input
+                                                      type="number"
+                                                      value={item.quantity}
+                                                      onChange={(e) => handleItemChange(item.id, 'quantity', parseFloat(e.target.value) || 0)}
+                                                      className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-2xl text-white font-bold focus:bg-white/10 focus:border-purple-500 outline-none transition-all"
+                                                  />
+                                              </div>
+                                              <div className="md:col-span-2 space-y-2">
+                                                  <label className="text-[10px] font-black text-slate-500 mr-2">السعر</label>
+                                                  <div className="relative">
+                                                      <input
+                                                          type="number"
+                                                          step="0.01"
+                                                          value={item.price}
+                                                          onChange={(e) => handleItemChange(item.id, 'price', parseFloat(e.target.value) || 0)}
+                                                          className="w-full pr-10 pl-4 py-3 bg-white/5 border border-white/10 rounded-2xl text-white font-bold focus:bg-white/10 focus:border-purple-500 outline-none transition-all text-left"
+                                                      />
+                                                      <span className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 font-bold text-xs">ر.س</span>
+                                                  </div>
+                                              </div>
+                                              <div className="md:col-span-1 flex items-end">
+                                                  <button
+                                                      onClick={() => removeItem(item.id)}
+                                                      disabled={items.length === 1}
+                                                      className="w-full h-12 bg-rose-500/10 text-rose-400 rounded-2xl border border-rose-500/20 hover:bg-rose-500 hover:text-white transition-all flex items-center justify-center disabled:opacity-30"
+                                                  >
+                                                      <Trash2 size={18} />
+                                                  </button>
+                                              </div>
+                                          </div>
+                                      </motion.div>
+                                  ))}
+                              </div>
+                          </div>
+
+                          {/* Totals Summary */}
+                          <div className="bg-white/5 rounded-[2rem] p-8 border border-white/10 flex flex-col md:flex-row items-center justify-between gap-8">
+                              <div className="grid grid-cols-2 gap-8 w-full md:w-auto">
+                                  <div>
+                                      <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">المجموع الفرعي</p>
+                                      <p className="text-xl font-black text-white">{subtotal.toLocaleString()} <span className="text-xs text-slate-500">ر.س</span></p>
+                                  </div>
+                                  <div>
+                                      <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">الضريبة ({vatRate}%)</p>
+                                      <p className="text-xl font-black text-amber-400">{vatAmount.toLocaleString()} <span className="text-xs text-amber-400/50">ر.س</span></p>
+                                  </div>
+                              </div>
+                              <div className="text-center md:text-left bg-emerald-500/10 px-8 py-4 rounded-3xl border border-emerald-500/20">
+                                  <p className="text-[10px] font-black text-emerald-400 uppercase tracking-widest mb-1">الإجمالي الكلي</p>
+                                  <p className="text-4xl font-black text-emerald-400">{total.toLocaleString()} <span className="text-sm">ر.س</span></p>
+                              </div>
+                          </div>
+
+                          {/* Form Actions */}
+                          <div className="flex justify-end gap-4">
+                              <button
+                                  onClick={() => setShowForm(false)}
+                                  className="px-10 py-4 bg-white/5 text-white font-black rounded-2xl border border-white/10 hover:bg-white/10 transition-all active:scale-95"
+                              >
+                                  إلغاء
+                              </button>
+                              <button
+                                  onClick={() => handleSubmit('draft')}
+                                  disabled={loading}
+                                  className="flex items-center gap-3 px-8 py-4 bg-white/10 text-white font-black rounded-2xl border border-white/10 hover:bg-white/20 transition-all active:scale-95 disabled:opacity-50"
+                              >
+                                  {loading ? <Loader2 size={20} className="animate-spin" /> : <Save size={20} />}
+                                  حفظ كمسودة
+                              </button>
+                              <button
+                                  onClick={() => handleSubmit('confirmed')}
+                                  disabled={loading}
+                                  className="flex items-center gap-3 px-10 py-4 bg-purple-500 text-white font-black rounded-2xl shadow-xl shadow-purple-500/20 hover:bg-purple-600 transition-all active:scale-95 disabled:opacity-50"
+                              >
+                                  {loading ? <Loader2 size={20} className="animate-spin" /> : <FileCheck size={20} />}
+                                  حفظ وتأكيد العرض
+                              </button>
+                          </div>
+                      </div>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
 
           {/* Divider */}
           <div className="border-t border-white/10" />
