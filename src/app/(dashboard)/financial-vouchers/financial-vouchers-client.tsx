@@ -217,7 +217,6 @@ function FinancialVouchersContent() {
     const netBalance = totalIncome - totalExpense;
 
     return (
-    return (
       <div className="max-w-[95%] mx-auto p-4 md:p-8 space-y-8" dir="rtl">
         {/* Hero Header */}
         <motion.div
