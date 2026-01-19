@@ -44,7 +44,13 @@ import {
     Landmark,
     Star,
     Shield,
-    CheckCircle2
+    CheckCircle2,
+    Mail,
+    Send,
+    AtSign,
+    Loader2,
+    Trash2,
+    Eye
   } from "lucide-react";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
@@ -282,8 +288,18 @@ export function Header({ user, onToggleSidebar, unreadChatCount = 0, subscriptio
   const [currentPlanDetails, setCurrentPlanDetails] = useState<any>(null);
   const [receiptImage, setReceiptImage] = useState<string | null>(null);
   const [volume, setVolume] = useState(1);
-  const [prevVolume, setPrevVolume] = useState(1);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+    const [prevVolume, setPrevVolume] = useState(1);
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    
+    // Email states
+    const [showEmailModal, setShowEmailModal] = useState(false);
+    const [emailAccounts, setEmailAccounts] = useState<EmailAccount[]>([]);
+    const [selectedEmailAccount, setSelectedEmailAccount] = useState<EmailAccount | null>(null);
+    const [emails, setEmails] = useState<EmailMessage[]>([]);
+    const [loadingEmails, setLoadingEmails] = useState(false);
+    const [unreadEmailCount, setUnreadEmailCount] = useState(0);
+    const [fetchingUnread, setFetchingUnread] = useState(false);
+    
     const audioRef = useRef<HTMLAudioElement | null>(null);
     
   useEffect(() => {
@@ -311,10 +327,59 @@ export function Header({ user, onToggleSidebar, unreadChatCount = 0, subscriptio
       }
     };
 
+    const fetchEmailAccounts = async () => {
+      if (!user?.company_id) return;
+      try {
+        const res = await fetch(`/api/email/accounts?company_id=${user.company_id}`);
+        const data = await res.json();
+        if (data.accounts) {
+          setEmailAccounts(data.accounts);
+          if (data.accounts.length > 0 && !selectedEmailAccount) {
+            setSelectedEmailAccount(data.accounts[0]);
+          }
+        }
+      } catch (error) {
+        console.error("Error fetching email accounts:", error);
+      }
+    };
+
+    const fetchUnreadEmailCount = async () => {
+      if (!user?.company_id || fetchingUnread) return;
+      setFetchingUnread(true);
+      try {
+        const accountsRes = await fetch(`/api/email/accounts?company_id=${user.company_id}`);
+        const accountsData = await accountsRes.json();
+        
+        if (accountsData.accounts && accountsData.accounts.length > 0) {
+          let totalUnread = 0;
+          for (const account of accountsData.accounts) {
+            try {
+              const res = await fetch(`/api/email/fetch?accountId=${account.id}&company_id=${user.company_id}&action=unread`);
+              const data = await res.json();
+              if (data.unreadCount) totalUnread += data.unreadCount;
+            } catch (e) {
+              console.error(`Error fetching unread for ${account.email}:`, e);
+            }
+          }
+          setUnreadEmailCount(totalUnread);
+        }
+      } catch (error) {
+        console.error("Error fetching unread email count:", error);
+      } finally {
+        setFetchingUnread(false);
+      }
+    };
+
     fetchAdminNotifications();
-    const interval = setInterval(fetchAdminNotifications, 60000); // Check every minute
+    fetchEmailAccounts();
+    fetchUnreadEmailCount();
+    
+    const interval = setInterval(() => {
+      fetchAdminNotifications();
+      fetchUnreadEmailCount();
+    }, 60000); 
     return () => clearInterval(interval);
-  }, []);
+  }, [user?.company_id]);
 
   useEffect(() => {
     setMounted(true);
@@ -441,7 +506,37 @@ export function Header({ user, onToggleSidebar, unreadChatCount = 0, subscriptio
     }
   };
 
-  const handleSurahEnded = () => {
+    const fetchEmails = async (accountId: string) => {
+      if (!user?.company_id) return;
+      setLoadingEmails(true);
+      try {
+        const res = await fetch(`/api/email/fetch?accountId=${accountId}&company_id=${user.company_id}&limit=20`);
+        const data = await res.json();
+        if (data.emails) {
+          setEmails(data.emails);
+        } else if (data.error) {
+          toast.error(data.error);
+        }
+      } catch (error) {
+        console.error("Error fetching emails:", error);
+        toast.error(isRTL ? "خطأ في جلب الرسائل" : "Error fetching emails");
+      } finally {
+        setLoadingEmails(false);
+      }
+    };
+
+    const handleSelectAccount = (account: EmailAccount) => {
+      setSelectedEmailAccount(account);
+      fetchEmails(account.id);
+    };
+
+    useEffect(() => {
+      if (showEmailModal && selectedEmailAccount && emails.length === 0) {
+        fetchEmails(selectedEmailAccount.id);
+      }
+    }, [showEmailModal, selectedEmailAccount]);
+
+    const handleSurahEnded = () => {
     const newIndex = (currentSurahIndex + 1) % SURAHS.length;
     setCurrentSurahIndex(newIndex);
     playSurah(newIndex);
@@ -775,17 +870,26 @@ export function Header({ user, onToggleSidebar, unreadChatCount = 0, subscriptio
                       )}
                     </motion.button>
 
-                    <motion.button
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
-                      onClick={() => router.push("/letters")}
-                      className="hidden sm:flex items-center gap-2 px-4 py-2.5 bg-gradient-to-br from-blue-500/20 to-indigo-500/20 hover:from-blue-500/30 hover:to-indigo-500/30 rounded-xl transition-all border border-blue-500/20"
-                    >
-                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" className="text-blue-400">
-                        <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z" fill="currentColor"/>
-                      </svg>
-                      <span className="text-[11px] font-bold text-blue-400">{isRTL ? 'البريد' : 'Email'}</span>
-                    </motion.button>
+                      <motion.button
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                        onClick={() => setShowEmailModal(true)}
+                        className="relative hidden sm:flex items-center gap-2 px-4 py-2.5 bg-gradient-to-br from-blue-500/20 to-indigo-500/20 hover:from-blue-500/30 hover:to-indigo-500/30 rounded-xl transition-all border border-blue-500/20"
+                      >
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" className="text-blue-400">
+                          <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z" fill="currentColor"/>
+                        </svg>
+                        <span className="text-[11px] font-bold text-blue-400">{isRTL ? 'البريد' : 'Email'}</span>
+                        {unreadEmailCount > 0 && (
+                          <motion.span 
+                            initial={{ scale: 0 }}
+                            animate={{ scale: 1 }}
+                            className="absolute -top-1.5 -right-1.5 min-w-[18px] h-[18px] bg-red-500 text-white text-[9px] font-bold rounded-full flex items-center justify-center shadow-lg border border-white/20"
+                          >
+                            {unreadEmailCount > 9 ? '9+' : unreadEmailCount}
+                          </motion.span>
+                        )}
+                      </motion.button>
 
                     <motion.button
                       whileHover={{ scale: 1.02 }}
@@ -1706,10 +1810,142 @@ export function Header({ user, onToggleSidebar, unreadChatCount = 0, subscriptio
               </motion.div>
             </div>
           )}
-        </AnimatePresence>
-
-      <AnimatePresence>
-        {isDriverModalOpen && (
+          </AnimatePresence>
+  
+          {/* Email Modal */}
+          <AnimatePresence>
+            {showEmailModal && (
+              <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
+                <motion.div 
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  onClick={() => setShowEmailModal(false)}
+                  className="absolute inset-0 bg-black/70 backdrop-blur-md"
+                />
+                <motion.div 
+                  initial={{ scale: 0.9, opacity: 0, y: 20 }}
+                  animate={{ scale: 1, opacity: 1, y: 0 }}
+                  exit={{ scale: 0.9, opacity: 0, y: 20 }}
+                  className="relative w-full max-w-5xl h-[80vh] bg-gradient-to-b from-slate-900 to-slate-950 rounded-3xl shadow-2xl overflow-hidden border border-blue-500/20 flex flex-col"
+                >
+                  <div className="p-6 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 border-b border-white/10 flex items-center justify-between">
+                    <div className="flex items-center gap-4">
+                      <div className="p-3 rounded-2xl bg-blue-500/20">
+                        <Mail size={24} className="text-blue-400" />
+                      </div>
+                      <div>
+                        <h3 className="font-bold text-white text-xl">{isRTL ? 'بريد الشركة' : 'Company Email'}</h3>
+                        <p className="text-sm text-blue-400">{selectedEmailAccount?.email || (isRTL ? 'اختر حساباً' : 'Select an account')}</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <motion.button
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        onClick={() => selectedEmailAccount && fetchEmails(selectedEmailAccount.id)}
+                        className="p-2.5 text-white/40 hover:text-white hover:bg-white/10 rounded-xl transition-all"
+                      >
+                        <RefreshCw size={20} className={loadingEmails ? "animate-spin" : ""} />
+                      </motion.button>
+                      <button 
+                        onClick={() => setShowEmailModal(false)}
+                        className="p-2.5 text-white/30 hover:text-white hover:bg-white/10 rounded-xl transition-all"
+                      >
+                        <X size={24} />
+                      </button>
+                    </div>
+                  </div>
+  
+                  <div className="flex-1 flex overflow-hidden">
+                    {/* Accounts Sidebar */}
+                    <div className="w-64 border-l border-white/5 bg-black/20 p-4 space-y-2 overflow-y-auto">
+                      <p className="text-[10px] font-bold text-white/30 uppercase tracking-widest mb-4 px-2">{isRTL ? 'الحسابات' : 'Accounts'}</p>
+                      {emailAccounts.map((account) => (
+                        <button
+                          key={account.id}
+                          onClick={() => handleSelectAccount(account)}
+                          className={cn(
+                            "w-full flex items-center gap-3 p-3 rounded-xl transition-all text-right",
+                            selectedEmailAccount?.id === account.id 
+                              ? "bg-blue-500/20 border border-blue-500/30 text-white" 
+                              : "hover:bg-white/5 text-white/50 border border-transparent"
+                          )}
+                        >
+                          <div className={cn(
+                            "w-8 h-8 rounded-lg flex items-center justify-center",
+                            selectedEmailAccount?.id === account.id ? "bg-blue-500 text-white" : "bg-white/5"
+                          )}>
+                            <AtSign size={14} />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-xs font-bold truncate">{account.email}</p>
+                            <p className="text-[10px] opacity-40 uppercase">{account.provider}</p>
+                          </div>
+                        </button>
+                      ))}
+                      
+                      {emailAccounts.length === 0 && (
+                        <div className="text-center py-8">
+                          <AtSign size={32} className="mx-auto text-white/10 mb-2" />
+                          <p className="text-[10px] text-white/30">{isRTL ? 'لا يوجد حسابات مضافة' : 'No accounts added'}</p>
+                        </div>
+                      )}
+                    </div>
+  
+                    {/* Emails List */}
+                    <div className="flex-1 flex flex-col min-w-0">
+                      {loadingEmails ? (
+                        <div className="flex-1 flex flex-col items-center justify-center gap-4">
+                          <Loader2 size={40} className="text-blue-500 animate-spin" />
+                          <p className="text-sm text-white/40">{isRTL ? 'جاري جلب الرسائل...' : 'Fetching emails...'}</p>
+                        </div>
+                      ) : emails.length > 0 ? (
+                        <div className="flex-1 overflow-y-auto p-4 space-y-3">
+                          {emails.map((email) => (
+                            <motion.div
+                              key={email.uid}
+                              initial={{ opacity: 0, y: 10 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              className={cn(
+                                "group relative p-4 rounded-2xl border transition-all cursor-pointer",
+                                !email.isRead 
+                                  ? "bg-white/5 border-blue-500/30 shadow-lg shadow-blue-500/5" 
+                                  : "bg-transparent border-white/5 hover:bg-white/5"
+                              )}
+                            >
+                              <div className="flex justify-between items-start gap-4 mb-1">
+                                <div className="flex items-center gap-3 min-w-0">
+                                  {!email.isRead && <div className="w-2 h-2 rounded-full bg-blue-500" />}
+                                  <span className="font-bold text-sm text-white/90 truncate">{email.from}</span>
+                                </div>
+                                <span className="text-[10px] text-white/30 whitespace-nowrap">
+                                  {new Date(email.date).toLocaleDateString('ar-SA')}
+                                </span>
+                              </div>
+                              <h4 className="text-xs font-bold text-blue-400 mb-1 truncate">{email.subject}</h4>
+                              <p className="text-[11px] text-white/40 line-clamp-2">{email.snippet}</p>
+                            </motion.div>
+                          ))}
+                        </div>
+                      ) : (
+                        <div className="flex-1 flex flex-col items-center justify-center p-12 text-center">
+                          <div className="w-20 h-20 rounded-full bg-white/5 flex items-center justify-center mb-6">
+                            <Mail size={40} className="text-white/10" />
+                          </div>
+                          <h4 className="text-lg font-bold text-white mb-2">{isRTL ? 'لا توجد رسائل' : 'No messages'}</h4>
+                          <p className="text-sm text-white/30 max-w-xs">{isRTL ? 'هذا المجلد فارغ حالياً أو لم يتم جلب الرسائل بعد.' : 'This folder is currently empty or messages haven\'t been fetched yet.'}</p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </motion.div>
+              </div>
+            )}
+          </AnimatePresence>
+  
+          <AnimatePresence>
+            {isDriverModalOpen && (
           <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
             <motion.div 
               initial={{ opacity: 0 }}
