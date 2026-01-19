@@ -477,27 +477,30 @@ export function EmployeeDetailsClient({
               </div>
             </div>
             <div className="flex gap-2">
-              {activeTab === "general" && (
-                <motion.button 
-                  whileHover={{ scale: 1.05, y: -2 }}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={() => setIsEditing(!isEditing)}
-                  className="bg-white/95 hover:bg-white text-slate-900 px-6 py-3 rounded-xl text-xs font-black flex items-center gap-2 transition-all shadow-xl shadow-black/10"
-                >
-                  <Edit3 size={15} />
-                  {isEditing ? 'إلغاء التعديل' : 'تعديل البيانات'}
-                </motion.button>
-              )}
+{activeTab === "general" && (
+                  <motion.button 
+                    whileHover={{ scale: 1.05, y: -2 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() => setIsEditing(!isEditing)}
+                    className="relative bg-white/95 hover:bg-white text-slate-900 px-6 py-3 rounded-xl text-xs font-black flex items-center gap-2 transition-all shadow-xl shadow-black/10 group overflow-visible"
+                  >
+                    <span className="absolute inset-0 rounded-xl bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 opacity-0 group-hover:opacity-100 blur-md transition-opacity duration-500 -z-10 animate-pulse" />
+                    <span className="absolute -inset-1 rounded-xl bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 opacity-75 blur-sm -z-10 animate-[spin_3s_linear_infinite]" style={{ background: 'conic-gradient(from var(--angle, 0deg), #3b82f6, #8b5cf6, #ec4899, #3b82f6)' }} />
+                    <Edit3 size={15} className="relative z-10" />
+                    <span className="relative z-10">{isEditing ? 'إلغاء التعديل' : 'تعديل البيانات'}</span>
+                  </motion.button>
+                )}
 
             {activeTab === "violations" && (
               <motion.button 
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={() => setShowViolationForm(!showViolationForm)}
-                className="bg-white/90 hover:bg-white text-gray-900 px-5 py-2.5 rounded-xl text-xs font-black flex items-center gap-2 transition-all shadow-lg"
+                className="relative bg-white/90 hover:bg-white text-gray-900 px-5 py-2.5 rounded-xl text-xs font-black flex items-center gap-2 transition-all shadow-lg group overflow-visible"
               >
-                <PlusCircle size={14} />
-                {showViolationForm ? 'إلغاء' : 'إضافة مخالفة'}
+                <span className="absolute -inset-0.5 rounded-xl opacity-75 blur-sm -z-10" style={{ background: 'linear-gradient(90deg, #ef4444, #f97316, #ef4444)', backgroundSize: '200% 100%', animation: 'shimmer 2s linear infinite' }} />
+                <PlusCircle size={14} className="relative z-10" />
+                <span className="relative z-10">{showViolationForm ? 'إلغاء' : 'إضافة مخالفة'}</span>
               </motion.button>
             )}
             {activeTab === "letters" && (
@@ -505,10 +508,11 @@ export function EmployeeDetailsClient({
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={() => setShowLetterForm(!showLetterForm)}
-                className="bg-white/90 hover:bg-white text-gray-900 px-5 py-2.5 rounded-xl text-xs font-black flex items-center gap-2 transition-all shadow-lg"
+                className="relative bg-white/90 hover:bg-white text-gray-900 px-5 py-2.5 rounded-xl text-xs font-black flex items-center gap-2 transition-all shadow-lg group overflow-visible"
               >
-                <PlusCircle size={14} />
-                {showLetterForm ? 'إلغاء' : 'إضافة خطاب'}
+                <span className="absolute -inset-0.5 rounded-xl opacity-75 blur-sm -z-10" style={{ background: 'linear-gradient(90deg, #ec4899, #f472b6, #ec4899)', backgroundSize: '200% 100%', animation: 'shimmer 2s linear infinite' }} />
+                <PlusCircle size={14} className="relative z-10" />
+                <span className="relative z-10">{showLetterForm ? 'إلغاء' : 'إضافة خطاب'}</span>
               </motion.button>
             )}
             {activeTab === "bank" && (
@@ -516,10 +520,11 @@ export function EmployeeDetailsClient({
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={() => setShowBankForm(!showBankForm)}
-                className="bg-white/90 hover:bg-white text-gray-900 px-5 py-2.5 rounded-xl text-xs font-black flex items-center gap-2 transition-all shadow-lg"
+                className="relative bg-white/90 hover:bg-white text-gray-900 px-5 py-2.5 rounded-xl text-xs font-black flex items-center gap-2 transition-all shadow-lg group overflow-visible"
               >
-                <PlusCircle size={14} />
-                {showBankForm ? 'إلغاء' : 'إضافة حساب'}
+                <span className="absolute -inset-0.5 rounded-xl opacity-75 blur-sm -z-10" style={{ background: 'linear-gradient(90deg, #10b981, #34d399, #10b981)', backgroundSize: '200% 100%', animation: 'shimmer 2s linear infinite' }} />
+                <PlusCircle size={14} className="relative z-10" />
+                <span className="relative z-10">{showBankForm ? 'إلغاء' : 'إضافة حساب'}</span>
               </motion.button>
             )}
           </div>
