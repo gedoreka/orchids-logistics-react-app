@@ -21,7 +21,12 @@ import {
   FileCheck,
   AlertTriangle,
   Clock,
-  X
+  X,
+  CheckSquare,
+  Square,
+  Trash2,
+  RefreshCw,
+  CreditCard
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -90,6 +95,9 @@ interface EmployeeRow {
   achieved_tier: string;
   tier_bonus: number;
   extra_amount: number;
+  selected: boolean;
+  has_debt: boolean;
+  debt_amount: number;
 }
 
 interface NewPayrollClientProps {
@@ -117,6 +125,7 @@ export function NewPayrollClient({ packages, debts, companyId, userName }: NewPa
     title: "",
     message: ""
   });
+  const [showDebtsPanel, setShowDebtsPanel] = useState(false);
 
   const [payrollMonth, setPayrollMonth] = useState(new Date().toISOString().slice(0, 7));
   const [selectedPackageId, setSelectedPackageId] = useState<string>("");
@@ -167,6 +176,9 @@ export function NewPayrollClient({ packages, debts, companyId, userName }: NewPa
           const housingAllowance = Number(emp.housing_allowance) || 0;
           const target = Number(data.package?.monthly_target) || 0;
           const bonusPerOrder = Number(data.package?.bonus_after_target) || 0;
+          
+          const employeeDebt = debts.find(d => d.iqama_number === emp.iqama_number);
+          const debtAmount = employeeDebt ? Math.abs(Number(employeeDebt.amount)) : 0;
 
           return {
             employee_name: emp.name,
@@ -182,14 +194,17 @@ export function NewPayrollClient({ packages, debts, companyId, userName }: NewPa
             target_deduction: 0,
             monthly_bonus: 0,
             operator_deduction: 0,
-            internal_deduction: 0,
+            internal_deduction: debtAmount,
             wallet_deduction: 0,
             internal_bonus: 0,
-            net_salary: pkgWorkType === 'salary' ? basicSalary + housingAllowance : basicSalary,
+            net_salary: pkgWorkType === 'salary' ? basicSalary + housingAllowance - debtAmount : basicSalary - debtAmount,
             payment_method: 'غير محدد',
             achieved_tier: '',
             tier_bonus: 0,
-            extra_amount: 0
+            extra_amount: 0,
+            selected: true,
+            has_debt: debtAmount > 0,
+            debt_amount: debtAmount
           };
         });
         setEmployeeRows(rows);
@@ -199,7 +214,7 @@ export function NewPayrollClient({ packages, debts, companyId, userName }: NewPa
     } finally {
       setFetchingPackage(false);
     }
-  }, [companyId]);
+  }, [companyId, debts]);
 
   useEffect(() => {
     if (selectedPackageId) {
@@ -345,11 +360,13 @@ export function NewPayrollClient({ packages, debts, companyId, userName }: NewPa
     };
   }, [selectedPackage, tiers, slabs, tierSystemActive]);
 
-  const handleRowChange = (index: number, field: keyof EmployeeRow, value: number | string) => {
+  const handleRowChange = (index: number, field: keyof EmployeeRow, value: number | string | boolean) => {
     setEmployeeRows(prev => {
       const updated = [...prev];
       updated[index] = { ...updated[index], [field]: value };
-      updated[index] = calculateRow(updated[index]);
+      if (field !== 'selected') {
+        updated[index] = calculateRow(updated[index]);
+      }
       return updated;
     });
   };
@@ -364,12 +381,23 @@ export function NewPayrollClient({ packages, debts, companyId, userName }: NewPa
     }
   }, [tierSystemActive]);
 
+  const toggleSelectAll = () => {
+    const allSelected = employeeRows.every(row => row.selected);
+    setEmployeeRows(prev => prev.map(row => ({ ...row, selected: !allSelected })));
+  };
+
+  const removeUnselected = () => {
+    setEmployeeRows(prev => prev.filter(row => row.selected));
+  };
+
+  const selectedCount = employeeRows.filter(row => row.selected).length;
+
   const getTotals = () => {
     let totalSalary = 0;
     let totalOrders = 0;
     let totalDeductions = 0;
 
-    employeeRows.forEach(row => {
+    employeeRows.filter(row => row.selected).forEach(row => {
       const netSalary = Number(row.net_salary) || 0;
       const orders = Number(row.successful_orders) || 0;
       const targetDed = Number(row.target_deduction) || 0;
@@ -396,11 +424,17 @@ export function NewPayrollClient({ packages, debts, companyId, userName }: NewPa
       return;
     }
 
+    const selectedRows = employeeRows.filter(row => row.selected);
+    if (selectedRows.length === 0) {
+      showNotification("error", "خطأ", "يرجى تحديد موظف واحد على الأقل");
+      return;
+    }
+
     setLoading(true);
     showNotification("loading", "جاري الحفظ", isDraft ? "جاري حفظ المسودة..." : "جاري حفظ المسير...");
 
     try {
-      const items = employeeRows.map(row => ({
+      const items = selectedRows.map(row => ({
         employee_name: row.employee_name,
         iqama_number: row.iqama_number,
         user_code: row.user_code,
@@ -462,6 +496,8 @@ export function NewPayrollClient({ packages, debts, companyId, userName }: NewPa
   };
 
   const totals = getTotals();
+  const totalDebts = debts.reduce((sum, d) => sum + Math.abs(Number(d.amount)), 0);
+  const employeesWithDebts = employeeRows.filter(row => row.has_debt);
 
   const filteredEmployeeRows = useMemo(() => {
     if (!searchQuery.trim()) return employeeRows;
@@ -529,6 +565,80 @@ export function NewPayrollClient({ packages, debts, companyId, userName }: NewPa
         )}
       </AnimatePresence>
 
+      <AnimatePresence>
+        {showDebtsPanel && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40"
+              onClick={() => setShowDebtsPanel(false)}
+            />
+            <motion.div
+              initial={{ opacity: 0, x: 300 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: 300 }}
+              className="fixed top-0 left-0 h-full w-full max-w-lg bg-white shadow-2xl z-50 overflow-hidden flex flex-col"
+            >
+              <div className="bg-gradient-to-r from-red-500 to-rose-600 p-6 text-white">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="h-12 w-12 rounded-xl bg-white/20 flex items-center justify-center">
+                      <CreditCard size={24} />
+                    </div>
+                    <div>
+                      <h2 className="text-xl font-black">الديون السابقة</h2>
+                      <p className="text-white/70 text-sm">{debts.length} دين غير مسدد</p>
+                    </div>
+                  </div>
+                  <button onClick={() => setShowDebtsPanel(false)} className="p-2 hover:bg-white/20 rounded-lg transition-colors">
+                    <X size={20} />
+                  </button>
+                </div>
+              </div>
+              
+              <div className="flex-1 overflow-auto p-4 space-y-3">
+                {debts.length === 0 ? (
+                  <div className="text-center py-12">
+                    <CheckCircle size={48} className="mx-auto text-emerald-400 mb-4" />
+                    <p className="text-gray-500 font-bold">لا توجد ديون سابقة</p>
+                  </div>
+                ) : (
+                  debts.map(debt => (
+                    <div key={debt.id} className="bg-gradient-to-r from-red-50 to-rose-50 rounded-xl p-4 border border-red-100">
+                      <div className="flex items-start justify-between">
+                        <div>
+                          <p className="font-bold text-gray-900">{debt.employee_name}</p>
+                          <p className="text-xs text-gray-500">{debt.iqama_number}</p>
+                          <p className="text-xs text-gray-400 mt-1">شهر: {debt.month_reference}</p>
+                        </div>
+                        <div className="text-left">
+                          <p className="text-red-600 font-black text-lg">{Math.abs(Number(debt.amount)).toLocaleString('en-US')}</p>
+                          <p className="text-xs text-red-400">ريال</p>
+                        </div>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+
+              {debts.length > 0 && (
+                <div className="p-4 bg-gray-50 border-t">
+                  <div className="flex items-center justify-between mb-3">
+                    <span className="text-gray-600 font-bold">إجمالي الديون:</span>
+                    <span className="text-red-600 font-black text-xl">{totalDebts.toLocaleString('en-US')} ريال</span>
+                  </div>
+                  <p className="text-xs text-gray-400 text-center">
+                    تم إضافة الديون تلقائياً كخصم داخلي للموظفين المعنيين
+                  </p>
+                </div>
+              )}
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
+
       <div className="flex-1 overflow-auto p-6">
         <div className="max-w-[1800px] mx-auto space-y-6">
           <div className="relative overflow-hidden bg-gradient-to-br from-[#1a237e] to-[#283593] rounded-2xl p-6 text-white shadow-xl">
@@ -543,16 +653,67 @@ export function NewPayrollClient({ packages, debts, companyId, userName }: NewPa
                     <p className="text-white/60 text-sm">يمكنك من هنا إنشاء مسير رواتب جديد للموظفين</p>
                   </div>
                 </div>
-                <Link href="/salary-payrolls">
-                  <button className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/10 text-white font-bold text-sm hover:bg-white/20 transition-all border border-white/10">
-                    <ArrowRight size={16} />
-                    <span>العودة للقائمة</span>
-                  </button>
-                </Link>
+                <div className="flex items-center gap-2">
+                  {debts.length > 0 && (
+                    <button 
+                      onClick={() => setShowDebtsPanel(true)}
+                      className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-red-500 text-white font-bold text-sm hover:bg-red-600 transition-all animate-pulse"
+                    >
+                      <AlertTriangle size={16} />
+                      <span>{debts.length} دين سابق</span>
+                    </button>
+                  )}
+                  <Link href="/salary-payrolls">
+                    <button className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/10 text-white font-bold text-sm hover:bg-white/20 transition-all border border-white/10">
+                      <ArrowRight size={16} />
+                      <span>العودة للقائمة</span>
+                    </button>
+                  </Link>
+                </div>
               </div>
             </div>
             <div className="absolute top-0 right-0 w-40 h-40 bg-white/5 rounded-full -mr-20 -mt-20 blur-2xl" />
           </div>
+
+          {debts.length > 0 && employeesWithDebts.length > 0 && (
+            <motion.div 
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="bg-gradient-to-r from-red-50 via-rose-50 to-orange-50 rounded-2xl border-2 border-red-200 p-5 shadow-lg"
+            >
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-3">
+                  <div className="h-12 w-12 rounded-xl bg-red-100 flex items-center justify-center">
+                    <AlertTriangle size={24} className="text-red-600" />
+                  </div>
+                  <div>
+                    <h3 className="font-black text-red-900 text-lg">تنبيه: ديون من الشهر السابق</h3>
+                    <p className="text-red-600 text-sm">يوجد {employeesWithDebts.length} موظف لديهم ديون سابقة تم إضافتها كخصم داخلي</p>
+                  </div>
+                </div>
+                <button 
+                  onClick={() => setShowDebtsPanel(true)}
+                  className="flex items-center gap-2 px-4 py-2 rounded-xl bg-red-500 text-white font-bold text-sm hover:bg-red-600 transition-all"
+                >
+                  <CreditCard size={16} />
+                  <span>عرض التفاصيل</span>
+                </button>
+              </div>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                {employeesWithDebts.slice(0, 4).map(emp => (
+                  <div key={emp.iqama_number} className="bg-white rounded-xl p-3 border border-red-100">
+                    <p className="font-bold text-gray-900 text-sm truncate">{emp.employee_name}</p>
+                    <p className="text-red-600 font-bold">{emp.debt_amount.toLocaleString('en-US')} ريال</p>
+                  </div>
+                ))}
+                {employeesWithDebts.length > 4 && (
+                  <div className="bg-red-100 rounded-xl p-3 flex items-center justify-center">
+                    <p className="text-red-700 font-bold">+{employeesWithDebts.length - 4} آخرين</p>
+                  </div>
+                )}
+              </div>
+            </motion.div>
+          )}
 
           <div className="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -649,24 +810,6 @@ export function NewPayrollClient({ packages, debts, companyId, userName }: NewPa
                 )}
               </div>
 
-              {debts.length > 0 && (
-                <div className="bg-amber-50 rounded-2xl border border-amber-200 p-5">
-                  <div className="flex items-center gap-2 mb-4">
-                    <AlertTriangle size={18} className="text-amber-600" />
-                    <h3 className="font-bold text-amber-900">ديون غير مسددة</h3>
-                  </div>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4">
-                    {debts.slice(0, 6).map(debt => (
-                      <div key={debt.id} className="bg-white rounded-xl p-3 border border-amber-100">
-                        <p className="font-bold text-gray-900 text-sm">{debt.employee_name}</p>
-                        <p className="text-xs text-gray-500">{debt.iqama_number}</p>
-                        <p className="text-red-600 font-bold text-sm mt-1">{Number(debt.amount).toLocaleString('en-US')} ر.س</p>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-
               {employeeRows.length > 0 && (
                   <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden flex flex-col" style={{ height: 'calc(100vh - 420px)', minHeight: '500px' }}>
                     <div className="bg-gradient-to-br from-[#1a237e] to-[#283593] px-4 py-3 flex justify-between items-center flex-shrink-0">
@@ -679,6 +822,30 @@ export function NewPayrollClient({ packages, debts, companyId, userName }: NewPa
                         </h3>
                       </div>
                       <div className="flex items-center gap-3">
+                        <div className="flex items-center gap-2">
+                          <button
+                            onClick={toggleSelectAll}
+                            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/10 text-white text-xs font-bold hover:bg-white/20 transition-all border border-white/20"
+                          >
+                            {employeeRows.every(row => row.selected) ? <CheckSquare size={14} /> : <Square size={14} />}
+                            {employeeRows.every(row => row.selected) ? 'إلغاء الكل' : 'تحديد الكل'}
+                          </button>
+                          <button
+                            onClick={removeUnselected}
+                            disabled={selectedCount === employeeRows.length}
+                            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-red-500/80 text-white text-xs font-bold hover:bg-red-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                          >
+                            <Trash2 size={14} />
+                            حذف غير المحدد
+                          </button>
+                          <button
+                            onClick={() => fetchPackageData(selectedPackageId)}
+                            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-500/80 text-white text-xs font-bold hover:bg-emerald-600 transition-all"
+                          >
+                            <RefreshCw size={14} />
+                            إعادة تحميل
+                          </button>
+                        </div>
                         <div className="relative">
                           <input
                             type="text"
@@ -698,7 +865,7 @@ export function NewPayrollClient({ packages, debts, companyId, userName }: NewPa
                           )}
                         </div>
                         <span className="bg-white/20 text-white px-2 py-0.5 rounded text-xs font-bold">
-                          {searchQuery ? `${filteredEmployeeRows.length} / ${employeeRows.length}` : `${employeeRows.length}`} موظف
+                          {selectedCount} / {employeeRows.length} محدد
                         </span>
                       </div>
                     </div>
@@ -707,6 +874,14 @@ export function NewPayrollClient({ packages, debts, companyId, userName }: NewPa
                       <table className="w-full text-sm">
                         <thead className="bg-gray-100 sticky top-0 z-10">
                           <tr className="border-b border-gray-200">
+                            <th className="text-center px-2 py-2.5 text-xs font-bold text-gray-700 whitespace-nowrap border-l border-gray-200">
+                              <input
+                                type="checkbox"
+                                checked={employeeRows.every(row => row.selected)}
+                                onChange={toggleSelectAll}
+                                className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                              />
+                            </th>
                             <th className="text-right px-3 py-2.5 text-xs font-bold text-gray-700 whitespace-nowrap border-l border-gray-200">#</th>
                             <th className="text-right px-3 py-2.5 text-xs font-bold text-gray-700 whitespace-nowrap border-l border-gray-200">اسم الموظف</th>
                             <th className="text-right px-3 py-2.5 text-xs font-bold text-gray-700 whitespace-nowrap border-l border-gray-200">الإقامة</th>
@@ -744,10 +919,32 @@ export function NewPayrollClient({ packages, debts, companyId, userName }: NewPa
                             return (
                               <tr 
                                 key={realIndex} 
-                                className={`border-b border-gray-100 transition-colors duration-100 hover:bg-blue-50/60 ${row.net_salary < 0 ? 'bg-red-50 hover:bg-red-100/60' : ''}`}
+                                className={`border-b border-gray-100 transition-colors duration-100 ${
+                                  !row.selected ? 'bg-gray-100 opacity-60' :
+                                  row.has_debt ? 'bg-amber-50 hover:bg-amber-100/60' :
+                                  row.net_salary < 0 ? 'bg-red-50 hover:bg-red-100/60' : 
+                                  'hover:bg-blue-50/60'
+                                }`}
                               >
+                                <td className="px-2 py-2 text-center border-l border-gray-100">
+                                  <input
+                                    type="checkbox"
+                                    checked={row.selected}
+                                    onChange={(e) => handleRowChange(realIndex, 'selected', e.target.checked)}
+                                    className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                                  />
+                                </td>
                                 <td className="px-3 py-2 text-gray-400 text-center border-l border-gray-100 text-xs">{realIndex + 1}</td>
-                                <td className="px-3 py-2 font-bold text-gray-900 whitespace-nowrap border-l border-gray-100">{row.employee_name}</td>
+                                <td className="px-3 py-2 font-bold text-gray-900 whitespace-nowrap border-l border-gray-100">
+                                  <div className="flex items-center gap-2">
+                                    {row.has_debt && (
+                                      <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-red-100 text-red-600" title={`دين سابق: ${row.debt_amount} ريال`}>
+                                        <AlertTriangle size={12} />
+                                      </span>
+                                    )}
+                                    {row.employee_name}
+                                  </div>
+                                </td>
                                 <td className="px-3 py-2 text-gray-600 whitespace-nowrap border-l border-gray-100">{row.iqama_number}</td>
                                 {!isSalaryType && (
                                   <td className="px-3 py-2 text-gray-600 whitespace-nowrap border-l border-gray-100">{row.user_code}</td>
@@ -759,13 +956,20 @@ export function NewPayrollClient({ packages, debts, companyId, userName }: NewPa
                                     <td className="px-3 py-2 text-gray-600 border-l border-gray-100">{row.housing_allowance.toLocaleString('en-US')}</td>
                                     <td className="px-3 py-2 text-gray-600 border-l border-gray-100">{row.nationality}</td>
                                     <td className="px-3 py-2 border-l border-gray-100">
-                                      <input
-                                        type="number"
-                                        value={row.internal_deduction}
-                                        onChange={(e) => handleRowChange(realIndex, 'internal_deduction', parseFloat(e.target.value) || 0)}
-                                        className="w-20 px-2 py-1 rounded-lg border border-gray-200 text-center text-sm focus:border-blue-400 focus:ring-1 focus:ring-blue-200"
-                                        min="0"
-                                      />
+                                      <div className="relative">
+                                        <input
+                                          type="number"
+                                          value={row.internal_deduction}
+                                          onChange={(e) => handleRowChange(realIndex, 'internal_deduction', parseFloat(e.target.value) || 0)}
+                                          className={`w-20 px-2 py-1 rounded-lg border text-center text-sm focus:border-blue-400 focus:ring-1 focus:ring-blue-200 ${
+                                            row.has_debt ? 'border-red-300 bg-red-50' : 'border-gray-200'
+                                          }`}
+                                          min="0"
+                                        />
+                                        {row.has_debt && (
+                                          <span className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full animate-pulse" />
+                                        )}
+                                      </div>
                                     </td>
                                     <td className="px-3 py-2 border-l border-gray-100">
                                       <input
@@ -816,13 +1020,20 @@ export function NewPayrollClient({ packages, debts, companyId, userName }: NewPa
                                       />
                                     </td>
                                     <td className="px-3 py-2 border-l border-gray-100">
-                                      <input
-                                        type="number"
-                                        value={row.internal_deduction}
-                                        onChange={(e) => handleRowChange(realIndex, 'internal_deduction', parseFloat(e.target.value) || 0)}
-                                        className="w-16 px-2 py-1 rounded-lg border border-gray-200 text-center text-sm focus:border-blue-400 focus:ring-1 focus:ring-blue-200"
-                                        min="0"
-                                      />
+                                      <div className="relative">
+                                        <input
+                                          type="number"
+                                          value={row.internal_deduction}
+                                          onChange={(e) => handleRowChange(realIndex, 'internal_deduction', parseFloat(e.target.value) || 0)}
+                                          className={`w-16 px-2 py-1 rounded-lg border text-center text-sm focus:border-blue-400 focus:ring-1 focus:ring-blue-200 ${
+                                            row.has_debt ? 'border-red-300 bg-red-50' : 'border-gray-200'
+                                          }`}
+                                          min="0"
+                                        />
+                                        {row.has_debt && (
+                                          <span className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full animate-pulse" />
+                                        )}
+                                      </div>
                                     </td>
                                     <td className="px-3 py-2 border-l border-gray-100">
                                       <input
@@ -879,7 +1090,7 @@ export function NewPayrollClient({ packages, debts, companyId, userName }: NewPa
                         <div className="bg-white rounded-xl p-3 border border-gray-100 text-center">
                           <div className="flex items-center justify-center gap-1.5 text-emerald-600 mb-1">
                             <DollarSign size={14} />
-                            <span className="text-xs font-bold">إجمالي الرواتب</span>
+                            <span className="text-xs font-bold">إجمالي الرواتب (المحدد)</span>
                           </div>
                           <p className="text-lg font-black text-emerald-600">
                             {totals.totalSalary.toLocaleString('en-US', { minimumFractionDigits: 2 })} ريال
@@ -917,7 +1128,7 @@ export function NewPayrollClient({ packages, debts, companyId, userName }: NewPa
                 </Link>
                 <button
                   onClick={() => handleSave(true)}
-                  disabled={loading || employeeRows.length === 0}
+                  disabled={loading || selectedCount === 0}
                   className="flex items-center gap-2 px-6 py-3 rounded-xl bg-amber-500 text-white font-bold text-sm hover:bg-amber-600 transition-all disabled:opacity-50"
                 >
                   {loading ? <Loader2 size={16} className="animate-spin" /> : <FileCheck size={16} />}
@@ -925,11 +1136,11 @@ export function NewPayrollClient({ packages, debts, companyId, userName }: NewPa
                 </button>
                 <button
                   onClick={() => handleSave(false)}
-                  disabled={loading || employeeRows.length === 0}
+                  disabled={loading || selectedCount === 0}
                   className="flex items-center gap-2 px-8 py-3 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 text-white font-bold text-sm hover:from-emerald-600 hover:to-teal-600 transition-all disabled:opacity-50 shadow-lg shadow-emerald-500/25"
                 >
                   {loading ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />}
-                  <span>حفظ المسير</span>
+                  <span>حفظ المسير ({selectedCount})</span>
                 </button>
               </div>
             </>

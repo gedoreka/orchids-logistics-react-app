@@ -58,49 +58,54 @@ export async function POST(request: NextRequest) {
 
     let totalAmount = 0;
 
-    for (const item of items) {
-      const netSalary = parseFloat(item.net_salary || 0);
-      if (netSalary >= 0) totalAmount += netSalary;
+      for (const item of items) {
+        const netSalary = parseFloat(item.net_salary || 0);
+        if (netSalary >= 0) totalAmount += netSalary;
 
-      await execute(
-        `INSERT INTO salary_payroll_items (
-          payroll_id, employee_name, iqama_number, user_code, basic_salary,
-          target, successful_orders, target_deduction, monthly_bonus,
-          operator_deduction, internal_deduction, wallet_deduction,
-          internal_bonus, net_salary, payment_method, housing_allowance,
-          achieved_tier, tier_bonus, extra_amount
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        [
-          payrollId,
-          item.employee_name || '',
-          item.iqama_number || '',
-          item.user_code || '',
-          item.basic_salary || 0,
-          item.target || 0,
-          item.successful_orders || 0,
-          item.target_deduction || 0,
-          item.monthly_bonus || 0,
-          item.operator_deduction || 0,
-          item.internal_deduction || 0,
-          item.wallet_deduction || 0,
-          item.internal_bonus || 0,
-          item.net_salary || 0,
-          item.payment_method || 'مدد',
-          item.housing_allowance || 0,
-          item.achieved_tier || '',
-          item.tier_bonus || 0,
-          item.extra_amount || 0
-        ]
-      );
-
-      if (netSalary < 0) {
         await execute(
-          `INSERT INTO salary_debts (company_id, employee_name, iqama_number, month_reference, amount, resolved) 
-           VALUES (?, ?, ?, ?, ?, 0)`,
-          [company_id, item.employee_name, item.iqama_number, payroll_month, netSalary]
+          `INSERT INTO salary_payroll_items (
+            payroll_id, employee_name, iqama_number, user_code, basic_salary,
+            target, successful_orders, target_deduction, monthly_bonus,
+            operator_deduction, internal_deduction, wallet_deduction,
+            internal_bonus, net_salary, payment_method, housing_allowance,
+            achieved_tier, tier_bonus, extra_amount
+          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+          [
+            payrollId,
+            item.employee_name || '',
+            item.iqama_number || '',
+            item.user_code || '',
+            item.basic_salary || 0,
+            item.target || 0,
+            item.successful_orders || 0,
+            item.target_deduction || 0,
+            item.monthly_bonus || 0,
+            item.operator_deduction || 0,
+            item.internal_deduction || 0,
+            item.wallet_deduction || 0,
+            item.internal_bonus || 0,
+            item.net_salary || 0,
+            item.payment_method || 'مدد',
+            item.housing_allowance || 0,
+            item.achieved_tier || '',
+            item.tier_bonus || 0,
+            item.extra_amount || 0
+          ]
         );
+
+        if (netSalary < 0) {
+          await execute(
+            `INSERT INTO salary_debts (company_id, employee_name, iqama_number, month_reference, amount, resolved) 
+             VALUES (?, ?, ?, ?, ?, 0)`,
+            [company_id, item.employee_name, item.iqama_number, payroll_month, netSalary]
+          );
+        } else {
+          await execute(
+            `UPDATE salary_debts SET resolved = 1 WHERE company_id = ? AND iqama_number = ? AND resolved = 0`,
+            [company_id, item.iqama_number]
+          );
+        }
       }
-    }
 
     await execute(
       `UPDATE salary_payrolls SET total_amount = ? WHERE id = ?`,
