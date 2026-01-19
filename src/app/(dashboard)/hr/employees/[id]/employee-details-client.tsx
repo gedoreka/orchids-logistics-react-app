@@ -579,107 +579,107 @@ export function EmployeeDetailsClient({
                         initial={{ opacity: 0, height: 0 }}
                         animate={{ opacity: 1, height: 'auto' }}
                         exit={{ opacity: 0, height: 0 }}
-                        className="bg-white/5 backdrop-blur-xl p-5 rounded-2xl border border-white/10 overflow-hidden"
-                      >
-                        <form onSubmit={editingBank ? handleUpdateBankAccount : handleAddBankAccount} className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                          <input 
-                            type="text" 
-                            placeholder="اسم البنك" 
-                            value={editingBank ? editingBank.bank_name : newBankAccount.bank_name} 
-                            onChange={(e) => editingBank ? setEditingBank({...editingBank, bank_name: e.target.value}) : setNewBankAccount({...newBankAccount, bank_name: e.target.value})} 
-                            className="bg-white/10 border border-white/10 rounded-xl py-3 px-4 text-sm font-bold text-white placeholder-white/30 focus:border-emerald-400 outline-none" 
-                            required 
-                          />
-                          <input 
-                            type="text" 
-                            placeholder="رقم الحساب" 
-                            value={editingBank ? editingBank.account_number : newBankAccount.account_number} 
-                            onChange={(e) => editingBank ? setEditingBank({...editingBank, account_number: e.target.value}) : setNewBankAccount({...newBankAccount, account_number: e.target.value})} 
-                            className="bg-white/10 border border-white/10 rounded-xl py-3 px-4 text-sm font-bold text-white placeholder-white/30 focus:border-emerald-400 outline-none" 
-                          />
-                          <input 
-                            type="text" 
-                            placeholder="رقم الآيبان" 
-                            value={editingBank ? editingBank.iban : newBankAccount.iban} 
-                            onChange={(e) => editingBank ? setEditingBank({...editingBank, iban: e.target.value}) : setNewBankAccount({...newBankAccount, iban: e.target.value})} 
-                            className="bg-white/10 border border-white/10 rounded-xl py-3 px-4 text-sm font-bold text-white placeholder-white/30 focus:border-emerald-400 outline-none" 
-                          />
-                          <div className="flex gap-3">
-                            <label className="flex items-center gap-2 text-sm font-bold text-white/70 cursor-pointer">
-                              <input 
-                                type="checkbox" 
-                                checked={editingBank ? editingBank.is_primary : newBankAccount.is_primary} 
-                                onChange={(e) => editingBank ? setEditingBank({...editingBank, is_primary: e.target.checked}) : setNewBankAccount({...newBankAccount, is_primary: e.target.checked})} 
-                                className="w-4 h-4 rounded accent-emerald-500"
-                              />
-                              أساسي
-                            </label>
+className="bg-slate-100 backdrop-blur-xl p-5 rounded-2xl border border-slate-200 overflow-hidden"
+                        >
+                          <form onSubmit={editingBank ? handleUpdateBankAccount : handleAddBankAccount} className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                            <input 
+                              type="text" 
+                              placeholder="اسم البنك" 
+                              value={editingBank ? editingBank.bank_name : newBankAccount.bank_name} 
+                              onChange={(e) => editingBank ? setEditingBank({...editingBank, bank_name: e.target.value}) : setNewBankAccount({...newBankAccount, bank_name: e.target.value})} 
+                              className="bg-white border border-slate-300 rounded-xl py-3 px-4 text-sm font-bold text-slate-900 placeholder-slate-400 focus:border-emerald-500 outline-none" 
+                              required 
+                            />
+                            <input 
+                              type="text" 
+                              placeholder="رقم الحساب" 
+                              value={editingBank ? editingBank.account_number : newBankAccount.account_number} 
+                              onChange={(e) => editingBank ? setEditingBank({...editingBank, account_number: e.target.value}) : setNewBankAccount({...newBankAccount, account_number: e.target.value})} 
+                              className="bg-white border border-slate-300 rounded-xl py-3 px-4 text-sm font-bold text-slate-900 placeholder-slate-400 focus:border-emerald-500 outline-none" 
+                            />
+                            <input 
+                              type="text" 
+                              placeholder="رقم الآيبان" 
+                              value={editingBank ? editingBank.iban : newBankAccount.iban} 
+                              onChange={(e) => editingBank ? setEditingBank({...editingBank, iban: e.target.value}) : setNewBankAccount({...newBankAccount, iban: e.target.value})} 
+                              className="bg-white border border-slate-300 rounded-xl py-3 px-4 text-sm font-bold text-slate-900 placeholder-slate-400 focus:border-emerald-500 outline-none" 
+                            />
+                            <div className="flex gap-3">
+                              <label className="flex items-center gap-2 text-sm font-black text-slate-700 cursor-pointer">
+                                <input 
+                                  type="checkbox" 
+                                  checked={editingBank ? editingBank.is_primary : newBankAccount.is_primary} 
+                                  onChange={(e) => editingBank ? setEditingBank({...editingBank, is_primary: e.target.checked}) : setNewBankAccount({...newBankAccount, is_primary: e.target.checked})} 
+                                  className="w-4 h-4 rounded accent-emerald-500"
+                                />
+                                أساسي
+                              </label>
                             <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} type="submit" className="flex-1 bg-gradient-to-r from-emerald-600 to-teal-600 text-white py-3 rounded-xl text-sm font-black shadow-lg shadow-emerald-500/30">{editingBank ? 'تحديث' : 'إضافة'}</motion.button>
-                            <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} type="button" onClick={() => {setEditingBank(null); setShowBankForm(false);}} className="px-4 bg-white/10 rounded-xl text-sm font-bold text-white/70 hover:bg-white/20">✕</motion.button>
+                            <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} type="button" onClick={() => {setEditingBank(null); setShowBankForm(false);}} className="px-4 bg-slate-200 rounded-xl text-sm font-bold text-slate-700 hover:bg-slate-300">✕</motion.button>
                           </div>
                         </form>
                       </motion.div>
                     )}
                   </AnimatePresence>
 
-                  {bankAccounts.length > 0 ? (
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                      {bankAccounts.map((account: any, idx: number) => (
-                        <motion.div 
-                          key={account.id} 
-                          initial={{ opacity: 0, y: 20 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          transition={{ delay: idx * 0.1 }}
-                          whileHover={{ scale: 1.01 }}
-                          className={`p-5 rounded-2xl backdrop-blur-xl border transition-all group relative overflow-hidden ${
-                            account.is_primary 
-                              ? 'bg-emerald-500/10 border-emerald-500/30' 
-                              : 'bg-white/5 border-white/10 hover:border-emerald-500/30'
-                          }`}
-                        >
-                          {account.is_primary && (
-                            <div className="absolute top-0 right-0 w-1 h-full bg-gradient-to-b from-emerald-500 to-teal-500 rounded-r-xl" />
-                          )}
-                          <div className="flex items-start justify-between mb-4">
-                            <div className="flex items-center gap-3">
-                              <div className={`h-12 w-12 rounded-xl flex items-center justify-center ${account.is_primary ? 'bg-emerald-500/20 text-emerald-400' : 'bg-white/10 text-white/50'}`}>
-                                <University size={22} />
+{bankAccounts.length > 0 ? (
+                      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                        {bankAccounts.map((account: any, idx: number) => (
+                          <motion.div 
+                            key={account.id} 
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: idx * 0.1 }}
+                            whileHover={{ scale: 1.01 }}
+                            className={`p-5 rounded-2xl backdrop-blur-xl border transition-all group relative overflow-hidden ${
+                              account.is_primary 
+                                ? 'bg-emerald-50 border-emerald-500/30' 
+                                : 'bg-slate-50 border-slate-200 hover:border-emerald-500/30'
+                            }`}
+                          >
+                            {account.is_primary && (
+                              <div className="absolute top-0 right-0 w-1 h-full bg-gradient-to-b from-emerald-500 to-teal-500 rounded-r-xl" />
+                            )}
+                            <div className="flex items-start justify-between mb-4">
+                              <div className="flex items-center gap-3">
+                                <div className={`h-12 w-12 rounded-xl flex items-center justify-center ${account.is_primary ? 'bg-emerald-500/20 text-emerald-600' : 'bg-slate-200 text-slate-600'}`}>
+                                  <University size={22} />
+                                </div>
+                                <div>
+                                  <h4 className="text-base font-black text-slate-900">{account.bank_name || 'بدون اسم'}</h4>
+                                  {account.is_primary && (
+                                    <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-600">الحساب الأساسي</span>
+                                  )}
+                                </div>
                               </div>
-                              <div>
-                                <h4 className="text-base font-black text-white">{account.bank_name || 'بدون اسم'}</h4>
-                                {account.is_primary && (
-                                  <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400">الحساب الأساسي</span>
+                              <div className="flex gap-2">
+                                {!account.is_primary && (
+                                  <motion.button whileHover={{ scale: 1.1 }} onClick={() => handleSetPrimaryBank(account.id)} className="p-2 text-emerald-600 hover:bg-emerald-500/20 rounded-lg" title="تعيين كأساسي"><Check size={14} /></motion.button>
                                 )}
+                                <motion.button whileHover={{ scale: 1.1 }} onClick={() => setEditingBank(account)} className="p-2 text-blue-600 hover:bg-blue-500/20 rounded-lg"><Edit3 size={14} /></motion.button>
+                                <motion.button whileHover={{ scale: 1.1 }} onClick={() => handleDeleteBankAccount(account.id)} className="p-2 text-red-600 hover:bg-red-500/20 rounded-lg"><Trash size={14} /></motion.button>
                               </div>
                             </div>
-                            <div className="flex gap-2">
-                              {!account.is_primary && (
-                                <motion.button whileHover={{ scale: 1.1 }} onClick={() => handleSetPrimaryBank(account.id)} className="p-2 text-emerald-400 hover:bg-emerald-500/20 rounded-lg" title="تعيين كأساسي"><Check size={14} /></motion.button>
-                              )}
-                              <motion.button whileHover={{ scale: 1.1 }} onClick={() => setEditingBank(account)} className="p-2 text-blue-400 hover:bg-blue-500/20 rounded-lg"><Edit3 size={14} /></motion.button>
-                              <motion.button whileHover={{ scale: 1.1 }} onClick={() => handleDeleteBankAccount(account.id)} className="p-2 text-red-400 hover:bg-red-500/20 rounded-lg"><Trash size={14} /></motion.button>
+                            <div className="space-y-3">
+                              <div className="flex items-center justify-between bg-slate-100 rounded-xl px-4 py-3">
+                                <span className="text-xs font-bold text-slate-600 flex items-center gap-2"><Hash size={12} /> رقم الحساب</span>
+                                <span className="text-sm font-black text-slate-900 font-mono">{account.account_number || '---'}</span>
+                              </div>
+                              <div className="flex items-center justify-between bg-slate-100 rounded-xl px-4 py-3">
+                                <span className="text-xs font-bold text-slate-600 flex items-center gap-2"><CreditCard size={12} /> رقم الآيبان</span>
+                                <span className="text-sm font-black text-slate-900 font-mono">{account.iban || '---'}</span>
+                              </div>
                             </div>
-                          </div>
-                          <div className="space-y-3">
-                            <div className="flex items-center justify-between bg-white/5 rounded-xl px-4 py-3">
-                              <span className="text-xs font-bold text-white/50 flex items-center gap-2"><Hash size={12} /> رقم الحساب</span>
-                              <span className="text-sm font-black text-white font-mono">{account.account_number || '---'}</span>
-                            </div>
-                            <div className="flex items-center justify-between bg-white/5 rounded-xl px-4 py-3">
-                              <span className="text-xs font-bold text-white/50 flex items-center gap-2"><CreditCard size={12} /> رقم الآيبان</span>
-                              <span className="text-sm font-black text-white font-mono">{account.iban || '---'}</span>
-                            </div>
-                          </div>
-                        </motion.div>
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="py-16 text-center text-white/30 font-bold bg-white/5 backdrop-blur-xl rounded-2xl border-2 border-dashed border-white/10">
-                      <University size={40} className="mx-auto mb-3 opacity-30" />
-                      لا توجد حسابات بنكية مسجلة
-                      <p className="text-sm mt-2 text-white/20">اضغط على "إضافة حساب" لإضافة حساب بنكي جديد</p>
-                    </div>
-                  )}
+                          </motion.div>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="py-16 text-center text-slate-600 font-black bg-slate-100 backdrop-blur-xl rounded-2xl border-2 border-dashed border-slate-300">
+                        <University size={40} className="mx-auto mb-3 opacity-50" />
+                        لا توجد حسابات بنكية مسجلة
+                        <p className="text-sm mt-2 text-slate-500">اضغط على "إضافة حساب" لإضافة حساب بنكي جديد</p>
+                      </div>
+                    )}
                 </div>
               )}
 
@@ -711,7 +711,7 @@ export function EmployeeDetailsClient({
                           iqamaStatus.color === 'red' ? 'bg-red-500/20 text-red-400' :
                           iqamaStatus.color === 'orange' ? 'bg-orange-500/20 text-orange-400' : 'bg-emerald-500/20 text-emerald-400'
                         }`}><Timer size={22} /></div>
-                        <span className="text-xs font-black text-white/70 uppercase">الأيام المتبقية</span>
+                        <span className="text-xs font-black text-slate-700 uppercase">الأيام المتبقية</span>
                       </div>
                       <div className={`text-5xl font-black text-center ${
                         iqamaStatus.color === 'red' ? 'text-red-400' :
@@ -729,7 +729,7 @@ export function EmployeeDetailsClient({
                     >
                       <div className="flex items-center gap-3 mb-4">
                         <div className="p-3 rounded-xl bg-blue-500/20 text-blue-400"><ShieldCheck size={22} /></div>
-                        <span className="text-xs font-black text-white/70 uppercase">حالة الصلاحية</span>
+                        <span className="text-xs font-black text-slate-700 uppercase">حالة الصلاحية</span>
                       </div>
                       <div className="text-2xl font-black text-blue-400 text-center">
                         {iqamaStatus.days !== null && iqamaStatus.days < 0 ? 'منتهية' : 'سارية'}
@@ -748,16 +748,16 @@ export function EmployeeDetailsClient({
                     >
                       <div className="flex items-center gap-3 mb-4">
                         <div className="p-3 rounded-xl bg-purple-500/20 text-purple-400"><CalendarDays size={22} /></div>
-                        <span className="text-xs font-black text-white/70 uppercase">تحديث التاريخ</span>
-                      </div>
-                      <form onSubmit={handleUpdateExpiry} className="space-y-3">
-                        <input 
-                          type="date" 
-                          value={newExpiryDate}
-                          onChange={(e) => setNewExpiryDate(e.target.value)}
-                          className="w-full bg-white/10 border border-white/10 rounded-xl py-3 px-4 text-sm font-bold text-white focus:border-purple-400 outline-none transition-all"
-                          required
-                        />
+<span className="text-xs font-black text-slate-700 uppercase">تحديث التاريخ</span>
+                        </div>
+                        <form onSubmit={handleUpdateExpiry} className="space-y-3">
+                          <input 
+                            type="date" 
+                            value={newExpiryDate}
+                            onChange={(e) => setNewExpiryDate(e.target.value)}
+                            className="w-full bg-white border border-slate-300 rounded-xl py-3 px-4 text-sm font-bold text-slate-900 focus:border-purple-500 outline-none transition-all"
+                            required
+                          />
                         <motion.button 
                           whileHover={{ scale: 1.02 }}
                           whileTap={{ scale: 0.98 }}
@@ -802,63 +802,63 @@ export function EmployeeDetailsClient({
                         initial={{ opacity: 0, height: 0 }}
                         animate={{ opacity: 1, height: 'auto' }}
                         exit={{ opacity: 0, height: 0 }}
-                        className="bg-white/5 backdrop-blur-xl p-5 rounded-2xl border border-white/10 overflow-hidden"
-                      >
-                        <form onSubmit={editingViolation ? handleUpdateViolation : handleAddViolation} className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                          <select value={editingViolation ? editingViolation.violation_type : newViolation.violation_type} onChange={(e) => editingViolation ? setEditingViolation({...editingViolation, violation_type: e.target.value}) : setNewViolation({...newViolation, violation_type: e.target.value})} className="bg-white/10 border border-white/10 rounded-xl py-3 px-4 text-sm font-bold text-white focus:border-red-400 outline-none">
-                            <option value="traffic" className="bg-slate-800">مرورية</option>
-                            <option value="general" className="bg-slate-800">عامة</option>
-                          </select>
-                          <input type="date" value={editingViolation ? editingViolation.violation_date : newViolation.violation_date} onChange={(e) => editingViolation ? setEditingViolation({...editingViolation, violation_date: e.target.value}) : setNewViolation({...newViolation, violation_date: e.target.value})} className="bg-white/10 border border-white/10 rounded-xl py-3 px-4 text-sm font-bold text-white focus:border-red-400 outline-none" required />
-                          <input type="number" placeholder="المبلغ" value={editingViolation ? editingViolation.violation_amount : newViolation.violation_amount} onChange={(e) => editingViolation ? setEditingViolation({...editingViolation, violation_amount: Number(e.target.value)}) : setNewViolation({...newViolation, violation_amount: Number(e.target.value)})} className="bg-white/10 border border-white/10 rounded-xl py-3 px-4 text-sm font-bold text-white placeholder-white/30 focus:border-red-400 outline-none" required />
-                          <input type="number" placeholder="المخصوم" value={editingViolation ? editingViolation.deducted_amount : newViolation.deducted_amount} onChange={(e) => editingViolation ? setEditingViolation({...editingViolation, deducted_amount: Number(e.target.value)}) : setNewViolation({...newViolation, deducted_amount: Number(e.target.value)})} className="bg-white/10 border border-white/10 rounded-xl py-3 px-4 text-sm font-bold text-white placeholder-white/30 focus:border-red-400 outline-none" required />
-                          <input type="text" placeholder="الوصف" value={editingViolation ? editingViolation.violation_description : newViolation.violation_description} onChange={(e) => editingViolation ? setEditingViolation({...editingViolation, violation_description: e.target.value}) : setNewViolation({...newViolation, violation_description: e.target.value})} className="bg-white/10 border border-white/10 rounded-xl py-3 px-4 text-sm font-bold text-white placeholder-white/30 focus:border-red-400 outline-none col-span-2 md:col-span-3" />
-                          <div className="flex gap-3">
-                            <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} type="submit" className="flex-1 bg-gradient-to-r from-red-600 to-rose-600 text-white py-3 rounded-xl text-sm font-black shadow-lg shadow-red-500/30">{editingViolation ? 'تحديث' : 'إضافة'}</motion.button>
-                            <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} type="button" onClick={() => {setEditingViolation(null); setShowViolationForm(false);}} className="px-4 bg-white/10 rounded-xl text-sm font-bold text-white/70 hover:bg-white/20">✕</motion.button>
-                          </div>
-                        </form>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
+className="bg-slate-100 backdrop-blur-xl p-5 rounded-2xl border border-slate-200 overflow-hidden"
+                        >
+                          <form onSubmit={editingViolation ? handleUpdateViolation : handleAddViolation} className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                            <select value={editingViolation ? editingViolation.violation_type : newViolation.violation_type} onChange={(e) => editingViolation ? setEditingViolation({...editingViolation, violation_type: e.target.value}) : setNewViolation({...newViolation, violation_type: e.target.value})} className="bg-white border border-slate-300 rounded-xl py-3 px-4 text-sm font-bold text-slate-900 focus:border-red-500 outline-none">
+                              <option value="traffic" className="bg-white">مرورية</option>
+                              <option value="general" className="bg-white">عامة</option>
+                            </select>
+                            <input type="date" value={editingViolation ? editingViolation.violation_date : newViolation.violation_date} onChange={(e) => editingViolation ? setEditingViolation({...editingViolation, violation_date: e.target.value}) : setNewViolation({...newViolation, violation_date: e.target.value})} className="bg-white border border-slate-300 rounded-xl py-3 px-4 text-sm font-bold text-slate-900 focus:border-red-500 outline-none" required />
+                            <input type="number" placeholder="المبلغ" value={editingViolation ? editingViolation.violation_amount : newViolation.violation_amount} onChange={(e) => editingViolation ? setEditingViolation({...editingViolation, violation_amount: Number(e.target.value)}) : setNewViolation({...newViolation, violation_amount: Number(e.target.value)})} className="bg-white border border-slate-300 rounded-xl py-3 px-4 text-sm font-bold text-slate-900 placeholder-slate-400 focus:border-red-500 outline-none" required />
+                            <input type="number" placeholder="المخصوم" value={editingViolation ? editingViolation.deducted_amount : newViolation.deducted_amount} onChange={(e) => editingViolation ? setEditingViolation({...editingViolation, deducted_amount: Number(e.target.value)}) : setNewViolation({...newViolation, deducted_amount: Number(e.target.value)})} className="bg-white border border-slate-300 rounded-xl py-3 px-4 text-sm font-bold text-slate-900 placeholder-slate-400 focus:border-red-500 outline-none" required />
+                            <input type="text" placeholder="الوصف" value={editingViolation ? editingViolation.violation_description : newViolation.violation_description} onChange={(e) => editingViolation ? setEditingViolation({...editingViolation, violation_description: e.target.value}) : setNewViolation({...newViolation, violation_description: e.target.value})} className="bg-white border border-slate-300 rounded-xl py-3 px-4 text-sm font-bold text-slate-900 placeholder-slate-400 focus:border-red-500 outline-none col-span-2 md:col-span-3" />
+                            <div className="flex gap-3">
+                              <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} type="submit" className="flex-1 bg-gradient-to-r from-red-600 to-rose-600 text-white py-3 rounded-xl text-sm font-black shadow-lg shadow-red-500/30">{editingViolation ? 'تحديث' : 'إضافة'}</motion.button>
+                              <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} type="button" onClick={() => {setEditingViolation(null); setShowViolationForm(false);}} className="px-4 bg-slate-200 rounded-xl text-sm font-bold text-slate-700 hover:bg-slate-300">✕</motion.button>
+                            </div>
+                          </form>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
 
-                  <div className="overflow-x-auto rounded-2xl border border-white/10 bg-white/5 backdrop-blur-xl">
-                    <table className="w-full text-right text-sm">
-                      <thead className="bg-white/5 border-b border-white/10">
-                        <tr>
-                          <th className="px-5 py-4 text-xs font-black text-white/50 uppercase">التاريخ</th>
-                          <th className="px-5 py-4 text-xs font-black text-white/50 uppercase">النوع</th>
-                          <th className="px-5 py-4 text-xs font-black text-white/50 uppercase">المبلغ</th>
-                          <th className="px-5 py-4 text-xs font-black text-white/50 uppercase">المخصوم</th>
-                          <th className="px-5 py-4 text-xs font-black text-white/50 uppercase">المتبقي</th>
-                          <th className="px-5 py-4 text-xs font-black text-white/50 uppercase text-center">إجراءات</th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-white/5">
-                        {violations.map((v, idx) => (
-                          <motion.tr 
-                            key={v.id} 
-                            initial={{ opacity: 0, x: -20 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            transition={{ delay: idx * 0.05 }}
-                            className="hover:bg-white/5 transition-all"
-                          >
-                            <td className="px-5 py-4 font-bold text-white/80">{v.violation_date}</td>
-                            <td className="px-5 py-4"><span className={`px-3 py-1 rounded-lg text-xs font-black ${v.violation_type === 'traffic' ? 'bg-red-500/20 text-red-400' : 'bg-orange-500/20 text-orange-400'}`}>{v.violation_type === 'traffic' ? 'مرورية' : 'عامة'}</span></td>
-                            <td className="px-5 py-4 font-black text-red-400">{Number(v.violation_amount).toLocaleString()} ر.س</td>
-                            <td className="px-5 py-4 font-black text-emerald-400">{Number(v.deducted_amount).toLocaleString()} ر.س</td>
-                            <td className="px-5 py-4 font-black text-blue-400">{Number(v.remaining_amount).toLocaleString()} ر.س</td>
-                            <td className="px-5 py-4">
-                              <div className="flex justify-center gap-2">
-                                <motion.button whileHover={{ scale: 1.1 }} onClick={() => setEditingViolation(v)} className="p-2 text-blue-400 hover:bg-blue-500/20 rounded-lg"><Edit3 size={14} /></motion.button>
-                                <motion.button whileHover={{ scale: 1.1 }} onClick={() => handleDeleteViolation(v.id)} className="p-2 text-red-400 hover:bg-red-500/20 rounded-lg"><Trash size={14} /></motion.button>
-                              </div>
-                            </td>
-                          </motion.tr>
-                        ))}
-                        {violations.length === 0 && (
-                          <tr><td colSpan={6} className="px-5 py-12 text-center text-white/30 font-bold">لا توجد مخالفات مسجلة</td></tr>
-                        )}
+                    <div className="overflow-x-auto rounded-2xl border border-slate-200 bg-slate-50 backdrop-blur-xl">
+                      <table className="w-full text-right text-sm">
+                        <thead className="bg-slate-100 border-b border-slate-200">
+                          <tr>
+                            <th className="px-5 py-4 text-xs font-black text-slate-700 uppercase">التاريخ</th>
+                            <th className="px-5 py-4 text-xs font-black text-slate-700 uppercase">النوع</th>
+                            <th className="px-5 py-4 text-xs font-black text-slate-700 uppercase">المبلغ</th>
+                            <th className="px-5 py-4 text-xs font-black text-slate-700 uppercase">المخصوم</th>
+                            <th className="px-5 py-4 text-xs font-black text-slate-700 uppercase">المتبقي</th>
+                            <th className="px-5 py-4 text-xs font-black text-slate-700 uppercase text-center">إجراءات</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-slate-200">
+                          {violations.map((v, idx) => (
+                            <motion.tr 
+                              key={v.id} 
+                              initial={{ opacity: 0, x: -20 }}
+                              animate={{ opacity: 1, x: 0 }}
+                              transition={{ delay: idx * 0.05 }}
+                              className="hover:bg-slate-100 transition-all"
+                            >
+                              <td className="px-5 py-4 font-bold text-slate-700">{v.violation_date}</td>
+                              <td className="px-5 py-4"><span className={`px-3 py-1 rounded-lg text-xs font-black ${v.violation_type === 'traffic' ? 'bg-red-500/20 text-red-600' : 'bg-orange-500/20 text-orange-600'}`}>{v.violation_type === 'traffic' ? 'مرورية' : 'عامة'}</span></td>
+                              <td className="px-5 py-4 font-black text-red-600">{Number(v.violation_amount).toLocaleString()} ر.س</td>
+                              <td className="px-5 py-4 font-black text-emerald-600">{Number(v.deducted_amount).toLocaleString()} ر.س</td>
+                              <td className="px-5 py-4 font-black text-blue-600">{Number(v.remaining_amount).toLocaleString()} ر.س</td>
+                              <td className="px-5 py-4">
+                                <div className="flex justify-center gap-2">
+                                  <motion.button whileHover={{ scale: 1.1 }} onClick={() => setEditingViolation(v)} className="p-2 text-blue-500 hover:bg-blue-500/20 rounded-lg"><Edit3 size={14} /></motion.button>
+                                  <motion.button whileHover={{ scale: 1.1 }} onClick={() => handleDeleteViolation(v.id)} className="p-2 text-red-500 hover:bg-red-500/20 rounded-lg"><Trash size={14} /></motion.button>
+                                </div>
+                              </td>
+                            </motion.tr>
+                          ))}
+                          {violations.length === 0 && (
+                            <tr><td colSpan={6} className="px-5 py-12 text-center text-slate-500 font-black">لا توجد مخالفات مسجلة</td></tr>
+                          )}
                       </tbody>
                     </table>
                   </div>
@@ -874,38 +874,38 @@ export function EmployeeDetailsClient({
                     <GlassStatBox label="عدد الشهور" value={stats.total_months} color="orange" />
                   </div>
 
-                  <div className="overflow-x-auto rounded-2xl border border-white/10 bg-white/5 backdrop-blur-xl">
-                    <table className="w-full text-right text-sm">
-                      <thead className="bg-white/5 border-b border-white/10">
-                        <tr>
-                          <th className="px-5 py-4 text-xs font-black text-white/50 uppercase">الشهر</th>
-                          <th className="px-5 py-4 text-xs font-black text-white/50 uppercase">الطلبات</th>
-                          <th className="px-5 py-4 text-xs font-black text-white/50 uppercase">التارجت</th>
-                          <th className="px-5 py-4 text-xs font-black text-white/50 uppercase">البونص</th>
-                          <th className="px-5 py-4 text-xs font-black text-white/50 uppercase">الخصومات</th>
-                          <th className="px-5 py-4 text-xs font-black text-white/50 uppercase">صافي الراتب</th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-white/5">
-                        {monthlyData.map((m, idx) => (
-                          <motion.tr 
-                            key={idx} 
-                            initial={{ opacity: 0, x: -20 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            transition={{ delay: idx * 0.05 }}
-                            className="hover:bg-white/5"
-                          >
-                            <td className="px-5 py-4 font-black text-white">{m.payroll_month}</td>
-                            <td className="px-5 py-4 font-black text-blue-400">{m.successful_orders}</td>
-                            <td className="px-5 py-4 font-bold text-white/50">{m.target}</td>
-                            <td className="px-5 py-4 font-black text-emerald-400">+{m.bonus}</td>
-                            <td className="px-5 py-4 font-black text-red-400">-{m.total_deduction}</td>
-                            <td className="px-5 py-4 font-black text-white bg-white/5">{Number(m.net_salary).toLocaleString()} ر.س</td>
-                          </motion.tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
+<div className="overflow-x-auto rounded-2xl border border-slate-200 bg-slate-50 backdrop-blur-xl">
+                      <table className="w-full text-right text-sm">
+                        <thead className="bg-slate-100 border-b border-slate-200">
+                          <tr>
+                            <th className="px-5 py-4 text-xs font-black text-slate-700 uppercase">الشهر</th>
+                            <th className="px-5 py-4 text-xs font-black text-slate-700 uppercase">الطلبات</th>
+                            <th className="px-5 py-4 text-xs font-black text-slate-700 uppercase">التارجت</th>
+                            <th className="px-5 py-4 text-xs font-black text-slate-700 uppercase">البونص</th>
+                            <th className="px-5 py-4 text-xs font-black text-slate-700 uppercase">الخصومات</th>
+                            <th className="px-5 py-4 text-xs font-black text-slate-700 uppercase">صافي الراتب</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-slate-200">
+                          {monthlyData.map((m, idx) => (
+                            <motion.tr 
+                              key={idx} 
+                              initial={{ opacity: 0, x: -20 }}
+                              animate={{ opacity: 1, x: 0 }}
+                              transition={{ delay: idx * 0.05 }}
+                              className="hover:bg-slate-100"
+                            >
+                              <td className="px-5 py-4 font-black text-slate-900">{m.payroll_month}</td>
+                              <td className="px-5 py-4 font-black text-blue-600">{m.successful_orders}</td>
+                              <td className="px-5 py-4 font-bold text-slate-600">{m.target}</td>
+                              <td className="px-5 py-4 font-black text-emerald-600">+{m.bonus}</td>
+                              <td className="px-5 py-4 font-black text-red-600">-{m.total_deduction}</td>
+                              <td className="px-5 py-4 font-black text-slate-900 bg-slate-100">{Number(m.net_salary).toLocaleString()} ر.س</td>
+                            </motion.tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
                 </div>
               )}
 
@@ -917,69 +917,69 @@ export function EmployeeDetailsClient({
                         initial={{ opacity: 0, height: 0 }}
                         animate={{ opacity: 1, height: 'auto' }}
                         exit={{ opacity: 0, height: 0 }}
-                        className="bg-white/5 backdrop-blur-xl p-5 rounded-2xl border border-white/10 overflow-hidden"
-                      >
-                        <form onSubmit={editingLetter ? handleUpdateLetter : handleAddLetter} className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                          <select value={editingLetter ? editingLetter.letter_type : newLetter.letter_type} onChange={(e) => editingLetter ? setEditingLetter({...editingLetter, letter_type: e.target.value}) : setNewLetter({...newLetter, letter_type: e.target.value})} className="bg-white/10 border border-white/10 rounded-xl py-3 px-4 text-sm font-bold text-white focus:border-rose-400 outline-none">
-                            <option value="annual_leave" className="bg-slate-800">إجازة سنوية</option>
-                            <option value="sick_leave" className="bg-slate-800">إجازة مرضية</option>
-                            <option value="personal_leave" className="bg-slate-800">إجازة شخصية</option>
-                            <option value="absence" className="bg-slate-800">غياب</option>
-                            <option value="other" className="bg-slate-800">أخرى</option>
-                          </select>
-                          <input type="date" placeholder="البداية" value={editingLetter ? editingLetter.start_date : newLetter.start_date} onChange={(e) => editingLetter ? setEditingLetter({...editingLetter, start_date: e.target.value}) : setNewLetter({...newLetter, start_date: e.target.value})} className="bg-white/10 border border-white/10 rounded-xl py-3 px-4 text-sm font-bold text-white focus:border-rose-400 outline-none" required />
-                          <input type="date" placeholder="النهاية" value={editingLetter ? editingLetter.end_date : newLetter.end_date} onChange={(e) => editingLetter ? setEditingLetter({...editingLetter, end_date: e.target.value}) : setNewLetter({...newLetter, end_date: e.target.value})} className="bg-white/10 border border-white/10 rounded-xl py-3 px-4 text-sm font-bold text-white focus:border-rose-400 outline-none" required />
-                          <input type="number" placeholder="المدة (أيام)" value={editingLetter ? editingLetter.duration_days : newLetter.duration_days} onChange={(e) => editingLetter ? setEditingLetter({...editingLetter, duration_days: Number(e.target.value)}) : setNewLetter({...newLetter, duration_days: Number(e.target.value)})} className="bg-white/10 border border-white/10 rounded-xl py-3 px-4 text-sm font-bold text-white placeholder-white/30 focus:border-rose-400 outline-none" required />
-                          <input type="number" placeholder="مبلغ المخالفة" value={editingLetter ? editingLetter.violation_amount : newLetter.violation_amount} onChange={(e) => editingLetter ? setEditingLetter({...editingLetter, violation_amount: Number(e.target.value)}) : setNewLetter({...newLetter, violation_amount: Number(e.target.value)})} className="bg-white/10 border border-white/10 rounded-xl py-3 px-4 text-sm font-bold text-white placeholder-white/30 focus:border-rose-400 outline-none" />
-                          <textarea placeholder="التفاصيل" value={editingLetter ? editingLetter.letter_details : newLetter.letter_details} onChange={(e) => editingLetter ? setEditingLetter({...editingLetter, letter_details: e.target.value}) : setNewLetter({...newLetter, letter_details: e.target.value})} rows={1} className="bg-white/10 border border-white/10 rounded-xl py-3 px-4 text-sm font-bold text-white placeholder-white/30 focus:border-rose-400 outline-none col-span-2 md:col-span-3" />
-                          <div className="col-span-2 md:col-span-3 flex justify-end gap-3">
-                            <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} type="button" onClick={() => {setEditingLetter(null); setShowLetterForm(false);}} className="px-5 py-3 bg-white/10 rounded-xl text-sm font-bold text-white/70 hover:bg-white/20">إلغاء</motion.button>
-                            <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} type="submit" className="px-8 py-3 bg-gradient-to-r from-rose-600 to-pink-600 text-white rounded-xl text-sm font-black shadow-lg shadow-rose-500/30">{editingLetter ? 'تحديث' : 'حفظ'}</motion.button>
-                          </div>
-                        </form>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
+className="bg-slate-100 backdrop-blur-xl p-5 rounded-2xl border border-slate-200 overflow-hidden"
+                        >
+                          <form onSubmit={editingLetter ? handleUpdateLetter : handleAddLetter} className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                            <select value={editingLetter ? editingLetter.letter_type : newLetter.letter_type} onChange={(e) => editingLetter ? setEditingLetter({...editingLetter, letter_type: e.target.value}) : setNewLetter({...newLetter, letter_type: e.target.value})} className="bg-white border border-slate-300 rounded-xl py-3 px-4 text-sm font-bold text-slate-900 focus:border-rose-500 outline-none">
+                              <option value="annual_leave" className="bg-white">إجازة سنوية</option>
+                              <option value="sick_leave" className="bg-white">إجازة مرضية</option>
+                              <option value="personal_leave" className="bg-white">إجازة شخصية</option>
+                              <option value="absence" className="bg-white">غياب</option>
+                              <option value="other" className="bg-white">أخرى</option>
+                            </select>
+                            <input type="date" placeholder="البداية" value={editingLetter ? editingLetter.start_date : newLetter.start_date} onChange={(e) => editingLetter ? setEditingLetter({...editingLetter, start_date: e.target.value}) : setNewLetter({...newLetter, start_date: e.target.value})} className="bg-white border border-slate-300 rounded-xl py-3 px-4 text-sm font-bold text-slate-900 focus:border-rose-500 outline-none" required />
+                            <input type="date" placeholder="النهاية" value={editingLetter ? editingLetter.end_date : newLetter.end_date} onChange={(e) => editingLetter ? setEditingLetter({...editingLetter, end_date: e.target.value}) : setNewLetter({...newLetter, end_date: e.target.value})} className="bg-white border border-slate-300 rounded-xl py-3 px-4 text-sm font-bold text-slate-900 focus:border-rose-500 outline-none" required />
+                            <input type="number" placeholder="المدة (أيام)" value={editingLetter ? editingLetter.duration_days : newLetter.duration_days} onChange={(e) => editingLetter ? setEditingLetter({...editingLetter, duration_days: Number(e.target.value)}) : setNewLetter({...newLetter, duration_days: Number(e.target.value)})} className="bg-white border border-slate-300 rounded-xl py-3 px-4 text-sm font-bold text-slate-900 placeholder-slate-400 focus:border-rose-500 outline-none" required />
+                            <input type="number" placeholder="مبلغ المخالفة" value={editingLetter ? editingLetter.violation_amount : newLetter.violation_amount} onChange={(e) => editingLetter ? setEditingLetter({...editingLetter, violation_amount: Number(e.target.value)}) : setNewLetter({...newLetter, violation_amount: Number(e.target.value)})} className="bg-white border border-slate-300 rounded-xl py-3 px-4 text-sm font-bold text-slate-900 placeholder-slate-400 focus:border-rose-500 outline-none" />
+                            <textarea placeholder="التفاصيل" value={editingLetter ? editingLetter.letter_details : newLetter.letter_details} onChange={(e) => editingLetter ? setEditingLetter({...editingLetter, letter_details: e.target.value}) : setNewLetter({...newLetter, letter_details: e.target.value})} rows={1} className="bg-white border border-slate-300 rounded-xl py-3 px-4 text-sm font-bold text-slate-900 placeholder-slate-400 focus:border-rose-500 outline-none col-span-2 md:col-span-3" />
+                            <div className="col-span-2 md:col-span-3 flex justify-end gap-3">
+                              <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} type="button" onClick={() => {setEditingLetter(null); setShowLetterForm(false);}} className="px-5 py-3 bg-slate-200 rounded-xl text-sm font-bold text-slate-700 hover:bg-slate-300">إلغاء</motion.button>
+                              <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} type="submit" className="px-8 py-3 bg-gradient-to-r from-rose-600 to-pink-600 text-white rounded-xl text-sm font-black shadow-lg shadow-rose-500/30">{editingLetter ? 'تحديث' : 'حفظ'}</motion.button>
+                            </div>
+                          </form>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
 
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                    {letters.map((l, idx) => (
-                      <motion.div 
-                        key={l.id} 
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: idx * 0.1 }}
-                        whileHover={{ scale: 1.01 }}
-                        className="p-5 rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10 hover:border-rose-500/30 transition-all group relative overflow-hidden"
-                      >
-                        <div className="absolute top-0 right-0 w-1 h-full bg-gradient-to-b from-rose-500 to-pink-500 rounded-r-xl" />
-                        <div className="flex items-start justify-between mb-3">
-                          <div className="flex items-center gap-3">
-                            <div className="h-10 w-10 rounded-xl bg-rose-500/20 flex items-center justify-center text-rose-400"><Mail size={18} /></div>
-                            <div>
-                              <h4 className="text-base font-black text-white">
-                                {l.letter_type === 'annual_leave' ? 'إجازة سنوية' : l.letter_type === 'sick_leave' ? 'إجازة مرضية' : l.letter_type === 'personal_leave' ? 'إجازة شخصية' : l.letter_type === 'absence' ? 'غياب' : 'أخرى'}
-                              </h4>
-                              <span className="text-[11px] font-bold text-white/40">{l.created_at}</span>
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                      {letters.map((l, idx) => (
+                        <motion.div 
+                          key={l.id} 
+                          initial={{ opacity: 0, y: 20 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ delay: idx * 0.1 }}
+                          whileHover={{ scale: 1.01 }}
+                          className="p-5 rounded-2xl bg-slate-50 backdrop-blur-xl border border-slate-200 hover:border-rose-500/30 transition-all group relative overflow-hidden"
+                        >
+                          <div className="absolute top-0 right-0 w-1 h-full bg-gradient-to-b from-rose-500 to-pink-500 rounded-r-xl" />
+                          <div className="flex items-start justify-between mb-3">
+                            <div className="flex items-center gap-3">
+                              <div className="h-10 w-10 rounded-xl bg-rose-500/20 flex items-center justify-center text-rose-500"><Mail size={18} /></div>
+                              <div>
+                                <h4 className="text-base font-black text-slate-900">
+                                  {l.letter_type === 'annual_leave' ? 'إجازة سنوية' : l.letter_type === 'sick_leave' ? 'إجازة مرضية' : l.letter_type === 'personal_leave' ? 'إجازة شخصية' : l.letter_type === 'absence' ? 'غياب' : 'أخرى'}
+                                </h4>
+                                <span className="text-[11px] font-bold text-slate-500">{l.created_at}</span>
+                              </div>
+                            </div>
+                            <div className="flex gap-2">
+                              <motion.button whileHover={{ scale: 1.1 }} onClick={() => setEditingLetter(l)} className="p-2 text-blue-500 hover:bg-blue-500/20 rounded-lg"><Edit3 size={14} /></motion.button>
+                              <motion.button whileHover={{ scale: 1.1 }} onClick={() => handleDeleteLetter(l.id)} className="p-2 text-red-500 hover:bg-red-500/20 rounded-lg"><Trash size={14} /></motion.button>
                             </div>
                           </div>
-                          <div className="flex gap-2">
-                            <motion.button whileHover={{ scale: 1.1 }} onClick={() => setEditingLetter(l)} className="p-2 text-blue-400 hover:bg-blue-500/20 rounded-lg"><Edit3 size={14} /></motion.button>
-                            <motion.button whileHover={{ scale: 1.1 }} onClick={() => handleDeleteLetter(l.id)} className="p-2 text-red-400 hover:bg-red-500/20 rounded-lg"><Trash size={14} /></motion.button>
+                          {l.letter_details && <p className="text-xs font-bold text-slate-600 mb-3 bg-slate-100 p-3 rounded-xl">{l.letter_details}</p>}
+                          <div className="flex items-center justify-between text-xs">
+                            <span className="flex items-center gap-2 text-slate-600"><Calendar size={14} className="text-rose-500" /> {l.start_date} - {l.end_date} ({l.duration_days} أيام)</span>
+                            {l.violation_amount > 0 && <span className="text-rose-600 font-bold bg-rose-500/10 px-3 py-1 rounded-lg">مخالفة: {Number(l.violation_amount).toLocaleString()} ر.س</span>}
                           </div>
+                        </motion.div>
+                      ))}
+                      {letters.length === 0 && (
+                        <div className="col-span-full py-16 text-center text-slate-600 font-black bg-slate-100 backdrop-blur-xl rounded-2xl border-2 border-dashed border-slate-300">
+                          <Mail size={40} className="mx-auto mb-3 opacity-50" />
+                          لا يوجد خطابات مسجلة
                         </div>
-                        {l.letter_details && <p className="text-xs font-bold text-white/50 mb-3 bg-white/5 p-3 rounded-xl">{l.letter_details}</p>}
-                        <div className="flex items-center justify-between text-xs">
-                          <span className="flex items-center gap-2 text-white/50"><Calendar size={14} className="text-rose-400" /> {l.start_date} - {l.end_date} ({l.duration_days} أيام)</span>
-                          {l.violation_amount > 0 && <span className="text-rose-400 font-bold bg-rose-500/10 px-3 py-1 rounded-lg">مخالفة: {Number(l.violation_amount).toLocaleString()} ر.س</span>}
-                        </div>
-                      </motion.div>
-                    ))}
-                    {letters.length === 0 && (
-                      <div className="col-span-full py-16 text-center text-white/30 font-bold bg-white/5 backdrop-blur-xl rounded-2xl border-2 border-dashed border-white/10">
-                        <Mail size={40} className="mx-auto mb-3 opacity-30" />
-                        لا يوجد خطابات مسجلة
-                      </div>
-                    )}
+                      )}
                   </div>
                 </div>
               )}
