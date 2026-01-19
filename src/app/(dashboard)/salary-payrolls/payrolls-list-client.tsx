@@ -97,7 +97,7 @@ export function PayrollsListClient({ payrolls: initialPayrolls, stats, companyId
   const showNotification = (type: "success" | "error" | "loading", title: string, message: string) => {
     setNotification({ show: true, type, title, message });
     if (type !== "loading") {
-      setTimeout(() => setNotification(prev => ({ ...prev, show: false })), 3000);
+      setTimeout(() => setNotification(prev => ({ ...prev, show: false })), 5000);
     }
   };
 
@@ -121,30 +121,32 @@ export function PayrollsListClient({ payrolls: initialPayrolls, stats, companyId
     });
   };
 
-  const handleDelete = async () => {
-    if (!deleteConfirm.payrollId) return;
-    
-    const id = deleteConfirm.payrollId;
-    setDeleteLoading(id);
-    closeDeleteConfirm();
-    showNotification("loading", "جاري الحذف", "جاري حذف المسير...");
-    
-    try {
-      const res = await fetch(`/api/payrolls/${id}`, { method: "DELETE" });
+    const handleDelete = async () => {
+      if (!deleteConfirm.payrollId) return;
       
-      if (res.ok) {
-        setPayrolls(prev => prev.filter(p => p.id !== id));
-        showNotification("success", "تم الحذف بنجاح", "تم حذف المسير بنجاح");
-        router.refresh();
-      } else {
-        showNotification("error", "فشل الحذف", "فشل حذف المسير");
+      const id = deleteConfirm.payrollId;
+      const payrollMonth = deleteConfirm.payrollMonth;
+      setDeleteLoading(id);
+      closeDeleteConfirm();
+      showNotification("loading", "جاري الحذف", `جاري حذف مسير ${payrollMonth}...`);
+      
+      try {
+        const res = await fetch(`/api/payrolls/${id}`, { method: "DELETE" });
+        
+        if (res.ok) {
+          setPayrolls(prev => prev.filter(p => p.id !== id));
+          showNotification("success", "تم الحذف بنجاح", `تم حذف مسير "${payrollMonth}" بشكل صحيح`);
+          router.refresh();
+        } else {
+          const data = await res.json().catch(() => ({}));
+          showNotification("error", "فشل الحذف", data.error || "فشل حذف المسير، يرجى المحاولة مرة أخرى");
+        }
+      } catch {
+        showNotification("error", "خطأ في الاتصال", "حدث خطأ أثناء الحذف، يرجى التحقق من الاتصال");
+      } finally {
+        setDeleteLoading(null);
       }
-    } catch {
-      showNotification("error", "خطأ", "حدث خطأ أثناء الحذف");
-    } finally {
-      setDeleteLoading(null);
-    }
-  };
+    };
 
   const getWorkTypeLabel = (type: string) => {
     switch (type) {
