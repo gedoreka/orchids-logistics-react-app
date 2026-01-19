@@ -672,15 +672,13 @@ export function Header({ user, onToggleSidebar, unreadChatCount = 0, subscriptio
       try {
         const res = await fetch(`/api/email/fetch?accountId=${accountId}&company_id=${user.company_id}&folder=${folder}&limit=30`);
         const data = await res.json();
-        if (data.emails) {
-          setEmails(data.emails);
-          const unread = data.emails.filter((e: EmailMessage) => !e.isRead).length;
-          setTotalUnreadEmails(unread);
-        } else if (data.error) {
-          if (data.requiresAuth) {
-            toast.error(isRTL ? 'بيانات الدخول غير صحيحة' : 'Invalid credentials');
+          if (data.emails) {
+            setEmails(data.emails);
+            const unread = data.emails.filter((e: EmailMessage) => !e.isRead).length;
+            setTotalUnreadEmails(unread);
+          } else if (data.error) {
+            toast.error(data.error);
           }
-        }
       } catch (error) {
         console.error('Error fetching emails:', error);
       }

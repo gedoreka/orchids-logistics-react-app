@@ -242,10 +242,15 @@ export async function GET(request: NextRequest) {
   } catch (error) {
     console.error("Error fetching emails:", error);
     const errorMessage = error instanceof Error ? error.message : "حدث خطأ";
+    const isAuthError = 
+      errorMessage.toLowerCase().includes("authentication failed") || 
+      errorMessage.toLowerCase().includes("invalid credentials") || 
+      errorMessage.includes("AUTHENTICATIONFAILED") ||
+      (error as any).textCode === "AUTHENTICATIONFAILED";
     
-    if (errorMessage.includes("Invalid credentials") || errorMessage.includes("AUTHENTICATIONFAILED")) {
+    if (isAuthError) {
       return NextResponse.json(
-        { error: "بيانات الدخول غير صحيحة", requiresAuth: true },
+        { error: "بيانات الدخول غير صحيحة. يرجى التأكد من البريد وكلمة المرور.", requiresAuth: true },
         { status: 401 }
       );
     }

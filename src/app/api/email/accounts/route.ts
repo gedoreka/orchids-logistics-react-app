@@ -1,10 +1,39 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import Imap from "imap";
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
+
+async function validateCredentials(config: any): Promise<boolean> {
+  return new Promise((resolve) => {
+    const imap = new Imap({
+      user: config.user,
+      password: config.password,
+      host: config.host,
+      port: config.port,
+      tls: true,
+      tlsOptions: { rejectUnauthorized: false },
+      connTimeout: 10000,
+      authTimeout: 5000,
+    });
+
+    imap.once("ready", () => {
+      imap.end();
+      resolve(true);
+    });
+
+    imap.once("error", (err) => {
+      console.error("Validation error:", err);
+      imap.end();
+      resolve(false);
+    });
+
+    imap.connect();
+  });
+}
 
 const EMAIL_PROVIDERS = {
   hostinger: {
@@ -91,6 +120,21 @@ export async function POST(request: NextRequest) {
     const finalImapPort = provider === "custom" ? imap_port : providerConfig.imap_port;
     const finalSmtpHost = provider === "custom" ? smtp_host : providerConfig.smtp_host;
     const finalSmtpPort = provider === "custom" ? smtp_port : providerConfig.smtp_port;
+
+    // Validate credentials before saving
+    const isValid = await validateCredentials({
+      user: email,
+      password,
+      host: finalImapHost,
+      port: finalImapPort,
+    });
+
+    if (!isValid) {
+      return NextResponse.json(
+        { error: "تعذر الاتصال بالبريد. يرجى التأكد من صحة البريد وكلمة المرور وإعدادات IMAP." },
+        { status: 401 }
+      );
+    }
 
     const { data: existing } = await supabase
       .from("company_email_accounts")
