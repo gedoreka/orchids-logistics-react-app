@@ -476,93 +476,109 @@ export default function PromissoryNotesClient() {
                       </div>
 
                       <form onSubmit={handleSubmit} className="p-8 space-y-8">
-                          {/* Beneficiary Toggle Section */}
-                          <div className="bg-white/5 rounded-2xl p-6 border border-white/10 space-y-4">
-                              <div className="flex items-center justify-between">
-                                  <div className="space-y-1">
-                                      <h3 className="text-lg font-black text-white">بيانات المستفيد (لأمر)</h3>
-                                      <p className="text-xs text-slate-400 font-bold">تحديد من سيتم دفع المبلغ له</p>
-                                  </div>
-                                  <button
-                                      type="button"
-                                      onClick={() => setFormData({...formData, use_custom_beneficiary: !formData.use_custom_beneficiary})}
-                                      className={cn(
-                                          "flex items-center gap-2 px-4 py-2 rounded-xl font-black text-xs transition-all border",
-                                          formData.use_custom_beneficiary 
-                                              ? "bg-amber-500/20 text-amber-400 border-amber-500/30" 
-                                              : "bg-blue-500/20 text-blue-400 border-blue-500/30"
-                                      )}
-                                  >
-                                      {formData.use_custom_beneficiary ? <Edit2 size={14} /> : <Building2 size={14} />}
-                                      {formData.use_custom_beneficiary ? "تعديل يدوي للمستفيد" : "استخدام بيانات الشركة تلقائياً"}
-                                  </button>
-                              </div>
+                            {/* Beneficiary Section */}
+                            <div className="bg-white/5 rounded-2xl p-6 border border-white/10 space-y-4">
+                                <div className="flex items-center justify-between">
+                                    <div className="space-y-1">
+                                        <h3 className="text-lg font-black text-white">بيانات المستفيد (لأمر)</h3>
+                                        <p className="text-xs text-slate-400 font-bold">
+                                            {formData.use_custom_beneficiary 
+                                                ? "أدخل بيانات المستفيد يدوياً" 
+                                                : "سيتم استخدام بيانات شركتك تلقائياً"}
+                                        </p>
+                                    </div>
+                                    <button
+                                        type="button"
+                                        onClick={() => setFormData({...formData, use_custom_beneficiary: !formData.use_custom_beneficiary})}
+                                        className={cn(
+                                            "flex items-center gap-2 px-4 py-2 rounded-xl font-black text-xs transition-all border",
+                                            formData.use_custom_beneficiary 
+                                                ? "bg-rose-500/20 text-rose-400 border-rose-500/30" 
+                                                : "bg-amber-500/20 text-amber-400 border-amber-500/30"
+                                        )}
+                                    >
+                                        <Edit2 size={14} />
+                                        {formData.use_custom_beneficiary ? "إلغاء التعديل اليدوي" : "تعديل يدوي للمستفيد"}
+                                    </button>
+                                </div>
 
-                              <AnimatePresence>
-                                  {formData.use_custom_beneficiary ? (
-                                      <motion.div
-                                          initial={{ opacity: 0, height: 0 }}
-                                          animate={{ opacity: 1, height: "auto" }}
-                                          exit={{ opacity: 0, height: 0 }}
-                                          className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-4 border-t border-white/5"
-                                      >
-                                          <div className="space-y-2">
-                                              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mr-2">اسم المستفيد</label>
-                                              <input
-                                                  type="text"
-                                                  value={formData.beneficiary_name}
-                                                  onChange={(e) => setFormData({...formData, beneficiary_name: e.target.value})}
-                                                  placeholder="اسم الشخص أو المؤسسة..."
-                                                  className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-2xl text-white font-bold focus:bg-white/10 focus:border-amber-500 outline-none transition-all"
-                                                  required={formData.use_custom_beneficiary}
-                                              />
-                                          </div>
-                                          <div className="space-y-2">
-                                              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mr-2">نوع المعرف</label>
-                                              <select
-                                                  value={formData.beneficiary_id_type}
-                                                  onChange={(e) => setFormData({...formData, beneficiary_id_type: e.target.value as "commercial" | "national"})}
-                                                  className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-2xl text-white font-bold focus:bg-white/10 focus:border-amber-500 outline-none transition-all appearance-none"
-                                              >
-                                                  <option value="commercial" className="bg-slate-800">سجل تجاري</option>
-                                                  <option value="national" className="bg-slate-800">هوية وطنية</option>
-                                              </select>
-                                          </div>
-                                          <div className="space-y-2">
-                                              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mr-2">رقم المعرف</label>
-                                              <input
-                                                  type="text"
-                                                  value={formData.beneficiary_id_type === "commercial" ? formData.beneficiary_commercial_number : formData.beneficiary_id_number}
-                                                  onChange={(e) => {
-                                                      if (formData.beneficiary_id_type === "commercial") {
-                                                          setFormData({...formData, beneficiary_commercial_number: e.target.value});
-                                                      } else {
-                                                          setFormData({...formData, beneficiary_id_number: e.target.value});
-                                                      }
-                                                  }}
-                                                  placeholder="الرقم الموحد أو الهوية..."
-                                                  className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-2xl text-white font-bold focus:bg-white/10 focus:border-amber-500 outline-none transition-all"
-                                                  required={formData.use_custom_beneficiary}
-                                              />
-                                          </div>
-                                      </motion.div>
-                                  ) : (
-                                      <motion.div
-                                          initial={{ opacity: 0 }}
-                                          animate={{ opacity: 1 }}
-                                          className="bg-blue-500/5 rounded-xl p-4 border border-blue-500/10 flex items-center gap-4"
-                                      >
-                                          <div className="p-2 bg-blue-500/20 rounded-lg text-blue-400">
-                                              <Building2 size={20} />
-                                          </div>
-                                          <div>
-                                              <p className="text-sm font-black text-white">{companyInfo?.name || "تحميل بيانات الشركة..."}</p>
-                                              <p className="text-[10px] text-blue-400 font-bold">سجل تجاري: {companyInfo?.commercial_number || "..."}</p>
-                                          </div>
-                                      </motion.div>
-                                  )}
-                              </AnimatePresence>
-                          </div>
+                                {/* Show company info as default beneficiary */}
+                                <div className="bg-blue-500/5 rounded-xl p-4 border border-blue-500/10 flex items-center gap-4">
+                                    <div className="p-2 bg-blue-500/20 rounded-lg text-blue-400">
+                                        <Building2 size={20} />
+                                    </div>
+                                    <div className="flex-1">
+                                        <p className="text-[10px] text-blue-400 font-bold mb-1">المستفيد الحالي:</p>
+                                        <p className="text-sm font-black text-white">
+                                            {formData.use_custom_beneficiary && formData.beneficiary_name 
+                                                ? formData.beneficiary_name 
+                                                : companyInfo?.name || "تحميل بيانات الشركة..."}
+                                        </p>
+                                        <p className="text-[10px] text-blue-400/70 font-bold">
+                                            {formData.use_custom_beneficiary 
+                                                ? (formData.beneficiary_id_type === "national" ? "هوية: " : "سجل تجاري: ") + 
+                                                  (formData.beneficiary_id_type === "commercial" ? formData.beneficiary_commercial_number : formData.beneficiary_id_number || "...")
+                                                : `سجل تجاري: ${companyInfo?.commercial_number || "..."}`}
+                                        </p>
+                                    </div>
+                                    {!formData.use_custom_beneficiary && (
+                                        <span className="px-2 py-1 bg-emerald-500/20 text-emerald-400 text-[10px] font-black rounded-lg border border-emerald-500/20">
+                                            تلقائي
+                                        </span>
+                                    )}
+                                </div>
+
+                                <AnimatePresence>
+                                    {formData.use_custom_beneficiary && (
+                                        <motion.div
+                                            initial={{ opacity: 0, height: 0 }}
+                                            animate={{ opacity: 1, height: "auto" }}
+                                            exit={{ opacity: 0, height: 0 }}
+                                            className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-4 border-t border-white/5"
+                                        >
+                                            <div className="space-y-2">
+                                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mr-2">اسم المستفيد</label>
+                                                <input
+                                                    type="text"
+                                                    value={formData.beneficiary_name}
+                                                    onChange={(e) => setFormData({...formData, beneficiary_name: e.target.value})}
+                                                    placeholder="اسم الشخص أو المؤسسة..."
+                                                    className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-2xl text-white font-bold focus:bg-white/10 focus:border-amber-500 outline-none transition-all"
+                                                    required={formData.use_custom_beneficiary}
+                                                />
+                                            </div>
+                                            <div className="space-y-2">
+                                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mr-2">نوع المعرف</label>
+                                                <select
+                                                    value={formData.beneficiary_id_type}
+                                                    onChange={(e) => setFormData({...formData, beneficiary_id_type: e.target.value as "commercial" | "national"})}
+                                                    className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-2xl text-white font-bold focus:bg-white/10 focus:border-amber-500 outline-none transition-all appearance-none"
+                                                >
+                                                    <option value="commercial" className="bg-slate-800">سجل تجاري</option>
+                                                    <option value="national" className="bg-slate-800">هوية وطنية</option>
+                                                </select>
+                                            </div>
+                                            <div className="space-y-2">
+                                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mr-2">رقم المعرف</label>
+                                                <input
+                                                    type="text"
+                                                    value={formData.beneficiary_id_type === "commercial" ? formData.beneficiary_commercial_number : formData.beneficiary_id_number}
+                                                    onChange={(e) => {
+                                                        if (formData.beneficiary_id_type === "commercial") {
+                                                            setFormData({...formData, beneficiary_commercial_number: e.target.value});
+                                                        } else {
+                                                            setFormData({...formData, beneficiary_id_number: e.target.value});
+                                                        }
+                                                    }}
+                                                    placeholder="الرقم الموحد أو الهوية..."
+                                                    className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-2xl text-white font-bold focus:bg-white/10 focus:border-amber-500 outline-none transition-all"
+                                                    required={formData.use_custom_beneficiary}
+                                                />
+                                            </div>
+                                        </motion.div>
+                                    )}
+                                </AnimatePresence>
+                            </div>
 
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                               <div className="space-y-2">
