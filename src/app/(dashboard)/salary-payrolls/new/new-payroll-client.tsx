@@ -112,6 +112,12 @@ interface NotificationState {
   type: "success" | "error" | "loading";
   title: string;
   message: string;
+  details?: {
+    month?: string;
+    employeeCount?: number;
+    totalAmount?: number;
+    packageName?: string;
+  };
 }
 
 export function NewPayrollClient({ packages, debts, companyId, userName }: NewPayrollClientProps) {
@@ -123,7 +129,8 @@ export function NewPayrollClient({ packages, debts, companyId, userName }: NewPa
     show: false,
     type: "success",
     title: "",
-    message: ""
+    message: "",
+    details: undefined
   });
   const [showDebtsPanel, setShowDebtsPanel] = useState(false);
 
@@ -139,10 +146,15 @@ export function NewPayrollClient({ packages, debts, companyId, userName }: NewPa
   const workType = selectedPackage?.work_type || 'salary';
   const isSalaryType = workType === 'salary';
 
-  const showNotification = (type: "success" | "error" | "loading", title: string, message: string) => {
-    setNotification({ show: true, type, title, message });
+  const showNotification = (
+    type: "success" | "error" | "loading", 
+    title: string, 
+    message: string,
+    details?: NotificationState['details']
+  ) => {
+    setNotification({ show: true, type, title, message, details });
     if (type !== "loading") {
-      setTimeout(() => setNotification(prev => ({ ...prev, show: false })), 3000);
+      setTimeout(() => setNotification(prev => ({ ...prev, show: false })), 5000);
     }
   };
 
@@ -468,13 +480,24 @@ export function NewPayrollClient({ packages, debts, companyId, userName }: NewPa
         })
       });
 
-      if (res.ok) {
-        showNotification("success", "تم الحفظ بنجاح", isDraft ? "تم حفظ المسودة بنجاح" : "تم حفظ المسير بنجاح");
-        setTimeout(() => {
-          router.push("/salary-payrolls");
-          router.refresh();
-        }, 1500);
-      } else {
+        if (res.ok) {
+          const totalAmount = selectedRows.reduce((sum, row) => sum + (Number(row.net_salary) || 0), 0);
+          showNotification(
+            "success", 
+            isDraft ? "تم حفظ المسودة بنجاح" : "تم حفظ المسير بنجاح", 
+            isDraft ? "يمكنك تعديل المسودة في أي وقت" : "تم حفظ مسير الرواتب بنجاح وهو جاهز للعرض",
+            {
+              month: payrollMonth,
+              employeeCount: selectedRows.length,
+              totalAmount: totalAmount,
+              packageName: selectedPackage?.group_name
+            }
+          );
+          setTimeout(() => {
+            router.push("/salary-payrolls");
+            router.refresh();
+          }, 2500);
+        } else {
         const data = await res.json();
         showNotification("error", "فشل الحفظ", data.error || "فشل حفظ المسير");
       }
@@ -515,7 +538,7 @@ export function NewPayrollClient({ packages, debts, companyId, userName }: NewPa
     return employeeRows.findIndex(row => row.iqama_number === filteredRow.iqama_number);
   };
 
-  return (
+    return (
     <div className="h-full flex flex-col">
       <AnimatePresence>
         {notification.show && (
@@ -547,7 +570,51 @@ export function NewPayrollClient({ packages, debts, companyId, userName }: NewPa
                     {notification.type === "loading" && <Loader2 size={40} className="animate-spin" />}
                   </div>
                   <h3 className="text-2xl font-black text-gray-900 mb-2">{notification.title}</h3>
-                  <p className="text-gray-500 mb-6">{notification.message}</p>
+                  <p className="text-gray-500 mb-4">{notification.message}</p>
+                  
+                  {notification.type === "success" && notification.details && (
+                    <div className="bg-gradient-to-r from-emerald-50 to-teal-50 rounded-2xl p-4 mb-6 border border-emerald-100">
+                      <div className="grid grid-cols-2 gap-3 text-right" dir="rtl">
+                        {notification.details.month && (
+                          <div className="bg-white rounded-xl p-3 border border-emerald-100">
+                            <div className="flex items-center gap-1.5 text-emerald-600 mb-1">
+                              <Calendar size={12} />
+                              <span className="text-[10px] font-bold">شهر المسير</span>
+                            </div>
+                            <p className="font-black text-gray-900 text-sm">{notification.details.month}</p>
+                          </div>
+                        )}
+                        {notification.details.packageName && (
+                          <div className="bg-white rounded-xl p-3 border border-emerald-100">
+                            <div className="flex items-center gap-1.5 text-emerald-600 mb-1">
+                              <Users size={12} />
+                              <span className="text-[10px] font-bold">الباقة</span>
+                            </div>
+                            <p className="font-black text-gray-900 text-sm truncate">{notification.details.packageName}</p>
+                          </div>
+                        )}
+                        {notification.details.employeeCount !== undefined && (
+                          <div className="bg-white rounded-xl p-3 border border-emerald-100">
+                            <div className="flex items-center gap-1.5 text-blue-600 mb-1">
+                              <Users size={12} />
+                              <span className="text-[10px] font-bold">عدد الموظفين</span>
+                            </div>
+                            <p className="font-black text-gray-900 text-sm">{notification.details.employeeCount} موظف</p>
+                          </div>
+                        )}
+                        {notification.details.totalAmount !== undefined && (
+                          <div className="bg-white rounded-xl p-3 border border-emerald-100">
+                            <div className="flex items-center gap-1.5 text-amber-600 mb-1">
+                              <DollarSign size={12} />
+                              <span className="text-[10px] font-bold">إجمالي المسير</span>
+                            </div>
+                            <p className="font-black text-gray-900 text-sm">{notification.details.totalAmount.toLocaleString('en-US', { minimumFractionDigits: 2 })} ر.س</p>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                  
                   {notification.type !== "loading" && (
                     <button
                       onClick={() => setNotification(prev => ({ ...prev, show: false }))}

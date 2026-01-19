@@ -172,26 +172,49 @@ export function PayrollsListClient({ payrolls: initialPayrolls, stats, companyId
         <div className="min-h-screen p-4 md:p-8" dir="rtl">
           <AnimatePresence>
             {notification.show && (
-              <motion.div
-                initial={{ opacity: 0, y: 50, x: 0 }}
-                animate={{ opacity: 1, y: 0, x: 0 }}
-                exit={{ opacity: 0, y: 50 }}
-                className={`fixed bottom-10 left-10 z-[150] flex items-center gap-3 px-6 py-4 rounded-2xl shadow-2xl backdrop-blur-xl border ${
-                  notification.type === "success"
-                    ? "bg-emerald-500/90 border-emerald-400/50 text-white"
-                    : notification.type === "error"
-                    ? "bg-rose-500/90 border-rose-400/50 text-white"
-                    : "bg-blue-500/90 border-blue-400/50 text-white"
-                }`}
-              >
-                {notification.type === "success" && <CheckCircle size={20} />}
-                {notification.type === "error" && <AlertCircle size={20} />}
-                {notification.type === "loading" && <Loader2 size={20} className="animate-spin" />}
-                <div>
-                  <p className="font-black text-sm">{notification.title}</p>
-                  <p className="text-xs opacity-90">{notification.message}</p>
-                </div>
-              </motion.div>
+              <>
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50"
+                  onClick={() => notification.type !== "loading" && setNotification(prev => ({ ...prev, show: false }))}
+                />
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                  animate={{ opacity: 1, scale: 1, y: 0 }}
+                  exit={{ opacity: 0, scale: 0.9, y: 20 }}
+                  className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50 w-full max-w-md"
+                >
+                  <div className={`bg-white rounded-3xl p-8 shadow-2xl border-t-4 ${
+                    notification.type === "success" ? "border-emerald-500" :
+                    notification.type === "error" ? "border-red-500" : "border-blue-500"
+                  }`}>
+                    <div className="text-center">
+                      <div className={`h-20 w-20 rounded-full mx-auto mb-6 flex items-center justify-center ${
+                        notification.type === "success" ? "bg-emerald-100 text-emerald-500" :
+                        notification.type === "error" ? "bg-red-100 text-red-500" : "bg-blue-100 text-blue-500"
+                      }`}>
+                        {notification.type === "success" && <CheckCircle size={40} />}
+                        {notification.type === "error" && <AlertCircle size={40} />}
+                        {notification.type === "loading" && <Loader2 size={40} className="animate-spin" />}
+                      </div>
+                      <h3 className="text-2xl font-black text-gray-900 mb-2">{notification.title}</h3>
+                      <p className="text-gray-500 mb-6">{notification.message}</p>
+                      {notification.type !== "loading" && (
+                        <button
+                          onClick={() => setNotification(prev => ({ ...prev, show: false }))}
+                          className={`px-8 py-3 rounded-xl font-bold text-white transition-all ${
+                            notification.type === "success" ? "bg-emerald-500 hover:bg-emerald-600" : "bg-red-500 hover:bg-red-600"
+                          }`}
+                        >
+                          حسناً
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                </motion.div>
+              </>
             )}
           </AnimatePresence>
 
