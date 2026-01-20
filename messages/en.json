@@ -218,9 +218,10 @@
       "certificateNumber": "Certificate Number",
       "exemptionType": "Exemption Type",
       "reason": "Reason",
-      "startDate": "Start Date",
-      "endDate": "End Date"
-    }
+        "startDate": "Start Date",
+        "endDate": "End Date",
+        "actions": "Actions"
+      }
   },
   "footer": {
     "copyright": "All rights reserved to ZoolSpeed Multi-Activities Company",

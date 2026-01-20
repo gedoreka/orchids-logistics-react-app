@@ -277,23 +277,23 @@ export function TaxSettingsClient({ companyId }: TaxSettingsClientProps) {
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="bg-[#0d121f]/60 backdrop-blur-xl border border-white/5 p-1 rounded-2xl h-auto flex-wrap">
-            {[
-              { id: "taxTypes", icon: Tags, label: t("taxTypes") },
-              { id: "productTaxes", icon: Box, label: t("productTaxes") },
-              { id: "settings", icon: Settings, label: t("settings") },
-              { id: "reports", icon: ChartBar, label: t("reports") },
-            ].map((tab) => (
-              <TabsTrigger
-                key={tab.id}
-                value={tab.id}
-                className="data-[state=active]:bg-blue-600 data-[state=active]:text-white rounded-xl px-6 py-3 font-bold transition-all"
-              >
-                <tab.icon className="w-4 h-4 me-2" />
-                {tab.label}
-              </TabsTrigger>
-            ))}
-          </TabsList>
+            <TabsList className="bg-[#0d121f]/60 backdrop-blur-xl border border-white/5 p-1 rounded-2xl h-auto flex-wrap">
+              {[
+                { id: "taxTypes", icon: Tags, label: t("taxTypes"), color: "text-amber-400" },
+                { id: "productTaxes", icon: Box, label: t("productTaxes"), color: "text-blue-400" },
+                { id: "settings", icon: Settings, label: t("settings"), color: "text-emerald-400" },
+                { id: "reports", icon: ChartBar, label: t("reports"), color: "text-purple-400" },
+              ].map((tab) => (
+                <TabsTrigger
+                  key={tab.id}
+                  value={tab.id}
+                  className="data-[state=active]:bg-blue-600 data-[state=active]:text-white text-white/70 rounded-xl px-6 py-3 font-bold transition-all"
+                >
+                  <tab.icon className={`w-4 h-4 me-2 ${tab.color}`} />
+                  {tab.label}
+                </TabsTrigger>
+              ))}
+            </TabsList>
 
           <TabsContent value="taxTypes" className="space-y-6 outline-none">
             <Card className="bg-[#0d121f]/60 backdrop-blur-xl border-white/5">
