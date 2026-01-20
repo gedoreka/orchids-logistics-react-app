@@ -59,13 +59,16 @@ export default async function SalesReceiptsPage() {
   
   const companyId = session.company_id;
 
-  if (!companyId) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <p className="text-gray-500">جاري التحميل...</p>
-      </div>
-    );
-  }
+    if (!companyId) {
+      return (
+        <div className="flex items-center justify-center min-h-screen">
+          <div className="flex flex-col items-center gap-4">
+            <Loader2 className="w-8 h-8 text-blue-500 animate-spin" />
+            <p className="text-gray-500 font-bold">جاري التحميل...</p>
+          </div>
+        </div>
+      );
+    }
 
   const [receipts, stats] = await Promise.all([
     getSalesReceipts(companyId),

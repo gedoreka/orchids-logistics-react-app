@@ -28,6 +28,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
+import { useTranslations, useLocale } from "@/lib/locale-context";
 
 interface SalesReceipt {
   id: number;
@@ -60,6 +61,10 @@ interface NotificationState {
 }
 
 export function SalesReceiptsClient({ receipts: initialReceipts, stats, companyId }: SalesReceiptsClientProps) {
+  const t = useTranslations("salesReceiptsPage");
+  const locale = useLocale();
+  const isRtl = locale === "ar";
+  
   const [receipts, setReceipts] = useState(initialReceipts);
   const [searchTerm, setSearchTerm] = useState("");
   const [deleteLoading, setDeleteLoading] = useState<number | null>(null);
@@ -88,10 +93,10 @@ export function SalesReceiptsClient({ receipts: initialReceipts, stats, companyI
   };
 
   const handleDelete = async (id: number, receiptNumber: string) => {
-    if (!confirm(`هل أنت متأكد من حذف الإيصال "${receiptNumber}"؟`)) return;
+    if (!confirm(t("deleteConfirm", { number: receiptNumber }))) return;
     
     setDeleteLoading(id);
-    showNotification("loading", "جاري الحذف", "جاري حذف الإيصال...");
+    showNotification("loading", t("deleting"), t("deletingMsg"));
     
     try {
       const res = await fetch(`/api/sales-receipts/${id}?company_id=${companyId}`, {
@@ -100,20 +105,20 @@ export function SalesReceiptsClient({ receipts: initialReceipts, stats, companyI
       
       if (res.ok) {
         setReceipts(prev => prev.filter(r => r.id !== id));
-        showNotification("success", "تم الحذف بنجاح", "تم حذف الإيصال بنجاح");
+        showNotification("success", t("deleteSuccess"), t("deleteSuccessMsg"));
         router.refresh();
       } else {
-        showNotification("error", "فشل الحذف", "فشل حذف الإيصال");
+        showNotification("error", t("deleteFailed"), t("deleteFailedMsg"));
       }
     } catch {
-      showNotification("error", "خطأ", "حدث خطأ أثناء الحذف");
+      showNotification("error", t("error"), t("errorMsg"));
     } finally {
       setDeleteLoading(null);
     }
   };
 
   return (
-    <div className="max-w-[95%] mx-auto p-4 md:p-8 space-y-8" dir="rtl">
+    <div className="max-w-[95%] mx-auto p-4 md:p-8 space-y-8" dir={isRtl ? "rtl" : "ltr"}>
       <AnimatePresence>
         {notification.show && (
           <>
@@ -155,7 +160,7 @@ export function SalesReceiptsClient({ receipts: initialReceipts, stats, companyI
                         notification.type === "success" ? "bg-emerald-500 hover:bg-emerald-600" : "bg-red-500 hover:bg-red-600"
                       )}
                     >
-                      حسناً
+                      {t("ok")}
                     </button>
                   )}
                 </div>
@@ -175,7 +180,7 @@ export function SalesReceiptsClient({ receipts: initialReceipts, stats, companyI
         <div className="relative z-10 space-y-10">
           {/* Header Section */}
           <div className="flex flex-col lg:flex-row items-center justify-between gap-10">
-            <div className="text-center lg:text-right space-y-4">
+            <div className={cn("text-center space-y-4", isRtl ? "lg:text-right" : "lg:text-left")}>
               <motion.div 
                 initial={{ scale: 0 }}
                 animate={{ scale: 1 }}
@@ -183,21 +188,21 @@ export function SalesReceiptsClient({ receipts: initialReceipts, stats, companyI
                 className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-md rounded-2xl border border-white/10 mb-2"
               >
                 <Sparkles className="w-4 h-4 text-yellow-400 animate-pulse" />
-                <span className="text-blue-200 font-black text-[10px] uppercase tracking-widest">إدارة سندات المبيعات</span>
+                <span className="text-blue-200 font-black text-[10px] uppercase tracking-widest">{t("subtitle")}</span>
               </motion.div>
               
               <h1 className="text-4xl md:text-6xl font-black text-white tracking-tight bg-gradient-to-r from-white via-blue-100 to-white bg-clip-text text-transparent">
-                إيصالات المبيعات
+                {t("title")}
               </h1>
               <p className="text-lg text-slate-300 max-w-2xl font-medium leading-relaxed">
-                متابعة وتسجيل جميع إيصالات المبيعات والربط مع الفواتير الضريبية
+                {t("description")}
               </p>
               
-              <div className="flex flex-wrap justify-center lg:justify-start gap-4 mt-8">
+              <div className={cn("flex flex-wrap justify-center gap-4 mt-8", isRtl ? "lg:justify-start" : "lg:justify-start")}>
                 <Link href="/sales-receipts/new">
                   <button className="flex items-center gap-3 px-6 py-3 bg-teal-500 text-white font-black text-sm rounded-2xl hover:bg-teal-600 transition-all shadow-xl active:scale-95">
                     <Plus size={18} />
-                    إضافة إيصال جديد
+                    {t("addNew")}
                   </button>
                 </Link>
                 <button 
@@ -205,7 +210,7 @@ export function SalesReceiptsClient({ receipts: initialReceipts, stats, companyI
                     className="flex items-center gap-3 px-6 py-3 bg-white/10 backdrop-blur-md rounded-2xl border border-white/20 text-white font-black text-sm hover:bg-white/20 transition-all shadow-xl active:scale-95"
                   >
                   <RefreshCw size={18} className="text-blue-400" />
-                  تحديث البيانات
+                  {t("refreshData")}
                 </button>
               </div>
             </div>
@@ -222,10 +227,10 @@ export function SalesReceiptsClient({ receipts: initialReceipts, stats, companyI
                   <div className="p-2 bg-blue-500/20 rounded-lg text-blue-400 group-hover:scale-110 transition-transform">
                     <Receipt className="w-5 h-5" />
                   </div>
-                  <span className="text-blue-300 font-black text-[10px] uppercase tracking-wider">الإجمالي</span>
+                  <span className="text-blue-300 font-black text-[10px] uppercase tracking-wider">{t("totalReceipts")}</span>
                 </div>
                 <p className="text-3xl font-black text-white tracking-tight">{stats.total}</p>
-                <p className="text-blue-400/60 text-[10px] font-black mt-1">سند مبيعات</p>
+                <p className="text-blue-400/60 text-[10px] font-black mt-1">{t("receiptsCount")}</p>
               </motion.div>
 
               <motion.div 
@@ -238,10 +243,10 @@ export function SalesReceiptsClient({ receipts: initialReceipts, stats, companyI
                   <div className="p-2 bg-emerald-500/20 rounded-lg text-emerald-400 group-hover:scale-110 transition-transform">
                     <TrendingUp className="w-5 h-5" />
                   </div>
-                  <span className="text-emerald-300 font-black text-[10px] uppercase tracking-wider">القيمة الإجمالية</span>
+                  <span className="text-emerald-300 font-black text-[10px] uppercase tracking-wider">{t("totalAmount")}</span>
                 </div>
-                <p className="text-2xl font-black text-white tracking-tight">{Number(stats.total_amount).toLocaleString()}</p>
-                <p className="text-emerald-400/60 text-[10px] font-black mt-1">ريال سعودي</p>
+                <p className="text-2xl font-black text-white tracking-tight">{Number(stats.total_amount).toLocaleString(locale)}</p>
+                <p className="text-emerald-400/60 text-[10px] font-black mt-1">{isRtl ? "ريال سعودي" : "SAR"}</p>
               </motion.div>
 
               <motion.div 
@@ -254,10 +259,10 @@ export function SalesReceiptsClient({ receipts: initialReceipts, stats, companyI
                   <div className="p-2 bg-purple-500/20 rounded-lg text-purple-400 group-hover:scale-110 transition-transform">
                     <LinkIcon className="w-5 h-5" />
                   </div>
-                  <span className="text-purple-300 font-black text-[10px] uppercase tracking-wider">مرتبط</span>
+                  <span className="text-purple-300 font-black text-[10px] uppercase tracking-wider">{t("linked")}</span>
                 </div>
                 <p className="text-3xl font-black text-white tracking-tight">{stats.linked}</p>
-                <p className="text-purple-400/60 text-[10px] font-black mt-1">سند مرتبط</p>
+                <p className="text-purple-400/60 text-[10px] font-black mt-1">{t("linkedCount")}</p>
               </motion.div>
 
               <motion.div 
@@ -270,10 +275,10 @@ export function SalesReceiptsClient({ receipts: initialReceipts, stats, companyI
                   <div className="p-2 bg-amber-500/20 rounded-lg text-amber-400 group-hover:scale-110 transition-transform">
                     <Unlink className="w-5 h-5" />
                   </div>
-                  <span className="text-amber-300 font-black text-[10px] uppercase tracking-wider">غير مرتبط</span>
+                  <span className="text-amber-300 font-black text-[10px] uppercase tracking-wider">{t("unlinked")}</span>
                 </div>
                 <p className="text-3xl font-black text-white tracking-tight">{stats.unlinked}</p>
-                <p className="text-amber-400/60 text-[10px] font-black mt-1">سند معلق</p>
+                <p className="text-amber-400/60 text-[10px] font-black mt-1">{t("unlinkedCount")}</p>
               </motion.div>
             </div>
           </div>
@@ -284,19 +289,22 @@ export function SalesReceiptsClient({ receipts: initialReceipts, stats, companyI
           {/* Search & Filter Bar */}
           <div className="bg-white/5 backdrop-blur-xl rounded-3xl p-6 border border-white/10 flex flex-col md:flex-row gap-4 items-center justify-between">
             <div className="relative w-full md:w-96">
-              <Search className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
+              <Search className={cn("absolute top-1/2 -translate-y-1/2 text-slate-400", isRtl ? "right-4" : "left-4")} size={20} />
               <input
                 type="text"
-                placeholder="بحث برقم الإيصال أو اسم العميل..."
+                placeholder={t("searchPlaceholder")}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pr-12 pl-4 py-3 bg-white/10 border border-white/10 rounded-2xl text-white font-medium focus:bg-white/20 focus:border-blue-500/50 outline-none transition-all placeholder:text-slate-500"
+                className={cn(
+                  "w-full py-3 bg-white/10 border border-white/10 rounded-2xl text-white font-medium focus:bg-white/20 focus:border-blue-500/50 outline-none transition-all placeholder:text-slate-500",
+                  isRtl ? "pr-12 pl-4" : "pl-12 pr-4"
+                )}
               />
             </div>
             <div className="flex gap-3 w-full md:w-auto">
               <button className="flex-1 md:flex-none flex items-center justify-center gap-2 px-6 py-3 bg-blue-500/20 text-blue-300 font-bold rounded-2xl border border-blue-500/30 hover:bg-blue-500/30 transition-all">
                 <FileSpreadsheet size={18} />
-                تصدير البيانات
+                {t("exportData")}
               </button>
             </div>
           </div>
@@ -308,23 +316,23 @@ export function SalesReceiptsClient({ receipts: initialReceipts, stats, companyI
                 <div className="p-2 bg-blue-500/20 rounded-xl">
                   <Receipt className="w-5 h-5 text-blue-400" />
                 </div>
-                <h3 className="font-black text-lg">سجل إيصالات المبيعات</h3>
+                <h3 className="font-black text-lg">{t("tableTitle")}</h3>
               </div>
               <span className="px-4 py-1.5 bg-white/10 rounded-full text-[10px] font-black uppercase tracking-widest text-slate-400">
-                {filteredReceipts.length} إيصال موجود
+                {t("receiptsFound", { count: filteredReceipts.length })}
               </span>
             </div>
 
             <div className="overflow-x-auto">
-              <table className="w-full text-right">
+              <table className={cn("w-full", isRtl ? "text-right" : "text-left")}>
                 <thead>
                   <tr className="bg-white/5 border-b border-white/5">
-                    <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">رقم الإيصال</th>
-                    <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">العميل</th>
-                    <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">التاريخ</th>
-                    <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">المبلغ</th>
-                    <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">الحالة</th>
-                    <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">الإجراءات</th>
+                    <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">{t("receiptNo")}</th>
+                    <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">{t("customer")}</th>
+                    <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">{t("date")}</th>
+                    <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">{t("amount")}</th>
+                    <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">{t("status")}</th>
+                    <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">{t("actions")}</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-white/5">
@@ -347,7 +355,7 @@ export function SalesReceiptsClient({ receipts: initialReceipts, stats, companyI
                             <div className="h-9 w-9 rounded-xl bg-white/5 flex items-center justify-center text-slate-400 group-hover:bg-blue-500/20 group-hover:text-blue-400 transition-all">
                               <User size={16} />
                             </div>
-                            <span className="font-bold text-sm text-slate-200">{receipt.client_name || "غير محدد"}</span>
+                            <span className="font-bold text-sm text-slate-200">{receipt.client_name || (isRtl ? "غير محدد" : "Not Specified")}</span>
                           </div>
                         </td>
                         <td className="px-6 py-5">
@@ -358,27 +366,27 @@ export function SalesReceiptsClient({ receipts: initialReceipts, stats, companyI
                         </td>
                         <td className="px-6 py-5">
                           <div className="flex items-baseline gap-1 text-emerald-400">
-                            <span className="text-lg font-black">{Number(receipt.amount || 0).toLocaleString()}</span>
-                            <span className="text-[10px] font-bold text-emerald-400/50 uppercase">ر.س</span>
+                            <span className="text-lg font-black">{Number(receipt.amount || 0).toLocaleString(locale)}</span>
+                            <span className="text-[10px] font-bold text-emerald-400/50 uppercase">{isRtl ? "ر.س" : "SAR"}</span>
                           </div>
                         </td>
                         <td className="px-6 py-5 text-center">
                           {receipt.invoice_number ? (
                             <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-500/10 text-emerald-400 text-[10px] font-black rounded-full border border-emerald-500/20">
                               <LinkIcon size={12} />
-                              مرتبط بالفاتورة {receipt.invoice_number}
+                              {t("linkedToInvoice", { number: receipt.invoice_number })}
                             </span>
                           ) : (
                             <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-amber-500/10 text-amber-400 text-[10px] font-black rounded-full border border-amber-500/20">
                               <Unlink size={12} />
-                              غير مرتبط
+                              {t("notLinked")}
                             </span>
                           )}
                         </td>
                         <td className="px-6 py-5">
                           <div className="flex items-center justify-center gap-2">
                             <Link href={`/sales-receipts/${receipt.id}`}>
-                              <button className="h-9 w-9 rounded-xl bg-blue-500/10 text-blue-400 flex items-center justify-center hover:bg-blue-500 hover:text-white transition-all shadow-lg active:scale-95" title="عرض التفاصيل">
+                              <button className="h-9 w-9 rounded-xl bg-blue-500/10 text-blue-400 flex items-center justify-center hover:bg-blue-500 hover:text-white transition-all shadow-lg active:scale-95" title={t("viewDetails")}>
                                 <Eye size={16} />
                               </button>
                             </Link>
@@ -386,7 +394,7 @@ export function SalesReceiptsClient({ receipts: initialReceipts, stats, companyI
                               onClick={() => handleDelete(receipt.id, receipt.receipt_number)}
                               disabled={deleteLoading === receipt.id}
                               className="h-9 w-9 rounded-xl bg-rose-500/10 text-rose-400 flex items-center justify-center hover:bg-rose-500 hover:text-white transition-all shadow-lg active:scale-95 disabled:opacity-50"
-                              title="حذف السند"
+                              title={t("deleteReceipt")}
                             >
                               {deleteLoading === receipt.id ? (
                                 <Loader2 size={16} className="animate-spin" />
@@ -404,8 +412,8 @@ export function SalesReceiptsClient({ receipts: initialReceipts, stats, companyI
                         <div className="flex flex-col items-center gap-4 opacity-40">
                           <Receipt size={64} className="text-slate-400" />
                           <div className="space-y-1">
-                            <p className="text-xl font-black text-slate-300">لا توجد إيصالات مبيعات</p>
-                            <p className="text-sm font-medium text-slate-500">ابدأ بإضافة أول إيصال مبيعات من الزر أعلاه</p>
+                            <p className="text-xl font-black text-slate-300">{t("noReceipts")}</p>
+                            <p className="text-sm font-medium text-slate-500">{t("noReceiptsDesc")}</p>
                           </div>
                         </div>
                       </td>
@@ -423,12 +431,15 @@ export function SalesReceiptsClient({ receipts: initialReceipts, stats, companyI
       </motion.div>
 
       {/* Footer */}
-      <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-[10px] font-black text-slate-500 uppercase tracking-widest pt-4 opacity-60">
+      <div className={cn(
+        "flex flex-col md:flex-row justify-between items-center gap-4 text-[10px] font-black text-slate-500 uppercase tracking-widest pt-4 opacity-60",
+        isRtl ? "md:flex-row" : "md:flex-row-reverse"
+      )}>
         <div className="flex items-center gap-2">
           <Sparkles size={10} className="text-blue-500" />
-          <span>نظام الخدمات اللوجستية المتكامل - إدارة المبيعات</span>
+          <span>{t("systemFooter")}</span>
         </div>
-        <span>جميع الحقوق محفوظة © {new Date().getFullYear()}</span>
+        <span>{t("allRightsReserved", { year: new Date().getFullYear() })}</span>
       </div>
     </div>
   );
