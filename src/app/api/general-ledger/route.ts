@@ -42,7 +42,7 @@ export async function GET(request: NextRequest) {
       { data: costCenters }
     ] = await Promise.all([
       // 1. Journal Entries
-      supabase.from("journal_entries").select("*, accounts(id, account_code, account_name, type)").eq("company_id", companyId),
+      supabase.from("journal_entries").select("*, accounts:account_id(id, account_code, account_name, type)").eq("company_id", companyId),
       // 2. Monthly Expenses
       supabase.from("monthly_expenses").select("*, accounts:account_id(id, account_code, account_name, type), cost_centers:cost_center_id(id, center_code, center_name)").eq("company_id", companyId),
       // 3. Generic Expenses
@@ -163,9 +163,10 @@ export async function GET(request: NextRequest) {
     // Process Credit Notes
     if (creditNotes) {
       creditNotes.forEach((note: any) => {
+        const dateStr = note.created_at ? (typeof note.created_at === 'string' ? note.created_at.split('T')[0] : new Date(note.created_at).toISOString().split('T')[0]) : "";
         ledgerEntries.push({
           id: `cn-${note.id}`,
-          date: note.created_at?.split('T')[0],
+          date: dateStr,
           document_number: note.credit_note_number || `CN-${note.id}`,
           description: `إشعار دائن لعميل: ${note.client_name} - سبب: ${note.reason || ""}`,
           account_code: "4101",
@@ -253,9 +254,10 @@ export async function GET(request: NextRequest) {
     // Process Salary Payrolls
     if (salaryPayrolls) {
       salaryPayrolls.forEach((payroll: any) => {
+        const dateStr = payroll.created_at ? (typeof payroll.created_at === 'string' ? payroll.created_at.split('T')[0] : new Date(payroll.created_at).toISOString().split('T')[0]) : "";
         ledgerEntries.push({
           id: `sp-${payroll.id}`,
-          date: payroll.created_at?.split('T')[0],
+          date: dateStr,
           document_number: `PAY-${payroll.id}`,
           description: `مسير رواتب شهر: ${payroll.payroll_month}`,
           account_code: "5101",
@@ -318,13 +320,17 @@ export async function GET(request: NextRequest) {
       return matches;
     });
 
-    // Sort entries
-    filteredEntries.sort((a, b) => {
-      const dateA = new Date(a.date).getTime();
-      const dateB = new Date(b.date).getTime();
-      if (dateB !== dateA) return dateB - dateA;
-      return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
-    });
+      // Sort entries
+      filteredEntries.sort((a, b) => {
+        const dateA = a.date ? new Date(a.date).getTime() : 0;
+        const dateB = b.date ? new Date(b.date).getTime() : 0;
+        if (dateB !== dateA) return dateB - dateA;
+        
+        const createdAtA = a.created_at ? new Date(a.created_at).getTime() : 0;
+        const createdAtB = b.created_at ? new Date(b.created_at).getTime() : 0;
+        return createdAtB - createdAtA;
+      });
+
 
     // Calculate Running Balance
     let runningBalance = 0;

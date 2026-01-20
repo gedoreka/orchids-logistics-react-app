@@ -36,7 +36,7 @@ export async function GET(request: NextRequest) {
       { data: salaryPayrolls },
       { data: monthlyDeductions }
     ] = await Promise.all([
-      supabase.from("journal_entries").select("*, accounts(id, account_code, account_name, type)").eq("company_id", companyId),
+      supabase.from("journal_entries").select("*, accounts:account_id(id, account_code, account_name, type)").eq("company_id", companyId),
       supabase.from("monthly_expenses").select("*, accounts:account_id(id, account_code, account_name, type)").eq("company_id", companyId),
       supabase.from("expenses").select("*, accounts:account_id(id, account_code, account_name, type)").eq("company_id", companyId),
       supabase.from("sales_invoices").select("*").eq("company_id", companyId),
