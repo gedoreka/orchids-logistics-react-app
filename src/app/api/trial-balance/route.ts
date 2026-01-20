@@ -23,112 +23,30 @@ export async function GET(request: NextRequest) {
     const toDate = searchParams.get("to_date");
     const entryType = searchParams.get("entry_type");
 
-    let expensesQuery = supabase
-      .from("monthly_expenses")
-      .select(`
-        id,
-        expense_date,
-        description,
-        amount,
-        net_amount,
-        account_code,
-        cost_center_code,
-        expense_type,
-        account_id,
-        accounts:account_id (
-          id,
-          account_code,
-          account_name,
-          type
-        )
-      `)
-      .eq("company_id", companyId);
-
-    if (fromDate) {
-      expensesQuery = expensesQuery.gte("expense_date", fromDate);
-    }
-    if (toDate) {
-      expensesQuery = expensesQuery.lte("expense_date", toDate);
-    }
-
-    const { data: expenses, error: expensesError } = await expensesQuery;
-
-    let payrollsQuery = supabase
-      .from("salary_payrolls")
-      .select(`
-        id,
-        payroll_month,
-        total_amount,
-        employee_id,
-        employees:employee_id (
-          id,
-          name
-        )
-      `)
-      .eq("company_id", companyId);
-
-    if (fromDate) {
-      payrollsQuery = payrollsQuery.gte("payroll_month", fromDate);
-    }
-    if (toDate) {
-      payrollsQuery = payrollsQuery.lte("payroll_month", toDate);
-    }
-
-    const { data: payrolls, error: payrollsError } = await payrollsQuery;
-
-    let journalQuery = supabase
-      .from("journal_entries")
-      .select(`
-        id,
-        entry_date,
-        description,
-        debit,
-        credit,
-        account_id,
-        accounts:account_id (
-          id,
-          account_code,
-          account_name,
-          type
-        )
-      `)
-      .eq("company_id", companyId);
-
-    if (fromDate) {
-      journalQuery = journalQuery.gte("entry_date", fromDate);
-    }
-    if (toDate) {
-      journalQuery = journalQuery.lte("entry_date", toDate);
-    }
-
-    const { data: journalEntries, error: journalError } = await journalQuery;
-
-    let incomeQuery = supabase
-      .from("manual_income")
-      .select(`
-        id,
-        income_date,
-        income_type,
-        amount,
-        total,
-        account_id,
-        accounts:account_id (
-          id,
-          account_code,
-          account_name,
-          type
-        )
-      `)
-      .eq("company_id", companyId);
-
-    if (fromDate) {
-      incomeQuery = incomeQuery.gte("income_date", fromDate);
-    }
-    if (toDate) {
-      incomeQuery = incomeQuery.lte("income_date", toDate);
-    }
-
-    const { data: manualIncome, error: incomeError } = await incomeQuery;
+    // Fetch all relevant data in parallel
+    const [
+      { data: journalEntries },
+      { data: monthlyExpenses },
+      { data: expenses },
+      { data: salesInvoices },
+      { data: receiptVouchers },
+      { data: paymentVouchers },
+      { data: manualIncome },
+      { data: creditNotes },
+      { data: salaryPayrolls },
+      { data: monthlyDeductions }
+    ] = await Promise.all([
+      supabase.from("journal_entries").select("*, accounts(id, account_code, account_name, type)").eq("company_id", companyId),
+      supabase.from("monthly_expenses").select("*, accounts:account_id(id, account_code, account_name, type)").eq("company_id", companyId),
+      supabase.from("expenses").select("*, accounts:account_id(id, account_code, account_name, type)").eq("company_id", companyId),
+      supabase.from("sales_invoices").select("*").eq("company_id", companyId),
+      supabase.from("receipt_vouchers").select("*").eq("company_id", companyId),
+      supabase.from("payment_vouchers").select("*").eq("company_id", companyId),
+      supabase.from("manual_income").select("*, accounts:account_id(id, account_code, account_name, type)").eq("company_id", companyId),
+      supabase.from("credit_notes").select("*").eq("company_id", companyId),
+      supabase.from("salary_payrolls").select("*").eq("company_id", companyId),
+      supabase.from("monthly_deductions").select("*, accounts:account_id(id, account_code, account_name, type)").eq("company_id", companyId)
+    ]);
 
     const balanceData: {
       [key: string]: {
@@ -140,74 +58,167 @@ export async function GET(request: NextRequest) {
       };
     } = {};
 
-    if (manualIncome && !incomeError) {
-      manualIncome.forEach((income: any) => {
-        const accountCode = income.accounts?.account_code || "INC";
-        const accountName = income.accounts?.account_name || income.income_type || "دخل إضافي";
-        const key = `income-${accountCode}`;
+    const addEntry = (key: string, data: { type: string, account_code: string, account_name: string, debit: number, credit: number }) => {
+      if (!balanceData[key]) {
+        balanceData[key] = { ...data };
+      } else {
+        balanceData[key].debit += data.debit;
+        balanceData[key].credit += data.credit;
+      }
+    };
 
-        if (!balanceData[key]) {
-          balanceData[key] = {
-            type: "الدخل الإضافي",
-            account_code: accountCode,
-            account_name: accountName,
-            debit: 0,
-            credit: 0,
-          };
-        }
-        balanceData[key].credit += Number(income.total) || Number(income.amount) || 0;
+    // 1. Journal Entries
+    if (journalEntries) {
+      journalEntries.forEach((entry: any) => {
+        const accountCode = entry.accounts?.account_code || `JE-${entry.account_id || "UNC"}`;
+        const accountName = entry.accounts?.account_name || "قيد يومية";
+        addEntry(`journal-${accountCode}`, {
+          type: "قيود اليومية",
+          account_code: accountCode,
+          account_name: accountName,
+          debit: Number(entry.debit) || 0,
+          credit: Number(entry.credit) || 0
+        });
       });
     }
 
-    if (expenses && !expensesError) {
+    // 2. Monthly Expenses
+    if (monthlyExpenses) {
+      monthlyExpenses.forEach((expense: any) => {
+        const accountCode = expense.account_code || expense.accounts?.account_code || "EXP-MONTH";
+        const accountName = expense.accounts?.account_name || expense.expense_type || "منصرفات شهرية";
+        addEntry(`expense-${accountCode}`, {
+          type: "المنصرفات",
+          account_code: accountCode,
+          account_name: accountName,
+          debit: Number(expense.net_amount) || Number(expense.amount) || 0,
+          credit: 0
+        });
+      });
+    }
+
+    // 3. Generic Expenses
+    if (expenses) {
       expenses.forEach((expense: any) => {
-        const accountCode = expense.account_code || expense.accounts?.account_code || "غير محدد";
-        const accountName = expense.accounts?.account_name || expense.expense_type || "منصرفات";
-        const key = `expense-${accountCode}`;
-        
-        if (!balanceData[key]) {
-          balanceData[key] = {
-            type: "المنصرفات",
-            account_code: accountCode,
-            account_name: accountName,
-            debit: 0,
-            credit: 0,
-          };
-        }
-        balanceData[key].debit += Number(expense.net_amount) || Number(expense.amount) || 0;
+        const accountCode = expense.accounts?.account_code || "EXP-GEN";
+        const accountName = expense.accounts?.account_name || "مصروف";
+        addEntry(`expense-${accountCode}`, {
+          type: "المنصرفات",
+          account_code: accountCode,
+          account_name: accountName,
+          debit: Number(expense.amount) || 0,
+          credit: 0
+        });
       });
     }
 
-    if (payrolls && !payrollsError) {
-      const totalPayroll = payrolls.reduce((sum: number, p: any) => sum + (Number(p.total_amount) || 0), 0);
+    // 4. Sales Invoices
+    if (salesInvoices) {
+      salesInvoices.forEach((invoice: any) => {
+        addEntry("revenue-sales", {
+          type: "الإيرادات",
+          account_code: "4101",
+          account_name: "المبيعات",
+          debit: 0,
+          credit: Number(invoice.total_amount) || 0
+        });
+      });
+    }
+
+    // 5. Credit Notes (Sales Returns)
+    if (creditNotes) {
+      creditNotes.forEach((note: any) => {
+        addEntry("revenue-returns", {
+          type: "الإيرادات",
+          account_code: "4102",
+          account_name: "مردودات مبيعات",
+          debit: Number(note.total_amount) || 0,
+          credit: 0
+        });
+      });
+    }
+
+    // 6. Manual Income
+    if (manualIncome) {
+      manualIncome.forEach((income: any) => {
+        const accountCode = income.accounts?.account_code || "INC-MAN";
+        const accountName = income.accounts?.account_name || income.income_type || "دخل إضافي";
+        addEntry(`income-${accountCode}`, {
+          type: "الإيرادات",
+          account_code: accountCode,
+          account_name: accountName,
+          debit: 0,
+          credit: Number(income.total) || Number(income.amount) || 0
+        });
+      });
+    }
+
+    // 7. Salary Payrolls
+    if (salaryPayrolls) {
+      const totalPayroll = salaryPayrolls.reduce((sum: number, p: any) => sum + (Number(p.total_amount) || 0), 0);
       if (totalPayroll > 0) {
-        balanceData["payroll-salaries"] = {
+        addEntry("payroll-salaries", {
           type: "الرواتب",
-          account_code: "رواتب الموظفين",
+          account_code: "5101",
           account_name: "مصروفات الرواتب والأجور",
           debit: totalPayroll,
-          credit: 0,
-        };
+          credit: 0
+        });
       }
     }
 
-    if (journalEntries && !journalError) {
-      journalEntries.forEach((entry: any) => {
-        const accountCode = entry.accounts?.account_code || `JE-${entry.account_id || "غير محدد"}`;
-        const accountName = entry.accounts?.account_name || entry.description || "قيد يومية";
-        const key = `journal-${accountCode}`;
-        
-        if (!balanceData[key]) {
-          balanceData[key] = {
-            type: "قيود اليومية",
-            account_code: accountCode,
-            account_name: accountName,
-            debit: 0,
-            credit: 0,
-          };
-        }
-        balanceData[key].debit += Number(entry.debit) || 0;
-        balanceData[key].credit += Number(entry.credit) || 0;
+    // 8. Monthly Deductions
+    if (monthlyDeductions) {
+      monthlyDeductions.forEach((deduction: any) => {
+        const accountCode = deduction.accounts?.account_code || "DED-MONTH";
+        const accountName = deduction.accounts?.account_name || deduction.deduction_type || "استقطاعات";
+        addEntry(`deduction-${accountCode}`, {
+          type: "الاستقطاعات",
+          account_code: accountCode,
+          account_name: accountName,
+          debit: 0,
+          credit: Number(deduction.amount) || 0
+        });
+      });
+    }
+
+    // 9. Receipt Vouchers
+    if (receiptVouchers) {
+      receiptVouchers.forEach((receipt: any) => {
+        addEntry("assets-cash-bank", {
+          type: "الأصول",
+          account_code: receipt.debit_account_code || "1101",
+          account_name: "نقدية / بنك",
+          debit: Number(receipt.total_amount) || 0,
+          credit: 0
+        });
+        addEntry("liabilities-income", {
+          type: "أخرى",
+          account_code: receipt.credit_account_code || "UNC",
+          account_name: "مقابل سند قبض",
+          debit: 0,
+          credit: Number(receipt.total_amount) || 0
+        });
+      });
+    }
+
+    // 10. Payment Vouchers
+    if (paymentVouchers) {
+      paymentVouchers.forEach((payment: any) => {
+        addEntry("expenses-payments", {
+          type: "المنصرفات",
+          account_code: payment.debit_account_code || "5201",
+          account_name: "مصروفات سندات صرف",
+          debit: Number(payment.total_amount) || 0,
+          credit: 0
+        });
+        addEntry("assets-cash-bank", {
+          type: "الأصول",
+          account_code: payment.credit_account_code || "1101",
+          account_name: "نقدية / بنك",
+          debit: 0,
+          credit: Number(payment.total_amount) || 0
+        });
       });
     }
 
@@ -215,8 +226,8 @@ export async function GET(request: NextRequest) {
 
     if (entryType && entryType !== "all") {
       balances = balances.filter(b => {
-        if (entryType === "expenses") return b.type === "المنصرفات";
-        if (entryType === "payrolls") return b.type === "الرواتب";
+        if (entryType === "expenses") return b.type === "المنصرفات" || b.type === "الرواتب";
+        if (entryType === "revenue") return b.type === "الإيرادات";
         if (entryType === "journals") return b.type === "قيود اليومية";
         return true;
       });

@@ -22,198 +22,127 @@ export async function GET(request: NextRequest) {
     const fromDate = searchParams.get("from_date") || new Date().getFullYear() + "-01-01";
     const toDate = searchParams.get("to_date") || new Date().toISOString().split("T")[0];
 
-    const { data: accounts, error: accountsError } = await supabase
-      .from("accounts")
-      .select("id, account_code, account_name, type")
-      .eq("company_id", companyId)
-      .in("type", ["ايراد", "مصروف"]);
-
-    if (accountsError) {
-      console.error("Accounts error:", accountsError);
-    }
-
-    let journalQuery = supabase
-      .from("journal_entries")
-      .select(`
-        id,
-        entry_date,
-        description,
-        debit,
-        credit,
-        account_id,
-        accounts:account_id (
-          id,
-          account_code,
-          account_name,
-          type
-        )
-      `)
-      .eq("company_id", companyId)
-      .gte("entry_date", fromDate)
-      .lte("entry_date", toDate);
-
-    const { data: journalEntries, error: journalError } = await journalQuery;
-
-    if (journalError) {
-      console.error("Journal entries error:", journalError);
-    }
+    // Fetch all relevant data in parallel
+    const [
+      { data: journalEntries },
+      { data: monthlyExpenses },
+      { data: expenses },
+      { data: salesInvoices },
+      { data: manualIncome },
+      { data: creditNotes },
+      { data: salaryPayrolls },
+      { data: monthlyDeductions }
+    ] = await Promise.all([
+      supabase.from("journal_entries").select("*, accounts:account_id(id, account_code, account_name, type)").eq("company_id", companyId).gte("entry_date", fromDate).lte("entry_date", toDate),
+      supabase.from("monthly_expenses").select("*, accounts:account_id(id, account_code, account_name, type)").eq("company_id", companyId).gte("expense_date", fromDate).lte("expense_date", toDate),
+      supabase.from("expenses").select("*, accounts:account_id(id, account_code, account_name, type)").eq("company_id", companyId).gte("expense_date", fromDate).lte("expense_date", toDate),
+      supabase.from("sales_invoices").select("*").eq("company_id", companyId).gte("issue_date", fromDate).lte("issue_date", toDate),
+      supabase.from("manual_income").select("*, accounts:account_id(id, account_code, account_name, type)").eq("company_id", companyId).gte("income_date", fromDate).lte("income_date", toDate),
+      supabase.from("credit_notes").select("*").eq("company_id", companyId).gte("created_at", fromDate).lte("created_at", toDate + "T23:59:59Z"),
+      supabase.from("salary_payrolls").select("*").eq("company_id", companyId).gte("payroll_month", fromDate.substring(0, 7)).lte("payroll_month", toDate.substring(0, 7)),
+      supabase.from("monthly_deductions").select("*, accounts:account_id(id, account_code, account_name, type)").eq("company_id", companyId).gte("expense_date", fromDate).lte("expense_date", toDate)
+    ]);
 
     const revenueAccounts: { [key: string]: { account_name: string; account_code: string; net_amount: number } } = {};
     const expenseAccounts: { [key: string]: { account_name: string; account_code: string; net_amount: number } } = {};
 
+    // 1. Journal Entries
     if (journalEntries) {
       journalEntries.forEach((entry: any) => {
         const account = entry.accounts;
         if (!account) return;
-
         const accountId = account.id;
         const accountType = account.type;
-
         if (accountType === "ايراد") {
           if (!revenueAccounts[accountId]) {
-            revenueAccounts[accountId] = {
-              account_name: account.account_name,
-              account_code: account.account_code || "---",
-              net_amount: 0,
-            };
+            revenueAccounts[accountId] = { account_name: account.account_name, account_code: account.account_code || "INC", net_amount: 0 };
           }
           revenueAccounts[accountId].net_amount += (Number(entry.credit) || 0) - (Number(entry.debit) || 0);
         } else if (accountType === "مصروف") {
           if (!expenseAccounts[accountId]) {
-            expenseAccounts[accountId] = {
-              account_name: account.account_name,
-              account_code: account.account_code || "---",
-              net_amount: 0,
-            };
+            expenseAccounts[accountId] = { account_name: account.account_name, account_code: account.account_code || "EXP", net_amount: 0 };
           }
           expenseAccounts[accountId].net_amount += (Number(entry.debit) || 0) - (Number(entry.credit) || 0);
         }
       });
     }
 
-    let expensesQuery = supabase
-      .from("monthly_expenses")
-      .select(`
-        id,
-        expense_date,
-        description,
-        expense_type,
-        amount,
-        net_amount,
-        account_id,
-        accounts:account_id (
-          id,
-          account_code,
-          account_name,
-          type
-        )
-      `)
-      .eq("company_id", companyId)
-      .gte("expense_date", fromDate)
-      .lte("expense_date", toDate);
-
-    const { data: expenses, error: expensesError } = await expensesQuery;
-
-    if (!expensesError && expenses) {
-      expenses.forEach((expense: any) => {
-        const expenseAmount = Number(expense.net_amount) || Number(expense.amount) || 0;
-        const expenseType = expense.expense_type || expense.description || "مصروفات أخرى";
-        const key = `expense-${expenseType}`;
-
-        if (!expenseAccounts[key]) {
-          expenseAccounts[key] = {
-            account_name: expenseType,
-            account_code: expense.accounts?.account_code || "EXP",
-            net_amount: 0,
-          };
-        }
-        expenseAccounts[key].net_amount += expenseAmount;
+    // 2. Sales Invoices (Direct Revenue)
+    if (salesInvoices) {
+      const key = "sales-invoices";
+      if (!revenueAccounts[key]) {
+        revenueAccounts[key] = { account_name: "المبيعات (فواتير)", account_code: "4101", net_amount: 0 };
+      }
+      salesInvoices.forEach((invoice: any) => {
+        revenueAccounts[key].net_amount += Number(invoice.total_amount) || 0;
       });
     }
 
-    let payrollsQuery = supabase
-      .from("salary_payrolls")
-      .select("id, payroll_month, total_amount")
-      .eq("company_id", companyId)
-      .gte("payroll_month", fromDate)
-      .lte("payroll_month", toDate);
+    // 3. Credit Notes (Sales Returns - Reduction of Revenue)
+    if (creditNotes) {
+      const key = "sales-returns";
+      if (!revenueAccounts[key]) {
+        revenueAccounts[key] = { account_name: "مردودات مبيعات", account_code: "4102", net_amount: 0 };
+      }
+      creditNotes.forEach((note: any) => {
+        revenueAccounts[key].net_amount -= Number(note.total_amount) || 0;
+      });
+    }
 
-    const { data: payrolls, error: payrollsError } = await payrollsQuery;
+    // 4. Manual Income
+    if (manualIncome) {
+      manualIncome.forEach((income: any) => {
+        const type = income.income_type || "دخل إضافي";
+        const key = `manual-inc-${type}`;
+        if (!revenueAccounts[key]) {
+          revenueAccounts[key] = { account_name: type, account_code: income.accounts?.account_code || "INC-MAN", net_amount: 0 };
+        }
+        revenueAccounts[key].net_amount += Number(income.total) || Number(income.amount) || 0;
+      });
+    }
 
-    if (!payrollsError && payrolls) {
-      const totalPayroll = payrolls.reduce((sum: number, p: any) => sum + (Number(p.total_amount) || 0), 0);
+    // 5. Monthly & Generic Expenses
+    const allExpenses = [...(monthlyExpenses || []), ...(expenses || [])];
+    allExpenses.forEach((expense: any) => {
+      const type = expense.expense_type || expense.description || "مصروفات متنوعة";
+      const key = `exp-${type}`;
+      if (!expenseAccounts[key]) {
+        expenseAccounts[key] = { account_name: type, account_code: expense.accounts?.account_code || "EXP", net_amount: 0 };
+      }
+      expenseAccounts[key].net_amount += Number(expense.net_amount) || Number(expense.amount) || 0;
+    });
+
+    // 6. Salary Payrolls
+    if (salaryPayrolls) {
+      const totalPayroll = salaryPayrolls.reduce((sum: number, p: any) => sum + (Number(p.total_amount) || 0), 0);
       if (totalPayroll > 0) {
-        expenseAccounts["payroll-salaries"] = {
-          account_name: "مصروفات الرواتب والأجور",
-          account_code: "SAL",
-          net_amount: totalPayroll,
-        };
+        expenseAccounts["payroll-salaries"] = { account_name: "مصروفات الرواتب والأجور", account_code: "5101", net_amount: totalPayroll };
       }
     }
 
-    let incomeQuery = supabase
-      .from("manual_income")
-      .select(`
-        id,
-        income_date,
-        description,
-        income_type,
-        amount,
-        total
-      `)
-      .eq("company_id", companyId)
-      .gte("income_date", fromDate)
-      .lte("income_date", toDate);
-
-    const { data: incomeData, error: incomeError } = await incomeQuery;
-
-    if (!incomeError && incomeData) {
-      incomeData.forEach((income: any) => {
-        const incomeAmount = Number(income.total) || Number(income.amount) || 0;
-        const incomeType = income.income_type || income.description || "إيرادات أخرى";
-        const key = `income-${incomeType}`;
-
-        if (!revenueAccounts[key]) {
-          revenueAccounts[key] = {
-            account_name: incomeType,
-            account_code: "INC",
-            net_amount: 0,
-          };
+    // 7. Monthly Deductions (Reduces Expenses or increases Income? Usually reduces payroll expense)
+    if (monthlyDeductions) {
+      const totalDeductions = monthlyDeductions.reduce((sum: number, d: any) => sum + (Number(d.amount) || 0), 0);
+      if (totalDeductions > 0) {
+        if (expenseAccounts["payroll-salaries"]) {
+          expenseAccounts["payroll-salaries"].net_amount -= totalDeductions;
+        } else {
+          // If no payroll, treat as other income or reduction of general expenses
+          const key = "deductions-income";
+          if (!revenueAccounts[key]) {
+            revenueAccounts[key] = { account_name: "استقطاعات أخرى", account_code: "INC-DED", net_amount: 0 };
+          }
+          revenueAccounts[key].net_amount += totalDeductions;
         }
-        revenueAccounts[key].net_amount += incomeAmount;
-      });
+      }
     }
 
-    const revenues = Object.values(revenueAccounts).filter(r => r.net_amount !== 0);
-    const expensesList = Object.values(expenseAccounts).filter(e => e.net_amount !== 0);
+    const revenues = Object.values(revenueAccounts).filter(r => Math.abs(r.net_amount) > 0.01);
+    const expensesList = Object.values(expenseAccounts).filter(e => Math.abs(e.net_amount) > 0.01);
 
     const totalRevenue = revenues.reduce((sum, r) => sum + r.net_amount, 0);
     const totalExpenses = expensesList.reduce((sum, e) => sum + e.net_amount, 0);
     const netIncome = totalRevenue - totalExpenses;
-
-    const monthlyData: { [key: string]: { month: string; revenue: number; expenses: number } } = {};
-
-    if (journalEntries) {
-      journalEntries.forEach((entry: any) => {
-        const month = entry.entry_date?.substring(0, 7);
-        if (!month) return;
-
-        if (!monthlyData[month]) {
-          monthlyData[month] = { month, revenue: 0, expenses: 0 };
-        }
-
-        const account = entry.accounts;
-        if (!account) return;
-
-        if (account.type === "ايراد") {
-          monthlyData[month].revenue += (Number(entry.credit) || 0) - (Number(entry.debit) || 0);
-        } else if (account.type === "مصروف") {
-          monthlyData[month].expenses += (Number(entry.debit) || 0) - (Number(entry.credit) || 0);
-        }
-      });
-    }
-
-    const monthlyTrend = Object.values(monthlyData).sort((a, b) => a.month.localeCompare(b.month));
 
     return NextResponse.json({
       revenues,
@@ -226,13 +155,7 @@ export async function GET(request: NextRequest) {
         revenueAccountsCount: revenues.length,
         expenseAccountsCount: expensesList.length,
       },
-      chartData: {
-        monthlyTrend,
-      },
-      period: {
-        fromDate,
-        toDate,
-      },
+      period: { fromDate, toDate },
     });
   } catch (error) {
     console.error("Income Statement API Error:", error);

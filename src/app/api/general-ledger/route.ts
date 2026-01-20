@@ -58,6 +58,8 @@ export async function GET(request: NextRequest) {
       supabase.from("credit_notes").select("*").eq("company_id", companyId),
       // 9. Salary Payrolls
       supabase.from("salary_payrolls").select("*").eq("company_id", companyId),
+      // 10. Monthly Deductions
+      supabase.from("monthly_deductions").select("*, accounts:account_id(id, account_code, account_name, type)").eq("company_id", companyId),
       // Metadata
       supabase.from("accounts").select("id, account_code, account_name, type").eq("company_id", companyId).order("account_code"),
       supabase.from("cost_centers").select("id, center_code, center_name").eq("company_id", companyId).order("center_code")
@@ -265,6 +267,29 @@ export async function GET(request: NextRequest) {
           source: "salary_payroll",
           source_type: "مسير رواتب",
           created_at: payroll.created_at,
+        });
+      });
+    }
+
+    // Process Monthly Deductions
+    if (monthlyDeductions) {
+      monthlyDeductions.forEach((deduction: any) => {
+        ledgerEntries.push({
+          id: `ded-${deduction.id}`,
+          date: deduction.expense_date,
+          document_number: deduction.voucher_number || `DED-${deduction.id}`,
+          description: deduction.description || deduction.deduction_type,
+          account_code: deduction.accounts?.account_code || "DED-MONTH",
+          account_name: deduction.accounts?.account_name || deduction.deduction_type || "استقطاعات",
+          account_type: "expense",
+          cost_center_code: "",
+          cost_center_name: "",
+          debit: 0,
+          credit: Number(deduction.amount) || 0,
+          source: "monthly_deduction",
+          source_type: "استقطاعات شهرية",
+          created_at: deduction.created_at,
+          account_id: deduction.account_id,
         });
       });
     }

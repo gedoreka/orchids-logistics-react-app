@@ -22,51 +22,42 @@ export async function GET(request: NextRequest) {
     const fromDate = searchParams.get("from_date") || new Date().getFullYear() + "-01-01";
     const toDate = searchParams.get("to_date") || new Date().toISOString().split("T")[0];
 
-    const { data: accounts, error: accountsError } = await supabase
-      .from("accounts")
-      .select("id, account_code, account_name, type")
-      .eq("company_id", companyId);
-
-    if (accountsError) {
-      console.error("Accounts error:", accountsError);
-    }
-
-    let journalQuery = supabase
-      .from("journal_entries")
-      .select(`
-        id,
-        entry_date,
-        debit,
-        credit,
-        account_id,
-        accounts:account_id (
-          id,
-          account_code,
-          account_name,
-          type
-        )
-      `)
-      .eq("company_id", companyId)
-      .gte("entry_date", fromDate)
-      .lte("entry_date", toDate);
-
-    const { data: journalEntries, error: journalError } = await journalQuery;
-
-    if (journalError) {
-      console.error("Journal entries error:", journalError);
-    }
+    // Fetch all relevant data in parallel
+    const [
+      { data: journalEntries },
+      { data: monthlyExpenses },
+      { data: expenses },
+      { data: salesInvoices },
+      { data: receiptVouchers },
+      { data: paymentVouchers },
+      { data: manualIncome },
+      { data: creditNotes },
+      { data: salaryPayrolls }
+    ] = await Promise.all([
+      supabase.from("journal_entries").select("*, accounts:account_id(id, account_code, account_name, type)").eq("company_id", companyId).lte("entry_date", toDate),
+      supabase.from("monthly_expenses").select("*").eq("company_id", companyId).lte("expense_date", toDate),
+      supabase.from("expenses").select("*").eq("company_id", companyId).lte("expense_date", toDate),
+      supabase.from("sales_invoices").select("*").eq("company_id", companyId).lte("issue_date", toDate),
+      supabase.from("receipt_vouchers").select("*").eq("company_id", companyId).lte("receipt_date", toDate),
+      supabase.from("payment_vouchers").select("*").eq("company_id", companyId).lte("voucher_date", toDate),
+      supabase.from("manual_income").select("*").eq("company_id", companyId).lte("income_date", toDate),
+      supabase.from("credit_notes").select("*").eq("company_id", companyId).lte("created_at", toDate + "T23:59:59Z"),
+      supabase.from("salary_payrolls").select("*").eq("company_id", companyId).lte("payroll_month", toDate.substring(0, 7))
+    ]);
 
     const assetAccounts: { [key: string]: { account_name: string; account_code: string; net_balance: number } } = {};
     const liabilityAccounts: { [key: string]: { account_name: string; account_code: string; net_balance: number } } = {};
     const equityAccounts: { [key: string]: { account_name: string; account_code: string; net_balance: number } } = {};
+    
+    let cashBalance = 0;
     let revenueTotal = 0;
     let expenseTotal = 0;
 
+    // 1. Journal Entries (Primary source for specific accounts)
     if (journalEntries) {
       journalEntries.forEach((entry: any) => {
         const account = entry.accounts;
         if (!account) return;
-
         const accountId = account.id;
         const accountType = account.type;
         const debit = Number(entry.debit) || 0;
@@ -74,82 +65,91 @@ export async function GET(request: NextRequest) {
 
         if (accountType === "اصل") {
           if (!assetAccounts[accountId]) {
-            assetAccounts[accountId] = {
-              account_name: account.account_name,
-              account_code: account.account_code || "---",
-              net_balance: 0,
-            };
+            assetAccounts[accountId] = { account_name: account.account_name, account_code: account.account_code || "1101", net_balance: 0 };
           }
-          assetAccounts[accountId].net_balance += debit - credit;
+          assetAccounts[accountId].net_balance += (debit - credit);
         } else if (accountType === "التزام") {
           if (!liabilityAccounts[accountId]) {
-            liabilityAccounts[accountId] = {
-              account_name: account.account_name,
-              account_code: account.account_code || "---",
-              net_balance: 0,
-            };
+            liabilityAccounts[accountId] = { account_name: account.account_name, account_code: account.account_code || "2101", net_balance: 0 };
           }
-          liabilityAccounts[accountId].net_balance += credit - debit;
+          liabilityAccounts[accountId].net_balance += (credit - debit);
         } else if (accountType === "حقوق ملكية") {
           if (!equityAccounts[accountId]) {
-            equityAccounts[accountId] = {
-              account_name: account.account_name,
-              account_code: account.account_code || "---",
-              net_balance: 0,
-            };
+            equityAccounts[accountId] = { account_name: account.account_name, account_code: account.account_code || "3101", net_balance: 0 };
           }
-          equityAccounts[accountId].net_balance += credit - debit;
+          equityAccounts[accountId].net_balance += (credit - debit);
         } else if (accountType === "ايراد") {
-          revenueTotal += credit - debit;
+          revenueTotal += (credit - debit);
         } else if (accountType === "مصروف") {
-          expenseTotal += debit - credit;
+          expenseTotal += (debit - credit);
         }
       });
     }
 
-    let expensesQuery = supabase
-      .from("monthly_expenses")
-      .select("id, expense_date, net_amount, amount")
-      .eq("company_id", companyId)
-      .gte("expense_date", fromDate)
-      .lte("expense_date", toDate);
-
-    const { data: expenses, error: expensesError } = await expensesQuery;
-
-    if (!expensesError && expenses) {
-      expenses.forEach((expense: any) => {
-        expenseTotal += Number(expense.net_amount) || Number(expense.amount) || 0;
+    // 2. Sales Invoices -> Increase Revenue & potentially Cash/AR
+    if (salesInvoices) {
+      salesInvoices.forEach((inv: any) => {
+        const amount = Number(inv.total_amount) || 0;
+        revenueTotal += amount;
+        cashBalance += amount; // Simplified: Assuming cash sales for now if no AR account
       });
     }
 
-    let payrollsQuery = supabase
-      .from("salary_payrolls")
-      .select("id, payroll_month, total_amount")
-      .eq("company_id", companyId)
-      .gte("payroll_month", fromDate)
-      .lte("payroll_month", toDate);
-
-    const { data: payrolls, error: payrollsError } = await payrollsQuery;
-
-    if (!payrollsError && payrolls) {
-      payrolls.forEach((payroll: any) => {
-        expenseTotal += Number(payroll.total_amount) || 0;
+    // 3. Credit Notes -> Decrease Revenue & potentially Cash/AR
+    if (creditNotes) {
+      creditNotes.forEach((note: any) => {
+        const amount = Number(note.total_amount) || 0;
+        revenueTotal -= amount;
+        cashBalance -= amount;
       });
     }
 
-    let incomeQuery = supabase
-      .from("manual_income")
-      .select("id, income_date, total, amount")
-      .eq("company_id", companyId)
-      .gte("income_date", fromDate)
-      .lte("income_date", toDate);
-
-    const { data: incomeData, error: incomeError } = await incomeQuery;
-
-    if (!incomeError && incomeData) {
-      incomeData.forEach((income: any) => {
-        revenueTotal += Number(income.total) || Number(income.amount) || 0;
+    // 4. Receipt Vouchers -> Increase Cash
+    if (receiptVouchers) {
+      receiptVouchers.forEach((rv: any) => {
+        cashBalance += Number(rv.total_amount) || 0;
       });
+    }
+
+    // 5. Payment Vouchers -> Decrease Cash
+    if (paymentVouchers) {
+      paymentVouchers.forEach((pv: any) => {
+        cashBalance -= Number(pv.total_amount) || 0;
+      });
+    }
+
+    // 6. Expenses -> Increase Expense & Decrease Cash
+    const allExpenses = [...(monthlyExpenses || []), ...(expenses || [])];
+    allExpenses.forEach((exp: any) => {
+      const amount = Number(exp.net_amount) || Number(exp.amount) || 0;
+      expenseTotal += amount;
+      cashBalance -= amount;
+    });
+
+    // 7. Manual Income -> Increase Revenue & Increase Cash
+    if (manualIncome) {
+      manualIncome.forEach((inc: any) => {
+        const amount = Number(inc.total) || Number(inc.amount) || 0;
+        revenueTotal += amount;
+        cashBalance += amount;
+      });
+    }
+
+    // 8. Payroll -> Increase Expense & Decrease Cash
+    if (salaryPayrolls) {
+      salaryPayrolls.forEach((p: any) => {
+        const amount = Number(p.total_amount) || 0;
+        expenseTotal += amount;
+        cashBalance -= amount;
+      });
+    }
+
+    // Add Cash/Bank to assets if not already balanced via journals
+    if (Math.abs(cashBalance) > 0.01) {
+      if (!assetAccounts["cash-bank"]) {
+        assetAccounts["cash-bank"] = { account_name: "النقدية والبنك", account_code: "1101", net_balance: 0 };
+      }
+      assetAccounts["cash-bank"].net_balance += cashBalance;
     }
 
     const assets = Object.values(assetAccounts).filter(a => Math.abs(a.net_balance) > 0.01);
@@ -181,10 +181,7 @@ export async function GET(request: NextRequest) {
         liabilitiesCount: liabilities.length,
         equitiesCount: equities.length,
       },
-      period: {
-        fromDate,
-        toDate,
-      },
+      period: { fromDate, toDate },
     });
   } catch (error) {
     console.error("Balance Sheet API Error:", error);
