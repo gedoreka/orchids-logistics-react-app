@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useMemo, useRef } from "react";
+import React, { useState, useEffect, useMemo, useRef, useCallback } from "react";
 import { 
   Car, 
   Settings, 
@@ -37,7 +37,11 @@ import {
   ArrowUpRight,
   PlusCircle,
   ShieldCheck,
-  Gauge
+  Gauge,
+  Mail,
+  Send,
+  Eye,
+  Loader2
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -795,6 +799,406 @@ const MaintenanceReceipt = React.forwardRef<HTMLDivElement, { data: any, details
 
 MaintenanceReceipt.displayName = "MaintenanceReceipt";
 
+function ViewPrintEmailDialog({ 
+  maintenance, 
+  companyId, 
+  companyName, 
+  onClose 
+}: { 
+  maintenance: any; 
+  companyId: number; 
+  companyName: string; 
+  onClose: () => void;
+}) {
+  const [open, setOpen] = useState(true);
+  const [details, setDetails] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [emailMode, setEmailMode] = useState(false);
+  const [emailTo, setEmailTo] = useState("");
+  const [sendingEmail, setSendingEmail] = useState(false);
+  const printRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    async function loadDetails() {
+      const res = await getMaintenanceDetails(maintenance.id);
+      if (res.success) {
+        setDetails(res.details || []);
+      }
+      setLoading(false);
+    }
+    loadDetails();
+  }, [maintenance.id]);
+
+  const handlePrintNow = useCallback(() => {
+    if (printRef.current) {
+      const printContent = printRef.current.innerHTML;
+      const printWindow = window.open('', '_blank', 'width=900,height=700');
+      if (printWindow) {
+        printWindow.document.write(`
+          <!DOCTYPE html>
+          <html dir="rtl">
+            <head>
+              <title>طباعة فاتورة الصيانة #${maintenance.id}</title>
+              <style>
+                * { margin: 0; padding: 0; box-sizing: border-box; }
+                body { font-family: 'Cairo', 'Segoe UI', Tahoma, sans-serif; direction: rtl; }
+                @page { size: A4; margin: 0; }
+                @media print {
+                  body { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+                }
+              </style>
+              <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
+            </head>
+            <body>${printContent}</body>
+          </html>
+        `);
+        printWindow.document.close();
+        printWindow.focus();
+        setTimeout(() => {
+          printWindow.print();
+          printWindow.close();
+        }, 500);
+      }
+    }
+  }, [maintenance.id]);
+
+  const handleSendEmail = async () => {
+    if (!emailTo.trim()) {
+      toast.error("الرجاء إدخال البريد الإلكتروني");
+      return;
+    }
+    
+    setSendingEmail(true);
+    try {
+      const taxRate = 0.15;
+      const subtotal = Number(maintenance.total_cost || 0);
+      const taxAmount = subtotal * taxRate;
+      const grandTotal = subtotal + taxAmount;
+
+      const emailBody = `
+        <div dir="rtl" style="font-family: 'Cairo', Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+          <div style="background: #1e293b; color: white; padding: 30px; border-radius: 16px; text-align: center; margin-bottom: 20px;">
+            <h1 style="margin: 0; font-size: 24px;">${companyName}</h1>
+            <p style="margin: 5px 0 0; opacity: 0.7;">قسم الصيانة</p>
+          </div>
+          
+          <h2 style="color: #1e293b; margin-bottom: 15px;">فاتورة صيانة #${maintenance.id.toString().padStart(6, '0')}</h2>
+          
+          <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+            <tr style="background: #f8fafc;">
+              <td style="padding: 12px; border: 1px solid #e2e8f0; font-weight: bold;">المركبة</td>
+              <td style="padding: 12px; border: 1px solid #e2e8f0;">${maintenance.plate_number_ar} - ${maintenance.brand} ${maintenance.model}</td>
+            </tr>
+            <tr>
+              <td style="padding: 12px; border: 1px solid #e2e8f0; font-weight: bold;">الفني المسؤول</td>
+              <td style="padding: 12px; border: 1px solid #e2e8f0;">${maintenance.maintenance_person}</td>
+            </tr>
+            <tr style="background: #f8fafc;">
+              <td style="padding: 12px; border: 1px solid #e2e8f0; font-weight: bold;">التاريخ</td>
+              <td style="padding: 12px; border: 1px solid #e2e8f0;">${new Date(maintenance.maintenance_date).toLocaleDateString('ar-SA')}</td>
+            </tr>
+            <tr>
+              <td style="padding: 12px; border: 1px solid #e2e8f0; font-weight: bold;">قراءة العداد</td>
+              <td style="padding: 12px; border: 1px solid #e2e8f0;">${maintenance.current_km?.toLocaleString()} كم</td>
+            </tr>
+          </table>
+          
+          <div style="background: #f8fafc; padding: 20px; border-radius: 12px; margin-bottom: 20px;">
+            <table style="width: 100%;">
+              <tr>
+                <td style="padding: 8px 0;"><strong>المجموع الفرعي:</strong></td>
+                <td style="text-align: left; padding: 8px 0;">${subtotal.toFixed(2)} ر.س</td>
+              </tr>
+              <tr>
+                <td style="padding: 8px 0;"><strong>ضريبة القيمة المضافة (15%):</strong></td>
+                <td style="text-align: left; padding: 8px 0;">${taxAmount.toFixed(2)} ر.س</td>
+              </tr>
+              <tr style="border-top: 2px solid #1e293b;">
+                <td style="padding: 12px 0; font-size: 18px;"><strong>الإجمالي النهائي:</strong></td>
+                <td style="text-align: left; padding: 12px 0; font-size: 18px; color: #10b981;"><strong>${grandTotal.toFixed(2)} ر.س</strong></td>
+              </tr>
+            </table>
+          </div>
+          
+          ${maintenance.notes ? `<p style="color: #64748b; font-style: italic;">ملاحظات: ${maintenance.notes}</p>` : ''}
+          
+          <div style="text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid #e2e8f0;">
+            <p style="color: #94a3b8; font-size: 12px;">تم إرسال هذا البريد من نظام ${companyName} لإدارة الأسطول</p>
+          </div>
+        </div>
+      `;
+
+      const response = await fetch('/api/email/send', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          accountId: 1,
+          company_id: companyId,
+          to: emailTo,
+          subject: `فاتورة صيانة #${maintenance.id.toString().padStart(6, '0')} - ${companyName}`,
+          body: emailBody,
+        }),
+      });
+
+      const result = await response.json();
+      if (result.success) {
+        toast.success("تم إرسال البريد الإلكتروني بنجاح");
+        setEmailMode(false);
+        setEmailTo("");
+      } else {
+        toast.error(result.error || "حدث خطأ في إرسال البريد");
+      }
+    } catch {
+      toast.error("حدث خطأ في إرسال البريد الإلكتروني");
+    } finally {
+      setSendingEmail(false);
+    }
+  };
+
+  const handleClose = () => {
+    setOpen(false);
+    onClose();
+  };
+
+  const taxRate = 0.15;
+  const subtotal = Number(maintenance?.total_cost || 0);
+  const taxAmount = subtotal * taxRate;
+  const grandTotal = subtotal + taxAmount;
+
+  return (
+    <Dialog open={open} onOpenChange={handleClose}>
+      <DialogContent className="sm:max-w-[900px] max-h-[90vh] rounded-[2rem] bg-slate-900 text-white border-white/10 p-0 overflow-hidden">
+        <DialogHeader className="p-6 border-b border-white/10 bg-white/5">
+          <DialogTitle className="text-2xl font-black flex items-center gap-3">
+            <div className="p-2 bg-amber-500/20 rounded-xl">
+              <FileText className="text-amber-400" size={24} />
+            </div>
+            فاتورة صيانة #{maintenance.id.toString().padStart(6, '0')}
+          </DialogTitle>
+        </DialogHeader>
+        
+        <div className="flex gap-3 p-4 border-b border-white/10 bg-white/5">
+          <Button 
+            onClick={handlePrintNow}
+            className="flex-1 h-12 rounded-xl bg-blue-600 hover:bg-blue-700 font-black gap-2"
+          >
+            <Printer size={18} />
+            طباعة
+          </Button>
+          <Button 
+            onClick={() => setEmailMode(!emailMode)}
+            variant={emailMode ? "secondary" : "outline"}
+            className={cn(
+              "flex-1 h-12 rounded-xl font-black gap-2",
+              emailMode ? "bg-emerald-600 hover:bg-emerald-700 text-white border-none" : "border-white/20 text-white hover:bg-white/10"
+            )}
+          >
+            <Mail size={18} />
+            إرسال بالبريد
+          </Button>
+        </div>
+
+        {emailMode && (
+          <div className="p-4 border-b border-white/10 bg-emerald-500/5">
+            <div className="flex gap-3">
+              <Input
+                type="email"
+                placeholder="أدخل البريد الإلكتروني..."
+                value={emailTo}
+                onChange={(e) => setEmailTo(e.target.value)}
+                className="flex-1 bg-white/5 border-white/10 rounded-xl h-12 text-white"
+              />
+              <Button
+                onClick={handleSendEmail}
+                disabled={sendingEmail || !emailTo.trim()}
+                className="h-12 px-6 rounded-xl bg-emerald-600 hover:bg-emerald-700 font-black gap-2"
+              >
+                {sendingEmail ? <Loader2 size={18} className="animate-spin" /> : <Send size={18} />}
+                إرسال
+              </Button>
+            </div>
+            <div className="flex gap-2 mt-3">
+              <button 
+                onClick={() => setEmailTo("info@zoolspeed.com")}
+                className="px-3 py-1.5 bg-white/10 rounded-lg text-xs font-bold text-white/70 hover:bg-white/20 transition-all"
+              >
+                إيميل الشركة
+              </button>
+            </div>
+          </div>
+        )}
+
+        <ScrollArea className="max-h-[50vh] p-4">
+          {loading ? (
+            <div className="flex items-center justify-center py-20">
+              <Loader2 size={40} className="animate-spin text-white/30" />
+            </div>
+          ) : (
+            <div ref={printRef} className="bg-white rounded-2xl overflow-hidden">
+              <div className="p-12 bg-white min-h-[800px] relative font-sans text-slate-900" dir="rtl">
+                <div className="absolute top-0 right-0 left-0 h-2 bg-slate-900"></div>
+                
+                <div className="flex justify-between items-start mb-12 relative z-10">
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-3">
+                      <div className="w-14 h-14 bg-slate-900 rounded-xl flex items-center justify-center text-white shadow-xl">
+                        <Wrench size={28} />
+                      </div>
+                      <div>
+                        <h1 className="text-3xl font-black tracking-tight text-slate-900">{companyName}</h1>
+                        <p className="text-blue-600 font-black text-sm uppercase tracking-widest">Maintenance Division</p>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="text-left">
+                    <div className="bg-slate-900 text-white px-5 py-2 rounded-xl shadow-xl">
+                      <p className="text-[10px] font-bold opacity-50 uppercase mb-1">Receipt Number</p>
+                      <p className="text-xl font-black tracking-widest">#{maintenance.id.toString().padStart(6, '0')}</p>
+                    </div>
+                    <p className="text-slate-400 font-bold text-xs mt-2">تاريخ الإصدار: {new Date().toLocaleDateString('ar-SA')}</p>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-8 mb-12">
+                  <div className="p-6 rounded-2xl bg-slate-50 border border-slate-100 space-y-4">
+                    <h3 className="text-xs font-black text-blue-600 uppercase tracking-[0.2em] flex items-center gap-2">
+                      <Car size={14} /> تفاصيل المركبة
+                    </h3>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <p className="text-[10px] font-black text-slate-400 uppercase">رقم اللوحة</p>
+                        <p className="text-lg font-black text-slate-800">{maintenance.plate_number_ar}</p>
+                      </div>
+                      <div>
+                        <p className="text-[10px] font-black text-slate-400 uppercase">النوع / الموديل</p>
+                        <p className="text-base font-bold text-slate-800">{maintenance.brand} {maintenance.model}</p>
+                      </div>
+                      <div>
+                        <p className="text-[10px] font-black text-slate-400 uppercase">العداد الحالي</p>
+                        <p className="text-base font-black text-slate-800">{maintenance.current_km?.toLocaleString()} <small className="text-[10px] opacity-50">KM</small></p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="p-6 rounded-2xl bg-slate-50 border border-slate-100 space-y-4">
+                    <h3 className="text-xs font-black text-amber-600 uppercase tracking-[0.2em] flex items-center gap-2">
+                      <History size={14} /> بيانات الصيانة
+                    </h3>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <p className="text-[10px] font-black text-slate-400 uppercase">الفني المسؤول</p>
+                        <p className="text-base font-bold text-slate-800">{maintenance.maintenance_person}</p>
+                      </div>
+                      <div>
+                        <p className="text-[10px] font-black text-slate-400 uppercase">تاريخ الخدمة</p>
+                        <p className="text-base font-bold text-slate-800">{new Date(maintenance.maintenance_date).toLocaleDateString('ar-SA')}</p>
+                      </div>
+                      <div className="col-span-2">
+                        <p className="text-[10px] font-black text-slate-400 uppercase">ملاحظات الفني</p>
+                        <p className="text-sm font-medium text-slate-600 italic">{maintenance.notes || "لا توجد ملاحظات إضافية"}</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mb-12">
+                  <h3 className="text-xs font-black text-slate-400 uppercase tracking-[0.2em] mb-4 mr-4 flex items-center gap-2">
+                    <Package size={14} /> بيان قطع الغيار المستخدمة والأعمال
+                  </h3>
+                  <div className="rounded-2xl border border-slate-100 overflow-hidden">
+                    <table className="w-full">
+                      <thead>
+                        <tr className="bg-slate-900 text-white">
+                          <th className="py-4 px-6 text-right font-black text-xs uppercase tracking-wider">الصنف / الوصف</th>
+                          <th className="py-4 px-4 text-center font-black text-xs uppercase tracking-wider">الكمية</th>
+                          <th className="py-4 px-4 text-center font-black text-xs uppercase tracking-wider">السعر</th>
+                          <th className="py-4 px-6 text-left font-black text-xs uppercase tracking-wider">الإجمالي</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-slate-100">
+                        {details && details.length > 0 ? (
+                          details.map((item, idx) => (
+                            <tr key={idx} className="hover:bg-slate-50 transition-colors">
+                              <td className="py-4 px-6">
+                                <div className="flex flex-col">
+                                  <span className="font-black text-slate-800">{item.spare_name}</span>
+                                  <span className="text-[10px] font-mono text-slate-400 uppercase tracking-widest">{item.spare_code}</span>
+                                </div>
+                              </td>
+                              <td className="py-4 px-4 text-center font-black text-slate-600">{item.quantity_used}</td>
+                              <td className="py-4 px-4 text-center font-bold text-slate-600">{Number(item.unit_price).toFixed(2)}</td>
+                              <td className="py-4 px-6 text-left font-black text-slate-900">{Number(item.total_price).toFixed(2)} <small className="text-[8px] opacity-30">SAR</small></td>
+                            </tr>
+                          ))
+                        ) : (
+                          <tr>
+                            <td className="py-6 px-6">
+                              <div className="flex flex-col">
+                                <span className="font-black text-slate-800">أعمال صيانة وإصلاح متنوعة</span>
+                                <span className="text-[10px] font-bold text-slate-400">شاملة قطع الغيار واليد العاملة</span>
+                              </div>
+                            </td>
+                            <td className="py-6 px-4 text-center font-black text-slate-600">1</td>
+                            <td className="py-6 px-4 text-center font-bold text-slate-600">{subtotal.toFixed(2)}</td>
+                            <td className="py-6 px-6 text-left font-black text-slate-900">{subtotal.toFixed(2)} <small className="text-[8px] opacity-30">SAR</small></td>
+                          </tr>
+                        )}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+
+                <div className="flex justify-end">
+                  <div className="w-80 space-y-3">
+                    <div className="flex justify-between items-center px-4">
+                      <span className="text-xs font-black text-slate-400 uppercase tracking-widest">المجموع الفرعي</span>
+                      <span className="text-base font-bold text-slate-700">{subtotal.toFixed(2)}</span>
+                    </div>
+                    <div className="flex justify-between items-center px-4">
+                      <span className="text-xs font-black text-slate-400 uppercase tracking-widest">ضريبة القيمة المضافة (15%)</span>
+                      <span className="text-base font-bold text-slate-700">{taxAmount.toFixed(2)}</span>
+                    </div>
+                    <div className="h-px bg-slate-100 mx-4"></div>
+                    <div className="bg-slate-900 text-white p-5 rounded-xl shadow-xl flex justify-between items-center">
+                      <div className="flex flex-col">
+                        <span className="text-[10px] font-black opacity-50 uppercase tracking-widest">الإجمالي النهائي</span>
+                        <span className="text-xs font-bold">TOTAL AMOUNT</span>
+                      </div>
+                      <div className="flex flex-col items-end">
+                        <span className="text-2xl font-black">{grandTotal.toFixed(2)}</span>
+                        <span className="text-[10px] font-black opacity-50">SAR / ريال سعودي</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-3 gap-12 text-center border-t border-slate-100 pt-12 mt-12">
+                  <div className="space-y-4">
+                    <p className="text-xs font-black text-slate-400 uppercase tracking-widest">اعتماد المدير الفني</p>
+                    <div className="h-16 flex items-center justify-center italic text-slate-300 font-serif border-b border-dashed border-slate-200">
+                      Technical Approval
+                    </div>
+                  </div>
+                  <div className="space-y-4">
+                    <p className="text-xs font-black text-slate-400 uppercase tracking-widest">توقيع السلم المستلم</p>
+                    <div className="h-16 border-b border-dashed border-slate-200 flex items-center justify-center">
+                      <User size={20} className="opacity-10" />
+                    </div>
+                  </div>
+                  <div className="space-y-4">
+                    <p className="text-xs font-black text-slate-400 uppercase tracking-widest">ختم الاعتماد الرسمي</p>
+                    <div className="h-16 border-b border-dashed border-slate-200"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+        </ScrollArea>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
 // ------------------------------------------------------------------------------------------------
 // Main Component
 // ------------------------------------------------------------------------------------------------
@@ -814,17 +1218,11 @@ export function FleetClient({
   const [maintenance, setMaintenance] = useState(initialMaintenance);
   const [activeTab, setActiveTab] = useState("dashboard");
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedMaintenance, setSelectedMaintenance] = useState<any>(null);
-  const [selectedMaintenanceDetails, setSelectedMaintenanceDetails] = useState<any[]>([]);
+  const [viewingMaintenance, setViewingMaintenance] = useState<any>(null);
   
   useEffect(() => { setVehicles(initialVehicles); }, [initialVehicles]);
   useEffect(() => { setSpares(initialSpares); }, [initialSpares]);
   useEffect(() => { setMaintenance(initialMaintenance); }, [initialMaintenance]);
-  
-  const printRef = useRef<HTMLDivElement>(null);
-  const handlePrint = useReactToPrint({
-    contentRef: printRef,
-  });
 
   const totalVehicles = vehicles.length;
   const totalSpares = spares.length;
@@ -1082,26 +1480,26 @@ export function FleetClient({
                       <TableCell className="text-center">
                         <Badge className="bg-emerald-500/10 text-emerald-400 border-emerald-500/20 font-black text-[10px] px-3">نشط</Badge>
                       </TableCell>
-                      <TableCell className="text-left px-8">
-                        <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                          <button className="h-9 w-9 rounded-xl bg-blue-500/10 text-blue-400 flex items-center justify-center hover:bg-blue-500 hover:text-white transition-all">
-                            <Edit size={16} />
-                          </button>
-                          <button 
-                            onClick={() => {
-                              if(confirm('هل أنت متأكد من حذف هذه المركبة؟')) {
-                                deleteVehicle(v.id).then(() => {
-                                  toast.success('تم حذف المركبة');
-                                  window.location.reload();
-                                });
-                              }
-                            }}
-                            className="h-9 w-9 rounded-xl bg-rose-500/10 text-rose-400 flex items-center justify-center hover:bg-rose-500 hover:text-white transition-all"
-                          >
-                            <Trash2 size={16} />
-                          </button>
-                        </div>
-                      </TableCell>
+<TableCell className="text-left px-8">
+                          <div className="flex justify-end gap-2">
+                            <button className="h-9 w-9 rounded-xl bg-blue-500/10 text-blue-400 flex items-center justify-center hover:bg-blue-500 hover:text-white transition-all">
+                              <Edit size={16} />
+                            </button>
+                            <button 
+                              onClick={() => {
+                                if(confirm('هل أنت متأكد من حذف هذه المركبة؟')) {
+                                  deleteVehicle(v.id).then(() => {
+                                    toast.success('تم حذف المركبة');
+                                    window.location.reload();
+                                  });
+                                }
+                              }}
+                              className="h-9 w-9 rounded-xl bg-rose-500/10 text-rose-400 flex items-center justify-center hover:bg-rose-500 hover:text-white transition-all"
+                            >
+                              <Trash2 size={16} />
+                            </button>
+                          </div>
+                        </TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
@@ -1190,16 +1588,16 @@ export function FleetClient({
                             <span className="text-[10px] font-black text-white/30 uppercase">SAR</span>
                           </div>
                         </TableCell>
-                        <TableCell className="text-left px-8">
-                          <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                            <button className="h-9 w-9 rounded-xl bg-blue-500/10 text-blue-400 flex items-center justify-center hover:bg-blue-500 hover:text-white transition-all">
-                              <Edit size={16} />
-                            </button>
-                            <button className="h-9 w-9 rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center hover:bg-emerald-500 hover:text-white transition-all">
-                              <PlusCircle size={16} />
-                            </button>
-                          </div>
-                        </TableCell>
+<TableCell className="text-left px-8">
+                            <div className="flex justify-end gap-2">
+                              <button className="h-9 w-9 rounded-xl bg-blue-500/10 text-blue-400 flex items-center justify-center hover:bg-blue-500 hover:text-white transition-all">
+                                <Edit size={16} />
+                              </button>
+                              <button className="h-9 w-9 rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center hover:bg-emerald-500 hover:text-white transition-all">
+                                <PlusCircle size={16} />
+                              </button>
+                            </div>
+                          </TableCell>
                       </TableRow>
                     ))}
                   </TableBody>
@@ -1285,26 +1683,20 @@ export function FleetClient({
                           {m.status === 'pending' ? 'قيد الانتظار' : 'مكتمل'}
                         </Badge>
                       </TableCell>
-                      <TableCell className="text-left px-8">
-                        <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                          <button 
-                            onClick={async () => {
-                              setSelectedMaintenance(m);
-                              const res = await getMaintenanceDetails(m.id);
-                              if (res.success) {
-                                setSelectedMaintenanceDetails(res.details || []);
-                              }
-                              setTimeout(() => handlePrint(), 500);
-                            }}
-                            className="h-9 w-9 rounded-xl bg-blue-500/10 text-blue-400 flex items-center justify-center hover:bg-blue-500 hover:text-white transition-all shadow-lg"
-                          >
-                            <Printer size={16} />
-                          </button>
-                          <DeleteMaintenanceDialog id={m.id} onDeleted={() => {
-                            setMaintenance(prev => prev.filter(item => item.id !== m.id));
-                          }} />
-                        </div>
-                      </TableCell>
+<TableCell className="text-left px-8">
+                          <div className="flex justify-end gap-2">
+                            <button 
+                              onClick={() => setViewingMaintenance(m)}
+                              className="h-9 w-9 rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center hover:bg-emerald-500 hover:text-white transition-all shadow-lg"
+                              title="عرض وطباعة"
+                            >
+                              <Eye size={16} />
+                            </button>
+                            <DeleteMaintenanceDialog id={m.id} onDeleted={() => {
+                              setMaintenance(prev => prev.filter(item => item.id !== m.id));
+                            }} />
+                          </div>
+                        </TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
@@ -1314,10 +1706,14 @@ export function FleetClient({
         </TabsContent>
       </Tabs>
 
-      {/* Hidden Print Content */}
-      <div className="opacity-0 pointer-events-none absolute -top-[9999px] -left-[9999px] -z-50 overflow-hidden">
-        <MaintenanceReceipt ref={printRef} data={selectedMaintenance} details={selectedMaintenanceDetails} companyName={companyName} />
-      </div>
+      {viewingMaintenance && (
+        <ViewPrintEmailDialog
+          maintenance={viewingMaintenance}
+          companyId={companyId}
+          companyName={companyName}
+          onClose={() => setViewingMaintenance(null)}
+        />
+      )}
 
       {/* Footer Branding */}
       <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-[10px] font-black text-slate-500 uppercase tracking-widest pt-4 opacity-40">
