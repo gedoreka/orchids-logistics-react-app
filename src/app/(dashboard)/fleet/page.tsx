@@ -69,7 +69,7 @@ export default async function FleetPage() {
 
     const user = await query<any>(
       "SELECT email FROM users WHERE id = ?",
-      [userId]
+      [userId || null]
     );
 
     return (

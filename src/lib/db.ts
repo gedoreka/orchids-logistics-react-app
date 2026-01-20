@@ -11,8 +11,9 @@ const pool = mysql.createPool({
 });
 
 export async function query<T>(queryStr: string, params: any[] = []): Promise<T[]> {
+  const normalizedParams = params.map(p => p === undefined ? null : p);
   try {
-    const [rows] = await pool.execute(queryStr, params);
+    const [rows] = await pool.execute(queryStr, normalizedParams);
     return rows as T[];
   } catch (error) {
     console.error('Database query error:', error);
@@ -21,8 +22,9 @@ export async function query<T>(queryStr: string, params: any[] = []): Promise<T[
 }
 
 export async function execute(queryStr: string, params: any[] = []): Promise<any> {
+  const normalizedParams = params.map(p => p === undefined ? null : p);
   try {
-    const [result] = await pool.execute(queryStr, params);
+    const [result] = await pool.execute(queryStr, normalizedParams);
     return result;
   } catch (error) {
     console.error('Database execute error:', error);

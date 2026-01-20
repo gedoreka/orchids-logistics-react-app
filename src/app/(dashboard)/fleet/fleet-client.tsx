@@ -831,38 +831,39 @@ function ViewPrintEmailDialog({
     loadDetails();
   }, [maintenance.id]);
 
-  const handlePrintNow = useCallback(() => {
-    if (printRef.current) {
-      const printContent = printRef.current.innerHTML;
-      const printWindow = window.open('', '_blank', 'width=900,height=700');
-      if (printWindow) {
-        printWindow.document.write(`
-          <!DOCTYPE html>
-          <html dir="rtl">
-            <head>
-              <title>طباعة فاتورة الصيانة #${maintenance.id}</title>
-              <style>
-                * { margin: 0; padding: 0; box-sizing: border-box; }
-                body { font-family: 'Cairo', 'Segoe UI', Tahoma, sans-serif; direction: rtl; }
-                @page { size: A4; margin: 0; }
-                @media print {
-                  body { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
-                }
-              </style>
-              <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
-            </head>
-            <body>${printContent}</body>
-          </html>
-        `);
-        printWindow.document.close();
-        printWindow.focus();
-        setTimeout(() => {
-          printWindow.print();
-          printWindow.close();
-        }, 500);
+    const handlePrintNow = useCallback(() => {
+      if (printRef.current) {
+        const printContent = printRef.current.innerHTML;
+        const printWindow = window.open('', '_blank', 'width=900,height=700');
+        if (printWindow) {
+          printWindow.document.write(`
+            <!DOCTYPE html>
+            <html dir="rtl">
+              <head>
+                <title>طباعة فاتورة الصيانة #${maintenance.id}</title>
+                <style>
+                  * { margin: 0; padding: 0; box-sizing: border-box; }
+                  body { font-family: 'Cairo', 'Segoe UI', Tahoma, sans-serif; direction: rtl; }
+                  @page { size: A4; margin: 0; }
+                  @media print {
+                    body { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+                  }
+                </style>
+                <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
+              </head>
+              <body></body>
+            </html>
+          `);
+          printWindow.document.body.innerHTML = printContent;
+          printWindow.document.close();
+          printWindow.focus();
+          setTimeout(() => {
+            printWindow.print();
+            printWindow.close();
+          }, 500);
+        }
       }
-    }
-  }, [maintenance.id]);
+    }, [maintenance.id]);
 
   const handleSendEmail = async () => {
     if (!emailTo.trim()) {
