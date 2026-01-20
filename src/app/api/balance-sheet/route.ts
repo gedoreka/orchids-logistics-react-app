@@ -24,7 +24,8 @@ export async function GET(request: NextRequest) {
 
     const { data: accounts, error: accountsError } = await supabase
       .from("accounts")
-      .select("id, account_code, account_name, type");
+      .select("id, account_code, account_name, type")
+      .eq("company_id", companyId);
 
     if (accountsError) {
       console.error("Accounts error:", accountsError);
@@ -137,8 +138,8 @@ export async function GET(request: NextRequest) {
     }
 
     let incomeQuery = supabase
-      .from("income")
-      .select("id, income_date, net_amount, amount")
+      .from("manual_income")
+      .select("id, income_date, total, amount")
       .eq("company_id", companyId)
       .gte("income_date", fromDate)
       .lte("income_date", toDate);
@@ -147,7 +148,7 @@ export async function GET(request: NextRequest) {
 
     if (!incomeError && incomeData) {
       incomeData.forEach((income: any) => {
-        revenueTotal += Number(income.net_amount) || Number(income.amount) || 0;
+        revenueTotal += Number(income.total) || Number(income.amount) || 0;
       });
     }
 

@@ -25,6 +25,7 @@ export async function GET(request: NextRequest) {
     const { data: accounts, error: accountsError } = await supabase
       .from("accounts")
       .select("id, account_code, account_name, type")
+      .eq("company_id", companyId)
       .in("type", ["ايراد", "مصروف"]);
 
     if (accountsError) {
@@ -151,14 +152,14 @@ export async function GET(request: NextRequest) {
     }
 
     let incomeQuery = supabase
-      .from("income")
+      .from("manual_income")
       .select(`
         id,
         income_date,
         description,
         income_type,
         amount,
-        net_amount
+        total
       `)
       .eq("company_id", companyId)
       .gte("income_date", fromDate)
@@ -168,7 +169,7 @@ export async function GET(request: NextRequest) {
 
     if (!incomeError && incomeData) {
       incomeData.forEach((income: any) => {
-        const incomeAmount = Number(income.net_amount) || Number(income.amount) || 0;
+        const incomeAmount = Number(income.total) || Number(income.amount) || 0;
         const incomeType = income.income_type || income.description || "إيرادات أخرى";
         const key = `income-${incomeType}`;
 

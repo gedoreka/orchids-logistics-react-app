@@ -103,6 +103,33 @@ export async function GET(request: NextRequest) {
 
     const { data: journalEntries, error: journalError } = await journalQuery;
 
+    let incomeQuery = supabase
+      .from("manual_income")
+      .select(`
+        id,
+        income_date,
+        income_type,
+        amount,
+        total,
+        account_id,
+        accounts:account_id (
+          id,
+          account_code,
+          account_name,
+          type
+        )
+      `)
+      .eq("company_id", companyId);
+
+    if (fromDate) {
+      incomeQuery = incomeQuery.gte("income_date", fromDate);
+    }
+    if (toDate) {
+      incomeQuery = incomeQuery.lte("income_date", toDate);
+    }
+
+    const { data: manualIncome, error: incomeError } = await incomeQuery;
+
     const balanceData: {
       [key: string]: {
         type: string;
@@ -112,6 +139,25 @@ export async function GET(request: NextRequest) {
         credit: number;
       };
     } = {};
+
+    if (manualIncome && !incomeError) {
+      manualIncome.forEach((income: any) => {
+        const accountCode = income.accounts?.account_code || "INC";
+        const accountName = income.accounts?.account_name || income.income_type || "دخل إضافي";
+        const key = `income-${accountCode}`;
+
+        if (!balanceData[key]) {
+          balanceData[key] = {
+            type: "الدخل الإضافي",
+            account_code: accountCode,
+            account_name: accountName,
+            debit: 0,
+            credit: 0,
+          };
+        }
+        balanceData[key].credit += Number(income.total) || Number(income.amount) || 0;
+      });
+    }
 
     if (expenses && !expensesError) {
       expenses.forEach((expense: any) => {
