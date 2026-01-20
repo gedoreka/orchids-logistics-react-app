@@ -138,38 +138,55 @@ export function GeneralLedgerClient({ companyId, companyInfo }: GeneralLedgerCli
     direction: "desc",
   });
 
-  const fetchData = useCallback(async (isRefresh = false) => {
-    try {
-      if (isRefresh) setRefreshing(true);
-      else setLoading(true);
+    const [error, setError] = useState<string | null>(null);
 
-      const params = new URLSearchParams();
-      if (filters.fromDate) params.set("from_date", filters.fromDate);
-      if (filters.toDate) params.set("to_date", filters.toDate);
-      if (filters.accountId) params.set("account_id", filters.accountId);
-      if (filters.costCenterId) params.set("cost_center_id", filters.costCenterId);
-      if (filters.search) params.set("search", filters.search);
-      if (filters.entryType !== "all") params.set("entry_type", filters.entryType);
+    const fetchData = useCallback(async (isRefresh = false) => {
+      try {
+        if (isRefresh) setRefreshing(true);
+        else setLoading(true);
+        setError(null);
 
-      const response = await fetch(`/api/general-ledger?${params.toString()}`);
-      const data = await response.json();
+        const params = new URLSearchParams();
+        if (filters.fromDate) params.set("from_date", filters.fromDate);
+        if (filters.toDate) params.set("to_date", filters.toDate);
+        if (filters.accountId) params.set("account_id", filters.accountId);
+        if (filters.costCenterId) params.set("cost_center_id", filters.costCenterId);
+        if (filters.search) params.set("search", filters.search);
+        if (filters.entryType !== "all") params.set("entry_type", filters.entryType);
 
-      if (data.error) {
-        console.error(data.error);
-        return;
+        const response = await fetch(`/api/general-ledger?${params.toString()}`);
+        if (!response.ok) {
+          throw new Error(`Failed to fetch: ${response.statusText}`);
+        }
+        const data = await response.json();
+
+        if (data.error) {
+          setError(data.error);
+          return;
+        }
+
+        setEntries(data.entries || []);
+        setStats(data.stats || {
+          totalDebit: 0,
+          totalCredit: 0,
+          finalBalance: 0,
+          entriesCount: 0,
+          activeAccounts: 0,
+        });
+        setChartData(data.chartData || {
+          monthlyTrend: [],
+          topAccounts: [],
+          costCenterDistribution: [],
+        });
+        setMetadata(data.metadata || { accounts: [], costCenters: [] });
+      } catch (error) {
+        console.error("Error fetching ledger data:", error);
+        setError("فشل تحميل البيانات. يرجى المحاولة مرة أخرى.");
+      } finally {
+        setLoading(false);
+        setRefreshing(false);
       }
-
-      setEntries(data.entries || []);
-      setStats(data.stats || {});
-      setChartData(data.chartData || {});
-      setMetadata(data.metadata || { accounts: [], costCenters: [] });
-    } catch (error) {
-      console.error("Error fetching ledger data:", error);
-    } finally {
-      setLoading(false);
-      setRefreshing(false);
-    }
-  }, [filters]);
+    }, [filters]);
 
   useEffect(() => {
     fetchData();
@@ -246,19 +263,39 @@ export function GeneralLedgerClient({ companyId, companyInfo }: GeneralLedgerCli
   const formatNumber = (num: number) => new Intl.NumberFormat("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(num);
   const formatDate = (date: string) => new Date(date).toLocaleDateString("ar-SA");
 
-  if (loading) {
-    return (
-      <div className="min-h-[80vh] flex items-center justify-center">
-        <div className="flex flex-col items-center gap-4">
-          <div className="relative">
-            <div className="w-20 h-20 rounded-full border-4 border-blue-500/30 border-t-blue-500 animate-spin" />
-            <BookOpen className="w-8 h-8 text-blue-500 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />
+    if (loading) {
+      return (
+        <div className="min-h-[80vh] flex items-center justify-center">
+          <div className="flex flex-col items-center gap-4">
+            <div className="relative">
+              <div className="w-20 h-20 rounded-full border-4 border-blue-500/30 border-t-blue-500 animate-spin" />
+              <BookOpen className="w-8 h-8 text-blue-500 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />
+            </div>
+            <p className="text-slate-600 font-bold text-lg">جاري تحميل دفتر الأستاذ...</p>
           </div>
-          <p className="text-slate-600 font-bold text-lg">جاري تحميل دفتر الأستاذ...</p>
         </div>
-      </div>
-    );
-  }
+      );
+    }
+
+    if (error) {
+      return (
+        <div className="min-h-[80vh] flex items-center justify-center p-6">
+          <Card className="max-w-md w-full border-none shadow-2xl rounded-[2rem] bg-white p-8 text-center">
+            <div className="w-20 h-20 bg-rose-100 rounded-3xl flex items-center justify-center mx-auto mb-6">
+              <X className="w-10 h-10 text-rose-600" />
+            </div>
+            <h2 className="text-2xl font-bold text-slate-800 mb-2">خطأ في تحميل البيانات</h2>
+            <p className="text-slate-600 mb-8">{error}</p>
+            <Button 
+              onClick={() => fetchData()} 
+              className="w-full h-12 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold"
+            >
+              إعادة المحاولة
+            </Button>
+          </Card>
+        </div>
+      );
+    }
 
   return (
     <div className="p-4 md:p-6" dir="rtl">
