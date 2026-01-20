@@ -8,15 +8,19 @@ import {
   AlertTriangle, 
   Send, 
   ArrowRight,
+  ArrowLeft,
   ShieldCheck,
   Globe,
   BarChart3,
   KeyRound,
-  Lock
+  Lock,
+  Languages
 } from "lucide-react";
 import Link from "next/link";
 import { forgotPasswordAction } from "@/lib/actions/auth";
 import { useRouter } from "next/navigation";
+import { cn } from "@/lib/utils";
+import { useLocale, useTranslations } from "@/lib/locale-context";
 
 interface Particle {
   id: number;
@@ -71,10 +75,17 @@ function ParticleBackground() {
 }
 
 export default function ForgotForm() {
+  const { locale, setLocale, isRTL } = useLocale();
+  const tCommon = useTranslations('common');
+  
   const [email, setEmail] = useState("");
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
+
+  const toggleLocale = () => {
+    setLocale(locale === 'ar' ? 'en' : 'ar');
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -89,14 +100,17 @@ export default function ForgotForm() {
     if (result.success) {
       router.push("/forgot-password/verify");
     } else {
-      setError(result.error || "حدث خطأ ما");
+      setError(result.error || (isRTL ? "حدث خطأ ما" : "An error occurred"));
       setIsLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen w-full flex bg-slate-50 dark:bg-slate-950 overflow-hidden">
-      <div className="hidden lg:flex lg:w-1/2 relative bg-gradient-to-br from-slate-900 via-blue-900/90 to-slate-900 items-center justify-center p-12 overflow-hidden">
+    <div className="min-h-screen w-full flex bg-slate-50 dark:bg-slate-950 overflow-hidden" dir={isRTL ? 'rtl' : 'ltr'}>
+      <div className={cn(
+        "hidden lg:flex lg:w-1/2 relative bg-gradient-to-br from-slate-900 via-blue-900/90 to-slate-900 items-center justify-center p-12 overflow-hidden",
+        !isRTL && "order-2"
+      )}>
         <ParticleBackground />
         
         <div className="absolute inset-0 opacity-30 pointer-events-none">
@@ -109,7 +123,7 @@ export default function ForgotForm() {
           <div className="absolute bottom-0 right-0 w-96 h-96 bg-purple-500/20 rounded-full blur-3xl animate-pulse" style={{ animationDelay: "1s" }} />
         </div>
 
-        <div className="relative z-10 w-full max-w-md text-right" dir="rtl">
+        <div className="relative z-10 w-full max-w-md">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
@@ -131,22 +145,35 @@ export default function ForgotForm() {
 
             <div className="space-y-6">
               <h1 className="text-5xl font-black text-white leading-[1.15]">
-                استعادة <br />
-                <span className="bg-gradient-to-r from-blue-400 via-cyan-400 to-blue-500 bg-clip-text text-transparent">
-                  الوصول للنظام
-                </span>
+                {isRTL ? (
+                  <>
+                    استعادة <br />
+                    <span className="bg-gradient-to-r from-blue-400 via-cyan-400 to-blue-500 bg-clip-text text-transparent">
+                      الوصول للنظام
+                    </span>
+                  </>
+                ) : (
+                  <>
+                    Recover <br />
+                    <span className="bg-gradient-to-r from-blue-400 via-cyan-400 to-blue-500 bg-clip-text text-transparent">
+                      System Access
+                    </span>
+                  </>
+                )}
               </h1>
               <p className="text-slate-300 text-lg font-medium leading-relaxed">
-                لا تقلق، نحن هنا لمساعدتك في استعادة كلمة المرور الخاصة بك والعودة لمتابعة أعمالك بكل سهولة وأمان.
+                {isRTL 
+                  ? 'لا تقلق، نحن هنا لمساعدتك في استعادة كلمة المرور الخاصة بك والعودة لمتابعة أعمالك بكل سهولة وأمان.'
+                  : "Don't worry, we're here to help you recover your password and get back to managing your business easily and securely."}
               </p>
             </div>
 
             <div className="grid grid-cols-2 gap-4 pt-4">
               {[
-                { icon: ShieldCheck, label: "أمان عالي", desc: "تشفير متقدم" },
-                { icon: Mail, label: "تحقق فوري", desc: "رمز آمن" },
-                { icon: Globe, label: "دعم شامل", desc: "24/7" },
-                { icon: KeyRound, label: "استعادة سهلة", desc: "خطوات بسيطة" }
+                { icon: ShieldCheck, label: isRTL ? "أمان عالي" : "High Security", desc: isRTL ? "تشفير متقدم" : "Advanced Encryption" },
+                { icon: Mail, label: isRTL ? "تحقق فوري" : "Instant Verification", desc: isRTL ? "رمز آمن" : "Secure Code" },
+                { icon: Globe, label: isRTL ? "دعم شامل" : "Full Support", desc: "24/7" },
+                { icon: KeyRound, label: isRTL ? "استعادة سهلة" : "Easy Recovery", desc: isRTL ? "خطوات بسيطة" : "Simple Steps" }
               ].map((item, i) => (
                 <motion.div 
                   key={i}
@@ -162,7 +189,7 @@ export default function ForgotForm() {
                     </div>
                     <span className="text-sm font-black">{item.label}</span>
                   </div>
-                  <span className="text-xs text-slate-400 font-medium mr-11">{item.desc}</span>
+                  <span className={cn("text-xs text-slate-400 font-medium", isRTL ? "mr-11" : "ml-11")}>{item.desc}</span>
                 </motion.div>
               ))}
             </div>
@@ -173,13 +200,28 @@ export default function ForgotForm() {
           <span>© 2026 Logistics Systems Pro</span>
           <span className="flex items-center gap-2">
             <span className="h-2 w-2 rounded-full bg-green-500 animate-pulse" />
-            جميع الأنظمة تعمل
+            {isRTL ? 'جميع الأنظمة تعمل' : 'All systems operational'}
           </span>
         </div>
       </div>
 
       <div className="w-full lg:w-1/2 flex items-center justify-center p-6 sm:p-12 relative bg-white dark:bg-slate-900">
         <div className="absolute inset-0 bg-gradient-to-br from-blue-50/50 via-transparent to-purple-50/50 dark:from-blue-950/20 dark:to-purple-950/20" />
+        
+        {/* Language Switcher Button */}
+        <motion.button
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          onClick={toggleLocale}
+          className="absolute top-6 right-6 z-20 flex items-center gap-2 px-4 py-2.5 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 rounded-2xl transition-all border border-slate-200 dark:border-slate-700 shadow-lg shadow-slate-200/50 dark:shadow-slate-900/50"
+        >
+          <Languages size={18} className="text-blue-600 dark:text-blue-400" />
+          <span className="text-sm font-bold text-slate-700 dark:text-slate-300">
+            {locale === 'ar' ? 'English' : 'العربية'}
+          </span>
+        </motion.button>
         
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
@@ -200,30 +242,32 @@ export default function ForgotForm() {
             <p className="text-blue-600 dark:text-blue-400 font-bold text-xs uppercase tracking-widest">Enterprise Edition</p>
           </div>
 
-          <div className="mb-10 text-right" dir="rtl">
+          <div className="mb-10">
             <motion.div
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
               transition={{ type: "spring", stiffness: 200 }}
-              className="mx-auto lg:mx-0 mb-6 flex h-20 w-20 items-center justify-center rounded-3xl bg-gradient-to-br from-amber-500 to-orange-600 text-white shadow-xl shadow-amber-500/30"
+              className={cn("mb-6 flex h-20 w-20 items-center justify-center rounded-3xl bg-gradient-to-br from-amber-500 to-orange-600 text-white shadow-xl shadow-amber-500/30", isRTL ? "mx-auto lg:mx-0" : "mx-auto lg:mx-0")}
             >
               <Lock size={36} />
             </motion.div>
             <motion.h2 
-              initial={{ opacity: 0, x: -20 }}
+              initial={{ opacity: 0, x: isRTL ? -20 : 20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.2 }}
               className="text-4xl font-black text-slate-900 dark:text-white mb-3"
             >
-              نسيت كلمة المرور؟
+              {tCommon('forgotPassword')}?
             </motion.h2>
             <motion.p 
-              initial={{ opacity: 0, x: -20 }}
+              initial={{ opacity: 0, x: isRTL ? -20 : 20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.3 }}
               className="text-slate-500 dark:text-slate-400 font-medium"
             >
-              أدخل بريدك الإلكتروني المسجل وسنرسل لك رمز التحقق
+              {isRTL 
+                ? 'أدخل بريدك الإلكتروني المسجل وسنرسل لك رمز التحقق'
+                : 'Enter your registered email and we will send you a verification code'}
             </motion.p>
           </div>
 
@@ -233,8 +277,7 @@ export default function ForgotForm() {
                 initial={{ opacity: 0, y: -10, scale: 0.95 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{ opacity: 0, y: -10, scale: 0.95 }}
-                className="mb-8 flex items-center gap-3 rounded-2xl bg-red-50 dark:bg-red-950/30 p-4 text-red-600 dark:text-red-400 border border-red-100 dark:border-red-900/50 text-right backdrop-blur-sm"
-                dir="rtl"
+                className="mb-8 flex items-center gap-3 rounded-2xl bg-red-50 dark:bg-red-950/30 p-4 text-red-600 dark:text-red-400 border border-red-100 dark:border-red-900/50 backdrop-blur-sm"
               >
                 <div className="p-2 rounded-xl bg-red-100 dark:bg-red-900/50">
                   <AlertTriangle size={18} />
@@ -244,19 +287,22 @@ export default function ForgotForm() {
             )}
           </AnimatePresence>
 
-          <form onSubmit={handleSubmit} className="space-y-6 text-right" dir="rtl">
+          <form onSubmit={handleSubmit} className="space-y-6">
             <motion.div 
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.4 }}
               className="space-y-2"
             >
-              <label className="text-xs font-bold text-slate-500 dark:text-slate-400 mr-1 flex items-center gap-2">
+              <label className="text-xs font-bold text-slate-500 dark:text-slate-400 flex items-center gap-2">
                 <Mail size={12} className="text-blue-500" />
-                البريد الإلكتروني
+                {tCommon('email')}
               </label>
               <div className="relative group">
-                <div className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-blue-600 transition-colors duration-300">
+                <div className={cn(
+                  "absolute top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-blue-600 transition-colors duration-300",
+                  isRTL ? "right-4" : "left-4"
+                )}>
                   <Mail size={18} />
                 </div>
                 <input
@@ -265,7 +311,10 @@ export default function ForgotForm() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="name@company.com"
-                  className="w-full rounded-2xl border-2 border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/50 py-4 pr-12 pl-4 text-sm font-bold text-slate-900 dark:text-white placeholder:text-slate-300 dark:placeholder:text-slate-600 focus:bg-white dark:focus:bg-slate-800 focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all duration-300"
+                  className={cn(
+                    "w-full rounded-2xl border-2 border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/50 py-4 text-sm font-bold text-slate-900 dark:text-white placeholder:text-slate-300 dark:placeholder:text-slate-600 focus:bg-white dark:focus:bg-slate-800 focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all duration-300",
+                    isRTL ? "pr-12 pl-4" : "pl-12 pr-4"
+                  )}
                 />
                 <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-blue-500 to-purple-500 opacity-0 group-focus-within:opacity-100 transition-opacity duration-300 -z-10 blur-xl" />
               </div>
@@ -287,7 +336,7 @@ export default function ForgotForm() {
               ) : (
                 <>
                   <Send size={20} />
-                  إرسال رمز التحقق
+                  {isRTL ? 'إرسال رمز التحقق' : 'Send Verification Code'}
                 </>
               )}
             </motion.button>
@@ -303,8 +352,17 @@ export default function ForgotForm() {
               href="/login"
               className="inline-flex items-center gap-2 py-3 px-8 rounded-2xl border-2 border-slate-200 dark:border-slate-700 text-sm font-black text-slate-900 dark:text-white hover:bg-slate-50 dark:hover:bg-slate-800 hover:border-slate-300 dark:hover:border-slate-600 transition-all group"
             >
-              <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
-              العودة لتسجيل الدخول
+              {isRTL ? (
+                <>
+                  <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
+                  {tCommon('login')}
+                </>
+              ) : (
+                <>
+                  <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform" />
+                  {isRTL ? 'العودة لتسجيل الدخول' : 'Back to Login'}
+                </>
+              )}
             </Link>
           </motion.div>
         </motion.div>

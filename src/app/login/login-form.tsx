@@ -11,6 +11,7 @@ import {
   AlertTriangle, 
   LogIn, 
   ChevronLeft,
+  ChevronRight,
   ShieldCheck,
   Globe,
   BarChart3,
@@ -18,12 +19,14 @@ import {
   CheckCircle2,
   KeyRound,
   Building2,
-  UserPlus
+  UserPlus,
+  Languages
 } from "lucide-react";
 import Link from "next/link";
 import { loginAction } from "@/lib/actions/auth";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
+import { useLocale, useTranslations } from "@/lib/locale-context";
 
 interface LoginFormProps {
   initialEmail?: string;
@@ -82,6 +85,10 @@ function ParticleBackground() {
 }
 
 export default function LoginForm({ initialEmail = "" }: LoginFormProps) {
+  const { locale, setLocale, isRTL } = useLocale();
+  const t = useTranslations('login');
+  const tCommon = useTranslations('common');
+  
   const [email, setEmail] = useState(initialEmail);
   const [password, setPassword] = useState("");
   const [remember, setRemember] = useState(initialEmail !== "");
@@ -92,6 +99,10 @@ export default function LoginForm({ initialEmail = "" }: LoginFormProps) {
   const [userName, setUserName] = useState("");
   const [lastCompany, setLastCompany] = useState<string | null>(null);
   const router = useRouter();
+
+  const toggleLocale = () => {
+    setLocale(locale === 'ar' ? 'en' : 'ar');
+  };
 
   useEffect(() => {
     const savedCompany = localStorage.getItem("last_company_name");
@@ -123,7 +134,7 @@ export default function LoginForm({ initialEmail = "" }: LoginFormProps) {
         router.refresh();
       }, 2500);
     } else {
-      setError(result.error || "حدث خطأ ما في البيانات");
+      setError(result.error || (isRTL ? "حدث خطأ ما في البيانات" : "Invalid credentials"));
       setIsLoading(false);
     }
   };
@@ -160,7 +171,7 @@ export default function LoginForm({ initialEmail = "" }: LoginFormProps) {
             transition={{ delay: 0.4 }}
             className="text-5xl md:text-6xl font-black text-white mb-4"
           >
-            مرحباً بك
+            {isRTL ? 'مرحباً بك' : 'Welcome'}
           </motion.h1>
 
           <motion.p
@@ -169,7 +180,7 @@ export default function LoginForm({ initialEmail = "" }: LoginFormProps) {
             transition={{ delay: 0.6 }}
             className="text-2xl md:text-3xl font-bold text-blue-400 mb-8"
           >
-            {userName || "في نظام اللوجستيات"}
+            {userName || (isRTL ? "في نظام اللوجستيات" : "to Logistics System")}
           </motion.p>
 
           <motion.div
@@ -189,7 +200,7 @@ export default function LoginForm({ initialEmail = "" }: LoginFormProps) {
             transition={{ delay: 1 }}
             className="mt-6 text-slate-400 text-sm font-medium"
           >
-            جاري تجهيز لوحة التحكم...
+            {isRTL ? 'جاري تجهيز لوحة التحكم...' : 'Preparing your dashboard...'}
           </motion.p>
         </motion.div>
       </div>
@@ -197,8 +208,11 @@ export default function LoginForm({ initialEmail = "" }: LoginFormProps) {
   }
 
   return (
-    <div className="min-h-screen w-full flex bg-slate-50 dark:bg-slate-950 overflow-hidden">
-      <div className="hidden lg:flex lg:w-1/2 relative bg-gradient-to-br from-slate-900/95 via-slate-800/90 to-slate-900/95 items-center justify-center p-12 overflow-hidden">
+    <div className="min-h-screen w-full flex bg-slate-50 dark:bg-slate-950 overflow-hidden" dir={isRTL ? 'rtl' : 'ltr'}>
+      <div className={cn(
+        "hidden lg:flex lg:w-1/2 relative bg-gradient-to-br from-slate-900/95 via-slate-800/90 to-slate-900/95 items-center justify-center p-12 overflow-hidden",
+        !isRTL && "order-2"
+      )}>
         <ParticleBackground />
         
         <div className="absolute inset-0 pointer-events-none">
@@ -234,22 +248,35 @@ export default function LoginForm({ initialEmail = "" }: LoginFormProps) {
 
             <div className="space-y-6">
               <h1 className="text-5xl font-black text-white leading-[1.15]">
-                نظام إدارة <br />
-                <span className="bg-gradient-to-r from-blue-400 via-cyan-400 to-blue-500 bg-clip-text text-transparent">
-                  اللوجستيات المتطور
-                </span>
+                {isRTL ? (
+                  <>
+                    نظام إدارة <br />
+                    <span className="bg-gradient-to-r from-blue-400 via-cyan-400 to-blue-500 bg-clip-text text-transparent">
+                      اللوجستيات المتطور
+                    </span>
+                  </>
+                ) : (
+                  <>
+                    Advanced <br />
+                    <span className="bg-gradient-to-r from-blue-400 via-cyan-400 to-blue-500 bg-clip-text text-transparent">
+                      Logistics System
+                    </span>
+                  </>
+                )}
               </h1>
               <p className="text-slate-300 text-lg font-medium leading-relaxed">
-                تحكم كامل في أسطولك، موظفيك، وعملياتك من خلال لوحة تحكم واحدة ذكية واحترافية.
+                {isRTL 
+                  ? 'تحكم كامل في أسطولك، موظفيك، وعملياتك من خلال لوحة تحكم واحدة ذكية واحترافية.'
+                  : 'Complete control over your fleet, employees, and operations through one smart and professional dashboard.'}
               </p>
             </div>
 
             <div className="grid grid-cols-2 gap-4 pt-4">
               {[
-                { icon: ShieldCheck, label: "أمان عالي", desc: "تشفير 256-bit" },
-                { icon: BarChart3, label: "تقارير ذكية", desc: "تحليلات فورية" },
-                { icon: Globe, label: "تغطية شاملة", desc: "متعدد الفروع" },
-                { icon: Truck, label: "تتبع لحظي", desc: "GPS مباشر" }
+                { icon: ShieldCheck, label: isRTL ? "أمان عالي" : "High Security", desc: isRTL ? "تشفير 256-bit" : "256-bit Encryption" },
+                { icon: BarChart3, label: isRTL ? "تقارير ذكية" : "Smart Reports", desc: isRTL ? "تحليلات فورية" : "Real-time Analytics" },
+                { icon: Globe, label: isRTL ? "تغطية شاملة" : "Full Coverage", desc: isRTL ? "متعدد الفروع" : "Multi-branch" },
+                { icon: Truck, label: isRTL ? "تتبع لحظي" : "Live Tracking", desc: isRTL ? "GPS مباشر" : "Live GPS" }
               ].map((item, i) => (
                 <motion.div 
                   key={i} 
@@ -276,13 +303,28 @@ export default function LoginForm({ initialEmail = "" }: LoginFormProps) {
           <span>© 2026 Logistics Systems Pro</span>
           <span className="flex items-center gap-2">
             <span className="h-2 w-2 rounded-full bg-green-500 animate-pulse" />
-            جميع الأنظمة تعمل
+            {isRTL ? 'جميع الأنظمة تعمل' : 'All systems operational'}
           </span>
         </div>
       </div>
 
       <div className="w-full lg:w-1/2 flex items-center justify-center p-6 sm:p-12 relative bg-white dark:bg-slate-900">
         <div className="absolute inset-0 bg-gradient-to-br from-blue-50/50 via-transparent to-purple-50/50 dark:from-blue-950/20 dark:to-purple-950/20" />
+        
+        {/* Language Switcher Button */}
+        <motion.button
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          onClick={toggleLocale}
+          className="absolute top-6 right-6 z-20 flex items-center gap-2 px-4 py-2.5 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 rounded-2xl transition-all border border-slate-200 dark:border-slate-700 shadow-lg shadow-slate-200/50 dark:shadow-slate-900/50"
+        >
+          <Languages size={18} className="text-blue-600 dark:text-blue-400" />
+          <span className="text-sm font-bold text-slate-700 dark:text-slate-300">
+            {locale === 'ar' ? 'English' : 'العربية'}
+          </span>
+        </motion.button>
         
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
@@ -303,7 +345,7 @@ export default function LoginForm({ initialEmail = "" }: LoginFormProps) {
             <p className="text-blue-600 dark:text-blue-400 font-bold text-xs uppercase tracking-widest">Enterprise Edition</p>
           </div>
 
-          <div className="mb-10 text-center" dir="rtl">
+          <div className="mb-10 text-center">
             <motion.h2 
               initial={{ opacity: 0, y: -20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -311,7 +353,7 @@ export default function LoginForm({ initialEmail = "" }: LoginFormProps) {
               className="text-4xl font-black mb-3"
             >
               <span className="bg-gradient-to-r from-blue-600 via-purple-600 to-blue-600 bg-clip-text text-transparent">
-                مرحباً بك مجدداً
+                {t('subtitle')}
               </span>
             </motion.h2>
             <motion.p 
@@ -320,7 +362,7 @@ export default function LoginForm({ initialEmail = "" }: LoginFormProps) {
               transition={{ delay: 0.3 }}
               className="text-slate-500 dark:text-slate-400 font-medium text-base"
             >
-              أدخل بياناتك للوصول إلى لوحة التحكم الخاصة بك
+              {isRTL ? 'أدخل بياناتك للوصول إلى لوحة التحكم الخاصة بك' : 'Enter your credentials to access your dashboard'}
             </motion.p>
             
             {lastCompany && (
@@ -332,7 +374,7 @@ export default function LoginForm({ initialEmail = "" }: LoginFormProps) {
               >
                 <Building2 size={14} className="text-blue-600 dark:text-blue-400" />
                 <span className="text-xs font-bold text-blue-700 dark:text-blue-300">
-                  آخر دخول: {lastCompany}
+                  {isRTL ? 'آخر دخول:' : 'Last login:'} {lastCompany}
                 </span>
               </motion.div>
             )}
@@ -344,8 +386,7 @@ export default function LoginForm({ initialEmail = "" }: LoginFormProps) {
                 initial={{ opacity: 0, y: -10, scale: 0.95 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{ opacity: 0, y: -10, scale: 0.95 }}
-                className="mb-8 flex items-center gap-3 rounded-2xl bg-red-50 dark:bg-red-950/30 p-4 text-red-600 dark:text-red-400 border border-red-100 dark:border-red-900/50 text-right backdrop-blur-sm"
-                dir="rtl"
+                className="mb-8 flex items-center gap-3 rounded-2xl bg-red-50 dark:bg-red-950/30 p-4 text-red-600 dark:text-red-400 border border-red-100 dark:border-red-900/50 backdrop-blur-sm"
               >
                 <div className="p-2 rounded-xl bg-red-100 dark:bg-red-900/50">
                   <AlertTriangle size={18} />
@@ -355,19 +396,22 @@ export default function LoginForm({ initialEmail = "" }: LoginFormProps) {
             )}
           </AnimatePresence>
 
-          <form onSubmit={handleSubmit} className="space-y-6 text-right" dir="rtl">
+          <form onSubmit={handleSubmit} className="space-y-6">
             <motion.div 
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.4 }}
               className="space-y-2"
             >
-              <label className="text-xs font-bold text-slate-500 dark:text-slate-400 mr-1 flex items-center gap-2">
+              <label className="text-xs font-bold text-slate-500 dark:text-slate-400 flex items-center gap-2">
                 <Mail size={12} className="text-blue-500" />
-                البريد الإلكتروني
+                {tCommon('email')}
               </label>
               <div className="relative group">
-                <div className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-blue-600 transition-colors duration-300">
+                <div className={cn(
+                  "absolute top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-blue-600 transition-colors duration-300",
+                  isRTL ? "right-4" : "left-4"
+                )}>
                   <Mail size={18} />
                 </div>
                 <input
@@ -376,7 +420,10 @@ export default function LoginForm({ initialEmail = "" }: LoginFormProps) {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="name@company.com"
-                  className="w-full rounded-2xl border-2 border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/50 py-4 pr-12 pl-4 text-sm font-bold text-slate-900 dark:text-white placeholder:text-slate-300 dark:placeholder:text-slate-600 focus:bg-white dark:focus:bg-slate-800 focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all duration-300"
+                  className={cn(
+                    "w-full rounded-2xl border-2 border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/50 py-4 text-sm font-bold text-slate-900 dark:text-white placeholder:text-slate-300 dark:placeholder:text-slate-600 focus:bg-white dark:focus:bg-slate-800 focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all duration-300",
+                    isRTL ? "pr-12 pl-4" : "pl-12 pr-4"
+                  )}
                 />
                 <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-blue-500 to-purple-500 opacity-0 group-focus-within:opacity-100 transition-opacity duration-300 -z-10 blur-xl" />
               </div>
@@ -388,12 +435,15 @@ export default function LoginForm({ initialEmail = "" }: LoginFormProps) {
               transition={{ delay: 0.5 }}
               className="space-y-2"
             >
-              <label className="text-xs font-bold text-slate-500 dark:text-slate-400 mr-1 flex items-center gap-2">
+              <label className="text-xs font-bold text-slate-500 dark:text-slate-400 flex items-center gap-2">
                 <Lock size={12} className="text-blue-500" />
-                كلمة المرور
+                {tCommon('password')}
               </label>
               <div className="relative group">
-                <div className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-blue-600 transition-colors duration-300">
+                <div className={cn(
+                  "absolute top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-blue-600 transition-colors duration-300",
+                  isRTL ? "right-4" : "left-4"
+                )}>
                   <Lock size={18} />
                 </div>
                 <input
@@ -402,12 +452,18 @@ export default function LoginForm({ initialEmail = "" }: LoginFormProps) {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••"
-                  className="w-full rounded-2xl border-2 border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/50 py-4 pr-12 pl-12 text-sm font-bold text-slate-900 dark:text-white placeholder:text-slate-300 dark:placeholder:text-slate-600 focus:bg-white dark:focus:bg-slate-800 focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all duration-300"
+                  className={cn(
+                    "w-full rounded-2xl border-2 border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/50 py-4 text-sm font-bold text-slate-900 dark:text-white placeholder:text-slate-300 dark:placeholder:text-slate-600 focus:bg-white dark:focus:bg-slate-800 focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all duration-300",
+                    isRTL ? "pr-12 pl-12" : "pl-12 pr-12"
+                  )}
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors p-1"
+                  className={cn(
+                    "absolute top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors p-1",
+                    isRTL ? "left-4" : "right-4"
+                  )}
                 >
                   {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                 </button>
@@ -433,7 +489,7 @@ export default function LoginForm({ initialEmail = "" }: LoginFormProps) {
                   <CheckCircle2 size={14} className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-white opacity-0 peer-checked:opacity-100 transition-opacity pointer-events-none" />
                 </div>
                 <label htmlFor="remember" className="text-sm font-bold text-slate-600 dark:text-slate-400 cursor-pointer select-none">
-                  تذكرني
+                  {t('rememberMe')}
                 </label>
               </div>
 
@@ -445,7 +501,7 @@ export default function LoginForm({ initialEmail = "" }: LoginFormProps) {
                 <span className="absolute inset-0 border border-transparent group-hover:border-amber-500/30 rounded-xl transition-all duration-300" />
                 <KeyRound size={14} className="text-amber-600 dark:text-amber-400 group-hover:rotate-12 transition-transform duration-300" />
                 <span className="relative bg-gradient-to-r from-amber-600 via-orange-600 to-amber-600 bg-clip-text text-transparent group-hover:from-amber-500 group-hover:via-orange-500 group-hover:to-amber-500 transition-all">
-                  نسيت كلمة المرور؟
+                  {tCommon('forgotPassword')}?
                 </span>
               </Link>
             </motion.div>
@@ -466,7 +522,7 @@ export default function LoginForm({ initialEmail = "" }: LoginFormProps) {
               ) : (
                 <>
                   <LogIn size={20} />
-                  تسجيل الدخول
+                  {t('loginButton')}
                 </>
               )}
             </motion.button>
@@ -479,7 +535,7 @@ export default function LoginForm({ initialEmail = "" }: LoginFormProps) {
             className="mt-10 pt-8 border-t border-slate-100 dark:border-slate-800 text-center"
           >
             <p className="mb-5 text-base font-bold bg-gradient-to-r from-slate-500 via-slate-600 to-slate-500 bg-clip-text text-transparent dark:from-slate-400 dark:via-slate-300 dark:to-slate-400">
-              ليس لديك حساب منشأة؟
+              {t('noAccount')}
             </p>
             <Link
               href="/register"
@@ -493,9 +549,13 @@ export default function LoginForm({ initialEmail = "" }: LoginFormProps) {
               
               <UserPlus size={20} className="relative text-white group-hover:scale-110 transition-transform duration-300" />
               <span className="relative text-white">
-                إنشاء حساب جديد
+                {t('createAccount')}
               </span>
-              <ChevronLeft size={18} className="relative text-white group-hover:-translate-x-2 transition-transform duration-300" />
+              {isRTL ? (
+                <ChevronLeft size={18} className="relative text-white group-hover:-translate-x-2 transition-transform duration-300" />
+              ) : (
+                <ChevronRight size={18} className="relative text-white group-hover:translate-x-2 transition-transform duration-300" />
+              )}
             </Link>
           </motion.div>
         </motion.div>
