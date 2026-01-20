@@ -644,7 +644,7 @@ const MaintenanceReceipt = React.forwardRef<HTMLDivElement, { data: any, details
                   <p className="text-[10px] font-bold opacity-50 uppercase mb-1">Receipt Number</p>
                   <p className="text-2xl font-black tracking-widest">#{data.id.toString().padStart(6, '0')}</p>
                 </div>
-                <p className="text-slate-400 font-bold text-xs mt-2">تاريخ الإصدار: {new Date().toLocaleDateString('ar-SA')}</p>
+                <p className="text-slate-400 font-bold text-xs mt-2">تاريخ الإصدار: {new Date().toLocaleDateString('en-GB')}</p>
               </div>
             </div>
           </div>
@@ -682,7 +682,7 @@ const MaintenanceReceipt = React.forwardRef<HTMLDivElement, { data: any, details
                 </div>
                 <div>
                   <p className="text-[10px] font-black text-slate-400 uppercase">تاريخ الخدمة</p>
-                  <p className="text-lg font-bold text-slate-800">{new Date(data.maintenance_date).toLocaleDateString('ar-SA')}</p>
+                  <p className="text-lg font-bold text-slate-800">{new Date(data.maintenance_date).toLocaleDateString('en-GB')}</p>
                 </div>
                 <div className="col-span-2">
                   <p className="text-[10px] font-black text-slate-400 uppercase">ملاحظات الفني</p>
@@ -840,7 +840,7 @@ function ViewPrintEmailDialog({
             <!DOCTYPE html>
             <html dir="rtl">
               <head>
-                <title>طباعة فاتورة الصيانة #${maintenance.id}</title>
+                <title>طباعة أمر الصيانة #${maintenance.id}</title>
                 <style>
                   * { margin: 0; padding: 0; box-sizing: border-box; }
                   body { font-family: 'Cairo', 'Segoe UI', Tahoma, sans-serif; direction: rtl; }
@@ -866,77 +866,73 @@ function ViewPrintEmailDialog({
     }, [maintenance.id]);
 
   const handleSendEmail = async () => {
-    if (!emailTo.trim()) {
-      toast.error("الرجاء إدخال البريد الإلكتروني");
-      return;
-    }
-    
-    setSendingEmail(true);
-    try {
-      const taxRate = 0.15;
-      const subtotal = Number(maintenance.total_cost || 0);
-      const taxAmount = subtotal * taxRate;
-      const grandTotal = subtotal + taxAmount;
+      if (!emailTo.trim()) {
+        toast.error("الرجاء إدخال البريد الإلكتروني");
+        return;
+      }
+      
+      setSendingEmail(true);
+      try {
+        const sparesList = details.length > 0 
+          ? details.map(item => `<tr><td style="padding: 12px; border: 1px solid #e2e8f0;">${item.spare_name}</td><td style="padding: 12px; border: 1px solid #e2e8f0; text-align: center;">${item.spare_code || '-'}</td><td style="padding: 12px; border: 1px solid #e2e8f0; text-align: center;">${item.quantity_used}</td></tr>`).join('')
+          : '<tr><td colspan="3" style="padding: 12px; border: 1px solid #e2e8f0; text-align: center;">أعمال صيانة عامة</td></tr>';
 
-      const emailBody = `
-        <div dir="rtl" style="font-family: 'Cairo', Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
-          <div style="background: #1e293b; color: white; padding: 30px; border-radius: 16px; text-align: center; margin-bottom: 20px;">
-            <h1 style="margin: 0; font-size: 24px;">${companyName}</h1>
-            <p style="margin: 5px 0 0; opacity: 0.7;">قسم الصيانة</p>
-          </div>
-          
-          <h2 style="color: #1e293b; margin-bottom: 15px;">فاتورة صيانة #${maintenance.id.toString().padStart(6, '0')}</h2>
-          
-          <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
-            <tr style="background: #f8fafc;">
-              <td style="padding: 12px; border: 1px solid #e2e8f0; font-weight: bold;">المركبة</td>
-              <td style="padding: 12px; border: 1px solid #e2e8f0;">${maintenance.plate_number_ar} - ${maintenance.brand} ${maintenance.model}</td>
-            </tr>
-            <tr>
-              <td style="padding: 12px; border: 1px solid #e2e8f0; font-weight: bold;">الفني المسؤول</td>
-              <td style="padding: 12px; border: 1px solid #e2e8f0;">${maintenance.maintenance_person}</td>
-            </tr>
-            <tr style="background: #f8fafc;">
-              <td style="padding: 12px; border: 1px solid #e2e8f0; font-weight: bold;">التاريخ</td>
-              <td style="padding: 12px; border: 1px solid #e2e8f0;">${new Date(maintenance.maintenance_date).toLocaleDateString('ar-SA')}</td>
-            </tr>
-            <tr>
-              <td style="padding: 12px; border: 1px solid #e2e8f0; font-weight: bold;">قراءة العداد</td>
-              <td style="padding: 12px; border: 1px solid #e2e8f0;">${maintenance.current_km?.toLocaleString()} كم</td>
-            </tr>
-          </table>
-          
-          <div style="background: #f8fafc; padding: 20px; border-radius: 12px; margin-bottom: 20px;">
-            <table style="width: 100%;">
-              <tr>
-                <td style="padding: 8px 0;"><strong>المجموع الفرعي:</strong></td>
-                <td style="text-align: left; padding: 8px 0;">${subtotal.toFixed(2)} ر.س</td>
+        const emailBody = `
+          <div dir="rtl" style="font-family: 'Cairo', Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+            <div style="background: #f59e0b; color: white; padding: 30px; border-radius: 16px; text-align: center; margin-bottom: 20px;">
+              <h1 style="margin: 0; font-size: 24px;">${companyName}</h1>
+              <p style="margin: 5px 0 0; opacity: 0.9;">أمر صيانة</p>
+            </div>
+            
+            <div style="background: #fef3c7; border: 2px solid #fcd34d; padding: 15px; border-radius: 12px; margin-bottom: 20px;">
+              <p style="margin: 0; color: #92400e; font-weight: bold;">هذا أمر صيانة رسمي. يرجى تنفيذ الأعمال المطلوبة وفقاً للتعليمات.</p>
+            </div>
+            
+            <h2 style="color: #1e293b; margin-bottom: 15px;">أمر صيانة #${maintenance.id.toString().padStart(6, '0')}</h2>
+            
+            <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+              <tr style="background: #f8fafc;">
+                <td style="padding: 12px; border: 1px solid #e2e8f0; font-weight: bold;">المركبة</td>
+                <td style="padding: 12px; border: 1px solid #e2e8f0;">${maintenance.plate_number_ar} - ${maintenance.brand} ${maintenance.model}</td>
               </tr>
               <tr>
-                <td style="padding: 8px 0;"><strong>ضريبة القيمة المضافة (15%):</strong></td>
-                <td style="text-align: left; padding: 8px 0;">${taxAmount.toFixed(2)} ر.س</td>
+                <td style="padding: 12px; border: 1px solid #e2e8f0; font-weight: bold;">الفني المسؤول</td>
+                <td style="padding: 12px; border: 1px solid #e2e8f0;">${maintenance.maintenance_person}</td>
               </tr>
-              <tr style="border-top: 2px solid #1e293b;">
-                <td style="padding: 12px 0; font-size: 18px;"><strong>الإجمالي النهائي:</strong></td>
-                <td style="text-align: left; padding: 12px 0; font-size: 18px; color: #10b981;"><strong>${grandTotal.toFixed(2)} ر.س</strong></td>
+              <tr style="background: #f8fafc;">
+                <td style="padding: 12px; border: 1px solid #e2e8f0; font-weight: bold;">تاريخ التنفيذ</td>
+                <td style="padding: 12px; border: 1px solid #e2e8f0;">${new Date(maintenance.maintenance_date).toLocaleDateString('en-GB')}</td>
+              </tr>
+              <tr>
+                <td style="padding: 12px; border: 1px solid #e2e8f0; font-weight: bold;">قراءة العداد</td>
+                <td style="padding: 12px; border: 1px solid #e2e8f0;">${maintenance.current_km?.toLocaleString()} كم</td>
               </tr>
             </table>
+            
+            <h3 style="color: #1e293b; margin-bottom: 10px;">قطع الغيار المطلوبة:</h3>
+            <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+              <tr style="background: #1e293b; color: white;">
+                <th style="padding: 12px; text-align: right;">الصنف</th>
+                <th style="padding: 12px; text-align: center;">الكود</th>
+                <th style="padding: 12px; text-align: center;">الكمية</th>
+              </tr>
+              ${sparesList}
+            </table>
+            
+            ${maintenance.notes ? `<div style="background: #eff6ff; border: 1px solid #bfdbfe; padding: 15px; border-radius: 12px; margin-bottom: 20px;"><p style="margin: 0; color: #1e40af;"><strong>تعليمات:</strong> ${maintenance.notes}</p></div>` : ''}
+            
+            <div style="text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid #e2e8f0;">
+              <p style="color: #94a3b8; font-size: 12px;">تم إرسال هذا البريد من نظام ${companyName} لإدارة الأسطول</p>
+            </div>
           </div>
-          
-          ${maintenance.notes ? `<p style="color: #64748b; font-style: italic;">ملاحظات: ${maintenance.notes}</p>` : ''}
-          
-          <div style="text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid #e2e8f0;">
-            <p style="color: #94a3b8; font-size: 12px;">تم إرسال هذا البريد من نظام ${companyName} لإدارة الأسطول</p>
-          </div>
-        </div>
-      `;
+        `;
 
         const response = await fetch('/api/fleet/send-invoice', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             to: emailTo,
-            subject: `فاتورة صيانة #${maintenance.id.toString().padStart(6, '0')} - ${companyName}`,
+            subject: `أمر صيانة #${maintenance.id.toString().padStart(6, '0')} - ${companyName}`,
             html: emailBody,
           }),
         });
@@ -970,11 +966,11 @@ function ViewPrintEmailDialog({
     <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent className="sm:max-w-[900px] max-h-[90vh] rounded-[2rem] bg-slate-900 text-white border-white/10 p-0 overflow-hidden">
         <DialogHeader className="p-6 border-b border-white/10 bg-white/5">
-          <DialogTitle className="text-2xl font-black flex items-center gap-3">
-            <div className="p-2 bg-amber-500/20 rounded-xl">
-              <FileText className="text-amber-400" size={24} />
-            </div>
-            فاتورة صيانة #{maintenance.id.toString().padStart(6, '0')}
+            <DialogTitle className="text-2xl font-black flex items-center gap-3">
+              <div className="p-2 bg-amber-500/20 rounded-xl">
+                <FileText className="text-amber-400" size={24} />
+              </div>
+              أمر صيانة #{maintenance.id.toString().padStart(6, '0')}
           </DialogTitle>
         </DialogHeader>
         
@@ -1036,162 +1032,144 @@ function ViewPrintEmailDialog({
             </div>
           ) : (
             <div ref={printRef} className="bg-white rounded-2xl overflow-hidden">
-              <div className="p-12 bg-white min-h-[800px] relative font-sans text-slate-900" dir="rtl">
-                <div className="absolute top-0 right-0 left-0 h-2 bg-slate-900"></div>
-                
-                <div className="flex justify-between items-start mb-12 relative z-10">
-                  <div className="space-y-3">
-                    <div className="flex items-center gap-3">
-                      <div className="w-14 h-14 bg-slate-900 rounded-xl flex items-center justify-center text-white shadow-xl">
-                        <Wrench size={28} />
-                      </div>
-                      <div>
-                        <h1 className="text-3xl font-black tracking-tight text-slate-900">{companyName}</h1>
-                        <p className="text-blue-600 font-black text-sm uppercase tracking-widest">Maintenance Division</p>
+                <div className="p-12 bg-white min-h-[800px] relative font-sans text-slate-900" dir="rtl">
+                  <div className="absolute top-0 right-0 left-0 h-2 bg-amber-500"></div>
+                  
+                  <div className="flex justify-between items-start mb-12 relative z-10">
+                    <div className="space-y-3">
+                      <div className="flex items-center gap-3">
+                        <div className="w-14 h-14 bg-amber-500 rounded-xl flex items-center justify-center text-white shadow-xl">
+                          <Wrench size={28} />
+                        </div>
+                        <div>
+                          <h1 className="text-3xl font-black tracking-tight text-slate-900">{companyName}</h1>
+                          <p className="text-amber-600 font-black text-sm uppercase tracking-widest">أمر صيانة</p>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                  <div className="text-left">
-                    <div className="bg-slate-900 text-white px-5 py-2 rounded-xl shadow-xl">
-                      <p className="text-[10px] font-bold opacity-50 uppercase mb-1">Receipt Number</p>
-                      <p className="text-xl font-black tracking-widest">#{maintenance.id.toString().padStart(6, '0')}</p>
+                    <div className="text-left">
+                      <div className="bg-amber-500 text-white px-5 py-2 rounded-xl shadow-xl">
+                        <p className="text-[10px] font-bold opacity-70 uppercase mb-1">رقم الأمر</p>
+                        <p className="text-xl font-black tracking-widest">#{maintenance.id.toString().padStart(6, '0')}</p>
+                      </div>
+                      <p className="text-slate-400 font-bold text-xs mt-2">تاريخ الإصدار: {new Date().toLocaleDateString('en-GB')}</p>
                     </div>
-                    <p className="text-slate-400 font-bold text-xs mt-2">تاريخ الإصدار: {new Date().toLocaleDateString('ar-SA')}</p>
                   </div>
-                </div>
 
-                <div className="grid grid-cols-2 gap-8 mb-12">
-                  <div className="p-6 rounded-2xl bg-slate-50 border border-slate-100 space-y-4">
-                    <h3 className="text-xs font-black text-blue-600 uppercase tracking-[0.2em] flex items-center gap-2">
-                      <Car size={14} /> تفاصيل المركبة
+                  <div className="bg-amber-50 border-2 border-amber-200 rounded-2xl p-6 mb-8">
+                    <h3 className="text-amber-700 font-black text-lg mb-2 flex items-center gap-2">
+                      <AlertTriangle size={20} />
+                      تعليمات للفني المسؤول
                     </h3>
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <p className="text-[10px] font-black text-slate-400 uppercase">رقم اللوحة</p>
-                        <p className="text-lg font-black text-slate-800">{maintenance.plate_number_ar}</p>
+                    <p className="text-amber-800 text-sm leading-relaxed">
+                      هذا أمر صيانة رسمي صادر من الإدارة. يرجى تنفيذ الأعمال المطلوبة وفقاً للتعليمات أدناه والتأكد من استخدام القطع المحددة فقط.
+                    </p>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-8 mb-8">
+                    <div className="p-6 rounded-2xl bg-slate-50 border border-slate-100 space-y-4">
+                      <h3 className="text-xs font-black text-blue-600 uppercase tracking-[0.2em] flex items-center gap-2">
+                        <Car size={14} /> تفاصيل المركبة
+                      </h3>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <p className="text-[10px] font-black text-slate-400 uppercase">رقم اللوحة</p>
+                          <p className="text-lg font-black text-slate-800">{maintenance.plate_number_ar}</p>
+                        </div>
+                        <div>
+                          <p className="text-[10px] font-black text-slate-400 uppercase">النوع / الموديل</p>
+                          <p className="text-base font-bold text-slate-800">{maintenance.brand} {maintenance.model}</p>
+                        </div>
+                        <div>
+                          <p className="text-[10px] font-black text-slate-400 uppercase">قراءة العداد</p>
+                          <p className="text-base font-black text-slate-800">{maintenance.current_km?.toLocaleString()} <small className="text-[10px] opacity-50">KM</small></p>
+                        </div>
                       </div>
-                      <div>
-                        <p className="text-[10px] font-black text-slate-400 uppercase">النوع / الموديل</p>
-                        <p className="text-base font-bold text-slate-800">{maintenance.brand} {maintenance.model}</p>
-                      </div>
-                      <div>
-                        <p className="text-[10px] font-black text-slate-400 uppercase">العداد الحالي</p>
-                        <p className="text-base font-black text-slate-800">{maintenance.current_km?.toLocaleString()} <small className="text-[10px] opacity-50">KM</small></p>
+                    </div>
+
+                    <div className="p-6 rounded-2xl bg-slate-50 border border-slate-100 space-y-4">
+                      <h3 className="text-xs font-black text-amber-600 uppercase tracking-[0.2em] flex items-center gap-2">
+                        <History size={14} /> بيانات أمر الصيانة
+                      </h3>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <p className="text-[10px] font-black text-slate-400 uppercase">الفني المسؤول</p>
+                          <p className="text-base font-bold text-slate-800">{maintenance.maintenance_person}</p>
+                        </div>
+                        <div>
+                          <p className="text-[10px] font-black text-slate-400 uppercase">تاريخ التنفيذ</p>
+                          <p className="text-base font-bold text-slate-800">{new Date(maintenance.maintenance_date).toLocaleDateString('en-GB')}</p>
+                        </div>
                       </div>
                     </div>
                   </div>
 
-                  <div className="p-6 rounded-2xl bg-slate-50 border border-slate-100 space-y-4">
-                    <h3 className="text-xs font-black text-amber-600 uppercase tracking-[0.2em] flex items-center gap-2">
-                      <History size={14} /> بيانات الصيانة
+                  <div className="mb-8">
+                    <h3 className="text-xs font-black text-slate-400 uppercase tracking-[0.2em] mb-4 mr-4 flex items-center gap-2">
+                      <Package size={14} /> قطع الغيار المطلوبة للصيانة
                     </h3>
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <p className="text-[10px] font-black text-slate-400 uppercase">الفني المسؤول</p>
-                        <p className="text-base font-bold text-slate-800">{maintenance.maintenance_person}</p>
-                      </div>
-                      <div>
-                        <p className="text-[10px] font-black text-slate-400 uppercase">تاريخ الخدمة</p>
-                        <p className="text-base font-bold text-slate-800">{new Date(maintenance.maintenance_date).toLocaleDateString('ar-SA')}</p>
-                      </div>
-                      <div className="col-span-2">
-                        <p className="text-[10px] font-black text-slate-400 uppercase">ملاحظات الفني</p>
-                        <p className="text-sm font-medium text-slate-600 italic">{maintenance.notes || "لا توجد ملاحظات إضافية"}</p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="mb-12">
-                  <h3 className="text-xs font-black text-slate-400 uppercase tracking-[0.2em] mb-4 mr-4 flex items-center gap-2">
-                    <Package size={14} /> بيان قطع الغيار المستخدمة والأعمال
-                  </h3>
-                  <div className="rounded-2xl border border-slate-100 overflow-hidden">
-                    <table className="w-full">
-                      <thead>
-                        <tr className="bg-slate-900 text-white">
-                          <th className="py-4 px-6 text-right font-black text-xs uppercase tracking-wider">الصنف / الوصف</th>
-                          <th className="py-4 px-4 text-center font-black text-xs uppercase tracking-wider">الكمية</th>
-                          <th className="py-4 px-4 text-center font-black text-xs uppercase tracking-wider">السعر</th>
-                          <th className="py-4 px-6 text-left font-black text-xs uppercase tracking-wider">الإجمالي</th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-slate-100">
-                        {details && details.length > 0 ? (
-                          details.map((item, idx) => (
-                            <tr key={idx} className="hover:bg-slate-50 transition-colors">
-                              <td className="py-4 px-6">
-                                <div className="flex flex-col">
-                                  <span className="font-black text-slate-800">{item.spare_name}</span>
-                                  <span className="text-[10px] font-mono text-slate-400 uppercase tracking-widest">{item.spare_code}</span>
-                                </div>
-                              </td>
-                              <td className="py-4 px-4 text-center font-black text-slate-600">{item.quantity_used}</td>
-                              <td className="py-4 px-4 text-center font-bold text-slate-600">{Number(item.unit_price).toFixed(2)}</td>
-                              <td className="py-4 px-6 text-left font-black text-slate-900">{Number(item.total_price).toFixed(2)} <small className="text-[8px] opacity-30">SAR</small></td>
-                            </tr>
-                          ))
-                        ) : (
-                          <tr>
-                            <td className="py-6 px-6">
-                              <div className="flex flex-col">
-                                <span className="font-black text-slate-800">أعمال صيانة وإصلاح متنوعة</span>
-                                <span className="text-[10px] font-bold text-slate-400">شاملة قطع الغيار واليد العاملة</span>
-                              </div>
-                            </td>
-                            <td className="py-6 px-4 text-center font-black text-slate-600">1</td>
-                            <td className="py-6 px-4 text-center font-bold text-slate-600">{subtotal.toFixed(2)}</td>
-                            <td className="py-6 px-6 text-left font-black text-slate-900">{subtotal.toFixed(2)} <small className="text-[8px] opacity-30">SAR</small></td>
+                    <div className="rounded-2xl border border-slate-100 overflow-hidden">
+                      <table className="w-full">
+                        <thead>
+                          <tr className="bg-slate-900 text-white">
+                            <th className="py-4 px-6 text-right font-black text-xs uppercase tracking-wider">الصنف / الوصف</th>
+                            <th className="py-4 px-4 text-center font-black text-xs uppercase tracking-wider">الكود</th>
+                            <th className="py-4 px-4 text-center font-black text-xs uppercase tracking-wider">الكمية المطلوبة</th>
                           </tr>
-                        )}
-                      </tbody>
-                    </table>
+                        </thead>
+                        <tbody className="divide-y divide-slate-100">
+                          {details && details.length > 0 ? (
+                            details.map((item, idx) => (
+                              <tr key={idx} className="hover:bg-slate-50 transition-colors">
+                                <td className="py-4 px-6">
+                                  <span className="font-black text-slate-800">{item.spare_name}</span>
+                                </td>
+                                <td className="py-4 px-4 text-center">
+                                  <span className="text-xs font-mono text-slate-500 bg-slate-100 px-2 py-1 rounded">{item.spare_code || '-'}</span>
+                                </td>
+                                <td className="py-4 px-4 text-center font-black text-slate-800">{item.quantity_used}</td>
+                              </tr>
+                            ))
+                          ) : (
+                            <tr>
+                              <td colSpan={3} className="py-6 px-6 text-center text-slate-500">
+                                أعمال صيانة عامة بدون قطع غيار محددة
+                              </td>
+                            </tr>
+                          )}
+                        </tbody>
+                      </table>
+                    </div>
                   </div>
-                </div>
 
-                <div className="flex justify-end">
-                  <div className="w-80 space-y-3">
-                    <div className="flex justify-between items-center px-4">
-                      <span className="text-xs font-black text-slate-400 uppercase tracking-widest">المجموع الفرعي</span>
-                      <span className="text-base font-bold text-slate-700">{subtotal.toFixed(2)}</span>
+                  {maintenance.notes && (
+                    <div className="mb-8 p-6 rounded-2xl bg-blue-50 border border-blue-100">
+                      <h3 className="text-xs font-black text-blue-600 uppercase tracking-[0.2em] mb-3 flex items-center gap-2">
+                        <FileText size={14} /> تعليمات وملاحظات داخلية
+                      </h3>
+                      <p className="text-slate-700 leading-relaxed">{maintenance.notes}</p>
                     </div>
-                    <div className="flex justify-between items-center px-4">
-                      <span className="text-xs font-black text-slate-400 uppercase tracking-widest">ضريبة القيمة المضافة (15%)</span>
-                      <span className="text-base font-bold text-slate-700">{taxAmount.toFixed(2)}</span>
-                    </div>
-                    <div className="h-px bg-slate-100 mx-4"></div>
-                    <div className="bg-slate-900 text-white p-5 rounded-xl shadow-xl flex justify-between items-center">
-                      <div className="flex flex-col">
-                        <span className="text-[10px] font-black opacity-50 uppercase tracking-widest">الإجمالي النهائي</span>
-                        <span className="text-xs font-bold">TOTAL AMOUNT</span>
-                      </div>
-                      <div className="flex flex-col items-end">
-                        <span className="text-2xl font-black">{grandTotal.toFixed(2)}</span>
-                        <span className="text-[10px] font-black opacity-50">SAR / ريال سعودي</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+                  )}
 
-                <div className="grid grid-cols-3 gap-12 text-center border-t border-slate-100 pt-12 mt-12">
-                  <div className="space-y-4">
-                    <p className="text-xs font-black text-slate-400 uppercase tracking-widest">اعتماد المدير الفني</p>
-                    <div className="h-16 flex items-center justify-center italic text-slate-300 font-serif border-b border-dashed border-slate-200">
-                      Technical Approval
+                  <div className="grid grid-cols-3 gap-12 text-center border-t border-slate-100 pt-12 mt-8">
+                    <div className="space-y-4">
+                      <p className="text-xs font-black text-slate-400 uppercase tracking-widest">توقيع مدير الصيانة</p>
+                      <div className="h-16 flex items-center justify-center italic text-slate-300 font-serif border-b border-dashed border-slate-200">
+                        Manager Signature
+                      </div>
                     </div>
-                  </div>
-                  <div className="space-y-4">
-                    <p className="text-xs font-black text-slate-400 uppercase tracking-widest">توقيع السلم المستلم</p>
-                    <div className="h-16 border-b border-dashed border-slate-200 flex items-center justify-center">
-                      <User size={20} className="opacity-10" />
+                    <div className="space-y-4">
+                      <p className="text-xs font-black text-slate-400 uppercase tracking-widest">توقيع الفني المستلم</p>
+                      <div className="h-16 border-b border-dashed border-slate-200 flex items-center justify-center">
+                        <User size={20} className="opacity-10" />
+                      </div>
                     </div>
-                  </div>
-                  <div className="space-y-4">
-                    <p className="text-xs font-black text-slate-400 uppercase tracking-widest">ختم الاعتماد الرسمي</p>
-                    <div className="h-16 border-b border-dashed border-slate-200"></div>
+                    <div className="space-y-4">
+                      <p className="text-xs font-black text-slate-400 uppercase tracking-widest">ختم الاستلام</p>
+                      <div className="h-16 border-b border-dashed border-slate-200"></div>
+                    </div>
                   </div>
                 </div>
-              </div>
             </div>
           )}
         </ScrollArea>
@@ -1298,12 +1276,13 @@ export function FleetClient({
       <Tabs defaultValue="dashboard" value={activeTab} onValueChange={setActiveTab} className="w-full">
         <div className="flex items-center justify-center mb-8">
           <TabsList className="bg-[#1e293b]/50 backdrop-blur-xl p-1.5 rounded-2xl border border-white/10 h-16 shadow-2xl">
-            {[
-              { id: "dashboard", label: "لوحة التحكم", icon: <LayoutDashboard size={18} /> },
-              { id: "vehicles", label: "المركبات", icon: <Car size={18} /> },
-              { id: "inventory", label: "المخزون", icon: <Box size={18} /> },
-              { id: "maintenance", label: "الصيانة", icon: <Wrench size={18} /> }
-            ].map((tab) => (
+              {[
+                { id: "dashboard", label: "لوحة التحكم", icon: <LayoutDashboard size={18} /> },
+                { id: "vehicles", label: "المركبات", icon: <Car size={18} /> },
+                { id: "inventory", label: "المخزون", icon: <Box size={18} /> },
+                { id: "maintenance", label: "الصيانة", icon: <Wrench size={18} /> },
+                { id: "costs", label: "تكاليف الصيانة", icon: <Calculator size={18} /> }
+              ].map((tab) => (
               <TabsTrigger 
                 key={tab.id}
                 value={tab.id} 
@@ -1351,7 +1330,7 @@ export function FleetClient({
                         <TableCell className="font-black text-white">
                           <span className="px-3 py-1 bg-white/10 rounded-lg border border-white/10">{m.plate_number_ar}</span>
                         </TableCell>
-                        <TableCell className="text-white/50 text-xs font-bold">{new Date(m.maintenance_date).toLocaleDateString('ar-SA')}</TableCell>
+                        <TableCell className="text-white/50 text-xs font-bold">{new Date(m.maintenance_date).toLocaleDateString('en-GB')}</TableCell>
                         <TableCell className="font-black text-emerald-400">
                           {m.total_cost} <small className="opacity-50">SAR</small>
                         </TableCell>
@@ -1666,7 +1645,7 @@ export function FleetClient({
                       <TableCell>
                         <div className="flex items-center gap-2 text-xs text-white/40 font-bold">
                           <Calendar size={14} />
-                          {new Date(m.maintenance_date).toLocaleDateString('ar-SA')}
+                          {new Date(m.maintenance_date).toLocaleDateString('en-GB')}
                         </div>
                       </TableCell>
                       <TableCell>
@@ -1698,15 +1677,197 @@ export function FleetClient({
                               setMaintenance(prev => prev.filter(item => item.id !== m.id));
                             }} />
                           </div>
-                        </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
+                          </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="costs">
+            <div className="space-y-8">
+              <div className="grid gap-6 md:grid-cols-4">
+                <DashboardStatCard 
+                  title="إجمالي تكاليف الصيانة" 
+                  value={maintenance.reduce((sum, m) => sum + Number(m.total_cost || 0), 0).toLocaleString()} 
+                  icon={<Calculator />} 
+                  color="blue" 
+                  desc="ريال" 
+                />
+                <DashboardStatCard 
+                  title="قيمة المخزون" 
+                  value={spares.reduce((sum, s) => sum + (Number(s.quantity || 0) * Number(s.unit_price || 0)), 0).toLocaleString()} 
+                  icon={<Box />} 
+                  color="emerald" 
+                  desc="ريال" 
+                />
+                <DashboardStatCard 
+                  title="عدد أوامر الصيانة" 
+                  value={maintenance.length} 
+                  icon={<FileCheck />} 
+                  color="amber" 
+                  desc="أمر" 
+                />
+                <DashboardStatCard 
+                  title="متوسط تكلفة الصيانة" 
+                  value={maintenance.length > 0 ? Math.round(maintenance.reduce((sum, m) => sum + Number(m.total_cost || 0), 0) / maintenance.length).toLocaleString() : 0} 
+                  icon={<TrendingUp />} 
+                  color="rose" 
+                  desc="ريال/أمر" 
+                />
+              </div>
+
+              <div className="grid gap-8 lg:grid-cols-2">
+                <Card className="rounded-[2.5rem] bg-white/5 backdrop-blur-xl border-white/10 shadow-2xl overflow-hidden">
+                  <CardHeader className="p-8 border-b border-white/10 bg-white/5">
+                    <CardTitle className="text-xl font-black text-white flex items-center gap-3">
+                      <div className="p-2 bg-blue-500/20 rounded-xl">
+                        <Calendar className="text-blue-400" size={24} />
+                      </div>
+                      تكاليف الصيانة حسب الشهر
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="p-6">
+                    <div className="space-y-4">
+                      {(() => {
+                        const monthlyData: { [key: string]: number } = {};
+                        maintenance.forEach(m => {
+                          const date = new Date(m.maintenance_date);
+                          const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+                          monthlyData[monthKey] = (monthlyData[monthKey] || 0) + Number(m.total_cost || 0);
+                        });
+                        const sortedMonths = Object.entries(monthlyData).sort((a, b) => b[0].localeCompare(a[0])).slice(0, 6);
+                        const maxValue = Math.max(...sortedMonths.map(([, v]) => v), 1);
+                        
+                        return sortedMonths.map(([month, cost]) => {
+                          const [year, monthNum] = month.split('-');
+                          const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+                          return (
+                            <div key={month} className="space-y-2">
+                              <div className="flex justify-between items-center">
+                                <span className="text-white/70 font-bold text-sm">{monthNames[parseInt(monthNum) - 1]} {year}</span>
+                                <span className="text-emerald-400 font-black">{cost.toLocaleString()} ريال</span>
+                              </div>
+                              <div className="h-3 bg-white/5 rounded-full overflow-hidden">
+                                <div 
+                                  className="h-full bg-gradient-to-r from-blue-500 to-emerald-500 rounded-full transition-all duration-500"
+                                  style={{ width: `${(cost / maxValue) * 100}%` }}
+                                />
+                              </div>
+                            </div>
+                          );
+                        });
+                      })()}
+                      {maintenance.length === 0 && (
+                        <div className="text-center text-white/30 py-8">لا توجد بيانات صيانة</div>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card className="rounded-[2.5rem] bg-white/5 backdrop-blur-xl border-white/10 shadow-2xl overflow-hidden">
+                  <CardHeader className="p-8 border-b border-white/10 bg-white/5">
+                    <CardTitle className="text-xl font-black text-white flex items-center gap-3">
+                      <div className="p-2 bg-amber-500/20 rounded-xl">
+                        <Car className="text-amber-400" size={24} />
+                      </div>
+                      تكاليف الصيانة حسب المركبة
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="p-0">
+                    <Table>
+                      <TableHeader>
+                        <TableRow className="border-white/5 hover:bg-transparent">
+                          <TableHead className="text-white/40 font-black uppercase text-[10px]">المركبة</TableHead>
+                          <TableHead className="text-white/40 font-black uppercase text-[10px]">عدد الصيانات</TableHead>
+                          <TableHead className="text-white/40 font-black uppercase text-[10px]">إجمالي التكلفة</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {(() => {
+                          const vehicleCosts: { [key: string]: { plate: string, count: number, cost: number } } = {};
+                          maintenance.forEach(m => {
+                            const key = m.plate_number_ar;
+                            if (!vehicleCosts[key]) {
+                              vehicleCosts[key] = { plate: key, count: 0, cost: 0 };
+                            }
+                            vehicleCosts[key].count++;
+                            vehicleCosts[key].cost += Number(m.total_cost || 0);
+                          });
+                          return Object.values(vehicleCosts)
+                            .sort((a, b) => b.cost - a.cost)
+                            .slice(0, 8)
+                            .map((v, idx) => (
+                              <TableRow key={idx} className="border-white/5 hover:bg-white/5 transition-colors">
+                                <TableCell className="font-black text-white">
+                                  <span className="px-3 py-1 bg-white/10 rounded-lg border border-white/10">{v.plate}</span>
+                                </TableCell>
+                                <TableCell className="text-white/50 font-bold">{v.count} صيانة</TableCell>
+                                <TableCell className="font-black text-emerald-400">{v.cost.toLocaleString()} <small className="opacity-50">SAR</small></TableCell>
+                              </TableRow>
+                            ));
+                        })()}
+                      </TableBody>
+                    </Table>
+                  </CardContent>
+                </Card>
+              </div>
+
+              <Card className="rounded-[2.5rem] bg-white/5 backdrop-blur-xl border-white/10 shadow-2xl overflow-hidden">
+                <CardHeader className="p-8 border-b border-white/10 bg-white/5">
+                  <CardTitle className="text-xl font-black text-white flex items-center gap-3">
+                    <div className="p-2 bg-emerald-500/20 rounded-xl">
+                      <Package className="text-emerald-400" size={24} />
+                    </div>
+                    مقارنة تكاليف الصيانة بقيمة المخزون
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="p-8">
+                  <div className="grid md:grid-cols-2 gap-8">
+                    <div className="p-6 rounded-2xl bg-blue-500/10 border border-blue-500/20 text-center space-y-4">
+                      <div className="w-16 h-16 bg-blue-500/20 rounded-2xl mx-auto flex items-center justify-center">
+                        <Wrench size={32} className="text-blue-400" />
+                      </div>
+                      <div>
+                        <p className="text-blue-300/70 font-bold text-sm uppercase tracking-widest mb-2">إجمالي تكاليف الصيانة</p>
+                        <p className="text-4xl font-black text-blue-400">
+                          {maintenance.reduce((sum, m) => sum + Number(m.total_cost || 0), 0).toLocaleString()}
+                        </p>
+                        <p className="text-blue-300/50 font-bold text-xs mt-1">ريال سعودي</p>
+                      </div>
+                    </div>
+                    <div className="p-6 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-center space-y-4">
+                      <div className="w-16 h-16 bg-emerald-500/20 rounded-2xl mx-auto flex items-center justify-center">
+                        <Box size={32} className="text-emerald-400" />
+                      </div>
+                      <div>
+                        <p className="text-emerald-300/70 font-bold text-sm uppercase tracking-widest mb-2">قيمة المخزون الحالي</p>
+                        <p className="text-4xl font-black text-emerald-400">
+                          {spares.reduce((sum, s) => sum + (Number(s.quantity || 0) * Number(s.unit_price || 0)), 0).toLocaleString()}
+                        </p>
+                        <p className="text-emerald-300/50 font-bold text-xs mt-1">ريال سعودي</p>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="mt-8 p-4 rounded-xl bg-white/5 border border-white/10">
+                    <div className="flex items-center justify-between">
+                      <span className="text-white/50 font-bold">نسبة تكاليف الصيانة إلى قيمة المخزون</span>
+                      <span className="text-2xl font-black text-amber-400">
+                        {(() => {
+                          const maintenanceCost = maintenance.reduce((sum, m) => sum + Number(m.total_cost || 0), 0);
+                          const inventoryValue = spares.reduce((sum, s) => sum + (Number(s.quantity || 0) * Number(s.unit_price || 0)), 0);
+                          return inventoryValue > 0 ? ((maintenanceCost / inventoryValue) * 100).toFixed(1) : 0;
+                        })()}%
+                      </span>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </TabsContent>
+        </Tabs>
 
       {viewingMaintenance && (
         <ViewPrintEmailDialog
