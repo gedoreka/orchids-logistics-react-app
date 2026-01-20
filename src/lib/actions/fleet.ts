@@ -197,3 +197,17 @@ export async function getMaintenanceDetails(id: number) {
     return { success: false, error: error.message };
   }
 }
+
+export async function completeMaintenanceRequest(id: number) {
+  try {
+    await query(
+      "UPDATE maintenance_requests SET status = 'completed' WHERE id = ?",
+      [id]
+    );
+    revalidatePath("/fleet");
+    return { success: true };
+  } catch (error: any) {
+    console.error("Error completing maintenance request:", error);
+    return { success: false, error: error.message };
+  }
+}

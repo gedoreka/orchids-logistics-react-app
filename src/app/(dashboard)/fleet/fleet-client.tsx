@@ -66,7 +66,7 @@ import {
 } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
-import { addVehicle, addSpare, addSpareCategory, addVehicleCategory, createMaintenanceRequest, deleteVehicle, deleteMaintenanceRequest, getMaintenanceDetails } from "@/lib/actions/fleet";
+import { addVehicle, addSpare, addSpareCategory, addVehicleCategory, createMaintenanceRequest, deleteVehicle, deleteMaintenanceRequest, getMaintenanceDetails, completeMaintenanceRequest } from "@/lib/actions/fleet";
 import { toast } from "sonner";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { motion, AnimatePresence } from "framer-motion";
@@ -607,6 +607,137 @@ function DeleteMaintenanceDialog({ id, onDeleted }: { id: number, onDeleted: () 
         </div>
       </DialogContent>
     </Dialog>
+  );
+}
+
+function SlideConfirmButton({ id, onCompleted }: { id: number; onCompleted: () => void }) {
+  const [sliderValue, setSliderValue] = useState(0);
+  const [loading, setLoading] = useState(false);
+  const [confirmed, setConfirmed] = useState(false);
+  const sliderRef = useRef<HTMLDivElement>(null);
+  const isDragging = useRef(false);
+
+  const handleMouseDown = (e: React.MouseEvent) => {
+    isDragging.current = true;
+    updateSlider(e.clientX);
+  };
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (isDragging.current) {
+      updateSlider(e.clientX);
+    }
+  };
+
+  const handleMouseUp = async () => {
+    if (isDragging.current) {
+      isDragging.current = false;
+      if (sliderValue >= 95) {
+        setLoading(true);
+        const res = await completeMaintenanceRequest(id);
+        setLoading(false);
+        if (res.success) {
+          setConfirmed(true);
+          toast.success("تم تأكيد اكتمال الصيانة بنجاح");
+          onCompleted();
+        } else {
+          toast.error("حدث خطأ في تأكيد الصيانة");
+          setSliderValue(0);
+        }
+      } else {
+        setSliderValue(0);
+      }
+    }
+  };
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    isDragging.current = true;
+    updateSlider(e.touches[0].clientX);
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (isDragging.current) {
+      updateSlider(e.touches[0].clientX);
+    }
+  };
+
+  const handleTouchEnd = async () => {
+    if (isDragging.current) {
+      isDragging.current = false;
+      if (sliderValue >= 95) {
+        setLoading(true);
+        const res = await completeMaintenanceRequest(id);
+        setLoading(false);
+        if (res.success) {
+          setConfirmed(true);
+          toast.success("تم تأكيد اكتمال الصيانة بنجاح");
+          onCompleted();
+        } else {
+          toast.error("حدث خطأ في تأكيد الصيانة");
+          setSliderValue(0);
+        }
+      } else {
+        setSliderValue(0);
+      }
+    }
+  };
+
+  const updateSlider = (clientX: number) => {
+    if (sliderRef.current) {
+      const rect = sliderRef.current.getBoundingClientRect();
+      const x = clientX - rect.left;
+      const percentage = Math.min(Math.max((x / rect.width) * 100, 0), 100);
+      setSliderValue(percentage);
+    }
+  };
+
+  if (confirmed) {
+    return (
+      <div className="h-10 px-4 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center gap-2 font-black text-xs border border-emerald-500/30">
+        <CheckCircle2 size={16} />
+        تمت الصيانة
+      </div>
+    );
+  }
+
+  return (
+    <div
+      ref={sliderRef}
+      className="relative h-10 w-40 bg-white/5 rounded-xl border border-white/10 overflow-hidden cursor-pointer select-none"
+      onMouseDown={handleMouseDown}
+      onMouseMove={handleMouseMove}
+      onMouseUp={handleMouseUp}
+      onMouseLeave={handleMouseUp}
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleTouchEnd}
+    >
+      <div
+        className={cn(
+          "absolute inset-y-0 left-0 transition-all duration-100",
+          sliderValue >= 95 ? "bg-emerald-500" : "bg-emerald-500/50"
+        )}
+        style={{ width: `${sliderValue}%` }}
+      />
+      <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+        {loading ? (
+          <Loader2 size={16} className="animate-spin text-white" />
+        ) : (
+          <span className={cn(
+            "text-[10px] font-black uppercase tracking-wider transition-colors",
+            sliderValue >= 95 ? "text-white" : "text-white/50"
+          )}>
+            {sliderValue >= 95 ? "أفلت للتأكيد" : "اسحب للتأكيد ←"}
+          </span>
+        )}
+      </div>
+      <motion.div
+        className="absolute top-1 bottom-1 w-8 bg-white rounded-lg shadow-lg flex items-center justify-center"
+        style={{ left: `calc(${sliderValue}% - ${sliderValue > 5 ? 16 : 4}px)` }}
+        animate={{ scale: isDragging.current ? 1.1 : 1 }}
+      >
+        <ChevronRight size={16} className="text-emerald-500" />
+      </motion.div>
+    </div>
   );
 }
 
@@ -1665,19 +1796,29 @@ export function FleetClient({
                         </Badge>
                       </TableCell>
 <TableCell className="text-left px-8">
-                          <div className="flex justify-end gap-2">
-                            <button 
-                              onClick={() => setViewingMaintenance(m)}
-                              className="h-9 w-9 rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center hover:bg-emerald-500 hover:text-white transition-all shadow-lg"
-                              title="عرض وطباعة"
-                            >
-                              <Eye size={16} />
-                            </button>
-                            <DeleteMaintenanceDialog id={m.id} onDeleted={() => {
-                              setMaintenance(prev => prev.filter(item => item.id !== m.id));
-                            }} />
-                          </div>
-                          </TableCell>
+                            <div className="flex justify-end gap-2 items-center">
+                              {m.status === 'pending' && (
+                                <SlideConfirmButton 
+                                  id={m.id} 
+                                  onCompleted={() => {
+                                    setMaintenance(prev => prev.map(item => 
+                                      item.id === m.id ? { ...item, status: 'completed' } : item
+                                    ));
+                                  }} 
+                                />
+                              )}
+                              <button 
+                                onClick={() => setViewingMaintenance(m)}
+                                className="h-9 w-9 rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center hover:bg-emerald-500 hover:text-white transition-all shadow-lg"
+                                title="عرض وطباعة"
+                              >
+                                <Eye size={16} />
+                              </button>
+                              <DeleteMaintenanceDialog id={m.id} onDeleted={() => {
+                                setMaintenance(prev => prev.filter(item => item.id !== m.id));
+                              }} />
+                            </div>
+                            </TableCell>
                       </TableRow>
                     ))}
                   </TableBody>
