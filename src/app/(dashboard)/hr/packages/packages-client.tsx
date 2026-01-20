@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
   Plus, 
@@ -8,30 +8,19 @@ import {
   Trash2, 
   X, 
   Save, 
-  ChevronRight,
   Package,
   Target,
   Trophy,
   UserPlus,
   ArrowRight,
+  ArrowLeft,
   LayoutDashboard,
   Download,
   Upload,
-  User,
-  CreditCard,
-  Briefcase,
-  Globe,
-  Phone,
-  Mail,
   DollarSign,
-  Home,
-  Car,
   Sparkles,
-  BadgeCheck,
-  TrendingUp,
   Search,
   Filter,
-  MoreHorizontal,
   Eye,
   Settings,
   Zap
@@ -40,6 +29,8 @@ import { toast } from "sonner";
 import { createPackageWithEmployees, deleteEmployeePackage } from "@/lib/actions/hr";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useLocale, useTranslations } from "@/lib/locale-context";
+import { cn } from "@/lib/utils";
 
 interface PackagesClientProps {
   initialPackages: any[];
@@ -47,6 +38,9 @@ interface PackagesClientProps {
 }
 
 export function PackagesClient({ initialPackages, companyId }: PackagesClientProps) {
+  const { isRTL } = useLocale();
+  const t = useTranslations('packages');
+  
   const [packages, setPackages] = useState(initialPackages);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isAddEmployeesModalOpen, setIsAddEmployeesModalOpen] = useState(false);
@@ -132,13 +126,13 @@ export function PackagesClient({ initialPackages, companyId }: PackagesClientPro
   const removeEmployeeRow = (index: number, isAddModal = false) => {
     if (isAddModal) {
       if (addEmployeesData.length === 1) {
-        toast.error("يجب وجود موظف واحد على الأقل");
+        toast.error(t('mustHaveOneEmployee'));
         return;
       }
       setAddEmployeesData(addEmployeesData.filter((_, i) => i !== index));
     } else {
       if (employees.length === 1) {
-        toast.error("يجب وجود موظف واحد على الأقل");
+        toast.error(t('mustHaveOneEmployee'));
         return;
       }
       setEmployees(employees.filter((_, i) => i !== index));
@@ -169,7 +163,7 @@ export function PackagesClient({ initialPackages, companyId }: PackagesClientPro
       });
 
       if (result.success) {
-        toast.success("تم إنشاء الباقة والموظفين بنجاح");
+        toast.success(t('packageCreatedSuccess'));
         router.refresh();
         setIsModalOpen(false);
         setFormData({
@@ -184,10 +178,10 @@ export function PackagesClient({ initialPackages, companyId }: PackagesClientPro
           basic_salary: 0, housing_allowance: 0, vehicle_plate: "", iban: ""
         }]);
       } else {
-        toast.error(result.error || "حدث خطأ أثناء الإضافة");
+        toast.error(result.error || t('errorOccurred'));
       }
-    } catch (error) {
-      toast.error("حدث خطأ غير متوقع");
+    } catch {
+      toast.error(t('unexpectedError'));
     } finally {
       setIsLoading(false);
     }
@@ -204,7 +198,7 @@ export function PackagesClient({ initialPackages, companyId }: PackagesClientPro
         .map(emp => ({ ...emp, company_id: companyId }));
 
       if (employeesToSave.length === 0) {
-        toast.error("يرجى إدخال بيانات موظف واحد على الأقل");
+        toast.error(t('enterOneEmployeeAtLeast'));
         setIsLoading(false);
         return;
       }
@@ -213,7 +207,7 @@ export function PackagesClient({ initialPackages, companyId }: PackagesClientPro
       const result = await saveEmployees(selectedPackage.id, employeesToSave);
 
       if (result.success) {
-        toast.success("تم إضافة الموظفين بنجاح");
+        toast.success(t('employeesAddedSuccess'));
         router.refresh();
         setIsAddEmployeesModalOpen(false);
         setAddEmployeesData([{
@@ -222,28 +216,28 @@ export function PackagesClient({ initialPackages, companyId }: PackagesClientPro
           basic_salary: 0, housing_allowance: 0, vehicle_plate: "", iban: ""
         }]);
       } else {
-        toast.error(result.error || "حدث خطأ أثناء الإضافة");
+        toast.error(result.error || t('errorOccurred'));
       }
-    } catch (error) {
-      toast.error("حدث خطأ غير متوقع");
+    } catch {
+      toast.error(t('unexpectedError'));
     } finally {
       setIsLoading(false);
     }
   };
 
   const handleDelete = async (id: number) => {
-    if (!confirm("هل أنت متأكد من حذف هذه الباقة؟ سيتم حذف جميع الموظفين المرتبطين بها.")) return;
+    if (!confirm(t('confirmDeletePackage'))) return;
 
     try {
       const result = await deleteEmployeePackage(id);
       if (result.success) {
-        toast.success("تم حذف الباقة بنجاح");
+        toast.success(t('packageDeletedSuccess'));
         setPackages(prev => prev.filter(p => p.id !== id));
       } else {
-        toast.error(result.error || "حدث خطأ أثناء الحذف");
+        toast.error(result.error || t('errorOccurred'));
       }
-    } catch (error) {
-      toast.error("حدث خطأ غير متوقع");
+    } catch {
+      toast.error(t('unexpectedError'));
     }
   };
 
@@ -252,14 +246,14 @@ export function PackagesClient({ initialPackages, companyId }: PackagesClientPro
     const isSalary = workType === 'salary';
     let headers;
     if (isSalary) {
-      headers = ["الاسم", "رقم الهوية", "المسمى الوظيفي", "الجنسية", "رقم الهاتف", "البريد الإلكتروني", "الراتب الأساسي", "بدل السكن", "الآيبان"];
+      headers = [t('employeeName'), t('identityNumber'), t('jobTitle'), t('nationality'), t('phoneNumber'), t('email'), t('basicSalary'), t('housingAllowance'), t('iban')];
     } else {
-      headers = ["الاسم", "رقم الإقامة", "الجنسية", "رقم المستخدم", "رقم الهاتف", "البريد الإلكتروني", "الراتب الأساسي", "بدل السكن", "لوحة المركبة", "الآيبان"];
+      headers = [t('employeeName'), t('iqamaNumber'), t('nationality'), t('userCode'), t('phoneNumber'), t('email'), t('basicSalary'), t('housingAllowance'), t('vehiclePlate'), t('iban')];
     }
     
     const csvContent = "data:text/csv;charset=utf-8,\uFEFF" + headers.join(",") + "\n" + 
-      (isSalary ? "أحمد محمد,1234567890,محاسب,سعودي,0555555555,ahmed@example.com,5000,1000,SA0000000000000000000000" 
-                : "أحمد محمد,1234567890,سعودي,EMP001,0555555555,ahmed@example.com,3000,1000,أ ب ج 1234,SA0000000000000000000000");
+      (isSalary ? "Ahmed Mohammed,1234567890,Accountant,Saudi,0555555555,ahmed@example.com,5000,1000,SA0000000000000000000000" 
+                : "Ahmed Mohammed,1234567890,Saudi,EMP001,0555555555,ahmed@example.com,3000,1000,ABC 1234,SA0000000000000000000000");
     
     const encodedUri = encodeURI(csvContent);
     const link = document.createElement("a");
@@ -321,7 +315,7 @@ export function PackagesClient({ initialPackages, companyId }: PackagesClientPro
         } else {
           setEmployees(newEmployees);
         }
-        toast.success(`تم استيراد ${newEmployees.length} موظف بنجاح`);
+        toast.success(t('importedEmployeesSuccess').replace('{count}', newEmployees.length.toString()));
       }
     };
     reader.readAsText(file);
@@ -340,306 +334,327 @@ export function PackagesClient({ initialPackages, companyId }: PackagesClientPro
     visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: "easeOut" } }
   };
 
-    return (
-      <div className="min-h-screen pb-20">
-        <motion.div 
-          variants={containerVariants}
-          initial="hidden"
-          animate="visible"
-          className="max-w-[95%] mx-auto px-4 pt-6"
-        >
-          <motion.div 
-            variants={itemVariants}
-            className="bg-gradient-to-r from-slate-700 to-slate-800 rounded-2xl shadow-lg overflow-hidden"
-          >
-            <div className="p-6 border-b border-white/10">
-              <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-                <div className="flex items-center gap-3">
-                  <div className="h-12 w-12 rounded-2xl bg-white/10 flex items-center justify-center">
-                    <Package className="text-white" size={22} />
-                  </div>
-                  <div>
-                    <div className="flex items-center gap-2 text-xs font-bold text-white/60">
-                      <Link href="/hr" className="hover:text-white transition-colors flex items-center gap-1">
-                        <LayoutDashboard size={12} />
-                        شؤون الموظفين
-                      </Link>
-                      <ArrowRight size={12} className="rotate-180" />
-                      <span className="text-purple-300">إدارة الباقات</span>
-                    </div>
-                    <h1 className="text-xl font-black text-white">باقات الموظفين</h1>
-                  </div>
-                </div>
+  const getWorkTypeLabel = (workType: string) => {
+    switch (workType) {
+      case 'target': return t('targetSystemOption');
+      case 'salary': return t('salarySystemOption');
+      case 'commission': return t('commissionSystemOption');
+      default: return workType;
+    }
+  };
 
-                <div className="flex items-center gap-3">
-                  <div className="hidden md:flex items-center gap-2 px-4 py-2 bg-white/10 border border-white/10 rounded-xl">
-                    <div className="w-2 h-2 rounded-full bg-purple-400 animate-pulse"></div>
-                    <span className="text-xs font-black text-white/80">{packages.length} باقة</span>
+  const getWorkTypeShortLabel = (workType: string) => {
+    switch (workType) {
+      case 'target': return t('targetLabel');
+      case 'salary': return t('salaryLabel');
+      case 'commission': return t('commissionLabel');
+      default: return workType;
+    }
+  };
+
+  return (
+    <div dir={isRTL ? 'rtl' : 'ltr'} className="min-h-screen pb-20">
+      <motion.div 
+        variants={containerVariants}
+        initial="hidden"
+        animate="visible"
+        className="max-w-[95%] mx-auto px-4 pt-6"
+      >
+        <motion.div 
+          variants={itemVariants}
+          className="bg-gradient-to-r from-slate-700 to-slate-800 rounded-2xl shadow-lg overflow-hidden"
+        >
+          <div className="p-6 border-b border-white/10">
+            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+              <div className="flex items-center gap-3">
+                <div className="h-12 w-12 rounded-2xl bg-white/10 flex items-center justify-center">
+                  <Package className="text-white" size={22} />
+                </div>
+                <div>
+                  <div className="flex items-center gap-2 text-xs font-bold text-white/60">
+                    <Link href="/hr" className="hover:text-white transition-colors flex items-center gap-1">
+                      <LayoutDashboard size={12} />
+                      {t('hrAffairs')}
+                    </Link>
+                    {isRTL ? <ArrowLeft size={12} /> : <ArrowRight size={12} />}
+                    <span className="text-purple-300">{t('packagesManagement')}</span>
                   </div>
+                  <h1 className="text-xl font-black text-white">{t('title')}</h1>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-3">
+                <div className="hidden md:flex items-center gap-2 px-4 py-2 bg-white/10 border border-white/10 rounded-xl">
+                  <div className="w-2 h-2 rounded-full bg-purple-400 animate-pulse"></div>
+                  <span className="text-xs font-black text-white/80">{packages.length} {t('packagesCount')}</span>
+                </div>
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={() => setIsModalOpen(true)}
+                  className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-purple-500 to-violet-500 text-white hover:from-purple-600 hover:to-violet-600 transition-all font-black text-sm shadow-lg"
+                >
+                  <Plus size={18} />
+                  {t('createNewPackage')}
+                </motion.button>
+              </div>
+            </div>
+          </div>
+
+          <div className="p-6 border-b border-white/10">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+              <div className="relative overflow-hidden rounded-xl bg-white/10 p-5">
+                <div className="flex items-start justify-between">
+                  <div className="text-white/90"><Package size={22} /></div>
+                  <span className="text-[10px] font-black text-white/70 bg-white/10 px-2 py-0.5 rounded-full">{t('total')}</span>
+                </div>
+                <div className="mt-4">
+                  <p className="text-white/70 text-[10px] font-black uppercase tracking-wider">{t('totalPackages')}</p>
+                  <motion.p 
+                    initial={{ opacity: 0, scale: 0.5 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: 0.2, type: "spring" }}
+                    className="text-3xl font-black text-white mt-1"
+                  >
+                    {stats.total}
+                  </motion.p>
+                  <p className="text-white/60 text-[10px] font-bold mt-1">{t('allWorkGroups')}</p>
+                </div>
+              </div>
+              
+              <div className="relative overflow-hidden rounded-xl bg-white/10 p-5">
+                <div className="flex items-start justify-between">
+                  <div className="text-white/90"><Target size={22} /></div>
+                  <span className="text-[10px] font-black text-white/90 bg-white/20 px-2 py-0.5 rounded-full">{t('targetLabel')}</span>
+                </div>
+                <div className="mt-4">
+                  <p className="text-white/70 text-[10px] font-black uppercase tracking-wider">{t('targetSystem')}</p>
+                  <motion.p 
+                    initial={{ opacity: 0, scale: 0.5 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: 0.3, type: "spring" }}
+                    className="text-3xl font-black text-white mt-1"
+                  >
+                    {stats.targetType}
+                  </motion.p>
+                  <p className="text-white/60 text-[10px] font-bold mt-1">{t('targetPackages')}</p>
+                </div>
+              </div>
+              
+              <div className="relative overflow-hidden rounded-xl bg-white/10 p-5">
+                <div className="flex items-start justify-between">
+                  <div className="text-white/90"><DollarSign size={22} /></div>
+                  <span className="text-[10px] font-black text-white/90 bg-white/20 px-2 py-0.5 rounded-full">{t('salaryLabel')}</span>
+                </div>
+                <div className="mt-4">
+                  <p className="text-white/70 text-[10px] font-black uppercase tracking-wider">{t('salarySystem')}</p>
+                  <motion.p 
+                    initial={{ opacity: 0, scale: 0.5 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: 0.4, type: "spring" }}
+                    className="text-3xl font-black text-white mt-1"
+                  >
+                    {stats.salaryType}
+                  </motion.p>
+                  <p className="text-white/60 text-[10px] font-bold mt-1">{t('salaryPackages')}</p>
+                </div>
+              </div>
+              
+              <div className="relative overflow-hidden rounded-xl bg-white/10 p-5">
+                <div className="flex items-start justify-between">
+                  <div className="text-white/90"><Zap size={22} /></div>
+                  <span className="text-[10px] font-black text-white/90 bg-white/20 px-2 py-0.5 rounded-full">{t('commissionLabel')}</span>
+                </div>
+                <div className="mt-4">
+                  <p className="text-white/70 text-[10px] font-black uppercase tracking-wider">{t('commissionSystem')}</p>
+                  <motion.p 
+                    initial={{ opacity: 0, scale: 0.5 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: 0.5, type: "spring" }}
+                    className="text-3xl font-black text-white mt-1"
+                  >
+                    {stats.commissionType}
+                  </motion.p>
+                  <p className="text-white/60 text-[10px] font-bold mt-1">{t('commissionPackages')}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="px-6 py-4 border-b border-white/10">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <div className="flex items-center gap-3">
+                <div className="h-10 w-10 rounded-xl bg-white/10 flex items-center justify-center">
+                  <Package className="text-white" size={20} />
+                </div>
+                <div>
+                  <h3 className="text-white font-black">{t('packagesList')}</h3>
+                  <p className="text-slate-400 text-xs font-bold">{filteredPackages.length} {t('packagesInList')}</p>
+                </div>
+              </div>
+              
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+                <div className="relative flex-1 sm:min-w-[300px]">
+                  <Search className={cn("absolute top-1/2 -translate-y-1/2 text-slate-400", isRTL ? "right-4" : "left-4")} size={18} />
+                  <input
+                    type="text"
+                    placeholder={t('searchByPackageName')}
+                    className={cn(
+                      "w-full py-2.5 bg-white/10 border border-white/10 rounded-xl text-sm font-bold text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-purple-500/30 focus:bg-white/20 transition-all",
+                      isRTL ? "pr-12 pl-4" : "pl-12 pr-4"
+                    )}
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                  />
+                </div>
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/10 text-white hover:bg-white/20 transition-all font-bold text-xs border border-white/10"
+                >
+                  <Filter size={16} />
+                  {t('filter')}
+                </motion.button>
+              </div>
+            </div>
+          </div>
+
+          <div className="p-6 bg-gray-50">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+              <AnimatePresence>
+                {filteredPackages.map((pkg, index) => (
+                  <motion.div
+                    key={pkg.id}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, scale: 0.9 }}
+                    transition={{ delay: index * 0.05 }}
+                    className="group bg-white rounded-2xl border border-gray-100 p-6 hover:shadow-xl hover:border-purple-200 transition-all duration-500 relative overflow-hidden"
+                  >
+                    <div className={cn("absolute top-0 p-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity", isRTL ? "left-0" : "right-0")}>
+                      <motion.button
+                        whileHover={{ scale: 1.1 }}
+                        whileTap={{ scale: 0.9 }}
+                        onClick={() => handleDelete(pkg.id)}
+                        className="h-8 w-8 rounded-lg bg-red-50 text-red-600 flex items-center justify-center hover:bg-red-600 hover:text-white transition-all shadow-sm"
+                      >
+                        <Trash2 size={14} />
+                      </motion.button>
+                    </div>
+
+                    <div className="space-y-5">
+                      <div className="h-14 w-14 rounded-2xl bg-gradient-to-br from-purple-100 to-violet-100 flex items-center justify-center text-purple-600 group-hover:from-purple-500 group-hover:to-violet-600 group-hover:text-white transition-all shadow-sm group-hover:shadow-lg group-hover:shadow-purple-500/20">
+                        <Package size={26} />
+                      </div>
+
+                      <div>
+                        <h3 className="text-lg font-black text-gray-900 mb-2 line-clamp-1">{pkg.group_name}</h3>
+                        <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-wider ${
+                          pkg.work_type === 'target' 
+                            ? 'bg-gradient-to-r from-blue-50 to-indigo-50 text-blue-700 border border-blue-200' 
+                            : pkg.work_type === 'salary' 
+                            ? 'bg-gradient-to-r from-emerald-50 to-teal-50 text-emerald-700 border border-emerald-200' 
+                            : 'bg-gradient-to-r from-amber-50 to-orange-50 text-orange-700 border border-orange-200'
+                        }`}>
+                          {pkg.work_type === 'target' && <Target size={12} />}
+                          {pkg.work_type === 'salary' && <DollarSign size={12} />}
+                          {pkg.work_type === 'commission' && <Zap size={12} />}
+                          {getWorkTypeLabel(pkg.work_type)}
+                        </span>
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-3">
+                        <div className="bg-gray-50 rounded-xl p-4 border border-gray-100 group-hover:border-purple-100 transition-colors">
+                          <div className="flex items-center gap-1.5 text-gray-400 mb-1">
+                            <Target size={12} />
+                            <span className="text-[9px] font-black uppercase tracking-wider">{t('target')}</span>
+                          </div>
+                          <div className="text-xl font-black text-gray-900">{pkg.monthly_target}</div>
+                        </div>
+                        <div className="bg-gray-50 rounded-xl p-4 border border-gray-100 group-hover:border-purple-100 transition-colors">
+                          <div className="flex items-center gap-1.5 text-gray-400 mb-1">
+                            <Trophy size={12} />
+                            <span className="text-[9px] font-black uppercase tracking-wider">{t('bonus')}</span>
+                          </div>
+                          <div className="text-xl font-black text-gray-900">{pkg.bonus_after_target}</div>
+                        </div>
+                      </div>
+
+                      <div className="pt-2 flex gap-2">
+                        <motion.button 
+                          whileHover={{ scale: 1.02 }}
+                          whileTap={{ scale: 0.98 }}
+                          onClick={() => {
+                            setSelectedPackage(pkg);
+                            setIsAddEmployeesModalOpen(true);
+                          }}
+                          className="flex-1 flex items-center justify-center gap-2 bg-gradient-to-r from-purple-600 to-violet-600 text-white py-3.5 rounded-xl text-xs font-black shadow-lg shadow-purple-500/20 hover:from-purple-700 hover:to-violet-700 transition-all"
+                        >
+                          <UserPlus size={16} />
+                          <span>{t('addEmployees')}</span>
+                        </motion.button>
+                        <Link 
+                          href={`/hr/packages/${pkg.id}`}
+                          className="h-[50px] w-[50px] rounded-xl bg-gray-50 border border-gray-200 flex items-center justify-center text-gray-500 hover:bg-purple-50 hover:border-purple-200 hover:text-purple-600 transition-all group-hover:shadow-lg"
+                        >
+                          <Eye size={20} />
+                        </Link>
+                      </div>
+                    </div>
+                  </motion.div>
+                ))}
+              </AnimatePresence>
+
+              {filteredPackages.length === 0 && (
+                <div className="col-span-full py-16 flex flex-col items-center gap-4">
+                  <div className="h-24 w-24 rounded-3xl bg-gray-100 flex items-center justify-center">
+                    <Package size={48} className="text-gray-300" />
+                  </div>
+                  <p className="text-lg font-black text-gray-400">{t('noMatchingPackages')}</p>
+                  <p className="text-sm font-bold text-gray-300">{t('tryDifferentSearch')}</p>
                   <motion.button
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                     onClick={() => setIsModalOpen(true)}
-                    className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-purple-500 to-violet-500 text-white hover:from-purple-600 hover:to-violet-600 transition-all font-black text-sm shadow-lg"
+                    className="mt-2 flex items-center gap-2 px-5 py-2.5 rounded-xl bg-purple-100 text-purple-700 hover:bg-purple-200 transition-all font-bold text-sm"
                   >
-                    <Plus size={18} />
-                    إنشاء باقة جديدة
+                    <Plus size={16} />
+                    {t('createNewPackage')}
                   </motion.button>
                 </div>
+              )}
+            </div>
+          </div>
+
+          <div className="bg-slate-600 px-6 py-4">
+            <div className="flex items-center justify-between text-xs font-bold text-white/70">
+              <span>{t('totalPackagesFooter')}: {filteredPackages.length}</span>
+              <div className="flex items-center gap-4">
+                <span className="flex items-center gap-1">
+                  <Target size={14} className="text-blue-300" />
+                  {stats.targetType} {t('targetLabel')}
+                </span>
+                <span className="flex items-center gap-1">
+                  <DollarSign size={14} className="text-emerald-300" />
+                  {stats.salaryType} {t('salaryLabel')}
+                </span>
+                <span className="flex items-center gap-1">
+                  <Zap size={14} className="text-amber-300" />
+                  {stats.commissionType} {t('commissionLabel')}
+                </span>
               </div>
             </div>
-
-            <div className="p-6 border-b border-white/10">
-              <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-                <div className="relative overflow-hidden rounded-xl bg-white/10 p-5">
-                  <div className="flex items-start justify-between">
-                    <div className="text-white/90"><Package size={22} /></div>
-                    <span className="text-[10px] font-black text-white/70 bg-white/10 px-2 py-0.5 rounded-full">إجمالي</span>
-                  </div>
-                  <div className="mt-4">
-                    <p className="text-white/70 text-[10px] font-black uppercase tracking-wider">إجمالي الباقات</p>
-                    <motion.p 
-                      initial={{ opacity: 0, scale: 0.5 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      transition={{ delay: 0.2, type: "spring" }}
-                      className="text-3xl font-black text-white mt-1"
-                    >
-                      {stats.total}
-                    </motion.p>
-                    <p className="text-white/60 text-[10px] font-bold mt-1">جميع مجموعات العمل</p>
-                  </div>
-                </div>
-                
-                <div className="relative overflow-hidden rounded-xl bg-white/10 p-5">
-                  <div className="flex items-start justify-between">
-                    <div className="text-white/90"><Target size={22} /></div>
-                    <span className="text-[10px] font-black text-white/90 bg-white/20 px-2 py-0.5 rounded-full">تارجت</span>
-                  </div>
-                  <div className="mt-4">
-                    <p className="text-white/70 text-[10px] font-black uppercase tracking-wider">نظام التارجت</p>
-                    <motion.p 
-                      initial={{ opacity: 0, scale: 0.5 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      transition={{ delay: 0.3, type: "spring" }}
-                      className="text-3xl font-black text-white mt-1"
-                    >
-                      {stats.targetType}
-                    </motion.p>
-                    <p className="text-white/60 text-[10px] font-bold mt-1">باقات بنظام الهدف</p>
-                  </div>
-                </div>
-                
-                <div className="relative overflow-hidden rounded-xl bg-white/10 p-5">
-                  <div className="flex items-start justify-between">
-                    <div className="text-white/90"><DollarSign size={22} /></div>
-                    <span className="text-[10px] font-black text-white/90 bg-white/20 px-2 py-0.5 rounded-full">راتب</span>
-                  </div>
-                  <div className="mt-4">
-                    <p className="text-white/70 text-[10px] font-black uppercase tracking-wider">نظام الراتب</p>
-                    <motion.p 
-                      initial={{ opacity: 0, scale: 0.5 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      transition={{ delay: 0.4, type: "spring" }}
-                      className="text-3xl font-black text-white mt-1"
-                    >
-                      {stats.salaryType}
-                    </motion.p>
-                    <p className="text-white/60 text-[10px] font-bold mt-1">باقات بنظام الراتب</p>
-                  </div>
-                </div>
-                
-                <div className="relative overflow-hidden rounded-xl bg-white/10 p-5">
-                  <div className="flex items-start justify-between">
-                    <div className="text-white/90"><Zap size={22} /></div>
-                    <span className="text-[10px] font-black text-white/90 bg-white/20 px-2 py-0.5 rounded-full">عمولة</span>
-                  </div>
-                  <div className="mt-4">
-                    <p className="text-white/70 text-[10px] font-black uppercase tracking-wider">نظام العمولة</p>
-                    <motion.p 
-                      initial={{ opacity: 0, scale: 0.5 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      transition={{ delay: 0.5, type: "spring" }}
-                      className="text-3xl font-black text-white mt-1"
-                    >
-                      {stats.commissionType}
-                    </motion.p>
-                    <p className="text-white/60 text-[10px] font-bold mt-1">باقات بنظام العمولة</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className="px-6 py-4 border-b border-white/10">
-              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                <div className="flex items-center gap-3">
-                  <div className="h-10 w-10 rounded-xl bg-white/10 flex items-center justify-center">
-                    <Package className="text-white" size={20} />
-                  </div>
-                  <div>
-                    <h3 className="text-white font-black">قائمة الباقات</h3>
-                    <p className="text-slate-400 text-xs font-bold">{filteredPackages.length} باقة في القائمة</p>
-                  </div>
-                </div>
-                
-                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
-                  <div className="relative flex-1 sm:min-w-[300px]">
-                    <Search className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
-                    <input
-                      type="text"
-                      placeholder="البحث باسم الباقة..."
-                      className="w-full pr-12 pl-4 py-2.5 bg-white/10 border border-white/10 rounded-xl text-sm font-bold text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-purple-500/30 focus:bg-white/20 transition-all"
-                      value={searchTerm}
-                      onChange={(e) => setSearchTerm(e.target.value)}
-                    />
-                  </div>
-                  <motion.button
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                    className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/10 text-white hover:bg-white/20 transition-all font-bold text-xs border border-white/10"
-                  >
-                    <Filter size={16} />
-                    تصفية
-                  </motion.button>
-                </div>
-              </div>
-            </div>
-
-            <div className="p-6 bg-gray-50">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-                <AnimatePresence>
-                  {filteredPackages.map((pkg, index) => (
-                    <motion.div
-                      key={pkg.id}
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, scale: 0.9 }}
-                      transition={{ delay: index * 0.05 }}
-                      className="group bg-white rounded-2xl border border-gray-100 p-6 hover:shadow-xl hover:border-purple-200 transition-all duration-500 relative overflow-hidden"
-                    >
-                      <div className="absolute top-0 right-0 p-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <motion.button
-                          whileHover={{ scale: 1.1 }}
-                          whileTap={{ scale: 0.9 }}
-                          onClick={() => handleDelete(pkg.id)}
-                          className="h-8 w-8 rounded-lg bg-red-50 text-red-600 flex items-center justify-center hover:bg-red-600 hover:text-white transition-all shadow-sm"
-                        >
-                          <Trash2 size={14} />
-                        </motion.button>
-                      </div>
-
-                      <div className="space-y-5">
-                        <div className="h-14 w-14 rounded-2xl bg-gradient-to-br from-purple-100 to-violet-100 flex items-center justify-center text-purple-600 group-hover:from-purple-500 group-hover:to-violet-600 group-hover:text-white transition-all shadow-sm group-hover:shadow-lg group-hover:shadow-purple-500/20">
-                          <Package size={26} />
-                        </div>
-
-                        <div>
-                          <h3 className="text-lg font-black text-gray-900 mb-2 line-clamp-1">{pkg.group_name}</h3>
-                          <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-wider ${
-                            pkg.work_type === 'target' 
-                              ? 'bg-gradient-to-r from-blue-50 to-indigo-50 text-blue-700 border border-blue-200' 
-                              : pkg.work_type === 'salary' 
-                              ? 'bg-gradient-to-r from-emerald-50 to-teal-50 text-emerald-700 border border-emerald-200' 
-                              : 'bg-gradient-to-r from-amber-50 to-orange-50 text-orange-700 border border-orange-200'
-                          }`}>
-                            {pkg.work_type === 'target' && <Target size={12} />}
-                            {pkg.work_type === 'salary' && <DollarSign size={12} />}
-                            {pkg.work_type === 'commission' && <Zap size={12} />}
-                            {pkg.work_type === 'target' ? 'نظام التارجت' : pkg.work_type === 'salary' ? 'نظام الراتب' : 'نظام العمولة'}
-                          </span>
-                        </div>
-
-                        <div className="grid grid-cols-2 gap-3">
-                          <div className="bg-gray-50 rounded-xl p-4 border border-gray-100 group-hover:border-purple-100 transition-colors">
-                            <div className="flex items-center gap-1.5 text-gray-400 mb-1">
-                              <Target size={12} />
-                              <span className="text-[9px] font-black uppercase tracking-wider">التارجت</span>
-                            </div>
-                            <div className="text-xl font-black text-gray-900">{pkg.monthly_target}</div>
-                          </div>
-                          <div className="bg-gray-50 rounded-xl p-4 border border-gray-100 group-hover:border-purple-100 transition-colors">
-                            <div className="flex items-center gap-1.5 text-gray-400 mb-1">
-                              <Trophy size={12} />
-                              <span className="text-[9px] font-black uppercase tracking-wider">البونص</span>
-                            </div>
-                            <div className="text-xl font-black text-gray-900">{pkg.bonus_after_target}</div>
-                          </div>
-                        </div>
-
-                        <div className="pt-2 flex gap-2">
-                          <motion.button 
-                            whileHover={{ scale: 1.02 }}
-                            whileTap={{ scale: 0.98 }}
-                            onClick={() => {
-                              setSelectedPackage(pkg);
-                              setIsAddEmployeesModalOpen(true);
-                            }}
-                            className="flex-1 flex items-center justify-center gap-2 bg-gradient-to-r from-purple-600 to-violet-600 text-white py-3.5 rounded-xl text-xs font-black shadow-lg shadow-purple-500/20 hover:from-purple-700 hover:to-violet-700 transition-all"
-                          >
-                            <UserPlus size={16} />
-                            <span>إضافة موظفين</span>
-                          </motion.button>
-                          <Link 
-                            href={`/hr/packages/${pkg.id}`}
-                            className="h-[50px] w-[50px] rounded-xl bg-gray-50 border border-gray-200 flex items-center justify-center text-gray-500 hover:bg-purple-50 hover:border-purple-200 hover:text-purple-600 transition-all group-hover:shadow-lg"
-                          >
-                            <Eye size={20} />
-                          </Link>
-                        </div>
-                      </div>
-                    </motion.div>
-                  ))}
-                </AnimatePresence>
-
-                {filteredPackages.length === 0 && (
-                  <div className="col-span-full py-16 flex flex-col items-center gap-4">
-                    <div className="h-24 w-24 rounded-3xl bg-gray-100 flex items-center justify-center">
-                      <Package size={48} className="text-gray-300" />
-                    </div>
-                    <p className="text-lg font-black text-gray-400">لا توجد باقات مطابقة للبحث</p>
-                    <p className="text-sm font-bold text-gray-300">جرب البحث بكلمات مختلفة أو أنشئ باقة جديدة</p>
-                    <motion.button
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
-                      onClick={() => setIsModalOpen(true)}
-                      className="mt-2 flex items-center gap-2 px-5 py-2.5 rounded-xl bg-purple-100 text-purple-700 hover:bg-purple-200 transition-all font-bold text-sm"
-                    >
-                      <Plus size={16} />
-                      إنشاء باقة جديدة
-                    </motion.button>
-                  </div>
-                )}
-              </div>
-            </div>
-
-            <div className="bg-slate-600 px-6 py-4">
-              <div className="flex items-center justify-between text-xs font-bold text-white/70">
-                <span>إجمالي الباقات: {filteredPackages.length}</span>
-                <div className="flex items-center gap-4">
-                  <span className="flex items-center gap-1">
-                    <Target size={14} className="text-blue-300" />
-                    {stats.targetType} تارجت
-                  </span>
-                  <span className="flex items-center gap-1">
-                    <DollarSign size={14} className="text-emerald-300" />
-                    {stats.salaryType} راتب
-                  </span>
-                  <span className="flex items-center gap-1">
-                    <Zap size={14} className="text-amber-300" />
-                    {stats.commissionType} عمولة
-                  </span>
-                </div>
-              </div>
-            </div>
-          </motion.div>
-
-          <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-[10px] font-black text-gray-400 uppercase tracking-widest pt-4">
-            <div className="flex items-center gap-2">
-              <Sparkles size={12} className="text-purple-500" />
-              <span>نظام إدارة الباقات - ZoolSpeed Logistics</span>
-            </div>
-            <span>جميع الحقوق محفوظة © {new Date().getFullYear()}</span>
           </div>
         </motion.div>
+
+        <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-[10px] font-black text-gray-400 uppercase tracking-widest pt-4">
+          <div className="flex items-center gap-2">
+            <Sparkles size={12} className="text-purple-500" />
+            <span>{t('systemManagement')}</span>
+          </div>
+          <span>{t('allRightsReserved')} © {new Date().getFullYear()}</span>
+        </div>
+      </motion.div>
 
       <AnimatePresence>
         {isModalOpen && (
@@ -656,6 +671,7 @@ export function PackagesClient({ initialPackages, companyId }: PackagesClientPro
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.9, y: 20 }}
               className="relative w-full max-w-[95vw] h-[90vh] bg-white rounded-3xl shadow-2xl overflow-hidden flex flex-col"
+              dir={isRTL ? 'rtl' : 'ltr'}
             >
               <div className="bg-gradient-to-r from-purple-600 to-violet-600 p-6 text-white flex items-center justify-between shrink-0">
                 <div className="flex items-center gap-3">
@@ -663,8 +679,8 @@ export function PackagesClient({ initialPackages, companyId }: PackagesClientPro
                     <Package className="text-white" size={24} />
                   </div>
                   <div>
-                    <h3 className="text-xl font-black">إنشاء باقة وموظفين</h3>
-                    <p className="text-white/70 font-bold text-xs mt-0.5">تحديد نظام العمل وإدخال بيانات الفريق</p>
+                    <h3 className="text-xl font-black">{t('createPackageAndEmployees')}</h3>
+                    <p className="text-white/70 font-bold text-xs mt-0.5">{t('defineWorkSystemAndTeam')}</p>
                   </div>
                 </div>
                 <button
@@ -681,14 +697,14 @@ export function PackagesClient({ initialPackages, companyId }: PackagesClientPro
                     <div className="space-y-1.5">
                       <label className="text-xs font-black text-gray-500 flex items-center gap-1.5 uppercase tracking-wider">
                         <Package size={12} className="text-purple-500" />
-                        اسم الباقة
+                        {t('packageName')}
                       </label>
                       <input
                         type="text"
                         required
                         value={formData.group_name}
                         onChange={(e) => setFormData({ ...formData, group_name: e.target.value })}
-                        placeholder="أدخل اسم الباقة"
+                        placeholder={t('enterPackageName')}
                         className="w-full bg-white border-2 border-purple-100 rounded-xl py-3 px-4 text-sm font-bold text-gray-700 focus:border-purple-400 outline-none transition-all"
                       />
                     </div>
@@ -696,14 +712,14 @@ export function PackagesClient({ initialPackages, companyId }: PackagesClientPro
                     <div className="space-y-1.5">
                       <label className="text-xs font-black text-gray-500 flex items-center gap-1.5 uppercase tracking-wider">
                         <Target size={12} className="text-purple-500" />
-                        التارجت الشهري
+                        {t('monthlyTarget')}
                       </label>
                       <input
                         type="number"
                         disabled={formData.work_type === 'salary' || formData.work_type === 'commission'}
                         value={formData.monthly_target}
                         onChange={(e) => setFormData({ ...formData, monthly_target: parseInt(e.target.value) })}
-                        placeholder="أدخل التارجت الشهري"
+                        placeholder={t('enterMonthlyTarget')}
                         className="w-full bg-white border-2 border-purple-100 rounded-xl py-3 px-4 text-sm font-bold text-gray-700 focus:border-purple-400 outline-none transition-all disabled:opacity-50 disabled:bg-gray-50"
                       />
                     </div>
@@ -711,7 +727,7 @@ export function PackagesClient({ initialPackages, companyId }: PackagesClientPro
                     <div className="space-y-1.5">
                       <label className="text-xs font-black text-gray-500 flex items-center gap-1.5 uppercase tracking-wider">
                         <Trophy size={12} className="text-purple-500" />
-                        البونص بعد التارجت
+                        {t('bonusAfterTarget')}
                       </label>
                       <input
                         type="number"
@@ -725,16 +741,16 @@ export function PackagesClient({ initialPackages, companyId }: PackagesClientPro
                     <div className="space-y-1.5">
                       <label className="text-xs font-black text-gray-500 flex items-center gap-1.5 uppercase tracking-wider">
                         <Settings size={12} className="text-purple-500" />
-                        نظام العمل
+                        {t('workSystem')}
                       </label>
                       <select
                         value={formData.work_type}
                         onChange={(e) => setFormData({ ...formData, work_type: e.target.value })}
                         className="w-full bg-white border-2 border-purple-100 rounded-xl py-3 px-4 text-sm font-bold text-gray-700 focus:border-purple-400 outline-none transition-all"
                       >
-                        <option value="target">نظام تارجت</option>
-                        <option value="salary">نظام راتب</option>
-                        <option value="commission">نظام عمولة</option>
+                        <option value="target">{t('targetSystemOption')}</option>
+                        <option value="salary">{t('salarySystemOption')}</option>
+                        <option value="commission">{t('commissionSystemOption')}</option>
                       </select>
                     </div>
                   </div>
@@ -748,11 +764,11 @@ export function PackagesClient({ initialPackages, companyId }: PackagesClientPro
                       className="flex items-center gap-2 px-6 py-3 bg-blue-50 text-blue-600 rounded-xl text-sm font-black hover:bg-blue-100 transition-all border border-blue-100"
                     >
                       <Download size={18} />
-                      تحميل قالب Excel
+                      {t('downloadExcelTemplate')}
                     </motion.button>
                     <label className="flex items-center gap-2 px-6 py-3 bg-emerald-50 text-emerald-600 rounded-xl text-sm font-black hover:bg-emerald-100 transition-all border border-emerald-100 cursor-pointer">
                       <Upload size={18} />
-                      رفع ملف Excel
+                      {t('uploadExcelFile')}
                       <input type="file" className="hidden" accept=".csv" onChange={(e) => handleFileUpload(e, false)} />
                     </label>
                   </div>
@@ -761,7 +777,7 @@ export function PackagesClient({ initialPackages, companyId }: PackagesClientPro
                     <div className="flex items-center justify-between">
                       <h4 className="text-lg font-black text-gray-900 flex items-center gap-2">
                         <Users size={20} className="text-purple-500" />
-                        بيانات الموظفين (نظام {formData.work_type === 'target' ? 'التارجت' : formData.work_type === 'salary' ? 'الراتب' : 'العمولة'})
+                        {t('employeesData')} ({formData.work_type === 'target' ? t('targetSystemLabel') : formData.work_type === 'salary' ? t('salarySystemLabel') : t('commissionSystemLabel')})
                       </h4>
                       <motion.button
                         whileHover={{ scale: 1.02 }}
@@ -771,36 +787,36 @@ export function PackagesClient({ initialPackages, companyId }: PackagesClientPro
                         className="flex items-center gap-2 px-4 py-2 bg-purple-100 text-purple-600 rounded-xl text-xs font-black hover:bg-purple-200 transition-all"
                       >
                         <Plus size={16} />
-                        إضافة موظف
+                        {t('addEmployee')}
                       </motion.button>
                     </div>
 
                     <div className="overflow-x-auto rounded-2xl border border-gray-100 bg-white shadow-sm">
-                      <table className="w-full text-right border-collapse">
+                      <table className={cn("w-full border-collapse", isRTL ? "text-right" : "text-left")}>
                         <thead className="bg-gradient-to-r from-purple-600 to-violet-600 text-white">
                           <tr>
-                            <th className="p-4 text-xs font-black whitespace-nowrap">اسم الموظف</th>
+                            <th className="p-4 text-xs font-black whitespace-nowrap">{t('employeeName')}</th>
                             {formData.work_type === 'salary' ? (
                               <>
-                                <th className="p-4 text-xs font-black whitespace-nowrap">رقم الهوية</th>
-                                <th className="p-4 text-xs font-black whitespace-nowrap">المسمى الوظيفي</th>
+                                <th className="p-4 text-xs font-black whitespace-nowrap">{t('identityNumber')}</th>
+                                <th className="p-4 text-xs font-black whitespace-nowrap">{t('jobTitle')}</th>
                               </>
                             ) : (
                               <>
-                                <th className="p-4 text-xs font-black whitespace-nowrap">رقم الإقامة</th>
-                                <th className="p-4 text-xs font-black whitespace-nowrap">رقم المستخدم</th>
+                                <th className="p-4 text-xs font-black whitespace-nowrap">{t('iqamaNumber')}</th>
+                                <th className="p-4 text-xs font-black whitespace-nowrap">{t('userCode')}</th>
                               </>
                             )}
-                            <th className="p-4 text-xs font-black whitespace-nowrap">الجنسية</th>
-                            <th className="p-4 text-xs font-black whitespace-nowrap">رقم الهاتف</th>
-                            <th className="p-4 text-xs font-black whitespace-nowrap">البريد الإلكتروني</th>
-                            <th className="p-4 text-xs font-black whitespace-nowrap">الراتب الأساسي</th>
-                            <th className="p-4 text-xs font-black whitespace-nowrap">بدل السكن</th>
+                            <th className="p-4 text-xs font-black whitespace-nowrap">{t('nationality')}</th>
+                            <th className="p-4 text-xs font-black whitespace-nowrap">{t('phoneNumber')}</th>
+                            <th className="p-4 text-xs font-black whitespace-nowrap">{t('email')}</th>
+                            <th className="p-4 text-xs font-black whitespace-nowrap">{t('basicSalary')}</th>
+                            <th className="p-4 text-xs font-black whitespace-nowrap">{t('housingAllowance')}</th>
                             {formData.work_type !== 'salary' && (
-                              <th className="p-4 text-xs font-black whitespace-nowrap">لوحة المركبة</th>
+                              <th className="p-4 text-xs font-black whitespace-nowrap">{t('vehiclePlate')}</th>
                             )}
-                            <th className="p-4 text-xs font-black whitespace-nowrap">الآيبان</th>
-                            <th className="p-4 text-xs font-black whitespace-nowrap">إجراءات</th>
+                            <th className="p-4 text-xs font-black whitespace-nowrap">{t('iban')}</th>
+                            <th className="p-4 text-xs font-black whitespace-nowrap">{t('actions')}</th>
                           </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-50">
@@ -809,7 +825,7 @@ export function PackagesClient({ initialPackages, companyId }: PackagesClientPro
                               <td className="p-2">
                                 <input
                                   type="text"
-                                  placeholder="اسم الموظف"
+                                  placeholder={t('employeeName')}
                                   value={emp.name}
                                   onChange={(e) => updateEmployee(idx, "name", e.target.value, false)}
                                   className="w-full bg-transparent border-0 focus:ring-0 text-sm font-bold px-3 py-2 rounded-lg hover:bg-gray-50 focus:bg-gray-50"
@@ -820,7 +836,7 @@ export function PackagesClient({ initialPackages, companyId }: PackagesClientPro
                                   <td className="p-2">
                                     <input
                                       type="text"
-                                      placeholder="رقم الهوية"
+                                      placeholder={t('identityNumber')}
                                       value={emp.identity_number}
                                       onChange={(e) => updateEmployee(idx, "identity_number", e.target.value, false)}
                                       className="w-full bg-transparent border-0 focus:ring-0 text-sm font-bold px-3 py-2 rounded-lg hover:bg-gray-50 focus:bg-gray-50"
@@ -829,7 +845,7 @@ export function PackagesClient({ initialPackages, companyId }: PackagesClientPro
                                   <td className="p-2">
                                     <input
                                       type="text"
-                                      placeholder="المسمى الوظيفي"
+                                      placeholder={t('jobTitle')}
                                       value={emp.job_title}
                                       onChange={(e) => updateEmployee(idx, "job_title", e.target.value, false)}
                                       className="w-full bg-transparent border-0 focus:ring-0 text-sm font-bold px-3 py-2 rounded-lg hover:bg-gray-50 focus:bg-gray-50"
@@ -841,7 +857,7 @@ export function PackagesClient({ initialPackages, companyId }: PackagesClientPro
                                   <td className="p-2">
                                     <input
                                       type="text"
-                                      placeholder="رقم الإقامة"
+                                      placeholder={t('iqamaNumber')}
                                       value={emp.iqama_number}
                                       onChange={(e) => updateEmployee(idx, "iqama_number", e.target.value, false)}
                                       className="w-full bg-transparent border-0 focus:ring-0 text-sm font-bold px-3 py-2 rounded-lg hover:bg-gray-50 focus:bg-gray-50"
@@ -850,7 +866,7 @@ export function PackagesClient({ initialPackages, companyId }: PackagesClientPro
                                   <td className="p-2">
                                     <input
                                       type="text"
-                                      placeholder="رقم المستخدم"
+                                      placeholder={t('userCode')}
                                       value={emp.user_code}
                                       onChange={(e) => updateEmployee(idx, "user_code", e.target.value, false)}
                                       className="w-full bg-transparent border-0 focus:ring-0 text-sm font-bold px-3 py-2 rounded-lg hover:bg-gray-50 focus:bg-gray-50"
@@ -861,7 +877,7 @@ export function PackagesClient({ initialPackages, companyId }: PackagesClientPro
                               <td className="p-2">
                                 <input
                                   type="text"
-                                  placeholder="الجنسية"
+                                  placeholder={t('nationality')}
                                   value={emp.nationality}
                                   onChange={(e) => updateEmployee(idx, "nationality", e.target.value, false)}
                                   className="w-full bg-transparent border-0 focus:ring-0 text-sm font-bold px-3 py-2 rounded-lg hover:bg-gray-50 focus:bg-gray-50"
@@ -907,7 +923,7 @@ export function PackagesClient({ initialPackages, companyId }: PackagesClientPro
                                 <td className="p-2">
                                   <input
                                     type="text"
-                                    placeholder="لوحة المركبة"
+                                    placeholder={t('vehiclePlate')}
                                     value={emp.vehicle_plate}
                                     onChange={(e) => updateEmployee(idx, "vehicle_plate", e.target.value, false)}
                                     className="w-full bg-transparent border-0 focus:ring-0 text-sm font-bold px-3 py-2 rounded-lg hover:bg-gray-50 focus:bg-gray-50"
@@ -957,7 +973,7 @@ export function PackagesClient({ initialPackages, companyId }: PackagesClientPro
                   ) : (
                     <>
                       <Save size={20} />
-                      <span>حفظ الباقة والموظفين</span>
+                      <span>{t('savePackageAndEmployees')}</span>
                     </>
                   )}
                 </motion.button>
@@ -968,7 +984,7 @@ export function PackagesClient({ initialPackages, companyId }: PackagesClientPro
                   onClick={() => setIsModalOpen(false)}
                   className="px-8 bg-white border-2 border-gray-200 text-gray-500 py-4 rounded-2xl text-base font-black hover:bg-gray-50 hover:border-gray-300 transition-all"
                 >
-                  إلغاء
+                  {t('cancel')}
                 </motion.button>
               </div>
             </motion.div>
@@ -989,6 +1005,7 @@ export function PackagesClient({ initialPackages, companyId }: PackagesClientPro
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.9, y: 20 }}
               className="relative w-full max-w-[95vw] h-[90vh] bg-white rounded-3xl shadow-2xl overflow-hidden flex flex-col"
+              dir={isRTL ? 'rtl' : 'ltr'}
             >
               <div className="bg-gradient-to-r from-purple-600 to-violet-600 p-6 text-white flex items-center justify-between shrink-0">
                 <div className="flex items-center gap-3">
@@ -996,8 +1013,8 @@ export function PackagesClient({ initialPackages, companyId }: PackagesClientPro
                     <UserPlus className="text-white" size={24} />
                   </div>
                   <div>
-                    <h3 className="text-xl font-black">إضافة موظفين لباقة: {selectedPackage.group_name}</h3>
-                    <p className="text-white/70 font-bold text-xs mt-0.5">نظام العمل: {selectedPackage.work_type === 'target' ? 'تارجت' : selectedPackage.work_type === 'salary' ? 'راتب' : 'عمولة'}</p>
+                    <h3 className="text-xl font-black">{t('addEmployeesToPackage')}: {selectedPackage.group_name}</h3>
+                    <p className="text-white/70 font-bold text-xs mt-0.5">{t('workSystemLabel')}: {getWorkTypeShortLabel(selectedPackage.work_type)}</p>
                   </div>
                 </div>
                 <button
@@ -1019,11 +1036,11 @@ export function PackagesClient({ initialPackages, companyId }: PackagesClientPro
                       className="flex items-center gap-2 px-6 py-3 bg-blue-50 text-blue-600 rounded-xl text-sm font-black hover:bg-blue-100 transition-all border border-blue-100"
                     >
                       <Download size={18} />
-                      تحميل قالب Excel
+                      {t('downloadExcelTemplate')}
                     </motion.button>
                     <label className="flex items-center gap-2 px-6 py-3 bg-emerald-50 text-emerald-600 rounded-xl text-sm font-black hover:bg-emerald-100 transition-all border border-emerald-100 cursor-pointer">
                       <Upload size={18} />
-                      رفع ملف Excel
+                      {t('uploadExcelFile')}
                       <input type="file" className="hidden" accept=".csv" onChange={(e) => handleFileUpload(e, true)} />
                     </label>
                   </div>
@@ -1032,7 +1049,7 @@ export function PackagesClient({ initialPackages, companyId }: PackagesClientPro
                     <div className="flex items-center justify-between">
                       <h4 className="text-lg font-black text-gray-900 flex items-center gap-2">
                         <Users size={20} className="text-purple-500" />
-                        بيانات الموظفين المضافين
+                        {t('addedEmployeesData')}
                       </h4>
                       <motion.button
                         whileHover={{ scale: 1.02 }}
@@ -1042,36 +1059,36 @@ export function PackagesClient({ initialPackages, companyId }: PackagesClientPro
                         className="flex items-center gap-2 px-4 py-2 bg-purple-100 text-purple-600 rounded-xl text-xs font-black hover:bg-purple-200 transition-all"
                       >
                         <Plus size={16} />
-                        إضافة موظف جديد
+                        {t('addNewEmployee')}
                       </motion.button>
                     </div>
 
                     <div className="overflow-x-auto rounded-2xl border border-gray-100 bg-white shadow-sm">
-                      <table className="w-full text-right border-collapse">
+                      <table className={cn("w-full border-collapse", isRTL ? "text-right" : "text-left")}>
                         <thead className="bg-gradient-to-r from-purple-600 to-violet-600 text-white">
                           <tr>
-                            <th className="p-4 text-xs font-black whitespace-nowrap">اسم الموظف</th>
+                            <th className="p-4 text-xs font-black whitespace-nowrap">{t('employeeName')}</th>
                             {selectedPackage.work_type === 'salary' ? (
                               <>
-                                <th className="p-4 text-xs font-black whitespace-nowrap">رقم الهوية</th>
-                                <th className="p-4 text-xs font-black whitespace-nowrap">المسمى الوظيفي</th>
+                                <th className="p-4 text-xs font-black whitespace-nowrap">{t('identityNumber')}</th>
+                                <th className="p-4 text-xs font-black whitespace-nowrap">{t('jobTitle')}</th>
                               </>
                             ) : (
                               <>
-                                <th className="p-4 text-xs font-black whitespace-nowrap">رقم الإقامة</th>
-                                <th className="p-4 text-xs font-black whitespace-nowrap">رقم المستخدم</th>
+                                <th className="p-4 text-xs font-black whitespace-nowrap">{t('iqamaNumber')}</th>
+                                <th className="p-4 text-xs font-black whitespace-nowrap">{t('userCode')}</th>
                               </>
                             )}
-                            <th className="p-4 text-xs font-black whitespace-nowrap">الجنسية</th>
-                            <th className="p-4 text-xs font-black whitespace-nowrap">رقم الهاتف</th>
-                            <th className="p-4 text-xs font-black whitespace-nowrap">البريد الإلكتروني</th>
-                            <th className="p-4 text-xs font-black whitespace-nowrap">الراتب الأساسي</th>
-                            <th className="p-4 text-xs font-black whitespace-nowrap">بدل السكن</th>
+                            <th className="p-4 text-xs font-black whitespace-nowrap">{t('nationality')}</th>
+                            <th className="p-4 text-xs font-black whitespace-nowrap">{t('phoneNumber')}</th>
+                            <th className="p-4 text-xs font-black whitespace-nowrap">{t('email')}</th>
+                            <th className="p-4 text-xs font-black whitespace-nowrap">{t('basicSalary')}</th>
+                            <th className="p-4 text-xs font-black whitespace-nowrap">{t('housingAllowance')}</th>
                             {selectedPackage.work_type !== 'salary' && (
-                              <th className="p-4 text-xs font-black whitespace-nowrap">لوحة المركبة</th>
+                              <th className="p-4 text-xs font-black whitespace-nowrap">{t('vehiclePlate')}</th>
                             )}
-                            <th className="p-4 text-xs font-black whitespace-nowrap">الآيبان</th>
-                            <th className="p-4 text-xs font-black whitespace-nowrap">إجراءات</th>
+                            <th className="p-4 text-xs font-black whitespace-nowrap">{t('iban')}</th>
+                            <th className="p-4 text-xs font-black whitespace-nowrap">{t('actions')}</th>
                           </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-50">
@@ -1080,7 +1097,7 @@ export function PackagesClient({ initialPackages, companyId }: PackagesClientPro
                               <td className="p-2">
                                 <input
                                   type="text"
-                                  placeholder="اسم الموظف"
+                                  placeholder={t('employeeName')}
                                   value={emp.name}
                                   onChange={(e) => updateEmployee(idx, "name", e.target.value, true)}
                                   className="w-full bg-transparent border-0 focus:ring-0 text-sm font-bold px-3 py-2 rounded-lg hover:bg-gray-50 focus:bg-gray-50"
@@ -1091,7 +1108,7 @@ export function PackagesClient({ initialPackages, companyId }: PackagesClientPro
                                   <td className="p-2">
                                     <input
                                       type="text"
-                                      placeholder="رقم الهوية"
+                                      placeholder={t('identityNumber')}
                                       value={emp.identity_number}
                                       onChange={(e) => updateEmployee(idx, "identity_number", e.target.value, true)}
                                       className="w-full bg-transparent border-0 focus:ring-0 text-sm font-bold px-3 py-2 rounded-lg hover:bg-gray-50 focus:bg-gray-50"
@@ -1100,7 +1117,7 @@ export function PackagesClient({ initialPackages, companyId }: PackagesClientPro
                                   <td className="p-2">
                                     <input
                                       type="text"
-                                      placeholder="المسمى الوظيفي"
+                                      placeholder={t('jobTitle')}
                                       value={emp.job_title}
                                       onChange={(e) => updateEmployee(idx, "job_title", e.target.value, true)}
                                       className="w-full bg-transparent border-0 focus:ring-0 text-sm font-bold px-3 py-2 rounded-lg hover:bg-gray-50 focus:bg-gray-50"
@@ -1112,7 +1129,7 @@ export function PackagesClient({ initialPackages, companyId }: PackagesClientPro
                                   <td className="p-2">
                                     <input
                                       type="text"
-                                      placeholder="رقم الإقامة"
+                                      placeholder={t('iqamaNumber')}
                                       value={emp.iqama_number}
                                       onChange={(e) => updateEmployee(idx, "iqama_number", e.target.value, true)}
                                       className="w-full bg-transparent border-0 focus:ring-0 text-sm font-bold px-3 py-2 rounded-lg hover:bg-gray-50 focus:bg-gray-50"
@@ -1121,7 +1138,7 @@ export function PackagesClient({ initialPackages, companyId }: PackagesClientPro
                                   <td className="p-2">
                                     <input
                                       type="text"
-                                      placeholder="رقم المستخدم"
+                                      placeholder={t('userCode')}
                                       value={emp.user_code}
                                       onChange={(e) => updateEmployee(idx, "user_code", e.target.value, true)}
                                       className="w-full bg-transparent border-0 focus:ring-0 text-sm font-bold px-3 py-2 rounded-lg hover:bg-gray-50 focus:bg-gray-50"
@@ -1132,7 +1149,7 @@ export function PackagesClient({ initialPackages, companyId }: PackagesClientPro
                               <td className="p-2">
                                 <input
                                   type="text"
-                                  placeholder="الجنسية"
+                                  placeholder={t('nationality')}
                                   value={emp.nationality}
                                   onChange={(e) => updateEmployee(idx, "nationality", e.target.value, true)}
                                   className="w-full bg-transparent border-0 focus:ring-0 text-sm font-bold px-3 py-2 rounded-lg hover:bg-gray-50 focus:bg-gray-50"
@@ -1178,7 +1195,7 @@ export function PackagesClient({ initialPackages, companyId }: PackagesClientPro
                                 <td className="p-2">
                                   <input
                                     type="text"
-                                    placeholder="لوحة المركبة"
+                                    placeholder={t('vehiclePlate')}
                                     value={emp.vehicle_plate}
                                     onChange={(e) => updateEmployee(idx, "vehicle_plate", e.target.value, true)}
                                     className="w-full bg-transparent border-0 focus:ring-0 text-sm font-bold px-3 py-2 rounded-lg hover:bg-gray-50 focus:bg-gray-50"
@@ -1228,7 +1245,7 @@ export function PackagesClient({ initialPackages, companyId }: PackagesClientPro
                   ) : (
                     <>
                       <Save size={20} />
-                      <span>إضافة الموظفين للباقة</span>
+                      <span>{t('addEmployeesToPackageBtn')}</span>
                     </>
                   )}
                 </motion.button>
@@ -1239,7 +1256,7 @@ export function PackagesClient({ initialPackages, companyId }: PackagesClientPro
                   onClick={() => setIsAddEmployeesModalOpen(false)}
                   className="px-8 bg-white border-2 border-gray-200 text-gray-500 py-4 rounded-2xl text-base font-black hover:bg-gray-50 hover:border-gray-300 transition-all"
                 >
-                  إلغاء
+                  {t('cancel')}
                 </motion.button>
               </div>
             </motion.div>
