@@ -134,125 +134,126 @@ export function AccountsClient({ initialAccounts, companyId }: AccountsClientPro
     }
   };
 
-  return (
-    <div className="w-full max-w-[98%] mx-auto px-6 py-6 space-y-8 rtl" dir="rtl">
-      {/* Header */}
-      <motion.div 
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="relative overflow-hidden rounded-[2.5rem] bg-gradient-to-br from-[#1e293b] via-[#334155] to-[#1e293b] p-10 text-white shadow-2xl border border-white/10"
-      >
-        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 via-emerald-500 via-rose-500 via-amber-500 via-purple-500 to-blue-500 animate-gradient-x"></div>
-        
-        <div className="relative z-10 flex flex-col items-center justify-center text-center space-y-6">
-          <div className="p-4 bg-white/10 rounded-[2rem] backdrop-blur-md border border-white/10 shadow-2xl group-hover:scale-110 transition-transform">
-            <BookOpen className="w-10 h-10 text-blue-400" />
-          </div>
-          <div className="space-y-2">
-            <h1 className="text-3xl font-black tracking-tight bg-gradient-to-r from-white via-blue-100 to-white bg-clip-text text-transparent">مركز الحسابات</h1>
-            <p className="text-slate-300 max-w-2xl font-medium">
-              إدارة شجرة الحسابات والتصنيفات المالية لتنظيم العمليات المحاسبية
-            </p>
-          </div>
-        </div>
-
-        {/* Decorative elements */}
-        <div className="absolute -bottom-12 -right-12 w-48 h-48 bg-blue-500/10 rounded-full blur-3xl" />
-        <div className="absolute -top-12 -left-12 w-48 h-48 bg-purple-500/10 rounded-full blur-3xl" />
-      </motion.div>
-
-      {/* Stats Cards */}
-      <motion.div 
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        className="grid grid-cols-1 md:grid-cols-4 gap-6"
-      >
-        <div className="bg-white/80 backdrop-blur-xl p-6 rounded-[2rem] border border-white/50 shadow-xl flex items-center space-x-4 space-x-reverse group hover:border-blue-200 transition-all hover:shadow-2xl hover:-translate-y-1">
-          <div className="p-4 bg-gradient-to-br from-blue-500 to-blue-700 rounded-2xl text-white shadow-lg group-hover:scale-110 transition-transform">
-            <Wallet className="w-6 h-6" />
-          </div>
-          <div>
-            <p className="text-xs text-slate-500 font-black mb-1">إجمالي الحسابات</p>
-            <p className="text-3xl font-black text-slate-900 tracking-tight">{stats.total}</p>
-          </div>
-        </div>
-        <div className="bg-white/80 backdrop-blur-xl p-6 rounded-[2rem] border border-white/50 shadow-xl flex items-center space-x-4 space-x-reverse group hover:border-rose-200 transition-all hover:shadow-2xl hover:-translate-y-1">
-          <div className="p-4 bg-gradient-to-br from-rose-500 to-rose-700 rounded-2xl text-white shadow-lg group-hover:scale-110 transition-transform">
-            <TrendingDown className="w-6 h-6" />
-          </div>
-          <div>
-            <p className="text-xs text-slate-500 font-black mb-1">حسابات المصروفات</p>
-            <p className="text-3xl font-black text-slate-900 tracking-tight">{stats.expenses}</p>
-          </div>
-        </div>
-        <div className="bg-white/80 backdrop-blur-xl p-6 rounded-[2rem] border border-white/50 shadow-xl flex items-center space-x-4 space-x-reverse group hover:border-emerald-200 transition-all hover:shadow-2xl hover:-translate-y-1">
-          <div className="p-4 bg-gradient-to-br from-emerald-500 to-emerald-700 rounded-2xl text-white shadow-lg group-hover:scale-110 transition-transform">
-            <TrendingUp className="w-6 h-6" />
-          </div>
-          <div>
-            <p className="text-xs text-slate-500 font-black mb-1">حسابات الدخل</p>
-            <p className="text-3xl font-black text-slate-900 tracking-tight">{stats.income}</p>
-          </div>
-        </div>
-        <div className="bg-white/80 backdrop-blur-xl p-6 rounded-[2rem] border border-white/50 shadow-xl flex items-center space-x-4 space-x-reverse group hover:border-purple-200 transition-all hover:shadow-2xl hover:-translate-y-1">
-          <div className="p-4 bg-gradient-to-br from-purple-500 to-purple-700 rounded-2xl text-white shadow-lg group-hover:scale-110 transition-transform">
-            <BarChart3 className="w-6 h-6" />
-          </div>
-          <div>
-            <p className="text-xs text-slate-500 font-black mb-1">أخرى</p>
-            <p className="text-3xl font-black text-slate-900 tracking-tight">{stats.total - stats.expenses - stats.income}</p>
-          </div>
-        </div>
-      </motion.div>
-
-      {/* Search and Filter Bar */}
-      <motion.div 
-        className="bg-white/80 backdrop-blur-xl p-6 rounded-[2rem] shadow-xl border border-white/50 flex flex-col md:flex-row gap-4 items-center justify-between"
-        whileHover={{ y: -2 }}
-      >
-        <div className="flex-1 relative w-full md:w-auto">
-          <Search className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-400 w-5 h-5" />
-          <input
-            type="text"
-            placeholder="البحث عن حساب بالاسم أو الرمز..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full bg-slate-50/50 border border-slate-200 rounded-2xl py-4 pr-14 pl-6 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all text-sm font-bold shadow-sm"
-          />
-        </div>
-        <div className="flex items-center gap-4 w-full md:w-auto">
-          <div className="relative flex-1 md:flex-none">
-            <Filter className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4" />
-            <select
-              value={filterType}
-              onChange={(e) => setFilterType(e.target.value)}
-              className="w-full md:w-56 bg-slate-50/50 border border-slate-200 rounded-2xl py-4 pr-11 pl-6 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all appearance-none text-sm font-black text-slate-700 shadow-sm cursor-pointer"
-            >
-              <option value="all">جميع الأنواع</option>
-              <option value="مصروف">المصروفات</option>
-              <option value="دخل">الدخل</option>
-              <option value="اصل">الأصول</option>
-              <option value="التزام">الالتزامات</option>
-              <option value="حقوق ملكية">حقوق الملكية</option>
-            </select>
-            <ChevronDown className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4 pointer-events-none" />
-          </div>
-          <button
-            onClick={() => handleOpenModal()}
-            className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-2xl font-black transition-all flex items-center space-x-2 space-x-reverse shadow-xl shadow-blue-500/20 text-sm whitespace-nowrap active:scale-95"
+    return (
+      <div className="w-full max-w-[98%] mx-auto px-6 py-6" dir="rtl">
+        <div className="bg-[#1a2234] rounded-[30px] p-8 shadow-2xl border border-white/5 space-y-8">
+          {/* Header */}
+          <motion.div 
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="relative overflow-hidden rounded-[2.5rem] bg-gradient-to-br from-[#1e293b] via-[#334155] to-[#1e293b] p-10 text-white shadow-2xl border border-white/10"
           >
-            <Plus className="w-5 h-5" />
-            <span>إضافة حساب</span>
-          </button>
-        </div>
-      </motion.div>
+            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 via-emerald-500 via-rose-500 via-amber-500 via-purple-500 to-blue-500 animate-gradient-x"></div>
+            
+            <div className="relative z-10 flex flex-col items-center justify-center text-center space-y-6">
+              <div className="p-4 bg-white/10 rounded-[2rem] backdrop-blur-md border border-white/10 shadow-2xl group-hover:scale-110 transition-transform">
+                <BookOpen className="w-10 h-10 text-blue-400" />
+              </div>
+              <div className="space-y-2">
+                <h1 className="text-3xl font-black tracking-tight bg-gradient-to-r from-white via-blue-100 to-white bg-clip-text text-transparent">مركز الحسابات</h1>
+                <p className="text-slate-300 max-w-2xl font-medium">
+                  إدارة شجرة الحسابات والتصنيفات المالية لتنظيم العمليات المحاسبية
+                </p>
+              </div>
+            </div>
 
-      {/* Accounts Table */}
-      <motion.div 
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="bg-white/80 backdrop-blur-xl rounded-[2.5rem] shadow-2xl border border-white/50 overflow-hidden"
-      >
+            {/* Decorative elements */}
+            <div className="absolute -bottom-12 -right-12 w-48 h-48 bg-blue-500/10 rounded-full blur-3xl" />
+            <div className="absolute -top-12 -left-12 w-48 h-48 bg-purple-500/10 rounded-full blur-3xl" />
+          </motion.div>
+
+          {/* Stats Cards */}
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="grid grid-cols-1 md:grid-cols-4 gap-6"
+          >
+            <div className="bg-white/80 backdrop-blur-xl p-6 rounded-[2rem] border border-white/50 shadow-xl flex items-center space-x-4 space-x-reverse group hover:border-blue-200 transition-all hover:shadow-2xl hover:-translate-y-1">
+              <div className="p-4 bg-gradient-to-br from-blue-500 to-blue-700 rounded-2xl text-white shadow-lg group-hover:scale-110 transition-transform">
+                <Wallet className="w-6 h-6" />
+              </div>
+              <div>
+                <p className="text-xs text-slate-500 font-black mb-1">إجمالي الحسابات</p>
+                <p className="text-3xl font-black text-slate-900 tracking-tight">{stats.total}</p>
+              </div>
+            </div>
+            <div className="bg-white/80 backdrop-blur-xl p-6 rounded-[2rem] border border-white/50 shadow-xl flex items-center space-x-4 space-x-reverse group hover:border-rose-200 transition-all hover:shadow-2xl hover:-translate-y-1">
+              <div className="p-4 bg-gradient-to-br from-rose-500 to-rose-700 rounded-2xl text-white shadow-lg group-hover:scale-110 transition-transform">
+                <TrendingDown className="w-6 h-6" />
+              </div>
+              <div>
+                <p className="text-xs text-slate-500 font-black mb-1">حسابات المصروفات</p>
+                <p className="text-3xl font-black text-slate-900 tracking-tight">{stats.expenses}</p>
+              </div>
+            </div>
+            <div className="bg-white/80 backdrop-blur-xl p-6 rounded-[2rem] border border-white/50 shadow-xl flex items-center space-x-4 space-x-reverse group hover:border-emerald-200 transition-all hover:shadow-2xl hover:-translate-y-1">
+              <div className="p-4 bg-gradient-to-br from-emerald-500 to-emerald-700 rounded-2xl text-white shadow-lg group-hover:scale-110 transition-transform">
+                <TrendingUp className="w-6 h-6" />
+              </div>
+              <div>
+                <p className="text-xs text-slate-500 font-black mb-1">حسابات الدخل</p>
+                <p className="text-3xl font-black text-slate-900 tracking-tight">{stats.income}</p>
+              </div>
+            </div>
+            <div className="bg-white/80 backdrop-blur-xl p-6 rounded-[2rem] border border-white/50 shadow-xl flex items-center space-x-4 space-x-reverse group hover:border-purple-200 transition-all hover:shadow-2xl hover:-translate-y-1">
+              <div className="p-4 bg-gradient-to-br from-purple-500 to-purple-700 rounded-2xl text-white shadow-lg group-hover:scale-110 transition-transform">
+                <BarChart3 className="w-6 h-6" />
+              </div>
+              <div>
+                <p className="text-xs text-slate-500 font-black mb-1">أخرى</p>
+                <p className="text-3xl font-black text-slate-900 tracking-tight">{stats.total - stats.expenses - stats.income}</p>
+              </div>
+            </div>
+          </motion.div>
+
+          {/* Search and Filter Bar */}
+          <motion.div 
+            className="bg-white/80 backdrop-blur-xl p-6 rounded-[2rem] shadow-xl border border-white/50 flex flex-col md:flex-row gap-4 items-center justify-between"
+            whileHover={{ y: -2 }}
+          >
+            <div className="flex-1 relative w-full md:w-auto">
+              <Search className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-400 w-5 h-5" />
+              <input
+                type="text"
+                placeholder="البحث عن حساب بالاسم أو الرمز..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full bg-slate-50/50 border border-slate-200 rounded-2xl py-4 pr-14 pl-6 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all text-sm font-bold shadow-sm"
+              />
+            </div>
+            <div className="flex items-center gap-4 w-full md:w-auto">
+              <div className="relative flex-1 md:flex-none">
+                <Filter className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4" />
+                <select
+                  value={filterType}
+                  onChange={(e) => setFilterType(e.target.value)}
+                  className="w-full md:w-56 bg-slate-50/50 border border-slate-200 rounded-2xl py-4 pr-11 pl-6 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all appearance-none text-sm font-black text-slate-700 shadow-sm cursor-pointer"
+                >
+                  <option value="all">جميع الأنواع</option>
+                  <option value="مصروف">المصروفات</option>
+                  <option value="دخل">الدخل</option>
+                  <option value="اصل">الأصول</option>
+                  <option value="التزام">الالتزامات</option>
+                  <option value="حقوق ملكية">حقوق الملكية</option>
+                </select>
+                <ChevronDown className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4 pointer-events-none" />
+              </div>
+              <button
+                onClick={() => handleOpenModal()}
+                className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-2xl font-black transition-all flex items-center space-x-2 space-x-reverse shadow-xl shadow-blue-500/20 text-sm whitespace-nowrap active:scale-95"
+              >
+                <Plus className="w-5 h-5" />
+                <span>إضافة حساب</span>
+              </button>
+            </div>
+          </motion.div>
+
+          {/* Accounts Table */}
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="bg-white/80 backdrop-blur-xl rounded-[2.5rem] shadow-2xl border border-white/50 overflow-hidden"
+          >
         <div className="overflow-x-auto">
           <table className="w-full text-right border-collapse min-w-[800px]">
             <thead>
@@ -491,46 +492,47 @@ export function AccountsClient({ initialAccounts, companyId }: AccountsClientPro
         )}
       </AnimatePresence>
 
-      {/* Delete Confirmation Modal */}
-      <AnimatePresence>
-        {deleteConfirm && (
-          <div className="fixed inset-0 z-[150] flex items-center justify-center p-4" dir="rtl">
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setDeleteConfirm(null)}
-              className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"
-            />
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
-              className="relative bg-white rounded-3xl shadow-2xl p-8 max-w-md w-full text-center"
-            >
-              <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                <AlertCircle className="w-8 h-8 text-red-600" />
-              </div>
-              <h3 className="text-xl font-black text-slate-900 mb-2">تأكيد الحذف</h3>
-              <p className="text-slate-500 mb-8">هل أنت متأكد من حذف هذا الحساب؟ لا يمكن التراجع عن هذا الإجراء.</p>
-              <div className="flex gap-3">
-                <button
-                  onClick={() => handleDelete(deleteConfirm)}
-                  className="flex-1 bg-red-600 hover:bg-red-700 text-white py-3 rounded-xl font-bold transition-all"
-                >
-                  نعم، احذف
-                </button>
-                <button
-                  onClick={() => setDeleteConfirm(null)}
-                  className="flex-1 bg-slate-100 text-slate-600 py-3 rounded-xl font-bold hover:bg-slate-200 transition-all"
-                >
-                  إلغاء
-                </button>
-              </div>
-            </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
-    </div>
-  );
+        {/* Delete Confirmation Modal */}
+        <AnimatePresence>
+          {deleteConfirm && (
+            <div className="fixed inset-0 z-[150] flex items-center justify-center p-4" dir="rtl">
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                onClick={() => setDeleteConfirm(null)}
+                className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"
+              />
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.95 }}
+                className="relative bg-white rounded-3xl shadow-2xl p-8 max-w-md w-full text-center"
+              >
+                <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                  <AlertCircle className="w-8 h-8 text-red-600" />
+                </div>
+                <h3 className="text-xl font-black text-slate-900 mb-2">تأكيد الحذف</h3>
+                <p className="text-slate-500 mb-8">هل أنت متأكد من حذف هذا الحساب؟ لا يمكن التراجع عن هذا الإجراء.</p>
+                <div className="flex gap-3">
+                  <button
+                    onClick={() => handleDelete(deleteConfirm)}
+                    className="flex-1 bg-red-600 hover:bg-red-700 text-white py-3 rounded-xl font-bold transition-all"
+                  >
+                    نعم، احذف
+                  </button>
+                  <button
+                    onClick={() => setDeleteConfirm(null)}
+                    className="flex-1 bg-slate-100 text-slate-600 py-3 rounded-xl font-bold hover:bg-slate-200 transition-all"
+                  >
+                    إلغاء
+                  </button>
+                </div>
+              </motion.div>
+            </div>
+          )}
+        </AnimatePresence>
+        </div>
+      </div>
+    );
 }
