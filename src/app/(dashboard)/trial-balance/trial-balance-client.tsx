@@ -235,463 +235,465 @@ export function TrialBalanceClient({ companyId, companyInfo }: TrialBalanceClien
   }
 
   return (
-    <div className="space-y-6 p-4 md:p-6" dir="rtl">
-      <div className="relative overflow-hidden rounded-[2rem] bg-gradient-to-br from-[#0f172a] via-[#1e293b] to-[#0f172a] text-white shadow-2xl border border-white/10 print:hidden">
-        <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute -top-40 -right-40 w-80 h-80 bg-emerald-500/20 rounded-full blur-3xl" />
-          <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-blue-500/20 rounded-full blur-3xl" />
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-amber-500/10 rounded-full blur-3xl" />
-        </div>
-        
-        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-emerald-500 via-blue-500 to-amber-500" />
-        
-        <div className="relative z-10 p-6 md:p-8">
-          <div className="flex flex-col lg:flex-row items-center justify-between gap-6">
-            <div className="flex items-center gap-5">
-              <div className="relative">
-                {companyInfo.logo_path ? (
-                  <img
-                    src={companyInfo.logo_path}
-                    alt="Logo"
-                    className="w-16 h-16 md:w-20 md:h-20 rounded-2xl border-2 border-white/20 object-cover shadow-2xl"
-                  />
-                ) : (
-                  <div className="w-16 h-16 md:w-20 md:h-20 rounded-2xl bg-gradient-to-br from-emerald-500 to-emerald-700 flex items-center justify-center shadow-2xl">
-                    <Building2 className="w-8 h-8 md:w-10 md:h-10 text-white" />
-                  </div>
-                )}
-                <div className="absolute -bottom-2 -right-2 w-7 h-7 md:w-8 md:h-8 bg-blue-500 rounded-xl flex items-center justify-center shadow-lg">
-                  <Scale className="w-3 h-3 md:w-4 md:h-4 text-white" />
-                </div>
-              </div>
-              <div>
-                <h1 className="text-2xl md:text-4xl font-black tracking-tight bg-gradient-to-r from-white via-emerald-200 to-white bg-clip-text text-transparent">
-                  ميزان المراجعة
-                </h1>
-                <p className="text-white/60 font-medium mt-1 text-sm md:text-base">{companyInfo.name}</p>
-                <div className="flex items-center gap-2 mt-2">
-                  {stats.isBalanced ? (
-                    <Badge className="bg-emerald-500/20 text-emerald-300 border-emerald-500/30 font-bold text-xs">
-                      <CheckCircle2 className="w-3 h-3 ml-1" />
-                      متوازن
-                    </Badge>
+    <div className="p-4 md:p-6" dir="rtl">
+      <Card className="border-none shadow-2xl rounded-[2rem] overflow-hidden bg-[#1a2234] p-4 md:p-8 space-y-8">
+        <div className="relative overflow-hidden rounded-[2rem] bg-gradient-to-br from-[#0f172a] via-[#1e293b] to-[#0f172a] text-white shadow-2xl border border-white/10 print:hidden">
+          <div className="absolute inset-0 overflow-hidden">
+            <div className="absolute -top-40 -right-40 w-80 h-80 bg-emerald-500/20 rounded-full blur-3xl" />
+            <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-blue-500/20 rounded-full blur-3xl" />
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-amber-500/10 rounded-full blur-3xl" />
+          </div>
+          
+          <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-emerald-500 via-blue-500 to-amber-500" />
+          
+          <div className="relative z-10 p-6 md:p-8">
+            <div className="flex flex-col lg:flex-row items-center justify-between gap-6">
+              <div className="flex items-center gap-5">
+                <div className="relative">
+                  {companyInfo.logo_path ? (
+                    <img
+                      src={companyInfo.logo_path}
+                      alt="Logo"
+                      className="w-16 h-16 md:w-20 md:h-20 rounded-2xl border-2 border-white/20 object-cover shadow-2xl"
+                    />
                   ) : (
-                    <Badge className="bg-rose-500/20 text-rose-300 border-rose-500/30 font-bold text-xs">
-                      <AlertTriangle className="w-3 h-3 ml-1" />
-                      غير متوازن
-                    </Badge>
+                    <div className="w-16 h-16 md:w-20 md:h-20 rounded-2xl bg-gradient-to-br from-emerald-500 to-emerald-700 flex items-center justify-center shadow-2xl">
+                      <Building2 className="w-8 h-8 md:w-10 md:h-10 text-white" />
+                    </div>
                   )}
-                  <Badge className="bg-blue-500/20 text-blue-300 border-blue-500/30 font-bold text-xs">
-                    <Layers className="w-3 h-3 ml-1" />
-                    {stats.accountsCount} حساب
-                  </Badge>
-                </div>
-              </div>
-            </div>
-
-            <div className="flex flex-wrap items-center gap-2 md:gap-3">
-              <Button
-                onClick={() => fetchData(true)}
-                variant="outline"
-                size="sm"
-                className="bg-white/10 border-white/20 text-white hover:bg-white/20 font-bold rounded-xl"
-                disabled={refreshing}
-              >
-                <RefreshCw className={`w-4 h-4 ml-2 ${refreshing ? "animate-spin" : ""}`} />
-                تحديث
-              </Button>
-              <Button
-                onClick={handleExportExcel}
-                variant="outline"
-                size="sm"
-                className="bg-emerald-500/20 border-emerald-500/30 text-emerald-300 hover:bg-emerald-500/30 font-bold rounded-xl"
-              >
-                <FileSpreadsheet className="w-4 h-4 ml-2" />
-                Excel
-              </Button>
-              <Button
-                onClick={handlePrint}
-                variant="outline"
-                size="sm"
-                className="bg-amber-500/20 border-amber-500/30 text-amber-300 hover:bg-amber-500/30 font-bold rounded-xl"
-              >
-                <Printer className="w-4 h-4 ml-2" />
-                طباعة
-              </Button>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 mt-6 md:mt-8">
-            {[
-              { label: "إجمالي المدين", value: stats.totalDebit, icon: TrendingUp, color: "from-rose-500 to-red-600", iconBg: "bg-rose-500/20", textColor: "text-rose-300" },
-              { label: "إجمالي الدائن", value: stats.totalCredit, icon: TrendingDown, color: "from-emerald-500 to-green-600", iconBg: "bg-emerald-500/20", textColor: "text-emerald-300" },
-              { label: "الفرق", value: Math.abs(stats.difference), icon: Scale, color: "from-blue-500 to-indigo-600", iconBg: "bg-blue-500/20", textColor: stats.isBalanced ? "text-emerald-300" : "text-rose-300" },
-              { label: "عدد الحسابات", value: stats.accountsCount, icon: Activity, color: "from-amber-500 to-orange-600", iconBg: "bg-amber-500/20", textColor: "text-amber-300", isCount: true },
-            ].map((stat, idx) => (
-              <div
-                key={idx}
-                className="relative overflow-hidden rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10 p-3 md:p-4 group hover:bg-white/10 transition-all"
-              >
-                <div className={`absolute inset-0 bg-gradient-to-br ${stat.color} opacity-0 group-hover:opacity-10 transition-opacity`} />
-                <div className="relative z-10 flex flex-col items-center text-center gap-2">
-                  <div className={`p-2 md:p-2.5 rounded-xl ${stat.iconBg}`}>
-                    <stat.icon className="w-4 h-4 md:w-5 md:h-5 text-white" />
+                  <div className="absolute -bottom-2 -right-2 w-7 h-7 md:w-8 md:h-8 bg-blue-500 rounded-xl flex items-center justify-center shadow-lg">
+                    <Scale className="w-3 h-3 md:w-4 md:h-4 text-white" />
                   </div>
-                  <span className={`text-lg md:text-2xl font-black tabular-nums ${stat.textColor}`}>
-                    {stat.isCount ? stat.value : formatNumber(stat.value)}
-                  </span>
-                  <span className="text-[10px] md:text-xs font-medium text-white/50">{stat.label}</span>
+                </div>
+                <div>
+                  <h1 className="text-2xl md:text-4xl font-black tracking-tight bg-gradient-to-r from-white via-emerald-200 to-white bg-clip-text text-transparent">
+                    ميزان المراجعة
+                  </h1>
+                  <p className="text-white/60 font-medium mt-1 text-sm md:text-base">{companyInfo.name}</p>
+                  <div className="flex items-center gap-2 mt-2">
+                    {stats.isBalanced ? (
+                      <Badge className="bg-emerald-500/20 text-emerald-300 border-emerald-500/30 font-bold text-xs">
+                        <CheckCircle2 className="w-3 h-3 ml-1" />
+                        متوازن
+                      </Badge>
+                    ) : (
+                      <Badge className="bg-rose-500/20 text-rose-300 border-rose-500/30 font-bold text-xs">
+                        <AlertTriangle className="w-3 h-3 ml-1" />
+                        غير متوازن
+                      </Badge>
+                    )}
+                    <Badge className="bg-blue-500/20 text-blue-300 border-blue-500/30 font-bold text-xs">
+                      <Layers className="w-3 h-3 ml-1" />
+                      {stats.accountsCount} حساب
+                    </Badge>
+                  </div>
                 </div>
               </div>
-            ))}
-          </div>
 
-          <div className={`mt-6 p-4 rounded-2xl text-center ${stats.isBalanced ? "bg-emerald-500/20 border border-emerald-500/30" : "bg-rose-500/20 border border-rose-500/30"}`}>
-            {stats.isBalanced ? (
-              <div className="flex items-center justify-center gap-3">
-                <CheckCircle2 className="w-6 h-6 text-emerald-400" />
-                <span className="text-lg font-bold text-emerald-300">الميزان متوازن - المدين يساوي الدائن</span>
-              </div>
-            ) : (
-              <div className="flex items-center justify-center gap-3">
-                <AlertTriangle className="w-6 h-6 text-rose-400" />
-                <span className="text-lg font-bold text-rose-300">الميزان غير متوازن - الفرق: {formatNumber(stats.difference)} ر.س</span>
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 print:hidden">
-        <Card className="border-none shadow-xl rounded-[2rem] overflow-hidden bg-white/80 backdrop-blur-xl">
-          <CardHeader className="border-b border-slate-100 bg-gradient-to-r from-blue-50 to-indigo-50">
-            <CardTitle className="text-lg font-bold text-slate-800 flex items-center gap-2">
-              <BarChart3 className="w-5 h-5 text-blue-600" />
-              توزيع الأرصدة حسب النوع
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="p-6">
-            {chartData.typeDistribution.length > 0 ? (
-              <ResponsiveContainer width="100%" height={300}>
-                <BarChart data={chartData.typeDistribution}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
-                  <XAxis dataKey="type" stroke="#64748b" fontSize={12} />
-                  <YAxis stroke="#64748b" fontSize={12} tickFormatter={(v) => `${(v / 1000).toFixed(0)}K`} />
-                  <Tooltip
-                    contentStyle={{ background: "#1e293b", border: "none", borderRadius: "12px", color: "white" }}
-                    formatter={(value: number) => formatNumber(value) + " ر.س"}
-                  />
-                  <Legend />
-                  <Bar dataKey="debit" name="مدين" fill="#ef4444" radius={[8, 8, 0, 0]} />
-                  <Bar dataKey="credit" name="دائن" fill="#10b981" radius={[8, 8, 0, 0]} />
-                </BarChart>
-              </ResponsiveContainer>
-            ) : (
-              <div className="h-[300px] flex items-center justify-center text-slate-400">
-                لا توجد بيانات
-              </div>
-            )}
-          </CardContent>
-        </Card>
-
-        <Card className="border-none shadow-xl rounded-[2rem] overflow-hidden bg-white/80 backdrop-blur-xl">
-          <CardHeader className="border-b border-slate-100 bg-gradient-to-r from-emerald-50 to-teal-50">
-            <CardTitle className="text-lg font-bold text-slate-800 flex items-center gap-2">
-              <Scale className="w-5 h-5 text-emerald-600" />
-              نسبة المدين من الإجمالي
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="p-6">
-            {chartData.typeDistribution.length > 0 ? (
-              <ResponsiveContainer width="100%" height={300}>
-                <PieChart>
-                  <Pie
-                    data={chartData.typeDistribution.map(d => ({ ...d, value: d.debit }))}
-                    cx="50%"
-                    cy="50%"
-                    innerRadius={60}
-                    outerRadius={100}
-                    paddingAngle={5}
-                    dataKey="value"
-                    nameKey="type"
-                  >
-                    {chartData.typeDistribution.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={TYPE_COLORS[entry.type] || COLORS[index % COLORS.length]} />
-                    ))}
-                  </Pie>
-                  <Tooltip
-                    contentStyle={{ background: "#1e293b", border: "none", borderRadius: "12px", color: "white" }}
-                    formatter={(value: number) => formatNumber(value) + " ر.س"}
-                  />
-                  <Legend />
-                </PieChart>
-              </ResponsiveContainer>
-            ) : (
-              <div className="h-[300px] flex items-center justify-center text-slate-400">
-                لا توجد بيانات
-              </div>
-            )}
-          </CardContent>
-        </Card>
-      </div>
-
-      <Card className="border-none shadow-xl rounded-[2rem] overflow-hidden bg-white/80 backdrop-blur-xl print:hidden">
-        <CardContent className="p-4 md:p-6">
-          <div className="flex flex-col lg:flex-row items-center gap-4">
-            <div className="relative flex-1 w-full">
-              <Search className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
-              <Input
-                placeholder="بحث برمز الحساب أو الاسم..."
-                value={filters.search}
-                onChange={(e) => setFilters(prev => ({ ...prev, search: e.target.value }))}
-                className="pr-12 h-12 rounded-xl border-slate-200 focus:border-blue-500 text-right font-medium"
-              />
-            </div>
-
-            <div className="flex items-center gap-3 flex-wrap">
-              <Button
-                variant="outline"
-                onClick={() => setShowFilters(!showFilters)}
-                className={`rounded-xl font-bold h-12 ${showFilters ? "bg-blue-50 border-blue-300 text-blue-700" : ""}`}
-              >
-                <Filter className="w-4 h-4 ml-2" />
-                فلاتر متقدمة
-                {showFilters ? <ChevronUp className="w-4 h-4 mr-2" /> : <ChevronDown className="w-4 h-4 mr-2" />}
-              </Button>
-
-              <Select value={filters.entryType} onValueChange={(v) => setFilters(prev => ({ ...prev, entryType: v }))}>
-                <SelectTrigger className="w-40 h-12 rounded-xl font-bold">
-                  <SelectValue placeholder="نوع الحركة" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">جميع الأنواع</SelectItem>
-                  <SelectItem value="expenses">المنصرفات</SelectItem>
-                  <SelectItem value="payrolls">الرواتب</SelectItem>
-                  <SelectItem value="journals">قيود اليومية</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-
-          {showFilters && (
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4 pt-4 border-t border-slate-100">
-              <div>
-                <label className="block text-sm font-bold text-slate-600 mb-2">من تاريخ</label>
-                <Input
-                  type="date"
-                  value={filters.fromDate}
-                  onChange={(e) => setFilters(prev => ({ ...prev, fromDate: e.target.value }))}
-                  className="h-11 rounded-xl"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-bold text-slate-600 mb-2">إلى تاريخ</label>
-                <Input
-                  type="date"
-                  value={filters.toDate}
-                  onChange={(e) => setFilters(prev => ({ ...prev, toDate: e.target.value }))}
-                  className="h-11 rounded-xl"
-                />
-              </div>
-              <div className="flex items-end">
+              <div className="flex flex-wrap items-center gap-2 md:gap-3">
                 <Button
+                  onClick={() => fetchData(true)}
                   variant="outline"
-                  onClick={() => setFilters({ fromDate: "", toDate: "", entryType: "all", search: "" })}
-                  className="rounded-xl font-bold w-full h-11"
+                  size="sm"
+                  className="bg-white/10 border-white/20 text-white hover:bg-white/20 font-bold rounded-xl"
+                  disabled={refreshing}
                 >
-                  <X className="w-4 h-4 ml-2" />
-                  مسح الفلاتر
+                  <RefreshCw className={`w-4 h-4 ml-2 ${refreshing ? "animate-spin" : ""}`} />
+                  تحديث
+                </Button>
+                <Button
+                  onClick={handleExportExcel}
+                  variant="outline"
+                  size="sm"
+                  className="bg-emerald-500/20 border-emerald-500/30 text-emerald-300 hover:bg-emerald-500/30 font-bold rounded-xl"
+                >
+                  <FileSpreadsheet className="w-4 h-4 ml-2" />
+                  Excel
+                </Button>
+                <Button
+                  onClick={handlePrint}
+                  variant="outline"
+                  size="sm"
+                  className="bg-amber-500/20 border-amber-500/30 text-amber-300 hover:bg-amber-500/30 font-bold rounded-xl"
+                >
+                  <Printer className="w-4 h-4 ml-2" />
+                  طباعة
                 </Button>
               </div>
             </div>
-          )}
-        </CardContent>
-      </Card>
 
-      <Card className="border-none shadow-xl rounded-[2rem] overflow-hidden bg-white/90 backdrop-blur-xl print:shadow-none print:rounded-none">
-        <CardHeader className="border-b border-slate-100 bg-gradient-to-r from-slate-50 to-emerald-50 print:bg-white">
-          <div className="flex items-center justify-between">
-            <CardTitle className="text-lg font-bold text-slate-800 flex items-center gap-2">
-              <FileText className="w-5 h-5 text-emerald-600" />
-              جدول ميزان المراجعة
-            </CardTitle>
-            <div className="flex items-center gap-3 print:hidden">
-              <span className="text-sm text-slate-500 font-medium">عرض:</span>
-              <Select value={String(pageSize)} onValueChange={(v) => { setPageSize(Number(v)); setCurrentPage(1); }}>
-                <SelectTrigger className="w-20 h-9 rounded-lg">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="10">10</SelectItem>
-                  <SelectItem value="20">20</SelectItem>
-                  <SelectItem value="50">50</SelectItem>
-                  <SelectItem value="100">100</SelectItem>
-                </SelectContent>
-              </Select>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 mt-6 md:mt-8">
+              {[
+                { label: "إجمالي المدين", value: stats.totalDebit, icon: TrendingUp, color: "from-rose-500 to-red-600", iconBg: "bg-rose-500/20", textColor: "text-rose-300" },
+                { label: "إجمالي الدائن", value: stats.totalCredit, icon: TrendingDown, color: "from-emerald-500 to-green-600", iconBg: "bg-emerald-500/20", textColor: "text-emerald-300" },
+                { label: "الفرق", value: Math.abs(stats.difference), icon: Scale, color: "from-blue-500 to-indigo-600", iconBg: "bg-blue-500/20", textColor: stats.isBalanced ? "text-emerald-300" : "text-rose-300" },
+                { label: "عدد الحسابات", value: stats.accountsCount, icon: Activity, color: "from-amber-500 to-orange-600", iconBg: "bg-amber-500/20", textColor: "text-amber-300", isCount: true },
+              ].map((stat, idx) => (
+                <div
+                  key={idx}
+                  className="relative overflow-hidden rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10 p-3 md:p-4 group hover:bg-white/10 transition-all"
+                >
+                  <div className={`absolute inset-0 bg-gradient-to-br ${stat.color} opacity-0 group-hover:opacity-10 transition-opacity`} />
+                  <div className="relative z-10 flex flex-col items-center text-center gap-2">
+                    <div className={`p-2 md:p-2.5 rounded-xl ${stat.iconBg}`}>
+                      <stat.icon className="w-4 h-4 md:w-5 md:h-5 text-white" />
+                    </div>
+                    <span className={`text-lg md:text-2xl font-black tabular-nums ${stat.textColor}`}>
+                      {stat.isCount ? stat.value : formatNumber(stat.value)}
+                    </span>
+                    <span className="text-[10px] md:text-xs font-medium text-white/50">{stat.label}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div className={`mt-6 p-4 rounded-2xl text-center ${stats.isBalanced ? "bg-emerald-500/20 border border-emerald-500/30" : "bg-rose-500/20 border border-rose-500/30"}`}>
+              {stats.isBalanced ? (
+                <div className="flex items-center justify-center gap-3">
+                  <CheckCircle2 className="w-6 h-6 text-emerald-400" />
+                  <span className="text-lg font-bold text-emerald-300">الميزان متوازن - المدين يساوي الدائن</span>
+                </div>
+              ) : (
+                <div className="flex items-center justify-center gap-3">
+                  <AlertTriangle className="w-6 h-6 text-rose-400" />
+                  <span className="text-lg font-bold text-rose-300">الميزان غير متوازن - الفرق: {formatNumber(stats.difference)} ر.س</span>
+                </div>
+              )}
             </div>
           </div>
-        </CardHeader>
-        <CardContent className="p-0">
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead>
-                <tr className="bg-gradient-to-r from-slate-800 to-slate-900 text-white">
-                  {[
-                    { key: "type", label: "نوع الحركة", icon: Layers },
-                    { key: "account_code", label: "رمز الحساب", icon: FileText },
-                    { key: "account_name", label: "اسم الحساب", icon: BookOpen },
-                    { key: "debit", label: "مدين", icon: TrendingUp },
-                    { key: "credit", label: "دائن", icon: TrendingDown },
-                  ].map((col) => (
-                    <th
-                      key={col.key}
-                      onClick={() => handleSort(col.key)}
-                      className="px-4 py-4 text-right text-xs font-bold cursor-pointer hover:bg-white/10 transition-colors whitespace-nowrap"
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 print:hidden">
+          <Card className="border-none shadow-xl rounded-[2rem] overflow-hidden bg-white/80 backdrop-blur-xl">
+            <CardHeader className="border-b border-slate-100 bg-gradient-to-r from-blue-50 to-indigo-50">
+              <CardTitle className="text-lg font-bold text-slate-800 flex items-center gap-2">
+                <BarChart3 className="w-5 h-5 text-blue-600" />
+                توزيع الأرصدة حسب النوع
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="p-6">
+              {chartData.typeDistribution.length > 0 ? (
+                <ResponsiveContainer width="100%" height={300}>
+                  <BarChart data={chartData.typeDistribution}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+                    <XAxis dataKey="type" stroke="#64748b" fontSize={12} />
+                    <YAxis stroke="#64748b" fontSize={12} tickFormatter={(v) => `${(v / 1000).toFixed(0)}K`} />
+                    <Tooltip
+                      contentStyle={{ background: "#1e293b", border: "none", borderRadius: "12px", color: "white" }}
+                      formatter={(value: number) => formatNumber(value) + " ر.س"}
+                    />
+                    <Legend />
+                    <Bar dataKey="debit" name="مدين" fill="#ef4444" radius={[8, 8, 0, 0]} />
+                    <Bar dataKey="credit" name="دائن" fill="#10b981" radius={[8, 8, 0, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              ) : (
+                <div className="h-[300px] flex items-center justify-center text-slate-400">
+                  لا توجد بيانات
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          <Card className="border-none shadow-xl rounded-[2rem] overflow-hidden bg-white/80 backdrop-blur-xl">
+            <CardHeader className="border-b border-slate-100 bg-gradient-to-r from-emerald-50 to-teal-50">
+              <CardTitle className="text-lg font-bold text-slate-800 flex items-center gap-2">
+                <Scale className="w-5 h-5 text-emerald-600" />
+                نسبة المدين من الإجمالي
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="p-6">
+              {chartData.typeDistribution.length > 0 ? (
+                <ResponsiveContainer width="100%" height={300}>
+                  <PieChart>
+                    <Pie
+                      data={chartData.typeDistribution.map(d => ({ ...d, value: d.debit }))}
+                      cx="50%"
+                      cy="50%"
+                      innerRadius={60}
+                      outerRadius={100}
+                      paddingAngle={5}
+                      dataKey="value"
+                      nameKey="type"
                     >
-                      <div className="flex items-center gap-2">
-                        <col.icon className="w-4 h-4 opacity-70" />
-                        {col.label}
-                        {sortConfig.key === col.key && (
-                          sortConfig.direction === "desc" ? <ChevronDown className="w-3 h-3" /> : <ChevronUp className="w-3 h-3" />
-                        )}
-                      </div>
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100">
-                {paginatedBalances.length > 0 ? (
-                  paginatedBalances.map((balance, idx) => {
-                    const TypeIcon = TYPE_ICONS[balance.type] || FileText;
-                    const typeColor = TYPE_COLORS[balance.type] || "#64748b";
-                    return (
-                      <tr
-                        key={idx}
-                        className={`hover:bg-blue-50/50 transition-colors ${idx % 2 === 0 ? "bg-white" : "bg-slate-50/50"}`}
+                      {chartData.typeDistribution.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={TYPE_COLORS[entry.type] || COLORS[index % COLORS.length]} />
+                      ))}
+                    </Pie>
+                    <Tooltip
+                      contentStyle={{ background: "#1e293b", border: "none", borderRadius: "12px", color: "white" }}
+                      formatter={(value: number) => formatNumber(value) + " ر.س"}
+                    />
+                    <Legend />
+                  </PieChart>
+                </ResponsiveContainer>
+              ) : (
+                <div className="h-[300px] flex items-center justify-center text-slate-400">
+                  لا توجد بيانات
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+
+        <Card className="border-none shadow-xl rounded-[2rem] overflow-hidden bg-white/80 backdrop-blur-xl print:hidden">
+          <CardContent className="p-4 md:p-6">
+            <div className="flex flex-col lg:flex-row items-center gap-4">
+              <div className="relative flex-1 w-full">
+                <Search className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+                <Input
+                  placeholder="بحث برمز الحساب أو الاسم..."
+                  value={filters.search}
+                  onChange={(e) => setFilters(prev => ({ ...prev, search: e.target.value }))}
+                  className="pr-12 h-12 rounded-xl border-slate-200 focus:border-blue-500 text-right font-medium"
+                />
+              </div>
+
+              <div className="flex items-center gap-3 flex-wrap">
+                <Button
+                  variant="outline"
+                  onClick={() => setShowFilters(!showFilters)}
+                  className={`rounded-xl font-bold h-12 ${showFilters ? "bg-blue-50 border-blue-300 text-blue-700" : ""}`}
+                >
+                  <Filter className="w-4 h-4 ml-2" />
+                  فلاتر متقدمة
+                  {showFilters ? <ChevronUp className="w-4 h-4 mr-2" /> : <ChevronDown className="w-4 h-4 mr-2" />}
+                </Button>
+
+                <Select value={filters.entryType} onValueChange={(v) => setFilters(prev => ({ ...prev, entryType: v }))}>
+                  <SelectTrigger className="w-40 h-12 rounded-xl font-bold">
+                    <SelectValue placeholder="نوع الحركة" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">جميع الأنواع</SelectItem>
+                    <SelectItem value="expenses">المنصرفات</SelectItem>
+                    <SelectItem value="payrolls">الرواتب</SelectItem>
+                    <SelectItem value="journals">قيود اليومية</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            {showFilters && (
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4 pt-4 border-t border-slate-100">
+                <div>
+                  <label className="block text-sm font-bold text-slate-600 mb-2">من تاريخ</label>
+                  <Input
+                    type="date"
+                    value={filters.fromDate}
+                    onChange={(e) => setFilters(prev => ({ ...prev, fromDate: e.target.value }))}
+                    className="h-11 rounded-xl"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-bold text-slate-600 mb-2">إلى تاريخ</label>
+                  <Input
+                    type="date"
+                    value={filters.toDate}
+                    onChange={(e) => setFilters(prev => ({ ...prev, toDate: e.target.value }))}
+                    className="h-11 rounded-xl"
+                  />
+                </div>
+                <div className="flex items-end">
+                  <Button
+                    variant="outline"
+                    onClick={() => setFilters({ fromDate: "", toDate: "", entryType: "all", search: "" })}
+                    className="rounded-xl font-bold w-full h-11"
+                  >
+                    <X className="w-4 h-4 ml-2" />
+                    مسح الفلاتر
+                  </Button>
+                </div>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        <Card className="border-none shadow-xl rounded-[2rem] overflow-hidden bg-white/90 backdrop-blur-xl print:shadow-none print:rounded-none">
+          <CardHeader className="border-b border-slate-100 bg-gradient-to-r from-slate-50 to-emerald-50 print:bg-white">
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-lg font-bold text-slate-800 flex items-center gap-2">
+                <FileText className="w-5 h-5 text-emerald-600" />
+                جدول ميزان المراجعة
+              </CardTitle>
+              <div className="flex items-center gap-3 print:hidden">
+                <span className="text-sm text-slate-500 font-medium">عرض:</span>
+                <Select value={String(pageSize)} onValueChange={(v) => { setPageSize(Number(v)); setCurrentPage(1); }}>
+                  <SelectTrigger className="w-20 h-9 rounded-lg">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="10">10</SelectItem>
+                    <SelectItem value="20">20</SelectItem>
+                    <SelectItem value="50">50</SelectItem>
+                    <SelectItem value="100">100</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent className="p-0">
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="bg-gradient-to-r from-slate-800 to-slate-900 text-white">
+                    {[
+                      { key: "type", label: "نوع الحركة", icon: Layers },
+                      { key: "account_code", label: "رمز الحساب", icon: FileText },
+                      { key: "account_name", label: "اسم الحساب", icon: BookOpen },
+                      { key: "debit", label: "مدين", icon: TrendingUp },
+                      { key: "credit", label: "دائن", icon: TrendingDown },
+                    ].map((col) => (
+                      <th
+                        key={col.key}
+                        onClick={() => handleSort(col.key)}
+                        className="px-4 py-4 text-right text-xs font-bold cursor-pointer hover:bg-white/10 transition-colors whitespace-nowrap"
                       >
-                        <td className="px-4 py-3.5 text-sm">
-                          <div className="flex items-center gap-2">
-                            <div className="p-1.5 rounded-lg" style={{ backgroundColor: `${typeColor}20` }}>
-                              <TypeIcon className="w-4 h-4" style={{ color: typeColor }} />
-                            </div>
-                            <Badge style={{ backgroundColor: `${typeColor}20`, color: typeColor, borderColor: typeColor }} className="font-bold border">
-                              {balance.type}
-                            </Badge>
-                          </div>
-                        </td>
-                        <td className="px-4 py-3.5 text-sm">
-                          <span className="font-bold text-slate-800 bg-slate-100 px-3 py-1 rounded-lg">
-                            {balance.account_code}
-                          </span>
-                        </td>
-                        <td className="px-4 py-3.5 text-sm text-slate-600 font-medium">
-                          {balance.account_name}
-                        </td>
-                        <td className="px-4 py-3.5 text-sm">
-                          {balance.debit > 0 ? (
-                            <span className="font-bold text-rose-600 tabular-nums">{formatNumber(balance.debit)}</span>
-                          ) : (
-                            <span className="text-slate-300">-</span>
+                        <div className="flex items-center gap-2">
+                          <col.icon className="w-4 h-4 opacity-70" />
+                          {col.label}
+                          {sortConfig.key === col.key && (
+                            sortConfig.direction === "desc" ? <ChevronDown className="w-3 h-3" /> : <ChevronUp className="w-3 h-3" />
                           )}
-                        </td>
-                        <td className="px-4 py-3.5 text-sm">
-                          {balance.credit > 0 ? (
-                            <span className="font-bold text-emerald-600 tabular-nums">{formatNumber(balance.credit)}</span>
-                          ) : (
-                            <span className="text-slate-300">-</span>
-                          )}
-                        </td>
-                      </tr>
-                    );
-                  })
-                ) : (
-                  <tr>
-                    <td colSpan={5} className="px-4 py-16 text-center">
-                      <div className="flex flex-col items-center gap-4">
-                        <div className="w-20 h-20 bg-slate-100 rounded-full flex items-center justify-center">
-                          <Scale className="w-10 h-10 text-slate-300" />
                         </div>
-                        <p className="text-slate-400 font-bold text-lg">لا توجد بيانات مطابقة للبحث</p>
-                      </div>
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {paginatedBalances.length > 0 ? (
+                    paginatedBalances.map((balance, idx) => {
+                      const TypeIcon = TYPE_ICONS[balance.type] || FileText;
+                      const typeColor = TYPE_COLORS[balance.type] || "#64748b";
+                      return (
+                        <tr
+                          key={idx}
+                          className={`hover:bg-blue-50/50 transition-colors ${idx % 2 === 0 ? "bg-white" : "bg-slate-50/50"}`}
+                        >
+                          <td className="px-4 py-3.5 text-sm">
+                            <div className="flex items-center gap-2">
+                              <div className="p-1.5 rounded-lg" style={{ backgroundColor: `${typeColor}20` }}>
+                                <TypeIcon className="w-4 h-4" style={{ color: typeColor }} />
+                              </div>
+                              <Badge style={{ backgroundColor: `${typeColor}20`, color: typeColor, borderColor: typeColor }} className="font-bold border">
+                                {balance.type}
+                              </Badge>
+                            </div>
+                          </td>
+                          <td className="px-4 py-3.5 text-sm">
+                            <span className="font-bold text-slate-800 bg-slate-100 px-3 py-1 rounded-lg">
+                              {balance.account_code}
+                            </span>
+                          </td>
+                          <td className="px-4 py-3.5 text-sm text-slate-600 font-medium">
+                            {balance.account_name}
+                          </td>
+                          <td className="px-4 py-3.5 text-sm">
+                            {balance.debit > 0 ? (
+                              <span className="font-bold text-rose-600 tabular-nums">{formatNumber(balance.debit)}</span>
+                            ) : (
+                              <span className="text-slate-300">-</span>
+                            )}
+                          </td>
+                          <td className="px-4 py-3.5 text-sm">
+                            {balance.credit > 0 ? (
+                              <span className="font-bold text-emerald-600 tabular-nums">{formatNumber(balance.credit)}</span>
+                            ) : (
+                              <span className="text-slate-300">-</span>
+                            )}
+                          </td>
+                        </tr>
+                      );
+                    })
+                  ) : (
+                    <tr>
+                      <td colSpan={5} className="px-4 py-16 text-center">
+                        <div className="flex flex-col items-center gap-4">
+                          <div className="w-20 h-20 bg-slate-100 rounded-full flex items-center justify-center">
+                            <Scale className="w-10 h-10 text-slate-300" />
+                          </div>
+                          <p className="text-slate-400 font-bold text-lg">لا توجد بيانات مطابقة للبحث</p>
+                        </div>
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+                <tfoot>
+                  <tr className="bg-gradient-to-r from-slate-100 to-emerald-100 font-bold">
+                    <td colSpan={3} className="px-4 py-4 text-sm text-slate-700">
+                      الإجمالي
+                    </td>
+                    <td className="px-4 py-4 text-sm text-rose-600 font-black tabular-nums">
+                      {formatNumber(stats.totalDebit)}
+                    </td>
+                    <td className="px-4 py-4 text-sm text-emerald-600 font-black tabular-nums">
+                      {formatNumber(stats.totalCredit)}
                     </td>
                   </tr>
-                )}
-              </tbody>
-              <tfoot>
-                <tr className="bg-gradient-to-r from-slate-100 to-emerald-100 font-bold">
-                  <td colSpan={3} className="px-4 py-4 text-sm text-slate-700">
-                    الإجمالي
-                  </td>
-                  <td className="px-4 py-4 text-sm text-rose-600 font-black tabular-nums">
-                    {formatNumber(stats.totalDebit)}
-                  </td>
-                  <td className="px-4 py-4 text-sm text-emerald-600 font-black tabular-nums">
-                    {formatNumber(stats.totalCredit)}
-                  </td>
-                </tr>
-                <tr className={`font-bold ${stats.isBalanced ? "bg-emerald-50" : "bg-rose-50"}`}>
-                  <td colSpan={3} className="px-4 py-3 text-sm text-slate-700">
-                    الفرق (المدين - الدائن)
-                  </td>
-                  <td colSpan={2} className={`px-4 py-3 text-sm font-black tabular-nums text-center ${stats.isBalanced ? "text-emerald-600" : "text-rose-600"}`}>
-                    {formatNumber(stats.difference)} ر.س
-                    {stats.isBalanced && <CheckCircle2 className="w-4 h-4 inline-block mr-2" />}
-                    {!stats.isBalanced && <AlertTriangle className="w-4 h-4 inline-block mr-2" />}
-                  </td>
-                </tr>
-              </tfoot>
-            </table>
-          </div>
-
-          {totalPages > 1 && (
-            <div className="flex flex-col md:flex-row items-center justify-between p-4 border-t border-slate-100 print:hidden gap-3">
-              <div className="text-sm text-slate-500 font-medium">
-                عرض {((currentPage - 1) * pageSize) + 1} إلى {Math.min(currentPage * pageSize, filteredBalances.length)} من {filteredBalances.length} حساب
-              </div>
-              <div className="flex items-center gap-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setCurrentPage(1)}
-                  disabled={currentPage === 1}
-                  className="rounded-lg font-bold"
-                >
-                  الأول
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
-                  disabled={currentPage === 1}
-                  className="rounded-lg font-bold"
-                >
-                  السابق
-                </Button>
-                <span className="px-4 py-2 bg-emerald-50 rounded-lg text-emerald-700 font-bold text-sm">
-                  {currentPage} / {totalPages}
-                </span>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
-                  disabled={currentPage === totalPages}
-                  className="rounded-lg font-bold"
-                >
-                  التالي
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setCurrentPage(totalPages)}
-                  disabled={currentPage === totalPages}
-                  className="rounded-lg font-bold"
-                >
-                  الأخير
-                </Button>
-              </div>
+                  <tr className={`font-bold ${stats.isBalanced ? "bg-emerald-50" : "bg-rose-50"}`}>
+                    <td colSpan={3} className="px-4 py-3 text-sm text-slate-700">
+                      الفرق (المدين - الدائن)
+                    </td>
+                    <td colSpan={2} className={`px-4 py-3 text-sm font-black tabular-nums text-center ${stats.isBalanced ? "text-emerald-600" : "text-rose-600"}`}>
+                      {formatNumber(stats.difference)} ر.س
+                      {stats.isBalanced && <CheckCircle2 className="w-4 h-4 inline-block mr-2" />}
+                      {!stats.isBalanced && <AlertTriangle className="w-4 h-4 inline-block mr-2" />}
+                    </td>
+                  </tr>
+                </tfoot>
+              </table>
             </div>
-          )}
-        </CardContent>
+
+            {totalPages > 1 && (
+              <div className="flex flex-col md:flex-row items-center justify-between p-4 border-t border-slate-100 print:hidden gap-3">
+                <div className="text-sm text-slate-500 font-medium">
+                  عرض {((currentPage - 1) * pageSize) + 1} إلى {Math.min(currentPage * pageSize, filteredBalances.length)} من {filteredBalances.length} حساب
+                </div>
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setCurrentPage(1)}
+                    disabled={currentPage === 1}
+                    className="rounded-lg font-bold"
+                  >
+                    الأول
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                    disabled={currentPage === 1}
+                    className="rounded-lg font-bold"
+                  >
+                    السابق
+                  </Button>
+                  <span className="px-4 py-2 bg-emerald-50 rounded-lg text-emerald-700 font-bold text-sm">
+                    {currentPage} / {totalPages}
+                  </span>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                    disabled={currentPage === totalPages}
+                    className="rounded-lg font-bold"
+                  >
+                    التالي
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setCurrentPage(totalPages)}
+                    disabled={currentPage === totalPages}
+                    className="rounded-lg font-bold"
+                  >
+                    الأخير
+                  </Button>
+                </div>
+              </div>
+            )}
+          </CardContent>
+        </Card>
       </Card>
     </div>
   );

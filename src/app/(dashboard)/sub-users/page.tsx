@@ -305,21 +305,28 @@ export default function SubUsersPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 p-6">
-      <div className="max-w-7xl mx-auto">
+    <div className="p-4 md:p-6" dir="rtl">
+      <Card className="border-none shadow-2xl rounded-[2rem] overflow-hidden bg-[#1a2234] p-4 md:p-8 space-y-8">
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="mb-8"
+          className="relative overflow-hidden rounded-[2rem] bg-gradient-to-br from-[#0f172a] via-[#1e293b] to-[#0f172a] text-white shadow-2xl border border-white/10 p-6 md:p-8"
         >
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
+          <div className="absolute inset-0 overflow-hidden">
+            <div className="absolute -top-40 -right-40 w-80 h-80 bg-blue-500/20 rounded-full blur-3xl" />
+            <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-purple-500/20 rounded-full blur-3xl" />
+          </div>
+          
+          <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-6">
+            <div className="flex items-center gap-5">
               <div className="p-4 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl shadow-xl">
                 <Users size={32} className="text-white" />
               </div>
               <div>
-                <h1 className="text-3xl font-bold text-white">إدارة المستخدمين</h1>
-                <p className="text-slate-400">إضافة وإدارة المستخدمين الفرعيين للشركة</p>
+                <h1 className="text-2xl md:text-4xl font-black tracking-tight bg-gradient-to-r from-white via-blue-200 to-white bg-clip-text text-transparent">
+                  إدارة المستخدمين
+                </h1>
+                <p className="text-white/60 font-medium mt-1 text-sm md:text-base">إضافة وإدارة المستخدمين الفرعيين للشركة</p>
               </div>
             </div>
             <button
@@ -327,7 +334,7 @@ export default function SubUsersPage() {
                 setFormData({ name: "", email: "", password: "", confirmPassword: "", permissions: [] });
                 setShowAddModal(true);
               }}
-              className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-xl font-bold hover:shadow-lg hover:shadow-blue-500/30 transition-all"
+              className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-xl font-bold hover:shadow-lg hover:shadow-blue-500/30 transition-all w-full md:w-auto justify-center"
             >
               <UserPlus size={20} />
               إضافة مستخدم جديد
@@ -335,7 +342,7 @@ export default function SubUsersPage() {
           </div>
         </motion.div>
 
-        <div className="mb-6">
+        <Card className="border-none shadow-xl rounded-[2rem] overflow-hidden bg-white/10 backdrop-blur-xl p-4">
           <div className="relative">
             <Search className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
             <input
@@ -343,10 +350,10 @@ export default function SubUsersPage() {
               placeholder="البحث عن مستخدم..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-4 pr-12 py-3 bg-slate-800/50 border border-slate-700 rounded-xl text-white placeholder-slate-400 focus:outline-none focus:border-blue-500"
+              className="w-full pl-4 pr-12 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-slate-400 focus:outline-none focus:border-blue-500"
             />
           </div>
-        </div>
+        </Card>
 
         {loading ? (
           <div className="flex items-center justify-center py-20">
@@ -356,7 +363,7 @@ export default function SubUsersPage() {
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="text-center py-20"
+            className="text-center py-20 bg-white/5 rounded-[2rem] border border-white/10"
           >
             <Users className="mx-auto text-slate-600 mb-4" size={64} />
             <h3 className="text-xl font-bold text-slate-400">لا يوجد مستخدمين</h3>
@@ -370,10 +377,10 @@ export default function SubUsersPage() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.05 }}
-                className="bg-slate-800/50 backdrop-blur border border-slate-700 rounded-2xl p-6 hover:border-slate-600 transition-all"
+                className="bg-white/10 backdrop-blur border border-white/10 rounded-2xl p-6 hover:border-white/20 transition-all group"
               >
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-4">
+                <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+                  <div className="flex items-center gap-4 w-full md:w-auto">
                     <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold text-xl">
                       {user.name.charAt(0)}
                     </div>
@@ -386,7 +393,7 @@ export default function SubUsersPage() {
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-6">
+                  <div className="flex flex-wrap items-center justify-center gap-6 w-full md:w-auto">
                     <div className="text-center">
                       <div className="text-2xl font-bold text-white">{user.permissions?.length || 0}</div>
                       <div className="text-xs text-slate-400">صلاحيات</div>
@@ -443,7 +450,7 @@ export default function SubUsersPage() {
                 </div>
 
                 {user.last_login_at && (
-                  <div className="mt-4 pt-4 border-t border-slate-700 flex items-center gap-2 text-sm text-slate-400">
+                  <div className="mt-4 pt-4 border-t border-white/5 flex items-center gap-2 text-sm text-slate-400">
                     <Clock size={14} />
                     آخر دخول: {new Date(user.last_login_at).toLocaleString("ar-SA")}
                   </div>
@@ -452,220 +459,220 @@ export default function SubUsersPage() {
             ))}
           </div>
         )}
+      </Card>
 
-        <AnimatePresence>
-          {(showAddModal || showEditModal) && (
+      <AnimatePresence>
+        {(showAddModal || showEditModal) && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+            onClick={() => {
+              setShowAddModal(false);
+              setShowEditModal(false);
+            }}
+          >
             <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4"
-              onClick={() => {
-                setShowAddModal(false);
-                setShowEditModal(false);
-              }}
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              onClick={(e) => e.stopPropagation()}
+              className="bg-slate-900 border border-slate-700 rounded-[2rem] w-full max-w-2xl max-h-[90vh] overflow-hidden shadow-2xl"
             >
-              <motion.div
-                initial={{ scale: 0.9, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                exit={{ scale: 0.9, opacity: 0 }}
-                onClick={(e) => e.stopPropagation()}
-                className="bg-slate-900 border border-slate-700 rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden"
-              >
-                <div className="p-6 border-b border-slate-700 flex items-center justify-between">
-                  <h2 className="text-xl font-bold text-white">
-                    {showAddModal ? "إضافة مستخدم جديد" : "تعديل المستخدم"}
-                  </h2>
-                  <button
-                    onClick={() => {
-                      setShowAddModal(false);
-                      setShowEditModal(false);
-                    }}
-                    className="p-2 rounded-lg hover:bg-slate-800 text-slate-400"
-                  >
-                    <X size={20} />
-                  </button>
-                </div>
+              <div className="p-6 border-b border-slate-700 flex items-center justify-between bg-gradient-to-r from-slate-800 to-slate-900">
+                <h2 className="text-xl font-bold text-white">
+                  {showAddModal ? "إضافة مستخدم جديد" : "تعديل المستخدم"}
+                </h2>
+                <button
+                  onClick={() => {
+                    setShowAddModal(false);
+                    setShowEditModal(false);
+                  }}
+                  className="p-2 rounded-lg hover:bg-white/10 text-white/60"
+                >
+                  <X size={20} />
+                </button>
+              </div>
 
-                <div className="p-6 overflow-y-auto max-h-[calc(90vh-180px)]">
-                  <div className="space-y-4">
+              <div className="p-6 overflow-y-auto max-h-[calc(90vh-180px)]">
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-bold text-slate-300 mb-2">
+                      الاسم الكامل *
+                    </label>
+                    <input
+                      type="text"
+                      value={formData.name}
+                      onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                      className="w-full px-4 py-3 bg-slate-800 border border-slate-700 rounded-xl text-white focus:outline-none focus:border-blue-500"
+                      placeholder="أدخل الاسم"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-bold text-slate-300 mb-2">
+                      البريد الإلكتروني *
+                    </label>
+                    <input
+                      type="email"
+                      value={formData.email}
+                      onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                      className="w-full px-4 py-3 bg-slate-800 border border-slate-700 rounded-xl text-white focus:outline-none focus:border-blue-500"
+                      placeholder="example@company.com"
+                      dir="ltr"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <label className="block text-sm font-bold text-slate-300 mb-2">
-                        الاسم الكامل *
+                        كلمة المرور {showAddModal ? "*" : "(اختياري)"}
                       </label>
-                      <input
-                        type="text"
-                        value={formData.name}
-                        onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                        className="w-full px-4 py-3 bg-slate-800 border border-slate-700 rounded-xl text-white focus:outline-none focus:border-blue-500"
-                        placeholder="أدخل الاسم"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-bold text-slate-300 mb-2">
-                        البريد الإلكتروني *
-                      </label>
-                      <input
-                        type="email"
-                        value={formData.email}
-                        onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                        className="w-full px-4 py-3 bg-slate-800 border border-slate-700 rounded-xl text-white focus:outline-none focus:border-blue-500"
-                        placeholder="example@company.com"
-                        dir="ltr"
-                      />
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <label className="block text-sm font-bold text-slate-300 mb-2">
-                          كلمة المرور {showAddModal ? "*" : "(اختياري)"}
-                        </label>
-                        <div className="relative">
-                          <input
-                            type="text"
-                            value={formData.password}
-                            onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                            className="w-full px-4 py-3 bg-slate-800 border border-slate-700 rounded-xl text-white focus:outline-none focus:border-blue-500"
-                            placeholder="••••••••"
-                            dir="ltr"
-                          />
-                        </div>
-                      </div>
-                      <div>
-                        <label className="block text-sm font-bold text-slate-300 mb-2">
-                          تأكيد كلمة المرور
-                        </label>
+                      <div className="relative">
                         <input
                           type="text"
-                          value={formData.confirmPassword}
-                          onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
+                          value={formData.password}
+                          onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                           className="w-full px-4 py-3 bg-slate-800 border border-slate-700 rounded-xl text-white focus:outline-none focus:border-blue-500"
                           placeholder="••••••••"
                           dir="ltr"
                         />
                       </div>
                     </div>
+                    <div>
+                      <label className="block text-sm font-bold text-slate-300 mb-2">
+                        تأكيد كلمة المرور
+                      </label>
+                      <input
+                        type="text"
+                        value={formData.confirmPassword}
+                        onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
+                        className="w-full px-4 py-3 bg-slate-800 border border-slate-700 rounded-xl text-white focus:outline-none focus:border-blue-500"
+                        placeholder="••••••••"
+                        dir="ltr"
+                      />
+                    </div>
+                  </div>
 
-                    <button
-                      type="button"
-                      onClick={generatePassword}
-                      className="flex items-center gap-2 text-sm text-blue-400 hover:text-blue-300"
-                    >
-                      <RefreshCw size={14} />
-                      توليد كلمة مرور تلقائية
-                    </button>
+                  <button
+                    type="button"
+                    onClick={generatePassword}
+                    className="flex items-center gap-2 text-sm text-blue-400 hover:text-blue-300"
+                  >
+                    <RefreshCw size={14} />
+                    توليد كلمة مرور تلقائية
+                  </button>
 
-                      <div>
-                        <div className="flex items-center justify-between mb-4">
-                          <label className="text-sm font-bold text-slate-300">
-                            الصلاحيات المتاحة
-                          </label>
-                          <div className="flex gap-2">
-                            <button
-                              type="button"
-                              onClick={selectAllPermissions}
-                              className="text-xs text-blue-400 hover:text-blue-300 font-bold"
-                            >
-                              تحديد الكل
-                            </button>
-                            <span className="text-slate-600">|</span>
-                            <button
-                              type="button"
-                              onClick={deselectAllPermissions}
-                              className="text-xs text-red-400 hover:text-red-300 font-bold"
-                            >
-                              إلغاء الكل
-                            </button>
-                          </div>
-                        </div>
-
-                        <div className="space-y-6 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
-                          {Array.from(new Set(AVAILABLE_PERMISSIONS.filter(p => companyPermissions.includes(p.key)).map(p => p.category))).map((category) => (
-                            <div key={category} className="space-y-3">
-                              <h4 className="text-xs font-black text-slate-500 uppercase tracking-wider flex items-center gap-2">
-                                <div className="w-1 h-3 bg-blue-500 rounded-full" />
-                                {category}
-                              </h4>
-                              <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                                {AVAILABLE_PERMISSIONS.filter(p => p.category === category && companyPermissions.includes(p.key)).map((perm) => (
-                                  <button
-                                    key={perm.key}
-                                    type="button"
-                                    onClick={() => togglePermission(perm.key)}
-                                    className={cn(
-                                      "flex items-center gap-3 p-3 rounded-xl border transition-all text-right group",
-                                      formData.permissions.includes(perm.key)
-                                        ? "bg-blue-500/10 border-blue-500/50 text-blue-100 shadow-lg shadow-blue-500/5"
-                                        : "bg-slate-800/50 border-slate-700/50 text-slate-400 hover:border-slate-600 hover:bg-slate-800"
-                                    )}
-                                  >
-                                    <div className={cn(
-                                      "w-10 h-10 rounded-lg flex items-center justify-center transition-all",
-                                      formData.permissions.includes(perm.key)
-                                        ? "bg-blue-500 text-white shadow-lg"
-                                        : "bg-slate-700 text-slate-400 group-hover:bg-slate-600"
-                                    )}>
-                                      <perm.icon size={20} />
-                                    </div>
-                                    <div className="flex-1 min-w-0">
-                                      <div className="font-bold text-sm truncate">{perm.label}</div>
-                                      <div className="text-[10px] opacity-50 truncate leading-tight">{perm.description}</div>
-                                    </div>
-                                    <div className={cn(
-                                      "w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all",
-                                      formData.permissions.includes(perm.key)
-                                        ? "border-blue-500 bg-blue-500"
-                                        : "border-slate-600"
-                                    )}>
-                                      {formData.permissions.includes(perm.key) && (
-                                        <Check size={12} className="text-white" />
-                                      )}
-                                    </div>
-                                  </button>
-                                ))}
-                              </div>
-                            </div>
-                          ))}
+                    <div>
+                      <div className="flex items-center justify-between mb-4">
+                        <label className="text-sm font-bold text-slate-300">
+                          الصلاحيات المتاحة
+                        </label>
+                        <div className="flex gap-2">
+                          <button
+                            type="button"
+                            onClick={selectAllPermissions}
+                            className="text-xs text-blue-400 hover:text-blue-300 font-bold"
+                          >
+                            تحديد الكل
+                          </button>
+                          <span className="text-slate-600">|</span>
+                          <button
+                            type="button"
+                            onClick={deselectAllPermissions}
+                            className="text-xs text-red-400 hover:text-red-300 font-bold"
+                          >
+                            إلغاء الكل
+                          </button>
                         </div>
                       </div>
-                  </div>
-                </div>
 
-                <div className="p-6 border-t border-slate-700 flex justify-end gap-3">
-                  <button
-                    onClick={() => {
-                      setShowAddModal(false);
-                      setShowEditModal(false);
-                    }}
-                    className="px-6 py-3 rounded-xl bg-slate-800 text-slate-300 font-bold hover:bg-slate-700 transition-colors"
-                  >
-                    إلغاء
-                  </button>
-                  <button
-                    onClick={showAddModal ? handleCreateUser : handleUpdateUser}
-                    className="px-6 py-3 rounded-xl bg-gradient-to-r from-blue-500 to-purple-600 text-white font-bold hover:shadow-lg transition-all"
-                  >
-                    {showAddModal ? "إنشاء المستخدم" : "حفظ التغييرات"}
-                  </button>
+                      <div className="space-y-6 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
+                        {Array.from(new Set(AVAILABLE_PERMISSIONS.filter(p => companyPermissions.includes(p.key)).map(p => p.category))).map((category) => (
+                          <div key={category} className="space-y-3">
+                            <h4 className="text-xs font-black text-slate-500 uppercase tracking-wider flex items-center gap-2">
+                              <div className="w-1 h-3 bg-blue-500 rounded-full" />
+                              {category}
+                            </h4>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                              {AVAILABLE_PERMISSIONS.filter(p => p.category === category && companyPermissions.includes(p.key)).map((perm) => (
+                                <button
+                                  key={perm.key}
+                                  type="button"
+                                  onClick={() => togglePermission(perm.key)}
+                                  className={cn(
+                                    "flex items-center gap-3 p-3 rounded-xl border transition-all text-right group",
+                                    formData.permissions.includes(perm.key)
+                                      ? "bg-blue-500/10 border-blue-500/50 text-blue-100 shadow-lg shadow-blue-500/5"
+                                      : "bg-slate-800/50 border-slate-700/50 text-slate-400 hover:border-slate-600 hover:bg-slate-800"
+                                  )}
+                                >
+                                  <div className={cn(
+                                    "w-10 h-10 rounded-lg flex items-center justify-center transition-all",
+                                    formData.permissions.includes(perm.key)
+                                      ? "bg-blue-500 text-white shadow-lg"
+                                      : "bg-slate-700 text-slate-400 group-hover:bg-slate-600"
+                                  )}>
+                                    <perm.icon size={20} />
+                                  </div>
+                                  <div className="flex-1 min-w-0">
+                                    <div className="font-bold text-sm truncate">{perm.label}</div>
+                                    <div className="text-[10px] opacity-50 truncate leading-tight">{perm.description}</div>
+                                  </div>
+                                  <div className={cn(
+                                    "w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all",
+                                    formData.permissions.includes(perm.key)
+                                      ? "border-blue-500 bg-blue-500"
+                                      : "border-slate-600"
+                                  )}>
+                                    {formData.permissions.includes(perm.key) && (
+                                      <Check size={12} className="text-white" />
+                                    )}
+                                  </div>
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
                 </div>
-              </motion.div>
+              </div>
+
+              <div className="p-6 border-t border-slate-700 flex justify-end gap-3 bg-slate-800/50">
+                <button
+                  onClick={() => {
+                    setShowAddModal(false);
+                    setShowEditModal(false);
+                  }}
+                  className="px-6 py-3 rounded-xl bg-slate-800 text-slate-300 font-bold hover:bg-slate-700 transition-colors border border-slate-700"
+                >
+                  إلغاء
+                </button>
+                <button
+                  onClick={showAddModal ? handleCreateUser : handleUpdateUser}
+                  className="px-6 py-3 rounded-xl bg-gradient-to-r from-blue-500 to-purple-600 text-white font-bold hover:shadow-lg transition-all shadow-blue-500/20"
+                >
+                  {showAddModal ? "إنشاء المستخدم" : "حفظ التغييرات"}
+                </button>
+              </div>
             </motion.div>
-          )}
-        </AnimatePresence>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
-        <AnimatePresence>
-          {showActivityModal && selectedUser && (
-            <ActivityLogModal
-              user={selectedUser}
-              onClose={() => {
-                setShowActivityModal(false);
-                setSelectedUser(null);
-              }}
-            />
-          )}
-        </AnimatePresence>
-      </div>
+      <AnimatePresence>
+        {showActivityModal && selectedUser && (
+          <ActivityLogModal
+            user={selectedUser}
+            onClose={() => {
+              setShowActivityModal(false);
+              setSelectedUser(null);
+            }}
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 }
