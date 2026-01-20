@@ -33,7 +33,9 @@ import {
   FileCheck,
   Sparkles,
   TrendingUp,
+  TrendingDown,
   ArrowUpRight,
+  PlusCircle,
   ShieldCheck,
   Gauge
 } from "lucide-react";
