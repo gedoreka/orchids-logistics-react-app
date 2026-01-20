@@ -5,7 +5,6 @@ import { motion, AnimatePresence } from "framer-motion";
 import { 
   Plus, 
   Trash2, 
-  X, 
   Save, 
   UserPlus,
   ArrowRight,
@@ -18,12 +17,21 @@ import {
   Wallet,
   Home,
   Truck,
-  Building
+  Building,
+  CheckCircle2,
+  AlertCircle,
+  Package,
+  ArrowLeft,
 } from "lucide-react";
 import { toast } from "sonner";
 import { saveEmployees } from "@/lib/actions/hr";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { useTranslations, useLocale } from "@/lib/locale-context";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 
 interface AddEmployeesClientProps {
   package: any;
@@ -32,6 +40,10 @@ interface AddEmployeesClientProps {
 
 export function AddEmployeesClient({ package: pkg, companyId }: AddEmployeesClientProps) {
   const router = useRouter();
+  const t = useTranslations("packages.addEmployeesPage");
+  const common = useTranslations("common");
+  const { isRTL: isRtl } = useLocale();
+  
   const [isLoading, setIsLoading] = useState(false);
   const [employees, setEmployees] = useState([
     {
@@ -74,7 +86,7 @@ export function AddEmployeesClient({ package: pkg, companyId }: AddEmployeesClie
 
   const removeRow = (index: number) => {
     if (employees.length === 1) {
-      toast.error("يجب إضافة موظف واحد على الأقل");
+      toast.error(t("mustHaveOneEmployee") || "يجب إضافة موظف واحد على الأقل");
       return;
     }
     setEmployees(employees.filter((_, i) => i !== index));
@@ -93,13 +105,13 @@ export function AddEmployeesClient({ package: pkg, companyId }: AddEmployeesClie
     try {
       const result = await saveEmployees(pkg.id, employees);
       if (result.success) {
-        toast.success(result.message);
-        router.push("/hr");
+        toast.success(t("successMessage"));
+        router.push(`/hr/packages/${pkg.id}`);
       } else {
-        toast.error(result.error || "حدث خطأ أثناء الحفظ");
+        toast.error(result.error || t("errorMessage"));
       }
     } catch (error) {
-      toast.error("حدث خطأ غير متوقع");
+      toast.error(t("errorMessage"));
     } finally {
       setIsLoading(false);
     }
@@ -108,313 +120,333 @@ export function AddEmployeesClient({ package: pkg, companyId }: AddEmployeesClie
   const isTargetSystem = pkg.work_type === 'target';
 
   return (
-    <div className="space-y-8 pb-20">
-      {/* Header Section */}
-      <div className="bg-gradient-to-br from-[#2c3e50] to-[#34495e] rounded-[2.5rem] p-8 md:p-12 text-white shadow-2xl relative overflow-hidden">
-        <div className="absolute top-0 right-0 p-12 opacity-10 pointer-events-none">
-          <UserPlus size={200} />
-        </div>
-        
-        <div className="relative z-10 space-y-6">
-          <Link 
-            href="/hr"
-            className="inline-flex items-center gap-2 text-white/60 hover:text-white transition-colors font-black text-sm uppercase tracking-widest"
-          >
-            <ArrowRight size={16} />
-            العودة للموارد البشرية
-          </Link>
-
-          <div>
-            <h1 className="text-4xl md:text-5xl font-black tracking-tight mb-4">إضافة موظفين جدد</h1>
-            <p className="text-white/70 font-bold text-lg">
-              جاري الإضافة إلى باقة: <span className="text-[#3498db]">{pkg.group_name}</span>
-            </p>
+    <div className="p-4 md:p-6 space-y-8" dir={isRtl ? "rtl" : "ltr"}>
+      {/* Header Card - Using Balance Sheet Style */}
+      <Card className="border-none shadow-2xl rounded-[2rem] overflow-hidden bg-[#1a2234]">
+        <div className="relative overflow-hidden bg-gradient-to-br from-[#0f172a] via-[#1e293b] to-[#0f172a] text-white p-8 md:p-12">
+          {/* Decorative Elements */}
+          <div className="absolute inset-0 overflow-hidden">
+            <div className="absolute -top-40 -right-40 w-80 h-80 bg-blue-500/20 rounded-full blur-3xl" />
+            <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-emerald-500/20 rounded-full blur-3xl" />
           </div>
+          
+          <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 via-emerald-500 to-amber-500" />
+          
+          <div className="relative z-10 space-y-8">
+            <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+              <div className="flex items-center gap-6 text-center md:text-right">
+                <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-2xl rotate-3">
+                  <UserPlus className="w-10 h-10 text-white" />
+                </div>
+                <div>
+                  <h1 className="text-3xl md:text-5xl font-black tracking-tight bg-gradient-to-r from-white via-blue-200 to-white bg-clip-text text-transparent">
+                    {t("title")}
+                  </h1>
+                  <p className="text-white/60 font-medium mt-2 text-lg">
+                    {t("subtitle")}
+                  </p>
+                </div>
+              </div>
 
-          <div className="flex flex-wrap gap-4 pt-4">
-            <div className="bg-white/10 backdrop-blur-md border border-white/10 px-6 py-3 rounded-2xl flex items-center gap-3">
-              <div className="h-2 w-2 rounded-full bg-green-400 animate-pulse" />
-              <span className="font-black text-sm uppercase tracking-wider">
-                {isTargetSystem ? 'نظام التارجت' : 'نظام الشرائح'}
-              </span>
+              <div className="flex gap-4">
+                <Link href={`/hr/packages/${pkg.id}`}>
+                  <Button variant="outline" className="bg-white/10 border-white/20 text-white hover:bg-white/20 rounded-xl font-bold">
+                    {isRtl ? <ArrowRight className="ml-2 w-4 h-4" /> : <ArrowLeft className="mr-2 w-4 h-4" />}
+                    {t("cancelBtn")}
+                  </Button>
+                </Link>
+              </div>
             </div>
-            <div className="bg-white/10 backdrop-blur-md border border-white/10 px-6 py-3 rounded-2xl flex items-center gap-3">
-              <span className="text-white/50 text-[10px] font-black uppercase tracking-wider">العدد الحالي</span>
-              <span className="font-black text-sm">{employees.length} موظف</span>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-4">
+              <div className="bg-white/5 backdrop-blur-xl border border-white/10 p-6 rounded-[1.5rem] group hover:bg-white/10 transition-all">
+                <div className="flex items-center gap-4">
+                  <div className="p-3 bg-blue-500/20 rounded-xl">
+                    <Package className="w-6 h-6 text-blue-400" />
+                  </div>
+                  <div>
+                    <p className="text-white/40 text-xs font-black uppercase tracking-widest">{t("packageName")}</p>
+                    <p className="text-xl font-black text-white">{pkg.group_name}</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-white/5 backdrop-blur-xl border border-white/10 p-6 rounded-[1.5rem] group hover:bg-white/10 transition-all">
+                <div className="flex items-center gap-4">
+                  <div className="p-3 bg-emerald-500/20 rounded-xl">
+                    <Building className="w-6 h-6 text-emerald-400" />
+                  </div>
+                  <div>
+                    <p className="text-white/40 text-xs font-black uppercase tracking-widest">{t("workSystem")}</p>
+                    <Badge className="bg-emerald-500/20 text-emerald-300 border-emerald-500/30 font-bold">
+                      {isTargetSystem ? t("targetSystem") || "نظام التارجت" : t("salarySystem") || "نظام الراتب"}
+                    </Badge>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-white/5 backdrop-blur-xl border border-white/10 p-6 rounded-[1.5rem] group hover:bg-white/10 transition-all">
+                <div className="flex items-center gap-4">
+                  <div className="p-3 bg-amber-500/20 rounded-xl">
+                    <UserPlus className="w-6 h-6 text-amber-400" />
+                  </div>
+                  <div>
+                    <p className="text-white/40 text-xs font-black uppercase tracking-widest">{t("employeesList")}</p>
+                    <p className="text-xl font-black text-white">{employees.length} {t("employees") || common("records")}</p>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
-      </div>
+      </Card>
 
-      <form onSubmit={handleSubmit} className="space-y-6">
-        <div className="flex justify-end gap-4">
-          <motion.button
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
+      <form onSubmit={handleSubmit} className="space-y-8">
+        <div className="flex justify-between items-center bg-white/50 backdrop-blur-xl p-4 rounded-[2rem] border border-white/20 shadow-lg">
+          <h2 className="text-xl font-black text-[#1a2234] flex items-center gap-3">
+            <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center text-white">
+              <Plus className="w-5 h-5" />
+            </div>
+            {t("employeesData") || "بيانات الموظفين"}
+          </h2>
+          <Button
             type="button"
             onClick={addRow}
-            className="flex items-center gap-2 bg-white border-2 border-gray-100 text-gray-900 px-6 py-3 rounded-2xl font-black shadow-sm hover:border-[#3498db] transition-all"
+            className="bg-[#1a2234] hover:bg-[#2c3e50] text-white font-black rounded-xl px-6 h-12 shadow-xl hover:shadow-2xl transition-all flex items-center gap-2"
           >
-            <Plus size={20} />
-            <span>إضافة حقل جديد</span>
-          </motion.button>
+            <Plus className="w-5 h-5" />
+            {t("addNewEmployee") || "إضافة موظف جديد"}
+          </Button>
         </div>
 
-        <div className="bg-white/80 backdrop-blur-md rounded-[2.5rem] border-2 border-gray-100 shadow-xl overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full text-right border-collapse min-w-[1200px]">
-              <thead>
-                <tr className="bg-gray-50/50">
-                  <th className="p-6 text-[10px] font-black text-gray-400 uppercase tracking-widest border-b border-gray-100">الموظف</th>
-                  {isTargetSystem ? (
-                    <>
-                      <th className="p-6 text-[10px] font-black text-gray-400 uppercase tracking-widest border-b border-gray-100 text-center">الإقامة</th>
-                      <th className="p-6 text-[10px] font-black text-gray-400 uppercase tracking-widest border-b border-gray-100 text-center">الجنسية</th>
-                      <th className="p-6 text-[10px] font-black text-gray-400 uppercase tracking-widest border-b border-gray-100 text-center">الكود</th>
-                    </>
-                  ) : (
-                    <>
-                      <th className="p-6 text-[10px] font-black text-gray-400 uppercase tracking-widest border-b border-gray-100 text-center">رقم الهوية</th>
-                      <th className="p-6 text-[10px] font-black text-gray-400 uppercase tracking-widest border-b border-gray-100 text-center">المسمى الوظيفي</th>
-                      <th className="p-6 text-[10px] font-black text-gray-400 uppercase tracking-widest border-b border-gray-100 text-center">الجنسية</th>
-                    </>
-                  )}
-                  <th className="p-6 text-[10px] font-black text-gray-400 uppercase tracking-widest border-b border-gray-100 text-center">الاتصال</th>
-                  <th className="p-6 text-[10px] font-black text-gray-400 uppercase tracking-widest border-b border-gray-100 text-center">الراتب الأساسي</th>
-                  <th className="p-6 text-[10px] font-black text-gray-400 uppercase tracking-widest border-b border-gray-100 text-center">بدل السكن</th>
-                  {isTargetSystem && (
-                    <th className="p-6 text-[10px] font-black text-gray-400 uppercase tracking-widest border-b border-gray-100 text-center">رقم اللوحة</th>
-                  )}
-                  <th className="p-6 text-[10px] font-black text-gray-400 uppercase tracking-widest border-b border-gray-100 text-center">IBAN</th>
-                  <th className="p-6 text-[10px] font-black text-gray-400 uppercase tracking-widest border-b border-gray-100 text-center"></th>
-                </tr>
-              </thead>
-              <tbody>
-                <AnimatePresence mode="popLayout">
-                  {employees.map((emp, index) => (
-                    <motion.tr
-                      key={index}
-                      initial={{ opacity: 0, x: 20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      exit={{ opacity: 0, x: -20 }}
-                      className="group border-b border-gray-50 last:border-0 hover:bg-gray-50/50 transition-colors"
-                    >
-                      <td className="p-4">
-                        <div className="relative">
-                          <User className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
-                          <input
-                            type="text"
+        <div className="grid grid-cols-1 gap-8">
+          <AnimatePresence mode="popLayout">
+            {employees.map((emp, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.95 }}
+                className="relative"
+              >
+                <Card className="border-none shadow-xl rounded-[2.5rem] overflow-hidden bg-white/80 backdrop-blur-xl hover:bg-white transition-all group border-2 border-transparent hover:border-blue-200">
+                  <div className="absolute top-0 left-0 w-2 h-full bg-gradient-to-b from-blue-500 to-indigo-600 opacity-50" />
+                  
+                  <CardHeader className="flex flex-row items-center justify-between border-b border-slate-100 bg-slate-50/50 p-6">
+                    <div className="flex items-center gap-4">
+                      <div className="w-12 h-12 rounded-2xl bg-blue-100 text-blue-600 flex items-center justify-center font-black text-xl shadow-inner">
+                        {index + 1}
+                      </div>
+                      <CardTitle className="text-lg font-black text-slate-800">
+                        {emp.name || (t("employeeName") || "اسم الموظف")}
+                      </CardTitle>
+                    </div>
+                    {employees.length > 1 && (
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        onClick={() => removeRow(index)}
+                        className="text-rose-500 hover:text-rose-700 hover:bg-rose-50 rounded-xl"
+                      >
+                        <Trash2 className="w-5 h-5" />
+                      </Button>
+                    )}
+                  </CardHeader>
+                  
+                  <CardContent className="p-8">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                      {/* Personal Info Group */}
+                      <div className="space-y-4">
+                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
+                          <User className="w-3 h-3" /> {t("employeeName")}
+                        </label>
+                        <div className="relative group/input">
+                          <User className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within/input:text-blue-500 transition-colors" size={18} />
+                          <Input
                             required
-                            placeholder="اسم الموظف"
+                            placeholder={t("employeeName")}
                             value={emp.name}
                             onChange={(e) => handleChange(index, 'name', e.target.value)}
-                            className="w-full bg-white border border-gray-200 rounded-xl py-3 pr-12 pl-4 text-sm font-bold text-gray-700 focus:border-[#3498db] outline-none transition-all shadow-sm"
+                            className="h-14 rounded-2xl pr-12 bg-white/50 border-slate-200 focus:border-blue-400 focus:ring-4 focus:ring-blue-500/10 font-bold transition-all"
                           />
                         </div>
-                      </td>
+                      </div>
 
-                      {isTargetSystem ? (
-                        <>
-                          <td className="p-4 w-[180px]">
-                            <div className="relative">
-                              <Hash className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
-                              <input
-                                type="text"
-                                required
-                                placeholder="رقم الإقامة"
-                                value={emp.iqama_number}
-                                onChange={(e) => handleChange(index, 'iqama_number', e.target.value)}
-                                className="w-full bg-white border border-gray-200 rounded-xl py-3 pr-12 pl-4 text-sm font-bold text-gray-700 focus:border-[#3498db] outline-none transition-all shadow-sm"
-                              />
-                            </div>
-                          </td>
-                          <td className="p-4 w-[150px]">
-                            <div className="relative">
-                              <Globe className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
-                              <input
-                                type="text"
-                                required
-                                placeholder="الجنسية"
-                                value={emp.nationality}
-                                onChange={(e) => handleChange(index, 'nationality', e.target.value)}
-                                className="w-full bg-white border border-gray-200 rounded-xl py-3 pr-12 pl-4 text-sm font-bold text-gray-700 focus:border-[#3498db] outline-none transition-all shadow-sm"
-                              />
-                            </div>
-                          </td>
-                          <td className="p-4 w-[150px]">
-                            <div className="relative">
-                              <Code className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
-                              <input
-                                type="text"
-                                placeholder="رقم المستخدم"
-                                value={emp.user_code}
-                                onChange={(e) => handleChange(index, 'user_code', e.target.value)}
-                                className="w-full bg-white border border-gray-200 rounded-xl py-3 pr-12 pl-4 text-sm font-bold text-gray-700 focus:border-[#3498db] outline-none transition-all shadow-sm"
-                              />
-                            </div>
-                          </td>
-                        </>
-                      ) : (
-                        <>
-                          <td className="p-4 w-[180px]">
-                            <div className="relative">
-                              <Hash className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
-                              <input
-                                type="text"
-                                required
-                                placeholder="رقم الهوية"
-                                value={emp.identity_number}
-                                onChange={(e) => handleChange(index, 'identity_number', e.target.value)}
-                                className="w-full bg-white border border-gray-200 rounded-xl py-3 pr-12 pl-4 text-sm font-bold text-gray-700 focus:border-[#3498db] outline-none transition-all shadow-sm"
-                              />
-                            </div>
-                          </td>
-                          <td className="p-4">
-                            <div className="relative">
-                              <Building className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
-                              <input
-                                type="text"
-                                required
-                                placeholder="المسمى الوظيفي"
-                                value={emp.job_title}
-                                onChange={(e) => handleChange(index, 'job_title', e.target.value)}
-                                className="w-full bg-white border border-gray-200 rounded-xl py-3 pr-12 pl-4 text-sm font-bold text-gray-700 focus:border-[#3498db] outline-none transition-all shadow-sm"
-                              />
-                            </div>
-                          </td>
-                          <td className="p-4 w-[150px]">
-                            <div className="relative">
-                              <Globe className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
-                              <input
-                                type="text"
-                                required
-                                placeholder="الجنسية"
-                                value={emp.nationality}
-                                onChange={(e) => handleChange(index, 'nationality', e.target.value)}
-                                className="w-full bg-white border border-gray-200 rounded-xl py-3 pr-12 pl-4 text-sm font-bold text-gray-700 focus:border-[#3498db] outline-none transition-all shadow-sm"
-                              />
-                            </div>
-                          </td>
-                        </>
-                      )}
+                      <div className="space-y-4">
+                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
+                          <Hash className="w-3 h-3" /> {isTargetSystem ? t("iqamaNumber") : t("identityNumber")}
+                        </label>
+                        <div className="relative group/input">
+                          <Hash className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within/input:text-blue-500 transition-colors" size={18} />
+                          <Input
+                            required
+                            placeholder={isTargetSystem ? t("iqamaNumber") : t("identityNumber")}
+                            value={isTargetSystem ? emp.iqama_number : emp.identity_number}
+                            onChange={(e) => handleChange(index, isTargetSystem ? 'iqama_number' : 'identity_number', e.target.value)}
+                            className="h-14 rounded-2xl pr-12 bg-white/50 border-slate-200 focus:border-blue-400 focus:ring-4 focus:ring-blue-500/10 font-bold transition-all"
+                          />
+                        </div>
+                      </div>
 
-                      <td className="p-4 space-y-2">
-                        <div className="relative">
-                          <Phone className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400" size={14} />
-                          <input
-                            type="text"
-                            placeholder="الجوال"
+                      <div className="space-y-4">
+                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
+                          <Globe className="w-3 h-3" /> {t("nationality")}
+                        </label>
+                        <div className="relative group/input">
+                          <Globe className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within/input:text-blue-500 transition-colors" size={18} />
+                          <Input
+                            required
+                            placeholder={t("nationality")}
+                            value={emp.nationality}
+                            onChange={(e) => handleChange(index, 'nationality', e.target.value)}
+                            className="h-14 rounded-2xl pr-12 bg-white/50 border-slate-200 focus:border-blue-400 focus:ring-4 focus:ring-blue-500/10 font-bold transition-all"
+                          />
+                        </div>
+                      </div>
+
+                      <div className="space-y-4">
+                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
+                          <Building className="w-3 h-3" /> {isTargetSystem ? t("userCode") : t("jobTitle")}
+                        </label>
+                        <div className="relative group/input">
+                          {isTargetSystem ? <Code className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-300" size={18} /> : <Building className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-300" size={18} />}
+                          <Input
+                            placeholder={isTargetSystem ? t("userCode") : t("jobTitle")}
+                            value={isTargetSystem ? emp.user_code : emp.job_title}
+                            onChange={(e) => handleChange(index, isTargetSystem ? 'user_code' : 'job_title', e.target.value)}
+                            className="h-14 rounded-2xl pr-12 bg-white/50 border-slate-200 focus:border-blue-400 focus:ring-4 focus:ring-blue-500/10 font-bold transition-all"
+                          />
+                        </div>
+                      </div>
+
+                      {/* Contact & Finance Info */}
+                      <div className="space-y-4">
+                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
+                          <Phone className="w-3 h-3" /> {t("phoneNumber")}
+                        </label>
+                        <div className="relative group/input">
+                          <Phone className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-300" size={18} />
+                          <Input
+                            placeholder={t("phoneNumber")}
                             value={emp.phone}
                             onChange={(e) => handleChange(index, 'phone', e.target.value)}
-                            className="w-full bg-white border border-gray-200 rounded-xl py-2 pr-10 pl-4 text-xs font-bold text-gray-700 focus:border-[#3498db] outline-none transition-all"
+                            className="h-14 rounded-2xl pr-12 bg-white/50 border-slate-200 focus:border-blue-400 font-bold transition-all"
                           />
                         </div>
-                        <div className="relative">
-                          <Mail className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400" size={14} />
-                          <input
+                      </div>
+
+                      <div className="space-y-4">
+                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
+                          <Mail className="w-3 h-3" /> {common("email")}
+                        </label>
+                        <div className="relative group/input">
+                          <Mail className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-300" size={18} />
+                          <Input
                             type="email"
-                            placeholder="البريد"
+                            placeholder={common("email")}
                             value={emp.email}
                             onChange={(e) => handleChange(index, 'email', e.target.value)}
-                            className="w-full bg-white border border-gray-200 rounded-xl py-2 pr-10 pl-4 text-xs font-bold text-gray-700 focus:border-[#3498db] outline-none transition-all"
+                            className="h-14 rounded-2xl pr-12 bg-white/50 border-slate-200 focus:border-blue-400 font-bold transition-all"
                           />
                         </div>
-                      </td>
+                      </div>
 
-                      <td className="p-4 w-[150px]">
-                        <div className="relative">
-                          <Wallet className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
-                          <input
+                      <div className="space-y-4">
+                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
+                          <Wallet className="w-3 h-3" /> {t("basicSalary")}
+                        </label>
+                        <div className="relative group/input">
+                          <Wallet className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-300" size={18} />
+                          <Input
                             type="number"
                             required
                             placeholder="0.00"
                             value={emp.basic_salary}
                             onChange={(e) => handleChange(index, 'basic_salary', parseFloat(e.target.value))}
-                            className="w-full bg-white border border-gray-200 rounded-xl py-3 pr-12 pl-4 text-sm font-black text-gray-900 focus:border-[#3498db] outline-none transition-all shadow-sm text-center"
+                            className="h-14 rounded-2xl pr-12 bg-white/50 border-slate-200 focus:border-blue-400 font-black text-lg text-blue-600 transition-all text-center"
                           />
                         </div>
-                      </td>
+                      </div>
 
-                      <td className="p-4 w-[150px]">
-                        <div className="relative">
-                          <Home className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
-                          <input
+                      <div className="space-y-4">
+                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
+                          <Home className="w-3 h-3" /> {t("housingAllowance")}
+                        </label>
+                        <div className="relative group/input">
+                          <Home className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-300" size={18} />
+                          <Input
                             type="number"
                             placeholder="0.00"
                             value={emp.housing_allowance}
                             onChange={(e) => handleChange(index, 'housing_allowance', parseFloat(e.target.value))}
-                            className="w-full bg-white border border-gray-200 rounded-xl py-3 pr-12 pl-4 text-sm font-black text-gray-900 focus:border-[#3498db] outline-none transition-all shadow-sm text-center"
+                            className="h-14 rounded-2xl pr-12 bg-white/50 border-slate-200 focus:border-blue-400 font-black text-lg text-blue-600 transition-all text-center"
                           />
                         </div>
-                      </td>
+                      </div>
 
                       {isTargetSystem && (
-                        <td className="p-4 w-[150px]">
-                          <div className="relative">
-                            <Truck className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
-                            <input
-                              type="text"
-                              placeholder="رقم اللوحة"
+                        <div className="space-y-4">
+                          <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
+                            <Truck className="w-3 h-3" /> {t("vehiclePlate")}
+                          </label>
+                          <div className="relative group/input">
+                            <Truck className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-300" size={18} />
+                            <Input
+                              placeholder={t("vehiclePlate")}
                               value={emp.vehicle_plate}
                               onChange={(e) => handleChange(index, 'vehicle_plate', e.target.value)}
-                              className="w-full bg-white border border-gray-200 rounded-xl py-3 pr-12 pl-4 text-sm font-bold text-gray-700 focus:border-[#3498db] outline-none transition-all shadow-sm"
+                              className="h-14 rounded-2xl pr-12 bg-white/50 border-slate-200 focus:border-blue-400 font-bold transition-all"
                             />
                           </div>
-                        </td>
+                        </div>
                       )}
 
-                      <td className="p-4">
-                        <input
-                          type="text"
-                          placeholder="IBAN"
-                          value={emp.iban}
-                          onChange={(e) => handleChange(index, 'iban', e.target.value)}
-                          className="w-full bg-white border border-gray-200 rounded-xl py-3 px-4 text-xs font-bold text-gray-700 focus:border-[#3498db] outline-none transition-all shadow-sm"
-                        />
-                      </td>
-
-                      <td className="p-4">
-                        <motion.button
-                          whileHover={{ scale: 1.1, rotate: 10 }}
-                          whileTap={{ scale: 0.9 }}
-                          type="button"
-                          onClick={() => removeRow(index)}
-                          className="h-10 w-10 rounded-xl bg-red-50 text-red-600 flex items-center justify-center hover:bg-red-600 hover:text-white transition-all shadow-sm"
-                        >
-                          <Trash2 size={18} />
-                        </motion.button>
-                      </td>
-                    </motion.tr>
-                  ))}
-                </AnimatePresence>
-              </tbody>
-            </table>
-          </div>
+                      <div className="space-y-4 lg:col-span-2">
+                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
+                          <Code className="w-3 h-3" /> IBAN
+                        </label>
+                        <div className="relative group/input">
+                          <Code className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-300" size={18} />
+                          <Input
+                            placeholder="SA0000000000000000000000"
+                            value={emp.iban}
+                            onChange={(e) => handleChange(index, 'iban', e.target.value)}
+                            className="h-14 rounded-2xl pr-12 bg-white/50 border-slate-200 focus:border-blue-400 font-mono font-bold transition-all uppercase"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            ))}
+          </AnimatePresence>
         </div>
 
-        <div className="flex items-center justify-center gap-6 pt-10">
-          <motion.button
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
+        <div className="flex flex-col md:flex-row items-center justify-center gap-6 py-12">
+          <Button
             type="submit"
             disabled={isLoading}
-            className="flex items-center justify-center gap-3 bg-gradient-to-r from-[#2ecc71] to-[#27ae60] text-white px-12 py-5 rounded-[2rem] font-black text-xl shadow-xl shadow-green-500/20 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full md:w-auto min-w-[300px] h-20 bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 text-white rounded-[2rem] font-black text-2xl shadow-2xl shadow-blue-500/30 hover:shadow-blue-500/50 hover:-translate-y-1 transition-all disabled:opacity-50 disabled:translate-y-0"
           >
             {isLoading ? (
-              <div className="h-6 w-6 border-3 border-white/30 border-t-white rounded-full animate-spin" />
+              <div className="h-8 w-8 border-4 border-white/30 border-t-white rounded-full animate-spin" />
             ) : (
               <>
-                <Save size={24} />
-                <span>حفظ جميع الموظفين</span>
+                <Save className="w-8 h-8 ml-3" />
+                {t("addBtn")}
               </>
             )}
-          </motion.button>
+          </Button>
           
-          <Link 
-            href="/hr"
-            className="px-12 py-5 bg-gray-100 text-gray-500 rounded-[2rem] font-black text-xl hover:bg-gray-200 transition-all"
-          >
-            إلغاء
+          <Link href={`/hr/packages/${pkg.id}`} className="w-full md:w-auto">
+            <Button 
+              type="button"
+              variant="outline"
+              className="w-full md:w-auto min-w-[200px] h-20 border-slate-200 bg-white text-slate-500 rounded-[2rem] font-black text-2xl hover:bg-slate-50 transition-all"
+            >
+              {t("cancelBtn")}
+            </Button>
           </Link>
         </div>
       </form>
