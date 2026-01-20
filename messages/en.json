@@ -868,16 +868,79 @@
     "connectionError": "Connection error occurred",
     "deleteDraftOnly": "Invoice can only be deleted if it is a draft"
   },
-  "messages": {
-    "savedSuccessfully": "Saved successfully",
-    "deletedSuccessfully": "Deleted successfully",
-    "updatedSuccessfully": "Updated successfully",
-    "createdSuccessfully": "Created successfully",
-    "confirmDelete": "Are you sure you want to delete?",
-    "cannotUndo": "This action cannot be undone",
-    "operationFailed": "Operation failed",
-    "tryAgain": "Try again",
-    "noChanges": "No changes",
-    "unsavedChanges": "You have unsaved changes"
+    "messages": {
+      "savedSuccessfully": "Saved successfully",
+      "deletedSuccessfully": "Deleted successfully",
+      "updatedSuccessfully": "Updated successfully",
+      "createdSuccessfully": "Created successfully",
+      "confirmDelete": "Are you sure you want to delete?",
+      "cannotUndo": "This action cannot be undone",
+      "operationFailed": "Operation failed",
+      "tryAgain": "Try again",
+      "noChanges": "No changes",
+      "unsavedChanges": "You have unsaved changes"
+    },
+    "financialVouchersPage": {
+      "title": "Financial Vouchers",
+      "managementCenter": "Financial Vouchers Management Center",
+      "description": "Comprehensive management of sales, receipts, expenses and legal vouchers with high professionalism",
+      "loading": "Loading...",
+      "updateData": "Update Data",
+      "totalIncome": "Total Income",
+      "expenses": "Expenses",
+      "netBalance": "Net Balance",
+      "sar": "SAR",
+      "currency": "SAR",
+      "voucherTemplates": "Voucher Templates",
+      "manageVoucher": "Manage {title}",
+      "voucherCount": "{count} Vouchers",
+      "quickActions": "Quick Actions",
+      "quickActionsDesc": "Direct access to most used operations",
+      "systemTitle": "{name} System - Financial Vouchers Management",
+      "allRightsReserved": "All Rights Reserved © {year}",
+      "types": {
+        "salesReceipts": {
+          "title": "Sales Receipts",
+          "subtitle": "Manage sales receipts and vouchers",
+          "description": "Record and follow up on all sales and revenues",
+          "label": "Total Sales",
+          "features": ["Register sales invoices", "Follow up on revenues", "Sales reports"]
+        },
+        "receiptVouchers": {
+          "title": "Receipt Vouchers",
+          "subtitle": "Manage financial receipt vouchers",
+          "description": "Record all amounts received and cash revenues",
+          "label": "Total Receipts",
+          "features": ["Register receipts", "Follow up on collection", "Receipt vouchers"]
+        },
+        "paymentVouchers": {
+          "title": "Payment Vouchers",
+          "subtitle": "Manage payments and expenses",
+          "description": "Record all expenses and financial payments",
+          "label": "Total Expenses",
+          "features": ["Register expenses", "Follow up on payments", "Payment vouchers"]
+        },
+        "promissoryNotes": {
+          "title": "Promissory Notes",
+          "subtitle": "Manage promissory and legal notes",
+          "description": "Issue and track electronic approved promissory notes",
+          "label": "Total Notes",
+          "features": ["Issue promissory notes", "Convert amounts to text", "Print fingerprint and signature"]
+        },
+        "quotations": {
+          "title": "Quotations",
+          "subtitle": "Manage quotations and estimates",
+          "description": "Create and follow up on quotations provided to customers",
+          "label": "Total Quotations",
+          "features": ["Create quotations", "Follow up on quote status", "Convert quote to invoice"]
+        },
+        "incomeVouchers": {
+          "title": "Income Vouchers",
+          "subtitle": "Record various revenues",
+          "description": "Manage and record indirect and various revenues",
+          "label": "Total Revenues",
+          "features": ["Manual revenue recording", "Link with cost centers", "Follow up on income"]
+        }
+      }
+    }
   }
-}

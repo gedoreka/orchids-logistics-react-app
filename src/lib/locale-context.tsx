@@ -48,7 +48,7 @@ export function LocaleProvider({ children }: { children: ReactNode }) {
     setLocaleState(newLocale);
   };
 
-  const t = (key: string): string => {
+  const t = (key: string, values?: Record<string, string | number>): string => {
     const keys = key.split('.');
     let value: any = messagesMap[locale];
     
@@ -60,7 +60,15 @@ export function LocaleProvider({ children }: { children: ReactNode }) {
       }
     }
     
-    return typeof value === 'string' ? value : key;
+    let result = typeof value === 'string' ? value : key;
+
+    if (values) {
+      Object.entries(values).forEach(([k, v]) => {
+        result = result.replace(`{${k}}`, String(v));
+      });
+    }
+
+    return result;
   };
 
   const isRTL = locale === 'ar';
@@ -84,9 +92,9 @@ export function useLocale() {
 export function useTranslations(namespace?: string) {
   const { t, locale, isRTL, messages } = useLocale();
   
-  const translate = (key: string): string => {
+  const translate = (key: string, values?: Record<string, string | number>): string => {
     const fullKey = namespace ? `${namespace}.${key}` : key;
-    return t(fullKey);
+    return t(fullKey, values);
   };
 
   return translate;
