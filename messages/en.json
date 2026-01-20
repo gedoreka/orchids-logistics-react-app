@@ -173,9 +173,9 @@
     "incomeStatement": "Income Statement",
     "balanceSheet": "Balance Sheet",
     "taxSettings": "Tax Settings",
-      "systemSettings": "System Settings",
-      "mySubscription": "My Subscription",
-      "logout": "Logout",
+    "systemSettings": "System Settings",
+    "mySubscription": "My Subscription",
+    "logout": "Logout",
     "subUsersManagement": "Users Management",
     "taxSettingsPage": {
       "title": "Tax Settings",
@@ -218,10 +218,10 @@
       "certificateNumber": "Certificate Number",
       "exemptionType": "Exemption Type",
       "reason": "Reason",
-        "startDate": "Start Date",
-        "endDate": "End Date",
-        "actions": "Actions"
-      }
+      "startDate": "Start Date",
+      "endDate": "End Date",
+      "actions": "Actions"
+    }
   },
   "footer": {
     "copyright": "All rights reserved to ZoolSpeed Multi-Activities Company",
@@ -741,7 +741,7 @@
     "grandTotal": "Grand Total",
     "addExpenses": "Add Expenses",
     "clickToAdd": "Click here to add",
-    "addDeductions": "Add Deductions",
+    "addDeductions": "Add Deduction",
     "expensesReport": "Expenses Report",
     "clickToView": "Click here to view",
     "analytics": "Analytics",
@@ -868,79 +868,136 @@
     "connectionError": "Connection error occurred",
     "deleteDraftOnly": "Invoice can only be deleted if it is a draft"
   },
-    "messages": {
-      "savedSuccessfully": "Saved successfully",
-      "deletedSuccessfully": "Deleted successfully",
-      "updatedSuccessfully": "Updated successfully",
-      "createdSuccessfully": "Created successfully",
-      "confirmDelete": "Are you sure you want to delete?",
-      "cannotUndo": "This action cannot be undone",
-      "operationFailed": "Operation failed",
-      "tryAgain": "Try again",
-      "noChanges": "No changes",
-      "unsavedChanges": "You have unsaved changes"
-    },
-    "financialVouchersPage": {
-      "title": "Financial Vouchers",
-      "managementCenter": "Financial Vouchers Management Center",
-      "description": "Comprehensive management of sales, receipts, expenses and legal vouchers with high professionalism",
-      "loading": "Loading...",
-      "updateData": "Update Data",
-      "totalIncome": "Total Income",
-      "expenses": "Expenses",
-      "netBalance": "Net Balance",
-      "sar": "SAR",
-      "currency": "SAR",
-      "voucherTemplates": "Voucher Templates",
-      "manageVoucher": "Manage {title}",
-      "voucherCount": "{count} Vouchers",
-      "quickActions": "Quick Actions",
-      "quickActionsDesc": "Direct access to most used operations",
-      "systemTitle": "{name} System - Financial Vouchers Management",
-      "allRightsReserved": "All Rights Reserved © {year}",
-      "types": {
-        "salesReceipts": {
-          "title": "Sales Receipts",
-          "subtitle": "Manage sales receipts and vouchers",
-          "description": "Record and follow up on all sales and revenues",
-          "label": "Total Sales",
-          "features": ["Register sales invoices", "Follow up on revenues", "Sales reports"]
-        },
-        "receiptVouchers": {
-          "title": "Receipt Vouchers",
-          "subtitle": "Manage financial receipt vouchers",
-          "description": "Record all amounts received and cash revenues",
-          "label": "Total Receipts",
-          "features": ["Register receipts", "Follow up on collection", "Receipt vouchers"]
-        },
-        "paymentVouchers": {
-          "title": "Payment Vouchers",
-          "subtitle": "Manage payments and expenses",
-          "description": "Record all expenses and financial payments",
-          "label": "Total Expenses",
-          "features": ["Register expenses", "Follow up on payments", "Payment vouchers"]
-        },
-        "promissoryNotes": {
-          "title": "Promissory Notes",
-          "subtitle": "Manage promissory and legal notes",
-          "description": "Issue and track electronic approved promissory notes",
-          "label": "Total Notes",
-          "features": ["Issue promissory notes", "Convert amounts to text", "Print fingerprint and signature"]
-        },
-        "quotations": {
-          "title": "Quotations",
-          "subtitle": "Manage quotations and estimates",
-          "description": "Create and follow up on quotations provided to customers",
-          "label": "Total Quotations",
-          "features": ["Create quotations", "Follow up on quote status", "Convert quote to invoice"]
-        },
-        "incomeVouchers": {
-          "title": "Income Vouchers",
-          "subtitle": "Record various revenues",
-          "description": "Manage and record indirect and various revenues",
-          "label": "Total Revenues",
-          "features": ["Manual revenue recording", "Link with cost centers", "Follow up on income"]
-        }
+  "messages": {
+    "savedSuccessfully": "Saved successfully",
+    "deletedSuccessfully": "Deleted successfully",
+    "updatedSuccessfully": "Updated successfully",
+    "createdSuccessfully": "Created successfully",
+    "confirmDelete": "Are you sure you want to delete?",
+    "cannotUndo": "This action cannot be undone",
+    "operationFailed": "Operation failed",
+    "tryAgain": "Try again",
+    "noChanges": "No changes",
+    "unsavedChanges": "You have unsaved changes"
+  },
+  "financialVouchersPage": {
+    "title": "Financial Vouchers",
+    "managementCenter": "Financial Vouchers Management Center",
+    "description": "Comprehensive management of sales, receipts, expenses and legal vouchers with high professionalism",
+    "loading": "Loading...",
+    "updateData": "Update Data",
+    "totalIncome": "Total Income",
+    "expenses": "Expenses",
+    "netBalance": "Net Balance",
+    "sar": "SAR",
+    "currency": "SAR",
+    "voucherTemplates": "Voucher Templates",
+    "manageVoucher": "Manage {title}",
+    "voucherCount": "{count} Vouchers",
+    "quickActions": "Quick Actions",
+    "quickActionsDesc": "Direct access to most used operations",
+    "systemTitle": "{name} System - Financial Vouchers Management",
+    "allRightsReserved": "All Rights Reserved © {year}",
+    "types": {
+      "salesReceipts": {
+        "title": "Sales Receipts",
+        "subtitle": "Manage sales receipts and vouchers",
+        "description": "Record and follow up on all sales and revenues",
+        "label": "Total Sales",
+        "features": [
+          "Register sales invoices",
+          "Follow up on revenues",
+          "Sales reports"
+        ]
+      },
+      "receiptVouchers": {
+        "title": "Receipt Vouchers",
+        "subtitle": "Manage financial receipt vouchers",
+        "description": "Record all amounts received and cash revenues",
+        "label": "Total Receipts",
+        "features": [
+          "Register receipts",
+          "Follow up on collection",
+          "Receipt vouchers"
+        ]
+      },
+      "paymentVouchers": {
+        "title": "Payment Vouchers",
+        "subtitle": "Manage payments and expenses",
+        "description": "Record all expenses and financial payments",
+        "label": "Total Expenses",
+        "features": [
+          "Register expenses",
+          "Follow up on payments",
+          "Payment vouchers"
+        ]
+      },
+      "promissoryNotes": {
+        "title": "Promissory Notes",
+        "subtitle": "Manage promissory and legal notes",
+        "description": "Issue and track electronic approved promissory notes",
+        "label": "Total Notes",
+        "features": [
+          "Issue promissory notes",
+          "Convert amounts to text",
+          "Print fingerprint and signature"
+        ]
+      },
+      "quotations": {
+        "title": "Quotations",
+        "subtitle": "Manage quotations and estimates",
+        "description": "Create and follow up on quotations provided to customers",
+        "label": "Total Quotations",
+        "features": [
+          "Create quotations",
+          "Follow up on quote status",
+          "Convert quote to invoice"
+        ]
+      },
+      "incomeVouchers": {
+        "title": "Income Vouchers",
+        "subtitle": "Record various revenues",
+        "description": "Manage and record indirect and various revenues",
+        "label": "Total Revenues",
+        "features": [
+          "Manual revenue recording",
+          "Link with cost centers",
+          "Follow up on income"
+        ]
       }
     }
+  },
+  "newSalesReceiptPage": {
+    "title": "Add Sales Receipt",
+    "subtitle": "Create a new sales receipt voucher",
+    "backToList": "Back to List",
+    "basicInfo": "Basic Information",
+    "receiptNumber": "Receipt Number",
+    "receiptNumberDesc": "Number is generated automatically",
+    "receiptDate": "Receipt Date",
+    "customerData": "Customer Data",
+    "selectCustomer": "Select Customer",
+    "noCustomers": "No customers registered.",
+    "addNewCustomer": "Add New Customer",
+    "invoiceLink": "Invoice Link",
+    "linkToInvoice": "Link to Invoice (Optional)",
+    "noLink": "-- No Link --",
+    "linkDesc": "You can link the receipt to a specific invoice for easier tracking",
+    "amountAndNotes": "Amount & Notes",
+    "amount": "Amount",
+    "amountDesc": "Amount in SAR",
+    "notes": "Notes (Optional)",
+    "notesPlaceholder": "Enter any additional notes...",
+    "cancel": "Cancel",
+    "saveReceipt": "Save Receipt",
+    "saving": "Saving...",
+    "errorTitle": "Data Error",
+    "selectCustomerError": "Please select a customer",
+    "enterAmountError": "Please enter an amount",
+    "saveSuccess": "Saved Successfully",
+    "saveSuccessMsg": "Receipt saved successfully",
+    "saveFailed": "Save Failed",
+    "error": "Error",
+    "genericError": "An error occurred while saving"
   }
+}
