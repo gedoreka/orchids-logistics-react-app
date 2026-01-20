@@ -107,176 +107,178 @@ export function CostCentersClient({ initialCostCenters, companyId }: CostCenters
   };
 
   return (
-    <div className="w-full max-w-[98%] mx-auto px-6 py-6 space-y-6 rtl" dir="rtl">
-      {/* Header */}
-      <motion.div 
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-amber-700 to-orange-600 p-8 text-white shadow-xl border border-white/10"
-      >
-        <div className="relative z-10 flex flex-col items-center justify-center text-center space-y-4">
-          <div className="p-3 bg-white/10 rounded-full backdrop-blur-sm">
-            <LayoutGrid className="w-8 h-8 text-amber-200" />
-          </div>
-          <h1 className="text-2xl font-bold tracking-tight">مراكز التكلفة</h1>
-          <p className="text-amber-100 max-w-2xl">
-            توزيع وتحليل المصروفات والإيرادات حسب الأقسام والفروع
-          </p>
-        </div>
-        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-yellow-400 via-orange-400 to-red-400"></div>
-      </motion.div>
-
-      {/* Stats Cards */}
-      <motion.div 
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        className="grid grid-cols-1 md:grid-cols-3 gap-4"
-      >
-        <div className="bg-white p-5 rounded-2xl border border-slate-100 shadow-lg flex items-center space-x-4 space-x-reverse group hover:border-amber-200 transition-colors">
-          <div className="p-3 bg-amber-50 rounded-xl text-amber-600 group-hover:scale-110 transition-transform">
-            <LayoutGrid className="w-6 h-6" />
-          </div>
-          <div>
-            <p className="text-xs text-slate-500 font-bold">إجمالي المراكز</p>
-            <p className="text-2xl font-black text-slate-900">{costCenters.length}</p>
-          </div>
-        </div>
-        <div className="bg-white p-5 rounded-2xl border border-slate-100 shadow-lg flex items-center space-x-4 space-x-reverse group hover:border-emerald-200 transition-colors">
-          <div className="p-3 bg-emerald-50 rounded-xl text-emerald-600 group-hover:scale-110 transition-transform">
-            <BarChart3 className="w-6 h-6" />
-          </div>
-          <div>
-            <p className="text-xs text-slate-500 font-bold">المراكز النشطة</p>
-            <p className="text-2xl font-black text-slate-900">{costCenters.length}</p>
-          </div>
-        </div>
-        <div className="bg-white p-5 rounded-2xl border border-slate-100 shadow-lg flex items-center space-x-4 space-x-reverse group hover:border-blue-200 transition-colors">
-          <div className="p-3 bg-blue-50 rounded-xl text-blue-600 group-hover:scale-110 transition-transform">
-            <Building className="w-6 h-6" />
-          </div>
-          <div>
-            <p className="text-xs text-slate-500 font-bold">الفروع</p>
-            <p className="text-2xl font-black text-slate-900">{costCenters.length}</p>
-          </div>
-        </div>
-      </motion.div>
-
-      {/* Search and Filter Bar */}
-      <motion.div 
-        className="bg-white p-6 rounded-2xl shadow-lg border border-slate-100 flex flex-col md:flex-row gap-4 items-center justify-between"
-        whileHover={{ y: -2 }}
-      >
-        <div className="flex-1 relative w-full md:w-auto">
-          <Search className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 w-5 h-5" />
-          <input
-            type="text"
-            placeholder="البحث عن مركز تكلفة بالاسم أو الرمز..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 pr-12 pl-4 focus:ring-2 focus:ring-amber-500 focus:border-transparent outline-none transition-all text-sm"
-          />
-        </div>
-        <button
-          onClick={() => handleOpenModal()}
-          className="bg-amber-600 hover:bg-amber-700 text-white px-6 py-3 rounded-xl font-bold transition-all flex items-center space-x-2 space-x-reverse shadow-lg shadow-amber-200 text-sm whitespace-nowrap"
+    <div className="w-full max-w-[98%] mx-auto px-6 py-6 rtl" dir="rtl">
+      <div className="bg-[#1a2234] rounded-3xl p-8 space-y-8 shadow-2xl border border-white/5">
+        {/* Header */}
+        <motion.div 
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-amber-700 to-orange-600 p-8 text-white shadow-xl border border-white/10"
         >
-          <Plus className="w-5 h-5" />
-          <span>إضافة مركز جديد</span>
-        </button>
-      </motion.div>
+          <div className="relative z-10 flex flex-col items-center justify-center text-center space-y-4">
+            <div className="p-3 bg-white/10 rounded-full backdrop-blur-sm">
+              <LayoutGrid className="w-8 h-8 text-amber-200" />
+            </div>
+            <h1 className="text-2xl font-bold tracking-tight">مراكز التكلفة</h1>
+            <p className="text-amber-100 max-w-2xl">
+              توزيع وتحليل المصروفات والإيرادات حسب الأقسام والفروع
+            </p>
+          </div>
+          <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-yellow-400 via-orange-400 to-red-400"></div>
+        </motion.div>
 
-      {/* Cost Centers Table */}
-      <motion.div 
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="bg-white rounded-2xl shadow-xl border border-slate-100 overflow-hidden"
-      >
-        <div className="overflow-x-auto">
-          <table className="w-full text-right border-collapse min-w-[600px]">
-            <thead>
-              <tr className="bg-slate-50 border-b border-slate-100">
-                <th className="px-6 py-4 text-xs font-black text-slate-400 uppercase tracking-wider">#</th>
-                <th className="px-6 py-4 text-xs font-black text-slate-400 uppercase tracking-wider">رمز المركز</th>
-                <th className="px-6 py-4 text-xs font-black text-slate-400 uppercase tracking-wider">اسم المركز</th>
-                <th className="px-6 py-4 text-xs font-black text-slate-400 uppercase tracking-wider text-center">الإجراءات</th>
-              </tr>
-            </thead>
-            <tbody>
-              <AnimatePresence mode="popLayout">
-                {filteredCenters.length > 0 ? (
-                  filteredCenters.map((center, index) => (
-                    <motion.tr
-                      key={center.id}
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, x: -20 }}
-                      transition={{ delay: index * 0.03 }}
-                      className="border-b border-slate-50 hover:bg-slate-50/50 transition-colors group"
-                    >
-                      <td className="px-6 py-4">
-                        <span className="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center text-xs font-black text-slate-500 group-hover:bg-amber-600 group-hover:text-white transition-colors">
-                          {index + 1}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4">
-                        <div className="flex items-center space-x-2 space-x-reverse">
-                          <Hash className="w-4 h-4 text-slate-300" />
-                          <span className="font-mono font-bold text-slate-700 bg-slate-100 px-3 py-1 rounded-lg text-sm">
-                            {center.center_code}
+        {/* Stats Cards */}
+        <motion.div 
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="grid grid-cols-1 md:grid-cols-3 gap-4"
+        >
+          <div className="bg-white p-5 rounded-2xl border border-slate-100 shadow-lg flex items-center space-x-4 space-x-reverse group hover:border-amber-200 transition-colors">
+            <div className="p-3 bg-amber-50 rounded-xl text-amber-600 group-hover:scale-110 transition-transform">
+              <LayoutGrid className="w-6 h-6" />
+            </div>
+            <div>
+              <p className="text-xs text-slate-500 font-bold">إجمالي المراكز</p>
+              <p className="text-2xl font-black text-slate-900">{costCenters.length}</p>
+            </div>
+          </div>
+          <div className="bg-white p-5 rounded-2xl border border-slate-100 shadow-lg flex items-center space-x-4 space-x-reverse group hover:border-emerald-200 transition-colors">
+            <div className="p-3 bg-emerald-50 rounded-xl text-emerald-600 group-hover:scale-110 transition-transform">
+              <BarChart3 className="w-6 h-6" />
+            </div>
+            <div>
+              <p className="text-xs text-slate-500 font-bold">المراكز النشطة</p>
+              <p className="text-2xl font-black text-slate-900">{costCenters.length}</p>
+            </div>
+          </div>
+          <div className="bg-white p-5 rounded-2xl border border-slate-100 shadow-lg flex items-center space-x-4 space-x-reverse group hover:border-blue-200 transition-colors">
+            <div className="p-3 bg-blue-50 rounded-xl text-blue-600 group-hover:scale-110 transition-transform">
+              <Building className="w-6 h-6" />
+            </div>
+            <div>
+              <p className="text-xs text-slate-500 font-bold">الفروع</p>
+              <p className="text-2xl font-black text-slate-900">{costCenters.length}</p>
+            </div>
+          </div>
+        </motion.div>
+
+        {/* Search and Filter Bar */}
+        <motion.div 
+          className="bg-white p-6 rounded-2xl shadow-lg border border-slate-100 flex flex-col md:flex-row gap-4 items-center justify-between"
+          whileHover={{ y: -2 }}
+        >
+          <div className="flex-1 relative w-full md:w-auto">
+            <Search className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 w-5 h-5" />
+            <input
+              type="text"
+              placeholder="البحث عن مركز تكلفة بالاسم أو الرمز..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 pr-12 pl-4 focus:ring-2 focus:ring-amber-500 focus:border-transparent outline-none transition-all text-sm"
+            />
+          </div>
+          <button
+            onClick={() => handleOpenModal()}
+            className="bg-amber-600 hover:bg-amber-700 text-white px-6 py-3 rounded-xl font-bold transition-all flex items-center space-x-2 space-x-reverse shadow-lg shadow-amber-200 text-sm whitespace-nowrap"
+          >
+            <Plus className="w-5 h-5" />
+            <span>إضافة مركز جديد</span>
+          </button>
+        </motion.div>
+
+        {/* Cost Centers Table */}
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="bg-white rounded-2xl shadow-xl border border-slate-100 overflow-hidden"
+        >
+          <div className="overflow-x-auto">
+            <table className="w-full text-right border-collapse min-w-[600px]">
+              <thead>
+                <tr className="bg-slate-50 border-b border-slate-100">
+                  <th className="px-6 py-4 text-xs font-black text-slate-400 uppercase tracking-wider">#</th>
+                  <th className="px-6 py-4 text-xs font-black text-slate-400 uppercase tracking-wider">رمز المركز</th>
+                  <th className="px-6 py-4 text-xs font-black text-slate-400 uppercase tracking-wider">اسم المركز</th>
+                  <th className="px-6 py-4 text-xs font-black text-slate-400 uppercase tracking-wider text-center">الإجراءات</th>
+                </tr>
+              </thead>
+              <tbody>
+                <AnimatePresence mode="popLayout">
+                  {filteredCenters.length > 0 ? (
+                    filteredCenters.map((center, index) => (
+                      <motion.tr
+                        key={center.id}
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, x: -20 }}
+                        transition={{ delay: index * 0.03 }}
+                        className="border-b border-slate-50 hover:bg-slate-50/50 transition-colors group"
+                      >
+                        <td className="px-6 py-4">
+                          <span className="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center text-xs font-black text-slate-500 group-hover:bg-amber-600 group-hover:text-white transition-colors">
+                            {index + 1}
                           </span>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4">
-                        <div className="flex items-center space-x-3 space-x-reverse">
-                          <div className="p-2 rounded-lg bg-amber-50">
-                            <Building className="w-4 h-4 text-amber-600" />
+                        </td>
+                        <td className="px-6 py-4">
+                          <div className="flex items-center space-x-2 space-x-reverse">
+                            <Hash className="w-4 h-4 text-slate-300" />
+                            <span className="font-mono font-bold text-slate-700 bg-slate-100 px-3 py-1 rounded-lg text-sm">
+                              {center.center_code}
+                            </span>
                           </div>
-                          <span className="font-bold text-slate-900">{center.center_name}</span>
+                        </td>
+                        <td className="px-6 py-4">
+                          <div className="flex items-center space-x-3 space-x-reverse">
+                            <div className="p-2 rounded-lg bg-amber-50">
+                              <Building className="w-4 h-4 text-amber-600" />
+                            </div>
+                            <span className="font-bold text-slate-900">{center.center_name}</span>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4">
+                          <div className="flex items-center justify-center gap-2">
+                            <button
+                              onClick={() => handleOpenModal(center)}
+                              className="p-2 rounded-xl bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white transition-all"
+                              title="تعديل"
+                            >
+                              <Edit2 className="w-4 h-4" />
+                            </button>
+                            <button
+                              onClick={() => setDeleteConfirm(center.id)}
+                              className="p-2 rounded-xl bg-red-50 text-red-600 hover:bg-red-600 hover:text-white transition-all"
+                              title="حذف"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </div>
+                        </td>
+                      </motion.tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan={4} className="px-6 py-20 text-center">
+                        <div className="flex flex-col items-center space-y-4 text-slate-400">
+                          <FileText className="w-16 h-16 opacity-30" />
+                          <p className="font-bold text-lg">لا توجد مراكز تكلفة مطابقة</p>
+                          <p className="text-sm">جرب تغيير معايير البحث</p>
                         </div>
                       </td>
-                      <td className="px-6 py-4">
-                        <div className="flex items-center justify-center gap-2">
-                          <button
-                            onClick={() => handleOpenModal(center)}
-                            className="p-2 rounded-xl bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white transition-all"
-                            title="تعديل"
-                          >
-                            <Edit2 className="w-4 h-4" />
-                          </button>
-                          <button
-                            onClick={() => setDeleteConfirm(center.id)}
-                            className="p-2 rounded-xl bg-red-50 text-red-600 hover:bg-red-600 hover:text-white transition-all"
-                            title="حذف"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </button>
-                        </div>
-                      </td>
-                    </motion.tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td colSpan={4} className="px-6 py-20 text-center">
-                      <div className="flex flex-col items-center space-y-4 text-slate-400">
-                        <FileText className="w-16 h-16 opacity-30" />
-                        <p className="font-bold text-lg">لا توجد مراكز تكلفة مطابقة</p>
-                        <p className="text-sm">جرب تغيير معايير البحث</p>
-                      </div>
-                    </td>
-                  </tr>
-                )}
-              </AnimatePresence>
-            </tbody>
-          </table>
-        </div>
-        
-        {/* Table Footer */}
-        <div className="bg-slate-50 px-6 py-4 border-t border-slate-100 flex items-center justify-between">
-          <p className="text-sm text-slate-500 font-bold">
-            عرض <span className="text-slate-900">{filteredCenters.length}</span> من أصل <span className="text-slate-900">{costCenters.length}</span> مركز
-          </p>
-        </div>
-      </motion.div>
+                    </tr>
+                  )}
+                </AnimatePresence>
+              </tbody>
+            </table>
+          </div>
+          
+          {/* Table Footer */}
+          <div className="bg-slate-50 px-6 py-4 border-t border-slate-100 flex items-center justify-between">
+            <p className="text-sm text-slate-500 font-bold">
+              عرض <span className="text-slate-900">{filteredCenters.length}</span> من أصل <span className="text-slate-900">{costCenters.length}</span> مركز
+            </p>
+          </div>
+        </motion.div>
+      </div>
 
       {/* Add/Edit Modal */}
       <AnimatePresence>
