@@ -40,7 +40,7 @@ interface AddEmployeesClientProps {
 
 export function AddEmployeesClient({ package: pkg, companyId }: AddEmployeesClientProps) {
   const router = useRouter();
-  const t = useTranslations("packages.addEmployeesPage");
+  const t = useTranslations("packages.packageView.addEmployeesPage");
   const common = useTranslations("common");
   const { isRTL: isRtl } = useLocale();
   
