@@ -802,12 +802,14 @@ MaintenanceReceipt.displayName = "MaintenanceReceipt";
 function ViewPrintEmailDialog({ 
   maintenance, 
   companyId, 
-  companyName, 
+  companyName,
+  companyEmail,
   onClose 
 }: { 
   maintenance: any; 
   companyId: number; 
-  companyName: string; 
+  companyName: string;
+  companyEmail: string;
   onClose: () => void;
 }) {
   const [open, setOpen] = useState(true);
@@ -1019,10 +1021,10 @@ function ViewPrintEmailDialog({
             </div>
             <div className="flex gap-2 mt-3">
               <button 
-                onClick={() => setEmailTo("info@zoolspeed.com")}
+                onClick={() => setEmailTo(companyEmail)}
                 className="px-3 py-1.5 bg-white/10 rounded-lg text-xs font-bold text-white/70 hover:bg-white/20 transition-all"
               >
-                إيميل الشركة
+                إيميل الشركة ({companyEmail || "غير متوفر"})
               </button>
             </div>
           </div>
@@ -1211,7 +1213,8 @@ export function FleetClient({
   initialMaintenance, 
   employees,
   companyId,
-  companyName
+  companyName,
+  companyEmail
 }: FleetClientProps) {
   const [vehicles, setVehicles] = useState(initialVehicles);
   const [spares, setSpares] = useState(initialSpares);
@@ -1711,6 +1714,7 @@ export function FleetClient({
           maintenance={viewingMaintenance}
           companyId={companyId}
           companyName={companyName}
+          companyEmail={companyEmail}
           onClose={() => setViewingMaintenance(null)}
         />
       )}
@@ -1736,4 +1740,5 @@ interface FleetClientProps {
   employees: any[];
   companyId: number;
   companyName: string;
+  companyEmail: string;
 }

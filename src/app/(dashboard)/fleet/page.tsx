@@ -13,6 +13,7 @@ export default async function FleetPage() {
 
   const session = JSON.parse(sessionCookie.value);
   const companyId = session.company_id;
+  const userId = session.id;
 
   if (!companyId) {
     redirect("/dashboard");
@@ -66,6 +67,11 @@ export default async function FleetPage() {
       [companyId]
     );
 
+    const user = await query<any>(
+      "SELECT email FROM users WHERE id = ?",
+      [userId]
+    );
+
     return (
       <FleetClient 
         initialVehicles={vehicles}
@@ -76,6 +82,7 @@ export default async function FleetPage() {
         employees={employees}
         companyId={companyId}
         companyName={company[0]?.name || ""}
+        companyEmail={user[0]?.email || ""}
       />
     );
 
