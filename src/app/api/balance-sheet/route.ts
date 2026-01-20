@@ -32,7 +32,8 @@ export async function GET(request: NextRequest) {
       { data: paymentVouchers },
       { data: manualIncome },
       { data: creditNotes },
-      { data: salaryPayrolls }
+      { data: salaryPayrolls },
+      { data: monthlyDeductions }
     ] = await Promise.all([
       supabase.from("journal_entries").select("*, accounts:account_id(id, account_code, account_name, type)").eq("company_id", companyId).lte("entry_date", toDate),
       supabase.from("monthly_expenses").select("*").eq("company_id", companyId).lte("expense_date", toDate),
@@ -42,7 +43,8 @@ export async function GET(request: NextRequest) {
       supabase.from("payment_vouchers").select("*").eq("company_id", companyId).lte("voucher_date", toDate),
       supabase.from("manual_income").select("*").eq("company_id", companyId).lte("income_date", toDate),
       supabase.from("credit_notes").select("*").eq("company_id", companyId).lte("created_at", toDate + "T23:59:59Z"),
-      supabase.from("salary_payrolls").select("*").eq("company_id", companyId).lte("payroll_month", toDate.substring(0, 7))
+      supabase.from("salary_payrolls").select("*").eq("company_id", companyId).lte("payroll_month", toDate.substring(0, 7)),
+      supabase.from("monthly_deductions").select("*").eq("company_id", companyId).lte("expense_date", toDate)
     ]);
 
     const assetAccounts: { [key: string]: { account_name: string; account_code: string; net_balance: number } } = {};
@@ -141,6 +143,15 @@ export async function GET(request: NextRequest) {
         const amount = Number(p.total_amount) || 0;
         expenseTotal += amount;
         cashBalance -= amount;
+      });
+    }
+
+    // 9. Monthly Deductions -> Decrease Expense (increase net income) & Increase Cash
+    if (monthlyDeductions) {
+      monthlyDeductions.forEach((d: any) => {
+        const amount = Number(d.amount) || 0;
+        expenseTotal -= amount;
+        cashBalance += amount;
       });
     }
 

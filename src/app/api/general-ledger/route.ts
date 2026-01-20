@@ -37,6 +37,7 @@ export async function GET(request: NextRequest) {
       { data: manualIncome },
       { data: creditNotes },
       { data: salaryPayrolls },
+      { data: monthlyDeductions },
       { data: accounts },
       { data: costCenters }
     ] = await Promise.all([
