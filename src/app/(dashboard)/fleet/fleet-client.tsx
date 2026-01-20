@@ -931,17 +931,15 @@ function ViewPrintEmailDialog({
         </div>
       `;
 
-      const response = await fetch('/api/email/send', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          accountId: 1,
-          company_id: companyId,
-          to: emailTo,
-          subject: `فاتورة صيانة #${maintenance.id.toString().padStart(6, '0')} - ${companyName}`,
-          body: emailBody,
-        }),
-      });
+        const response = await fetch('/api/fleet/send-invoice', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            to: emailTo,
+            subject: `فاتورة صيانة #${maintenance.id.toString().padStart(6, '0')} - ${companyName}`,
+            html: emailBody,
+          }),
+        });
 
       const result = await response.json();
       if (result.success) {
