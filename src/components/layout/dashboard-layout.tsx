@@ -8,6 +8,7 @@ import { Footer } from "./footer";
 import { GlobalChatNotifications } from "./global-chat-notifications";
 import { GlobalAdminNotifications } from "./global-admin-notifications";
 import { X } from "lucide-react";
+import { useLocale } from "@/lib/locale-context";
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -23,7 +24,7 @@ interface DashboardLayoutProps {
 
 export function DashboardLayout({ children, user, permissions, userType }: DashboardLayoutProps) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [isRTL, setIsRTL] = useState(true);
+  const { isRTL } = useLocale();
   const [mounted, setMounted] = useState(false);
   const [unreadChatCount, setUnreadChatCount] = useState(0);
   const isFetchingRef = useRef(false);
@@ -47,8 +48,6 @@ export function DashboardLayout({ children, user, permissions, userType }: Dashb
 
   useEffect(() => {
     setMounted(true);
-    const dir = document.documentElement.dir;
-    setIsRTL(dir === 'rtl');
   }, []);
 
   useEffect(() => {

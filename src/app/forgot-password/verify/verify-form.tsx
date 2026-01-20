@@ -10,16 +10,19 @@ import {
   UserCircle,
   Send,
   ArrowLeft,
+  ArrowRight,
   Truck,
   Globe,
   BarChart3,
   KeyRound,
-  Fingerprint
+  Fingerprint,
+  Languages
 } from "lucide-react";
 import Link from "next/link";
 import { verifyTokenAction, forgotPasswordAction } from "@/lib/actions/auth";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
+import { useLocale, useTranslations } from "@/lib/locale-context";
 
 interface VerifyFormProps {
   email: string;
@@ -79,6 +82,9 @@ function ParticleBackground() {
 }
 
 export default function VerifyForm({ email, userName }: VerifyFormProps) {
+  const { locale, setLocale, isRTL } = useLocale();
+  const tCommon = useTranslations('common');
+  
   const [otp, setOtp] = useState<string[]>(["", "", "", "", "", ""]);
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -86,6 +92,10 @@ export default function VerifyForm({ email, userName }: VerifyFormProps) {
   const [resendTimeLeft, setResendTimeLeft] = useState(60);
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
   const router = useRouter();
+
+  const toggleLocale = () => {
+    setLocale(locale === 'ar' ? 'en' : 'ar');
+  };
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -150,7 +160,7 @@ export default function VerifyForm({ email, userName }: VerifyFormProps) {
 
     const token = otp.join("");
     if (token.length !== 6) {
-      setError("يرجى إدخال رمز مكون من 6 أرقام");
+      setError(isRTL ? "يرجى إدخال رمز مكون من 6 أرقام" : "Please enter a 6-digit code");
       setIsLoading(false);
       return;
     }
@@ -163,7 +173,7 @@ export default function VerifyForm({ email, userName }: VerifyFormProps) {
     if (result.success) {
       router.push("/forgot-password/reset");
     } else {
-      setError(result.error || "رمز التحقق غير صحيح");
+      setError(result.error || (isRTL ? "رمز التحقق غير صحيح" : "Invalid verification code"));
       setIsLoading(false);
     }
   };
@@ -182,14 +192,17 @@ export default function VerifyForm({ email, userName }: VerifyFormProps) {
       setOtp(["", "", "", "", "", ""]);
       inputRefs.current[0]?.focus();
     } else {
-      setError(result.error || "فشل إعادة إرسال الرمز");
+      setError(result.error || (isRTL ? "فشل إعادة إرسال الرمز" : "Failed to resend code"));
     }
     setIsLoading(false);
   };
 
   return (
-    <div className="min-h-screen w-full flex bg-slate-50 dark:bg-slate-950 overflow-hidden">
-      <div className="hidden lg:flex lg:w-1/2 relative bg-gradient-to-br from-slate-900 via-blue-900/90 to-slate-900 items-center justify-center p-12 overflow-hidden">
+    <div className="min-h-screen w-full flex bg-slate-50 dark:bg-slate-950 overflow-hidden" dir={isRTL ? 'rtl' : 'ltr'}>
+      <div className={cn(
+        "hidden lg:flex lg:w-1/2 relative bg-gradient-to-br from-slate-900 via-blue-900/90 to-slate-900 items-center justify-center p-12 overflow-hidden",
+        !isRTL && "order-2"
+      )}>
         <ParticleBackground />
         
         <div className="absolute inset-0 opacity-30 pointer-events-none">
@@ -202,7 +215,7 @@ export default function VerifyForm({ email, userName }: VerifyFormProps) {
           <div className="absolute bottom-0 right-0 w-96 h-96 bg-purple-500/20 rounded-full blur-3xl animate-pulse" style={{ animationDelay: "1s" }} />
         </div>
 
-        <div className="relative z-10 w-full max-w-md text-right" dir="rtl">
+        <div className="relative z-10 w-full max-w-md">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
@@ -210,7 +223,7 @@ export default function VerifyForm({ email, userName }: VerifyFormProps) {
             className="space-y-10"
           >
             <motion.div 
-              className="flex items-center gap-4 justify-start"
+              className="flex items-center gap-4"
               whileHover={{ scale: 1.02 }}
             >
               <div className="h-16 w-16 rounded-2xl bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center text-white shadow-2xl shadow-blue-500/30 border border-white/10">
@@ -224,22 +237,35 @@ export default function VerifyForm({ email, userName }: VerifyFormProps) {
 
             <div className="space-y-6">
               <h1 className="text-5xl font-black text-white leading-[1.15]">
-                تأكيد <br />
-                <span className="bg-gradient-to-r from-blue-400 via-cyan-400 to-blue-500 bg-clip-text text-transparent">
-                  الهوية الرقمية
-                </span>
+                {isRTL ? (
+                  <>
+                    تأكيد <br />
+                    <span className="bg-gradient-to-r from-blue-400 via-cyan-400 to-blue-500 bg-clip-text text-transparent">
+                      الهوية الرقمية
+                    </span>
+                  </>
+                ) : (
+                  <>
+                    Digital <br />
+                    <span className="bg-gradient-to-r from-blue-400 via-cyan-400 to-blue-500 bg-clip-text text-transparent">
+                      Identity Verification
+                    </span>
+                  </>
+                )}
               </h1>
               <p className="text-slate-300 text-lg font-medium leading-relaxed">
-                نقوم بتأمين حسابك من خلال رمز التحقق المكون من 6 أرقام لضمان حماية بياناتك وعملياتك.
+                {isRTL 
+                  ? 'نقوم بتأمين حسابك من خلال رمز التحقق المكون من 6 أرقام لضمان حماية بياناتك وعملياتك.'
+                  : 'We secure your account with a 6-digit verification code to ensure your data and operations are protected.'}
               </p>
             </div>
 
             <div className="grid grid-cols-2 gap-4 pt-4">
               {[
-                { icon: ShieldCheck, label: "حماية قصوى", desc: "تشفير متقدم" },
-                { icon: Clock, label: "تحقق زمني", desc: "رمز مؤقت" },
-                { icon: Globe, label: "عالمي", desc: "وصول آمن" },
-                { icon: KeyRound, label: "ذكي", desc: "تحقق فوري" }
+                { icon: ShieldCheck, label: isRTL ? "حماية قصوى" : "Max Protection", desc: isRTL ? "تشفير متقدم" : "Advanced Encryption" },
+                { icon: Clock, label: isRTL ? "تحقق زمني" : "Timed Verification", desc: isRTL ? "رمز مؤقت" : "Temporary Code" },
+                { icon: Globe, label: isRTL ? "عالمي" : "Global", desc: isRTL ? "وصول آمن" : "Secure Access" },
+                { icon: KeyRound, label: isRTL ? "ذكي" : "Smart", desc: isRTL ? "تحقق فوري" : "Instant Verification" }
               ].map((item, i) => (
                 <motion.div 
                   key={i}
@@ -255,7 +281,7 @@ export default function VerifyForm({ email, userName }: VerifyFormProps) {
                     </div>
                     <span className="text-sm font-black">{item.label}</span>
                   </div>
-                  <span className="text-xs text-slate-400 font-medium mr-11">{item.desc}</span>
+                  <span className={cn("text-xs text-slate-400 font-medium", isRTL ? "mr-11" : "ml-11")}>{item.desc}</span>
                 </motion.div>
               ))}
             </div>
@@ -266,13 +292,28 @@ export default function VerifyForm({ email, userName }: VerifyFormProps) {
           <span>© 2026 Logistics Systems Pro</span>
           <span className="flex items-center gap-2">
             <span className="h-2 w-2 rounded-full bg-green-500 animate-pulse" />
-            جميع الأنظمة تعمل
+            {isRTL ? 'جميع الأنظمة تعمل' : 'All systems operational'}
           </span>
         </div>
       </div>
 
       <div className="w-full lg:w-1/2 flex items-center justify-center p-6 sm:p-12 relative bg-white dark:bg-slate-900">
         <div className="absolute inset-0 bg-gradient-to-br from-blue-50/50 via-transparent to-purple-50/50 dark:from-blue-950/20 dark:to-purple-950/20" />
+        
+        {/* Language Switcher Button */}
+        <motion.button
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          onClick={toggleLocale}
+          className="absolute top-6 right-6 z-20 flex items-center gap-2 px-4 py-2.5 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 rounded-2xl transition-all border border-slate-200 dark:border-slate-700 shadow-lg shadow-slate-200/50 dark:shadow-slate-900/50"
+        >
+          <Languages size={18} className="text-blue-600 dark:text-blue-400" />
+          <span className="text-sm font-bold text-slate-700 dark:text-slate-300">
+            {locale === 'ar' ? 'English' : 'العربية'}
+          </span>
+        </motion.button>
         
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
@@ -292,30 +333,32 @@ export default function VerifyForm({ email, userName }: VerifyFormProps) {
             <h1 className="text-2xl font-black text-slate-900 dark:text-white mb-1">Logistics Systems Pro</h1>
           </div>
 
-          <div className="mb-8 text-right" dir="rtl">
+          <div className="mb-8">
             <motion.div
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
               transition={{ type: "spring", stiffness: 200 }}
-              className="mx-auto lg:mx-0 mb-6 flex h-20 w-20 items-center justify-center rounded-3xl bg-gradient-to-br from-violet-500 to-purple-600 text-white shadow-xl shadow-violet-500/30"
+              className={cn("mb-6 flex h-20 w-20 items-center justify-center rounded-3xl bg-gradient-to-br from-violet-500 to-purple-600 text-white shadow-xl shadow-violet-500/30", isRTL ? "mx-auto lg:mx-0" : "mx-auto lg:mx-0")}
             >
               <Fingerprint size={36} />
             </motion.div>
             <motion.h2 
-              initial={{ opacity: 0, x: -20 }}
+              initial={{ opacity: 0, x: isRTL ? -20 : 20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.2 }}
               className="text-4xl font-black text-slate-900 dark:text-white mb-3"
             >
-              تأكيد الرمز
+              {isRTL ? 'تأكيد الرمز' : 'Confirm Code'}
             </motion.h2>
             <motion.p 
-              initial={{ opacity: 0, x: -20 }}
+              initial={{ opacity: 0, x: isRTL ? -20 : 20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.3 }}
               className="text-slate-500 dark:text-slate-400 font-medium"
             >
-              أدخل الرمز المكون من 6 أرقام المرسل إلى بريدك
+              {isRTL 
+                ? 'أدخل الرمز المكون من 6 أرقام المرسل إلى بريدك'
+                : 'Enter the 6-digit code sent to your email'}
             </motion.p>
           </div>
 
@@ -323,8 +366,7 @@ export default function VerifyForm({ email, userName }: VerifyFormProps) {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4 }}
-            className="mb-8 flex items-center gap-4 rounded-2xl border-2 border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/50 p-4 text-right" 
-            dir="rtl"
+            className="mb-8 flex items-center gap-4 rounded-2xl border-2 border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/50 p-4" 
           >
             <div className="h-14 w-14 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center text-white shadow-lg shadow-blue-500/25">
               <UserCircle size={28} />
@@ -341,8 +383,7 @@ export default function VerifyForm({ email, userName }: VerifyFormProps) {
                 initial={{ opacity: 0, y: -10, scale: 0.95 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{ opacity: 0, y: -10, scale: 0.95 }}
-                className="mb-6 flex items-center gap-3 rounded-2xl bg-red-50 dark:bg-red-950/30 p-4 text-red-600 dark:text-red-400 border border-red-100 dark:border-red-900/50 text-right backdrop-blur-sm"
-                dir="rtl"
+                className="mb-6 flex items-center gap-3 rounded-2xl bg-red-50 dark:bg-red-950/30 p-4 text-red-600 dark:text-red-400 border border-red-100 dark:border-red-900/50 backdrop-blur-sm"
               >
                 <div className="p-2 rounded-xl bg-red-100 dark:bg-red-900/50">
                   <AlertTriangle size={18} />
@@ -352,14 +393,16 @@ export default function VerifyForm({ email, userName }: VerifyFormProps) {
             )}
           </AnimatePresence>
 
-          <form onSubmit={handleSubmit} className="space-y-6" dir="rtl">
+          <form onSubmit={handleSubmit} className="space-y-6">
             <motion.div 
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.5 }}
               className="space-y-3"
             >
-              <label className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">رمز التحقق</label>
+              <label className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">
+                {isRTL ? 'رمز التحقق' : 'Verification Code'}
+              </label>
               <div className="flex gap-3 justify-center" dir="ltr" onPaste={handlePaste}>
                 {otp.map((digit, index) => (
                   <motion.input
@@ -397,7 +440,7 @@ export default function VerifyForm({ email, userName }: VerifyFormProps) {
                 timeLeft <= 60 ? 'bg-red-50 dark:bg-red-950/30 text-red-600 dark:text-red-400 animate-pulse border border-red-200 dark:border-red-900/50' : 'bg-slate-50 dark:bg-slate-800 text-slate-500 dark:text-slate-400 border border-slate-100 dark:border-slate-700'
               )}>
                 <Clock size={14} />
-                <span>ينتهي خلال {formatTime(timeLeft)}</span>
+                <span>{isRTL ? `ينتهي خلال ${formatTime(timeLeft)}` : `Expires in ${formatTime(timeLeft)}`}</span>
               </div>
             </motion.div>
 
@@ -417,7 +460,7 @@ export default function VerifyForm({ email, userName }: VerifyFormProps) {
               ) : (
                 <>
                   <CheckCircle size={20} />
-                  تأكيد الرمز والمتابعة
+                  {isRTL ? 'تأكيد الرمز والمتابعة' : 'Confirm & Continue'}
                 </>
               )}
             </motion.button>
@@ -431,7 +474,9 @@ export default function VerifyForm({ email, userName }: VerifyFormProps) {
           >
             {resendTimeLeft > 0 ? (
               <p className="text-sm text-slate-400 dark:text-slate-500 font-bold">
-                يمكنك إعادة إرسال الرمز خلال {resendTimeLeft} ثانية
+                {isRTL 
+                  ? `يمكنك إعادة إرسال الرمز خلال ${resendTimeLeft} ثانية`
+                  : `You can resend the code in ${resendTimeLeft} seconds`}
               </p>
             ) : (
               <button 
@@ -441,7 +486,7 @@ export default function VerifyForm({ email, userName }: VerifyFormProps) {
                 className="text-sm font-black text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors flex items-center justify-center gap-2 mx-auto disabled:opacity-50"
               >
                 <Send size={16} />
-                لم يصلك الرمز؟ إعادة الإرسال الآن
+                {isRTL ? 'لم يصلك الرمز؟ إعادة الإرسال الآن' : "Didn't receive code? Resend now"}
               </button>
             )}
           </motion.div>
@@ -456,8 +501,17 @@ export default function VerifyForm({ email, userName }: VerifyFormProps) {
               href="/forgot-password"
               className="inline-flex items-center gap-2 py-3 px-8 rounded-2xl border-2 border-slate-200 dark:border-slate-700 text-sm font-black text-slate-900 dark:text-white hover:bg-slate-50 dark:hover:bg-slate-800 transition-all group"
             >
-              <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform" />
-              تغيير البريد الإلكتروني
+              {isRTL ? (
+                <>
+                  <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
+                  تغيير البريد الإلكتروني
+                </>
+              ) : (
+                <>
+                  <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform" />
+                  Change Email
+                </>
+              )}
             </Link>
           </motion.div>
         </motion.div>
