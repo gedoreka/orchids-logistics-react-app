@@ -101,22 +101,43 @@ export async function loginAction(formData: FormData): Promise<AuthResponse> {
   const remember = formData.get("remember") === "on";
 
   try {
+    let user: any = null;
+    let userType: UserType = "owner";
+
+    // 1. Try to find in users table
     const users = await query<User & { password?: string }>(
       "SELECT * FROM users WHERE email = ?",
       [email]
     );
 
-    if (!users || users.length === 0) {
-      return { success: false, error: "البريد الإلكتروني غير مسجل." };
+    if (users && users.length > 0) {
+      user = users[0];
+      userType = user.email === "admin@zoolspeed.com" ? "admin" : "owner";
+    } else {
+      // 2. Try to find in company_sub_users table
+      const { data: subUser, error: subError } = await supabase
+        .from("company_sub_users")
+        .select("*")
+        .eq("email", email)
+        .eq("status", "active")
+        .single();
+
+      if (subUser) {
+        user = subUser;
+        userType = "sub_user";
+      }
     }
 
-    const user = users[0];
+    if (!user) {
+      return { success: false, error: "البريد الإلكتروني غير مسجل." };
+    }
 
     const isPasswordValid = await bcrypt.compare(password, user.password || "");
     if (!isPasswordValid) {
       return { success: false, error: "كلمة المرور غير صحيحة." };
     }
 
+    // Get company data
     const companies = await query<{ name: string; status: string; is_active: number }>(
       "SELECT name, status, is_active FROM companies WHERE id = ?",
       [user.company_id]
@@ -128,45 +149,67 @@ export async function loginAction(formData: FormData): Promise<AuthResponse> {
 
     const company = companies[0];
 
-    if (company.status !== "approved") {
-      return {
-        success: false,
-        error: "الشركة غير مقبولة بعد. يرجى انتظار مراجعة الإدارة.",
-      };
+    // Status checks
+    if (user.email !== "admin@zoolspeed.com") {
+      if (company.status !== "approved") {
+        return {
+          success: false,
+          error: "الشركة غير مقبولة بعد. يرجى انتظار مراجعة الإدارة.",
+        };
+      }
+
+      if (company.is_active !== 1) {
+        return {
+          success: false,
+          error: "الشركة موقوفة. يرجى التواصل مع الإدارة.",
+        };
+      }
     }
 
-    if (company.is_active !== 1) {
-      return {
-        success: false,
-        error: "الشركة موقوفة. يرجى التواصل مع الإدارة.",
-      };
-    }
-
-    if (user.is_activated === 0 && user.email !== "admin@zoolspeed.com") {
+    if (userType === "owner" && user.is_activated === 0 && user.email !== "admin@zoolspeed.com") {
       return {
         success: false,
         error: "الحساب غير مفعل. يرجى انتظار تفعيل الإدارة.",
       };
     }
 
-    const permissionsRows = await query<{ feature_key: string; is_enabled: number }>(
+    // Get permissions
+    const permissions: Record<string, number> = {};
+
+    // 1. Get company feature permissions
+    const companyPermissionsRows = await query<{ feature_key: string; is_enabled: number }>(
       "SELECT feature_key, is_enabled FROM company_permissions WHERE company_id = ?",
       [user.company_id]
     );
 
-    const permissions: Record<string, number> = {};
-    (permissionsRows || []).forEach((p) => {
+    (companyPermissionsRows || []).forEach((p) => {
       permissions[p.feature_key] = p.is_enabled ? 1 : 0;
     });
 
-    const userType: UserType = user.email === "admin@zoolspeed.com" ? "admin" : "owner";
+    // 2. If sub_user, also get their specific permissions
+    if (userType === "sub_user") {
+      const subUserPermissionsRows = await query<{ permission_key: string }>(
+        "SELECT permission_key FROM sub_user_permissions WHERE sub_user_id = ?",
+        [user.id]
+      );
+      (subUserPermissionsRows || []).forEach((p) => {
+        permissions[p.permission_key] = 1;
+      });
+
+      // Update last login
+      await supabase
+        .from("company_sub_users")
+        .update({ last_login_at: new Date().toISOString() })
+        .eq("id", user.id);
+    }
 
     const cookieStore = await cookies();
-    const sessionData = {
-      user_id: user.id,
+    const sessionData: AuthSession = {
+      user_id: userType === "sub_user" ? 0 : user.id,
+      sub_user_id: userType === "sub_user" ? user.id : undefined,
       user_name: user.name,
       company_id: user.company_id,
-      role: user.role,
+      role: user.role || (userType === "sub_user" ? "user" : "admin"),
       permissions,
       user_type: userType,
     };
@@ -185,6 +228,8 @@ export async function loginAction(formData: FormData): Promise<AuthResponse> {
       });
     }
 
+    // Login notification for owners
+    if (userType === "owner") {
       const today = new Date().toISOString().split('T')[0];
       const lastLoginNotification = await query<{ last_notification_date: string }>(
         "SELECT DATE(last_login_notification) as last_notification_date FROM users WHERE id = ?",
@@ -200,6 +245,7 @@ export async function loginAction(formData: FormData): Promise<AuthResponse> {
         );
         sendLoginNotification(user.email, user.name, company.name || "الشركة").catch(console.error);
       }
+    }
 
     return {
       success: true,
@@ -207,9 +253,9 @@ export async function loginAction(formData: FormData): Promise<AuthResponse> {
         id: user.id,
         name: user.name,
         email: user.email,
-        role: user.role,
+        role: sessionData.role,
         company_id: user.company_id,
-        is_activated: user.is_activated,
+        is_activated: user.is_activated ?? 1,
         user_type: userType,
       },
       permissions,

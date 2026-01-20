@@ -35,6 +35,8 @@ export async function GET(request: NextRequest) {
       { data: receiptVouchers },
       { data: paymentVouchers },
       { data: manualIncome },
+      { data: creditNotes },
+      { data: salaryPayrolls },
       { data: accounts },
       { data: costCenters }
     ] = await Promise.all([
@@ -52,6 +54,10 @@ export async function GET(request: NextRequest) {
       supabase.from("payment_vouchers").select("*").eq("company_id", companyId),
       // 7. Manual Income
       supabase.from("manual_income").select("*, accounts:account_id(id, account_code, account_name, type), cost_centers:cost_center_id(id, center_code, center_name)").eq("company_id", companyId),
+      // 8. Credit Notes
+      supabase.from("credit_notes").select("*").eq("company_id", companyId),
+      // 9. Salary Payrolls
+      supabase.from("salary_payrolls").select("*").eq("company_id", companyId),
       // Metadata
       supabase.from("accounts").select("id, account_code, account_name, type").eq("company_id", companyId).order("account_code"),
       supabase.from("cost_centers").select("id, center_code, center_name").eq("company_id", companyId).order("center_code")
@@ -151,6 +157,28 @@ export async function GET(request: NextRequest) {
       });
     }
 
+    // Process Credit Notes
+    if (creditNotes) {
+      creditNotes.forEach((note: any) => {
+        ledgerEntries.push({
+          id: `cn-${note.id}`,
+          date: note.created_at?.split('T')[0],
+          document_number: note.credit_note_number || `CN-${note.id}`,
+          description: `إشعار دائن لعميل: ${note.client_name} - سبب: ${note.reason || ""}`,
+          account_code: "4101",
+          account_name: "مردودات مبيعات",
+          account_type: "revenue",
+          cost_center_code: "",
+          cost_center_name: "",
+          debit: Number(note.total_amount) || 0,
+          credit: 0,
+          source: "credit_note",
+          source_type: "إشعار دائن",
+          created_at: note.created_at,
+        });
+      });
+    }
+
     // Process Receipt Vouchers
     if (receiptVouchers) {
       receiptVouchers.forEach((receipt: any) => {
@@ -215,6 +243,28 @@ export async function GET(request: NextRequest) {
           created_at: income.created_at,
           account_id: income.account_id,
           cost_center_id: income.cost_center_id,
+        });
+      });
+    }
+
+    // Process Salary Payrolls
+    if (salaryPayrolls) {
+      salaryPayrolls.forEach((payroll: any) => {
+        ledgerEntries.push({
+          id: `sp-${payroll.id}`,
+          date: payroll.created_at?.split('T')[0],
+          document_number: `PAY-${payroll.id}`,
+          description: `مسير رواتب شهر: ${payroll.payroll_month}`,
+          account_code: "5101",
+          account_name: "رواتب ومنافع موظفين",
+          account_type: "expense",
+          cost_center_code: "",
+          cost_center_name: "",
+          debit: Number(payroll.total_amount) || 0,
+          credit: 0,
+          source: "salary_payroll",
+          source_type: "مسير رواتب",
+          created_at: payroll.created_at,
         });
       });
     }
