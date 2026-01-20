@@ -25,11 +25,20 @@ import {
   Calculator,
   AlertCircle,
   Loader2,
-  Route
+  Route,
+  ArrowLeft,
+  Users,
+  RefreshCw,
+  Printer,
+  FileSpreadsheet
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { format } from "date-fns";
+import { useTranslations, useLocale } from "@/lib/locale-context";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 
 interface Customer {
   id: number;
@@ -69,6 +78,8 @@ interface NotificationState {
 
 export function CustomerViewClient({ customer, companyId }: CustomerViewClientProps) {
   const router = useRouter();
+  const t = useTranslations("customers.viewPage");
+  const { isRTL } = useLocale();
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [notification, setNotification] = useState<NotificationState>({
     show: false,
@@ -86,10 +97,10 @@ export function CustomerViewClient({ customer, companyId }: CustomerViewClientPr
   };
 
   const handleDelete = async () => {
-    if (!confirm(`هل أنت متأكد من حذف العميل "${customer.customer_name || customer.company_name}"؟`)) return;
+    if (!confirm(`${t("confirmDelete")} "${customer.customer_name || customer.company_name}"?`)) return;
     
     setDeleteLoading(true);
-    showNotification("loading", "جاري الحذف", "جاري حذف بيانات العميل...");
+    showNotification("loading", t("deleting"), t("deletingMessage"));
     
     try {
       const res = await fetch(`/api/customers/${customer.id}?company_id=${companyId}`, {
@@ -97,23 +108,27 @@ export function CustomerViewClient({ customer, companyId }: CustomerViewClientPr
       });
       
       if (res.ok) {
-        showNotification("success", "تم الحذف بنجاح", "تم حذف العميل بنجاح");
+        showNotification("success", t("deleteSuccess"), t("deleteSuccessMessage"));
         setTimeout(() => {
           router.push("/customers");
           router.refresh();
         }, 1500);
       } else {
-        showNotification("error", "فشل الحذف", "فشل حذف العميل");
+        showNotification("error", t("deleteFailed"), t("deleteFailedMessage"));
       }
     } catch {
-      showNotification("error", "خطأ", "حدث خطأ أثناء الحذف");
+      showNotification("error", t("errorTitle"), t("errorMessage"));
     } finally {
       setDeleteLoading(false);
     }
   };
 
+  const handlePrint = () => {
+    window.print();
+  };
+
   return (
-    <div className="h-full flex flex-col">
+    <div className="p-4 md:p-6 space-y-8" dir={isRTL ? "rtl" : "ltr"}>
       <AnimatePresence>
         {notification.show && (
           <>
@@ -152,7 +167,7 @@ export function CustomerViewClient({ customer, companyId }: CustomerViewClientPr
                         notification.type === "success" ? "bg-emerald-500 hover:bg-emerald-600" : "bg-red-500 hover:bg-red-600"
                       }`}
                     >
-                      حسناً
+                      {t("okBtn")}
                     </button>
                   )}
                 </div>
@@ -162,185 +177,267 @@ export function CustomerViewClient({ customer, companyId }: CustomerViewClientPr
         )}
       </AnimatePresence>
 
-      <div className="flex-1 overflow-auto p-6">
-        <div className="max-w-[1200px] mx-auto space-y-6">
-          <div className="relative overflow-hidden bg-gradient-to-br from-[#2c3e50] to-[#34495e] rounded-2xl p-6 text-white shadow-xl">
-            <div className="relative z-10">
-              <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+      <Card className="border-none shadow-2xl rounded-[2rem] overflow-hidden bg-[#1a2234] print:hidden">
+        <div className="relative overflow-hidden bg-gradient-to-br from-[#0f172a] via-[#1e293b] to-[#0f172a] text-white p-8 md:p-12">
+          <div className="absolute inset-0 overflow-hidden">
+            <div className="absolute -top-40 -right-40 w-80 h-80 bg-blue-500/20 rounded-full blur-3xl" />
+            <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-emerald-500/20 rounded-full blur-3xl" />
+          </div>
+          
+          <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 via-emerald-500 to-amber-500" />
+          
+          <div className="relative z-10 space-y-8">
+            <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+              <div className="flex items-center gap-6 text-center md:text-right">
+                <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-2xl rotate-3">
+                  <Building2 className="w-10 h-10 text-white" />
+                </div>
+                <div>
+                  <h1 className="text-3xl md:text-5xl font-black tracking-tight bg-gradient-to-r from-white via-blue-200 to-white bg-clip-text text-transparent">
+                    {t("title")}
+                  </h1>
+                  <p className="text-white/60 font-medium mt-2 text-lg">
+                    {t("subtitle")}
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex flex-wrap gap-3">
+                <Link href="/customers">
+                  <Button variant="outline" className="bg-white/10 border-white/20 text-white hover:bg-white/20 rounded-xl font-bold">
+                    {isRTL ? <ArrowRight className="ml-2 w-4 h-4" /> : <ArrowLeft className="mr-2 w-4 h-4" />}
+                    {t("backToList")}
+                  </Button>
+                </Link>
+                <Button
+                  onClick={handlePrint}
+                  variant="outline"
+                  className="bg-amber-500/20 border-amber-500/30 text-amber-300 hover:bg-amber-500/30 font-bold rounded-xl"
+                >
+                  <Printer className="w-4 h-4 ml-2" />
+                </Button>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-6 pt-4">
+              <div className="bg-white/5 backdrop-blur-xl border border-white/10 p-6 rounded-[1.5rem] group hover:bg-white/10 transition-all md:col-span-2">
                 <div className="flex items-center gap-4">
-                  <div className="h-16 w-16 rounded-xl bg-blue-500 flex items-center justify-center shadow-lg">
-                    <Building2 size={32} />
+                  <div className="p-3 bg-blue-500/20 rounded-xl">
+                    <User className="w-6 h-6 text-blue-400" />
                   </div>
                   <div>
-                    <h1 className="text-2xl font-black">{customer.customer_name || "غير محدد"}</h1>
-                    <p className="text-white/60 text-sm">{customer.company_name}</p>
-                    <div className="mt-2">
-                      {customer.is_active ? (
-                        <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 text-xs font-bold border border-emerald-500/30">
-                          <CheckCircle size={12} />
-                          نشط
-                        </span>
-                      ) : (
-                        <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-red-500/20 text-red-300 text-xs font-bold border border-red-500/30">
-                          <XCircle size={12} />
-                          غير نشط
-                        </span>
-                      )}
-                    </div>
+                    <p className="text-white/40 text-xs font-black uppercase tracking-widest">{t("customerNameLabel")}</p>
+                    <p className="text-xl font-black text-white">{customer.customer_name || t("notSpecified")}</p>
                   </div>
                 </div>
-                <div className="flex flex-wrap gap-2">
-                  <Link href="/customers">
-                    <button className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/10 text-white font-bold text-sm hover:bg-white/20 transition-all border border-white/10">
-                      <ArrowRight size={16} />
-                      <span>القائمة</span>
-                    </button>
-                  </Link>
-                  <Link href={`/customers/${customer.id}/edit`}>
-                    <button className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-amber-500 text-white font-bold text-sm hover:bg-amber-600 transition-all">
-                      <Edit size={16} />
-                      <span>تعديل</span>
-                    </button>
-                  </Link>
+              </div>
+
+              <div className="bg-white/5 backdrop-blur-xl border border-white/10 p-6 rounded-[1.5rem] group hover:bg-white/10 transition-all">
+                <div className="flex items-center gap-4">
+                  <div className="p-3 bg-emerald-500/20 rounded-xl">
+                    <Building2 className="w-6 h-6 text-emerald-400" />
+                  </div>
+                  <div>
+                    <p className="text-white/40 text-xs font-black uppercase tracking-widest">{t("facilityName")}</p>
+                    <p className="text-lg font-black text-white truncate">{customer.company_name || t("notSpecified")}</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-white/5 backdrop-blur-xl border border-white/10 p-6 rounded-[1.5rem] group hover:bg-white/10 transition-all">
+                <div className="flex items-center gap-4">
+                  <div className={`p-3 rounded-xl ${customer.is_active ? "bg-emerald-500/20" : "bg-rose-500/20"}`}>
+                    {customer.is_active ? <CheckCircle className="w-6 h-6 text-emerald-400" /> : <XCircle className="w-6 h-6 text-rose-400" />}
+                  </div>
+                  <div>
+                    <p className="text-white/40 text-xs font-black uppercase tracking-widest">Status</p>
+                    <Badge className={`${customer.is_active ? "bg-emerald-500/20 text-emerald-300 border-emerald-500/30" : "bg-rose-500/20 text-rose-300 border-rose-500/30"} font-bold`}>
+                      {customer.is_active ? t("activeStatus") : t("inactiveStatus")}
+                    </Badge>
+                  </div>
                 </div>
               </div>
             </div>
-            <div className="absolute top-0 right-0 w-40 h-40 bg-white/5 rounded-full -mr-20 -mt-20 blur-2xl" />
-          </div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-              <div className="bg-blue-500 px-4 py-3 flex items-center gap-2 text-white">
-                <Building2 size={18} />
-                <h3 className="font-bold text-sm">معلومات المنشأة</h3>
-              </div>
-              <div className="p-4 space-y-3">
-                <InfoRow icon={<User size={16} />} label="اسم العميل" value={customer.customer_name} />
-                <InfoRow icon={<Building2 size={16} />} label="اسم المنشأة" value={customer.company_name} />
-                <InfoRow icon={<FileText size={16} />} label="السجل التجاري" value={customer.commercial_number} />
-                <InfoRow icon={<Receipt size={16} />} label="الرقم الضريبي" value={customer.vat_number} />
-                <InfoRow icon={<Hash size={16} />} label="الرقم الموحد" value={customer.unified_number} />
-              </div>
-            </div>
-
-            <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-              <div className="bg-emerald-500 px-4 py-3 flex items-center gap-2 text-white">
-                <Phone size={18} />
-                <h3 className="font-bold text-sm">معلومات الاتصال</h3>
-              </div>
-              <div className="p-4 space-y-3">
-                <InfoRow 
-                  icon={<Mail size={16} />} 
-                  label="البريد الإلكتروني" 
-                  value={customer.email}
-                  isLink={customer.email ? `mailto:${customer.email}` : undefined}
-                />
-                <InfoRow 
-                  icon={<Phone size={16} />} 
-                  label="رقم الهاتف" 
-                  value={customer.phone}
-                  isLink={customer.phone ? `tel:${customer.phone}` : undefined}
-                />
-              </div>
-            </div>
-
-            <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-              <div className="bg-purple-500 px-4 py-3 flex items-center gap-2 text-white">
-                <MapPin size={18} />
-                <h3 className="font-bold text-sm">العنوان</h3>
-              </div>
-              <div className="p-4 space-y-3">
-                <InfoRow icon={<Globe size={16} />} label="الدولة" value={customer.country} />
-                <InfoRow icon={<Building size={16} />} label="المدينة" value={customer.city} />
-                <InfoRow icon={<MapPinned size={16} />} label="الحي" value={customer.district} />
-                <InfoRow icon={<Route size={16} />} label="الشارع" value={customer.street_name} />
-                <InfoRow icon={<Hash size={16} />} label="الرمز البريدي" value={customer.postal_code} />
-                <InfoRow icon={<MapPin size={16} />} label="العنوان المختصر" value={customer.short_address} />
-              </div>
-            </div>
-
-            <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-              <div className="bg-orange-500 px-4 py-3 flex items-center gap-2 text-white">
-                <Wallet size={18} />
-                <h3 className="font-bold text-sm">المعلومات المالية</h3>
-              </div>
-              <div className="p-4 space-y-3">
-                <InfoRow icon={<Wallet size={16} />} label="مركز الحساب" value={customer.account_name} />
-                <InfoRow icon={<Calculator size={16} />} label="مركز التكلفة" value={customer.cost_center_name} />
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-            <div className="bg-gray-600 px-4 py-3 flex items-center gap-2 text-white">
-              <Clock size={18} />
-              <h3 className="font-bold text-sm">معلومات النظام</h3>
-            </div>
-            <div className="p-4 grid grid-cols-1 md:grid-cols-2 gap-4">
-              <InfoRow 
-                icon={<Calendar size={16} />} 
-                label="تاريخ الإنشاء" 
-                value={customer.created_at ? format(new Date(customer.created_at), 'yyyy-MM-dd HH:mm') : undefined}
-              />
-              <InfoRow 
-                icon={<Clock size={16} />} 
-                label="آخر تحديث" 
-                value={customer.updated_at && customer.updated_at !== '0000-00-00 00:00:00' 
-                  ? format(new Date(customer.updated_at), 'yyyy-MM-dd HH:mm') 
-                  : undefined
-                }
-              />
-            </div>
-          </div>
-
-          <div className="flex justify-center gap-3 pb-6">
-            <Link href="/customers">
-              <button className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gray-100 text-gray-700 font-bold text-sm hover:bg-gray-200 transition-all">
-                <ArrowRight size={16} />
-                <span>العودة</span>
-              </button>
-            </Link>
-            <Link href={`/customers/${customer.id}/edit`}>
-              <button className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-amber-500 text-white font-bold text-sm hover:bg-amber-600 transition-all">
-                <Edit size={16} />
-                <span>تعديل</span>
-              </button>
-            </Link>
-            <button 
-              onClick={handleDelete}
-              disabled={deleteLoading}
-              className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-red-500 text-white font-bold text-sm hover:bg-red-600 transition-all disabled:opacity-50"
-            >
-              {deleteLoading ? (
-                <Loader2 size={16} className="animate-spin" />
-              ) : (
-                <Trash2 size={16} />
-              )}
-              <span>حذف</span>
-            </button>
           </div>
         </div>
+      </Card>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <Card className="border-none shadow-xl rounded-[2rem] overflow-hidden bg-white/90 backdrop-blur-xl">
+          <CardHeader className="border-b border-blue-100 bg-gradient-to-r from-blue-50 to-indigo-50">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-blue-500 rounded-xl">
+                <Building2 className="w-5 h-5 text-white" />
+              </div>
+              <CardTitle className="text-lg font-bold text-blue-800">{t("facilityInfo")}</CardTitle>
+            </div>
+          </CardHeader>
+          <CardContent className="p-6 space-y-5">
+            <InfoRow icon={<User size={18} />} label={t("customerNameLabel")} value={customer.customer_name} />
+            <InfoRow icon={<Building2 size={18} />} label={t("facilityName")} value={customer.company_name} />
+            <InfoRow icon={<FileText size={18} />} label={t("commercialNumber")} value={customer.commercial_number} />
+            <InfoRow icon={<Receipt size={18} />} label={t("vatNumber")} value={customer.vat_number} />
+            <InfoRow icon={<Hash size={18} />} label={t("unifiedNumber")} value={customer.unified_number} notSpecifiedText={t("notSpecified")} />
+          </CardContent>
+        </Card>
+
+        <Card className="border-none shadow-xl rounded-[2rem] overflow-hidden bg-white/90 backdrop-blur-xl">
+          <CardHeader className="border-b border-emerald-100 bg-gradient-to-r from-emerald-50 to-teal-50">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-emerald-500 rounded-xl">
+                <Phone className="w-5 h-5 text-white" />
+              </div>
+              <CardTitle className="text-lg font-bold text-emerald-800">{t("contactInfo")}</CardTitle>
+            </div>
+          </CardHeader>
+          <CardContent className="p-6 space-y-5">
+            <InfoRow 
+              icon={<Mail size={18} />} 
+              label={t("email")} 
+              value={customer.email}
+              isLink={customer.email ? `mailto:${customer.email}` : undefined}
+              notSpecifiedText={t("notSpecified")}
+            />
+            <InfoRow 
+              icon={<Phone size={18} />} 
+              label={t("phone")} 
+              value={customer.phone}
+              isLink={customer.phone ? `tel:${customer.phone}` : undefined}
+              notSpecifiedText={t("notSpecified")}
+            />
+          </CardContent>
+        </Card>
+
+        <Card className="border-none shadow-xl rounded-[2rem] overflow-hidden bg-white/90 backdrop-blur-xl">
+          <CardHeader className="border-b border-purple-100 bg-gradient-to-r from-purple-50 to-violet-50">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-purple-500 rounded-xl">
+                <MapPin className="w-5 h-5 text-white" />
+              </div>
+              <CardTitle className="text-lg font-bold text-purple-800">{t("addressInfo")}</CardTitle>
+            </div>
+          </CardHeader>
+          <CardContent className="p-6 space-y-5">
+            <InfoRow icon={<Globe size={18} />} label={t("country")} value={customer.country} notSpecifiedText={t("notSpecified")} />
+            <InfoRow icon={<Building size={18} />} label={t("city")} value={customer.city} notSpecifiedText={t("notSpecified")} />
+            <InfoRow icon={<MapPinned size={18} />} label={t("district")} value={customer.district} notSpecifiedText={t("notSpecified")} />
+            <InfoRow icon={<Route size={18} />} label={t("street")} value={customer.street_name} notSpecifiedText={t("notSpecified")} />
+            <InfoRow icon={<Hash size={18} />} label={t("postalCode")} value={customer.postal_code} notSpecifiedText={t("notSpecified")} />
+            <InfoRow icon={<MapPin size={18} />} label={t("shortAddress")} value={customer.short_address} notSpecifiedText={t("notSpecified")} />
+          </CardContent>
+        </Card>
+
+        <Card className="border-none shadow-xl rounded-[2rem] overflow-hidden bg-white/90 backdrop-blur-xl">
+          <CardHeader className="border-b border-amber-100 bg-gradient-to-r from-amber-50 to-orange-50">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-amber-500 rounded-xl">
+                <Wallet className="w-5 h-5 text-white" />
+              </div>
+              <CardTitle className="text-lg font-bold text-amber-800">{t("financialInfo")}</CardTitle>
+            </div>
+          </CardHeader>
+          <CardContent className="p-6 space-y-5">
+            <InfoRow icon={<Wallet size={18} />} label={t("accountCenter")} value={customer.account_name} notSpecifiedText={t("notSpecified")} />
+            <InfoRow icon={<Calculator size={18} />} label={t("costCenter")} value={customer.cost_center_name} notSpecifiedText={t("notSpecified")} />
+          </CardContent>
+        </Card>
+      </div>
+
+      <Card className="border-none shadow-xl rounded-[2rem] overflow-hidden bg-white/90 backdrop-blur-xl">
+        <CardHeader className="border-b border-slate-100 bg-gradient-to-r from-slate-50 to-gray-50">
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-slate-500 rounded-xl">
+              <Clock className="w-5 h-5 text-white" />
+            </div>
+            <CardTitle className="text-lg font-bold text-slate-800">{t("systemInfo")}</CardTitle>
+          </div>
+        </CardHeader>
+        <CardContent className="p-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <InfoRow 
+              icon={<Calendar size={18} />} 
+              label={t("createdAt")} 
+              value={customer.created_at ? format(new Date(customer.created_at), 'yyyy-MM-dd HH:mm') : undefined}
+              notSpecifiedText={t("notSpecified")}
+            />
+            <InfoRow 
+              icon={<Clock size={18} />} 
+              label={t("updatedAt")} 
+              value={customer.updated_at && customer.updated_at !== '0000-00-00 00:00:00' 
+                ? format(new Date(customer.updated_at), 'yyyy-MM-dd HH:mm') 
+                : undefined
+              }
+              notSpecifiedText={t("notSpecified")}
+            />
+          </div>
+        </CardContent>
+      </Card>
+
+      <div className="flex flex-col md:flex-row items-center justify-center gap-4 py-8 print:hidden">
+        <Link href="/customers">
+          <Button 
+            variant="outline"
+            className="min-w-[180px] h-14 border-slate-200 bg-white text-slate-600 rounded-2xl font-black text-lg hover:bg-slate-50 transition-all"
+          >
+            {isRTL ? <ArrowRight className="ml-2 w-5 h-5" /> : <ArrowLeft className="mr-2 w-5 h-5" />}
+            {t("backBtn")}
+          </Button>
+        </Link>
+        
+        <Link href={`/customers/${customer.id}/edit`}>
+          <Button 
+            className="min-w-[180px] h-14 bg-gradient-to-r from-amber-500 to-amber-600 text-white rounded-2xl font-black text-lg shadow-xl shadow-amber-500/30 hover:shadow-amber-500/50 hover:-translate-y-1 transition-all"
+          >
+            <Edit className="w-5 h-5 ml-2" />
+            {t("editBtn")}
+          </Button>
+        </Link>
+        
+        <Button 
+          onClick={handleDelete}
+          disabled={deleteLoading}
+          className="min-w-[180px] h-14 bg-gradient-to-r from-rose-500 to-rose-600 text-white rounded-2xl font-black text-lg shadow-xl shadow-rose-500/30 hover:shadow-rose-500/50 hover:-translate-y-1 transition-all disabled:opacity-50 disabled:translate-y-0"
+        >
+          {deleteLoading ? (
+            <Loader2 className="w-5 h-5 ml-2 animate-spin" />
+          ) : (
+            <Trash2 className="w-5 h-5 ml-2" />
+          )}
+          {t("deleteBtn")}
+        </Button>
       </div>
     </div>
   );
 }
 
-function InfoRow({ icon, label, value, isLink }: { icon: React.ReactNode; label: string; value?: string | null; isLink?: string }) {
+function InfoRow({ 
+  icon, 
+  label, 
+  value, 
+  isLink,
+  notSpecifiedText = "غير محدد"
+}: { 
+  icon: React.ReactNode; 
+  label: string; 
+  value?: string | null; 
+  isLink?: string;
+  notSpecifiedText?: string;
+}) {
   return (
-    <div className="flex items-start gap-3 py-2 border-b border-gray-50 last:border-0">
-      <div className="h-8 w-8 rounded-lg bg-gray-50 flex items-center justify-center text-gray-400 flex-shrink-0">
+    <div className="flex items-start gap-4 py-3 border-b border-slate-100 last:border-0">
+      <div className="h-10 w-10 rounded-xl bg-slate-100 flex items-center justify-center text-slate-500 flex-shrink-0">
         {icon}
       </div>
       <div className="flex-1 min-w-0">
-        <p className="text-xs font-bold text-gray-400 mb-0.5">{label}</p>
+        <p className="text-xs font-black text-slate-400 uppercase tracking-widest mb-1">{label}</p>
         {value ? (
           isLink ? (
-            <a href={isLink} className="text-sm font-bold text-blue-600 hover:underline">{value}</a>
+            <a href={isLink} className="text-base font-bold text-blue-600 hover:underline">{value}</a>
           ) : (
-            <p className="text-sm font-bold text-gray-900">{value}</p>
+            <p className="text-base font-bold text-slate-800">{value}</p>
           )
         ) : (
-          <span className="text-xs text-gray-400 bg-gray-50 px-2 py-0.5 rounded">غير محدد</span>
+          <span className="inline-block text-sm text-slate-400 bg-slate-50 px-3 py-1 rounded-lg font-medium">{notSpecifiedText}</span>
         )}
       </div>
     </div>
