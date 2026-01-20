@@ -607,186 +607,188 @@ function DeleteMaintenanceDialog({ id, onDeleted }: { id: number, onDeleted: () 
 }
 
 const MaintenanceReceipt = React.forwardRef<HTMLDivElement, { data: any, details: any[], companyName: string }>(({ data, details, companyName }, ref) => {
-  if (!data) return null;
-
   const taxRate = 0.15;
-  const subtotal = data.total_cost;
+  const subtotal = Number(data?.total_cost || 0);
   const taxAmount = subtotal * taxRate;
   const grandTotal = subtotal + taxAmount;
 
   return (
-    <div ref={ref} className="p-16 bg-white min-h-[1100px] relative font-sans text-slate-900" dir="rtl">
-      {/* Aesthetic Border */}
-      <div className="absolute inset-0 border-[16px] border-slate-50 pointer-events-none"></div>
-      <div className="absolute top-0 right-0 left-0 h-2 bg-slate-900"></div>
-      
-      {/* Header Section */}
-      <div className="flex justify-between items-start mb-16 relative z-10">
-        <div className="space-y-4">
-          <div className="flex items-center gap-4">
-            <div className="w-16 h-16 bg-slate-900 rounded-2xl flex items-center justify-center text-white shadow-xl">
-              <Wrench size={32} />
+    <div ref={ref}>
+      {!data ? null : (
+        <div className="p-16 bg-white min-h-[1100px] relative font-sans text-slate-900" dir="rtl">
+          {/* Aesthetic Border */}
+          <div className="absolute inset-0 border-[16px] border-slate-50 pointer-events-none"></div>
+          <div className="absolute top-0 right-0 left-0 h-2 bg-slate-900"></div>
+          
+          {/* Header Section */}
+          <div className="flex justify-between items-start mb-16 relative z-10">
+            <div className="space-y-4">
+              <div className="flex items-center gap-4">
+                <div className="w-16 h-16 bg-slate-900 rounded-2xl flex items-center justify-center text-white shadow-xl">
+                  <Wrench size={32} />
+                </div>
+                <div>
+                  <h1 className="text-4xl font-black tracking-tighter text-slate-900">{companyName}</h1>
+                  <p className="text-blue-600 font-black text-sm uppercase tracking-widest">Maintenance Division</p>
+                </div>
+              </div>
             </div>
-            <div>
-              <h1 className="text-4xl font-black tracking-tighter text-slate-900">{companyName}</h1>
-              <p className="text-blue-600 font-black text-sm uppercase tracking-widest">Maintenance Division</p>
+            <div className="text-left">
+              <h2 className="text-5xl font-black text-slate-100 absolute -left-4 -top-6 select-none">INVOICE</h2>
+              <div className="relative z-10 space-y-2">
+                <div className="bg-slate-900 text-white px-6 py-3 rounded-2xl shadow-2xl">
+                  <p className="text-[10px] font-bold opacity-50 uppercase mb-1">Receipt Number</p>
+                  <p className="text-2xl font-black tracking-widest">#{data.id.toString().padStart(6, '0')}</p>
+                </div>
+                <p className="text-slate-400 font-bold text-xs mt-2">تاريخ الإصدار: {new Date().toLocaleDateString('ar-SA')}</p>
+              </div>
             </div>
           </div>
-        </div>
-        <div className="text-left">
-          <h2 className="text-5xl font-black text-slate-100 absolute -left-4 -top-6 select-none">INVOICE</h2>
-          <div className="relative z-10 space-y-2">
-            <div className="bg-slate-900 text-white px-6 py-3 rounded-2xl shadow-2xl">
-              <p className="text-[10px] font-bold opacity-50 uppercase mb-1">Receipt Number</p>
-              <p className="text-2xl font-black tracking-widest">#{data.id.toString().padStart(6, '0')}</p>
-            </div>
-            <p className="text-slate-400 font-bold text-xs mt-2">تاريخ الإصدار: {new Date().toLocaleDateString('ar-SA')}</p>
-          </div>
-        </div>
-      </div>
 
-      {/* Info Grid */}
-      <div className="grid grid-cols-2 gap-12 mb-16">
-        <div className="p-8 rounded-[2rem] bg-slate-50 border border-slate-100 space-y-6">
-          <h3 className="text-xs font-black text-blue-600 uppercase tracking-[0.2em] flex items-center gap-2">
-            <Car size={14} /> تفاصيل المركبة
-          </h3>
-          <div className="grid grid-cols-2 gap-y-6">
-            <div>
-              <p className="text-[10px] font-black text-slate-400 uppercase">رقم اللوحة</p>
-              <p className="text-xl font-black text-slate-800">{data.plate_number_ar}</p>
+          {/* Info Grid */}
+          <div className="grid grid-cols-2 gap-12 mb-16">
+            <div className="p-8 rounded-[2rem] bg-slate-50 border border-slate-100 space-y-6">
+              <h3 className="text-xs font-black text-blue-600 uppercase tracking-[0.2em] flex items-center gap-2">
+                <Car size={14} /> تفاصيل المركبة
+              </h3>
+              <div className="grid grid-cols-2 gap-y-6">
+                <div>
+                  <p className="text-[10px] font-black text-slate-400 uppercase">رقم اللوحة</p>
+                  <p className="text-xl font-black text-slate-800">{data.plate_number_ar}</p>
+                </div>
+                <div>
+                  <p className="text-[10px] font-black text-slate-400 uppercase">النوع / الموديل</p>
+                  <p className="text-lg font-bold text-slate-800">{data.brand} {data.model}</p>
+                </div>
+                <div>
+                  <p className="text-[10px] font-black text-slate-400 uppercase">العداد الحالي</p>
+                  <p className="text-lg font-black text-slate-800">{data.current_km.toLocaleString()} <small className="text-[10px] opacity-50">KM</small></p>
+                </div>
+              </div>
             </div>
-            <div>
-              <p className="text-[10px] font-black text-slate-400 uppercase">النوع / الموديل</p>
-              <p className="text-lg font-bold text-slate-800">{data.brand} {data.model}</p>
-            </div>
-            <div>
-              <p className="text-[10px] font-black text-slate-400 uppercase">العداد الحالي</p>
-              <p className="text-lg font-black text-slate-800">{data.current_km.toLocaleString()} <small className="text-[10px] opacity-50">KM</small></p>
+
+            <div className="p-8 rounded-[2rem] bg-slate-50 border border-slate-100 space-y-6">
+              <h3 className="text-xs font-black text-amber-600 uppercase tracking-[0.2em] flex items-center gap-2">
+                <History size={14} /> بيانات الصيانة
+              </h3>
+              <div className="grid grid-cols-2 gap-y-6">
+                <div>
+                  <p className="text-[10px] font-black text-slate-400 uppercase">الفني المسؤول</p>
+                  <p className="text-lg font-bold text-slate-800">{data.maintenance_person}</p>
+                </div>
+                <div>
+                  <p className="text-[10px] font-black text-slate-400 uppercase">تاريخ الخدمة</p>
+                  <p className="text-lg font-bold text-slate-800">{new Date(data.maintenance_date).toLocaleDateString('ar-SA')}</p>
+                </div>
+                <div className="col-span-2">
+                  <p className="text-[10px] font-black text-slate-400 uppercase">ملاحظات الفني</p>
+                  <p className="text-sm font-medium text-slate-600 italic leading-relaxed">{data.notes || "لا توجد ملاحظات إضافية"}</p>
+                </div>
+              </div>
             </div>
           </div>
-        </div>
 
-        <div className="p-8 rounded-[2rem] bg-slate-50 border border-slate-100 space-y-6">
-          <h3 className="text-xs font-black text-amber-600 uppercase tracking-[0.2em] flex items-center gap-2">
-            <History size={14} /> بيانات الصيانة
-          </h3>
-          <div className="grid grid-cols-2 gap-y-6">
-            <div>
-              <p className="text-[10px] font-black text-slate-400 uppercase">الفني المسؤول</p>
-              <p className="text-lg font-bold text-slate-800">{data.maintenance_person}</p>
-            </div>
-            <div>
-              <p className="text-[10px] font-black text-slate-400 uppercase">تاريخ الخدمة</p>
-              <p className="text-lg font-bold text-slate-800">{new Date(data.maintenance_date).toLocaleDateString('ar-SA')}</p>
-            </div>
-            <div className="col-span-2">
-              <p className="text-[10px] font-black text-slate-400 uppercase">ملاحظات الفني</p>
-              <p className="text-sm font-medium text-slate-600 italic leading-relaxed">{data.notes || "لا توجد ملاحظات إضافية"}</p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Spares Table */}
-      <div className="mb-16">
-        <h3 className="text-xs font-black text-slate-400 uppercase tracking-[0.2em] mb-6 mr-4 flex items-center gap-2">
-          <Package size={14} /> بيان قطع الغيار المستخدمة والأعمال
-        </h3>
-        <div className="rounded-[2rem] border border-slate-100 overflow-hidden shadow-sm">
-          <table className="w-full">
-            <thead>
-              <tr className="bg-slate-900 text-white">
-                <th className="py-5 px-8 text-right font-black text-xs uppercase tracking-wider">الصنف / الوصف</th>
-                <th className="py-5 px-4 text-center font-black text-xs uppercase tracking-wider">الكمية</th>
-                <th className="py-5 px-4 text-center font-black text-xs uppercase tracking-wider">السعر</th>
-                <th className="py-5 px-8 text-left font-black text-xs uppercase tracking-wider">الإجمالي</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100">
-              {details && details.length > 0 ? (
-                details.map((item, idx) => (
-                  <tr key={idx} className="hover:bg-slate-50 transition-colors">
-                    <td className="py-6 px-8">
-                      <div className="flex flex-col">
-                        <span className="font-black text-slate-800">{item.spare_name}</span>
-                        <span className="text-[10px] font-mono text-slate-400 uppercase tracking-widest">{item.spare_code}</span>
-                      </div>
-                    </td>
-                    <td className="py-6 px-4 text-center font-black text-slate-600">{item.quantity_used}</td>
-                    <td className="py-6 px-4 text-center font-bold text-slate-600">{Number(item.unit_price).toFixed(2)}</td>
-                    <td className="py-6 px-8 text-left font-black text-slate-900">{Number(item.total_price).toFixed(2)} <small className="text-[8px] opacity-30">SAR</small></td>
+          {/* Spares Table */}
+          <div className="mb-16">
+            <h3 className="text-xs font-black text-slate-400 uppercase tracking-[0.2em] mb-6 mr-4 flex items-center gap-2">
+              <Package size={14} /> بيان قطع الغيار المستخدمة والأعمال
+            </h3>
+            <div className="rounded-[2rem] border border-slate-100 overflow-hidden shadow-sm">
+              <table className="w-full">
+                <thead>
+                  <tr className="bg-slate-900 text-white">
+                    <th className="py-5 px-8 text-right font-black text-xs uppercase tracking-wider">الصنف / الوصف</th>
+                    <th className="py-5 px-4 text-center font-black text-xs uppercase tracking-wider">الكمية</th>
+                    <th className="py-5 px-4 text-center font-black text-xs uppercase tracking-wider">السعر</th>
+                    <th className="py-5 px-8 text-left font-black text-xs uppercase tracking-wider">الإجمالي</th>
                   </tr>
-                ))
-              ) : (
-                <tr>
-                  <td className="py-10 px-8">
-                    <div className="flex flex-col">
-                      <span className="font-black text-slate-800">أعمال صيانة وإصلاح متنوعة</span>
-                      <span className="text-[10px] font-bold text-slate-400">شاملة قطع الغيار واليد العاملة</span>
-                    </div>
-                  </td>
-                  <td className="py-10 px-4 text-center font-black text-slate-600">1</td>
-                  <td className="py-10 px-4 text-center font-bold text-slate-600">{subtotal.toFixed(2)}</td>
-                  <td className="py-10 px-8 text-left font-black text-slate-900">{subtotal.toFixed(2)} <small className="text-[8px] opacity-30">SAR</small></td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      {/* Summary & Totals */}
-      <div className="flex justify-between items-end mb-24">
-        <div className="w-1/2 space-y-6">
-          <div className="p-6 rounded-2xl bg-blue-50/50 border border-blue-100/50">
-            <h4 className="text-[10px] font-black text-blue-600 uppercase tracking-widest mb-2">إخلاء المسؤولية</h4>
-            <p className="text-[10px] leading-relaxed text-blue-800 font-medium">هذا المستند يعتبر إيصالاً رسمياً لعملية الصيانة المذكورة أعلاه. تضمن الشركة جودة الإصلاح وفقاً للمعايير المتبعة. يرجى الاحتفاظ بهذا الإيصال للمراجعة الدورية.</p>
-          </div>
-        </div>
-
-        <div className="w-80 space-y-4">
-          <div className="flex justify-between items-center px-4">
-            <span className="text-xs font-black text-slate-400 uppercase tracking-widest">المجموع الفرعي</span>
-            <span className="text-lg font-bold text-slate-700">{subtotal.toFixed(2)}</span>
-          </div>
-          <div className="flex justify-between items-center px-4">
-            <span className="text-xs font-black text-slate-400 uppercase tracking-widest">ضريبة القيمة المضافة (15%)</span>
-            <span className="text-lg font-bold text-slate-700">{taxAmount.toFixed(2)}</span>
-          </div>
-          <div className="h-px bg-slate-100 mx-4"></div>
-          <div className="bg-slate-900 text-white p-6 rounded-2xl shadow-xl flex justify-between items-center">
-            <div className="flex flex-col">
-              <span className="text-[10px] font-black opacity-50 uppercase tracking-widest">الإجمالي النهائي</span>
-              <span className="text-xs font-bold">TOTAL AMOUNT</span>
-            </div>
-            <div className="flex flex-col items-end">
-              <span className="text-3xl font-black">{grandTotal.toFixed(2)}</span>
-              <span className="text-[10px] font-black opacity-50">SAR / ريال سعودي</span>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {details && details.length > 0 ? (
+                    details.map((item, idx) => (
+                      <tr key={idx} className="hover:bg-slate-50 transition-colors">
+                        <td className="py-6 px-8">
+                          <div className="flex flex-col">
+                            <span className="font-black text-slate-800">{item.spare_name}</span>
+                            <span className="text-[10px] font-mono text-slate-400 uppercase tracking-widest">{item.spare_code}</span>
+                          </div>
+                        </td>
+                        <td className="py-6 px-4 text-center font-black text-slate-600">{item.quantity_used}</td>
+                        <td className="py-6 px-4 text-center font-bold text-slate-600">{Number(item.unit_price).toFixed(2)}</td>
+                        <td className="py-6 px-8 text-left font-black text-slate-900">{Number(item.total_price).toFixed(2)} <small className="text-[8px] opacity-30">SAR</small></td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td className="py-10 px-8">
+                        <div className="flex flex-col">
+                          <span className="font-black text-slate-800">أعمال صيانة وإصلاح متنوعة</span>
+                          <span className="text-[10px] font-bold text-slate-400">شاملة قطع الغيار واليد العاملة</span>
+                        </div>
+                      </td>
+                      <td className="py-10 px-4 text-center font-black text-slate-600">1</td>
+                      <td className="py-10 px-4 text-center font-bold text-slate-600">{subtotal.toFixed(2)}</td>
+                      <td className="py-10 px-8 text-left font-black text-slate-900">{subtotal.toFixed(2)} <small className="text-[8px] opacity-30">SAR</small></td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
             </div>
           </div>
-        </div>
-      </div>
 
-      {/* Footer Signatures */}
-      <div className="grid grid-cols-3 gap-16 text-center border-t border-slate-100 pt-16">
-        <div className="space-y-6">
-          <p className="text-xs font-black text-slate-400 uppercase tracking-widest">اعتماد المدير الفني</p>
-          <div className="h-20 flex items-center justify-center italic text-slate-300 font-serif border-b border-dashed border-slate-200">
-            Technical Approval
+          {/* Summary & Totals */}
+          <div className="flex justify-between items-end mb-24">
+            <div className="w-1/2 space-y-6">
+              <div className="p-6 rounded-2xl bg-blue-50/50 border border-blue-100/50">
+                <h4 className="text-[10px] font-black text-blue-600 uppercase tracking-widest mb-2">إخلاء المسؤولية</h4>
+                <p className="text-[10px] leading-relaxed text-blue-800 font-medium">هذا المستند يعتبر إيصالاً رسمياً لعملية الصيانة المذكورة أعلاه. تضمن الشركة جودة الإصلاح وفقاً للمعايير المتبعة. يرجى الاحتفاظ بهذا الإيصال للمراجعة الدورية.</p>
+              </div>
+            </div>
+
+            <div className="w-80 space-y-4">
+              <div className="flex justify-between items-center px-4">
+                <span className="text-xs font-black text-slate-400 uppercase tracking-widest">المجموع الفرعي</span>
+                <span className="text-lg font-bold text-slate-700">{subtotal.toFixed(2)}</span>
+              </div>
+              <div className="flex justify-between items-center px-4">
+                <span className="text-xs font-black text-slate-400 uppercase tracking-widest">ضريبة القيمة المضافة (15%)</span>
+                <span className="text-lg font-bold text-slate-700">{taxAmount.toFixed(2)}</span>
+              </div>
+              <div className="h-px bg-slate-100 mx-4"></div>
+              <div className="bg-slate-900 text-white p-6 rounded-2xl shadow-xl flex justify-between items-center">
+                <div className="flex flex-col">
+                  <span className="text-[10px] font-black opacity-50 uppercase tracking-widest">الإجمالي النهائي</span>
+                  <span className="text-xs font-bold">TOTAL AMOUNT</span>
+                </div>
+                <div className="flex flex-col items-end">
+                  <span className="text-3xl font-black">{grandTotal.toFixed(2)}</span>
+                  <span className="text-[10px] font-black opacity-50">SAR / ريال سعودي</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Footer Signatures */}
+          <div className="grid grid-cols-3 gap-16 text-center border-t border-slate-100 pt-16">
+            <div className="space-y-6">
+              <p className="text-xs font-black text-slate-400 uppercase tracking-widest">اعتماد المدير الفني</p>
+              <div className="h-20 flex items-center justify-center italic text-slate-300 font-serif border-b border-dashed border-slate-200">
+                Technical Approval
+              </div>
+            </div>
+            <div className="space-y-6">
+              <p className="text-xs font-black text-slate-400 uppercase tracking-widest">توقيع السلم المستلم</p>
+              <div className="h-20 border-b border-dashed border-slate-200 flex items-center justify-center">
+                <User size={24} className="opacity-10" />
+              </div>
+            </div>
+            <div className="relative">
+              <p className="text-xs font-black text-slate-400 uppercase tracking-widest relative z-10">ختم الاعتماد الرسمي</p>
+              <div className="h-20 border-b border-dashed border-slate-200"></div>
+            </div>
           </div>
         </div>
-        <div className="space-y-6">
-          <p className="text-xs font-black text-slate-400 uppercase tracking-widest">توقيع السلم المستلم</p>
-          <div className="h-20 border-b border-dashed border-slate-200 flex items-center justify-center">
-            <User size={24} className="opacity-10" />
-          </div>
-        </div>
-        <div className="relative">
-          <p className="text-xs font-black text-slate-400 uppercase tracking-widest relative z-10">ختم الاعتماد الرسمي</p>
-          <div className="h-20 border-b border-dashed border-slate-200"></div>
-        </div>
-      </div>
+      )}
     </div>
   );
 });
@@ -1313,7 +1315,7 @@ export function FleetClient({
       </Tabs>
 
       {/* Hidden Print Content */}
-      <div className="opacity-0 pointer-events-none absolute -z-50 overflow-hidden h-0 w-0">
+      <div className="opacity-0 pointer-events-none absolute -top-[9999px] -left-[9999px] -z-50 overflow-hidden">
         <MaintenanceReceipt ref={printRef} data={selectedMaintenance} details={selectedMaintenanceDetails} companyName={companyName} />
       </div>
 
