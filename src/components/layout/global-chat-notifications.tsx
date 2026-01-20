@@ -24,88 +24,96 @@ export function GlobalChatNotifications({ isAdmin, companyId }: GlobalChatNotifi
   const [unreadCount, setUnreadCount] = useState(0);
   const [showCenterAlert, setShowCenterAlert] = useState(false);
   const [centerAlertData, setCenterAlertData] = useState<ChatNotification | null>(null);
-  const lastUnreadCountRef = useRef(-1);
-  const router = useRouter();
-  const pathname = usePathname();
+    const lastUnreadCountRef = useRef(-1);
+    const isFetchingRef = useRef(false);
+    const router = useRouter();
+    const pathname = usePathname();
 
-  const isOnAdminChatPage = pathname?.includes("/admin/chat");
-  const isOnClientChatPage = pathname === "/chat";
-  const isOnChatPage = isAdmin ? isOnAdminChatPage : isOnClientChatPage;
+    const isOnAdminChatPage = pathname?.includes("/admin/chat");
+    const isOnClientChatPage = pathname === "/chat";
+    const isOnChatPage = isAdmin ? isOnAdminChatPage : isOnClientChatPage;
 
-  const checkForNewMessages = useCallback(async () => {
-    if (isOnChatPage) return;
+    const checkForNewMessages = useCallback(async () => {
+      if (isOnChatPage || isFetchingRef.current) return;
+      isFetchingRef.current = true;
 
-    try {
-      if (isAdmin) {
-        const response = await fetch("/api/admin/chat?action=unread_count");
-        const data = await response.json();
-        const newUnreadCount = data.unread_count || 0;
-        
-        if (newUnreadCount > lastUnreadCountRef.current && lastUnreadCountRef.current >= 0) {
-          const companyResponse = await fetch("/api/admin/chat");
-          const companyData = await companyResponse.json();
+      try {
+        if (isAdmin) {
+          const response = await fetch("/api/admin/chat?action=unread_count");
+          if (!response.ok) throw new Error("Fetch failed");
+          const data = await response.json();
+          const newUnreadCount = data.unread_count || 0;
           
-          const companiesWithNewMessages = companyData.companies?.filter(
-            (c: any) => c.unread_count > 0
-          );
+          if (newUnreadCount > lastUnreadCountRef.current && lastUnreadCountRef.current >= 0) {
+            const companyResponse = await fetch("/api/admin/chat");
+            if (!companyResponse.ok) throw new Error("Fetch failed");
+            const companyData = await companyResponse.json();
+            
+            const companiesWithNewMessages = companyData.companies?.filter(
+              (c: any) => c.unread_count > 0
+            );
 
-          if (companiesWithNewMessages?.length > 0) {
-            const latestCompany = companiesWithNewMessages[0];
-            const newNotification: ChatNotification = {
-              id: Date.now(),
-              companyName: latestCompany.name,
-              message: latestCompany.last_message?.substring(0, 80) || "رسالة جديدة",
-              time: new Date().toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" }),
-              companyId: latestCompany.id
-            };
+            if (companiesWithNewMessages?.length > 0) {
+              const latestCompany = companiesWithNewMessages[0];
+              const newNotification: ChatNotification = {
+                id: Date.now(),
+                companyName: latestCompany.name,
+                message: latestCompany.last_message?.substring(0, 80) || "رسالة جديدة",
+                time: new Date().toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" }),
+                companyId: latestCompany.id
+              };
 
-            setNotifications(prev => [newNotification, ...prev.slice(0, 2)]);
-            setCenterAlertData(newNotification);
-            setShowCenterAlert(true);
-            setTimeout(() => setShowCenterAlert(false), 8000);
+              setNotifications(prev => [newNotification, ...prev.slice(0, 2)]);
+              setCenterAlertData(newNotification);
+              setShowCenterAlert(true);
+              setTimeout(() => setShowCenterAlert(false), 8000);
 
-            playNotificationSound();
-            showBrowserNotification("رسالة جديدة - دعم العملاء", `${latestCompany.name}: ${latestCompany.last_message?.substring(0, 50)}`);
+              playNotificationSound();
+              showBrowserNotification("رسالة جديدة - دعم العملاء", `${latestCompany.name}: ${latestCompany.last_message?.substring(0, 50)}`);
+            }
           }
-        }
-        lastUnreadCountRef.current = newUnreadCount;
-        setUnreadCount(newUnreadCount);
-      } else if (companyId) {
-        // Client side notification
-        const response = await fetch(`/api/admin/chat?company_id=${companyId}&action=client_unread`);
-        const data = await response.json();
-        const newUnreadCount = data.unread_count || 0;
+          lastUnreadCountRef.current = newUnreadCount;
+          setUnreadCount(newUnreadCount);
+        } else if (companyId) {
+          // Client side notification
+          const response = await fetch(`/api/admin/chat?company_id=${companyId}&action=client_unread`);
+          if (!response.ok) throw new Error("Fetch failed");
+          const data = await response.json();
+          const newUnreadCount = data.unread_count || 0;
 
-        if (newUnreadCount > lastUnreadCountRef.current && lastUnreadCountRef.current >= 0) {
-          // Fetch last admin message content
-          const msgResponse = await fetch(`/api/admin/chat?company_id=${companyId}&action=last_admin_message`);
-          const msgData = await msgResponse.json();
-          const lastMsg = msgData.last_message;
+          if (newUnreadCount > lastUnreadCountRef.current && lastUnreadCountRef.current >= 0) {
+            // Fetch last admin message content
+            const msgResponse = await fetch(`/api/admin/chat?company_id=${companyId}&action=last_admin_message`);
+            if (!msgResponse.ok) throw new Error("Fetch failed");
+            const msgData = await msgResponse.json();
+            const lastMsg = msgData.last_message;
 
-          if (lastMsg) {
-            const newNotification: ChatNotification = {
-              id: Date.now(),
-              companyName: "الدعم الفني",
-              message: lastMsg.message?.substring(0, 80) || "رسالة جديدة من الدعم",
-              time: new Date().toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" }),
-            };
+            if (lastMsg) {
+              const newNotification: ChatNotification = {
+                id: Date.now(),
+                companyName: "الدعم الفني",
+                message: lastMsg.message?.substring(0, 80) || "رسالة جديدة من الدعم",
+                time: new Date().toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" }),
+              };
 
-            setNotifications(prev => [newNotification, ...prev.slice(0, 2)]);
-            setCenterAlertData(newNotification);
-            setShowCenterAlert(true);
-            setTimeout(() => setShowCenterAlert(false), 8000);
+              setNotifications(prev => [newNotification, ...prev.slice(0, 2)]);
+              setCenterAlertData(newNotification);
+              setShowCenterAlert(true);
+              setTimeout(() => setShowCenterAlert(false), 8000);
 
-            playNotificationSound();
-            showBrowserNotification("رسالة جديدة من الدعم الفني", lastMsg.message?.substring(0, 100));
+              playNotificationSound();
+              showBrowserNotification("رسالة جديدة من الدعم الفني", lastMsg.message?.substring(0, 100));
+            }
           }
+          lastUnreadCountRef.current = newUnreadCount;
+          setUnreadCount(newUnreadCount);
         }
-        lastUnreadCountRef.current = newUnreadCount;
-        setUnreadCount(newUnreadCount);
+      } catch (error) {
+        console.error("Error checking for new messages:", error);
+      } finally {
+        isFetchingRef.current = false;
       }
-    } catch (error) {
-      console.error("Error checking for new messages:", error);
-    }
-  }, [isAdmin, companyId, isOnChatPage]);
+    }, [isAdmin, companyId, isOnChatPage]);
 
   const playNotificationSound = () => {
     try {

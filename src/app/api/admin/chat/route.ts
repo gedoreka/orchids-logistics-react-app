@@ -1,7 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { query, execute } from "@/lib/db";
 
+let tableEnsured = false;
+
 async function ensureChatTable() {
+  if (tableEnsured) return;
   try {
       await execute(`
         CREATE TABLE IF NOT EXISTS chat_messages (
@@ -15,8 +18,9 @@ async function ensureChatTable() {
           created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
       `);
+      tableEnsured = true;
   } catch (e) {
-    console.log("Table might already exist");
+    console.log("Table might already exist or error creating it");
   }
 }
 

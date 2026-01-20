@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import { Sidebar } from "./sidebar";
 import { motion, AnimatePresence } from "framer-motion";
 import { Header } from "./header";
@@ -26,17 +26,22 @@ export function DashboardLayout({ children, user, permissions, userType }: Dashb
   const [isRTL, setIsRTL] = useState(true);
   const [mounted, setMounted] = useState(false);
   const [unreadChatCount, setUnreadChatCount] = useState(0);
+  const isFetchingRef = useRef(false);
 
   const fetchUnreadCount = useCallback(async () => {
-    if (!user?.company_id || user?.role === "admin") return;
+    if (!user?.company_id || user?.role === "admin" || isFetchingRef.current) return;
+    isFetchingRef.current = true;
     try {
       const response = await fetch(`/api/admin/chat?company_id=${user.company_id}&action=client_unread`);
+      if (!response.ok) throw new Error("Fetch failed");
       const data = await response.json();
       if (data.unread_count !== undefined) {
         setUnreadChatCount(data.unread_count);
       }
     } catch (error) {
       console.error("Error fetching unread count:", error);
+    } finally {
+      isFetchingRef.current = false;
     }
   }, [user?.company_id, user?.role]);
 
