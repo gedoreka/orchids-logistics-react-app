@@ -29,6 +29,7 @@ import {
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useLocale, useTranslations } from "@/lib/locale-context";
+import { cn } from "@/lib/utils";
 
 interface DashboardClientProps {
   user: {
@@ -155,17 +156,6 @@ export function DashboardClient({
     { titleKey: "customersList", href: "/customers", icon: Users, gradient: "from-pink-600 to-rose-600", bgGlow: "bg-pink-500/20", permission: "clients_module" },
   ];
 
-  const quickAccessTitles: Record<string, { ar: string; en: string }> = {
-    hrManagement: { ar: "إدارة الموارد البشرية", en: "HR Management" },
-    taxInvoices: { ar: "الفواتير الضريبية", en: "Tax Invoices" },
-    ecommerce: { ar: "التجارة الإلكترونية", en: "E-commerce" },
-    shipments: { ar: "الشحنات", en: "Shipments" },
-    expenses: { ar: "المصروفات", en: "Expenses" },
-    receiptVouchers: { ar: "سندات القبض", en: "Receipt Vouchers" },
-    accountsCenter: { ar: "مركز الحسابات", en: "Accounts Center" },
-    customersList: { ar: "قائمة العملاء", en: "Customers List" },
-  };
-
   const filteredQuickAccess = quickAccessItems.filter(item => 
     isAdmin || permissions[item.permission] === 1
   );
@@ -184,7 +174,7 @@ export function DashboardClient({
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100/50 dark:from-slate-900 dark:via-slate-900 dark:to-slate-950 p-2 md:p-4 transition-colors duration-300">
+    <div dir={isRTL ? 'rtl' : 'ltr'} className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100/50 dark:from-slate-900 dark:via-slate-900 dark:to-slate-950 p-2 md:p-4 transition-colors duration-300">
       <motion.div 
         variants={containerVariants}
         initial="hidden"
@@ -223,25 +213,32 @@ export function DashboardClient({
                 </p>
               </div>
 
-              <div className="flex flex-wrap gap-3">
-                <motion.div 
-                  whileHover={{ scale: 1.02 }}
-                  className={`px-5 py-2.5 rounded-2xl bg-gradient-to-r ${getSubscriptionGradient(subscription.badge)} shadow-lg shadow-emerald-500/25 flex items-center gap-2`}
-                >
-                  <Crown className="w-4 h-4 text-white" />
-                  <span className="text-white font-semibold text-sm">{subscription.message}</span>
-                </motion.div>
-                
-                <motion.div 
-                  whileHover={{ scale: 1.02 }}
-                  className="px-5 py-2.5 rounded-2xl bg-white/10 backdrop-blur-sm border border-white/10 flex items-center gap-2"
-                >
-                  <User className="w-4 h-4 text-slate-300" />
-                  <span className="text-slate-300 font-medium text-sm">
-                    {user.userTypeName ? (isRTL ? user.userTypeName.ar : user.userTypeName.en) : (isAdmin ? t('admin') : (isRTL ? "مدير منشأة" : "Manager"))}
-                  </span>
-                </motion.div>
-              </div>
+                  <div className="flex flex-wrap gap-3">
+                  <motion.div 
+                    whileHover={{ scale: 1.02 }}
+                    className={`px-5 py-2.5 rounded-2xl bg-gradient-to-r ${getSubscriptionGradient(subscription.badge)} shadow-lg shadow-emerald-500/25 flex items-center gap-2`}
+                  >
+                    <Crown className="w-4 h-4 text-white" />
+                    <span className="text-white font-semibold text-sm">
+                      {subscription.type === "premium" 
+                        ? t('permanentSubscription')
+                        : subscription.type === "expired"
+                          ? t('subscriptionExpired')
+                          : `${subscription.remaining_days} ${t('daysRemaining')}`
+                      }
+                    </span>
+                  </motion.div>
+                  
+                  <motion.div 
+                    whileHover={{ scale: 1.02 }}
+                    className="px-5 py-2.5 rounded-2xl bg-white/10 backdrop-blur-sm border border-white/10 flex items-center gap-2"
+                  >
+                    <User className="w-4 h-4 text-slate-300" />
+                    <span className="text-slate-300 font-medium text-sm">
+                      {user.userTypeName ? (isRTL ? user.userTypeName.ar : user.userTypeName.en) : (isAdmin ? t('admin') : t('manager'))}
+                    </span>
+                  </motion.div>
+                </div>
             </div>
           </div>
         </motion.div>
@@ -273,10 +270,10 @@ export function DashboardClient({
                     <Building2 className="w-8 h-8 text-slate-400 dark:text-slate-300" />
                   </div>
                 )}
-                <div>
-                  <h4 className="font-bold text-slate-800 dark:text-slate-100 text-lg">{company?.name || (isRTL ? "اسم المنشأة" : "Company Name")}</h4>
-                  <p className="text-slate-500 dark:text-slate-400 text-sm font-mono">{company?.commercial_number || (isRTL ? "رقم السجل التجاري" : "CR Number")}</p>
-                </div>
+                  <div>
+                    <h4 className="font-bold text-slate-800 dark:text-slate-100 text-lg">{company?.name || t('companyName')}</h4>
+                    <p className="text-slate-500 dark:text-slate-400 text-sm font-mono">{company?.commercial_number || t('crNumber')}</p>
+                  </div>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
@@ -423,25 +420,25 @@ export function DashboardClient({
                   glowColor="blue"
                 />
                 <LuxuryStatCard 
-                  icon={Receipt} 
-                  value={yearlyStats.total_invoices_amount} 
-                  label={isRTL ? "إجمالي الفواتير الضريبية" : "Total Tax Invoices"}
-                  trend={8}
-                  gradient="from-emerald-500 to-teal-600"
-                  glowColor="emerald"
-                  isCurrency
-                  loading={loadingStats}
-                />
-                <LuxuryStatCard 
-                  icon={BadgeDollarSign} 
-                  value={yearlyStats.yearly_expenses} 
-                  label={isRTL ? "إجمالي المصروفات السنوية" : "Total Yearly Expenses"}
-                  trend={12}
-                  gradient="from-teal-500 to-cyan-600"
-                  glowColor="teal"
-                  isCurrency
-                  loading={loadingStats}
-                />
+                    icon={Receipt} 
+                    value={yearlyStats.total_invoices_amount} 
+                    label={t('totalTaxInvoices')}
+                    trend={8}
+                    gradient="from-emerald-500 to-teal-600"
+                    glowColor="emerald"
+                    isCurrency
+                    loading={loadingStats}
+                  />
+                  <LuxuryStatCard 
+                    icon={BadgeDollarSign} 
+                    value={yearlyStats.yearly_expenses} 
+                    label={t('totalYearlyExpenses')}
+                    trend={12}
+                    gradient="from-teal-500 to-cyan-600"
+                    glowColor="teal"
+                    isCurrency
+                    loading={loadingStats}
+                  />
                 {permissions.credit_notes_module === 1 ? (
                   <LuxuryStatCard 
                     icon={CreditCard} 
@@ -451,7 +448,7 @@ export function DashboardClient({
                     gradient="from-rose-500 to-red-600"
                     glowColor="rose"
                     isCurrency
-                    subValue={`${stats.credit_notes_count || 0} ${isRTL ? 'إشعار' : 'notes'}`}
+                    subValue={`${stats.credit_notes_count || 0} ${t('notes')}`}
                   />
                 ) : (
                   <LuxuryStatCard 
@@ -504,8 +501,8 @@ export function DashboardClient({
                       <item.icon className="w-6 h-6 text-white" />
                     </div>
                     <span className="font-bold text-slate-700 text-sm group-hover:text-slate-900 transition-colors">
-                      {isRTL ? quickAccessTitles[item.titleKey].ar : quickAccessTitles[item.titleKey].en}
-                    </span>
+                        {t(item.titleKey)}
+                      </span>
                     
                     <div className={`absolute top-3 ${isRTL ? 'right-3' : 'left-3'} opacity-0 group-hover:opacity-100 transition-opacity`}>
                       <ArrowUpRight className="w-4 h-4 text-slate-400" />
@@ -535,6 +532,7 @@ interface LuxuryStatCardProps {
 
 function LuxuryStatCard({ icon: Icon, value, label, trend, gradient, glowColor, isCurrency, subValue, loading }: LuxuryStatCardProps) {
   const { isRTL } = useLocale();
+  const t = useTranslations('dashboard');
   const glowClasses: Record<string, string> = {
     blue: "shadow-blue-200/50 hover:shadow-blue-300/50",
     emerald: "shadow-emerald-200/50 hover:shadow-emerald-300/50",
@@ -567,11 +565,11 @@ function LuxuryStatCard({ icon: Icon, value, label, trend, gradient, glowColor, 
               {loading ? (
                 <span className="inline-block w-20 h-8 bg-slate-200 animate-pulse rounded" />
               ) : (
-                <>
-                  <AnimatedCounter value={value} />
-                  {isCurrency && <span className={`text-sm text-slate-500 ${isRTL ? 'mr-1' : 'ml-1'}`}>{isRTL ? 'ر.س' : 'SAR'}</span>}
-                </>
-              )}
+                  <>
+                    <AnimatedCounter value={value} />
+                    {isCurrency && <span className={cn("text-sm text-slate-500", isRTL ? "mr-1" : "ml-1")}>{t('sar')}</span>}
+                  </>
+                )}
             </h4>
             <p className="text-slate-500 font-medium text-sm">{label}</p>
             {subValue && <p className="text-xs text-slate-400">{subValue}</p>}
