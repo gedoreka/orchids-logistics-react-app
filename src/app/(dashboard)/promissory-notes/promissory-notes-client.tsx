@@ -190,9 +190,7 @@ export default function PromissoryNotesClient() {
     e.preventDefault();
     try {
       const amountValue = formData.amount ? parseFloat(formData.amount) : 0;
-      const amountText = isRtl 
-        ? numberToArabicWords(Math.floor(amountValue)) + " ريال"
-        : numberToEnglishWords(Math.floor(amountValue)) + " Riyals";
+      const amountText = numberToArabicWords(Math.floor(amountValue)) + " ريال";
 
       const payload = {
         ...formData,
@@ -274,6 +272,42 @@ export default function PromissoryNotesClient() {
     setShowPrintPreview(true);
   };
 
+  const printLabels = {
+    promissoryNote: "سند لأمـــر",
+    noteNumber: "رقم السند",
+    creationDate: "تاريخ الإنشاء",
+    creationPlace: "مكان الإنشاء",
+    city: "المدينة",
+    undertaking: "أتعهد أنا الموقع أدناه بأن أدفع بموجب هذا السند بدون قيد أو شرط لأمر / ",
+    registryNo: "سجل تجاري رقم:",
+    idNo: "رقم الهوية:",
+    amountOf: "مبلغ وقدره:",
+    onlyReal: "ريال لا غير",
+    saudiRiyal: "ريال سعودي",
+    atSight: "لدى الاطلاع",
+    dueDate: "تاريخ الاستحقاق",
+    legalText: "هذا السند واجب الدفع بدون تعلل بموجب قرار مجلس الوزراء الموقر رقم 692 وتاريخ 26/09/1383 هـ والمتوج بالمرسوم الملكي رقم 37 بتاريخ 11/10/1383 هـ من نظام الأوراق التجارية.",
+    legalWaiver: "* بموجب هذا السند يسقط المدين كافة حقوق التقديم والمطالبة والاحتجاج والإخطار بالامتناع عن الوفاء والمتعلقة بهذا السند.",
+    debtorName: "اسم المحرر (المدين)",
+    idOrRegistryNumber: "رقم الهوية / السجل",
+    nationalAddress: "العنوان الوطني:",
+    debtorSignature: "توقيع المحرر",
+    thumbprint: "بصمة الإبهام",
+    fingerprint: "بصمة",
+  };
+
+  const getBeneficiaryIdLabelArabic = (note: PromissoryNote) => {
+    if (note.use_custom_beneficiary && note.beneficiary_id_type === "national") {
+      return printLabels.idNo;
+    }
+    return printLabels.registryNo;
+  };
+
+  const getAmountTextArabic = (amount: number | null) => {
+    if (!amount) return "";
+    return numberToArabicWords(Math.floor(amount)) + " ريال";
+  };
+
   const handlePrint = () => {
     const printContent = printRef.current;
     if (!printContent) return;
@@ -283,14 +317,14 @@ export default function PromissoryNotesClient() {
 
     const printHtml = `
       <!DOCTYPE html>
-      <html dir="${isRtl ? 'rtl' : 'ltr'}" lang="${locale}">
+      <html dir="rtl" lang="ar">
       <head>
         <meta charset="UTF-8">
-        <title>${t('promissoryNote')} - ${selectedNote?.note_number}</title>
+        <title>${printLabels.promissoryNote} - ${selectedNote?.note_number}</title>
         <style>
           @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap');
           * { margin: 0; padding: 0; box-sizing: border-box; }
-          body { font-family: 'Tajawal', sans-serif; direction: ${isRtl ? 'rtl' : 'ltr'}; padding: 20px; background: #fff; color: #000; }
+          body { font-family: 'Tajawal', sans-serif; direction: rtl; padding: 20px; background: #fff; color: #000; }
           .print-container { max-width: 800px; margin: 0 auto; border: 4px double #000; padding: 30px; background: #fff; }
           .header { text-align: center; margin-bottom: 30px; border-bottom: 2px solid #000; padding-bottom: 20px; }
           .header h1 { font-size: 28px; color: #000; font-weight: 700; }
@@ -318,56 +352,56 @@ export default function PromissoryNotesClient() {
       <body>
         <div class="print-container">
           <div class="header">
-            <h1>${t('promissoryNote')}</h1>
-            <p>${t('noteNumber')}: ${selectedNote?.note_number}</p>
+            <h1>${printLabels.promissoryNote}</h1>
+            <p>${printLabels.noteNumber}: ${selectedNote?.note_number}</p>
           </div>
           <div class="meta-row">
-            <div><strong>${t('creationDate')}:</strong> ${formatDate(selectedNote?.creation_date || null)}</div>
-            <div><strong>${t('creationPlace')}:</strong> ${t('city')} ${selectedNote?.creation_place || ".................."}</div>
+            <div><strong>${printLabels.creationDate}:</strong> ${formatDate(selectedNote?.creation_date || null)}</div>
+            <div><strong>${printLabels.creationPlace}:</strong> ${printLabels.city} ${selectedNote?.creation_place || ".................."}</div>
           </div>
           <div class="content">
               <p style="margin-bottom: 16px;">
-                ${t('undertaking')}
+                ${printLabels.undertaking}
                 <span class="field">${getBeneficiaryName(selectedNote!)}</span>
-                ${getBeneficiaryIdLabel(selectedNote!)} 
+                ${getBeneficiaryIdLabelArabic(selectedNote!)} 
                 <span class="field">${getBeneficiaryIdNumber(selectedNote!)}</span>
-                ${t('amountOf')} 
-                <span class="field">${formatAmount(selectedNote?.amount || null, locale)}</span>
-                ${t('onlyReal')} (
-                <span class="field field-large">${selectedNote?.amount_text || ""}</span>
-                ) ${t('saudiRiyal')}
+                ${printLabels.amountOf} 
+                <span class="field">${selectedNote?.amount ? selectedNote.amount.toLocaleString("ar-SA", { minimumFractionDigits: 2 }) : ".........................................."}</span>
+                ${printLabels.onlyReal} (
+                <span class="field field-large">${getAmountTextArabic(selectedNote?.amount || null)}</span>
+                ) ${printLabels.saudiRiyal}
               </p>
             <p style="margin-bottom: 16px;">
-              <strong>${t('dueDate')}:</strong> 
-              <span class="field">${selectedNote?.due_date ? formatDate(selectedNote.due_date) : t('atSight')}</span>
-              ${t('legalText')}
+              <strong>${printLabels.dueDate}:</strong> 
+              <span class="field">${selectedNote?.due_date ? formatDate(selectedNote.due_date) : printLabels.atSight}</span>
+              ${printLabels.legalText}
             </p>
             <p style="font-size: 14px;">
-              ${t('legalWaiver')}
+              ${printLabels.legalWaiver}
             </p>
           </div>
           <div style="border-top: 2px solid #000; padding-top: 24px; margin-top: 32px;">
             <div class="info-row">
               <div class="info-item">
-                <p class="label">${t('debtorName')}:</p>
+                <p class="label">${printLabels.debtorName}:</p>
                 <p class="value">${selectedNote?.debtor_name || "................................"}</p>
               </div>
               <div class="info-item">
-                <p class="label">${t('idOrRegistryNumber')}:</p>
+                <p class="label">${printLabels.idOrRegistryNumber}:</p>
                 <p class="value">${selectedNote?.debtor_id_number || "................................"}</p>
               </div>
             </div>
               <div style="margin-bottom: 32px;">
-                <p class="label" style="font-weight: 700; margin-bottom: 8px;">${t('nationalAddress')}</p>
+                <p class="label" style="font-weight: 700; margin-bottom: 8px;">${printLabels.nationalAddress}</p>
                 <p class="value" style="padding-bottom: 8px; min-height: 30px; font-weight: 700;">${selectedNote?.debtor_address || "...................................................................................."}</p>
               </div>
             <div class="signature-section">
               <div class="signature-box">
-                <p>${t('debtorSignature')}:</p>
+                <p>${printLabels.debtorSignature}:</p>
                 <div class="signature-line"></div>
               </div>
               <div class="signature-box">
-                <p>${t('thumbprint')} (${t('fingerprint')}):</p>
+                <p>${printLabels.thumbprint} (${printLabels.fingerprint}):</p>
                 <div class="fingerprint-box"></div>
               </div>
             </div>
@@ -683,10 +717,7 @@ export default function PromissoryNotesClient() {
                                 </div>
                                 {formData.amount && (
                                     <p className="text-amber-400 text-[10px] font-black mt-1 px-2">
-                                        {isRtl 
-                                          ? numberToArabicWords(Math.floor(parseFloat(formData.amount))) + " " + t("saudiRiyal")
-                                          : numberToEnglishWords(Math.floor(parseFloat(formData.amount))) + " " + t("saudiRiyal")
-                                        }
+                                        {numberToArabicWords(Math.floor(parseFloat(formData.amount))) + " ريال سعودي"}
                                     </p>
                                 )}
                             </div>
@@ -952,62 +983,62 @@ export default function PromissoryNotesClient() {
                 </div>
               </div>
 
-              <div className="p-10" dir={isRtl ? "rtl" : "ltr"} ref={printRef}>
+              <div className="p-10" dir="rtl" ref={printRef}>
                 <div className="print-container border-4 border-double border-black p-10 bg-white">
                     <div className="text-center border-b-2 border-black pb-6 mb-8">
-                        <h1 className="text-4xl font-black text-black mb-2">{t("promissoryNote")}</h1>
-                        <p className="text-black text-sm font-bold">{t("noteNumber")}: {selectedNote.note_number}</p>
+                        <h1 className="text-4xl font-black text-black mb-2">{printLabels.promissoryNote}</h1>
+                        <p className="text-black text-sm font-bold">{printLabels.noteNumber}: {selectedNote.note_number}</p>
                     </div>
 
                     <div className="flex justify-between mb-8 text-sm text-black font-bold">
-                        <div>{t("creationDate")}: {formatDate(selectedNote.creation_date)}</div>
-                        <div>{t("creationPlace")}: {t("city")} {selectedNote.creation_place || ".................."}</div>
+                        <div>{printLabels.creationDate}: {formatDate(selectedNote.creation_date)}</div>
+                        <div>{printLabels.creationPlace}: {printLabels.city} {selectedNote.creation_place || ".................."}</div>
                     </div>
 
                     <div className="leading-loose text-justify mb-10 text-lg text-black">
                         <p className="mb-6">
-                            {t("undertaking")}
+                            {printLabels.undertaking}
                             <span className="font-black border-b border-black px-4 mx-2">
                                 {getBeneficiaryName(selectedNote)}
                             </span>
-                            {" "}{getBeneficiaryIdLabel(selectedNote)}{" "}
+                            {" "}{getBeneficiaryIdLabelArabic(selectedNote)}{" "}
                             <span className="font-black border-b border-black px-4 mx-2">
                                 {getBeneficiaryIdNumber(selectedNote)}
                             </span>
-                            {" "}{t("amountOf")}{" "}
+                            {" "}{printLabels.amountOf}{" "}
                             <span className="font-black border-b border-black px-6 mx-2">
-                                {formatAmount(selectedNote.amount, locale)}
+                                {selectedNote.amount ? selectedNote.amount.toLocaleString("ar-SA", { minimumFractionDigits: 2 }) : ".........................................."}
                             </span>
-                            {" "}{t("onlyReal")} ({" "}
+                            {" "}{printLabels.onlyReal} ({" "}
                             <span className="font-black border-b border-black px-6 mx-2">
-                                {selectedNote.amount_text || "................................................................"}
+                                {getAmountTextArabic(selectedNote.amount)}
                             </span>
-                            {" "}) {t("saudiRiyal")}.
+                            {" "}) {printLabels.saudiRiyal}.
                         </p>
 
                         <p className="mb-6">
-                            <strong>{t("dueDate")}:</strong>{" "}
+                            <strong>{printLabels.dueDate}:</strong>{" "}
                             <span className="font-black border-b border-black px-4 mx-2">
-                                {selectedNote.due_date ? formatDate(selectedNote.due_date) : t("atSight")}
+                                {selectedNote.due_date ? formatDate(selectedNote.due_date) : printLabels.atSight}
                             </span>
-                            {" "}{t("legalText")}
+                            {" "}{printLabels.legalText}
                         </p>
 
                         <p className="text-sm font-bold opacity-80 mt-10">
-                            {t("legalWaiver")}
+                            {printLabels.legalWaiver}
                         </p>
                     </div>
 
                     <div className="border-t-2 border-black pt-8 mt-10 text-black">
                         <div className="grid grid-cols-2 gap-10 mb-10">
                             <div>
-                                <p className="font-black mb-2">{t("debtorName")}:</p>
+                                <p className="font-black mb-2">{printLabels.debtorName}:</p>
                                 <p className="text-xl font-black pb-2 border-b border-slate-200">
                                     {selectedNote.debtor_name || ".........................................."}
                                 </p>
                             </div>
                             <div>
-                                <p className="font-black mb-2">{t("idOrRegistryNumber")}:</p>
+                                <p className="font-black mb-2">{printLabels.idOrRegistryNumber}:</p>
                                 <p className="text-xl font-black pb-2 border-b border-slate-200">
                                     {selectedNote.debtor_id_number || ".........................................."}
                                 </p>
@@ -1015,7 +1046,7 @@ export default function PromissoryNotesClient() {
                         </div>
 
                         <div className="mb-10">
-                            <p className="font-black mb-2">{t("nationalAddress")}</p>
+                            <p className="font-black mb-2">{printLabels.nationalAddress}</p>
                             <p className="text-sm font-bold pb-2 border-b border-slate-200">
                                 {selectedNote.debtor_address || "...................................................................................."}
                             </p>
@@ -1023,15 +1054,15 @@ export default function PromissoryNotesClient() {
 
                         <div className="flex justify-between items-start mt-16 px-10">
                             <div className="text-center">
-                                <p className="font-black mb-6">{t("debtorSignature")}</p>
+                                <p className="font-black mb-6">{printLabels.debtorSignature}</p>
                                 <div className="w-56 h-24 border-2 border-slate-200 rounded-2xl flex items-center justify-center text-slate-300 text-[10px]">
-                                    {t("stampOrSignature")}
+                                    ختم أو توقيع
                                 </div>
                             </div>
                             <div className="text-center">
-                                <p className="font-black mb-6">{t("thumbprint")}</p>
+                                <p className="font-black mb-6">{printLabels.thumbprint}</p>
                                 <div className="w-24 h-24 border-2 border-slate-200 rounded-full flex items-center justify-center text-slate-300 text-[10px]">
-                                    {t("fingerprint")}
+                                    {printLabels.fingerprint}
                                 </div>
                             </div>
                         </div>
