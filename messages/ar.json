@@ -212,6 +212,7 @@
       "inactive": "غير نشط",
       "archived": "مؤرشف",
       "saveSuccess": "تم حفظ الإعدادات بنجاح",
+      "saveSuccessDesc": "تم حفظ الإعدادات بنجاح",
       "saveError": "حدث خطأ أثناء حفظ الإعدادات",
       "deleteConfirm": "هل أنت متأكد من حذف هذا النوع من الضريبة؟",
       "exemptions": "الإعفاءات الضريبية",
@@ -1409,6 +1410,11 @@
       "footer": {
         "system": "نظام ZoolSpeed Logistics - إدارة عروض الأسعار",
         "rights": "جميع الحقوق محفوظة © {year}"
+      },
+      "common": {
+        "description": "البيان",
+        "total": "الإجمالي",
+        "sar": "ر.س"
       }
     }
   }

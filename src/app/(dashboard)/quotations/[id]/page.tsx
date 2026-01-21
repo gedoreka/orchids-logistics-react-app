@@ -42,7 +42,7 @@ async function getQuotation(id: string, companyId: number) {
 async function getCompany(companyId: number) {
   try {
     const companies = await query<any>(
-      `SELECT name, vat_number, short_address FROM companies WHERE id = ?`,
+      `SELECT * FROM companies WHERE id = ?`,
       [companyId]
     );
     return companies[0] || { name: 'اسم الشركة', vat_number: 'غير محدد', short_address: 'غير محدد' };

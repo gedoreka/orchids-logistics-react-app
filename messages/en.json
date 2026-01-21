@@ -1406,11 +1406,16 @@
             "ok": "OK",
             "deleting": "Deleting..."
           },
-          "footer": {
-            "system": "ZoolSpeed Logistics System - Quotations Management",
-            "rights": "All Rights Reserved © {year}"
-          }
+        "footer": {
+          "system": "ZoolSpeed Logistics System - Quotations Management",
+          "rights": "All Rights Reserved © {year}"
+        },
+        "common": {
+          "description": "Description",
+          "total": "Total",
+          "sar": "SAR"
         }
       }
+    }
   }
 }
