@@ -367,53 +367,120 @@ export function SalesReceiptViewClient({ receipt, company, companyId }: SalesRec
         </div>
       </div>
 
-      <div className="flex-1 overflow-auto p-4 md:p-8 print:p-0" ref={printRef}>
-        <style>{`
-          @media print {
-            .no-print, .print\\:hidden { display: none !important; }
-            body { 
-              background: white !important; 
-              margin: 0 !important; 
-              padding: 0 !important;
-              color: black !important;
+        <div className="flex-1 overflow-auto p-4 md:p-8 print:p-0" ref={printRef}>
+          <style>{`
+            @media print {
+              .no-print, .print\\:hidden { display: none !important; }
+              html, body { 
+                background: white !important; 
+                margin: 0 !important; 
+                padding: 0 !important;
+                color: black !important;
+                width: 148mm !important;
+                height: 210mm !important;
+                overflow: hidden !important;
+              }
+              .print-content { 
+                box-shadow: none !important; 
+                margin: 0 !important; 
+                width: 148mm !important; 
+                height: 210mm !important;
+                max-height: 210mm !important;
+                max-width: 148mm !important; 
+                border: none !important;
+                background: white !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+                padding: 4mm !important;
+                display: block !important;
+                overflow: hidden !important;
+                page-break-inside: avoid !important;
+              }
+              @page {
+                size: A5 portrait;
+                margin: 0;
+              }
+              * {
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+              }
+              .invoice-card {
+                border: 1px solid #e2e8f0 !important;
+                box-shadow: none !important;
+              }
+              .bg-blue-gradient {
+                background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%) !important;
+                color: white !important;
+              }
+              .print-header {
+                padding: 8px 12px !important;
+              }
+              .print-header h1 {
+                font-size: 14px !important;
+              }
+              .print-header p {
+                font-size: 8px !important;
+              }
+              .print-body {
+                padding: 8px 12px !important;
+                gap: 8px !important;
+              }
+              .print-info-grid {
+                gap: 8px !important;
+              }
+              .print-info-card {
+                padding: 8px !important;
+              }
+              .print-info-card h3 {
+                font-size: 9px !important;
+              }
+              .print-detail-label {
+                font-size: 7px !important;
+              }
+              .print-detail-value {
+                font-size: 8px !important;
+              }
+              .print-table {
+                font-size: 7px !important;
+              }
+              .print-table th, .print-table td {
+                padding: 4px 6px !important;
+              }
+              .print-qr-section {
+                gap: 8px !important;
+                padding: 6px !important;
+              }
+              .print-qr canvas {
+                width: 50px !important;
+                height: 50px !important;
+              }
+              .print-totals {
+                padding: 8px !important;
+              }
+              .print-totals-row {
+                font-size: 8px !important;
+              }
+              .print-grand-total {
+                padding: 6px !important;
+              }
+              .print-grand-total span {
+                font-size: 12px !important;
+              }
+              .print-stamps {
+                display: none !important;
+              }
+              .print-footer {
+                padding-top: 4px !important;
+                margin-top: 4px !important;
+                font-size: 6px !important;
+              }
             }
-            .print-content { 
-              box-shadow: none !important; 
-              margin: 0 !important; 
-              width: 210mm !important; 
-              min-height: 297mm !important;
-              max-width: 100% !important; 
-              border: none !important;
-              background: white !important;
-              -webkit-print-color-adjust: exact !important;
-              print-color-adjust: exact !important;
-              padding: 15mm !important;
-              display: flex !important;
-              flex-direction: column !important;
-            }
-            @page {
-              size: A4 portrait;
-              margin: 0;
-            }
-            * {
-              -webkit-print-color-adjust: exact !important;
-              print-color-adjust: exact !important;
-            }
-            .invoice-card {
-              border: 1px solid #e2e8f0 !important;
-              box-shadow: none !important;
-            }
-            .bg-blue-gradient {
-              background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%) !important;
-              color: white !important;
-            }
-          }
-        `}</style>
+          `}</style>
 
         <div className="max-w-[210mm] mx-auto bg-white shadow-2xl rounded-3xl overflow-hidden print:rounded-none print:shadow-none print-content invoice-card">
           {/* Professional Header */}
           <div 
-            className="bg-blue-gradient text-white p-8 md:p-10 relative overflow-hidden"
+            className="bg-blue-gradient text-white p-8 md:p-10 relative overflow-hidden print-header"
             style={{ background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)' }}
           >
             <div className="flex flex-row justify-between items-center gap-4 relative z-10">
@@ -436,8 +503,8 @@ export function SalesReceiptViewClient({ receipt, company, companyId }: SalesRec
 
               {/* Title Center */}
               <div className="text-center flex-1">
-                <h1 className="text-3xl font-black mb-1 tracking-wider uppercase">{isRtl ? "إيصال مبيعات" : "Sales Receipt"}</h1>
-                <p className="text-white/60 text-[14px] uppercase font-light tracking-[0.2em]">Sales Receipt</p>
+                <h1 className="text-3xl font-black mb-1 tracking-wider uppercase">{isRtl ? "عرض سعر" : "Quotation"}</h1>
+                  <p className="text-white/60 text-[14px] uppercase font-light tracking-[0.2em]">Price Quotation</p>
                 <div className="mt-3 inline-flex items-center gap-2 px-5 py-1.5 rounded-full border border-[#ffffff1a]" style={{ backgroundColor: 'rgba(255,255,255,0.05)' }}>
                   <div className="w-2 h-2 rounded-full bg-teal-400 animate-pulse" />
                   <span className="font-bold text-[11px] uppercase tracking-wider">Logistics Systems Pro</span>
@@ -468,9 +535,9 @@ export function SalesReceiptViewClient({ receipt, company, companyId }: SalesRec
             <div className="absolute -bottom-24 -left-24 w-64 h-64 bg-teal-500/10 rounded-full blur-3xl" />
           </div>
 
-          <div className="p-8 md:p-12 space-y-10 flex-grow flex flex-col bg-white">
+            <div className="p-8 md:p-12 space-y-10 flex-grow flex flex-col bg-white print-body">
             {/* Professional Info Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 print-info-grid">
               {/* Company Details */}
               <div className="relative group">
                 <div className="absolute inset-0 bg-blue-50 rounded-3xl -rotate-1 group-hover:rotate-0 transition-transform duration-300" />
@@ -518,7 +585,7 @@ export function SalesReceiptViewClient({ receipt, company, companyId }: SalesRec
 
             {/* High-End Items Table */}
               <div className="rounded-2xl border border-gray-100 overflow-hidden shadow-sm">
-                <table className="w-full text-[12px] border-collapse">
+                <table className="w-full text-[12px] border-collapse print-table">
                   <thead>
                     <tr className="bg-gray-900 text-white">
                       <th className={cn("px-6 py-4 font-black uppercase tracking-wider", isRtl ? "text-right" : "text-left")}>{isRtl ? "البند" : "Item"}</th>
@@ -556,8 +623,8 @@ export function SalesReceiptViewClient({ receipt, company, companyId }: SalesRec
             <div className="grid grid-cols-1 md:grid-cols-2 gap-10 items-end">
               {/* QR and Legal Info */}
               <div className="space-y-6">
-                <div className="flex items-center gap-6 p-6 rounded-3xl border-2 border-dashed border-gray-100 bg-gray-50/30">
-                  <div className="bg-white p-2.5 rounded-2xl shadow-sm border border-gray-100 flex-shrink-0">
+                  <div className="flex items-center gap-6 p-6 rounded-3xl border-2 border-dashed border-gray-100 bg-gray-50/30 print-qr-section">
+                    <div className="bg-white p-2.5 rounded-2xl shadow-sm border border-gray-100 flex-shrink-0 print-qr">
                     {isMounted && receipt.zatca_qr && (
                       <QRCodeCanvas
                         value={receipt.zatca_qr}
@@ -596,9 +663,9 @@ export function SalesReceiptViewClient({ receipt, company, companyId }: SalesRec
               {/* Totals Summary */}
               <div className="relative">
                 <div className="absolute inset-0 bg-teal-600 rounded-3xl translate-x-1.5 translate-y-1.5 opacity-5" />
-                <div className="relative bg-white rounded-3xl border border-gray-100 shadow-xl overflow-hidden">
-                  <div className="p-6 md:p-8 space-y-4">
-                    <div className="flex justify-between items-center text-gray-500 font-bold text-sm">
+                  <div className="relative bg-white rounded-3xl border border-gray-100 shadow-xl overflow-hidden print-totals">
+                    <div className="p-6 md:p-8 space-y-4">
+                      <div className="flex justify-between items-center text-gray-500 font-bold text-sm print-totals-row">
                       <span className="uppercase tracking-wider">{isRtl ? "المجموع الفرعي" : "Subtotal"}</span>
                       <span>{Number(receipt.subtotal || receipt.amount / 1.15).toLocaleString('en-US', { minimumFractionDigits: 2 })} {currency}</span>
                     </div>
@@ -610,7 +677,7 @@ export function SalesReceiptViewClient({ receipt, company, companyId }: SalesRec
                       <span>{Number(receipt.tax_amount || receipt.amount - (receipt.amount / 1.15)).toLocaleString('en-US', { minimumFractionDigits: 2 })} {currency}</span>
                     </div>
                     <div className="pt-4 border-t border-gray-100 mt-2">
-                      <div className="flex justify-between items-center p-5 bg-gray-900 rounded-2xl text-white shadow-lg shadow-gray-200">
+                        <div className="flex justify-between items-center p-5 bg-gray-900 rounded-2xl text-white shadow-lg shadow-gray-200 print-grand-total">
                         <div className="flex flex-col">
                           <span className="text-[10px] text-white/50 uppercase font-black tracking-[0.2em] mb-1">{isRtl ? "المبلغ الإجمالي" : "Total Amount"}</span>
                           <span className="font-black text-base">{isRtl ? "شامل الضريبة" : "Incl. VAT"}</span>
@@ -630,7 +697,7 @@ export function SalesReceiptViewClient({ receipt, company, companyId }: SalesRec
             </div>
 
             {/* Official Stamps Footer */}
-            <div className="grid grid-cols-2 gap-12 pt-12 mt-auto border-t border-gray-50">
+            <div className="grid grid-cols-2 gap-12 pt-12 mt-auto border-t border-gray-50 print-stamps">
               {/* Authorized Stamp */}
               <div className="text-center group">
                 <h4 className="text-gray-400 font-black text-[11px] mb-5 uppercase tracking-[0.2em]">{isRtl ? "الختم الرسمي" : "Official Stamp"}</h4>
@@ -667,7 +734,7 @@ export function SalesReceiptViewClient({ receipt, company, companyId }: SalesRec
             </div>
 
             {/* System Footer Info */}
-            <div className="mt-12 pt-8 border-t border-gray-50 flex flex-col md:flex-row justify-between items-center gap-4">
+            <div className="mt-12 pt-8 border-t border-gray-50 flex flex-col md:flex-row justify-between items-center gap-4 print-footer">
               <div className="flex items-center gap-2 text-[10px] text-gray-400 font-bold uppercase tracking-wider">
                 <div className="h-1.5 w-1.5 rounded-full bg-teal-500" />
                 <span>Logistics Systems Pro</span>
