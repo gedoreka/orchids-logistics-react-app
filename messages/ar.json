@@ -1023,6 +1023,78 @@
         "payeeRequired": "يرجى إدخال اسم المستفيد"
       }
     },
+    "incomePage": {
+      "title": "سندات الإيراد",
+      "subtitle": "إدارة الإيرادات المتنوعة",
+      "description": "تسجيل ومتابعة كافة الإيرادات المالية غير المباشرة والتحويلات البنكية المتنوعة",
+      "addNew": "إضافة سند إيراد جديد",
+      "refreshData": "تحديث البيانات",
+      "cancelForm": "إلغاء النموذج",
+      "stats": {
+        "count": "العدد الإجمالي",
+        "nextNumber": "رقم السند القادم",
+        "voucherLabel": "سجل إيراد",
+        "sequential": "تسلسلي"
+      },
+      "form": {
+        "addTitle": "تسجيل إيراد جديد",
+        "fillData": "يرجى تعبئة بيانات العملية المالية بدقة",
+        "incomeType": "نوع الإيراد",
+        "selectIncomeType": "اختر نوع الدخل...",
+        "incomeDate": "تاريخ الدخل",
+        "paymentMethod": "طريقة الدفع",
+        "selectPaymentMethod": "اختر طريقة الدفع...",
+        "amount": "المبلغ (قبل الضريبة)",
+        "taxValue": "قيمة الضريبة (15%)",
+        "totalAmount": "الإجمالي الصافي",
+        "enableTax": "تفعيل الضريبة",
+        "account": "الحساب المحاسبي",
+        "selectAccount": "اختر الحساب...",
+        "costCenter": "مركز التكلفة",
+        "selectCostCenter": "اختر مركز التكلفة...",
+        "description": "البيان / الوصف",
+        "descriptionPlaceholder": "اكتب وصف الإيراد هنا...",
+        "save": "حفظ السند",
+        "cancel": "إلغاء"
+      },
+      "incomeTypes": {
+        "bankTransfer": "تحويل بنكي",
+        "capital": "رأس مال",
+        "otherRevenue": "إيرادات أخرى",
+        "investmentProfit": "أرباح استثمارات",
+        "rentalIncome": "دخل إيجار",
+        "depositReturn": "عائد ودائع",
+        "financialAdjustments": "تسويات مالية"
+      },
+      "paymentMethods": {
+        "cash": "نقدي",
+        "transfer": "تحويل بنكي",
+        "deposit": "إيداع"
+      },
+      "searchPlaceholder": "بحث برقم السند أو النوع أو الوصف...",
+      "exportData": "تصدير البيانات",
+      "table": {
+        "title": "سجل الإيرادات المحفوظة",
+        "countLabel": "{count} سجل موجود",
+        "no": "رقم السند",
+        "type": "نوع الإيراد",
+        "date": "التاريخ",
+        "method": "طريقة الدفع",
+        "total": "المبلغ الصافي",
+        "actions": "الإجراءات"
+      },
+      "noRecords": {
+        "title": "لا توجد سجلات إيراد",
+        "desc": "ابدأ بإضافة أول سجل إيراد من الزر أعلاه"
+      },
+      "notifications": {
+        "saveSuccess": "تم حفظ سند الإيراد بنجاح!"
+      },
+      "footer": {
+        "system": "نظام Logistics Systems Pro - إدارة الإيرادات المتنوعة",
+        "rights": "جميع الحقوق محفوظة © {year}"
+      }
+    },
     "types": {
       "salesReceipts": {
         "title": "سندات المبيعات",

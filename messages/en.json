@@ -898,6 +898,78 @@
       "quickActionsDesc": "Direct access to most used operations",
       "systemTitle": "{name} System - Financial Vouchers Management",
       "allRightsReserved": "All Rights Reserved © {year}",
+      "incomePage": {
+        "title": "Income Vouchers",
+        "subtitle": "Various Revenues Management",
+        "description": "Record and track all indirect financial revenues and various bank transfers",
+        "addNew": "Add New Income Voucher",
+        "refreshData": "Refresh Data",
+        "cancelForm": "Cancel Form",
+        "stats": {
+          "count": "Total Count",
+          "nextNumber": "Next Voucher No.",
+          "voucherLabel": "Income Record",
+          "sequential": "Sequential"
+        },
+        "form": {
+          "addTitle": "Register New Income",
+          "fillData": "Please fill in the financial transaction details accurately",
+          "incomeType": "Income Type",
+          "selectIncomeType": "Select income type...",
+          "incomeDate": "Income Date",
+          "paymentMethod": "Payment Method",
+          "selectPaymentMethod": "Select payment method...",
+          "amount": "Amount (Before Tax)",
+          "taxValue": "Tax Value (15%)",
+          "totalAmount": "Net Total",
+          "enableTax": "Enable Tax",
+          "account": "Accounting Account",
+          "selectAccount": "Select account...",
+          "costCenter": "Cost Center",
+          "selectCostCenter": "Select cost center...",
+          "description": "Statement / Description",
+          "descriptionPlaceholder": "Write income description here...",
+          "save": "Save Voucher",
+          "cancel": "Cancel"
+        },
+        "incomeTypes": {
+          "bankTransfer": "Bank Transfer",
+          "capital": "Capital",
+          "otherRevenue": "Other Revenue",
+          "investmentProfit": "Investment Profit",
+          "rentalIncome": "Rental Income",
+          "depositReturn": "Deposit Return",
+          "financialAdjustments": "Financial Adjustments"
+        },
+        "paymentMethods": {
+          "cash": "Cash",
+          "transfer": "Bank Transfer",
+          "deposit": "Deposit"
+        },
+        "searchPlaceholder": "Search by voucher number, type, or description...",
+        "exportData": "Export Data",
+        "table": {
+          "title": "Saved Income Records",
+          "countLabel": "{count} records found",
+          "no": "Voucher No.",
+          "type": "Income Type",
+          "date": "Date",
+          "method": "Payment Method",
+          "total": "Net Amount",
+          "actions": "Actions"
+        },
+        "noRecords": {
+          "title": "No Income Records",
+          "desc": "Start by adding your first income record from the button above"
+        },
+        "notifications": {
+          "saveSuccess": "Income voucher saved successfully!"
+        },
+        "footer": {
+          "system": "Logistics Systems Pro - Various Revenues Management",
+          "rights": "All Rights Reserved © {year}"
+        }
+      },
       "types": {
         "salesReceipts": {
           "title": "Sales Receipts",
