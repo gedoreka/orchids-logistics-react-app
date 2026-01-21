@@ -269,32 +269,34 @@ export function PayrollEditClient({ payroll, companyId }: PayrollEditClientProps
           )}
         </AnimatePresence>
 
-        <div className="flex-1 overflow-auto p-6">
-          <div className="max-w-[1600px] mx-auto space-y-6">
-            <div className="relative overflow-hidden bg-gradient-to-br from-[#1a237e] to-[#283593] rounded-2xl p-6 text-white shadow-xl">
-              <div className="relative z-10">
-                <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                  <div className="flex items-center gap-4">
-                    <div className="h-14 w-14 rounded-xl bg-amber-500 flex items-center justify-center shadow-lg">
-                      <FileText size={28} />
-                    </div>
-                    <div>
-                      <h1 className="text-2xl font-black">{t("editPayroll.title")}</h1>
-                      <p className="text-white/60 text-sm">{payroll.payroll_month} - {payroll.package_name} ({getWorkTypeLabel()})</p>
+        <div className="flex-1 overflow-auto p-4">
+            <div className="w-[95%] mx-auto">
+              <div className="bg-white rounded-2xl border border-gray-100 shadow-xl overflow-hidden">
+                <div className="relative overflow-hidden bg-gradient-to-br from-[#1a237e] to-[#283593] p-6 text-white">
+                  <div className="relative z-10">
+                    <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                      <div className="flex items-center gap-4">
+                        <div className="h-14 w-14 rounded-xl bg-amber-500 flex items-center justify-center shadow-lg">
+                          <FileText size={28} />
+                        </div>
+                        <div>
+                          <h1 className="text-2xl font-black">{t("editPayroll.title")}</h1>
+                          <p className="text-white/60 text-sm">{payroll.payroll_month} - {payroll.package_name} ({getWorkTypeLabel()})</p>
+                        </div>
+                      </div>
+                      <Link href={`/salary-payrolls/${payroll.id}`}>
+                        <button className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/10 text-white font-bold text-sm hover:bg-white/20 transition-all border border-white/10">
+                          <ArrowRight size={16} />
+                          <span>{t("editPayroll.back")}</span>
+                        </button>
+                      </Link>
                     </div>
                   </div>
-                  <Link href={`/salary-payrolls/${payroll.id}`}>
-                    <button className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/10 text-white font-bold text-sm hover:bg-white/20 transition-all border border-white/10">
-                      <ArrowRight size={16} />
-                      <span>{t("editPayroll.back")}</span>
-                    </button>
-                  </Link>
+                  <div className="absolute top-0 right-0 w-40 h-40 bg-white/5 rounded-full -mr-20 -mt-20 blur-2xl" />
                 </div>
-              </div>
-              <div className="absolute top-0 right-0 w-40 h-40 bg-white/5 rounded-full -mr-20 -mt-20 blur-2xl" />
-            </div>
 
-            <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+                <div className="p-6 space-y-6">
+                  <div className="bg-white rounded-xl border border-gray-100 overflow-hidden">
               <div className="bg-gradient-to-br from-[#1a237e] to-[#283593] px-4 py-3 flex justify-between items-center">
                 <div className="flex items-center gap-2 text-white">
                   <Calculator size={18} />
@@ -467,58 +469,59 @@ export function PayrollEditClient({ payroll, companyId }: PayrollEditClientProps
                 </table>
               </div>
 
-              <div className="bg-gradient-to-r from-gray-50 to-blue-50 p-4 border-t border-gray-100">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div className="bg-white rounded-xl p-4 border border-gray-100 text-center">
-                    <div className="flex items-center justify-center gap-2 text-emerald-600 mb-2">
-                      <DollarSign size={18} />
-                      <span className="text-sm font-bold">{t("editPayroll.totals.totalSalaries")}</span>
-                    </div>
-                    <p className="text-2xl font-black text-emerald-600">
-                      {totals.totalSalary.toLocaleString('en-US', { minimumFractionDigits: 2 })} {t("stats.sar")}
-                    </p>
-                  </div>
-                  {!isSalaryType && (
-                    <div className="bg-white rounded-xl p-4 border border-gray-100 text-center">
-                      <div className="flex items-center justify-center gap-2 text-blue-600 mb-2">
-                        <Target size={18} />
-                        <span className="text-sm font-bold">{t("editPayroll.totals.totalOrders")}</span>
+                  <div className="bg-gradient-to-r from-gray-50 to-blue-50 p-4 rounded-xl">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      <div className="bg-white rounded-xl p-4 border border-gray-100 text-center">
+                        <div className="flex items-center justify-center gap-2 text-emerald-600 mb-2">
+                          <DollarSign size={18} />
+                          <span className="text-sm font-bold">{t("editPayroll.totals.totalSalaries")}</span>
+                        </div>
+                        <p className="text-2xl font-black text-emerald-600">
+                          {totals.totalSalary.toLocaleString('en-US', { minimumFractionDigits: 2 })} {t("stats.sar")}
+                        </p>
                       </div>
-                      <p className="text-2xl font-black text-blue-600">{totals.totalOrders}</p>
+                      {!isSalaryType && (
+                        <div className="bg-white rounded-xl p-4 border border-gray-100 text-center">
+                          <div className="flex items-center justify-center gap-2 text-blue-600 mb-2">
+                            <Target size={18} />
+                            <span className="text-sm font-bold">{t("editPayroll.totals.totalOrders")}</span>
+                          </div>
+                          <p className="text-2xl font-black text-blue-600">{totals.totalOrders}</p>
+                        </div>
+                      )}
+                      <div className="bg-white rounded-xl p-4 border border-gray-100 text-center">
+                        <div className="flex items-center justify-center gap-2 text-red-600 mb-2">
+                          <AlertCircle size={18} />
+                          <span className="text-sm font-bold">{t("editPayroll.totals.totalDeductions")}</span>
+                        </div>
+                        <p className="text-2xl font-black text-red-600">
+                          {totals.totalDeductions.toLocaleString('en-US', { minimumFractionDigits: 2 })} {t("stats.sar")}
+                        </p>
+                      </div>
                     </div>
-                  )}
-                  <div className="bg-white rounded-xl p-4 border border-gray-100 text-center">
-                    <div className="flex items-center justify-center gap-2 text-red-600 mb-2">
-                      <AlertCircle size={18} />
-                      <span className="text-sm font-bold">{t("editPayroll.totals.totalDeductions")}</span>
-                    </div>
-                    <p className="text-2xl font-black text-red-600">
-                      {totals.totalDeductions.toLocaleString('en-US', { minimumFractionDigits: 2 })} {t("stats.sar")}
-                    </p>
+                  </div>
+
+                  <div className="flex justify-center gap-4 pt-2">
+                    <Link href={`/salary-payrolls/${payroll.id}`}>
+                      <button className="flex items-center gap-2 px-6 py-3 rounded-xl bg-gray-100 text-gray-700 font-bold text-sm hover:bg-gray-200 transition-all">
+                        <ArrowRight size={16} />
+                        <span>{t("editPayroll.cancel")}</span>
+                      </button>
+                    </Link>
+                    <button
+                      onClick={handleSave}
+                      disabled={loading}
+                      className="flex items-center gap-2 px-8 py-3 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 text-white font-bold text-sm hover:from-emerald-600 hover:to-teal-600 transition-all disabled:opacity-50 shadow-lg shadow-emerald-500/25"
+                    >
+                      {loading ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />}
+                      <span>{t("editPayroll.saveChanges")}</span>
+                    </button>
                   </div>
                 </div>
               </div>
             </div>
-
-            <div className="flex justify-center gap-4 pb-6">
-              <Link href={`/salary-payrolls/${payroll.id}`}>
-                <button className="flex items-center gap-2 px-6 py-3 rounded-xl bg-gray-100 text-gray-700 font-bold text-sm hover:bg-gray-200 transition-all">
-                  <ArrowRight size={16} />
-                  <span>{t("editPayroll.cancel")}</span>
-                </button>
-              </Link>
-              <button
-                onClick={handleSave}
-                disabled={loading}
-                className="flex items-center gap-2 px-8 py-3 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 text-white font-bold text-sm hover:from-emerald-600 hover:to-teal-600 transition-all disabled:opacity-50 shadow-lg shadow-emerald-500/25"
-              >
-                {loading ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />}
-                <span>{t("editPayroll.saveChanges")}</span>
-              </button>
-            </div>
           </div>
         </div>
-
-    </div>
-  );
-}
+      </div>
+    );
+  }
