@@ -70,7 +70,7 @@ interface SalesReceiptViewClientProps {
 }
 
 export function SalesReceiptViewClient({ receipt, company, companyId }: SalesReceiptViewClientProps) {
-  const t = useTranslations("viewSalesReceiptPage");
+  const t = useTranslations("financialVouchersPage.viewSalesReceiptPage");
   const locale = useLocale();
   const isRtl = locale === "ar";
   const router = useRouter();

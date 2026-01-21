@@ -50,7 +50,7 @@ interface NotificationState {
 }
 
 export function NewSalesReceiptClient({ customers, invoices, companyId, userName }: NewSalesReceiptClientProps) {
-  const t = useTranslations("newSalesReceiptPage");
+  const t = useTranslations("financialVouchersPage.newSalesReceiptPage");
   const locale = useLocale();
   const isRtl = locale === "ar";
   const router = useRouter();
