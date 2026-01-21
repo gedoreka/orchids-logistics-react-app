@@ -1,20 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { query, execute } from "@/lib/db";
-
-interface SalesReceipt {
-  id: number;
-  company_id: number;
-  client_id: number;
-  client_name: string;
-  invoice_id: number | null;
-  invoice_number: string | null;
-  receipt_number: string;
-  receipt_date: string;
-  amount: number;
-  notes: string;
-  created_by: string;
-  created_at: string;
-}
+import { generateZatcaQR } from "@/lib/zatca-qr";
 
 export async function GET(request: NextRequest) {
   try {
@@ -25,8 +11,9 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "Company ID required" }, { status: 400 });
     }
 
-    const receipts = await query<SalesReceipt>(
-      `SELECT sr.*, c.customer_name as client_name
+    const receipts = await query<any>(
+      `SELECT sr.*, 
+       CASE WHEN sr.use_custom_client = 1 THEN sr.client_name ELSE c.customer_name END as client_name
        FROM sales_receipts sr
        LEFT JOIN customers c ON sr.client_id = c.id
        WHERE sr.company_id = ? 
@@ -47,27 +34,36 @@ export async function POST(request: NextRequest) {
     const { 
       company_id,
       client_id,
+      use_custom_client,
+      client_name: custom_client_name,
+      client_vat,
+      client_commercial_number,
+      client_address,
       invoice_id,
       receipt_date,
-      amount,
+      items = [],
+      subtotal,
+      tax_amount,
+      total_amount,
       notes = '',
       created_by = 'مدير النظام'
     } = body;
 
-    if (!company_id || !client_id || !amount) {
+    if (!company_id || (!client_id && !use_custom_client)) {
       return NextResponse.json({ 
         error: "يجب ملء جميع الحقول الإجبارية" 
       }, { status: 400 });
     }
 
-    const customers = await query<any>(
-      `SELECT customer_name FROM customers WHERE id = ?`,
-      [client_id]
-    );
-    const client = customers[0];
-
-    if (!client) {
-      return NextResponse.json({ error: "العميل غير موجود" }, { status: 404 });
+    let finalClientName = custom_client_name;
+    if (!use_custom_client && client_id) {
+      const customers = await query<any>(
+        `SELECT customer_name FROM customers WHERE id = ?`,
+        [client_id]
+      );
+      if (customers[0]) {
+        finalClientName = customers[0].customer_name;
+      }
     }
 
     let invoiceNumber = null;
@@ -81,27 +77,80 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    // Fetch company info for ZATCA QR
+    const companies = await query<any>(
+      `SELECT name, vat_number FROM companies WHERE id = ?`,
+      [company_id]
+    );
+    const company = companies[0];
+
+    let zatcaQr = null;
+    if (company && company.vat_number) {
+      const timestamp = new Date(receipt_date + 'T' + new Date().toLocaleTimeString('en-GB')).toISOString();
+      zatcaQr = generateZatcaQR(
+        company.name,
+        company.vat_number,
+        timestamp,
+        total_amount,
+        tax_amount
+      );
+    }
+
     const receiptNumber = 'RCPT' + Math.floor(10000 + Math.random() * 90000);
 
-      const result = await execute(
-        `INSERT INTO sales_receipts (
-          company_id, client_id, client_name, invoice_number, 
-          receipt_number, receipt_date, amount, notes, created_by, created_at
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())`,
-        [
-          company_id,
-          client_id,
-          client.customer_name,
-          invoiceNumber,
-          receiptNumber,
-          receipt_date,
-          amount,
-          notes,
-          created_by
-        ]
-      );
+    const result = await execute(
+      `INSERT INTO sales_receipts (
+        company_id, client_id, client_name, client_vat, client_commercial_number, 
+        client_address, use_custom_client, invoice_number, 
+        receipt_number, receipt_date, amount, subtotal, tax_amount, total_amount,
+        zatca_qr, notes, created_by, created_at
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())`,
+      [
+        company_id,
+        use_custom_client ? null : client_id,
+        finalClientName,
+        client_vat,
+        client_commercial_number,
+        client_address,
+        use_custom_client ? 1 : 0,
+        invoiceNumber,
+        receiptNumber,
+        receipt_date,
+        total_amount,
+        subtotal,
+        tax_amount,
+        total_amount,
+        zatcaQr,
+        notes,
+        created_by
+      ]
+    );
 
-    return NextResponse.json({ success: true, id: result.insertId, receipt_number: receiptNumber });
+    const receiptId = result.insertId;
+
+    // Insert items
+    if (items && items.length > 0) {
+      for (const item of items) {
+        await execute(
+          `INSERT INTO sales_receipt_items (
+            receipt_id, product_name, product_desc, quantity, unit_price, 
+            vat_rate, vat_amount, total_with_vat
+          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+          [
+            receiptId,
+            item.product_name,
+            item.product_desc || '',
+            item.quantity,
+            item.unit_price,
+            item.vat_rate || 15,
+            item.vat_amount,
+            item.total_with_vat
+          ]
+        );
+      }
+    }
+
+    return NextResponse.json({ success: true, id: receiptId, receipt_number: receiptNumber });
   } catch (error) {
     console.error("Error creating sales receipt:", error);
     return NextResponse.json({ error: "Failed to create sales receipt" }, { status: 500 });
