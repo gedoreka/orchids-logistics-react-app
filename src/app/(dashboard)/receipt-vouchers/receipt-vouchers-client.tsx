@@ -610,7 +610,7 @@ function ReceiptVouchersContent() {
           <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-[10px] font-black text-slate-500 uppercase tracking-widest pt-4 opacity-60">
             <div className="flex items-center gap-2">
               <Sparkles size={10} className="text-blue-500" />
-              <span>{tFinancial("systemTitle", { name: "ZoolSpeed Logistics" })} - {t("subtitle")}</span>
+              <span>{tFinancial("systemTitle", { name: "Logistics Systems Pro" })} - {t("subtitle")}</span>
             </div>
             <span>{tFinancial("allRightsReserved", { year: new Date().getFullYear() })}</span>
           </div>

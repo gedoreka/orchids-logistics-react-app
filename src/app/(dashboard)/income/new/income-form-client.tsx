@@ -604,7 +604,7 @@ export default function IncomeFormClient({ user }: { user: User }) {
       <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-[10px] font-black text-slate-500 uppercase tracking-widest pt-4 opacity-60">
         <div className="flex items-center gap-2">
           <Sparkles size={10} className="text-cyan-500" />
-          <span>نظام ZoolSpeed Logistics - إدارة الإيرادات المتنوعة</span>
+          <span>نظام Logistics Systems Pro - إدارة الإيرادات المتنوعة</span>
         </div>
         <span>جميع الحقوق محفوظة © {new Date().getFullYear()}</span>
       </div>

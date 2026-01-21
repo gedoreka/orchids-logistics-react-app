@@ -519,7 +519,7 @@ export function InvoicesListClient({ invoices }: InvoicesListClientProps) {
       <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-[10px] font-black text-slate-500 uppercase tracking-widest pt-4 opacity-60">
         <div className="flex items-center gap-2">
           <Sparkles size={10} className="text-emerald-500" />
-          <span>نظام ZoolSpeed Logistics - إدارة الفواتير الضريبية</span>
+          <span>نظام Logistics Systems Pro - إدارة الفواتير الضريبية</span>
         </div>
         <span>جميع الحقوق محفوظة © {new Date().getFullYear()}</span>
       </div>

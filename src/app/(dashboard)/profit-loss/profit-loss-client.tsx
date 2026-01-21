@@ -896,7 +896,7 @@ interface Payroll {
       <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-[10px] font-black text-slate-400 uppercase tracking-widest pt-6 print:hidden">
         <div className="flex items-center gap-2">
           <BarChart3 size={12} className="text-blue-500" />
-          <span>تقرير آلي من نظام ZoolSpeed Logistics</span>
+            <span>تقرير آلي من نظام Logistics Systems Pro</span>
         </div>
         <span>جميع الحقوق محفوظة © {new Date().getFullYear()}</span>
       </div>

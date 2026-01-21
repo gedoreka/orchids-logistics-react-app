@@ -396,7 +396,7 @@
     "targetLabel": "Target",
     "salaryLabel": "Salary",
     "commissionLabel": "Commission",
-    "systemManagement": "Packages Management System - ZoolSpeed Logistics",
+    "systemManagement": "Packages Management System - Logistics Systems Pro",
     "allRightsReserved": "All rights reserved",
     "createPackageAndEmployees": "Create Package & Employees",
     "defineWorkSystemAndTeam": "Define work system and enter team data",
@@ -486,7 +486,7 @@
       "tryDifferentSearch": "Try changing search or filter criteria",
       "totalEmployeesFooter": "Total Employees",
       "package": "Package",
-      "systemManagement": "Employee Management System - ZoolSpeed Logistics",
+      "systemManagement": "Employee Management System - Logistics Systems Pro",
       "allRightsReserved": "All rights reserved",
       "expiryValid": "Valid",
       "expiryExpired": "Expired",
@@ -1286,7 +1286,7 @@
           "thumbprint": "Thumbprint",
           "stampOrSignature": "Stamp or Signature",
           "fingerprint": "Fingerprint",
-          "footerSystemName": "ZoolSpeed Logistics System - Legal Notes Management",
+          "footerSystemName": "Logistics Systems Pro - Legal Notes Management",
           "allRightsReserved": "All rights reserved © {year}",
           "deleteConfirmation": "Are you sure you want to delete this note?"
         },
@@ -1407,7 +1407,7 @@
             "deleting": "Deleting..."
           },
         "footer": {
-          "system": "ZoolSpeed Logistics System - Quotations Management",
+          "system": "Logistics Systems Pro - Quotations Management",
           "rights": "All Rights Reserved © {year}"
         },
         "common": {

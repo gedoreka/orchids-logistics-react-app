@@ -404,7 +404,7 @@ export function CreditNotesListClient({ creditNotes: initialNotes }: CreditNotes
         <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-[10px] font-black text-gray-400 uppercase tracking-widest pt-4">
           <div className="flex items-center gap-2">
             <Sparkles size={12} className="text-rose-500" />
-            <span>نظام إشعارات الدائن - ZoolSpeed Logistics</span>
+            <span>نظام إشعارات الدائن - Logistics Systems Pro</span>
           </div>
           <span>جميع الحقوق محفوظة © {new Date().getFullYear()}</span>
         </div>

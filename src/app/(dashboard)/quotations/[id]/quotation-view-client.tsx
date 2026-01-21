@@ -389,7 +389,7 @@ export function QuotationViewClient({ quotation, company, companyId }: Quotation
               {/* System Logo */}
               <div className="flex flex-col items-center gap-2 p-4 rounded-2xl border border-[#ffffff1a] min-w-[140px]" style={{ backgroundColor: 'rgba(255,255,255,0.05)' }}>
                 <Truck size={32} className="text-blue-400" />
-                <h2 className="text-[12px] font-black text-white uppercase tracking-tighter">ZoolSpeed Logistics</h2>
+                <h2 className="text-[12px] font-black text-white uppercase tracking-tighter">Logistics Systems Pro</h2>
               </div>
             </div>
 

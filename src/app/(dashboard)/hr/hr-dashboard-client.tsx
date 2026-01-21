@@ -352,7 +352,7 @@ export function HRDashboardClient({ stats, activePackages, recentEmployees, comp
             <div className="flex flex-col md:flex-row justify-between items-center gap-6 text-[11px] font-black text-slate-400 uppercase tracking-widest pt-8 border-t border-white/10">
               <div className="flex items-center gap-3">
                 <Sparkles size={14} className="text-blue-400" />
-                <span>{isRTL ? 'نظام الموارد البشرية - ZoolSpeed Logistics' : 'HR System - ZoolSpeed Logistics'}</span>
+                <span>{isRTL ? 'نظام الموارد البشرية - Logistics Systems Pro' : 'HR System - Logistics Systems Pro'}</span>
               </div>
               <div className="flex items-center gap-4">
                 <span className="bg-white/5 px-3 py-1 rounded-lg">{isRTL ? 'جميع الحقوق محفوظة' : 'All Rights Reserved'} © {new Date().getFullYear()}</span>

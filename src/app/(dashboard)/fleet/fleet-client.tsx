@@ -2024,7 +2024,7 @@ export function FleetClient({
       <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-[10px] font-black text-slate-500 uppercase tracking-widest pt-4 opacity-40">
         <div className="flex items-center gap-2">
           <Sparkles size={10} className="text-blue-500" />
-          <span>نظام ZoolSpeed Logistics - منصة إدارة الأسطول والمخزون</span>
+          <span>نظام Logistics Systems Pro - منصة إدارة الأسطول والمخزون</span>
         </div>
         <span>جميع الحقوق محفوظة © {new Date().getFullYear()}</span>
       </div>

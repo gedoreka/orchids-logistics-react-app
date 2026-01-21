@@ -498,7 +498,7 @@ export function IqamaReportClient({
         <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-[10px] font-black text-gray-400 uppercase tracking-widest pt-4 print:pt-8 print:border-t print:border-gray-300">
           <div className="flex items-center gap-2">
             <Sparkles size={12} className="text-purple-500" />
-            <span>إصدار آلي من نظام ZoolSpeed Logistics</span>
+            <span>إصدار آلي من نظام Logistics Systems Pro</span>
           </div>
           <span>جميع الحقوق محفوظة © {new Date().getFullYear()}</span>
         </div>
