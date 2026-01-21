@@ -13,7 +13,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
-import { useTranslations } from "next-intl";
+import { useTranslations } from "@/lib/locale-context";
 
 interface Account {
   id: number;
@@ -86,6 +86,8 @@ const statusOptions = [
 
 function PaymentVouchersContent() {
   const t = useTranslations("financialVouchersPage.paymentVouchersPage");
+  const tFinancial = useTranslations("financialVouchersPage");
+  const tCommon = useTranslations("common");
   const [accounts, setAccounts] = useState<Account[]>([]);
   const [costCenters, setCostCenters] = useState<CostCenter[]>([]);
   const [vouchers, setVouchers] = useState<Voucher[]>([]);

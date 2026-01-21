@@ -12,7 +12,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
-import { useTranslations } from "next-intl";
+import { useTranslations } from "@/lib/locale-context";
 
 interface Account {
   id: number;
@@ -61,6 +61,9 @@ const paymentMethods = [
 
 function ReceiptVouchersContent() {
   const t = useTranslations("financialVouchersPage.receiptVouchersPage");
+  const tFinancial = useTranslations("financialVouchersPage");
+  const tSales = useTranslations("financialVouchersPage.salesReceiptsPage");
+  const tCommon = useTranslations("common");
   const [accounts, setAccounts] = useState<Account[]>([]);
   const [costCenters, setCostCenters] = useState<CostCenter[]>([]);
   const [vouchers, setVouchers] = useState<Voucher[]>([]);
@@ -486,131 +489,131 @@ function ReceiptVouchersContent() {
                   />
                   </div>
                   <div className="flex gap-3 w-full md:w-auto">
-                      <button className="flex-1 md:flex-none flex items-center justify-center gap-2 px-6 py-3 bg-blue-500/20 text-blue-300 font-bold rounded-2xl border border-blue-500/30 hover:bg-blue-500/30 transition-all">
-                          <FileSpreadsheet size={18} />
-                          {useTranslations("financialVouchersPage.salesReceiptsPage")("exportData")}
-                      </button>
-                  </div>
-              </div>
-  
-              <div className="bg-white/5 backdrop-blur-xl rounded-[2rem] border border-white/10 overflow-hidden shadow-2xl">
-                  <div className="p-6 border-b border-white/10 flex items-center justify-between bg-white/5">
-                      <div className="flex items-center gap-3">
-                          <div className="p-2 bg-emerald-500/20 rounded-xl">
-                              <Receipt className="w-5 h-5 text-emerald-400" />
-                          </div>
-                          <h3 className="font-black text-lg">{t("table.title")}</h3>
-                      </div>
-                      <span className="px-4 py-1.5 bg-white/10 rounded-full text-[10px] font-black uppercase tracking-widest text-slate-400">
-                          {t("table.countLabel", { count: filteredVouchers.length })}
-                      </span>
-                  </div>
-  
-                  <div className="overflow-x-auto">
-                      <table className="w-full text-right">
-                          <thead>
-                              <tr className="bg-white/5 border-b border-white/5">
-                                  <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">{t("table.no")}</th>
-                                  <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">{t("table.date")}</th>
-                                  <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">{t("table.from")}</th>
-                                  <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">{t("table.method")}</th>
-                                  <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">{t("table.total")}</th>
-                                  <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">{t("table.actions")}</th>
-                              </tr>
-                          </thead>
-                          <tbody className="divide-y divide-white/5">
-                              {filteredVouchers.length > 0 ? (
-                                  filteredVouchers.map((voucher, idx) => (
-                                      <motion.tr 
-                                          key={voucher.id}
-                                          initial={{ opacity: 0, x: -10 }}
-                                          animate={{ opacity: 1, x: 0 }}
-                                          transition={{ delay: 0.05 * idx }}
-                                          className="hover:bg-white/5 transition-colors group"
-                                      >
-                                          <td className="px-6 py-5">
-                                              <span className="px-3 py-1.5 bg-blue-500/10 text-blue-400 rounded-lg text-xs font-black border border-blue-500/20">
-                                                  {voucher.receipt_number}
-                                              </span>
-                                          </td>
-                                          <td className="px-6 py-5">
-                                              <div className="flex items-center gap-2 text-xs text-slate-400 font-bold">
-                                                  <Calendar size={14} className="text-slate-500" />
-                                                  {voucher.receipt_date}
-                                              </div>
-                                          </td>
-                                          <td className="px-6 py-5">
-                                              <div className="flex items-center gap-3">
-                                                  <div className="h-9 w-9 rounded-xl bg-white/5 flex items-center justify-center text-slate-400 group-hover:bg-blue-500/20 group-hover:text-blue-400 transition-all">
-                                                      <User size={16} />
-                                                  </div>
-                                                  <span className="font-bold text-sm text-slate-200 truncate max-w-[150px]">{voucher.received_from}</span>
-                                              </div>
-                                          </td>
-                                          <td className="px-6 py-5 text-center">
-                                              <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-purple-500/10 text-purple-400 text-[10px] font-black rounded-full border border-purple-500/20">
-                                                  {voucher.payment_method}
-                                              </span>
-                                          </td>
-                                          <td className="px-6 py-5">
-                                              <div className="flex items-baseline gap-1 text-emerald-400">
-                                                  <span className="text-lg font-black">{Number(voucher.total_amount).toLocaleString()}</span>
-                                                  <span className="text-[10px] font-bold text-emerald-400/50 uppercase">{useTranslations("financialVouchersPage")("currency")}</span>
-                                              </div>
-                                          </td>
-                                          <td className="px-6 py-5">
-                                              <div className="flex items-center justify-center gap-2">
-                                                  <button 
-                                                      onClick={() => handleEdit(voucher)}
-                                                      className="h-9 w-9 rounded-xl bg-amber-500/10 text-amber-400 flex items-center justify-center hover:bg-amber-500 hover:text-white transition-all shadow-lg active:scale-95"
-                                                      title={useTranslations("common")("edit")}
-                                                  >
-                                                      <Edit3 size={16} />
-                                                  </button>
-                                                  <button 
-                                                      onClick={() => handleDelete(voucher.id)}
-                                                      className="h-9 w-9 rounded-xl bg-rose-500/10 text-rose-400 flex items-center justify-center hover:bg-rose-500 hover:text-white transition-all shadow-lg active:scale-95"
-                                                      title={useTranslations("common")("delete")}
-                                                  >
-                                                      <Trash2 size={16} />
-                                                  </button>
-                                              </div>
-                                          </td>
-                                      </motion.tr>
-                                  ))
-                              ) : (
-                                  <tr>
-                                      <td colSpan={6} className="px-6 py-20 text-center">
-                                          <div className="flex flex-col items-center gap-4 opacity-40">
-                                              <Receipt size={64} className="text-slate-400" />
-                                              <div className="space-y-1">
-                                                  <p className="text-xl font-black text-slate-300">{t("noVouchers.title")}</p>
-                                                  <p className="text-sm font-medium text-slate-500">{t("noVouchers.desc")}</p>
-                                              </div>
-                                          </div>
-                                      </td>
-                                  </tr>
-                              )}
-                          </tbody>
-                      </table>
-                  </div>
+                        <button className="flex-1 md:flex-none flex items-center justify-center gap-2 px-6 py-3 bg-blue-500/20 text-blue-300 font-bold rounded-2xl border border-blue-500/30 hover:bg-blue-500/30 transition-all">
+                            <FileSpreadsheet size={18} />
+                            {tSales("exportData")}
+                        </button>
+                    </div>
+                </div>
+    
+                <div className="bg-white/5 backdrop-blur-xl rounded-[2rem] border border-white/10 overflow-hidden shadow-2xl">
+                    <div className="p-6 border-b border-white/10 flex items-center justify-between bg-white/5">
+                        <div className="flex items-center gap-3">
+                            <div className="p-2 bg-emerald-500/20 rounded-xl">
+                                <Receipt className="w-5 h-5 text-emerald-400" />
+                            </div>
+                            <h3 className="font-black text-lg">{t("table.title")}</h3>
+                        </div>
+                        <span className="px-4 py-1.5 bg-white/10 rounded-full text-[10px] font-black uppercase tracking-widest text-slate-400">
+                            {t("table.countLabel", { count: filteredVouchers.length })}
+                        </span>
+                    </div>
+    
+                    <div className="overflow-x-auto">
+                        <table className="w-full text-right">
+                            <thead>
+                                <tr className="bg-white/5 border-b border-white/5">
+                                    <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">{t("table.no")}</th>
+                                    <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">{t("table.date")}</th>
+                                    <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">{t("table.from")}</th>
+                                    <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">{t("table.method")}</th>
+                                    <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">{t("table.total")}</th>
+                                    <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">{t("table.actions")}</th>
+                                </tr>
+                            </thead>
+                            <tbody className="divide-y divide-white/5">
+                                {filteredVouchers.length > 0 ? (
+                                    filteredVouchers.map((voucher, idx) => (
+                                        <motion.tr 
+                                            key={voucher.id}
+                                            initial={{ opacity: 0, x: -10 }}
+                                            animate={{ opacity: 1, x: 0 }}
+                                            transition={{ delay: 0.05 * idx }}
+                                            className="hover:bg-white/5 transition-colors group"
+                                        >
+                                            <td className="px-6 py-5">
+                                                <span className="px-3 py-1.5 bg-blue-500/10 text-blue-400 rounded-lg text-xs font-black border border-blue-500/20">
+                                                    {voucher.receipt_number}
+                                                </span>
+                                            </td>
+                                            <td className="px-6 py-5">
+                                                <div className="flex items-center gap-2 text-xs text-slate-400 font-bold">
+                                                    <Calendar size={14} className="text-slate-500" />
+                                                    {voucher.receipt_date}
+                                                </div>
+                                            </td>
+                                            <td className="px-6 py-5">
+                                                <div className="flex items-center gap-3">
+                                                    <div className="h-9 w-9 rounded-xl bg-white/5 flex items-center justify-center text-slate-400 group-hover:bg-blue-500/20 group-hover:text-blue-400 transition-all">
+                                                        <User size={16} />
+                                                    </div>
+                                                    <span className="font-bold text-sm text-slate-200 truncate max-w-[150px]">{voucher.received_from}</span>
+                                                </div>
+                                            </td>
+                                            <td className="px-6 py-5 text-center">
+                                                <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-purple-500/10 text-purple-400 text-[10px] font-black rounded-full border border-purple-500/20">
+                                                    {voucher.payment_method}
+                                                </span>
+                                            </td>
+                                            <td className="px-6 py-5">
+                                                <div className="flex items-baseline gap-1 text-emerald-400">
+                                                    <span className="text-lg font-black">{Number(voucher.total_amount).toLocaleString()}</span>
+                                                    <span className="text-[10px] font-bold text-emerald-400/50 uppercase">{tFinancial("currency")}</span>
+                                                </div>
+                                            </td>
+                                            <td className="px-6 py-5">
+                                                <div className="flex items-center justify-center gap-2">
+                                                    <button 
+                                                        onClick={() => handleEdit(voucher)}
+                                                        className="h-9 w-9 rounded-xl bg-amber-500/10 text-amber-400 flex items-center justify-center hover:bg-amber-500 hover:text-white transition-all shadow-lg active:scale-95"
+                                                        title={tCommon("edit")}
+                                                    >
+                                                        <Edit3 size={16} />
+                                                    </button>
+                                                    <button 
+                                                        onClick={() => handleDelete(voucher.id)}
+                                                        className="h-9 w-9 rounded-xl bg-rose-500/10 text-rose-400 flex items-center justify-center hover:bg-rose-500 hover:text-white transition-all shadow-lg active:scale-95"
+                                                        title={tCommon("delete")}
+                                                    >
+                                                        <Trash2 size={16} />
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </motion.tr>
+                                    ))
+                                ) : (
+                                    <tr>
+                                        <td colSpan={6} className="px-6 py-20 text-center">
+                                            <div className="flex flex-col items-center gap-4 opacity-40">
+                                                <Receipt size={64} className="text-slate-400" />
+                                                <div className="space-y-1">
+                                                    <p className="text-xl font-black text-slate-300">{t("noVouchers.title")}</p>
+                                                    <p className="text-sm font-medium text-slate-500">{t("noVouchers.desc")}</p>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                )}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
               </div>
             </div>
+    
+            {/* Decorative elements */}
+            <div className="absolute -bottom-24 -right-24 w-96 h-96 bg-blue-500/10 rounded-full blur-[100px] pointer-events-none" />
+            <div className="absolute -top-24 -left-24 w-96 h-96 bg-emerald-500/10 rounded-full blur-[100px] pointer-events-none" />
+          </motion.div>
+    
+          {/* Footer */}
+          <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-[10px] font-black text-slate-500 uppercase tracking-widest pt-4 opacity-60">
+            <div className="flex items-center gap-2">
+              <Sparkles size={10} className="text-blue-500" />
+              <span>{tFinancial("systemTitle", { name: "ZoolSpeed Logistics" })} - {t("subtitle")}</span>
+            </div>
+            <span>{tFinancial("allRightsReserved", { year: new Date().getFullYear() })}</span>
           </div>
-  
-          {/* Decorative elements */}
-          <div className="absolute -bottom-24 -right-24 w-96 h-96 bg-blue-500/10 rounded-full blur-[100px] pointer-events-none" />
-          <div className="absolute -top-24 -left-24 w-96 h-96 bg-emerald-500/10 rounded-full blur-[100px] pointer-events-none" />
-        </motion.div>
-  
-        {/* Footer */}
-        <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-[10px] font-black text-slate-500 uppercase tracking-widest pt-4 opacity-60">
-          <div className="flex items-center gap-2">
-            <Sparkles size={10} className="text-blue-500" />
-            <span>{useTranslations("financialVouchersPage")("systemTitle", { name: "ZoolSpeed Logistics" })} - {t("subtitle")}</span>
-          </div>
-          <span>{useTranslations("financialVouchersPage")("allRightsReserved", { year: new Date().getFullYear() })}</span>
-        </div>
   
         <AnimatePresence>
             {showSuccess && (
