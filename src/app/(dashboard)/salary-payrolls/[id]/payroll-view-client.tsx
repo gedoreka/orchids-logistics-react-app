@@ -7,6 +7,7 @@ import {
   Calendar,
   Users,
   ArrowRight,
+  ArrowLeft,
   Trash2,
   Printer,
   Edit,
@@ -21,6 +22,8 @@ import {
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { format } from "date-fns";
+import { cn } from "@/lib/utils";
+import { useTranslations, useLocale } from "@/lib/locale-context";
 
 interface PayrollItem {
   id: number;
@@ -77,7 +80,13 @@ interface PayrollViewClientProps {
   companyId: number;
 }
 
-export function PayrollViewClient({ payroll, company, companyId }: PayrollViewClientProps) {
+export function PayrollViewClient({ payroll, company }: PayrollViewClientProps) {
+  const t = useTranslations("financialVouchersPage.salaryPayrollsPage");
+  const tCommon = useTranslations("common");
+  const { locale } = useLocale();
+  const isRtl = locale === "ar";
+  const BackArrow = isRtl ? ArrowRight : ArrowLeft;
+
   const router = useRouter();
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [notification, setNotification] = useState<NotificationState>({
@@ -99,25 +108,25 @@ export function PayrollViewClient({ payroll, company, companyId }: PayrollViewCl
   };
 
   const handleDelete = async () => {
-    if (!confirm(`هل أنت متأكد من حذف مسير "${payroll.payroll_month}"؟`)) return;
+    if (!confirm(t("viewPayroll.notifications.deleteConfirm", { month: payroll.payroll_month }))) return;
     
     setDeleteLoading(true);
-    showNotification("loading", "جاري الحذف", "جاري حذف المسير...");
+    showNotification("loading", t("viewPayroll.notifications.deleting"), t("viewPayroll.notifications.deletingMsg"));
     
     try {
       const res = await fetch(`/api/payrolls/${payroll.id}`, { method: "DELETE" });
       
       if (res.ok) {
-        showNotification("success", "تم الحذف بنجاح", "تم حذف المسير بنجاح");
+        showNotification("success", t("viewPayroll.notifications.deleteSuccess"), t("viewPayroll.notifications.deleteSuccessMsg"));
         setTimeout(() => {
           router.push("/salary-payrolls");
           router.refresh();
         }, 1500);
       } else {
-        showNotification("error", "فشل الحذف", "فشل حذف المسير");
+        showNotification("error", t("viewPayroll.notifications.deleteFailed"), t("viewPayroll.notifications.deleteFailedMsg"));
       }
     } catch {
-      showNotification("error", "خطأ", "حدث خطأ أثناء الحذف");
+      showNotification("error", t("viewPayroll.notifications.error"), t("viewPayroll.notifications.errorMsg"));
     } finally {
       setDeleteLoading(false);
     }
@@ -129,10 +138,10 @@ export function PayrollViewClient({ payroll, company, companyId }: PayrollViewCl
 
   const getWorkTypeLabel = (type: string) => {
     switch (type) {
-      case 'salary': return 'الراتب الثابت';
-      case 'target': return 'نظام التارقت';
-      case 'tiers': return 'نظام الشرائح';
-      case 'commission': return 'نظام العمولة';
+      case 'salary': return t("workTypes.salary");
+      case 'target': return t("workTypes.target");
+      case 'tiers': return t("workTypes.tiers");
+      case 'commission': return t("workTypes.commission");
       default: return type;
     }
   };
@@ -142,8 +151,17 @@ export function PayrollViewClient({ payroll, company, companyId }: PayrollViewCl
     return 13;
   };
 
+  const getPaymentMethodLabel = (method: string) => {
+    switch (method?.toLowerCase()) {
+      case 'mudad': return t("viewPayroll.paymentMethods.mudad") || "Mudad";
+      case 'cash': return t("viewPayroll.paymentMethods.cash") || "Cash";
+      case 'transfer': return t("viewPayroll.paymentMethods.transfer") || "Bank Transfer";
+      default: return method || t("table.notSpecified");
+    }
+  };
+
   return (
-    <div className="h-full flex flex-col">
+    <div className="h-full flex flex-col" dir={isRtl ? "rtl" : "ltr"}>
       <AnimatePresence>
         {notification.show && (
           <>
@@ -182,7 +200,7 @@ export function PayrollViewClient({ payroll, company, companyId }: PayrollViewCl
                         notification.type === "success" ? "bg-emerald-500 hover:bg-emerald-600" : "bg-red-500 hover:bg-red-600"
                       }`}
                     >
-                      حسناً
+                      {t("viewPayroll.notifications.ok")}
                     </button>
                   )}
                 </div>
@@ -192,7 +210,7 @@ export function PayrollViewClient({ payroll, company, companyId }: PayrollViewCl
         )}
       </AnimatePresence>
 
-        <div className="flex-1 overflow-auto p-4 md:p-8 print:p-0" dir="rtl">
+        <div className="flex-1 overflow-auto p-4 md:p-8 print:p-0">
           <div className="max-w-[1600px] mx-auto">
             <motion.div 
               initial={{ opacity: 0, y: -20 }}
@@ -208,21 +226,21 @@ export function PayrollViewClient({ payroll, company, companyId }: PayrollViewCl
                       <FileText size={28} className="text-amber-400" />
                     </div>
                     <div>
-                      <h1 className="text-2xl md:text-3xl font-black tracking-tight bg-gradient-to-r from-white via-blue-100 to-white bg-clip-text text-transparent">تفاصيل مسير الرواتب</h1>
+                      <h1 className="text-2xl md:text-3xl font-black tracking-tight bg-gradient-to-r from-white via-blue-100 to-white bg-clip-text text-transparent">{t("viewPayroll.title")}</h1>
                       <p className="text-slate-400 font-medium text-sm">{payroll.payroll_month} - {getWorkTypeLabel(workType)}</p>
                     </div>
                   </div>
                     <div className="flex flex-wrap gap-2 print:hidden">
                       <Link href="/salary-payrolls">
                         <button className="h-8 px-3 rounded-xl bg-white/10 text-white font-black text-xs hover:bg-white/20 transition-all border border-white/20 flex items-center gap-2">
-                          <ArrowRight size={14} />
-                          <span>العودة للقائمة</span>
+                          <BackArrow size={14} />
+                          <span>{t("backToList")}</span>
                         </button>
                       </Link>
                       <Link href={`/salary-payrolls/${payroll.id}/edit`}>
                         <button className="h-8 px-3 rounded-xl bg-amber-500/20 text-amber-400 font-black text-xs hover:bg-amber-500 hover:text-white transition-all border border-amber-500/30 flex items-center gap-2">
                           <Edit size={14} />
-                          <span>تعديل المسير</span>
+                          <span>{t("viewPayroll.editPayroll")}</span>
                         </button>
                       </Link>
                       <button 
@@ -230,7 +248,7 @@ export function PayrollViewClient({ payroll, company, companyId }: PayrollViewCl
                         className="h-8 px-3 rounded-xl bg-blue-500/20 text-blue-400 font-black text-xs hover:bg-blue-500 hover:text-white transition-all border border-blue-500/30 flex items-center gap-2"
                       >
                         <Printer size={14} />
-                        <span>طباعة المسير</span>
+                        <span>{t("viewPayroll.printPayroll")}</span>
                       </button>
                       <button 
                         onClick={handleDelete}
@@ -238,13 +256,13 @@ export function PayrollViewClient({ payroll, company, companyId }: PayrollViewCl
                         className="h-8 px-3 rounded-xl bg-red-500/20 text-red-400 font-black text-xs hover:bg-red-500 hover:text-white transition-all border border-red-500/30 disabled:opacity-50 flex items-center gap-2"
                       >
                         {deleteLoading ? <Loader2 size={14} className="animate-spin" /> : <Trash2 size={14} />}
-                        <span>حذف المسير</span>
+                        <span>{t("viewPayroll.deletePayroll")}</span>
                       </button>
                     </div>
                 </div>
 
                 <div className="hidden print:block text-center mb-6">
-                  <h1 className="text-2xl font-black text-gray-900">مسير رواتب {payroll.payroll_month}</h1>
+                  <h1 className="text-2xl font-black text-gray-900">{t("viewPayroll.printTitle", { month: payroll.payroll_month })}</h1>
                   <p className="text-gray-500">{company.name}</p>
                 </div>
 
@@ -255,7 +273,7 @@ export function PayrollViewClient({ payroll, company, companyId }: PayrollViewCl
                         <Calendar size={18} />
                       </div>
                       <div>
-                        <p className="text-xs text-slate-400 print:text-gray-500">شهر المسير</p>
+                        <p className="text-xs text-slate-400 print:text-gray-500">{t("viewPayroll.payrollMonth")}</p>
                         <p className="font-bold text-white print:text-gray-900">{payroll.payroll_month}</p>
                       </div>
                     </div>
@@ -266,8 +284,8 @@ export function PayrollViewClient({ payroll, company, companyId }: PayrollViewCl
                         <Layers size={18} />
                       </div>
                       <div>
-                        <p className="text-xs text-slate-400 print:text-gray-500">الباقة</p>
-                        <p className="font-bold text-white print:text-gray-900">{payroll.package_name || 'غير محدد'}</p>
+                        <p className="text-xs text-slate-400 print:text-gray-500">{t("viewPayroll.package")}</p>
+                        <p className="font-bold text-white print:text-gray-900">{payroll.package_name || t("table.notSpecified")}</p>
                       </div>
                     </div>
                   </div>
@@ -277,7 +295,7 @@ export function PayrollViewClient({ payroll, company, companyId }: PayrollViewCl
                         <Users size={18} />
                       </div>
                       <div>
-                        <p className="text-xs text-slate-400 print:text-gray-500">عدد الموظفين</p>
+                        <p className="text-xs text-slate-400 print:text-gray-500">{t("viewPayroll.employeesCount")}</p>
                         <p className="font-bold text-white print:text-gray-900">{payroll.items?.length || 0}</p>
                       </div>
                     </div>
@@ -290,8 +308,8 @@ export function PayrollViewClient({ payroll, company, companyId }: PayrollViewCl
                         {payroll.is_draft ? <Clock size={18} /> : <CheckCircle size={18} />}
                       </div>
                       <div>
-                        <p className="text-xs text-slate-400 print:text-gray-500">الحالة</p>
-                        <p className="font-bold text-white print:text-gray-900">{payroll.is_draft ? 'مسودة' : 'تم التأكيد'}</p>
+                        <p className="text-xs text-slate-400 print:text-gray-500">{t("viewPayroll.status")}</p>
+                        <p className="font-bold text-white print:text-gray-900">{payroll.is_draft ? t("statuses.draft") : t("statuses.confirmed")}</p>
                       </div>
                     </div>
                   </div>
@@ -301,23 +319,23 @@ export function PayrollViewClient({ payroll, company, companyId }: PayrollViewCl
                   <div className="bg-white/5 backdrop-blur-md rounded-2xl p-5 border border-white/10 print:bg-gray-50 print:border-gray-200">
                     <div className="flex items-center gap-3 mb-4">
                       <Building2 size={18} className="text-slate-400 print:text-gray-500" />
-                      <h3 className="font-bold text-white print:text-gray-900">بيانات المنشأة</h3>
+                      <h3 className="font-bold text-white print:text-gray-900">{t("viewPayroll.facilityInfo")}</h3>
                     </div>
                     <div className="space-y-3">
-                      <p className="text-sm"><span className="text-slate-400 print:text-gray-500">الاسم:</span> <span className="font-bold text-white print:text-gray-900">{company.name}</span></p>
-                      <p className="text-sm"><span className="text-slate-400 print:text-gray-500">الرقم الضريبي:</span> <span className="font-bold text-white print:text-gray-900">{company.vat_number}</span></p>
-                      <p className="text-sm"><span className="text-slate-400 print:text-gray-500">العنوان:</span> <span className="font-bold text-white print:text-gray-900">{company.short_address}</span></p>
+                      <p className="text-sm"><span className="text-slate-400 print:text-gray-500">{t("viewPayroll.name")}</span> <span className="font-bold text-white print:text-gray-900">{company.name}</span></p>
+                      <p className="text-sm"><span className="text-slate-400 print:text-gray-500">{t("viewPayroll.vatNumber")}</span> <span className="font-bold text-white print:text-gray-900">{company.vat_number}</span></p>
+                      <p className="text-sm"><span className="text-slate-400 print:text-gray-500">{t("viewPayroll.address")}</span> <span className="font-bold text-white print:text-gray-900">{company.short_address}</span></p>
                     </div>
                   </div>
                   <div className="bg-white/5 backdrop-blur-md rounded-2xl p-5 border border-white/10 print:bg-gray-50 print:border-gray-200">
                     <div className="flex items-center gap-3 mb-4">
                       <User size={18} className="text-slate-400 print:text-gray-500" />
-                      <h3 className="font-bold text-white print:text-gray-900">معلومات المسير</h3>
+                      <h3 className="font-bold text-white print:text-gray-900">{t("viewPayroll.payrollInfo")}</h3>
                     </div>
                     <div className="space-y-3">
-                      <p className="text-sm"><span className="text-slate-400 print:text-gray-500">أنشئ بواسطة:</span> <span className="font-bold text-white print:text-gray-900">{payroll.saved_by || 'مدير النظام'}</span></p>
-                      <p className="text-sm"><span className="text-slate-400 print:text-gray-500">تاريخ الإنشاء:</span> <span className="font-bold text-white print:text-gray-900">{payroll.created_at ? format(new Date(payroll.created_at), 'yyyy/MM/dd HH:mm') : '-'}</span></p>
-                      <p className="text-sm"><span className="text-slate-400 print:text-gray-500">نظام العمل:</span> <span className="font-bold text-white print:text-gray-900">{getWorkTypeLabel(payroll.work_type)}</span></p>
+                      <p className="text-sm"><span className="text-slate-400 print:text-gray-500">{t("viewPayroll.createdBy")}</span> <span className="font-bold text-white print:text-gray-900">{payroll.saved_by || t("viewPayroll.systemAdmin")}</span></p>
+                      <p className="text-sm"><span className="text-slate-400 print:text-gray-500">{t("viewPayroll.createdAt")}</span> <span className="font-bold text-white print:text-gray-900">{payroll.created_at ? format(new Date(payroll.created_at), 'yyyy/MM/dd HH:mm') : '-'}</span></p>
+                      <p className="text-sm"><span className="text-slate-400 print:text-gray-500">{t("viewPayroll.workSystem")}</span> <span className="font-bold text-white print:text-gray-900">{getWorkTypeLabel(payroll.work_type)}</span></p>
                     </div>
                   </div>
                 </div>
@@ -328,44 +346,44 @@ export function PayrollViewClient({ payroll, company, companyId }: PayrollViewCl
                       <div className="p-2 bg-blue-500/20 rounded-lg print:bg-blue-100">
                         <FileText size={16} className="text-blue-400 print:text-blue-600" />
                       </div>
-                      <h3 className="font-black text-white text-sm print:text-gray-900">تفاصيل الرواتب</h3>
+                      <h3 className="font-black text-white text-sm print:text-gray-900">{t("viewPayroll.salaryDetails")}</h3>
                     </div>
                     <span className="bg-blue-500/20 text-blue-300 px-3 py-1 rounded-lg text-[10px] font-black border border-blue-500/30 print:bg-blue-100 print:text-blue-700 print:border-blue-200">
-                      {payroll.items?.length || 0} موظف
+                      {payroll.items?.length || 0} {t("table.employee")}
                     </span>
                   </div>
 
                   <div className="overflow-x-auto">
-                    <table className="w-full text-sm">
+                    <table className={cn("w-full text-sm", isRtl ? "text-right" : "text-left")}>
                       <thead className="bg-white/5 print:bg-gray-50">
                         <tr className="border-b border-white/10 print:border-gray-200">
-                          <th className="text-right px-3 py-3 text-xs font-bold text-slate-400 print:text-gray-600">#</th>
-                          <th className="text-right px-3 py-3 text-xs font-bold text-slate-400 print:text-gray-600">الاسم</th>
-                          <th className="text-right px-3 py-3 text-xs font-bold text-slate-400 print:text-gray-600">الإقامة</th>
+                          <th className="px-3 py-3 text-xs font-bold text-slate-400 print:text-gray-600">{t("viewPayroll.columns.no")}</th>
+                          <th className="px-3 py-3 text-xs font-bold text-slate-400 print:text-gray-600">{t("viewPayroll.columns.name")}</th>
+                          <th className="px-3 py-3 text-xs font-bold text-slate-400 print:text-gray-600">{t("viewPayroll.columns.iqama")}</th>
                           {!isSalaryType && (
-                            <th className="text-right px-3 py-3 text-xs font-bold text-slate-400 print:text-gray-600">الكود</th>
+                            <th className="px-3 py-3 text-xs font-bold text-slate-400 print:text-gray-600">{t("viewPayroll.columns.code")}</th>
                           )}
-                          <th className="text-right px-3 py-3 text-xs font-bold text-slate-400 print:text-gray-600">الراتب</th>
+                          <th className="px-3 py-3 text-xs font-bold text-slate-400 print:text-gray-600">{t("viewPayroll.columns.salary")}</th>
                           {isSalaryType ? (
                             <>
-                              <th className="text-right px-3 py-3 text-xs font-bold text-slate-400 print:text-gray-600">السكن</th>
-                              <th className="text-right px-3 py-3 text-xs font-bold text-slate-400 print:text-gray-600">خصم داخلي</th>
-                              <th className="text-right px-3 py-3 text-xs font-bold text-slate-400 print:text-gray-600">مكافأة</th>
+                              <th className="px-3 py-3 text-xs font-bold text-slate-400 print:text-gray-600">{t("viewPayroll.columns.housing")}</th>
+                              <th className="px-3 py-3 text-xs font-bold text-slate-400 print:text-gray-600">{t("viewPayroll.columns.internalDeduction")}</th>
+                              <th className="px-3 py-3 text-xs font-bold text-slate-400 print:text-gray-600">{t("viewPayroll.columns.reward")}</th>
                             </>
                           ) : (
                             <>
-                              <th className="text-right px-3 py-3 text-xs font-bold text-slate-400 print:text-gray-600">التارقت</th>
-                              <th className="text-right px-3 py-3 text-xs font-bold text-slate-400 print:text-gray-600">الطلبات</th>
-                              <th className="text-right px-3 py-3 text-xs font-bold text-slate-400 print:text-gray-600">خصم تارقت</th>
-                              <th className="text-right px-3 py-3 text-xs font-bold text-slate-400 print:text-gray-600">بونص</th>
-                              <th className="text-right px-3 py-3 text-xs font-bold text-slate-400 print:text-gray-600">خ.مشغل</th>
-                              <th className="text-right px-3 py-3 text-xs font-bold text-slate-400 print:text-gray-600">خ.داخلي</th>
-                              <th className="text-right px-3 py-3 text-xs font-bold text-slate-400 print:text-gray-600">خ.محفظة</th>
-                              <th className="text-right px-3 py-3 text-xs font-bold text-slate-400 print:text-gray-600">مكافأة</th>
+                              <th className="px-3 py-3 text-xs font-bold text-slate-400 print:text-gray-600">{t("viewPayroll.columns.target")}</th>
+                              <th className="px-3 py-3 text-xs font-bold text-slate-400 print:text-gray-600">{t("viewPayroll.columns.orders")}</th>
+                              <th className="px-3 py-3 text-xs font-bold text-slate-400 print:text-gray-600">{t("viewPayroll.columns.targetDeduction")}</th>
+                              <th className="px-3 py-3 text-xs font-bold text-slate-400 print:text-gray-600">{t("viewPayroll.columns.bonus")}</th>
+                              <th className="px-3 py-3 text-xs font-bold text-slate-400 print:text-gray-600">{t("viewPayroll.columns.operatorDeduction")}</th>
+                              <th className="px-3 py-3 text-xs font-bold text-slate-400 print:text-gray-600">{t("viewPayroll.columns.internal")}</th>
+                              <th className="px-3 py-3 text-xs font-bold text-slate-400 print:text-gray-600">{t("viewPayroll.columns.wallet")}</th>
+                              <th className="px-3 py-3 text-xs font-bold text-slate-400 print:text-gray-600">{t("viewPayroll.columns.reward")}</th>
                             </>
                           )}
-                          <th className="text-right px-3 py-3 text-xs font-bold text-slate-400 print:text-gray-600">صافي</th>
-                          <th className="text-right px-3 py-3 text-xs font-bold text-slate-400 print:text-gray-600">الدفع</th>
+                          <th className="px-3 py-3 text-xs font-bold text-slate-400 print:text-gray-600">{t("viewPayroll.columns.netSalary")}</th>
+                          <th className="px-3 py-3 text-xs font-bold text-slate-400 print:text-gray-600">{t("viewPayroll.columns.paymentMethod")}</th>
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-white/5 print:divide-gray-100">
@@ -377,34 +395,34 @@ export function PayrollViewClient({ payroll, company, companyId }: PayrollViewCl
                             {!isSalaryType && (
                               <td className="px-3 py-3 text-slate-300 print:text-gray-600">{item.user_code}</td>
                             )}
-                            <td className="px-3 py-3 font-bold text-white print:text-gray-900">{Number(item.basic_salary || 0).toLocaleString('en-US')}</td>
+                            <td className="px-3 py-3 font-bold text-white print:text-gray-900">{Number(item.basic_salary || 0).toLocaleString(locale)}</td>
                             {isSalaryType ? (
                               <>
-                                <td className="px-3 py-3 text-slate-300 print:text-gray-600">{Number(item.housing_allowance || 0).toLocaleString('en-US')}</td>
-                                <td className="px-3 py-3 text-red-400 print:text-red-600">{Number(item.internal_deduction || 0).toLocaleString('en-US')}</td>
-                                <td className="px-3 py-3 text-emerald-400 print:text-emerald-600">{Number(item.internal_bonus || 0).toLocaleString('en-US')}</td>
+                                <td className="px-3 py-3 text-slate-300 print:text-gray-600">{Number(item.housing_allowance || 0).toLocaleString(locale)}</td>
+                                <td className="px-3 py-3 text-red-400 print:text-red-600">{Number(item.internal_deduction || 0).toLocaleString(locale)}</td>
+                                <td className="px-3 py-3 text-emerald-400 print:text-emerald-600">{Number(item.internal_bonus || 0).toLocaleString(locale)}</td>
                               </>
                             ) : (
                               <>
                                 <td className="px-3 py-3 text-slate-300 print:text-gray-600">{item.target || 0}</td>
                                 <td className="px-3 py-3 font-bold text-blue-400 print:text-blue-600">{item.successful_orders || 0}</td>
-                                <td className="px-3 py-3 text-red-400 print:text-red-600">{Number(item.target_deduction || 0).toLocaleString('en-US')}</td>
-                                <td className="px-3 py-3 text-emerald-400 print:text-emerald-600">{Number(item.monthly_bonus || 0).toLocaleString('en-US')}</td>
-                                <td className="px-3 py-3 text-red-400 print:text-red-600">{Number(item.operator_deduction || 0).toLocaleString('en-US')}</td>
-                                <td className="px-3 py-3 text-red-400 print:text-red-600">{Number(item.internal_deduction || 0).toLocaleString('en-US')}</td>
-                                <td className="px-3 py-3 text-red-400 print:text-red-600">{Number(item.wallet_deduction || 0).toLocaleString('en-US')}</td>
-                                <td className="px-3 py-3 text-emerald-400 print:text-emerald-600">{Number(item.internal_bonus || 0).toLocaleString('en-US')}</td>
+                                <td className="px-3 py-3 text-red-400 print:text-red-600">{Number(item.target_deduction || 0).toLocaleString(locale)}</td>
+                                <td className="px-3 py-3 text-emerald-400 print:text-emerald-600">{Number(item.monthly_bonus || 0).toLocaleString(locale)}</td>
+                                <td className="px-3 py-3 text-red-400 print:text-red-600">{Number(item.operator_deduction || 0).toLocaleString(locale)}</td>
+                                <td className="px-3 py-3 text-red-400 print:text-red-600">{Number(item.internal_deduction || 0).toLocaleString(locale)}</td>
+                                <td className="px-3 py-3 text-red-400 print:text-red-600">{Number(item.wallet_deduction || 0).toLocaleString(locale)}</td>
+                                <td className="px-3 py-3 text-emerald-400 print:text-emerald-600">{Number(item.internal_bonus || 0).toLocaleString(locale)}</td>
                               </>
                             )}
                             <td className={`px-3 py-3 font-bold ${Number(item.net_salary) < 0 ? 'text-red-400 print:text-red-600' : 'text-emerald-400 print:text-emerald-600'}`}>
-                              {Number(item.net_salary || 0).toLocaleString('en-US')}
+                              {Number(item.net_salary || 0).toLocaleString(locale)}
                             </td>
-                            <td className="px-3 py-3 text-slate-300 print:text-gray-600">{item.payment_method}</td>
+                            <td className="px-3 py-3 text-slate-300 print:text-gray-600">{getPaymentMethodLabel(item.payment_method)}</td>
                           </tr>
                         ))}
                         <tr className="bg-emerald-500/10 font-bold print:bg-emerald-50">
-                          <td colSpan={getColSpan()} className="px-3 py-4 text-left text-emerald-400 print:text-emerald-700">الإجمالي:</td>
-                          <td className="px-3 py-4 text-emerald-400 print:text-emerald-700">{Number(payroll.total_net || 0).toLocaleString('en-US')} ريال</td>
+                          <td colSpan={getColSpan()} className={cn("px-3 py-4 text-emerald-400 print:text-emerald-700", isRtl ? "text-left" : "text-right")}>{t("viewPayroll.total")}</td>
+                          <td className="px-3 py-4 text-emerald-400 print:text-emerald-700">{Number(payroll.total_net || 0).toLocaleString(locale)} {t("stats.sar")}</td>
                           <td></td>
                         </tr>
                       </tbody>
@@ -415,14 +433,14 @@ export function PayrollViewClient({ payroll, company, companyId }: PayrollViewCl
                   <div className="flex justify-center gap-3 print:hidden">
                     <Link href="/salary-payrolls">
                       <button className="h-9 px-4 rounded-xl bg-white/10 text-white font-black text-xs hover:bg-white/20 transition-all border border-white/20 flex items-center gap-2">
-                        <ArrowRight size={14} />
-                        <span>العودة للقائمة</span>
+                        <BackArrow size={14} />
+                        <span>{t("backToList")}</span>
                       </button>
                     </Link>
                     <Link href={`/salary-payrolls/${payroll.id}/edit`}>
                       <button className="h-9 px-4 rounded-xl bg-amber-500/20 text-amber-400 font-black text-xs hover:bg-amber-500 hover:text-white transition-all border border-amber-500/30 flex items-center gap-2">
                         <Edit size={14} />
-                        <span>تعديل المسير</span>
+                        <span>{t("viewPayroll.editPayroll")}</span>
                       </button>
                     </Link>
                     <button 
@@ -430,7 +448,7 @@ export function PayrollViewClient({ payroll, company, companyId }: PayrollViewCl
                       className="h-9 px-4 rounded-xl bg-blue-500/20 text-blue-400 font-black text-xs hover:bg-blue-500 hover:text-white transition-all border border-blue-500/30 flex items-center gap-2"
                     >
                       <Printer size={14} />
-                      <span>طباعة المسير</span>
+                      <span>{t("viewPayroll.printPayroll")}</span>
                     </button>
                   </div>
               </div>
