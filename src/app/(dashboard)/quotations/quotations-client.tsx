@@ -115,8 +115,10 @@ export function QuotationsClient({
   
   const vatRate = 15;
   const t = useTranslations("financialVouchersPage.quotationsPage");
+  const tCommon = useTranslations("common");
   const { locale } = useLocale();
   const isRtl = locale === "ar";
+  const currency = tCommon("sar");
   
   const calculateItemTotals = (quantity: number, price: number) => {
     const unitPrice = quantity > 0 ? price / quantity : 0;
@@ -756,19 +758,19 @@ export function QuotationsClient({
                                               <div className="col-span-2 text-center">
                                                   <div className="bg-blue-500/10 rounded-lg py-2 px-3 border border-blue-500/20">
                                                       <span className="text-blue-400 font-bold text-sm">{item.unit_price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
-                                                      <span className={cn("text-blue-400/50 text-[10px]", isRtl ? "mr-1" : "ml-1")}>{t("common.sar")}</span>
+                                                      <span className={cn("text-blue-400/50 text-[10px]", isRtl ? "mr-1" : "ml-1")}>{currency}</span>
                                                   </div>
                                               </div>
                                               <div className="col-span-2 text-center">
                                                   <div className="bg-amber-500/10 rounded-lg py-2 px-3 border border-amber-500/20">
                                                       <span className="text-amber-400 font-bold text-sm">{item.vat_amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
-                                                      <span className={cn("text-amber-400/50 text-[10px]", isRtl ? "mr-1" : "ml-1")}>{t("common.sar")}</span>
+                                                      <span className={cn("text-amber-400/50 text-[10px]", isRtl ? "mr-1" : "ml-1")}>{currency}</span>
                                                   </div>
                                               </div>
                                               <div className="col-span-2 text-center">
                                                   <div className="bg-emerald-500/10 rounded-lg py-2 px-3 border border-emerald-500/20">
                                                       <span className="text-emerald-400 font-black text-sm">{item.price_with_vat.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
-                                                      <span className={cn("text-emerald-400/50 text-[10px]", isRtl ? "mr-1" : "ml-1")}>{t("common.sar")}</span>
+                                                      <span className={cn("text-emerald-400/50 text-[10px]", isRtl ? "mr-1" : "ml-1")}>{currency}</span>
                                                   </div>
                                               </div>
                                               <div className="col-span-1 flex justify-center">
@@ -791,16 +793,16 @@ export function QuotationsClient({
                               <div className="grid grid-cols-2 gap-8 w-full md:w-auto">
                                   <div>
                                       <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">{t("form.subtotal")}</p>
-                                      <p className="text-xl font-black text-white">{subtotal.toLocaleString()} <span className="text-xs text-slate-500">{t("common.sar")}</span></p>
+                                      <p className="text-xl font-black text-white">{subtotal.toLocaleString()} <span className="text-xs text-slate-500">{currency}</span></p>
                                   </div>
                                   <div>
                                       <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">{t("form.totalTax", { rate: vatRate })}</p>
-                                      <p className="text-xl font-black text-amber-400">{vatAmount.toLocaleString()} <span className="text-xs text-amber-400/50">{t("common.sar")}</span></p>
+                                      <p className="text-xl font-black text-amber-400">{vatAmount.toLocaleString()} <span className="text-xs text-amber-400/50">{currency}</span></p>
                                   </div>
                               </div>
                               <div className={cn("text-center bg-emerald-500/10 px-8 py-4 rounded-3xl border border-emerald-500/20", isRtl ? "md:text-left" : "md:text-right")}>
                                   <p className="text-[10px] font-black text-emerald-400 uppercase tracking-widest mb-1">{t("form.grandTotal")}</p>
-                                  <p className="text-4xl font-black text-emerald-400">{total.toLocaleString()} <span className="text-sm">{t("common.sar")}</span></p>
+                                  <p className="text-4xl font-black text-emerald-400">{total.toLocaleString()} <span className="text-sm">{currency}</span></p>
                               </div>
                           </div>
 
@@ -923,7 +925,7 @@ export function QuotationsClient({
                         <td className="px-6 py-5">
                           <div className="flex items-baseline gap-1 text-emerald-400">
                             <span className="text-lg font-black">{Number(quotation.total_amount || 0).toLocaleString()}</span>
-                            <span className="text-[10px] font-bold text-emerald-400/50 uppercase">{t("common.sar")}</span>
+                            <span className="text-[10px] font-bold text-emerald-400/50 uppercase">{currency}</span>
                           </div>
                         </td>
                         <td className="px-6 py-5 text-center">

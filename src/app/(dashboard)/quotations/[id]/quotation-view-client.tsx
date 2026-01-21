@@ -80,8 +80,10 @@ interface QuotationViewClientProps {
 export function QuotationViewClient({ quotation, company, companyId }: QuotationViewClientProps) {
   const router = useRouter();
   const t = useTranslations("financialVouchersPage.quotationsPage");
+  const tCommon = useTranslations("common");
   const { locale } = useLocale();
   const isRtl = locale === "ar";
+  const currency = tCommon("sar");
   const printRef = useRef<HTMLDivElement>(null);
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [notification, setNotification] = useState<NotificationState>({
