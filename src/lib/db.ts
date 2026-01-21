@@ -10,35 +10,52 @@ const pool = mysql.createPool({
   queueLimit: 0,
   enableKeepAlive: true,
   keepAliveInitialDelay: 10000,
+  idleTimeout: 60000, // 60 seconds
+  maxIdle: 10,
 });
 
 pool.on('error', (err) => {
   console.error('Unexpected error on idle database connection', err);
-  if (err.code === 'PROTOCOL_CONNECTION_LOST' || err.code === 'EPIPE' || err.code === 'ECONNRESET') {
-    console.log('Database connection lost. Pool will handle reconnection.');
-  }
 });
+
+async function withRetry<T>(operation: () => Promise<T>, retries = 3): Promise<T> {
+  let lastError: any;
+  for (let i = 0; i < retries; i++) {
+    try {
+      return await operation();
+    } catch (error: any) {
+      lastError = error;
+      const isNetworkError = 
+        error.code === 'PROTOCOL_CONNECTION_LOST' || 
+        error.code === 'EPIPE' || 
+        error.code === 'ECONNRESET' ||
+        error.fatal === true;
+      
+      if (isNetworkError && i < retries - 1) {
+        const delay = Math.pow(2, i) * 500; // Exponential backoff
+        await new Promise(resolve => setTimeout(resolve, delay));
+        continue;
+      }
+      throw error;
+    }
+  }
+  throw lastError;
+}
 
 export async function query<T>(queryStr: string, params: any[] = []): Promise<T[]> {
   const normalizedParams = params.map(p => p === undefined ? null : p);
-  try {
+  return withRetry(async () => {
     const [rows] = await pool.execute(queryStr, normalizedParams);
     return rows as T[];
-  } catch (error) {
-    console.error('Database query error:', error);
-    throw error;
-  }
+  });
 }
 
 export async function execute(queryStr: string, params: any[] = []): Promise<any> {
   const normalizedParams = params.map(p => p === undefined ? null : p);
-  try {
+  return withRetry(async () => {
     const [result] = await pool.execute(queryStr, normalizedParams);
     return result;
-  } catch (error) {
-    console.error('Database execute error:', error);
-    throw error;
-  }
+  });
 }
 
 export default pool;
