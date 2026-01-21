@@ -80,7 +80,7 @@ export function AdminNotificationsClient({ initialNotifications }: AdminNotifica
   };
 
   return (
-    <div className="space-y-6 pb-20 p-4 md:p-6 bg-[#f8fafc] dark:bg-slate-950/50 min-h-screen">
+    <div className="space-y-6 pb-20 p-4 md:p-6 bg-transparent min-h-screen">
       {/* Compact Header */}
       <div className="relative group">
         <div className="absolute -inset-1 bg-gradient-to-r from-blue-600 via-purple-600 to-emerald-600 rounded-[2rem] blur opacity-25 group-hover:opacity-40 transition duration-1000 group-hover:duration-200"></div>

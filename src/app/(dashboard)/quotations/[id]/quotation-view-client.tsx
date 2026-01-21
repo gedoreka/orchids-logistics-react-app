@@ -216,7 +216,7 @@ export function QuotationViewClient({ quotation, company, companyId }: Quotation
   ].filter(Boolean).join(' - ') || company?.short_address;
 
   return (
-    <div className="h-full flex flex-col bg-[#f8fafc]" dir={isRtl ? "rtl" : "ltr"}>
+    <div className="h-full flex flex-col bg-transparent" dir={isRtl ? "rtl" : "ltr"}>
       <AnimatePresence>
         {notification.show && (
           <>
@@ -273,10 +273,10 @@ export function QuotationViewClient({ quotation, company, companyId }: Quotation
           <div className="h-10 w-10 rounded-xl bg-white shadow-sm flex items-center justify-center text-blue-500 border border-gray-100">
             <FileText size={20} />
           </div>
-          <div>
-            <h1 className="font-black text-gray-900 text-lg md:text-xl">{t("view.title", { number: quotation.quotation_number })}</h1>
-            <p className="text-gray-500 text-xs md:text-sm font-medium">{t("view.details")}</p>
-          </div>
+            <div>
+              <h1 className="font-black text-white text-lg md:text-xl">{t("view.title", { number: quotation.quotation_number })}</h1>
+              <p className="text-white/60 text-xs md:text-sm font-medium">{t("view.details")}</p>
+            </div>
         </div>
         <div className="flex items-center gap-2">
           <Link href="/quotations">

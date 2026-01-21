@@ -270,7 +270,7 @@ export function InvoiceViewClient({
   };
 
     return (
-      <div className="min-h-screen bg-[#f1f5f9] overflow-y-auto font-tajawal">
+      <div className="min-h-screen bg-transparent overflow-y-auto font-tajawal">
         <div className="w-full max-w-[210mm] mx-auto py-6 space-y-4">
         {/* Action Buttons */}
         <div className="flex flex-wrap gap-2 justify-center no-print px-4">
