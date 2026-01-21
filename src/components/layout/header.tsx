@@ -352,20 +352,22 @@ export function Header({ user, onToggleSidebar, unreadChatCount = 0, subscriptio
               setSelectedEmailAccount(data.accounts[0]);
             }
 
-            // Fetch unread counts in parallel
-            const unreadResults = await Promise.all(
-              data.accounts.map(async (account: EmailAccount) => {
+              // Fetch unread counts more reliably
+              const unreadResults = [];
+              for (const account of data.accounts) {
                 try {
                   const res = await fetch(`/api/email/fetch?accountId=${account.id}&company_id=${user.company_id}&action=unread`);
-                  if (!res.ok) return 0;
-                  const data = await res.json();
-                  return data.unreadCount || 0;
+                  if (res.ok) {
+                    const data = await res.json();
+                    unreadResults.push(data.unreadCount || 0);
+                  } else {
+                    unreadResults.push(0);
+                  }
                 } catch (e) {
                   console.error(`Error fetching unread for ${account.email}:`, e);
-                  return 0;
+                  unreadResults.push(0);
                 }
-              })
-            );
+              }
             
             const totalUnread = unreadResults.reduce((sum, count) => sum + count, 0);
             setUnreadEmailCount(totalUnread);

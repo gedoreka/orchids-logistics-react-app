@@ -8,6 +8,15 @@ const pool = mysql.createPool({
   waitForConnections: true,
   connectionLimit: 10,
   queueLimit: 0,
+  enableKeepAlive: true,
+  keepAliveInitialDelay: 10000,
+});
+
+pool.on('error', (err) => {
+  console.error('Unexpected error on idle database connection', err);
+  if (err.code === 'PROTOCOL_CONNECTION_LOST' || err.code === 'EPIPE' || err.code === 'ECONNRESET') {
+    console.log('Database connection lost. Pool will handle reconnection.');
+  }
 });
 
 export async function query<T>(queryStr: string, params: any[] = []): Promise<T[]> {

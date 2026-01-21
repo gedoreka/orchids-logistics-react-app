@@ -171,7 +171,8 @@ async function fetchEmails(
       tryOpenBox(folderCandidates);
     });
 
-    imap.once("error", (err: Error) => {
+    imap.on("error", (err: Error) => {
+      console.error("IMAP Connection Error:", err);
       if (!isFinished) {
         isFinished = true;
         clearTimeout(timeout);
@@ -278,7 +279,8 @@ async function getUnreadCount(
       tryOpenBox(folderCandidates);
     });
 
-    imap.once("error", (err: Error) => {
+    imap.on("error", (err: Error) => {
+      console.error("IMAP Connection Error:", err);
       if (!isFinished) {
         isFinished = true;
         clearTimeout(timeout);

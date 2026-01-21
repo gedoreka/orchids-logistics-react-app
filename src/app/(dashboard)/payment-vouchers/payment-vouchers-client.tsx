@@ -84,11 +84,12 @@ const statusOptions = [
   { value: "cancelled", label: "ملغي", color: "bg-red-100 text-red-700", icon: Ban },
 ];
 
-function PaymentVouchersContent() {
-  const t = useTranslations("financialVouchersPage.paymentVouchersPage");
-  const tFinancial = useTranslations("financialVouchersPage");
-  const tCommon = useTranslations("common");
-  const [accounts, setAccounts] = useState<Account[]>([]);
+  function PaymentVouchersContent() {
+    const t = useTranslations("financialVouchersPage.paymentVouchersPage");
+    const tFinancial = useTranslations("financialVouchersPage");
+    const tSalesReceipts = useTranslations("financialVouchersPage.salesReceiptsPage");
+    const tCommon = useTranslations("common");
+    const [accounts, setAccounts] = useState<Account[]>([]);
   const [costCenters, setCostCenters] = useState<CostCenter[]>([]);
   const [vouchers, setVouchers] = useState<Voucher[]>([]);
   const [voucherNumber, setVoucherNumber] = useState("");
@@ -540,12 +541,12 @@ function PaymentVouchersContent() {
                     className="w-full pr-12 pl-4 py-3 bg-white/10 border border-white/10 rounded-2xl text-white font-medium focus:bg-white/20 focus:border-rose-500/50 outline-none transition-all placeholder:text-slate-500"
                 />
                 </div>
-                <div className="flex gap-3 w-full md:w-auto">
-                    <button className="flex-1 md:flex-none flex items-center justify-center gap-2 px-6 py-3 bg-blue-500/20 text-blue-300 font-bold rounded-2xl border border-blue-500/30 hover:bg-blue-500/30 transition-all">
-                        <FileSpreadsheet size={18} />
-                        {useTranslations("financialVouchersPage.salesReceiptsPage")("exportData")}
-                    </button>
-                </div>
+                        <div className="flex gap-3 w-full md:w-auto">
+                            <button className="flex-1 md:flex-none flex items-center justify-center gap-2 px-6 py-3 bg-blue-500/20 text-blue-300 font-bold rounded-2xl border border-blue-500/30 hover:bg-blue-500/30 transition-all">
+                                <FileSpreadsheet size={18} />
+                                {tSalesReceipts("exportData")}
+                            </button>
+                        </div>
             </div>
 
             <div className="bg-white/5 backdrop-blur-xl rounded-[2rem] border border-white/10 overflow-hidden shadow-2xl">
