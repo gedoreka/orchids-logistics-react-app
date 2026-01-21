@@ -291,15 +291,45 @@ export function QuotationViewClient({ quotation, company, companyId }: Quotation
               <span>{t("table.edit")}</span>
             </button>
           </Link>
-          <button 
-            onClick={() => handlePrint()}
-            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-blue-500 text-white font-bold text-xs md:text-sm hover:bg-blue-600 transition-all shadow-md"
-          >
-            <Printer size={16} />
-            <span>{tCommon("print")}</span>
-          </button>
-          <button 
-            onClick={handleDelete}
+            <button 
+              onClick={() => handlePrint()}
+              className="flex items-center gap-2 px-4 py-2 rounded-xl bg-blue-500 text-white font-bold text-xs md:text-sm hover:bg-blue-600 transition-all shadow-md"
+            >
+              <Printer size={16} />
+              <span>{tCommon("print")}</span>
+            </button>
+
+            <button 
+              onClick={async () => {
+                const element = printRef.current;
+                if (!element) return;
+                
+                // Dynamically import html2pdf.js
+                const html2pdf = (await import('html2pdf.js')).default;
+                
+                const opt = {
+                  margin: 0,
+                  filename: `${isRtl ? "عرض-سعر" : "quotation"}-${quotation.quotation_number}.pdf`,
+                  image: { type: 'jpeg', quality: 0.98 },
+                  html2canvas: { scale: 2, useCORS: true, letterRendering: true },
+                  jsPDF: { unit: 'mm', format: 'a5', orientation: 'portrait' }
+                };
+                
+                const stamps = element.querySelector('.print-stamps') as HTMLElement;
+                if (stamps) stamps.style.display = 'none';
+                
+                html2pdf().set(opt).from(element).save().then(() => {
+                  if (stamps) stamps.style.display = 'grid';
+                });
+              }}
+              className="flex items-center gap-2 px-4 py-2 rounded-xl bg-emerald-500 text-white font-bold text-xs md:text-sm hover:bg-emerald-600 transition-all shadow-md"
+            >
+              <FileText size={16} />
+              <span>{isRtl ? "تحميل PDF" : "Download PDF"}</span>
+            </button>
+            
+            <button 
+              onClick={handleDelete}
             disabled={deleteLoading}
             className="flex items-center gap-2 px-4 py-2 rounded-xl bg-red-500 text-white font-bold text-xs md:text-sm hover:bg-red-600 transition-all disabled:opacity-50 shadow-sm"
           >
@@ -313,28 +343,33 @@ export function QuotationViewClient({ quotation, company, companyId }: Quotation
         <style>{`
           @media print {
             .no-print, .print\\:hidden { display: none !important; }
-            body { 
+            html, body { 
               background: white !important; 
               margin: 0 !important; 
               padding: 0 !important;
               color: black !important;
+              width: 148mm !important;
+              height: 210mm !important;
+              overflow: hidden !important;
             }
             .print-content { 
               box-shadow: none !important; 
               margin: 0 !important; 
-              width: 210mm !important; 
-              min-height: 297mm !important;
-              max-width: 100% !important; 
+              width: 148mm !important; 
+              height: 210mm !important;
+              max-height: 210mm !important;
+              max-width: 148mm !important; 
               border: none !important;
               background: white !important;
               -webkit-print-color-adjust: exact !important;
               print-color-adjust: exact !important;
-              padding: 15mm !important;
-              display: flex !important;
-              flex-direction: column !important;
+              padding: 4mm !important;
+              display: block !important;
+              overflow: hidden !important;
+              page-break-inside: avoid !important;
             }
             @page {
-              size: A4 portrait;
+              size: A5 portrait;
               margin: 0;
             }
             * {
@@ -349,13 +384,75 @@ export function QuotationViewClient({ quotation, company, companyId }: Quotation
               background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%) !important;
               color: white !important;
             }
+            .print-header {
+              padding: 8px 12px !important;
+            }
+            .print-header h1 {
+              font-size: 14px !important;
+            }
+            .print-header p {
+              font-size: 8px !important;
+            }
+            .print-body {
+              padding: 8px 12px !important;
+              gap: 8px !important;
+            }
+            .print-info-grid {
+              gap: 8px !important;
+            }
+            .print-info-card {
+              padding: 8px !important;
+            }
+            .print-info-card h3 {
+              font-size: 9px !important;
+            }
+            .print-detail-label {
+              font-size: 7px !important;
+            }
+            .print-detail-value {
+              font-size: 8px !important;
+            }
+            .print-table {
+              font-size: 7px !important;
+            }
+            .print-table th, .print-table td {
+              padding: 4px 6px !important;
+            }
+            .print-qr-section {
+              gap: 8px !important;
+              padding: 6px !important;
+            }
+            .print-qr canvas {
+              width: 50px !important;
+              height: 50px !important;
+            }
+            .print-totals {
+              padding: 8px !important;
+            }
+            .print-totals-row {
+              font-size: 8px !important;
+            }
+            .print-grand-total {
+              padding: 6px !important;
+            }
+            .print-grand-total span {
+              font-size: 12px !important;
+            }
+            .print-stamps {
+              display: none !important;
+            }
+            .print-footer {
+              padding-top: 4px !important;
+              margin-top: 4px !important;
+              font-size: 6px !important;
+            }
           }
         `}</style>
 
         <div className="max-w-[210mm] mx-auto bg-white shadow-2xl rounded-3xl overflow-hidden print:rounded-none print:shadow-none print-content invoice-card">
           {/* Professional Header */}
           <div 
-            className="bg-blue-gradient text-white p-8 md:p-10 relative overflow-hidden"
+            className="bg-blue-gradient text-white p-8 md:p-10 relative overflow-hidden print-header"
             style={{ background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)' }}
           >
             <div className="flex flex-row justify-between items-center gap-4 relative z-10">
@@ -414,9 +511,9 @@ export function QuotationViewClient({ quotation, company, companyId }: Quotation
             <div className="absolute -bottom-24 -left-24 w-64 h-64 bg-purple-500/10 rounded-full blur-3xl" />
           </div>
 
-          <div className="p-8 md:p-12 space-y-10 flex-grow flex flex-col bg-white">
+          <div className="p-8 md:p-12 space-y-10 flex-grow flex flex-col bg-white print-body">
             {/* Professional Info Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 print-info-grid">
               {/* Company Details */}
               <div className="relative group">
                 <div className="absolute inset-0 bg-blue-50 rounded-3xl -rotate-1 group-hover:rotate-0 transition-transform duration-300" />
@@ -464,7 +561,7 @@ export function QuotationViewClient({ quotation, company, companyId }: Quotation
 
             {/* High-End Items Table */}
             <div className="rounded-2xl border border-gray-100 overflow-hidden shadow-sm">
-              <table className="w-full text-[12px] border-collapse">
+              <table className="w-full text-[12px] border-collapse print-table">
                 <thead>
                   <tr className="bg-gray-900 text-white">
                     <th className={cn("px-6 py-4 font-black uppercase tracking-wider", isRtl ? "text-right" : "text-left")}>{t("form.table.productName")}</th>
@@ -494,8 +591,8 @@ export function QuotationViewClient({ quotation, company, companyId }: Quotation
             <div className="grid grid-cols-1 md:grid-cols-2 gap-10 items-end">
               {/* QR and Legal Info */}
               <div className="space-y-6">
-                <div className="flex items-center gap-6 p-6 rounded-3xl border-2 border-dashed border-gray-100 bg-gray-50/30">
-                  <div className="bg-white p-2.5 rounded-2xl shadow-sm border border-gray-100 flex-shrink-0">
+                <div className="flex items-center gap-6 p-6 rounded-3xl border-2 border-dashed border-gray-100 bg-gray-50/30 print-qr-section">
+                  <div className="bg-white p-2.5 rounded-2xl shadow-sm border border-gray-100 flex-shrink-0 print-qr">
                     {isMounted && (
                       <QRCodeCanvas
                         value={qrData}
@@ -530,9 +627,9 @@ export function QuotationViewClient({ quotation, company, companyId }: Quotation
               {/* Totals Summary */}
               <div className="relative">
                 <div className="absolute inset-0 bg-blue-600 rounded-3xl translate-x-1.5 translate-y-1.5 opacity-5" />
-                <div className="relative bg-white rounded-3xl border border-gray-100 shadow-xl overflow-hidden">
+                <div className="relative bg-white rounded-3xl border border-gray-100 shadow-xl overflow-hidden print-totals">
                   <div className="p-6 md:p-8 space-y-4">
-                    <div className="flex justify-between items-center text-gray-500 font-bold text-sm">
+                    <div className="flex justify-between items-center text-gray-500 font-bold text-sm print-totals-row">
                       <span className="uppercase tracking-wider">{t("form.subtotal")}</span>
                       <span>{subtotal.toLocaleString('en-US', { minimumFractionDigits: 2 })} {currency}</span>
                     </div>
@@ -544,7 +641,7 @@ export function QuotationViewClient({ quotation, company, companyId }: Quotation
                       <span>{totalVat.toLocaleString('en-US', { minimumFractionDigits: 2 })} {currency}</span>
                     </div>
                     <div className="pt-4 border-t border-gray-100 mt-2">
-                      <div className="flex justify-between items-center p-5 bg-gray-900 rounded-2xl text-white shadow-lg shadow-gray-200">
+                      <div className="flex justify-between items-center p-5 bg-gray-900 rounded-2xl text-white shadow-lg shadow-gray-200 print-grand-total">
                         <div className="flex flex-col">
                           <span className="text-[10px] text-white/50 uppercase font-black tracking-[0.2em] mb-1">{t("common.total")}</span>
                           <span className="font-black text-base">{t("view.inclTax")}</span>
@@ -564,7 +661,7 @@ export function QuotationViewClient({ quotation, company, companyId }: Quotation
             </div>
 
             {/* Official Stamps Footer */}
-            <div className="grid grid-cols-2 gap-12 pt-12 mt-auto border-t border-gray-50">
+            <div className="grid grid-cols-2 gap-12 pt-12 mt-auto border-t border-gray-50 print-stamps">
               {/* Authorized Stamp */}
               <div className="text-center group">
                 <h4 className="text-gray-400 font-black text-[11px] mb-5 uppercase tracking-[0.2em]">{tCommon("stamp")}</h4>
@@ -601,7 +698,7 @@ export function QuotationViewClient({ quotation, company, companyId }: Quotation
             </div>
 
             {/* System Footer Info */}
-            <div className="mt-12 pt-8 border-t border-gray-50 flex flex-col md:flex-row justify-between items-center gap-4">
+            <div className="mt-12 pt-8 border-t border-gray-50 flex flex-col md:flex-row justify-between items-center gap-4 print-footer">
               <div className="flex items-center gap-2 text-[10px] text-gray-400 font-bold uppercase tracking-wider">
                 <div className="h-1.5 w-1.5 rounded-full bg-blue-500" />
                 <span>{t("footer.system")}</span>
@@ -612,6 +709,7 @@ export function QuotationViewClient({ quotation, company, companyId }: Quotation
             </div>
           </div>
         </div>
+
       </div>
     </div>
   );

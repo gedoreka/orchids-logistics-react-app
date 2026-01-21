@@ -348,16 +348,47 @@ export function SalesReceiptViewClient({ receipt, company, companyId }: SalesRec
             <span>{isRtl ? "إرسال بريد" : "Email"}</span>
           </button>
 
-          <button 
-            onClick={() => handlePrint()}
-            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-blue-500 text-white font-bold text-xs md:text-sm hover:bg-blue-600 transition-all shadow-md"
-          >
-            <Printer size={16} />
-            <span>{tCommon("print")}</span>
-          </button>
-          
-          <button 
-            onClick={handleDelete}
+            <button 
+              onClick={() => handlePrint()}
+              className="flex items-center gap-2 px-4 py-2 rounded-xl bg-blue-500 text-white font-bold text-xs md:text-sm hover:bg-blue-600 transition-all shadow-md"
+            >
+              <Printer size={16} />
+              <span>{tCommon("print")}</span>
+            </button>
+
+            <button 
+              onClick={async () => {
+                const element = printRef.current;
+                if (!element) return;
+                
+                // Dynamically import html2pdf.js
+                const html2pdf = (await import('html2pdf.js')).default;
+                
+                const opt = {
+                  margin: 0,
+                  filename: `${isRtl ? "إيصال-مبيعات" : "sales-receipt"}-${receipt.receipt_number}.pdf`,
+                  image: { type: 'jpeg', quality: 0.98 },
+                  html2canvas: { scale: 2, useCORS: true, letterRendering: true },
+                  jsPDF: { unit: 'mm', format: 'a5', orientation: 'portrait' }
+                };
+                
+                // Temporary remove stamps for PDF if needed, but user said "تظهر بالكيو ار الضريبي وكافة المعلومات"
+                // User also said "لا تظهر الختم الرسمي والتوقيع المعتمد لا مشكله" for printing, let's assume same for PDF
+                const stamps = element.querySelector('.print-stamps') as HTMLElement;
+                if (stamps) stamps.style.display = 'none';
+                
+                html2pdf().set(opt).from(element).save().then(() => {
+                  if (stamps) stamps.style.display = 'grid';
+                });
+              }}
+              className="flex items-center gap-2 px-4 py-2 rounded-xl bg-emerald-500 text-white font-bold text-xs md:text-sm hover:bg-emerald-600 transition-all shadow-md"
+            >
+              <FileText size={16} />
+              <span>{isRtl ? "تحميل PDF" : "Download PDF"}</span>
+            </button>
+            
+            <button 
+              onClick={handleDelete}
             disabled={deleteLoading}
             className="flex items-center gap-2 px-4 py-2 rounded-xl bg-red-500 text-white font-bold text-xs md:text-sm hover:bg-red-600 transition-all disabled:opacity-50 shadow-sm"
           >
@@ -501,15 +532,15 @@ export function SalesReceiptViewClient({ receipt, company, companyId }: SalesRec
                 )}
               </div>
 
-              {/* Title Center */}
-              <div className="text-center flex-1">
-                <h1 className="text-3xl font-black mb-1 tracking-wider uppercase">{isRtl ? "عرض سعر" : "Quotation"}</h1>
-                  <p className="text-white/60 text-[14px] uppercase font-light tracking-[0.2em]">Price Quotation</p>
-                <div className="mt-3 inline-flex items-center gap-2 px-5 py-1.5 rounded-full border border-[#ffffff1a]" style={{ backgroundColor: 'rgba(255,255,255,0.05)' }}>
-                  <div className="w-2 h-2 rounded-full bg-teal-400 animate-pulse" />
-                  <span className="font-bold text-[11px] uppercase tracking-wider">Logistics Systems Pro</span>
+                {/* Title Center */}
+                <div className="text-center flex-1">
+                  <h1 className="text-3xl font-black mb-1 tracking-wider uppercase">{isRtl ? "إيصال مبيعات" : "Sales Receipt"}</h1>
+                    <p className="text-white/60 text-[14px] uppercase font-light tracking-[0.2em]">{isRtl ? "إيصال مبيعات ضريبي" : "Tax Sales Receipt"}</p>
+                  <div className="mt-3 inline-flex items-center gap-2 px-5 py-1.5 rounded-full border border-[#ffffff1a]" style={{ backgroundColor: 'rgba(255,255,255,0.05)' }}>
+                    <div className="w-2 h-2 rounded-full bg-teal-400 animate-pulse" />
+                    <span className="font-bold text-[11px] uppercase tracking-wider">Logistics Systems Pro</span>
+                  </div>
                 </div>
-              </div>
 
               {/* System Logo */}
               <div className="flex flex-col items-center gap-2 p-4 rounded-2xl border border-[#ffffff1a] min-w-[140px]" style={{ backgroundColor: 'rgba(255,255,255,0.05)' }}>
