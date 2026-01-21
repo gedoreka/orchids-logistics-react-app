@@ -133,14 +133,15 @@ export async function POST(request: NextRequest) {
       for (const item of items) {
         await execute(
           `INSERT INTO sales_receipt_items (
-            receipt_id, product_name, product_desc, quantity, unit_price, 
+            receipt_id, product_name, product_desc, quantity, amount_before_vat, unit_price, 
             vat_rate, vat_amount, total_with_vat
-          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
           [
             receiptId,
             item.product_name,
             item.product_desc || '',
             item.quantity,
+            item.amount_before_vat || 0,
             item.unit_price,
             item.vat_rate || 15,
             item.vat_amount,

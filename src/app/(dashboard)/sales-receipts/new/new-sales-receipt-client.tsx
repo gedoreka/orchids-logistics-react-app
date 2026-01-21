@@ -45,6 +45,7 @@ interface ProductItem {
   product_name: string;
   product_desc: string;
   quantity: number;
+  amount_before_vat: number;
   unit_price: number;
   vat_rate: number;
   vat_amount: number;
@@ -98,7 +99,8 @@ export function NewSalesReceiptClient({ customers, invoices, companyId, userName
       id: "1", 
       product_name: "", 
       product_desc: "", 
-      quantity: 1, 
+      quantity: 1,
+      amount_before_vat: 0,
       unit_price: 0, 
       vat_rate: 15,
       vat_amount: 0,
@@ -107,10 +109,10 @@ export function NewSalesReceiptClient({ customers, invoices, companyId, userName
   ]);
 
   const calculateItemTotals = (item: ProductItem) => {
-    const subtotal = item.quantity * item.unit_price;
-    const vatAmount = (subtotal * item.vat_rate) / 100;
-    const total = subtotal + vatAmount;
-    return { ...item, vat_amount: vatAmount, total_with_vat: total };
+    const unitPrice = item.quantity > 0 ? item.amount_before_vat / item.quantity : 0;
+    const vatAmount = (item.amount_before_vat * item.vat_rate) / 100;
+    const total = item.amount_before_vat + vatAmount;
+    return { ...item, unit_price: unitPrice, vat_amount: vatAmount, total_with_vat: total };
   };
 
   const calculateGrandTotals = () => {
@@ -119,7 +121,7 @@ export function NewSalesReceiptClient({ customers, invoices, companyId, userName
     let totalAmount = 0;
     
     items.forEach(item => {
-      subtotal += item.quantity * item.unit_price;
+      subtotal += item.amount_before_vat;
       taxAmount += item.vat_amount;
       totalAmount += item.total_with_vat;
     });
@@ -162,6 +164,7 @@ export function NewSalesReceiptClient({ customers, invoices, companyId, userName
       product_name: "",
       product_desc: "",
       quantity: 1,
+      amount_before_vat: 0,
       unit_price: 0,
       vat_rate: 15,
       vat_amount: 0,
@@ -188,7 +191,7 @@ export function NewSalesReceiptClient({ customers, invoices, companyId, userName
       return;
     }
 
-    const validItems = items.filter(item => item.product_name && item.quantity > 0);
+    const validItems = items.filter(item => item.product_name && item.quantity > 0 && item.amount_before_vat > 0);
     if (validItems.length === 0) {
       showNotification("error", t("errorTitle"), isRtl ? "يرجى إضافة بند واحد على الأقل" : "Please add at least one item");
       return;
@@ -517,91 +520,94 @@ export function NewSalesReceiptClient({ customers, invoices, companyId, userName
               </div>
 
               <div className="overflow-x-auto rounded-3xl border border-white/10 bg-white/5">
-                <table className="w-full text-sm text-right">
-                  <thead>
-                    <tr className="bg-white/10 text-slate-300 font-black uppercase text-[10px] tracking-widest">
-                      <th className="px-6 py-4">{isRtl ? "البند" : "Item"}</th>
-                      <th className="px-6 py-4">{isRtl ? "الوصف" : "Description"}</th>
-                      <th className="px-6 py-4 w-32">{isRtl ? "الكمية" : "Qty"}</th>
-                      <th className="px-6 py-4 w-40">{isRtl ? "سعر الوحدة" : "Unit Price"}</th>
-                      <th className="px-6 py-4 w-32">{isRtl ? "الضريبة" : "VAT %"}</th>
-                      <th className="px-6 py-4 w-40">{isRtl ? "المجموع" : "Total"}</th>
-                      <th className="px-6 py-4 w-20"></th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-white/5">
-                    {items.map((item, index) => (
-                      <tr key={item.id} className="group/row hover:bg-white/5 transition-colors">
-                        <td className="px-4 py-4">
-                          <input
-                            type="text"
-                            value={item.product_name}
-                            onChange={(e) => handleItemChange(item.id, 'product_name', e.target.value)}
-                            required
-                            placeholder={isRtl ? "اسم الخدمة / المنتج" : "Item Name"}
-                            className="w-full px-4 py-2 rounded-xl bg-white/10 border border-white/10 text-white text-xs outline-none focus:border-emerald-500"
-                          />
-                        </td>
-                        <td className="px-4 py-4">
-                          <input
-                            type="text"
-                            value={item.product_desc}
-                            onChange={(e) => handleItemChange(item.id, 'product_desc', e.target.value)}
-                            placeholder={isRtl ? "وصف اختياري" : "Optional description"}
-                            className="w-full px-4 py-2 rounded-xl bg-white/10 border border-white/10 text-white text-xs outline-none focus:border-emerald-500"
-                          />
-                        </td>
-                        <td className="px-4 py-4">
-                          <input
-                            type="number"
-                            value={item.quantity}
-                            onChange={(e) => handleItemChange(item.id, 'quantity', parseFloat(e.target.value) || 0)}
-                            min="1"
-                            required
-                            className="w-full px-4 py-2 rounded-xl bg-white/10 border border-white/10 text-white text-xs text-center outline-none focus:border-emerald-500"
-                          />
-                        </td>
-                        <td className="px-4 py-4">
-                          <input
-                            type="number"
-                            value={item.unit_price}
-                            onChange={(e) => handleItemChange(item.id, 'unit_price', parseFloat(e.target.value) || 0)}
-                            min="0"
-                            step="0.01"
-                            required
-                            className="w-full px-4 py-2 rounded-xl bg-white/10 border border-white/10 text-white text-xs text-center outline-none focus:border-emerald-500"
-                          />
-                        </td>
-                        <td className="px-4 py-4">
-                          <div className="relative">
+                  <table className="w-full text-sm text-right">
+                    <thead>
+                      <tr className="bg-white/10 text-slate-300 font-black uppercase text-[10px] tracking-widest">
+                        <th className="px-6 py-4">{isRtl ? "البند" : "Item"}</th>
+                        <th className="px-6 py-4">{isRtl ? "الوصف" : "Description"}</th>
+                        <th className="px-6 py-4 w-28">{isRtl ? "الكمية" : "Qty"}</th>
+                        <th className="px-6 py-4 w-36">{isRtl ? "المبلغ قبل الضريبة" : "Amount Before VAT"}</th>
+                        <th className="px-6 py-4 w-32">{isRtl ? "سعر الوحدة" : "Unit Price"}</th>
+                        <th className="px-6 py-4 w-32">{isRtl ? "الضريبة (15%)" : "VAT (15%)"}</th>
+                        <th className="px-6 py-4 w-36">{isRtl ? "المجموع شامل" : "Total w/VAT"}</th>
+                        <th className="px-6 py-4 w-16"></th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-white/5">
+                      {items.map((item, index) => (
+                        <tr key={item.id} className="group/row hover:bg-white/5 transition-colors">
+                          <td className="px-4 py-4">
+                            <input
+                              type="text"
+                              value={item.product_name}
+                              onChange={(e) => handleItemChange(item.id, 'product_name', e.target.value)}
+                              required
+                              placeholder={isRtl ? "اسم الخدمة / المنتج" : "Item Name"}
+                              className="w-full px-4 py-2 rounded-xl bg-white/10 border border-white/10 text-white text-xs outline-none focus:border-emerald-500"
+                            />
+                          </td>
+                          <td className="px-4 py-4">
+                            <input
+                              type="text"
+                              value={item.product_desc}
+                              onChange={(e) => handleItemChange(item.id, 'product_desc', e.target.value)}
+                              placeholder={isRtl ? "وصف اختياري" : "Optional description"}
+                              className="w-full px-4 py-2 rounded-xl bg-white/10 border border-white/10 text-white text-xs outline-none focus:border-emerald-500"
+                            />
+                          </td>
+                          <td className="px-4 py-4">
                             <input
                               type="number"
-                              value={item.vat_rate}
-                              onChange={(e) => handleItemChange(item.id, 'vat_rate', parseFloat(e.target.value) || 0)}
+                              value={item.quantity}
+                              onChange={(e) => handleItemChange(item.id, 'quantity', parseFloat(e.target.value) || 1)}
+                              min="1"
+                              required
                               className="w-full px-4 py-2 rounded-xl bg-white/10 border border-white/10 text-white text-xs text-center outline-none focus:border-emerald-500"
                             />
-                            <Percent size={10} className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-500" />
-                          </div>
-                        </td>
-                        <td className="px-4 py-4 font-black text-emerald-400 text-xs">
-                          {item.total_with_vat.toLocaleString('en-US', { minimumFractionDigits: 2 })}
-                          <span className="text-[8px] mx-1 uppercase opacity-60">SAR</span>
-                        </td>
-                        <td className="px-4 py-4 text-center">
-                          <button
-                            type="button"
-                            onClick={() => removeItem(item.id)}
-                            disabled={items.length === 1}
-                            className="p-2 rounded-lg bg-rose-500/10 text-rose-500 hover:bg-rose-500 hover:text-white transition-all disabled:opacity-30"
-                          >
-                            <Trash2 size={16} />
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+                          </td>
+                          <td className="px-4 py-4">
+                            <input
+                              type="number"
+                              value={item.amount_before_vat || ''}
+                              onChange={(e) => handleItemChange(item.id, 'amount_before_vat', parseFloat(e.target.value) || 0)}
+                              min="0"
+                              step="0.01"
+                              required
+                              placeholder="0.00"
+                              className="w-full px-4 py-2 rounded-xl bg-white/10 border border-emerald-500/50 text-white text-xs text-center outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20"
+                            />
+                          </td>
+                          <td className="px-4 py-4">
+                            <div className="w-full px-4 py-2 rounded-xl bg-white/5 border border-white/5 text-slate-400 text-xs text-center font-mono">
+                              {item.unit_price.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                            </div>
+                          </td>
+                          <td className="px-4 py-4">
+                            <div className="w-full px-4 py-2 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-400 text-xs text-center font-black">
+                              {item.vat_amount.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                            </div>
+                          </td>
+                          <td className="px-4 py-4">
+                            <div className="w-full px-4 py-2 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs text-center font-black">
+                              {item.total_with_vat.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                              <span className="text-[8px] mx-1 uppercase opacity-60">SAR</span>
+                            </div>
+                          </td>
+                          <td className="px-4 py-4 text-center">
+                            <button
+                              type="button"
+                              onClick={() => removeItem(item.id)}
+                              disabled={items.length === 1}
+                              className="p-2 rounded-lg bg-rose-500/10 text-rose-500 hover:bg-rose-500 hover:text-white transition-all disabled:opacity-30"
+                            >
+                              <Trash2 size={16} />
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
             </motion.div>
 
             {/* Section 4: Totals & Notes */}

@@ -42,6 +42,7 @@ interface ReceiptItem {
   product_name: string;
   product_desc: string;
   quantity: number;
+  amount_before_vat: number;
   unit_price: number;
   vat_rate: number;
   vat_amount: number;
@@ -515,38 +516,40 @@ export function SalesReceiptViewClient({ receipt, company, companyId }: SalesRec
             </div>
 
             {/* High-End Items Table */}
-            <div className="rounded-2xl border border-gray-100 overflow-hidden shadow-sm">
-              <table className="w-full text-[12px] border-collapse">
-                <thead>
-                  <tr className="bg-gray-900 text-white">
-                    <th className={cn("px-6 py-4 font-black uppercase tracking-wider", isRtl ? "text-right" : "text-left")}>{isRtl ? "البند" : "Item"}</th>
-                    <th className={cn("px-6 py-4 font-black uppercase tracking-wider", isRtl ? "text-right" : "text-left")}>{isRtl ? "الوصف" : "Description"}</th>
-                    <th className="px-6 py-4 text-center font-black uppercase tracking-wider">{isRtl ? "الكمية" : "Qty"}</th>
-                    <th className="px-6 py-4 text-center font-black uppercase tracking-wider">{isRtl ? "سعر الوحدة" : "Unit Price"}</th>
-                    <th className="px-6 py-4 text-center font-black uppercase tracking-wider">{isRtl ? "الضريبة" : "VAT"} (15%)</th>
-                    <th className="px-6 py-4 text-center font-black uppercase tracking-wider bg-teal-600">{isRtl ? "الإجمالي" : "Total"}</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-50">
-                  {receipt.items?.map((item, index) => (
-                    <tr key={item.id} className={cn("hover:bg-gray-50 transition-colors", index % 2 === 0 ? "bg-white" : "bg-gray-50/30")}>
-                      <td className={cn("px-6 py-5 font-bold text-gray-900", isRtl ? "text-right" : "text-left")}>{item.product_name}</td>
-                      <td className={cn("px-6 py-5 text-gray-500", isRtl ? "text-right" : "text-left")}>{item.product_desc || '-'}</td>
-                      <td className="px-6 py-5 text-center font-medium text-gray-700">{item.quantity}</td>
-                      <td className="px-6 py-5 text-center font-medium text-gray-700">{Number(item.unit_price).toLocaleString('en-US', { minimumFractionDigits: 2 })}</td>
-                      <td className="px-6 py-5 text-center font-bold text-amber-600">{Number(item.vat_amount || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}</td>
-                      <td className="px-6 py-5 text-center font-black text-gray-900 bg-teal-50/30">{Number(item.total_with_vat).toLocaleString('en-US', { minimumFractionDigits: 2 })}</td>
+              <div className="rounded-2xl border border-gray-100 overflow-hidden shadow-sm">
+                <table className="w-full text-[12px] border-collapse">
+                  <thead>
+                    <tr className="bg-gray-900 text-white">
+                      <th className={cn("px-6 py-4 font-black uppercase tracking-wider", isRtl ? "text-right" : "text-left")}>{isRtl ? "البند" : "Item"}</th>
+                      <th className={cn("px-6 py-4 font-black uppercase tracking-wider", isRtl ? "text-right" : "text-left")}>{isRtl ? "الوصف" : "Description"}</th>
+                      <th className="px-6 py-4 text-center font-black uppercase tracking-wider">{isRtl ? "الكمية" : "Qty"}</th>
+                      <th className="px-6 py-4 text-center font-black uppercase tracking-wider">{isRtl ? "المبلغ قبل الضريبة" : "Amount"}</th>
+                      <th className="px-6 py-4 text-center font-black uppercase tracking-wider">{isRtl ? "سعر الوحدة" : "Unit Price"}</th>
+                      <th className="px-6 py-4 text-center font-black uppercase tracking-wider">{isRtl ? "الضريبة" : "VAT"} (15%)</th>
+                      <th className="px-6 py-4 text-center font-black uppercase tracking-wider bg-teal-600">{isRtl ? "الإجمالي" : "Total"}</th>
                     </tr>
-                  ))}
-                  {(!receipt.items || receipt.items.length === 0) && (
-                    <tr>
-                      <td colSpan={5} className={cn("px-6 py-5 font-bold text-gray-900", isRtl ? "text-right" : "text-left")}>{isRtl ? "مبيعات عامة" : "General Sales"}</td>
-                      <td className="px-6 py-5 text-center font-black text-gray-900 bg-teal-50/30">{Number(receipt.amount).toLocaleString('en-US', { minimumFractionDigits: 2 })}</td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
-            </div>
+                  </thead>
+                  <tbody className="divide-y divide-gray-50">
+                    {receipt.items?.map((item, index) => (
+                      <tr key={item.id} className={cn("hover:bg-gray-50 transition-colors", index % 2 === 0 ? "bg-white" : "bg-gray-50/30")}>
+                        <td className={cn("px-6 py-5 font-bold text-gray-900", isRtl ? "text-right" : "text-left")}>{item.product_name}</td>
+                        <td className={cn("px-6 py-5 text-gray-500", isRtl ? "text-right" : "text-left")}>{item.product_desc || '-'}</td>
+                        <td className="px-6 py-5 text-center font-medium text-gray-700">{item.quantity}</td>
+                        <td className="px-6 py-5 text-center font-medium text-gray-700">{Number(item.amount_before_vat || (item.quantity * item.unit_price)).toLocaleString('en-US', { minimumFractionDigits: 2 })}</td>
+                        <td className="px-6 py-5 text-center font-medium text-gray-500">{Number(item.unit_price).toLocaleString('en-US', { minimumFractionDigits: 2 })}</td>
+                        <td className="px-6 py-5 text-center font-bold text-amber-600">{Number(item.vat_amount || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}</td>
+                        <td className="px-6 py-5 text-center font-black text-gray-900 bg-teal-50/30">{Number(item.total_with_vat).toLocaleString('en-US', { minimumFractionDigits: 2 })}</td>
+                      </tr>
+                    ))}
+                    {(!receipt.items || receipt.items.length === 0) && (
+                      <tr>
+                        <td colSpan={6} className={cn("px-6 py-5 font-bold text-gray-900", isRtl ? "text-right" : "text-left")}>{isRtl ? "مبيعات عامة" : "General Sales"}</td>
+                        <td className="px-6 py-5 text-center font-black text-gray-900 bg-teal-50/30">{Number(receipt.amount).toLocaleString('en-US', { minimumFractionDigits: 2 })}</td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
 
             {/* Bottom Section: QR and Summary */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-10 items-end">
