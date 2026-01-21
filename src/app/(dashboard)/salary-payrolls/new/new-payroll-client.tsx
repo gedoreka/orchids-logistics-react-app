@@ -30,8 +30,10 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 
 interface Package {
+
   id: number;
   group_name: string;
   work_type: string;
@@ -122,6 +124,7 @@ interface NotificationState {
 
 export function NewPayrollClient({ packages, debts, companyId, userName }: NewPayrollClientProps) {
   const router = useRouter();
+  const t = useTranslations("salaryPayrollsPage");
   const [loading, setLoading] = useState(false);
   const [fetchingPackage, setFetchingPackage] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
@@ -192,35 +195,75 @@ export function NewPayrollClient({ packages, debts, companyId, userName }: NewPa
           const employeeDebt = debts.find(d => d.iqama_number === emp.iqama_number);
           const debtAmount = employeeDebt ? Math.abs(Number(employeeDebt.amount)) : 0;
 
-          return {
-            employee_name: emp.name,
-            iqama_number: emp.iqama_number,
-            user_code: emp.user_code || '',
-            basic_salary: basicSalary,
-            housing_allowance: housingAllowance,
-            nationality: emp.nationality || '',
-            job_title: emp.job_title || '',
-            target: target,
-            bonus_per_order: bonusPerOrder,
-            successful_orders: 0,
-            target_deduction: 0,
-            monthly_bonus: 0,
-            operator_deduction: 0,
-            internal_deduction: debtAmount,
-            wallet_deduction: 0,
-            internal_bonus: 0,
-            net_salary: pkgWorkType === 'salary' ? basicSalary + housingAllowance - debtAmount : basicSalary - debtAmount,
-            payment_method: 'غير محدد',
-            achieved_tier: '',
-            tier_bonus: 0,
-            extra_amount: 0,
-            selected: true,
-            has_debt: debtAmount > 0,
-            debt_amount: debtAmount
-          };
-        });
-        setEmployeeRows(rows);
+            return {
+              employee_name: emp.name,
+              iqama_number: emp.iqama_number,
+              user_code: emp.user_code || '',
+              basic_salary: basicSalary,
+              housing_allowance: housingAllowance,
+              nationality: emp.nationality || '',
+              job_title: emp.job_title || '',
+              target: target,
+              bonus_per_order: bonusPerOrder,
+              successful_orders: 0,
+              target_deduction: 0,
+              monthly_bonus: 0,
+              operator_deduction: 0,
+              internal_deduction: debtAmount,
+              wallet_deduction: 0,
+              internal_bonus: 0,
+              net_salary: pkgWorkType === 'salary' ? basicSalary + housingAllowance - debtAmount : basicSalary - debtAmount,
+              payment_method: 'غير محدد',
+              achieved_tier: '',
+              tier_bonus: 0,
+              extra_amount: 0,
+              selected: true,
+              has_debt: debtAmount > 0,
+              debt_amount: debtAmount
+            };
+          });
+          setEmployeeRows(rows);
+        }
+      } catch (error) {
+        console.error("Error fetching package:", error);
+      } finally {
+        setFetchingPackage(false);
       }
+    }, [companyId, debts, t]);
+
+  const calculateTierSystem = (orders: number, operator: number, internal: number, wallet: number, reward: number) => {
+    const ordersVal = Number(orders) || 0;
+    const operatorVal = Number(operator) || 0;
+    const internalVal = Number(internal) || 0;
+    const walletVal = Number(wallet) || 0;
+    const rewardVal = Number(reward) || 0;
+
+    let calculatedSalary = 0;
+    let achievedTier = '';
+    
+    if (ordersVal < 1) {
+      calculatedSalary = 0;
+      achievedTier = t("newPayroll.noOrders");
+    } else if (ordersVal < 301) {
+      calculatedSalary = ordersVal * 2;
+      achievedTier = t("newPayroll.tierRange", { from: 1, to: 300, rate: 2 });
+    } else if (ordersVal < 401) {
+      calculatedSalary = ordersVal * 3;
+      achievedTier = t("newPayroll.tierRange", { from: 301, to: 400, rate: 3 });
+    } else if (ordersVal < 450) {
+      calculatedSalary = ordersVal * 4;
+      achievedTier = t("newPayroll.tierRange", { from: 401, to: 449, rate: 4 });
+    } else if (ordersVal < 520) {
+      calculatedSalary = 2450 + (ordersVal - 450) * 7;
+      achievedTier = t("newPayroll.tierLevel", { level: 1, range: '450-519' });
+    } else if (ordersVal < 560) {
+      calculatedSalary = 3000 + (ordersVal - 520) * 8;
+      achievedTier = t("newPayroll.tierLevel", { level: 2, range: '520-559' });
+    } else {
+      calculatedSalary = 3450 + (ordersVal - 560) * 10;
+      achievedTier = t("newPayroll.tierLevel", { level: 3, range: '560+' });
+    }
+
     } catch (error) {
       console.error("Error fetching package:", error);
     } finally {
@@ -432,18 +475,18 @@ export function NewPayrollClient({ packages, debts, companyId, userName }: NewPa
 
   const handleSave = async (isDraft: boolean) => {
     if (!selectedPackageId || !payrollMonth) {
-      showNotification("error", "خطأ", "يرجى تحديد شهر المسير والباقة");
+      showNotification("error", t("newPayroll.notifications.error"), t("newPayroll.notifications.selectMonthAndPackage"));
       return;
     }
 
     const selectedRows = employeeRows.filter(row => row.selected);
     if (selectedRows.length === 0) {
-      showNotification("error", "خطأ", "يرجى تحديد موظف واحد على الأقل");
+      showNotification("error", t("newPayroll.notifications.error"), t("newPayroll.notifications.selectEmployee"));
       return;
     }
 
     setLoading(true);
-    showNotification("loading", "جاري الحفظ", isDraft ? "جاري حفظ المسودة..." : "جاري حفظ المسير...");
+    showNotification("loading", t("newPayroll.notifications.saving"), isDraft ? t("newPayroll.notifications.savingDraft") : t("newPayroll.notifications.savingPayroll"));
 
     try {
       const items = selectedRows.map(row => ({
@@ -484,8 +527,8 @@ export function NewPayrollClient({ packages, debts, companyId, userName }: NewPa
           const totalAmount = selectedRows.reduce((sum, row) => sum + (Number(row.net_salary) || 0), 0);
           showNotification(
             "success", 
-            isDraft ? "تم حفظ المسودة بنجاح" : "تم حفظ المسير بنجاح", 
-            isDraft ? "يمكنك تعديل المسودة في أي وقت" : "تم حفظ مسير الرواتب بنجاح وهو جاهز للعرض",
+            isDraft ? t("newPayroll.notifications.savedDraft") : t("newPayroll.notifications.savedPayroll"), 
+            isDraft ? t("newPayroll.notifications.savedDraftDesc") : t("newPayroll.notifications.savedPayrollDesc"),
             {
               month: payrollMonth,
               employeeCount: selectedRows.length,
@@ -499,10 +542,10 @@ export function NewPayrollClient({ packages, debts, companyId, userName }: NewPa
           }, 2500);
         } else {
         const data = await res.json();
-        showNotification("error", "فشل الحفظ", data.error || "فشل حفظ المسير");
+        showNotification("error", t("newPayroll.notifications.saveFailed"), data.error || t("newPayroll.notifications.errorSaving"));
       }
     } catch {
-      showNotification("error", "خطأ", "حدث خطأ أثناء الحفظ");
+      showNotification("error", t("newPayroll.notifications.error"), t("newPayroll.notifications.errorSaving"));
     } finally {
       setLoading(false);
     }
@@ -510,10 +553,10 @@ export function NewPayrollClient({ packages, debts, companyId, userName }: NewPa
 
   const getWorkTypeLabel = (type: string) => {
     switch (type) {
-      case 'salary': return 'الراتب الثابت';
-      case 'target': return 'نظام التارقت';
-      case 'tiers': return 'نظام الشرائح';
-      case 'commission': return 'نظام العمولة';
+      case 'salary': return t("workTypes.salary");
+      case 'target': return t("workTypes.target");
+      case 'tiers': return t("workTypes.tiers");
+      case 'commission': return t("workTypes.commission");
       default: return type;
     }
   };
@@ -606,276 +649,277 @@ export function NewPayrollClient({ packages, debts, companyId, userName }: NewPa
                           <div className="bg-white rounded-xl p-3 border border-emerald-100">
                             <div className="flex items-center gap-1.5 text-amber-600 mb-1">
                               <DollarSign size={12} />
-                              <span className="text-[10px] font-bold">إجمالي المسير</span>
+                                <span className="text-[10px] font-bold">{t("newPayroll.notifications.totalPayroll")}</span>
+                              </div>
+                              <p className="font-black text-gray-900 text-sm">{notification.details.totalAmount.toLocaleString('en-US', { minimumFractionDigits: 2 })} {t("stats.sar")}</p>
                             </div>
-                            <p className="font-black text-gray-900 text-sm">{notification.details.totalAmount.toLocaleString('en-US', { minimumFractionDigits: 2 })} ر.س</p>
-                          </div>
-                        )}
+                          )}
+                        </div>
+                      </div>
+                    )}
+                    
+                    {notification.type !== "loading" && (
+                      <button
+                        onClick={() => setNotification(prev => ({ ...prev, show: false }))}
+                        className={`px-8 py-3 rounded-xl font-bold text-white transition-all ${
+                          notification.type === "success" ? "bg-emerald-500 hover:bg-emerald-600" : "bg-red-500 hover:bg-red-600"
+                        }`}
+                      >
+                        {t("newPayroll.notifications.ok")}
+                      </button>
+                    )}
+                  </div>
+                </div>
+              </motion.div>
+            </>
+          )}
+        </AnimatePresence>
+
+        <AnimatePresence>
+          {showDebtsPanel && (
+            <>
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40"
+                onClick={() => setShowDebtsPanel(false)}
+              />
+              <motion.div
+                initial={{ opacity: 0, x: 300 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: 300 }}
+                className="fixed top-0 left-0 h-full w-full max-w-lg bg-white shadow-2xl z-50 overflow-hidden flex flex-col"
+              >
+                <div className="bg-gradient-to-r from-red-500 to-rose-600 p-6 text-white">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="h-12 w-12 rounded-xl bg-white/20 flex items-center justify-center">
+                        <CreditCard size={24} />
+                      </div>
+                      <div>
+                        <h2 className="text-xl font-black">{t("newPayroll.previousDebts")}</h2>
+                        <p className="text-white/70 text-sm">{t("newPayroll.debtsCount", { count: debts.length })}</p>
                       </div>
                     </div>
-                  )}
-                  
-                  {notification.type !== "loading" && (
-                    <button
-                      onClick={() => setNotification(prev => ({ ...prev, show: false }))}
-                      className={`px-8 py-3 rounded-xl font-bold text-white transition-all ${
-                        notification.type === "success" ? "bg-emerald-500 hover:bg-emerald-600" : "bg-red-500 hover:bg-red-600"
-                      }`}
-                    >
-                      حسناً
+                    <button onClick={() => setShowDebtsPanel(false)} className="p-2 hover:bg-white/20 rounded-lg transition-colors">
+                      <X size={20} />
                     </button>
+                  </div>
+                </div>
+                
+                <div className="flex-1 overflow-auto p-4 space-y-3">
+                  {debts.length === 0 ? (
+                    <div className="text-center py-12">
+                      <CheckCircle size={48} className="mx-auto text-emerald-400 mb-4" />
+                      <p className="text-gray-500 font-bold">{t("newPayroll.noDebts")}</p>
+                    </div>
+                  ) : (
+                    debts.map(debt => (
+                      <div key={debt.id} className="bg-gradient-to-r from-red-50 to-rose-50 rounded-xl p-4 border border-red-100">
+                        <div className="flex items-start justify-between">
+                          <div>
+                            <p className="font-bold text-gray-900">{debt.employee_name}</p>
+                            <p className="text-xs text-gray-500">{debt.iqama_number}</p>
+                            <p className="text-xs text-gray-400 mt-1">{t("newPayroll.debtMonth")} {debt.month_reference}</p>
+                          </div>
+                          <div className="text-left">
+                            <p className="text-red-600 font-black text-lg">{Math.abs(Number(debt.amount)).toLocaleString('en-US')}</p>
+                            <p className="text-xs text-red-400">{t("newPayroll.sar")}</p>
+                          </div>
+                        </div>
+                      </div>
+                    ))
                   )}
                 </div>
-              </div>
-            </motion.div>
-          </>
-        )}
-      </AnimatePresence>
 
-      <AnimatePresence>
-        {showDebtsPanel && (
-          <>
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40"
-              onClick={() => setShowDebtsPanel(false)}
-            />
-            <motion.div
-              initial={{ opacity: 0, x: 300 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: 300 }}
-              className="fixed top-0 left-0 h-full w-full max-w-lg bg-white shadow-2xl z-50 overflow-hidden flex flex-col"
-            >
-              <div className="bg-gradient-to-r from-red-500 to-rose-600 p-6 text-white">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="h-12 w-12 rounded-xl bg-white/20 flex items-center justify-center">
-                      <CreditCard size={24} />
+                {debts.length > 0 && (
+                  <div className="p-4 bg-gray-50 border-t">
+                    <div className="flex items-center justify-between mb-3">
+                      <span className="text-gray-600 font-bold">{t("newPayroll.totalDebts")}</span>
+                      <span className="text-red-600 font-black text-xl">{totalDebts.toLocaleString('en-US')} {t("newPayroll.sar")}</span>
+                    </div>
+                    <p className="text-xs text-gray-400 text-center">
+                      {t("newPayroll.debtsNote")}
+                    </p>
+                  </div>
+                )}
+              </motion.div>
+            </>
+          )}
+        </AnimatePresence>
+
+        <div className="flex-1 overflow-auto p-6">
+          <div className="max-w-[1800px] mx-auto space-y-6">
+            <div className="relative overflow-hidden bg-gradient-to-br from-[#1a237e] to-[#283593] rounded-2xl p-6 text-white shadow-xl">
+              <div className="relative z-10">
+                <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                  <div className="flex items-center gap-4">
+                    <div className="h-14 w-14 rounded-xl bg-amber-500 flex items-center justify-center shadow-lg">
+                      <FileText size={28} />
                     </div>
                     <div>
-                      <h2 className="text-xl font-black">الديون السابقة</h2>
-                      <p className="text-white/70 text-sm">{debts.length} دين غير مسدد</p>
+                      <h1 className="text-2xl font-black">{t("newPayroll.title")}</h1>
+                      <p className="text-white/60 text-sm">{t("newPayroll.subtitle")}</p>
                     </div>
                   </div>
-                  <button onClick={() => setShowDebtsPanel(false)} className="p-2 hover:bg-white/20 rounded-lg transition-colors">
-                    <X size={20} />
+                  <div className="flex items-center gap-2">
+                    {debts.length > 0 && (
+                      <button 
+                        onClick={() => setShowDebtsPanel(true)}
+                        className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-red-500 text-white font-bold text-sm hover:bg-red-600 transition-all animate-pulse"
+                      >
+                        <AlertTriangle size={16} />
+                        <span>{t("newPayroll.debtsCount", { count: debts.length })}</span>
+                      </button>
+                    )}
+                    <Link href="/salary-payrolls">
+                      <button className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/10 text-white font-bold text-sm hover:bg-white/20 transition-all border border-white/10">
+                        <ArrowRight size={16} />
+                        <span>{t("backToList")}</span>
+                      </button>
+                    </Link>
+                  </div>
+                </div>
+              </div>
+              <div className="absolute top-0 right-0 w-40 h-40 bg-white/5 rounded-full -mr-20 -mt-20 blur-2xl" />
+            </div>
+
+            {debts.length > 0 && employeesWithDebts.length > 0 && (
+              <motion.div 
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="bg-gradient-to-r from-red-50 via-rose-50 to-orange-50 rounded-2xl border-2 border-red-200 p-5 shadow-lg"
+              >
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center gap-3">
+                    <div className="h-12 w-12 rounded-xl bg-red-100 flex items-center justify-center">
+                      <AlertTriangle size={24} className="text-red-600" />
+                    </div>
+                    <div>
+                      <h3 className="font-black text-red-900 text-lg">{t("newPayroll.debtsWarning")}</h3>
+                      <p className="text-red-600 text-sm">{t("newPayroll.debtsWarningDesc", { count: employeesWithDebts.length })}</p>
+                    </div>
+                  </div>
+                  <button 
+                    onClick={() => setShowDebtsPanel(true)}
+                    className="flex items-center gap-2 px-4 py-2 rounded-xl bg-red-500 text-white font-bold text-sm hover:bg-red-600 transition-all"
+                  >
+                    <CreditCard size={16} />
+                    <span>{t("newPayroll.viewDebtsDetails")}</span>
+                  </button>
+                </div>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                  {employeesWithDebts.slice(0, 4).map(emp => (
+                    <div key={emp.iqama_number} className="bg-white rounded-xl p-3 border border-red-100">
+                      <p className="font-bold text-gray-900 text-sm truncate">{emp.employee_name}</p>
+                      <p className="text-red-600 font-bold">{emp.debt_amount.toLocaleString('en-US')} {t("newPayroll.sar")}</p>
+                    </div>
+                  ))}
+                  {employeesWithDebts.length > 4 && (
+                    <div className="bg-red-100 rounded-xl p-3 flex items-center justify-center">
+                      <p className="text-red-700 font-bold">{t("newPayroll.others", { count: employeesWithDebts.length - 4 })}</p>
+                    </div>
+                  )}
+                </div>
+              </motion.div>
+            )}
+
+            <div className="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                  <label className="flex items-center gap-1.5 text-xs font-bold text-gray-700 mb-1.5">
+                    <Calendar size={14} className="text-gray-400" />
+                    {t("newPayroll.payrollMonth")}
+                  </label>
+                  <input
+                    type="month"
+                    value={payrollMonth}
+                    onChange={(e) => setPayrollMonth(e.target.value)}
+                    className="w-full px-3 py-2.5 rounded-xl border border-gray-200 focus:border-blue-500 focus:ring-1 focus:ring-blue-500/20 outline-none text-sm"
+                  />
+                </div>
+                <div>
+                  <label className="flex items-center gap-1.5 text-xs font-bold text-gray-700 mb-1.5">
+                    <Users size={14} className="text-gray-400" />
+                    {t("newPayroll.selectPackage")}
+                  </label>
+                  <select
+                    value={selectedPackageId}
+                    onChange={(e) => setSelectedPackageId(e.target.value)}
+                    className="w-full px-3 py-2.5 rounded-xl border border-gray-200 focus:border-blue-500 focus:ring-1 focus:ring-blue-500/20 outline-none text-sm"
+                  >
+                    <option value="">{t("newPayroll.selectPackagePlaceholder")}</option>
+                    {packages.map(pkg => (
+                      <option key={pkg.id} value={pkg.id}>{pkg.group_name}</option>
+                    ))}
+                  </select>
+                </div>
+                <div className="flex items-end">
+                  <button 
+                    onClick={() => selectedPackageId && fetchPackageData(selectedPackageId)}
+                    disabled={!selectedPackageId || fetchingPackage}
+                    className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-blue-500 text-white font-bold text-sm hover:bg-blue-600 transition-all disabled:opacity-50"
+                  >
+                    {fetchingPackage ? <Loader2 size={16} className="animate-spin" /> : <Search size={16} />}
+                    <span>{t("newPayroll.search")}</span>
                   </button>
                 </div>
               </div>
-              
-              <div className="flex-1 overflow-auto p-4 space-y-3">
-                {debts.length === 0 ? (
-                  <div className="text-center py-12">
-                    <CheckCircle size={48} className="mx-auto text-emerald-400 mb-4" />
-                    <p className="text-gray-500 font-bold">لا توجد ديون سابقة</p>
-                  </div>
-                ) : (
-                  debts.map(debt => (
-                    <div key={debt.id} className="bg-gradient-to-r from-red-50 to-rose-50 rounded-xl p-4 border border-red-100">
-                      <div className="flex items-start justify-between">
-                        <div>
-                          <p className="font-bold text-gray-900">{debt.employee_name}</p>
-                          <p className="text-xs text-gray-500">{debt.iqama_number}</p>
-                          <p className="text-xs text-gray-400 mt-1">شهر: {debt.month_reference}</p>
-                        </div>
-                        <div className="text-left">
-                          <p className="text-red-600 font-black text-lg">{Math.abs(Number(debt.amount)).toLocaleString('en-US')}</p>
-                          <p className="text-xs text-red-400">ريال</p>
-                        </div>
-                      </div>
-                    </div>
-                  ))
-                )}
-              </div>
-
-              {debts.length > 0 && (
-                <div className="p-4 bg-gray-50 border-t">
-                  <div className="flex items-center justify-between mb-3">
-                    <span className="text-gray-600 font-bold">إجمالي الديون:</span>
-                    <span className="text-red-600 font-black text-xl">{totalDebts.toLocaleString('en-US')} ريال</span>
-                  </div>
-                  <p className="text-xs text-gray-400 text-center">
-                    تم إضافة الديون تلقائياً كخصم داخلي للموظفين المعنيين
-                  </p>
-                </div>
-              )}
-            </motion.div>
-          </>
-        )}
-      </AnimatePresence>
-
-      <div className="flex-1 overflow-auto p-6">
-        <div className="max-w-[1800px] mx-auto space-y-6">
-          <div className="relative overflow-hidden bg-gradient-to-br from-[#1a237e] to-[#283593] rounded-2xl p-6 text-white shadow-xl">
-            <div className="relative z-10">
-              <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                <div className="flex items-center gap-4">
-                  <div className="h-14 w-14 rounded-xl bg-amber-500 flex items-center justify-center shadow-lg">
-                    <FileText size={28} />
-                  </div>
-                  <div>
-                    <h1 className="text-2xl font-black">إنشاء مسير رواتب جديد</h1>
-                    <p className="text-white/60 text-sm">يمكنك من هنا إنشاء مسير رواتب جديد للموظفين</p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-2">
-                  {debts.length > 0 && (
-                    <button 
-                      onClick={() => setShowDebtsPanel(true)}
-                      className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-red-500 text-white font-bold text-sm hover:bg-red-600 transition-all animate-pulse"
-                    >
-                      <AlertTriangle size={16} />
-                      <span>{debts.length} دين سابق</span>
-                    </button>
-                  )}
-                  <Link href="/salary-payrolls">
-                    <button className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/10 text-white font-bold text-sm hover:bg-white/20 transition-all border border-white/10">
-                      <ArrowRight size={16} />
-                      <span>العودة للقائمة</span>
-                    </button>
-                  </Link>
-                </div>
-              </div>
             </div>
-            <div className="absolute top-0 right-0 w-40 h-40 bg-white/5 rounded-full -mr-20 -mt-20 blur-2xl" />
-          </div>
 
-          {debts.length > 0 && employeesWithDebts.length > 0 && (
-            <motion.div 
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="bg-gradient-to-r from-red-50 via-rose-50 to-orange-50 rounded-2xl border-2 border-red-200 p-5 shadow-lg"
-            >
-              <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center gap-3">
-                  <div className="h-12 w-12 rounded-xl bg-red-100 flex items-center justify-center">
-                    <AlertTriangle size={24} className="text-red-600" />
+            {selectedPackage && (
+              <>
+                <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl border border-blue-200 p-5">
+                  <div className="flex items-center gap-2 mb-4">
+                    <Info size={18} className="text-blue-500" />
+                    <h3 className="font-bold text-blue-900">{t("newPayroll.systemInfo")}</h3>
                   </div>
-                  <div>
-                    <h3 className="font-black text-red-900 text-lg">تنبيه: ديون من الشهر السابق</h3>
-                    <p className="text-red-600 text-sm">يوجد {employeesWithDebts.length} موظف لديهم ديون سابقة تم إضافتها كخصم داخلي</p>
-                  </div>
-                </div>
-                <button 
-                  onClick={() => setShowDebtsPanel(true)}
-                  className="flex items-center gap-2 px-4 py-2 rounded-xl bg-red-500 text-white font-bold text-sm hover:bg-red-600 transition-all"
-                >
-                  <CreditCard size={16} />
-                  <span>عرض التفاصيل</span>
-                </button>
-              </div>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                {employeesWithDebts.slice(0, 4).map(emp => (
-                  <div key={emp.iqama_number} className="bg-white rounded-xl p-3 border border-red-100">
-                    <p className="font-bold text-gray-900 text-sm truncate">{emp.employee_name}</p>
-                    <p className="text-red-600 font-bold">{emp.debt_amount.toLocaleString('en-US')} ريال</p>
-                  </div>
-                ))}
-                {employeesWithDebts.length > 4 && (
-                  <div className="bg-red-100 rounded-xl p-3 flex items-center justify-center">
-                    <p className="text-red-700 font-bold">+{employeesWithDebts.length - 4} آخرين</p>
-                  </div>
-                )}
-              </div>
-            </motion.div>
-          )}
-
-          <div className="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div>
-                <label className="flex items-center gap-1.5 text-xs font-bold text-gray-700 mb-1.5">
-                  <Calendar size={14} className="text-gray-400" />
-                  شهر المسير
-                </label>
-                <input
-                  type="month"
-                  value={payrollMonth}
-                  onChange={(e) => setPayrollMonth(e.target.value)}
-                  className="w-full px-3 py-2.5 rounded-xl border border-gray-200 focus:border-blue-500 focus:ring-1 focus:ring-blue-500/20 outline-none text-sm"
-                />
-              </div>
-              <div>
-                <label className="flex items-center gap-1.5 text-xs font-bold text-gray-700 mb-1.5">
-                  <Users size={14} className="text-gray-400" />
-                  باقة الموظفين
-                </label>
-                <select
-                  value={selectedPackageId}
-                  onChange={(e) => setSelectedPackageId(e.target.value)}
-                  className="w-full px-3 py-2.5 rounded-xl border border-gray-200 focus:border-blue-500 focus:ring-1 focus:ring-blue-500/20 outline-none text-sm"
-                >
-                  <option value="">-- اختر الباقة --</option>
-                  {packages.map(pkg => (
-                    <option key={pkg.id} value={pkg.id}>{pkg.group_name}</option>
-                  ))}
-                </select>
-              </div>
-              <div className="flex items-end">
-                <button 
-                  onClick={() => selectedPackageId && fetchPackageData(selectedPackageId)}
-                  disabled={!selectedPackageId || fetchingPackage}
-                  className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-blue-500 text-white font-bold text-sm hover:bg-blue-600 transition-all disabled:opacity-50"
-                >
-                  {fetchingPackage ? <Loader2 size={16} className="animate-spin" /> : <Search size={16} />}
-                  <span>بحث</span>
-                </button>
-              </div>
-            </div>
-          </div>
-
-          {selectedPackage && (
-            <>
-              <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl border border-blue-200 p-5">
-                <div className="flex items-center gap-2 mb-4">
-                  <Info size={18} className="text-blue-500" />
-                  <h3 className="font-bold text-blue-900">معلومات النظام</h3>
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div className="bg-white rounded-xl p-3 border border-blue-100">
-                    <div className="flex items-center gap-2 text-blue-600 mb-1">
-                      <Layers size={14} />
-                      <span className="text-xs font-bold">نظام العمل</span>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="bg-white rounded-xl p-3 border border-blue-100">
+                      <div className="flex items-center gap-2 text-blue-600 mb-1">
+                        <Layers size={14} />
+                        <span className="text-xs font-bold">{t("newPayroll.workSystem")}</span>
+                      </div>
+                      <p className="font-bold text-gray-900">{getWorkTypeLabel(selectedPackage.work_type)}</p>
                     </div>
-                    <p className="font-bold text-gray-900">{getWorkTypeLabel(selectedPackage.work_type)}</p>
+                    {!isSalaryType && (
+                      <>
+                        <div className="bg-white rounded-xl p-3 border border-blue-100">
+                          <div className="flex items-center gap-2 text-blue-600 mb-1">
+                            <Target size={14} />
+                            <span className="text-xs font-bold">{t("newPayroll.monthlyTarget")}</span>
+                          </div>
+                          <p className="font-bold text-gray-900">{selectedPackage.monthly_target || 0} {t("newPayroll.orderUnit")}</p>
+                        </div>
+                        <div className="bg-white rounded-xl p-3 border border-blue-100">
+                          <div className="flex items-center gap-2 text-blue-600 mb-1">
+                            <Gift size={14} />
+                            <span className="text-xs font-bold">{t("newPayroll.bonusValue")}</span>
+                          </div>
+                          <p className="font-bold text-gray-900">{selectedPackage.bonus_after_target || 0} {t("newPayroll.perOrder")}</p>
+                        </div>
+                      </>
+                    )}
                   </div>
-                  {!isSalaryType && (
-                    <>
-                      <div className="bg-white rounded-xl p-3 border border-blue-100">
-                        <div className="flex items-center gap-2 text-blue-600 mb-1">
-                          <Target size={14} />
-                          <span className="text-xs font-bold">التارقت الشهري</span>
-                        </div>
-                        <p className="font-bold text-gray-900">{selectedPackage.monthly_target || 0} طلب</p>
-                      </div>
-                      <div className="bg-white rounded-xl p-3 border border-blue-100">
-                        <div className="flex items-center gap-2 text-blue-600 mb-1">
-                          <Gift size={14} />
-                          <span className="text-xs font-bold">قيمة البونص</span>
-                        </div>
-                        <p className="font-bold text-gray-900">{selectedPackage.bonus_after_target || 0} ريال لكل طلب</p>
-                      </div>
-                    </>
+
+                  {selectedPackage.work_type === 'tiers' && (
+                    <div className="mt-4 pt-4 border-t border-blue-200">
+                      <button
+                        onClick={() => setTierSystemActive(!tierSystemActive)}
+                        className={`flex items-center gap-2 px-4 py-2 rounded-xl font-bold text-sm transition-all ${
+                          tierSystemActive
+                            ? 'bg-emerald-500 text-white'
+                            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                        }`}
+                      >
+                        {tierSystemActive ? <CheckCircle size={16} /> : <Clock size={16} />}
+                        {tierSystemActive ? t("newPayroll.tiersSystem") : t("newPayroll.activateTiers")}
+                      </button>
+                    </div>
                   )}
                 </div>
 
-                {selectedPackage.work_type === 'tiers' && (
-                  <div className="mt-4 pt-4 border-t border-blue-200">
-                    <button
-                      onClick={() => setTierSystemActive(!tierSystemActive)}
-                      className={`flex items-center gap-2 px-4 py-2 rounded-xl font-bold text-sm transition-all ${
-                        tierSystemActive
-                          ? 'bg-emerald-500 text-white'
-                          : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                      }`}
-                    >
-                      {tierSystemActive ? <CheckCircle size={16} /> : <Clock size={16} />}
-                      {tierSystemActive ? 'نظام الشرائح مفعل' : 'تفعيل نظام الشرائح المخصص'}
-                    </button>
-                  </div>
-                )}
-              </div>
 
               {employeeRows.length > 0 && (
                   <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden flex flex-col" style={{ height: 'calc(100vh - 420px)', minHeight: '500px' }}>
@@ -883,9 +927,9 @@ export function NewPayrollClient({ packages, debts, companyId, userName }: NewPa
                       <div className="flex items-center gap-2 text-white">
                         <Calculator size={18} />
                         <h3 className="font-bold text-sm">
-                          {isSalaryType ? 'جدول الرواتب' :
-                           workType === 'target' ? 'جدول التارقت' :
-                           workType === 'tiers' ? 'جدول الشرائح' : 'جدول الرواتب'}
+                          {isSalaryType ? t("newPayroll.salaryTable") :
+                           workType === 'target' ? t("newPayroll.targetTable") :
+                           workType === 'tiers' ? t("newPayroll.tiersTable") : t("newPayroll.salaryTable")}
                         </h3>
                       </div>
                       <div className="flex items-center gap-3">
@@ -895,7 +939,7 @@ export function NewPayrollClient({ packages, debts, companyId, userName }: NewPa
                             className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/10 text-white text-xs font-bold hover:bg-white/20 transition-all border border-white/20"
                           >
                             {employeeRows.every(row => row.selected) ? <CheckSquare size={14} /> : <Square size={14} />}
-                            {employeeRows.every(row => row.selected) ? 'إلغاء الكل' : 'تحديد الكل'}
+                            {employeeRows.every(row => row.selected) ? t("newPayroll.deselectAll") : t("newPayroll.selectAll")}
                           </button>
                           <button
                             onClick={removeUnselected}
@@ -903,20 +947,20 @@ export function NewPayrollClient({ packages, debts, companyId, userName }: NewPa
                             className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-red-500/80 text-white text-xs font-bold hover:bg-red-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                           >
                             <Trash2 size={14} />
-                            حذف غير المحدد
+                            {t("newPayroll.deleteUnselected")}
                           </button>
                           <button
                             onClick={() => fetchPackageData(selectedPackageId)}
                             className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-500/80 text-white text-xs font-bold hover:bg-emerald-600 transition-all"
                           >
                             <RefreshCw size={14} />
-                            إعادة تحميل
+                            {t("newPayroll.reload")}
                           </button>
                         </div>
                         <div className="relative">
                           <input
                             type="text"
-                            placeholder="بحث بالاسم أو الإقامة أو الكود..."
+                            placeholder={t("newPayroll.searchEmployee")}
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
                             className="w-56 pl-8 pr-3 py-1.5 rounded-lg bg-white/10 border border-white/20 text-white placeholder-white/50 text-xs focus:bg-white/20 focus:border-white/40 outline-none transition-all"
@@ -932,7 +976,7 @@ export function NewPayrollClient({ packages, debts, companyId, userName }: NewPa
                           )}
                         </div>
                         <span className="bg-white/20 text-white px-2 py-0.5 rounded text-xs font-bold">
-                          {selectedCount} / {employeeRows.length} محدد
+                          {selectedCount} / {employeeRows.length} {t("newPayroll.selected")}
                         </span>
                       </div>
                     </div>
@@ -949,35 +993,35 @@ export function NewPayrollClient({ packages, debts, companyId, userName }: NewPa
                                 className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                               />
                             </th>
-                            <th className="text-right px-3 py-2.5 text-xs font-bold text-gray-700 whitespace-nowrap border-l border-gray-200">#</th>
-                            <th className="text-right px-3 py-2.5 text-xs font-bold text-gray-700 whitespace-nowrap border-l border-gray-200">اسم الموظف</th>
-                            <th className="text-right px-3 py-2.5 text-xs font-bold text-gray-700 whitespace-nowrap border-l border-gray-200">الإقامة</th>
+                            <th className="text-right px-3 py-2.5 text-xs font-bold text-gray-700 whitespace-nowrap border-l border-gray-200">{t("newPayroll.columns.no")}</th>
+                            <th className="text-right px-3 py-2.5 text-xs font-bold text-gray-700 whitespace-nowrap border-l border-gray-200">{t("newPayroll.columns.employeeName")}</th>
+                            <th className="text-right px-3 py-2.5 text-xs font-bold text-gray-700 whitespace-nowrap border-l border-gray-200">{t("newPayroll.columns.iqama")}</th>
                             {!isSalaryType && (
-                              <th className="text-right px-3 py-2.5 text-xs font-bold text-gray-700 whitespace-nowrap border-l border-gray-200">الكود</th>
+                              <th className="text-right px-3 py-2.5 text-xs font-bold text-gray-700 whitespace-nowrap border-l border-gray-200">{t("newPayroll.columns.code")}</th>
                             )}
-                            <th className="text-right px-3 py-2.5 text-xs font-bold text-gray-700 whitespace-nowrap border-l border-gray-200">الراتب</th>
+                            <th className="text-right px-3 py-2.5 text-xs font-bold text-gray-700 whitespace-nowrap border-l border-gray-200">{t("newPayroll.columns.salary")}</th>
                             {isSalaryType ? (
                               <>
-                                <th className="text-right px-3 py-2.5 text-xs font-bold text-gray-700 whitespace-nowrap border-l border-gray-200">السكن</th>
-                                <th className="text-right px-3 py-2.5 text-xs font-bold text-gray-700 whitespace-nowrap border-l border-gray-200">الجنسية</th>
-                                <th className="text-right px-3 py-2.5 text-xs font-bold text-gray-700 whitespace-nowrap border-l border-gray-200">خصم داخلي</th>
-                                <th className="text-right px-3 py-2.5 text-xs font-bold text-gray-700 whitespace-nowrap border-l border-gray-200">مكافأة</th>
+                                <th className="text-right px-3 py-2.5 text-xs font-bold text-gray-700 whitespace-nowrap border-l border-gray-200">{t("newPayroll.columns.housing")}</th>
+                                <th className="text-right px-3 py-2.5 text-xs font-bold text-gray-700 whitespace-nowrap border-l border-gray-200">{t("newPayroll.columns.nationality")}</th>
+                                <th className="text-right px-3 py-2.5 text-xs font-bold text-gray-700 whitespace-nowrap border-l border-gray-200">{t("newPayroll.columns.internalDeduction")}</th>
+                                <th className="text-right px-3 py-2.5 text-xs font-bold text-gray-700 whitespace-nowrap border-l border-gray-200">{t("newPayroll.columns.reward")}</th>
                               </>
                             ) : (
                               <>
-                                <th className="text-right px-3 py-2.5 text-xs font-bold text-gray-700 whitespace-nowrap border-l border-gray-200">التارقت</th>
-                                <th className="text-right px-3 py-2.5 text-xs font-bold text-gray-700 whitespace-nowrap border-l border-gray-200">البونص</th>
-                                <th className="text-right px-3 py-2.5 text-xs font-bold text-gray-700 whitespace-nowrap border-l border-gray-200">الطلبات</th>
-                                <th className="text-right px-3 py-2.5 text-xs font-bold text-gray-700 whitespace-nowrap border-l border-gray-200">خصم</th>
-                                <th className="text-right px-3 py-2.5 text-xs font-bold text-gray-700 whitespace-nowrap border-l border-gray-200">بونص</th>
-                                <th className="text-right px-3 py-2.5 text-xs font-bold text-gray-700 whitespace-nowrap border-l border-gray-200">مشغل</th>
-                                <th className="text-right px-3 py-2.5 text-xs font-bold text-gray-700 whitespace-nowrap border-l border-gray-200">داخلي</th>
-                                <th className="text-right px-3 py-2.5 text-xs font-bold text-gray-700 whitespace-nowrap border-l border-gray-200">محفظة</th>
-                                <th className="text-right px-3 py-2.5 text-xs font-bold text-gray-700 whitespace-nowrap border-l border-gray-200">مكافأة</th>
+                                <th className="text-right px-3 py-2.5 text-xs font-bold text-gray-700 whitespace-nowrap border-l border-gray-200">{t("newPayroll.columns.target")}</th>
+                                <th className="text-right px-3 py-2.5 text-xs font-bold text-gray-700 whitespace-nowrap border-l border-gray-200">{t("newPayroll.columns.bonus")}</th>
+                                <th className="text-right px-3 py-2.5 text-xs font-bold text-gray-700 whitespace-nowrap border-l border-gray-200">{t("newPayroll.columns.orders")}</th>
+                                <th className="text-right px-3 py-2.5 text-xs font-bold text-gray-700 whitespace-nowrap border-l border-gray-200">{t("newPayroll.columns.targetDeduction")}</th>
+                                <th className="text-right px-3 py-2.5 text-xs font-bold text-gray-700 whitespace-nowrap border-l border-gray-200">{t("newPayroll.columns.monthlyBonus")}</th>
+                                <th className="text-right px-3 py-2.5 text-xs font-bold text-gray-700 whitespace-nowrap border-l border-gray-200">{t("newPayroll.columns.operatorDeduction")}</th>
+                                <th className="text-right px-3 py-2.5 text-xs font-bold text-gray-700 whitespace-nowrap border-l border-gray-200">{t("newPayroll.columns.internal")}</th>
+                                <th className="text-right px-3 py-2.5 text-xs font-bold text-gray-700 whitespace-nowrap border-l border-gray-200">{t("newPayroll.columns.wallet")}</th>
+                                <th className="text-right px-3 py-2.5 text-xs font-bold text-gray-700 whitespace-nowrap border-l border-gray-200">{t("newPayroll.columns.reward")}</th>
                               </>
                             )}
-                            <th className="text-right px-3 py-2.5 text-xs font-bold text-gray-700 whitespace-nowrap border-l border-gray-200">صافي</th>
-                            <th className="text-right px-3 py-2.5 text-xs font-bold text-gray-700 whitespace-nowrap">التحويل</th>
+                            <th className="text-right px-3 py-2.5 text-xs font-bold text-gray-700 whitespace-nowrap border-l border-gray-200">{t("newPayroll.columns.netSalary")}</th>
+                            <th className="text-right px-3 py-2.5 text-xs font-bold text-gray-700 whitespace-nowrap">{t("newPayroll.columns.paymentMethod")}</th>
                           </tr>
                         </thead>
                         <tbody>
@@ -1123,110 +1167,111 @@ export function NewPayrollClient({ packages, debts, companyId, userName }: NewPa
                                   </>
                                 )}
                                 
-                                <td className="px-3 py-2 border-l border-gray-100">
-                                  <input
-                                    type="text"
-                                    value={(Number(row.net_salary) || 0).toFixed(2)}
-                                    readOnly
-                                    className={`w-24 px-2 py-1 rounded-lg border text-center text-sm font-bold ${
-                                      row.net_salary < 0 ? 'bg-red-100 border-red-200 text-red-600' : 'bg-emerald-50 border-emerald-200 text-emerald-600'
-                                    }`}
-                                  />
-                                </td>
-                                <td className="px-3 py-2">
-                                  <select
-                                    value={row.payment_method}
-                                    onChange={(e) => handleRowChange(realIndex, 'payment_method', e.target.value)}
-                                    className="w-24 px-2 py-1 rounded-lg border border-gray-200 text-sm focus:border-blue-400 focus:ring-1 focus:ring-blue-200"
-                                  >
-                                    <option value="غير محدد">غير محدد</option>
-                                    <option value="مدد">مدد</option>
-                                    <option value="كاش">كاش</option>
-                                    <option value="تحويل">تحويل بنكي</option>
-                                  </select>
-                                </td>
-                              </tr>
-                            );
-                          })}
-                        </tbody>
-                      </table>
-                    </div>
+                                  <td className="px-3 py-2 border-l border-gray-100">
+                                    <input
+                                      type="text"
+                                      value={(Number(row.net_salary) || 0).toFixed(2)}
+                                      readOnly
+                                      className={`w-24 px-2 py-1 rounded-lg border text-center text-sm font-bold ${
+                                        row.net_salary < 0 ? 'bg-red-100 border-red-200 text-red-600' : 'bg-emerald-50 border-emerald-200 text-emerald-600'
+                                      }`}
+                                    />
+                                  </td>
+                                  <td className="px-3 py-2">
+                                    <select
+                                      value={row.payment_method}
+                                      onChange={(e) => handleRowChange(realIndex, 'payment_method', e.target.value)}
+                                      className="w-24 px-2 py-1 rounded-lg border border-gray-200 text-sm focus:border-blue-400 focus:ring-1 focus:ring-blue-200"
+                                    >
+                                      <option value="غير محدد">{t("newPayroll.paymentMethods.notSpecified")}</option>
+                                      <option value="مدد">{t("newPayroll.paymentMethods.mudad")}</option>
+                                      <option value="كاش">{t("newPayroll.paymentMethods.cash")}</option>
+                                      <option value="تحويل">{t("newPayroll.paymentMethods.transfer")}</option>
+                                    </select>
+                                  </td>
+                                </tr>
+                              );
+                            })}
+                          </tbody>
+                        </table>
+                      </div>
 
-                    <div className="bg-gradient-to-r from-gray-50 to-blue-50 p-3 border-t border-gray-200 flex-shrink-0">
-                      <div className="grid grid-cols-3 gap-3">
-                        <div className="bg-white rounded-xl p-3 border border-gray-100 text-center">
-                          <div className="flex items-center justify-center gap-1.5 text-emerald-600 mb-1">
-                            <DollarSign size={14} />
-                            <span className="text-xs font-bold">إجمالي الرواتب (المحدد)</span>
-                          </div>
-                          <p className="text-lg font-black text-emerald-600">
-                            {totals.totalSalary.toLocaleString('en-US', { minimumFractionDigits: 2 })} ريال
-                          </p>
-                        </div>
-                        {!isSalaryType && (
+                      <div className="bg-gradient-to-r from-gray-50 to-blue-50 p-3 border-t border-gray-200 flex-shrink-0">
+                        <div className="grid grid-cols-3 gap-3">
                           <div className="bg-white rounded-xl p-3 border border-gray-100 text-center">
-                            <div className="flex items-center justify-center gap-1.5 text-blue-600 mb-1">
-                              <Target size={14} />
-                              <span className="text-xs font-bold">الطلبات الناجحة</span>
+                            <div className="flex items-center justify-center gap-1.5 text-emerald-600 mb-1">
+                              <DollarSign size={14} />
+                              <span className="text-xs font-bold">{t("newPayroll.totals.totalSalaries")}</span>
                             </div>
-                            <p className="text-lg font-black text-blue-600">{totals.totalOrders}</p>
+                            <p className="text-lg font-black text-emerald-600">
+                              {totals.totalSalary.toLocaleString('en-US', { minimumFractionDigits: 2 })} {t("stats.sar")}
+                            </p>
                           </div>
-                        )}
-                        <div className="bg-white rounded-xl p-3 border border-gray-100 text-center">
-                          <div className="flex items-center justify-center gap-1.5 text-red-600 mb-1">
-                            <AlertCircle size={14} />
-                            <span className="text-xs font-bold">إجمالي الخصومات</span>
+                          {!isSalaryType && (
+                            <div className="bg-white rounded-xl p-3 border border-gray-100 text-center">
+                              <div className="flex items-center justify-center gap-1.5 text-blue-600 mb-1">
+                                <Target size={14} />
+                                <span className="text-xs font-bold">{t("newPayroll.totals.totalOrders")}</span>
+                              </div>
+                              <p className="text-lg font-black text-blue-600">{totals.totalOrders}</p>
+                            </div>
+                          )}
+                          <div className="bg-white rounded-xl p-3 border border-gray-100 text-center">
+                            <div className="flex items-center justify-center gap-1.5 text-red-600 mb-1">
+                              <AlertCircle size={14} />
+                              <span className="text-xs font-bold">{t("newPayroll.totals.totalDeductions")}</span>
+                            </div>
+                            <p className="text-lg font-black text-red-600">
+                              {totals.totalDeductions.toLocaleString('en-US', { minimumFractionDigits: 2 })} {t("stats.sar")}
+                            </p>
                           </div>
-                          <p className="text-lg font-black text-red-600">
-                            {totals.totalDeductions.toLocaleString('en-US', { minimumFractionDigits: 2 })} ريال
-                          </p>
                         </div>
                       </div>
                     </div>
-                  </div>
-                )}
+                  )}
 
-              <div className="flex justify-center gap-4 pb-6">
-                <Link href="/salary-payrolls">
-                  <button className="flex items-center gap-2 px-6 py-3 rounded-xl bg-gray-100 text-gray-700 font-bold text-sm hover:bg-gray-200 transition-all">
-                    <ArrowRight size={16} />
-                    <span>إلغاء</span>
+                <div className="flex justify-center gap-4 pb-6">
+                  <Link href="/salary-payrolls">
+                    <button className="flex items-center gap-2 px-6 py-3 rounded-xl bg-gray-100 text-gray-700 font-bold text-sm hover:bg-gray-200 transition-all">
+                      <ArrowRight size={16} />
+                      <span>{t("newPayroll.cancel")}</span>
+                    </button>
+                  </Link>
+                  <button
+                    onClick={() => handleSave(true)}
+                    disabled={loading || selectedCount === 0}
+                    className="flex items-center gap-2 px-6 py-3 rounded-xl bg-amber-500 text-white font-bold text-sm hover:bg-amber-600 transition-all disabled:opacity-50"
+                  >
+                    {loading ? <Loader2 size={16} className="animate-spin" /> : <FileCheck size={16} />}
+                    <span>{t("newPayroll.saveDraft")}</span>
                   </button>
-                </Link>
-                <button
-                  onClick={() => handleSave(true)}
-                  disabled={loading || selectedCount === 0}
-                  className="flex items-center gap-2 px-6 py-3 rounded-xl bg-amber-500 text-white font-bold text-sm hover:bg-amber-600 transition-all disabled:opacity-50"
-                >
-                  {loading ? <Loader2 size={16} className="animate-spin" /> : <FileCheck size={16} />}
-                  <span>حفظ كمسودة</span>
-                </button>
-                <button
-                  onClick={() => handleSave(false)}
-                  disabled={loading || selectedCount === 0}
-                  className="flex items-center gap-2 px-8 py-3 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 text-white font-bold text-sm hover:from-emerald-600 hover:to-teal-600 transition-all disabled:opacity-50 shadow-lg shadow-emerald-500/25"
-                >
-                  {loading ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />}
-                  <span>حفظ المسير ({selectedCount})</span>
-                </button>
+                  <button
+                    onClick={() => handleSave(false)}
+                    disabled={loading || selectedCount === 0}
+                    className="flex items-center gap-2 px-8 py-3 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 text-white font-bold text-sm hover:from-emerald-600 hover:to-teal-600 transition-all disabled:opacity-50 shadow-lg shadow-emerald-500/25"
+                  >
+                    {loading ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />}
+                    <span>{t("newPayroll.savePayroll", { count: selectedCount })}</span>
+                  </button>
+                </div>
+              </>
+            )}
+
+            {!selectedPackage && !fetchingPackage && (
+              <div className="bg-white rounded-2xl border border-gray-100 p-12 text-center">
+                <Info size={48} className="mx-auto text-blue-300 mb-4" />
+                <h4 className="text-lg font-bold text-gray-600 mb-2">{t("newPayroll.welcomeTitle")}</h4>
+                <p className="text-gray-400 text-sm">{t("newPayroll.welcomeDesc")}</p>
               </div>
-            </>
-          )}
+            )}
 
-          {!selectedPackage && !fetchingPackage && (
-            <div className="bg-white rounded-2xl border border-gray-100 p-12 text-center">
-              <Info size={48} className="mx-auto text-blue-300 mb-4" />
-              <h4 className="text-lg font-bold text-gray-600 mb-2">مرحباً بك في إنشاء مسير الرواتب</h4>
-              <p className="text-gray-400 text-sm">يرجى تحديد شهر المسير والباقة لبدء إنشاء المسير</p>
-            </div>
-          )}
+            {fetchingPackage && (
+              <div className="bg-white rounded-2xl border border-gray-100 p-12 text-center">
+                <Loader2 size={48} className="mx-auto text-blue-500 mb-4 animate-spin" />
+                <h4 className="text-lg font-bold text-gray-600 mb-2">{t("newPayroll.loadingData")}</h4>
+              </div>
+            )}
 
-          {fetchingPackage && (
-            <div className="bg-white rounded-2xl border border-gray-100 p-12 text-center">
-              <Loader2 size={48} className="mx-auto text-blue-500 mb-4 animate-spin" />
-              <h4 className="text-lg font-bold text-gray-600 mb-2">جاري تحميل البيانات...</h4>
-            </div>
-          )}
         </div>
       </div>
     </div>
