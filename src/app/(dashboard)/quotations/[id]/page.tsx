@@ -14,15 +14,15 @@ interface QuotationItem {
   total: number;
 }
 
-async function getQuotation(id: string, companyId: number) {
+async function getQuotation(id: string) {
   try {
     const quotations = await query<any>(
       `SELECT q.*, c.customer_name, c.company_name as client_company, c.vat_number as client_vat_full,
               c.short_address, c.email as client_email, c.phone as client_phone
        FROM quotations q
        LEFT JOIN customers c ON q.client_id = c.id
-       WHERE q.id = ? AND q.company_id = ?`,
-      [id, companyId]
+       WHERE q.id = ?`,
+      [id]
     );
 
     if (quotations.length === 0) return null;
@@ -53,28 +53,14 @@ async function getCompany(companyId: number) {
 
 export default async function QuotationViewPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const cookieStore = await cookies();
-  const sessionCookie = cookieStore.get("auth_session");
-  const session = JSON.parse(sessionCookie?.value || "{}");
   
-  const companyId = session.company_id;
-
-  if (!companyId) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <p className="text-gray-500">جاري التحميل...</p>
-      </div>
-    );
-  }
-
-  const [quotation, company] = await Promise.all([
-    getQuotation(id, companyId),
-    getCompany(companyId)
-  ]);
+  const quotation = await getQuotation(id);
 
   if (!quotation) {
     notFound();
   }
 
-  return <QuotationViewClient quotation={quotation} company={company} companyId={companyId} />;
+  const company = await getCompany(quotation.company_id);
+
+  return <QuotationViewClient quotation={quotation} company={company} companyId={quotation.company_id} />;
 }

@@ -3,20 +3,16 @@ import { notFound, redirect } from "next/navigation";
 import { query } from "@/lib/db";
 import { InvoiceViewClient } from "./invoice-view-client";
 
-async function getCompanyId(userId: number) {
-  const users = await query<any>("SELECT company_id FROM users WHERE id = ?", [userId]);
-  return users[0]?.company_id;
-}
-
-async function getInvoiceData(id: string, companyId: number) {
+async function getInvoiceData(id: string) {
   const invoices = await query<any>(
-    "SELECT * FROM sales_invoices WHERE id = ? AND company_id = ?",
-    [id, companyId]
+    "SELECT * FROM sales_invoices WHERE id = ?",
+    [id]
   );
 
   if (invoices.length === 0) return null;
 
   const invoice = invoices[0];
+  const companyId = invoice.company_id;
 
   const items = await query<any>(
     "SELECT * FROM invoice_items WHERE invoice_id = ?",
@@ -59,25 +55,8 @@ async function getInvoiceData(id: string, companyId: number) {
 
 export default async function InvoiceViewPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const cookieStore = await cookies();
-  const sessionCookie = cookieStore.get("auth_session");
   
-  if (!sessionCookie) {
-    redirect("/login");
-  }
-  
-  const session = JSON.parse(sessionCookie.value);
-  let companyId = session.company_id;
-  
-  if (!companyId && session.user_id) {
-    companyId = await getCompanyId(session.user_id);
-  }
-
-  if (!companyId) {
-    redirect("/login");
-  }
-
-  const data = await getInvoiceData(id, companyId);
+  const data = await getInvoiceData(id);
 
   if (!data) {
     notFound();

@@ -15,32 +15,33 @@ export async function GET(
   const searchParams = request.nextUrl.searchParams;
   const companyId = searchParams.get("company_id") || "1";
 
-  try {
-    const { data: voucher, error } = await supabase
-      .from("payment_vouchers")
-      .select("*")
-      .eq("id", id)
-      .eq("company_id", companyId)
-      .single();
+    try {
+      // First fetch the voucher to get its company_id
+      const { data: voucher, error } = await supabase
+        .from("payment_vouchers")
+        .select("*")
+        .eq("id", id)
+        .single();
 
-    if (error || !voucher) {
-      return NextResponse.json(
-        { error: "Voucher not found" },
-        { status: 404 }
+      if (error || !voucher) {
+        return NextResponse.json(
+          { error: "Voucher not found" },
+          { status: 404 }
+        );
+      }
+
+      // Fetch company data based on the voucher's company_id
+      const companyData = await query<any>(
+        `SELECT id, name, commercial_number, vat_number, country, region, district, street, postal_code, short_address, logo_path, stamp_path, digital_seal_path FROM companies WHERE id = ?`,
+        [voucher.company_id]
       );
-    }
 
-    const companyData = await query<any>(
-      `SELECT id, name, commercial_number, vat_number, country, region, district, street, postal_code, short_address, logo_path, stamp_path, digital_seal_path FROM companies WHERE id = ?`,
-      [companyId]
-    );
+      const company = companyData?.[0] || {};
 
-    const company = companyData?.[0] || {};
-
-    return NextResponse.json({
-      voucher,
-      company,
-    });
+      return NextResponse.json({
+        voucher,
+        company,
+      });
   } catch (error) {
     console.error("Error fetching payment voucher:", error);
     return NextResponse.json(

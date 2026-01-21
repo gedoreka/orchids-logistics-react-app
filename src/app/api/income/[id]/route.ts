@@ -15,32 +15,33 @@ export async function GET(
   const searchParams = request.nextUrl.searchParams;
   const companyId = searchParams.get("company_id") || "1";
 
-  try {
-    const { data: income, error } = await supabase
-      .from("manual_income")
-      .select("*")
-      .eq("id", id)
-      .eq("company_id", companyId)
-      .single();
+    try {
+      // First fetch the income record to get its company_id
+      const { data: income, error } = await supabase
+        .from("manual_income")
+        .select("*")
+        .eq("id", id)
+        .single();
 
-    if (error || !income) {
-      return NextResponse.json(
-        { error: "Income record not found" },
-        { status: 404 }
+      if (error || !income) {
+        return NextResponse.json(
+          { error: "Income record not found" },
+          { status: 404 }
+        );
+      }
+
+      // Fetch company data based on the income record's company_id
+      const companyData = await query<any>(
+        `SELECT id, name, commercial_number, vat_number, country, region, district, street, postal_code, short_address, logo_path, stamp_path, digital_seal_path FROM companies WHERE id = ?`,
+        [income.company_id]
       );
-    }
 
-    const companyData = await query<any>(
-      `SELECT id, name, commercial_number, vat_number, country, region, district, street, postal_code, short_address, logo_path, stamp_path, digital_seal_path FROM companies WHERE id = ?`,
-      [companyId]
-    );
+      const company = companyData?.[0] || {};
 
-    const company = companyData?.[0] || {};
-
-    return NextResponse.json({
-      income,
-      company,
-    });
+      return NextResponse.json({
+        income,
+        company,
+      });
   } catch (error) {
     console.error("Error fetching income:", error);
     return NextResponse.json(
