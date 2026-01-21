@@ -880,168 +880,167 @@
     "noChanges": "No changes",
     "unsavedChanges": "You have unsaved changes"
   },
-  "financialVouchersPage": {
-    "title": "Financial Vouchers",
-    "managementCenter": "Financial Vouchers Management Center",
-    "description": "Comprehensive management of sales, receipts, expenses and legal vouchers with high professionalism",
-    "loading": "Loading...",
-    "updateData": "Update Data",
-    "totalIncome": "Total Income",
-    "expenses": "Expenses",
-    "netBalance": "Net Balance",
-    "sar": "SAR",
-    "currency": "SAR",
-    "voucherTemplates": "Voucher Templates",
-    "manageVoucher": "Manage {title}",
-    "voucherCount": "{count} Vouchers",
-    "quickActions": "Quick Actions",
-    "quickActionsDesc": "Direct access to most used operations",
-    "systemTitle": "{name} System - Financial Vouchers Management",
-    "allRightsReserved": "All Rights Reserved © {year}",
-    "types": {
-      "salesReceipts": {
+    "financialVouchersPage": {
+      "title": "Financial Vouchers",
+      "managementCenter": "Financial Vouchers Management Center",
+      "description": "Comprehensive management of sales, receipts, expenses and legal vouchers with high professionalism",
+      "loading": "Loading...",
+      "updateData": "Update Data",
+      "totalIncome": "Total Income",
+      "expenses": "Expenses",
+      "netBalance": "Net Balance",
+      "sar": "SAR",
+      "currency": "SAR",
+      "voucherTemplates": "Voucher Templates",
+      "manageVoucher": "Manage {title}",
+      "voucherCount": "{count} Vouchers",
+      "quickActions": "Quick Actions",
+      "quickActionsDesc": "Direct access to most used operations",
+      "systemTitle": "{name} System - Financial Vouchers Management",
+      "allRightsReserved": "All Rights Reserved © {year}",
+      "types": {
+        "salesReceipts": {
+          "title": "Sales Receipts",
+          "subtitle": "Manage sales receipts and vouchers",
+          "description": "Record and follow up on all sales and revenues",
+          "label": "Total Sales",
+          "features": [
+            "Register sales invoices",
+            "Follow up on revenues",
+            "Sales reports"
+          ]
+        },
+        "receiptVouchers": {
+          "title": "Receipt Vouchers",
+          "subtitle": "Manage financial receipt vouchers",
+          "description": "Record all amounts received and cash revenues",
+          "label": "Total Receipts",
+          "features": [
+            "Register receipts",
+            "Follow up on collection",
+            "Receipt vouchers"
+          ]
+        },
+        "paymentVouchers": {
+          "title": "Payment Vouchers",
+          "subtitle": "Manage payments and expenses",
+          "description": "Record all expenses and financial payments",
+          "label": "Total Expenses",
+          "features": [
+            "Register expenses",
+            "Follow up on payments",
+            "Payment vouchers"
+          ]
+        },
+        "promissoryNotes": {
+          "title": "Promissory Notes",
+          "subtitle": "Manage promissory and legal notes",
+          "description": "Issue and track electronic approved promissory notes",
+          "label": "Total Notes",
+          "features": [
+            "Issue promissory notes",
+            "Convert amounts to text",
+            "Print fingerprint and signature"
+          ]
+        },
+        "quotations": {
+          "title": "Quotations",
+          "subtitle": "Manage quotations and estimates",
+          "description": "Create and follow up on quotations provided to customers",
+          "label": "Total Quotations",
+          "features": [
+            "Create quotations",
+            "Follow up on quote status",
+            "Convert quote to invoice"
+          ]
+        },
+        "incomeVouchers": {
+          "title": "Income Vouchers",
+          "subtitle": "Record various revenues",
+          "description": "Manage and record indirect and various revenues",
+          "label": "Total Revenues",
+          "features": [
+            "Manual revenue recording",
+            "Link with cost centers",
+            "Follow up on income"
+          ]
+        }
+      },
+      "newSalesReceiptPage": {
+        "title": "Add Sales Receipt",
+        "subtitle": "Create a new sales receipt voucher",
+        "backToList": "Back to List",
+        "basicInfo": "Basic Information",
+        "receiptNumber": "Receipt Number",
+        "receiptNumberDesc": "Number is generated automatically",
+        "receiptDate": "Receipt Date",
+        "customerData": "Customer Data",
+        "selectCustomer": "Select Customer",
+        "noCustomers": "No customers registered.",
+        "addNewCustomer": "Add New Customer",
+        "invoiceLink": "Invoice Link",
+        "linkToInvoice": "Link to Invoice (Optional)",
+        "noLink": "-- No Link --",
+        "linkDesc": "You can link the receipt to a specific invoice for easier tracking",
+        "amountAndNotes": "Amount & Notes",
+        "amount": "Amount",
+        "amountDesc": "Amount in SAR",
+        "notes": "Notes (Optional)",
+        "notesPlaceholder": "Enter any additional notes...",
+        "cancel": "Cancel",
+        "saveReceipt": "Save Receipt",
+        "saving": "Saving...",
+        "errorTitle": "Data Error",
+        "selectCustomerError": "Please select a customer",
+        "enterAmountError": "Please enter an amount",
+        "saveSuccess": "Saved Successfully",
+        "saveSuccessMsg": "Receipt saved successfully",
+        "saveFailed": "Save Failed",
+        "error": "Error",
+        "genericError": "An error occurred while saving"
+      },
+      "salesReceiptsPage": {
         "title": "Sales Receipts",
-        "subtitle": "Manage sales receipts and vouchers",
-        "description": "Record and follow up on all sales and revenues",
-        "label": "Total Sales",
-        "features": [
-          "Register sales invoices",
-          "Follow up on revenues",
-          "Sales reports"
-        ]
+        "subtitle": "Manage Sales Vouchers",
+        "description": "Track and record all sales receipts and link them with tax invoices",
+        "addNew": "Add New Receipt",
+        "refreshData": "Refresh Data",
+        "totalReceipts": "Total",
+        "totalAmount": "Total Value",
+        "linked": "Linked",
+        "unlinked": "Unlinked",
+        "receiptsCount": "Sales Vouchers",
+        "linkedCount": "Linked Vouchers",
+        "unlinkedCount": "Pending Vouchers",
+        "searchPlaceholder": "Search by receipt number or customer name...",
+        "exportData": "Export Data",
+        "tableTitle": "Sales Receipts Log",
+        "receiptsFound": "{count} Receipts Found",
+        "receiptNo": "Receipt No.",
+        "customer": "Customer",
+        "date": "Date",
+        "amount": "Amount",
+        "status": "Status",
+        "actions": "Actions",
+        "linkedToInvoice": "Linked to Invoice {number}",
+        "notLinked": "Not Linked",
+        "viewDetails": "View Details",
+        "deleteReceipt": "Delete Voucher",
+        "noReceipts": "No Sales Receipts",
+        "noReceiptsDesc": "Start by adding your first sales receipt from the button above",
+        "deleteConfirm": "Are you sure you want to delete receipt \"{number}\"?",
+        "deleting": "Deleting",
+        "deletingMsg": "Deleting receipt...",
+        "deleteSuccess": "Deleted Successfully",
+        "deleteSuccessMsg": "Receipt deleted successfully",
+        "deleteFailed": "Delete Failed",
+        "deleteFailedMsg": "Failed to delete receipt",
+        "error": "Error",
+        "errorMsg": "An error occurred during deletion",
+        "ok": "OK",
+        "systemFooter": "Integrated Logistics System - Sales Management",
+        "allRightsReserved": "All Rights Reserved © {year}"
       },
-      "receiptVouchers": {
-        "title": "Receipt Vouchers",
-        "subtitle": "Manage financial receipt vouchers",
-        "description": "Record all amounts received and cash revenues",
-        "label": "Total Receipts",
-        "features": [
-          "Register receipts",
-          "Follow up on collection",
-          "Receipt vouchers"
-        ]
-      },
-      "paymentVouchers": {
-        "title": "Payment Vouchers",
-        "subtitle": "Manage payments and expenses",
-        "description": "Record all expenses and financial payments",
-        "label": "Total Expenses",
-        "features": [
-          "Register expenses",
-          "Follow up on payments",
-          "Payment vouchers"
-        ]
-      },
-      "promissoryNotes": {
-        "title": "Promissory Notes",
-        "subtitle": "Manage promissory and legal notes",
-        "description": "Issue and track electronic approved promissory notes",
-        "label": "Total Notes",
-        "features": [
-          "Issue promissory notes",
-          "Convert amounts to text",
-          "Print fingerprint and signature"
-        ]
-      },
-      "quotations": {
-        "title": "Quotations",
-        "subtitle": "Manage quotations and estimates",
-        "description": "Create and follow up on quotations provided to customers",
-        "label": "Total Quotations",
-        "features": [
-          "Create quotations",
-          "Follow up on quote status",
-          "Convert quote to invoice"
-        ]
-      },
-      "incomeVouchers": {
-        "title": "Income Vouchers",
-        "subtitle": "Record various revenues",
-        "description": "Manage and record indirect and various revenues",
-        "label": "Total Revenues",
-        "features": [
-          "Manual revenue recording",
-          "Link with cost centers",
-          "Follow up on income"
-        ]
-      }
-    }
-  },
-    "newSalesReceiptPage": {
-      "title": "Add Sales Receipt",
-      "subtitle": "Create a new sales receipt voucher",
-      "backToList": "Back to List",
-      "basicInfo": "Basic Information",
-      "receiptNumber": "Receipt Number",
-      "receiptNumberDesc": "Number is generated automatically",
-      "receiptDate": "Receipt Date",
-      "customerData": "Customer Data",
-      "selectCustomer": "Select Customer",
-      "noCustomers": "No customers registered.",
-      "addNewCustomer": "Add New Customer",
-      "invoiceLink": "Invoice Link",
-      "linkToInvoice": "Link to Invoice (Optional)",
-      "noLink": "-- No Link --",
-      "linkDesc": "You can link the receipt to a specific invoice for easier tracking",
-      "amountAndNotes": "Amount & Notes",
-      "amount": "Amount",
-      "amountDesc": "Amount in SAR",
-      "notes": "Notes (Optional)",
-      "notesPlaceholder": "Enter any additional notes...",
-      "cancel": "Cancel",
-      "saveReceipt": "Save Receipt",
-      "saving": "Saving...",
-      "errorTitle": "Data Error",
-      "selectCustomerError": "Please select a customer",
-      "enterAmountError": "Please enter an amount",
-      "saveSuccess": "Saved Successfully",
-      "saveSuccessMsg": "Receipt saved successfully",
-      "saveFailed": "Save Failed",
-      "error": "Error",
-      "genericError": "An error occurred while saving"
-    },
-    "salesReceiptsPage": {
-      "title": "Sales Receipts",
-      "subtitle": "Manage Sales Vouchers",
-      "description": "Track and record all sales receipts and link them with tax invoices",
-      "addNew": "Add New Receipt",
-      "refreshData": "Refresh Data",
-      "totalReceipts": "Total",
-      "totalAmount": "Total Value",
-      "linked": "Linked",
-      "unlinked": "Unlinked",
-      "receiptsCount": "Sales Vouchers",
-      "linkedCount": "Linked Vouchers",
-      "unlinkedCount": "Pending Vouchers",
-      "searchPlaceholder": "Search by receipt number or customer name...",
-      "exportData": "Export Data",
-      "tableTitle": "Sales Receipts Log",
-      "receiptsFound": "{count} Receipts Found",
-      "receiptNo": "Receipt No.",
-      "customer": "Customer",
-      "date": "Date",
-      "amount": "Amount",
-      "status": "Status",
-      "actions": "Actions",
-      "linkedToInvoice": "Linked to Invoice {number}",
-      "notLinked": "Not Linked",
-      "viewDetails": "View Details",
-      "deleteReceipt": "Delete Voucher",
-      "noReceipts": "No Sales Receipts",
-      "noReceiptsDesc": "Start by adding your first sales receipt from the button above",
-      "deleteConfirm": "Are you sure you want to delete receipt \"{number}\"?",
-      "deleting": "Deleting",
-      "deletingMsg": "Deleting receipt...",
-      "deleteSuccess": "Deleted Successfully",
-      "deleteSuccessMsg": "Receipt deleted successfully",
-      "deleteFailed": "Delete Failed",
-      "deleteFailedMsg": "Failed to delete receipt",
-      "error": "Error",
-      "errorMsg": "An error occurred during deletion",
-      "ok": "OK",
-      "systemFooter": "Integrated Logistics System - Sales Management",
-      "allRightsReserved": "All Rights Reserved © {year}"
-    },
       "viewSalesReceiptPage": {
         "title": "Sales Receipt",
         "back": "Back",
@@ -1193,14 +1192,13 @@
           "cancelled": "Cancelled"
         },
         "notifications": {
-            "fetchError": "Error fetching data",
-            "saveSuccess": "Voucher saved successfully!",
-            "saveFailed": "Failed to save voucher",
-            "deleteConfirm": "Are you sure you want to delete this voucher?",
-            "deleteSuccess": "Voucher deleted successfully",
-            "deleteFailed": "Deletion failed",
-            "payeeRequired": "Please enter payee name"
-          }
+          "fetchError": "Error fetching data",
+          "saveSuccess": "Voucher saved successfully!",
+          "saveFailed": "Failed to save voucher",
+          "deleteConfirm": "Are you sure you want to delete this voucher?",
+          "deleteSuccess": "Voucher deleted successfully",
+          "deleteFailed": "Deletion failed",
+          "payeeRequired": "Please enter payee name"
         }
       }
     }
