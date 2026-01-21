@@ -557,22 +557,30 @@ export default function IncomeFormClient({ user }: { user: User }) {
                                                 <span className="text-[10px] font-bold text-emerald-400/50 uppercase">ر.س</span>
                                             </div>
                                         </td>
-                                        <td className="px-6 py-5">
-                                            <div className="flex items-center justify-center gap-2">
-                                                <button 
-                                                    className="h-9 w-9 rounded-xl bg-amber-500/10 text-amber-400 flex items-center justify-center hover:bg-amber-500 hover:text-white transition-all shadow-lg active:scale-95"
-                                                    title="تعديل"
-                                                >
-                                                    <Edit3 size={16} />
-                                                </button>
-                                                <button 
-                                                    className="h-9 w-9 rounded-xl bg-rose-500/10 text-rose-400 flex items-center justify-center hover:bg-rose-500 hover:text-white transition-all shadow-lg active:scale-95"
-                                                    title="حذف"
-                                                >
-                                                    <Trash2 size={16} />
-                                                </button>
-                                            </div>
-                                        </td>
+                                            <td className="px-6 py-5">
+                                              <div className="flex items-center justify-center gap-2">
+                                                  <Link href={`/income/${income.id}`}>
+                                                    <button 
+                                                        className="h-9 w-9 rounded-xl bg-blue-500/10 text-blue-400 flex items-center justify-center hover:bg-blue-500 hover:text-white transition-all shadow-lg active:scale-95"
+                                                        title="عرض"
+                                                    >
+                                                        <Eye size={16} />
+                                                    </button>
+                                                  </Link>
+                                                  <button 
+                                                      className="h-9 w-9 rounded-xl bg-amber-500/10 text-amber-400 flex items-center justify-center hover:bg-amber-500 hover:text-white transition-all shadow-lg active:scale-95"
+                                                      title="تعديل"
+                                                  >
+                                                      <Edit3 size={16} />
+                                                  </button>
+                                                  <button 
+                                                      className="h-9 w-9 rounded-xl bg-rose-500/10 text-rose-400 flex items-center justify-center hover:bg-rose-500 hover:text-white transition-all shadow-lg active:scale-95"
+                                                      title="حذف"
+                                                  >
+                                                      <Trash2 size={16} />
+                                                  </button>
+                                              </div>
+                                            </td>
                                     </motion.tr>
                                 ))
                             ) : (

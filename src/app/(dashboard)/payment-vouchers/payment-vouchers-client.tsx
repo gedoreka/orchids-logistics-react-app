@@ -11,6 +11,7 @@ import {
   BadgeCheck, Clock, FileCheck, Send, Ban, Loader2, Plus, FileSpreadsheet,
   TrendingDown, TrendingUp
 } from "lucide-react";
+import Link from "next/link";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { useTranslations } from "@/lib/locale-context";
@@ -625,24 +626,32 @@ const statusOptions = [
                                             </td>
                                             <td className="px-6 py-5">
                                                 <div className="flex items-center justify-center gap-2">
+                                                    <Link href={`/payment-vouchers/${voucher.id}`}>
+                                                      <button 
+                                                          className="h-9 w-9 rounded-xl bg-blue-500/10 text-blue-400 flex items-center justify-center hover:bg-blue-500 hover:text-white transition-all shadow-lg active:scale-95"
+                                                          title={tCommon("view")}
+                                                      >
+                                                          <Eye size={16} />
+                                                      </button>
+                                                    </Link>
                                                     <button 
                                                         onClick={() => handleEdit(voucher)}
                                                         className="h-9 w-9 rounded-xl bg-amber-500/10 text-amber-400 flex items-center justify-center hover:bg-amber-500 hover:text-white transition-all shadow-lg active:scale-95"
-                                                        title={useTranslations("common")("edit")}
+                                                        title={tCommon("edit")}
                                                     >
                                                         <Edit3 size={16} />
                                                     </button>
                                                     <button 
                                                         onClick={() => handlePrint(voucher)}
                                                         className="h-9 w-9 rounded-xl bg-purple-500/10 text-purple-400 flex items-center justify-center hover:bg-purple-500 hover:text-white transition-all shadow-lg active:scale-95"
-                                                        title={useTranslations("common")("print")}
+                                                        title={tCommon("print")}
                                                     >
                                                         <Printer size={16} />
                                                     </button>
                                                     <button 
                                                         onClick={() => handleDelete(voucher.id)}
                                                         className="h-9 w-9 rounded-xl bg-rose-500/10 text-rose-400 flex items-center justify-center hover:bg-rose-500 hover:text-white transition-all shadow-lg active:scale-95"
-                                                        title={useTranslations("common")("delete")}
+                                                        title={tCommon("delete")}
                                                     >
                                                         <Trash2 size={16} />
                                                     </button>

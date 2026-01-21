@@ -8,8 +8,9 @@ import {
   Search, Edit3, Trash2, Printer, Mail, Eye, ChevronDown, ChevronUp,
   CheckCircle, AlertCircle, X, ArrowDown, ArrowUp, Building2,
   Banknote, StickyNote, Sparkles, Filter, Download, RefreshCw,
-  Plus, Loader2, TrendingUp, FileSpreadsheet
+  Plus, Loader2, TrendingUp, FileSpreadsheet, ExternalLink
 } from "lucide-react";
+import Link from "next/link";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { useTranslations } from "@/lib/locale-context";
@@ -563,6 +564,14 @@ function ReceiptVouchersContent() {
                                             </td>
                                             <td className="px-6 py-5">
                                                 <div className="flex items-center justify-center gap-2">
+                                                    <Link href={`/receipt-vouchers/${voucher.id}`}>
+                                                      <button 
+                                                          className="h-9 w-9 rounded-xl bg-blue-500/10 text-blue-400 flex items-center justify-center hover:bg-blue-500 hover:text-white transition-all shadow-lg active:scale-95"
+                                                          title={tCommon("view")}
+                                                      >
+                                                          <Eye size={16} />
+                                                      </button>
+                                                    </Link>
                                                     <button 
                                                         onClick={() => handleEdit(voucher)}
                                                         className="h-9 w-9 rounded-xl bg-amber-500/10 text-amber-400 flex items-center justify-center hover:bg-amber-500 hover:text-white transition-all shadow-lg active:scale-95"
