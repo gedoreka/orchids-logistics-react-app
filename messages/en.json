@@ -1289,6 +1289,127 @@
           "footerSystemName": "ZoolSpeed Logistics System - Legal Notes Management",
           "allRightsReserved": "All rights reserved © {year}",
           "deleteConfirmation": "Are you sure you want to delete this note?"
+        },
+        "quotationsPage": {
+          "title": "Quotations",
+          "subtitle": "Create and follow up on professional quotations and financial estimates for customers",
+          "management": "Quotations Management",
+          "createNew": "Create New Quotation",
+          "cancelForm": "Cancel Form",
+          "refreshData": "Refresh Data",
+          "stats": {
+            "total": "Total",
+            "totalDesc": "quotation",
+            "confirmed": "Confirmed",
+            "confirmedDesc": "approved quote",
+            "drafts": "Drafts",
+            "draftsDesc": "under review",
+            "expired": "Expired",
+            "expiredDesc": "expired quote"
+          },
+          "form": {
+            "title": "Create New Quotation",
+            "editTitle": "Edit Quotation",
+            "subtitle": "Please fill in quotation and product details carefully",
+            "number": "Quote Number",
+            "issueDate": "Issue Date",
+            "expiryDate": "Expiry Date",
+            "customerData": "Customer Data",
+            "customerSelectDesc": "Select from registered customers list",
+            "customerManualDesc": "Enter customer data manually",
+            "manualEntry": "Manual Customer Entry",
+            "cancelManual": "Cancel Manual Entry",
+            "selectCustomer": "Select Customer...",
+            "customerName": "Customer Name",
+            "customerNamePlaceholder": "Customer or company name...",
+            "commercialNumber": "CR Number",
+            "commercialNumberPlaceholder": "Commercial registration number...",
+            "address": "Address",
+            "addressPlaceholder": "Customer address...",
+            "selectedCustomer": "Selected Customer:",
+            "registered": "Registered",
+            "crNumber": "CR Number: {number}",
+            "products": "Products / Services",
+            "addProduct": "Add Product",
+            "table": {
+              "productName": "Product Name",
+              "quantity": "Qty",
+              "price": "Price",
+              "unitPrice": "Unit Price",
+              "tax": "VAT (15%)",
+              "totalWithTax": "Incl. VAT",
+              "placeholder": "Product name..."
+            },
+            "subtotal": "Subtotal",
+            "totalTax": "Total VAT ({rate}%)",
+            "grandTotal": "Grand Total",
+            "cancel": "Cancel",
+            "saveDraft": "Save as Draft",
+            "saveConfirm": "Save & Confirm",
+            "saving": "Saving...",
+            "savingMsg": "Saving quotation..."
+          },
+          "search": {
+            "placeholder": "Search by quote number or customer...",
+            "export": "Export Data"
+          },
+          "table": {
+            "title": "Quotations Log",
+            "count": "{count} quotes found",
+            "number": "Quote No.",
+            "customer": "Customer",
+            "date": "Quote Date",
+            "expiry": "Validity",
+            "total": "Total Amount",
+            "status": "Status",
+            "actions": "Actions",
+            "noData": "No Quotations",
+            "noDataDesc": "Start by creating your first quotation from the button above",
+            "view": "View",
+            "edit": "Edit",
+            "delete": "Delete",
+            "back": "Back"
+          },
+          "view": {
+            "title": "Quotation No. {number}",
+            "details": "Quotation Details",
+            "facilityInfo": "Facility Details",
+            "customerData": "Customer Data",
+            "summary": "Summary",
+            "inclTax": "Total Incl. VAT:"
+          },
+          "status": {
+            "confirmed": "Confirmed",
+            "expired": "Expired",
+            "draft": "Draft"
+          },
+          "notifications": {
+            "errorTitle": "Data Error",
+            "selectCustomer": "Please select a customer",
+            "enterCustomerName": "Please enter customer name",
+            "selectExpiry": "Please specify expiry date",
+            "addProductError": "Please add at least one product",
+            "saveSuccess": "Saved Successfully",
+            "confirmedSuccess": "Quotation saved and confirmed",
+            "draftSuccess": "Quotation saved as draft",
+            "deleteConfirm": "Are you sure you want to delete quotation \"{number}\"?",
+            "deleteSuccess": "Deleted Successfully",
+            "deleteSuccessMsg": "Quotation deleted successfully",
+            "deleteFailed": "Delete Failed",
+            "deleteFailedMsg": "Failed to delete quotation",
+            "error": "Error",
+            "errorMsg": "An error occurred during deletion",
+            "updateSuccess": "Updated Successfully",
+            "updateSuccessMsg": "Quotation updated successfully",
+            "updateFailed": "Update Failed",
+            "updateFailedMsg": "Failed to update quotation",
+            "ok": "OK",
+            "deleting": "Deleting..."
+          },
+          "footer": {
+            "system": "ZoolSpeed Logistics System - Quotations Management",
+            "rights": "All Rights Reserved © {year}"
+          }
         }
       }
   }

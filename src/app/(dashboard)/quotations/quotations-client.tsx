@@ -31,6 +31,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
+import { useTranslations, useLocale } from "@/lib/locale-context";
 
 interface Quotation {
   id: number;
@@ -113,6 +114,9 @@ export function QuotationsClient({
   });
   
   const vatRate = 15;
+  const t = useTranslations("financialVouchersPage.quotationsPage");
+  const { locale } = useLocale();
+  const isRtl = locale === "ar";
   
   const calculateItemTotals = (quantity: number, price: number) => {
     const unitPrice = quantity > 0 ? price / quantity : 0;
@@ -199,28 +203,28 @@ export function QuotationsClient({
 
   const handleSubmit = async (status: 'draft' | 'confirmed') => {
     if (!useCustomClient && !formData.client_id) {
-      showNotification("error", "خطأ في البيانات", "يرجى اختيار العميل");
+      showNotification("error", t("notifications.errorTitle"), t("notifications.selectCustomer"));
       return;
     }
 
     if (useCustomClient && !formData.client_name) {
-      showNotification("error", "خطأ في البيانات", "يرجى إدخال اسم العميل");
+      showNotification("error", t("notifications.errorTitle"), t("notifications.enterCustomerName"));
       return;
     }
 
     if (!formData.due_date) {
-      showNotification("error", "خطأ في البيانات", "يرجى تحديد تاريخ الانتهاء");
+      showNotification("error", t("notifications.errorTitle"), t("notifications.selectExpiry"));
       return;
     }
 
     const validItems = items.filter(item => item.product_name && item.quantity > 0 && item.price > 0);
     if (validItems.length === 0) {
-      showNotification("error", "خطأ في البيانات", "يرجى إضافة منتج واحد على الأقل");
+      showNotification("error", t("notifications.errorTitle"), t("notifications.addProductError"));
       return;
     }
 
     setLoading(true);
-    showNotification("loading", "جاري الحفظ", "جاري حفظ عرض السعر...");
+    showNotification("loading", t("form.saving"), t("form.savingMsg"));
 
     const selectedCustomer = getSelectedCustomer();
     
@@ -244,7 +248,7 @@ export function QuotationsClient({
       });
 
       if (res.ok) {
-        showNotification("success", "تم الحفظ بنجاح", status === 'confirmed' ? "تم حفظ وتأكيد عرض السعر" : "تم حفظ عرض السعر كمسودة");
+        showNotification("success", t("notifications.saveSuccess"), status === 'confirmed' ? t("notifications.confirmedSuccess") : t("notifications.draftSuccess"));
         setTimeout(() => {
           setShowForm(false);
           router.refresh();
@@ -262,20 +266,20 @@ export function QuotationsClient({
         }, 1500);
       } else {
         const data = await res.json();
-        showNotification("error", "فشل الحفظ", data.error || "فشل حفظ عرض السعر");
+        showNotification("error", t("notifications.saveFailed"), data.error || t("notifications.saveFailed"));
       }
     } catch {
-      showNotification("error", "خطأ", "حدث خطأ أثناء الحفظ");
+      showNotification("error", t("notifications.error"), t("notifications.errorMsg"));
     } finally {
       setLoading(false);
     }
   };
 
   const handleDelete = async (id: number, quotationNumber: string) => {
-    if (!confirm(`هل أنت متأكد من حذف عرض السعر "${quotationNumber}"؟`)) return;
+    if (!confirm(t("notifications.deleteConfirm", { number: quotationNumber }))) return;
     
     setDeleteLoading(id);
-    showNotification("loading", "جاري الحذف", "جاري حذف عرض السعر...");
+    showNotification("loading", t("notifications.deleting"), t("form.savingMsg"));
     
     try {
       const res = await fetch(`/api/quotations/${id}?company_id=${companyId}`, {
@@ -284,13 +288,13 @@ export function QuotationsClient({
       
       if (res.ok) {
         setQuotations(prev => prev.filter(q => q.id !== id));
-        showNotification("success", "تم الحذف بنجاح", "تم حذف عرض السعر بنجاح");
+        showNotification("success", t("notifications.deleteSuccess"), t("notifications.deleteSuccessMsg"));
         router.refresh();
       } else {
-        showNotification("error", "فشل الحذف", "فشل حذف عرض السعر");
+        showNotification("error", t("notifications.deleteFailed"), t("notifications.deleteFailedMsg"));
       }
     } catch {
-      showNotification("error", "خطأ", "حدث خطأ أثناء الحذف");
+      showNotification("error", t("notifications.error"), t("notifications.errorMsg"));
     } finally {
       setDeleteLoading(null);
     }
@@ -304,21 +308,21 @@ export function QuotationsClient({
       return (
         <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-500/10 text-emerald-400 text-[10px] font-black rounded-full border border-emerald-500/20">
           <CheckCircle size={12} />
-          مؤكد
+          {t("status.confirmed")}
         </span>
       );
     } else if (expiry < today) {
       return (
         <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-rose-500/10 text-rose-400 text-[10px] font-black rounded-full border border-rose-500/20">
           <Clock size={12} />
-          منتهي
+          {t("status.expired")}
         </span>
       );
     } else {
       return (
         <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-amber-500/10 text-amber-400 text-[10px] font-black rounded-full border border-amber-500/20">
           <Edit size={12} />
-          مسودة
+          {t("status.draft")}
         </span>
       );
     }
@@ -327,7 +331,7 @@ export function QuotationsClient({
   const selectedCustomer = getSelectedCustomer();
 
   return (
-    <div className="max-w-[95%] mx-auto p-4 md:p-8 space-y-8" dir="rtl">
+    <div className="max-w-[95%] mx-auto p-4 md:p-8 space-y-8" dir={isRtl ? "rtl" : "ltr"}>
       <AnimatePresence>
         {notification.show && (
           <>
@@ -369,7 +373,7 @@ export function QuotationsClient({
                         notification.type === "success" ? "bg-emerald-500 hover:bg-emerald-600" : "bg-red-500 hover:bg-red-600"
                       )}
                     >
-                      حسناً
+                      {t("notifications.ok")}
                     </button>
                   )}
                 </div>
@@ -389,7 +393,7 @@ export function QuotationsClient({
         <div className="relative z-10 space-y-10">
           {/* Header Section */}
           <div className="flex flex-col lg:flex-row items-center justify-between gap-10">
-            <div className="text-center lg:text-right space-y-4">
+            <div className={cn("text-center space-y-4", isRtl ? "lg:text-right" : "lg:text-left")}>
               <motion.div 
                 initial={{ scale: 0 }}
                 animate={{ scale: 1 }}
@@ -397,17 +401,17 @@ export function QuotationsClient({
                 className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-md rounded-2xl border border-white/10 mb-2"
               >
                 <Sparkles className="w-4 h-4 text-yellow-400 animate-pulse" />
-                <span className="text-blue-200 font-black text-[10px] uppercase tracking-widest">إدارة عروض الأسعار</span>
+                <span className="text-blue-200 font-black text-[10px] uppercase tracking-widest">{t("management")}</span>
               </motion.div>
               
               <h1 className="text-4xl md:text-6xl font-black text-white tracking-tight bg-gradient-to-r from-white via-purple-100 to-white bg-clip-text text-transparent">
-                عروض الأسعار
+                {t("title")}
               </h1>
               <p className="text-lg text-slate-300 max-w-2xl font-medium leading-relaxed">
-                إنشاء ومتابعة عروض الأسعار والتقديرات المالية للعملاء بكل احترافية
+                {t("subtitle")}
               </p>
               
-              <div className="flex flex-wrap justify-center lg:justify-start gap-4 mt-8">
+              <div className={cn("flex flex-wrap justify-center gap-4 mt-8", isRtl ? "lg:justify-start" : "lg:justify-end")}>
                 <button 
                   onClick={() => setShowForm(!showForm)}
                   className={cn(
@@ -416,14 +420,14 @@ export function QuotationsClient({
                   )}
                 >
                   {showForm ? <X size={18} /> : <Plus size={18} />}
-                  {showForm ? "إلغاء النموذج" : "إنشاء عرض سعر جديد"}
+                  {showForm ? t("cancelForm") : t("createNew")}
                 </button>
                 <button 
                     onClick={() => router.refresh()}
                     className="flex items-center gap-3 px-6 py-3 bg-white/10 backdrop-blur-md rounded-2xl border border-white/20 text-white font-black text-sm hover:bg-white/20 transition-all shadow-xl active:scale-95"
                   >
                   <RefreshCw size={18} className="text-purple-400" />
-                  تحديث البيانات
+                  {t("refreshData")}
                 </button>
               </div>
             </div>
@@ -440,10 +444,10 @@ export function QuotationsClient({
                   <div className="p-2 bg-purple-500/20 rounded-lg text-purple-400 group-hover:scale-110 transition-transform">
                     <FileText className="w-5 h-5" />
                   </div>
-                  <span className="text-purple-300 font-black text-[10px] uppercase tracking-wider">الإجمالي</span>
+                  <span className="text-purple-300 font-black text-[10px] uppercase tracking-wider">{t("stats.total")}</span>
                 </div>
                 <p className="text-3xl font-black text-white tracking-tight">{stats.total}</p>
-                <p className="text-purple-400/60 text-[10px] font-black mt-1">عرض سعر</p>
+                <p className="text-purple-400/60 text-[10px] font-black mt-1">{t("stats.totalDesc")}</p>
               </motion.div>
 
               <motion.div 
@@ -456,10 +460,10 @@ export function QuotationsClient({
                   <div className="p-2 bg-emerald-500/20 rounded-lg text-emerald-400 group-hover:scale-110 transition-transform">
                     <CheckCircle className="w-5 h-5" />
                   </div>
-                  <span className="text-emerald-300 font-black text-[10px] uppercase tracking-wider">المؤكدة</span>
+                  <span className="text-emerald-300 font-black text-[10px] uppercase tracking-wider">{t("stats.confirmed")}</span>
                 </div>
                 <p className="text-3xl font-black text-white tracking-tight">{stats.confirmed}</p>
-                <p className="text-emerald-400/60 text-[10px] font-black mt-1">عرض معتمد</p>
+                <p className="text-emerald-400/60 text-[10px] font-black mt-1">{t("stats.confirmedDesc")}</p>
               </motion.div>
 
               <motion.div 
@@ -472,10 +476,10 @@ export function QuotationsClient({
                   <div className="p-2 bg-amber-500/20 rounded-lg text-amber-400 group-hover:scale-110 transition-transform">
                     <Edit className="w-5 h-5" />
                   </div>
-                  <span className="text-amber-300 font-black text-[10px] uppercase tracking-wider">المسودات</span>
+                  <span className="text-amber-300 font-black text-[10px] uppercase tracking-wider">{t("stats.drafts")}</span>
                 </div>
                 <p className="text-3xl font-black text-white tracking-tight">{stats.draft}</p>
-                <p className="text-amber-400/60 text-[10px] font-black mt-1">قيد المراجعة</p>
+                <p className="text-amber-400/60 text-[10px] font-black mt-1">{t("stats.draftsDesc")}</p>
               </motion.div>
 
               <motion.div 
@@ -488,10 +492,10 @@ export function QuotationsClient({
                   <div className="p-2 bg-rose-500/20 rounded-lg text-rose-400 group-hover:scale-110 transition-transform">
                     <Clock className="w-5 h-5" />
                   </div>
-                  <span className="text-rose-300 font-black text-[10px] uppercase tracking-wider">المنتهية</span>
+                  <span className="text-rose-300 font-black text-[10px] uppercase tracking-wider">{t("stats.expired")}</span>
                 </div>
                 <p className="text-3xl font-black text-white tracking-tight">{stats.expired}</p>
-                <p className="text-rose-400/60 text-[10px] font-black mt-1">عرض منتهي</p>
+                <p className="text-rose-400/60 text-[10px] font-black mt-1">{t("stats.expiredDesc")}</p>
               </motion.div>
             </div>
           </div>
@@ -511,8 +515,8 @@ export function QuotationsClient({
                                 <PlusCircle className="w-8 h-8" />
                             </div>
                             <div>
-                                  <h2 className="text-2xl font-black text-white">إنشاء عرض سعر جديد</h2>
-                                  <p className="text-slate-400 font-bold tracking-wide">يرجى تعبئة بيانات العرض والمنتجات بعناية</p>
+                                  <h2 className="text-2xl font-black text-white">{t("form.title")}</h2>
+                                  <p className="text-slate-400 font-bold tracking-wide">{t("form.subtitle")}</p>
                               </div>
                           </div>
                       </div>
@@ -521,38 +525,38 @@ export function QuotationsClient({
                           {/* Info Section */}
                           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                               <div className="space-y-2">
-                                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mr-2">رقم العرض</label>
+                                  <label className={cn("text-[10px] font-black text-slate-400 uppercase tracking-widest", isRtl ? "mr-2" : "ml-2")}>{t("form.number")}</label>
                                   <div className="relative">
-                                      <Hash className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+                                      <Hash className={cn("absolute top-1/2 -translate-y-1/2 text-slate-400", isRtl ? "right-4" : "left-4")} size={18} />
                                       <input
                                           type="text"
                                           value={formData.quotation_number}
                                           readOnly
-                                          className="w-full pr-12 pl-4 py-3 bg-white/5 border border-white/10 rounded-2xl text-white font-bold outline-none opacity-60"
+                                          className={cn("w-full py-3 bg-white/5 border border-white/10 rounded-2xl text-white font-bold outline-none opacity-60", isRtl ? "pr-12 pl-4" : "pl-12 pr-4")}
                                       />
                                   </div>
                               </div>
                               <div className="space-y-2">
-                                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mr-2">تاريخ الإصدار</label>
+                                  <label className={cn("text-[10px] font-black text-slate-400 uppercase tracking-widest", isRtl ? "mr-2" : "ml-2")}>{t("form.issueDate")}</label>
                                   <div className="relative">
-                                      <Calendar className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+                                      <Calendar className={cn("absolute top-1/2 -translate-y-1/2 text-slate-400", isRtl ? "right-4" : "left-4")} size={18} />
                                       <input
                                           type="date"
                                           value={formData.issue_date}
                                           onChange={(e) => setFormData({...formData, issue_date: e.target.value})}
-                                          className="w-full pr-12 pl-4 py-3 bg-white/5 border border-white/10 rounded-2xl text-white font-bold focus:bg-white/10 focus:border-purple-500 outline-none transition-all"
+                                          className={cn("w-full py-3 bg-white/5 border border-white/10 rounded-2xl text-white font-bold focus:bg-white/10 focus:border-purple-500 outline-none transition-all", isRtl ? "pr-12 pl-4" : "pl-12 pr-4")}
                                       />
                                   </div>
                               </div>
                               <div className="space-y-2">
-                                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mr-2">تاريخ الانتهاء</label>
+                                  <label className={cn("text-[10px] font-black text-slate-400 uppercase tracking-widest", isRtl ? "mr-2" : "ml-2")}>{t("form.expiryDate")}</label>
                                   <div className="relative">
-                                      <Clock className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+                                      <Clock className={cn("absolute top-1/2 -translate-y-1/2 text-slate-400", isRtl ? "right-4" : "left-4")} size={18} />
                                       <input
                                           type="date"
                                           value={formData.due_date}
                                           onChange={(e) => setFormData({...formData, due_date: e.target.value})}
-                                          className="w-full pr-12 pl-4 py-3 bg-white/5 border border-white/10 rounded-2xl text-white font-bold focus:bg-white/10 focus:border-purple-500 outline-none transition-all"
+                                          className={cn("w-full py-3 bg-white/5 border border-white/10 rounded-2xl text-white font-bold focus:bg-white/10 focus:border-purple-500 outline-none transition-all", isRtl ? "pr-12 pl-4" : "pl-12 pr-4")}
                                           required
                                       />
                                   </div>
@@ -563,11 +567,11 @@ export function QuotationsClient({
                           <div className="bg-white/5 rounded-2xl p-6 border border-white/10 space-y-4">
                               <div className="flex items-center justify-between">
                                   <div className="space-y-1">
-                                      <h3 className="text-lg font-black text-white">بيانات العميل</h3>
+                                      <h3 className="text-lg font-black text-white">{t("form.customerData")}</h3>
                                       <p className="text-xs text-slate-400 font-bold">
                                           {useCustomClient 
-                                              ? "أدخل بيانات العميل يدوياً" 
-                                              : "اختر من قائمة العملاء المسجلين"}
+                                              ? t("form.customerManualDesc")
+                                              : t("form.customerSelectDesc")}
                                       </p>
                                   </div>
                                   <button
@@ -581,7 +585,7 @@ export function QuotationsClient({
                                       )}
                                   >
                                       <Edit2 size={14} />
-                                      {useCustomClient ? "إلغاء الإدخال اليدوي" : "إدخال يدوي للعميل"}
+                                      {useCustomClient ? t("form.cancelManual") : t("form.manualEntry")}
                                   </button>
                               </div>
 
@@ -595,14 +599,14 @@ export function QuotationsClient({
                                           className="space-y-4"
                                       >
                                           <div className="relative">
-                                              <User className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+                                              <User className={cn("absolute top-1/2 -translate-y-1/2 text-slate-400", isRtl ? "right-4" : "left-4")} size={18} />
                                               <select
                                                   value={formData.client_id}
                                                   onChange={(e) => setFormData({...formData, client_id: e.target.value})}
-                                                  className="w-full pr-12 pl-4 py-3 bg-white/5 border border-white/10 rounded-2xl text-white font-bold focus:bg-white/10 focus:border-purple-500 outline-none transition-all appearance-none"
+                                                  className={cn("w-full py-3 bg-white/5 border border-white/10 rounded-2xl text-white font-bold focus:bg-white/10 focus:border-purple-500 outline-none transition-all appearance-none", isRtl ? "pr-12 pl-4" : "pl-12 pr-4")}
                                                   required
                                               >
-                                                  <option value="" className="bg-slate-800">اختر العميل...</option>
+                                                  <option value="" className="bg-slate-800">{t("form.selectCustomer")}</option>
                                                   {customers.map(c => (
                                                       <option key={c.id} value={c.id} className="bg-slate-800">
                                                           {c.customer_name || c.company_name} - {c.vat_number}
@@ -617,16 +621,16 @@ export function QuotationsClient({
                                                       <Building2 size={20} />
                                                   </div>
                                                   <div className="flex-1">
-                                                      <p className="text-[10px] text-blue-400 font-bold mb-1">العميل المختار:</p>
+                                                      <p className="text-[10px] text-blue-400 font-bold mb-1">{t("form.selectedCustomer")}</p>
                                                       <p className="text-sm font-black text-white">
                                                           {selectedCustomer.customer_name || selectedCustomer.company_name}
                                                       </p>
                                                       <p className="text-[10px] text-blue-400/70 font-bold">
-                                                          سجل تجاري: {selectedCustomer.vat_number || "غير محدد"}
+                                                          {t("form.crNumber", { number: selectedCustomer.vat_number || t("status.notSpecified") })}
                                                       </p>
                                                   </div>
                                                   <span className="px-2 py-1 bg-emerald-500/20 text-emerald-400 text-[10px] font-black rounded-lg border border-emerald-500/20">
-                                                      مسجل
+                                                      {t("form.registered")}
                                                   </span>
                                               </div>
                                           )}
@@ -640,42 +644,42 @@ export function QuotationsClient({
                                           className="grid grid-cols-1 md:grid-cols-3 gap-6"
                                       >
                                           <div className="space-y-2">
-                                              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mr-2">اسم العميل</label>
+                                              <label className={cn("text-[10px] font-black text-slate-400 uppercase tracking-widest", isRtl ? "mr-2" : "ml-2")}>{t("form.customerName")}</label>
                                               <div className="relative">
-                                                  <User className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+                                                  <User className={cn("absolute top-1/2 -translate-y-1/2 text-slate-400", isRtl ? "right-4" : "left-4")} size={18} />
                                                   <input
                                                       type="text"
                                                       value={formData.client_name}
                                                       onChange={(e) => setFormData({...formData, client_name: e.target.value})}
-                                                      placeholder="اسم العميل أو الشركة..."
-                                                      className="w-full pr-12 pl-4 py-3 bg-white/5 border border-white/10 rounded-2xl text-white font-bold focus:bg-white/10 focus:border-purple-500 outline-none transition-all"
+                                                      placeholder={t("form.customerNamePlaceholder")}
+                                                      className={cn("w-full py-3 bg-white/5 border border-white/10 rounded-2xl text-white font-bold focus:bg-white/10 focus:border-purple-500 outline-none transition-all", isRtl ? "pr-12 pl-4" : "pl-12 pr-4")}
                                                       required={useCustomClient}
                                                   />
                                               </div>
                                           </div>
                                           <div className="space-y-2">
-                                              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mr-2">رقم السجل التجاري</label>
+                                              <label className={cn("text-[10px] font-black text-slate-400 uppercase tracking-widest", isRtl ? "mr-2" : "ml-2")}>{t("form.commercialNumber")}</label>
                                               <div className="relative">
-                                                  <Hash className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+                                                  <Hash className={cn("absolute top-1/2 -translate-y-1/2 text-slate-400", isRtl ? "right-4" : "left-4")} size={18} />
                                                   <input
                                                       type="text"
                                                       value={formData.client_commercial_number}
                                                       onChange={(e) => setFormData({...formData, client_commercial_number: e.target.value})}
-                                                      placeholder="رقم السجل التجاري..."
-                                                      className="w-full pr-12 pl-4 py-3 bg-white/5 border border-white/10 rounded-2xl text-white font-bold focus:bg-white/10 focus:border-purple-500 outline-none transition-all"
+                                                      placeholder={t("form.commercialNumberPlaceholder")}
+                                                      className={cn("w-full py-3 bg-white/5 border border-white/10 rounded-2xl text-white font-bold focus:bg-white/10 focus:border-purple-500 outline-none transition-all", isRtl ? "pr-12 pl-4" : "pl-12 pr-4")}
                                                   />
                                               </div>
                                           </div>
                                           <div className="space-y-2">
-                                              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mr-2">العنوان</label>
+                                              <label className={cn("text-[10px] font-black text-slate-400 uppercase tracking-widest", isRtl ? "mr-2" : "ml-2")}>{t("form.address")}</label>
                                               <div className="relative">
-                                                  <MapPin className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+                                                  <MapPin className={cn("absolute top-1/2 -translate-y-1/2 text-slate-400", isRtl ? "right-4" : "left-4")} size={18} />
                                                   <input
                                                       type="text"
                                                       value={formData.client_address}
                                                       onChange={(e) => setFormData({...formData, client_address: e.target.value})}
-                                                      placeholder="عنوان العميل..."
-                                                      className="w-full pr-12 pl-4 py-3 bg-white/5 border border-white/10 rounded-2xl text-white font-bold focus:bg-white/10 focus:border-purple-500 outline-none transition-all"
+                                                      placeholder={t("form.addressPlaceholder")}
+                                                      className={cn("w-full py-3 bg-white/5 border border-white/10 rounded-2xl text-white font-bold focus:bg-white/10 focus:border-purple-500 outline-none transition-all", isRtl ? "pr-12 pl-4" : "pl-12 pr-4")}
                                                   />
                                               </div>
                                           </div>
@@ -687,25 +691,25 @@ export function QuotationsClient({
                           {/* Items Section */}
                           <div className="space-y-4">
                               <div className="flex items-center justify-between">
-                                  <h3 className="text-lg font-black text-white">المنتجات / الخدمات</h3>
+                                  <h3 className="text-lg font-black text-white">{t("form.products")}</h3>
                                   <button
                                       onClick={addItem}
                                       className="flex items-center gap-2 px-4 py-2 bg-emerald-500/20 text-emerald-400 font-bold text-xs rounded-xl border border-emerald-500/30 hover:bg-emerald-500/30 transition-all"
                                   >
                                       <Plus size={14} />
-                                      إضافة منتج
+                                      {t("form.addProduct")}
                                   </button>
                               </div>
 
                               {/* Table Header */}
                               <div className="bg-white/5 rounded-xl p-4 border border-white/10">
                                   <div className="grid grid-cols-12 gap-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">
-                                      <div className="col-span-2">اسم المنتج</div>
-                                      <div className="col-span-1 text-center">الكمية</div>
-                                      <div className="col-span-2 text-center">السعر</div>
-                                      <div className="col-span-2 text-center">سعر الوحدة</div>
-                                      <div className="col-span-2 text-center">الضريبة (15%)</div>
-                                      <div className="col-span-2 text-center">شامل الضريبة</div>
+                                      <div className="col-span-2">{t("form.table.productName")}</div>
+                                      <div className="col-span-1 text-center">{t("form.table.quantity")}</div>
+                                      <div className="col-span-2 text-center">{t("form.table.price")}</div>
+                                      <div className="col-span-2 text-center">{t("form.table.unitPrice")}</div>
+                                      <div className="col-span-2 text-center">{t("form.table.tax")}</div>
+                                      <div className="col-span-2 text-center">{t("form.table.totalWithTax")}</div>
                                       <div className="col-span-1"></div>
                                   </div>
                               </div>
@@ -718,13 +722,13 @@ export function QuotationsClient({
                                           animate={{ opacity: 1, x: 0 }}
                                           className="bg-white/5 rounded-2xl p-4 border border-white/10 group relative"
                                       >
-                                          <div className="grid grid-cols-12 gap-4 items-center">
+                                          <div className="grid grid-cols-12 gap-4 items-center text-center">
                                               <div className="col-span-2">
                                                   <input
                                                       type="text"
                                                       value={item.product_name}
                                                       onChange={(e) => handleItemChange(item.id, 'product_name', e.target.value)}
-                                                      placeholder="اسم المنتج..."
+                                                      placeholder={t("form.table.placeholder")}
                                                       className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-xl text-white text-sm font-bold focus:bg-white/10 focus:border-purple-500 outline-none transition-all"
                                                   />
                                               </div>
@@ -744,7 +748,7 @@ export function QuotationsClient({
                                                           step="0.01"
                                                           value={item.price}
                                                           onChange={(e) => handleItemChange(item.id, 'price', parseFloat(e.target.value) || 0)}
-                                                          placeholder="أدخل السعر..."
+                                                          placeholder="0.00"
                                                           className="w-full px-2 py-2 bg-white/5 border border-white/10 rounded-xl text-white text-sm font-bold focus:bg-white/10 focus:border-purple-500 outline-none transition-all text-center"
                                                       />
                                                   </div>
@@ -752,19 +756,19 @@ export function QuotationsClient({
                                               <div className="col-span-2 text-center">
                                                   <div className="bg-blue-500/10 rounded-lg py-2 px-3 border border-blue-500/20">
                                                       <span className="text-blue-400 font-bold text-sm">{item.unit_price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
-                                                      <span className="text-blue-400/50 text-[10px] mr-1">ر.س</span>
+                                                      <span className={cn("text-blue-400/50 text-[10px]", isRtl ? "mr-1" : "ml-1")}>{t("common.sar")}</span>
                                                   </div>
                                               </div>
                                               <div className="col-span-2 text-center">
                                                   <div className="bg-amber-500/10 rounded-lg py-2 px-3 border border-amber-500/20">
                                                       <span className="text-amber-400 font-bold text-sm">{item.vat_amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
-                                                      <span className="text-amber-400/50 text-[10px] mr-1">ر.س</span>
+                                                      <span className={cn("text-amber-400/50 text-[10px]", isRtl ? "mr-1" : "ml-1")}>{t("common.sar")}</span>
                                                   </div>
                                               </div>
                                               <div className="col-span-2 text-center">
                                                   <div className="bg-emerald-500/10 rounded-lg py-2 px-3 border border-emerald-500/20">
                                                       <span className="text-emerald-400 font-black text-sm">{item.price_with_vat.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
-                                                      <span className="text-emerald-400/50 text-[10px] mr-1">ر.س</span>
+                                                      <span className={cn("text-emerald-400/50 text-[10px]", isRtl ? "mr-1" : "ml-1")}>{t("common.sar")}</span>
                                                   </div>
                                               </div>
                                               <div className="col-span-1 flex justify-center">
@@ -786,27 +790,27 @@ export function QuotationsClient({
                           <div className="bg-white/5 rounded-[2rem] p-8 border border-white/10 flex flex-col md:flex-row items-center justify-between gap-8">
                               <div className="grid grid-cols-2 gap-8 w-full md:w-auto">
                                   <div>
-                                      <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">المجموع الفرعي</p>
-                                      <p className="text-xl font-black text-white">{subtotal.toLocaleString()} <span className="text-xs text-slate-500">ر.س</span></p>
+                                      <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">{t("form.subtotal")}</p>
+                                      <p className="text-xl font-black text-white">{subtotal.toLocaleString()} <span className="text-xs text-slate-500">{t("common.sar")}</span></p>
                                   </div>
                                   <div>
-                                      <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">إجمالي الضريبة ({vatRate}%)</p>
-                                      <p className="text-xl font-black text-amber-400">{vatAmount.toLocaleString()} <span className="text-xs text-amber-400/50">ر.س</span></p>
+                                      <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">{t("form.totalTax", { rate: vatRate })}</p>
+                                      <p className="text-xl font-black text-amber-400">{vatAmount.toLocaleString()} <span className="text-xs text-amber-400/50">{t("common.sar")}</span></p>
                                   </div>
                               </div>
-                              <div className="text-center md:text-left bg-emerald-500/10 px-8 py-4 rounded-3xl border border-emerald-500/20">
-                                  <p className="text-[10px] font-black text-emerald-400 uppercase tracking-widest mb-1">الإجمالي الكلي</p>
-                                  <p className="text-4xl font-black text-emerald-400">{total.toLocaleString()} <span className="text-sm">ر.س</span></p>
+                              <div className={cn("text-center bg-emerald-500/10 px-8 py-4 rounded-3xl border border-emerald-500/20", isRtl ? "md:text-left" : "md:text-right")}>
+                                  <p className="text-[10px] font-black text-emerald-400 uppercase tracking-widest mb-1">{t("form.grandTotal")}</p>
+                                  <p className="text-4xl font-black text-emerald-400">{total.toLocaleString()} <span className="text-sm">{t("common.sar")}</span></p>
                               </div>
                           </div>
 
                           {/* Form Actions */}
-                          <div className="flex justify-end gap-4">
+                          <div className={cn("flex gap-4", isRtl ? "justify-end" : "justify-start")}>
                               <button
                                   onClick={() => setShowForm(false)}
                                   className="px-10 py-4 bg-white/5 text-white font-black rounded-2xl border border-white/10 hover:bg-white/10 transition-all active:scale-95"
                               >
-                                  إلغاء
+                                  {t("form.cancel")}
                               </button>
                               <button
                                   onClick={() => handleSubmit('draft')}
@@ -814,7 +818,7 @@ export function QuotationsClient({
                                   className="flex items-center gap-3 px-8 py-4 bg-white/10 text-white font-black rounded-2xl border border-white/10 hover:bg-white/20 transition-all active:scale-95 disabled:opacity-50"
                               >
                                   {loading ? <Loader2 size={20} className="animate-spin" /> : <Save size={20} />}
-                                  حفظ كمسودة
+                                  {t("form.saveDraft")}
                               </button>
                               <button
                                   onClick={() => handleSubmit('confirmed')}
@@ -822,7 +826,7 @@ export function QuotationsClient({
                                   className="flex items-center gap-3 px-10 py-4 bg-purple-500 text-white font-black rounded-2xl shadow-xl shadow-purple-500/20 hover:bg-purple-600 transition-all active:scale-95 disabled:opacity-50"
                               >
                                   {loading ? <Loader2 size={20} className="animate-spin" /> : <FileCheck size={20} />}
-                                  حفظ وتأكيد العرض
+                                  {t("form.saveConfirm")}
                               </button>
                           </div>
                       </div>
@@ -837,19 +841,19 @@ export function QuotationsClient({
           {/* Search & Filter Bar */}
           <div className="bg-white/5 backdrop-blur-xl rounded-3xl p-6 border border-white/10 flex flex-col md:flex-row gap-4 items-center justify-between">
             <div className="relative w-full md:w-96">
-              <Search className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
+              <Search className={cn("absolute top-1/2 -translate-y-1/2 text-slate-400", isRtl ? "right-4" : "left-4")} size={20} />
               <input
                 type="text"
-                placeholder="بحث برقم العرض أو اسم العميل..."
+                placeholder={t("search.placeholder")}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pr-12 pl-4 py-3 bg-white/10 border border-white/10 rounded-2xl text-white font-medium focus:bg-white/20 focus:border-purple-500/50 outline-none transition-all placeholder:text-slate-500"
+                className={cn("w-full py-3 bg-white/10 border border-white/10 rounded-2xl text-white font-medium focus:bg-white/20 focus:border-purple-500/50 outline-none transition-all placeholder:text-slate-500", isRtl ? "pr-12 pl-4" : "pl-12 pr-4")}
               />
             </div>
             <div className="flex gap-3 w-full md:w-auto">
               <button className="flex-1 md:flex-none flex items-center justify-center gap-2 px-6 py-3 bg-blue-500/20 text-blue-300 font-bold rounded-2xl border border-blue-500/30 hover:bg-blue-500/30 transition-all">
                 <FileSpreadsheet size={18} />
-                تصدير البيانات
+                {t("search.export")}
               </button>
             </div>
           </div>
@@ -861,24 +865,24 @@ export function QuotationsClient({
                 <div className="p-2 bg-purple-500/20 rounded-xl">
                   <FileText className="w-5 h-5 text-purple-400" />
                 </div>
-                <h3 className="font-black text-lg">سجل عروض الأسعار</h3>
+                <h3 className="font-black text-lg">{t("table.title")}</h3>
               </div>
               <span className="px-4 py-1.5 bg-white/10 rounded-full text-[10px] font-black uppercase tracking-widest text-slate-400">
-                {filteredQuotations.length} عرض موجود
+                {t("table.count", { count: filteredQuotations.length })}
               </span>
             </div>
 
             <div className="overflow-x-auto">
-              <table className="w-full text-right">
+              <table className={cn("w-full", isRtl ? "text-right" : "text-left")}>
                 <thead>
                   <tr className="bg-white/5 border-b border-white/5">
-                    <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">رقم العرض</th>
-                    <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">العميل</th>
-                    <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">تاريخ العرض</th>
-                    <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">صلاحية العرض</th>
-                    <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">المبلغ الإجمالي</th>
-                    <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">الحالة</th>
-                    <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">الإجراءات</th>
+                    <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">{t("table.number")}</th>
+                    <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">{t("table.customer")}</th>
+                    <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">{t("table.date")}</th>
+                    <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">{t("table.expiry")}</th>
+                    <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">{t("table.total")}</th>
+                    <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">{t("table.status")}</th>
+                    <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">{t("table.actions")}</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-white/5">
@@ -901,7 +905,7 @@ export function QuotationsClient({
                             <div className="h-9 w-9 rounded-xl bg-white/5 flex items-center justify-center text-slate-400 group-hover:bg-purple-500/20 group-hover:text-purple-400 transition-all">
                               <User size={16} />
                             </div>
-                            <span className="font-bold text-sm text-slate-200">{quotation.client_name || "غير محدد"}</span>
+                            <span className="font-bold text-sm text-slate-200">{quotation.client_name || t("status.notSpecified")}</span>
                           </div>
                         </td>
                         <td className="px-6 py-5">
@@ -919,7 +923,7 @@ export function QuotationsClient({
                         <td className="px-6 py-5">
                           <div className="flex items-baseline gap-1 text-emerald-400">
                             <span className="text-lg font-black">{Number(quotation.total_amount || 0).toLocaleString()}</span>
-                            <span className="text-[10px] font-bold text-emerald-400/50 uppercase">ر.س</span>
+                            <span className="text-[10px] font-bold text-emerald-400/50 uppercase">{t("common.sar")}</span>
                           </div>
                         </td>
                         <td className="px-6 py-5 text-center">
@@ -928,12 +932,12 @@ export function QuotationsClient({
                         <td className="px-6 py-5">
                           <div className="flex items-center justify-center gap-2">
                             <Link href={`/quotations/${quotation.id}`}>
-                              <button className="h-9 w-9 rounded-xl bg-blue-500/10 text-blue-400 flex items-center justify-center hover:bg-blue-500 hover:text-white transition-all shadow-lg active:scale-95" title="عرض">
+                              <button className="h-9 w-9 rounded-xl bg-blue-500/10 text-blue-400 flex items-center justify-center hover:bg-blue-500 hover:text-white transition-all shadow-lg active:scale-95" title={t("table.view")}>
                                 <Eye size={16} />
                               </button>
                             </Link>
                             <Link href={`/quotations/${quotation.id}/edit`}>
-                              <button className="h-9 w-9 rounded-xl bg-amber-500/10 text-amber-400 flex items-center justify-center hover:bg-amber-500 hover:text-white transition-all shadow-lg active:scale-95" title="تعديل">
+                              <button className="h-9 w-9 rounded-xl bg-amber-500/10 text-amber-400 flex items-center justify-center hover:bg-amber-500 hover:text-white transition-all shadow-lg active:scale-95" title={t("table.edit")}>
                                 <Edit size={16} />
                               </button>
                             </Link>
@@ -941,7 +945,7 @@ export function QuotationsClient({
                               onClick={() => handleDelete(quotation.id, quotation.quotation_number)}
                               disabled={deleteLoading === quotation.id}
                               className="h-9 w-9 rounded-xl bg-rose-500/10 text-rose-400 flex items-center justify-center hover:bg-rose-500 hover:text-white transition-all shadow-lg active:scale-95 disabled:opacity-50"
-                              title="حذف"
+                              title={t("table.delete")}
                             >
                               {deleteLoading === quotation.id ? (
                                 <Loader2 size={16} className="animate-spin" />
@@ -959,8 +963,8 @@ export function QuotationsClient({
                         <div className="flex flex-col items-center gap-4 opacity-40">
                           <FileText size={64} className="text-slate-400" />
                           <div className="space-y-1">
-                            <p className="text-xl font-black text-slate-300">لا توجد عروض أسعار</p>
-                            <p className="text-sm font-medium text-slate-500">ابدأ بإنشاء أول عرض سعر من الزر أعلاه</p>
+                            <p className="text-xl font-black text-slate-300">{t("table.noData")}</p>
+                            <p className="text-sm font-medium text-slate-500">{t("table.noDataDesc")}</p>
                           </div>
                         </div>
                       </td>
@@ -981,9 +985,9 @@ export function QuotationsClient({
       <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-[10px] font-black text-slate-500 uppercase tracking-widest pt-4 opacity-60">
         <div className="flex items-center gap-2">
           <Sparkles size={10} className="text-purple-500" />
-          <span>نظام ZoolSpeed Logistics - إدارة عروض الأسعار</span>
+          <span>{t("footer.system")}</span>
         </div>
-        <span>جميع الحقوق محفوظة © {new Date().getFullYear()}</span>
+        <span>{t("footer.rights", { year: new Date().getFullYear() })}</span>
       </div>
     </div>
   );

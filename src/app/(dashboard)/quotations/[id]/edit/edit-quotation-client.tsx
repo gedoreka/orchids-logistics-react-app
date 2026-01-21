@@ -24,6 +24,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useTranslations, useLocale } from "@/lib/locale-context";
 
 interface Customer {
   id: number;
@@ -73,6 +74,9 @@ interface NotificationState {
 
 export function EditQuotationClient({ quotation, customers, companyId }: EditQuotationClientProps) {
   const router = useRouter();
+  const t = useTranslations("financialVouchersPage.quotationsPage");
+  const { locale } = useLocale();
+  const isRtl = locale === "ar";
   const [loading, setLoading] = useState(false);
   const [notification, setNotification] = useState<NotificationState>({
     show: false,
@@ -145,6 +149,362 @@ export function EditQuotationClient({ quotation, customers, companyId }: EditQuo
     if (items.length > 1) {
       setItems(prev => prev.filter(item => item.id !== id));
     }
+  };
+
+  const handleSubmit = async (status: 'draft' | 'confirmed') => {
+    if (!formData.client_id) {
+      showNotification("error", t("notifications.errorTitle"), t("notifications.selectCustomer"));
+      return;
+    }
+
+    if (!formData.due_date) {
+      showNotification("error", t("notifications.errorTitle"), t("notifications.selectExpiry"));
+      return;
+    }
+
+    const validItems = items.filter(item => item.product_name && item.quantity > 0 && item.price > 0);
+    if (validItems.length === 0) {
+      showNotification("error", t("notifications.errorTitle"), t("notifications.addProductError"));
+      return;
+    }
+
+    setLoading(true);
+    showNotification("loading", t("form.saving"), t("notifications.updateSuccessMsg"));
+
+    try {
+      const res = await fetch(`/api/quotations/${quotation.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ...formData,
+          company_id: companyId,
+          status,
+          items: validItems
+        })
+      });
+
+      if (res.ok) {
+        showNotification("success", t("notifications.updateSuccess"), t("notifications.updateSuccessMsg"));
+        setTimeout(() => {
+          router.push(`/quotations/${quotation.id}`);
+          router.refresh();
+        }, 1500);
+      } else {
+        const data = await res.json();
+        showNotification("error", t("notifications.updateFailed"), data.error || t("notifications.updateFailedMsg"));
+      }
+    } catch {
+      showNotification("error", t("notifications.error"), t("notifications.errorMsg"));
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="h-full flex flex-col" dir={isRtl ? "rtl" : "ltr"}>
+      <AnimatePresence>
+        {notification.show && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50"
+              onClick={() => notification.type !== "loading" && hideNotification()}
+            />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 20 }}
+              className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50 w-full max-w-md p-4"
+            >
+              <div className={cn(
+                "bg-white rounded-3xl p-8 shadow-2xl border-t-4",
+                notification.type === "success" ? "border-emerald-500" :
+                notification.type === "error" ? "border-red-500" : "border-blue-500"
+              )}>
+                <div className="text-center">
+                  <div className={cn(
+                    "h-20 w-20 rounded-full mx-auto mb-6 flex items-center justify-center",
+                    notification.type === "success" ? "bg-emerald-100 text-emerald-500" :
+                    notification.type === "error" ? "bg-red-100 text-red-500" : "bg-blue-100 text-blue-500"
+                  )}>
+                    {notification.type === "success" && <CheckCircle size={40} />}
+                    {notification.type === "error" && <AlertCircle size={40} />}
+                    {notification.type === "loading" && <Loader2 size={40} className="animate-spin" />}
+                  </div>
+                  <h3 className="text-2xl font-black text-gray-900 mb-2">{notification.title}</h3>
+                  <p className="text-gray-500 mb-6 font-medium">{notification.message}</p>
+                  {notification.type !== "loading" && (
+                    <button
+                      onClick={hideNotification}
+                      className={cn(
+                        "w-full py-3 rounded-xl font-bold text-white transition-all shadow-lg active:scale-95",
+                        notification.type === "success" ? "bg-emerald-500 hover:bg-emerald-600" : "bg-red-500 hover:bg-red-600"
+                      )}
+                    >
+                      {t("notifications.ok")}
+                    </button>
+                  )}
+                </div>
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
+
+      <div className="flex-1 overflow-auto p-6">
+        <div className="max-w-[1200px] mx-auto space-y-6">
+          <div className="relative overflow-hidden bg-gradient-to-br from-[#1a237e] to-[#283593] rounded-2xl p-6 text-white shadow-xl">
+            <div className="relative z-10">
+              <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                <div className="flex items-center gap-4">
+                  <div className="h-14 w-14 rounded-xl bg-amber-500 flex items-center justify-center shadow-lg">
+                    <Edit size={28} />
+                  </div>
+                  <div>
+                    <h1 className="text-2xl font-black">{t("form.editTitle")}</h1>
+                    <p className="text-white/60 text-sm">{quotation.quotation_number}</p>
+                  </div>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  <Link href="/quotations">
+                    <button className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/10 text-white font-bold text-sm hover:bg-white/20 transition-all border border-white/10">
+                      <ArrowRight size={16} className={cn(isRtl ? "rotate-0" : "rotate-180")} />
+                      <span>{t("table.back")}</span>
+                    </button>
+                  </Link>
+                  <Link href={`/quotations/${quotation.id}`}>
+                    <button className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-blue-500 text-white font-bold text-sm hover:bg-blue-600 transition-all">
+                      <Eye size={16} />
+                      <span>{t("table.view")}</span>
+                    </button>
+                  </Link>
+                </div>
+              </div>
+            </div>
+            <div className="absolute top-0 right-0 w-40 h-40 bg-white/5 rounded-full -mr-20 -mt-20 blur-2xl" />
+          </div>
+
+          <div className="space-y-6">
+            <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+              <div className="bg-blue-500 px-4 py-3 flex items-center gap-2 text-white">
+                <FileText size={18} />
+                <h3 className="font-bold text-sm">{t("customers.viewPage.facilityInfo")}</h3>
+              </div>
+              <div className="p-5 grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                  <label className="flex items-center gap-1.5 text-xs font-bold text-gray-700 mb-1.5">
+                    <Hash size={14} className="text-gray-400" />
+                    {t("form.number")}
+                  </label>
+                  <input
+                    type="text"
+                    name="quotation_number"
+                    value={formData.quotation_number}
+                    readOnly
+                    className="w-full px-3 py-2 rounded-lg border border-gray-200 bg-gray-50 text-sm"
+                  />
+                </div>
+                <div>
+                  <label className="flex items-center gap-1.5 text-xs font-bold text-gray-700 mb-1.5">
+                    <Calendar size={14} className="text-gray-400" />
+                    {t("form.issueDate")}
+                  </label>
+                  <input
+                    type="date"
+                    name="issue_date"
+                    value={formData.issue_date}
+                    onChange={handleChange}
+                    className="w-full px-3 py-2 rounded-lg border border-gray-200 focus:border-blue-500 focus:ring-1 focus:ring-blue-500/20 outline-none text-sm"
+                  />
+                </div>
+                <div>
+                  <label className="flex items-center gap-1.5 text-xs font-bold text-gray-700 mb-1.5">
+                    <Clock size={14} className="text-gray-400" />
+                    {t("form.expiryDate")}
+                    <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="date"
+                    name="due_date"
+                    value={formData.due_date}
+                    onChange={handleChange}
+                    required
+                    className="w-full px-3 py-2 rounded-lg border border-gray-200 focus:border-blue-500 focus:ring-1 focus:ring-blue-500/20 outline-none text-sm"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+              <div className="bg-purple-500 px-4 py-3 flex items-center gap-2 text-white">
+                <User size={18} />
+                <h3 className="font-bold text-sm">{t("table.customer")}</h3>
+              </div>
+              <div className="p-5">
+                <label className="flex items-center gap-1.5 text-xs font-bold text-gray-700 mb-1.5">
+                  <User size={14} className="text-gray-400" />
+                  {t("form.selectCustomer")}
+                  <span className="text-red-500">*</span>
+                </label>
+                <select
+                  name="client_id"
+                  value={formData.client_id}
+                  onChange={handleChange}
+                  required
+                  className="w-full px-3 py-2 rounded-lg border border-gray-200 focus:border-blue-500 focus:ring-1 focus:ring-blue-500/20 outline-none text-sm"
+                >
+                  <option value="">{t("form.selectCustomer")}</option>
+                  {customers.map(c => (
+                    <option key={c.id} value={c.id}>
+                      {c.customer_name || c.company_name} - {c.vat_number}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+              <div className="bg-emerald-500 px-4 py-3 flex items-center justify-between text-white">
+                <div className="flex items-center gap-2">
+                  <Package size={18} />
+                  <h3 className="font-bold text-sm">{t("form.products")}</h3>
+                </div>
+                <button
+                  type="button"
+                  onClick={addItem}
+                  className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-white/20 text-white text-xs font-bold hover:bg-white/30 transition-all"
+                >
+                  <Plus size={14} />
+                  {t("form.addProduct")}
+                </button>
+              </div>
+              <div className="p-5 space-y-4">
+                {items.map((item) => (
+                  <div key={item.id} className={cn("bg-gray-50 rounded-xl p-4 border-blue-500", isRtl ? "border-r-4" : "border-l-4")}>
+                    <div className="grid grid-cols-1 md:grid-cols-12 gap-3">
+                      <div className="md:col-span-4">
+                        <label className="text-[10px] font-bold text-gray-500 mb-1 block">{t("form.table.productName")}</label>
+                        <input
+                          type="text"
+                          placeholder={t("form.table.placeholder")}
+                          value={item.product_name}
+                          onChange={(e) => handleItemChange(item.id, 'product_name', e.target.value)}
+                          className="w-full px-3 py-2 rounded-lg border border-gray-200 focus:border-blue-500 outline-none text-sm"
+                        />
+                      </div>
+                      <div className="md:col-span-3">
+                        <label className="text-[10px] font-bold text-gray-500 mb-1 block">{t("common.description")}</label>
+                        <input
+                          type="text"
+                          placeholder={t("form.table.placeholder")}
+                          value={item.description}
+                          onChange={(e) => handleItemChange(item.id, 'description', e.target.value)}
+                          className="w-full px-3 py-2 rounded-lg border border-gray-200 focus:border-blue-500 outline-none text-sm"
+                        />
+                      </div>
+                      <div className="md:col-span-2">
+                        <label className="text-[10px] font-bold text-gray-500 mb-1 block">{t("form.table.quantity")}</label>
+                        <input
+                          type="number"
+                          min="1"
+                          value={item.quantity}
+                          onChange={(e) => handleItemChange(item.id, 'quantity', parseFloat(e.target.value) || 0)}
+                          className="w-full px-3 py-2 rounded-lg border border-gray-200 focus:border-blue-500 outline-none text-sm"
+                        />
+                      </div>
+                      <div className="md:col-span-2">
+                        <label className="text-[10px] font-bold text-gray-500 mb-1 block">{t("form.table.price")}</label>
+                        <input
+                          type="number"
+                          min="0"
+                          step="0.01"
+                          value={item.price}
+                          onChange={(e) => handleItemChange(item.id, 'price', parseFloat(e.target.value) || 0)}
+                          className="w-full px-3 py-2 rounded-lg border border-gray-200 focus:border-blue-500 outline-none text-sm"
+                        />
+                      </div>
+                      <div className="md:col-span-1 flex items-end">
+                        <button
+                          type="button"
+                          onClick={() => removeItem(item.id)}
+                          disabled={items.length === 1}
+                          className="w-full h-9 rounded-lg bg-red-50 text-red-500 flex items-center justify-center hover:bg-red-500 hover:text-white transition-all disabled:opacity-30 disabled:cursor-not-allowed"
+                        >
+                          <Trash2 size={16} />
+                        </button>
+                      </div>
+                    </div>
+                    <div className={cn("mt-2", isRtl ? "text-left" : "text-right")}>
+                      <span className="text-xs text-gray-500">
+                        {t("common.total")}: <span className="font-bold text-emerald-600">{(item.quantity * item.price).toLocaleString('en-US', { minimumFractionDigits: 2 })} {t("common.sar")}</span>
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+              <div className="bg-amber-500 px-4 py-3 flex items-center gap-2 text-white">
+                <DollarSign size={18} />
+                <h3 className="font-bold text-sm">{t("view.summary")}</h3>
+              </div>
+              <div className="p-5">
+                <div className={cn("max-w-md space-y-3", isRtl ? "mr-auto" : "ml-auto")}>
+                  <div className="flex justify-between items-center py-2 border-b border-gray-100">
+                    <span className="text-gray-600 text-sm">{t("form.subtotal")}:</span>
+                    <span className="font-bold text-gray-900">{subtotal.toLocaleString('en-US', { minimumFractionDigits: 2 })} {t("common.sar")}</span>
+                  </div>
+                  <div className="flex justify-between items-center py-2 border-b border-gray-100">
+                    <span className="text-gray-600 text-sm flex items-center gap-1">
+                      <Percent size={12} />
+                      {t("form.totalTax", { rate: vatRate })}:
+                    </span>
+                    <span className="font-bold text-amber-600">{vatAmount.toLocaleString('en-US', { minimumFractionDigits: 2 })} {t("common.sar")}</span>
+                  </div>
+                  <div className="flex justify-between items-center py-3 bg-emerald-50 rounded-lg px-4">
+                    <span className="text-emerald-800 font-bold">{t("view.inclTax")}</span>
+                    <span className="font-black text-2xl text-emerald-600">{total.toLocaleString('en-US', { minimumFractionDigits: 2 })} {t("common.sar")}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex justify-center gap-4 pt-2 pb-6">
+              <Link href={`/quotations/${quotation.id}`}>
+                <button type="button" className="flex items-center gap-2 px-6 py-3 rounded-xl bg-gray-100 text-gray-700 font-bold text-sm hover:bg-gray-200 transition-all">
+                  <ArrowRight size={16} className={cn(isRtl ? "rotate-0" : "rotate-180")} />
+                  <span>{t("form.cancel")}</span>
+                </button>
+              </Link>
+              <button
+                type="button"
+                onClick={() => handleSubmit('draft')}
+                disabled={loading}
+                className="flex items-center gap-2 px-6 py-3 rounded-xl bg-gray-500 text-white font-bold text-sm hover:bg-gray-600 transition-all disabled:opacity-50"
+              >
+                {loading ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />}
+                <span>{t("form.saveDraft")}</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => handleSubmit('confirmed')}
+                disabled={loading}
+                className="flex items-center gap-2 px-6 py-3 rounded-xl bg-amber-500 text-white font-bold text-sm hover:bg-amber-600 transition-all disabled:opacity-50"
+              >
+                {loading ? <Loader2 size={16} className="animate-spin" /> : <FileCheck size={16} />}
+                <span>{t("form.saveConfirm")}</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
   };
 
   const handleSubmit = async (status: 'draft' | 'confirmed') => {
