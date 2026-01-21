@@ -27,6 +27,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { format } from "date-fns";
 import { useReactToPrint } from "react-to-print";
+import { cn } from "@/lib/utils";
 import { useTranslations, useLocale } from "@/lib/locale-context";
 
 interface QuotationItem {
@@ -354,19 +355,19 @@ export function QuotationViewClient({ quotation, company, companyId }: Quotation
                 <div className={cn("max-w-md space-y-3", isRtl ? "mr-auto" : "ml-auto")}>
                   <div className="flex justify-between items-center py-2 border-b border-gray-100">
                     <span className="text-gray-600 text-sm">{t("form.subtotal")}:</span>
-                    <span className="font-bold text-gray-900">{subtotal.toLocaleString('en-US', { minimumFractionDigits: 2 })} {t("common.sar")}</span>
-                  </div>
-                  <div className="flex justify-between items-center py-2 border-b border-gray-100">
-                    <span className="text-gray-600 text-sm flex items-center gap-1">
-                      <Percent size={12} />
-                      {t("form.totalTax", { rate: 15 })}:
-                    </span>
-                    <span className="font-bold text-amber-600">{totalVat.toLocaleString('en-US', { minimumFractionDigits: 2 })} {t("common.sar")}</span>
-                  </div>
-                  <div className="flex justify-between items-center py-3 bg-emerald-50 rounded-lg px-4">
-                    <span className="text-emerald-800 font-bold">{t("view.inclTax")}</span>
-                    <span className="font-black text-2xl text-emerald-600">{Number(quotation.total_amount).toLocaleString('en-US', { minimumFractionDigits: 2 })} {t("common.sar")}</span>
-                  </div>
+                      <span className="font-bold text-gray-900">{subtotal.toLocaleString('en-US', { minimumFractionDigits: 2 })} {currency}</span>
+                    </div>
+                    <div className="flex justify-between items-center py-2 border-b border-gray-100">
+                      <span className="text-gray-600 text-sm flex items-center gap-1">
+                        <Percent size={12} />
+                        {t("form.totalTax", { rate: 15 })}:
+                      </span>
+                      <span className="font-bold text-amber-600">{totalVat.toLocaleString('en-US', { minimumFractionDigits: 2 })} {currency}</span>
+                    </div>
+                    <div className="flex justify-between items-center py-3 bg-emerald-50 rounded-lg px-4">
+                      <span className="text-emerald-800 font-bold">{t("view.inclTax")}</span>
+                      <span className="font-black text-2xl text-emerald-600">{Number(quotation.total_amount).toLocaleString('en-US', { minimumFractionDigits: 2 })} {currency}</span>
+                    </div>
                 </div>
               </div>
             </div>
