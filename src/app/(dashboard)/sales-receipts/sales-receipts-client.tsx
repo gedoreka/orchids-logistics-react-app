@@ -61,8 +61,8 @@ interface NotificationState {
 }
 
 export function SalesReceiptsClient({ receipts: initialReceipts, stats, companyId }: SalesReceiptsClientProps) {
-  const t = useTranslations("salesReceiptsPage");
-  const locale = useLocale();
+  const t = useTranslations("financialVouchersPage.salesReceiptsPage");
+  const { locale } = useLocale();
   const isRtl = locale === "ar";
   
   const [receipts, setReceipts] = useState(initialReceipts);
