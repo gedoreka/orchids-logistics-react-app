@@ -11,24 +11,19 @@ import {
   Calendar,
   Link as LinkIcon,
   Unlink,
-  CheckCircle,
-  AlertCircle,
   FileSpreadsheet,
   Loader2,
-  DollarSign,
   User,
   TrendingUp,
   Sparkles,
-  Building2,
-  RefreshCw,
-  ArrowRight,
-  TrendingDown
+  RefreshCw
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { useTranslations, useLocale } from "@/lib/locale-context";
+import { DeleteNotification, useDeleteNotification } from "@/components/ui/delete-notification";
 
 interface SalesReceipt {
   id: number;
@@ -51,13 +46,6 @@ interface SalesReceiptsClientProps {
     unlinked: number;
   };
   companyId: number;
-}
-
-interface NotificationState {
-  show: boolean;
-  type: "success" | "error" | "loading";
-  title: string;
-  message: string;
 }
 
 export function SalesReceiptsClient({ receipts: initialReceipts, stats, companyId }: SalesReceiptsClientProps) {
