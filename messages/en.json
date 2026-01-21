@@ -1193,14 +1193,16 @@
           "cancelled": "Cancelled"
         },
         "notifications": {
-          "fetchError": "Error fetching data",
-          "saveSuccess": "Voucher saved successfully!",
-          "saveFailed": "Failed to save voucher",
-          "deleteConfirm": "Are you sure you want to delete this voucher?",
-          "deleteSuccess": "Voucher deleted successfully",
-          "deleteFailed": "Deletion failed",
-          "payeeRequired": "Please enter payee name"
+            "fetchError": "Error fetching data",
+            "saveSuccess": "Voucher saved successfully!",
+            "saveFailed": "Failed to save voucher",
+            "deleteConfirm": "Are you sure you want to delete this voucher?",
+            "deleteSuccess": "Voucher deleted successfully",
+            "deleteFailed": "Deletion failed",
+            "payeeRequired": "Please enter payee name"
+          }
         }
       }
     }
   }
+}
