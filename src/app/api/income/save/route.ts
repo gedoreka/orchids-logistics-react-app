@@ -55,7 +55,7 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    const { data, error } = await supabase.from("manual_income").insert({
+    const insertData: Record<string, unknown> = {
       operation_number: operationNumber,
       company_id: companyId,
       income_type: incomeType,
@@ -64,12 +64,19 @@ export async function POST(request: NextRequest) {
       vat: vat,
       total: total,
       description: description,
-      account_id: accountId ? parseInt(accountId) : null,
-      cost_center_id: costCenterId ? parseInt(costCenterId) : null,
       payment_method: paymentMethod,
       uploaded_file: uploadedFileName,
       created_by: userName,
-    }).select();
+    };
+
+    if (accountId && accountId !== '' && accountId !== 'null') {
+      insertData.account_id = parseInt(accountId);
+    }
+    if (costCenterId && costCenterId !== '' && costCenterId !== 'null') {
+      insertData.cost_center_id = parseInt(costCenterId);
+    }
+
+    const { data, error } = await supabase.from("manual_income").insert(insertData).select();
 
     if (error) {
       console.error("Insert error:", error);

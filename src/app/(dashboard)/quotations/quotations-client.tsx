@@ -32,6 +32,7 @@ import { useRouter } from "next/navigation";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { useTranslations, useLocale } from "@/lib/locale-context";
+import { DeleteNotification, useDeleteNotification } from "@/components/ui/delete-notification";
 
 interface Quotation {
   id: number;
@@ -102,6 +103,12 @@ export function QuotationsClient({
     message: ""
   });
   
+  const t = useTranslations("financialVouchersPage.quotationsPage");
+  const tCommon = useTranslations("common");
+  const { locale } = useLocale();
+  const isRtl = locale === "ar";
+  const { notification: deleteNotif, showDeleteConfirm, showLoading: showDeleteLoading, showSuccess: showDeleteSuccess, showError: showDeleteError, hideNotification: hideDeleteNotification } = useDeleteNotification("purple");
+  
   const [useCustomClient, setUseCustomClient] = useState(false);
   const [formData, setFormData] = useState({
     quotation_number: nextQuotationNumber,
@@ -114,10 +121,6 @@ export function QuotationsClient({
   });
   
   const vatRate = 15;
-  const t = useTranslations("financialVouchersPage.quotationsPage");
-  const tCommon = useTranslations("common");
-  const { locale } = useLocale();
-  const isRtl = locale === "ar";
   const currency = tCommon("sar");
   
   const calculateItemTotals = (quantity: number, price: number) => {
@@ -277,11 +280,25 @@ export function QuotationsClient({
     }
   };
 
-  const handleDelete = async (id: number, quotationNumber: string) => {
-    if (!confirm(t("notifications.deleteConfirm", { number: quotationNumber }))) return;
-    
+  const handleDelete = (id: number, quotationNumber: string) => {
+    showDeleteConfirm(
+      isRtl ? "تأكيد حذف عرض السعر" : "Confirm Delete Quotation",
+      isRtl 
+        ? `هل أنت متأكد من حذف عرض السعر رقم "${quotationNumber}"؟\nلا يمكن التراجع عن هذا الإجراء.`
+        : `Are you sure you want to delete quotation "${quotationNumber}"?\nThis action cannot be undone.`,
+      () => confirmDelete(id),
+      id,
+      quotationNumber
+    );
+  };
+
+  const confirmDelete = async (id: number) => {
     setDeleteLoading(id);
-    showNotification("loading", t("notifications.deleting"), t("form.savingMsg"));
+    hideDeleteNotification();
+    showDeleteLoading(
+      isRtl ? "جاري الحذف" : "Deleting",
+      isRtl ? "جاري حذف عرض السعر..." : "Deleting quotation..."
+    );
     
     try {
       const res = await fetch(`/api/quotations/${id}?company_id=${companyId}`, {
@@ -290,13 +307,22 @@ export function QuotationsClient({
       
       if (res.ok) {
         setQuotations(prev => prev.filter(q => q.id !== id));
-        showNotification("success", t("notifications.deleteSuccess"), t("notifications.deleteSuccessMsg"));
+        showDeleteSuccess(
+          isRtl ? "تم الحذف بنجاح" : "Deleted Successfully",
+          isRtl ? "تم حذف عرض السعر بنجاح" : "Quotation deleted successfully"
+        );
         router.refresh();
       } else {
-        showNotification("error", t("notifications.deleteFailed"), t("notifications.deleteFailedMsg"));
+        showDeleteError(
+          isRtl ? "فشل الحذف" : "Delete Failed",
+          isRtl ? "فشل حذف عرض السعر" : "Failed to delete quotation"
+        );
       }
     } catch {
-      showNotification("error", t("notifications.error"), t("notifications.errorMsg"));
+      showDeleteError(
+        isRtl ? "خطأ" : "Error",
+        isRtl ? "حدث خطأ أثناء الحذف" : "An error occurred during deletion"
+      );
     } finally {
       setDeleteLoading(null);
     }
@@ -334,6 +360,14 @@ export function QuotationsClient({
 
   return (
     <div className="max-w-[95%] mx-auto p-4 md:p-8 space-y-8" dir={isRtl ? "rtl" : "ltr"}>
+      <DeleteNotification 
+        notification={deleteNotif} 
+        onClose={hideDeleteNotification}
+        cancelLabel={tCommon("cancel")}
+        deleteLabel={tCommon("delete")}
+        okLabel={tCommon("ok")}
+        isRtl={isRtl}
+      />
       <AnimatePresence>
         {notification.show && (
           <>

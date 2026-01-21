@@ -8,9 +8,10 @@ import {
   Calendar, User, CreditCard, Building2, MapPin, X, Check,
   ChevronDown, AlertCircle, Sparkles, RefreshCw, FileSpreadsheet,
   TrendingUp, TrendingDown, DollarSign, ScrollText, PlusCircle,
-  Loader2
+  Loader2, CheckCircle
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { DeleteNotification, useDeleteNotification } from "@/components/ui/delete-notification";
 
 interface PromissoryNote {
   id: number;
@@ -123,7 +124,8 @@ const formatDate = (date: string | null) => {
 
 export default function PromissoryNotesClient() {
   const t = useTranslations("financialVouchersPage.promissoryNotesPage");
-  const locale = useLocale();
+  const tCommon = useTranslations("common");
+  const { locale } = useLocale();
   const isRtl = locale === 'ar';
   
   const [notes, setNotes] = useState<PromissoryNote[]>([]);
@@ -134,6 +136,8 @@ export default function PromissoryNotesClient() {
   const [searchTerm, setSearchTerm] = useState("");
   const [showPrintPreview, setShowPrintPreview] = useState(false);
   const [selectedNote, setSelectedNote] = useState<PromissoryNote | null>(null);
+  const [deleteLoading, setDeleteLoading] = useState<number | null>(null);
+  const { notification, showDeleteConfirm, showLoading, showSuccess: showSuccessNotif, showError, hideNotification } = useDeleteNotification("amber");
   const printRef = useRef<HTMLDivElement>(null);
 
   const [formData, setFormData] = useState({
@@ -214,13 +218,48 @@ export default function PromissoryNotesClient() {
     }
   };
 
-  const handleDelete = async (id: number) => {
-    if (!confirm(t("deleteConfirmation"))) return;
+  const handleDelete = (id: number, noteNumber: string) => {
+    showDeleteConfirm(
+      isRtl ? "تأكيد حذف السند لأمر" : "Confirm Delete Promissory Note",
+      isRtl 
+        ? `هل أنت متأكد من حذف السند لأمر رقم "${noteNumber}"؟\nلا يمكن التراجع عن هذا الإجراء.`
+        : `Are you sure you want to delete promissory note "${noteNumber}"?\nThis action cannot be undone.`,
+      () => confirmDelete(id),
+      id,
+      noteNumber
+    );
+  };
+
+  const confirmDelete = async (id: number) => {
+    setDeleteLoading(id);
+    hideNotification();
+    showLoading(
+      isRtl ? "جاري الحذف" : "Deleting",
+      isRtl ? "جاري حذف السند لأمر..." : "Deleting promissory note..."
+    );
+    
     try {
       const res = await fetch(`/api/promissory-notes?id=${id}`, { method: "DELETE" });
-      if (res.ok) fetchNotes();
+      if (res.ok) {
+        showSuccessNotif(
+          isRtl ? "تم الحذف بنجاح" : "Deleted Successfully",
+          isRtl ? "تم حذف السند لأمر بنجاح" : "Promissory note deleted successfully"
+        );
+        fetchNotes();
+      } else {
+        showError(
+          isRtl ? "فشل الحذف" : "Delete Failed",
+          isRtl ? "فشل حذف السند لأمر" : "Failed to delete promissory note"
+        );
+      }
     } catch (error) {
       console.error("Error deleting note:", error);
+      showError(
+        isRtl ? "خطأ" : "Error",
+        isRtl ? "حدث خطأ أثناء الحذف" : "An error occurred during deletion"
+      );
+    } finally {
+      setDeleteLoading(null);
     }
   };
 
@@ -456,6 +495,14 @@ export default function PromissoryNotesClient() {
 
   return (
     <div className="max-w-[95%] mx-auto p-4 md:p-8 space-y-8" dir={isRtl ? "rtl" : "ltr"}>
+      <DeleteNotification 
+        notification={notification} 
+        onClose={hideNotification}
+        cancelLabel={tCommon("cancel")}
+        deleteLabel={tCommon("delete")}
+        okLabel={tCommon("ok")}
+        isRtl={isRtl}
+      />
       <motion.div
         initial={{ opacity: 0, y: -30 }}
         animate={{ opacity: 1, y: 0 }}
@@ -916,11 +963,12 @@ export default function PromissoryNotesClient() {
                                                     <Edit2 size={16} />
                                                 </button>
                                                 <button 
-                                                    onClick={() => handleDelete(note.id)}
-                                                    className="h-9 w-9 rounded-xl bg-rose-500/10 text-rose-400 flex items-center justify-center hover:bg-rose-500 hover:text-white transition-all shadow-lg active:scale-95"
+                                                    onClick={() => handleDelete(note.id, note.note_number)}
+                                                    disabled={deleteLoading === note.id}
+                                                    className="h-9 w-9 rounded-xl bg-rose-500/10 text-rose-400 flex items-center justify-center hover:bg-rose-500 hover:text-white transition-all shadow-lg active:scale-95 disabled:opacity-50"
                                                     title={t("delete")}
                                                 >
-                                                    <Trash2 size={16} />
+                                                    {deleteLoading === note.id ? <Loader2 size={16} className="animate-spin" /> : <Trash2 size={16} />}
                                                 </button>
                                             </div>
                                         </td>

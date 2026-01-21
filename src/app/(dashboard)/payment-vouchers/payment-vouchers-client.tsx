@@ -14,7 +14,8 @@ import {
 import Link from "next/link";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
-import { useTranslations } from "@/lib/locale-context";
+import { useTranslations, useLocale } from "@/lib/locale-context";
+import { DeleteNotification, useDeleteNotification } from "@/components/ui/delete-notification";
 
 interface Account {
   id: number;
@@ -90,6 +91,8 @@ const statusOptions = [
     const tFinancial = useTranslations("financialVouchersPage");
     const tSalesReceipts = useTranslations("financialVouchersPage.salesReceiptsPage");
     const tCommon = useTranslations("common");
+    const { locale } = useLocale();
+    const isRtl = locale === "ar";
     const [accounts, setAccounts] = useState<Account[]>([]);
   const [costCenters, setCostCenters] = useState<CostCenter[]>([]);
   const [vouchers, setVouchers] = useState<Voucher[]>([]);
@@ -102,6 +105,8 @@ const statusOptions = [
   const [showSuccess, setShowSuccess] = useState(false);
   const [expandedId, setExpandedId] = useState<number | null>(null);
   const [printVoucher, setPrintVoucher] = useState<Voucher | null>(null);
+  const [deleteLoading, setDeleteLoading] = useState<number | null>(null);
+  const { notification, showDeleteConfirm, showLoading, showSuccess: showSuccessNotif, showError, hideNotification } = useDeleteNotification("rose");
   const printRef = useRef<HTMLDivElement>(null);
 
   const companyId = "1";
@@ -260,18 +265,49 @@ const statusOptions = [
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  const handleDelete = async (id: number) => {
-    if (!confirm(t("notifications.deleteConfirm"))) return;
+  const handleDelete = (id: number, voucherNum: string) => {
+    showDeleteConfirm(
+      isRtl ? "تأكيد حذف سند الصرف" : "Confirm Delete Payment Voucher",
+      isRtl 
+        ? `هل أنت متأكد من حذف سند الصرف رقم "${voucherNum}"؟\nلا يمكن التراجع عن هذا الإجراء.`
+        : `Are you sure you want to delete payment voucher "${voucherNum}"?\nThis action cannot be undone.`,
+      () => confirmDelete(id),
+      id,
+      voucherNum
+    );
+  };
+
+  const confirmDelete = async (id: number) => {
+    setDeleteLoading(id);
+    hideNotification();
+    showLoading(
+      isRtl ? "جاري الحذف" : "Deleting",
+      isRtl ? "جاري حذف سند الصرف..." : "Deleting payment voucher..."
+    );
+    
     try {
       const res = await fetch(`/api/payment-vouchers/delete?id=${id}&company_id=${companyId}`, {
         method: "DELETE",
       });
       if (res.ok) {
-        toast.success(t("notifications.deleteSuccess"));
+        showSuccessNotif(
+          isRtl ? "تم الحذف بنجاح" : "Deleted Successfully",
+          isRtl ? "تم حذف سند الصرف بنجاح" : "Payment voucher deleted successfully"
+        );
         fetchData();
+      } else {
+        showError(
+          isRtl ? "فشل الحذف" : "Delete Failed",
+          isRtl ? "فشل حذف سند الصرف" : "Failed to delete payment voucher"
+        );
       }
     } catch {
-      toast.error(t("notifications.deleteFailed"));
+      showError(
+        isRtl ? "خطأ" : "Error",
+        isRtl ? "حدث خطأ أثناء الحذف" : "An error occurred during deletion"
+      );
+    } finally {
+      setDeleteLoading(null);
     }
   };
 
@@ -295,7 +331,15 @@ const statusOptions = [
   }
 
     return (
-      <div className="max-w-[95%] mx-auto p-4 md:p-8 space-y-8">
+      <div className="max-w-[95%] mx-auto p-4 md:p-8 space-y-8" dir={isRtl ? "rtl" : "ltr"}>
+        <DeleteNotification 
+          notification={notification} 
+          onClose={hideNotification}
+          cancelLabel={tCommon("cancel")}
+          deleteLabel={tCommon("delete")}
+          okLabel={tCommon("ok")}
+          isRtl={isRtl}
+        />
         {/* Print Styles */}
         <style jsx global>{`
           @media print {
@@ -649,11 +693,12 @@ const statusOptions = [
                                                         <Printer size={16} />
                                                     </button>
                                                     <button 
-                                                        onClick={() => handleDelete(voucher.id)}
-                                                        className="h-9 w-9 rounded-xl bg-rose-500/10 text-rose-400 flex items-center justify-center hover:bg-rose-500 hover:text-white transition-all shadow-lg active:scale-95"
+                                                        onClick={() => handleDelete(voucher.id, voucher.voucher_number)}
+                                                        disabled={deleteLoading === voucher.id}
+                                                        className="h-9 w-9 rounded-xl bg-rose-500/10 text-rose-400 flex items-center justify-center hover:bg-rose-500 hover:text-white transition-all shadow-lg active:scale-95 disabled:opacity-50"
                                                         title={tCommon("delete")}
                                                     >
-                                                        <Trash2 size={16} />
+                                                        {deleteLoading === voucher.id ? <Loader2 size={16} className="animate-spin" /> : <Trash2 size={16} />}
                                                     </button>
                                                 </div>
                                             </td>

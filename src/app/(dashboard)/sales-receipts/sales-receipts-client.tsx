@@ -16,7 +16,9 @@ import {
   User,
   TrendingUp,
   Sparkles,
-  RefreshCw
+  RefreshCw,
+  CheckCircle,
+  AlertCircle
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -50,18 +52,14 @@ interface SalesReceiptsClientProps {
 
 export function SalesReceiptsClient({ receipts: initialReceipts, stats, companyId }: SalesReceiptsClientProps) {
   const t = useTranslations("financialVouchersPage.salesReceiptsPage");
+  const tCommon = useTranslations("common");
   const { locale } = useLocale();
   const isRtl = locale === "ar";
   
   const [receipts, setReceipts] = useState(initialReceipts);
   const [searchTerm, setSearchTerm] = useState("");
   const [deleteLoading, setDeleteLoading] = useState<number | null>(null);
-  const [notification, setNotification] = useState<NotificationState>({
-    show: false,
-    type: "success",
-    title: "",
-    message: ""
-  });
+  const { notification, showDeleteConfirm, showLoading, showSuccess, showError, hideNotification } = useDeleteNotification("teal");
   const router = useRouter();
 
   const filteredReceipts = receipts.filter(r => {
@@ -73,18 +71,25 @@ export function SalesReceiptsClient({ receipts: initialReceipts, stats, companyI
     );
   });
 
-  const showNotification = (type: "success" | "error" | "loading", title: string, message: string) => {
-    setNotification({ show: true, type, title, message });
-    if (type !== "loading") {
-      setTimeout(() => setNotification(prev => ({ ...prev, show: false })), 3000);
-    }
+  const handleDelete = (id: number, receiptNumber: string) => {
+    showDeleteConfirm(
+      isRtl ? "تأكيد حذف سند المبيعات" : "Confirm Delete Sales Receipt",
+      isRtl 
+        ? `هل أنت متأكد من حذف سند المبيعات رقم "${receiptNumber}"؟\nلا يمكن التراجع عن هذا الإجراء.`
+        : `Are you sure you want to delete sales receipt "${receiptNumber}"?\nThis action cannot be undone.`,
+      () => confirmDelete(id),
+      id,
+      receiptNumber
+    );
   };
 
-  const handleDelete = async (id: number, receiptNumber: string) => {
-    if (!confirm(t("deleteConfirm", { number: receiptNumber }))) return;
-    
+  const confirmDelete = async (id: number) => {
     setDeleteLoading(id);
-    showNotification("loading", t("deleting"), t("deletingMsg"));
+    hideNotification();
+    showLoading(
+      isRtl ? "جاري الحذف" : "Deleting",
+      isRtl ? "جاري حذف سند المبيعات..." : "Deleting sales receipt..."
+    );
     
     try {
       const res = await fetch(`/api/sales-receipts/${id}?company_id=${companyId}`, {
@@ -93,13 +98,22 @@ export function SalesReceiptsClient({ receipts: initialReceipts, stats, companyI
       
       if (res.ok) {
         setReceipts(prev => prev.filter(r => r.id !== id));
-        showNotification("success", t("deleteSuccess"), t("deleteSuccessMsg"));
+        showSuccess(
+          isRtl ? "تم الحذف بنجاح" : "Deleted Successfully",
+          isRtl ? "تم حذف سند المبيعات بنجاح" : "Sales receipt deleted successfully"
+        );
         router.refresh();
       } else {
-        showNotification("error", t("deleteFailed"), t("deleteFailedMsg"));
+        showError(
+          isRtl ? "فشل الحذف" : "Delete Failed",
+          isRtl ? "فشل حذف سند المبيعات" : "Failed to delete sales receipt"
+        );
       }
     } catch {
-      showNotification("error", t("error"), t("errorMsg"));
+      showError(
+        isRtl ? "خطأ" : "Error",
+        isRtl ? "حدث خطأ أثناء الحذف" : "An error occurred during deletion"
+      );
     } finally {
       setDeleteLoading(null);
     }
@@ -107,66 +121,23 @@ export function SalesReceiptsClient({ receipts: initialReceipts, stats, companyI
 
   return (
     <div className="max-w-[95%] mx-auto p-4 md:p-8 space-y-8" dir={isRtl ? "rtl" : "ltr"}>
-      <AnimatePresence>
-        {notification.show && (
-          <>
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50"
-              onClick={() => notification.type !== "loading" && setNotification(prev => ({ ...prev, show: false }))}
-            />
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.9, y: 20 }}
-              className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50 w-full max-w-md"
-            >
-              <div className={cn(
-                "bg-white rounded-[2.5rem] p-8 shadow-2xl border-t-8",
-                notification.type === "success" ? "border-emerald-500" :
-                notification.type === "error" ? "border-red-500" : "border-blue-500"
-              )}>
-                <div className="text-center">
-                  <div className={cn(
-                    "h-20 w-20 rounded-full mx-auto mb-6 flex items-center justify-center",
-                    notification.type === "success" ? "bg-emerald-100 text-emerald-500" :
-                    notification.type === "error" ? "bg-red-100 text-red-500" : "bg-blue-100 text-blue-500"
-                  )}>
-                    {notification.type === "success" && <CheckCircle size={40} />}
-                    {notification.type === "error" && <AlertCircle size={40} />}
-                    {notification.type === "loading" && <Loader2 size={40} className="animate-spin" />}
-                  </div>
-                  <h3 className="text-2xl font-black text-gray-900 mb-2">{notification.title}</h3>
-                  <p className="text-gray-500 mb-6 font-medium">{notification.message}</p>
-                  {notification.type !== "loading" && (
-                    <button
-                      onClick={() => setNotification(prev => ({ ...prev, show: false }))}
-                      className={cn(
-                        "w-full py-4 rounded-2xl font-black text-white transition-all shadow-lg active:scale-95",
-                        notification.type === "success" ? "bg-emerald-500 hover:bg-emerald-600" : "bg-red-500 hover:bg-red-600"
-                      )}
-                    >
-                      {t("ok")}
-                    </button>
-                  )}
-                </div>
-              </div>
-            </motion.div>
-          </>
-        )}
-      </AnimatePresence>
+      <DeleteNotification 
+        notification={notification} 
+        onClose={hideNotification}
+        cancelLabel={tCommon("cancel")}
+        deleteLabel={tCommon("delete")}
+        okLabel={tCommon("ok")}
+        isRtl={isRtl}
+      />
 
       <motion.div
         initial={{ opacity: 0, y: -30 }}
         animate={{ opacity: 1, y: 0 }}
         className="relative overflow-hidden rounded-[2.5rem] bg-gradient-to-br from-[#1e293b] via-[#334155] to-[#1e293b] p-10 text-white shadow-2xl border border-white/10"
       >
-        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 via-emerald-500 via-rose-500 via-amber-500 via-purple-500 to-blue-500 animate-gradient-x" />
+        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-teal-500 via-emerald-500 via-cyan-500 via-blue-500 to-teal-500 animate-gradient-x" />
         
         <div className="relative z-10 space-y-10">
-          {/* Header Section */}
           <div className="flex flex-col lg:flex-row items-center justify-between gap-10">
             <div className={cn("text-center space-y-4", isRtl ? "lg:text-right" : "lg:text-left")}>
               <motion.div 
@@ -176,10 +147,10 @@ export function SalesReceiptsClient({ receipts: initialReceipts, stats, companyI
                 className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-md rounded-2xl border border-white/10 mb-2"
               >
                 <Sparkles className="w-4 h-4 text-yellow-400 animate-pulse" />
-                <span className="text-blue-200 font-black text-[10px] uppercase tracking-widest">{t("subtitle")}</span>
+                <span className="text-teal-200 font-black text-[10px] uppercase tracking-widest">{t("subtitle")}</span>
               </motion.div>
               
-              <h1 className="text-4xl md:text-6xl font-black text-white tracking-tight bg-gradient-to-r from-white via-blue-100 to-white bg-clip-text text-transparent">
+              <h1 className="text-4xl md:text-6xl font-black text-white tracking-tight bg-gradient-to-r from-white via-teal-100 to-white bg-clip-text text-transparent">
                 {t("title")}
               </h1>
               <p className="text-lg text-slate-300 max-w-2xl font-medium leading-relaxed">
@@ -197,13 +168,12 @@ export function SalesReceiptsClient({ receipts: initialReceipts, stats, companyI
                     onClick={() => router.refresh()}
                     className="flex items-center gap-3 px-6 py-3 bg-white/10 backdrop-blur-md rounded-2xl border border-white/20 text-white font-black text-sm hover:bg-white/20 transition-all shadow-xl active:scale-95"
                   >
-                  <RefreshCw size={18} className="text-blue-400" />
+                  <RefreshCw size={18} className="text-teal-400" />
                   {t("refreshData")}
                 </button>
               </div>
             </div>
 
-            {/* Summary Stats */}
             <div className="grid grid-cols-2 gap-4 w-full lg:w-auto">
               <motion.div 
                 initial={{ opacity: 0, x: 30 }}
@@ -212,13 +182,13 @@ export function SalesReceiptsClient({ receipts: initialReceipts, stats, companyI
                 className="bg-white/10 backdrop-blur-xl rounded-[2rem] p-6 border border-white/10 shadow-2xl min-w-[160px] group hover:bg-white/20 transition-all"
               >
                 <div className="flex items-center gap-3 mb-3">
-                  <div className="p-2 bg-blue-500/20 rounded-lg text-blue-400 group-hover:scale-110 transition-transform">
+                  <div className="p-2 bg-teal-500/20 rounded-lg text-teal-400 group-hover:scale-110 transition-transform">
                     <Receipt className="w-5 h-5" />
                   </div>
-                  <span className="text-blue-300 font-black text-[10px] uppercase tracking-wider">{t("totalReceipts")}</span>
+                  <span className="text-teal-300 font-black text-[10px] uppercase tracking-wider">{t("totalReceipts")}</span>
                 </div>
                 <p className="text-3xl font-black text-white tracking-tight">{stats.total}</p>
-                <p className="text-blue-400/60 text-[10px] font-black mt-1">{t("receiptsCount")}</p>
+                <p className="text-teal-400/60 text-[10px] font-black mt-1">{t("receiptsCount")}</p>
               </motion.div>
 
               <motion.div 
@@ -271,10 +241,8 @@ export function SalesReceiptsClient({ receipts: initialReceipts, stats, companyI
             </div>
           </div>
 
-          {/* Divider */}
           <div className="border-t border-white/10" />
 
-          {/* Search & Filter Bar */}
           <div className="bg-white/5 backdrop-blur-xl rounded-3xl p-6 border border-white/10 flex flex-col md:flex-row gap-4 items-center justify-between">
             <div className="relative w-full md:w-96">
               <Search className={cn("absolute top-1/2 -translate-y-1/2 text-slate-400", isRtl ? "right-4" : "left-4")} size={20} />
@@ -284,25 +252,24 @@ export function SalesReceiptsClient({ receipts: initialReceipts, stats, companyI
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className={cn(
-                  "w-full py-3 bg-white/10 border border-white/10 rounded-2xl text-white font-medium focus:bg-white/20 focus:border-blue-500/50 outline-none transition-all placeholder:text-slate-500",
+                  "w-full py-3 bg-white/10 border border-white/10 rounded-2xl text-white font-medium focus:bg-white/20 focus:border-teal-500/50 outline-none transition-all placeholder:text-slate-500",
                   isRtl ? "pr-12 pl-4" : "pl-12 pr-4"
                 )}
               />
             </div>
             <div className="flex gap-3 w-full md:w-auto">
-              <button className="flex-1 md:flex-none flex items-center justify-center gap-2 px-6 py-3 bg-blue-500/20 text-blue-300 font-bold rounded-2xl border border-blue-500/30 hover:bg-blue-500/30 transition-all">
+              <button className="flex-1 md:flex-none flex items-center justify-center gap-2 px-6 py-3 bg-teal-500/20 text-teal-300 font-bold rounded-2xl border border-teal-500/30 hover:bg-teal-500/30 transition-all">
                 <FileSpreadsheet size={18} />
                 {t("exportData")}
               </button>
             </div>
           </div>
 
-          {/* Table Section */}
           <div className="bg-white/5 backdrop-blur-xl rounded-[2rem] border border-white/10 overflow-hidden shadow-2xl">
             <div className="p-6 border-b border-white/10 flex items-center justify-between bg-white/5">
               <div className="flex items-center gap-3">
-                <div className="p-2 bg-blue-500/20 rounded-xl">
-                  <Receipt className="w-5 h-5 text-blue-400" />
+                <div className="p-2 bg-teal-500/20 rounded-xl">
+                  <Receipt className="w-5 h-5 text-teal-400" />
                 </div>
                 <h3 className="font-black text-lg">{t("tableTitle")}</h3>
               </div>
@@ -334,13 +301,13 @@ export function SalesReceiptsClient({ receipts: initialReceipts, stats, companyI
                         className="hover:bg-white/5 transition-colors group"
                       >
                         <td className="px-6 py-5">
-                          <span className="px-3 py-1.5 bg-blue-500/10 text-blue-400 rounded-lg text-xs font-black border border-blue-500/20">
+                          <span className="px-3 py-1.5 bg-teal-500/10 text-teal-400 rounded-lg text-xs font-black border border-teal-500/20">
                             {receipt.receipt_number}
                           </span>
                         </td>
                         <td className="px-6 py-5">
                           <div className="flex items-center gap-3">
-                            <div className="h-9 w-9 rounded-xl bg-white/5 flex items-center justify-center text-slate-400 group-hover:bg-blue-500/20 group-hover:text-blue-400 transition-all">
+                            <div className="h-9 w-9 rounded-xl bg-white/5 flex items-center justify-center text-slate-400 group-hover:bg-teal-500/20 group-hover:text-teal-400 transition-all">
                               <User size={16} />
                             </div>
                             <span className="font-bold text-sm text-slate-200">{receipt.client_name || (isRtl ? "غير محدد" : "Not Specified")}</span>
@@ -413,18 +380,16 @@ export function SalesReceiptsClient({ receipts: initialReceipts, stats, companyI
           </div>
         </div>
 
-        {/* Decorative elements */}
-        <div className="absolute -bottom-24 -right-24 w-96 h-96 bg-blue-500/10 rounded-full blur-[100px] pointer-events-none" />
+        <div className="absolute -bottom-24 -right-24 w-96 h-96 bg-teal-500/10 rounded-full blur-[100px] pointer-events-none" />
         <div className="absolute -top-24 -left-24 w-96 h-96 bg-emerald-500/10 rounded-full blur-[100px] pointer-events-none" />
       </motion.div>
 
-      {/* Footer */}
       <div className={cn(
         "flex flex-col md:flex-row justify-between items-center gap-4 text-[10px] font-black text-slate-500 uppercase tracking-widest pt-4 opacity-60",
         isRtl ? "md:flex-row" : "md:flex-row-reverse"
       )}>
         <div className="flex items-center gap-2">
-          <Sparkles size={10} className="text-blue-500" />
+          <Sparkles size={10} className="text-teal-500" />
           <span>{t("systemFooter")}</span>
         </div>
         <span>{t("allRightsReserved", { year: new Date().getFullYear() })}</span>

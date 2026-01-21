@@ -550,24 +550,22 @@ export default function IncomeFormClient({ user }: { user: User }) {
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                             <div className="space-y-2">
-                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mr-2">{t("form.account")}</label>
+                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mr-2">{t("form.account")} <span className="text-slate-500">({tCommon("optional")})</span></label>
                                 <select
                                     value={formData.account_id}
                                     onChange={(e) => setFormData({...formData, account_id: e.target.value})}
                                     className="w-full px-6 py-3 bg-white/5 border border-white/10 rounded-2xl text-white font-bold focus:bg-white/10 focus:border-cyan-500 outline-none appearance-none"
-                                    required
                                 >
                                     <option value="" className="bg-slate-800">{t("form.selectAccount")}</option>
                                     {(metadata?.accounts || []).map(acc => <option key={acc.id} value={acc.id} className="bg-slate-800">{acc.account_code} - {acc.account_name}</option>)}
                                 </select>
                             </div>
                             <div className="space-y-2">
-                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mr-2">{t("form.costCenter")}</label>
+                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mr-2">{t("form.costCenter")} <span className="text-slate-500">({tCommon("optional")})</span></label>
                                 <select
                                     value={formData.cost_center_id}
                                     onChange={(e) => setFormData({...formData, cost_center_id: e.target.value})}
                                     className="w-full px-6 py-3 bg-white/5 border border-white/10 rounded-2xl text-white font-bold focus:bg-white/10 focus:border-cyan-500 outline-none appearance-none"
-                                    required
                                 >
                                     <option value="" className="bg-slate-800">{t("form.selectCostCenter")}</option>
                                     {(metadata?.costCenters || []).map(cc => <option key={cc.id} value={cc.id} className="bg-slate-800">{cc.center_code} - {cc.center_name}</option>)}
