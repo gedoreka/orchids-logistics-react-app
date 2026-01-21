@@ -66,7 +66,8 @@ interface NotificationState {
 
 export function PayrollEditClient({ payroll, companyId }: PayrollEditClientProps) {
   const router = useRouter();
-  const t = useTranslations("salaryPayrollsPage");
+  const t = useTranslations("financialVouchersPage.salaryPayrollsPage");
+  void companyId;
   const [loading, setLoading] = useState(false);
   const workType = payroll.work_type || 'salary';
   const isSalaryType = workType === 'salary';

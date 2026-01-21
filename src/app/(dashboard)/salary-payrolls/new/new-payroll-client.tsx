@@ -124,7 +124,7 @@ interface NotificationState {
 
 export function NewPayrollClient({ packages, debts, companyId, userName }: NewPayrollClientProps) {
   const router = useRouter();
-  const t = useTranslations("salaryPayrollsPage");
+  const t = useTranslations("financialVouchersPage.salaryPayrollsPage");
   const [loading, setLoading] = useState(false);
   const [fetchingPackage, setFetchingPackage] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
