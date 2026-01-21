@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import { useTranslations } from "next-intl";
 
 interface Account {
   id: number;
@@ -84,6 +85,7 @@ const statusOptions = [
 ];
 
 function PaymentVouchersContent() {
+  const t = useTranslations("financialVouchersPage.paymentVouchersPage");
   const [accounts, setAccounts] = useState<Account[]>([]);
   const [costCenters, setCostCenters] = useState<CostCenter[]>([]);
   const [vouchers, setVouchers] = useState<Voucher[]>([]);
@@ -144,7 +146,7 @@ function PaymentVouchersContent() {
       if (!editingId) setVoucherNumber(data.voucherNumber);
     } catch (error) {
       console.error(error);
-      toast.error("حدث خطأ في جلب البيانات");
+      toast.error(t("notifications.fetchError"));
     } finally {
       setLoading(false);
     }
@@ -179,7 +181,7 @@ function PaymentVouchersContent() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!form.payee_name.trim()) {
-      toast.error("يرجى إدخال اسم المستفيد");
+      toast.error(t("notifications.payeeRequired"));
       return;
     }
     setSubmitting(true);
@@ -205,7 +207,7 @@ function PaymentVouchersContent() {
       resetForm();
       fetchData();
     } catch (error: any) {
-      toast.error(error.message || "فشل حفظ السند");
+      toast.error(error.message || t("notifications.saveFailed"));
     } finally {
       setSubmitting(false);
     }
@@ -255,17 +257,17 @@ function PaymentVouchersContent() {
   };
 
   const handleDelete = async (id: number) => {
-    if (!confirm("هل أنت متأكد من حذف هذا السند؟")) return;
+    if (!confirm(t("notifications.deleteConfirm"))) return;
     try {
       const res = await fetch(`/api/payment-vouchers/delete?id=${id}&company_id=${companyId}`, {
         method: "DELETE",
       });
       if (res.ok) {
-        toast.success("تم حذف السند بنجاح");
+        toast.success(t("notifications.deleteSuccess"));
         fetchData();
       }
     } catch {
-      toast.error("فشل الحذف");
+      toast.error(t("notifications.deleteFailed"));
     }
   };
 
@@ -288,237 +290,237 @@ function PaymentVouchersContent() {
     );
   }
 
-  return (
-    <div className="max-w-[95%] mx-auto p-4 md:p-8 space-y-8" dir="rtl">
-      {/* Print Styles */}
-      <style jsx global>{`
-        @media print {
-          body * { visibility: hidden; }
-          .print-area, .print-area * { visibility: visible; }
-          .print-area { position: absolute; left: 0; top: 0; width: 100%; }
-          @page { size: A4; margin: 20mm; }
-        }
-      `}</style>
-
-      <motion.div
-        initial={{ opacity: 0, y: -30 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="relative overflow-hidden rounded-[2.5rem] bg-gradient-to-br from-[#1e293b] via-[#334155] to-[#1e293b] p-10 text-white shadow-2xl border border-white/10"
-      >
-        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 via-rose-500 via-amber-500 via-purple-500 to-blue-500 animate-gradient-x" />
-        
-        <div className="relative z-10 space-y-10">
-          {/* Header Section */}
-          <div className="flex flex-col lg:flex-row items-center justify-between gap-10">
-            <div className="text-center lg:text-right space-y-4">
-              <motion.div 
-                initial={{ scale: 0 }}
-                animate={{ scale: 1 }}
-                transition={{ delay: 0.2, type: "spring" }}
-                className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-md rounded-2xl border border-white/10 mb-2"
-              >
-                <Sparkles className="w-4 h-4 text-yellow-400 animate-pulse" />
-                <span className="text-blue-200 font-black text-[10px] uppercase tracking-widest">إدارة سندات الصرف</span>
-              </motion.div>
-              
-              <h1 className="text-4xl md:text-6xl font-black text-white tracking-tight bg-gradient-to-r from-white via-rose-100 to-white bg-clip-text text-transparent">
-                سندات الصرف
-              </h1>
-              <p className="text-lg text-slate-300 max-w-2xl font-medium leading-relaxed">
-                إدارة شاملة للمصروفات والمدفوعات والمستحقات المالية للجهات المختلفة
-              </p>
-              
-              <div className="flex flex-wrap justify-center lg:justify-start gap-4 mt-8">
-                <button 
-                  onClick={() => { setShowForm(!showForm); if (showForm) resetForm(); }}
-                  className={cn(
-                    "flex items-center gap-3 px-6 py-3 font-black text-sm rounded-2xl transition-all shadow-xl active:scale-95",
-                    showForm ? "bg-white/10 text-white border border-white/20" : "bg-rose-500 text-white hover:bg-rose-600"
-                  )}
+    return (
+      <div className="max-w-[95%] mx-auto p-4 md:p-8 space-y-8">
+        {/* Print Styles */}
+        <style jsx global>{`
+          @media print {
+            body * { visibility: hidden; }
+            .print-area, .print-area * { visibility: visible; }
+            .print-area { position: absolute; left: 0; top: 0; width: 100%; }
+            @page { size: A4; margin: 20mm; }
+          }
+        `}</style>
+  
+        <motion.div
+          initial={{ opacity: 0, y: -30 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="relative overflow-hidden rounded-[2.5rem] bg-gradient-to-br from-[#1e293b] via-[#334155] to-[#1e293b] p-10 text-white shadow-2xl border border-white/10"
+        >
+          <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 via-rose-500 via-amber-500 via-purple-500 to-blue-500 animate-gradient-x" />
+          
+          <div className="relative z-10 space-y-10">
+            {/* Header Section */}
+            <div className="flex flex-col lg:flex-row items-center justify-between gap-10">
+              <div className="text-center lg:text-right space-y-4">
+                <motion.div 
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  transition={{ delay: 0.2, type: "spring" }}
+                  className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-md rounded-2xl border border-white/10 mb-2"
                 >
-                  {showForm ? <X size={18} /> : <Plus size={18} />}
-                  {showForm ? "إلغاء النموذج" : "إضافة سند صرف جديد"}
-                </button>
-                <button 
-                    onClick={fetchData}
-                    className="flex items-center gap-3 px-6 py-3 bg-white/10 backdrop-blur-md rounded-2xl border border-white/20 text-white font-black text-sm hover:bg-white/20 transition-all shadow-xl active:scale-95"
+                  <Sparkles className="w-4 h-4 text-yellow-400 animate-pulse" />
+                  <span className="text-blue-200 font-black text-[10px] uppercase tracking-widest">{t("subtitle")}</span>
+                </motion.div>
+                
+                <h1 className="text-4xl md:text-6xl font-black text-white tracking-tight bg-gradient-to-r from-white via-rose-100 to-white bg-clip-text text-transparent">
+                  {t("title")}
+                </h1>
+                <p className="text-lg text-slate-300 max-w-2xl font-medium leading-relaxed">
+                  {t("description")}
+                </p>
+                
+                <div className="flex flex-wrap justify-center lg:justify-start gap-4 mt-8">
+                  <button 
+                    onClick={() => { setShowForm(!showForm); if (showForm) resetForm(); }}
+                    className={cn(
+                      "flex items-center gap-3 px-6 py-3 font-black text-sm rounded-2xl transition-all shadow-xl active:scale-95",
+                      showForm ? "bg-white/10 text-white border border-white/20" : "bg-rose-500 text-white hover:bg-rose-600"
+                    )}
                   >
-                  <RefreshCw size={18} className={cn("text-blue-400", loading ? "animate-spin" : "")} />
-                  تحديث البيانات
-                </button>
+                    {showForm ? <X size={18} /> : <Plus size={18} />}
+                    {showForm ? t("cancelForm") : t("addNew")}
+                  </button>
+                  <button 
+                      onClick={fetchData}
+                      className="flex items-center gap-3 px-6 py-3 bg-white/10 backdrop-blur-md rounded-2xl border border-white/20 text-white font-black text-sm hover:bg-white/20 transition-all shadow-xl active:scale-95"
+                    >
+                    <RefreshCw size={18} className={cn("text-blue-400", loading ? "animate-spin" : "")} />
+                    {t("refreshData")}
+                  </button>
+                </div>
+              </div>
+  
+              {/* Summary Stats */}
+              <div className="grid grid-cols-2 gap-4 w-full lg:w-auto">
+                <motion.div 
+                  initial={{ opacity: 0, x: 30 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.3 }}
+                  className="bg-white/10 backdrop-blur-xl rounded-[2rem] p-6 border border-white/10 shadow-2xl min-w-[160px] group hover:bg-white/20 transition-all"
+                >
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className="p-2 bg-rose-500/20 rounded-lg text-rose-400 group-hover:scale-110 transition-transform">
+                      <Wallet className="w-5 h-5" />
+                    </div>
+                    <span className="text-rose-300 font-black text-[10px] uppercase tracking-wider">{t("stats.count")}</span>
+                  </div>
+                  <p className="text-3xl font-black text-white tracking-tight">{vouchers.length}</p>
+                  <p className="text-rose-400/60 text-[10px] font-black mt-1">{t("stats.voucherLabel")}</p>
+                </motion.div>
+  
+                <motion.div 
+                  initial={{ opacity: 0, x: 30 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.4 }}
+                  className="bg-white/10 backdrop-blur-xl rounded-[2rem] p-6 border border-white/10 shadow-2xl min-w-[160px] group hover:bg-white/20 transition-all"
+                >
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className="p-2 bg-emerald-500/20 rounded-lg text-emerald-400 group-hover:scale-110 transition-transform">
+                      <TrendingDown className="w-5 h-5" />
+                    </div>
+                    <span className="text-emerald-300 font-black text-[10px] uppercase tracking-wider">{t("stats.nextNumber")}</span>
+                  </div>
+                  <p className="text-2xl font-black text-white tracking-tight">{voucherNumber}</p>
+                  <p className="text-emerald-400/60 text-[10px] font-black mt-1">{t("stats.sequential")}</p>
+                </motion.div>
               </div>
             </div>
-
-            {/* Summary Stats */}
-            <div className="grid grid-cols-2 gap-4 w-full lg:w-auto">
-              <motion.div 
-                initial={{ opacity: 0, x: 30 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.3 }}
-                className="bg-white/10 backdrop-blur-xl rounded-[2rem] p-6 border border-white/10 shadow-2xl min-w-[160px] group hover:bg-white/20 transition-all"
-              >
-                <div className="flex items-center gap-3 mb-3">
-                  <div className="p-2 bg-rose-500/20 rounded-lg text-rose-400 group-hover:scale-110 transition-transform">
-                    <Wallet className="w-5 h-5" />
+  
+            <AnimatePresence>
+              {showForm && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: "auto" }}
+                  exit={{ opacity: 0, height: 0 }}
+                  className="overflow-hidden"
+                >
+                  <div className="bg-white/5 backdrop-blur-xl rounded-[2rem] border border-white/10 overflow-hidden shadow-2xl">
+                      <div className="p-8 border-b border-white/10 bg-white/5">
+                          <div className="flex items-center gap-4">
+                              <div className="p-3 bg-rose-500/20 rounded-2xl text-rose-400">
+                                  <PlusCircle className="w-8 h-8" />
+                              </div>
+                              <div>
+                                  <h2 className="text-2xl font-black text-white">
+                                      {editingId ? t("form.editTitle") : t("form.addTitle")}
+                                  </h2>
+                                  <p className="text-slate-400 font-bold tracking-wide">{t("form.fillData")}</p>
+                              </div>
+                          </div>
+                      </div>
+  
+                      <form onSubmit={handleSubmit} className="p-8 space-y-8">
+                          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+                              <div className="space-y-2">
+                                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mr-2">{t("form.date")}</label>
+                                  <div className="relative">
+                                      <Calendar className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+                                      <input
+                                          type="date"
+                                          value={form.voucher_date}
+                                          onChange={(e) => setForm({ ...form, voucher_date: e.target.value })}
+                                          className="w-full pr-12 pl-4 py-3 bg-white/5 border border-white/10 rounded-2xl text-white font-bold focus:bg-white/10 focus:border-rose-500 outline-none transition-all"
+                                          required
+                                      />
+                                  </div>
+                              </div>
+                              <div className="space-y-2">
+                                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mr-2">{t("form.payeeType")}</label>
+                                  <select 
+                                      value={form.payee_type} 
+                                      onChange={(e) => setForm({ ...form, payee_type: e.target.value })}
+                                      className="w-full px-6 py-3 bg-white/5 border border-white/10 rounded-2xl text-white font-bold focus:bg-white/10 focus:border-rose-500 outline-none appearance-none"
+                                  >
+                                      {payeeTypes.map(pt => <option key={pt.value} value={pt.value} className="bg-slate-800">{t(`form.payeeTypes.${pt.value}`)}</option>)}
+                                  </select>
+                              </div>
+                              <div className="space-y-2 md:col-span-2">
+                                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mr-2">{t("form.payeeName")}</label>
+                                  <div className="relative">
+                                      <User className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+                                      <input
+                                          type="text"
+                                          value={form.payee_name}
+                                          onChange={(e) => setForm({ ...form, payee_name: e.target.value })}
+                                          placeholder={t("form.payeeNamePlaceholder")}
+                                          className="w-full pr-12 pl-4 py-3 bg-white/5 border border-white/10 rounded-2xl text-white font-bold focus:bg-white/10 focus:border-rose-500 outline-none transition-all"
+                                          required
+                                      />
+                                  </div>
+                              </div>
+                          </div>
+  
+                          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                              <div className="space-y-2">
+                                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mr-2">{t("form.method")}</label>
+                                  <select 
+                                      value={form.payment_method} 
+                                      onChange={(e) => setForm({ ...form, payment_method: e.target.value })}
+                                      className="w-full px-6 py-3 bg-white/5 border border-white/10 rounded-2xl text-white font-bold focus:bg-white/10 focus:border-rose-500 outline-none appearance-none"
+                                  >
+                                      {paymentMethods.map(m => <option key={m.value} value={m.value} className="bg-slate-800">{m.label}</option>)}
+                                  </select>
+                              </div>
+                              <div className="space-y-2">
+                                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mr-2">{t("form.amount")}</label>
+                                  <div className="relative">
+                                      <DollarSign className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+                                      <input
+                                          type="number"
+                                          step="0.01"
+                                          value={form.amount}
+                                          onChange={(e) => setForm({ ...form, amount: e.target.value })}
+                                          placeholder="0.00"
+                                          className="w-full pr-12 pl-4 py-3 bg-white/5 border border-white/10 rounded-2xl text-white font-bold focus:bg-white/10 focus:border-rose-500 outline-none transition-all"
+                                          required
+                                      />
+                                  </div>
+                              </div>
+                              <div className="space-y-2">
+                                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mr-2">{t("form.total")}</label>
+                                  <input
+                                      type="text"
+                                      value={form.total_amount}
+                                      readOnly
+                                      className="w-full px-6 py-3 bg-rose-500/20 border border-rose-500/30 rounded-2xl text-rose-400 font-black cursor-not-allowed"
+                                  />
+                              </div>
+                          </div>
+  
+                          <div className="space-y-2">
+                              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mr-2">{t("form.purpose")}</label>
+                              <textarea
+                                  value={form.payment_purpose}
+                                  onChange={(e) => setForm({ ...form, payment_purpose: e.target.value })}
+                                  rows={2}
+                                  placeholder={t("form.purposePlaceholder")}
+                                  className="w-full px-6 py-4 bg-white/5 border border-white/10 rounded-2xl text-white font-medium focus:bg-white/10 focus:border-rose-500 outline-none transition-all resize-none"
+                              />
+                          </div>
+  
+                          <div className="flex justify-end gap-4">
+                              <button
+                                  type="button"
+                                  onClick={resetForm}
+                                  className="px-10 py-4 bg-white/5 text-white font-black rounded-2xl border border-white/10 hover:bg-white/10 transition-all active:scale-95"
+                              >
+                                  {t("form.cancel")}
+                              </button>
+                              <button
+                                  type="submit"
+                                  disabled={submitting}
+                                  className="flex items-center gap-3 px-10 py-4 bg-rose-500 text-white font-black rounded-2xl shadow-xl shadow-rose-500/20 hover:bg-rose-600 transition-all active:scale-95 disabled:opacity-50"
+                              >
+                                  {submitting ? <Loader2 className="animate-spin" size={20} /> : <Save size={20} />}
+                                  {editingId ? t("form.editSave") : t("form.save")}
+                              </button>
+                          </div>
+                      </form>
                   </div>
-                  <span className="text-rose-300 font-black text-[10px] uppercase tracking-wider">العدد الإجمالي</span>
-                </div>
-                <p className="text-3xl font-black text-white tracking-tight">{vouchers.length}</p>
-                <p className="text-rose-400/60 text-[10px] font-black mt-1">سند صرف</p>
-              </motion.div>
-
-              <motion.div 
-                initial={{ opacity: 0, x: 30 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.4 }}
-                className="bg-white/10 backdrop-blur-xl rounded-[2rem] p-6 border border-white/10 shadow-2xl min-w-[160px] group hover:bg-white/20 transition-all"
-              >
-                <div className="flex items-center gap-3 mb-3">
-                  <div className="p-2 bg-emerald-500/20 rounded-lg text-emerald-400 group-hover:scale-110 transition-transform">
-                    <TrendingDown className="w-5 h-5" />
-                  </div>
-                  <span className="text-emerald-300 font-black text-[10px] uppercase tracking-wider">السند القادم</span>
-                </div>
-                <p className="text-2xl font-black text-white tracking-tight">{voucherNumber}</p>
-                <p className="text-emerald-400/60 text-[10px] font-black mt-1">تسلسلي</p>
-              </motion.div>
-            </div>
-          </div>
-
-          <AnimatePresence>
-            {showForm && (
-              <motion.div
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: "auto" }}
-                exit={{ opacity: 0, height: 0 }}
-                className="overflow-hidden"
-              >
-                <div className="bg-white/5 backdrop-blur-xl rounded-[2rem] border border-white/10 overflow-hidden shadow-2xl">
-                    <div className="p-8 border-b border-white/10 bg-white/5">
-                        <div className="flex items-center gap-4">
-                            <div className="p-3 bg-rose-500/20 rounded-2xl text-rose-400">
-                                <PlusCircle className="w-8 h-8" />
-                            </div>
-                            <div>
-                                <h2 className="text-2xl font-black text-white">
-                                    {editingId ? "تعديل سند الصرف" : "إنشاء سند صرف جديد"}
-                                </h2>
-                                <p className="text-slate-400 font-bold tracking-wide">يرجى تعبئة بيانات السند المالية</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <form onSubmit={handleSubmit} className="p-8 space-y-8">
-                        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-                            <div className="space-y-2">
-                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mr-2">تاريخ الصرف</label>
-                                <div className="relative">
-                                    <Calendar className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
-                                    <input
-                                        type="date"
-                                        value={form.voucher_date}
-                                        onChange={(e) => setForm({ ...form, voucher_date: e.target.value })}
-                                        className="w-full pr-12 pl-4 py-3 bg-white/5 border border-white/10 rounded-2xl text-white font-bold focus:bg-white/10 focus:border-rose-500 outline-none transition-all"
-                                        required
-                                    />
-                                </div>
-                            </div>
-                            <div className="space-y-2">
-                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mr-2">نوع المستفيد</label>
-                                <select 
-                                    value={form.payee_type} 
-                                    onChange={(e) => setForm({ ...form, payee_type: e.target.value })}
-                                    className="w-full px-6 py-3 bg-white/5 border border-white/10 rounded-2xl text-white font-bold focus:bg-white/10 focus:border-rose-500 outline-none appearance-none"
-                                >
-                                    {payeeTypes.map(t => <option key={t.value} value={t.value} className="bg-slate-800">{t.label}</option>)}
-                                </select>
-                            </div>
-                            <div className="space-y-2 md:col-span-2">
-                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mr-2">اسم المستفيد</label>
-                                <div className="relative">
-                                    <User className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
-                                    <input
-                                        type="text"
-                                        value={form.payee_name}
-                                        onChange={(e) => setForm({ ...form, payee_name: e.target.value })}
-                                        placeholder="اسم الشخص أو الشركة..."
-                                        className="w-full pr-12 pl-4 py-3 bg-white/5 border border-white/10 rounded-2xl text-white font-bold focus:bg-white/10 focus:border-rose-500 outline-none transition-all"
-                                        required
-                                    />
-                                </div>
-                            </div>
-                        </div>
-
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                            <div className="space-y-2">
-                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mr-2">طريقة الصرف</label>
-                                <select 
-                                    value={form.payment_method} 
-                                    onChange={(e) => setForm({ ...form, payment_method: e.target.value })}
-                                    className="w-full px-6 py-3 bg-white/5 border border-white/10 rounded-2xl text-white font-bold focus:bg-white/10 focus:border-rose-500 outline-none appearance-none"
-                                >
-                                    {paymentMethods.map(m => <option key={m.value} value={m.value} className="bg-slate-800">{m.label}</option>)}
-                                </select>
-                            </div>
-                            <div className="space-y-2">
-                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mr-2">المبلغ</label>
-                                <div className="relative">
-                                    <DollarSign className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
-                                    <input
-                                        type="number"
-                                        step="0.01"
-                                        value={form.amount}
-                                        onChange={(e) => setForm({ ...form, amount: e.target.value })}
-                                        placeholder="0.00"
-                                        className="w-full pr-12 pl-4 py-3 bg-white/5 border border-white/10 rounded-2xl text-white font-bold focus:bg-white/10 focus:border-rose-500 outline-none transition-all"
-                                        required
-                                    />
-                                </div>
-                            </div>
-                            <div className="space-y-2">
-                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mr-2">صافي المبلغ الصافي</label>
-                                <input
-                                    type="text"
-                                    value={form.total_amount}
-                                    readOnly
-                                    className="w-full px-6 py-3 bg-rose-500/20 border border-rose-500/30 rounded-2xl text-rose-400 font-black cursor-not-allowed"
-                                />
-                            </div>
-                        </div>
-
-                        <div className="space-y-2">
-                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mr-2">الغرض من الصرف</label>
-                            <textarea
-                                value={form.payment_purpose}
-                                onChange={(e) => setForm({ ...form, payment_purpose: e.target.value })}
-                                rows={2}
-                                placeholder="اكتب سبب الصرف هنا..."
-                                className="w-full px-6 py-4 bg-white/5 border border-white/10 rounded-2xl text-white font-medium focus:bg-white/10 focus:border-rose-500 outline-none transition-all resize-none"
-                            />
-                        </div>
-
-                        <div className="flex justify-end gap-4">
-                            <button
-                                type="button"
-                                onClick={resetForm}
-                                className="px-10 py-4 bg-white/5 text-white font-black rounded-2xl border border-white/10 hover:bg-white/10 transition-all active:scale-95"
-                            >
-                                إلغاء
-                            </button>
-                            <button
-                                type="submit"
-                                disabled={submitting}
-                                className="flex items-center gap-3 px-10 py-4 bg-rose-500 text-white font-black rounded-2xl shadow-xl shadow-rose-500/20 hover:bg-rose-600 transition-all active:scale-95 disabled:opacity-50"
-                            >
-                                {submitting ? <Loader2 className="animate-spin" size={20} /> : <Save size={20} />}
-                                {editingId ? "حفظ التعديلات" : "حفظ السند"}
-                            </button>
-                        </div>
-                    </form>
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
+                </motion.div>
+              )}
+            </AnimatePresence>
 
           {/* Divider */}
           <div className="border-t border-white/10" />
@@ -530,16 +532,16 @@ function PaymentVouchersContent() {
                 <Search className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
                 <input
                     type="text"
-                    placeholder="بحث برقم السند أو اسم المستفيد..."
+                    placeholder={t("searchPlaceholder")}
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="w-full pr-12 pl-4 py-3 bg-white/10 border border-white/10 rounded-2xl text-white font-medium focus:bg-white/20 focus:border-blue-500/50 outline-none transition-all placeholder:text-slate-500"
+                    className="w-full pr-12 pl-4 py-3 bg-white/10 border border-white/10 rounded-2xl text-white font-medium focus:bg-white/20 focus:border-rose-500/50 outline-none transition-all placeholder:text-slate-500"
                 />
                 </div>
                 <div className="flex gap-3 w-full md:w-auto">
                     <button className="flex-1 md:flex-none flex items-center justify-center gap-2 px-6 py-3 bg-blue-500/20 text-blue-300 font-bold rounded-2xl border border-blue-500/30 hover:bg-blue-500/30 transition-all">
                         <FileSpreadsheet size={18} />
-                        تصدير البيانات
+                        {useTranslations("financialVouchersPage.salesReceiptsPage")("exportData")}
                     </button>
                 </div>
             </div>
@@ -547,13 +549,13 @@ function PaymentVouchersContent() {
             <div className="bg-white/5 backdrop-blur-xl rounded-[2rem] border border-white/10 overflow-hidden shadow-2xl">
                 <div className="p-6 border-b border-white/10 flex items-center justify-between bg-white/5">
                     <div className="flex items-center gap-3">
-                        <div className="p-2 bg-rose-500/20 rounded-xl">
-                            <Wallet className="w-5 h-5 text-rose-400" />
+                        <div className="p-2 bg-emerald-500/20 rounded-xl">
+                            <Wallet className="w-5 h-5 text-emerald-400" />
                         </div>
-                        <h3 className="font-black text-lg">سجل سندات الصرف</h3>
+                        <h3 className="font-black text-lg">{t("table.title")}</h3>
                     </div>
                     <span className="px-4 py-1.5 bg-white/10 rounded-full text-[10px] font-black uppercase tracking-widest text-slate-400">
-                        {filteredVouchers.length} سند مسجل
+                        {t("table.countLabel", { count: filteredVouchers.length })}
                     </span>
                 </div>
 
@@ -561,13 +563,13 @@ function PaymentVouchersContent() {
                     <table className="w-full text-right">
                         <thead>
                             <tr className="bg-white/5 border-b border-white/5">
-                                <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">رقم السند</th>
-                                <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">التاريخ</th>
-                                <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">المستفيد</th>
-                                <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">طريقة الصرف</th>
-                                <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">الحالة</th>
-                                <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">المبلغ</th>
-                                <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">الإجراءات</th>
+                                <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">{t("table.no")}</th>
+                                <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">{t("table.date")}</th>
+                                <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">{t("table.payee")}</th>
+                                <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">{t("table.method")}</th>
+                                <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">{t("table.status")}</th>
+                                <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">{t("table.total")}</th>
+                                <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">{t("table.actions")}</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-white/5">
@@ -609,7 +611,7 @@ function PaymentVouchersContent() {
                                             <td className="px-6 py-5">
                                                 <span className={cn("inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-black border", statusInfo.color.includes('emerald') ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20" : statusInfo.color.includes('amber') ? "bg-amber-500/10 text-amber-400 border-amber-500/20" : statusInfo.color.includes('blue') ? "bg-blue-500/10 text-blue-400 border-blue-500/20" : "bg-white/10 text-slate-400 border-white/10")}>
                                                     <statusInfo.icon size={12} />
-                                                    {statusInfo.label}
+                                                    {t(`statuses.${voucher.status}`)}
                                                 </span>
                                             </td>
                                             <td className="px-6 py-5">
@@ -623,21 +625,21 @@ function PaymentVouchersContent() {
                                                     <button 
                                                         onClick={() => handleEdit(voucher)}
                                                         className="h-9 w-9 rounded-xl bg-amber-500/10 text-amber-400 flex items-center justify-center hover:bg-amber-500 hover:text-white transition-all shadow-lg active:scale-95"
-                                                        title="تعديل"
+                                                        title={useTranslations("common")("edit")}
                                                     >
                                                         <Edit3 size={16} />
                                                     </button>
                                                     <button 
                                                         onClick={() => handlePrint(voucher)}
                                                         className="h-9 w-9 rounded-xl bg-purple-500/10 text-purple-400 flex items-center justify-center hover:bg-purple-500 hover:text-white transition-all shadow-lg active:scale-95"
-                                                        title="طباعة"
+                                                        title={useTranslations("common")("print")}
                                                     >
                                                         <Printer size={16} />
                                                     </button>
                                                     <button 
                                                         onClick={() => handleDelete(voucher.id)}
                                                         className="h-9 w-9 rounded-xl bg-rose-500/10 text-rose-400 flex items-center justify-center hover:bg-rose-500 hover:text-white transition-all shadow-lg active:scale-95"
-                                                        title="حذف"
+                                                        title={useTranslations("common")("delete")}
                                                     >
                                                         <Trash2 size={16} />
                                                     </button>
@@ -652,8 +654,8 @@ function PaymentVouchersContent() {
                                         <div className="flex flex-col items-center gap-4 opacity-40">
                                             <Wallet size={64} className="text-slate-400" />
                                             <div className="space-y-1">
-                                                <p className="text-xl font-black text-slate-300">لا توجد سندات صرف</p>
-                                                <p className="text-sm font-medium text-slate-500">ابدأ بإضافة أول سند صرف من الزر أعلاه</p>
+                                                <p className="text-xl font-black text-slate-300">{t("noVouchers.title")}</p>
+                                                <p className="text-sm font-medium text-slate-500">{t("noVouchers.desc")}</p>
                                             </div>
                                         </div>
                                     </td>
@@ -675,9 +677,9 @@ function PaymentVouchersContent() {
       <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-[10px] font-black text-slate-500 uppercase tracking-widest pt-4 opacity-60">
         <div className="flex items-center gap-2">
           <Sparkles size={10} className="text-rose-500" />
-          <span>نظام ZoolSpeed Logistics - إدارة سندات الصرف</span>
+          <span>{useTranslations("financialVouchersPage")("systemTitle", { name: "ZoolSpeed Logistics" })} - {t("subtitle")}</span>
         </div>
-        <span>جميع الحقوق محفوظة © {new Date().getFullYear()}</span>
+        <span>{useTranslations("financialVouchersPage")("allRightsReserved", { year: new Date().getFullYear() })}</span>
       </div>
 
       <AnimatePresence>
@@ -689,7 +691,7 @@ function PaymentVouchersContent() {
               className="fixed bottom-10 left-1/2 -translate-x-1/2 z-[101] bg-emerald-600 text-white px-8 py-4 rounded-[2rem] shadow-2xl flex items-center gap-4 font-black"
             >
               <CheckCircle size={24} />
-              <span>تم حفظ السند بنجاح!</span>
+              <span>{t("notifications.saveSuccess")}</span>
             </motion.div>
           )}
       </AnimatePresence>
@@ -723,8 +725,9 @@ function PaymentVouchersContent() {
 }
 
 export function PaymentVouchersClient() {
+  const t = useTranslations("common");
   return (
-    <Suspense fallback={<div className="flex items-center justify-center min-h-screen">جاري التحميل...</div>}>
+    <Suspense fallback={<div className="flex items-center justify-center min-h-screen">{t("loading")}</div>}>
       <PaymentVouchersContent />
     </Suspense>
   );
