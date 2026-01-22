@@ -6,6 +6,7 @@ import {
   LayoutGrid, ChevronRight, CheckCircle2, AlertCircle
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useTranslations } from "@/lib/locale-context";
 
 interface Subtype {
   id: number;
@@ -22,12 +23,13 @@ interface DeductionSubtypeManagerProps {
 }
 
 const mainTypes = {
-  advances: 'السلفيات',
-  deductions: 'الخصومات الشهرية',
-  other: 'استقطاعات أخرى'
+  advances: 'advances',
+  deductions: 'deductions',
+  other: 'other'
 };
 
 export default function DeductionSubtypeManager({ companyId, userId, onClose, onRefresh }: DeductionSubtypeManagerProps) {
+  const t = useTranslations("expenses");
   const [subtypes, setSubtypes] = useState<Subtype[]>([]);
   const [loading, setLoading] = useState(true);
   const [newSubtype, setNewSubtype] = useState({ main_type: "advances", subtype_name: "", sort_order: 0 });
@@ -66,15 +68,15 @@ export default function DeductionSubtypeManager({ companyId, userId, onClose, on
       });
       const data = await res.json();
       if (data.success) {
-        setMessage({ type: 'success', text: 'تم إضافة النوع بنجاح' });
+        setMessage({ type: 'success', text: t("common.success") });
         setNewSubtype(prev => ({ ...prev, subtype_name: "", sort_order: 0 }));
         await fetchSubtypes();
         onRefresh();
       } else {
-        setMessage({ type: 'error', text: data.error || 'فشل إضافة النوع' });
+        setMessage({ type: 'error', text: data.error || t("common.error") });
       }
     } catch (error) {
-      setMessage({ type: 'error', text: 'حدث خطأ غير متوقع' });
+      setMessage({ type: 'error', text: t("errors.serverError") });
     } finally {
       setSubmitting(false);
       setTimeout(() => setMessage(null), 3000);
@@ -82,7 +84,7 @@ export default function DeductionSubtypeManager({ companyId, userId, onClose, on
   };
 
   const handleDelete = async (id: number) => {
-    if (!confirm("هل أنت متأكد من حذف هذا النوع المخصص؟")) return;
+    if (!confirm(t("subtypeManager.confirmDelete"))) return;
 
     try {
       const res = await fetch(`/api/expenses/deductions/subtypes?id=${id}&user_id=${userId}`, {
@@ -90,14 +92,14 @@ export default function DeductionSubtypeManager({ companyId, userId, onClose, on
       });
       const data = await res.json();
       if (data.success) {
-        setMessage({ type: 'success', text: 'تم حذف النوع بنجاح' });
+        setMessage({ type: 'success', text: t("common.success") });
         await fetchSubtypes();
         onRefresh();
       } else {
-        setMessage({ type: 'error', text: data.error || 'فشل حذف النوع' });
+        setMessage({ type: 'error', text: data.error || t("common.error") });
       }
     } catch (error) {
-      setMessage({ type: 'error', text: 'حدث خطأ أثناء الحذف' });
+      setMessage({ type: 'error', text: t("errors.serverError") });
     } finally {
       setTimeout(() => setMessage(null), 3000);
     }
@@ -127,8 +129,8 @@ export default function DeductionSubtypeManager({ companyId, userId, onClose, on
                 <Settings className="w-6 h-6 text-rose-400" />
               </div>
               <div>
-                <h2 className="text-xl font-bold tracking-tight">إدارة أنواع الاستقطاعات المخصصة</h2>
-                <p className="text-rose-100/70 text-sm mt-0.5">تخصيص وتعديل أنواع الاستقطاعات الفرعية للنظام</p>
+                <h2 className="text-xl font-bold tracking-tight">{t("subtypeManager.title")}</h2>
+                <p className="text-rose-100/70 text-sm mt-0.5">{t("subtypeManager.subtitle")}</p>
               </div>
             </div>
             <button 
@@ -163,29 +165,29 @@ export default function DeductionSubtypeManager({ companyId, userId, onClose, on
           <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
             <div className="flex items-center space-x-2 space-x-reverse">
               <div className="w-1.5 h-6 bg-rose-600 rounded-full"></div>
-              <h3 className="text-base font-bold text-slate-900">إضافة نوع جديد</h3>
+              <h3 className="text-base font-bold text-slate-900">{t("subtypeManager.addNew")}</h3>
             </div>
             
             <form onSubmit={handleAdd} className="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
               <div className="space-y-1.5">
-                <label className="text-xs font-bold text-slate-500 mr-1">النوع الرئيسي</label>
+                <label className="text-xs font-bold text-slate-500 mr-1">{t("subtypeManager.mainType")}</label>
                 <select 
                   className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-rose-500 focus:bg-white outline-none transition-all"
                   value={newSubtype.main_type}
                   onChange={(e) => setNewSubtype(prev => ({ ...prev, main_type: e.target.value }))}
                   required
                 >
-                  {Object.entries(mainTypes).map(([key, label]) => (
-                    <option key={key} value={key}>{label}</option>
+                  {Object.entries(mainTypes).map(([key]) => (
+                    <option key={key} value={key}>{t(`types.${key}`)}</option>
                   ))}
                 </select>
               </div>
               
               <div className="space-y-1.5 md:col-span-2">
-                <label className="text-xs font-bold text-slate-500 mr-1">اسم النوع الفرعي</label>
+                <label className="text-xs font-bold text-slate-500 mr-1">{t("subtypeManager.subtypeName")}</label>
                 <input 
                   type="text"
-                  placeholder="مثال: خصم وجبات، سلفة عارضة..."
+                  placeholder={t("subtypeManager.subtypePlaceholder")}
                   className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-rose-500 focus:bg-white outline-none transition-all"
                   value={newSubtype.subtype_name}
                   onChange={(e) => setNewSubtype(prev => ({ ...prev, subtype_name: e.target.value }))}
@@ -199,7 +201,7 @@ export default function DeductionSubtypeManager({ companyId, userId, onClose, on
                 className="bg-rose-600 hover:bg-rose-700 text-white rounded-xl px-6 py-2.5 font-bold text-sm transition-all flex items-center justify-center space-x-2 space-x-reverse shadow-lg shadow-rose-100 disabled:opacity-50 h-[45px]"
               >
                 {submitting ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
-                <span>إضافة النوع</span>
+                <span>{t("subtypeManager.addBtn")}</span>
               </button>
             </form>
           </div>
@@ -209,16 +211,16 @@ export default function DeductionSubtypeManager({ companyId, userId, onClose, on
             <div className="p-4 bg-slate-50/50 border-b border-slate-100 flex items-center justify-between">
               <div className="flex items-center space-x-2 space-x-reverse">
                 <LayoutGrid className="w-4 h-4 text-slate-400" />
-                <h3 className="text-sm font-bold text-slate-700">قائمة الأنواع المسجلة</h3>
+                <h3 className="text-sm font-bold text-slate-700">{t("subtypeManager.listTitle")}</h3>
               </div>
               <div className="flex items-center space-x-4 space-x-reverse text-[10px] font-bold">
                 <div className="flex items-center space-x-1 space-x-reverse">
                   <div className="w-2 h-2 rounded-full bg-rose-500"></div>
-                  <span className="text-slate-500">مخصص</span>
+                  <span className="text-slate-500">{t("subtypeManager.custom")}</span>
                 </div>
                 <div className="flex items-center space-x-1 space-x-reverse">
                   <div className="w-2 h-2 rounded-full bg-slate-300"></div>
-                  <span className="text-slate-500">عام 🌟</span>
+                  <span className="text-slate-500">{t("subtypeManager.general")} 🌟</span>
                 </div>
               </div>
             </div>
@@ -227,10 +229,10 @@ export default function DeductionSubtypeManager({ companyId, userId, onClose, on
               <table className="w-full text-right border-collapse">
                 <thead>
                   <tr className="bg-slate-50 text-slate-500 text-xs font-bold uppercase tracking-wider">
-                    <th className="px-6 py-4 border-b border-slate-100">النوع الرئيسي</th>
-                    <th className="px-6 py-4 border-b border-slate-100">اسم النوع الفرعي</th>
-                    <th className="px-6 py-4 border-b border-slate-100 text-center">الحالة</th>
-                    <th className="px-6 py-4 border-b border-slate-100 text-center">خيارات</th>
+                    <th className="px-6 py-4 border-b border-slate-100">{t("subtypeManager.mainTypeCol")}</th>
+                    <th className="px-6 py-4 border-b border-slate-100">{t("subtypeManager.subtypeNameCol")}</th>
+                    <th className="px-6 py-4 border-b border-slate-100 text-center">{t("common.status")}</th>
+                    <th className="px-6 py-4 border-b border-slate-100 text-center">{t("subtypeManager.options")}</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-50">
@@ -239,14 +241,14 @@ export default function DeductionSubtypeManager({ companyId, userId, onClose, on
                       <td colSpan={4} className="px-6 py-12 text-center">
                         <div className="flex flex-col items-center space-y-2">
                           <RefreshCw className="w-8 h-8 text-rose-500 animate-spin" />
-                          <p className="text-sm text-slate-500">جاري تحميل البيانات...</p>
+                          <p className="text-sm text-slate-500">{t("subtypeManager.loading")}</p>
                         </div>
                       </td>
                     </tr>
                   ) : (subtypes || []).length === 0 ? (
                     <tr>
                       <td colSpan={4} className="px-6 py-12 text-center">
-                        <p className="text-sm text-slate-400">لا توجد أنواع مخصصة حالياً</p>
+                        <p className="text-sm text-slate-400">{t("subtypeManager.noCustom")}</p>
                       </td>
                     </tr>
                   ) : (
@@ -259,7 +261,7 @@ export default function DeductionSubtypeManager({ companyId, userId, onClose, on
                           <div className="flex items-center space-x-2 space-x-reverse">
                             <ChevronRight className={`w-3 h-3 ${item.is_custom ? 'text-rose-400' : 'text-slate-300'}`} />
                             <span className="text-sm font-medium text-slate-900">
-                              {mainTypes[item.main_type as keyof typeof mainTypes] || item.main_type}
+                              {t(`types.${item.main_type}`)}
                             </span>
                           </div>
                         </td>
@@ -271,11 +273,11 @@ export default function DeductionSubtypeManager({ companyId, userId, onClose, on
                         <td className="px-6 py-4 text-center">
                           {item.is_custom ? (
                             <span className="inline-flex items-center px-2 py-1 bg-rose-50 text-rose-600 text-[10px] font-bold rounded-lg border border-rose-100">
-                              مخصص ✏️
+                              {t("subtypeManager.custom")} ✏️
                             </span>
                           ) : (
                             <span className="inline-flex items-center px-2 py-1 bg-slate-100 text-slate-500 text-[10px] font-bold rounded-lg">
-                              عام 🌟
+                              {t("subtypeManager.general")} 🌟
                             </span>
                           )}
                         </td>
@@ -284,7 +286,7 @@ export default function DeductionSubtypeManager({ companyId, userId, onClose, on
                             <button 
                               onClick={() => handleDelete(item.id)}
                               className="p-2 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all"
-                              title="حذف النوع"
+                              title={t("common.delete")}
                             >
                               <Trash2 className="w-4 h-4" />
                             </button>
@@ -304,13 +306,13 @@ export default function DeductionSubtypeManager({ companyId, userId, onClose, on
         {/* Footer */}
         <div className="p-4 bg-slate-50 border-t border-slate-200 flex justify-between items-center px-8">
           <p className="text-[10px] text-slate-400 font-medium">
-            * الأنواع العامة 🌟 لا يمكن حذفها، يمكنك فقط حذف الأنواع المخصصة ✏️ التي قمت بإضافتها.
+            {t("subtypeManager.footerNote")}
           </p>
           <button 
             onClick={onClose}
             className="bg-slate-900 hover:bg-slate-800 text-white px-8 py-2 rounded-xl font-bold text-sm transition-all shadow-lg shadow-slate-200"
           >
-            إغلاق النافذة
+            {t("subtypeManager.close")}
           </button>
         </div>
       </motion.div>

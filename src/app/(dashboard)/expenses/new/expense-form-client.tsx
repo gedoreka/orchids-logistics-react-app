@@ -11,6 +11,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { User } from "@/lib/types";
 import SubtypeManager from "./subtype-manager";
+import { useTranslations } from "@/lib/locale-context";
 
 interface Employee {
   id: number;
@@ -57,13 +58,13 @@ interface ExpenseRow {
 }
 
 const mainTypes = {
-  iqama: 'منصرفات إقامة',
-  fuel: 'منصرفات وقود',
-  housing: 'إيجار سكن',
-  maintenance: 'صيانة / شراء',
-  general: 'مصاريف عامة',
-  traffic: 'مخالفات مرورية',
-  advances: 'السلفيات'
+  iqama: 'iqama',
+  fuel: 'fuel',
+  housing: 'housing',
+  maintenance: 'maintenance',
+  general: 'general',
+  traffic: 'traffic',
+  advances: 'advances'
 };
 
 const defaultExpenseValues: Record<string, string> = {
@@ -84,11 +85,12 @@ const headersMap: Record<string, string[]> = {
   default: ['التاريخ', 'نوع المصروف', 'المبلغ', 'الحساب', 'مركز التكلفة', 'الوصف', 'المستند', 'حذف']
 };
 
-function EmployeeSelect({ row, type, metadata, updateRow }: { 
+function EmployeeSelect({ row, type, metadata, updateRow, t }: { 
   row: ExpenseRow; 
   type: string; 
   metadata: any; 
-  updateRow: any 
+  updateRow: any;
+  t: any;
 }) {
   const [searchTerm, setSearchTerm] = useState("");
   const [isOpen, setIsOpen] = useState(false);
@@ -105,11 +107,9 @@ function EmployeeSelect({ row, type, metadata, updateRow }: {
     if (triggerRef.current) {
       const rect = triggerRef.current.getBoundingClientRect();
       const dropdownWidth = 280;
-      // Calculate center position
       const centerX = rect.left + (rect.width / 2);
       let leftPos = centerX - (dropdownWidth / 2);
       
-      // Keep it within screen bounds
       if (leftPos < 10) leftPos = 10;
       if (leftPos + dropdownWidth > window.innerWidth - 10) {
         leftPos = window.innerWidth - dropdownWidth - 10;
@@ -126,7 +126,6 @@ function EmployeeSelect({ row, type, metadata, updateRow }: {
   useEffect(() => {
     if (isOpen) {
       updatePosition();
-      // Use scroll event on window and capture to ensure it works with nested scrolls
       window.addEventListener('scroll', updatePosition, true);
       window.addEventListener('resize', updatePosition);
     }
@@ -152,7 +151,7 @@ function EmployeeSelect({ row, type, metadata, updateRow }: {
         <input 
           type="text" 
           className="w-full bg-slate-100 border border-slate-200 rounded-lg px-2 py-1 text-sm"
-          placeholder="اسم الموظف"
+          placeholder={t("form.employeeName")}
           value={row.employee_name}
           onChange={(e) => updateRow(type, row.id, 'employee_name', e.target.value)}
         />
@@ -176,7 +175,7 @@ function EmployeeSelect({ row, type, metadata, updateRow }: {
             className="w-full bg-white/50 border border-slate-200 cursor-pointer text-sm font-medium py-1.5 px-3 flex items-center justify-between min-h-[36px] hover:bg-white hover:border-blue-300 rounded-lg transition-all shadow-sm"
           >
             <span className={row.employee_name ? "text-slate-900 font-bold" : "text-slate-400"}>
-              {row.employee_name || "-- اختر الموظف --"}
+              {row.employee_name || t("form.selectEmployee")}
             </span>
             <ChevronDown className={`w-4 h-4 text-slate-400 transition-transform duration-200 ${isOpen ? 'rotate-180 text-blue-500' : ''}`} />
           </div>
@@ -198,7 +197,7 @@ function EmployeeSelect({ row, type, metadata, updateRow }: {
                   <input
                     type="text"
                     className="w-full pr-9 pl-3 py-2 bg-white border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
-                    placeholder="بحث بالاسم أو الإقامة..."
+                    placeholder={t("form.searchPlaceholder")}
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     autoFocus
@@ -235,7 +234,7 @@ function EmployeeSelect({ row, type, metadata, updateRow }: {
                     <div className="w-12 h-12 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-3">
                       <Search className="w-6 h-6 text-slate-300" />
                     </div>
-                    <p className="text-sm text-slate-400 font-medium">لا يوجد نتائج لهذا البحث</p>
+                    <p className="text-sm text-slate-400 font-medium">{t("form.noResults")}</p>
                   </div>
                 )}
               </div>
@@ -246,7 +245,7 @@ function EmployeeSelect({ row, type, metadata, updateRow }: {
           type="button"
           onClick={() => updateRow(type, row.id, 'manualEmployee', true)}
           className="text-slate-400 hover:text-blue-500 p-1 rounded-lg transition-colors"
-          title="إدخال يدوي"
+          title={t("form.manualEntry")}
         >
           <Bolt className="w-4 h-4" />
         </button>
@@ -257,6 +256,7 @@ function EmployeeSelect({ row, type, metadata, updateRow }: {
 
 export default function ExpenseFormClient({ user }: { user: User }) {
   const router = useRouter();
+  const t = useTranslations("expenses");
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [metadata, setMetadata] = useState<{
@@ -368,28 +368,20 @@ export default function ExpenseFormClient({ user }: { user: User }) {
       const updatedRows = prev[type].map(row => {
         if (row.id === id) {
           let updatedRow = { ...row, [field]: value };
-          
-            // Logic for taxable/inclusive sync - removed tax_inclusive logic
-            
-            // Auto calculations for fuel
-            if (type === 'fuel') {
-              const amtStr = String(updatedRow.amount || "0").trim();
-              const amt = parseFloat(amtStr) || 0;
-              
-              if (updatedRow.taxable) {
-                // If taxable checked: calculate 15% tax and add to net
-                const tax = amt * 0.15;
-                updatedRow.tax_value = tax.toFixed(2);
-                updatedRow.net_amount = (amt + tax).toFixed(2);
-              } else {
-                // No tax - net equals amount
-                updatedRow.tax_value = "0";
-                updatedRow.net_amount = amt.toFixed(2);
-              }
+          if (type === 'fuel') {
+            const amtStr = String(updatedRow.amount || "0").trim();
+            const amt = parseFloat(amtStr) || 0;
+            if (updatedRow.taxable) {
+              const tax = amt * 0.15;
+              updatedRow.tax_value = tax.toFixed(2);
+              updatedRow.net_amount = (amt + tax).toFixed(2);
             } else {
-              updatedRow.net_amount = updatedRow.amount;
+              updatedRow.tax_value = "0";
+              updatedRow.net_amount = amt.toFixed(2);
             }
-
+          } else {
+            updatedRow.net_amount = updatedRow.amount;
+          }
           return updatedRow;
         }
         return row;
@@ -400,13 +392,11 @@ export default function ExpenseFormClient({ user }: { user: User }) {
 
   const handleSubmit = async () => {
     if (Object.keys(sections).length === 0) return;
-
     setSubmitting(true);
     const formData = new FormData();
     formData.append("company_id", user.company_id.toString());
     formData.append("user_id", user.id.toString());
     formData.append("month", new Date().toISOString().substring(0, 7));
-
     Object.entries(sections).forEach(([mainType, rows]) => {
       rows.forEach(row => {
         formData.append("main_type[]", mainType);
@@ -428,7 +418,6 @@ export default function ExpenseFormClient({ user }: { user: User }) {
         }
       });
     });
-
     try {
       const res = await fetch("/api/expenses/save", {
         method: "POST",
@@ -454,139 +443,130 @@ export default function ExpenseFormClient({ user }: { user: User }) {
     );
   }
 
-    return (
-      <div className="max-w-[98%] mx-auto px-4 py-8 rtl" dir="rtl">
-        {/* Main Card Container */}
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="bg-gradient-to-b from-slate-800 via-slate-700 to-slate-600 rounded-3xl shadow-2xl overflow-hidden border border-slate-500/30"
-        >
-          {/* Header */}
-          <div className="relative overflow-hidden bg-gradient-to-r from-slate-900 to-slate-800 p-8 text-white border-b border-slate-600/50">
-            <div className="relative z-10 flex flex-col items-center justify-center text-center space-y-4">
-              <div className="p-3 bg-white/10 rounded-full backdrop-blur-sm">
-                <Plus className="w-8 h-8 text-blue-400" />
-              </div>
-              <h1 className="text-2xl font-bold tracking-tight glow-text-white">إضافة مصروفات متعددة</h1>
-              <p className="text-slate-300 max-w-2xl">
-                أضف وتعديل مصروفات الشركة بشكل منظم وسهل مع الحساب التلقائي والربط بالموظفين
-              </p>
+  return (
+    <div className="max-w-[98%] mx-auto px-4 py-8">
+      <motion.div
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="bg-gradient-to-b from-slate-800 via-slate-700 to-slate-600 rounded-3xl shadow-2xl overflow-hidden border border-slate-500/30"
+      >
+        <div className="relative overflow-hidden bg-gradient-to-r from-slate-900 to-slate-800 p-8 text-white border-b border-slate-600/50">
+          <div className="relative z-10 flex flex-col items-center justify-center text-center space-y-4">
+            <div className="p-3 bg-white/10 rounded-full backdrop-blur-sm">
+              <Plus className="w-8 h-8 text-blue-400" />
             </div>
-            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 via-green-500 to-red-500"></div>
+            <h1 className="text-2xl font-bold tracking-tight glow-text-white">{t("form.addMultiple")}</h1>
+            <p className="text-slate-300 max-w-2xl">{t("form.subtitle")}</p>
           </div>
-    
-          {/* Content Area */}
-          <div className="p-6 space-y-6">
-            {/* Subtype Management Banner */}
-            <motion.div 
-              className="bg-white/95 backdrop-blur-sm p-4 rounded-2xl shadow-lg border border-white/50 flex flex-col md:flex-row items-center justify-between gap-4"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-            >
-              <div className="flex items-center space-x-4 space-x-reverse">
-                <div className="p-2.5 bg-indigo-50 rounded-xl text-indigo-600">
-                  <Tags className="w-5 h-5" />
-                </div>
-                <div>
-                  <h3 className="text-base font-bold text-slate-900 glow-text">إدارة أنواع المصروفات المخصصة</h3>
-                  <p className="text-xs text-slate-500">يمكنك إضافة وتعديل أنواع المصروفات المخصصة لك فقط التي تظهر في القوائم المنسدلة.</p>
-                </div>
+          <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 via-green-500 to-red-500"></div>
+        </div>
+  
+        <div className="p-6 space-y-6">
+          <motion.div 
+            className="bg-white/95 backdrop-blur-sm p-4 rounded-2xl shadow-lg border border-white/50 flex flex-col md:flex-row items-center justify-between gap-4"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+          >
+            <div className="flex items-center space-x-4 space-x-reverse">
+              <div className="p-2.5 bg-indigo-50 rounded-xl text-indigo-600">
+                <Tags className="w-5 h-5" />
               </div>
-              <button 
-                onClick={() => setShowSubtypeManager(true)}
-                className="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 px-4 py-2 rounded-xl font-bold transition-all flex items-center space-x-2 space-x-reverse border border-indigo-100 text-sm"
+              <div>
+                <h3 className="text-base font-bold text-slate-900 glow-text">{t("form.manageCustomTypes")}</h3>
+                <p className="text-xs text-slate-500">{t("form.manageCustomTypesDesc")}</p>
+              </div>
+            </div>
+            <button 
+              onClick={() => setShowSubtypeManager(true)}
+              className="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 px-4 py-2 rounded-xl font-bold transition-all flex items-center space-x-2 space-x-reverse border border-indigo-100 text-sm"
+            >
+              <Settings className="w-4 h-4" />
+              <span>{t("form.manageBtn")}</span>
+            </button>
+          </motion.div>
+  
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="grid grid-cols-1 md:grid-cols-3 gap-4"
+          >
+            <div className="bg-white/95 backdrop-blur-md p-4 rounded-xl border border-white/50 shadow-md flex items-center space-x-3 space-x-reverse">
+              <div className="p-2.5 bg-blue-50 rounded-lg text-blue-600">
+                <History className="w-5 h-5" />
+              </div>
+              <div>
+                <p className="text-xs text-slate-500">{t("form.currentMonth")}</p>
+                <p className="text-base font-bold text-slate-900 glow-text">{new Date().toLocaleString('en-US', { month: 'long', year: 'numeric' })}</p>
+              </div>
+            </div>
+            <div className="bg-white/95 backdrop-blur-md p-4 rounded-xl border border-white/50 shadow-md flex items-center space-x-3 space-x-reverse">
+              <div className="p-2.5 bg-green-50 rounded-lg text-green-600">
+                <FileText className="w-5 h-5" />
+              </div>
+              <div>
+                <p className="text-xs text-slate-500">{t("form.nextVoucher")}</p>
+                <p className="text-base font-bold text-slate-900 glow-text">{metadata?.voucherNumber}</p>
+              </div>
+            </div>
+            <div className="bg-white/95 backdrop-blur-md p-4 rounded-xl border border-white/50 shadow-md flex items-center space-x-3 space-x-reverse">
+              <div className="p-2.5 bg-purple-50 rounded-lg text-purple-600">
+                <Bolt className="w-5 h-5" />
+              </div>
+              <div>
+                <p className="text-xs text-slate-500">{t("form.voucherStatus")}</p>
+                <p className="text-base font-bold text-slate-900 glow-text">{t("form.new")}</p>
+              </div>
+            </div>
+          </motion.div>
+  
+          <motion.div 
+            className="bg-white/95 backdrop-blur-sm p-6 rounded-2xl shadow-lg border border-white/50"
+            whileHover={{ y: -2 }}
+            transition={{ type: "spring", stiffness: 300 }}
+          >
+            <div className="flex items-center space-x-2 space-x-reverse mb-4">
+              <Tags className="w-5 h-5 text-blue-600" />
+              <h2 className="text-lg font-bold text-slate-900 glow-text">{t("form.chooseType")}</h2>
+            </div>
+            <div className="flex flex-col md:flex-row gap-4">
+              <select 
+                className="flex-1 bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all text-sm"
+                value={selectedTypeToAdd}
+                onChange={(e) => setSelectedTypeToAdd(e.target.value)}
               >
-                <Settings className="w-4 h-4" />
-                <span>إدارة الأنواع المخصصة</span>
+                <option value="">{t("form.selectType")}</option>
+                {Object.entries(mainTypes).map(([key]) => (
+                  <option key={key} value={key}>{t(`types.${key}`)}</option>
+                ))}
+              </select>
+              <button 
+                onClick={() => addSection(selectedTypeToAdd)}
+                className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2.5 rounded-xl font-bold transition-all flex items-center justify-center space-x-2 space-x-reverse shadow-lg shadow-blue-200 text-sm"
+              >
+                <Plus className="w-4 h-4" />
+                <span>{t("form.addTypeBtn")}</span>
               </button>
-            </motion.div>
-    
-            {/* Info Bar */}
-            <motion.div 
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="grid grid-cols-1 md:grid-cols-3 gap-4"
-            >
-              <div className="bg-white/95 backdrop-blur-md p-4 rounded-xl border border-white/50 shadow-md flex items-center space-x-3 space-x-reverse">
-                <div className="p-2.5 bg-blue-50 rounded-lg text-blue-600">
-                  <History className="w-5 h-5" />
-                </div>
-                <div>
-                  <p className="text-xs text-slate-500">الشهر الحالي</p>
-                  <p className="text-base font-bold text-slate-900 glow-text">{new Date().toLocaleString('en-US', { month: 'long', year: 'numeric' })}</p>
-                </div>
-              </div>
-              <div className="bg-white/95 backdrop-blur-md p-4 rounded-xl border border-white/50 shadow-md flex items-center space-x-3 space-x-reverse">
-                <div className="p-2.5 bg-green-50 rounded-lg text-green-600">
-                  <FileText className="w-5 h-5" />
-                </div>
-                <div>
-                  <p className="text-xs text-slate-500">رقم القيد التالي</p>
-                  <p className="text-base font-bold text-slate-900 glow-text">{metadata?.voucherNumber}</p>
-                </div>
-              </div>
-              <div className="bg-white/95 backdrop-blur-md p-4 rounded-xl border border-white/50 shadow-md flex items-center space-x-3 space-x-reverse">
-                <div className="p-2.5 bg-purple-50 rounded-lg text-purple-600">
-                  <Bolt className="w-5 h-5" />
-                </div>
-                <div>
-                  <p className="text-xs text-slate-500">حالة القيد</p>
-                  <p className="text-base font-bold text-slate-900 glow-text">جديد</p>
-                </div>
-              </div>
-            </motion.div>
-    
-            {/* Expense Type Selector */}
-            <motion.div 
-              className="bg-white/95 backdrop-blur-sm p-6 rounded-2xl shadow-lg border border-white/50"
-              whileHover={{ y: -2 }}
-              transition={{ type: "spring", stiffness: 300 }}
-            >
-              <div className="flex items-center space-x-2 space-x-reverse mb-4">
-                <Tags className="w-5 h-5 text-blue-600" />
-                <h2 className="text-lg font-bold text-slate-900 glow-text">اختر نوع المصروف لإضافته</h2>
-              </div>
-              <div className="flex flex-col md:flex-row gap-4">
-                <select 
-                  className="flex-1 bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all text-sm"
-                  value={selectedTypeToAdd}
-                  onChange={(e) => setSelectedTypeToAdd(e.target.value)}
-                >
-                  <option value="">-- اختر نوع المصروف --</option>
-                  {Object.entries(mainTypes).map(([key, label]) => (
-                    <option key={key} value={key}>{label}</option>
-                  ))}
-                </select>
-                <button 
-                  onClick={() => addSection(selectedTypeToAdd)}
-                  className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2.5 rounded-xl font-bold transition-all flex items-center justify-center space-x-2 space-x-reverse shadow-lg shadow-blue-200 text-sm"
-                >
-                  <Plus className="w-4 h-4" />
-                  <span>إضافة النوع</span>
-                </button>
-              </div>
-            </motion.div>
-          </div>
+            </div>
+          </motion.div>
+        </div>
 
-            {/* Sections - Inside the main card */}
-            <div className="space-y-6 p-6">
-            <AnimatePresence>
-              {Object.entries(sections).map(([type, rows]) => (
-                <motion.div 
-                  key={type}
-                  initial={{ opacity: 0, scale: 0.95 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.95 }}
-                  className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-lg border border-white/50 overflow-hidden"
-                >
-                  <div className="bg-slate-50 p-4 border-b border-slate-100 flex items-center justify-between">
-                    <div className="flex items-center space-x-3 space-x-reverse">
-                      <div className="p-2 bg-blue-100 rounded-lg text-blue-600">
-                        <Building2 className="w-4 h-4" />
-                      </div>
-                      <h3 className="text-base font-bold text-slate-900 glow-text">{mainTypes[type as keyof typeof mainTypes]}</h3>
+        <div className="space-y-6 p-6">
+          <AnimatePresence>
+            {Object.entries(sections).map(([type, rows]) => (
+              <motion.div 
+                key={type}
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.95 }}
+                className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-lg border border-white/50 overflow-hidden"
+              >
+                <div className="bg-slate-50 p-4 border-b border-slate-100 flex items-center justify-between">
+                  <div className="flex items-center space-x-3 space-x-reverse">
+                    <div className="p-2 bg-blue-100 rounded-lg text-blue-600">
+                      <Building2 className="w-4 h-4" />
                     </div>
+                    <h3 className="text-base font-bold text-slate-900 glow-text">{t(`types.${type}`)}</h3>
+                  </div>
                   <button 
                     type="button"
                     onClick={() => removeSection(type)}
@@ -596,36 +576,38 @@ export default function ExpenseFormClient({ user }: { user: User }) {
                   </button>
                 </div>
 
-              <div className="overflow-x-auto p-4">
-                <table className="w-full text-right border-collapse min-w-[1000px]">
-                  <thead>
-                    <tr className="border-b border-slate-100 text-slate-500 text-sm">
-                      {headersMap[type] ? headersMap[type].map((h, i) => (
-                        <th key={i} className="px-4 py-3 font-semibold">{h}</th>
-                      )) : headersMap.default.map((h, i) => (
-                        <th key={i} className="px-4 py-3 font-semibold">{h}</th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {rows.map((row) => (
-                      <tr key={row.id} className="border-b border-slate-50 hover:bg-slate-50/50 transition-colors">
-                        <td className="px-2 py-4">
-                          <input 
-                            type="date" 
-                            className="w-full bg-transparent border-none focus:ring-0 text-sm"
-                            value={row.expense_date}
-                            onChange={(e) => updateRow(type, row.id, 'expense_date', e.target.value)}
-                            required
-                          />
-                        </td>
-                        <td className="px-2 py-4">
+                <div className="overflow-x-auto p-4">
+                  <table className="w-full text-start border-collapse min-w-[1000px]">
+                    <thead>
+                      <tr className="border-b border-slate-100 text-slate-500 text-sm">
+                        {headersMap[type] ? headersMap[type].map((h, i) => (
+                          <th key={i} className="px-4 py-3 font-semibold text-start">
+                            {t(`form.${h === 'التاريخ' ? 'date' : h === 'نوع المصروف' ? 'type' : h === 'المبلغ' ? 'amount' : h === 'ضريبة 15%' ? 'tax' : h === 'الصافي' ? 'net' : h === 'الحساب' ? 'account' : h === 'مركز التكلفة' ? 'costCenter' : h === 'الوصف' ? 'description' : h === 'المستند' || h === 'المستند*' ? 'document' : h === 'رقم الإقامة' ? 'iqamaNumber' : h === 'الموظف' ? 'employee' : h === 'السائق' ? 'driver' : 'delete'}`)}
+                          </th>
+                        )) : headersMap.default.map((h, i) => (
+                          <th key={i} className="px-4 py-3 font-semibold text-start">{t(`form.${h === 'التاريخ' ? 'date' : h === 'نوع المصروف' ? 'type' : h === 'المبلغ' ? 'amount' : h === 'الحساب' ? 'account' : h === 'مركز التكلفة' ? 'costCenter' : h === 'الوصف' ? 'description' : h === 'المستند' ? 'document' : 'delete'}`)}</th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {rows.map((row) => (
+                        <tr key={row.id} className="border-b border-slate-50 hover:bg-slate-50/50 transition-colors">
+                          <td className="px-2 py-4">
+                            <input 
+                              type="date" 
+                              className="w-full bg-transparent border-none focus:ring-0 text-sm"
+                              value={row.expense_date}
+                              onChange={(e) => updateRow(type, row.id, 'expense_date', e.target.value)}
+                              required
+                            />
+                          </td>
+                          <td className="px-2 py-4">
                             <select 
                               className="w-full bg-transparent border-none focus:ring-0 text-sm font-semibold"
                               value={row.expense_type}
                               onChange={(e) => updateRow(type, row.id, 'expense_type', e.target.value)}
                             >
-                              <option value="">اختر النوع</option>
+                              <option value="">{t("form.selectType")}</option>
                               {(metadata?.subtypes || [])
                                 .filter(s => s.main_type === type)
                                 .map(s => (
@@ -633,18 +615,17 @@ export default function ExpenseFormClient({ user }: { user: User }) {
                                 ))}
                               <option value="other">أخرى</option>
                             </select>
-                        </td>
-                        <td className="px-2 py-4">
-                          <input 
-                            type="number" 
-                            className="w-24 bg-transparent border-none focus:ring-0 text-sm font-bold text-blue-600"
-                            placeholder="0.00"
-                            value={row.amount}
-                            onChange={(e) => updateRow(type, row.id, 'amount', e.target.value)}
-                            required
-                          />
-                        </td>
-                        
+                          </td>
+                          <td className="px-2 py-4">
+                            <input 
+                              type="number" 
+                              className="w-24 bg-transparent border-none focus:ring-0 text-sm font-bold text-blue-600"
+                              placeholder="0.00"
+                              value={row.amount}
+                              onChange={(e) => updateRow(type, row.id, 'amount', e.target.value)}
+                              required
+                            />
+                          </td>
                           {type === 'fuel' && (
                             <>
                               <td className="px-2 py-4 text-center">
@@ -660,150 +641,135 @@ export default function ExpenseFormClient({ user }: { user: User }) {
                               </td>
                             </>
                           )}
-
-                        {(type === 'iqama') && (
-                          <>
-                            <td className="px-2 py-4">
-                              <input 
-                                type="text" 
-                                className="w-28 bg-transparent border-none focus:ring-0 text-sm text-slate-500"
-                                value={row.employee_iqama}
-                                readOnly={!row.manualEmployee}
-                                onChange={(e) => updateRow(type, row.id, 'employee_iqama', e.target.value)}
-                                placeholder="رقم الإقامة"
-                              />
-                            </td>
-                            <td className="px-2 py-4">
-                              <EmployeeSelect 
-                                row={row} 
-                                type={type} 
-                                metadata={metadata} 
-                                updateRow={updateRow} 
-                              />
-                            </td>
-                          </>
-                        )}
-
-                        {(type === 'traffic' || type === 'advances') && (
-                          <>
-                            <td className="px-2 py-4">
-                              <EmployeeSelect 
-                                row={row} 
-                                type={type} 
-                                metadata={metadata} 
-                                updateRow={updateRow} 
-                              />
-                            </td>
-                            <td className="px-2 py-4">
-                              <input 
-                                type="text" 
-                                className="w-28 bg-transparent border-none focus:ring-0 text-sm text-slate-500"
-                                value={row.employee_iqama}
-                                readOnly={!row.manualEmployee}
-                                onChange={(e) => updateRow(type, row.id, 'employee_iqama', e.target.value)}
-                                placeholder="رقم الإقامة"
-                              />
-                            </td>
-                          </>
-                        )}
-
-                        <td className="px-2 py-4">
-                          <select 
-                            className="w-full bg-transparent border-none focus:ring-0 text-sm"
-                            value={row.account_code}
-                            onChange={(e) => updateRow(type, row.id, 'account_code', e.target.value)}
-                          >
-                            <option value="">-- الحساب --</option>
-                            {(metadata?.accounts || []).map(acc => (
-                              <option key={acc.id} value={acc.account_code}>{acc.account_code} - {acc.account_name}</option>
-                            ))}
-                          </select>
-                        </td>
-                        <td className="px-2 py-4">
-                          <select 
-                            className="w-full bg-transparent border-none focus:ring-0 text-sm"
-                            value={row.cost_center_code}
-                            onChange={(e) => updateRow(type, row.id, 'cost_center_code', e.target.value)}
-                          >
-                            <option value="">-- المركز --</option>
-                            {(metadata?.costCenters || []).map(cc => (
-                              <option key={cc.id} value={cc.center_code}>{cc.center_code} - {cc.center_name}</option>
-                            ))}
-                          </select>
-                        </td>
-                        <td className="px-2 py-4">
-                          <input 
-                            type="text" 
-                            className="w-full bg-transparent border-none focus:ring-0 text-sm"
-                            placeholder="وصف..."
-                            value={row.description}
-                            onChange={(e) => updateRow(type, row.id, 'description', e.target.value)}
-                          />
-                        </td>
-                        <td className="px-2 py-4 text-center">
-                          <label className="cursor-pointer hover:text-blue-600 transition-colors">
-                            <Paperclip className={`w-5 h-5 ${row.attachment ? 'text-green-600' : 'text-slate-400'}`} />
+                          {(type === 'iqama') && (
+                            <>
+                              <td className="px-2 py-4">
+                                <input 
+                                  type="text" 
+                                  className="w-28 bg-transparent border-none focus:ring-0 text-sm text-slate-500"
+                                  value={row.employee_iqama}
+                                  readOnly={!row.manualEmployee}
+                                  onChange={(e) => updateRow(type, row.id, 'employee_iqama', e.target.value)}
+                                  placeholder={t("form.iqamaNumber")}
+                                />
+                              </td>
+                              <td className="px-2 py-4">
+                                <EmployeeSelect row={row} type={type} metadata={metadata} updateRow={updateRow} t={t} />
+                              </td>
+                            </>
+                          )}
+                          {(type === 'traffic' || type === 'advances') && (
+                            <>
+                              <td className="px-2 py-4">
+                                <EmployeeSelect row={row} type={type} metadata={metadata} updateRow={updateRow} t={t} />
+                              </td>
+                              <td className="px-2 py-4">
+                                <input 
+                                  type="text" 
+                                  className="w-28 bg-transparent border-none focus:ring-0 text-sm text-slate-500"
+                                  value={row.employee_iqama}
+                                  readOnly={!row.manualEmployee}
+                                  onChange={(e) => updateRow(type, row.id, 'employee_iqama', e.target.value)}
+                                  placeholder={t("form.iqamaNumber")}
+                                />
+                              </td>
+                            </>
+                          )}
+                          <td className="px-2 py-4">
+                            <select 
+                              className="w-full bg-transparent border-none focus:ring-0 text-sm"
+                              value={row.account_code}
+                              onChange={(e) => updateRow(type, row.id, 'account_code', e.target.value)}
+                            >
+                              <option value="">-- {t("form.account")} --</option>
+                              {(metadata?.accounts || []).map(acc => (
+                                <option key={acc.id} value={acc.account_code}>{acc.account_code} - {acc.account_name}</option>
+                              ))}
+                            </select>
+                          </td>
+                          <td className="px-2 py-4">
+                            <select 
+                              className="w-full bg-transparent border-none focus:ring-0 text-sm"
+                              value={row.cost_center_code}
+                              onChange={(e) => updateRow(type, row.id, 'cost_center_code', e.target.value)}
+                            >
+                              <option value="">-- {t("form.costCenter")} --</option>
+                              {(metadata?.costCenters || []).map(cc => (
+                                <option key={cc.id} value={cc.center_code}>{cc.center_code} - {cc.center_name}</option>
+                              ))}
+                            </select>
+                          </td>
+                          <td className="px-2 py-4">
                             <input 
-                              type="file" 
-                              className="hidden" 
-                              onChange={(e) => updateRow(type, row.id, 'attachment', e.target.files ? e.target.files[0] : null)}
+                              type="text" 
+                              className="w-full bg-transparent border-none focus:ring-0 text-sm"
+                              placeholder={t("form.description")}
+                              value={row.description}
+                              onChange={(e) => updateRow(type, row.id, 'description', e.target.value)}
                             />
-                          </label>
-                        </td>
-                        <td className="px-2 py-4 text-center">
-                          <button 
-                            type="button"
-                            onClick={() => removeRow(type, row.id)}
-                            className="text-slate-300 hover:text-red-500 transition-colors"
-                          >
-                            <X className="w-4 h-4" />
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-              
-              <div className="p-4 bg-slate-50/50 border-t border-slate-100">
-                <button 
-                  type="button"
-                  onClick={() => addRow(type)}
-                  className="flex items-center space-x-2 space-x-reverse text-blue-600 hover:text-blue-700 font-semibold text-sm transition-colors"
-                >
-                  <Plus className="w-4 h-4" />
-                  <span>إضافة سطر جديد للقسم</span>
-                </button>
-              </div>
-            </motion.div>
-          ))}
-        </AnimatePresence>
+                          </td>
+                          <td className="px-2 py-4 text-center">
+                            <label className="cursor-pointer hover:text-blue-600 transition-colors">
+                              <Paperclip className={`w-5 h-5 ${row.attachment ? 'text-green-600' : 'text-slate-400'}`} />
+                              <input 
+                                type="file" 
+                                className="hidden" 
+                                onChange={(e) => updateRow(type, row.id, 'attachment', e.target.files ? e.target.files[0] : null)}
+                              />
+                            </label>
+                          </td>
+                          <td className="px-2 py-4 text-center">
+                            <button 
+                              type="button"
+                              onClick={() => removeRow(type, row.id)}
+                              className="text-slate-300 hover:text-red-500 transition-colors"
+                            >
+                              <X className="w-4 h-4" />
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+                <div className="p-4 bg-slate-50/50 border-t border-slate-100">
+                  <button 
+                    type="button"
+                    onClick={() => addRow(type)}
+                    className="flex items-center space-x-2 space-x-reverse text-blue-600 hover:text-blue-700 font-semibold text-sm transition-colors"
+                  >
+                    <Plus className="w-4 h-4" />
+                    <span>{t("form.addRow")}</span>
+                  </button>
+                </div>
+              </motion.div>
+            ))}
+          </AnimatePresence>
 
           {Object.keys(sections).length > 0 && (
-              <motion.div 
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="flex justify-center pt-8 pb-8"
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="flex justify-center pt-8 pb-8"
+            >
+              <button 
+                type="button"
+                onClick={handleSubmit}
+                disabled={submitting}
+                className={`bg-green-600 hover:bg-green-700 text-white px-8 py-3 rounded-xl font-bold transition-all flex items-center space-x-3 space-x-reverse shadow-xl shadow-green-200/50 transform active:scale-95 ${submitting ? 'opacity-50 cursor-not-allowed' : ''}`}
               >
-                <button 
-                  type="button"
-                  onClick={handleSubmit}
-                  disabled={submitting}
-                  className={`bg-green-600 hover:bg-green-700 text-white px-8 py-3 rounded-xl font-bold transition-all flex items-center space-x-3 space-x-reverse shadow-xl shadow-green-200/50 transform active:scale-95 ${submitting ? 'opacity-50 cursor-not-allowed' : ''}`}
-                >
-                  {submitting ? (
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                  ) : (
-                    <Save className="w-5 h-5" />
-                  )}
-                  <span className="text-lg">حفظ كافة المصروفات</span>
-                </button>
-              </motion.div>
-            )}
+                {submitting ? (
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                ) : (
+                  <Save className="w-5 h-5" />
+                )}
+                <span className="text-lg">{t("form.saveAll")}</span>
+              </button>
+            </motion.div>
+          )}
         </div>
-        </motion.div>
+      </motion.div>
 
-      {/* Success Notification */}
       <AnimatePresence>
         {showSuccess && (
           <>
@@ -814,25 +780,25 @@ export default function ExpenseFormClient({ user }: { user: User }) {
               className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100]"
               onClick={() => router.push('/expenses')}
             />
-              <motion.div 
-                initial={{ opacity: 0, scale: 0.8, y: 100 }}
-                animate={{ opacity: 1, scale: 1, y: 0 }}
-                exit={{ opacity: 0, scale: 0.8, y: 100 }}
-                className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[101] bg-gradient-to-br from-indigo-600 to-purple-700 text-white p-8 rounded-3xl shadow-2xl text-center min-w-[350px]"
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.8, y: 100 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.8, y: 100 }}
+              className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[101] bg-gradient-to-br from-indigo-600 to-purple-700 text-white p-8 rounded-3xl shadow-2xl text-center min-w-[350px]"
+            >
+              <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-6 animate-bounce">
+                <CheckCircle className="w-10 h-10 text-white" />
+              </div>
+              <h2 className="text-2xl font-bold mb-3">{t("form.success")}</h2>
+              <p className="text-base opacity-90 mb-6">{t("form.successDesc", { count: savedCount })}</p>
+              <button 
+                onClick={() => router.push('/expenses')}
+                className="bg-white text-indigo-700 px-8 py-2.5 rounded-xl font-bold text-base hover:bg-indigo-50 transition-colors flex items-center mx-auto space-x-2 space-x-reverse"
               >
-                <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-6 animate-bounce">
-                  <CheckCircle className="w-10 h-10 text-white" />
-                </div>
-                <h2 className="text-2xl font-bold mb-3">تم الحفظ بنجاح!</h2>
-                <p className="text-base opacity-90 mb-6">تم تسجيل {savedCount} مصروفاً بنجاح في النظام المالي.</p>
-                <button 
-                  onClick={() => router.push('/expenses')}
-                  className="bg-white text-indigo-700 px-8 py-2.5 rounded-xl font-bold text-base hover:bg-indigo-50 transition-colors flex items-center mx-auto space-x-2 space-x-reverse"
-                >
-                  <span>العودة لمركز المنصرفات</span>
-                  <ArrowRight className="w-4 h-4" />
-                </button>
-              </motion.div>
+                <span>{t("form.backToCenter")}</span>
+                <ArrowRight className="w-4 h-4" />
+              </button>
+            </motion.div>
           </>
         )}
       </AnimatePresence>
@@ -849,7 +815,6 @@ export default function ExpenseFormClient({ user }: { user: User }) {
       </AnimatePresence>
 
       <style jsx global>{`
-        .rtl { direction: rtl; }
         .glow-text {
           text-shadow: 0 0 8px rgba(59, 130, 246, 0.2), 0 0 15px rgba(59, 130, 246, 0.1);
         }

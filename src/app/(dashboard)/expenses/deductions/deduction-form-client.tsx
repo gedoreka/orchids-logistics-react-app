@@ -11,6 +11,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { User } from "@/lib/types";
 import DeductionSubtypeManager from "./deduction-subtype-manager";
+import { useTranslations } from "@/lib/locale-context";
 
 interface Employee {
   id: number;
@@ -53,9 +54,9 @@ interface DeductionRow {
 }
 
 const mainTypes = {
-  advances: 'السلفيات',
-  deductions: 'الخصومات الشهرية',
-  other: 'استقطاعات أخرى'
+  advances: 'advances',
+  deductions: 'deductions',
+  other: 'other'
 };
 
 const defaultDeductionValues: Record<string, string> = {
@@ -65,16 +66,17 @@ const defaultDeductionValues: Record<string, string> = {
 };
 
 const headersMap: Record<string, string[]> = {
-  advances: ['التاريخ', 'نوع الاستقطاع', 'المبلغ', 'الموظف', 'رقم الإقامة', 'الحساب', 'مركز التكلفة', 'الوصف', 'التحصيل', 'حذف'],
-  deductions: ['التاريخ', 'نوع الاستقطاع', 'المبلغ', 'الموظف', 'رقم الإقامة', 'الحساب', 'مركز التكلفة', 'الوصف', 'التحصيل', 'حذف'],
-  other: ['التاريخ', 'نوع الاستقطاع', 'المبلغ', 'الموظف', 'رقم الإقامة', 'الحساب', 'مركز التكلفة', 'الوصف', 'التحصيل', 'حذف']
+  advances: ['date', 'type', 'amount', 'employee', 'iqamaNumber', 'account', 'costCenter', 'description', 'status', 'delete'],
+  deductions: ['date', 'type', 'amount', 'employee', 'iqamaNumber', 'account', 'costCenter', 'description', 'status', 'delete'],
+  other: ['date', 'type', 'amount', 'employee', 'iqamaNumber', 'account', 'costCenter', 'description', 'status', 'delete']
 };
 
-function EmployeeSelect({ row, type, metadata, updateRow }: { 
+function EmployeeSelect({ row, type, metadata, updateRow, t }: { 
   row: DeductionRow; 
   type: string; 
   metadata: any; 
-  updateRow: any 
+  updateRow: any;
+  t: any;
 }) {
   const [searchTerm, setSearchTerm] = useState("");
   const [isOpen, setIsOpen] = useState(false);
@@ -135,7 +137,7 @@ function EmployeeSelect({ row, type, metadata, updateRow }: {
         <input 
           type="text" 
           className="w-full bg-slate-100 border border-slate-200 rounded-lg px-2 py-1 text-sm"
-          placeholder="اسم الموظف"
+          placeholder={t("form.employeeName")}
           value={row.employee_name}
           onChange={(e) => updateRow(type, row.id, 'employee_name', e.target.value)}
         />
@@ -159,7 +161,7 @@ function EmployeeSelect({ row, type, metadata, updateRow }: {
             className="w-full bg-white/50 border border-slate-200 cursor-pointer text-sm font-medium py-1.5 px-3 flex items-center justify-between min-h-[36px] hover:bg-white hover:border-rose-300 rounded-lg transition-all shadow-sm"
           >
             <span className={row.employee_name ? "text-slate-900 font-bold" : "text-slate-400"}>
-              {row.employee_name || "-- اختر الموظف --"}
+              {row.employee_name || t("form.selectEmployee")}
             </span>
             <ChevronDown className={`w-4 h-4 text-slate-400 transition-transform duration-200 ${isOpen ? 'rotate-180 text-rose-500' : ''}`} />
           </div>
@@ -181,7 +183,7 @@ function EmployeeSelect({ row, type, metadata, updateRow }: {
                   <input
                     type="text"
                     className="w-full pr-9 pl-3 py-2 bg-white border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-rose-500 focus:border-transparent outline-none transition-all"
-                    placeholder="بحث بالاسم أو الإقامة..."
+                    placeholder={t("form.searchPlaceholder")}
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     autoFocus
@@ -218,7 +220,7 @@ function EmployeeSelect({ row, type, metadata, updateRow }: {
                     <div className="w-12 h-12 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-3">
                       <Search className="w-6 h-6 text-slate-300" />
                     </div>
-                    <p className="text-sm text-slate-400 font-medium">لا يوجد نتائج لهذا البحث</p>
+                    <p className="text-sm text-slate-400 font-medium">{t("form.noResults")}</p>
                   </div>
                 )}
               </div>
@@ -229,7 +231,7 @@ function EmployeeSelect({ row, type, metadata, updateRow }: {
           type="button"
           onClick={() => updateRow(type, row.id, 'manualEmployee', true)}
           className="text-slate-400 hover:text-rose-500 p-1 rounded-lg transition-colors"
-          title="إدخال يدوي"
+          title={t("form.manualEntry")}
         >
           <Bolt className="w-4 h-4" />
         </button>
@@ -240,6 +242,7 @@ function EmployeeSelect({ row, type, metadata, updateRow }: {
 
 export default function DeductionFormClient({ user }: { user: User }) {
   const router = useRouter();
+  const t = useTranslations("expenses");
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [metadata, setMetadata] = useState<{
@@ -344,7 +347,6 @@ export default function DeductionFormClient({ user }: { user: User }) {
       const updatedRows = prev[type].map(row => {
         if (row.id === id) {
           let updatedRow = { ...row, [field]: value };
-          
           if (field === 'deduction_type' || field === 'employee_name') {
             const dType = field === 'deduction_type' ? value : row.deduction_type;
             const eName = field === 'employee_name' ? value : row.employee_name;
@@ -352,7 +354,6 @@ export default function DeductionFormClient({ user }: { user: User }) {
               updatedRow.description = `${dType} للموظف: ${eName}`;
             }
           }
-
           return updatedRow;
         }
         return row;
@@ -364,10 +365,8 @@ export default function DeductionFormClient({ user }: { user: User }) {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (Object.keys(sections).length === 0) return;
-
     setSubmitting(true);
     const allDeductions = Object.values(sections).flat();
-
     try {
       const res = await fetch("/api/expenses/deductions/save", {
         method: "POST",
@@ -401,8 +400,7 @@ export default function DeductionFormClient({ user }: { user: User }) {
   }
 
   return (
-    <div className="max-w-[98%] mx-auto px-4 py-8 space-y-8 rtl" dir="rtl">
-      {/* Header - مطابق للمنصرفات مع تغيير اللون */}
+    <div className="max-w-[98%] mx-auto px-4 py-8 space-y-8">
       <motion.div 
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -412,15 +410,12 @@ export default function DeductionFormClient({ user }: { user: User }) {
           <div className="p-3 bg-white/10 rounded-full backdrop-blur-sm">
             <HandCoins className="w-8 h-8 text-rose-400" />
           </div>
-          <h1 className="text-2xl font-bold tracking-tight">إضافة الاستقطاعات الشهرية</h1>
-          <p className="text-rose-300 max-w-2xl">
-            إدارة السلفيات والخصومات الشهرية للموظفين بشكل منظم وسهل
-          </p>
+          <h1 className="text-2xl font-bold tracking-tight">{t("deductions.title")}</h1>
+          <p className="text-rose-300 max-w-2xl">{t("deductions.subtitle")}</p>
         </div>
         <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-rose-500 via-pink-500 to-red-500"></div>
       </motion.div>
 
-      {/* Subtype Management Banner - مطابق للمنصرفات */}
       <motion.div 
         className="bg-white p-4 rounded-2xl shadow-lg border border-slate-100 flex flex-col md:flex-row items-center justify-between gap-4"
         initial={{ opacity: 0 }}
@@ -431,8 +426,8 @@ export default function DeductionFormClient({ user }: { user: User }) {
             <Tags className="w-5 h-5" />
           </div>
           <div>
-            <h3 className="text-base font-bold text-slate-900">إدارة أنواع الاستقطاعات المخصصة</h3>
-            <p className="text-xs text-slate-500">يمكنك إضافة وتعديل أنواع الاستقطاعات المخصصة لك فقط التي تظهر في القوائم المنسدلة.</p>
+            <h3 className="text-base font-bold text-slate-900">{t("form.manageCustomTypes")}</h3>
+            <p className="text-xs text-slate-500">{t("form.manageCustomTypesDesc")}</p>
           </div>
         </div>
         <button 
@@ -440,11 +435,10 @@ export default function DeductionFormClient({ user }: { user: User }) {
           className="bg-rose-50 hover:bg-rose-100 text-rose-700 px-4 py-2 rounded-xl font-bold transition-all flex items-center space-x-2 space-x-reverse border border-rose-100 text-sm"
         >
           <Settings className="w-4 h-4" />
-          <span>إدارة الأنواع المخصصة</span>
+          <span>{t("form.manageBtn")}</span>
         </button>
       </motion.div>
 
-      {/* Info Bar - مطابق للمنصرفات */}
       <motion.div 
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -455,7 +449,7 @@ export default function DeductionFormClient({ user }: { user: User }) {
             <History className="w-5 h-5" />
           </div>
           <div>
-            <p className="text-xs text-slate-500">الشهر</p>
+            <p className="text-xs text-slate-500">{t("form.currentMonth")}</p>
             <input 
               type="month" 
               className="bg-transparent border-none p-0 focus:ring-0 font-bold text-slate-900 text-base w-full"
@@ -469,7 +463,7 @@ export default function DeductionFormClient({ user }: { user: User }) {
             <FileText className="w-5 h-5" />
           </div>
           <div>
-            <p className="text-xs text-slate-500">رقم القيد التالي</p>
+            <p className="text-xs text-slate-500">{t("form.nextVoucher")}</p>
             <p className="text-base font-bold text-slate-900">{metadata?.voucherNumber}</p>
           </div>
         </div>
@@ -478,13 +472,12 @@ export default function DeductionFormClient({ user }: { user: User }) {
             <Bolt className="w-5 h-5" />
           </div>
           <div>
-            <p className="text-xs text-slate-500">حالة القيد</p>
-            <p className="text-base font-bold text-slate-900">جديد</p>
+            <p className="text-xs text-slate-500">{t("form.voucherStatus")}</p>
+            <p className="text-base font-bold text-slate-900">{t("form.new")}</p>
           </div>
         </div>
       </motion.div>
 
-      {/* Deduction Type Selector - مطابق للمنصرفات */}
       <motion.div 
         className="bg-white p-6 rounded-2xl shadow-lg border border-slate-100"
         whileHover={{ y: -5 }}
@@ -492,7 +485,7 @@ export default function DeductionFormClient({ user }: { user: User }) {
       >
         <div className="flex items-center space-x-2 space-x-reverse mb-4">
           <Tags className="w-5 h-5 text-rose-600" />
-          <h2 className="text-lg font-bold text-slate-900">اختر نوع الاستقطاع لإضافته</h2>
+          <h2 className="text-lg font-bold text-slate-900">{t("form.chooseType")}</h2>
         </div>
         <div className="flex flex-col md:flex-row gap-4">
           <select 
@@ -500,9 +493,9 @@ export default function DeductionFormClient({ user }: { user: User }) {
             value={selectedTypeToAdd}
             onChange={(e) => setSelectedTypeToAdd(e.target.value)}
           >
-            <option value="">-- اختر نوع الاستقطاع --</option>
-            {Object.entries(mainTypes).map(([key, label]) => (
-              <option key={key} value={key}>{label}</option>
+            <option value="">{t("form.selectType")}</option>
+            {Object.entries(mainTypes).map(([key]) => (
+              <option key={key} value={key}>{t(`types.${key}`)}</option>
             ))}
           </select>
           <button 
@@ -510,12 +503,11 @@ export default function DeductionFormClient({ user }: { user: User }) {
             className="bg-rose-600 hover:bg-rose-700 text-white px-6 py-2.5 rounded-xl font-bold transition-all flex items-center justify-center space-x-2 space-x-reverse shadow-lg shadow-rose-200 text-sm"
           >
             <Plus className="w-4 h-4" />
-            <span>إضافة النوع</span>
+            <span>{t("form.addTypeBtn")}</span>
           </button>
         </div>
       </motion.div>
 
-      {/* Sections - مطابق للمنصرفات */}
       <form onSubmit={handleSubmit} className="space-y-8">
         <AnimatePresence>
           {Object.entries(sections).map(([type, rows]) => (
@@ -531,7 +523,7 @@ export default function DeductionFormClient({ user }: { user: User }) {
                   <div className="p-2 bg-rose-100 rounded-lg text-rose-600">
                     <Building2 className="w-4 h-4" />
                   </div>
-                  <h3 className="text-base font-bold text-slate-900">{mainTypes[type as keyof typeof mainTypes]}</h3>
+                  <h3 className="text-base font-bold text-slate-900">{t(`types.${type}`)}</h3>
                 </div>
                 <button 
                   type="button"
@@ -543,11 +535,11 @@ export default function DeductionFormClient({ user }: { user: User }) {
               </div>
 
               <div className="overflow-x-auto p-4">
-                <table className="w-full text-right border-collapse min-w-[1000px]">
+                <table className="w-full text-start border-collapse min-w-[1000px]">
                   <thead>
                     <tr className="border-b border-slate-100 text-slate-500 text-sm">
                       {headersMap[type].map((h, i) => (
-                        <th key={i} className="px-4 py-3 font-semibold">{h}</th>
+                        <th key={i} className="px-4 py-3 font-semibold text-start">{t(`form.${h}`)}</th>
                       ))}
                     </tr>
                   </thead>
@@ -569,7 +561,7 @@ export default function DeductionFormClient({ user }: { user: User }) {
                             value={row.deduction_type}
                             onChange={(e) => updateRow(type, row.id, 'deduction_type', e.target.value)}
                           >
-                            <option value="">اختر النوع</option>
+                            <option value="">{t("form.selectType")}</option>
                             {(metadata?.subtypes || [])
                               .filter(s => s.main_type === type)
                               .map(s => (
@@ -591,12 +583,7 @@ export default function DeductionFormClient({ user }: { user: User }) {
                           />
                         </td>
                         <td className="px-2 py-4">
-                          <EmployeeSelect 
-                            row={row} 
-                            type={type} 
-                            metadata={metadata} 
-                            updateRow={updateRow} 
-                          />
+                          <EmployeeSelect row={row} type={type} metadata={metadata} updateRow={updateRow} t={t} />
                         </td>
                         <td className="px-2 py-4">
                           <input 
@@ -605,7 +592,7 @@ export default function DeductionFormClient({ user }: { user: User }) {
                             value={row.employee_iqama}
                             readOnly={!row.manualEmployee}
                             onChange={(e) => updateRow(type, row.id, 'employee_iqama', e.target.value)}
-                            placeholder="رقم الإقامة"
+                            placeholder={t("form.iqamaNumber")}
                           />
                         </td>
                         <td className="px-2 py-4">
@@ -614,7 +601,7 @@ export default function DeductionFormClient({ user }: { user: User }) {
                             value={row.account_id}
                             onChange={(e) => updateRow(type, row.id, 'account_id', e.target.value)}
                           >
-                            <option value="">-- الحساب --</option>
+                            <option value="">-- {t("form.account")} --</option>
                             {(metadata?.accounts || []).map(acc => (
                               <option key={acc.id} value={acc.id}>{acc.account_code} - {acc.account_name}</option>
                             ))}
@@ -626,7 +613,7 @@ export default function DeductionFormClient({ user }: { user: User }) {
                             value={row.cost_center_id}
                             onChange={(e) => updateRow(type, row.id, 'cost_center_id', e.target.value)}
                           >
-                            <option value="">-- المركز --</option>
+                            <option value="">-- {t("form.costCenter")} --</option>
                             {(metadata?.costCenters || []).map(cc => (
                               <option key={cc.id} value={cc.id}>{cc.center_code} - {cc.center_name}</option>
                             ))}
@@ -636,7 +623,7 @@ export default function DeductionFormClient({ user }: { user: User }) {
                           <input 
                             type="text" 
                             className="w-full bg-transparent border-none focus:ring-0 text-sm"
-                            placeholder="وصف..."
+                            placeholder={t("form.description")}
                             value={row.description}
                             onChange={(e) => updateRow(type, row.id, 'description', e.target.value)}
                           />
@@ -678,7 +665,7 @@ export default function DeductionFormClient({ user }: { user: User }) {
                   className="flex items-center space-x-2 space-x-reverse text-rose-600 hover:text-rose-700 font-semibold text-sm transition-colors"
                 >
                   <Plus className="w-4 h-4" />
-                  <span>إضافة سطر جديد للقسم</span>
+                  <span>{t("form.addRow")}</span>
                 </button>
               </div>
             </motion.div>
@@ -701,13 +688,12 @@ export default function DeductionFormClient({ user }: { user: User }) {
               ) : (
                 <Save className="w-5 h-5" />
               )}
-              <span className="text-lg">حفظ كافة الاستقطاعات</span>
+              <span className="text-lg">{t("deductions.saveAll")}</span>
             </button>
           </motion.div>
         )}
       </form>
 
-      {/* Success Notification - مطابق للمنصرفات */}
       <AnimatePresence>
         {showSuccess && (
           <>
@@ -727,13 +713,13 @@ export default function DeductionFormClient({ user }: { user: User }) {
               <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-6 animate-bounce">
                 <CheckCircle className="w-10 h-10 text-white" />
               </div>
-              <h2 className="text-2xl font-bold mb-3">تم الحفظ بنجاح!</h2>
-              <p className="text-base opacity-90 mb-6">تم تسجيل {savedCount} استقطاعاً بنجاح في النظام المالي.</p>
+              <h2 className="text-2xl font-bold mb-3">{t("form.success")}</h2>
+              <p className="text-base opacity-90 mb-6">{t("deductions.successDesc", { count: savedCount })}</p>
               <button 
                 onClick={() => router.push('/expenses')}
                 className="bg-white text-rose-700 px-8 py-2.5 rounded-xl font-bold text-base hover:bg-rose-50 transition-colors flex items-center mx-auto space-x-2 space-x-reverse"
               >
-                <span>العودة لمركز المنصرفات</span>
+                <span>{t("form.backToCenter")}</span>
                 <ArrowRight className="w-4 h-4" />
               </button>
             </motion.div>
@@ -753,7 +739,6 @@ export default function DeductionFormClient({ user }: { user: User }) {
       </AnimatePresence>
 
       <style jsx global>{`
-        .rtl { direction: rtl; }
         input[type="date"]::-webkit-calendar-picker-indicator {
           cursor: pointer;
           filter: invert(0.5);
