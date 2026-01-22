@@ -228,16 +228,45 @@ export function ExpensesReportClient({ companyId }: ExpensesReportClientProps) {
 
   const monthOptions = generateMonthOptions();
 
-  const getMonthName = (monthStr: string) => {
-    const date = new Date(monthStr + "-01");
-    const monthNames = [
-      "يناير", "فبراير", "مارس", "أبريل", "مايو", "يونيو",
-      "يوليو", "أغسطس", "سبتمبر", "أكتوبر", "نوفمبر", "ديسمبر"
-    ];
-    return `${monthNames[date.getMonth()]} ${date.getFullYear()}`;
-  };
+    const getMonthName = (monthStr: string) => {
+      const date = new Date(monthStr + "-01");
+      const monthNames = [
+        "يناير", "فبراير", "مارس", "أبريل", "مايو", "يونيو",
+        "يوليو", "أغسطس", "سبتمبر", "أكتوبر", "نوفمبر", "ديسمبر"
+      ];
+      return `${monthNames[date.getMonth()]} ${date.getFullYear()}`;
+    };
 
-  const fetchReportData = useCallback(async () => {
+    const translateType = (type: string) => {
+      if (!type) return "-";
+      const typeLower = type.toLowerCase().trim();
+      
+      // Map common Arabic names from DB to translation keys
+      const mapping: Record<string, string> = {
+        "اصدار اقامة": "iqama_renewal",
+        "تجديد اقامة": "iqama_renewal",
+        "إصدار إقامة": "iqama_renewal",
+        "تجديد إقامة": "iqama_renewal",
+        "انترنت": "internet",
+        "إنترنت": "internet",
+        "وقود": "fuel",
+        "صيانة": "maintenance",
+        "سكن": "housing",
+        "إيجار سكن": "housing",
+        "مخالفات": "traffic",
+        "سلف": "advances",
+        "سلفيات": "advances"
+      };
+
+      const key = mapping[typeLower] || mapping[type] || typeLower;
+      const translated = t(`types.${key}`);
+      
+      // If translation key doesn't exist, it returns the key. 
+      // In that case, we return the original type.
+      return translated.includes('types.') ? type : translated;
+    };
+
+    const fetchReportData = useCallback(async () => {
     setLoading(true);
     try {
       const res = await fetch(
@@ -598,11 +627,11 @@ export function ExpensesReportClient({ companyId }: ExpensesReportClientProps) {
                             <Folder className="w-5 h-5" />
                             <span className="text-sm font-bold">{group}</span>
                           </div>
-                          <div className="flex items-center gap-2">
-                            <Badge className="bg-white/20 text-white text-xs px-2 py-0.5">{expenses.length} عملية</Badge>
-                            <Badge className="bg-white/20 text-white text-xs px-2 py-0.5">{formatNumber(groupTotal)} SAR</Badge>
-                            <motion.div animate={{ rotate: isExpanded ? 180 : 0 }}><ChevronDown className="w-4 h-4" /></motion.div>
-                          </div>
+                            <div className="flex items-center gap-2">
+                              <Badge className="bg-white/20 text-white text-xs px-2 py-0.5">{t("common.operationCount", { count: expenses.length })}</Badge>
+                              <Badge className="bg-white/20 text-white text-xs px-2 py-0.5">{formatNumber(groupTotal)} SAR</Badge>
+                              <motion.div animate={{ rotate: isExpanded ? 180 : 0 }}><ChevronDown className="w-4 h-4" /></motion.div>
+                            </div>
                         </button>
                         <AnimatePresence>
                           {isExpanded && (
@@ -702,9 +731,9 @@ export function ExpensesReportClient({ companyId }: ExpensesReportClientProps) {
                     <HandCoins className="w-5 h-5 text-rose-600" />
                     {t("expenses.totalDeductions")}
                   </CardTitle>
-                  <Badge className="bg-rose-600 text-white text-sm px-3 py-1">
-                    {stats.deductionsCount} عملية - {formatNumber(stats.totalDeductions)} SAR
-                  </Badge>
+                    <Badge className="bg-rose-600 text-white text-sm px-3 py-1">
+                      {t("common.operationCount", { count: stats.deductionsCount })} - {formatNumber(stats.totalDeductions)} SAR
+                    </Badge>
                 </div>
               </CardHeader>
               <CardContent className="p-4 space-y-4">
@@ -720,11 +749,11 @@ export function ExpensesReportClient({ companyId }: ExpensesReportClientProps) {
                             <Folder className="w-5 h-5" />
                             <span className="text-sm font-bold">{group}</span>
                           </div>
-                          <div className="flex items-center gap-2">
-                            <Badge className="bg-white/20 text-white text-xs px-2 py-0.5">{deductions.length} عملية</Badge>
-                            <Badge className="bg-white/20 text-white text-xs px-2 py-0.5">{formatNumber(groupTotal)} SAR</Badge>
-                            <motion.div animate={{ rotate: isExpanded ? 180 : 0 }}><ChevronDown className="w-4 h-4" /></motion.div>
-                          </div>
+                            <div className="flex items-center gap-2">
+                              <Badge className="bg-white/20 text-white text-xs px-2 py-0.5">{t("common.operationCount", { count: deductions.length })}</Badge>
+                              <Badge className="bg-white/20 text-white text-xs px-2 py-0.5">{formatNumber(groupTotal)} SAR</Badge>
+                              <motion.div animate={{ rotate: isExpanded ? 180 : 0 }}><ChevronDown className="w-4 h-4" /></motion.div>
+                            </div>
                         </button>
                         <AnimatePresence>
                           {isExpanded && (
@@ -856,12 +885,12 @@ export function ExpensesReportClient({ companyId }: ExpensesReportClientProps) {
               {selectedItem && (
                 <div className="space-y-4 p-3">
                     <div className="grid grid-cols-2 md:grid-cols-3 gap-3 text-sm">
-                      <div className="p-3 bg-white border rounded-xl shadow-sm">
-                        <p className="text-[10px] text-slate-500 font-bold mb-1 uppercase tracking-wider">{t("common.type")}</p>
-                        <p className="font-bold text-slate-800">
-                          {t(`types.${("expense_type" in selectedItem ? selectedItem.expense_type : selectedItem.deduction_type).toLowerCase()}`)}
-                        </p>
-                      </div>
+                        <div className="p-3 bg-white border rounded-xl shadow-sm">
+                          <p className="text-[10px] text-slate-500 font-bold mb-1 uppercase tracking-wider">{t("common.type")}</p>
+                          <p className="font-bold text-slate-800">
+                            {translateType("expense_type" in selectedItem ? selectedItem.expense_type : selectedItem.deduction_type)}
+                          </p>
+                        </div>
                       <div className="p-3 bg-white border rounded-xl shadow-sm"><p className="text-[10px] text-slate-500 font-bold mb-1 uppercase tracking-wider">{t("form.date")}</p><p className="font-bold text-slate-800">{formatDate(selectedItem.expense_date)}</p></div>
                     <div className="p-3 bg-white border rounded-xl shadow-sm"><p className="text-[10px] text-slate-500 font-bold mb-1 uppercase tracking-wider">{t("form.employee")}</p><p className="font-bold text-slate-800">{selectedItem.employee_name || "-"}</p></div>
                     <div className="p-3 bg-white border rounded-xl shadow-sm"><p className="text-[10px] text-slate-500 font-bold mb-1 uppercase tracking-wider">{t("form.iqamaNumber")}</p><p className="font-bold text-slate-800">{selectedItem.employee_iqama || "-"}</p></div>
@@ -950,13 +979,13 @@ export function ExpensesReportClient({ companyId }: ExpensesReportClientProps) {
                     onChange={(e) => setEditForm({...editForm, expense_date: e.target.value})}
                   />
                 </div>
-                <div className="space-y-2">
-                  <Label>{t("common.type")}</Label>
-                  <Input 
-                    disabled 
-                    value={editForm.expense_type ? t(`types.${editForm.expense_type.toLowerCase()}`) : ""} 
-                  />
-                </div>
+                  <div className="space-y-2">
+                    <Label>{t("common.type")}</Label>
+                    <Input 
+                      disabled 
+                      value={translateType(editForm.expense_type)} 
+                    />
+                  </div>
                 <div className="space-y-2">
                   <Label>{t("form.employee")}</Label>
                   <Input 

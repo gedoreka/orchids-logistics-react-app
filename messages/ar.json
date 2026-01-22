@@ -768,7 +768,8 @@
         "details": "التفاصيل",
         "type": "النوع",
         "actions": "الإجراءات",
-        "cancel": "إلغاء"
+        "cancel": "إلغاء",
+        "operationCount": "{count} عملية"
       },
       "dashboard": {
       "title": "مركز المنصرفات الشهرية",
@@ -825,38 +826,27 @@
       "employeeName": "اسم الموظف",
       "success": "تم الحفظ بنجاح!",
         "successDesc": "تم تسجيل {count} مصروفاً بنجاح في النظام المالي.",
-        "backToCenter": "العودة لمركز المنصرفات"
-      },
-        "fleet": {
-          "actions": "الإجراءات",
-          "print": "طباعة"
+          "backToCenter": "العودة لمركز المنصرفات"
         },
-          "common": {
-            "status": "الحالة",
-            "details": "التفاصيل",
-            "type": "النوع",
-            "actions": "الإجراءات"
-          },
-          "expenses": {
-            "totalDeductions": "إجمالي الاستقطاعات"
-          },
-          "actions": {
-            "title": "إجراءات",
-            "view": "عرض",
-            "edit": "تعديل",
-            "delete": "حذف"
-          },
-      "types": {
-      "iqama": "منصرفات إقامة",
-      "fuel": "منصرفات وقود",
-      "housing": "إيجار سكن",
-      "maintenance": "صيانة / شراء",
-      "general": "مصاريف عامة",
-        "traffic": "مخالفات مرورية",
-        "advances": "السلفيات",
-        "deductions": "استقطاعات",
-        "other": "أخرى"
-      },
+        "actions": {
+          "title": "إجراءات",
+          "view": "عرض",
+          "edit": "تعديل",
+          "delete": "حذف"
+        },
+        "types": {
+          "iqama": "منصرفات إقامة",
+          "iqama_renewal": "إصدار/تجديد إقامة",
+          "internet": "إنترنت",
+          "fuel": "منصرفات وقود",
+          "housing": "إيجار سكن",
+          "maintenance": "صيانة / شراء",
+          "general": "مصاريف عامة",
+          "traffic": "مخالفات مرورية",
+          "advances": "السلفيات",
+          "deductions": "استقطاعات",
+          "other": "أخرى"
+        },
     "deductions": {
       "title": "إضافة استقطاعات شهرية",
       "subtitle": "تسجيل كافة الاستقطاعات والخصومات الشهرية للموظفين والمنشأة",

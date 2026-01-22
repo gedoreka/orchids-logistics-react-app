@@ -767,7 +767,8 @@
         "details": "Details",
         "type": "Type",
         "actions": "Actions",
-        "cancel": "Cancel"
+        "cancel": "Cancel",
+        "operationCount": "{count} operations"
       },
       "dashboard": {
       "title": "Monthly Expenses Center",
@@ -824,38 +825,27 @@
       "employeeName": "Employee Name",
       "success": "Saved Successfully!",
         "successDesc": "{count} expenses have been successfully recorded in the financial system.",
-        "backToCenter": "Back to Expenses Center"
-      },
-        "fleet": {
-          "actions": "Actions",
-          "print": "Print"
+          "backToCenter": "Back to Expenses Center"
         },
-          "common": {
-            "status": "Status",
-            "details": "Details",
-            "type": "Type",
-            "actions": "Actions"
-          },
-          "expenses": {
-            "totalDeductions": "Total Deductions"
-          },
-          "actions": {
-            "title": "Actions",
-            "view": "View",
-            "edit": "Edit",
-            "delete": "Delete"
-          },
-      "types": {
-      "iqama": "Iqama Expenses",
-      "fuel": "Fuel Expenses",
-      "housing": "Housing Rent",
-      "maintenance": "Maintenance / Purchase",
-      "general": "General Expenses",
-        "traffic": "Traffic Violations",
-        "advances": "Advances",
-        "deductions": "Deductions",
-        "other": "Other"
-      },
+        "actions": {
+          "title": "Actions",
+          "view": "View",
+          "edit": "Edit",
+          "delete": "Delete"
+        },
+        "types": {
+          "iqama": "Iqama Expenses",
+          "iqama_renewal": "Iqama Issuance/Renewal",
+          "internet": "Internet",
+          "fuel": "Fuel Expenses",
+          "housing": "Housing Rent",
+          "maintenance": "Maintenance / Purchase",
+          "general": "General Expenses",
+          "traffic": "Traffic Violations",
+          "advances": "Advances",
+          "deductions": "Deductions",
+          "other": "Other"
+        },
     "deductions": {
       "title": "Add Monthly Deductions",
       "subtitle": "Record all monthly deductions and discounts for employees and the facility",
