@@ -771,6 +771,39 @@
       "save": "Save",
       "operationCount": "{count} operations"
     },
+    "report": {
+        "title": "Expenses & Deductions Report",
+        "subtitle": "Detailed view and analysis of all financial movements for expenses and discounts",
+        "filters": "Search Filters",
+        "allTypes": "All Types",
+        "search": "Search & Filter",
+        "export": "Export Report",
+        "summary": "Period Summary",
+        "total": "Total"
+      },
+      "subtypeManager": {
+        "title": "Manage Custom Types",
+        "subtitle": "Customize and edit expense sub-types for the system",
+        "addNew": "Add New Type",
+        "mainType": "Main Type",
+        "subtypeName": "Sub-type Name",
+        "subtypePlaceholder": "Example: Renewal Fees",
+        "sortOrder": "Sort Order",
+        "addBtn": "Add Type",
+        "listTitle": "Registered Types List",
+        "custom": "Custom",
+        "general": "General",
+        "mainTypeCol": "Main Expense Type",
+        "subtypeNameCol": "Sub-type Name",
+        "options": "Options",
+        "loading": "Loading data...",
+        "noCustom": "No custom types currently",
+        "default": "Default",
+        "footerNote": "* Default types cannot be deleted, you can only delete types you have added.",
+        "close": "Close Window",
+        "confirmDelete": "Are you sure you want to delete this custom type?"
+      }
+    },
     "journalEntries": {
       "title": "Journal Entries System",
       "subtitle": "Comprehensive management of all accounting entries and operations",
@@ -808,7 +841,8 @@
       "lines": "lines",
       "selectedDate": "Selected Date",
       "difference": "Current Difference",
-      "balancedDesc": "All accounts matched successfully"
+      "balancedDesc": "All accounts matched successfully",
+      "manager": "Manager"
     },
     "fleet": {
       "print": "Print"

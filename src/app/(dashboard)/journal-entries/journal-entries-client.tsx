@@ -11,7 +11,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
 import { useSearchParams } from "next/navigation";
 import { Suspense } from "react";
-import { useTranslations } from "@/lib/locale-context";
+import { useTranslations, useLocale } from "@/lib/locale-context";
 
 interface Account {
   id: number;
@@ -42,133 +42,140 @@ interface Entry {
   };
 }
 
-function JournalEntriesContent() {
-  const t = useTranslations("journalEntries");
-  const [accounts, setAccounts] = useState<Account[]>([]);
-  const [entries, setEntries] = useState<Entry[]>([]);
-  const [entryNumber, setEntryNumber] = useState("");
-  const [entryDate, setEntryDate] = useState(new Date().toISOString().split("T")[0]);
-  const [lines, setLines] = useState<JournalLine[]>([
-    { account_id: "", description: "", debit: "0", credit: "0" },
-    { account_id: "", description: "", debit: "0", credit: "0" }
-  ]);
-  const [loading, setLoading] = useState(true);
-  const [isEdit, setIsEdit] = useState(false);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [expandedEntries, setExpandedEntries] = useState<Record<string, boolean>>({});
-  const [showModal, setShowModal] = useState(false);
+  function JournalEntriesContent() {
+    const t = useTranslations("journalEntries");
+    const { isRTL } = useLocale();
+    const [accounts, setAccounts] = useState<Account[]>([]);
+    const [entries, setEntries] = useState<Entry[]>([]);
+    const [entryNumber, setEntryNumber] = useState("");
+    const [entryDate, setEntryDate] = useState(new Date().toISOString().split("T")[0]);
+    const [lines, setLines] = useState<JournalLine[]>([
+      { account_id: "", description: "", debit: "0", credit: "0" },
+      { account_id: "", description: "", debit: "0", credit: "0" }
+    ]);
+    const [loading, setLoading] = useState(true);
+    const [isEdit, setIsEdit] = useState(false);
+    const [searchTerm, setSearchTerm] = useState("");
+    const [expandedEntries, setExpandedEntries] = useState<Record<string, boolean>>({});
+    const [showModal, setShowModal] = useState(false);
 
-  const companyId = "1";
+    const companyId = "1";
 
-  const formatDateGregorian = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-GB', {
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit'
-    });
-  };
-
-  const getTodayGregorian = () => {
-    return new Date().toLocaleDateString('en-GB', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
-    });
-  };
-
-  const fetchMetadata = async () => {
-    try {
-      const res = await fetch(`/api/journal-entries/metadata?company_id=${companyId}`);
-      const data = await res.json();
-      if (data.error) throw new Error(data.error);
-      setAccounts(data.accounts);
-      setEntries(data.entries);
-      if (!isEdit) setEntryNumber(data.entryNumber);
-    } catch (error) {
-      console.error(error);
-      toast.error(t("fetchError"));
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchMetadata();
-  }, [isEdit]);
-
-  const totals = useMemo(() => {
-    let debit = 0;
-    let credit = 0;
-    lines.forEach(l => {
-      debit += parseFloat(l.debit) || 0;
-      credit += parseFloat(l.credit) || 0;
-    });
-    return { debit, credit, diff: Math.abs(debit - credit) };
-  }, [lines]);
-
-  const groupedEntries = useMemo(() => {
-    const groups: Record<string, Entry[]> = {};
-    entries.forEach(e => {
-      if (!groups[e.entry_number]) groups[e.entry_number] = [];
-      groups[e.entry_number].push(e);
-    });
-    return groups;
-  }, [entries]);
-
-  const filteredGroups = useMemo(() => {
-    if (!searchTerm) return groupedEntries;
-    const lowerSearch = searchTerm.toLowerCase();
-    const filtered: Record<string, Entry[]> = {};
-    Object.entries(groupedEntries).forEach(([num, lines]) => {
-      const match = num.toLowerCase().includes(lowerSearch) || 
-                   lines.some(l => l.description.toLowerCase().includes(lowerSearch) || 
-                                  l.accounts.account_name.toLowerCase().includes(lowerSearch));
-      if (match) filtered[num] = lines;
-    });
-    return filtered;
-  }, [groupedEntries, searchTerm]);
-
-  const addRow = () => {
-    setLines([...lines, { account_id: "", description: "", debit: "0", credit: "0" }]);
-  };
-
-  const removeRow = (index: number) => {
-    if (lines.length <= 2) return toast.error(t("minLinesError"));
-    setLines(lines.filter((_, i) => i !== index));
-  };
-
-  const handleSave = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (totals.diff > 0.01) return toast.error(t("balanceError"));
-    
-    const validLines = lines.filter(l => (parseFloat(l.debit) > 0 || parseFloat(l.credit) > 0) && l.account_id);
-    if (validLines.length < 2) return toast.error(t("minLinesError"));
-
-    try {
-      const res = await fetch("/api/journal-entries/save", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          entry_number: entryNumber,
-          entry_date: entryDate,
-          lines: validLines,
-          company_id: companyId,
-          created_by: "المدير",
-          is_edit: isEdit
-        })
+    const formatDateGregorian = (dateString: string) => {
+      const date = new Date(dateString);
+      return date.toLocaleDateString('en-GB', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit'
       });
-      const data = await res.json();
-      if (data.error) throw new Error(data.error);
-      
-      toast.success(isEdit ? t("updateSuccess") : t("saveSuccess"));
-      resetForm();
-      setShowModal(false);
+    };
+
+    const getTodayGregorian = () => {
+      return new Date().toLocaleDateString('en-GB', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      });
+    };
+
+    const fetchMetadata = async () => {
+      try {
+        const res = await fetch(`/api/journal-entries/metadata?company_id=${companyId}`);
+        const data = await res.json();
+        if (data.error) throw new Error(data.error);
+        setAccounts(data.accounts);
+        setEntries(data.entries);
+        if (!isEdit) setEntryNumber(data.entryNumber);
+      } catch (error) {
+        console.error(error);
+        toast.error(t("fetchError"));
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    useEffect(() => {
       fetchMetadata();
-    } catch (error: any) {
-      toast.error(error.message);
-    }
-  };
+    }, [isEdit]);
+
+    const totals = useMemo(() => {
+      let debit = 0;
+      let credit = 0;
+      lines.forEach(l => {
+        debit += parseFloat(l.debit) || 0;
+        credit += parseFloat(l.credit) || 0;
+      });
+      return { debit, credit, diff: Math.abs(debit - credit) };
+    }, [lines]);
+
+    const groupedEntries = useMemo(() => {
+      const groups: Record<string, Entry[]> = {};
+      entries.forEach(e => {
+        if (!groups[e.entry_number]) groups[e.entry_number] = [];
+        groups[e.entry_number].push(e);
+      });
+      return groups;
+    }, [entries]);
+
+    const filteredGroups = useMemo(() => {
+      if (!searchTerm) return groupedEntries;
+      const lowerSearch = searchTerm.toLowerCase();
+      const filtered: Record<string, Entry[]> = {};
+      Object.entries(groupedEntries).forEach(([num, lines]) => {
+        const match = num.toLowerCase().includes(lowerSearch) || 
+                     lines.some(l => l.description.toLowerCase().includes(lowerSearch) || 
+                                    l.accounts.account_name.toLowerCase().includes(lowerSearch));
+        if (match) filtered[num] = lines;
+      });
+      return filtered;
+    }, [groupedEntries, searchTerm]);
+
+    const addRow = () => {
+      setLines([...lines, { account_id: "", description: "", debit: "0", credit: "0" }]);
+    };
+
+    const removeRow = (index: number) => {
+      if (lines.length <= 2) return toast.error(t("minLinesError"));
+      setLines(lines.filter((_, i) => i !== index));
+    };
+
+    const handleLineChange = (index: number, field: keyof JournalLine, value: string) => {
+      const newLines = [...lines];
+      newLines[index] = { ...newLines[index], [field]: value };
+      setLines(newLines);
+    };
+
+    const handleSave = async (e: React.FormEvent) => {
+      e.preventDefault();
+      if (totals.diff > 0.01) return toast.error(t("balanceError"));
+      
+      const validLines = lines.filter(l => (parseFloat(l.debit) > 0 || parseFloat(l.credit) > 0) && l.account_id);
+      if (validLines.length < 2) return toast.error(t("minLinesError"));
+
+      try {
+        const res = await fetch("/api/journal-entries/save", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            entry_number: entryNumber,
+            entry_date: entryDate,
+            lines: validLines,
+            company_id: companyId,
+            created_by: t("manager"),
+            is_edit: isEdit
+          })
+        });
+        const data = await res.json();
+        if (data.error) throw new Error(data.error);
+        
+        toast.success(isEdit ? t("updateSuccess") : t("saveSuccess"));
+        resetForm();
+        setShowModal(false);
+        fetchMetadata();
+      } catch (error: any) {
+        toast.error(error.message);
+      }
+    };
 
   const resetForm = () => {
     setLines([{ account_id: "", description: "", debit: "0", credit: "0" }, { account_id: "", description: "", debit: "0", credit: "0" }]);
@@ -216,38 +223,38 @@ function JournalEntriesContent() {
 
   if (loading) return <div className="flex items-center justify-center min-h-screen">{t("fetchError")}</div>;
 
-  return (
-    <div className="max-w-[1600px] mx-auto p-4 animate-in fade-in duration-700" dir="rtl">
-      <div className="bg-[#1a2234] rounded-[30px] p-8 shadow-2xl border border-white/5 space-y-8">
-        {/* Header Section */}
-        <div className="relative overflow-hidden bg-gradient-to-br from-[#2c3e50] to-[#34495e] rounded-[30px] p-8 md:p-12 shadow-2xl border border-white/10">
-          <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-400 via-green-400 to-red-400 animate-gradient-x" />
-          <div className="relative z-10 flex flex-col items-center text-center space-y-6">
-            <motion.h1 
-              initial={{ y: -20, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              className="text-4xl md:text-5xl font-extrabold text-white flex items-center gap-4 drop-shadow-lg"
-            >
-              <Book className="w-12 h-12 text-yellow-400" />
-              {t("title")}
-            </motion.h1>
-            
-            <div className="bg-white/10 backdrop-blur-md rounded-2xl p-6 border border-white/10 shadow-inner">
-              <h2 className="text-3xl md:text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-300">
-                {entryNumber}
-              </h2>
-            </div>
+    return (
+      <div className="max-w-[1600px] mx-auto p-4 animate-in fade-in duration-700" dir={isRTL ? "rtl" : "ltr"}>
+        <div className="bg-[#1a2234] rounded-[30px] p-8 shadow-2xl border border-white/5 space-y-8">
+          {/* Header Section */}
+          <div className="relative overflow-hidden bg-gradient-to-br from-[#2c3e50] to-[#34495e] rounded-[30px] p-8 md:p-12 shadow-2xl border border-white/10">
+            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-400 via-green-400 to-red-400 animate-gradient-x" />
+            <div className="relative z-10 flex flex-col items-center text-center space-y-6">
+              <motion.h1 
+                initial={{ y: -20, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                className="text-4xl md:text-5xl font-extrabold text-white flex items-center gap-4 drop-shadow-lg"
+              >
+                <Book className="w-12 h-12 text-yellow-400" />
+                {t("title")}
+              </motion.h1>
+              
+              <div className="bg-white/10 backdrop-blur-md rounded-2xl p-6 border border-white/10 shadow-inner">
+                <h2 className="text-3xl md:text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-300">
+                  {entryNumber}
+                </h2>
+              </div>
 
-            <div className="flex flex-wrap justify-center gap-4">
-              <span className="flex items-center gap-2 px-6 py-2 bg-blue-500/20 backdrop-blur-sm rounded-full border border-blue-400/30 text-blue-100 font-semibold">
-                <User className="w-5 h-5" />
-                {t("createdBy")}: المدير
-              </span>
-              <span className="flex items-center gap-2 px-6 py-2 bg-green-500/20 backdrop-blur-sm rounded-full border border-green-400/30 text-green-100 font-semibold">
-                <Calendar className="w-5 h-5" />
-                {t("entryDate")}: {getTodayGregorian()}
-              </span>
-            </div>
+              <div className="flex flex-wrap justify-center gap-4">
+                <span className="flex items-center gap-2 px-6 py-2 bg-blue-500/20 backdrop-blur-sm rounded-full border border-blue-400/30 text-blue-100 font-semibold">
+                  <User className="w-5 h-5" />
+                  {t("createdBy")}: {t("manager")}
+                </span>
+                <span className="flex items-center gap-2 px-6 py-2 bg-green-500/20 backdrop-blur-sm rounded-full border border-green-400/30 text-green-100 font-semibold">
+                  <Calendar className="w-5 h-5" />
+                  {t("entryDate")}: {getTodayGregorian()}
+                </span>
+              </div>
 
             {/* Add New Entry Button */}
             <motion.button
