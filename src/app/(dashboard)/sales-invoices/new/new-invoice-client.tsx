@@ -14,7 +14,6 @@ import {
   AlertCircle,
   Loader2,
   Calculator,
-  DollarSign,
   Percent,
   FileCheck,
   Clock,
@@ -22,26 +21,21 @@ import {
   Receipt,
   Building2,
   Sparkles,
-  BadgeCheck,
-  FileSpreadsheet,
   Hash,
   MapPin,
   Phone,
   CreditCard,
-  Banknote,
-  Package,
   CalendarDays,
-  ArrowLeftRight,
-  TrendingUp,
   ChevronDown,
-  Zap,
-  Target,
   CircleDollarSign,
-  ReceiptText,
-  ShoppingCart
+  ShoppingCart,
+  ChevronRight,
+  ShieldCheck
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "@/lib/locale-context";
+import { cn } from "@/lib/utils";
 
 interface Customer {
   id: number;
@@ -86,6 +80,8 @@ interface NewInvoiceClientProps {
 }
 
 export function NewInvoiceClient({ customers, invoiceNumber, companyId, userName }: NewInvoiceClientProps) {
+  const t = useTranslations("newInvoicePage");
+  const tc = useTranslations("common");
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [notification, setNotification] = useState<{
@@ -94,12 +90,6 @@ export function NewInvoiceClient({ customers, invoiceNumber, companyId, userName
     title: string;
     message: string;
   }>({ show: false, type: "success", title: "", message: "" });
-
-  const [isMounted, setIsMounted] = useState(false);
-
-  React.useEffect(() => {
-    setIsMounted(true);
-  }, []);
 
   const today = new Date().toISOString().split('T')[0];
   const defaultDueDate = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
@@ -129,65 +119,43 @@ export function NewInvoiceClient({ customers, invoiceNumber, companyId, userName
     setNotification({ show: true, type, title, message });
   };
 
-    const calculateItem = useCallback((item: InvoiceItem, source: 'total' | 'unit_price' = 'total'): InvoiceItem => {
-      let totalWithVat = item.total_with_vat;
-      let unitPrice = item.unit_price;
-      const quantity = item.quantity || 0;
+  const calculateItem = useCallback((item: InvoiceItem, source: 'total' | 'unit_price' = 'total'): InvoiceItem => {
+    let totalWithVat = item.total_with_vat;
+    let unitPrice = item.unit_price;
+    const quantity = item.quantity || 0;
 
-      if (source === 'unit_price') {
-        const beforeVat = unitPrice * quantity;
-        totalWithVat = beforeVat * 1.15;
-      }
+    if (source === 'unit_price') {
+      const beforeVat = unitPrice * quantity;
+      totalWithVat = beforeVat * 1.15;
+    }
 
-      const beforeVat = totalWithVat / 1.15;
-      const vatAmount = totalWithVat - beforeVat;
-      if (source === 'total') {
-        unitPrice = quantity > 0 ? beforeVat / quantity : 0;
-      }
-      
-      return {
-        ...item,
-        before_vat: beforeVat,
-        vat_amount: vatAmount,
-        unit_price: unitPrice,
-        total_with_vat: totalWithVat
-      };
-    }, []);
-
-    const calculateAdjustment = useCallback((adj: Adjustment): Adjustment => {
-      let vatAmount = 0;
-      let totalWithVat = adj.amount;
-      
-      if (adj.is_taxable) {
-        if (adj.is_inclusive) {
-          const beforeVat = adj.amount / 1.15;
-          vatAmount = adj.amount - beforeVat;
-          totalWithVat = adj.amount;
-        } else {
-          vatAmount = adj.amount * 0.15;
-          totalWithVat = adj.amount + vatAmount;
-        }
-      }
-      
-      return {
-        ...adj,
-        vat_amount: vatAmount,
-        total_with_vat: totalWithVat
-      };
-    }, []);
-
-    const handleItemChange = (index: number, field: keyof InvoiceItem, value: any) => {
-      setItems(prev => {
-        const newItems = [...prev];
-        newItems[index] = { ...newItems[index], [field]: value };
-        
-        const source = field === 'unit_price' ? 'unit_price' : 'total';
-        newItems[index] = calculateItem(newItems[index], source);
-        return newItems;
-      });
+    const beforeVat = totalWithVat / 1.15;
+    const vatAmount = totalWithVat - beforeVat;
+    if (source === 'total') {
+      unitPrice = quantity > 0 ? beforeVat / quantity : 0;
+    }
+    
+    return {
+      ...item,
+      before_vat: beforeVat,
+      vat_amount: vatAmount,
+      unit_price: unitPrice,
+      total_with_vat: totalWithVat
     };
+  }, []);
 
-  const handleAdjustmentChange = (index: number, field: keyof Adjustment, value: any) => {
+  const handleItemChange = (index: number, field: keyof InvoiceItem, value: string | number) => {
+    setItems(prev => {
+      const newItems = [...prev];
+      newItems[index] = { ...newItems[index], [field]: value };
+      
+      const source = field === 'unit_price' ? 'unit_price' : 'total';
+      newItems[index] = calculateItem(newItems[index], source);
+      return newItems;
+    });
+  };
+
+  const handleAdjustmentChange = (index: number, field: keyof Adjustment, value: string | number | boolean) => {
     setAdjustments(prev => {
       const newAdj = [...prev];
       const updatedAdj = { ...newAdj[index], [field]: value };
@@ -253,41 +221,41 @@ export function NewInvoiceClient({ customers, invoiceNumber, companyId, userName
     setAdjustments(prev => prev.filter((_, i) => i !== index));
   };
 
-    const totals = useMemo(() => {
-      let totalBeforeVat = 0;
-      let totalVat = 0;
-      let totalWithVat = 0;
-  
-      items.forEach(item => {
-        totalBeforeVat += item.before_vat;
-        totalVat += item.vat_amount;
-        totalWithVat += item.total_with_vat;
-      });
-  
-      adjustments.forEach(adj => {
-        if (adj.type === 'addition') {
-          totalVat += adj.vat_amount;
-          totalWithVat += adj.total_with_vat;
-          totalBeforeVat += (adj.total_with_vat - adj.vat_amount);
-        } else {
-          totalVat -= adj.vat_amount;
-          totalWithVat -= adj.total_with_vat;
-          totalBeforeVat -= (adj.total_with_vat - adj.vat_amount);
-        }
-      });
-  
-      return { totalBeforeVat, totalVat, totalWithVat };
-    }, [items, adjustments]);
+  const totals = useMemo(() => {
+    let totalBeforeVat = 0;
+    let totalVat = 0;
+    let totalWithVat = 0;
+
+    items.forEach(item => {
+      totalBeforeVat += item.before_vat;
+      totalVat += item.vat_amount;
+      totalWithVat += item.total_with_vat;
+    });
+
+    adjustments.forEach(adj => {
+      if (adj.type === 'addition') {
+        totalVat += adj.vat_amount;
+        totalWithVat += adj.total_with_vat;
+        totalBeforeVat += (adj.total_with_vat - adj.vat_amount);
+      } else {
+        totalVat -= adj.vat_amount;
+        totalWithVat -= adj.total_with_vat;
+        totalBeforeVat -= (adj.total_with_vat - adj.vat_amount);
+      }
+    });
+
+    return { totalBeforeVat, totalVat, totalWithVat };
+  }, [items, adjustments]);
 
   const validateForm = () => {
     if (!clientId) {
-      showNotification("error", "خطأ", "الرجاء اختيار العميل");
+      showNotification("error", t("error"), t("selectCustomerError"));
       return false;
     }
 
     const validItems = items.filter(i => i.product_name.trim());
     if (validItems.length === 0) {
-      showNotification("error", "خطأ", "الرجاء إدخال خدمة واحدة على الأقل");
+      showNotification("error", t("error"), t("addItemError"));
       return false;
     }
 
@@ -298,7 +266,7 @@ export function NewInvoiceClient({ customers, invoiceNumber, companyId, userName
     if (!validateForm()) return;
 
     setLoading(true);
-    showNotification("loading", "جاري الحفظ", "جاري حفظ الفاتورة...");
+    showNotification("loading", t("saving"), t("savingDesc"));
 
     try {
       const validItems = items.filter(i => i.product_name.trim()).map(item => ({
@@ -335,15 +303,15 @@ export function NewInvoiceClient({ customers, invoiceNumber, companyId, userName
       const data = await res.json();
 
       if (data.success) {
-        showNotification("success", "تم الحفظ", data.message);
+        showNotification("success", t("savedSuccess"), data.message);
         setTimeout(() => {
           router.push(`/sales-invoices/${data.invoice_id}`);
         }, 1500);
       } else {
-        showNotification("error", "خطأ", data.error || "حدث خطأ");
+        showNotification("error", t("error"), data.error || "حدث خطأ");
       }
     } catch {
-      showNotification("error", "خطأ", "حدث خطأ في الاتصال");
+      showNotification("error", t("error"), t("connectionError"));
     } finally {
       setLoading(false);
     }
@@ -365,7 +333,7 @@ export function NewInvoiceClient({ customers, invoiceNumber, companyId, userName
   };
 
   return (
-    <div className="min-h-screen pb-20">
+    <div className="min-h-screen pb-20 bg-gray-50/50">
       <AnimatePresence>
         {notification.show && (
           <motion.div
@@ -374,10 +342,10 @@ export function NewInvoiceClient({ customers, invoiceNumber, companyId, userName
             exit={{ opacity: 0, y: -50, x: "-50%" }}
             className={`fixed top-6 left-1/2 z-50 px-6 py-3 rounded-2xl shadow-2xl ${
               notification.type === "success" 
-                ? "bg-gradient-to-r from-emerald-600 to-green-600" 
+                ? "bg-emerald-600" 
                 : notification.type === "error" 
-                ? "bg-gradient-to-r from-rose-600 to-red-600" 
-                : "bg-gradient-to-r from-blue-600 to-indigo-600"
+                ? "bg-rose-600" 
+                : "bg-blue-600"
             } text-white font-bold flex items-center gap-3 border border-white/20 backdrop-blur-md`}
           >
             {notification.type === "success" && <CheckCircle size={18} />}
@@ -391,630 +359,591 @@ export function NewInvoiceClient({ customers, invoiceNumber, companyId, userName
         )}
       </AnimatePresence>
 
-          <motion.div 
-            variants={containerVariants}
-            initial="hidden"
-            animate="visible"
-            className="max-w-[79%] mx-auto px-4 pt-6 space-y-6"
-          >
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-          <motion.div 
-            variants={itemVariants}
-            className="flex items-center gap-3"
-          >
-            <div className="h-12 w-12 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center shadow-lg shadow-emerald-500/30">
-              <FileText className="text-white" size={22} />
-            </div>
-            <div>
-              <div className="flex items-center gap-2 text-xs font-bold text-gray-400">
-                <Link href="/dashboard" className="hover:text-emerald-600 transition-colors flex items-center gap-1">
-                  <LayoutDashboard size={12} />
-                  لوحة التحكم
-                </Link>
-                <ArrowRight size={12} />
-                <Link href="/sales-invoices" className="hover:text-emerald-600 transition-colors">
-                  الفواتير الضريبية
-                </Link>
-                <ArrowRight size={12} />
-                <span className="text-emerald-600">إنشاء فاتورة جديدة</span>
-              </div>
-              <h1 className="text-xl font-black text-gray-900">إنشاء فاتورة ضريبية</h1>
-            </div>
-          </motion.div>
-
-          <motion.div 
-            variants={itemVariants}
-            className="flex items-center gap-3"
-          >
-            <div className="hidden md:flex items-center gap-2 px-4 py-2 bg-emerald-50 border border-emerald-200 rounded-xl">
-              <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
-              <span className="text-xs font-black text-emerald-700">متوافق مع ZATCA</span>
-            </div>
-            <div className="px-4 py-2 bg-gradient-to-r from-emerald-600 to-teal-600 text-white rounded-xl shadow-lg shadow-emerald-500/20">
-              <span className="text-xs font-black">رقم الفاتورة: {invoiceNumber}</span>
-            </div>
-          </motion.div>
-        </div>
-
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-          <motion.div variants={itemVariants}>
-            <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-slate-600 to-slate-800 p-5 shadow-lg shadow-slate-500/20">
-              <div className="flex items-start justify-between">
-                <div className="text-white/90"><Hash size={22} /></div>
-                <span className="text-[10px] font-black text-white/70 bg-white/10 px-2 py-0.5 rounded-full">جديدة</span>
-              </div>
-              <div className="mt-4">
-                <p className="text-white/70 text-[10px] font-black uppercase tracking-wider">رقم الفاتورة</p>
-                <p className="text-2xl font-black text-white mt-1">{invoiceNumber}</p>
-                <p className="text-white/60 text-[10px] font-bold mt-1">فاتورة ضريبية إلكترونية</p>
-              </div>
-              <div className="absolute -bottom-4 -left-4 w-24 h-24 bg-white/10 rounded-full blur-2xl"></div>
-            </div>
-          </motion.div>
+      <motion.div 
+        variants={containerVariants}
+        initial="hidden"
+        animate="visible"
+        className="max-w-[85%] mx-auto px-4 pt-8"
+      >
+        {/* Main Professional Card */}
+        <div className="bg-white rounded-[2.5rem] shadow-xl shadow-gray-200/50 border border-gray-100 overflow-hidden">
           
-          <motion.div variants={itemVariants}>
-            <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-emerald-500 to-green-600 p-5 shadow-lg shadow-emerald-500/30">
-              <div className="flex items-start justify-between">
-                <div className="text-white/90"><Receipt size={22} /></div>
-              </div>
-              <div className="mt-4">
-                <p className="text-white/70 text-[10px] font-black uppercase tracking-wider">إجمالي قبل الضريبة</p>
-                <p className="text-2xl font-black text-white mt-1">
-                  {totals.totalBeforeVat.toLocaleString('en-US', { minimumFractionDigits: 2 })}
-                  <span className="text-sm text-white/70 mr-1">ريال</span>
-                </p>
-                <p className="text-white/60 text-[10px] font-bold mt-1">المبلغ الخاضع للضريبة</p>
-              </div>
-              <div className="absolute -bottom-4 -left-4 w-24 h-24 bg-white/10 rounded-full blur-2xl"></div>
-            </div>
-          </motion.div>
-          
-          <motion.div variants={itemVariants}>
-            <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-amber-500 to-orange-600 p-5 shadow-lg shadow-amber-500/30">
-              <div className="flex items-start justify-between">
-                <div className="text-white/90"><Percent size={22} /></div>
-                <span className="text-[10px] font-black text-white/90 bg-white/20 px-2 py-0.5 rounded-full">15%</span>
-              </div>
-              <div className="mt-4">
-                <p className="text-white/70 text-[10px] font-black uppercase tracking-wider">ضريبة القيمة المضافة</p>
-                <p className="text-2xl font-black text-white mt-1">
-                  {totals.totalVat.toLocaleString('en-US', { minimumFractionDigits: 2 })}
-                  <span className="text-sm text-white/70 mr-1">ريال</span>
-                </p>
-                <p className="text-white/60 text-[10px] font-bold mt-1">VAT Amount</p>
-              </div>
-              <div className="absolute -bottom-4 -left-4 w-24 h-24 bg-white/10 rounded-full blur-2xl"></div>
-            </div>
-          </motion.div>
-          
-          <motion.div variants={itemVariants}>
-            <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-violet-500 to-purple-600 p-5 shadow-lg shadow-violet-500/30">
-              <div className="flex items-start justify-between">
-                <div className="text-white/90"><CircleDollarSign size={22} /></div>
-              </div>
-              <div className="mt-4">
-                <p className="text-white/70 text-[10px] font-black uppercase tracking-wider">الإجمالي النهائي</p>
-                <p className="text-2xl font-black text-white mt-1">
-                  {totals.totalWithVat.toLocaleString('en-US', { minimumFractionDigits: 2 })}
-                  <span className="text-sm text-white/70 mr-1">ريال</span>
-                </p>
-                <p className="text-white/60 text-[10px] font-bold mt-1">شامل الضريبة</p>
-              </div>
-              <div className="absolute -bottom-4 -left-4 w-24 h-24 bg-white/10 rounded-full blur-2xl"></div>
-            </div>
-          </motion.div>
-        </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <motion.div
-            variants={itemVariants}
-            className="lg:col-span-2 bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden"
-          >
-            <div className="bg-gradient-to-r from-blue-600 to-indigo-600 px-6 py-4">
-              <div className="flex items-center gap-3">
-                <div className="h-10 w-10 rounded-xl bg-white/20 flex items-center justify-center">
-                  <Building2 className="text-white" size={20} />
-                </div>
-                <div>
-                  <h3 className="text-white font-black">بيانات العميل</h3>
-                  <p className="text-blue-200 text-xs font-bold">اختر العميل المستهدف للفاتورة</p>
-                </div>
-              </div>
-            </div>
+          {/* Unified Professional Header */}
+          <div className="bg-gradient-to-br from-slate-800 via-slate-900 to-slate-800 p-8 text-white relative overflow-hidden">
+            {/* Background Decorative Patterns */}
+            <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500/10 rounded-full blur-[100px] pointer-events-none" />
+            <div className="absolute bottom-0 left-0 w-64 h-64 bg-blue-500/10 rounded-full blur-[100px] pointer-events-none" />
             
-            <div className="p-6 space-y-4">
-              <div className="relative">
-                <Users className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
-                <select
-                  value={clientId}
-                  onChange={(e) => setClientId(parseInt(e.target.value))}
-                  className="w-full h-14 pr-12 pl-4 rounded-xl bg-gray-50 border-2 border-transparent text-sm font-bold focus:border-blue-500/30 focus:bg-white outline-none transition-all appearance-none cursor-pointer"
-                >
-                  <option value={0}>-- اختر عميل من القائمة --</option>
-                  {customers.map((c) => (
-                    <option key={c.id} value={c.id}>
-                      {c.company_name || c.customer_name || c.name} {c.vat_number ? `(${c.vat_number})` : ''}
-                    </option>
-                  ))}
-                </select>
-                <ChevronDown className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
-              </div>
-              
-              {selectedCustomer && (
-                <motion.div
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl border border-blue-100"
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="h-10 w-10 rounded-xl bg-blue-100 flex items-center justify-center">
-                      <Building2 size={18} className="text-blue-600" />
-                    </div>
-                    <div>
-                      <span className="text-[10px] font-bold text-gray-400 uppercase block">اسم الشركة</span>
-                      <span className="text-sm font-black text-gray-800">
-                        {selectedCustomer.company_name || selectedCustomer.customer_name || selectedCustomer.name}
-                      </span>
-                    </div>
+            <div className="relative z-10 space-y-8">
+              {/* Top Row: Breadcrumbs & Badges */}
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+                <div className="space-y-3">
+                  <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-slate-400">
+                    <Link href="/dashboard" className="hover:text-emerald-400 transition-colors flex items-center gap-1">
+                      <LayoutDashboard size={12} />
+                      {t("breadcrumbDashboard")}
+                    </Link>
+                    <ChevronRight size={10} className="rtl:rotate-180" />
+                    <Link href="/sales-invoices" className="hover:text-emerald-400 transition-colors">
+                      {t("breadcrumbInvoices")}
+                    </Link>
+                    <ChevronRight size={10} className="rtl:rotate-180" />
+                    <span className="text-emerald-400">{t("breadcrumbNew")}</span>
                   </div>
-                  <div className="flex items-center gap-3">
-                    <div className="h-10 w-10 rounded-xl bg-emerald-100 flex items-center justify-center">
-                      <CreditCard size={18} className="text-emerald-600" />
+                  <div className="flex items-center gap-4">
+                    <div className="h-12 w-12 rounded-2xl bg-emerald-500/20 flex items-center justify-center border border-emerald-500/30">
+                      <FileText className="text-emerald-400" size={24} />
                     </div>
-                    <div>
-                      <span className="text-[10px] font-bold text-gray-400 uppercase block">الرقم الضريبي</span>
-                      <span className="text-sm font-black text-emerald-700">{selectedCustomer.vat_number || 'غير متوفر'}</span>
-                    </div>
+                    <h1 className="text-2xl md:text-3xl font-black tracking-tight">{t("title")}</h1>
                   </div>
-                  <div className="flex items-center gap-3">
-                    <div className="h-10 w-10 rounded-xl bg-amber-100 flex items-center justify-center">
-                      <MapPin size={18} className="text-amber-600" />
-                    </div>
-                    <div>
-                      <span className="text-[10px] font-bold text-gray-400 uppercase block">العنوان</span>
-                      <span className="text-sm font-bold text-gray-700 truncate block max-w-[200px]">{selectedCustomer.address || 'غير متوفر'}</span>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <div className="h-10 w-10 rounded-xl bg-violet-100 flex items-center justify-center">
-                      <Phone size={18} className="text-violet-600" />
-                    </div>
-                    <div>
-                      <span className="text-[10px] font-bold text-gray-400 uppercase block">الهاتف</span>
-                      <span className="text-sm font-bold text-gray-700">{selectedCustomer.phone || 'غير متوفر'}</span>
-                    </div>
-                  </div>
-                </motion.div>
-              )}
-            </div>
-          </motion.div>
+                </div>
 
-          <motion.div
-            variants={itemVariants}
-            className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden"
-          >
-            <div className="bg-gradient-to-r from-teal-600 to-cyan-600 px-6 py-4">
-              <div className="flex items-center gap-3">
-                <div className="h-10 w-10 rounded-xl bg-white/20 flex items-center justify-center">
-                  <CalendarDays className="text-white" size={20} />
-                </div>
-                <div>
-                  <h3 className="text-white font-black">تواريخ الفاتورة</h3>
-                  <p className="text-teal-200 text-xs font-bold">حدد تواريخ الإصدار والاستحقاق</p>
+                <div className="flex flex-wrap items-center gap-3">
+                  <div className="flex items-center gap-2 px-4 py-2 bg-emerald-500/10 border border-emerald-500/20 rounded-xl">
+                    <ShieldCheck size={16} className="text-emerald-400" />
+                    <span className="text-xs font-black text-emerald-400">{t("zatcaCompliant")}</span>
+                  </div>
+                  <div className="flex items-center gap-2 px-4 py-2 bg-white/10 border border-white/10 rounded-xl backdrop-blur-md">
+                    <span className="text-xs font-bold text-slate-300">{t("invoiceNumberLabel")}</span>
+                    <span className="text-xs font-black text-white">{invoiceNumber}</span>
+                  </div>
                 </div>
               </div>
-            </div>
-            
-            <div className="p-6 space-y-4">
-              <div>
-                <label className="block text-xs font-black text-gray-500 uppercase mb-2">تاريخ الإصدار</label>
-                <div className="relative">
-                  <Calendar className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
-                  <input
-                    type="date"
-                    value={issueDate}
-                    onChange={(e) => setIssueDate(e.target.value)}
-                    className="w-full h-12 pr-12 pl-4 rounded-xl bg-gray-50 border-2 border-transparent text-sm font-bold focus:border-teal-500/30 focus:bg-white outline-none transition-all"
-                  />
-                </div>
-              </div>
-              <div>
-                <label className="block text-xs font-black text-gray-500 uppercase mb-2">تاريخ الاستحقاق</label>
-                <div className="relative">
-                  <Clock className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
-                  <input
-                    type="date"
-                    value={dueDate}
-                    onChange={(e) => setDueDate(e.target.value)}
-                    className="w-full h-12 pr-12 pl-4 rounded-xl bg-gray-50 border-2 border-transparent text-sm font-bold focus:border-teal-500/30 focus:bg-white outline-none transition-all"
-                  />
-                </div>
-              </div>
-              <div className="p-3 bg-teal-50 rounded-xl border border-teal-100">
-                <div className="flex items-center gap-2 text-xs font-bold text-teal-700">
-                  <Sparkles size={14} />
-                  <span>شهر الفاتورة: {invoiceMonth}</span>
-                </div>
-              </div>
-            </div>
-          </motion.div>
-        </div>
 
-        <motion.div
-          variants={itemVariants}
-          className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden"
-        >
-          <div className="bg-gradient-to-r from-emerald-600 to-teal-600 px-6 py-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="h-10 w-10 rounded-xl bg-white/20 flex items-center justify-center">
-                  <ShoppingCart className="text-white" size={20} />
+              {/* Summary Cards Grid (Inside Header) */}
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                <div className="bg-white/5 backdrop-blur-md rounded-2xl p-4 border border-white/10 group hover:bg-white/10 transition-all">
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="p-2 bg-slate-700 rounded-lg text-slate-300"><Hash size={16} /></div>
+                    <span className="text-[10px] font-black text-slate-400 bg-slate-800 px-2 py-0.5 rounded-full">{t("newBadge")}</span>
+                  </div>
+                  <p className="text-slate-400 text-[10px] font-black uppercase tracking-wider">{t("invoiceNumberLabel").replace(':', '')}</p>
+                  <p className="text-xl font-black text-white mt-1">{invoiceNumber}</p>
+                  <p className="text-slate-500 text-[9px] font-bold mt-1">{t("electronicTaxInvoice")}</p>
                 </div>
-                <div>
-                  <h3 className="text-white font-black">تفاصيل الخدمات والمنتجات</h3>
-                  <p className="text-emerald-200 text-xs font-bold">{items.length} عنصر في الفاتورة</p>
+
+                <div className="bg-white/5 backdrop-blur-md rounded-2xl p-4 border border-white/10 group hover:bg-white/10 transition-all">
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="p-2 bg-emerald-500/20 rounded-lg text-emerald-400"><Receipt size={16} /></div>
+                  </div>
+                  <p className="text-emerald-400/70 text-[10px] font-black uppercase tracking-wider">{t("totalBeforeTax")}</p>
+                  <p className="text-xl font-black text-white mt-1">
+                    {totals.totalBeforeVat.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                    <span className="text-xs text-white/50 mr-1">{tc("sar")}</span>
+                  </p>
+                  <p className="text-slate-500 text-[9px] font-bold mt-1">{t("taxableAmount")}</p>
+                </div>
+
+                <div className="bg-white/5 backdrop-blur-md rounded-2xl p-4 border border-white/10 group hover:bg-white/10 transition-all">
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="p-2 bg-amber-500/20 rounded-lg text-amber-400"><Percent size={16} /></div>
+                    <span className="text-[10px] font-black text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded-full">15%</span>
+                  </div>
+                  <p className="text-amber-400/70 text-[10px] font-black uppercase tracking-wider">{t("vatAmount")}</p>
+                  <p className="text-xl font-black text-white mt-1">
+                    {totals.totalVat.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                    <span className="text-xs text-white/50 mr-1">{tc("sar")}</span>
+                  </p>
+                  <p className="text-slate-500 text-[9px] font-bold mt-1">{t("vatAmountLabel")}</p>
+                </div>
+
+                <div className="bg-emerald-500 rounded-2xl p-4 shadow-lg shadow-emerald-500/20 group hover:bg-emerald-600 transition-all">
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="p-2 bg-white/20 rounded-lg text-white"><CircleDollarSign size={16} /></div>
+                  </div>
+                  <p className="text-white/70 text-[10px] font-black uppercase tracking-wider">{t("finalTotal")}</p>
+                  <p className="text-xl font-black text-white mt-1">
+                    {totals.totalWithVat.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                    <span className="text-xs text-white/70 mr-1">{tc("sar")}</span>
+                  </p>
+                  <p className="text-white/60 text-[9px] font-bold mt-1">{t("inclusiveTax")}</p>
                 </div>
               </div>
-              <motion.button
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  type="button"
-                  onClick={addItem}
-                  className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-blue-500 to-indigo-500 text-white hover:from-blue-600 hover:to-indigo-600 transition-all font-bold text-xs shadow-lg shadow-blue-500/30"
-                >
-                  <Plus size={16} />
-                  إضافة خدمة جديدة
-                </motion.button>
             </div>
           </div>
 
-          <div className="overflow-x-auto">
-            <table className="w-full">
-                  <thead>
-                    <tr className="bg-gray-50 border-b border-gray-100">
-                      <th className="px-3 py-4 text-[10px] font-black text-gray-500 uppercase tracking-wider text-right w-10">#</th>
-                      <th className="px-3 py-4 text-[10px] font-black text-gray-500 uppercase tracking-wider text-right min-w-[140px]">اسم الخدمة</th>
-                      <th className="px-3 py-4 text-[10px] font-black text-gray-500 uppercase tracking-wider text-center w-28">الكمية</th>
-                    <th className="px-3 py-4 text-[10px] font-black text-gray-500 uppercase tracking-wider text-center w-36">سعر الوحدة</th>
-                    <th className="px-3 py-4 text-[10px] font-black text-gray-500 uppercase tracking-wider text-center w-40">الإجمالي (شامل)</th>
-                    <th className="px-3 py-4 text-[10px] font-black text-gray-500 uppercase tracking-wider text-center w-28">من تاريخ</th>
-                    <th className="px-3 py-4 text-[10px] font-black text-gray-500 uppercase tracking-wider text-center w-28">إلى تاريخ</th>
-                    <th className="px-3 py-4 text-[10px] font-black text-gray-500 uppercase tracking-wider text-center w-28">الضريبة</th>
-                    <th className="px-3 py-4 text-[10px] font-black text-gray-500 uppercase tracking-wider text-center w-14">حذف</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-50">
-                  {items.map((item, index) => (
-                    <motion.tr 
-                      key={item.id}
-                      initial={{ opacity: 0, x: -10 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: 0.03 * index }}
-                      className="hover:bg-emerald-50/30 transition-colors group"
-                    >
-                      <td className="px-3 py-3">
-                        <span className="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-gray-100 text-xs font-black text-gray-500 group-hover:bg-emerald-100 group-hover:text-emerald-600 transition-colors">
-                          {index + 1}
-                        </span>
-                      </td>
-                      <td className="px-3 py-3">
-                        <input
-                          type="text"
-                          value={item.product_name}
-                          onChange={(e) => handleItemChange(index, 'product_name', e.target.value)}
-                          placeholder="اسم الخدمة أو المنتج..."
-                          className="w-full px-3 py-2.5 rounded-xl bg-gray-50 border-2 border-transparent text-sm font-bold focus:border-emerald-500/30 focus:bg-white outline-none transition-all"
-                        />
-                      </td>
-                      <td className="px-3 py-3">
-                          <input
-                            type="number"
-                            value={item.quantity || ''}
-                            onChange={(e) => handleItemChange(index, 'quantity', parseFloat(e.target.value) || 0)}
-                            className="w-full min-w-[80px] px-3 py-2.5 rounded-xl bg-gray-50 border-2 border-transparent text-sm font-black text-center focus:border-emerald-500/30 focus:bg-white outline-none transition-all"
-                          />
-                        </td>
-                      <td className="px-3 py-3">
-                        <div className="w-full min-w-[100px] px-3 py-2.5 rounded-xl bg-blue-50 border-2 border-blue-100 text-center">
-                          <span className="text-sm font-black text-blue-700">
-                            {item.unit_price ? Number(item.unit_price.toFixed(2)).toLocaleString('en-US', { minimumFractionDigits: 2 }) : '0.00'}
-                          </span>
-                        </div>
-                      </td>
-                      <td className="px-3 py-3">
-                        <input
-                          type="number"
-                          value={item.total_with_vat || ''}
-                          onChange={(e) => handleItemChange(index, 'total_with_vat', parseFloat(e.target.value) || 0)}
-                          className="w-full min-w-[110px] px-3 py-2.5 rounded-xl bg-emerald-50 border-2 border-emerald-100 text-sm font-black text-center text-emerald-700 focus:border-emerald-300 focus:bg-white outline-none transition-all"
-                        />
-                      </td>
-                      <td className="px-3 py-3">
-                        <input
-                          type="date"
-                          value={item.period_from}
-                          onChange={(e) => handleItemChange(index, 'period_from', e.target.value)}
-                          className="w-full px-2 py-2.5 rounded-xl bg-gray-50 border-2 border-transparent text-xs font-bold focus:border-emerald-500/30 focus:bg-white outline-none transition-all"
-                        />
-                      </td>
-                      <td className="px-3 py-3">
-                        <input
-                          type="date"
-                          value={item.period_to}
-                          onChange={(e) => handleItemChange(index, 'period_to', e.target.value)}
-                          className="w-full px-2 py-2.5 rounded-xl bg-gray-50 border-2 border-transparent text-xs font-bold focus:border-emerald-500/30 focus:bg-white outline-none transition-all"
-                        />
-                      </td>
-                      <td className="px-3 py-3">
-                        <div className="min-w-[80px] px-3 py-2.5 rounded-xl bg-amber-50 border border-amber-200 text-center">
-                          <span className="text-xs font-black text-amber-700">{item.vat_amount.toFixed(2)}</span>
-                        </div>
-                      </td>
-                      <td className="px-3 py-3">
-                        <motion.button
-                          whileHover={{ scale: 1.1 }}
-                          whileTap={{ scale: 0.9 }}
-                          type="button"
-                          onClick={() => removeItem(index)}
-                          className="w-9 h-9 flex items-center justify-center rounded-xl bg-red-50 text-red-400 hover:text-red-600 hover:bg-red-100 transition-all"
-                        >
-                          <Trash2 size={16} />
-                        </motion.button>
-                      </td>
-                    </motion.tr>
-                  ))}
-                </tbody>
-            </table>
-          </div>
-
-          <div className="bg-gray-50 px-6 py-4 border-t border-gray-100">
-              <div className="flex items-center justify-between text-xs font-bold text-gray-500">
-                <span>إجمالي العناصر: {items.length}</span>
-              </div>
-            </div>
-        </motion.div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <motion.div
-            variants={itemVariants}
-            className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden"
-          >
-            <div className="bg-gradient-to-r from-amber-500 to-orange-500 px-6 py-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="h-10 w-10 rounded-xl bg-white/20 flex items-center justify-center">
-                    <Percent className="text-white" size={20} />
+          {/* Form Content */}
+          <div className="p-8 space-y-8">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+              {/* Customer Data Section */}
+              <div className="lg:col-span-2 space-y-6">
+                <div className="flex items-center gap-3 pb-2 border-b border-gray-100">
+                  <div className="h-10 w-10 rounded-xl bg-blue-50 flex items-center justify-center">
+                    <Building2 className="text-blue-600" size={20} />
                   </div>
                   <div>
-                    <h3 className="text-white font-black">التعديلات والخصومات</h3>
-                    <p className="text-amber-200 text-xs font-bold">إضافة خصومات أو رسوم إضافية</p>
+                    <h3 className="text-gray-900 font-black">{t("customerData")}</h3>
+                    <p className="text-gray-400 text-xs font-bold">{t("selectCustomerDesc")}</p>
+                  </div>
+                </div>
+                
+                <div className="space-y-6">
+                  <div className="relative">
+                    <Users className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+                    <select
+                      value={clientId}
+                      onChange={(e) => setClientId(parseInt(e.target.value))}
+                      className="w-full h-14 pr-12 pl-4 rounded-xl bg-gray-50 border-2 border-transparent text-sm font-bold focus:border-blue-500/30 focus:bg-white outline-none transition-all appearance-none cursor-pointer"
+                    >
+                      <option value={0}>{t("selectCustomerPlaceholder")}</option>
+                      {customers.map((c) => (
+                        <option key={c.id} value={c.id}>
+                          {c.company_name || c.customer_name || c.name} {c.vat_number ? `(${c.vat_number})` : ''}
+                        </option>
+                      ))}
+                    </select>
+                    <ChevronDown className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+                  </div>
+                  
+                  {selectedCustomer && (
+                    <motion.div
+                      initial={{ opacity: 0, scale: 0.95 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      className="grid grid-cols-1 md:grid-cols-2 gap-4 p-6 bg-gray-50 rounded-2xl border border-gray-100"
+                    >
+                      <div className="flex items-center gap-4">
+                        <div className="h-10 w-10 rounded-xl bg-white flex items-center justify-center shadow-sm">
+                          <Building2 size={18} className="text-blue-500" />
+                        </div>
+                        <div>
+                          <span className="text-[10px] font-bold text-gray-400 uppercase block">{t("companyNameLabel")}</span>
+                          <span className="text-sm font-black text-gray-800">
+                            {selectedCustomer.company_name || selectedCustomer.customer_name || selectedCustomer.name}
+                          </span>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-4">
+                        <div className="h-10 w-10 rounded-xl bg-white flex items-center justify-center shadow-sm">
+                          <CreditCard size={18} className="text-emerald-500" />
+                        </div>
+                        <div>
+                          <span className="text-[10px] font-bold text-gray-400 uppercase block">{t("vatNumberLabel")}</span>
+                          <span className="text-sm font-black text-emerald-600">{selectedCustomer.vat_number || tc("notSpecified")}</span>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-4">
+                        <div className="h-10 w-10 rounded-xl bg-white flex items-center justify-center shadow-sm">
+                          <MapPin size={18} className="text-amber-500" />
+                        </div>
+                        <div>
+                          <span className="text-[10px] font-bold text-gray-400 uppercase block">{t("addressLabel")}</span>
+                          <span className="text-sm font-bold text-gray-600 truncate block max-w-[200px]">{selectedCustomer.address || tc("notSpecified")}</span>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-4">
+                        <div className="h-10 w-10 rounded-xl bg-white flex items-center justify-center shadow-sm">
+                          <Phone size={18} className="text-violet-500" />
+                        </div>
+                        <div>
+                          <span className="text-[10px] font-bold text-gray-400 uppercase block">{t("phoneLabel")}</span>
+                          <span className="text-sm font-bold text-gray-600">{selectedCustomer.phone || tc("notSpecified")}</span>
+                        </div>
+                      </div>
+                    </motion.div>
+                  )}
+                </div>
+              </div>
+
+              {/* Dates Section */}
+              <div className="space-y-6">
+                <div className="flex items-center gap-3 pb-2 border-b border-gray-100">
+                  <div className="h-10 w-10 rounded-xl bg-teal-50 flex items-center justify-center">
+                    <CalendarDays className="text-teal-600" size={20} />
+                  </div>
+                  <div>
+                    <h3 className="text-gray-900 font-black">{t("invoiceDates")}</h3>
+                    <p className="text-gray-400 text-xs font-bold">{t("datesDesc")}</p>
+                  </div>
+                </div>
+                
+                <div className="space-y-5 p-6 bg-gray-50 rounded-2xl border border-gray-100">
+                  <div>
+                    <label className="block text-[10px] font-black text-gray-400 uppercase mb-2">{t("issueDateLabel")}</label>
+                    <div className="relative">
+                      <Calendar className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
+                      <input
+                        type="date"
+                        value={issueDate}
+                        onChange={(e) => setIssueDate(e.target.value)}
+                        className="w-full h-12 pr-12 pl-4 rounded-xl bg-white border-2 border-transparent text-sm font-bold focus:border-teal-500/30 outline-none transition-all shadow-sm"
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-[10px] font-black text-gray-400 uppercase mb-2">{t("dueDateLabel")}</label>
+                    <div className="relative">
+                      <Clock className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
+                      <input
+                        type="date"
+                        value={dueDate}
+                        onChange={(e) => setDueDate(e.target.value)}
+                        className="w-full h-12 pr-12 pl-4 rounded-xl bg-white border-2 border-transparent text-sm font-bold focus:border-teal-500/30 outline-none transition-all shadow-sm"
+                      />
+                    </div>
+                  </div>
+                  <div className="p-3 bg-teal-50 rounded-xl border border-teal-100 flex items-center gap-2">
+                    <Sparkles size={14} className="text-teal-600" />
+                    <span className="text-[11px] font-black text-teal-700">{t("invoiceMonth")} {invoiceMonth}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Items Table Section */}
+            <div className="space-y-6">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-gray-100">
+                <div className="flex items-center gap-3">
+                  <div className="h-10 w-10 rounded-xl bg-emerald-50 flex items-center justify-center">
+                    <ShoppingCart className="text-emerald-600" size={20} />
+                  </div>
+                  <div>
+                    <h3 className="text-gray-900 font-black">{t("servicesDetails")}</h3>
+                    <p className="text-gray-400 text-xs font-bold">{t("itemsInInvoice", { count: items.length })}</p>
                   </div>
                 </div>
                 <motion.button
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                   type="button"
-                  onClick={addAdjustment}
-                  className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/20 text-white hover:bg-white/30 transition-all font-bold text-xs border border-white/20"
+                  onClick={addItem}
+                  className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-emerald-500 text-white hover:bg-emerald-600 transition-all font-black text-xs shadow-lg shadow-emerald-500/20"
                 >
                   <Plus size={16} />
-                  إضافة تعديل
+                  {t("addService")}
                 </motion.button>
+              </div>
+
+              <div className="overflow-x-auto rounded-2xl border border-gray-100">
+                <table className="w-full">
+                  <thead>
+                    <tr className="bg-gray-50 border-b border-gray-100">
+                      <th className="px-4 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest text-right w-12">{t("itemNo")}</th>
+                      <th className="px-4 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest text-right min-w-[200px]">{t("serviceName")}</th>
+                      <th className="px-4 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest text-center w-24">{t("quantity")}</th>
+                      <th className="px-4 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest text-center w-32">{t("unitPrice")}</th>
+                      <th className="px-4 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest text-center w-36">{t("totalInclusive")}</th>
+                      <th className="px-4 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest text-center w-32">{t("fromDate")}</th>
+                      <th className="px-4 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest text-center w-32">{t("toDate")}</th>
+                      <th className="px-4 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest text-center w-24">{t("tax")}</th>
+                      <th className="px-4 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest text-center w-12">{t("delete")}</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-50">
+                    {items.map((item, index) => (
+                      <motion.tr 
+                        key={item.id}
+                        initial={{ opacity: 0, x: -10 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: 0.05 * index }}
+                        className="group hover:bg-gray-50/50 transition-colors"
+                      >
+                        <td className="px-4 py-4">
+                          <span className="flex items-center justify-center w-6 h-6 rounded-lg bg-gray-100 text-[10px] font-black text-gray-400 group-hover:bg-emerald-100 group-hover:text-emerald-600 transition-colors">
+                            {index + 1}
+                          </span>
+                        </td>
+                        <td className="px-4 py-4">
+                          <input
+                            type="text"
+                            value={item.product_name}
+                            onChange={(e) => handleItemChange(index, 'product_name', e.target.value)}
+                            placeholder={t("serviceNamePlaceholder")}
+                            className="w-full px-3 py-2 rounded-xl bg-white border border-gray-200 text-sm font-bold focus:border-emerald-500/30 outline-none transition-all"
+                          />
+                        </td>
+                        <td className="px-4 py-4">
+                          <input
+                            type="number"
+                            value={item.quantity || ''}
+                            onChange={(e) => handleItemChange(index, 'quantity', parseFloat(e.target.value) || 0)}
+                            className="w-full px-2 py-2 rounded-xl bg-white border border-gray-200 text-sm font-black text-center focus:border-emerald-500/30 outline-none"
+                          />
+                        </td>
+                        <td className="px-4 py-4">
+                          <div className="w-full px-2 py-2 rounded-xl bg-blue-50/50 border border-blue-100 text-center">
+                            <span className="text-sm font-black text-blue-600">
+                              {item.unit_price ? Number(item.unit_price.toFixed(2)).toLocaleString('en-US', { minimumFractionDigits: 2 }) : '0.00'}
+                            </span>
+                          </div>
+                        </td>
+                        <td className="px-4 py-4">
+                          <input
+                            type="number"
+                            value={item.total_with_vat || ''}
+                            onChange={(e) => handleItemChange(index, 'total_with_vat', parseFloat(e.target.value) || 0)}
+                            className="w-full px-2 py-2 rounded-xl bg-emerald-50 border border-emerald-100 text-sm font-black text-center text-emerald-600 focus:border-emerald-400 outline-none"
+                          />
+                        </td>
+                        <td className="px-4 py-4">
+                          <input
+                            type="date"
+                            value={item.period_from}
+                            onChange={(e) => handleItemChange(index, 'period_from', e.target.value)}
+                            className="w-full px-2 py-2 rounded-xl bg-white border border-gray-200 text-[10px] font-bold focus:border-emerald-500/30 outline-none"
+                          />
+                        </td>
+                        <td className="px-4 py-4">
+                          <input
+                            type="date"
+                            value={item.period_to}
+                            onChange={(e) => handleItemChange(index, 'period_to', e.target.value)}
+                            className="w-full px-2 py-2 rounded-xl bg-white border border-gray-200 text-[10px] font-bold focus:border-emerald-500/30 outline-none"
+                          />
+                        </td>
+                        <td className="px-4 py-4">
+                          <div className="w-full py-2 rounded-xl bg-amber-50/50 border border-amber-100 text-center">
+                            <span className="text-[11px] font-black text-amber-600">{item.vat_amount.toFixed(2)}</span>
+                          </div>
+                        </td>
+                        <td className="px-4 py-4">
+                          <button
+                            type="button"
+                            onClick={() => removeItem(index)}
+                            className="w-8 h-8 flex items-center justify-center rounded-xl bg-rose-50 text-rose-400 hover:text-rose-600 hover:bg-rose-100 transition-all mx-auto"
+                          >
+                            <Trash2 size={14} />
+                          </button>
+                        </td>
+                      </motion.tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+              <div className="flex justify-between items-center px-4">
+                <span className="text-xs font-bold text-gray-400">{t("totalItems")} {items.length}</span>
               </div>
             </div>
 
-            <div className="p-6 space-y-4">
-              {adjustments.length === 0 ? (
-                <div className="text-center py-10 border-2 border-dashed border-gray-200 rounded-2xl">
-                  <Percent size={40} className="mx-auto text-gray-300 mb-3" />
-                  <p className="text-gray-400 font-bold text-sm">لا توجد تعديلات أو خصومات</p>
-                  <p className="text-gray-300 text-xs">اضغط على "إضافة تعديل" لإضافة خصم أو رسوم</p>
-                </div>
-              ) : (
-                adjustments.map((adj, index) => (
-                  <motion.div
-                    key={adj.id}
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="p-4 bg-gradient-to-br from-amber-50 to-orange-50 rounded-xl border border-amber-100"
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              {/* Adjustments Section */}
+              <div className="space-y-6">
+                <div className="flex items-center justify-between pb-2 border-b border-gray-100">
+                  <div className="flex items-center gap-3">
+                    <div className="h-10 w-10 rounded-xl bg-amber-50 flex items-center justify-center">
+                      <Percent className="text-amber-600" size={20} />
+                    </div>
+                    <div>
+                      <h3 className="text-gray-900 font-black">{t("adjustments")}</h3>
+                      <p className="text-gray-400 text-xs font-bold">{t("adjustmentsDesc")}</p>
+                    </div>
+                  </div>
+                  <motion.button
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    type="button"
+                    onClick={addAdjustment}
+                    className="flex items-center gap-2 px-4 py-2 rounded-xl bg-amber-50 text-amber-600 hover:bg-amber-100 transition-all font-black text-xs border border-amber-200"
                   >
-                    <div className="flex flex-col gap-3">
-                      <div className="flex flex-col md:flex-row gap-3">
-                        <input
-                          type="text"
-                          value={adj.title}
-                          onChange={(e) => handleAdjustmentChange(index, 'title', e.target.value)}
-                          placeholder="وصف التعديل..."
-                          className="flex-1 px-4 py-2.5 rounded-xl bg-white border-2 border-transparent text-sm font-bold focus:border-amber-300 outline-none transition-all"
-                        />
-                        <select
-                          value={adj.type}
-                          onChange={(e) => handleAdjustmentChange(index, 'type', e.target.value)}
-                          className="w-full md:w-32 px-3 py-2.5 rounded-xl bg-white border-2 border-transparent text-sm font-black focus:border-amber-300 outline-none transition-all"
-                        >
-                          <option value="discount">خصم (-)</option>
-                          <option value="addition">إضافة (+)</option>
-                        </select>
-                        <div className="relative w-full md:w-36">
-                          <input
-                            type="number"
-                            value={adj.amount || ''}
-                            onChange={(e) => handleAdjustmentChange(index, 'amount', parseFloat(e.target.value) || 0)}
-                            className="w-full px-4 py-2.5 rounded-xl bg-white border-2 border-transparent text-sm font-black text-amber-700 focus:border-amber-300 outline-none transition-all"
-                          />
-                          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[10px] text-gray-400 font-bold">ريال</span>
-                        </div>
-                        <motion.button
-                          whileHover={{ scale: 1.1 }}
-                          whileTap={{ scale: 0.9 }}
-                          type="button"
-                          onClick={() => removeAdjustment(index)}
-                          className="w-10 h-10 flex items-center justify-center rounded-xl text-gray-400 hover:text-red-500 hover:bg-red-50 transition-all"
-                        >
-                          <Trash2 size={16} />
-                        </motion.button>
-                      </div>
+                    <Plus size={14} />
+                    {t("addAdjustment")}
+                  </motion.button>
+                </div>
 
-                      <div className="flex flex-wrap items-center gap-4 pt-3 border-t border-amber-200/50">
-                        <label className="flex items-center gap-2 cursor-pointer">
+                <div className="space-y-4">
+                  {adjustments.length === 0 ? (
+                    <div className="text-center py-12 bg-gray-50 rounded-[2rem] border-2 border-dashed border-gray-200">
+                      <Percent size={40} className="mx-auto text-gray-300 mb-4" />
+                      <p className="text-gray-400 font-black text-sm">{t("noAdjustments")}</p>
+                      <p className="text-gray-300 text-xs mt-1">{t("addAdjustmentDesc")}</p>
+                    </div>
+                  ) : (
+                    adjustments.map((adj, index) => (
+                      <motion.div
+                        key={adj.id}
+                        initial={{ opacity: 0, scale: 0.95 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        className="p-5 bg-gray-50 rounded-2xl border border-gray-100 space-y-4"
+                      >
+                        <div className="flex flex-col sm:flex-row gap-3">
                           <input
-                            type="checkbox"
-                            checked={adj.is_taxable}
-                            onChange={(e) => handleAdjustmentChange(index, 'is_taxable', e.target.checked)}
-                            className="w-4 h-4 rounded border-amber-300 text-amber-600 focus:ring-amber-500"
+                            type="text"
+                            value={adj.title}
+                            onChange={(e) => handleAdjustmentChange(index, 'title', e.target.value)}
+                            placeholder={t("adjustmentPlaceholder")}
+                            className="flex-1 h-11 px-4 rounded-xl bg-white border border-gray-200 text-sm font-bold focus:border-amber-300 outline-none shadow-sm"
                           />
-                          <span className="text-[11px] font-black text-gray-600">خاضع للضريبة (15%)</span>
-                        </label>
-
-                        {adj.is_taxable && (
-                          <div className="flex items-center gap-2 bg-white px-3 py-1.5 rounded-lg border border-amber-200">
-                            <span className="text-[10px] font-bold text-amber-700">الطريقة:</span>
-                            <button
-                              type="button"
-                              onClick={() => handleAdjustmentChange(index, 'is_inclusive', true)}
-                              className={`px-2.5 py-1 rounded-lg text-[10px] font-black transition-all ${adj.is_inclusive ? 'bg-amber-500 text-white shadow-sm' : 'text-amber-600 hover:bg-amber-50'}`}
-                            >
-                              شاملة
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => handleAdjustmentChange(index, 'is_inclusive', false)}
-                              className={`px-2.5 py-1 rounded-lg text-[10px] font-black transition-all ${!adj.is_inclusive ? 'bg-amber-500 text-white shadow-sm' : 'text-amber-600 hover:bg-amber-50'}`}
-                            >
-                              غير شاملة
-                            </button>
+                          <select
+                            value={adj.type}
+                            onChange={(e) => handleAdjustmentChange(index, 'type', e.target.value)}
+                            className="w-full sm:w-32 h-11 px-3 rounded-xl bg-white border border-gray-200 text-sm font-black focus:border-amber-300 outline-none shadow-sm"
+                          >
+                            <option value="discount">{t("discount")}</option>
+                            <option value="addition">{t("addition")}</option>
+                          </select>
+                          <div className="relative w-full sm:w-36">
+                            <input
+                              type="number"
+                              value={adj.amount || ''}
+                              onChange={(e) => handleAdjustmentChange(index, 'amount', parseFloat(e.target.value) || 0)}
+                              className="w-full h-11 px-4 rounded-xl bg-white border border-gray-200 text-sm font-black text-amber-600 focus:border-amber-300 outline-none shadow-sm"
+                            />
+                            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[10px] text-gray-400 font-bold">{tc("sar")}</span>
                           </div>
-                        )}
+                          <button
+                            type="button"
+                            onClick={() => removeAdjustment(index)}
+                            className="w-11 h-11 flex items-center justify-center rounded-xl bg-rose-50 text-rose-400 hover:text-rose-600 transition-all"
+                          >
+                            <Trash2 size={16} />
+                          </button>
+                        </div>
 
-                        <div className="mr-auto flex items-center gap-4">
-                          <span className="text-[11px] font-bold text-gray-500">
-                            الضريبة: <span className="text-amber-600 font-black">{adj.vat_amount.toFixed(2)}</span>
+                        <div className="flex flex-wrap items-center justify-between gap-4 pt-4 border-t border-gray-200/50">
+                          <div className="flex items-center gap-4">
+                            <label className="flex items-center gap-2 cursor-pointer group">
+                              <input
+                                type="checkbox"
+                                checked={adj.is_taxable}
+                                onChange={(e) => handleAdjustmentChange(index, 'is_taxable', e.target.checked)}
+                                className="w-4 h-4 rounded border-gray-300 text-amber-500 focus:ring-amber-500"
+                              />
+                              <span className="text-[11px] font-black text-gray-500 group-hover:text-gray-700">{t("taxable")}</span>
+                            </label>
+
+                            {adj.is_taxable && (
+                              <div className="flex items-center gap-1 bg-white p-1 rounded-lg border border-gray-200 shadow-sm">
+                                <button
+                                  type="button"
+                                  onClick={() => handleAdjustmentChange(index, 'is_inclusive', true)}
+                                  className={cn("px-2 py-1 rounded-md text-[10px] font-black transition-all", adj.is_inclusive ? 'bg-amber-500 text-white' : 'text-gray-400 hover:bg-gray-50')}
+                                >
+                                  {t("inclusive")}
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => handleAdjustmentChange(index, 'is_inclusive', false)}
+                                  className={cn("px-2 py-1 rounded-md text-[10px] font-black transition-all", !adj.is_inclusive ? 'bg-amber-500 text-white' : 'text-gray-400 hover:bg-gray-50')}
+                                >
+                                  {t("exclusive")}
+                                </button>
+                              </div>
+                            )}
+                          </div>
+
+                          <div className="flex items-center gap-4">
+                            <span className="text-[10px] font-bold text-gray-400">{t("taxLabel")} <span className="text-amber-600 font-black">{adj.vat_amount.toFixed(2)}</span></span>
+                            <span className="text-[10px] font-bold text-gray-400">{t("totalLabel")} <span className="text-emerald-600 font-black">{adj.total_with_vat.toFixed(2)}</span></span>
+                          </div>
+                        </div>
+                      </motion.div>
+                    ))
+                  )}
+                </div>
+              </div>
+
+              {/* Tax Summary Section */}
+              <div className="space-y-6">
+                <div className="flex items-center gap-3 pb-2 border-b border-gray-100">
+                  <div className="h-10 w-10 rounded-xl bg-slate-100 flex items-center justify-center">
+                    <Calculator className="text-slate-600" size={20} />
+                  </div>
+                  <div>
+                    <h3 className="text-gray-900 font-black">{t("taxSummary")}</h3>
+                    <p className="text-gray-400 text-xs font-bold">{t("automaticTax")}</p>
+                  </div>
+                </div>
+
+                <div className="bg-slate-900 rounded-[2rem] p-8 text-white relative overflow-hidden shadow-2xl">
+                  {/* Background Glow */}
+                  <div className="absolute -top-10 -right-10 w-40 h-40 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
+                  
+                  <div className="space-y-6 relative z-10">
+                    <div className="flex justify-between items-center pb-4 border-b border-white/5">
+                      <div className="flex items-center gap-3 text-slate-400">
+                        <Receipt size={16} />
+                        <span className="text-xs font-bold">{t("amountBeforeTax")}</span>
+                      </div>
+                      <span className="font-black text-lg">
+                        {totals.totalBeforeVat.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                        <span className="text-slate-500 text-[10px] mr-1 uppercase">{tc("sar")}</span>
+                      </span>
+                    </div>
+
+                    <div className="flex justify-between items-center pb-4 border-b border-white/5">
+                      <div className="flex items-center gap-3 text-amber-400">
+                        <Percent size={16} />
+                        <span className="text-xs font-bold">{t("vat15")}</span>
+                      </div>
+                      <span className="font-black text-lg text-amber-400">
+                        {totals.totalVat.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                        <span className="text-amber-500/50 text-[10px] mr-1 uppercase">{tc("sar")}</span>
+                      </span>
+                    </div>
+
+                    <div className="pt-2">
+                      <div className="p-6 bg-emerald-500/10 rounded-[1.5rem] border border-emerald-500/20 flex justify-between items-center">
+                        <div className="flex items-center gap-3">
+                          <div className="h-10 w-10 rounded-xl bg-emerald-500/20 flex items-center justify-center">
+                            <CircleDollarSign size={20} className="text-emerald-400" />
+                          </div>
+                          <span className="text-emerald-400 font-black text-sm">{t("finalTotal")}</span>
+                        </div>
+                        <div className="text-left">
+                          <span className="text-3xl font-black text-white tracking-tight">
+                            {totals.totalWithVat.toLocaleString('en-US', { minimumFractionDigits: 2 })}
                           </span>
-                          <span className="text-[11px] font-bold text-gray-500">
-                            الإجمالي: <span className="text-emerald-600 font-black">{adj.total_with_vat.toFixed(2)}</span>
-                          </span>
+                          <span className="text-xs font-bold text-emerald-500/50 mr-2 uppercase">{tc("sar")}</span>
                         </div>
                       </div>
                     </div>
-                  </motion.div>
-                ))
-              )}
-            </div>
-          </motion.div>
 
-          <motion.div
-            variants={itemVariants}
-            className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl shadow-2xl p-6 text-white"
-          >
-            <div className="flex items-center gap-3 mb-6">
-              <div className="h-12 w-12 rounded-xl bg-white/10 flex items-center justify-center">
-                <Calculator className="text-emerald-400" size={24} />
-              </div>
-              <div>
-                <h3 className="font-black text-lg">ملخص الحسابات الضريبية</h3>
-                <p className="text-slate-400 text-xs font-bold">حساب تلقائي للضريبة</p>
-              </div>
-            </div>
-
-            <div className="space-y-4 mb-6">
-              <div className="flex justify-between items-center p-4 bg-white/5 rounded-xl border border-white/10">
-                <div className="flex items-center gap-3">
-                  <Receipt size={18} className="text-slate-400" />
-                  <span className="text-slate-300 font-bold text-sm">المبلغ قبل الضريبة</span>
-                </div>
-                <span className="font-mono font-black text-white">
-                  {totals.totalBeforeVat.toLocaleString('en-US', { minimumFractionDigits: 2 })}
-                  <span className="text-slate-400 mr-1 text-xs">ريال</span>
-                </span>
-              </div>
-              
-              <div className="flex justify-between items-center p-4 bg-amber-500/10 rounded-xl border border-amber-500/20">
-                <div className="flex items-center gap-3">
-                  <Percent size={18} className="text-amber-400" />
-                  <span className="text-amber-200 font-bold text-sm">ضريبة القيمة المضافة (15%)</span>
-                </div>
-                <span className="font-mono font-black text-amber-400">
-                  {totals.totalVat.toLocaleString('en-US', { minimumFractionDigits: 2 })}
-                  <span className="text-amber-300/70 mr-1 text-xs">ريال</span>
-                </span>
-              </div>
-            </div>
-
-            <div className="h-px bg-gradient-to-r from-transparent via-white/20 to-transparent my-4" />
-
-            <div className="p-5 bg-gradient-to-br from-emerald-500/20 to-teal-500/20 rounded-2xl border border-emerald-500/30">
-              <div className="flex justify-between items-center">
-                <div className="flex items-center gap-3">
-                  <div className="h-10 w-10 rounded-xl bg-emerald-500/30 flex items-center justify-center">
-                    <CircleDollarSign size={20} className="text-emerald-400" />
+                    <div className="flex items-center gap-2 px-4 py-3 bg-white/5 rounded-xl border border-white/5">
+                      <ShieldCheck size={14} className="text-emerald-500" />
+                      <span className="text-[9px] font-black text-slate-400 uppercase tracking-wider">{t("zatcaRequirement")}</span>
+                    </div>
                   </div>
-                  <span className="text-emerald-200 font-black">الإجمالي النهائي</span>
-                </div>
-                <div className="text-left">
-                  <span className="text-3xl font-black text-emerald-400 tracking-tight">
-                    {totals.totalWithVat.toLocaleString('en-US', { minimumFractionDigits: 2 })}
-                  </span>
-                  <span className="mr-2 text-sm font-bold text-emerald-300/70">ريال</span>
                 </div>
               </div>
             </div>
 
-            <div className="mt-6 p-4 bg-white/5 rounded-xl border border-white/10">
-              <div className="flex items-center gap-2 text-[10px] font-bold text-slate-400">
-                <BadgeCheck size={14} className="text-emerald-400" />
-                <span>متوافق مع متطلبات هيئة الزكاة والضريبة والجمارك ZATCA</span>
+            {/* Final Actions Section */}
+            <div className="pt-8 border-t border-gray-100">
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-6">
+                <Link href="/sales-invoices">
+                  <motion.button 
+                    whileHover={{ x: -5 }}
+                    whileTap={{ scale: 0.98 }}
+                    className="flex items-center gap-2 text-gray-400 hover:text-gray-600 transition-all font-black text-xs uppercase tracking-widest"
+                  >
+                    <ArrowRight size={16} className="rtl:rotate-180" />
+                    {t("cancelAndReturn")}
+                  </motion.button>
+                </Link>
+
+                <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
+                  <motion.button
+                    whileHover={{ y: -2 }}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={() => handleSave('draft')}
+                    disabled={loading}
+                    className="flex-1 sm:flex-none flex items-center justify-center gap-3 px-8 py-4 rounded-2xl bg-slate-100 text-slate-700 hover:bg-slate-200 font-black transition-all disabled:opacity-50 text-sm shadow-sm"
+                  >
+                    {loading ? <Loader2 size={18} className="animate-spin" /> : <Clock size={18} />}
+                    {t("saveAsDraft")}
+                  </motion.button>
+                  <motion.button
+                    whileHover={{ y: -3, scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={() => handleSave('due')}
+                    disabled={loading}
+                    className="flex-1 sm:flex-none flex items-center justify-center gap-3 px-10 py-4 rounded-2xl bg-emerald-500 hover:bg-emerald-600 text-white font-black transition-all disabled:opacity-50 text-sm shadow-xl shadow-emerald-500/20"
+                  >
+                    {loading ? <Loader2 size={18} className="animate-spin" /> : <FileCheck size={18} />}
+                    {t("saveAndIssue")}
+                  </motion.button>
+                </div>
               </div>
             </div>
-          </motion.div>
-        </div>
+          </div>
 
-        <motion.div
-          variants={itemVariants}
-          className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm"
-        >
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-            <Link href="/sales-invoices">
-              <motion.button 
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-gray-100 text-gray-700 hover:bg-gray-200 transition-all font-bold text-sm"
-              >
-                <ArrowRight size={18} />
-                إلغاء والعودة
-              </motion.button>
-            </Link>
-            
-            <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
-              <motion.button
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                onClick={() => handleSave('draft')}
-                disabled={loading}
-                className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-8 py-3.5 rounded-xl bg-gradient-to-r from-slate-600 to-slate-700 hover:from-slate-700 hover:to-slate-800 text-white font-black transition-all disabled:opacity-50 text-sm shadow-lg shadow-slate-500/20"
-              >
-                {loading ? <Loader2 size={18} className="animate-spin" /> : <Clock size={18} />}
-                حفظ كمسودة
-              </motion.button>
-              <motion.button
-                whileHover={{ scale: 1.02, y: -2 }}
-                whileTap={{ scale: 0.98 }}
-                onClick={() => handleSave('due')}
-                disabled={loading}
-                className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-8 py-3.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-black transition-all disabled:opacity-50 text-sm shadow-lg shadow-emerald-500/30"
-              >
-                {loading ? <Loader2 size={18} className="animate-spin" /> : <FileCheck size={18} />}
-                حفظ وإصدار الفاتورة
-              </motion.button>
+          {/* Footer Branding */}
+          <div className="bg-gray-50/50 px-8 py-4 border-t border-gray-100 flex flex-col md:flex-row justify-between items-center gap-4 text-[10px] font-black text-gray-300 uppercase tracking-[0.2em]">
+            <div className="flex items-center gap-2">
+              <Sparkles size={12} className="text-emerald-500" />
+              <span>{t("systemName")}</span>
             </div>
+            <span>{t("rightsReserved", { year: new Date().getFullYear() })}</span>
           </div>
-        </motion.div>
-
-        <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-[10px] font-black text-gray-400 uppercase tracking-widest pt-4">
-          <div className="flex items-center gap-2">
-            <Sparkles size={12} className="text-emerald-500" />
-            <span>نظام الفواتير الضريبية - Logistics Systems Pro</span>
-          </div>
-          <span>جميع الحقوق محفوظة © {new Date().getFullYear()}</span>
         </div>
       </motion.div>
     </div>
