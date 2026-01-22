@@ -599,23 +599,24 @@ export function ExpensesReportClient({ companyId }: ExpensesReportClientProps) {
                           {isExpanded && (
                             <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }}>
                               <div className="max-h-[300px] overflow-y-auto bg-white">
-                                <table className="w-full text-sm">
-                                  <thead className="bg-white sticky top-0 z-10 border-b-2 border-slate-200 text-xs">
-                                    <tr>
-                                      <th className="p-2 text-center font-extrabold w-[40px]">#</th>
-                                      <th className="p-2 text-center font-extrabold">{t("form.date")}</th>
-                                      <th className="p-2 text-center font-extrabold">{t("form.employee")}</th>
-                                      <th className="p-2 text-center font-extrabold">{t("form.iqamaNumber")}</th>
-                                      <th className="p-2 text-center font-extrabold">{t("form.amount")}</th>
-                                      <th className="p-2 text-center font-extrabold">{t("form.tax")}</th>
-                                      <th className="p-2 text-center font-extrabold">{t("form.net")}</th>
-                                      <th className="p-2 text-center font-extrabold">{t("form.account")}</th>
-                                      <th className="p-2 text-center font-extrabold print:hidden">{t("fleet.actions")}</th>
-                                    </tr>
-                                  </thead>
-                                  <tbody>
-                                    {expenses.map((expense, idx) => (
-                                      <tr key={expense.id} className="border-b border-slate-200 hover:bg-slate-50 transition-colors bg-white text-xs">
+                                  <table className="w-full text-sm">
+                                    <thead className="bg-blue-50/50 sticky top-0 z-10 border-b-2 border-blue-100 text-[11px] text-blue-900/70 uppercase tracking-wider">
+                                      <tr>
+                                        <th className="p-3 text-center font-black w-[40px]">#</th>
+                                        <th className="p-3 text-center font-black">{t("form.date")}</th>
+                                        <th className="p-3 text-center font-black">{t("form.employee")}</th>
+                                        <th className="p-3 text-center font-black">{t("form.iqamaNumber")}</th>
+                                        <th className="p-3 text-center font-black">{t("form.amount")}</th>
+                                        <th className="p-3 text-center font-black">{t("form.tax")}</th>
+                                        <th className="p-3 text-center font-black">{t("form.net")}</th>
+                                        <th className="p-3 text-center font-black">{t("form.account")}</th>
+                                        <th className="p-3 text-center font-black print:hidden">{t("fleet.actions")}</th>
+                                      </tr>
+                                    </thead>
+                                    <tbody>
+                                      {expenses.map((expense, idx) => (
+                                        <tr key={expense.id} className="border-b border-slate-100 hover:bg-blue-50/30 transition-colors bg-white text-xs">
+
                                         <td className="p-2 text-center">{idx + 1}</td>
                                         <td className="p-2 text-center">{formatDate(expense.expense_date)}</td>
                                         <td className="p-2 text-center font-bold">{expense.employee_name || "-"}</td>
@@ -691,21 +692,22 @@ export function ExpensesReportClient({ companyId }: ExpensesReportClientProps) {
                           {isExpanded && (
                             <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }}>
                               <div className="max-h-[300px] overflow-y-auto bg-white">
-                                <table className="w-full text-sm">
-                                  <thead className="bg-white sticky top-0 z-10 border-b-2 border-slate-200 text-xs">
-                                    <tr>
-                                      <th className="p-2 text-center font-extrabold w-[40px]">#</th>
-                                      <th className="p-2 text-center font-extrabold">{t("form.date")}</th>
-                                      <th className="p-2 text-center font-extrabold">{t("form.employee")}</th>
-                                      <th className="p-2 text-center font-extrabold">{t("form.iqamaNumber")}</th>
-                                      <th className="p-2 text-center font-extrabold">{t("form.amount")}</th>
-                                      <th className="p-2 text-center font-extrabold">{t("common.status")}</th>
-                                      <th className="p-2 text-center font-extrabold print:hidden">{t("fleet.actions")}</th>
-                                    </tr>
-                                  </thead>
-                                  <tbody>
-                                    {deductions.map((deduction, idx) => (
-                                      <tr key={deduction.id} className="border-b border-slate-200 hover:bg-slate-50 transition-colors bg-white text-xs">
+                                  <table className="w-full text-sm">
+                                    <thead className="bg-rose-50/50 sticky top-0 z-10 border-b-2 border-rose-100 text-[11px] text-rose-900/70 uppercase tracking-wider">
+                                      <tr>
+                                        <th className="p-3 text-center font-black w-[40px]">#</th>
+                                        <th className="p-3 text-center font-black">{t("form.date")}</th>
+                                        <th className="p-3 text-center font-black">{t("form.employee")}</th>
+                                        <th className="p-3 text-center font-black">{t("form.iqamaNumber")}</th>
+                                        <th className="p-3 text-center font-black">{t("form.amount")}</th>
+                                        <th className="p-3 text-center font-black">{t("common.status")}</th>
+                                        <th className="p-3 text-center font-black print:hidden">{t("fleet.actions")}</th>
+                                      </tr>
+                                    </thead>
+                                    <tbody>
+                                      {deductions.map((deduction, idx) => (
+                                        <tr key={deduction.id} className="border-b border-slate-100 hover:bg-rose-50/30 transition-colors bg-white text-xs">
+
                                         <td className="p-2 text-center">{idx + 1}</td>
                                         <td className="p-2 text-center">{formatDate(deduction.expense_date)}</td>
                                         <td className="p-2 text-center font-bold">{deduction.employee_name || "-"}</td>

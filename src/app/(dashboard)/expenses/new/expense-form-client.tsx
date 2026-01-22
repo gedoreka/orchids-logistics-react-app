@@ -529,22 +529,23 @@ export default function ExpenseFormClient({ user }: { user: User }) {
                 </div>
 
                 <div className="overflow-x-auto p-4">
-                  <table className="w-full text-start border-collapse min-w-[1000px]">
-                    <thead>
-                      <tr className="border-b border-slate-100 text-slate-500 text-sm">
-                        {headersMap[type] ? headersMap[type].map((h, i) => (
-                          <th key={i} className="px-4 py-3 font-semibold text-start">
-                            {t(`form.${h === 'التاريخ' ? 'date' : h === 'نوع المصروف' ? 'type' : h === 'المبلغ' ? 'amount' : h === 'ضريبة 15%' ? 'tax' : h === 'الصافي' ? 'net' : h === 'الحساب' ? 'account' : h === 'مركز التكلفة' ? 'costCenter' : h === 'الوصف' ? 'description' : h === 'المستند' || h === 'المستند*' ? 'document' : h === 'رقم الإقامة' ? 'iqamaNumber' : h === 'الموظف' ? 'employee' : h === 'السائق' ? 'driver' : 'delete'}`)}
-                          </th>
-                        )) : headersMap.default.map((h, i) => (
-                          <th key={i} className="px-4 py-3 font-semibold text-start">{t(`form.${h === 'التاريخ' ? 'date' : h === 'نوع المصروف' ? 'type' : h === 'المبلغ' ? 'amount' : h === 'الحساب' ? 'account' : h === 'مركز التكلفة' ? 'costCenter' : h === 'الوصف' ? 'description' : h === 'المستند' ? 'document' : 'delete'}`)}</th>
-                        ))}
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {rows.map((row) => (
-                        <tr key={row.id} className="border-b border-slate-50 hover:bg-slate-50/50 transition-colors">
-                          <td className="px-2 py-4">
+                    <table className="w-full text-start border-collapse min-w-[1000px]">
+                      <thead>
+                        <tr className="bg-blue-50/50 border-b border-blue-100 text-blue-900/70 text-xs uppercase tracking-wider">
+                          {headersMap[type] ? headersMap[type].map((h, i) => (
+                            <th key={i} className="px-4 py-4 font-bold text-start whitespace-nowrap">
+                              {t(`form.${h === 'التاريخ' ? 'date' : h === 'نوع المصروف' ? 'type' : h === 'المبلغ' ? 'amount' : h === 'ضريبة 15%' ? 'tax' : h === 'الصافي' ? 'net' : h === 'الحساب' ? 'account' : h === 'مركز التكلفة' ? 'costCenter' : h === 'الوصف' ? 'description' : h === 'المستند' || h === 'المستند*' ? 'document' : h === 'رقم الإقامة' ? 'iqamaNumber' : h === 'الموظف' ? 'employee' : h === 'السائق' ? 'driver' : 'delete'}`)}
+                            </th>
+                          )) : headersMap.default.map((h, i) => (
+                            <th key={i} className="px-4 py-4 font-bold text-start whitespace-nowrap">{t(`form.${h === 'التاريخ' ? 'date' : h === 'نوع المصروف' ? 'type' : h === 'المبلغ' ? 'amount' : h === 'الحساب' ? 'account' : h === 'مركز التكلفة' ? 'costCenter' : h === 'الوصف' ? 'description' : h === 'المستند' ? 'document' : 'delete'}`)}</th>
+                          ))}
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {rows.map((row) => (
+                          <tr key={row.id} className="bg-white border-b border-slate-100 hover:bg-blue-50/30 transition-colors group">
+                            <td className="px-2 py-4">
+
                             <input 
                               type="date" 
                               className="w-full bg-transparent border-none focus:ring-0 text-sm"

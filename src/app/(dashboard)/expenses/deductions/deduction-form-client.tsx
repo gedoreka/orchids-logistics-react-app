@@ -486,19 +486,20 @@ export default function DeductionFormClient({ user }: { user: User }) {
                 </button>
               </div>
 
-              <div className="overflow-x-auto p-4">
-                <table className="w-full text-start border-collapse min-w-[1000px]">
-                  <thead>
-                    <tr className="border-b border-slate-100 text-slate-500 text-sm">
-                      {headersMap[type].map((h, i) => (
-                        <th key={i} className="px-4 py-3 font-semibold text-start">{t(`form.${h}`)}</th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {rows.map((row) => (
-                      <tr key={row.id} className="border-b border-slate-50 hover:bg-slate-50/50 transition-colors">
-                        <td className="px-2 py-4">
+                <div className="overflow-x-auto p-4">
+                  <table className="w-full text-start border-collapse min-w-[1000px]">
+                    <thead>
+                      <tr className="bg-rose-50/50 border-b border-rose-100 text-rose-900/70 text-xs uppercase tracking-wider">
+                        {headersMap[type].map((h, i) => (
+                          <th key={i} className="px-4 py-4 font-bold text-start whitespace-nowrap">{t(`form.${h}`)}</th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {rows.map((row) => (
+                        <tr key={row.id} className="bg-white border-b border-slate-100 hover:bg-rose-50/30 transition-colors group">
+                          <td className="px-2 py-4">
+
                           <input 
                             type="date" 
                             className="w-full bg-transparent border-none focus:ring-0 text-sm"
