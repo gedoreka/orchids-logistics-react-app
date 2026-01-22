@@ -549,11 +549,11 @@ export function ExpensesReportClient({ companyId }: ExpensesReportClientProps) {
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="print:hidden">
           <div className="bg-gradient-to-r from-blue-100/80 via-rose-100/80 via-emerald-100/80 to-amber-100/80 backdrop-blur-xl p-2 rounded-[3rem] shadow-inner border border-white/50 inline-flex w-full">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-2 w-full">
-              {[
-                { id: "expenses", label: t("dashboard.addExpense"), icon: Wallet, color: "blue", gradient: "from-blue-500 to-blue-700" },
-                { id: "deductions", label: t("dashboard.addDeduction"), icon: HandCoins, color: "rose", gradient: "from-rose-500 to-rose-700" },
-                { id: "all", label: t("report.title"), icon: BarChart3, color: "purple", gradient: "from-blue-600 via-purple-600 to-rose-600" }
-              ].map((tab) => (
+                {[
+                  { id: "expenses", label: t("dashboard.expensesReport"), icon: Wallet, color: "blue", gradient: "from-blue-500 to-blue-700" },
+                  { id: "deductions", label: t("dashboard.deductionsReport"), icon: HandCoins, color: "rose", gradient: "from-rose-500 to-rose-700" },
+                  { id: "all", label: t("report.title"), icon: BarChart3, color: "purple", gradient: "from-blue-600 via-purple-600 to-rose-600" }
+                ].map((tab) => (
                 <button key={tab.id} onClick={() => setReportType(tab.id as any)} className={`relative flex items-center justify-center gap-4 p-4 rounded-[2.2rem] transition-all duration-500 ${reportType === tab.id ? `bg-gradient-to-r ${tab.gradient} text-white shadow-2xl scale-[1.02]` : "bg-transparent text-slate-600 hover:bg-white/60"}`}>
                   <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${reportType === tab.id ? "bg-white/20" : `bg-${tab.color}-100 text-${tab.color}-600`}`}>
                     <tab.icon className="w-6 h-6" />
