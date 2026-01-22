@@ -488,7 +488,7 @@
       "activeStatus": "Active",
       "onLeaveStatus": "On Leave",
       "noMatchingEmployees": "No employees match your search",
-      "tryDifferentSearch": "Try changing search or filter criteria",
+      "tryChangingSearch": "Try changing search or filter criteria",
       "totalEmployeesFooter": "Total Employees",
       "package": "Package",
       "systemManagement": "Employee Management System - Logistics Systems Pro",
@@ -754,30 +754,30 @@
     "vatInvoice": "Tax Invoice",
     "vatInvoiceEn": "VAT Invoice"
   },
+  "expenses": {
+    "title": "Monthly Expenses Center",
+    "subtitle": "Manage company expenses",
+    "accounts": {
+      "confirmDelete": "Confirm Delete",
+      "confirmDeleteMessage": "Are you sure you want to delete this operation? This action cannot be undone.",
+      "yesDelete": "Yes, Delete"
+    },
+    "common": {
+      "status": "Status",
+      "details": "Details",
+      "type": "Type",
+      "actions": "Actions",
+      "cancel": "Cancel",
+      "save": "Save",
+      "operationCount": "{count} operations"
+    },
+    "fleet": {
+      "print": "Print"
+    },
     "expenses": {
-      "title": "Monthly Expenses Center",
-      "subtitle": "Manage company expenses",
-      "accounts": {
-        "confirmDelete": "Confirm Delete",
-        "confirmDeleteMessage": "Are you sure you want to delete this operation? This action cannot be undone.",
-        "yesDelete": "Yes, Delete"
-      },
-        "common": {
-          "status": "Status",
-          "details": "Details",
-          "type": "Type",
-          "actions": "Actions",
-          "cancel": "Cancel",
-          "save": "Save",
-          "operationCount": "{count} operations"
-        },
-        "fleet": {
-          "print": "Print"
-        },
-        "expenses": {
-          "totalDeductions": "Total Deductions"
-        },
-        "dashboard": {
+      "totalDeductions": "Total Deductions"
+    },
+    "dashboard": {
       "title": "Monthly Expenses Center",
       "totalExpenses": "Total Expenses",
       "totalDeductions": "Total Deductions",
@@ -831,30 +831,30 @@
       "manualEntry": "Manual Entry",
       "employeeName": "Employee Name",
       "success": "Saved Successfully!",
-        "successDesc": "{count} expenses have been successfully recorded in the financial system.",
-          "backToCenter": "Back to Expenses Center"
-        },
-        "actions": {
-          "title": "Actions",
-          "view": "View",
-          "edit": "Edit",
-          "delete": "Delete"
-        },
-        "types": {
-          "iqama": "Iqama Expenses",
-          "iqama_renewal": "Iqama Issuance/Renewal",
-          "internet": "Internet",
-          "fuel": "Fuel Expenses",
-          "housing": "Housing Rent",
-          "maintenance": "Maintenance / Purchase",
-          "general": "General Expenses",
-          "traffic": "Traffic Violations",
-          "advances": "Advances",
-          "deductions": "Deductions",
-            "other": "Other",
-            "اصدار اقامة": "Iqama Issuance/Renewal",
-            "إصدار إقامة": "Iqama Issuance/Renewal"
-          },
+      "successDesc": "{count} expenses have been successfully recorded in the financial system.",
+      "backToCenter": "Back to Expenses Center"
+    },
+    "actions": {
+      "title": "Actions",
+      "view": "View",
+      "edit": "Edit",
+      "delete": "Delete"
+    },
+    "types": {
+      "iqama": "Iqama Expenses",
+      "iqama_renewal": "Iqama Issuance/Renewal",
+      "internet": "Internet",
+      "fuel": "Fuel Expenses",
+      "housing": "Housing Rent",
+      "maintenance": "Maintenance / Purchase",
+      "general": "General Expenses",
+      "traffic": "Traffic Violations",
+      "advances": "Advances",
+      "deductions": "Deductions",
+      "other": "Other",
+      "اصدار اقامة": "Iqama Issuance/Renewal",
+      "إصدار إقامة": "Iqama Issuance/Renewal"
+    },
     "deductions": {
       "title": "Add Monthly Deductions",
       "subtitle": "Record all monthly deductions and discounts for employees and the facility",

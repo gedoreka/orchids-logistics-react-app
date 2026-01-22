@@ -241,7 +241,6 @@ export function ExpensesReportClient({ companyId }: ExpensesReportClientProps) {
       if (!type) return "-";
       const typeLower = type.toLowerCase().trim();
       
-      // Map common Arabic names from DB to translation keys
       const mapping: Record<string, string> = {
         "اصدار اقامة": "iqama_renewal",
         "إصدار إقامة": "iqama_renewal",
@@ -263,9 +262,7 @@ export function ExpensesReportClient({ companyId }: ExpensesReportClientProps) {
       const key = mapping[typeLower] || typeLower;
       const translated = t(`types.${key}`);
       
-      // If translation key doesn't exist, it returns the key (e.g., 'expenses.types.something').
-      // We check if the result still contains the prefix to determine if translation failed.
-      if (translated.includes('types.')) {
+      if (translated === `expenses.types.${key}` || translated.includes('types.')) {
         return type;
       }
       
@@ -1100,17 +1097,25 @@ export function ExpensesReportClient({ companyId }: ExpensesReportClientProps) {
             </DialogContent>
           </Dialog>
   
-          <Dialog open={showDeleteModal} onOpenChange={setShowDeleteModal}>
-          <DialogContent className="max-w-md rtl text-center" dir="rtl">
-            <AlertTriangle className="w-16 h-16 text-red-500 mx-auto mb-4" />
-            <h3 className="text-xl font-bold">{t("accounts.confirmDelete")}</h3>
-            <p className="text-slate-500 my-4">{t("accounts.confirmDeleteMessage")}</p>
-            <div className="flex gap-3 justify-center">
-              <Button onClick={handleDelete} disabled={deleteLoading} className="bg-red-600 hover:bg-red-700 text-white">{deleteLoading ? <Loader2 className="animate-spin" /> : t("accounts.yesDelete")}</Button>
-              <Button onClick={() => setShowDeleteModal(false)} variant="outline">{t("common.cancel")}</Button>
-            </div>
-          </DialogContent>
-        </Dialog>
+    <Dialog open={showDeleteModal} onOpenChange={setShowDeleteModal}>
+      <DialogContent className="max-w-md rtl text-center" dir="rtl">
+        <DialogHeader>
+          <DialogTitle className="text-xl font-bold flex flex-col items-center gap-4">
+            <AlertTriangle className="w-16 h-16 text-red-500" />
+            {t("accounts.confirmDelete")}
+          </DialogTitle>
+        </DialogHeader>
+        <div className="py-4">
+          <p className="text-slate-500">{t("accounts.confirmDeleteMessage")}</p>
+        </div>
+        <DialogFooter className="flex gap-3 justify-center sm:justify-center">
+          <Button onClick={handleDelete} disabled={deleteLoading} className="bg-red-600 hover:bg-red-700 text-white">
+            {deleteLoading ? <Loader2 className="animate-spin" /> : t("accounts.yesDelete")}
+          </Button>
+          <Button onClick={() => setShowDeleteModal(false)} variant="outline">{t("common.cancel")}</Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
 
         <AnimatePresence>
           {notification.show && (

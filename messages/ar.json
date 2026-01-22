@@ -755,30 +755,30 @@
     "vatInvoice": "فاتورة ضريبية",
     "vatInvoiceEn": "VAT Invoice"
   },
+  "expenses": {
+    "title": "مركز المنصرفات الشهرية",
+    "subtitle": "إدارة مصروفات المنشأة",
+    "accounts": {
+      "confirmDelete": "تأكيد الحذف",
+      "confirmDeleteMessage": "هل أنت متأكد من حذف هذه العملية؟ لا يمكن التراجع عن هذا الإجراء.",
+      "yesDelete": "نعم، حذف"
+    },
+    "common": {
+      "status": "الحالة",
+      "details": "التفاصيل",
+      "type": "النوع",
+      "actions": "الإجراءات",
+      "cancel": "إلغاء",
+      "save": "حفظ",
+      "operationCount": "{count} عملية"
+    },
+    "fleet": {
+      "print": "طباعة"
+    },
     "expenses": {
-      "title": "مركز المنصرفات الشهرية",
-      "subtitle": "إدارة مصروفات المنشأة",
-      "accounts": {
-        "confirmDelete": "تأكيد الحذف",
-        "confirmDeleteMessage": "هل أنت متأكد من حذف هذه العملية؟ لا يمكن التراجع عن هذا الإجراء.",
-        "yesDelete": "نعم، حذف"
-      },
-        "common": {
-          "status": "الحالة",
-          "details": "التفاصيل",
-          "type": "النوع",
-          "actions": "الإجراءات",
-          "cancel": "إلغاء",
-          "save": "حفظ",
-          "operationCount": "{count} عملية"
-        },
-        "fleet": {
-          "print": "طباعة"
-        },
-        "expenses": {
-          "totalDeductions": "إجمالي الاستقطاعات"
-        },
-        "dashboard": {
+      "totalDeductions": "إجمالي الاستقطاعات"
+    },
+    "dashboard": {
       "title": "مركز المنصرفات الشهرية",
       "totalExpenses": "إجمالي المنصرفات",
       "totalDeductions": "إجمالي الاستقطاعات",
@@ -832,30 +832,30 @@
       "manualEntry": "إدخال يدوي",
       "employeeName": "اسم الموظف",
       "success": "تم الحفظ بنجاح!",
-        "successDesc": "تم تسجيل {count} مصروفاً بنجاح في النظام المالي.",
-          "backToCenter": "العودة لمركز المنصرفات"
-        },
-        "actions": {
-          "title": "إجراءات",
-          "view": "عرض",
-          "edit": "تعديل",
-          "delete": "حذف"
-        },
-        "types": {
-          "iqama": "منصرفات إقامة",
-          "iqama_renewal": "إصدار/تجديد إقامة",
-          "internet": "إنترنت",
-          "fuel": "منصرفات وقود",
-          "housing": "إيجار سكن",
-          "maintenance": "صيانة / شراء",
-          "general": "مصاريف عامة",
-          "traffic": "مخالفات مرورية",
-          "advances": "السلفيات",
-          "deductions": "استقطاعات",
-            "other": "أخرى",
-            "اصدار اقامة": "إصدار/تجديد إقامة",
-            "إصدار إقامة": "إصدار/تجديد إقامة"
-          },
+      "successDesc": "تم تسجيل {count} مصروفاً بنجاح في النظام المالي.",
+      "backToCenter": "العودة لمركز المنصرفات"
+    },
+    "actions": {
+      "title": "إجراءات",
+      "view": "عرض",
+      "edit": "تعديل",
+      "delete": "حذف"
+    },
+    "types": {
+      "iqama": "منصرفات إقامة",
+      "iqama_renewal": "إصدار/تجديد إقامة",
+      "internet": "إنترنت",
+      "fuel": "منصرفات وقود",
+      "housing": "إيجار سكن",
+      "maintenance": "صيانة / شراء",
+      "general": "مصاريف عامة",
+      "traffic": "مخالفات مرورية",
+      "advances": "السلفيات",
+      "deductions": "استقطاعات",
+      "other": "أخرى",
+      "اصدار اقامة": "إصدار/تجديد إقامة",
+      "إصدار إقامة": "إصدار/تجديد إقامة"
+    },
     "deductions": {
       "title": "إضافة استقطاعات شهرية",
       "subtitle": "تسجيل كافة الاستقطاعات والخصومات الشهرية للموظفين والمنشأة",
