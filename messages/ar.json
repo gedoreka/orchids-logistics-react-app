@@ -755,10 +755,22 @@
     "vatInvoice": "فاتورة ضريبية",
     "vatInvoiceEn": "VAT Invoice"
   },
-  "expenses": {
-    "title": "مركز المنصرفات الشهرية",
-    "subtitle": "إدارة مصروفات المنشأة",
-    "dashboard": {
+    "expenses": {
+      "title": "مركز المنصرفات الشهرية",
+      "subtitle": "إدارة مصروفات المنشأة",
+      "accounts": {
+        "confirmDelete": "تأكيد الحذف",
+        "confirmDeleteMessage": "هل أنت متأكد من حذف هذه العملية؟ لا يمكن التراجع عن هذا الإجراء.",
+        "yesDelete": "نعم، حذف"
+      },
+      "common": {
+        "status": "الحالة",
+        "details": "التفاصيل",
+        "type": "النوع",
+        "actions": "الإجراءات",
+        "cancel": "إلغاء"
+      },
+      "dashboard": {
       "title": "مركز المنصرفات الشهرية",
       "totalExpenses": "إجمالي المنصرفات",
       "totalDeductions": "إجمالي الاستقطاعات",

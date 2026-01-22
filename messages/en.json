@@ -754,10 +754,22 @@
     "vatInvoice": "Tax Invoice",
     "vatInvoiceEn": "VAT Invoice"
   },
-  "expenses": {
-    "title": "Monthly Expenses Center",
-    "subtitle": "Manage company expenses",
-    "dashboard": {
+    "expenses": {
+      "title": "Monthly Expenses Center",
+      "subtitle": "Manage company expenses",
+      "accounts": {
+        "confirmDelete": "Confirm Delete",
+        "confirmDeleteMessage": "Are you sure you want to delete this operation? This action cannot be undone.",
+        "yesDelete": "Yes, Delete"
+      },
+      "common": {
+        "status": "Status",
+        "details": "Details",
+        "type": "Type",
+        "actions": "Actions",
+        "cancel": "Cancel"
+      },
+      "dashboard": {
       "title": "Monthly Expenses Center",
       "totalExpenses": "Total Expenses",
       "totalDeductions": "Total Deductions",

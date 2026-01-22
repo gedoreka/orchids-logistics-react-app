@@ -645,31 +645,31 @@ export function ExpensesReportClient({ companyId }: ExpensesReportClientProps) {
                                                   <span className="text-[8px] text-slate-400 truncate max-w-[80px]">{expense.center_name}</span>
                                                 </div>
                                               </td>
-                                              <td className="p-1 text-center print:hidden">
-                                                <div className="flex items-center justify-center -space-x-px">
-                                                  <Button 
-                                                    variant="outline" 
-                                                    onClick={() => showItemDetails(expense)} 
-                                                    className="h-7 px-2 text-[9px] font-bold text-blue-600 border-slate-200 rounded-none rounded-r-md hover:bg-blue-50 hover:border-blue-200 z-10"
-                                                  >
-                                                    {t("actions.view")}
-                                                  </Button>
-                                                  <Button 
-                                                    variant="outline" 
-                                                    onClick={() => handleEditClick(expense)} 
-                                                    className="h-7 px-2 text-[9px] font-bold text-amber-600 border-slate-200 rounded-none border-r-0 hover:bg-amber-50 hover:border-amber-200 z-20"
-                                                  >
-                                                    {t("actions.edit")}
-                                                  </Button>
-                                                  <Button 
-                                                    variant="outline" 
-                                                    onClick={() => handleDeleteClick(expense)} 
-                                                    className="h-7 px-2 text-[9px] font-bold text-rose-600 border-slate-200 rounded-none rounded-l-md border-r-0 hover:bg-rose-50 hover:border-rose-200 z-30"
-                                                  >
-                                                    {t("actions.delete")}
-                                                  </Button>
-                                                </div>
-                                              </td>
+                                                <td className="p-1 text-center print:hidden">
+                                                  <div className="flex items-center justify-center -space-x-px">
+                                                    <Button 
+                                                      variant="outline" 
+                                                      onClick={() => showItemDetails(expense)} 
+                                                      className="h-9 px-3 text-xs font-bold text-blue-600 border-slate-200 rounded-none rounded-r-md hover:bg-blue-50 hover:border-blue-200 z-10"
+                                                    >
+                                                      {t("actions.view")}
+                                                    </Button>
+                                                    <Button 
+                                                      variant="outline" 
+                                                      onClick={() => handleEditClick(expense)} 
+                                                      className="h-9 px-3 text-xs font-bold text-amber-600 border-slate-200 rounded-none border-r-0 hover:bg-amber-50 hover:border-amber-200 z-20"
+                                                    >
+                                                      {t("actions.edit")}
+                                                    </Button>
+                                                    <Button 
+                                                      variant="outline" 
+                                                      onClick={() => handleDeleteClick(expense)} 
+                                                      className="h-9 px-3 text-xs font-bold text-rose-600 border-slate-200 rounded-none rounded-l-md border-r-0 hover:bg-rose-50 hover:border-rose-200 z-30"
+                                                    >
+                                                      {t("actions.delete")}
+                                                    </Button>
+                                                  </div>
+                                                </td>
                                             </tr>
                                           ))}
                                         </tbody>
@@ -788,31 +788,31 @@ export function ExpensesReportClient({ companyId }: ExpensesReportClientProps) {
                                                   </motion.div>
                                                 </div>
                                               </td>
-                                              <td className="p-1 text-center print:hidden">
-                                                <div className="flex items-center justify-center -space-x-px">
-                                                  <Button 
-                                                    variant="outline" 
-                                                    onClick={() => showItemDetails(deduction)} 
-                                                    className="h-7 px-2 text-[9px] font-bold text-blue-600 border-slate-200 rounded-none rounded-r-md hover:bg-blue-50 hover:border-blue-200 z-10"
-                                                  >
-                                                    {t("actions.view")}
-                                                  </Button>
-                                                  <Button 
-                                                    variant="outline" 
-                                                    onClick={() => handleEditClick(deduction)} 
-                                                    className="h-7 px-2 text-[9px] font-bold text-amber-600 border-slate-200 rounded-none border-r-0 hover:bg-amber-50 hover:border-amber-200 z-20"
-                                                  >
-                                                    {t("actions.edit")}
-                                                  </Button>
-                                                  <Button 
-                                                    variant="outline" 
-                                                    onClick={() => handleDeleteClick(deduction)} 
-                                                    className="h-7 px-2 text-[9px] font-bold text-rose-600 border-slate-200 rounded-none rounded-l-md border-r-0 hover:bg-rose-50 hover:border-rose-200 z-30"
-                                                  >
-                                                    {t("actions.delete")}
-                                                  </Button>
-                                                </div>
-                                              </td>
+                                                <td className="p-1 text-center print:hidden">
+                                                  <div className="flex items-center justify-center -space-x-px">
+                                                    <Button 
+                                                      variant="outline" 
+                                                      onClick={() => showItemDetails(deduction)} 
+                                                      className="h-9 px-3 text-xs font-bold text-blue-600 border-slate-200 rounded-none rounded-r-md hover:bg-blue-50 hover:border-blue-200 z-10"
+                                                    >
+                                                      {t("actions.view")}
+                                                    </Button>
+                                                    <Button 
+                                                      variant="outline" 
+                                                      onClick={() => handleEditClick(deduction)} 
+                                                      className="h-9 px-3 text-xs font-bold text-amber-600 border-slate-200 rounded-none border-r-0 hover:bg-amber-50 hover:border-amber-200 z-20"
+                                                    >
+                                                      {t("actions.edit")}
+                                                    </Button>
+                                                    <Button 
+                                                      variant="outline" 
+                                                      onClick={() => handleDeleteClick(deduction)} 
+                                                      className="h-9 px-3 text-xs font-bold text-rose-600 border-slate-200 rounded-none rounded-l-md border-r-0 hover:bg-rose-50 hover:border-rose-200 z-30"
+                                                    >
+                                                      {t("actions.delete")}
+                                                    </Button>
+                                                  </div>
+                                                </td>
                                             </tr>
                                           ))}
                                         </tbody>
@@ -932,9 +932,140 @@ export function ExpensesReportClient({ companyId }: ExpensesReportClientProps) {
                 </div>
               )}
             </DialogContent>
+            </Dialog>
+  
+          <Dialog open={showEditModal} onOpenChange={setShowEditModal}>
+            <DialogContent className="max-w-3xl rtl" dir="rtl">
+              <DialogHeader className="bg-gradient-to-r from-amber-500 to-amber-600 text-white p-4 -m-6 mb-4 rounded-t-lg">
+                <DialogTitle className="flex items-center gap-2 text-lg font-bold">
+                  <Pencil className="w-6 h-6" /> {t("actions.edit")}
+                </DialogTitle>
+              </DialogHeader>
+              <div className="grid grid-cols-2 gap-4 p-2 max-h-[70vh] overflow-y-auto">
+                <div className="space-y-2">
+                  <Label>{t("form.date")}</Label>
+                  <Input 
+                    type="date" 
+                    value={editForm.expense_date || ""} 
+                    onChange={(e) => setEditForm({...editForm, expense_date: e.target.value})}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>{t("common.type")}</Label>
+                  <Input 
+                    disabled 
+                    value={editForm.expense_type ? t(`types.${editForm.expense_type.toLowerCase()}`) : ""} 
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>{t("form.employee")}</Label>
+                  <Input 
+                    value={editForm.employee_name || ""} 
+                    onChange={(e) => setEditForm({...editForm, employee_name: e.target.value})}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>{t("form.iqamaNumber")}</Label>
+                  <Input 
+                    value={editForm.employee_iqama || ""} 
+                    onChange={(e) => setEditForm({...editForm, employee_iqama: e.target.value})}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>{t("form.amount")}</Label>
+                  <Input 
+                    type="number" 
+                    value={editForm.amount || 0} 
+                    onChange={(e) => {
+                      const val = parseFloat(e.target.value);
+                      const tax = "tax_value" in editForm ? val * 0.15 : 0;
+                      setEditForm({
+                        ...editForm, 
+                        amount: val, 
+                        tax_value: tax,
+                        net_amount: "tax_value" in editForm ? val - tax : val
+                      });
+                    }}
+                  />
+                </div>
+                {"tax_value" in editForm && (
+                  <>
+                    <div className="space-y-2">
+                      <Label>{t("form.tax")}</Label>
+                      <Input disabled value={formatNumber(editForm.tax_value || 0)} />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>{t("form.net")}</Label>
+                      <Input disabled value={formatNumber(editForm.net_amount || 0)} />
+                    </div>
+                  </>
+                )}
+                <div className="space-y-2">
+                  <Label>{t("form.account")}</Label>
+                  <Select 
+                    value={editForm.account_id?.toString()} 
+                    onValueChange={(val) => setEditForm({...editForm, account_id: val})}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder={t("form.account")} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {accounts.map(acc => (
+                        <SelectItem key={acc.id} value={acc.id.toString()}>{acc.account_code} - {acc.account_name}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label>{t("form.costCenter")}</Label>
+                  <Select 
+                    value={editForm.cost_center_id?.toString()} 
+                    onValueChange={(val) => setEditForm({...editForm, cost_center_id: val})}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder={t("form.costCenter")} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {costCenters.map(center => (
+                        <SelectItem key={center.id} value={center.id.toString()}>{center.center_code} - {center.center_name}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="col-span-2 space-y-2">
+                  <Label>{t("form.description")}</Label>
+                  <Textarea 
+                    value={editForm.description || ""} 
+                    onChange={(e) => setEditForm({...editForm, description: e.target.value})}
+                  />
+                </div>
+                <div className="col-span-2 space-y-2">
+                  <Label>{t("form.document")}</Label>
+                  <div className="flex items-center gap-4">
+                    {editForm.attachment && !editForm.newFile && (
+                      <div className="flex items-center gap-2 text-xs text-blue-600 bg-blue-50 px-3 py-1 rounded-lg">
+                        <Paperclip className="w-3 h-3" />
+                        <span>مرفق موجود</span>
+                      </div>
+                    )}
+                    <Input 
+                      type="file" 
+                      onChange={(e) => setEditForm({...editForm, newFile: e.target.files?.[0] || null})}
+                    />
+                  </div>
+                </div>
+              </div>
+              <DialogFooter className="gap-2">
+                <Button onClick={handleEditSubmit} disabled={editLoading} className="bg-amber-600 hover:bg-amber-700 text-white">
+                  {editLoading ? <Loader2 className="animate-spin" /> : <Save className="w-4 h-4 ml-2" />}
+                  {t("common.save")}
+                </Button>
+                <Button onClick={() => setShowEditModal(false)} variant="outline">{t("common.cancel")}</Button>
+              </DialogFooter>
+            </DialogContent>
           </Dialog>
-
-        <Dialog open={showDeleteModal} onOpenChange={setShowDeleteModal}>
+  
+          <Dialog open={showDeleteModal} onOpenChange={setShowDeleteModal}>
           <DialogContent className="max-w-md rtl text-center" dir="rtl">
             <AlertTriangle className="w-16 h-16 text-red-500 mx-auto mb-4" />
             <h3 className="text-xl font-bold">{t("accounts.confirmDelete")}</h3>
