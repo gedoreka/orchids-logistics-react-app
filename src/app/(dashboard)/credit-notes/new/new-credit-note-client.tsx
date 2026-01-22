@@ -24,13 +24,15 @@ import {
   CheckCircle,
   AlertCircle,
   Receipt,
-  TrendingDown
+  TrendingDown,
+  ChevronLeft
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import { useTranslations, useLocale } from "@/lib/locale-context";
 
 interface Invoice {
   id: number;
@@ -47,6 +49,8 @@ interface NewCreditNoteClientProps {
 }
 
 export function NewCreditNoteClient({ invoices }: NewCreditNoteClientProps) {
+  const t = useTranslations('creditNotes');
+  const { locale } = useLocale();
   const router = useRouter();
   const [selectedInvoiceId, setSelectedInvoiceId] = useState<string>("");
   const [reason, setReason] = useState("");
@@ -78,17 +82,17 @@ export function NewCreditNoteClient({ invoices }: NewCreditNoteClientProps) {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedInvoiceId || !reason || !amount) {
-      toast.error("يرجى ملء جميع الحقول المطلوبة");
+      toast.error(t('new.fillingRequired'));
       return;
     }
 
     if (parseFloat(amount) > availableAmount) {
-      toast.error(`المبلغ لا يمكن أن يتجاوز الحد المتاح (${availableAmount.toFixed(2)} ريال)`);
+      toast.error(`${t('new.amountExceedsLimit')} (${availableAmount.toFixed(2)} ${locale === 'ar' ? 'ريال' : 'SAR'})`);
       return;
     }
 
     setLoading(true);
-    showNotification("loading", "جاري الحفظ", "جاري إنشاء إشعار الدائن...");
+    showNotification("loading", t('new.saving'), t('new.creatingNote'));
 
     try {
       const res = await fetch("/api/credit-notes", {
@@ -103,16 +107,16 @@ export function NewCreditNoteClient({ invoices }: NewCreditNoteClientProps) {
 
       const data = await res.json();
       if (data.success) {
-        showNotification("success", "تم الحفظ", "تم إنشاء إشعار الدائن بنجاح");
+        showNotification("success", t('new.save'), t('new.saveSuccess'));
         setTimeout(() => {
           router.push("/credit-notes");
           router.refresh();
         }, 1500);
       } else {
-        showNotification("error", "خطأ", data.error || "فشل إنشاء إشعار الدائن");
+        showNotification("error", t('errors.error') || 'Error', data.error || t('new.saveError'));
       }
     } catch (err) {
-      showNotification("error", "خطأ", "حدث خطأ أثناء الاتصال بالخادم");
+      showNotification("error", t('errors.error') || 'Error', t('new.connectionError'));
     } finally {
       setLoading(false);
     }
@@ -132,7 +136,7 @@ export function NewCreditNoteClient({ invoices }: NewCreditNoteClientProps) {
   };
 
   return (
-    <div className="min-h-screen pb-20">
+    <div className="min-h-screen pb-20 bg-transparent">
       <AnimatePresence>
         {notification.show && (
           <motion.div
@@ -162,433 +166,474 @@ export function NewCreditNoteClient({ invoices }: NewCreditNoteClientProps) {
         variants={containerVariants}
         initial="hidden"
         animate="visible"
-        className="max-w-[90%] mx-auto px-4 pt-6 space-y-6"
+        className="max-w-[98%] mx-auto px-4 pt-6"
       >
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-          <motion.div 
-            variants={itemVariants}
-            className="flex items-center gap-3"
-          >
-            <div className="h-12 w-12 rounded-2xl bg-gradient-to-br from-rose-500 to-pink-600 flex items-center justify-center shadow-lg shadow-rose-500/30">
-              <ReceiptText className="text-white" size={22} />
-            </div>
-            <div>
-              <div className="flex items-center gap-2 text-xs font-bold text-gray-400">
-                <Link href="/dashboard" className="hover:text-rose-600 transition-colors flex items-center gap-1">
-                  <LayoutDashboard size={12} />
-                  لوحة التحكم
-                </Link>
-                <ArrowRight size={12} />
-                <Link href="/credit-notes" className="hover:text-rose-600 transition-colors">
-                  إشعارات الدائن
-                </Link>
-                <ArrowRight size={12} />
-                <span className="text-rose-600">إنشاء إشعار جديد</span>
-              </div>
-              <h1 className="text-xl font-black text-gray-900">إنشاء إشعار دائن جديد</h1>
-            </div>
-          </motion.div>
-
-          <motion.div 
-            variants={itemVariants}
-            className="flex items-center gap-3"
-          >
-            <div className="hidden md:flex items-center gap-2 px-4 py-2 bg-rose-50 border border-rose-200 rounded-xl">
-              <div className="w-2 h-2 rounded-full bg-rose-500 animate-pulse"></div>
-              <span className="text-xs font-black text-rose-700">متوافق مع ZATCA</span>
-            </div>
-          </motion.div>
-        </div>
-
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-          <motion.div variants={itemVariants}>
-            <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-slate-600 to-slate-800 p-5 shadow-lg shadow-slate-500/20">
-              <div className="flex items-start justify-between">
-                <div className="text-white/90"><Hash size={22} /></div>
-                <span className="text-[10px] font-black text-white/70 bg-white/10 px-2 py-0.5 rounded-full">جديد</span>
-              </div>
-              <div className="mt-4">
-                <p className="text-white/70 text-[10px] font-black uppercase tracking-wider">الفاتورة المرتبطة</p>
-                <p className="text-lg font-black text-white mt-1 truncate">
-                  {selectedInvoice?.invoice_number || '---'}
-                </p>
-                <p className="text-white/60 text-[10px] font-bold mt-1">مرتجع ضريبي</p>
-              </div>
-              <div className="absolute -bottom-4 -left-4 w-24 h-24 bg-white/10 rounded-full blur-2xl"></div>
-            </div>
-          </motion.div>
+        {/* Unified Professional Card */}
+        <div className="bg-white rounded-3xl border border-gray-100 shadow-2xl shadow-gray-200/50 overflow-hidden flex flex-col">
           
-          <motion.div variants={itemVariants}>
-            <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-rose-500 to-pink-600 p-5 shadow-lg shadow-rose-500/30">
-              <div className="flex items-start justify-between">
-                <div className="text-white/90"><TrendingDown size={22} /></div>
-              </div>
-              <div className="mt-4">
-                <p className="text-white/70 text-[10px] font-black uppercase tracking-wider">المبلغ قبل الضريبة</p>
-                <p className="text-2xl font-black text-white mt-1">
-                  {calculations.beforeVat.toLocaleString('en-US', { minimumFractionDigits: 2 })}
-                  <span className="text-sm text-white/70 mr-1">ريال</span>
-                </p>
-                <p className="text-white/60 text-[10px] font-bold mt-1">Net Amount</p>
-              </div>
-              <div className="absolute -bottom-4 -left-4 w-24 h-24 bg-white/10 rounded-full blur-2xl"></div>
-            </div>
-          </motion.div>
-          
-          <motion.div variants={itemVariants}>
-            <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-amber-500 to-orange-600 p-5 shadow-lg shadow-amber-500/30">
-              <div className="flex items-start justify-between">
-                <div className="text-white/90"><Percent size={22} /></div>
-                <span className="text-[10px] font-black text-white/90 bg-white/20 px-2 py-0.5 rounded-full">15%</span>
-              </div>
-              <div className="mt-4">
-                <p className="text-white/70 text-[10px] font-black uppercase tracking-wider">ضريبة مسترجعة</p>
-                <p className="text-2xl font-black text-white mt-1">
-                  {calculations.vatAmount.toLocaleString('en-US', { minimumFractionDigits: 2 })}
-                  <span className="text-sm text-white/70 mr-1">ريال</span>
-                </p>
-                <p className="text-white/60 text-[10px] font-bold mt-1">VAT Refund</p>
-              </div>
-              <div className="absolute -bottom-4 -left-4 w-24 h-24 bg-white/10 rounded-full blur-2xl"></div>
-            </div>
-          </motion.div>
-          
-          <motion.div variants={itemVariants}>
-            <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 p-5 shadow-lg shadow-emerald-500/30">
-              <div className="flex items-start justify-between">
-                <div className="text-white/90"><CircleDollarSign size={22} /></div>
-              </div>
-              <div className="mt-4">
-                <p className="text-white/70 text-[10px] font-black uppercase tracking-wider">الإجمالي</p>
-                <p className="text-2xl font-black text-white mt-1">
-                  {calculations.total.toLocaleString('en-US', { minimumFractionDigits: 2 })}
-                  <span className="text-sm text-white/70 mr-1">ريال</span>
-                </p>
-                <p className="text-white/60 text-[10px] font-bold mt-1">شامل الضريبة</p>
-              </div>
-              <div className="absolute -bottom-4 -left-4 w-24 h-24 bg-white/10 rounded-full blur-2xl"></div>
-            </div>
-          </motion.div>
-        </div>
-
-        <form onSubmit={handleSubmit} className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-2 space-y-6">
-            <motion.div
-              variants={itemVariants}
-              className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden"
-            >
-              <div className="bg-gradient-to-r from-blue-600 to-indigo-600 px-6 py-4">
-                <div className="flex items-center gap-3">
-                  <div className="h-10 w-10 rounded-xl bg-white/20 flex items-center justify-center">
-                    <FileText className="text-white" size={20} />
-                  </div>
-                  <div>
-                    <h3 className="text-white font-black">تفاصيل الفاتورة والسبب</h3>
-                    <p className="text-blue-200 text-xs font-bold">اختر الفاتورة وأدخل سبب المرتجع</p>
-                  </div>
-                </div>
-              </div>
-              
-              <div className="p-6 space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <label className="text-xs font-black text-gray-500 uppercase flex items-center gap-1.5">
-                      <Hash size={14} className="text-blue-500" />
-                      اختر الفاتورة الضريبية
-                    </label>
-                    <div className="relative">
-                      <Receipt className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
-                      <select
-                        className="w-full h-14 pr-12 pl-4 rounded-xl bg-gray-50 border-2 border-transparent text-sm font-bold focus:border-blue-500/30 focus:bg-white outline-none transition-all appearance-none cursor-pointer"
-                        value={selectedInvoiceId}
-                        onChange={(e) => setSelectedInvoiceId(e.target.value)}
-                        required
-                      >
-                        <option value="">-- اختر فاتورة من القائمة --</option>
-                        {invoices.map(inv => (
-                          <option key={inv.id} value={inv.id.toString()}>
-                            {inv.invoice_number} - {inv.client_name} ({parseFloat(String(inv.total_amount)).toLocaleString()} ريال)
-                          </option>
-                        ))}
-                      </select>
-                      <ChevronDown className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
-                    </div>
-                  </div>
-
-                  <div className="space-y-2">
-                    <label className="text-xs font-black text-gray-500 uppercase flex items-center gap-1.5">
-                      <User size={14} className="text-blue-500" />
-                      اسم العميل
-                    </label>
-                    <div className="relative">
-                      <Building2 className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
-                      <input
-                        type="text"
-                        className="w-full h-14 pr-12 pl-4 rounded-xl bg-gray-100 border-2 border-transparent text-sm font-bold text-gray-500 cursor-not-allowed"
-                        value={selectedInvoice?.client_name || "سيتم التحديد تلقائياً"}
-                        readOnly
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                {selectedInvoice && (
-                  <motion.div
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="p-4 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl border border-blue-100"
-                  >
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                      <div className="flex flex-col">
-                        <span className="text-[10px] font-bold text-gray-400 uppercase">إجمالي الفاتورة</span>
-                        <span className="text-sm font-black text-gray-800">
-                          {parseFloat(String(selectedInvoice.total_amount)).toLocaleString()} ريال
-                        </span>
-                      </div>
-                      <div className="flex flex-col">
-                        <span className="text-[10px] font-bold text-gray-400 uppercase">المرتجع السابق</span>
-                        <span className="text-sm font-black text-rose-600">
-                          {parseFloat(String(selectedInvoice.total_issued)).toLocaleString()} ريال
-                        </span>
-                      </div>
-                      <div className="flex flex-col">
-                        <span className="text-[10px] font-bold text-gray-400 uppercase">المتاح للإرجاع</span>
-                        <span className="text-sm font-black text-emerald-600">
-                          {availableAmount.toLocaleString()} ريال
-                        </span>
-                      </div>
-                      <div className="flex flex-col">
-                        <span className="text-[10px] font-bold text-gray-400 uppercase">الرقم الضريبي</span>
-                        <span className="text-sm font-black text-gray-800">
-                          {selectedInvoice.client_vat || 'غير متوفر'}
-                        </span>
-                      </div>
-                    </div>
-                  </motion.div>
-                )}
-
-                <div className="space-y-2">
-                  <label className="text-xs font-black text-gray-500 uppercase flex items-center gap-1.5">
-                    <MessageSquare size={14} className="text-blue-500" />
-                    سبب إشعار الدائن
-                  </label>
-                  <textarea
-                    className="w-full px-4 py-4 rounded-xl bg-gray-50 border-2 border-transparent text-sm font-bold focus:border-blue-500/30 focus:bg-white outline-none transition-all min-h-[120px] resize-none"
-                    placeholder="أدخل سبب المرتجع بالتفصيل (مثال: إرجاع بضاعة تالفة، خصم متفق عليه، إلخ...)"
-                    value={reason}
-                    onChange={(e) => setReason(e.target.value)}
-                    required
-                  />
-                </div>
-              </div>
-            </motion.div>
-
-            <motion.div
-              variants={itemVariants}
-              className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden"
-            >
-              <div className="bg-gradient-to-r from-amber-500 to-orange-500 px-6 py-4">
-                <div className="flex items-center gap-3">
-                  <div className="h-10 w-10 rounded-xl bg-white/20 flex items-center justify-center">
-                    <Calculator className="text-white" size={20} />
-                  </div>
-                  <div>
-                    <h3 className="text-white font-black">المبالغ والضريبة</h3>
-                    <p className="text-amber-200 text-xs font-bold">أدخل المبلغ المراد إرجاعه</p>
-                  </div>
-                </div>
-              </div>
-              
-              <div className="p-6">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div className="space-y-2">
-                    <label className="text-xs font-black text-gray-500 uppercase flex items-center gap-1.5">
-                      <Coins size={14} className="text-emerald-500" />
-                      المبلغ (شامل الضريبة)
-                    </label>
-                    <div className="relative">
-                      <input
-                        type="number"
-                        step="0.01"
-                        className="w-full h-14 px-4 rounded-xl bg-rose-50 border-2 border-rose-200 text-sm font-black focus:border-rose-400 focus:bg-white outline-none transition-all text-rose-600"
-                        placeholder="0.00"
-                        value={amount}
-                        onChange={(e) => setAmount(e.target.value)}
-                        max={availableAmount}
-                        required
-                      />
-                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-xs font-black text-gray-400">ريال</span>
-                    </div>
-                    {selectedInvoiceId && (
-                      <p className="text-[10px] font-black text-gray-400">
-                        الحد الأقصى: <span className="text-rose-600">{availableAmount.toLocaleString()} ريال</span>
-                      </p>
-                    )}
-                  </div>
-
-                  <div className="space-y-2">
-                    <label className="text-xs font-black text-gray-500 uppercase flex items-center gap-1.5">
-                      <Calculator size={14} className="text-slate-400" />
-                      المبلغ قبل الضريبة
-                    </label>
-                    <div className="w-full h-14 px-4 rounded-xl bg-gray-100 border-2 border-gray-200 flex items-center justify-between">
-                      <span className="text-sm font-black text-gray-600">
-                        {calculations.beforeVat.toLocaleString('en-US', { minimumFractionDigits: 2 })}
-                      </span>
-                      <span className="text-xs font-black text-gray-400">ريال</span>
-                    </div>
-                  </div>
-
-                  <div className="space-y-2">
-                    <label className="text-xs font-black text-gray-500 uppercase flex items-center gap-1.5">
-                      <Percent size={14} className="text-amber-500" />
-                      قيمة الضريبة (15%)
-                    </label>
-                    <div className="w-full h-14 px-4 rounded-xl bg-amber-50 border-2 border-amber-200 flex items-center justify-between">
-                      <span className="text-sm font-black text-amber-700">
-                        {calculations.vatAmount.toLocaleString('en-US', { minimumFractionDigits: 2 })}
-                      </span>
-                      <span className="text-xs font-black text-amber-500">ريال</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </motion.div>
-          </div>
-
-          <div className="space-y-6">
-            <motion.div
-              variants={itemVariants}
-              className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl shadow-2xl p-6 text-white"
-            >
-              <div className="flex items-center gap-3 mb-6">
-                <div className="h-12 w-12 rounded-xl bg-white/10 flex items-center justify-center">
-                  <Calculator className="text-rose-400" size={24} />
+          {/* Luxury Integrated Header */}
+          <div className="p-8 space-y-8 bg-gradient-to-b from-gray-50/50 to-white border-b border-gray-100">
+            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+              <div className="flex items-center gap-4">
+                <div className="h-14 w-14 rounded-2xl bg-gradient-to-br from-rose-500 to-pink-600 flex items-center justify-center shadow-lg shadow-rose-500/30">
+                  <ReceiptText className="text-white" size={28} />
                 </div>
                 <div>
-                  <h3 className="font-black text-lg">ملخص المرتجع</h3>
-                  <p className="text-slate-400 text-xs font-bold">حساب تلقائي للضريبة</p>
+                  <div className="flex items-center gap-2 text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">
+                    <Link href="/dashboard" className="hover:text-rose-600 transition-colors flex items-center gap-1">
+                      <LayoutDashboard size={12} />
+                      {locale === 'ar' ? 'لوحة التحكم' : 'Dashboard'}
+                    </Link>
+                    <ArrowRight size={10} className={cn(locale === 'ar' && "rotate-180")} />
+                    <Link href="/credit-notes" className="hover:text-rose-600 transition-colors">
+                      {t('breadcrumb')}
+                    </Link>
+                    <ArrowRight size={10} className={cn(locale === 'ar' && "rotate-180")} />
+                    <span className="text-rose-600">{t('new.breadcrumb')}</span>
+                  </div>
+                  <h1 className="text-2xl font-black text-gray-900 tracking-tight">{t('new.title')}</h1>
                 </div>
               </div>
 
-              <div className="space-y-4 mb-6">
-                <div className="flex justify-between items-center p-4 bg-white/5 rounded-xl border border-white/10">
-                  <div className="flex items-center gap-3">
-                    <Receipt size={18} className="text-slate-400" />
-                    <span className="text-slate-300 font-bold text-sm">المبلغ الإجمالي</span>
-                  </div>
-                  <span className="font-mono font-black text-white">
-                    {calculations.total.toLocaleString('en-US', { minimumFractionDigits: 2 })}
-                    <span className="text-slate-400 mr-1 text-xs">ريال</span>
-                  </span>
+              <div className="flex items-center gap-4">
+                <div className="hidden md:flex items-center gap-2 px-5 py-2.5 bg-rose-50 border border-rose-100 rounded-2xl">
+                  <div className="w-2.5 h-2.5 rounded-full bg-rose-500 animate-pulse shadow-[0_0_10px_rgba(244,63,94,0.5)]"></div>
+                  <span className="text-xs font-black text-rose-700 tracking-wide uppercase">{t('zatcaCompliant')}</span>
                 </div>
-                
-                <div className="flex justify-between items-center p-4 bg-rose-500/10 rounded-xl border border-rose-500/20">
-                  <div className="flex items-center gap-3">
-                    <TrendingDown size={18} className="text-rose-400" />
-                    <span className="text-rose-200 font-bold text-sm">صافي المسترجع</span>
-                  </div>
-                  <span className="font-mono font-black text-rose-400">
-                    {calculations.beforeVat.toLocaleString('en-US', { minimumFractionDigits: 2 })}
-                    <span className="text-rose-300/70 mr-1 text-xs">ريال</span>
-                  </span>
-                </div>
-
-                <div className="flex justify-between items-center p-4 bg-amber-500/10 rounded-xl border border-amber-500/20">
-                  <div className="flex items-center gap-3">
-                    <Percent size={18} className="text-amber-400" />
-                    <span className="text-amber-200 font-bold text-sm">إجمالي الضريبة</span>
-                  </div>
-                  <span className="font-mono font-black text-amber-400">
-                    {calculations.vatAmount.toLocaleString('en-US', { minimumFractionDigits: 2 })}
-                    <span className="text-amber-300/70 mr-1 text-xs">ريال</span>
-                  </span>
-                </div>
+                <Link href="/credit-notes">
+                  <motion.button
+                    whileHover={{ scale: 1.02, translateX: locale === 'ar' ? 2 : -2 }}
+                    whileTap={{ scale: 0.98 }}
+                    className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gray-100 text-gray-600 hover:bg-gray-200 transition-all font-black text-xs border border-gray-200"
+                  >
+                    {locale === 'ar' ? <ArrowRight size={16} /> : <ChevronLeft size={16} />}
+                    {locale === 'ar' ? 'العودة للسجل' : 'Back to Log'}
+                  </motion.button>
+                </Link>
               </div>
+            </div>
 
-              <div className="h-px bg-gradient-to-r from-transparent via-white/20 to-transparent my-4" />
-
-              <div className="p-5 bg-gradient-to-br from-emerald-500/20 to-teal-500/20 rounded-2xl border border-emerald-500/30">
-                <div className="flex justify-between items-center">
-                  <div className="flex items-center gap-3">
-                    <div className="h-10 w-10 rounded-xl bg-emerald-500/30 flex items-center justify-center">
-                      <CircleDollarSign size={20} className="text-emerald-400" />
+            {/* Statistics Integrated Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 pt-2">
+              <motion.div variants={itemVariants} className="relative group">
+                <div className="h-full rounded-2xl bg-gradient-to-br from-slate-600 to-slate-800 p-6 shadow-lg shadow-slate-500/20 transition-all group-hover:shadow-slate-500/30">
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="p-2.5 bg-white/15 rounded-xl text-white backdrop-blur-md">
+                      <Hash size={20} />
                     </div>
-                    <span className="text-emerald-200 font-black text-sm">إجمالي الخصم</span>
+                    <span className="text-[10px] font-black text-white/90 bg-white/10 px-3 py-1 rounded-full border border-white/10">{locale === 'ar' ? 'جديد' : 'New'}</span>
                   </div>
-                  <div className="text-left">
-                    <span className="text-2xl font-black text-emerald-400 tracking-tight">
-                      {calculations.total.toLocaleString('en-US', { minimumFractionDigits: 2 })}
-                    </span>
-                    <span className="mr-2 text-sm font-bold text-emerald-300/70">ريال</span>
-                  </div>
-                </div>
-              </div>
-
-              <div className="space-y-3 pt-6">
-                <motion.button
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  type="submit"
-                  disabled={loading}
-                  className={cn(
-                    "w-full flex items-center justify-center gap-2 px-6 py-4 rounded-xl bg-gradient-to-r from-rose-600 to-pink-600 hover:from-rose-700 hover:to-pink-700 text-white font-black text-sm transition-all shadow-lg shadow-rose-500/30",
-                    loading && "opacity-50 cursor-not-allowed"
-                  )}
-                >
-                  {loading ? <Loader2 size={18} className="animate-spin" /> : <Save size={18} />}
-                  <span>{loading ? "جاري الحفظ..." : "حفظ إشعار الدائن"}</span>
-                </motion.button>
-                
-                <motion.button
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  type="button"
-                  onClick={() => {
-                    setSelectedInvoiceId("");
-                    setReason("");
-                    setAmount("");
-                  }}
-                  className="w-full flex items-center justify-center gap-2 px-6 py-4 rounded-xl bg-white/10 hover:bg-white/20 text-white font-black text-sm transition-all border border-white/10"
-                >
-                  <RotateCcw size={18} />
-                  <span>إعادة تعيين</span>
-                </motion.button>
-              </div>
-
-              <div className="mt-6 p-4 bg-white/5 rounded-xl border border-white/10">
-                <div className="flex items-center gap-2 text-[10px] font-bold text-slate-400">
-                  <BadgeCheck size={14} className="text-emerald-400" />
-                  <span>متوافق مع متطلبات هيئة الزكاة والضريبة والجمارك ZATCA</span>
-                </div>
-              </div>
-            </motion.div>
-
-            <motion.div
-              variants={itemVariants}
-              className="bg-gradient-to-br from-amber-50 to-orange-50 p-5 rounded-2xl border border-amber-200"
-            >
-              <div className="flex gap-3">
-                <div className="p-2.5 bg-amber-100 rounded-xl text-amber-600 shrink-0 h-fit">
-                  <AlertTriangle size={18} />
-                </div>
-                <div className="space-y-2">
-                  <p className="text-sm font-black text-amber-800">ملاحظة ضريبية</p>
-                  <p className="text-xs font-bold text-amber-600 leading-relaxed">
-                    يتم احتساب ضريبة القيمة المضافة بنسبة 15% تلقائياً من المبلغ الشامل. تأكد من مطابقة المبلغ المرتجع مع المستندات المرفقة قبل الحفظ.
+                  <p className="text-white/70 text-[10px] font-black uppercase tracking-widest">{t('new.linkedInvoice')}</p>
+                  <p className="text-lg font-black text-white mt-1.5 truncate">
+                    {selectedInvoice?.invoice_number || '---'}
+                  </p>
+                  <p className="text-white/50 text-[10px] font-bold mt-2 flex items-center gap-1">
+                    <Sparkles size={12} />
+                    {locale === 'ar' ? 'مرتجع ضريبي' : 'Tax Return'}
                   </p>
                 </div>
-              </div>
-            </motion.div>
+              </motion.div>
+              
+              <motion.div variants={itemVariants} className="relative group">
+                <div className="h-full rounded-2xl bg-gradient-to-br from-rose-500 to-pink-600 p-6 shadow-lg shadow-rose-500/20 transition-all group-hover:shadow-rose-500/30">
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="p-2.5 bg-white/15 rounded-xl text-white backdrop-blur-md">
+                      <TrendingDown size={20} />
+                    </div>
+                  </div>
+                  <p className="text-white/70 text-[10px] font-black uppercase tracking-widest">{t('new.amountBeforeTax')}</p>
+                  <p className="text-2xl font-black text-white mt-1.5 flex items-baseline gap-1">
+                    {calculations.beforeVat.toLocaleString(locale === 'ar' ? 'ar-SA' : 'en-US', { minimumFractionDigits: 2 })}
+                    <span className="text-xs text-white/60 font-bold">{locale === 'ar' ? 'ريال' : 'SAR'}</span>
+                  </p>
+                  <p className="text-white/50 text-[10px] font-bold mt-2 flex items-center gap-1">
+                    <BadgeCheck size={12} />
+                    {t('new.netAmount')}
+                  </p>
+                </div>
+              </motion.div>
+              
+              <motion.div variants={itemVariants} className="relative group">
+                <div className="h-full rounded-2xl bg-gradient-to-br from-amber-500 to-orange-600 p-6 shadow-lg shadow-amber-500/20 transition-all group-hover:shadow-amber-500/30">
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="p-2.5 bg-white/15 rounded-xl text-white backdrop-blur-md">
+                      <Percent size={20} />
+                    </div>
+                    <span className="text-[10px] font-black text-white/90 bg-white/10 px-3 py-1 rounded-full border border-white/10">15%</span>
+                  </div>
+                  <p className="text-white/70 text-[10px] font-black uppercase tracking-widest">{t('new.refundedVat')}</p>
+                  <p className="text-2xl font-black text-white mt-1.5 flex items-baseline gap-1">
+                    {calculations.vatAmount.toLocaleString(locale === 'ar' ? 'ar-SA' : 'en-US', { minimumFractionDigits: 2 })}
+                    <span className="text-xs text-white/60 font-bold">{locale === 'ar' ? 'ريال' : 'SAR'}</span>
+                  </p>
+                  <p className="text-white/50 text-[10px] font-bold mt-2 flex items-center gap-1">
+                    <CheckCircle size={12} />
+                    {t('new.vatRefund')}
+                  </p>
+                </div>
+              </motion.div>
+              
+              <motion.div variants={itemVariants} className="relative group">
+                <div className="h-full rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 p-6 shadow-lg shadow-emerald-500/20 transition-all group-hover:shadow-emerald-500/30">
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="p-2.5 bg-white/15 rounded-xl text-white backdrop-blur-md">
+                      <CircleDollarSign size={20} />
+                    </div>
+                  </div>
+                  <p className="text-white/70 text-[10px] font-black uppercase tracking-widest">{t('new.totalIncludingVat')}</p>
+                  <p className="text-2xl font-black text-white mt-1.5 flex items-baseline gap-1">
+                    {calculations.total.toLocaleString(locale === 'ar' ? 'ar-SA' : 'en-US', { minimumFractionDigits: 2 })}
+                    <span className="text-xs text-white/60 font-bold">{locale === 'ar' ? 'ريال' : 'SAR'}</span>
+                  </p>
+                  <p className="text-white/50 text-[10px] font-bold mt-2 flex items-center gap-1">
+                    <Sparkles size={12} />
+                    {t('new.includingVat')}
+                  </p>
+                </div>
+              </motion.div>
+            </div>
           </div>
-        </form>
 
-        <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-[10px] font-black text-gray-400 uppercase tracking-widest pt-4">
-          <div className="flex items-center gap-2">
-            <Sparkles size={12} className="text-rose-500" />
-            <span>نظام إشعارات الدائن - Logistics Systems Pro</span>
+          {/* Form Area Integrated into the Card */}
+          <div className="p-8">
+            <form onSubmit={handleSubmit} className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+              <div className="lg:col-span-2 space-y-8">
+                <motion.div
+                  variants={itemVariants}
+                  className="bg-white rounded-2xl border border-gray-100 shadow-xl shadow-gray-100/50 overflow-hidden"
+                >
+                  <div className="bg-gradient-to-r from-blue-600 to-indigo-600 px-6 py-5">
+                    <div className="flex items-center gap-3">
+                      <div className="h-10 w-10 rounded-xl bg-white/20 flex items-center justify-center backdrop-blur-sm">
+                        <FileText className="text-white" size={20} />
+                      </div>
+                      <div>
+                        <h3 className="text-white font-black">{t('new.invoiceDetails')}</h3>
+                        <p className="text-blue-100 text-xs font-bold opacity-80">{t('new.selectInvoiceSub')}</p>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="p-8 space-y-8">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div className="space-y-2.5">
+                        <label className="text-xs font-black text-gray-500 uppercase flex items-center gap-2 px-1">
+                          <Hash size={14} className="text-blue-500" />
+                          {t('new.selectInvoice')}
+                        </label>
+                        <div className="relative group">
+                          <Receipt className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-blue-500 transition-colors" size={18} />
+                          <select
+                            className="w-full h-14 pr-12 pl-4 rounded-2xl bg-gray-50 border-2 border-transparent text-sm font-black focus:border-blue-500/30 focus:bg-white outline-none transition-all appearance-none cursor-pointer shadow-sm hover:bg-gray-100/50"
+                            value={selectedInvoiceId}
+                            onChange={(e) => setSelectedInvoiceId(e.target.value)}
+                            required
+                          >
+                            <option value="">{t('new.selectFromList')}</option>
+                            {invoices.map(inv => (
+                              <option key={inv.id} value={inv.id.toString()}>
+                                {inv.invoice_number} - {inv.client_name} ({parseFloat(String(inv.total_amount)).toLocaleString()} {locale === 'ar' ? 'ريال' : 'SAR'})
+                              </option>
+                            ))}
+                          </select>
+                          <ChevronDown className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-blue-500 transition-colors" size={18} />
+                        </div>
+                      </div>
+
+                      <div className="space-y-2.5">
+                        <label className="text-xs font-black text-gray-500 uppercase flex items-center gap-2 px-1">
+                          <User size={14} className="text-blue-500" />
+                          {t('new.clientName')}
+                        </label>
+                        <div className="relative">
+                          <Building2 className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+                          <input
+                            type="text"
+                            className="w-full h-14 pr-12 pl-4 rounded-2xl bg-gray-100/50 border-2 border-transparent text-sm font-black text-gray-500 cursor-not-allowed shadow-inner"
+                            value={selectedInvoice?.client_name || t('new.autoSelected')}
+                            readOnly
+                          />
+                        </div>
+                      </div>
+                    </div>
+
+                    <AnimatePresence>
+                      {selectedInvoice && (
+                        <motion.div
+                          initial={{ opacity: 0, height: 0 }}
+                          animate={{ opacity: 1, height: "auto" }}
+                          exit={{ opacity: 0, height: 0 }}
+                          className="p-6 bg-gradient-to-br from-blue-50/50 to-indigo-50/50 rounded-2xl border border-blue-100/50 shadow-sm"
+                        >
+                          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+                            <div className="space-y-1">
+                              <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest block">{t('new.invoiceTotal')}</span>
+                              <span className="text-sm font-black text-gray-800">
+                                {parseFloat(String(selectedInvoice.total_amount)).toLocaleString()} {locale === 'ar' ? 'ريال' : 'SAR'}
+                              </span>
+                            </div>
+                            <div className="space-y-1">
+                              <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest block">{t('new.previousReturn')}</span>
+                              <span className="text-sm font-black text-rose-600">
+                                {parseFloat(String(selectedInvoice.total_issued)).toLocaleString()} {locale === 'ar' ? 'ريال' : 'SAR'}
+                              </span>
+                            </div>
+                            <div className="space-y-1">
+                              <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest block">{t('new.availableForReturn')}</span>
+                              <span className="text-sm font-black text-emerald-600">
+                                {availableAmount.toLocaleString()} {locale === 'ar' ? 'ريال' : 'SAR'}
+                              </span>
+                            </div>
+                            <div className="space-y-1">
+                              <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest block">{t('new.vatNumber')}</span>
+                              <span className="text-sm font-black text-gray-800">
+                                {selectedInvoice.client_vat || t('new.notAvailable')}
+                              </span>
+                            </div>
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+
+                    <div className="space-y-2.5">
+                      <label className="text-xs font-black text-gray-500 uppercase flex items-center gap-2 px-1">
+                        <MessageSquare size={14} className="text-blue-500" />
+                        {t('new.reasonLabel')}
+                      </label>
+                      <textarea
+                        className="w-full px-6 py-5 rounded-2xl bg-gray-50 border-2 border-transparent text-sm font-black focus:border-blue-500/30 focus:bg-white outline-none transition-all min-h-[140px] resize-none shadow-sm hover:bg-gray-100/50"
+                        placeholder={t('new.reasonPlaceholder')}
+                        value={reason}
+                        onChange={(e) => setReason(e.target.value)}
+                        required
+                      />
+                    </div>
+                  </div>
+                </motion.div>
+
+                <motion.div
+                  variants={itemVariants}
+                  className="bg-white rounded-2xl border border-gray-100 shadow-xl shadow-gray-100/50 overflow-hidden"
+                >
+                  <div className="bg-gradient-to-r from-amber-500 to-orange-500 px-6 py-5">
+                    <div className="flex items-center gap-3">
+                      <div className="h-10 w-10 rounded-xl bg-white/20 flex items-center justify-center backdrop-blur-sm">
+                        <Calculator className="text-white" size={20} />
+                      </div>
+                      <div>
+                        <h3 className="text-white font-black">{t('new.amountsAndTax')}</h3>
+                        <p className="text-amber-100 text-xs font-bold opacity-80">{t('new.enterAmount')}</p>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="p-8">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                      <div className="space-y-2.5">
+                        <label className="text-xs font-black text-gray-500 uppercase flex items-center gap-2 px-1">
+                          <Coins size={14} className="text-rose-500" />
+                          {t('new.amountLabel')}
+                        </label>
+                        <div className="relative group">
+                          <input
+                            type="number"
+                            step="0.01"
+                            className="w-full h-14 px-6 rounded-2xl bg-rose-50/50 border-2 border-rose-100 text-sm font-black focus:border-rose-400 focus:bg-white outline-none transition-all text-rose-600 shadow-sm"
+                            placeholder="0.00"
+                            value={amount}
+                            onChange={(e) => setAmount(e.target.value)}
+                            max={availableAmount}
+                            required
+                          />
+                          <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[10px] font-black text-rose-400 uppercase">{locale === 'ar' ? 'ريال' : 'SAR'}</span>
+                        </div>
+                        {selectedInvoiceId && (
+                          <div className="flex items-center gap-1.5 px-1">
+                            <AlertCircle size={10} className="text-rose-400" />
+                            <p className="text-[10px] font-black text-gray-400 uppercase tracking-tight">
+                              {t('new.maxLimit')}: <span className="text-rose-600 font-black">{availableAmount.toLocaleString()} {locale === 'ar' ? 'ريال' : 'SAR'}</span>
+                            </p>
+                          </div>
+                        )}
+                      </div>
+
+                      <div className="space-y-2.5">
+                        <label className="text-xs font-black text-gray-500 uppercase flex items-center gap-2 px-1">
+                          <Calculator size={14} className="text-slate-400" />
+                          {t('new.amountBeforeTax')}
+                        </label>
+                        <div className="w-full h-14 px-6 rounded-2xl bg-gray-100/50 border-2 border-gray-200 flex items-center justify-between shadow-inner">
+                          <span className="text-sm font-black text-gray-600">
+                            {calculations.beforeVat.toLocaleString(locale === 'ar' ? 'ar-SA' : 'en-US', { minimumFractionDigits: 2 })}
+                          </span>
+                          <span className="text-[10px] font-black text-gray-400 uppercase">{locale === 'ar' ? 'ريال' : 'SAR'}</span>
+                        </div>
+                      </div>
+
+                      <div className="space-y-2.5">
+                        <label className="text-xs font-black text-gray-500 uppercase flex items-center gap-2 px-1">
+                          <Percent size={14} className="text-amber-500" />
+                          {t('new.vatValue')}
+                        </label>
+                        <div className="w-full h-14 px-6 rounded-2xl bg-amber-50/50 border-2 border-amber-100 flex items-center justify-between shadow-inner">
+                          <span className="text-sm font-black text-amber-700">
+                            {calculations.vatAmount.toLocaleString(locale === 'ar' ? 'ar-SA' : 'en-US', { minimumFractionDigits: 2 })}
+                          </span>
+                          <span className="text-[10px] font-black text-amber-500 uppercase">{locale === 'ar' ? 'ريال' : 'SAR'}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </motion.div>
+              </div>
+
+              <div className="space-y-8">
+                <motion.div
+                  variants={itemVariants}
+                  className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-3xl shadow-2xl p-8 text-white relative overflow-hidden"
+                >
+                  <div className="absolute top-0 right-0 w-32 h-32 bg-rose-500/10 rounded-full -mr-16 -mt-16 blur-3xl"></div>
+                  <div className="absolute bottom-0 left-0 w-32 h-32 bg-blue-500/10 rounded-full -ml-16 -mb-16 blur-3xl"></div>
+
+                  <div className="flex items-center gap-4 mb-8 relative z-10">
+                    <div className="h-12 w-12 rounded-2xl bg-white/10 flex items-center justify-center backdrop-blur-md border border-white/10">
+                      <Calculator className="text-rose-400" size={24} />
+                    </div>
+                    <div>
+                      <h3 className="font-black text-lg tracking-tight">{t('new.summaryTitle')}</h3>
+                      <p className="text-slate-400 text-[10px] font-black uppercase tracking-widest opacity-70">{t('new.autoCalc')}</p>
+                    </div>
+                  </div>
+
+                  <div className="space-y-4 mb-8 relative z-10">
+                    <div className="flex justify-between items-center p-5 bg-white/5 rounded-2xl border border-white/5 transition-colors hover:bg-white/10 group">
+                      <div className="flex items-center gap-3">
+                        <Receipt size={18} className="text-slate-500 group-hover:text-rose-400 transition-colors" />
+                        <span className="text-slate-400 font-black text-xs uppercase tracking-wider">{t('new.totalIncludingVat')}</span>
+                      </div>
+                      <span className="font-black text-white text-lg">
+                        {calculations.total.toLocaleString(locale === 'ar' ? 'ar-SA' : 'en-US', { minimumFractionDigits: 2 })}
+                        <span className="text-slate-500 mr-2 text-[10px] uppercase tracking-tighter">{locale === 'ar' ? 'ريال' : 'SAR'}</span>
+                      </span>
+                    </div>
+                    
+                    <div className="flex justify-between items-center p-5 bg-rose-500/10 rounded-2xl border border-rose-500/20 transition-colors hover:bg-rose-500/20 group">
+                      <div className="flex items-center gap-3">
+                        <TrendingDown size={18} className="text-rose-400" />
+                        <span className="text-rose-200/70 font-black text-xs uppercase tracking-wider">{t('new.netRefund')}</span>
+                      </div>
+                      <span className="font-black text-rose-400 text-lg">
+                        {calculations.beforeVat.toLocaleString(locale === 'ar' ? 'ar-SA' : 'en-US', { minimumFractionDigits: 2 })}
+                        <span className="text-rose-300/50 mr-2 text-[10px] uppercase tracking-tighter">{locale === 'ar' ? 'ريال' : 'SAR'}</span>
+                      </span>
+                    </div>
+
+                    <div className="flex justify-between items-center p-5 bg-amber-500/10 rounded-2xl border border-amber-500/20 transition-colors hover:bg-amber-500/20 group">
+                      <div className="flex items-center gap-3">
+                        <Percent size={18} className="text-amber-400" />
+                        <span className="text-amber-200/70 font-black text-xs uppercase tracking-wider">{t('new.totalVat')}</span>
+                      </div>
+                      <span className="font-black text-amber-400 text-lg">
+                        {calculations.vatAmount.toLocaleString(locale === 'ar' ? 'ar-SA' : 'en-US', { minimumFractionDigits: 2 })}
+                        <span className="text-amber-300/50 mr-2 text-[10px] uppercase tracking-tighter">{locale === 'ar' ? 'ريال' : 'SAR'}</span>
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="h-px bg-gradient-to-r from-transparent via-white/10 to-transparent my-8 relative z-10" />
+
+                  <div className="p-6 bg-gradient-to-br from-emerald-500/20 to-teal-500/20 rounded-2xl border border-emerald-500/30 relative z-10 shadow-lg shadow-emerald-900/20 group">
+                    <div className="flex justify-between items-center">
+                      <div className="flex items-center gap-3">
+                        <div className="h-10 w-10 rounded-xl bg-emerald-500/20 flex items-center justify-center group-hover:scale-110 transition-transform">
+                          <CircleDollarSign size={20} className="text-emerald-400" />
+                        </div>
+                        <span className="text-emerald-200 font-black text-xs uppercase tracking-widest">{t('new.totalDiscount')}</span>
+                      </div>
+                      <div className="text-left">
+                        <span className="text-3xl font-black text-emerald-400 tracking-tighter">
+                          {calculations.total.toLocaleString(locale === 'ar' ? 'ar-SA' : 'en-US', { minimumFractionDigits: 2 })}
+                        </span>
+                        <span className="mr-2 text-[10px] font-black text-emerald-300/50 uppercase tracking-tighter">{locale === 'ar' ? 'ريال' : 'SAR'}</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="space-y-4 pt-8 relative z-10">
+                    <motion.button
+                      whileHover={{ scale: 1.02, translateY: -2 }}
+                      whileTap={{ scale: 0.98 }}
+                      type="submit"
+                      disabled={loading}
+                      className={cn(
+                        "w-full flex items-center justify-center gap-3 px-6 py-5 rounded-2xl bg-gradient-to-r from-rose-600 to-pink-600 hover:from-rose-700 hover:to-pink-700 text-white font-black text-sm transition-all shadow-xl shadow-rose-500/30",
+                        loading && "opacity-50 cursor-not-allowed"
+                      )}
+                    >
+                      {loading ? <Loader2 size={20} className="animate-spin" /> : <Save size={20} />}
+                      <span>{loading ? t('new.saving') : t('new.save')}</span>
+                    </motion.button>
+                    
+                    <motion.button
+                      whileHover={{ scale: 1.02, translateY: -2 }}
+                      whileTap={{ scale: 0.98 }}
+                      type="button"
+                      onClick={() => {
+                        setSelectedInvoiceId("");
+                        setReason("");
+                        setAmount("");
+                      }}
+                      className="w-full flex items-center justify-center gap-3 px-6 py-5 rounded-2xl bg-white/5 hover:bg-white/10 text-white font-black text-sm transition-all border border-white/10 backdrop-blur-sm"
+                    >
+                      <RotateCcw size={20} />
+                      <span>{t('new.reset')}</span>
+                    </motion.button>
+                  </div>
+
+                  <div className="mt-8 p-4 bg-white/5 rounded-2xl border border-white/10 relative z-10">
+                    <div className="flex items-center gap-2.5 text-[10px] font-black text-slate-400 uppercase tracking-tight">
+                      <BadgeCheck size={14} className="text-emerald-400" />
+                      <span>{t('new.taxNote')} - ZATCA</span>
+                    </div>
+                  </div>
+                </motion.div>
+
+                <motion.div
+                  variants={itemVariants}
+                  className="bg-gradient-to-br from-amber-50 to-orange-50 p-6 rounded-3xl border border-amber-200 shadow-sm relative group"
+                >
+                  <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+                    <AlertTriangle size={48} className="text-amber-600" />
+                  </div>
+                  <div className="flex gap-4 relative z-10">
+                    <div className="p-3 bg-amber-100 rounded-2xl text-amber-600 shrink-0 h-fit shadow-sm">
+                      <AlertTriangle size={20} />
+                    </div>
+                    <div className="space-y-2">
+                      <p className="text-sm font-black text-amber-800 uppercase tracking-wide">{t('new.taxNote')}</p>
+                      <p className="text-xs font-bold text-amber-600 leading-relaxed">
+                        {t('new.taxNoteDesc')}
+                      </p>
+                    </div>
+                  </div>
+                </motion.div>
+              </div>
+            </form>
           </div>
-          <span>جميع الحقوق محفوظة © {new Date().getFullYear()}</span>
+        </div>
+
+        {/* Footer Branding */}
+        <div className="flex flex-col md:flex-row justify-between items-center gap-6 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] pt-8 opacity-70">
+          <div className="flex items-center gap-3">
+            <div className="h-6 w-6 rounded-lg bg-gray-200 flex items-center justify-center">
+              <Sparkles size={12} className="text-rose-500" />
+            </div>
+            <span>{t('systemName')}</span>
+          </div>
+          <div className="flex items-center gap-4">
+            <div className="h-1 w-1 rounded-full bg-gray-300"></div>
+            <span>{t('allRightsReserved')} © {new Date().getFullYear()}</span>
+          </div>
         </div>
       </motion.div>
     </div>
