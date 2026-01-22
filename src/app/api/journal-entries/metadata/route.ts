@@ -15,46 +15,58 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: "company_id required" }, { status: 400 });
   }
 
-  try {
-    const accounts = await query<any>(
-      "SELECT id, account_code, account_name FROM accounts WHERE company_id = ? ORDER BY account_code",
-      [companyId]
-    );
+    try {
+      // Fetch accounts from Supabase instead of MySQL
+      const { data: accounts, error: accountsError } = await supabase
+        .from("accounts")
+        .select("id, account_code, account_name")
+        .eq("company_id", companyId)
+        .order("account_code", { ascending: true });
 
-    // Get the highest entry_number to generate the next one
-    const { data: latestEntry } = await supabase
-      .from("journal_entries")
-      .select("entry_number")
-      .eq("company_id", companyId)
-      .order("entry_number", { ascending: false })
-      .limit(1)
-      .maybeSingle();
+      if (accountsError) throw accountsError;
 
-    let nextNumber = 1;
-    if (latestEntry?.entry_number) {
-      const match = latestEntry.entry_number.match(/\d+/);
-      if (match) {
-        nextNumber = parseInt(match[0]) + 1;
+      // Fetch cost centers
+      const { data: costCenters, error: costCentersError } = await supabase
+        .from("cost_centers")
+        .select("id, center_code, center_name")
+        .eq("company_id", companyId)
+        .order("center_code", { ascending: true });
+
+      if (costCentersError) throw costCentersError;
+
+      // Get the highest entry_number to generate the next one
+      const { data: latestEntry } = await supabase
+        .from("journal_entries")
+        .select("entry_number")
+        .eq("company_id", companyId)
+        .order("entry_number", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+
+      let nextNumber = 1;
+      if (latestEntry?.entry_number) {
+        const match = latestEntry.entry_number.match(/\d+/);
+        if (match) {
+          nextNumber = parseInt(match[0]) + 1;
+        }
       }
-    }
-    const entryNumber = "JE" + String(nextNumber).padStart(5, "0");
+      const entryNumber = "JE" + String(nextNumber).padStart(5, "0");
 
-    // Fetch grouped journal entries
-    // Since each line is a row, we group them by entry_number in the frontend
-    // but here we can return the raw lines ordered by entry_number and date
-    const { data: entries } = await supabase
-      .from("journal_entries")
-      .select("*, accounts(account_name, account_code)")
-      .eq("company_id", companyId)
-      .order("entry_date", { ascending: false })
-      .order("entry_number", { ascending: false });
+      // Fetch grouped journal entries
+      const { data: entries } = await supabase
+        .from("journal_entries")
+        .select("*, accounts(account_name, account_code), cost_centers(center_name, center_code)")
+        .eq("company_id", companyId)
+        .order("entry_date", { ascending: false })
+        .order("entry_number", { ascending: false });
 
-    return NextResponse.json({
-      accounts: accounts || [],
-      entryNumber,
-      entries: entries || [],
-    });
-  } catch (error) {
+      return NextResponse.json({
+        accounts: accounts || [],
+        costCenters: costCenters || [],
+        entryNumber,
+        entries: entries || [],
+      });
+    } catch (error) {
     console.error("Error fetching journal entries metadata:", error);
     return NextResponse.json(
       { error: "Failed to fetch metadata" },

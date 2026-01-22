@@ -13,46 +13,59 @@ import { useSearchParams } from "next/navigation";
 import { Suspense } from "react";
 import { useTranslations, useLocale } from "@/lib/locale-context";
 
-interface Account {
-  id: number;
-  account_code: string;
-  account_name: string;
-}
-
-interface JournalLine {
-  id?: number;
-  account_id: string;
-  description: string;
-  debit: string;
-  credit: string;
-}
-
-interface Entry {
-  id: number;
-  entry_number: string;
-  entry_date: string;
-  account_id: number;
-  description: string;
-  debit: number;
-  credit: number;
-  created_by: string;
-  accounts: {
-    account_name: string;
+  interface Account {
+    id: number;
     account_code: string;
-  };
-}
-
-  function JournalEntriesContent() {
-    const t = useTranslations("journalEntries");
-    const { isRTL } = useLocale();
-    const [accounts, setAccounts] = useState<Account[]>([]);
-    const [entries, setEntries] = useState<Entry[]>([]);
-    const [entryNumber, setEntryNumber] = useState("");
-    const [entryDate, setEntryDate] = useState(new Date().toISOString().split("T")[0]);
-    const [lines, setLines] = useState<JournalLine[]>([
-      { account_id: "", description: "", debit: "0", credit: "0" },
-      { account_id: "", description: "", debit: "0", credit: "0" }
-    ]);
+    account_name: string;
+  }
+  
+  interface CostCenter {
+    id: number;
+    center_code: string;
+    center_name: string;
+  }
+  
+  interface JournalLine {
+    id?: number;
+    account_id: string;
+    cost_center_id?: string;
+    description: string;
+    debit: string;
+    credit: string;
+  }
+  
+  interface Entry {
+    id: number;
+    entry_number: string;
+    entry_date: string;
+    account_id: number;
+    cost_center_id?: number;
+    description: string;
+    debit: number;
+    credit: number;
+    created_by: string;
+    accounts: {
+      account_name: string;
+      account_code: string;
+    };
+    cost_centers?: {
+      center_name: string;
+      center_code: string;
+    };
+  }
+  
+    function JournalEntriesContent() {
+      const t = useTranslations("journalEntries");
+      const { isRTL } = useLocale();
+      const [accounts, setAccounts] = useState<Account[]>([]);
+      const [costCenters, setCostCenters] = useState<CostCenter[]>([]);
+      const [entries, setEntries] = useState<Entry[]>([]);
+      const [entryNumber, setEntryNumber] = useState("");
+      const [entryDate, setEntryDate] = useState(new Date().toISOString().split("T")[0]);
+      const [lines, setLines] = useState<JournalLine[]>([
+        { account_id: "", cost_center_id: "", description: "", debit: "0", credit: "0" },
+        { account_id: "", cost_center_id: "", description: "", debit: "0", credit: "0" }
+      ]);
     const [loading, setLoading] = useState(true);
     const [isEdit, setIsEdit] = useState(false);
     const [searchTerm, setSearchTerm] = useState("");
@@ -84,6 +97,7 @@ interface Entry {
         const data = await res.json();
         if (data.error) throw new Error(data.error);
         setAccounts(data.accounts);
+        setCostCenters(data.costCenters);
         setEntries(data.entries);
         if (!isEdit) setEntryNumber(data.entryNumber);
       } catch (error) {
@@ -131,7 +145,7 @@ interface Entry {
     }, [groupedEntries, searchTerm]);
 
     const addRow = () => {
-      setLines([...lines, { account_id: "", description: "", debit: "0", credit: "0" }]);
+      setLines([...lines, { account_id: "", cost_center_id: "", description: "", debit: "0", credit: "0" }]);
     };
 
     const removeRow = (index: number) => {
@@ -178,7 +192,10 @@ interface Entry {
     };
 
   const resetForm = () => {
-    setLines([{ account_id: "", description: "", debit: "0", credit: "0" }, { account_id: "", description: "", debit: "0", credit: "0" }]);
+    setLines([
+      { account_id: "", cost_center_id: "", description: "", debit: "0", credit: "0" }, 
+      { account_id: "", cost_center_id: "", description: "", debit: "0", credit: "0" }
+    ]);
     setEntryDate(new Date().toISOString().split("T")[0]);
     setIsEdit(false);
     fetchMetadata();
@@ -189,6 +206,7 @@ interface Entry {
     setEntryDate(entries[0].entry_date);
     setLines(entries.map(e => ({
       account_id: String(e.account_id),
+      cost_center_id: e.cost_center_id ? String(e.cost_center_id) : "",
       description: e.description,
       debit: String(e.debit),
       credit: String(e.credit)
@@ -348,31 +366,40 @@ interface Entry {
                           className="overflow-hidden"
                         >
                           <div className="p-6 bg-white border-t border-gray-100">
-                              <table className="w-full">
-                                <thead>
-                                  <tr className="text-gray-400 text-sm font-bold border-b border-gray-50">
-                                    <th className="pb-3 text-right">{t("account")}</th>
-                                    <th className="pb-3 text-right">{t("description")}</th>
-                                    <th className="pb-3 text-center">{t("debit")}</th>
-                                    <th className="pb-3 text-center">{t("credit")}</th>
-                                  </tr>
-                                </thead>
-                                <tbody className="divide-y divide-gray-50">
-                                  {lines.map((l, i) => (
-                                    <tr key={i} className="text-sm font-medium">
-                                      <td className="py-4 text-blue-800 font-bold">
-                                        <div className="flex items-center gap-2">
-                                          <Landmark className="w-3 h-3 opacity-30" />
-                                          {l.accounts.account_code} - {l.accounts.account_name}
-                                        </div>
-                                      </td>
-                                      <td className="py-4 text-gray-600 italic">{l.description || "---"}</td>
-                                      <td className="py-4 text-center font-black text-red-500">{l.debit > 0 ? l.debit.toLocaleString() : "-"}</td>
-                                      <td className="py-4 text-center font-black text-green-500">{l.credit > 0 ? l.credit.toLocaleString() : "-"}</td>
+                                <table className="w-full">
+                                  <thead>
+                                    <tr className="text-gray-400 text-sm font-bold border-b border-gray-50">
+                                      <th className="pb-3 text-right">{t("account")}</th>
+                                      <th className="pb-3 text-right">{t("costCenter")}</th>
+                                      <th className="pb-3 text-right">{t("description")}</th>
+                                      <th className="pb-3 text-center">{t("debit")}</th>
+                                      <th className="pb-3 text-center">{t("credit")}</th>
                                     </tr>
-                                  ))}
-                                </tbody>
-                              </table>
+                                  </thead>
+                                  <tbody className="divide-y divide-gray-50">
+                                    {lines.map((l, i) => (
+                                      <tr key={i} className="text-sm font-medium">
+                                        <td className="py-4 text-blue-800 font-bold">
+                                          <div className="flex items-center gap-2">
+                                            <Landmark className="w-3 h-3 opacity-30" />
+                                            {l.accounts.account_code} - {l.accounts.account_name}
+                                          </div>
+                                        </td>
+                                        <td className="py-4 text-gray-600">
+                                          {l.cost_centers ? (
+                                            <div className="flex items-center gap-2">
+                                              <Building className="w-3 h-3 opacity-30" />
+                                              {l.cost_centers.center_code} - {l.cost_centers.center_name}
+                                            </div>
+                                          ) : "---"}
+                                        </td>
+                                        <td className="py-4 text-gray-600 italic">{l.description || "---"}</td>
+                                        <td className="py-4 text-center font-black text-red-500">{l.debit > 0 ? l.debit.toLocaleString() : "-"}</td>
+                                        <td className="py-4 text-center font-black text-green-500">{l.credit > 0 ? l.credit.toLocaleString() : "-"}</td>
+                                      </tr>
+                                    ))}
+                                  </tbody>
+                                </table>
                               <div className="mt-4 pt-4 border-t border-gray-50 flex justify-between text-xs font-bold text-gray-400">
                                 <span>{t("createdBy")}: {lines[0].created_by}</span>
                                 <span>{t("operationNumber")}: {lines[0].id}</span>
@@ -475,94 +502,109 @@ interface Entry {
                     {/* Entry Lines Table */}
                     <div className="border-2 border-blue-50 rounded-2xl overflow-hidden shadow-sm">
                       <table className="w-full border-collapse">
-                        <thead className="bg-gradient-to-r from-gray-50 to-blue-50 text-gray-700 font-bold border-b-2 border-blue-100">
-                          <tr>
-                            <th className="p-4 text-right w-1/4">{t("account")}</th>
-                            <th className="p-4 text-right w-1/4">{t("description")}</th>
-                            <th className="p-4 text-center w-1/6">{t("debit")}</th>
-                            <th className="p-4 text-center w-1/6">{t("credit")}</th>
-                            <th className="p-4 text-center w-20"></th>
-                          </tr>
-                        </thead>
-                        <tbody className="divide-y divide-blue-50">
-                          <AnimatePresence>
-                            {lines.map((line, index) => (
-                              <motion.tr 
-                                key={index}
-                                initial={{ opacity: 0, x: -20 }}
-                                animate={{ opacity: 1, x: 0 }}
-                                exit={{ opacity: 0, x: 20 }}
-                                className="hover:bg-blue-50/30 transition-colors"
-                              >
-                                <td className="p-2">
-                                  <select 
-                                    value={line.account_id}
-                                    onChange={(e) => handleLineChange(index, "account_id", e.target.value)}
-                                    className="w-full p-3 border-2 border-gray-100 rounded-lg focus:border-blue-400 outline-none bg-white transition-all"
-                                    required
-                                  >
-                                    <option value="">{t("selectAccount")}</option>
-                                    {accounts.map(acc => (
-                                      <option key={acc.id} value={acc.id}>
-                                        {acc.account_code} - {acc.account_name}
-                                      </option>
-                                    ))}
-                                  </select>
-                                </td>
-                                <td className="p-2">
-                                  <input 
-                                    type="text"
-                                    value={line.description}
-                                    onChange={(e) => handleLineChange(index, "description", e.target.value)}
-                                    placeholder={t("descriptionPlaceholder")}
-                                    className="w-full p-3 border-2 border-gray-100 rounded-lg focus:border-blue-400 outline-none transition-all"
-                                  />
-                                </td>
-                                <td className="p-2">
-                                  <div className="relative">
-                                    <ArrowDown className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-red-400" />
+                          <thead className="bg-gradient-to-r from-gray-50 to-blue-50 text-gray-700 font-bold border-b-2 border-blue-100">
+                            <tr>
+                              <th className="p-4 text-right w-[20%]">{t("account")}</th>
+                              <th className="p-4 text-right w-[20%]">{t("costCenter")}</th>
+                              <th className="p-4 text-right w-[20%]">{t("description")}</th>
+                              <th className="p-4 text-center w-[15%]">{t("debit")}</th>
+                              <th className="p-4 text-center w-[15%]">{t("credit")}</th>
+                              <th className="p-4 text-center w-12"></th>
+                            </tr>
+                          </thead>
+                          <tbody className="divide-y divide-blue-50">
+                            <AnimatePresence>
+                              {lines.map((line, index) => (
+                                <motion.tr 
+                                  key={index}
+                                  initial={{ opacity: 0, x: -20 }}
+                                  animate={{ opacity: 1, x: 0 }}
+                                  exit={{ opacity: 0, x: 20 }}
+                                  className="hover:bg-blue-50/30 transition-colors"
+                                >
+                                  <td className="p-2">
+                                    <select 
+                                      value={line.account_id}
+                                      onChange={(e) => handleLineChange(index, "account_id", e.target.value)}
+                                      className="w-full p-3 border-2 border-gray-100 rounded-lg focus:border-blue-400 outline-none bg-white transition-all text-sm"
+                                      required
+                                    >
+                                      <option value="">{t("selectAccount")}</option>
+                                      {accounts.map(acc => (
+                                        <option key={acc.id} value={acc.id}>
+                                          {acc.account_code} - {acc.account_name}
+                                        </option>
+                                      ))}
+                                    </select>
+                                  </td>
+                                  <td className="p-2">
+                                    <select 
+                                      value={line.cost_center_id}
+                                      onChange={(e) => handleLineChange(index, "cost_center_id", e.target.value)}
+                                      className="w-full p-3 border-2 border-gray-100 rounded-lg focus:border-blue-400 outline-none bg-white transition-all text-sm"
+                                    >
+                                      <option value="">{t("selectCostCenter")}</option>
+                                      {costCenters.map(cc => (
+                                        <option key={cc.id} value={cc.id}>
+                                          {cc.center_code} - {cc.center_name}
+                                        </option>
+                                      ))}
+                                    </select>
+                                  </td>
+                                  <td className="p-2">
                                     <input 
-                                      type="number"
-                                      step="0.01"
-                                      value={line.debit}
-                                      onChange={(e) => handleLineChange(index, "debit", e.target.value)}
-                                      className="w-full p-3 pl-10 text-center font-bold text-red-600 border-2 border-gray-100 rounded-lg focus:border-red-200 outline-none bg-white"
+                                      type="text"
+                                      value={line.description}
+                                      onChange={(e) => handleLineChange(index, "description", e.target.value)}
+                                      placeholder={t("descriptionPlaceholder")}
+                                      className="w-full p-3 border-2 border-gray-100 rounded-lg focus:border-blue-400 outline-none transition-all text-sm"
                                     />
-                                  </div>
-                                </td>
-                                <td className="p-2">
-                                  <div className="relative">
-                                    <ArrowUp className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-green-400" />
-                                    <input 
-                                      type="number"
-                                      step="0.01"
-                                      value={line.credit}
-                                      onChange={(e) => handleLineChange(index, "credit", e.target.value)}
-                                      className="w-full p-3 pl-10 text-center font-bold text-green-600 border-2 border-gray-100 rounded-lg focus:border-green-200 outline-none bg-white"
-                                    />
-                                  </div>
-                                </td>
-                                <td className="p-2 text-center">
-                                  <button 
-                                    type="button" 
-                                    onClick={() => removeRow(index)}
-                                    className="p-2 text-red-400 hover:bg-red-50 rounded-lg transition-colors"
-                                  >
-                                    <Trash2 className="w-5 h-5" />
-                                  </button>
-                                </td>
-                              </motion.tr>
-                            ))}
-                          </AnimatePresence>
-                        </tbody>
-                        <tfoot className="bg-gray-50/50">
-                          <tr className="font-bold text-lg">
-                            <td colSpan={2} className="p-6 text-left text-gray-600">{t("total")}:</td>
-                            <td className="p-6 text-center text-red-600">{totals.debit.toFixed(2)}</td>
-                            <td className="p-6 text-center text-green-600">{totals.credit.toFixed(2)}</td>
-                            <td></td>
-                          </tr>
-                        </tfoot>
+                                  </td>
+                                  <td className="p-2">
+                                    <div className="relative">
+                                      <ArrowDown className="absolute left-2 top-1/2 -translate-y-1/2 w-3 h-3 text-red-400" />
+                                      <input 
+                                        type="number"
+                                        step="0.01"
+                                        value={line.debit}
+                                        onChange={(e) => handleLineChange(index, "debit", e.target.value)}
+                                        className="w-full p-3 pl-7 text-center font-bold text-red-600 border-2 border-gray-100 rounded-lg focus:border-red-200 outline-none bg-white text-sm"
+                                      />
+                                    </div>
+                                  </td>
+                                  <td className="p-2">
+                                    <div className="relative">
+                                      <ArrowUp className="absolute left-2 top-1/2 -translate-y-1/2 w-3 h-3 text-green-400" />
+                                      <input 
+                                        type="number"
+                                        step="0.01"
+                                        value={line.credit}
+                                        onChange={(e) => handleLineChange(index, "credit", e.target.value)}
+                                        className="w-full p-3 pl-7 text-center font-bold text-green-600 border-2 border-gray-100 rounded-lg focus:border-green-200 outline-none bg-white text-sm"
+                                      />
+                                    </div>
+                                  </td>
+                                  <td className="p-2 text-center">
+                                    <button 
+                                      type="button" 
+                                      onClick={() => removeRow(index)}
+                                      className="p-2 text-red-400 hover:bg-red-50 rounded-lg transition-colors"
+                                    >
+                                      <Trash2 className="w-5 h-5" />
+                                    </button>
+                                  </td>
+                                </motion.tr>
+                              ))}
+                            </AnimatePresence>
+                          </tbody>
+                          <tfoot className="bg-gray-50/50">
+                            <tr className="font-bold text-lg">
+                              <td colSpan={3} className="p-6 text-left text-gray-600">{t("total")}:</td>
+                              <td className="p-6 text-center text-red-600">{totals.debit.toFixed(2)}</td>
+                              <td className="p-6 text-center text-green-600">{totals.credit.toFixed(2)}</td>
+                              <td></td>
+                            </tr>
+                          </tfoot>
                       </table>
                     </div>
 

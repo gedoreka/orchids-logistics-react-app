@@ -46,6 +46,7 @@ export async function POST(request: NextRequest) {
         entry_number,
         entry_date,
         account_id: parseInt(line.account_id),
+        cost_center_id: line.cost_center_id ? parseInt(line.cost_center_id) : null,
         description: line.description || "",
         debit: parseFloat(line.debit) || 0,
         credit: parseFloat(line.credit) || 0,
