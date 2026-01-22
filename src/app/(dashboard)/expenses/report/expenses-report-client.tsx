@@ -244,8 +244,8 @@ export function ExpensesReportClient({ companyId }: ExpensesReportClientProps) {
       // Map common Arabic names from DB to translation keys
       const mapping: Record<string, string> = {
         "اصدار اقامة": "iqama_renewal",
-        "تجديد اقامة": "iqama_renewal",
         "إصدار إقامة": "iqama_renewal",
+        "تجديد اقامة": "iqama_renewal",
         "تجديد إقامة": "iqama_renewal",
         "انترنت": "internet",
         "إنترنت": "internet",
@@ -255,15 +255,21 @@ export function ExpensesReportClient({ companyId }: ExpensesReportClientProps) {
         "إيجار سكن": "housing",
         "مخالفات": "traffic",
         "سلف": "advances",
-        "سلفيات": "advances"
+        "سلفيات": "advances",
+        "استقطاع": "deductions",
+        "استقطاعات": "deductions"
       };
 
-      const key = mapping[typeLower] || mapping[type] || typeLower;
+      const key = mapping[typeLower] || typeLower;
       const translated = t(`types.${key}`);
       
-      // If translation key doesn't exist, it returns the key. 
-      // In that case, we return the original type.
-      return translated.includes('types.') ? type : translated;
+      // If translation key doesn't exist, it returns the key (e.g., 'expenses.types.something').
+      // We check if the result still contains the prefix to determine if translation failed.
+      if (translated.includes('types.')) {
+        return type;
+      }
+      
+      return translated;
     };
 
     const fetchReportData = useCallback(async () => {

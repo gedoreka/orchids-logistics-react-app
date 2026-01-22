@@ -763,15 +763,22 @@
         "confirmDeleteMessage": "هل أنت متأكد من حذف هذه العملية؟ لا يمكن التراجع عن هذا الإجراء.",
         "yesDelete": "نعم، حذف"
       },
-      "common": {
-        "status": "الحالة",
-        "details": "التفاصيل",
-        "type": "النوع",
-        "actions": "الإجراءات",
-        "cancel": "إلغاء",
-        "operationCount": "{count} عملية"
-      },
-      "dashboard": {
+        "common": {
+          "status": "الحالة",
+          "details": "التفاصيل",
+          "type": "النوع",
+          "actions": "الإجراءات",
+          "cancel": "إلغاء",
+          "save": "حفظ",
+          "operationCount": "{count} عملية"
+        },
+        "fleet": {
+          "print": "طباعة"
+        },
+        "expenses": {
+          "totalDeductions": "إجمالي الاستقطاعات"
+        },
+        "dashboard": {
       "title": "مركز المنصرفات الشهرية",
       "totalExpenses": "إجمالي المنصرفات",
       "totalDeductions": "إجمالي الاستقطاعات",
@@ -845,8 +852,10 @@
           "traffic": "مخالفات مرورية",
           "advances": "السلفيات",
           "deductions": "استقطاعات",
-          "other": "أخرى"
-        },
+            "other": "أخرى",
+            "اصدار اقامة": "إصدار/تجديد إقامة",
+            "إصدار إقامة": "إصدار/تجديد إقامة"
+          },
     "deductions": {
       "title": "إضافة استقطاعات شهرية",
       "subtitle": "تسجيل كافة الاستقطاعات والخصومات الشهرية للموظفين والمنشأة",
