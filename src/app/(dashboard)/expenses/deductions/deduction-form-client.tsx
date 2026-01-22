@@ -100,9 +100,10 @@ function EmployeeSelect({ row, type, metadata, updateRow, t }: {
         <button 
           type="button"
           onClick={() => updateRow(type, row.id, 'manualEmployee', false)}
-          className="text-rose-500"
+          className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-rose-600 to-pink-600 text-white rounded-xl hover:from-rose-700 hover:to-pink-700 transition-all text-xs font-black shrink-0 shadow-lg shadow-rose-200"
         >
           <Search className="w-4 h-4" />
+          <span>البحث في قاعدة البيانات</span>
         </button>
       </div>
     );
@@ -489,9 +490,9 @@ export default function DeductionFormClient({ user }: { user: User }) {
                 <div className="overflow-x-auto p-4">
                   <table className="w-full text-start border-collapse min-w-[1000px]">
                     <thead>
-                      <tr className="bg-rose-50/50 border-b border-rose-100 text-rose-900/70 text-xs uppercase tracking-wider">
+                      <tr className="bg-rose-600 border-b border-rose-700 text-white text-[10px] uppercase tracking-wider">
                         {headersMap[type].map((h, i) => (
-                          <th key={i} className="px-4 py-4 font-bold text-start whitespace-nowrap">{t(`form.${h}`)}</th>
+                          <th key={i} className="px-4 py-4 font-black text-start whitespace-nowrap">{t(`form.${h}`)}</th>
                         ))}
                       </tr>
                     </thead>
@@ -502,7 +503,7 @@ export default function DeductionFormClient({ user }: { user: User }) {
 
                           <input 
                             type="date" 
-                            className="w-full bg-transparent border-none focus:ring-0 text-sm"
+                            className="w-full bg-transparent border-none focus:ring-0 text-xs font-bold"
                             value={row.expense_date}
                             onChange={(e) => updateRow(type, row.id, 'expense_date', e.target.value)}
                             required
@@ -510,7 +511,7 @@ export default function DeductionFormClient({ user }: { user: User }) {
                         </td>
                         <td className="px-2 py-4">
                           <select 
-                            className="w-full bg-transparent border-none focus:ring-0 text-sm font-semibold"
+                            className="w-full bg-transparent border-none focus:ring-0 text-xs font-bold"
                             value={row.deduction_type}
                             onChange={(e) => updateRow(type, row.id, 'deduction_type', e.target.value)}
                           >
@@ -528,20 +529,20 @@ export default function DeductionFormClient({ user }: { user: User }) {
                         <td className="px-2 py-4">
                           <input 
                             type="number" 
-                            className="w-24 bg-transparent border-none focus:ring-0 text-sm font-bold text-rose-600"
+                            className="w-20 bg-transparent border-none focus:ring-0 text-xs font-black text-rose-700"
                             placeholder="0.00"
                             value={row.amount}
                             onChange={(e) => updateRow(type, row.id, 'amount', e.target.value)}
                             required
                           />
                         </td>
-                        <td className="px-2 py-4">
+                        <td className="px-2 py-4 min-w-[200px]">
                           <EmployeeSelect row={row} type={type} metadata={metadata} updateRow={updateRow} t={t} />
                         </td>
                         <td className="px-2 py-4">
                           <input 
                             type="text" 
-                            className="w-28 bg-transparent border-none focus:ring-0 text-sm text-slate-500"
+                            className="w-24 bg-transparent border-none focus:ring-0 text-xs font-bold text-slate-600"
                             value={row.employee_iqama}
                             readOnly={!row.manualEmployee}
                             onChange={(e) => updateRow(type, row.id, 'employee_iqama', e.target.value)}
@@ -549,28 +550,32 @@ export default function DeductionFormClient({ user }: { user: User }) {
                           />
                         </td>
                         <td className="px-2 py-4">
-                          <select 
-                            className="w-full bg-transparent border-none focus:ring-0 text-sm"
-                            value={row.account_id}
-                            onChange={(e) => updateRow(type, row.id, 'account_id', e.target.value)}
-                          >
-                            <option value="">-- {t("form.account")} --</option>
-                            {(metadata?.accounts || []).map(acc => (
-                              <option key={acc.id} value={acc.id}>{acc.account_code} - {acc.account_name}</option>
-                            ))}
-                          </select>
+                          <div className="w-32">
+                            <select 
+                              className="w-full bg-transparent border-none focus:ring-0 text-xs font-bold truncate"
+                              value={row.account_id}
+                              onChange={(e) => updateRow(type, row.id, 'account_id', e.target.value)}
+                            >
+                              <option value="">-- {t("form.account")} --</option>
+                              {(metadata?.accounts || []).map(acc => (
+                                <option key={acc.id} value={acc.id}>{acc.account_code} - {acc.account_name}</option>
+                              ))}
+                            </select>
+                          </div>
                         </td>
                         <td className="px-2 py-4">
-                          <select 
-                            className="w-full bg-transparent border-none focus:ring-0 text-sm"
-                            value={row.cost_center_id}
-                            onChange={(e) => updateRow(type, row.id, 'cost_center_id', e.target.value)}
-                          >
-                            <option value="">-- {t("form.costCenter")} --</option>
-                            {(metadata?.costCenters || []).map(cc => (
-                              <option key={cc.id} value={cc.id}>{cc.center_code} - {cc.center_name}</option>
-                            ))}
-                          </select>
+                          <div className="w-32">
+                            <select 
+                              className="w-full bg-transparent border-none focus:ring-0 text-xs font-bold truncate"
+                              value={row.cost_center_id}
+                              onChange={(e) => updateRow(type, row.id, 'cost_center_id', e.target.value)}
+                            >
+                              <option value="">-- {t("form.costCenter")} --</option>
+                              {(metadata?.costCenters || []).map(cc => (
+                                <option key={cc.id} value={cc.id}>{cc.center_code} - {cc.center_name}</option>
+                              ))}
+                            </select>
+                          </div>
                         </td>
                         <td className="px-2 py-4">
                           <input 

@@ -394,17 +394,17 @@ export function IqamaReportClient({
           {/* Table */}
           <div className="overflow-x-auto">
             <table className="w-full text-right">
-              <thead>
-                <tr className="bg-gray-50 border-b border-gray-100">
-                  <th className="px-6 py-4 text-[10px] font-black text-gray-500 uppercase tracking-wider w-16">#</th>
-                  <th className="px-6 py-4 text-[10px] font-black text-gray-500 uppercase tracking-wider">الموظف</th>
-                  <th className="px-6 py-4 text-[10px] font-black text-gray-500 uppercase tracking-wider">رقم الإقامة</th>
-                  <th className="px-6 py-4 text-[10px] font-black text-gray-500 uppercase tracking-wider">الباقة</th>
-                  <th className="px-6 py-4 text-[10px] font-black text-gray-500 uppercase tracking-wider">تاريخ الانتهاء</th>
-                  <th className="px-6 py-4 text-[10px] font-black text-gray-500 uppercase tracking-wider">المدة المتبقية</th>
-                  <th className="px-6 py-4 text-[10px] font-black text-gray-500 uppercase tracking-wider text-center">الحالة</th>
-                </tr>
-              </thead>
+                <thead>
+                  <tr className="bg-gray-900 border-b border-gray-800 text-white">
+                    <th className="px-4 py-3 text-[10px] font-black uppercase tracking-wider w-12 text-center">#</th>
+                    <th className="px-4 py-3 text-[10px] font-black uppercase tracking-wider">{tCommon("employee")}</th>
+                    <th className="px-4 py-3 text-[10px] font-black uppercase tracking-wider w-32">{tCommon("iqamaNumber")}</th>
+                    <th className="px-4 py-3 text-[10px] font-black uppercase tracking-wider w-32">{tCommon("package")}</th>
+                    <th className="px-4 py-3 text-[10px] font-black uppercase tracking-wider w-32">{tCommon("expiryDate")}</th>
+                    <th className="px-4 py-3 text-[10px] font-black uppercase tracking-wider w-32">{tCommon("remainingTime")}</th>
+                    <th className="px-4 py-3 text-[10px] font-black uppercase tracking-wider text-center w-28">{tCommon("status")}</th>
+                  </tr>
+                </thead>
               <tbody className="divide-y divide-gray-50">
                 {iqamaData.map((item, idx) => {
                   const statusInfo = getStatusInfo(item.days_remaining);

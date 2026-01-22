@@ -645,13 +645,13 @@ export default function IncomeFormClient({ user }: { user: User }) {
                 <div className="overflow-x-auto">
                     <table className="w-full text-right">
                         <thead>
-                            <tr className="bg-white/5 border-b border-white/5">
-                                <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">{t("table.no")}</th>
-                                <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">{t("table.type")}</th>
-                                <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">{t("table.date")}</th>
-                                <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">{t("table.method")}</th>
-                                <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">{t("table.total")}</th>
-                                <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">{t("table.actions")}</th>
+                            <tr className="bg-cyan-600 border-b border-cyan-700 text-white">
+                                <th className="px-6 py-5 text-[10px] font-black uppercase tracking-widest">{t("table.no")}</th>
+                                <th className="px-6 py-5 text-[10px] font-black uppercase tracking-widest">{t("table.type")}</th>
+                                <th className="px-6 py-5 text-[10px] font-black uppercase tracking-widest">{t("table.date")}</th>
+                                <th className="px-6 py-5 text-[10px] font-black uppercase tracking-widest text-center">{t("table.method")}</th>
+                                <th className="px-6 py-5 text-[10px] font-black uppercase tracking-widest">{t("table.total")}</th>
+                                <th className="px-6 py-5 text-[10px] font-black uppercase tracking-widest text-center">{t("table.actions")}</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-white/5">

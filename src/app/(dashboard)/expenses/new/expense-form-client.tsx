@@ -114,9 +114,10 @@ function EmployeeSelect({ row, type, metadata, updateRow, t }: {
         <button 
           type="button"
           onClick={() => updateRow(type, row.id, 'manualEmployee', false)}
-          className="text-blue-500"
+          className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl hover:from-blue-700 hover:to-indigo-700 transition-all text-xs font-black shrink-0 shadow-lg shadow-blue-200"
         >
           <Search className="w-4 h-4" />
+          <span>البحث في قاعدة البيانات</span>
         </button>
       </div>
     );
@@ -529,129 +530,133 @@ export default function ExpenseFormClient({ user }: { user: User }) {
                 </div>
 
                 <div className="overflow-x-auto p-4">
-                    <table className="w-full text-start border-collapse min-w-[1000px]">
-                      <thead>
-                        <tr className="bg-blue-50/50 border-b border-blue-100 text-blue-900/70 text-xs uppercase tracking-wider">
-                          {headersMap[type] ? headersMap[type].map((h, i) => (
-                            <th key={i} className="px-4 py-4 font-bold text-start whitespace-nowrap">
-                              {t(`form.${h === 'التاريخ' ? 'date' : h === 'نوع المصروف' ? 'type' : h === 'المبلغ' ? 'amount' : h === 'ضريبة 15%' ? 'tax' : h === 'الصافي' ? 'net' : h === 'الحساب' ? 'account' : h === 'مركز التكلفة' ? 'costCenter' : h === 'الوصف' ? 'description' : h === 'المستند' || h === 'المستند*' ? 'document' : h === 'رقم الإقامة' ? 'iqamaNumber' : h === 'الموظف' ? 'employee' : h === 'السائق' ? 'driver' : 'delete'}`)}
-                            </th>
-                          )) : headersMap.default.map((h, i) => (
-                            <th key={i} className="px-4 py-4 font-bold text-start whitespace-nowrap">{t(`form.${h === 'التاريخ' ? 'date' : h === 'نوع المصروف' ? 'type' : h === 'المبلغ' ? 'amount' : h === 'الحساب' ? 'account' : h === 'مركز التكلفة' ? 'costCenter' : h === 'الوصف' ? 'description' : h === 'المستند' ? 'document' : 'delete'}`)}</th>
-                          ))}
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {rows.map((row) => (
-                          <tr key={row.id} className="bg-white border-b border-slate-100 hover:bg-blue-50/30 transition-colors group">
-                            <td className="px-2 py-4">
+                      <table className="w-full text-start border-collapse min-w-[1000px]">
+                        <thead>
+                          <tr className="bg-blue-600 border-b border-blue-700 text-white text-[10px] uppercase tracking-wider">
+                            {headersMap[type] ? headersMap[type].map((h, i) => (
+                              <th key={i} className="px-4 py-4 font-black text-start whitespace-nowrap">
+                                {t(`form.${h === 'التاريخ' ? 'date' : h === 'نوع المصروف' ? 'type' : h === 'المبلغ' ? 'amount' : h === 'ضريبة 15%' ? 'tax' : h === 'الصافي' ? 'net' : h === 'الحساب' ? 'account' : h === 'مركز التكلفة' ? 'costCenter' : h === 'الوصف' ? 'description' : h === 'المستند' || h === 'المستند*' ? 'document' : h === 'رقم الإقامة' ? 'iqamaNumber' : h === 'الموظف' ? 'employee' : h === 'السائق' ? 'driver' : 'delete'}`)}
+                              </th>
+                            )) : headersMap.default.map((h, i) => (
+                              <th key={i} className="px-4 py-4 font-black text-start whitespace-nowrap">{t(`form.${h === 'التاريخ' ? 'date' : h === 'نوع المصروف' ? 'type' : h === 'المبلغ' ? 'amount' : h === 'الحساب' ? 'account' : h === 'مركز التكلفة' ? 'costCenter' : h === 'الوصف' ? 'description' : h === 'المستند' ? 'document' : 'delete'}`)}</th>
+                            ))}
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {rows.map((row) => (
+                            <tr key={row.id} className="bg-white border-b border-slate-100 hover:bg-blue-50/30 transition-colors group">
+                              <td className="px-2 py-4">
 
-                            <input 
-                              type="date" 
-                              className="w-full bg-transparent border-none focus:ring-0 text-sm"
-                              value={row.expense_date}
-                              onChange={(e) => updateRow(type, row.id, 'expense_date', e.target.value)}
-                              required
-                            />
-                          </td>
-                          <td className="px-2 py-4">
-                            <select 
-                              className="w-full bg-transparent border-none focus:ring-0 text-sm font-semibold"
-                              value={row.expense_type}
-                              onChange={(e) => updateRow(type, row.id, 'expense_type', e.target.value)}
-                            >
-                              <option value="">{t("form.selectType")}</option>
-                              {(metadata?.subtypes || [])
-                                .filter(s => s.main_type === type)
-                                .map(s => (
-                                  <option key={s.subtype_name} value={s.subtype_name}>{s.subtype_name}</option>
-                                ))}
-                              <option value="other">أخرى</option>
-                            </select>
-                          </td>
-                          <td className="px-2 py-4">
-                            <input 
-                              type="number" 
-                              className="w-24 bg-transparent border-none focus:ring-0 text-sm font-bold text-blue-600"
-                              placeholder="0.00"
-                              value={row.amount}
-                              onChange={(e) => updateRow(type, row.id, 'amount', e.target.value)}
-                              required
-                            />
-                          </td>
-                          {type === 'fuel' && (
-                            <>
-                              <td className="px-2 py-4 text-center">
-                                <input 
-                                  type="checkbox" 
-                                  className="w-5 h-5 rounded text-blue-600 cursor-pointer"
-                                  checked={row.taxable}
-                                  onChange={(e) => updateRow(type, row.id, 'taxable', e.target.checked)}
-                                />
-                              </td>
-                              <td className="px-2 py-4">
-                                <span className="text-sm font-bold text-green-600 bg-green-50 px-3 py-1 rounded-lg">{row.net_amount}</span>
-                              </td>
-                            </>
-                          )}
-                          {(type === 'iqama') && (
-                            <>
-                              <td className="px-2 py-4">
-                                <input 
-                                  type="text" 
-                                  className="w-28 bg-transparent border-none focus:ring-0 text-sm text-slate-500"
-                                  value={row.employee_iqama}
-                                  readOnly={!row.manualEmployee}
-                                  onChange={(e) => updateRow(type, row.id, 'employee_iqama', e.target.value)}
-                                  placeholder={t("form.iqamaNumber")}
-                                />
-                              </td>
-                              <td className="px-2 py-4">
-                                <EmployeeSelect row={row} type={type} metadata={metadata} updateRow={updateRow} t={t} />
-                              </td>
-                            </>
-                          )}
-                          {(type === 'traffic' || type === 'advances') && (
-                            <>
-                              <td className="px-2 py-4">
-                                <EmployeeSelect row={row} type={type} metadata={metadata} updateRow={updateRow} t={t} />
-                              </td>
-                              <td className="px-2 py-4">
-                                <input 
-                                  type="text" 
-                                  className="w-28 bg-transparent border-none focus:ring-0 text-sm text-slate-500"
-                                  value={row.employee_iqama}
-                                  readOnly={!row.manualEmployee}
-                                  onChange={(e) => updateRow(type, row.id, 'employee_iqama', e.target.value)}
-                                  placeholder={t("form.iqamaNumber")}
-                                />
-                              </td>
-                            </>
-                          )}
-                          <td className="px-2 py-4">
-                            <select 
-                              className="w-full bg-transparent border-none focus:ring-0 text-sm"
-                              value={row.account_code}
-                              onChange={(e) => updateRow(type, row.id, 'account_code', e.target.value)}
-                            >
-                              <option value="">-- {t("form.account")} --</option>
-                              {(metadata?.accounts || []).map(acc => (
-                                <option key={acc.id} value={acc.account_code}>{acc.account_code} - {acc.account_name}</option>
-                              ))}
-                            </select>
-                          </td>
-                          <td className="px-2 py-4">
-                            <select 
-                              className="w-full bg-transparent border-none focus:ring-0 text-sm"
-                              value={row.cost_center_code}
-                              onChange={(e) => updateRow(type, row.id, 'cost_center_code', e.target.value)}
-                            >
-                              <option value="">-- {t("form.costCenter")} --</option>
-                              {(metadata?.costCenters || []).map(cc => (
-                                <option key={cc.id} value={cc.center_code}>{cc.center_code} - {cc.center_name}</option>
-                              ))}
-                            </select>
-                          </td>
+                              <input 
+                                type="date" 
+                                className="w-full bg-transparent border-none focus:ring-0 text-xs font-bold"
+                                value={row.expense_date}
+                                onChange={(e) => updateRow(type, row.id, 'expense_date', e.target.value)}
+                                required
+                              />
+                            </td>
+                            <td className="px-2 py-4">
+                              <select 
+                                className="w-full bg-transparent border-none focus:ring-0 text-xs font-bold"
+                                value={row.expense_type}
+                                onChange={(e) => updateRow(type, row.id, 'expense_type', e.target.value)}
+                              >
+                                <option value="">{t("form.selectType")}</option>
+                                {(metadata?.subtypes || [])
+                                  .filter(s => s.main_type === type)
+                                  .map(s => (
+                                    <option key={s.subtype_name} value={s.subtype_name}>{s.subtype_name}</option>
+                                  ))}
+                                <option value="other">أخرى</option>
+                              </select>
+                            </td>
+                            <td className="px-2 py-4">
+                              <input 
+                                type="number" 
+                                className="w-20 bg-transparent border-none focus:ring-0 text-xs font-black text-blue-700"
+                                placeholder="0.00"
+                                value={row.amount}
+                                onChange={(e) => updateRow(type, row.id, 'amount', e.target.value)}
+                                required
+                              />
+                            </td>
+                            {type === 'fuel' && (
+                              <>
+                                <td className="px-2 py-4 text-center">
+                                  <input 
+                                    type="checkbox" 
+                                    className="w-4 h-4 rounded text-blue-600 cursor-pointer"
+                                    checked={row.taxable}
+                                    onChange={(e) => updateRow(type, row.id, 'taxable', e.target.checked)}
+                                  />
+                                </td>
+                                <td className="px-2 py-4">
+                                  <span className="text-xs font-black text-green-700 bg-green-50 px-2 py-1 rounded-lg border border-green-100">{row.net_amount}</span>
+                                </td>
+                              </>
+                            )}
+                            {(type === 'iqama') && (
+                              <>
+                                <td className="px-2 py-4">
+                                  <input 
+                                    type="text" 
+                                    className="w-24 bg-transparent border-none focus:ring-0 text-xs font-bold text-slate-600"
+                                    value={row.employee_iqama}
+                                    readOnly={!row.manualEmployee}
+                                    onChange={(e) => updateRow(type, row.id, 'employee_iqama', e.target.value)}
+                                    placeholder={t("form.iqamaNumber")}
+                                  />
+                                </td>
+                                <td className="px-2 py-4 min-w-[200px]">
+                                  <EmployeeSelect row={row} type={type} metadata={metadata} updateRow={updateRow} t={t} />
+                                </td>
+                              </>
+                            )}
+                            {(type === 'traffic' || type === 'advances') && (
+                              <>
+                                <td className="px-2 py-4 min-w-[200px]">
+                                  <EmployeeSelect row={row} type={type} metadata={metadata} updateRow={updateRow} t={t} />
+                                </td>
+                                <td className="px-2 py-4">
+                                  <input 
+                                    type="text" 
+                                    className="w-24 bg-transparent border-none focus:ring-0 text-xs font-bold text-slate-600"
+                                    value={row.employee_iqama}
+                                    readOnly={!row.manualEmployee}
+                                    onChange={(e) => updateRow(type, row.id, 'employee_iqama', e.target.value)}
+                                    placeholder={t("form.iqamaNumber")}
+                                  />
+                                </td>
+                              </>
+                            )}
+                            <td className="px-2 py-4">
+                              <div className="w-32">
+                                <select 
+                                  className="w-full bg-transparent border-none focus:ring-0 text-xs font-bold truncate"
+                                  value={row.account_code}
+                                  onChange={(e) => updateRow(type, row.id, 'account_code', e.target.value)}
+                                >
+                                  <option value="">-- {t("form.account")} --</option>
+                                  {(metadata?.accounts || []).map(acc => (
+                                    <option key={acc.id} value={acc.account_code}>{acc.account_code} - {acc.account_name}</option>
+                                  ))}
+                                </select>
+                              </div>
+                            </td>
+                            <td className="px-2 py-4">
+                              <div className="w-32">
+                                <select 
+                                  className="w-full bg-transparent border-none focus:ring-0 text-xs font-bold truncate"
+                                  value={row.cost_center_code}
+                                  onChange={(e) => updateRow(type, row.id, 'cost_center_code', e.target.value)}
+                                >
+                                  <option value="">-- {t("form.costCenter")} --</option>
+                                  {(metadata?.costCenters || []).map(cc => (
+                                    <option key={cc.id} value={cc.center_code}>{cc.center_code} - {cc.center_name}</option>
+                                  ))}
+                                </select>
+                              </div>
+                            </td>
                           <td className="px-2 py-4">
                             <input 
                               type="text" 
