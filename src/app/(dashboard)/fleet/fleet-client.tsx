@@ -108,7 +108,7 @@ function DashboardStatCard({ title, value, icon, color, desc, alert }: any) {
         )}
       </div>
       <div>
-        <p className="text-white/50 font-black text-[10px] uppercase tracking-wider mb-1">{title}</p>
+          <p className="text-white/70 font-black text-[10px] uppercase tracking-wider mb-1">{title}</p>
         <div className="flex items-baseline gap-2">
           <span className="text-3xl font-black text-white tracking-tight">{value}</span>
           <span className="text-[10px] font-black opacity-40 uppercase">{desc}</span>
@@ -1354,7 +1354,7 @@ export function FleetClient({
   return (
     <div className="max-w-[98%] mx-auto p-4 md:p-8" dir={locale === 'ar' ? "rtl" : "ltr"}>
       {/* Unified Main Card */}
-      <div className="bg-white rounded-[3rem] border border-gray-100 shadow-2xl shadow-slate-200/50 overflow-hidden flex flex-col p-8 space-y-8">
+      <div className="bg-slate-950 rounded-[3rem] border border-white/5 shadow-2xl overflow-hidden flex flex-col p-8 space-y-8">
         
         {/* Luxurious Hero Section */}
         <motion.div
@@ -1414,16 +1414,16 @@ export function FleetClient({
           <div className="flex items-center justify-center mb-8">
             <TabsList className="bg-[#1e293b]/50 backdrop-blur-xl p-1.5 rounded-2xl border border-white/10 h-16 shadow-2xl">
                 {[
-                  { id: "dashboard", label: t('dashboard'), icon: <LayoutDashboard size={18} /> },
-                  { id: "vehicles", label: t('vehicles'), icon: <Car size={18} /> },
-                  { id: "inventory", label: t('inventory'), icon: <Box size={18} /> },
-                  { id: "maintenance", label: t('maintenance'), icon: <Wrench size={18} /> },
-                  { id: "costs", label: t('costs'), icon: <Calculator size={18} /> }
+                  { id: "dashboard", label: t('dashboard'), icon: <LayoutDashboard size={18} className="text-blue-400" /> },
+                  { id: "vehicles", label: t('vehicles'), icon: <Car size={18} className="text-emerald-400" /> },
+                  { id: "inventory", label: t('inventory'), icon: <Box size={18} className="text-blue-400" /> },
+                  { id: "maintenance", label: t('maintenance'), icon: <Wrench size={18} className="text-amber-400" /> },
+                  { id: "costs", label: t('costs'), icon: <Calculator size={18} className="text-rose-400" /> }
                 ].map((tab) => (
                 <TabsTrigger 
                   key={tab.id}
                   value={tab.id} 
-                  className="rounded-xl px-8 h-full data-[state=active]:bg-white data-[state=active]:text-[#1e293b] data-[state=active]:shadow-xl font-black text-white/50 transition-all gap-2"
+                  className="rounded-xl px-8 h-full data-[state=active]:bg-white/10 data-[state=active]:text-white data-[state=active]:border-white/20 data-[state=active]:shadow-2xl font-black text-white/50 transition-all gap-2 border border-transparent"
                 >
                   {tab.icon}
                   {tab.label}
@@ -1455,10 +1455,10 @@ export function FleetClient({
                   <Table>
                     <TableHeader>
                       <TableRow className="border-white/5 hover:bg-transparent">
-                        <TableHead className="text-white/40 font-black uppercase text-[10px]">{t('vehicles')}</TableHead>
-                        <TableHead className="text-white/40 font-black uppercase text-[10px]">{t('date')}</TableHead>
-                        <TableHead className="text-white/40 font-black uppercase text-[10px]">{t('totalCost')}</TableHead>
-                        <TableHead className="text-white/40 font-black uppercase text-[10px] text-center">{t('status')}</TableHead>
+                        <TableHead className="text-white/60 font-black uppercase text-[10px]">{t('vehicles')}</TableHead>
+                        <TableHead className="text-white/60 font-black uppercase text-[10px]">{t('date')}</TableHead>
+                        <TableHead className="text-white/60 font-black uppercase text-[10px]">{t('totalCost')}</TableHead>
+                        <TableHead className="text-white/60 font-black uppercase text-[10px] text-center">{t('status')}</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -1502,10 +1502,10 @@ export function FleetClient({
                   <Table>
                     <TableHeader>
                       <TableRow className="border-white/5 hover:bg-transparent">
-                        <TableHead className="text-white/40 font-black uppercase text-[10px]">{t('units.item')}</TableHead>
-                        <TableHead className="text-white/40 font-black uppercase text-[10px]">{t('inventory')}</TableHead>
-                        <TableHead className="text-white/40 font-black uppercase text-[10px]">{t('minQuantity')}</TableHead>
-                        <TableHead className="text-white/40 font-black uppercase text-[10px] text-center">{t('actions')}</TableHead>
+                        <TableHead className="text-white/60 font-black uppercase text-[10px]">{t('units.item')}</TableHead>
+                        <TableHead className="text-white/60 font-black uppercase text-[10px]">{t('inventory')}</TableHead>
+                        <TableHead className="text-white/60 font-black uppercase text-[10px]">{t('minQuantity')}</TableHead>
+                        <TableHead className="text-white/60 font-black uppercase text-[10px] text-center">{t('actions')}</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -1539,7 +1539,7 @@ export function FleetClient({
                   </div>
                   <div>
                     <h3 className="text-2xl font-black text-white">{t('fleetRegistry')}</h3>
-                    <p className="text-white/40 text-sm font-medium">{t('fleetRegistryDesc')}</p>
+                    <p className="text-white/60 text-sm font-medium">{t('fleetRegistryDesc')}</p>
                   </div>
                 </div>
                 <div className="relative w-full md:w-96">
@@ -1557,12 +1557,12 @@ export function FleetClient({
                 <Table>
                   <TableHeader>
                     <TableRow className="bg-white/5 border-white/10">
-                      <TableHead className="text-white/40 font-black uppercase text-[10px] px-8 py-5">{t('plateNumber')}</TableHead>
-                      <TableHead className="text-white/40 font-black uppercase text-[10px]">{t('brand')} & {t('model')}</TableHead>
-                      <TableHead className="text-white/40 font-black uppercase text-[10px]">{t('driver')}</TableHead>
-                      <TableHead className="text-white/40 font-black uppercase text-[10px]">{t('currentMileage')}</TableHead>
-                      <TableHead className="text-white/40 font-black uppercase text-[10px] text-center">{t('status')}</TableHead>
-                      <TableHead className="text-white/40 font-black uppercase text-[10px] text-left px-8">{t('actions')}</TableHead>
+                      <TableHead className="text-white/60 font-black uppercase text-[10px] px-8 py-5">{t('plateNumber')}</TableHead>
+                      <TableHead className="text-white/60 font-black uppercase text-[10px]">{t('brand')} & {t('model')}</TableHead>
+                      <TableHead className="text-white/60 font-black uppercase text-[10px]">{t('driver')}</TableHead>
+                      <TableHead className="text-white/60 font-black uppercase text-[10px]">{t('currentMileage')}</TableHead>
+                      <TableHead className="text-white/60 font-black uppercase text-[10px] text-center">{t('status')}</TableHead>
+                      <TableHead className="text-white/60 font-black uppercase text-[10px] text-left px-8">{t('actions')}</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -1660,7 +1660,7 @@ export function FleetClient({
                     </div>
                     <div>
                       <h3 className="text-2xl font-black text-white">{t('inventoryManagement')}</h3>
-                      <p className="text-white/40 text-sm font-medium">{t('inventoryManagementDesc')}</p>
+                      <p className="text-white/60 text-sm font-medium">{t('inventoryManagementDesc')}</p>
                     </div>
                   </div>
                 </CardHeader>
@@ -1668,11 +1668,11 @@ export function FleetClient({
                   <Table>
                     <TableHeader>
                       <TableRow className="bg-white/5 border-white/10">
-                        <TableHead className="text-white/40 font-black uppercase text-[10px] px-8 py-5">{t('spareName')}</TableHead>
-                        <TableHead className="text-white/40 font-black uppercase text-[10px]">{t('category')}</TableHead>
-                        <TableHead className="text-white/40 font-black uppercase text-[10px]">{t('quantity')}</TableHead>
-                        <TableHead className="text-white/40 font-black uppercase text-[10px]">{t('costPrice')}</TableHead>
-                        <TableHead className="text-white/40 font-black uppercase text-[10px] text-left px-8">{t('actions')}</TableHead>
+                        <TableHead className="text-white/60 font-black uppercase text-[10px] px-8 py-5">{t('spareName')}</TableHead>
+                        <TableHead className="text-white/60 font-black uppercase text-[10px]">{t('category')}</TableHead>
+                        <TableHead className="text-white/60 font-black uppercase text-[10px]">{t('quantity')}</TableHead>
+                        <TableHead className="text-white/60 font-black uppercase text-[10px]">{t('costPrice')}</TableHead>
+                        <TableHead className="text-white/60 font-black uppercase text-[10px] text-left px-8">{t('actions')}</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -1734,7 +1734,7 @@ export function FleetClient({
                   </div>
                   <div>
                     <h3 className="text-2xl font-black text-white">{t('maintenanceRegistry')}</h3>
-                    <p className="text-white/40 text-sm font-medium">{t('maintenanceRegistryDesc')}</p>
+                    <p className="text-white/60 text-sm font-medium">{t('maintenanceRegistryDesc')}</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-3">
@@ -1748,13 +1748,13 @@ export function FleetClient({
                 <Table>
                   <TableHeader>
                     <TableRow className="bg-white/5 border-white/10">
-                      <TableHead className="text-white/40 font-black uppercase text-[10px] px-8 py-5">{t('maintenanceOrder')}</TableHead>
-                      <TableHead className="text-white/40 font-black uppercase text-[10px]">{t('vehicles')}</TableHead>
-                      <TableHead className="text-white/40 font-black uppercase text-[10px]">{t('technician')}</TableHead>
-                      <TableHead className="text-white/40 font-black uppercase text-[10px]">{t('date')}</TableHead>
-                      <TableHead className="text-white/40 font-black uppercase text-[10px]">{t('totalCost')}</TableHead>
-                      <TableHead className="text-white/40 font-black uppercase text-[10px] text-center">{t('status')}</TableHead>
-                      <TableHead className="text-white/40 font-black uppercase text-[10px] text-left px-8">{t('actions')}</TableHead>
+                      <TableHead className="text-white/60 font-black uppercase text-[10px] px-8 py-5">{t('maintenanceOrder')}</TableHead>
+                      <TableHead className="text-white/60 font-black uppercase text-[10px]">{t('vehicles')}</TableHead>
+                      <TableHead className="text-white/60 font-black uppercase text-[10px]">{t('technician')}</TableHead>
+                      <TableHead className="text-white/60 font-black uppercase text-[10px]">{t('date')}</TableHead>
+                      <TableHead className="text-white/60 font-black uppercase text-[10px]">{t('totalCost')}</TableHead>
+                      <TableHead className="text-white/60 font-black uppercase text-[10px] text-center">{t('status')}</TableHead>
+                      <TableHead className="text-white/60 font-black uppercase text-[10px] text-left px-8">{t('actions')}</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -1780,7 +1780,7 @@ export function FleetClient({
                           </div>
                         </TableCell>
                         <TableCell>
-                          <div className="flex items-center gap-2 text-xs text-white/40 font-bold">
+                          <div className="flex items-center gap-2 text-xs text-white/60 font-bold">
                             <Calendar size={14} />
                             {new Date(m.maintenance_date).toLocaleDateString('en-GB')}
                           </div>
@@ -1930,9 +1930,9 @@ export function FleetClient({
                     <Table>
                       <TableHeader>
                         <TableRow className="border-white/5 hover:bg-transparent">
-                          <TableHead className="text-white/40 font-black uppercase text-[10px]">{t('vehicles')}</TableHead>
-                          <TableHead className="text-white/40 font-black uppercase text-[10px]">{t('maintenanceOrdersCount')}</TableHead>
-                          <TableHead className="text-white/40 font-black uppercase text-[10px]">{t('totalCost')}</TableHead>
+                          <TableHead className="text-white/60 font-black uppercase text-[10px]">{t('vehicles')}</TableHead>
+                          <TableHead className="text-white/60 font-black uppercase text-[10px]">{t('maintenanceOrdersCount')}</TableHead>
+                          <TableHead className="text-white/60 font-black uppercase text-[10px]">{t('totalCost')}</TableHead>
                         </TableRow>
                       </TableHeader>
                       <TableBody>
