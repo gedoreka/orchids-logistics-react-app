@@ -18,7 +18,7 @@ interface Employee {
   name: string;
   iqama_number: string;
   phone: string;
-  package_name: string;
+  package_id: number;
 }
 
 interface Account {
@@ -94,46 +94,12 @@ function EmployeeSelect({ row, type, metadata, updateRow, t }: {
 }) {
   const [searchTerm, setSearchTerm] = useState("");
   const [isOpen, setIsOpen] = useState(false);
-  const [coords, setCoords] = useState({ top: 0, left: 0, width: 0 });
   const containerRef = useRef<HTMLDivElement>(null);
-  const triggerRef = useRef<HTMLDivElement>(null);
 
   const filteredEmployees = (metadata?.employees || []).filter((emp: Employee) => 
     (emp.name || "").toLowerCase().includes(searchTerm.toLowerCase()) || 
     (emp.iqama_number || "").includes(searchTerm)
   );
-
-  const updatePosition = () => {
-    if (triggerRef.current) {
-      const rect = triggerRef.current.getBoundingClientRect();
-      const dropdownWidth = 280;
-      const centerX = rect.left + (rect.width / 2);
-      let leftPos = centerX - (dropdownWidth / 2);
-      
-      if (leftPos < 10) leftPos = 10;
-      if (leftPos + dropdownWidth > window.innerWidth - 10) {
-        leftPos = window.innerWidth - dropdownWidth - 10;
-      }
-
-      setCoords({
-        top: rect.bottom + 4,
-        left: leftPos,
-        width: dropdownWidth
-      });
-    }
-  };
-
-  useEffect(() => {
-    if (isOpen) {
-      updatePosition();
-      window.addEventListener('scroll', updatePosition, true);
-      window.addEventListener('resize', updatePosition);
-    }
-    return () => {
-      window.removeEventListener('scroll', updatePosition, true);
-      window.removeEventListener('resize', updatePosition);
-    };
-  }, [isOpen]);
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -169,7 +135,7 @@ function EmployeeSelect({ row, type, metadata, updateRow, t }: {
   return (
     <div className="relative group" ref={containerRef}>
       <div className="flex items-center space-x-2 space-x-reverse">
-        <div className="relative w-full" ref={triggerRef}>
+        <div className="relative w-full">
           <div 
             onClick={() => setIsOpen(!isOpen)}
             className="w-full bg-white/50 border border-slate-200 cursor-pointer text-sm font-medium py-1.5 px-3 flex items-center justify-between min-h-[36px] hover:bg-white hover:border-blue-300 rounded-lg transition-all shadow-sm"
@@ -182,14 +148,8 @@ function EmployeeSelect({ row, type, metadata, updateRow, t }: {
 
           {isOpen && (
             <div 
-              style={{ 
-                position: 'fixed',
-                top: `${coords.top}px`,
-                left: `${coords.left}px`,
-                width: `${coords.width}px`,
-                zIndex: 9999
-              }}
-              className="bg-white border border-slate-200 rounded-2xl shadow-[0_20px_70px_-10px_rgba(0,0,0,0.3)] overflow-hidden animate-in fade-in zoom-in duration-200"
+              className="absolute top-full left-0 mt-2 w-[280px] bg-white border border-slate-200 rounded-2xl shadow-[0_20px_70px_-10px_rgba(0,0,0,0.3)] overflow-hidden animate-in fade-in zoom-in duration-200 z-[9999]"
+              style={{ left: document.dir === 'rtl' ? 'auto' : 0, right: document.dir === 'rtl' ? 0 : 'auto' }}
             >
               <div className="p-3 border-b border-slate-100 bg-slate-50/50">
                 <div className="relative">
