@@ -104,45 +104,45 @@ export function CreditNotesListClient({ creditNotes: initialNotes }: CreditNotes
         className="max-w-[98%] mx-auto px-4 pt-6"
       >
         {/* Unified Professional Card */}
-        <div className="bg-white rounded-3xl border border-gray-100 shadow-2xl shadow-gray-200/50 overflow-hidden flex flex-col">
+        <div className="bg-slate-900 rounded-3xl border border-white/5 shadow-2xl overflow-hidden flex flex-col">
           
-          {/* Luxury Integrated Header */}
-          <div className="p-8 space-y-8 bg-gradient-to-b from-gray-50/50 to-white border-b border-gray-100">
-            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
-              <div className="flex items-center gap-4">
-                <div className="h-14 w-14 rounded-2xl bg-gradient-to-br from-rose-500 to-pink-600 flex items-center justify-center shadow-lg shadow-rose-500/30">
-                  <ReceiptText className="text-white" size={28} />
-                </div>
-                <div>
-                  <div className="flex items-center gap-2 text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">
-                    <Link href="/dashboard" className="hover:text-rose-600 transition-colors flex items-center gap-1">
-                      <LayoutDashboard size={12} />
-                      {locale === 'ar' ? 'لوحة التحكم' : 'Dashboard'}
-                    </Link>
-                    <ArrowRight size={10} className={cn(locale === 'ar' && "rotate-180")} />
-                    <span className="text-rose-600">{t('breadcrumb')}</span>
+            {/* Luxury Integrated Header */}
+            <div className="p-8 space-y-8 bg-slate-900 border-b border-white/5">
+              <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+                <div className="flex items-center gap-4">
+                  <div className="h-14 w-14 rounded-2xl bg-gradient-to-br from-rose-500 to-pink-600 flex items-center justify-center shadow-lg shadow-rose-500/30 border border-white/10">
+                    <ReceiptText className="text-white" size={28} />
                   </div>
-                  <h1 className="text-2xl font-black text-gray-900 tracking-tight">{t('title')}</h1>
+                  <div>
+                    <div className="flex items-center gap-2 text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">
+                      <Link href="/dashboard" className="hover:text-rose-400 transition-colors flex items-center gap-1">
+                        <LayoutDashboard size={12} />
+                        {locale === 'ar' ? 'لوحة التحكم' : 'Dashboard'}
+                      </Link>
+                      <ArrowRight size={10} className={cn(locale === 'ar' && "rotate-180")} />
+                      <span className="text-rose-500">{t('breadcrumb')}</span>
+                    </div>
+                    <h1 className="text-2xl font-black text-white tracking-tight">{t('title')}</h1>
+                  </div>
                 </div>
-              </div>
 
-              <div className="flex items-center gap-4">
-                <div className="hidden md:flex items-center gap-2 px-5 py-2.5 bg-rose-50 border border-rose-100 rounded-2xl">
-                  <div className="w-2.5 h-2.5 rounded-full bg-rose-500 animate-pulse shadow-[0_0_10px_rgba(244,63,94,0.5)]"></div>
-                  <span className="text-xs font-black text-rose-700 tracking-wide uppercase">{t('zatcaCompliant')}</span>
+                <div className="flex items-center gap-4">
+                  <div className="hidden md:flex items-center gap-2 px-5 py-2.5 bg-white/5 border border-white/10 rounded-2xl">
+                    <div className="w-2.5 h-2.5 rounded-full bg-rose-500 animate-pulse shadow-[0_0_10px_rgba(244,63,94,0.5)]"></div>
+                    <span className="text-xs font-black text-rose-400 tracking-wide uppercase">{t('zatcaCompliant')}</span>
+                  </div>
+                  <Link href="/credit-notes/new">
+                    <motion.button
+                      whileHover={{ scale: 1.02, translateY: -2 }}
+                      whileTap={{ scale: 0.98 }}
+                      className="flex items-center gap-2.5 px-6 py-3.5 rounded-2xl bg-gradient-to-r from-rose-600 to-pink-600 text-white hover:from-rose-700 hover:to-pink-700 transition-all font-black text-sm shadow-xl shadow-rose-500/25"
+                    >
+                      <Plus size={20} />
+                      {t('createNew')}
+                    </motion.button>
+                  </Link>
                 </div>
-                <Link href="/credit-notes/new">
-                  <motion.button
-                    whileHover={{ scale: 1.02, translateY: -2 }}
-                    whileTap={{ scale: 0.98 }}
-                    className="flex items-center gap-2.5 px-6 py-3.5 rounded-2xl bg-gradient-to-r from-rose-600 to-pink-600 text-white hover:from-rose-700 hover:to-pink-700 transition-all font-black text-sm shadow-xl shadow-rose-500/25"
-                  >
-                    <Plus size={20} />
-                    {t('createNew')}
-                  </motion.button>
-                </Link>
               </div>
-            </div>
 
             {/* Statistics Integrated Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 pt-2">
@@ -267,151 +267,152 @@ export function CreditNotesListClient({ creditNotes: initialNotes }: CreditNotes
               </div>
             </div>
 
-            {/* Table */}
-            <div className="overflow-x-auto">
-              <table className="w-full border-collapse">
-                <thead>
-                  <tr className="bg-gray-50/80 border-b border-gray-100">
-                    <th className="px-8 py-5 text-[11px] font-black text-gray-500 uppercase tracking-widest text-right">{t('noteNumber')}</th>
-                    <th className="px-8 py-5 text-[11px] font-black text-gray-500 uppercase tracking-widest text-right">{t('invoice')}</th>
-                    <th className="px-8 py-5 text-[11px] font-black text-gray-500 uppercase tracking-widest text-right">{t('client')}</th>
-                    <th className="px-8 py-5 text-[11px] font-black text-gray-500 uppercase tracking-widest text-right">{t('reason')}</th>
-                    <th className="px-8 py-5 text-[11px] font-black text-gray-500 uppercase tracking-widest text-center">{t('amount')}</th>
-                    <th className="px-8 py-5 text-[11px] font-black text-gray-500 uppercase tracking-widest text-center">{t('date')}</th>
-                    <th className="px-8 py-5 text-[11px] font-black text-gray-500 uppercase tracking-widest text-center">{t('status')}</th>
-                    <th className="px-8 py-5 text-[11px] font-black text-gray-500 uppercase tracking-widest text-center">{t('actions')}</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-50">
-                  <AnimatePresence>
-                    {filteredNotes.map((note, index) => (
-                      <motion.tr
-                        key={note.id}
-                        initial={{ opacity: 0, x: -10 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        exit={{ opacity: 0, x: 10 }}
-                        transition={{ delay: 0.03 * index }}
-                        className="hover:bg-rose-50/40 transition-all group border-l-4 border-l-transparent hover:border-l-rose-500"
-                      >
-                        <td className="px-8 py-5 whitespace-nowrap">
-                          <div className="flex items-center gap-3">
-                            <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-rose-100 to-pink-100 flex items-center justify-center group-hover:scale-110 transition-transform shadow-sm">
-                              <ReceiptText size={16} className="text-rose-600" />
+              {/* Table */}
+              <div className="overflow-x-auto bg-slate-900/50">
+                <table className="w-full border-collapse">
+                  <thead>
+                    <tr className="bg-white/5 border-b border-white/5">
+                      <th className="px-8 py-5 text-[11px] font-black text-slate-400 uppercase tracking-widest text-right">{t('noteNumber')}</th>
+                      <th className="px-8 py-5 text-[11px] font-black text-slate-400 uppercase tracking-widest text-right">{t('invoice')}</th>
+                      <th className="px-8 py-5 text-[11px] font-black text-slate-400 uppercase tracking-widest text-right">{t('client')}</th>
+                      <th className="px-8 py-5 text-[11px] font-black text-slate-400 uppercase tracking-widest text-right">{t('reason')}</th>
+                      <th className="px-8 py-5 text-[11px] font-black text-slate-400 uppercase tracking-widest text-center">{t('amount')}</th>
+                      <th className="px-8 py-5 text-[11px] font-black text-slate-400 uppercase tracking-widest text-center">{t('date')}</th>
+                      <th className="px-8 py-5 text-[11px] font-black text-slate-400 uppercase tracking-widest text-center">{t('status')}</th>
+                      <th className="px-8 py-5 text-[11px] font-black text-slate-400 uppercase tracking-widest text-center">{t('actions')}</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-white/5">
+                    <AnimatePresence>
+                      {filteredNotes.map((note, index) => (
+                        <motion.tr
+                          key={note.id}
+                          initial={{ opacity: 0, x: -10 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          exit={{ opacity: 0, x: 10 }}
+                          transition={{ delay: 0.03 * index }}
+                          className="hover:bg-white/5 transition-all group border-l-4 border-l-transparent hover:border-l-rose-500"
+                        >
+                          <td className="px-8 py-5 whitespace-nowrap">
+                            <div className="flex items-center gap-3">
+                              <div className="h-10 w-10 rounded-xl bg-rose-500/10 flex items-center justify-center group-hover:scale-110 transition-transform shadow-sm border border-rose-500/20">
+                                <ReceiptText size={16} className="text-rose-400" />
+                              </div>
+                              <span className="font-black text-white text-sm tracking-tight">{note.credit_note_number}</span>
                             </div>
-                            <span className="font-black text-gray-900 text-sm tracking-tight">{note.credit_note_number}</span>
-                          </div>
-                        </td>
-                        <td className="px-8 py-5 whitespace-nowrap">
-                          <div className="flex flex-col">
-                            <span className="font-bold text-gray-700 text-sm">{note.invoice_number}</span>
-                            <span className="text-[10px] text-gray-400 font-black uppercase tracking-wide">{note.invoice_status}</span>
-                          </div>
-                        </td>
-                        <td className="px-8 py-5 whitespace-nowrap">
-                          <span className="font-bold text-gray-700 text-sm">{note.client_name}</span>
-                        </td>
-                        <td className="px-8 py-5 whitespace-nowrap">
-                          <span className="text-gray-500 text-xs truncate max-w-[180px] block font-medium" title={note.reason}>
-                            {note.reason}
-                          </span>
-                        </td>
-                        <td className="px-8 py-5 whitespace-nowrap text-center">
-                          <div className="flex flex-col items-center">
-                            <span className="font-black text-rose-600 text-sm">
-                              {parseFloat(String(note.total_amount)).toLocaleString(locale === 'ar' ? 'ar-SA' : 'en-US', { minimumFractionDigits: 2 })} {locale === 'ar' ? 'ريال' : 'SAR'}
+                          </td>
+                          <td className="px-8 py-5 whitespace-nowrap">
+                            <div className="flex flex-col">
+                              <span className="font-bold text-slate-200 text-sm">{note.invoice_number}</span>
+                              <span className="text-[10px] text-slate-500 font-black uppercase tracking-wide">{note.invoice_status}</span>
+                            </div>
+                          </td>
+                          <td className="px-8 py-5 whitespace-nowrap">
+                            <span className="font-bold text-slate-200 text-sm">{note.client_name}</span>
+                          </td>
+                          <td className="px-8 py-5 whitespace-nowrap">
+                            <span className="text-slate-400 text-xs truncate max-w-[180px] block font-medium" title={note.reason}>
+                              {note.reason}
                             </span>
-                            <span className="text-[10px] text-gray-400 font-black uppercase tracking-tighter opacity-70">{t('includingTax')}</span>
-                          </div>
-                        </td>
-                        <td className="px-8 py-5 whitespace-nowrap text-center">
-                          <span className="text-gray-500 font-bold text-xs bg-gray-100 px-3 py-1.5 rounded-full">
-                            {note.created_at ? format(new Date(note.created_at), 'yyyy-MM-dd', { locale: dateLocale }) : '-'}
-                          </span>
-                        </td>
-                        <td className="px-8 py-5 whitespace-nowrap text-center">
-                          <StatusBadge status={note.status} t={t} />
-                        </td>
-                        <td className="px-8 py-5 whitespace-nowrap text-center">
-                          <div className="flex items-center justify-center gap-2">
-                            <Link href={`/credit-notes/${note.id}`}>
+                          </td>
+                          <td className="px-8 py-5 whitespace-nowrap text-center">
+                            <div className="flex flex-col items-center">
+                              <span className="font-black text-rose-400 text-sm">
+                                {parseFloat(String(note.total_amount)).toLocaleString(locale === 'ar' ? 'ar-SA' : 'en-US', { minimumFractionDigits: 2 })} {locale === 'ar' ? 'ريال' : 'SAR'}
+                              </span>
+                              <span className="text-[10px] text-slate-500 font-black uppercase tracking-tighter opacity-70">{t('includingTax')}</span>
+                            </div>
+                          </td>
+                          <td className="px-8 py-5 whitespace-nowrap text-center">
+                            <span className="text-slate-400 font-bold text-xs bg-white/5 px-3 py-1.5 rounded-full border border-white/5">
+                              {note.created_at ? format(new Date(note.created_at), 'yyyy-MM-dd', { locale: dateLocale }) : '-'}
+                            </span>
+                          </td>
+                          <td className="px-8 py-5 whitespace-nowrap text-center">
+                            <StatusBadge status={note.status} t={t} />
+                          </td>
+                          <td className="px-8 py-5 whitespace-nowrap text-center">
+                            <div className="flex items-center justify-center gap-2">
+                              <Link href={`/credit-notes/${note.id}`}>
+                                <motion.button 
+                                  whileHover={{ scale: 1.15, rotate: 5 }}
+                                  whileTap={{ scale: 0.9 }}
+                                  className="p-2.5 text-blue-400 hover:bg-blue-500/10 rounded-xl transition-all border border-transparent hover:border-blue-500/20" 
+                                  title={t('viewDetails')}
+                                >
+                                  <Eye size={18} />
+                                </motion.button>
+                              </Link>
                               <motion.button 
-                                whileHover={{ scale: 1.15, rotate: 5 }}
+                                whileHover={{ scale: 1.15, rotate: -5 }}
                                 whileTap={{ scale: 0.9 }}
-                                className="p-2.5 text-blue-500 hover:bg-blue-50 rounded-xl transition-all border border-transparent hover:border-blue-100" 
-                                title={t('viewDetails')}
+                                  className="p-2.5 text-amber-400 hover:bg-amber-500/10 rounded-xl transition-all border border-transparent hover:border-amber-500/20" 
+                                title={t('downloadPdf')}
                               >
-                                <Eye size={18} />
+                                <FileDown size={18} />
+                              </motion.button>
+                              {note.status === 'active' && (
+                                <motion.button 
+                                  whileHover={{ scale: 1.15, rotate: 10 }}
+                                  whileTap={{ scale: 0.9 }}
+                                  onClick={() => handleCancel(note.id)}
+                                  className="p-2.5 text-rose-400 hover:bg-rose-500/10 rounded-xl transition-all border border-transparent hover:border-rose-500/20" 
+                                  title={t('cancelNote')}
+                                >
+                                  <XCircle size={18} />
+                                </motion.button>
+                              )}
+                            </div>
+                          </td>
+                        </motion.tr>
+                      ))}
+                    </AnimatePresence>
+                    {filteredNotes.length === 0 && (
+                      <tr>
+                        <td colSpan={8} className="px-8 py-24 text-center">
+                          <div className="flex flex-col items-center gap-4">
+                            <div className="h-24 w-24 rounded-3xl bg-white/5 flex items-center justify-center border-2 border-dashed border-white/10">
+                              <FileText size={48} className="text-slate-700" />
+                            </div>
+                            <div className="space-y-1">
+                              <p className="text-slate-400 font-black text-base">{t('noData')}</p>
+                              <p className="text-slate-500 text-sm font-bold">{t('noDataSub')}</p>
+                            </div>
+                            <Link href="/credit-notes/new">
+                              <motion.button
+                                whileHover={{ scale: 1.05 }}
+                                whileTap={{ scale: 0.95 }}
+                                className="mt-4 flex items-center gap-2.5 px-6 py-3 rounded-2xl bg-white/5 text-rose-400 hover:bg-white/10 transition-all font-black text-sm border border-white/10"
+                              >
+                                <Plus size={18} />
+                                {t('new.breadcrumb')}
                               </motion.button>
                             </Link>
-                            <motion.button 
-                              whileHover={{ scale: 1.15, rotate: -5 }}
-                              whileTap={{ scale: 0.9 }}
-                              className="p-2.5 text-amber-500 hover:bg-amber-50 rounded-xl transition-all border border-transparent hover:border-amber-100" 
-                              title={t('downloadPdf')}
-                            >
-                              <FileDown size={18} />
-                            </motion.button>
-                            {note.status === 'active' && (
-                              <motion.button 
-                                whileHover={{ scale: 1.15, rotate: 10 }}
-                                whileTap={{ scale: 0.9 }}
-                                onClick={() => handleCancel(note.id)}
-                                className="p-2.5 text-rose-500 hover:bg-rose-50 rounded-xl transition-all border border-transparent hover:border-rose-100" 
-                                title={t('cancelNote')}
-                              >
-                                <XCircle size={18} />
-                              </motion.button>
-                            )}
                           </div>
                         </td>
-                      </motion.tr>
-                    ))}
-                  </AnimatePresence>
-                  {filteredNotes.length === 0 && (
-                    <tr>
-                      <td colSpan={8} className="px-8 py-24 text-center">
-                        <div className="flex flex-col items-center gap-4">
-                          <div className="h-24 w-24 rounded-3xl bg-gray-50 flex items-center justify-center border-2 border-dashed border-gray-200">
-                            <FileText size={48} className="text-gray-200" />
-                          </div>
-                          <div className="space-y-1">
-                            <p className="text-gray-500 font-black text-base">{t('noData')}</p>
-                            <p className="text-gray-400 text-sm font-bold">{t('noDataSub')}</p>
-                          </div>
-                          <Link href="/credit-notes/new">
-                            <motion.button
-                              whileHover={{ scale: 1.05 }}
-                              whileTap={{ scale: 0.95 }}
-                              className="mt-4 flex items-center gap-2.5 px-6 py-3 rounded-2xl bg-rose-50 text-rose-600 hover:bg-rose-100 transition-all font-black text-sm border border-rose-200"
-                            >
-                              <Plus size={18} />
-                              {t('new.breadcrumb')}
-                            </motion.button>
-                          </Link>
-                        </div>
-                      </td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
-            </div>
-
-            {/* Table Footer */}
-            <div className="bg-gray-50/50 px-8 py-5 border-t border-gray-100">
-              <div className="flex items-center justify-between text-xs font-black text-gray-500 uppercase tracking-widest">
-                <span className="bg-white px-4 py-2 rounded-xl border border-gray-100 shadow-sm">{t('totalItems')}: {filteredNotes.length}</span>
-                <div className="flex items-center gap-6">
-                  <span className="flex items-center gap-2 px-4 py-2 bg-white rounded-xl border border-gray-100 shadow-sm">
-                    <div className="w-2 h-2 rounded-full bg-emerald-500"></div>
-                    {activeNotes.length} {t('active')}
-                  </span>
-                  <span className="flex items-center gap-2 px-4 py-2 bg-white rounded-xl border border-gray-100 shadow-sm">
-                    <div className="w-2 h-2 rounded-full bg-gray-300"></div>
-                    {creditNotes.length - activeNotes.length} {t('cancelled')}
-                  </span>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+  
+              {/* Table Footer */}
+              <div className="bg-slate-900 px-8 py-5 border-t border-white/5">
+                <div className="flex items-center justify-between text-xs font-black text-slate-500 uppercase tracking-widest">
+                  <span className="bg-white/5 px-4 py-2 rounded-xl border border-white/5 shadow-sm">{t('totalItems')}: {filteredNotes.length}</span>
+                  <div className="flex items-center gap-6">
+                    <span className="flex items-center gap-2 px-4 py-2 bg-white/5 rounded-xl border border-white/5 shadow-sm">
+                      <div className="w-2 h-2 rounded-full bg-emerald-500"></div>
+                      {activeNotes.length} {t('active')}
+                    </span>
+                    <span className="flex items-center gap-2 px-4 py-2 bg-white/5 rounded-xl border border-white/5 shadow-sm">
+                      <div className="w-2 h-2 rounded-full bg-slate-700"></div>
+                      {creditNotes.length - activeNotes.length} {t('cancelled')}
+                    </span>
+                  </div>
                 </div>
               </div>
-            </div>
+
           </div>
         </div>
 

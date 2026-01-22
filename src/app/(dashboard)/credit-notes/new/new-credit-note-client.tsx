@@ -169,42 +169,42 @@ export function NewCreditNoteClient({ invoices }: NewCreditNoteClientProps) {
         className="max-w-[98%] mx-auto px-4 pt-6"
       >
         {/* Unified Professional Card */}
-        <div className="bg-white rounded-3xl border border-gray-100 shadow-2xl shadow-gray-200/50 overflow-hidden flex flex-col">
+        <div className="bg-slate-900 rounded-3xl border border-white/5 shadow-2xl overflow-hidden flex flex-col">
           
           {/* Luxury Integrated Header */}
-          <div className="p-8 space-y-8 bg-gradient-to-b from-gray-50/50 to-white border-b border-gray-100">
+          <div className="p-8 space-y-8 bg-slate-900 border-b border-white/5">
             <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
               <div className="flex items-center gap-4">
-                <div className="h-14 w-14 rounded-2xl bg-gradient-to-br from-rose-500 to-pink-600 flex items-center justify-center shadow-lg shadow-rose-500/30">
+                <div className="h-14 w-14 rounded-2xl bg-gradient-to-br from-rose-500 to-pink-600 flex items-center justify-center shadow-lg shadow-rose-500/30 border border-white/10">
                   <ReceiptText className="text-white" size={28} />
                 </div>
                 <div>
-                  <div className="flex items-center gap-2 text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">
-                    <Link href="/dashboard" className="hover:text-rose-600 transition-colors flex items-center gap-1">
+                  <div className="flex items-center gap-2 text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">
+                    <Link href="/dashboard" className="hover:text-rose-400 transition-colors flex items-center gap-1">
                       <LayoutDashboard size={12} />
                       {locale === 'ar' ? 'لوحة التحكم' : 'Dashboard'}
                     </Link>
                     <ArrowRight size={10} className={cn(locale === 'ar' && "rotate-180")} />
-                    <Link href="/credit-notes" className="hover:text-rose-600 transition-colors">
+                    <Link href="/credit-notes" className="hover:text-rose-400 transition-colors">
                       {t('breadcrumb')}
                     </Link>
                     <ArrowRight size={10} className={cn(locale === 'ar' && "rotate-180")} />
-                    <span className="text-rose-600">{t('new.breadcrumb')}</span>
+                    <span className="text-rose-500">{t('new.breadcrumb')}</span>
                   </div>
-                  <h1 className="text-2xl font-black text-gray-900 tracking-tight">{t('new.title')}</h1>
+                  <h1 className="text-2xl font-black text-white tracking-tight">{t('new.title')}</h1>
                 </div>
               </div>
 
               <div className="flex items-center gap-4">
-                <div className="hidden md:flex items-center gap-2 px-5 py-2.5 bg-rose-50 border border-rose-100 rounded-2xl">
+                <div className="hidden md:flex items-center gap-2 px-5 py-2.5 bg-white/5 border border-white/10 rounded-2xl">
                   <div className="w-2.5 h-2.5 rounded-full bg-rose-500 animate-pulse shadow-[0_0_10px_rgba(244,63,94,0.5)]"></div>
-                  <span className="text-xs font-black text-rose-700 tracking-wide uppercase">{t('zatcaCompliant')}</span>
+                  <span className="text-xs font-black text-rose-400 tracking-wide uppercase">{t('zatcaCompliant')}</span>
                 </div>
                 <Link href="/credit-notes">
                   <motion.button
                     whileHover={{ scale: 1.02, translateX: locale === 'ar' ? 2 : -2 }}
                     whileTap={{ scale: 0.98 }}
-                    className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gray-100 text-gray-600 hover:bg-gray-200 transition-all font-black text-xs border border-gray-200"
+                    className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-white/5 text-slate-300 hover:bg-white/10 transition-all font-black text-xs border border-white/10"
                   >
                     {locale === 'ar' ? <ArrowRight size={16} /> : <ChevronLeft size={16} />}
                     {locale === 'ar' ? 'العودة للسجل' : 'Back to Log'}
@@ -295,12 +295,12 @@ export function NewCreditNoteClient({ invoices }: NewCreditNoteClientProps) {
           </div>
 
           {/* Form Area Integrated into the Card */}
-          <div className="p-8">
+          <div className="p-8 bg-slate-900/50">
             <form onSubmit={handleSubmit} className="grid grid-cols-1 lg:grid-cols-3 gap-8">
               <div className="lg:col-span-2 space-y-8">
                 <motion.div
                   variants={itemVariants}
-                  className="bg-white rounded-2xl border border-gray-100 shadow-xl shadow-gray-100/50 overflow-hidden"
+                  className="bg-white/5 rounded-2xl border border-white/5 shadow-xl overflow-hidden"
                 >
                   <div className="bg-gradient-to-r from-blue-600 to-indigo-600 px-6 py-5">
                     <div className="flex items-center gap-3">
@@ -317,39 +317,39 @@ export function NewCreditNoteClient({ invoices }: NewCreditNoteClientProps) {
                   <div className="p-8 space-y-8">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div className="space-y-2.5">
-                        <label className="text-xs font-black text-gray-500 uppercase flex items-center gap-2 px-1">
+                        <label className="text-xs font-black text-slate-400 uppercase flex items-center gap-2 px-1">
                           <Hash size={14} className="text-blue-500" />
                           {t('new.selectInvoice')}
                         </label>
                         <div className="relative group">
-                          <Receipt className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-blue-500 transition-colors" size={18} />
+                          <Receipt className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-blue-500 transition-colors" size={18} />
                           <select
-                            className="w-full h-14 pr-12 pl-4 rounded-2xl bg-gray-50 border-2 border-transparent text-sm font-black focus:border-blue-500/30 focus:bg-white outline-none transition-all appearance-none cursor-pointer shadow-sm hover:bg-gray-100/50"
+                            className="w-full h-14 pr-12 pl-4 rounded-2xl bg-white/5 border-2 border-transparent text-sm font-black text-white focus:border-blue-500/30 focus:bg-white/10 outline-none transition-all appearance-none cursor-pointer shadow-sm hover:bg-white/10"
                             value={selectedInvoiceId}
                             onChange={(e) => setSelectedInvoiceId(e.target.value)}
                             required
                           >
-                            <option value="">{t('new.selectFromList')}</option>
+                            <option value="" className="bg-slate-900">{t('new.selectFromList')}</option>
                             {invoices.map(inv => (
-                              <option key={inv.id} value={inv.id.toString()}>
+                              <option key={inv.id} value={inv.id.toString()} className="bg-slate-900 text-white">
                                 {inv.invoice_number} - {inv.client_name} ({parseFloat(String(inv.total_amount)).toLocaleString()} {locale === 'ar' ? 'ريال' : 'SAR'})
                               </option>
                             ))}
                           </select>
-                          <ChevronDown className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-blue-500 transition-colors" size={18} />
+                          <ChevronDown className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-blue-500 transition-colors" size={18} />
                         </div>
                       </div>
 
                       <div className="space-y-2.5">
-                        <label className="text-xs font-black text-gray-500 uppercase flex items-center gap-2 px-1">
+                        <label className="text-xs font-black text-slate-400 uppercase flex items-center gap-2 px-1">
                           <User size={14} className="text-blue-500" />
                           {t('new.clientName')}
                         </label>
                         <div className="relative">
-                          <Building2 className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+                          <Building2 className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500" size={18} />
                           <input
                             type="text"
-                            className="w-full h-14 pr-12 pl-4 rounded-2xl bg-gray-100/50 border-2 border-transparent text-sm font-black text-gray-500 cursor-not-allowed shadow-inner"
+                            className="w-full h-14 pr-12 pl-4 rounded-2xl bg-white/5 border-2 border-transparent text-sm font-black text-slate-400 cursor-not-allowed shadow-inner"
                             value={selectedInvoice?.client_name || t('new.autoSelected')}
                             readOnly
                           />
@@ -363,30 +363,30 @@ export function NewCreditNoteClient({ invoices }: NewCreditNoteClientProps) {
                           initial={{ opacity: 0, height: 0 }}
                           animate={{ opacity: 1, height: "auto" }}
                           exit={{ opacity: 0, height: 0 }}
-                          className="p-6 bg-gradient-to-br from-blue-50/50 to-indigo-50/50 rounded-2xl border border-blue-100/50 shadow-sm"
+                          className="p-6 bg-blue-500/5 rounded-2xl border border-blue-500/10 shadow-sm"
                         >
                           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
                             <div className="space-y-1">
-                              <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest block">{t('new.invoiceTotal')}</span>
-                              <span className="text-sm font-black text-gray-800">
+                              <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest block">{t('new.invoiceTotal')}</span>
+                              <span className="text-sm font-black text-white">
                                 {parseFloat(String(selectedInvoice.total_amount)).toLocaleString()} {locale === 'ar' ? 'ريال' : 'SAR'}
                               </span>
                             </div>
                             <div className="space-y-1">
-                              <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest block">{t('new.previousReturn')}</span>
-                              <span className="text-sm font-black text-rose-600">
+                              <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest block">{t('new.previousReturn')}</span>
+                              <span className="text-sm font-black text-rose-400">
                                 {parseFloat(String(selectedInvoice.total_issued)).toLocaleString()} {locale === 'ar' ? 'ريال' : 'SAR'}
                               </span>
                             </div>
                             <div className="space-y-1">
-                              <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest block">{t('new.availableForReturn')}</span>
-                              <span className="text-sm font-black text-emerald-600">
+                              <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest block">{t('new.availableForReturn')}</span>
+                              <span className="text-sm font-black text-emerald-400">
                                 {availableAmount.toLocaleString()} {locale === 'ar' ? 'ريال' : 'SAR'}
                               </span>
                             </div>
                             <div className="space-y-1">
-                              <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest block">{t('new.vatNumber')}</span>
-                              <span className="text-sm font-black text-gray-800">
+                              <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest block">{t('new.vatNumber')}</span>
+                              <span className="text-sm font-black text-white">
                                 {selectedInvoice.client_vat || t('new.notAvailable')}
                               </span>
                             </div>
@@ -396,12 +396,12 @@ export function NewCreditNoteClient({ invoices }: NewCreditNoteClientProps) {
                     </AnimatePresence>
 
                     <div className="space-y-2.5">
-                      <label className="text-xs font-black text-gray-500 uppercase flex items-center gap-2 px-1">
+                      <label className="text-xs font-black text-slate-400 uppercase flex items-center gap-2 px-1">
                         <MessageSquare size={14} className="text-blue-500" />
                         {t('new.reasonLabel')}
                       </label>
                       <textarea
-                        className="w-full px-6 py-5 rounded-2xl bg-gray-50 border-2 border-transparent text-sm font-black focus:border-blue-500/30 focus:bg-white outline-none transition-all min-h-[140px] resize-none shadow-sm hover:bg-gray-100/50"
+                        className="w-full px-6 py-5 rounded-2xl bg-white/5 border-2 border-transparent text-sm font-black text-white focus:border-blue-500/30 focus:bg-white/10 outline-none transition-all min-h-[140px] resize-none shadow-sm hover:bg-white/10 placeholder:text-slate-600"
                         placeholder={t('new.reasonPlaceholder')}
                         value={reason}
                         onChange={(e) => setReason(e.target.value)}
@@ -413,7 +413,7 @@ export function NewCreditNoteClient({ invoices }: NewCreditNoteClientProps) {
 
                 <motion.div
                   variants={itemVariants}
-                  className="bg-white rounded-2xl border border-gray-100 shadow-xl shadow-gray-100/50 overflow-hidden"
+                  className="bg-white/5 rounded-2xl border border-white/5 shadow-xl overflow-hidden"
                 >
                   <div className="bg-gradient-to-r from-amber-500 to-orange-500 px-6 py-5">
                     <div className="flex items-center gap-3">
@@ -430,7 +430,7 @@ export function NewCreditNoteClient({ invoices }: NewCreditNoteClientProps) {
                   <div className="p-8">
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                       <div className="space-y-2.5">
-                        <label className="text-xs font-black text-gray-500 uppercase flex items-center gap-2 px-1">
+                        <label className="text-xs font-black text-slate-400 uppercase flex items-center gap-2 px-1">
                           <Coins size={14} className="text-rose-500" />
                           {t('new.amountLabel')}
                         </label>
@@ -438,7 +438,7 @@ export function NewCreditNoteClient({ invoices }: NewCreditNoteClientProps) {
                           <input
                             type="number"
                             step="0.01"
-                            className="w-full h-14 px-6 rounded-2xl bg-rose-50/50 border-2 border-rose-100 text-sm font-black focus:border-rose-400 focus:bg-white outline-none transition-all text-rose-600 shadow-sm"
+                            className="w-full h-14 px-6 rounded-2xl bg-rose-500/5 border-2 border-rose-500/20 text-sm font-black focus:border-rose-400 focus:bg-white/10 outline-none transition-all text-rose-400 shadow-sm"
                             placeholder="0.00"
                             value={amount}
                             onChange={(e) => setAmount(e.target.value)}
@@ -450,33 +450,33 @@ export function NewCreditNoteClient({ invoices }: NewCreditNoteClientProps) {
                         {selectedInvoiceId && (
                           <div className="flex items-center gap-1.5 px-1">
                             <AlertCircle size={10} className="text-rose-400" />
-                            <p className="text-[10px] font-black text-gray-400 uppercase tracking-tight">
-                              {t('new.maxLimit')}: <span className="text-rose-600 font-black">{availableAmount.toLocaleString()} {locale === 'ar' ? 'ريال' : 'SAR'}</span>
+                            <p className="text-[10px] font-black text-slate-500 uppercase tracking-tight">
+                              {t('new.maxLimit')}: <span className="text-rose-400 font-black">{availableAmount.toLocaleString()} {locale === 'ar' ? 'ريال' : 'SAR'}</span>
                             </p>
                           </div>
                         )}
                       </div>
 
                       <div className="space-y-2.5">
-                        <label className="text-xs font-black text-gray-500 uppercase flex items-center gap-2 px-1">
+                        <label className="text-xs font-black text-slate-400 uppercase flex items-center gap-2 px-1">
                           <Calculator size={14} className="text-slate-400" />
                           {t('new.amountBeforeTax')}
                         </label>
-                        <div className="w-full h-14 px-6 rounded-2xl bg-gray-100/50 border-2 border-gray-200 flex items-center justify-between shadow-inner">
-                          <span className="text-sm font-black text-gray-600">
+                        <div className="w-full h-14 px-6 rounded-2xl bg-white/5 border-2 border-white/5 flex items-center justify-between shadow-inner">
+                          <span className="text-sm font-black text-slate-200">
                             {calculations.beforeVat.toLocaleString(locale === 'ar' ? 'ar-SA' : 'en-US', { minimumFractionDigits: 2 })}
                           </span>
-                          <span className="text-[10px] font-black text-gray-400 uppercase">{locale === 'ar' ? 'ريال' : 'SAR'}</span>
+                          <span className="text-[10px] font-black text-slate-500 uppercase">{locale === 'ar' ? 'ريال' : 'SAR'}</span>
                         </div>
                       </div>
 
                       <div className="space-y-2.5">
-                        <label className="text-xs font-black text-gray-500 uppercase flex items-center gap-2 px-1">
+                        <label className="text-xs font-black text-slate-400 uppercase flex items-center gap-2 px-1">
                           <Percent size={14} className="text-amber-500" />
                           {t('new.vatValue')}
                         </label>
-                        <div className="w-full h-14 px-6 rounded-2xl bg-amber-50/50 border-2 border-amber-100 flex items-center justify-between shadow-inner">
-                          <span className="text-sm font-black text-amber-700">
+                        <div className="w-full h-14 px-6 rounded-2xl bg-amber-500/5 border-2 border-amber-500/10 flex items-center justify-between shadow-inner">
+                          <span className="text-sm font-black text-amber-400">
                             {calculations.vatAmount.toLocaleString(locale === 'ar' ? 'ar-SA' : 'en-US', { minimumFractionDigits: 2 })}
                           </span>
                           <span className="text-[10px] font-black text-amber-500 uppercase">{locale === 'ar' ? 'ريال' : 'SAR'}</span>
@@ -490,7 +490,7 @@ export function NewCreditNoteClient({ invoices }: NewCreditNoteClientProps) {
               <div className="space-y-8">
                 <motion.div
                   variants={itemVariants}
-                  className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-3xl shadow-2xl p-8 text-white relative overflow-hidden"
+                  className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-3xl shadow-2xl p-8 text-white relative overflow-hidden border border-white/5"
                 >
                   <div className="absolute top-0 right-0 w-32 h-32 bg-rose-500/10 rounded-full -mr-16 -mt-16 blur-3xl"></div>
                   <div className="absolute bottom-0 left-0 w-32 h-32 bg-blue-500/10 rounded-full -ml-16 -mb-16 blur-3xl"></div>
@@ -600,18 +600,18 @@ export function NewCreditNoteClient({ invoices }: NewCreditNoteClientProps) {
 
                 <motion.div
                   variants={itemVariants}
-                  className="bg-gradient-to-br from-amber-50 to-orange-50 p-6 rounded-3xl border border-amber-200 shadow-sm relative group"
+                  className="bg-amber-500/10 p-6 rounded-3xl border border-amber-500/20 shadow-sm relative group"
                 >
                   <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
-                    <AlertTriangle size={48} className="text-amber-600" />
+                    <AlertTriangle size={48} className="text-amber-400" />
                   </div>
                   <div className="flex gap-4 relative z-10">
-                    <div className="p-3 bg-amber-100 rounded-2xl text-amber-600 shrink-0 h-fit shadow-sm">
+                    <div className="p-3 bg-amber-500/20 rounded-2xl text-amber-400 shrink-0 h-fit shadow-sm">
                       <AlertTriangle size={20} />
                     </div>
                     <div className="space-y-2">
-                      <p className="text-sm font-black text-amber-800 uppercase tracking-wide">{t('new.taxNote')}</p>
-                      <p className="text-xs font-bold text-amber-600 leading-relaxed">
+                      <p className="text-sm font-black text-amber-200 uppercase tracking-wide">{t('new.taxNote')}</p>
+                      <p className="text-xs font-bold text-amber-400/70 leading-relaxed">
                         {t('new.taxNoteDesc')}
                       </p>
                     </div>
