@@ -12,6 +12,7 @@ import { useRouter } from "next/navigation";
 import { User } from "@/lib/types";
 import DeductionSubtypeManager from "./deduction-subtype-manager";
 import { useTranslations } from "@/lib/locale-context";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 
 interface Employee {
   id: number;
@@ -80,56 +81,11 @@ function EmployeeSelect({ row, type, metadata, updateRow, t }: {
 }) {
   const [searchTerm, setSearchTerm] = useState("");
   const [isOpen, setIsOpen] = useState(false);
-  const [coords, setCoords] = useState({ top: 0, left: 0, width: 0 });
-  const containerRef = useRef<HTMLDivElement>(null);
-  const triggerRef = useRef<HTMLDivElement>(null);
 
   const filteredEmployees = (metadata?.employees || []).filter((emp: Employee) => 
     (emp.name || "").toLowerCase().includes(searchTerm.toLowerCase()) || 
     (emp.iqama_number || "").includes(searchTerm)
   );
-
-  const updatePosition = () => {
-    if (triggerRef.current) {
-      const rect = triggerRef.current.getBoundingClientRect();
-      const dropdownWidth = 280;
-      const centerX = rect.left + (rect.width / 2);
-      let leftPos = centerX - (dropdownWidth / 2);
-      
-      if (leftPos < 10) leftPos = 10;
-      if (leftPos + dropdownWidth > window.innerWidth - 10) {
-        leftPos = window.innerWidth - dropdownWidth - 10;
-      }
-
-      setCoords({
-        top: rect.bottom + 4,
-        left: leftPos,
-        width: dropdownWidth
-      });
-    }
-  };
-
-  useEffect(() => {
-    if (isOpen) {
-      updatePosition();
-      window.addEventListener('scroll', updatePosition, true);
-      window.addEventListener('resize', updatePosition);
-    }
-    return () => {
-      window.removeEventListener('scroll', updatePosition, true);
-      window.removeEventListener('resize', updatePosition);
-    };
-  }, [isOpen]);
-
-  useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
-      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
-        setIsOpen(false);
-      }
-    }
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
 
   if (row.manualEmployee) {
     return (
@@ -153,89 +109,85 @@ function EmployeeSelect({ row, type, metadata, updateRow, t }: {
   }
 
   return (
-    <div className="relative group" ref={containerRef}>
-      <div className="flex items-center space-x-2 space-x-reverse">
-        <div className="relative w-full" ref={triggerRef}>
-          <div 
-            onClick={() => setIsOpen(!isOpen)}
-            className="w-full bg-white/50 border border-slate-200 cursor-pointer text-sm font-medium py-1.5 px-3 flex items-center justify-between min-h-[36px] hover:bg-white hover:border-rose-300 rounded-lg transition-all shadow-sm"
-          >
-            <span className={row.employee_name ? "text-slate-900 font-bold" : "text-slate-400"}>
-              {row.employee_name || t("form.selectEmployee")}
-            </span>
-            <ChevronDown className={`w-4 h-4 text-slate-400 transition-transform duration-200 ${isOpen ? 'rotate-180 text-rose-500' : ''}`} />
-          </div>
-
-          {isOpen && (
+    <div className="flex items-center space-x-2 space-x-reverse">
+      <div className="relative w-full">
+        <Popover open={isOpen} onOpenChange={setIsOpen}>
+          <PopoverTrigger asChild>
             <div 
-              style={{ 
-                position: 'fixed',
-                top: `${coords.top}px`,
-                left: `${coords.left}px`,
-                width: `${coords.width}px`,
-                zIndex: 9999
-              }}
-              className="bg-white border border-slate-200 rounded-2xl shadow-[0_20px_70px_-10px_rgba(0,0,0,0.3)] overflow-hidden animate-in fade-in zoom-in duration-200"
+              className="w-full bg-white/50 border border-slate-200 cursor-pointer text-sm font-medium py-1.5 px-3 flex items-center justify-between min-h-[36px] hover:bg-white hover:border-rose-300 rounded-lg transition-all shadow-sm"
             >
-              <div className="p-3 border-b border-slate-100 bg-slate-50/50">
-                <div className="relative">
-                  <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                  <input
-                    type="text"
-                    className="w-full pr-9 pl-3 py-2 bg-white border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-rose-500 focus:border-transparent outline-none transition-all"
-                    placeholder={t("form.searchPlaceholder")}
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    autoFocus
-                  />
-                </div>
-              </div>
-              <div className="max-h-64 overflow-y-auto custom-scrollbar">
-                {filteredEmployees.length > 0 ? (
-                  filteredEmployees.map((emp: Employee) => (
-                    <div
-                      key={emp.id}
-                      onClick={() => {
-                        updateRow(type, row.id, 'employee_id', emp.id.toString());
-                        updateRow(type, row.id, 'employee_name', emp.name);
-                        updateRow(type, row.id, 'employee_iqama', emp.iqama_number);
-                        setIsOpen(false);
-                        setSearchTerm("");
-                      }}
-                      className="px-4 py-3 hover:bg-rose-50 cursor-pointer border-b border-slate-50 last:border-0 transition-all flex flex-col group/item"
-                    >
-                      <div className="font-bold text-slate-900 text-sm group-hover/item:text-rose-700">{emp.name}</div>
-                      <div className="flex items-center gap-2 mt-1">
-                        <span className="bg-slate-100 text-slate-600 px-2 py-0.5 rounded text-[10px] font-mono">
-                          {emp.iqama_number || "بدون إقامة"}
-                        </span>
-                        {emp.phone && (
-                          <span className="text-[10px] text-slate-400">{emp.phone}</span>
-                        )}
-                      </div>
-                    </div>
-                  ))
-                ) : (
-                  <div className="p-8 text-center">
-                    <div className="w-12 h-12 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-3">
-                      <Search className="w-6 h-6 text-slate-300" />
-                    </div>
-                    <p className="text-sm text-slate-400 font-medium">{t("form.noResults")}</p>
-                  </div>
-                )}
+              <span className={row.employee_name ? "text-slate-900 font-bold" : "text-slate-400"}>
+                {row.employee_name || t("form.selectEmployee")}
+              </span>
+              <ChevronDown className={`w-4 h-4 text-slate-400 transition-transform duration-200 ${isOpen ? 'rotate-180 text-rose-500' : ''}`} />
+            </div>
+          </PopoverTrigger>
+          <PopoverContent 
+            className="p-0 w-[400px] bg-white border border-slate-200 rounded-2xl shadow-[0_20px_70px_-10px_rgba(0,0,0,0.3)] overflow-hidden z-[9999]" 
+            align="start"
+            sideOffset={8}
+          >
+            <div className="p-4 border-b border-slate-100 bg-slate-50/50">
+              <div className="relative">
+                <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                <input
+                  type="text"
+                  className="w-full pr-10 pl-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-rose-500 focus:border-transparent outline-none transition-all"
+                  placeholder={t("form.searchPlaceholder")}
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  autoFocus
+                />
               </div>
             </div>
-          )}
-        </div>
-        <button 
-          type="button"
-          onClick={() => updateRow(type, row.id, 'manualEmployee', true)}
-          className="text-slate-400 hover:text-rose-500 p-1 rounded-lg transition-colors"
-          title={t("form.manualEntry")}
-        >
-          <Bolt className="w-4 h-4" />
-        </button>
+            <div className="max-h-96 overflow-y-auto custom-scrollbar">
+              {filteredEmployees.length > 0 ? (
+                filteredEmployees.map((emp: Employee) => (
+                  <div
+                    key={emp.id}
+                    onClick={() => {
+                      updateRow(type, row.id, 'employee_id', emp.id.toString());
+                      updateRow(type, row.id, 'employee_name', emp.name);
+                      updateRow(type, row.id, 'employee_iqama', emp.iqama_number);
+                      setIsOpen(false);
+                      setSearchTerm("");
+                    }}
+                    className="px-5 py-4 hover:bg-rose-50 cursor-pointer border-b border-slate-50 last:border-0 transition-all flex flex-col group/item"
+                  >
+                    <div className="font-bold text-slate-900 text-[15px] group-hover/item:text-rose-700">{emp.name}</div>
+                    <div className="flex items-center gap-3 mt-1.5">
+                      <span className="bg-slate-100 text-slate-700 px-2.5 py-1 rounded-md text-[11px] font-mono border border-slate-200">
+                        {emp.iqama_number || "بدون إقامة"}
+                      </span>
+                      {emp.phone && (
+                        <span className="text-xs text-slate-400 flex items-center gap-1">
+                          <Info className="w-3 h-3" />
+                          {emp.phone}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <div className="p-10 text-center">
+                  <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-4 border border-slate-100">
+                    <Search className="w-8 h-8 text-slate-300" />
+                  </div>
+                  <p className="text-base text-slate-400 font-medium">{t("form.noResults")}</p>
+                </div>
+              )}
+            </div>
+          </PopoverContent>
+        </Popover>
       </div>
+      <button 
+        type="button"
+        onClick={() => updateRow(type, row.id, 'manualEmployee', true)}
+        className="text-slate-400 hover:text-rose-500 p-1 rounded-lg transition-colors"
+        title={t("form.manualEntry")}
+      >
+        <Bolt className="w-4 h-4" />
+      </button>
     </div>
   );
 }
