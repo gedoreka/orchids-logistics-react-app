@@ -37,10 +37,42 @@ export default async function EmployeeDetailsPage({ params }: { params: { id: st
     [employee.package_id, companyId]
   );
 
-  // 3. Fetch Violations
+  // 3. Fetch Violations (Merging from employee_violations and monthly_expenses for comprehensive display)
   const violations = await query(
-    "SELECT * FROM employee_violations WHERE employee_id = ? ORDER BY violation_date DESC",
-    [employeeId]
+    `SELECT 
+        id, 
+        violation_type, 
+        violation_date, 
+        violation_amount, 
+        deducted_amount, 
+        remaining_amount, 
+        status, 
+        violation_description,
+        created_at
+     FROM employee_violations 
+     WHERE employee_id = ?
+     
+     UNION ALL
+     
+     SELECT 
+        id, 
+        'traffic' as violation_type, 
+        expense_date as violation_date, 
+        amount as violation_amount, 
+        amount as deducted_amount, 
+        0 as remaining_amount, 
+        'deducted' as status, 
+        description as violation_description,
+        created_at
+     FROM monthly_expenses 
+     WHERE employee_iqama = ? AND (expense_type = 'مخالفات مرورية' OR expense_type = 'traffic')
+     AND NOT EXISTS (
+        SELECT 1 FROM employee_violations ev 
+        WHERE ev.employee_id = ? AND ev.violation_date = monthly_expenses.expense_date AND ev.violation_amount = monthly_expenses.amount
+     )
+     
+     ORDER BY violation_date DESC`,
+    [employeeId, employee.iqama_number, employeeId]
   );
 
   // 4. Fetch Letters

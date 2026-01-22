@@ -180,14 +180,15 @@ function EmployeeSelect({ row, type, metadata, updateRow, t }: {
           </PopoverContent>
         </Popover>
       </div>
-      <button 
-        type="button"
-        onClick={() => updateRow(type, row.id, 'manualEmployee', true)}
-        className="text-slate-400 hover:text-rose-500 p-1 rounded-lg transition-colors"
-        title={t("form.manualEntry")}
-      >
-        <Bolt className="w-4 h-4" />
-      </button>
+        <button 
+          type="button"
+          onClick={() => updateRow(type, row.id, 'manualEmployee', true)}
+          className="flex items-center gap-1.5 px-3 py-1.5 bg-rose-50 text-rose-600 rounded-lg border border-rose-100 hover:bg-rose-100 transition-all text-[11px] font-black shrink-0 shadow-sm"
+          title={t("form.manualEntry")}
+        >
+          <Bolt className="w-3.5 h-3.5" />
+          <span>إدخال البيانات يدوياً</span>
+        </button>
     </div>
   );
 }
@@ -352,7 +353,7 @@ export default function DeductionFormClient({ user }: { user: User }) {
   }
 
   return (
-    <div className="max-w-[98%] mx-auto px-4 py-8 space-y-8">
+    <div className="max-w-[95%] w-[95%] mx-auto px-4 py-8 space-y-8">
       <motion.div 
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
