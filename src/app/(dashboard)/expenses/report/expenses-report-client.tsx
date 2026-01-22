@@ -651,13 +651,19 @@ export function ExpensesReportClient({ companyId }: ExpensesReportClientProps) {
                                               <span className="text-slate-300">-</span>
                                             )}
                                           </td>
-                                          <td className="p-2 text-center print:hidden">
-                                          <div className="flex items-center justify-center gap-1">
-                                            <Button size="sm" variant="ghost" onClick={() => showItemDetails(expense)} className="text-blue-600 h-8 px-2"><Eye className="w-4 h-4" /></Button>
-                                            <Button size="sm" variant="ghost" onClick={() => handleEditClick(expense)} className="text-amber-600 h-8 px-2"><Pencil className="w-4 h-4" /></Button>
-                                            <Button size="sm" variant="ghost" onClick={() => handleDeleteClick(expense)} className="text-rose-600 h-8 px-2"><Trash2 className="w-4 h-4" /></Button>
-                                          </div>
-                                        </td>
+                                            <td className="p-2 text-center print:hidden">
+                                              <div className="flex items-center justify-center gap-2">
+                                                <Button size="sm" variant="outline" onClick={() => showItemDetails(expense)} className="text-blue-600 border-blue-100 hover:bg-blue-50 h-8 px-3 text-[10px] font-bold gap-1 rounded-xl">
+                                                  <Eye className="w-3 h-3" /> {t("actions.view")}
+                                                </Button>
+                                                <Button size="sm" variant="outline" onClick={() => handleEditClick(expense)} className="text-amber-600 border-amber-100 hover:bg-amber-50 h-8 px-3 text-[10px] font-bold gap-1 rounded-xl">
+                                                  <Pencil className="w-3 h-3" /> {t("actions.edit")}
+                                                </Button>
+                                                <Button size="sm" variant="outline" onClick={() => handleDeleteClick(expense)} className="text-rose-600 border-rose-100 hover:bg-rose-50 h-8 px-3 text-[10px] font-bold gap-1 rounded-xl">
+                                                  <Trash2 className="w-3 h-3" /> {t("actions.delete")}
+                                                </Button>
+                                              </div>
+                                            </td>
                                       </tr>
                                     ))}
                                   </tbody>
@@ -756,18 +762,43 @@ export function ExpensesReportClient({ companyId }: ExpensesReportClientProps) {
                                               <span className="text-slate-300">-</span>
                                             )}
                                           </td>
-                                          <td className="p-2 text-center">
-                                            <button onClick={() => handleToggleDeductionStatus(deduction)} className={`px-3 py-1 rounded-full text-[10px] font-bold ${deduction.status === "completed" ? "bg-emerald-100 text-emerald-700" : "bg-rose-100 text-rose-700"}`}>
-                                              {deduction.status === "completed" ? "مدفوع" : "غير مدفوع"}
-                                            </button>
-                                          </td>
-                                          <td className="p-2 text-center print:hidden">
-                                            <div className="flex items-center justify-center gap-1">
-                                              <Button size="sm" variant="ghost" onClick={() => showItemDetails(deduction)} className="text-blue-600 h-8 px-2"><Eye className="w-4 h-4" /></Button>
-                                              <Button size="sm" variant="ghost" onClick={() => handleEditClick(deduction)} className="text-amber-600 h-8 px-2"><Pencil className="w-4 h-4" /></Button>
-                                              <Button size="sm" variant="ghost" onClick={() => handleDeleteClick(deduction)} className="text-rose-600 h-8 px-2"><Trash2 className="w-4 h-4" /></Button>
-                                            </div>
-                                          </td>
+                                            <td className="p-2 text-center">
+                                              <div 
+                                                onClick={() => !statusUpdating && handleToggleDeductionStatus(deduction)} 
+                                                className={`relative w-24 h-8 flex items-center rounded-full p-1 cursor-pointer transition-all duration-500 shadow-inner mx-auto group ${deduction.status === "completed" ? "bg-emerald-500" : "bg-rose-500"}`}
+                                              >
+                                                <div className={`absolute inset-0 flex items-center justify-center text-[9px] font-black text-white transition-opacity duration-300 ${statusUpdating === deduction.id ? "opacity-0" : "opacity-100"}`}>
+                                                  <span className={`transition-transform duration-500 ${deduction.status === "completed" ? "translate-x-3" : "-translate-x-3"}`}>
+                                                    {deduction.status === "completed" ? "مدفوع" : "غير مدفوع"}
+                                                  </span>
+                                                </div>
+                                                <motion.div 
+                                                  layout
+                                                  className="bg-white w-6 h-6 rounded-full shadow-lg z-20 flex items-center justify-center"
+                                                  animate={{ x: deduction.status === "completed" ? (document.dir === 'rtl' ? 56 : -56) : 0 }}
+                                                  transition={{ type: "spring", stiffness: 500, damping: 30 }}
+                                                >
+                                                  {statusUpdating === deduction.id ? (
+                                                    <Loader2 className="w-3 h-3 animate-spin text-slate-400" />
+                                                  ) : (
+                                                    <div className={`w-1.5 h-1.5 rounded-full ${deduction.status === "completed" ? "bg-emerald-500" : "bg-rose-500"}`} />
+                                                  )}
+                                                </motion.div>
+                                              </div>
+                                            </td>
+                                            <td className="p-2 text-center print:hidden">
+                                              <div className="flex items-center justify-center gap-2">
+                                                <Button size="sm" variant="outline" onClick={() => showItemDetails(deduction)} className="text-blue-600 border-blue-100 hover:bg-blue-50 h-8 px-3 text-[10px] font-bold gap-1 rounded-xl">
+                                                  <Eye className="w-3 h-3" /> {t("actions.view")}
+                                                </Button>
+                                                <Button size="sm" variant="outline" onClick={() => handleEditClick(deduction)} className="text-amber-600 border-amber-100 hover:bg-amber-50 h-8 px-3 text-[10px] font-bold gap-1 rounded-xl">
+                                                  <Pencil className="w-3 h-3" /> {t("actions.edit")}
+                                                </Button>
+                                                <Button size="sm" variant="outline" onClick={() => handleDeleteClick(deduction)} className="text-rose-600 border-rose-100 hover:bg-rose-50 h-8 px-3 text-[10px] font-bold gap-1 rounded-xl">
+                                                  <Trash2 className="w-3 h-3" /> {t("actions.delete")}
+                                                </Button>
+                                              </div>
+                                            </td>
                                         </tr>
                                       ))}
                                     </tbody>

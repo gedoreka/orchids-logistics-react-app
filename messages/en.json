@@ -814,17 +814,22 @@
         "successDesc": "{count} expenses have been successfully recorded in the financial system.",
         "backToCenter": "Back to Expenses Center"
       },
-      "fleet": {
-        "actions": "Actions",
-        "print": "Print"
-      },
-      "common": {
-        "status": "Status",
-        "details": "Details"
-      },
-      "expenses": {
-        "totalDeductions": "Total Deductions"
-      },
+        "fleet": {
+          "actions": "Actions",
+          "print": "Print"
+        },
+        "common": {
+          "status": "Status",
+          "details": "Details"
+        },
+        "expenses": {
+          "totalDeductions": "Total Deductions"
+        },
+        "actions": {
+          "view": "View Details of Expense or Deduction",
+          "edit": "Edit Expense or Deduction",
+          "delete": "Delete Deduction or Expense"
+        },
       "types": {
       "iqama": "Iqama Expenses",
       "fuel": "Fuel Expenses",
