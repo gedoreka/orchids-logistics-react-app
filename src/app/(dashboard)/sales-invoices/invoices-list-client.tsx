@@ -11,34 +11,20 @@ import {
   CheckCircle,
   Clock,
   FileEdit,
-  DollarSign,
-  Calendar,
-  Users,
-  AlertCircle,
-  Loader2,
-  Filter,
-  CreditCard,
-  ArrowRight,
-  LayoutDashboard,
   RefreshCw,
-  Download,
-  ChevronDown,
   FileSpreadsheet,
-  TrendingUp,
   Sparkles,
-  BarChart3,
   Receipt,
   Building2,
-  ArrowUpRight,
-  XCircle,
-  Banknote,
-  PlusCircle,
-  TrendingDown
+  Calendar,
+  AlertCircle,
+  Loader2,
+  Banknote
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { format } from "date-fns";
 import { cn } from "@/lib/utils";
+import { useTranslations } from "@/lib/locale-context";
 
 interface Invoice {
   id: number;
@@ -62,11 +48,12 @@ interface InvoicesListClientProps {
 }
 
 export function InvoicesListClient({ invoices }: InvoicesListClientProps) {
+  const t = useTranslations("invoices");
+  const tc = useTranslations("common");
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState("");
   const [filterStatus, setFilterStatus] = useState("all");
   const [loading, setLoading] = useState<number | null>(null);
-  const [showExportMenu, setShowExportMenu] = useState(false);
   const [notification, setNotification] = useState<{
     show: boolean;
     type: "success" | "error";
@@ -140,10 +127,10 @@ export function InvoicesListClient({ invoices }: InvoicesListClientProps) {
         setNotification({ show: true, type: "success", message: data.message });
         router.refresh();
       } else {
-        setNotification({ show: true, type: "error", message: data.error || "حدث خطأ" });
+        setNotification({ show: true, type: "error", message: data.error || tc("error") });
       }
     } catch {
-      setNotification({ show: true, type: "error", message: "حدث خطأ في الاتصال" });
+      setNotification({ show: true, type: "error", message: t("errorFetching") || tc("networkError") });
     } finally {
       setLoading(null);
       setTimeout(() => setNotification({ show: false, type: "success", message: "" }), 3000);
@@ -152,12 +139,12 @@ export function InvoicesListClient({ invoices }: InvoicesListClientProps) {
 
   const handleDelete = async (invoiceId: number, status: string) => {
     if (status !== 'draft') {
-      setNotification({ show: true, type: "error", message: "لا يمكن حذف الفاتورة إلا إذا كانت مسودة" });
+      setNotification({ show: true, type: "error", message: t("deleteDraftOnly") });
       setTimeout(() => setNotification({ show: false, type: "success", message: "" }), 3000);
       return;
     }
 
-    if (!confirm("هل أنت متأكد من حذف هذه الفاتورة؟")) return;
+    if (!confirm(t("confirmDelete"))) return;
 
     setLoading(invoiceId);
     try {
@@ -168,10 +155,10 @@ export function InvoicesListClient({ invoices }: InvoicesListClientProps) {
         setNotification({ show: true, type: "success", message: data.message });
         router.refresh();
       } else {
-        setNotification({ show: true, type: "error", message: data.error || "حدث خطأ" });
+        setNotification({ show: true, type: "error", message: data.error || tc("error") });
       }
     } catch {
-      setNotification({ show: true, type: "error", message: "حدث خطأ في الاتصال" });
+      setNotification({ show: true, type: "error", message: t("errorFetching") || tc("networkError") });
     } finally {
       setLoading(null);
       setTimeout(() => setNotification({ show: false, type: "success", message: "" }), 3000);
@@ -183,28 +170,28 @@ export function InvoicesListClient({ invoices }: InvoicesListClientProps) {
       return (
         <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-500/10 text-emerald-400 text-[10px] font-black rounded-full border border-emerald-500/20">
           <CheckCircle size={12} />
-          مدفوعة
+          {t("paidStatus")}
         </span>
       );
     } else if (status === 'draft') {
       return (
         <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-white/10 text-slate-400 text-[10px] font-black rounded-full border border-white/10">
           <FileEdit size={12} />
-          مسودة
+          {t("draftStatus")}
         </span>
       );
     } else {
       return (
         <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-amber-500/10 text-amber-400 text-[10px] font-black rounded-full border border-amber-500/20">
           <Clock size={12} />
-          مستحقة
+          {t("dueStatus")}
         </span>
       );
     }
   };
 
   return (
-    <div className="max-w-[95%] mx-auto p-4 md:p-8 space-y-8" dir="rtl">
+    <div className="max-w-[95%] mx-auto p-4 md:p-8 space-y-8">
       <AnimatePresence>
         {notification.show && (
           <motion.div
@@ -240,21 +227,21 @@ export function InvoicesListClient({ invoices }: InvoicesListClientProps) {
                 className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-md rounded-2xl border border-white/10 mb-2"
               >
                 <Sparkles className="w-4 h-4 text-yellow-400 animate-pulse" />
-                <span className="text-emerald-200 font-black text-[10px] uppercase tracking-widest">إدارة الفواتير الضريبية</span>
+                <span className="text-emerald-200 font-black text-[10px] uppercase tracking-widest">{t("manageTitle")}</span>
               </motion.div>
               
               <h1 className="text-4xl md:text-6xl font-black text-white tracking-tight bg-gradient-to-r from-white via-emerald-100 to-white bg-clip-text text-transparent">
-                الفواتير الضريبية
+                {t("title")}
               </h1>
               <p className="text-lg text-slate-300 max-w-2xl font-medium leading-relaxed">
-                إصدار ومتابعة الفواتير الضريبية المتوافقة مع متطلبات هيئة الزكاة والضريبة والجمارك ZATCA
+                {t("subtitle")}
               </p>
               
               <div className="flex flex-wrap justify-center lg:justify-start gap-4 mt-8">
                 <Link href="/sales-invoices/new">
                   <button className="flex items-center gap-3 px-6 py-3 bg-emerald-500 text-white font-black text-sm rounded-2xl hover:bg-emerald-600 transition-all shadow-xl active:scale-95">
                     <Plus size={18} />
-                    إنشاء فاتورة جديدة
+                    {t("newInvoice")}
                   </button>
                 </Link>
                 <button 
@@ -262,7 +249,7 @@ export function InvoicesListClient({ invoices }: InvoicesListClientProps) {
                     className="flex items-center gap-3 px-6 py-3 bg-white/10 backdrop-blur-md rounded-2xl border border-white/20 text-white font-black text-sm hover:bg-white/20 transition-all shadow-xl active:scale-95"
                   >
                   <RefreshCw size={18} className="text-emerald-400" />
-                  تحديث البيانات
+                  {tc("update")}
                 </button>
               </div>
             </div>
@@ -279,10 +266,10 @@ export function InvoicesListClient({ invoices }: InvoicesListClientProps) {
                   <div className="p-2 bg-emerald-500/20 rounded-lg text-emerald-400 group-hover:scale-110 transition-transform">
                     <Receipt className="w-5 h-5" />
                   </div>
-                  <span className="text-emerald-300 font-black text-[10px] uppercase tracking-wider">الإجمالي</span>
+                  <span className="text-emerald-300 font-black text-[10px] uppercase tracking-wider">{tc("total")}</span>
                 </div>
                 <p className="text-2xl font-black text-white tracking-tight">{stats.totalSubtotal.toLocaleString()}</p>
-                <p className="text-emerald-400/60 text-[10px] font-black mt-1">قبل الضريبة</p>
+                <p className="text-emerald-400/60 text-[10px] font-black mt-1">{t("beforeTax")}</p>
               </motion.div>
 
               <motion.div 
@@ -295,10 +282,10 @@ export function InvoicesListClient({ invoices }: InvoicesListClientProps) {
                   <div className="p-2 bg-blue-500/20 rounded-lg text-blue-400 group-hover:scale-110 transition-transform">
                     <CheckCircle className="w-5 h-5" />
                   </div>
-                  <span className="text-blue-300 font-black text-[10px] uppercase tracking-wider">المدفوع</span>
+                  <span className="text-blue-300 font-black text-[10px] uppercase tracking-wider">{t("paid")}</span>
                 </div>
                 <p className="text-2xl font-black text-white tracking-tight">{stats.paidCount}</p>
-                <p className="text-blue-400/60 text-[10px] font-black mt-1">فاتورة مدفوعة</p>
+                <p className="text-blue-400/60 text-[10px] font-black mt-1">{t("paidStatus")}</p>
               </motion.div>
 
               <motion.div 
@@ -311,10 +298,10 @@ export function InvoicesListClient({ invoices }: InvoicesListClientProps) {
                   <div className="p-2 bg-amber-500/20 rounded-lg text-amber-400 group-hover:scale-110 transition-transform">
                     <Clock className="w-5 h-5" />
                   </div>
-                  <span className="text-amber-300 font-black text-[10px] uppercase tracking-wider">المستحق</span>
+                  <span className="text-amber-300 font-black text-[10px] uppercase tracking-wider">{t("dueStatus")}</span>
                 </div>
                 <p className="text-2xl font-black text-white tracking-tight">{stats.dueCount}</p>
-                <p className="text-amber-400/60 text-[10px] font-black mt-1">فاتورة معلقة</p>
+                <p className="text-amber-400/60 text-[10px] font-black mt-1">{t("dueStatus")}</p>
               </motion.div>
 
               <motion.div 
@@ -327,10 +314,10 @@ export function InvoicesListClient({ invoices }: InvoicesListClientProps) {
                   <div className="p-2 bg-purple-500/20 rounded-lg text-purple-400 group-hover:scale-110 transition-transform">
                     <FileEdit className="w-5 h-5" />
                   </div>
-                  <span className="text-purple-300 font-black text-[10px] uppercase tracking-wider">المسودات</span>
+                  <span className="text-purple-300 font-black text-[10px] uppercase tracking-wider">{t("drafts")}</span>
                 </div>
                 <p className="text-2xl font-black text-white tracking-tight">{stats.draftCount}</p>
-                <p className="text-purple-400/60 text-[10px] font-black mt-1">قيد التحرير</p>
+                <p className="text-purple-400/60 text-[10px] font-black mt-1">{t("draftStatus")}</p>
               </motion.div>
             </div>
           </div>
@@ -344,7 +331,7 @@ export function InvoicesListClient({ invoices }: InvoicesListClientProps) {
               <Search className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
               <input
                 type="text"
-                placeholder="بحث برقم الفاتورة أو اسم العميل..."
+                placeholder={t("searchPlaceholder")}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-full pr-12 pl-4 py-3 bg-white/10 border border-white/10 rounded-2xl text-white font-medium focus:bg-white/20 focus:border-emerald-500/50 outline-none transition-all placeholder:text-slate-500"
@@ -354,24 +341,24 @@ export function InvoicesListClient({ invoices }: InvoicesListClientProps) {
                 <button 
                     onClick={() => setFilterStatus('all')}
                     className={cn("px-4 py-2 rounded-xl text-[10px] font-black transition-all", filterStatus === 'all' ? "bg-emerald-500 text-white shadow-lg" : "text-slate-400 hover:bg-white/10")}
-                >الكل</button>
+                >{tc("all")}</button>
                 <button 
                     onClick={() => setFilterStatus('paid')}
                     className={cn("px-4 py-2 rounded-xl text-[10px] font-black transition-all", filterStatus === 'paid' ? "bg-emerald-500 text-white shadow-lg" : "text-slate-400 hover:bg-white/10")}
-                >مدفوعة</button>
+                >{t("paidStatus")}</button>
                 <button 
                     onClick={() => setFilterStatus('due')}
                     className={cn("px-4 py-2 rounded-xl text-[10px] font-black transition-all", filterStatus === 'due' ? "bg-amber-500 text-white shadow-lg" : "text-slate-400 hover:bg-white/10")}
-                >مستحقة</button>
+                >{t("dueStatus")}</button>
                 <button 
                     onClick={() => setFilterStatus('draft')}
                     className={cn("px-4 py-2 rounded-xl text-[10px] font-black transition-all", filterStatus === 'draft' ? "bg-purple-500 text-white shadow-lg" : "text-slate-400 hover:bg-white/10")}
-                >مسودة</button>
+                >{t("draftStatus")}</button>
             </div>
             <div className="flex gap-3 w-full md:w-auto">
               <button className="flex-1 md:flex-none flex items-center justify-center gap-2 px-6 py-3 bg-blue-500/20 text-blue-300 font-bold rounded-2xl border border-blue-500/30 hover:bg-blue-500/30 transition-all">
                 <FileSpreadsheet size={18} />
-                تصدير البيانات
+                {tc("export")}
               </button>
             </div>
           </div>
@@ -383,10 +370,10 @@ export function InvoicesListClient({ invoices }: InvoicesListClientProps) {
                 <div className="p-2 bg-emerald-500/20 rounded-xl">
                   <FileText className="w-5 h-5 text-emerald-400" />
                 </div>
-                <h3 className="font-black text-lg">سجل الفواتير الضريبية</h3>
+                <h3 className="font-black text-lg">{t("recordTitle")}</h3>
               </div>
               <span className="px-4 py-1.5 bg-white/10 rounded-full text-[10px] font-black uppercase tracking-widest text-slate-400">
-                {filteredInvoices.length} فاتورة معروضة
+                {t("invoicesFound", { count: filteredInvoices.length })}
               </span>
             </div>
 
@@ -394,13 +381,13 @@ export function InvoicesListClient({ invoices }: InvoicesListClientProps) {
               <table className="w-full text-right">
                 <thead>
                   <tr className="bg-white/5 border-b border-white/5">
-                    <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">رقم الفاتورة</th>
-                    <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">العميل</th>
-                    <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">التاريخ</th>
-                    <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">المبلغ الصافي</th>
-                    <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">الضريبة</th>
-                    <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">الحالة</th>
-                    <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">الإجراءات</th>
+                    <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">{t("invoiceNumber")}</th>
+                    <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">{t("customer")}</th>
+                    <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">{tc("date")}</th>
+                    <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">{tc("amount")}</th>
+                    <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">{tc("tax")}</th>
+                    <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">{tc("status")}</th>
+                    <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">{tc("actions")}</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-white/5">
@@ -425,7 +412,7 @@ export function InvoicesListClient({ invoices }: InvoicesListClientProps) {
                               <div className="h-9 w-9 rounded-xl bg-white/5 flex items-center justify-center text-slate-400 group-hover:bg-emerald-500/20 group-hover:text-emerald-400 transition-all">
                                 <Building2 size={16} />
                               </div>
-                              <span className="font-bold text-sm text-slate-200 truncate max-w-[150px]">{inv.client_name || "غير محدد"}</span>
+                              <span className="font-bold text-sm text-slate-200 truncate max-w-[150px]">{inv.client_name || tc("notSpecified")}</span>
                             </div>
                           </td>
                           <td className="px-6 py-5">
@@ -437,7 +424,7 @@ export function InvoicesListClient({ invoices }: InvoicesListClientProps) {
                           <td className="px-6 py-5">
                             <div className="flex items-baseline gap-1 text-white">
                               <span className="text-lg font-black">{parseFloat(String(inv.total_amount)).toLocaleString()}</span>
-                              <span className="text-[10px] font-bold text-slate-500 uppercase">ر.س</span>
+                              <span className="text-[10px] font-bold text-slate-500 uppercase">{tc("sar")}</span>
                             </div>
                           </td>
                           <td className="px-6 py-5">
@@ -451,7 +438,7 @@ export function InvoicesListClient({ invoices }: InvoicesListClientProps) {
                           <td className="px-6 py-5">
                             <div className="flex items-center justify-center gap-2">
                               <Link href={`/sales-invoices/${inv.id}`}>
-                                <button className="h-9 w-9 rounded-xl bg-blue-500/10 text-blue-400 flex items-center justify-center hover:bg-blue-500 hover:text-white transition-all shadow-lg active:scale-95" title="عرض">
+                                <button className="h-9 w-9 rounded-xl bg-blue-500/10 text-blue-400 flex items-center justify-center hover:bg-blue-500 hover:text-white transition-all shadow-lg active:scale-95" title={tc("view")}>
                                   <Eye size={16} />
                                 </button>
                               </Link>
@@ -463,7 +450,7 @@ export function InvoicesListClient({ invoices }: InvoicesListClientProps) {
                                   className="h-9 px-4 rounded-xl bg-emerald-500/10 text-emerald-400 font-black text-xs flex items-center gap-2 hover:bg-emerald-500 hover:text-white transition-all active:scale-95 disabled:opacity-50"
                                 >
                                   {loading === inv.id ? <Loader2 size={14} className="animate-spin" /> : <Banknote size={14} />}
-                                  سداد
+                                  {t("pay")}
                                 </button>
                               )}
 
@@ -474,7 +461,7 @@ export function InvoicesListClient({ invoices }: InvoicesListClientProps) {
                                   className="h-9 px-4 rounded-xl bg-amber-500/10 text-amber-400 font-black text-xs flex items-center gap-2 hover:bg-amber-500 hover:text-white transition-all active:scale-95 disabled:opacity-50"
                                 >
                                   {loading === inv.id ? <Loader2 size={14} className="animate-spin" /> : <Clock size={14} />}
-                                  إعادة
+                                  {t("return")}
                                 </button>
                               )}
 
@@ -482,7 +469,7 @@ export function InvoicesListClient({ invoices }: InvoicesListClientProps) {
                                 onClick={() => handleDelete(inv.id, status)}
                                 disabled={loading === inv.id}
                                 className="h-9 w-9 rounded-xl bg-rose-500/10 text-rose-400 flex items-center justify-center hover:bg-rose-500 hover:text-white transition-all shadow-lg active:scale-95 disabled:opacity-50"
-                                title="حذف"
+                                title={tc("delete")}
                               >
                                 {loading === inv.id ? <Loader2 size={16} className="animate-spin" /> : <Trash2 size={16} />}
                               </button>
@@ -497,8 +484,8 @@ export function InvoicesListClient({ invoices }: InvoicesListClientProps) {
                         <div className="flex flex-col items-center gap-4 opacity-40">
                           <FileText size={64} className="text-slate-400" />
                           <div className="space-y-1">
-                            <p className="text-xl font-black text-slate-300">لا توجد فواتير ضريبية</p>
-                            <p className="text-sm font-medium text-slate-500">ابدأ بإنشاء أول فاتورة ضريبية من الزر أعلاه</p>
+                            <p className="text-xl font-black text-slate-300">{t("noInvoices")}</p>
+                            <p className="text-sm font-medium text-slate-500">{t("startByCreating")}</p>
                           </div>
                         </div>
                       </td>
@@ -519,9 +506,9 @@ export function InvoicesListClient({ invoices }: InvoicesListClientProps) {
       <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-[10px] font-black text-slate-500 uppercase tracking-widest pt-4 opacity-60">
         <div className="flex items-center gap-2">
           <Sparkles size={10} className="text-emerald-500" />
-          <span>نظام Logistics Systems Pro - إدارة الفواتير الضريبية</span>
+          <span>{t("zatcaCompliant")}</span>
         </div>
-        <span>جميع الحقوق محفوظة © {new Date().getFullYear()}</span>
+        <span>{tc("allRightsReserved") || "All Rights Reserved"} © {new Date().getFullYear()}</span>
       </div>
     </div>
   );

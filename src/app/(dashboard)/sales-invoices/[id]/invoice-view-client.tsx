@@ -19,6 +19,7 @@ import {
 import Link from "next/link";
 import { QRCodeCanvas } from "qrcode.react";
 import { useReactToPrint } from "react-to-print";
+import { useTranslations } from "@/lib/locale-context";
 
 interface InvoiceItem {
   id: number;
@@ -166,6 +167,8 @@ export function InvoiceViewClient({
   bankAccounts,
   customer
 }: InvoiceViewClientProps) {
+  const t = useTranslations("invoices");
+  const tc = useTranslations("common");
   const printRef = useRef<HTMLDivElement>(null);
   const [pdfLoading, setPdfLoading] = useState(false);
   const [selectedBankId, setSelectedBankId] = useState(bankAccounts[0]?.id);
@@ -211,7 +214,7 @@ export function InvoiceViewClient({
 
   const handlePrint = useReactToPrint({
     contentRef: printRef,
-    documentTitle: `فاتورة ضريبية - ${invoice.invoice_number}`,
+    documentTitle: `${t("vatInvoice")} - ${invoice.invoice_number}`,
   });
 
     const handleDownloadPDF = async () => {
@@ -253,7 +256,7 @@ export function InvoiceViewClient({
         const xOffset = (pdfWidth - finalImgWidth) / 2;
         
         pdf.addImage(imgData, 'PNG', xOffset, 0, finalImgWidth, finalImgHeight);
-        pdf.save(`فاتورة-ضريبية-${invoice.invoice_number}.pdf`);
+        pdf.save(`${t("vatInvoice")}-${invoice.invoice_number}.pdf`);
 
 
     } catch (error) {
@@ -270,14 +273,14 @@ export function InvoiceViewClient({
   };
 
     return (
-      <div className="min-h-screen bg-transparent overflow-y-auto font-tajawal">
+      <div className="min-h-screen bg-transparent overflow-y-auto">
         <div className="w-full max-w-[210mm] mx-auto py-6 space-y-4">
         {/* Action Buttons */}
         <div className="flex flex-wrap gap-2 justify-center no-print px-4">
           <Link href="/sales-invoices">
             <button className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white text-[#334155] hover:bg-[#f8fafc] border border-[#e2e8f0] font-bold text-sm transition-all shadow-sm">
               <ArrowRight size={18} />
-              العودة
+              {tc("back")}
             </button>
           </Link>
           <button
@@ -285,7 +288,7 @@ export function InvoiceViewClient({
             className="flex items-center gap-2 px-4 py-2 rounded-lg bg-[#1e293b] text-white hover:bg-[#0f172a] font-bold text-sm transition-all shadow-md"
           >
             <Printer size={18} />
-            طباعة
+            {tc("print")}
           </button>
           <button
             onClick={handleDownloadPDF}
@@ -293,7 +296,7 @@ export function InvoiceViewClient({
             className="flex items-center gap-2 px-4 py-2 rounded-lg bg-[#2563eb] text-white hover:bg-[#1d4ed8] font-bold text-sm transition-all shadow-md disabled:opacity-50"
           >
             <Download size={18} />
-            {pdfLoading ? 'جاري...' : 'تحميل PDF'}
+            {pdfLoading ? tc("loading") : tc("export") + " PDF"}
           </button>
         </div>
 
@@ -371,10 +374,10 @@ export function InvoiceViewClient({
 
               {/* Title Center */}
               <div className="text-center flex-1">
-                <h1 className="text-2xl font-black mb-0 tracking-wider">فاتورة ضريبية</h1>
-                <p className="text-white/60 text-[12px] uppercase font-light">VAT Invoice</p>
+                <h1 className="text-2xl font-black mb-0 tracking-wider">{t("vatInvoice")}</h1>
+                <p className="text-white/60 text-[12px] uppercase font-light">{t("vatInvoiceEn")}</p>
                 <div className="mt-2 inline-flex items-center gap-2 px-4 py-1 rounded-lg border border-[#ffffff1a]" style={{ backgroundColor: 'rgba(255,255,255,0.05)' }}>
-                  <span className="font-bold text-[10px]">نظام الفواتير الإلكترونية</span>
+                  <span className="font-bold text-[10px]">{t("electronicInvoicingSystem")}</span>
                 </div>
               </div>
 
@@ -388,15 +391,15 @@ export function InvoiceViewClient({
             {/* Header Meta */}
             <div className="grid grid-cols-3 gap-4 mt-6 pt-4 border-t border-[#ffffff1a] relative z-10">
               <div className="text-center">
-                <span className="text-[#ffffff66] text-[10px] block">مطالبة شهر:</span>
+                <span className="text-[#ffffff66] text-[10px] block">{t("claimMonth")}</span>
                 <p className="font-bold text-[13px]">{invoice.invoice_month || getClaimMonth(invoice.issue_date)}</p>
               </div>
               <div className="text-center">
-                <span className="text-[#ffffff66] text-[10px] block">رقم الفاتورة:</span>
+                <span className="text-[#ffffff66] text-[10px] block">{t("invoiceNumber")}:</span>
                 <p className="font-bold text-[13px] tracking-widest">{invoice.invoice_number}</p>
               </div>
               <div className="text-center">
-                <span className="text-[#ffffff66] text-[10px] block">تاريخ الإصدار:</span>
+                <span className="text-[#ffffff66] text-[10px] block">{t("issueDateLabel")}</span>
                 <p className="font-bold text-[13px]">{formatDate(invoice.issue_date)}</p>
               </div>
             </div>
@@ -409,23 +412,23 @@ export function InvoiceViewClient({
               <div className="rounded-2xl p-4 border border-[#f1f5f9]" style={{ backgroundColor: '#f8fafc' }}>
                 <h3 className="font-black text-[#0f172a] mb-3 pb-2 border-b border-[#e2e8f0] flex items-center gap-2 text-[13px]">
                   <div className="w-1.5 h-4 bg-[#2563eb] rounded-full"></div>
-                  بيانات المنشأة
+                  {t("facilityData")}
                 </h3>
                 <div className="space-y-2 text-[11px]">
                   <div className="flex justify-between items-start gap-4">
-                    <span className="text-[#64748b]">الاسم:</span>
+                    <span className="text-[#64748b]">{tc("name")}:</span>
                     <span className="font-bold text-[#0f172a] text-right">{company?.name}</span>
                   </div>
                   <div className="flex justify-between items-center">
-                    <span className="text-[#64748b]">السجل:</span>
+                    <span className="text-[#64748b]">{tc("commercialNumber")}:</span>
                     <span className="font-bold text-[#0f172a]">{company?.commercial_number}</span>
                   </div>
                   <div className="flex justify-between items-center">
-                    <span className="text-[#64748b]">الضريبي:</span>
+                    <span className="text-[#64748b]">{tc("vatNumber")}:</span>
                     <span className="font-bold text-[#2563eb]">{company?.vat_number}</span>
                   </div>
                   <div className="flex justify-start gap-2">
-                    <span className="text-[#64748b] whitespace-nowrap">العنوان:</span>
+                    <span className="text-[#64748b] whitespace-nowrap">{tc("address")}:</span>
                     <span className="font-bold text-[#0f172a] leading-tight text-right">{companyAddress}</span>
                   </div>
                 </div>
@@ -435,23 +438,23 @@ export function InvoiceViewClient({
               <div className="rounded-2xl p-4 border border-[#f1f5f9]" style={{ backgroundColor: '#f8fafc' }}>
                 <h3 className="font-black text-[#0f172a] mb-3 pb-2 border-b border-[#e2e8f0] flex items-center gap-2 text-[13px]">
                   <div className="w-1.5 h-4 bg-[#059669] rounded-full"></div>
-                  بيانات العميل
+                  {t("customerData")}
                 </h3>
                 <div className="space-y-2 text-[11px]">
                   <div className="flex justify-between items-start gap-4">
-                    <span className="text-[#64748b]">الاسم:</span>
+                    <span className="text-[#64748b]">{tc("name")}:</span>
                     <span className="font-bold text-[#0f172a] text-right">{customer?.company_name || customer?.name || invoice.client_name}</span>
                   </div>
                   <div className="flex justify-between items-center">
-                    <span className="text-[#64748b]">السجل:</span>
+                    <span className="text-[#64748b]">{tc("commercialNumber")}:</span>
                     <span className="font-bold text-[#0f172a]">{customer?.commercial_number || '-'}</span>
                   </div>
                   <div className="flex justify-between items-center">
-                    <span className="text-[#64748b]">الضريبي:</span>
+                    <span className="text-[#64748b]">{tc("vatNumber")}:</span>
                     <span className="font-bold text-[#059669]">{customer?.vat_number || invoice.client_vat || '-'}</span>
                   </div>
                   <div className="flex justify-start gap-2">
-                    <span className="text-[#64748b] whitespace-nowrap">العنوان:</span>
+                    <span className="text-[#64748b] whitespace-nowrap">{tc("address")}:</span>
                     <span className="font-bold text-[#0f172a] leading-tight text-right">{customer?.address || invoice.client_address || '-'}</span>
                   </div>
                 </div>
@@ -463,12 +466,12 @@ export function InvoiceViewClient({
               <table className="w-full text-[11px] border-collapse">
                 <thead style={{ background: '#1e293b', color: '#ffffff' }}>
                   <tr>
-                    <th className="px-3 py-3 text-right font-bold">البند</th>
-                    <th className="px-3 py-3 text-center font-bold">الكمية</th>
-                    <th className="px-3 py-3 text-center font-bold">السعر</th>
-                    <th className="px-3 py-3 text-center font-bold">قبل الضريبة</th>
-                    <th className="px-3 py-3 text-center font-bold">الضريبة 15%</th>
-                    <th className="px-3 py-3 text-center font-bold">الإجمالي</th>
+                    <th className="px-3 py-3 text-right font-bold">{t("itemNameHeader")}</th>
+                    <th className="px-3 py-3 text-center font-bold">{t("quantity")}</th>
+                    <th className="px-3 py-3 text-center font-bold">{t("unitPrice")}</th>
+                    <th className="px-3 py-3 text-center font-bold">{t("beforeTax")}</th>
+                    <th className="px-3 py-3 text-center font-bold">{t("taxRateHeader")}</th>
+                    <th className="px-3 py-3 text-center font-bold">{tc("total")}</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-[#f1f5f9] bg-white">
@@ -486,7 +489,7 @@ export function InvoiceViewClient({
                   {adjustments.map((adj) => (
                     <tr key={adj.id} style={{ backgroundColor: adj.type === 'discount' ? '#fff1f2' : '#f0fdf4' }}>
                       <td className="px-3 py-2.5 font-bold text-[#1e293b]">
-                        {adj.title} <span className="text-[9px] opacity-60">({adj.type === 'discount' ? 'خصم' : 'إضافة'})</span>
+                        {adj.title} <span className="text-[9px] opacity-60">({adj.type === 'discount' ? t("adjustmentDiscount") : t("adjustmentAddition")})</span>
                       </td>
                       <td className="px-3 py-2.5 text-center opacity-40">-</td>
                       <td className="px-3 py-2.5 text-center opacity-40">-</td>
@@ -513,22 +516,22 @@ export function InvoiceViewClient({
                 <div>
                   <h3 className="font-black text-[#0f172a] mb-3 flex items-center gap-2 text-[13px]">
                     <CreditCard size={16} className="text-[#2563eb]" />
-                    ملخص الفاتورة
+                    {t("summary")}
                   </h3>
                   <div className="space-y-3">
                     <div className="flex justify-between items-center py-1.5 border-b border-dashed border-[#e2e8f0]">
-                      <span className="text-[#64748b] text-[11px]">قبل الضريبة:</span>
-                      <span className="font-bold text-[#0f172a] text-[11px]">{totalBeforeVat.toLocaleString('en-US', { minimumFractionDigits: 2 })} ريال</span>
+                      <span className="text-[#64748b] text-[11px]">{t("beforeTax")}:</span>
+                      <span className="font-bold text-[#0f172a] text-[11px]">{totalBeforeVat.toLocaleString('en-US', { minimumFractionDigits: 2 })} {tc("sar")}</span>
                     </div>
                     <div className="flex justify-between items-center py-1.5 border-b border-dashed border-[#e2e8f0]">
-                      <span className="text-[#64748b] text-[11px]">الضريبة 15%:</span>
-                      <span className="font-bold text-[#2563eb] text-[11px]">{totalVat.toLocaleString('en-US', { minimumFractionDigits: 2 })} ريال</span>
+                      <span className="text-[#64748b] text-[11px]">{t("taxRateHeader")}:</span>
+                      <span className="font-bold text-[#2563eb] text-[11px]">{totalVat.toLocaleString('en-US', { minimumFractionDigits: 2 })} {tc("sar")}</span>
                     </div>
                     {(discountTotal > 0 || additionTotal > 0) && (
                       <div className="flex justify-between items-center py-1.5 border-b border-dashed border-[#e2e8f0]">
-                        <span className="text-[#64748b] text-[11px]">تعديلات:</span>
+                        <span className="text-[#64748b] text-[11px]">{tc("discount")}/{tc("add")}:</span>
                         <span className={`font-bold text-[11px] ${additionTotal - discountTotal < 0 ? 'text-[#e11d48]' : 'text-[#059669]'}`}>
-                          {(additionTotal - discountTotal).toLocaleString('en-US', { minimumFractionDigits: 2 })} ريال
+                          {(additionTotal - discountTotal).toLocaleString('en-US', { minimumFractionDigits: 2 })} {tc("sar")}
                         </span>
                       </div>
                     )}
@@ -539,9 +542,9 @@ export function InvoiceViewClient({
                   className="flex justify-between items-center py-3 px-4 rounded-xl mt-4 shadow-md"
                   style={{ background: '#059669' }}
                 >
-                  <span className="font-black text-white text-[12px]">المبلغ المستحق:</span>
+                  <span className="font-black text-white text-[12px]">{t("amountDue")}</span>
                   <span className="font-black text-[14px] text-white">
-                    {grandTotal.toLocaleString('en-US', { minimumFractionDigits: 2 })} ريال
+                    {grandTotal.toLocaleString('en-US', { minimumFractionDigits: 2 })} {tc("sar")}
                   </span>
                 </div>
               </div>
@@ -551,7 +554,7 @@ export function InvoiceViewClient({
                 <div>
                   <h3 className="font-black text-[#0f172a] mb-3 flex items-center justify-center gap-2 text-[13px]">
                     <QrCode size={16} className="text-[#2563eb]" />
-                    باركود ZATCA
+                    {t("zatcaBarcode")}
                   </h3>
                   <div className="flex justify-center mb-2">
                     <div className="p-2 bg-white rounded-xl shadow-sm border border-[#f8fafc]">
@@ -569,7 +572,7 @@ export function InvoiceViewClient({
                 
                 <div className="pt-2 border-t border-[#f1f5f9]">
                   <p className="font-bold text-[#2563eb] text-[10px]">
-                    الفترة: {formatDate(items[0]?.period_from)} - {formatDate(items[0]?.period_to)}
+                    {t("period")} {formatDate(items[0]?.period_from)} - {formatDate(items[0]?.period_to)}
                   </p>
                 </div>
               </div>
@@ -584,29 +587,29 @@ export function InvoiceViewClient({
                 <div className="flex justify-between items-center mb-3">
                   <div className="flex items-center gap-2">
                     <University size={18} className="text-[#059669]" />
-                    <h3 className="font-black text-[#0f172a] text-[13px]">معلومات السداد البنكي</h3>
+                    <h3 className="font-black text-[#0f172a] text-[13px]">{t("bankInfo")}</h3>
                   </div>
                   <div className="flex items-center gap-1 bg-[#10b981] text-white px-3 py-1 rounded-full text-[9px] font-bold">
                     <ShieldCheck size={12} />
-                    <span>حساب معتمد</span>
+                    <span>{t("certifiedAccount")}</span>
                   </div>
                 </div>
                 
                 <div className="grid grid-cols-4 gap-4">
                   <div className="bg-white rounded-xl p-3 border border-[#f1f5f9] shadow-sm">
-                    <p className="text-[9px] text-[#94a3b8] mb-1">البنك</p>
+                    <p className="text-[9px] text-[#94a3b8] mb-1">{tc("bank") || "Bank"}</p>
                     <p className="font-bold text-[#0f172a] text-[10px] truncate">{selectedBank.bank_name}</p>
                   </div>
                   <div className="bg-white rounded-xl p-3 border border-[#f1f5f9] shadow-sm">
-                    <p className="text-[9px] text-[#94a3b8] mb-1">المستفيد</p>
+                    <p className="text-[9px] text-[#94a3b8] mb-1">{tc("beneficiary") || "Beneficiary"}</p>
                     <p className="font-bold text-[#0f172a] text-[10px] truncate">{selectedBank.bank_beneficiary}</p>
                   </div>
                   <div className="bg-white rounded-xl p-3 border border-[#f1f5f9] shadow-sm">
-                    <p className="text-[9px] text-[#94a3b8] mb-1">الحساب</p>
+                    <p className="text-[9px] text-[#94a3b8] mb-1">{tc("account") || "Account"}</p>
                     <p className="font-bold text-[#2563eb] text-[11px]">{selectedBank.bank_account}</p>
                   </div>
                   <div className="bg-white rounded-xl p-3 border border-[#f1f5f9] shadow-sm">
-                    <p className="text-[9px] text-[#94a3b8] mb-1">الآيبان</p>
+                    <p className="text-[9px] text-[#94a3b8] mb-1">{tc("iban") || "IBAN"}</p>
                     <p className="font-bold text-[#0f172a] text-[9px] break-all leading-tight">{selectedBank.bank_iban}</p>
                   </div>
                 </div>
@@ -615,12 +618,12 @@ export function InvoiceViewClient({
                   {invoiceStatus === 'paid' ? (
                     <div className="flex items-center gap-1.5 text-[#059669] text-[10px] font-black uppercase">
                       <CheckCircle size={12} />
-                      <span>تم السداد بنجاح</span>
+                      <span>{t("paidSuccessfully")}</span>
                     </div>
                   ) : (
                     <div className="flex items-center gap-2 text-[#d97706] text-[10px] font-black uppercase">
                       <Clock size={12} />
-                      <span>بانتظار السداد - الاستحقاق: {formatDate(invoice.due_date)}</span>
+                      <span>{t("pendingPayment")} - {t("dueDatePrefix")} {formatDate(invoice.due_date)}</span>
                     </div>
                   )}
                 </div>
@@ -631,7 +634,7 @@ export function InvoiceViewClient({
             <div className="grid grid-cols-2 gap-12 pt-8 mt-auto border-t border-[#f1f5f9]">
               {/* Stamp */}
               <div className="text-center">
-                <h4 className="text-[#64748b] font-bold text-[10px] mb-3 uppercase tracking-tight">ختم المنشأة</h4>
+                <h4 className="text-[#64748b] font-bold text-[10px] mb-3 uppercase tracking-tight">{t("companyStamp")}</h4>
                 <div className="w-32 h-32 mx-auto bg-white rounded-2xl border border-dashed border-[#e2e8f0] flex items-center justify-center p-4 shadow-sm hover:border-[#2563eb] transition-all">
                   {company.stamp_path ? (
                     <img 
@@ -648,7 +651,7 @@ export function InvoiceViewClient({
 
               {/* Signature */}
               <div className="text-center">
-                <h4 className="text-[#64748b] font-bold text-[10px] mb-3 uppercase tracking-tight">التوقيع الإلكتروني</h4>
+                <h4 className="text-[#64748b] font-bold text-[10px] mb-3 uppercase tracking-tight">{t("digitalSignature")}</h4>
                 <div className="w-32 h-32 mx-auto bg-white rounded-2xl border border-dashed border-[#e2e8f0] flex items-center justify-center p-4 shadow-sm hover:border-[#2563eb] transition-all">
                   {company.digital_seal_path ? (
                     <img 
@@ -666,6 +669,5 @@ export function InvoiceViewClient({
           </div>
         </div>
       </div>
-    </div>
-  );
+    );
 }
