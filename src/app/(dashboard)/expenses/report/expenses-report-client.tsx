@@ -466,7 +466,7 @@ export function ExpensesReportClient({ companyId }: ExpensesReportClientProps) {
 
   return (
     <div className="min-h-screen bg-transparent rtl print:bg-white" dir="rtl">
-      <div className="max-w-[96%] w-[96%] mx-auto py-4 space-y-2 print:w-full print:p-2">
+      <div className="max-w-[97%] w-[97%] mx-auto py-4 space-y-2 print:w-full print:p-2">
         <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="print:shadow-none">
           <Card className="overflow-hidden border-none shadow-xl bg-gradient-to-br from-[#1e293b] via-[#334155] to-[#1e293b] text-white rounded-3xl print:rounded-none print:shadow-none">
             <div className="h-1 bg-gradient-to-r from-blue-500 via-emerald-500 via-rose-500 via-amber-500 via-purple-500 to-blue-500 animate-gradient-x print:hidden" />
@@ -608,66 +608,61 @@ export function ExpensesReportClient({ companyId }: ExpensesReportClientProps) {
                           {isExpanded && (
                             <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }}>
                               <div className="max-h-[300px] overflow-y-auto bg-white">
-                                  <table className="w-full text-sm">
-                                    <thead className="bg-blue-50/50 sticky top-0 z-10 border-b-2 border-blue-100 text-[11px] text-blue-900/70 uppercase tracking-wider">
-                                      <tr>
-                                        <th className="p-3 text-center font-black w-[40px]">#</th>
-                                        <th className="p-3 text-center font-black">{t("form.date")}</th>
-                                        <th className="p-3 text-center font-black">{t("form.employee")}</th>
-                                        <th className="p-3 text-center font-black">{t("form.iqamaNumber")}</th>
-                                        <th className="p-3 text-center font-black">{t("form.amount")}</th>
-                                        <th className="p-3 text-center font-black">{t("form.tax")}</th>
+                                    <table className="w-full text-sm">
+                                      <thead className="bg-blue-50/50 sticky top-0 z-10 border-b-2 border-blue-100 text-[11px] text-blue-900/70 uppercase tracking-wider">
+                                        <tr>
+                                          <th className="p-3 text-center font-black w-[40px]">#</th>
+                                          <th className="p-3 text-center font-black">{t("form.date")}</th>
+                                          <th className="p-3 text-center font-black">{t("form.amount")}</th>
+                                          <th className="p-3 text-center font-black">{t("form.tax")}</th>
                                           <th className="p-3 text-center font-black">{t("form.net")}</th>
                                           <th className="p-3 text-center font-black">{t("form.account")}</th>
-                                          <th className="p-3 text-center font-black">{t("form.document")}</th>
+                                          <th className="p-3 text-center font-black">{t("form.costCenter")}</th>
                                           <th className="p-3 text-center font-black print:hidden">{t("fleet.actions")}</th>
                                         </tr>
                                       </thead>
                                       <tbody>
                                         {expenses.map((expense, idx) => (
                                           <tr key={expense.id} className="border-b border-slate-100 hover:bg-blue-50/30 transition-colors bg-white text-xs">
-  
-                                          <td className="p-2 text-center">{idx + 1}</td>
-                                          <td className="p-2 text-center">{formatDate(expense.expense_date)}</td>
-                                          <td className="p-2 text-center font-bold">{expense.employee_name || "-"}</td>
-                                          <td className="p-2 text-center">{expense.employee_iqama || "-"}</td>
-                                          <td className="p-2 text-center font-extrabold text-red-600">{formatNumber(expense.amount || 0)}</td>
-                                          <td className="p-2 text-center font-bold text-red-600">{formatNumber(expense.tax_value || 0)}</td>
-                                          <td className="p-2 text-center font-extrabold text-red-600">{formatNumber(expense.net_amount || expense.amount || 0)}</td>
-                                          <td className="p-2 text-center">{expense.account_code || "-"}</td>
-                                          <td className="p-2 text-center">
-                                            {expense.attachment ? (
-                                              <button 
-                                                onClick={() => {
-                                                  const url = getAttachmentUrl(expense.attachment);
-                                                  if (url) window.open(url, '_blank');
-                                                }}
-                                                className="text-blue-600 hover:text-blue-800 transition-colors"
-                                                title={t("form.document")}
-                                              >
-                                                <Paperclip className="w-4 h-4 mx-auto" />
-                                              </button>
-                                            ) : (
-                                              <span className="text-slate-300">-</span>
-                                            )}
-                                          </td>
+                                            <td className="p-2 text-center">{idx + 1}</td>
+                                            <td className="p-2 text-center">{formatDate(expense.expense_date)}</td>
+                                            <td className="p-2 text-center font-extrabold text-red-600">{formatNumber(expense.amount || 0)}</td>
+                                            <td className="p-2 text-center font-bold text-red-600">{formatNumber(expense.tax_value || 0)}</td>
+                                            <td className="p-2 text-center font-extrabold text-red-600">{formatNumber(expense.net_amount || expense.amount || 0)}</td>
+                                            <td className="p-2 text-center">{expense.account_name || expense.account_code || "-"}</td>
+                                            <td className="p-2 text-center">{expense.center_name || "-"}</td>
                                             <td className="p-2 text-center print:hidden">
-                                              <div className="flex items-center justify-center gap-2">
-                                                <Button size="sm" variant="outline" onClick={() => showItemDetails(expense)} className="text-blue-600 border-blue-100 hover:bg-blue-50 h-8 px-3 text-[10px] font-bold gap-1 rounded-xl">
-                                                  <Eye className="w-3 h-3" /> {t("actions.view")}
+                                              <div className="flex items-center justify-center -space-x-px">
+                                                <Button 
+                                                  size="sm" 
+                                                  variant="outline" 
+                                                  onClick={() => showItemDetails(expense)} 
+                                                  className="h-7 px-2 text-[9px] font-bold rounded-none rounded-r-lg border-slate-200 hover:bg-blue-50 text-blue-600"
+                                                >
+                                                  {t("actions.view")}
                                                 </Button>
-                                                <Button size="sm" variant="outline" onClick={() => handleEditClick(expense)} className="text-amber-600 border-amber-100 hover:bg-amber-50 h-8 px-3 text-[10px] font-bold gap-1 rounded-xl">
-                                                  <Pencil className="w-3 h-3" /> {t("actions.edit")}
+                                                <Button 
+                                                  size="sm" 
+                                                  variant="outline" 
+                                                  onClick={() => handleEditClick(expense)} 
+                                                  className="h-7 px-2 text-[9px] font-bold rounded-none border-slate-200 hover:bg-amber-50 text-amber-600"
+                                                >
+                                                  {t("actions.edit")}
                                                 </Button>
-                                                <Button size="sm" variant="outline" onClick={() => handleDeleteClick(expense)} className="text-rose-600 border-rose-100 hover:bg-rose-50 h-8 px-3 text-[10px] font-bold gap-1 rounded-xl">
-                                                  <Trash2 className="w-3 h-3" /> {t("actions.delete")}
+                                                <Button 
+                                                  size="sm" 
+                                                  variant="outline" 
+                                                  onClick={() => handleDeleteClick(expense)} 
+                                                  className="h-7 px-2 text-[9px] font-bold rounded-none rounded-l-lg border-slate-200 hover:bg-rose-50 text-rose-600"
+                                                >
+                                                  {t("actions.delete")}
                                                 </Button>
                                               </div>
                                             </td>
-                                      </tr>
-                                    ))}
-                                  </tbody>
-                                </table>
+                                          </tr>
+                                        ))}
+                                      </tbody>
+                                    </table>
                               </div>
                             </motion.div>
                           )}
@@ -724,15 +719,14 @@ export function ExpensesReportClient({ companyId }: ExpensesReportClientProps) {
                           {isExpanded && (
                             <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }}>
                               <div className="max-h-[300px] overflow-y-auto bg-white">
-                                  <table className="w-full text-sm">
-                                    <thead className="bg-rose-50/50 sticky top-0 z-10 border-b-2 border-rose-100 text-[11px] text-rose-900/70 uppercase tracking-wider">
-                                      <tr>
-                                        <th className="p-3 text-center font-black w-[40px]">#</th>
-                                        <th className="p-3 text-center font-black">{t("form.date")}</th>
-                                          <th className="p-3 text-center font-black">{t("form.employee")}</th>
-                                          <th className="p-3 text-center font-black">{t("form.iqamaNumber")}</th>
+                                    <table className="w-full text-sm">
+                                      <thead className="bg-rose-50/50 sticky top-0 z-10 border-b-2 border-rose-100 text-[11px] text-rose-900/70 uppercase tracking-wider">
+                                        <tr>
+                                          <th className="p-3 text-center font-black w-[40px]">#</th>
+                                          <th className="p-3 text-center font-black">{t("form.date")}</th>
                                           <th className="p-3 text-center font-black">{t("form.amount")}</th>
-                                          <th className="p-3 text-center font-black">{t("form.document")}</th>
+                                          <th className="p-3 text-center font-black">{t("form.account")}</th>
+                                          <th className="p-3 text-center font-black">{t("form.costCenter")}</th>
                                           <th className="p-3 text-center font-black">{t("common.status")}</th>
                                           <th className="p-3 text-center font-black print:hidden">{t("fleet.actions")}</th>
                                         </tr>
@@ -740,28 +734,11 @@ export function ExpensesReportClient({ companyId }: ExpensesReportClientProps) {
                                       <tbody>
                                         {deductions.map((deduction, idx) => (
                                           <tr key={deduction.id} className="border-b border-slate-100 hover:bg-rose-50/30 transition-colors bg-white text-xs">
-  
-                                          <td className="p-2 text-center">{idx + 1}</td>
-                                          <td className="p-2 text-center">{formatDate(deduction.expense_date)}</td>
-                                          <td className="p-2 text-center font-bold">{deduction.employee_name || "-"}</td>
-                                          <td className="p-2 text-center">{deduction.employee_iqama || "-"}</td>
-                                          <td className="p-2 text-center font-extrabold text-red-600">{formatNumber(deduction.amount || 0)}</td>
-                                          <td className="p-2 text-center">
-                                            {deduction.attachment ? (
-                                              <button 
-                                                onClick={() => {
-                                                  const url = getAttachmentUrl(deduction.attachment);
-                                                  if (url) window.open(url, '_blank');
-                                                }}
-                                                className="text-rose-600 hover:text-rose-800 transition-colors"
-                                                title={t("form.document")}
-                                              >
-                                                <Paperclip className="w-4 h-4 mx-auto" />
-                                              </button>
-                                            ) : (
-                                              <span className="text-slate-300">-</span>
-                                            )}
-                                          </td>
+                                            <td className="p-2 text-center">{idx + 1}</td>
+                                            <td className="p-2 text-center">{formatDate(deduction.expense_date)}</td>
+                                            <td className="p-2 text-center font-extrabold text-red-600">{formatNumber(deduction.amount || 0)}</td>
+                                            <td className="p-2 text-center">{deduction.account_name || deduction.account_code || "-"}</td>
+                                            <td className="p-2 text-center">{deduction.center_name || "-"}</td>
                                             <td className="p-2 text-center">
                                               <div 
                                                 onClick={() => !statusUpdating && handleToggleDeductionStatus(deduction)} 
@@ -787,22 +764,37 @@ export function ExpensesReportClient({ companyId }: ExpensesReportClientProps) {
                                               </div>
                                             </td>
                                             <td className="p-2 text-center print:hidden">
-                                              <div className="flex items-center justify-center gap-2">
-                                                <Button size="sm" variant="outline" onClick={() => showItemDetails(deduction)} className="text-blue-600 border-blue-100 hover:bg-blue-50 h-8 px-3 text-[10px] font-bold gap-1 rounded-xl">
-                                                  <Eye className="w-3 h-3" /> {t("actions.view")}
+                                              <div className="flex items-center justify-center -space-x-px">
+                                                <Button 
+                                                  size="sm" 
+                                                  variant="outline" 
+                                                  onClick={() => showItemDetails(deduction)} 
+                                                  className="h-7 px-2 text-[9px] font-bold rounded-none rounded-r-lg border-slate-200 hover:bg-blue-50 text-blue-600"
+                                                >
+                                                  {t("actions.view")}
                                                 </Button>
-                                                <Button size="sm" variant="outline" onClick={() => handleEditClick(deduction)} className="text-amber-600 border-amber-100 hover:bg-amber-50 h-8 px-3 text-[10px] font-bold gap-1 rounded-xl">
-                                                  <Pencil className="w-3 h-3" /> {t("actions.edit")}
+                                                <Button 
+                                                  size="sm" 
+                                                  variant="outline" 
+                                                  onClick={() => handleEditClick(deduction)} 
+                                                  className="h-7 px-2 text-[9px] font-bold rounded-none border-slate-200 hover:bg-amber-50 text-amber-600"
+                                                >
+                                                  {t("actions.edit")}
                                                 </Button>
-                                                <Button size="sm" variant="outline" onClick={() => handleDeleteClick(deduction)} className="text-rose-600 border-rose-100 hover:bg-rose-50 h-8 px-3 text-[10px] font-bold gap-1 rounded-xl">
-                                                  <Trash2 className="w-3 h-3" /> {t("actions.delete")}
+                                                <Button 
+                                                  size="sm" 
+                                                  variant="outline" 
+                                                  onClick={() => handleDeleteClick(deduction)} 
+                                                  className="h-7 px-2 text-[9px] font-bold rounded-none rounded-l-lg border-slate-200 hover:bg-rose-50 text-rose-600"
+                                                >
+                                                  {t("actions.delete")}
                                                 </Button>
                                               </div>
                                             </td>
-                                        </tr>
-                                      ))}
-                                    </tbody>
-                                  </table>
+                                          </tr>
+                                        ))}
+                                      </tbody>
+                                    </table>
                                 </div>
                               </motion.div>
                             )}
