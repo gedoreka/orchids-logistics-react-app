@@ -194,15 +194,14 @@ function EmployeeSelect({ row, type, metadata, updateRow, t }: {
           </PopoverContent>
         </Popover>
       </div>
-        <button 
-          type="button"
-          onClick={() => updateRow(type, row.id, 'manualEmployee', true)}
-          className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 text-blue-600 rounded-lg border border-blue-100 hover:bg-blue-100 transition-all text-[11px] font-black shrink-0 shadow-sm"
-          title={t("form.manualEntry")}
-        >
-          <Bolt className="w-3.5 h-3.5" />
-          <span>إدخال البيانات يدوياً</span>
-        </button>
+          <button 
+            type="button"
+            onClick={() => updateRow(type, row.id, 'manualEmployee', true)}
+            className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl hover:from-blue-700 hover:to-indigo-700 transition-all text-xs font-black shrink-0 shadow-lg shadow-blue-200"
+          >
+            <Plus className="w-4 h-4" />
+            <span>إدخال البيانات يدوياً</span>
+          </button>
     </div>
   );
 }
@@ -397,7 +396,7 @@ export default function ExpenseFormClient({ user }: { user: User }) {
   }
 
   return (
-    <div className="max-w-[95%] w-[95%] mx-auto px-4 py-8">
+    <div className="max-w-[96%] w-[96%] mx-auto px-4 py-8">
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}

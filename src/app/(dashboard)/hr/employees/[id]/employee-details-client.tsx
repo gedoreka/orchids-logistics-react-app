@@ -854,39 +854,45 @@ className="bg-slate-100 backdrop-blur-xl p-5 rounded-2xl border border-slate-200
                     <div className="overflow-x-auto rounded-2xl border border-slate-200 bg-slate-50 backdrop-blur-xl">
                       <table className="w-full text-right text-sm">
                         <thead className="bg-slate-100 border-b border-slate-200">
-                          <tr>
-                            <th className="px-5 py-4 text-xs font-black text-slate-700 uppercase">التاريخ</th>
-                            <th className="px-5 py-4 text-xs font-black text-slate-700 uppercase">النوع</th>
-                            <th className="px-5 py-4 text-xs font-black text-slate-700 uppercase">المبلغ</th>
-                            <th className="px-5 py-4 text-xs font-black text-slate-700 uppercase">المخصوم</th>
-                            <th className="px-5 py-4 text-xs font-black text-slate-700 uppercase">المتبقي</th>
-                            <th className="px-5 py-4 text-xs font-black text-slate-700 uppercase text-center">إجراءات</th>
-                          </tr>
-                        </thead>
-                        <tbody className="divide-y divide-slate-200">
-                          {violations.map((v, idx) => (
-                            <motion.tr 
-                              key={v.id} 
-                              initial={{ opacity: 0, x: -20 }}
-                              animate={{ opacity: 1, x: 0 }}
-                              transition={{ delay: idx * 0.05 }}
-                              className="hover:bg-slate-100 transition-all"
-                            >
-                              <td className="px-5 py-4 font-bold text-slate-700">{v.violation_date}</td>
-                              <td className="px-5 py-4"><span className={`px-3 py-1 rounded-lg text-xs font-black ${v.violation_type === 'traffic' ? 'bg-red-500/20 text-red-600' : 'bg-orange-500/20 text-orange-600'}`}>{v.violation_type === 'traffic' ? 'مرورية' : 'عامة'}</span></td>
-                              <td className="px-5 py-4 font-black text-red-600">{Number(v.violation_amount).toLocaleString()} ر.س</td>
-                              <td className="px-5 py-4 font-black text-emerald-600">{Number(v.deducted_amount).toLocaleString()} ر.س</td>
-                              <td className="px-5 py-4 font-black text-blue-600">{Number(v.remaining_amount).toLocaleString()} ر.س</td>
-                              <td className="px-5 py-4">
-                                <div className="flex justify-center gap-2">
-                                  <motion.button whileHover={{ scale: 1.1 }} onClick={() => setEditingViolation(v)} className="p-2 text-blue-500 hover:bg-blue-500/20 rounded-lg"><Edit3 size={14} /></motion.button>
-                                  <motion.button whileHover={{ scale: 1.1 }} onClick={() => handleDeleteViolation(v.id)} className="p-2 text-red-500 hover:bg-red-500/20 rounded-lg"><Trash size={14} /></motion.button>
-                                </div>
-                              </td>
-                            </motion.tr>
+                            <tr>
+                              <th className="px-5 py-4 text-xs font-black text-slate-700 uppercase">التاريخ</th>
+                              <th className="px-5 py-4 text-xs font-black text-slate-700 uppercase">النوع</th>
+                              <th className="px-5 py-4 text-xs font-black text-slate-700 uppercase">المبلغ</th>
+                              <th className="px-5 py-4 text-xs font-black text-slate-700 uppercase">المخصوم</th>
+                              <th className="px-5 py-4 text-xs font-black text-slate-700 uppercase">المتبقي</th>
+                              <th className="px-5 py-4 text-xs font-black text-slate-700 uppercase">الوصف</th>
+                              <th className="px-5 py-4 text-xs font-black text-slate-700 uppercase text-center">إجراءات</th>
+                            </tr>
+                          </thead>
+                          <tbody className="divide-y divide-slate-200">
+                            {violations.map((v, idx) => (
+                              <motion.tr 
+                                key={v.id} 
+                                initial={{ opacity: 0, x: -20 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                transition={{ delay: idx * 0.05 }}
+                                className="hover:bg-slate-100 transition-all"
+                              >
+                                <td className="px-5 py-4 font-bold text-slate-700">{v.violation_date}</td>
+                                <td className="px-5 py-4"><span className={`px-3 py-1 rounded-lg text-xs font-black ${v.violation_type === 'traffic' ? 'bg-red-500/20 text-red-600' : 'bg-orange-500/20 text-orange-600'}`}>{v.violation_type === 'traffic' ? 'مرورية' : 'عامة'}</span></td>
+                                <td className="px-5 py-4 font-black text-red-600">{Number(v.violation_amount).toLocaleString()} ر.س</td>
+                                <td className="px-5 py-4 font-black text-emerald-600">{Number(v.deducted_amount).toLocaleString()} ر.س</td>
+                                <td className="px-5 py-4 font-black text-blue-600">{Number(v.remaining_amount).toLocaleString()} ر.س</td>
+                                <td className="px-5 py-4 text-xs text-slate-500 font-bold max-w-[200px] truncate" title={v.violation_description}>{v.violation_description || "-"}</td>
+                                <td className="px-5 py-4">
+                                  <div className="flex justify-center gap-2">
+                                    {v.violation_type !== 'traffic_expense' && (
+                                      <>
+                                        <motion.button whileHover={{ scale: 1.1 }} onClick={() => setEditingViolation(v)} className="p-2 text-blue-500 hover:bg-blue-500/20 rounded-lg"><Edit3 size={14} /></motion.button>
+                                        <motion.button whileHover={{ scale: 1.1 }} onClick={() => handleDeleteViolation(v.id)} className="p-2 text-red-500 hover:bg-red-500/20 rounded-lg"><Trash size={14} /></motion.button>
+                                      </>
+                                    )}
+                                  </div>
+                                </td>
+                              </motion.tr>
                           ))}
                           {violations.length === 0 && (
-                            <tr><td colSpan={6} className="px-5 py-12 text-center text-slate-500 font-black">لا توجد مخالفات مسجلة</td></tr>
+                            <tr><td colSpan={7} className="px-5 py-12 text-center text-slate-500 font-black">لا توجد مخالفات مسجلة</td></tr>
                           )}
                       </tbody>
                     </table>

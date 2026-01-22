@@ -282,7 +282,7 @@ export default function IncomeFormClient({ user }: { user: User }) {
   }
 
   return (
-    <div className="max-w-[95%] mx-auto p-4 md:p-8 space-y-8" dir={isRtl ? "rtl" : "ltr"}>
+    <div className="max-w-[96%] w-[96%] mx-auto p-4 md:p-8 space-y-8" dir={isRtl ? "rtl" : "ltr"}>
       <AnimatePresence>
         {notification.show && (
           <>

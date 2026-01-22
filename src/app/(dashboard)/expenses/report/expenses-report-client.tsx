@@ -457,7 +457,7 @@ export function ExpensesReportClient({ companyId }: ExpensesReportClientProps) {
 
   return (
     <div className="min-h-screen bg-transparent rtl print:bg-white" dir="rtl">
-      <div className="w-[98%] mx-auto py-4 space-y-2 print:w-full print:p-2">
+      <div className="max-w-[96%] w-[96%] mx-auto py-4 space-y-2 print:w-full print:p-2">
         <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="print:shadow-none">
           <Card className="overflow-hidden border-none shadow-xl bg-gradient-to-br from-[#1e293b] via-[#334155] to-[#1e293b] text-white rounded-3xl print:rounded-none print:shadow-none">
             <div className="h-1 bg-gradient-to-r from-blue-500 via-emerald-500 via-rose-500 via-amber-500 via-purple-500 to-blue-500 animate-gradient-x print:hidden" />
