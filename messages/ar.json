@@ -819,14 +819,17 @@
           "actions": "الإجراءات",
           "print": "طباعة"
         },
-        "common": {
-          "status": "الحالة",
-          "details": "التفاصيل"
-        },
-        "expenses": {
-          "totalDeductions": "إجمالي الاستقطاعات"
-        },
+          "common": {
+            "status": "الحالة",
+            "details": "التفاصيل",
+            "type": "النوع",
+            "actions": "الإجراءات"
+          },
+          "expenses": {
+            "totalDeductions": "إجمالي الاستقطاعات"
+          },
           "actions": {
+            "title": "إجراءات",
             "view": "عرض",
             "edit": "تعديل",
             "delete": "حذف"

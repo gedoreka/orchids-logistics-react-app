@@ -818,18 +818,21 @@
           "actions": "Actions",
           "print": "Print"
         },
-        "common": {
-          "status": "Status",
-          "details": "Details"
-        },
-        "expenses": {
-          "totalDeductions": "Total Deductions"
-        },
-        "actions": {
-          "view": "View Details of Expense or Deduction",
-          "edit": "Edit Expense or Deduction",
-          "delete": "Delete Deduction or Expense"
-        },
+          "common": {
+            "status": "Status",
+            "details": "Details",
+            "type": "Type",
+            "actions": "Actions"
+          },
+          "expenses": {
+            "totalDeductions": "Total Deductions"
+          },
+          "actions": {
+            "title": "Actions",
+            "view": "View",
+            "edit": "Edit",
+            "delete": "Delete"
+          },
       "types": {
       "iqama": "Iqama Expenses",
       "fuel": "Fuel Expenses",

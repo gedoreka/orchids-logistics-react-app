@@ -609,70 +609,70 @@ export function ExpensesReportClient({ companyId }: ExpensesReportClientProps) {
                             <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }}>
                               <div className="max-h-[300px] overflow-y-auto bg-white">
                                     <table className="w-full text-sm">
-                                      <thead className="bg-blue-50/50 sticky top-0 z-10 border-b-2 border-blue-100 text-[10px] text-blue-900/70 uppercase tracking-wider">
-                                        <tr>
-                                          <th className="p-2 text-center font-black w-[40px] border-l border-blue-100/50">#</th>
-                                          <th className="p-2 text-center font-black print:hidden border-l border-blue-100/50 w-[150px]">{t("fleet.actions")}</th>
-                                          <th className="p-2 text-center font-black border-l border-blue-100/50">{t("form.date")}</th>
-                                          <th className="p-2 text-center font-black border-l border-blue-100/50">{t("form.employee")}</th>
-                                          <th className="p-2 text-center font-black border-l border-blue-100/50">{t("form.iqamaNumber")}</th>
-                                          <th className="p-2 text-center font-black border-l border-blue-100/50">{t("form.amount")}</th>
-                                          <th className="p-2 text-center font-black border-l border-blue-100/50">{t("form.tax")}</th>
-                                          <th className="p-2 text-center font-black border-l border-blue-100/50">{t("form.net")}</th>
-                                          <th className="p-2 text-center font-black border-l border-blue-100/50">{t("form.account")}</th>
-                                          <th className="p-2 text-center font-black">{t("form.costCenter")}</th>
-                                        </tr>
-                                      </thead>
-                                      <tbody>
-                                        {expenses.map((expense, idx) => (
-                                          <tr key={expense.id} className="border-b border-slate-100 hover:bg-blue-50/30 transition-colors bg-white text-[11px]">
-                                            <td className="p-1 text-center border-l border-slate-50">{idx + 1}</td>
-                                            <td className="p-1 text-center print:hidden border-l border-slate-50">
-                                              <div className="flex items-center justify-center -space-x-px">
-                                                <Button 
-                                                  variant="outline" 
-                                                  onClick={() => showItemDetails(expense)} 
-                                                  className="h-7 px-2 text-[9px] font-bold text-blue-600 border-slate-200 rounded-none rounded-r-md hover:bg-blue-50 hover:border-blue-200 z-10"
-                                                >
-                                                  عرض
-                                                </Button>
-                                                <Button 
-                                                  variant="outline" 
-                                                  onClick={() => handleEditClick(expense)} 
-                                                  className="h-7 px-2 text-[9px] font-bold text-amber-600 border-slate-200 rounded-none border-r-0 hover:bg-amber-50 hover:border-amber-200 z-20"
-                                                >
-                                                  تعديل
-                                                </Button>
-                                                <Button 
-                                                  variant="outline" 
-                                                  onClick={() => handleDeleteClick(expense)} 
-                                                  className="h-7 px-2 text-[9px] font-bold text-rose-600 border-slate-200 rounded-none rounded-l-md border-r-0 hover:bg-rose-50 hover:border-rose-200 z-30"
-                                                >
-                                                  حذف
-                                                </Button>
-                                              </div>
-                                            </td>
-                                            <td className="p-1 text-center border-l border-slate-50">{formatDate(expense.expense_date)}</td>
-                                            <td className="p-1 text-center font-bold border-l border-slate-50">{expense.employee_name || "-"}</td>
-                                            <td className="p-1 text-center border-l border-slate-50">{expense.employee_iqama || "-"}</td>
-                                            <td className="p-1 text-center font-black text-red-600 border-l border-slate-50">{formatNumber(expense.amount || 0)}</td>
-                                            <td className="p-1 text-center font-bold text-red-500 border-l border-slate-50">{formatNumber(expense.tax_value || 0)}</td>
-                                            <td className="p-1 text-center font-black text-red-700 border-l border-slate-50">{formatNumber(expense.net_amount || expense.amount || 0)}</td>
-                                            <td className="p-1 text-center border-l border-slate-50">
-                                              <div className="flex flex-col">
-                                                <span className="font-bold text-slate-700">{expense.account_code || "-"}</span>
-                                                <span className="text-[8px] text-slate-400 truncate max-w-[80px]">{expense.account_name}</span>
-                                              </div>
-                                            </td>
-                                            <td className="p-1 text-center">
-                                              <div className="flex flex-col">
-                                                <span className="font-bold text-slate-700">{expense.center_code || "-"}</span>
-                                                <span className="text-[8px] text-slate-400 truncate max-w-[80px]">{expense.center_name}</span>
-                                              </div>
-                                            </td>
+                                        <thead className="bg-blue-50/50 sticky top-0 z-10 border-b-2 border-blue-100 text-[10px] text-blue-900/70 uppercase tracking-wider">
+                                          <tr>
+                                            <th className="p-2 text-center font-black w-[40px] border-l border-blue-100/50">#</th>
+                                            <th className="p-2 text-center font-black border-l border-blue-100/50">{t("form.date")}</th>
+                                            <th className="p-2 text-center font-black border-l border-blue-100/50">{t("form.employee")}</th>
+                                            <th className="p-2 text-center font-black border-l border-blue-100/50">{t("form.iqamaNumber")}</th>
+                                            <th className="p-2 text-center font-black border-l border-blue-100/50">{t("form.amount")}</th>
+                                            <th className="p-2 text-center font-black border-l border-blue-100/50">{t("form.tax")}</th>
+                                            <th className="p-2 text-center font-black border-l border-blue-100/50">{t("form.net")}</th>
+                                            <th className="p-2 text-center font-black border-l border-blue-100/50">{t("form.account")}</th>
+                                            <th className="p-2 text-center font-black border-l border-blue-100/50">{t("form.costCenter")}</th>
+                                            <th className="p-2 text-center font-black print:hidden w-[150px]">{t("actions.title")}</th>
                                           </tr>
-                                        ))}
-                                      </tbody>
+                                        </thead>
+                                        <tbody>
+                                          {expenses.map((expense, idx) => (
+                                            <tr key={expense.id} className="border-b border-slate-100 hover:bg-blue-50/30 transition-colors bg-white text-[11px]">
+                                              <td className="p-1 text-center border-l border-slate-50">{idx + 1}</td>
+                                              <td className="p-1 text-center border-l border-slate-50">{formatDate(expense.expense_date)}</td>
+                                              <td className="p-1 text-center font-bold border-l border-slate-50">{expense.employee_name || "-"}</td>
+                                              <td className="p-1 text-center border-l border-slate-50">{expense.employee_iqama || "-"}</td>
+                                              <td className="p-1 text-center font-black text-red-600 border-l border-slate-50">{formatNumber(expense.amount || 0)}</td>
+                                              <td className="p-1 text-center font-bold text-red-500 border-l border-slate-50">{formatNumber(expense.tax_value || 0)}</td>
+                                              <td className="p-1 text-center font-black text-red-700 border-l border-slate-50">{formatNumber(expense.net_amount || expense.amount || 0)}</td>
+                                              <td className="p-1 text-center border-l border-slate-50">
+                                                <div className="flex flex-col">
+                                                  <span className="font-bold text-slate-700">{expense.account_code || "-"}</span>
+                                                  <span className="text-[8px] text-slate-400 truncate max-w-[80px]">{expense.account_name}</span>
+                                                </div>
+                                              </td>
+                                              <td className="p-1 text-center border-l border-slate-50">
+                                                <div className="flex flex-col">
+                                                  <span className="font-bold text-slate-700">{expense.center_code || "-"}</span>
+                                                  <span className="text-[8px] text-slate-400 truncate max-w-[80px]">{expense.center_name}</span>
+                                                </div>
+                                              </td>
+                                              <td className="p-1 text-center print:hidden">
+                                                <div className="flex items-center justify-center -space-x-px">
+                                                  <Button 
+                                                    variant="outline" 
+                                                    onClick={() => showItemDetails(expense)} 
+                                                    className="h-7 px-2 text-[9px] font-bold text-blue-600 border-slate-200 rounded-none rounded-r-md hover:bg-blue-50 hover:border-blue-200 z-10"
+                                                  >
+                                                    {t("actions.view")}
+                                                  </Button>
+                                                  <Button 
+                                                    variant="outline" 
+                                                    onClick={() => handleEditClick(expense)} 
+                                                    className="h-7 px-2 text-[9px] font-bold text-amber-600 border-slate-200 rounded-none border-r-0 hover:bg-amber-50 hover:border-amber-200 z-20"
+                                                  >
+                                                    {t("actions.edit")}
+                                                  </Button>
+                                                  <Button 
+                                                    variant="outline" 
+                                                    onClick={() => handleDeleteClick(expense)} 
+                                                    className="h-7 px-2 text-[9px] font-bold text-rose-600 border-slate-200 rounded-none rounded-l-md border-r-0 hover:bg-rose-50 hover:border-rose-200 z-30"
+                                                  >
+                                                    {t("actions.delete")}
+                                                  </Button>
+                                                </div>
+                                              </td>
+                                            </tr>
+                                          ))}
+                                        </tbody>
                                     </table>
                               </div>
                             </motion.div>
@@ -731,91 +731,91 @@ export function ExpensesReportClient({ companyId }: ExpensesReportClientProps) {
                             <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }}>
                               <div className="max-h-[300px] overflow-y-auto bg-white">
                                     <table className="w-full text-sm">
-                                      <thead className="bg-rose-50/50 sticky top-0 z-10 border-b-2 border-rose-100 text-[10px] text-rose-900/70 uppercase tracking-wider">
-                                        <tr>
-                                          <th className="p-2 text-center font-black w-[40px] border-l border-rose-100/50">#</th>
-                                          <th className="p-2 text-center font-black print:hidden border-l border-rose-100/50 w-[150px]">{t("fleet.actions")}</th>
-                                          <th className="p-2 text-center font-black border-l border-rose-100/50">{t("form.date")}</th>
-                                          <th className="p-2 text-center font-black border-l border-rose-100/50">{t("form.employee")}</th>
-                                          <th className="p-2 text-center font-black border-l border-rose-100/50">{t("form.iqamaNumber")}</th>
-                                          <th className="p-2 text-center font-black border-l border-rose-100/50">{t("form.amount")}</th>
-                                          <th className="p-2 text-center font-black border-l border-rose-100/50">{t("form.account")}</th>
-                                          <th className="p-2 text-center font-black border-l border-rose-100/50">{t("form.costCenter")}</th>
-                                          <th className="p-2 text-center font-black">{t("common.status")}</th>
-                                        </tr>
-                                      </thead>
-                                      <tbody>
-                                        {deductions.map((deduction, idx) => (
-                                          <tr key={deduction.id} className="border-b border-slate-100 hover:bg-rose-50/30 transition-colors bg-white text-[11px]">
-                                            <td className="p-1 text-center border-l border-slate-50">{idx + 1}</td>
-                                            <td className="p-1 text-center print:hidden border-l border-slate-50">
-                                              <div className="flex items-center justify-center -space-x-px">
-                                                <Button 
-                                                  variant="outline" 
-                                                  onClick={() => showItemDetails(deduction)} 
-                                                  className="h-7 px-2 text-[9px] font-bold text-blue-600 border-slate-200 rounded-none rounded-r-md hover:bg-blue-50 hover:border-blue-200 z-10"
-                                                >
-                                                  عرض
-                                                </Button>
-                                                <Button 
-                                                  variant="outline" 
-                                                  onClick={() => handleEditClick(deduction)} 
-                                                  className="h-7 px-2 text-[9px] font-bold text-amber-600 border-slate-200 rounded-none border-r-0 hover:bg-amber-50 hover:border-amber-200 z-20"
-                                                >
-                                                  تعديل
-                                                </Button>
-                                                <Button 
-                                                  variant="outline" 
-                                                  onClick={() => handleDeleteClick(deduction)} 
-                                                  className="h-7 px-2 text-[9px] font-bold text-rose-600 border-slate-200 rounded-none rounded-l-md border-r-0 hover:bg-rose-50 hover:border-rose-200 z-30"
-                                                >
-                                                  حذف
-                                                </Button>
-                                              </div>
-                                            </td>
-                                            <td className="p-1 text-center border-l border-slate-50">{formatDate(deduction.expense_date)}</td>
-                                            <td className="p-1 text-center font-bold border-l border-slate-50">{deduction.employee_name || "-"}</td>
-                                            <td className="p-1 text-center border-l border-slate-50">{deduction.employee_iqama || "-"}</td>
-                                            <td className="p-1 text-center font-black text-red-600 border-l border-slate-50">{formatNumber(deduction.amount || 0)}</td>
-                                            <td className="p-1 text-center border-l border-slate-50">
-                                              <div className="flex flex-col">
-                                                <span className="font-bold text-slate-700">{deduction.account_code || "-"}</span>
-                                                <span className="text-[8px] text-slate-400 truncate max-w-[80px]">{deduction.account_name}</span>
-                                              </div>
-                                            </td>
-                                            <td className="p-1 text-center border-l border-slate-50">
-                                              <div className="flex flex-col">
-                                                <span className="font-bold text-slate-700">{deduction.center_code || "-"}</span>
-                                                <span className="text-[8px] text-slate-400 truncate max-w-[80px]">{deduction.center_name}</span>
-                                              </div>
-                                            </td>
-                                            <td className="p-1 text-center">
-                                              <div 
-                                                onClick={() => !statusUpdating && handleToggleDeductionStatus(deduction)} 
-                                                className={`relative w-20 h-6 flex items-center rounded-full p-0.5 cursor-pointer transition-all duration-500 shadow-inner mx-auto group ${deduction.status === "completed" ? "bg-emerald-500" : "bg-rose-500"}`}
-                                              >
-                                                <div className={`absolute inset-0 flex items-center justify-center text-[8px] font-black text-white transition-opacity duration-300 ${statusUpdating === deduction.id ? "opacity-0" : "opacity-100"}`}>
-                                                  <span className={`transition-transform duration-500 ${deduction.status === "completed" ? "translate-x-2" : "-translate-x-2"}`}>
-                                                    {deduction.status === "completed" ? "مدفوع" : "غير مدفوع"}
-                                                  </span>
-                                                </div>
-                                                <motion.div 
-                                                  layout
-                                                  className="bg-white w-5 h-5 rounded-full shadow-lg z-20 flex items-center justify-center"
-                                                  animate={{ x: deduction.status === "completed" ? (document.dir === 'rtl' ? 52 : -52) : 0 }}
-                                                  transition={{ type: "spring", stiffness: 500, damping: 30 }}
-                                                >
-                                                  {statusUpdating === deduction.id ? (
-                                                    <Loader2 className="w-2.5 h-2.5 animate-spin text-slate-400" />
-                                                  ) : (
-                                                    <div className={`w-1 h-1 rounded-full ${deduction.status === "completed" ? "bg-emerald-500" : "bg-rose-500"}`} />
-                                                  )}
-                                                </motion.div>
-                                              </div>
-                                            </td>
+                                        <thead className="bg-rose-50/50 sticky top-0 z-10 border-b-2 border-rose-100 text-[10px] text-rose-900/70 uppercase tracking-wider">
+                                          <tr>
+                                            <th className="p-2 text-center font-black w-[40px] border-l border-rose-100/50">#</th>
+                                            <th className="p-2 text-center font-black border-l border-rose-100/50">{t("form.date")}</th>
+                                            <th className="p-2 text-center font-black border-l border-rose-100/50">{t("form.employee")}</th>
+                                            <th className="p-2 text-center font-black border-l border-rose-100/50">{t("form.iqamaNumber")}</th>
+                                            <th className="p-2 text-center font-black border-l border-rose-100/50">{t("form.amount")}</th>
+                                            <th className="p-2 text-center font-black border-l border-rose-100/50">{t("form.account")}</th>
+                                            <th className="p-2 text-center font-black border-l border-rose-100/50">{t("form.costCenter")}</th>
+                                            <th className="p-2 text-center font-black border-l border-rose-100/50">{t("common.status")}</th>
+                                            <th className="p-2 text-center font-black print:hidden w-[150px]">{t("actions.title")}</th>
                                           </tr>
-                                        ))}
-                                      </tbody>
+                                        </thead>
+                                        <tbody>
+                                          {deductions.map((deduction, idx) => (
+                                            <tr key={deduction.id} className="border-b border-slate-100 hover:bg-rose-50/30 transition-colors bg-white text-[11px]">
+                                              <td className="p-1 text-center border-l border-slate-50">{idx + 1}</td>
+                                              <td className="p-1 text-center border-l border-slate-50">{formatDate(deduction.expense_date)}</td>
+                                              <td className="p-1 text-center font-bold border-l border-slate-50">{deduction.employee_name || "-"}</td>
+                                              <td className="p-1 text-center border-l border-slate-50">{deduction.employee_iqama || "-"}</td>
+                                              <td className="p-1 text-center font-black text-red-600 border-l border-slate-50">{formatNumber(deduction.amount || 0)}</td>
+                                              <td className="p-1 text-center border-l border-slate-50">
+                                                <div className="flex flex-col">
+                                                  <span className="font-bold text-slate-700">{deduction.account_code || "-"}</span>
+                                                  <span className="text-[8px] text-slate-400 truncate max-w-[80px]">{deduction.account_name}</span>
+                                                </div>
+                                              </td>
+                                              <td className="p-1 text-center border-l border-slate-50">
+                                                <div className="flex flex-col">
+                                                  <span className="font-bold text-slate-700">{deduction.center_code || "-"}</span>
+                                                  <span className="text-[8px] text-slate-400 truncate max-w-[80px]">{deduction.center_name}</span>
+                                                </div>
+                                              </td>
+                                              <td className="p-1 text-center border-l border-slate-50">
+                                                <div 
+                                                  onClick={() => !statusUpdating && handleToggleDeductionStatus(deduction)} 
+                                                  className={`relative w-20 h-6 flex items-center rounded-full p-0.5 cursor-pointer transition-all duration-500 shadow-inner mx-auto group ${deduction.status === "completed" ? "bg-emerald-500" : "bg-rose-500"}`}
+                                                >
+                                                  <div className={`absolute inset-0 flex items-center justify-center text-[8px] font-black text-white transition-opacity duration-300 ${statusUpdating === deduction.id ? "opacity-0" : "opacity-100"}`}>
+                                                    <span className={`transition-transform duration-500 ${deduction.status === "completed" ? "translate-x-2" : "-translate-x-2"}`}>
+                                                      {deduction.status === "completed" ? "مدفوع" : "غير مدفوع"}
+                                                    </span>
+                                                  </div>
+                                                  <motion.div 
+                                                    layout
+                                                    className="bg-white w-5 h-5 rounded-full shadow-lg z-20 flex items-center justify-center"
+                                                    animate={{ x: deduction.status === "completed" ? (document.dir === 'rtl' ? 52 : -52) : 0 }}
+                                                    transition={{ type: "spring", stiffness: 500, damping: 30 }}
+                                                  >
+                                                    {statusUpdating === deduction.id ? (
+                                                      <Loader2 className="w-2.5 h-2.5 animate-spin text-slate-400" />
+                                                    ) : (
+                                                      <div className={`w-1 h-1 rounded-full ${deduction.status === "completed" ? "bg-emerald-500" : "bg-rose-500"}`} />
+                                                    )}
+                                                  </motion.div>
+                                                </div>
+                                              </td>
+                                              <td className="p-1 text-center print:hidden">
+                                                <div className="flex items-center justify-center -space-x-px">
+                                                  <Button 
+                                                    variant="outline" 
+                                                    onClick={() => showItemDetails(deduction)} 
+                                                    className="h-7 px-2 text-[9px] font-bold text-blue-600 border-slate-200 rounded-none rounded-r-md hover:bg-blue-50 hover:border-blue-200 z-10"
+                                                  >
+                                                    {t("actions.view")}
+                                                  </Button>
+                                                  <Button 
+                                                    variant="outline" 
+                                                    onClick={() => handleEditClick(deduction)} 
+                                                    className="h-7 px-2 text-[9px] font-bold text-amber-600 border-slate-200 rounded-none border-r-0 hover:bg-amber-50 hover:border-amber-200 z-20"
+                                                  >
+                                                    {t("actions.edit")}
+                                                  </Button>
+                                                  <Button 
+                                                    variant="outline" 
+                                                    onClick={() => handleDeleteClick(deduction)} 
+                                                    className="h-7 px-2 text-[9px] font-bold text-rose-600 border-slate-200 rounded-none rounded-l-md border-r-0 hover:bg-rose-50 hover:border-rose-200 z-30"
+                                                  >
+                                                    {t("actions.delete")}
+                                                  </Button>
+                                                </div>
+                                              </td>
+                                            </tr>
+                                          ))}
+                                        </tbody>
                                     </table>
                                 </div>
                               </motion.div>
@@ -855,9 +855,14 @@ export function ExpensesReportClient({ companyId }: ExpensesReportClientProps) {
               </DialogHeader>
               {selectedItem && (
                 <div className="space-y-4 p-3">
-                  <div className="grid grid-cols-2 md:grid-cols-3 gap-3 text-sm">
-                    <div className="p-3 bg-white border rounded-xl shadow-sm"><p className="text-[10px] text-slate-500 font-bold mb-1 uppercase tracking-wider">{t("common.type")}</p><p className="font-bold text-slate-800">{"expense_type" in selectedItem ? selectedItem.expense_type : selectedItem.deduction_type}</p></div>
-                    <div className="p-3 bg-white border rounded-xl shadow-sm"><p className="text-[10px] text-slate-500 font-bold mb-1 uppercase tracking-wider">{t("form.date")}</p><p className="font-bold text-slate-800">{formatDate(selectedItem.expense_date)}</p></div>
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-3 text-sm">
+                      <div className="p-3 bg-white border rounded-xl shadow-sm">
+                        <p className="text-[10px] text-slate-500 font-bold mb-1 uppercase tracking-wider">{t("common.type")}</p>
+                        <p className="font-bold text-slate-800">
+                          {t(`types.${("expense_type" in selectedItem ? selectedItem.expense_type : selectedItem.deduction_type).toLowerCase()}`)}
+                        </p>
+                      </div>
+                      <div className="p-3 bg-white border rounded-xl shadow-sm"><p className="text-[10px] text-slate-500 font-bold mb-1 uppercase tracking-wider">{t("form.date")}</p><p className="font-bold text-slate-800">{formatDate(selectedItem.expense_date)}</p></div>
                     <div className="p-3 bg-white border rounded-xl shadow-sm"><p className="text-[10px] text-slate-500 font-bold mb-1 uppercase tracking-wider">{t("form.employee")}</p><p className="font-bold text-slate-800">{selectedItem.employee_name || "-"}</p></div>
                     <div className="p-3 bg-white border rounded-xl shadow-sm"><p className="text-[10px] text-slate-500 font-bold mb-1 uppercase tracking-wider">{t("form.iqamaNumber")}</p><p className="font-bold text-slate-800">{selectedItem.employee_iqama || "-"}</p></div>
                     <div className="p-3 bg-white border rounded-xl shadow-sm"><p className="text-[10px] text-slate-500 font-bold mb-1 uppercase tracking-wider">{t("form.account")}</p><p className="font-bold text-slate-800">{selectedItem.account_code || "-"}</p></div>
