@@ -23,5 +23,9 @@ export default async function ExpensesReportPage() {
     redirect('/dashboard');
   }
 
-  return <ExpensesReportClient companyId={companyId} />;
+  return (
+    <div className="max-w-[96%] w-[96%] mx-auto py-6">
+      <ExpensesReportClient companyId={companyId} />
+    </div>
+  );
 }

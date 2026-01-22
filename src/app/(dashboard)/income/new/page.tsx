@@ -24,9 +24,9 @@ export default async function NewIncomePage() {
 
   const user = users[0];
 
-  return (
-    <div className="container mx-auto py-6">
-      <IncomeFormClient user={user} />
-    </div>
-  );
+    return (
+      <div className="max-w-[96%] w-[96%] mx-auto py-6">
+        <IncomeFormClient user={user} />
+      </div>
+    );
 }
