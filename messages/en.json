@@ -811,10 +811,21 @@
       "manualEntry": "Manual Entry",
       "employeeName": "Employee Name",
       "success": "Saved Successfully!",
-      "successDesc": "{count} expenses have been successfully recorded in the financial system.",
-      "backToCenter": "Back to Expenses Center"
-    },
-    "types": {
+        "successDesc": "{count} expenses have been successfully recorded in the financial system.",
+        "backToCenter": "Back to Expenses Center"
+      },
+      "fleet": {
+        "actions": "Actions",
+        "print": "Print"
+      },
+      "common": {
+        "status": "Status",
+        "details": "Details"
+      },
+      "expenses": {
+        "totalDeductions": "Total Deductions"
+      },
+      "types": {
       "iqama": "Iqama Expenses",
       "fuel": "Fuel Expenses",
       "housing": "Housing Rent",

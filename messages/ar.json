@@ -812,10 +812,21 @@
       "manualEntry": "إدخال يدوي",
       "employeeName": "اسم الموظف",
       "success": "تم الحفظ بنجاح!",
-      "successDesc": "تم تسجيل {count} مصروفاً بنجاح في النظام المالي.",
-      "backToCenter": "العودة لمركز المنصرفات"
-    },
-    "types": {
+        "successDesc": "تم تسجيل {count} مصروفاً بنجاح في النظام المالي.",
+        "backToCenter": "العودة لمركز المنصرفات"
+      },
+      "fleet": {
+        "actions": "إجراءات",
+        "print": "طباعة"
+      },
+      "common": {
+        "status": "الحالة",
+        "details": "التفاصيل"
+      },
+      "expenses": {
+        "totalDeductions": "إجمالي الاستقطاعات"
+      },
+      "types": {
       "iqama": "منصرفات إقامة",
       "fuel": "منصرفات وقود",
       "housing": "إيجار سكن",

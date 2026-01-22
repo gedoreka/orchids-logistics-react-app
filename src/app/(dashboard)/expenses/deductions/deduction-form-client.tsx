@@ -52,6 +52,7 @@ interface DeductionRow {
   description: string;
   status: 'pending' | 'collected';
   manualEmployee: boolean;
+  attachment: File | null;
 }
 
 const mainTypes = {
@@ -243,33 +244,35 @@ export default function DeductionFormClient({ user }: { user: User }) {
       employee_iqama: "",
       account_id: "",
       cost_center_id: "",
-      description: "",
-      status: 'pending',
-      manualEmployee: false
+        description: "",
+        status: 'pending',
+        manualEmployee: false,
+        attachment: null
+      };
+  
+      setSections(prev => ({
+        ...prev,
+        [type]: [newRow]
+      }));
+      setSelectedTypeToAdd("");
     };
-
-    setSections(prev => ({
-      ...prev,
-      [type]: [newRow]
-    }));
-    setSelectedTypeToAdd("");
-  };
-
-  const addRow = (type: string) => {
-    const newRow: DeductionRow = {
-      id: Math.random().toString(36).substr(2, 9),
-      expense_date: new Date().toISOString().split('T')[0],
-      deduction_type: defaultDeductionValues[type] || "",
-      amount: "",
-      employee_id: "",
-      employee_name: "",
-      employee_iqama: "",
-      account_id: "",
-      cost_center_id: "",
-      description: "",
-      status: 'pending',
-      manualEmployee: false
-    };
+  
+    const addRow = (type: string) => {
+      const newRow: DeductionRow = {
+        id: Math.random().toString(36).substr(2, 9),
+        expense_date: new Date().toISOString().split('T')[0],
+        deduction_type: defaultDeductionValues[type] || "",
+        amount: "",
+        employee_id: "",
+        employee_name: "",
+        employee_iqama: "",
+        account_id: "",
+        cost_center_id: "",
+        description: "",
+        status: 'pending',
+        manualEmployee: false,
+        attachment: null
+      };
 
     setSections(prev => ({
       ...prev,
@@ -319,30 +322,43 @@ export default function DeductionFormClient({ user }: { user: User }) {
     e.preventDefault();
     if (Object.keys(sections).length === 0) return;
     setSubmitting(true);
-    const allDeductions = Object.values(sections).flat();
-    try {
-      const res = await fetch("/api/expenses/deductions/save", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          company_id: user.company_id,
-          user_id: user.id,
-          month_reference: monthReference,
-          voucher_number: metadata?.voucherNumber,
-          deductions: allDeductions
-        }),
-      });
-      const data = await res.json();
-      if (data.success) {
-        setSavedCount(data.saved_count);
-        setShowSuccess(true);
+      const allDeductions = Object.values(sections).flat();
+      try {
+        const formData = new FormData();
+        formData.append("company_id", user.company_id.toString());
+        formData.append("user_id", user.id.toString());
+        formData.append("month_reference", monthReference);
+        formData.append("voucher_number", metadata?.voucherNumber?.toString() || "");
+        
+        // Prepare rows data without the File objects
+        const deductionsData = allDeductions.map(row => {
+          const { attachment, ...rest } = row;
+          return rest;
+        });
+        formData.append("deductions_json", JSON.stringify(deductionsData));
+  
+        // Append files separately with their corresponding row IDs
+        allDeductions.forEach(row => {
+          if (row.attachment) {
+            formData.append(`file_${row.id}`, row.attachment);
+          }
+        });
+  
+        const res = await fetch("/api/expenses/deductions/save", {
+          method: "POST",
+          body: formData,
+        });
+        const data = await res.json();
+        if (data.success) {
+          setSavedCount(data.saved_count);
+          setShowSuccess(true);
+        }
+      } catch (error) {
+        console.error("Save failed", error);
+      } finally {
+        setSubmitting(false);
       }
-    } catch (error) {
-      console.error("Save failed", error);
-    } finally {
-      setSubmitting(false);
-    }
-  };
+    };
 
   if (loading) {
     return (
@@ -500,124 +516,140 @@ export default function DeductionFormClient({ user }: { user: User }) {
                 <div className="overflow-x-auto">
                   <table className="w-full text-start border-collapse">
                     <thead>
-                      <tr className="bg-slate-50 border-b border-slate-100">
-                        <th className="px-4 py-4 text-[10px] font-black text-slate-500 uppercase tracking-widest text-start w-[140px]">{t("form.date")}</th>
-                        <th className="px-4 py-4 text-[10px] font-black text-slate-500 uppercase tracking-widest text-start w-[160px]">{t("form.type")}</th>
-                        <th className="px-4 py-4 text-[10px] font-black text-slate-500 uppercase tracking-widest text-start w-[110px]">{t("form.amount")}</th>
-                        <th className="px-4 py-4 text-[10px] font-black text-slate-500 uppercase tracking-widest text-start min-w-[320px]">{t("form.employee")}</th>
-                        <th className="px-4 py-4 text-[10px] font-black text-slate-500 uppercase tracking-widest text-start w-[120px]">{t("form.iqamaNumber")}</th>
-                        <th className="px-4 py-4 text-[10px] font-black text-slate-500 uppercase tracking-widest text-start w-[150px]">{t("form.account")}</th>
-                        <th className="px-4 py-4 text-[10px] font-black text-slate-500 uppercase tracking-widest text-start w-[150px]">{t("form.costCenter")}</th>
-                        <th className="px-4 py-4 text-[10px] font-black text-slate-500 uppercase tracking-widest text-start">{t("form.description")}</th>
-                        <th className="px-4 py-4 text-[10px] font-black text-slate-500 uppercase tracking-widest text-center w-[120px]">{t("common.status")}</th>
-                        <th className="px-4 py-4 text-[10px] font-black text-slate-500 uppercase tracking-widest text-center w-[60px]"></th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-50">
-                      {rows.map((row) => (
-                        <tr key={row.id} className="hover:bg-slate-50/50 transition-colors group">
-                          <td className="px-4 py-4">
-                            <input 
-                              type="date" 
-                              className="w-full bg-transparent border-none focus:ring-0 text-xs font-bold text-slate-700"
-                              value={row.expense_date}
-                              onChange={(e) => updateRow(type, row.id, 'expense_date', e.target.value)}
-                              required
-                            />
-                          </td>
-                          <td className="px-4 py-4">
-                            <select 
-                              className="w-full bg-transparent border-none focus:ring-0 text-xs font-bold text-slate-700 appearance-none"
-                              value={row.deduction_type}
-                              onChange={(e) => updateRow(type, row.id, 'deduction_type', e.target.value)}
-                            >
-                              <option value="">{t("form.selectType")}</option>
-                              {(metadata?.subtypes || [])
-                                .filter(s => s.main_type === type)
-                                .map(s => (
-                                  <option key={s.subtype_name} value={s.subtype_name}>
-                                    {s.subtype_name} {s.is_custom ? "✏️" : "🌟"}
-                                  </option>
-                                ))}
-                              <option value="other">أخرى</option>
-                            </select>
-                          </td>
-                          <td className="px-4 py-4">
-                            <div className="flex items-center">
-                              <span className="text-[10px] font-bold text-rose-300 ml-1">ر.س</span>
+                        <tr className="bg-slate-50 border-b border-slate-100">
+                          <th className="px-4 py-4 text-[10px] font-black text-slate-500 uppercase tracking-widest text-start w-[140px]">{t("form.date")}</th>
+                          <th className="px-4 py-4 text-[10px] font-black text-slate-500 uppercase tracking-widest text-start w-[160px]">{t("form.type")}</th>
+                          <th className="px-4 py-4 text-[10px] font-black text-slate-500 uppercase tracking-widest text-start w-[110px]">{t("form.amount")}</th>
+                          <th className="px-4 py-4 text-[10px] font-black text-slate-500 uppercase tracking-widest text-start min-w-[320px]">{t("form.employee")}</th>
+                          <th className="px-4 py-4 text-[10px] font-black text-slate-500 uppercase tracking-widest text-start w-[120px]">{t("form.iqamaNumber")}</th>
+                          <th className="px-4 py-4 text-[10px] font-black text-slate-500 uppercase tracking-widest text-start w-[150px]">{t("form.account")}</th>
+                          <th className="px-4 py-4 text-[10px] font-black text-slate-500 uppercase tracking-widest text-start w-[150px]">{t("form.costCenter")}</th>
+                          <th className="px-4 py-4 text-[10px] font-black text-slate-500 uppercase tracking-widest text-start">{t("form.description")}</th>
+                          <th className="px-4 py-4 text-[10px] font-black text-slate-500 uppercase tracking-widest text-center w-[120px]">{t("form.document")}</th>
+                          <th className="px-4 py-4 text-[10px] font-black text-slate-500 uppercase tracking-widest text-center w-[120px]">{t("common.status")}</th>
+                          <th className="px-4 py-4 text-[10px] font-black text-slate-500 uppercase tracking-widest text-center w-[60px]"></th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-slate-50">
+                        {rows.map((row) => (
+                          <tr key={row.id} className="hover:bg-slate-50/50 transition-colors group">
+                            <td className="px-4 py-4">
                               <input 
-                                type="number" 
-                                className="w-full bg-transparent border-none focus:ring-0 text-sm font-black text-rose-600 p-0"
-                                placeholder="0.00"
-                                value={row.amount}
-                                onChange={(e) => updateRow(type, row.id, 'amount', e.target.value)}
+                                type="date" 
+                                className="w-full bg-transparent border-none focus:ring-0 text-xs font-bold text-slate-700"
+                                value={row.expense_date}
+                                onChange={(e) => updateRow(type, row.id, 'expense_date', e.target.value)}
                                 required
                               />
-                            </div>
-                          </td>
-                          <td className="px-4 py-4">
-                            <EmployeeSelect row={row} type={type} metadata={metadata} updateRow={updateRow} t={t} />
-                          </td>
-                          <td className="px-4 py-4">
-                            <input 
-                              type="text" 
-                              className="w-full bg-transparent border-none focus:ring-0 text-xs font-bold text-slate-500"
-                              value={row.employee_iqama}
-                              readOnly={!row.manualEmployee}
-                              onChange={(e) => updateRow(type, row.id, 'employee_iqama', e.target.value)}
-                              placeholder="رقم الإقامة"
-                            />
-                          </td>
-                          <td className="px-4 py-4">
-                            <select 
-                              className="w-full bg-transparent border-none focus:ring-0 text-[11px] font-bold text-slate-600 truncate appearance-none"
-                              value={row.account_id}
-                              onChange={(e) => updateRow(type, row.id, 'account_id', e.target.value)}
-                            >
-                              <option value="">الحساب</option>
-                              {(metadata?.accounts || []).map(acc => (
-                                <option key={acc.id} value={acc.id}>{acc.account_code} - {acc.account_name}</option>
-                              ))}
-                            </select>
-                          </td>
-                          <td className="px-4 py-4">
-                            <select 
-                              className="w-full bg-transparent border-none focus:ring-0 text-[11px] font-bold text-slate-600 truncate appearance-none"
-                              value={row.cost_center_id}
-                              onChange={(e) => updateRow(type, row.id, 'cost_center_id', e.target.value)}
-                            >
-                              <option value="">مركز التكلفة</option>
-                              {(metadata?.costCenters || []).map(cc => (
-                                <option key={cc.id} value={cc.id}>{cc.center_code} - {cc.center_name}</option>
-                              ))}
-                            </select>
-                          </td>
-                          <td className="px-4 py-4">
-                            <input 
-                              type="text" 
-                              className="w-full bg-transparent border-none focus:ring-0 text-xs font-medium text-slate-600 placeholder:text-slate-300"
-                              placeholder={t("form.description")}
-                              value={row.description}
-                              onChange={(e) => updateRow(type, row.id, 'description', e.target.value)}
-                            />
-                          </td>
-                          <td className="px-4 py-4">
-                            <div className="flex justify-center">
-                              <div 
-                                onClick={() => updateRow(type, row.id, 'status', row.status === 'collected' ? 'pending' : 'collected')}
-                                className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full cursor-pointer transition-all border text-[10px] ${
-                                  row.status === 'collected' 
-                                  ? 'bg-emerald-50 text-emerald-700 border-emerald-200 font-bold' 
-                                  : 'bg-slate-50 text-slate-400 border-slate-200'
-                                }`}
+                            </td>
+                            <td className="px-4 py-4">
+                              <select 
+                                className="w-full bg-transparent border-none focus:ring-0 text-xs font-bold text-slate-700 appearance-none"
+                                value={row.deduction_type}
+                                onChange={(e) => updateRow(type, row.id, 'deduction_type', e.target.value)}
                               >
-                                <span>{row.status === 'collected' ? 'تم الخصم' : 'لم يخصم'}</span>
-                                <div className={`w-6 h-3 rounded-full relative transition-colors ${row.status === 'collected' ? 'bg-emerald-400' : 'bg-slate-300'}`}>
-                                  <div className={`absolute top-0.5 w-2 h-2 bg-white rounded-full transition-all ${row.status === 'collected' ? 'left-3.5' : 'left-0.5'}`} />
+                                <option value="">{t("form.selectType")}</option>
+                                {(metadata?.subtypes || [])
+                                  .filter(s => s.main_type === type)
+                                  .map(s => (
+                                    <option key={s.subtype_name} value={s.subtype_name}>
+                                      {s.subtype_name} {s.is_custom ? "✏️" : "🌟"}
+                                    </option>
+                                  ))}
+                                <option value="other">أخرى</option>
+                              </select>
+                            </td>
+                            <td className="px-4 py-4">
+                              <div className="flex items-center">
+                                <span className="text-[10px] font-bold text-rose-300 ml-1">ر.س</span>
+                                <input 
+                                  type="number" 
+                                  className="w-full bg-transparent border-none focus:ring-0 text-sm font-black text-rose-600 p-0"
+                                  placeholder="0.00"
+                                  value={row.amount}
+                                  onChange={(e) => updateRow(type, row.id, 'amount', e.target.value)}
+                                  required
+                                />
+                              </div>
+                            </td>
+                            <td className="px-4 py-4">
+                              <EmployeeSelect row={row} type={type} metadata={metadata} updateRow={updateRow} t={t} />
+                            </td>
+                            <td className="px-4 py-4">
+                              <input 
+                                type="text" 
+                                className="w-full bg-transparent border-none focus:ring-0 text-xs font-bold text-slate-500"
+                                value={row.employee_iqama}
+                                readOnly={!row.manualEmployee}
+                                onChange={(e) => updateRow(type, row.id, 'employee_iqama', e.target.value)}
+                                placeholder="رقم الإقامة"
+                              />
+                            </td>
+                            <td className="px-4 py-4">
+                              <select 
+                                className="w-full bg-transparent border-none focus:ring-0 text-[11px] font-bold text-slate-600 truncate appearance-none"
+                                value={row.account_id}
+                                onChange={(e) => updateRow(type, row.id, 'account_id', e.target.value)}
+                              >
+                                <option value="">الحساب</option>
+                                {(metadata?.accounts || []).map(acc => (
+                                  <option key={acc.id} value={acc.id}>{acc.account_code} - {acc.account_name}</option>
+                                ))}
+                              </select>
+                            </td>
+                            <td className="px-4 py-4">
+                              <select 
+                                className="w-full bg-transparent border-none focus:ring-0 text-[11px] font-bold text-slate-600 truncate appearance-none"
+                                value={row.cost_center_id}
+                                onChange={(e) => updateRow(type, row.id, 'cost_center_id', e.target.value)}
+                              >
+                                <option value="">مركز التكلفة</option>
+                                {(metadata?.costCenters || []).map(cc => (
+                                  <option key={cc.id} value={cc.id}>{cc.center_code} - {cc.center_name}</option>
+                                ))}
+                              </select>
+                            </td>
+                            <td className="px-4 py-4">
+                              <input 
+                                type="text" 
+                                className="w-full bg-transparent border-none focus:ring-0 text-xs font-medium text-slate-600 placeholder:text-slate-300"
+                                placeholder={t("form.description")}
+                                value={row.description}
+                                onChange={(e) => updateRow(type, row.id, 'description', e.target.value)}
+                              />
+                            </td>
+                            <td className="px-4 py-4">
+                              <div className="flex flex-col items-center gap-1">
+                                <label className={`cursor-pointer p-2 rounded-xl border-2 border-dashed transition-all ${row.attachment ? 'bg-rose-50 border-rose-300 text-rose-600' : 'bg-slate-50 border-slate-200 text-slate-400 hover:border-rose-200 hover:text-rose-400'}`}>
+                                  <Paperclip className="w-4 h-4" />
+                                  <input 
+                                    type="file" 
+                                    className="hidden" 
+                                    onChange={(e) => updateRow(type, row.id, 'attachment', e.target.files?.[0] || null)}
+                                  />
+                                </label>
+                                {row.attachment && (
+                                  <span className="text-[9px] font-bold text-emerald-600 truncate max-w-[80px]">تم الإرفاق</span>
+                                )}
+                              </div>
+                            </td>
+                            <td className="px-4 py-4">
+                              <div className="flex justify-center">
+                                <div 
+                                  onClick={() => updateRow(type, row.id, 'status', row.status === 'collected' ? 'pending' : 'collected')}
+                                  className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full cursor-pointer transition-all border text-[10px] ${
+                                    row.status === 'collected' 
+                                    ? 'bg-emerald-50 text-emerald-700 border-emerald-200 font-bold' 
+                                    : 'bg-slate-50 text-slate-400 border-slate-200'
+                                  }`}
+                                >
+                                  <span>{row.status === 'collected' ? 'تم الخصم' : 'لم يخصم'}</span>
+                                  <div className={`w-6 h-3 rounded-full relative transition-colors ${row.status === 'collected' ? 'bg-emerald-400' : 'bg-slate-300'}`}>
+                                    <div className={`absolute top-0.5 w-2 h-2 bg-white rounded-full transition-all ${row.status === 'collected' ? 'left-3.5' : 'left-0.5'}`} />
+                                  </div>
                                 </div>
                               </div>
-                            </div>
-                          </td>
+                            </td>
                           <td className="px-4 py-4">
                             <button 
                               type="button"

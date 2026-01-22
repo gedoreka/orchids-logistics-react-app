@@ -147,10 +147,19 @@ const formatNumber = (num: number) => {
 };
 
 const UPLOADS_BASE_URL = "https://accounts.zoolspeed.com/uploads/";
+const SUPABASE_STORAGE_URL = "https://xaexoopjqkrzhbochbef.supabase.co/storage/v1/object/public/expenses/";
 
 const getAttachmentUrl = (attachment: string | null | undefined) => {
   if (!attachment) return null;
   if (attachment.startsWith('http')) return attachment;
+  
+  // If it's a new upload (has timestamp-like prefix or stored via this app)
+  // We'll try Supabase first, if it fails the user can try the old link
+  // But for simplicity, we'll construct the Supabase URL if it's a path
+  if (attachment.includes('uploads/')) {
+    return `${SUPABASE_STORAGE_URL}${attachment}`;
+  }
+  
   const cleanPath = attachment.replace(/^uploads\//, '');
   return `${UPLOADS_BASE_URL}${cleanPath}`;
 };
@@ -608,24 +617,41 @@ export function ExpensesReportClient({ companyId }: ExpensesReportClientProps) {
                                         <th className="p-3 text-center font-black">{t("form.iqamaNumber")}</th>
                                         <th className="p-3 text-center font-black">{t("form.amount")}</th>
                                         <th className="p-3 text-center font-black">{t("form.tax")}</th>
-                                        <th className="p-3 text-center font-black">{t("form.net")}</th>
-                                        <th className="p-3 text-center font-black">{t("form.account")}</th>
-                                        <th className="p-3 text-center font-black print:hidden">{t("fleet.actions")}</th>
-                                      </tr>
-                                    </thead>
-                                    <tbody>
-                                      {expenses.map((expense, idx) => (
-                                        <tr key={expense.id} className="border-b border-slate-100 hover:bg-blue-50/30 transition-colors bg-white text-xs">
-
-                                        <td className="p-2 text-center">{idx + 1}</td>
-                                        <td className="p-2 text-center">{formatDate(expense.expense_date)}</td>
-                                        <td className="p-2 text-center font-bold">{expense.employee_name || "-"}</td>
-                                        <td className="p-2 text-center">{expense.employee_iqama || "-"}</td>
-                                        <td className="p-2 text-center font-extrabold text-red-600">{formatNumber(expense.amount || 0)}</td>
-                                        <td className="p-2 text-center font-bold text-red-600">{formatNumber(expense.tax_value || 0)}</td>
-                                        <td className="p-2 text-center font-extrabold text-red-600">{formatNumber(expense.net_amount || expense.amount || 0)}</td>
-                                        <td className="p-2 text-center">{expense.account_code || "-"}</td>
-                                        <td className="p-2 text-center print:hidden">
+                                          <th className="p-3 text-center font-black">{t("form.net")}</th>
+                                          <th className="p-3 text-center font-black">{t("form.account")}</th>
+                                          <th className="p-3 text-center font-black">{t("form.document")}</th>
+                                          <th className="p-3 text-center font-black print:hidden">{t("fleet.actions")}</th>
+                                        </tr>
+                                      </thead>
+                                      <tbody>
+                                        {expenses.map((expense, idx) => (
+                                          <tr key={expense.id} className="border-b border-slate-100 hover:bg-blue-50/30 transition-colors bg-white text-xs">
+  
+                                          <td className="p-2 text-center">{idx + 1}</td>
+                                          <td className="p-2 text-center">{formatDate(expense.expense_date)}</td>
+                                          <td className="p-2 text-center font-bold">{expense.employee_name || "-"}</td>
+                                          <td className="p-2 text-center">{expense.employee_iqama || "-"}</td>
+                                          <td className="p-2 text-center font-extrabold text-red-600">{formatNumber(expense.amount || 0)}</td>
+                                          <td className="p-2 text-center font-bold text-red-600">{formatNumber(expense.tax_value || 0)}</td>
+                                          <td className="p-2 text-center font-extrabold text-red-600">{formatNumber(expense.net_amount || expense.amount || 0)}</td>
+                                          <td className="p-2 text-center">{expense.account_code || "-"}</td>
+                                          <td className="p-2 text-center">
+                                            {expense.attachment ? (
+                                              <button 
+                                                onClick={() => {
+                                                  const url = getAttachmentUrl(expense.attachment);
+                                                  if (url) window.open(url, '_blank');
+                                                }}
+                                                className="text-blue-600 hover:text-blue-800 transition-colors"
+                                                title={t("form.document")}
+                                              >
+                                                <Paperclip className="w-4 h-4 mx-auto" />
+                                              </button>
+                                            ) : (
+                                              <span className="text-slate-300">-</span>
+                                            )}
+                                          </td>
+                                          <td className="p-2 text-center print:hidden">
                                           <div className="flex items-center justify-center gap-1">
                                             <Button size="sm" variant="ghost" onClick={() => showItemDetails(expense)} className="text-blue-600 h-8 px-2"><Eye className="w-4 h-4" /></Button>
                                             <Button size="sm" variant="ghost" onClick={() => handleEditClick(expense)} className="text-amber-600 h-8 px-2"><Pencil className="w-4 h-4" /></Button>
@@ -697,88 +723,166 @@ export function ExpensesReportClient({ companyId }: ExpensesReportClientProps) {
                                       <tr>
                                         <th className="p-3 text-center font-black w-[40px]">#</th>
                                         <th className="p-3 text-center font-black">{t("form.date")}</th>
-                                        <th className="p-3 text-center font-black">{t("form.employee")}</th>
-                                        <th className="p-3 text-center font-black">{t("form.iqamaNumber")}</th>
-                                        <th className="p-3 text-center font-black">{t("form.amount")}</th>
-                                        <th className="p-3 text-center font-black">{t("common.status")}</th>
-                                        <th className="p-3 text-center font-black print:hidden">{t("fleet.actions")}</th>
-                                      </tr>
-                                    </thead>
-                                    <tbody>
-                                      {deductions.map((deduction, idx) => (
-                                        <tr key={deduction.id} className="border-b border-slate-100 hover:bg-rose-50/30 transition-colors bg-white text-xs">
+                                          <th className="p-3 text-center font-black">{t("form.employee")}</th>
+                                          <th className="p-3 text-center font-black">{t("form.iqamaNumber")}</th>
+                                          <th className="p-3 text-center font-black">{t("form.amount")}</th>
+                                          <th className="p-3 text-center font-black">{t("form.document")}</th>
+                                          <th className="p-3 text-center font-black">{t("common.status")}</th>
+                                          <th className="p-3 text-center font-black print:hidden">{t("fleet.actions")}</th>
+                                        </tr>
+                                      </thead>
+                                      <tbody>
+                                        {deductions.map((deduction, idx) => (
+                                          <tr key={deduction.id} className="border-b border-slate-100 hover:bg-rose-50/30 transition-colors bg-white text-xs">
+  
+                                          <td className="p-2 text-center">{idx + 1}</td>
+                                          <td className="p-2 text-center">{formatDate(deduction.expense_date)}</td>
+                                          <td className="p-2 text-center font-bold">{deduction.employee_name || "-"}</td>
+                                          <td className="p-2 text-center">{deduction.employee_iqama || "-"}</td>
+                                          <td className="p-2 text-center font-extrabold text-red-600">{formatNumber(deduction.amount || 0)}</td>
+                                          <td className="p-2 text-center">
+                                            {deduction.attachment ? (
+                                              <button 
+                                                onClick={() => {
+                                                  const url = getAttachmentUrl(deduction.attachment);
+                                                  if (url) window.open(url, '_blank');
+                                                }}
+                                                className="text-rose-600 hover:text-rose-800 transition-colors"
+                                                title={t("form.document")}
+                                              >
+                                                <Paperclip className="w-4 h-4 mx-auto" />
+                                              </button>
+                                            ) : (
+                                              <span className="text-slate-300">-</span>
+                                            )}
+                                          </td>
+                                          <td className="p-2 text-center">
+                                            <button onClick={() => handleToggleDeductionStatus(deduction)} className={`px-3 py-1 rounded-full text-[10px] font-bold ${deduction.status === "completed" ? "bg-emerald-100 text-emerald-700" : "bg-rose-100 text-rose-700"}`}>
+                                              {deduction.status === "completed" ? "مدفوع" : "غير مدفوع"}
+                                            </button>
+                                          </td>
+                                          <td className="p-2 text-center print:hidden">
+                                            <div className="flex items-center justify-center gap-1">
+                                              <Button size="sm" variant="ghost" onClick={() => showItemDetails(deduction)} className="text-blue-600 h-8 px-2"><Eye className="w-4 h-4" /></Button>
+                                              <Button size="sm" variant="ghost" onClick={() => handleEditClick(deduction)} className="text-amber-600 h-8 px-2"><Pencil className="w-4 h-4" /></Button>
+                                              <Button size="sm" variant="ghost" onClick={() => handleDeleteClick(deduction)} className="text-rose-600 h-8 px-2"><Trash2 className="w-4 h-4" /></Button>
+                                            </div>
+                                          </td>
+                                        </tr>
+                                      ))}
+                                    </tbody>
+                                  </table>
+                                </div>
+                              </motion.div>
+                            )}
+                          </AnimatePresence>
+                        </div>
+                      );
+                    })
+                  ) : (
+                    <div className="text-center py-10">
+                      <HandCoins className="w-10 h-10 text-slate-300 mx-auto mb-2" />
+                      <p className="text-sm font-bold text-slate-600">{t("dashboard.noActivity")}</p>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </motion.div>
+          )}
 
-                                        <td className="p-2 text-center">{idx + 1}</td>
-                                        <td className="p-2 text-center">{formatDate(deduction.expense_date)}</td>
-                                        <td className="p-2 text-center font-bold">{deduction.employee_name || "-"}</td>
-                                        <td className="p-2 text-center">{deduction.employee_iqama || "-"}</td>
-                                        <td className="p-2 text-center font-extrabold text-red-600">{formatNumber(deduction.amount || 0)}</td>
-                                        <td className="p-2 text-center">
-                                          <button onClick={() => handleToggleDeductionStatus(deduction)} className={`px-3 py-1 rounded-full text-[10px] font-bold ${deduction.status === "completed" ? "bg-emerald-100 text-emerald-700" : "bg-rose-100 text-rose-700"}`}>
-                                            {deduction.status === "completed" ? "مدفوع" : "غير مدفوع"}
-                                          </button>
-                                        </td>
-                                        <td className="p-2 text-center print:hidden">
-                                          <div className="flex items-center justify-center gap-1">
-                                            <Button size="sm" variant="ghost" onClick={() => showItemDetails(deduction)} className="text-blue-600 h-8 px-2"><Eye className="w-4 h-4" /></Button>
-                                            <Button size="sm" variant="ghost" onClick={() => handleEditClick(deduction)} className="text-amber-600 h-8 px-2"><Pencil className="w-4 h-4" /></Button>
-                                            <Button size="sm" variant="ghost" onClick={() => handleDeleteClick(deduction)} className="text-rose-600 h-8 px-2"><Trash2 className="w-4 h-4" /></Button>
-                                          </div>
-                                        </td>
-                                      </tr>
-                                    ))}
-                                  </tbody>
-                                </table>
-                              </div>
-                            </motion.div>
-                          )}
-                        </AnimatePresence>
-                      </div>
-                    );
-                  })
-                ) : (
-                  <div className="text-center py-10">
-                    <HandCoins className="w-10 h-10 text-slate-300 mx-auto mb-2" />
-                    <p className="text-sm font-bold text-slate-600">{t("dashboard.noActivity")}</p>
-                  </div>
-                )}
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.7 }}>
+            <Card className="border-none shadow-xl rounded-3xl overflow-hidden bg-gradient-to-r from-rose-600 via-rose-700 to-red-700 text-white">
+              <CardContent className="p-5 text-center">
+                <div className="flex items-center justify-center gap-3 mb-3">
+                  <Calculator className="w-7 h-7 text-amber-300" />
+                  <h2 className="text-lg font-bold">{t("report.summary")} {getMonthName(selectedMonth)}</h2>
+                </div>
+                <p className="text-3xl font-bold">{formatNumber(stats.totalAll)} SAR</p>
               </CardContent>
             </Card>
           </motion.div>
-        )}
 
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.7 }}>
-          <Card className="border-none shadow-xl rounded-3xl overflow-hidden bg-gradient-to-r from-rose-600 via-rose-700 to-red-700 text-white">
-            <CardContent className="p-5 text-center">
-              <div className="flex items-center justify-center gap-3 mb-3">
-                <Calculator className="w-7 h-7 text-amber-300" />
-                <h2 className="text-lg font-bold">{t("report.summary")} {getMonthName(selectedMonth)}</h2>
-              </div>
-              <p className="text-3xl font-bold">{formatNumber(stats.totalAll)} SAR</p>
-            </CardContent>
-          </Card>
-        </motion.div>
+          {/* Dialogs & Notifications */}
+          <Dialog open={showDetailsModal} onOpenChange={setShowDetailsModal}>
+            <DialogContent className="max-w-2xl rtl" dir="rtl">
+              <DialogHeader className="bg-gradient-to-r from-blue-600 via-purple-600 to-rose-600 text-white p-4 -m-6 mb-4 rounded-t-lg">
+                <DialogTitle className="flex items-center gap-2 text-lg font-bold"><Eye className="w-6 h-6" /> {t("common.details")}</DialogTitle>
+              </DialogHeader>
+              {selectedItem && (
+                <div className="space-y-4 p-3">
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-3 text-sm">
+                    <div className="p-3 bg-white border rounded-xl shadow-sm"><p className="text-[10px] text-slate-500 font-bold mb-1 uppercase tracking-wider">{t("common.type")}</p><p className="font-bold text-slate-800">{"expense_type" in selectedItem ? selectedItem.expense_type : selectedItem.deduction_type}</p></div>
+                    <div className="p-3 bg-white border rounded-xl shadow-sm"><p className="text-[10px] text-slate-500 font-bold mb-1 uppercase tracking-wider">{t("form.date")}</p><p className="font-bold text-slate-800">{formatDate(selectedItem.expense_date)}</p></div>
+                    <div className="p-3 bg-white border rounded-xl shadow-sm"><p className="text-[10px] text-slate-500 font-bold mb-1 uppercase tracking-wider">{t("form.employee")}</p><p className="font-bold text-slate-800">{selectedItem.employee_name || "-"}</p></div>
+                    <div className="p-3 bg-white border rounded-xl shadow-sm"><p className="text-[10px] text-slate-500 font-bold mb-1 uppercase tracking-wider">{t("form.iqamaNumber")}</p><p className="font-bold text-slate-800">{selectedItem.employee_iqama || "-"}</p></div>
+                    <div className="p-3 bg-white border rounded-xl shadow-sm"><p className="text-[10px] text-slate-500 font-bold mb-1 uppercase tracking-wider">{t("form.account")}</p><p className="font-bold text-slate-800">{selectedItem.account_code || "-"}</p></div>
+                    <div className="p-3 bg-blue-50 border border-blue-100 rounded-xl shadow-sm"><p className="text-[10px] text-blue-600 font-bold mb-1 uppercase tracking-wider">{t("form.amount")}</p><p className="font-bold text-lg text-blue-700">{formatNumber(selectedItem.amount || 0)} SAR</p></div>
+                  </div>
+                  
+                  {selectedItem.description && (
+                    <div className="p-4 bg-slate-50 border rounded-2xl">
+                      <p className="text-[10px] text-slate-500 font-bold mb-2 uppercase tracking-wider">{t("form.description")}</p>
+                      <p className="text-sm font-medium text-slate-700 leading-relaxed">{selectedItem.description}</p>
+                    </div>
+                  )}
 
-        {/* Dialogs & Notifications */}
-        <Dialog open={showDetailsModal} onOpenChange={setShowDetailsModal}>
-          <DialogContent className="max-w-2xl rtl" dir="rtl">
-            <DialogHeader className="bg-gradient-to-r from-blue-600 via-purple-600 to-rose-600 text-white p-4 -m-6 mb-4 rounded-t-lg">
-              <DialogTitle className="flex items-center gap-2 text-lg font-bold"><Eye className="w-6 h-6" /> {t("common.details")}</DialogTitle>
-            </DialogHeader>
-            {selectedItem && (
-              <div className="space-y-3 p-3">
-                <div className="grid grid-cols-2 gap-3 text-sm">
-                  <div className="p-3 bg-white border rounded-xl"><p className="text-xs text-slate-500">{t("common.type")}</p><p className="font-bold">{"expense_type" in selectedItem ? selectedItem.expense_type : selectedItem.deduction_type}</p></div>
-                  <div className="p-3 bg-white border rounded-xl"><p className="text-xs text-slate-500">{t("form.date")}</p><p className="font-bold">{formatDate(selectedItem.expense_date)}</p></div>
-                  <div className="p-3 bg-white border rounded-xl"><p className="text-xs text-slate-500">{t("form.employee")}</p><p className="font-bold">{selectedItem.employee_name || "-"}</p></div>
-                  <div className="p-3 bg-white border rounded-xl"><p className="text-xs text-slate-500">{t("form.iqamaNumber")}</p><p className="font-bold">{selectedItem.employee_iqama || "-"}</p></div>
-                  <div className="p-3 bg-blue-50 border border-blue-100 rounded-xl col-span-2"><p className="text-xs text-blue-600">{t("form.amount")}</p><p className="font-bold text-lg">{formatNumber(selectedItem.amount || 0)} SAR</p></div>
+                  {"status" in selectedItem && (
+                    <div className="p-4 bg-rose-50 border border-rose-100 rounded-2xl flex items-center justify-between">
+                      <div>
+                        <p className="text-[10px] text-rose-500 font-bold mb-1 uppercase tracking-wider">{t("common.status")}</p>
+                        <p className={`text-base font-black ${selectedItem.status === "completed" ? "text-emerald-600" : "text-rose-600"}`}>
+                          {selectedItem.status === "completed" ? "تم الخصم (مدفوع)" : "لم يتم الخصم (غير مدفوع)"}
+                        </p>
+                      </div>
+                      <Button 
+                        onClick={() => handleToggleDeductionStatus(selectedItem as DeductionItem)}
+                        disabled={statusUpdating === selectedItem.id}
+                        className={`${selectedItem.status === "completed" ? "bg-rose-600 hover:bg-rose-700" : "bg-emerald-600 hover:bg-emerald-700"} text-white rounded-xl px-6 font-bold h-12 shadow-lg transition-all active:scale-95`}
+                      >
+                        {statusUpdating === selectedItem.id ? <Loader2 className="animate-spin w-5 h-5" /> : (selectedItem.status === "completed" ? "تغيير لغير مدفوع" : "تأكيد السداد")}
+                      </Button>
+                    </div>
+                  )}
+
+                  {selectedItem.attachment && (
+                    <div className="p-4 bg-blue-50 border border-blue-100 rounded-2xl">
+                      <p className="text-[10px] text-blue-500 font-bold mb-3 uppercase tracking-wider">{t("form.document")}</p>
+                      <div className="flex flex-col gap-4">
+                        {isImageFile(selectedItem.attachment) ? (
+                          <div className="relative group overflow-hidden rounded-xl border border-blue-200 bg-white">
+                            <img 
+                              src={getAttachmentUrl(selectedItem.attachment) || ''} 
+                              alt="Attachment" 
+                              className="max-h-[300px] w-full object-contain p-2"
+                            />
+                            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                              <Button 
+                                variant="secondary" 
+                                onClick={() => window.open(getAttachmentUrl(selectedItem.attachment) || '', '_blank')}
+                                className="rounded-full h-12 w-12 p-0"
+                              >
+                                <ExternalLink className="w-6 h-6" />
+                              </Button>
+                            </div>
+                          </div>
+                        ) : (
+                          <Button 
+                            variant="outline" 
+                            className="w-full h-16 rounded-xl border-blue-200 bg-white hover:bg-blue-50 flex items-center justify-center gap-3 text-blue-700 font-bold"
+                            onClick={() => window.open(getAttachmentUrl(selectedItem.attachment) || '', '_blank')}
+                          >
+                            <FileText className="w-6 h-6" />
+                            <span>عرض وتحميل الملف المرفق</span>
+                            <ExternalLink className="w-4 h-4 mr-auto" />
+                          </Button>
+                        )}
+                      </div>
+                    </div>
+                  )}
                 </div>
-                {selectedItem.description && <div className="p-3 bg-white border rounded-xl"><p className="text-xs text-slate-500">{t("form.description")}</p><p className="text-sm font-medium">{selectedItem.description}</p></div>}
-              </div>
-            )}
-          </DialogContent>
-        </Dialog>
+              )}
+            </DialogContent>
+          </Dialog>
 
         <Dialog open={showDeleteModal} onOpenChange={setShowDeleteModal}>
           <DialogContent className="max-w-md rtl text-center" dir="rtl">
