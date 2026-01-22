@@ -455,7 +455,7 @@ export function InvoiceViewClient({
                   </div>
                   <div className="flex justify-start gap-2">
                     <span className="text-[#64748b] whitespace-nowrap">{tc("address")}:</span>
-                    <span className="font-bold text-[#0f172a] leading-tight text-right">{customer?.address || invoice.client_address || '-'}</span>
+                    <span className="font-bold text-[#0f172a] leading-tight text-right">{customer?.address || invoice.client_address || "-"}</span>
                   </div>
                 </div>
               </div>
@@ -667,6 +667,7 @@ export function InvoiceViewClient({
               </div>
             </div>
           </div>
+        </div>
         </div>
       </div>
     );
