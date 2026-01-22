@@ -333,7 +333,7 @@ export function NewInvoiceClient({ customers, invoiceNumber, companyId, userName
   };
 
   return (
-    <div className="min-h-screen pb-20 bg-gray-50/50">
+    <div className="min-h-screen pb-20">
       <AnimatePresence>
         {notification.show && (
           <motion.div
@@ -471,116 +471,116 @@ export function NewInvoiceClient({ customers, invoiceNumber, companyId, userName
                   <div className="h-10 w-10 rounded-xl bg-blue-50 flex items-center justify-center">
                     <Building2 className="text-blue-600" size={20} />
                   </div>
-                  <div>
-                    <h3 className="text-gray-900 font-black">{t("customerData")}</h3>
-                    <p className="text-gray-400 text-xs font-bold">{t("selectCustomerDesc")}</p>
-                  </div>
-                </div>
-                
-                <div className="space-y-6">
-                  <div className="relative">
-                    <Users className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
-                    <select
-                      value={clientId}
-                      onChange={(e) => setClientId(parseInt(e.target.value))}
-                      className="w-full h-14 pr-12 pl-4 rounded-xl bg-gray-50 border-2 border-transparent text-sm font-bold focus:border-blue-500/30 focus:bg-white outline-none transition-all appearance-none cursor-pointer"
-                    >
-                      <option value={0}>{t("selectCustomerPlaceholder")}</option>
-                      {customers.map((c) => (
-                        <option key={c.id} value={c.id}>
-                          {c.company_name || c.customer_name || c.name} {c.vat_number ? `(${c.vat_number})` : ''}
-                        </option>
-                      ))}
-                    </select>
-                    <ChevronDown className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+                    <div>
+                      <h3 className="text-gray-900 font-black">{t("customerData")}</h3>
+                      <p className="text-black text-xs font-bold">{t("selectCustomerDesc")}</p>
+                    </div>
                   </div>
                   
-                  {selectedCustomer && (
-                    <motion.div
-                      initial={{ opacity: 0, scale: 0.95 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      className="grid grid-cols-1 md:grid-cols-2 gap-4 p-6 bg-gray-50 rounded-2xl border border-gray-100"
-                    >
-                      <div className="flex items-center gap-4">
-                        <div className="h-10 w-10 rounded-xl bg-white flex items-center justify-center shadow-sm">
-                          <Building2 size={18} className="text-blue-500" />
+                  <div className="space-y-6">
+                    <div className="relative">
+                      <Users className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+                      <select
+                        value={clientId}
+                        onChange={(e) => setClientId(parseInt(e.target.value))}
+                        className="w-full h-14 pr-12 pl-4 rounded-xl bg-white border border-gray-200 text-sm font-bold focus:border-blue-500/30 outline-none transition-all appearance-none cursor-pointer"
+                      >
+                        <option value={0}>{t("selectCustomerPlaceholder")}</option>
+                        {customers.map((c) => (
+                          <option key={c.id} value={c.id}>
+                            {c.company_name || c.customer_name || c.name} {c.vat_number ? `(${c.vat_number})` : ''}
+                          </option>
+                        ))}
+                      </select>
+                      <ChevronDown className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+                    </div>
+                    
+                    {selectedCustomer && (
+                      <motion.div
+                        initial={{ opacity: 0, scale: 0.95 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        className="grid grid-cols-1 md:grid-cols-2 gap-4 p-6 bg-white rounded-2xl border border-gray-100 shadow-sm"
+                      >
+                        <div className="flex items-center gap-4">
+                          <div className="h-10 w-10 rounded-xl bg-blue-50 flex items-center justify-center shadow-sm">
+                            <Building2 size={18} className="text-blue-500" />
+                          </div>
+                          <div>
+                            <span className="text-[10px] font-bold text-black uppercase block">{t("companyNameLabel")}</span>
+                            <span className="text-sm font-black text-gray-800">
+                              {selectedCustomer.company_name || selectedCustomer.customer_name || selectedCustomer.name}
+                            </span>
+                          </div>
                         </div>
-                        <div>
-                          <span className="text-[10px] font-bold text-gray-400 uppercase block">{t("companyNameLabel")}</span>
-                          <span className="text-sm font-black text-gray-800">
-                            {selectedCustomer.company_name || selectedCustomer.customer_name || selectedCustomer.name}
-                          </span>
+                        <div className="flex items-center gap-4">
+                          <div className="h-10 w-10 rounded-xl bg-emerald-50 flex items-center justify-center shadow-sm">
+                            <CreditCard size={18} className="text-emerald-500" />
+                          </div>
+                          <div>
+                            <span className="text-[10px] font-bold text-black uppercase block">{t("vatNumberLabel")}</span>
+                            <span className="text-sm font-black text-emerald-600">{selectedCustomer.vat_number || tc("notSpecified")}</span>
+                          </div>
                         </div>
-                      </div>
-                      <div className="flex items-center gap-4">
-                        <div className="h-10 w-10 rounded-xl bg-white flex items-center justify-center shadow-sm">
-                          <CreditCard size={18} className="text-emerald-500" />
+                        <div className="flex items-center gap-4">
+                          <div className="h-10 w-10 rounded-xl bg-amber-50 flex items-center justify-center shadow-sm">
+                            <MapPin size={18} className="text-amber-500" />
+                          </div>
+                          <div>
+                            <span className="text-[10px] font-bold text-black uppercase block">{t("addressLabel")}</span>
+                            <span className="text-sm font-bold text-gray-600 truncate block max-w-[200px]">{selectedCustomer.address || tc("notSpecified")}</span>
+                          </div>
                         </div>
-                        <div>
-                          <span className="text-[10px] font-bold text-gray-400 uppercase block">{t("vatNumberLabel")}</span>
-                          <span className="text-sm font-black text-emerald-600">{selectedCustomer.vat_number || tc("notSpecified")}</span>
+                        <div className="flex items-center gap-4">
+                          <div className="h-10 w-10 rounded-xl bg-violet-50 flex items-center justify-center shadow-sm">
+                            <Phone size={18} className="text-violet-500" />
+                          </div>
+                          <div>
+                            <span className="text-[10px] font-bold text-black uppercase block">{t("phoneLabel")}</span>
+                            <span className="text-sm font-bold text-gray-600">{selectedCustomer.phone || tc("notSpecified")}</span>
+                          </div>
                         </div>
-                      </div>
-                      <div className="flex items-center gap-4">
-                        <div className="h-10 w-10 rounded-xl bg-white flex items-center justify-center shadow-sm">
-                          <MapPin size={18} className="text-amber-500" />
-                        </div>
-                        <div>
-                          <span className="text-[10px] font-bold text-gray-400 uppercase block">{t("addressLabel")}</span>
-                          <span className="text-sm font-bold text-gray-600 truncate block max-w-[200px]">{selectedCustomer.address || tc("notSpecified")}</span>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-4">
-                        <div className="h-10 w-10 rounded-xl bg-white flex items-center justify-center shadow-sm">
-                          <Phone size={18} className="text-violet-500" />
-                        </div>
-                        <div>
-                          <span className="text-[10px] font-bold text-gray-400 uppercase block">{t("phoneLabel")}</span>
-                          <span className="text-sm font-bold text-gray-600">{selectedCustomer.phone || tc("notSpecified")}</span>
-                        </div>
-                      </div>
-                    </motion.div>
-                  )}
+                      </motion.div>
+                    )}
+                  </div>
                 </div>
-              </div>
 
-              {/* Dates Section */}
-              <div className="space-y-6">
-                <div className="flex items-center gap-3 pb-2 border-b border-gray-100">
-                  <div className="h-10 w-10 rounded-xl bg-teal-50 flex items-center justify-center">
-                    <CalendarDays className="text-teal-600" size={20} />
-                  </div>
-                  <div>
-                    <h3 className="text-gray-900 font-black">{t("invoiceDates")}</h3>
-                    <p className="text-gray-400 text-xs font-bold">{t("datesDesc")}</p>
-                  </div>
-                </div>
-                
-                <div className="space-y-5 p-6 bg-gray-50 rounded-2xl border border-gray-100">
-                  <div>
-                    <label className="block text-[10px] font-black text-gray-400 uppercase mb-2">{t("issueDateLabel")}</label>
-                    <div className="relative">
-                      <Calendar className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
-                      <input
-                        type="date"
-                        value={issueDate}
-                        onChange={(e) => setIssueDate(e.target.value)}
-                        className="w-full h-12 pr-12 pl-4 rounded-xl bg-white border-2 border-transparent text-sm font-bold focus:border-teal-500/30 outline-none transition-all shadow-sm"
-                      />
+                {/* Dates Section */}
+                <div className="space-y-6">
+                  <div className="flex items-center gap-3 pb-2 border-b border-gray-100">
+                    <div className="h-10 w-10 rounded-xl bg-teal-50 flex items-center justify-center">
+                      <CalendarDays className="text-teal-600" size={20} />
+                    </div>
+                    <div>
+                      <h3 className="text-gray-900 font-black">{t("invoiceDates")}</h3>
+                      <p className="text-black text-xs font-bold">{t("datesDesc")}</p>
                     </div>
                   </div>
-                  <div>
-                    <label className="block text-[10px] font-black text-gray-400 uppercase mb-2">{t("dueDateLabel")}</label>
-                    <div className="relative">
-                      <Clock className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
-                      <input
-                        type="date"
-                        value={dueDate}
-                        onChange={(e) => setDueDate(e.target.value)}
-                        className="w-full h-12 pr-12 pl-4 rounded-xl bg-white border-2 border-transparent text-sm font-bold focus:border-teal-500/30 outline-none transition-all shadow-sm"
-                      />
+                  
+                  <div className="space-y-5 p-6 bg-white rounded-2xl border border-gray-100 shadow-sm">
+                    <div>
+                      <label className="block text-[10px] font-black text-black uppercase mb-2">{t("issueDateLabel")}</label>
+                      <div className="relative">
+                        <Calendar className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
+                        <input
+                          type="date"
+                          value={issueDate}
+                          onChange={(e) => setIssueDate(e.target.value)}
+                          className="w-full h-12 pr-12 pl-4 rounded-xl bg-white border border-gray-200 text-sm font-bold focus:border-teal-500/30 outline-none transition-all"
+                        />
+                      </div>
                     </div>
-                  </div>
+                    <div>
+                      <label className="block text-[10px] font-black text-black uppercase mb-2">{t("dueDateLabel")}</label>
+                      <div className="relative">
+                        <Clock className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
+                        <input
+                          type="date"
+                          value={dueDate}
+                          onChange={(e) => setDueDate(e.target.value)}
+                          className="w-full h-12 pr-12 pl-4 rounded-xl bg-white border border-gray-200 text-sm font-bold focus:border-teal-500/30 outline-none transition-all"
+                        />
+                      </div>
+                    </div>
                   <div className="p-3 bg-teal-50 rounded-xl border border-teal-100 flex items-center gap-2">
                     <Sparkles size={14} className="text-teal-600" />
                     <span className="text-[11px] font-black text-teal-700">{t("invoiceMonth")} {invoiceMonth}</span>
@@ -613,22 +613,22 @@ export function NewInvoiceClient({ customers, invoiceNumber, companyId, userName
                 </motion.button>
               </div>
 
-              <div className="overflow-x-auto rounded-2xl border border-gray-100">
-                <table className="w-full">
-                  <thead>
-                    <tr className="bg-gray-50 border-b border-gray-100">
-                      <th className="px-4 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest text-right w-12">{t("itemNo")}</th>
-                      <th className="px-4 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest text-right min-w-[200px]">{t("serviceName")}</th>
-                      <th className="px-4 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest text-center w-24">{t("quantity")}</th>
-                      <th className="px-4 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest text-center w-32">{t("unitPrice")}</th>
-                      <th className="px-4 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest text-center w-36">{t("totalInclusive")}</th>
-                      <th className="px-4 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest text-center w-32">{t("fromDate")}</th>
-                      <th className="px-4 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest text-center w-32">{t("toDate")}</th>
-                      <th className="px-4 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest text-center w-24">{t("tax")}</th>
-                      <th className="px-4 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest text-center w-12">{t("delete")}</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-50">
+                  <div className="overflow-x-auto rounded-2xl border border-gray-100">
+                  <table className="w-full">
+                    <thead>
+                      <tr className="bg-gray-50 border-b border-gray-100">
+                        <th className="px-4 py-4 text-[10px] font-black text-black uppercase tracking-widest text-right w-12">{t("itemNo")}</th>
+                        <th className="px-4 py-4 text-[10px] font-black text-black uppercase tracking-widest text-right min-w-[200px]">{t("serviceName")}</th>
+                        <th className="px-4 py-4 text-[10px] font-black text-black uppercase tracking-widest text-center w-24">{t("quantity")}</th>
+                        <th className="px-4 py-4 text-[10px] font-black text-black uppercase tracking-widest text-center w-32">{t("unitPrice")}</th>
+                        <th className="px-4 py-4 text-[10px] font-black text-black uppercase tracking-widest text-center w-36">{t("totalInclusive")}</th>
+                        <th className="px-4 py-4 text-[10px] font-black text-black uppercase tracking-widest text-center w-32">{t("fromDate")}</th>
+                        <th className="px-4 py-4 text-[10px] font-black text-black uppercase tracking-widest text-center w-32">{t("toDate")}</th>
+                        <th className="px-4 py-4 text-[10px] font-black text-black uppercase tracking-widest text-center w-24">{t("tax")}</th>
+                        <th className="px-4 py-4 text-[10px] font-black text-black uppercase tracking-widest text-center w-12">{t("delete")}</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-50">
                     {items.map((item, index) => (
                       <motion.tr 
                         key={item.id}
@@ -709,127 +709,149 @@ export function NewInvoiceClient({ customers, invoiceNumber, companyId, userName
                   </tbody>
                 </table>
               </div>
-              <div className="flex justify-between items-center px-4">
-                <span className="text-xs font-bold text-gray-400">{t("totalItems")} {items.length}</span>
+                <div className="flex justify-between items-center px-4">
+                  <span className="text-xs font-black text-black">{t("totalItems")} {items.length}</span>
+                </div>
               </div>
-            </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-              {/* Adjustments Section */}
-              <div className="space-y-6">
-                <div className="flex items-center justify-between pb-2 border-b border-gray-100">
-                  <div className="flex items-center gap-3">
-                    <div className="h-10 w-10 rounded-xl bg-amber-50 flex items-center justify-center">
-                      <Percent className="text-amber-600" size={20} />
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                {/* Adjustments Section */}
+                <div className="space-y-6">
+                  <div className="flex items-center justify-between pb-4 border-b-2 border-amber-100">
+                    <div className="flex items-center gap-3">
+                      <div className="h-12 w-12 rounded-2xl bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center shadow-lg shadow-amber-200">
+                        <Percent className="text-white" size={24} />
+                      </div>
+                      <div>
+                        <h3 className="text-gray-900 font-black text-lg">{t("adjustments")}</h3>
+                        <p className="text-black text-xs font-bold">{t("adjustmentsDesc")}</p>
+                      </div>
                     </div>
-                    <div>
-                      <h3 className="text-gray-900 font-black">{t("adjustments")}</h3>
-                      <p className="text-gray-400 text-xs font-bold">{t("adjustmentsDesc")}</p>
-                    </div>
+                    <motion.button
+                      whileHover={{ scale: 1.05, y: -2 }}
+                      whileTap={{ scale: 0.95 }}
+                      type="button"
+                      onClick={addAdjustment}
+                      className="flex items-center gap-2 px-6 py-3 rounded-2xl bg-amber-500 text-white hover:bg-amber-600 transition-all font-black text-sm shadow-lg shadow-amber-200"
+                    >
+                      <Plus size={18} />
+                      {t("addAdjustment")}
+                    </motion.button>
                   </div>
-                  <motion.button
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                    type="button"
-                    onClick={addAdjustment}
-                    className="flex items-center gap-2 px-4 py-2 rounded-xl bg-amber-50 text-amber-600 hover:bg-amber-100 transition-all font-black text-xs border border-amber-200"
-                  >
-                    <Plus size={14} />
-                    {t("addAdjustment")}
-                  </motion.button>
-                </div>
 
-                <div className="space-y-4">
-                  {adjustments.length === 0 ? (
-                    <div className="text-center py-12 bg-gray-50 rounded-[2rem] border-2 border-dashed border-gray-200">
-                      <Percent size={40} className="mx-auto text-gray-300 mb-4" />
-                      <p className="text-gray-400 font-black text-sm">{t("noAdjustments")}</p>
-                      <p className="text-gray-300 text-xs mt-1">{t("addAdjustmentDesc")}</p>
-                    </div>
-                  ) : (
-                    adjustments.map((adj, index) => (
-                      <motion.div
-                        key={adj.id}
-                        initial={{ opacity: 0, scale: 0.95 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        className="p-5 bg-gray-50 rounded-2xl border border-gray-100 space-y-4"
-                      >
-                        <div className="flex flex-col sm:flex-row gap-3">
-                          <input
-                            type="text"
-                            value={adj.title}
-                            onChange={(e) => handleAdjustmentChange(index, 'title', e.target.value)}
-                            placeholder={t("adjustmentPlaceholder")}
-                            className="flex-1 h-11 px-4 rounded-xl bg-white border border-gray-200 text-sm font-bold focus:border-amber-300 outline-none shadow-sm"
-                          />
-                          <select
-                            value={adj.type}
-                            onChange={(e) => handleAdjustmentChange(index, 'type', e.target.value)}
-                            className="w-full sm:w-32 h-11 px-3 rounded-xl bg-white border border-gray-200 text-sm font-black focus:border-amber-300 outline-none shadow-sm"
-                          >
-                            <option value="discount">{t("discount")}</option>
-                            <option value="addition">{t("addition")}</option>
-                          </select>
-                          <div className="relative w-full sm:w-36">
-                            <input
-                              type="number"
-                              value={adj.amount || ''}
-                              onChange={(e) => handleAdjustmentChange(index, 'amount', parseFloat(e.target.value) || 0)}
-                              className="w-full h-11 px-4 rounded-xl bg-white border border-gray-200 text-sm font-black text-amber-600 focus:border-amber-300 outline-none shadow-sm"
-                            />
-                            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[10px] text-gray-400 font-bold">{tc("sar")}</span>
-                          </div>
-                          <button
-                            type="button"
-                            onClick={() => removeAdjustment(index)}
-                            className="w-11 h-11 flex items-center justify-center rounded-xl bg-rose-50 text-rose-400 hover:text-rose-600 transition-all"
-                          >
-                            <Trash2 size={16} />
-                          </button>
+                  <div className="space-y-4">
+                    {adjustments.length === 0 ? (
+                      <div className="text-center py-12 bg-white rounded-[2.5rem] border-2 border-dashed border-gray-200">
+                        <div className="h-16 w-16 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-4">
+                          <Percent size={32} className="text-gray-300" />
                         </div>
-
-                        <div className="flex flex-wrap items-center justify-between gap-4 pt-4 border-t border-gray-200/50">
-                          <div className="flex items-center gap-4">
-                            <label className="flex items-center gap-2 cursor-pointer group">
+                        <p className="text-black font-black text-sm">{t("noAdjustments")}</p>
+                        <p className="text-black text-xs mt-1 opacity-60">{t("addAdjustmentDesc")}</p>
+                      </div>
+                    ) : (
+                      adjustments.map((adj, index) => (
+                        <motion.div
+                          key={adj.id}
+                          initial={{ opacity: 0, scale: 0.95 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          className="p-6 bg-white rounded-[2rem] border border-gray-100 shadow-sm space-y-6"
+                        >
+                          <div className="flex flex-col sm:flex-row gap-4">
+                            <div className="flex-1 space-y-2">
+                              <label className="text-[10px] font-black text-black uppercase tracking-wider block mr-2">{t("adjustmentPlaceholder")}</label>
                               <input
-                                type="checkbox"
-                                checked={adj.is_taxable}
-                                onChange={(e) => handleAdjustmentChange(index, 'is_taxable', e.target.checked)}
-                                className="w-4 h-4 rounded border-gray-300 text-amber-500 focus:ring-amber-500"
+                                type="text"
+                                value={adj.title}
+                                onChange={(e) => handleAdjustmentChange(index, 'title', e.target.value)}
+                                placeholder={t("adjustmentPlaceholder")}
+                                className="w-full h-12 px-4 rounded-xl bg-gray-50 border border-gray-100 text-sm font-bold focus:bg-white focus:border-amber-300 outline-none transition-all"
                               />
-                              <span className="text-[11px] font-black text-gray-500 group-hover:text-gray-700">{t("taxable")}</span>
-                            </label>
-
-                            {adj.is_taxable && (
-                              <div className="flex items-center gap-1 bg-white p-1 rounded-lg border border-gray-200 shadow-sm">
-                                <button
-                                  type="button"
-                                  onClick={() => handleAdjustmentChange(index, 'is_inclusive', true)}
-                                  className={cn("px-2 py-1 rounded-md text-[10px] font-black transition-all", adj.is_inclusive ? 'bg-amber-500 text-white' : 'text-gray-400 hover:bg-gray-50')}
-                                >
-                                  {t("inclusive")}
-                                </button>
-                                <button
-                                  type="button"
-                                  onClick={() => handleAdjustmentChange(index, 'is_inclusive', false)}
-                                  className={cn("px-2 py-1 rounded-md text-[10px] font-black transition-all", !adj.is_inclusive ? 'bg-amber-500 text-white' : 'text-gray-400 hover:bg-gray-50')}
-                                >
-                                  {t("exclusive")}
-                                </button>
+                            </div>
+                            <div className="w-full sm:w-32 space-y-2">
+                              <label className="text-[10px] font-black text-black uppercase tracking-wider block mr-2">{t("type")}</label>
+                              <select
+                                value={adj.type}
+                                onChange={(e) => handleAdjustmentChange(index, 'type', e.target.value)}
+                                className="w-full h-12 px-3 rounded-xl bg-gray-50 border border-gray-100 text-sm font-black focus:bg-white focus:border-amber-300 outline-none transition-all appearance-none cursor-pointer"
+                              >
+                                <option value="discount">{t("discount")}</option>
+                                <option value="addition">{t("addition")}</option>
+                              </select>
+                            </div>
+                            <div className="w-full sm:w-40 space-y-2">
+                              <label className="text-[10px] font-black text-black uppercase tracking-wider block mr-2">{t("amount")}</label>
+                              <div className="relative">
+                                <input
+                                  type="number"
+                                  value={adj.amount || ''}
+                                  onChange={(e) => handleAdjustmentChange(index, 'amount', parseFloat(e.target.value) || 0)}
+                                  className="w-full h-12 px-4 rounded-xl bg-amber-50 border border-amber-100 text-sm font-black text-amber-600 focus:bg-white focus:border-amber-300 outline-none transition-all"
+                                />
+                                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[10px] text-amber-400 font-black uppercase">{tc("sar")}</span>
                               </div>
-                            )}
+                            </div>
+                            <div className="flex items-end pb-1">
+                              <button
+                                type="button"
+                                onClick={() => removeAdjustment(index)}
+                                className="w-12 h-12 flex items-center justify-center rounded-xl bg-rose-50 text-rose-400 hover:text-rose-600 hover:bg-rose-100 transition-all shadow-sm"
+                              >
+                                <Trash2 size={20} />
+                              </button>
+                            </div>
                           </div>
 
-                          <div className="flex items-center gap-4">
-                            <span className="text-[10px] font-bold text-gray-400">{t("taxLabel")} <span className="text-amber-600 font-black">{adj.vat_amount.toFixed(2)}</span></span>
-                            <span className="text-[10px] font-bold text-gray-400">{t("totalLabel")} <span className="text-emerald-600 font-black">{adj.total_with_vat.toFixed(2)}</span></span>
+                          <div className="flex flex-wrap items-center justify-between gap-6 pt-5 border-t border-gray-100">
+                            <div className="flex items-center gap-6">
+                              <label className="flex items-center gap-3 cursor-pointer group">
+                                <div className="relative flex items-center">
+                                  <input
+                                    type="checkbox"
+                                    checked={adj.is_taxable}
+                                    onChange={(e) => handleAdjustmentChange(index, 'is_taxable', e.target.checked)}
+                                    className="peer h-5 w-5 rounded-lg border-gray-300 text-amber-500 focus:ring-amber-500 transition-all"
+                                  />
+                                </div>
+                                <span className="text-xs font-black text-black">{t("taxable")}</span>
+                              </label>
+
+                              {adj.is_taxable && (
+                                <div className="flex items-center gap-1 bg-gray-100 p-1 rounded-xl border border-gray-200">
+                                  <button
+                                    type="button"
+                                    onClick={() => handleAdjustmentChange(index, 'is_inclusive', true)}
+                                    className={cn("px-4 py-1.5 rounded-lg text-[10px] font-black transition-all", adj.is_inclusive ? 'bg-white text-amber-600 shadow-sm' : 'text-gray-400 hover:text-gray-600')}
+                                  >
+                                    {t("inclusive")}
+                                  </button>
+                                  <button
+                                    type="button"
+                                    onClick={() => handleAdjustmentChange(index, 'is_inclusive', false)}
+                                    className={cn("px-4 py-1.5 rounded-lg text-[10px] font-black transition-all", !adj.is_inclusive ? 'bg-white text-amber-600 shadow-sm' : 'text-gray-400 hover:text-gray-600')}
+                                  >
+                                    {t("exclusive")}
+                                  </button>
+                                </div>
+                              )}
+                            </div>
+
+                            <div className="flex items-center gap-6 bg-gray-50 px-6 py-2.5 rounded-2xl border border-gray-100">
+                              <div className="flex flex-col items-center">
+                                <span className="text-[9px] font-black text-black/40 uppercase">{t("taxLabel")}</span>
+                                <span className="text-xs font-black text-amber-600">{adj.vat_amount.toFixed(2)}</span>
+                              </div>
+                              <div className="w-px h-6 bg-gray-200" />
+                              <div className="flex flex-col items-center">
+                                <span className="text-[9px] font-black text-black/40 uppercase">{t("totalLabel")}</span>
+                                <span className="text-xs font-black text-emerald-600">{adj.total_with_vat.toFixed(2)}</span>
+                              </div>
+                            </div>
                           </div>
-                        </div>
-                      </motion.div>
-                    ))
-                  )}
+                        </motion.div>
+                      ))
+                    )}
+                  </div>
                 </div>
-              </div>
 
               {/* Tax Summary Section */}
               <div className="space-y-6">
@@ -897,15 +919,15 @@ export function NewInvoiceClient({ customers, invoiceNumber, companyId, userName
             </div>
 
             {/* Final Actions Section */}
-            <div className="pt-8 border-t border-gray-100">
-              <div className="flex flex-col sm:flex-row items-center justify-between gap-6">
+            <div className="pt-10 mt-10 border-t border-gray-100">
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-8">
                 <Link href="/sales-invoices">
                   <motion.button 
                     whileHover={{ x: -5 }}
                     whileTap={{ scale: 0.98 }}
-                    className="flex items-center gap-2 text-gray-400 hover:text-gray-600 transition-all font-black text-xs uppercase tracking-widest"
+                    className="flex items-center gap-2 text-black hover:opacity-70 transition-all font-black text-sm uppercase tracking-widest"
                   >
-                    <ArrowRight size={16} className="rtl:rotate-180" />
+                    <ArrowRight size={20} className="rtl:rotate-180" />
                     {t("cancelAndReturn")}
                   </motion.button>
                 </Link>
@@ -916,7 +938,7 @@ export function NewInvoiceClient({ customers, invoiceNumber, companyId, userName
                     whileTap={{ scale: 0.98 }}
                     onClick={() => handleSave('draft')}
                     disabled={loading}
-                    className="flex-1 sm:flex-none flex items-center justify-center gap-3 px-8 py-4 rounded-2xl bg-slate-100 text-slate-700 hover:bg-slate-200 font-black transition-all disabled:opacity-50 text-sm shadow-sm"
+                    className="flex-1 sm:flex-none flex items-center justify-center gap-3 px-10 py-4 rounded-2xl bg-slate-800 text-white hover:bg-slate-900 font-black transition-all disabled:opacity-50 text-sm shadow-xl shadow-slate-200"
                   >
                     {loading ? <Loader2 size={18} className="animate-spin" /> : <Clock size={18} />}
                     {t("saveAsDraft")}
@@ -926,7 +948,7 @@ export function NewInvoiceClient({ customers, invoiceNumber, companyId, userName
                     whileTap={{ scale: 0.98 }}
                     onClick={() => handleSave('due')}
                     disabled={loading}
-                    className="flex-1 sm:flex-none flex items-center justify-center gap-3 px-10 py-4 rounded-2xl bg-emerald-500 hover:bg-emerald-600 text-white font-black transition-all disabled:opacity-50 text-sm shadow-xl shadow-emerald-500/20"
+                    className="flex-1 sm:flex-none flex items-center justify-center gap-3 px-12 py-4 rounded-2xl bg-emerald-500 hover:bg-emerald-600 text-white font-black transition-all disabled:opacity-50 text-sm shadow-xl shadow-emerald-500/20"
                   >
                     {loading ? <Loader2 size={18} className="animate-spin" /> : <FileCheck size={18} />}
                     {t("saveAndIssue")}
