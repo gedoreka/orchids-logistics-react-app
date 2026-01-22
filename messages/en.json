@@ -820,9 +820,11 @@
       "housing": "Housing Rent",
       "maintenance": "Maintenance / Purchase",
       "general": "General Expenses",
-      "traffic": "Traffic Violations",
-      "advances": "Advances"
-    },
+        "traffic": "Traffic Violations",
+        "advances": "Advances",
+        "deductions": "Deductions",
+        "other": "Other"
+      },
     "deductions": {
       "title": "Add Monthly Deductions",
       "subtitle": "Record all monthly deductions and discounts for employees and the facility",
