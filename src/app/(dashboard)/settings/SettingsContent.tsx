@@ -46,7 +46,16 @@ export function SettingsContent({ company, taxSettings, userEmail, companyId }: 
   const t = useTranslations("systemSettings");
   const commonT = useTranslations("common");
   
+  const { locale, isRTL: isRtl, setLocale } = useLocale();
+  
   const [loading, setLoading] = useState(false);
+  
+  // Language switcher state
+  const handleLanguageChange = (newLocale: "ar" | "en") => {
+    if (newLocale === locale) return;
+    setLocale(newLocale);
+    toast.success(newLocale === "ar" ? "تم تغيير اللغة إلى العربية" : "Language changed to English");
+  };
   
   // Password state
   const [currentPassword, setCurrentPassword] = useState("");
