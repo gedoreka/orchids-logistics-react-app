@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useTranslations } from "@/lib/locale-context";
+import { useTranslations, useLocale } from "@/lib/locale-context";
 import { 
   User, 
   Lock, 

@@ -1172,6 +1172,35 @@
       "success": "تم إرسال طلب الاشتراك بنجاح، جاري المراجعة",
       "error": "حدث خطأ أثناء إرسال الطلب، يرجى المحاولة مرة أخرى",
       "cancel": "إلغاء"
+    },
+    "systemSettings": {
+      "title": "إعدادات النظام",
+      "subtitle": "إدارة تفاصيل النظام والأمان والربط الضريبي",
+      "version": "إصدار النظام",
+      "security": "الأمان والحماية",
+      "email": "البريد الإلكتروني الحالي",
+      "currentPassword": "كلمة المرور الحالية",
+      "newPassword": "كلمة المرور الجديدة",
+      "confirmNewPassword": "تأكيد كلمة المرور الجديدة",
+      "updatePassword": "تحديث كلمة المرور",
+      "taxIntegration": "الربط الضريبي (ZATCA)",
+      "zatcaEnabled": "تفعيل الربط مع ZATCA",
+      "zatcaEnabledDesc": "عند التفعيل، سيتم إرسال الفواتير تلقائياً إلى منصة فاتورة (هيئة الزكاة والضريبة والجمارك)",
+      "environment": "بيئة العمل",
+      "sandbox": "بيئة التجربة (Sandbox)",
+      "production": "البيئة الحقيقية (Production)",
+      "apiKey": "مفتاح API",
+      "saveSettings": "حفظ الإعدادات",
+      "systemInfo": "معلومات النظام",
+      "region": "المنطقة",
+      "currency": "العملة",
+      "setupDate": "تاريخ التأسيس",
+      "systemKey": "مفتاح النظام",
+      "otherOptions": "خيارات إضافية",
+      "autoBackup": "النسخ الاحتياطي التلقائي",
+      "notifications": "الإشعارات",
+      "passwordMismatch": "كلمة المرور غير متطابقة",
+      "passwordChangedSuccess": "تم تغيير كلمة المرور بنجاح"
     }
   }
 }
