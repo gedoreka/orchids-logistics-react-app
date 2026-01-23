@@ -1887,8 +1887,8 @@
         "save": "Save Income"
       }
     },
-    "salaryPayrollsPage": {
-      "title": "Salary Payrolls",
+  "salaryPayrollsPage": {
+    "title": "Salary Payrolls",
       "description": "Manage and track monthly payroll sheets for employees",
       "stats": {
         "total": "Total Payrolls",
@@ -2082,8 +2082,8 @@
         "desc": "Start by creating your first employee payroll using the button above"
       }
     },
-    "promissoryNotesPage": {
-      "title": "Promissory Notes",
+  "promissoryNotesPage": {
+    "title": "Promissory Notes",
       "subtitle": "Management of legal financial obligations and guarantees",
       "description": "Integrated legal record for issuing and tracking promissory notes",
       "legalManagement": "Legal Management",
@@ -2154,12 +2154,12 @@
       "printPreview": "Print Preview",
       "printNow": "Print Now",
       "cancel": "Cancel",
-        "footerSystemName": "Legal Note System - {name}",
-        "allRightsReserved": "All Rights Reserved {year}"
-      }
+          "footerSystemName": "Legal Note System - {name}",
+          "allRightsReserved": "All Rights Reserved {year}"
+        }
     },
-    "newInvoicePage": {
-      "breadcrumbDashboard": "Dashboard",
+  "newInvoicePage": {
+    "breadcrumbDashboard": "Dashboard",
       "breadcrumbInvoices": "Tax Invoices",
       "breadcrumbNew": "New Invoice",
       "title": "Create Tax Invoice",
@@ -2227,11 +2227,12 @@
       "taxable": "Taxable",
       "inclusive": "Inclusive",
       "exclusive": "Exclusive",
-      "taxLabel": "Tax",
-      "totalLabel": "Total"
+        "taxLabel": "Tax",
+        "totalLabel": "Total"
+      }
     },
-    "creditNotes": {
-      "breadcrumb": "Credit Notes",
+  "creditNotes": {
+    "breadcrumb": "Credit Notes",
       "title": "Credit Notes",
       "zatcaCompliant": "ZATCA Compliant System",
       "createNew": "Create Credit Note",

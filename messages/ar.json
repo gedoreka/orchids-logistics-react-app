@@ -1742,8 +1742,8 @@
         "saveSuccess": "تم حفظ سند الصرف بنجاح"
       }
     },
-    "promissoryNotesPage": {
-      "title": "السندات لأمر",
+  "promissoryNotesPage": {
+    "title": "السندات لأمر",
       "subtitle": "إدارة الالتزامات والضمانات المالية القانونية",
       "description": "سجل قانوني متكامل لإصدار ومتابعة السندات لأمر",
       "legalManagement": "إدارة قانونية",
@@ -1892,10 +1892,9 @@
         "rights": "نظام إدارة العروض - جميع الحقوق محفوظة",
         "system": "Logistics Systems Pro"
       }
-    }
-  },
+    },
   "incomePage": {
-      "title": "سندات الإيراد",
+    "title": "سندات الإيراد",
       "subtitle": "إدارة وتوثيق الإيرادات المتنوعة",
       "description": "سجل متكامل لكافة الإيرادات المالية التي تدخل المنشأة",
       "refreshData": "تحديث",
@@ -1965,8 +1964,8 @@
         "save": "حفظ الإيراد"
       }
     },
-    "salaryPayrollsPage": {
-      "title": "مسيرات الرواتب",
+  "salaryPayrollsPage": {
+    "title": "مسيرات الرواتب",
       "description": "إدارة ومتابعة كشوف الرواتب الشهرية للموظفين",
       "stats": {
         "total": "إجمالي المسيرات",
@@ -2158,13 +2157,13 @@
               "paymentMethod": "طريقة الدفع"
             }
           },
-      "noPayrolls": {
-        "title": "لا توجد مسيرات رواتب",
-        "desc": "ابدأ بإنشاء أول مسير رواتب للموظفين من خلال الزر أعلاه"
-      }
+        "noPayrolls": {
+          "title": "لا توجد مسيرات رواتب",
+          "desc": "ابدأ بإنشاء أول مسير رواتب للموظفين من خلال الزر أعلاه"
+        }
     },
-    "newInvoicePage": {
-      "breadcrumbDashboard": "لوحة التحكم",
+  "newInvoicePage": {
+    "breadcrumbDashboard": "لوحة التحكم",
       "breadcrumbInvoices": "الفواتير الضريبية",
       "breadcrumbNew": "فاتورة جديدة",
       "title": "إنشاء فاتورة ضريبية",
@@ -2232,11 +2231,12 @@
       "taxable": "خاضع للضريبة",
       "inclusive": "شامل",
       "exclusive": "غير شامل",
-      "taxLabel": "الضريبة",
-      "totalLabel": "الإجمالي"
+        "taxLabel": "الضريبة",
+        "totalLabel": "الإجمالي"
+      }
     },
-    "creditNotes": {
-      "breadcrumb": "إشعارات الدائن",
+  "creditNotes": {
+    "breadcrumb": "إشعارات الدائن",
       "title": "إشعارات الدائن",
       "zatcaCompliant": "نظام معتمد من هيئة الزكاة والضريبة والجمارك",
       "createNew": "إنشاء إشعار دائن",
