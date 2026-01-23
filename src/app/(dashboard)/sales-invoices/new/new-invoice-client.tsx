@@ -710,7 +710,7 @@ export function NewInvoiceClient({ customers, invoiceNumber, companyId, userName
                 </table>
               </div>
                 <div className="flex justify-between items-center px-4">
-                  <span className="text-xs font-black text-black">{t("totalItems")} {items.length}</span>
+                  <span className="text-xs font-black text-black">{t("totalItems", { count: items.length })}</span>
                 </div>
               </div>
 

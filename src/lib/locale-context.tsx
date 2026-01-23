@@ -19,6 +19,7 @@ interface LocaleContextType {
 
 const LocaleContext = createContext<LocaleContextType | undefined>(undefined);
 
+// Force reload of translation files
 const messagesMap: Record<Locale, Messages> = {
   ar: arMessages,
   en: enMessages,
