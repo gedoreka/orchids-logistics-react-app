@@ -27,7 +27,7 @@ import { toast } from "sonner";
 import { Account } from "@/lib/types";
 import { createAccount, updateAccount, deleteAccount } from "@/lib/actions/accounting";
 import { cn } from "@/lib/utils";
-import { useTranslations, useLocale } from "next-intl";
+import { useTranslations, useLocale } from "@/lib/locale-context";
 
 interface AccountsClientProps {
   initialAccounts: Account[];
@@ -36,8 +36,7 @@ interface AccountsClientProps {
 
 export function AccountsClient({ initialAccounts, companyId }: AccountsClientProps) {
   const t = useTranslations("accounts");
-  const locale = useLocale();
-  const isRtl = locale === "ar";
+  const { locale, isRTL: isRtl } = useLocale();
   
   const [accounts, setAccounts] = useState(initialAccounts);
   const [isModalOpen, setIsModalOpen] = useState(false);
