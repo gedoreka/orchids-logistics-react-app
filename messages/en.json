@@ -1489,7 +1489,153 @@
       "passwordChangedSuccess": "Password changed successfully",
       "passwordMismatch": "Passwords do not match",
       "passwordError": "Current password is incorrect",
-      "zatcaEnabled": "Enable ZATCA Integration",
-      "zatcaEnabledDesc": "When enabled, invoices will be sent directly to ZATCA"
+        "zatcaEnabled": "Enable ZATCA Integration",
+        "zatcaEnabledDesc": "When enabled, invoices will be sent directly to ZATCA"
+      },
+  "financialVouchersPage": {
+    "managementCenter": "Unified Management Center",
+    "title": "Financial Vouchers",
+    "description": "Comprehensive management of all financial vouchers and quotations in one place",
+    "loading": "Loading...",
+    "updateData": "Update Data",
+    "totalIncome": "Total Income",
+    "expenses": "Expenses",
+    "netBalance": "Net Balance",
+    "sar": "SAR",
+    "voucherTemplates": "Voucher Templates",
+    "currency": "SAR",
+    "manageVoucher": "Manage {title}",
+    "voucherCount": "{count} Vouchers",
+    "quickActions": "Quick Actions",
+    "quickActionsDesc": "Direct access to all voucher types",
+    "systemTitle": "{name} Integrated System",
+    "allRightsReserved": "All Rights Reserved {year}",
+    "types": {
+      "salesReceipts": {
+        "title": "Sales Receipts",
+        "subtitle": "Cash Sales Management",
+        "description": "Document direct sales and cash collections",
+        "label": "Total Receipts",
+        "features": [
+          "Instant receipt issuance",
+          "Inventory linking",
+          "Detailed sales reports"
+        ]
+      },
+      "receiptVouchers": {
+        "title": "Receipt Vouchers",
+        "subtitle": "Incoming Funds",
+        "description": "Issue official receipt vouchers for funds received from customers",
+        "label": "Total Receipts",
+        "features": [
+          "Numbered vouchers",
+          "Multiple payment methods",
+          "Electronic archiving"
+        ]
+      },
+      "paymentVouchers": {
+        "title": "Payment Vouchers",
+        "subtitle": "Outgoing Funds",
+        "description": "Issue payment vouchers for suppliers and petty cash",
+        "label": "Total Payments",
+        "features": [
+          "Expense tracking",
+          "Financial approvals",
+          "Accounts integration"
+        ]
+      },
+      "promissoryNotes": {
+        "title": "Promissory Notes",
+        "subtitle": "Financial Obligations",
+        "description": "Manage promissory notes and financial guarantees",
+        "label": "Total Notes",
+        "features": [
+          "Legal vouchers",
+          "Due date alerts",
+          "Debt tracking"
+        ]
+      },
+      "quotations": {
+        "title": "Quotations",
+        "subtitle": "Customer Requests",
+        "description": "Create and manage price quotations and tenders",
+        "label": "Total Quotations",
+        "features": [
+          "Professional designs",
+          "Convert to invoice",
+          "Status tracking"
+        ]
+      },
+      "incomeVouchers": {
+        "title": "Income Vouchers",
+        "subtitle": "Other Income",
+        "description": "Document various income sources other than service sales",
+        "label": "Total Income",
+        "features": [
+          "Income classification",
+          "Quick manual entry",
+          "Accounting reports"
+        ]
+      }
+    },
+    "salaryPayrollsPage": {
+      "title": "Salary Payrolls",
+      "description": "Manage and track monthly payroll sheets for employees",
+      "stats": {
+        "total": "Total Payrolls",
+        "sar": "SAR",
+        "confirmed": "Confirmed",
+        "draft": "Draft"
+      },
+      "searchPlaceholder": "Search by month, package, or creator...",
+      "createNew": "Create New Payroll",
+      "table": {
+        "title": "Payroll Records",
+        "count": "{count} Payrolls",
+        "no": "#",
+        "payrollMonth": "Payroll Month",
+        "package": "Package / Work System",
+        "employeesCount": "Employees",
+        "totalSalaries": "Total Salaries",
+        "status": "Status",
+        "actions": "Actions",
+        "notSpecified": "Not Specified",
+        "employee": "Employee"
+      },
+      "statuses": {
+        "draft": "Draft",
+        "confirmed": "Confirmed"
+      },
+      "actions": {
+        "view": "View",
+        "edit": "Edit",
+        "delete": "Delete"
+      },
+      "notifications": {
+        "deleting": "Deleting",
+        "deletingMsg": "Deleting payroll for {month}...",
+        "deleteSuccess": "Deleted",
+        "deleteSuccessMsg": "Payroll for {month} deleted successfully",
+        "deleteFailed": "Delete Failed",
+        "deleteFailedMsg": "An error occurred while deleting the payroll",
+        "error": "Error",
+        "errorMsg": "An unexpected error occurred",
+        "deleteConfirm": "Confirm Delete",
+        "deleteQuestion": "Are you sure you want to delete this payroll?",
+        "deleteWarning": "All data for this month will be deleted:",
+        "deleteNote": "* This action is permanent and cannot be undone",
+        "confirmBtn": "Yes, Delete Permanently"
+      },
+      "workTypes": {
+        "salary": "Basic Salary",
+        "target": "Target System",
+        "tiers": "Tier System",
+        "commission": "Commission System"
+      },
+      "noPayrolls": {
+        "title": "No Payrolls Found",
+        "desc": "Start by creating your first employee payroll using the button above"
+      }
     }
+  }
 }

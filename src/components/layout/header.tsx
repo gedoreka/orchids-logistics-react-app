@@ -1438,42 +1438,31 @@ export function Header({ user, onToggleSidebar, unreadChatCount = 0, subscriptio
                   </div>
                 )}
 
-                <div className="p-3 space-y-1">
-                  <motion.button
-                    whileHover={{ backgroundColor: "rgba(255,255,255,0.05)" }}
-                    onClick={() => { router.push("/user_profile"); setShowUserDropdown(false); }}
-                    className="w-full flex items-center gap-4 px-4 py-3.5 rounded-xl text-white/70 hover:text-white transition-colors"
-                  >
-                    <div className="p-2 rounded-xl bg-blue-500/20">
-                      <Building2 size={18} className="text-blue-400" />
-                    </div>
-                    <span className="text-sm font-bold">{isRTL ? 'بيانات منشأتي' : 'My Facility'}</span>
-                  </motion.button>
-                  
-                  {user?.role !== 'admin' && (
-                      <motion.button
-                        whileHover={{ backgroundColor: "rgba(255,255,255,0.05)" }}
-                        onClick={() => { router.push("/subscriptions"); setShowUserDropdown(false); }}
-                        className="w-full flex items-center gap-4 px-4 py-3.5 rounded-xl text-white/70 hover:text-white transition-colors"
-                      >
-                        <div className="p-2 rounded-xl bg-amber-500/20">
-                          <Package size={18} className="text-amber-400" />
-                        </div>
-                        <span className="text-sm font-bold">{isRTL ? 'اشتراكي' : 'My Subscription'}</span>
-                      </motion.button>
-                    )}
-                  
-                  <motion.button
-                    whileHover={{ backgroundColor: "rgba(255,255,255,0.05)" }}
-                    onClick={() => { router.push("/settings"); setShowUserDropdown(false); }}
-                    className="w-full flex items-center gap-4 px-4 py-3.5 rounded-xl text-white/70 hover:text-white transition-colors"
-                  >
-                    <div className="p-2 rounded-xl bg-slate-500/20">
-                      <Settings size={18} className="text-slate-400" />
-                    </div>
-                    <span className="text-sm font-bold">{isRTL ? 'إعدادات النظام' : 'System Settings'}</span>
-                  </motion.button>
-                </div>
+                  <div className="p-3 space-y-1">
+                    {user?.role !== 'admin' && (
+                        <motion.button
+                          whileHover={{ backgroundColor: "rgba(255,255,255,0.05)" }}
+                          onClick={() => { router.push("/subscriptions"); setShowUserDropdown(false); }}
+                          className="w-full flex items-center gap-4 px-4 py-3.5 rounded-xl text-white/70 hover:text-white transition-colors"
+                        >
+                          <div className="p-2 rounded-xl bg-amber-500/20">
+                            <Package size={18} className="text-amber-400" />
+                          </div>
+                          <span className="text-sm font-bold">{isRTL ? 'اشتراكي' : 'My Subscription'}</span>
+                        </motion.button>
+                      )}
+                    
+                    <motion.button
+                      whileHover={{ backgroundColor: "rgba(255,255,255,0.05)" }}
+                      onClick={() => { router.push("/settings"); setShowUserDropdown(false); }}
+                      className="w-full flex items-center gap-4 px-4 py-3.5 rounded-xl text-white/70 hover:text-white transition-colors"
+                    >
+                      <div className="p-2 rounded-xl bg-slate-500/20">
+                        <Settings size={18} className="text-slate-400" />
+                      </div>
+                      <span className="text-sm font-bold">{isRTL ? 'إعدادات النظام' : 'System Settings'}</span>
+                    </motion.button>
+                  </div>
                 
                 <div className="p-3 border-t border-white/10">
                   <motion.button
