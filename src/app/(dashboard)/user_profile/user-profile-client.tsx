@@ -169,8 +169,8 @@ export function UserProfileClient({ user, company, bankAccounts: initialBankAcco
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 p-4 md:p-8 pb-32">
-      <div className="max-w-6xl mx-auto space-y-8">
+    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 p-4 md:p-8 pb-32" style={{ zoom: "0.9" }}>
+      <div className="max-w-[90%] mx-auto space-y-8">
         
         {/* Header Section */}
         <div className="flex flex-col md:flex-row items-center justify-between gap-6 bg-gradient-to-br from-slate-900/80 via-slate-800/50 to-slate-900/80 backdrop-blur-xl p-8 rounded-[2.5rem] shadow-2xl shadow-blue-500/5 border border-white/10 overflow-hidden relative group">
@@ -285,9 +285,9 @@ export function UserProfileClient({ user, company, bankAccounts: initialBankAcco
                   <div className="grid grid-cols-2 gap-4">
                     <InfoTile label="الاسم التجاري" value={companyState?.name} icon={<Briefcase />} />
                     <InfoTile label="رقم السجل" value={companyState?.commercial_number} icon={<FileText />} />
-                    <InfoTile label="الرقم الضريبي" value={companyState?.vat_number} icon={<Hash />} />
-                    <InfoTile label="العملة الأساسية" value={companyState?.currency} icon={<DollarSign />} />
-                  </div>
+                      <InfoTile label="الرقم الضريبي" value={companyState?.vat_number} icon={<Hash />} />
+                      <InfoTile label="العملة الأساسية" value={companyState?.currency === "SAR" ? "ريال سعودي" : companyState?.currency} icon={<DollarSign />} />
+                    </div>
                 </CardSection>
 
                 <CardSection title="العناوين والتواصل" icon={<MapPin className="w-5 h-5" />} gradient="from-emerald-500 to-teal-600" className="lg:col-span-2">

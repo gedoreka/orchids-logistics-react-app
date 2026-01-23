@@ -206,9 +206,9 @@ export function TaxSettingsClient({ companyId }: TaxSettingsClientProps) {
     tax.tax_code.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  return (
-    <div className="p-4 md:p-6" dir="rtl">
-      <Card className="border-none shadow-2xl rounded-[2rem] overflow-hidden bg-[#1a2234] p-4 md:p-8 space-y-8">
+    return (
+      <div className="p-4 md:p-6" dir="rtl" style={{ zoom: "0.9" }}>
+        <Card className="max-w-[90%] mx-auto border-none shadow-2xl rounded-[2rem] overflow-hidden bg-[#1a2234] p-4 md:p-8 space-y-8">
         {/* Header */}
         <div className="relative group">
           <div className="absolute -inset-1 bg-gradient-to-r from-blue-600 to-purple-600 rounded-3xl blur opacity-25 group-hover:opacity-40 transition duration-1000" />
