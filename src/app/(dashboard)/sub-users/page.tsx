@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { Card } from "@/components/ui/card";
+import { useTranslations } from "@/lib/locale-context";
 import {
   Users,
   Plus,
@@ -67,55 +68,46 @@ interface SubUser {
 
 interface Permission {
   key: string;
-  label: string;
-  description: string;
   icon: any;
   category: string;
 }
 
 const AVAILABLE_PERMISSIONS: Permission[] = [
-  { key: 'employees_module', label: 'إدارة الموارد البشرية', icon: Users, category: 'الموارد البشرية', description: 'الوصول لبيانات الموظفين وعقودهم' },
-  { key: 'salary_payrolls_module', label: 'مسيرات الرواتب', icon: BadgeDollarSign, category: 'الموارد البشرية', description: 'إدارة الرواتب والبدلات والمستقطعات' },
-  
-  { key: 'clients_module', label: 'قائمة العملاء', icon: Users, category: 'العملاء والمبيعات', description: 'إدارة بيانات العملاء والتواصل معهم' },
-  
-  { key: 'receipts_module', label: 'السندات المالية', icon: Receipt, category: 'السندات المالية', description: 'إدارة سندات القبض والصرف العامة' },
-  { key: 'quotations_module', label: 'عروض الأسعار', icon: FileText, category: 'السندات المالية', description: 'إنشاء وإدارة عروض الأسعار للعملاء' },
-  { key: 'sales_module', label: 'الفواتير الضريبية', icon: FileText, category: 'السندات المالية', description: 'إصدار فواتير المبيعات الضريبية' },
-  { key: 'income_module', label: 'إضافة دخل جديد', icon: Coins, category: 'السندات المالية', description: 'تسجيل الدخول والإيرادات الأخرى' },
-  { key: 'credit_notes_module', label: 'إشعارات الدائن الضريبية', icon: CreditCard, category: 'السندات المالية', description: 'إصدار الإشعارات الدائنة والمدينة' },
-  { key: 'receipt_vouchers_module', label: 'سندات القبض', icon: FileSpreadsheet, category: 'السندات المالية', description: 'إدارة سندات القبض المحاسبية' },
-  
-  { key: 'vehicles_list', label: 'إدارة المركبات', icon: Car, category: 'إدارة الأسطول', description: 'متابعة أسطول السيارات والصيانة' },
-  
-  { key: 'ecommerce_orders_module', label: 'طلبات التجارة الإلكترونية', icon: Store, category: 'التجارة الإلكترونية', description: 'إدارة طلبات المتاجر الإلكترونية' },
-  { key: 'daily_orders_module', label: 'عرض الطلبات اليومية', icon: Calendar, category: 'التجارة الإلكترونية', description: 'متابعة الجدول اليومي للطلبات' },
-  { key: 'ecommerce_stores_module', label: 'إدارة المتاجر', icon: Store, category: 'التجارة الإلكترونية', description: 'إعداد وإدارة ربط المتاجر' },
-  
-  { key: 'personal_shipments_module', label: 'شحنات الأفراد', icon: Truck, category: 'الشحن', description: 'تسجيل شحنات الأفراد الجديدة' },
-  { key: 'manage_shipments_module', label: 'إدارة شحنات الأفراد', icon: Package, category: 'الشحن', description: 'متابعة وتحديث حالات الشحن' },
-  
-  { key: 'monthly_commissions_module', label: 'العمولة الشهرية', icon: HandCoins, category: 'العمولات', description: 'احتساب عمولات المناديب والموظفين' },
-  { key: 'commissions_summary_module', label: 'تقرير العمولة الشهرية', icon: FileSpreadsheet, category: 'العمولات', description: 'عرض ملخص العمولات المستحقة' },
-  
-  { key: 'expenses_module', label: 'المصروفات الشهرية', icon: BarChart3, category: 'المحاسبة', description: 'تسجيل وإدارة المصروفات التشغيلية' },
-  { key: 'journal_entries_module', label: 'قيود اليومية', icon: FileEdit, category: 'المحاسبة', description: 'إضافة القيود المحاسبية اليدوية' },
-  { key: 'income_report_module', label: 'عرض الدخل والتقارير', icon: PieChart, category: 'المحاسبة', description: 'تقارير الأرباح والخسائر والتدفق' },
-  { key: 'expenses_report_module', label: 'تقرير المصروفات', icon: BarChart3, category: 'المحاسبة', description: 'تحليل وتفصيل المصروفات' },
-  
-  { key: 'accounts_module', label: 'مركز الحسابات', icon: BookOpen, category: 'الحسابات', description: 'شجرة الحسابات والدليل المحاسبي' },
-  { key: 'cost_centers_module', label: 'مراكز التكلفة', icon: Landmark, category: 'الحسابات', description: 'توزيع التكاليف على المشاريع' },
-  { key: 'ledger_module', label: 'دفتر الأستاذ العام', icon: BookOpen, category: 'الحسابات', description: 'عرض حركات الحسابات التفصيلية' },
-  { key: 'trial_balance_module', label: 'ميزان المراجعة', icon: Scale, category: 'الحسابات', description: 'التأكد من توازن الحسابات' },
-  { key: 'income_statement_module', label: 'قائمة الأرصدة', icon: BarChart3, category: 'الحسابات', description: 'عرض أرصدة الحسابات الإجمالية' },
-  { key: 'balance_sheet_module', label: 'الميزانية العمومية', icon: FileText, category: 'الحسابات', description: 'عرض الأصول والالتزامات' },
-  { key: 'tax_settings_module', label: 'إعدادات الضريبة', icon: Calculator, category: 'الحسابات', description: 'ضبط ضريبة القيمة المضافة' },
-  
-  { key: 'letters_templates_module', label: 'الخطابات الجاهزة', icon: Mail, category: 'أخرى', description: 'نماذج الخطابات والرسائل الجاهزة' },
-  { key: 'sub_users_module', label: 'إدارة المستخدمين', icon: Users, category: 'الإدارة', description: 'إضافة وإدارة صلاحيات المستخدمين' },
+  { key: 'employees_module', icon: Users, category: 'hr' },
+  { key: 'salary_payrolls_module', icon: BadgeDollarSign, category: 'hr' },
+  { key: 'clients_module', icon: Users, category: 'sales' },
+  { key: 'receipts_module', icon: Receipt, category: 'financial' },
+  { key: 'quotations_module', icon: FileText, category: 'financial' },
+  { key: 'sales_module', icon: FileText, category: 'financial' },
+  { key: 'income_module', icon: Coins, category: 'financial' },
+  { key: 'credit_notes_module', icon: CreditCard, category: 'financial' },
+  { key: 'receipt_vouchers_module', icon: FileSpreadsheet, category: 'financial' },
+  { key: 'vehicles_list', icon: Car, category: 'fleet' },
+  { key: 'ecommerce_orders_module', icon: Store, category: 'ecommerce' },
+  { key: 'daily_orders_module', icon: Calendar, category: 'ecommerce' },
+  { key: 'ecommerce_stores_module', icon: Store, category: 'ecommerce' },
+  { key: 'personal_shipments_module', icon: Truck, category: 'shipping' },
+  { key: 'manage_shipments_module', icon: Package, category: 'shipping' },
+  { key: 'monthly_commissions_module', icon: HandCoins, category: 'commissions' },
+  { key: 'commissions_summary_module', icon: FileSpreadsheet, category: 'commissions' },
+  { key: 'expenses_module', icon: BarChart3, category: 'accounting' },
+  { key: 'journal_entries_module', icon: FileEdit, category: 'accounting' },
+  { key: 'income_report_module', icon: PieChart, category: 'accounting' },
+  { key: 'expenses_report_module', icon: BarChart3, category: 'accounting' },
+  { key: 'accounts_module', icon: BookOpen, category: 'accounts' },
+  { key: 'cost_centers_module', icon: Landmark, category: 'accounts' },
+  { key: 'ledger_module', icon: BookOpen, category: 'accounts' },
+  { key: 'trial_balance_module', icon: Scale, category: 'accounts' },
+  { key: 'income_statement_module', icon: BarChart3, category: 'accounts' },
+  { key: 'balance_sheet_module', icon: FileText, category: 'accounts' },
+  { key: 'tax_settings_module', icon: Calculator, category: 'accounts' },
+  { key: 'letters_templates_module', icon: Mail, category: 'others' },
+  { key: 'sub_users_module', icon: Users, category: 'admin' },
 ];
 
 export default function SubUsersPage() {
+  const t = useTranslations("subUsers");
+  const commonT = useTranslations("common");
   const [subUsers, setSubUsers] = useState<SubUser[]>([]);
   const [loading, setLoading] = useState(true);
   const [showAddModal, setShowAddModal] = useState(false);
@@ -169,7 +161,7 @@ export default function SubUsersPage() {
 
   const handleCreateUser = async () => {
     if (formData.password !== formData.confirmPassword) {
-      alert("كلمات المرور غير متطابقة");
+      alert(t("passwordMismatch"));
       return;
     }
 
@@ -191,11 +183,11 @@ export default function SubUsersPage() {
         setFormData({ name: "", email: "", password: "", confirmPassword: "", permissions: [] });
         fetchSubUsers();
       } else {
-        alert(data.error || "حدث خطأ");
+        alert(data.error || commonT("error"));
       }
     } catch (error) {
       console.error("Error creating user:", error);
-      alert("حدث خطأ في إنشاء المستخدم");
+      alert(t("errorCreating"));
     }
   };
 
@@ -220,7 +212,7 @@ export default function SubUsersPage() {
         setSelectedUser(null);
         fetchSubUsers();
       } else {
-        alert(data.error || "حدث خطأ");
+        alert(data.error || commonT("error"));
       }
     } catch (error) {
       console.error("Error updating user:", error);
@@ -245,7 +237,7 @@ export default function SubUsersPage() {
   };
 
   const handleDeleteUser = async (user: SubUser) => {
-    if (!confirm(`هل أنت متأكد من حذف المستخدم "${user.name}"؟`)) return;
+    if (!confirm(t("deleteConfirm"))) return;
 
     try {
       const res = await fetch(`/api/sub-users/${user.id}`, {
@@ -325,9 +317,9 @@ export default function SubUsersPage() {
               </div>
               <div>
                 <h1 className="text-2xl md:text-4xl font-black tracking-tight bg-gradient-to-r from-white via-blue-200 to-white bg-clip-text text-transparent">
-                  إدارة المستخدمين
+                  {t("title")}
                 </h1>
-                <p className="text-white/60 font-medium mt-1 text-sm md:text-base">إضافة وإدارة المستخدمين الفرعيين للشركة</p>
+                <p className="text-white/60 font-medium mt-1 text-sm md:text-base">{t("subtitle")}</p>
               </div>
             </div>
             <button
@@ -338,7 +330,7 @@ export default function SubUsersPage() {
               className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-xl font-bold hover:shadow-lg hover:shadow-blue-500/30 transition-all w-full md:w-auto justify-center"
             >
               <UserPlus size={20} />
-              إضافة مستخدم جديد
+              {t("addNewUser")}
             </button>
           </div>
         </motion.div>
@@ -348,7 +340,7 @@ export default function SubUsersPage() {
             <Search className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
             <input
               type="text"
-              placeholder="البحث عن مستخدم..."
+              placeholder={t("searchPlaceholder")}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full pl-4 pr-12 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-slate-400 focus:outline-none focus:border-blue-500"
@@ -367,8 +359,8 @@ export default function SubUsersPage() {
             className="text-center py-20 bg-white/5 rounded-[2rem] border border-white/10"
           >
             <Users className="mx-auto text-slate-600 mb-4" size={64} />
-            <h3 className="text-xl font-bold text-slate-400">لا يوجد مستخدمين</h3>
-            <p className="text-slate-500 mt-2">ابدأ بإضافة مستخدم جديد</p>
+            <h3 className="text-xl font-bold text-slate-400">{t("noUsers")}</h3>
+            <p className="text-slate-500 mt-2">{t("startAdding")}</p>
           </motion.div>
         ) : (
           <div className="grid gap-4">
@@ -397,7 +389,7 @@ export default function SubUsersPage() {
                   <div className="flex flex-wrap items-center justify-center gap-6 w-full md:w-auto">
                     <div className="text-center">
                       <div className="text-2xl font-bold text-white">{user.permissions?.length || 0}</div>
-                      <div className="text-xs text-slate-400">صلاحيات</div>
+                      <div className="text-xs text-slate-400">{t("permissions")}</div>
                     </div>
 
                     <div className={cn(
@@ -406,14 +398,14 @@ export default function SubUsersPage() {
                         ? "bg-emerald-500/20 text-emerald-400" 
                         : "bg-red-500/20 text-red-400"
                     )}>
-                      {user.status === "active" ? "نشط" : "موقوف"}
+                      {t(user.status)}
                     </div>
 
                     <div className="flex items-center gap-2">
                       <button
                         onClick={() => openEditModal(user)}
                         className="p-2 rounded-lg bg-blue-500/20 text-blue-400 hover:bg-blue-500/30 transition-colors"
-                        title="تعديل"
+                        title={commonT("edit")}
                       >
                         <Edit size={18} />
                       </button>
@@ -425,7 +417,7 @@ export default function SubUsersPage() {
                             ? "bg-amber-500/20 text-amber-400 hover:bg-amber-500/30"
                             : "bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500/30"
                         )}
-                        title={user.status === "active" ? "تجميد" : "تفعيل"}
+                        title={user.status === "active" ? t("suspended") : t("active")}
                       >
                         {user.status === "active" ? <Lock size={18} /> : <Unlock size={18} />}
                       </button>
@@ -435,14 +427,14 @@ export default function SubUsersPage() {
                           setShowActivityModal(true);
                         }}
                         className="p-2 rounded-lg bg-purple-500/20 text-purple-400 hover:bg-purple-500/30 transition-colors"
-                        title="سجل النشاط"
+                        title={t("activityLog")}
                       >
                         <Activity size={18} />
                       </button>
                       <button
                         onClick={() => handleDeleteUser(user)}
                         className="p-2 rounded-lg bg-red-500/20 text-red-400 hover:bg-red-500/30 transition-colors"
-                        title="حذف"
+                        title={commonT("delete")}
                       >
                         <Trash2 size={18} />
                       </button>
@@ -453,7 +445,7 @@ export default function SubUsersPage() {
                 {user.last_login_at && (
                   <div className="mt-4 pt-4 border-t border-white/5 flex items-center gap-2 text-sm text-slate-400">
                     <Clock size={14} />
-                    آخر دخول: {new Date(user.last_login_at).toLocaleString("ar-SA")}
+                    {t("lastLogin")}: {new Date(user.last_login_at).toLocaleString("ar-SA")}
                   </div>
                 )}
               </motion.div>
@@ -483,7 +475,7 @@ export default function SubUsersPage() {
             >
               <div className="p-6 border-b border-slate-700 flex items-center justify-between bg-gradient-to-r from-slate-800 to-slate-900">
                 <h2 className="text-xl font-bold text-white">
-                  {showAddModal ? "إضافة مستخدم جديد" : "تعديل المستخدم"}
+                  {showAddModal ? t("addNewUser") : t("editUser")}
                 </h2>
                 <button
                   onClick={() => {
@@ -500,20 +492,20 @@ export default function SubUsersPage() {
                 <div className="space-y-4">
                   <div>
                     <label className="block text-sm font-bold text-slate-300 mb-2">
-                      الاسم الكامل *
+                      {t("fullName")}
                     </label>
                     <input
                       type="text"
                       value={formData.name}
                       onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                       className="w-full px-4 py-3 bg-slate-800 border border-slate-700 rounded-xl text-white focus:outline-none focus:border-blue-500"
-                      placeholder="أدخل الاسم"
+                      placeholder={commonT("name")}
                     />
                   </div>
 
                   <div>
                     <label className="block text-sm font-bold text-slate-300 mb-2">
-                      البريد الإلكتروني *
+                      {t("email")}
                     </label>
                     <input
                       type="email"
@@ -528,7 +520,7 @@ export default function SubUsersPage() {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <label className="block text-sm font-bold text-slate-300 mb-2">
-                        كلمة المرور {showAddModal ? "*" : "(اختياري)"}
+                        {t("password")} {showEditModal && t("passwordOptional")}
                       </label>
                       <div className="relative">
                         <input
@@ -543,7 +535,7 @@ export default function SubUsersPage() {
                     </div>
                     <div>
                       <label className="block text-sm font-bold text-slate-300 mb-2">
-                        تأكيد كلمة المرور
+                        {t("confirmPassword")}
                       </label>
                       <input
                         type="text"
@@ -562,13 +554,13 @@ export default function SubUsersPage() {
                     className="flex items-center gap-2 text-sm text-blue-400 hover:text-blue-300"
                   >
                     <RefreshCw size={14} />
-                    توليد كلمة مرور تلقائية
+                    {t("generatePassword")}
                   </button>
 
                     <div>
                       <div className="flex items-center justify-between mb-4">
                         <label className="text-sm font-bold text-slate-300">
-                          الصلاحيات المتاحة
+                          {t("availablePermissions")}
                         </label>
                         <div className="flex gap-2">
                           <button
@@ -576,7 +568,7 @@ export default function SubUsersPage() {
                             onClick={selectAllPermissions}
                             className="text-xs text-blue-400 hover:text-blue-300 font-bold"
                           >
-                            تحديد الكل
+                            {t("selectAll")}
                           </button>
                           <span className="text-slate-600">|</span>
                           <button
@@ -584,7 +576,7 @@ export default function SubUsersPage() {
                             onClick={deselectAllPermissions}
                             className="text-xs text-red-400 hover:text-red-300 font-bold"
                           >
-                            إلغاء الكل
+                            {t("deselectAll")}
                           </button>
                         </div>
                       </div>
@@ -594,7 +586,7 @@ export default function SubUsersPage() {
                           <div key={category} className="space-y-3">
                             <h4 className="text-xs font-black text-slate-500 uppercase tracking-wider flex items-center gap-2">
                               <div className="w-1 h-3 bg-blue-500 rounded-full" />
-                              {category}
+                              {t("categories." + category)}
                             </h4>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                               {AVAILABLE_PERMISSIONS.filter(p => p.category === category && companyPermissions.includes(p.key)).map((perm) => (
@@ -618,8 +610,8 @@ export default function SubUsersPage() {
                                     <perm.icon size={20} />
                                   </div>
                                   <div className="flex-1 min-w-0">
-                                    <div className="font-bold text-sm truncate">{perm.label}</div>
-                                    <div className="text-[10px] opacity-50 truncate leading-tight">{perm.description}</div>
+                                    <div className="font-bold text-sm truncate">{t("permissionsList." + perm.key)}</div>
+                                    <div className="text-[10px] opacity-50 truncate leading-tight">الوصول لبيانات {t("permissionsList." + perm.key)}</div>
                                   </div>
                                   <div className={cn(
                                     "w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all",
@@ -649,13 +641,13 @@ export default function SubUsersPage() {
                   }}
                   className="px-6 py-3 rounded-xl bg-slate-800 text-slate-300 font-bold hover:bg-slate-700 transition-colors border border-slate-700"
                 >
-                  إلغاء
+                  {t("cancel")}
                 </button>
                 <button
                   onClick={showAddModal ? handleCreateUser : handleUpdateUser}
                   className="px-6 py-3 rounded-xl bg-gradient-to-r from-blue-500 to-purple-600 text-white font-bold hover:shadow-lg transition-all shadow-blue-500/20"
                 >
-                  {showAddModal ? "إنشاء المستخدم" : "حفظ التغييرات"}
+                  {showAddModal ? t("createUser") : t("saveChanges")}
                 </button>
               </div>
             </motion.div>
@@ -679,6 +671,8 @@ export default function SubUsersPage() {
 }
 
 function ActivityLogModal({ user, onClose }: { user: SubUser; onClose: () => void }) {
+  const t = useTranslations("subUsers");
+  const commonT = useTranslations("common");
   const [sessions, setSessions] = useState<Array<{ id: number; ip_address: string; login_at: string; is_active: boolean }>>([]);
   const [activities, setActivities] = useState<Array<{ id: number; action_type: string; action_description: string; created_at: string }>>([]);
   const [loading, setLoading] = useState(true);
@@ -718,7 +712,7 @@ function ActivityLogModal({ user, onClose }: { user: SubUser; onClose: () => voi
       >
         <div className="p-6 border-b border-slate-700 flex items-center justify-between">
           <div>
-            <h2 className="text-xl font-bold text-white">سجل النشاط</h2>
+            <h2 className="text-xl font-bold text-white">{t("activityLog")}</h2>
             <p className="text-slate-400 text-sm">{user.name}</p>
           </div>
           <button onClick={onClose} className="p-2 rounded-lg hover:bg-slate-800 text-slate-400">
@@ -736,7 +730,7 @@ function ActivityLogModal({ user, onClose }: { user: SubUser; onClose: () => voi
                 : "bg-slate-800 text-slate-400 hover:bg-slate-700"
             )}
           >
-            الجلسات النشطة
+            {t("sessions")}
           </button>
           <button
             onClick={() => setActiveTab("activities")}
@@ -747,7 +741,7 @@ function ActivityLogModal({ user, onClose }: { user: SubUser; onClose: () => voi
                 : "bg-slate-800 text-slate-400 hover:bg-slate-700"
             )}
           >
-            سجل العمليات
+            {t("operations")}
           </button>
         </div>
 
@@ -758,7 +752,7 @@ function ActivityLogModal({ user, onClose }: { user: SubUser; onClose: () => voi
             </div>
           ) : activeTab === "sessions" ? (
             sessions.length === 0 ? (
-              <div className="text-center py-8 text-slate-400">لا توجد جلسات</div>
+              <div className="text-center py-8 text-slate-400">{t("noSessions")}</div>
             ) : (
               <div className="space-y-3">
                 {sessions.map((session) => (
@@ -767,7 +761,7 @@ function ActivityLogModal({ user, onClose }: { user: SubUser; onClose: () => voi
                     className="p-4 bg-slate-800 rounded-xl flex items-center justify-between"
                   >
                     <div>
-                      <div className="text-white font-bold">{session.ip_address || "غير معروف"}</div>
+                      <div className="text-white font-bold">{session.ip_address || commonT("notSpecified")}</div>
                       <div className="text-slate-400 text-sm">
                         {new Date(session.login_at).toLocaleString("ar-SA")}
                       </div>
@@ -778,7 +772,7 @@ function ActivityLogModal({ user, onClose }: { user: SubUser; onClose: () => voi
                         ? "bg-emerald-500/20 text-emerald-400"
                         : "bg-slate-700 text-slate-400"
                     )}>
-                      {session.is_active ? "نشط" : "منتهي"}
+                      {session.is_active ? t("active") : commonT("completed")}
                     </div>
                   </div>
                 ))}
@@ -786,7 +780,7 @@ function ActivityLogModal({ user, onClose }: { user: SubUser; onClose: () => voi
             )
           ) : (
             activities.length === 0 ? (
-              <div className="text-center py-8 text-slate-400">لا توجد عمليات مسجلة</div>
+              <div className="text-center py-8 text-slate-400">{t("noOperations")}</div>
             ) : (
               <div className="space-y-3">
                 {activities.map((activity) => (

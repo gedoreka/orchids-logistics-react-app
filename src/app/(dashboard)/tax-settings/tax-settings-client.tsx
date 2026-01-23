@@ -172,16 +172,16 @@ export function TaxSettingsClient({ companyId }: TaxSettingsClientProps) {
       
       const data = await response.json();
       if (data.success) {
-        toast.success(editingTax ? "تم تحديث الضريبة" : "تم إضافة الضريبة");
+        toast.success(editingTax ? t("updateSuccess") : t("addSuccess"));
         setIsDialogOpened(false);
         setEditingTax(null);
         fetchTaxTypes();
       } else {
-        toast.error(data.error || "فشلت العملية");
+        toast.error(data.error || t("operationFailed"));
       }
     } catch (error) {
       console.error("Error adding/updating tax:", error);
-      toast.error("حدث خطأ ما");
+      toast.error(t("errorOccurred"));
     }
   };
 
@@ -192,12 +192,12 @@ export function TaxSettingsClient({ companyId }: TaxSettingsClientProps) {
       const response = await fetch(`/api/taxes/types/${id}`, { method: "DELETE" });
       const data = await response.json();
       if (data.success) {
-        toast.success("تم حذف الضريبة");
+        toast.success(t("deleteSuccess"));
         fetchTaxTypes();
       }
     } catch (error) {
       console.error("Error deleting tax:", error);
-      toast.error("حدث خطأ أثناء الحذف");
+      toast.error(t("deleteError"));
     }
   };
 
@@ -300,7 +300,7 @@ export function TaxSettingsClient({ companyId }: TaxSettingsClientProps) {
               <CardHeader className="flex flex-row items-center justify-between border-b border-white/5 p-6">
                 <div>
                   <CardTitle className="text-white text-xl font-black">{t("taxTypes")}</CardTitle>
-                  <CardDescription className="text-white/40 font-medium">إدارة أنواع الضرائب ومعدلاتها</CardDescription>
+                  <CardDescription className="text-white/40 font-medium">{t("subtitle")}</CardDescription>
                 </div>
                 <div className="flex items-center gap-3">
                   <div className="relative">
@@ -404,8 +404,8 @@ export function TaxSettingsClient({ companyId }: TaxSettingsClientProps) {
                     <div className="inline-flex p-4 rounded-full bg-white/5 border border-white/10 mb-4">
                       <Percent className="w-8 h-8 text-white/20" />
                     </div>
-                    <h3 className="text-white font-bold">لا توجد ضرائب</h3>
-                    <p className="text-white/30">ابدأ بإضافة أول نوع ضريبة لنظامك</p>
+                    <h3 className="text-white font-bold">{t("noTaxes")}</h3>
+                    <p className="text-white/30">{t("noTaxesDesc")}</p>
                   </div>
                 )}
               </CardContent>
@@ -506,6 +506,91 @@ export function TaxSettingsClient({ companyId }: TaxSettingsClientProps) {
           </TabsContent>
         </Tabs>
       </Card>
+
+      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpened}>
+        <DialogContent className="sm:max-w-[600px] bg-[#0d121f] text-white border-white/10">
+          <form onSubmit={handleAddUpdateTax}>
+            <DialogHeader>
+              <DialogTitle>{editingTax ? t("editTaxType") : t("addTaxType")}</DialogTitle>
+              <DialogDescription className="text-white/40">
+                أدخل تفاصيل نوع الضريبة أدناه
+              </DialogDescription>
+            </DialogHeader>
+            
+            <div className="grid gap-6 py-6">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="tax_code">{t("taxCode")}</Label>
+                  <Input id="tax_code" name="tax_code" defaultValue={editingTax?.tax_code} className="bg-white/5 border-white/10" required />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="tax_rate">{t("taxRate")} (%)</Label>
+                  <Input id="tax_rate" name="tax_rate" type="number" step="0.01" defaultValue={editingTax?.tax_rate} className="bg-white/5 border-white/10" required />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="name_ar">{t("nameAr")}</Label>
+                  <Input id="name_ar" name="name_ar" defaultValue={editingTax?.name_ar} className="bg-white/5 border-white/10" required />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="name_en">{t("nameEn")}</Label>
+                  <Input id="name_en" name="name_en" defaultValue={editingTax?.name_en} className="bg-white/5 border-white/10" required />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="description">{t("taxDescription")}</Label>
+                <Input id="description" name="description" defaultValue={editingTax?.description} className="bg-white/5 border-white/10" />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="apply_to">{t("applyTo")}</Label>
+                  <Select name="apply_to" defaultValue={editingTax?.apply_to || "all"}>
+                    <SelectTrigger className="bg-white/5 border-white/10">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent className="bg-[#0d121f] text-white border-white/10">
+                      <SelectItem value="all">{t("all")}</SelectItem>
+                      <SelectItem value="products">{t("products")}</SelectItem>
+                      <SelectItem value="services">{t("services")}</SelectItem>
+                      <SelectItem value="shipping">{t("shipping")}</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="status">{t("status")}</Label>
+                  <Select name="status" defaultValue={editingTax?.status || "active"}>
+                    <SelectTrigger className="bg-white/5 border-white/10">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent className="bg-[#0d121f] text-white border-white/10">
+                      <SelectItem value="active">{t("active")}</SelectItem>
+                      <SelectItem value="inactive">{t("inactive")}</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              <div className="flex items-center space-x-2 space-x-reverse">
+                <Switch id="is_default" name="is_default" defaultChecked={editingTax?.is_default} />
+                <Label htmlFor="is_default">{t("isDefault")}</Label>
+              </div>
+            </div>
+
+            <DialogFooter>
+              <Button type="button" variant="outline" onClick={() => setIsDialogOpened(false)} className="bg-white/5 border-white/10">
+                {t("cancel")}
+              </Button>
+              <Button type="submit" className="bg-blue-600 hover:bg-blue-500">
+                {editingTax ? t("update") : t("save")}
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
