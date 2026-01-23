@@ -7,8 +7,9 @@ import { Header } from "./header";
 import { Footer } from "./footer";
 import { GlobalChatNotifications } from "./global-chat-notifications";
 import { GlobalAdminNotifications } from "./global-admin-notifications";
-import { X } from "lucide-react";
+import { X, AlertCircle } from "lucide-react";
 import { useLocale } from "@/lib/locale-context";
+import { usePathname, useRouter } from "next/navigation";
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
