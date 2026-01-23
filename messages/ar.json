@@ -1812,6 +1812,7 @@
         "placeholderDebtorAddress": "أدخل العنوان بالتفصيل",
         "creationPlace": "مكان التحرير",
         "placeholderCreationPlace": "مثال: الرياض",
+        "saveChanges": "حفظ التعديلات",
         "issueNote": "إصدار وحفظ السند",
         "printPreview": "معاينة الطباعة",
         "printNow": "طباعة الآن",
