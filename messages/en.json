@@ -2013,13 +2013,24 @@
       "deleteNote": "* This action is permanent and cannot be undone",
       "confirmBtn": "Yes, Delete Permanently"
     },
-    "workTypes": {
-      "salary": "Basic Salary",
-      "target": "Target System",
-      "tiers": "Tier System",
-      "commission": "Commission System"
-    },
-    "noPayrolls": {
+      "workTypes": {
+        "salary": "Salary System",
+        "target": "Target System",
+        "tiers": "Tier System",
+        "commission": "Commission System"
+      },
+      "backToList": "Back to List",
+      "newPayroll": {
+        "title": "Create New Salary Payroll",
+        "subtitle": "Generate monthly payroll sheets based on employee packages",
+        "selectPackage": "Select Package / Work System",
+        "selectPackagePlaceholder": "Select package...",
+        "payrollMonth": "Payroll Month",
+        "search": "Search for employee...",
+        "welcomeTitle": "Start Creating Payroll",
+        "welcomeDesc": "Please select a package and month to start calculating salaries"
+      },
+      "noPayrolls": {
       "title": "No Payrolls Found",
       "desc": "Start by creating your first employee payroll using the button above"
     }

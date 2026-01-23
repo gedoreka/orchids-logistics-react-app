@@ -1742,8 +1742,32 @@
         "saveSuccess": "تم حفظ سند الصرف بنجاح"
       },
       "statuses": {
-        "draft": "مسودة"
+        "draft": "مسودة",
+        "confirmed": "معتمد"
+      },
+      "workTypes": {
+        "target": "نظام التارجت",
+        "salary": "نظام الراتب"
+      },
+      "actions": {
+        "view": "عرض",
+        "edit": "تعديل",
+        "delete": "حذف"
+      },
+      "backToList": "العودة للقائمة",
+      "newPayroll": {
+        "title": "إنشاء مسير رواتب جديد",
+        "subtitle": "توليد كشوف الرواتب الشهرية بناءً على باقات الموظفين",
+        "selectPackage": "اختر الباقة / نظام العمل",
+        "selectPackagePlaceholder": "اختر الباقة...",
+        "payrollMonth": "شهر المسير",
+        "search": "بحث عن موظف...",
+        "welcomeTitle": "ابدأ بإنشاء المسير",
+        "welcomeDesc": "يرجى اختيار الباقة والشهر لبدء احتساب الرواتب"
       }
+    }
+  }
+}
     },
       "promissoryNotesPage": {
         "title": "السندات لأمر",
@@ -2016,13 +2040,24 @@
       "deleteNote": "* هذا الإجراء نهائي ولا يمكن التراجع عنه",
       "confirmBtn": "نعم، حذف نهائياً"
     },
-    "workTypes": {
-      "salary": "راتب أساسي",
-      "target": "نظام تارجت",
-      "tiers": "نظام شرائح",
-      "commission": "نظام عمولة"
-    },
-    "noPayrolls": {
+      "workTypes": {
+        "salary": "نظام الراتب",
+        "target": "نظام التارجت",
+        "tiers": "نظام شرائح",
+        "commission": "نظام عمولة"
+      },
+      "backToList": "العودة للقائمة",
+      "newPayroll": {
+        "title": "إنشاء مسير رواتب جديد",
+        "subtitle": "توليد كشوف الرواتب الشهرية بناءً على باقات الموظفين",
+        "selectPackage": "اختر الباقة / نظام العمل",
+        "selectPackagePlaceholder": "اختر الباقة...",
+        "payrollMonth": "شهر المسير",
+        "search": "بحث عن موظف...",
+        "welcomeTitle": "ابدأ بإنشاء المسير",
+        "welcomeDesc": "يرجى اختيار الباقة والشهر لبدء احتساب الرواتب"
+      },
+      "noPayrolls": {
       "title": "لا توجد مسيرات رواتب",
       "desc": "ابدأ بإنشاء أول مسير رواتب للموظفين من خلال الزر أعلاه"
     }
