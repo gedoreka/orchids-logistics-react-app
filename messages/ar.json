@@ -2068,10 +2068,18 @@
             "paymentMethods": {
               "notSpecified": "غير محدد",
               "mudad": "مدد",
-              "cash": "نقدي",
-              "transfer": "تحويل"
-            }
-          },
+                "cash": "نقدي",
+                "transfer": "تحويل"
+              },
+              "totals": {
+                "totalSalaries": "إجمالي الرواتب",
+                "totalOrders": "إجمالي الطلبات",
+                "totalDeductions": "إجمالي الخصومات"
+              },
+              "cancel": "إلغاء",
+              "saveDraft": "حفظ كمسودة",
+              "savePayroll": "حفظ المسير"
+            },
         "editPayroll": {
           "title": "تعديل مسير الرواتب",
           "back": "رجوع",

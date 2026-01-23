@@ -1990,10 +1990,18 @@
         "paymentMethods": {
           "notSpecified": "Not Specified",
           "mudad": "Mudad",
-          "cash": "Cash",
-          "transfer": "Transfer"
-        }
-      },
+            "cash": "Cash",
+            "transfer": "Transfer"
+          },
+          "totals": {
+            "totalSalaries": "Total Salaries",
+            "totalOrders": "Total Orders",
+            "totalDeductions": "Total Deductions"
+          },
+          "cancel": "Cancel",
+          "saveDraft": "Save Draft",
+          "savePayroll": "Save Payroll"
+        },
       "editPayroll": {
         "title": "Edit Salary Payroll",
         "back": "Back",
