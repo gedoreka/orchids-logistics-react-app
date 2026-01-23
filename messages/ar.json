@@ -1133,6 +1133,45 @@
         "licenseUploadSuccess": "تم رفع صورة الترخيص بنجاح",
         "licenseUploadError": "حدث خطأ أثناء رفع صورة الترخيص"
       }
+    },
+    "subscriptions": {
+      "title": "باقاتي",
+      "subtitle": "إدارة اشتراكك الحالي والباقات المتاحة",
+      "currentSub": "باقة {plan} الحالية",
+      "daysRemaining": "يوم متبقي",
+      "expiresAt": "ينتهي في: {date}",
+      "noActiveSub": "لا يوجد اشتراك نشط حالياً",
+      "noActiveSubDesc": "يرجى اختيار باقة والاشتراك لتفعيل كافة مميزات النظام",
+      "mostPopular": "الأكثر شيوعاً",
+      "sar": "ر.س",
+      "per": "لكل",
+      "day": "يوم",
+      "month": "شهر",
+      "year": "سنة",
+      "features": {
+        "all": "الوصول لكافة وحدات النظام",
+        "support": "دعم فني متميز على مدار الساعة",
+        "updates": "تحديثات دورية ومميزات جديدة"
+      },
+      "upgradeRenew": "ترقية / تجديد الاشتراك",
+      "subscribeNow": "اشترك الآن",
+      "paymentHistory": "سجل عمليات الدفع",
+      "pending": "قيد الانتظار",
+      "approved": "تم القبول",
+      "rejected": "مرفوض",
+      "paymentRequest": "طلب اشتراك في {plan}",
+      "amount": "المبلغ: {amount} {currency}",
+      "availableBanks": "الحسابات البنكية المتاحة للتحويل",
+      "selectBank": "اختر البنك المحول إليه",
+      "selectBankPlaceholder": "اختر البنك من القائمة...",
+      "receipt": "إيصال التحويل البنكي",
+      "uploadReceipt": "اضغط هنا لرفع صورة الإيصال",
+      "notes": "ملاحظات إضافية",
+      "notesPlaceholder": "أضف أي ملاحظات تخص عملية التحويل هنا...",
+      "submitRequest": "إرسال طلب الاشتراك",
+      "success": "تم إرسال طلب الاشتراك بنجاح، جاري المراجعة",
+      "error": "حدث خطأ أثناء إرسال الطلب، يرجى المحاولة مرة أخرى",
+      "cancel": "إلغاء"
     }
   }
 }

@@ -1130,6 +1130,45 @@
         "licenseUploadSuccess": "License image uploaded successfully",
         "licenseUploadError": "Error uploading license image"
       }
+    },
+    "subscriptions": {
+      "title": "My Subscriptions",
+      "subtitle": "Manage your current subscription and available plans",
+      "currentSub": "Current {plan} Subscription",
+      "daysRemaining": "days remaining",
+      "expiresAt": "Expires at: {date}",
+      "noActiveSub": "No active subscription currently",
+      "noActiveSubDesc": "Please choose a plan and subscribe to activate all system features",
+      "mostPopular": "Most Popular",
+      "sar": "SAR",
+      "per": "per",
+      "day": "day",
+      "month": "month",
+      "year": "year",
+      "features": {
+        "all": "Access to all system modules",
+        "support": "Premium technical support 24/7",
+        "updates": "Regular updates and new features"
+      },
+      "upgradeRenew": "Upgrade / Renew Subscription",
+      "subscribeNow": "Subscribe Now",
+      "paymentHistory": "Payment History",
+      "pending": "Pending",
+      "approved": "Approved",
+      "rejected": "Rejected",
+      "paymentRequest": "Subscription request for {plan}",
+      "amount": "Amount: {amount} {currency}",
+      "availableBanks": "Available Bank Accounts for Transfer",
+      "selectBank": "Select the transfer bank",
+      "selectBankPlaceholder": "Select a bank from the list...",
+      "receipt": "Bank Transfer Receipt",
+      "uploadReceipt": "Click here to upload receipt image",
+      "notes": "Additional Notes",
+      "notesPlaceholder": "Add any notes regarding the transfer here...",
+      "submitRequest": "Submit Subscription Request",
+      "success": "Subscription request submitted successfully, under review",
+      "error": "An error occurred while submitting the request, please try again",
+      "cancel": "Cancel"
     }
   }
 }
