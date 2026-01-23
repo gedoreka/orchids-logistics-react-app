@@ -82,41 +82,41 @@
     "iban": "IBAN",
     "notSpecified": "Not Specified"
   },
-    "navigation": {
-      "dashboard": "Dashboard",
-      "hr": "Human Resources",
-      "employees": "Employees",
-      "packages": "Packages",
-      "digitalId": "Digital ID",
-      "reports": "Reports",
-      "tasks": "Tasks",
-      "customers": "Customers",
-      "salesInvoices": "Tax Invoices",
-      "quotations": "Quotations",
-      "creditNotes": "Credit Notes",
-      "promissoryNotes": "Promissory Notes",
-      "expenses": "Expenses",
-      "income": "Income",
-      "accounts": "Accounts",
-      "journalEntries": "Journal Entries",
-      "paymentVouchers": "Payment Vouchers",
-      "receiptVouchers": "Receipt Vouchers",
-      "financialVouchers": "Financial Vouchers",
-      "balanceSheet": "Balance Sheet",
-      "profitLoss": "Profit & Loss",
-      "costCenters": "Cost Centers",
-      "payrolls": "Payrolls",
-      "salaryPayrolls": "Salary Payrolls",
-      "fleet": "Fleet Management",
-      "chat": "Chat",
-      "admin": "Administration",
-      "companies": "Companies",
-      "notifications": "Notifications",
-      "userProfile": "My Facility Data",
-      "salesReceipts": "Sales Receipts",
-      "ecommerceOrders": "E-commerce Orders",
-      "personalShipments": "Personal Shipments"
-    },
+  "navigation": {
+    "dashboard": "Dashboard",
+    "hr": "Human Resources",
+    "employees": "Employees",
+    "packages": "Packages",
+    "digitalId": "Digital ID",
+    "reports": "Reports",
+    "tasks": "Tasks",
+    "customers": "Customers",
+    "salesInvoices": "Tax Invoices",
+    "quotations": "Quotations",
+    "creditNotes": "Credit Notes",
+    "promissoryNotes": "Promissory Notes",
+    "expenses": "Expenses",
+    "income": "Income",
+    "accounts": "Accounts",
+    "journalEntries": "Journal Entries",
+    "paymentVouchers": "Payment Vouchers",
+    "receiptVouchers": "Receipt Vouchers",
+    "financialVouchers": "Financial Vouchers",
+    "balanceSheet": "Balance Sheet",
+    "profitLoss": "Profit & Loss",
+    "costCenters": "Cost Centers",
+    "payrolls": "Payrolls",
+    "salaryPayrolls": "Salary Payrolls",
+    "fleet": "Fleet Management",
+    "chat": "Chat",
+    "admin": "Administration",
+    "companies": "Companies",
+    "notifications": "Notifications",
+    "userProfile": "My Facility Data",
+    "salesReceipts": "Sales Receipts",
+    "ecommerceOrders": "E-commerce Orders",
+    "personalShipments": "Personal Shipments"
+  },
   "header": {
     "welcome": "Welcome",
     "searchPlaceholder": "Search the system...",
@@ -176,10 +176,10 @@
     "generalLedger": "General Ledger",
     "trialBalance": "Trial Balance",
     "incomeStatement": "Income Statement",
-      "balanceSheet": "Balance Sheet",
-      "taxSettings": "Tax Settings",
-      "subUsersManagement": "Users Management",
-      "taxSettingsPage": {
+    "balanceSheet": "Balance Sheet",
+    "taxSettings": "Tax Settings",
+    "subUsersManagement": "Users Management",
+    "taxSettingsPage": {
       "title": "Tax Settings",
       "subtitle": "Manage tax types and general tax settings",
       "taxTypes": "Tax Types",
@@ -627,7 +627,6 @@
       "country": "Country",
       "countryPlaceholder": "Select country",
       "city": "City",
-      "cityPlaceholder": "Select city",
       "district": "District",
       "districtPlaceholder": "Select district",
       "street": "Street Name",
@@ -1457,451 +1456,536 @@
     "error": "An error occurred",
     "success": "Request sent successfully"
   },
-    "systemSettings": {
-      "title": "System Settings",
-      "subtitle": "Manage system configuration, security, and tax integration",
-      "userAccount": "User Account",
-      "security": "Security & Protection",
-      "taxIntegration": "Tax Integration (ZATCA Phase 2)",
-      "systemInfo": "System Information",
-      "otherOptions": "Additional Options",
-      "email": "Email Address",
-      "emailNote": "Registered email cannot be changed",
-      "currentPassword": "Current Password",
-      "newPassword": "New Password",
-      "confirmNewPassword": "Confirm New Password",
-      "updatePassword": "Update Password",
-      "version": "System Version",
-      "zatcaPhase2": "Phase 2 (Integration & Linking)",
-      "vatSettings": "VAT Settings",
-      "apiKey": "API Key",
-      "environment": "Environment",
-      "sandbox": "Sandbox",
-      "production": "Production",
-      "region": "Region / Country",
-      "currency": "Default Currency",
-      "setupDate": "System Creation Date",
-      "systemKey": "Current System Key",
-      "autoBackup": "Auto Backup",
-      "notifications": "System Notifications",
-      "logs": "Event Logs",
-      "saveSettings": "Save Settings",
-      "passwordChangedSuccess": "Password changed successfully",
-      "passwordMismatch": "Passwords do not match",
-      "passwordError": "Current password is incorrect",
-        "zatcaEnabled": "Enable ZATCA Integration",
-        "zatcaEnabledDesc": "When enabled, invoices will be sent directly to ZATCA"
-      },
-    "financialVouchersPage": {
-      "managementCenter": "Unified Management Center",
-      "title": "Financial Vouchers",
-      "description": "Comprehensive management of all financial vouchers and quotations in one place",
-      "loading": "Loading...",
-      "updateData": "Update Data",
-      "totalIncome": "Total Income",
-      "expenses": "Expenses",
-      "netBalance": "Net Balance",
-      "sar": "SAR",
-      "voucherTemplates": "Voucher Templates",
-      "currency": "SAR",
-      "manageVoucher": "Manage {title}",
-      "voucherCount": "{count} Vouchers",
-      "quickActions": "Quick Actions",
-      "quickActionsDesc": "Direct access to all voucher types",
-      "systemTitle": "{name} Integrated System",
-      "allRightsReserved": "All Rights Reserved {year}",
-      "types": {
-        "salesReceipts": {
-          "title": "Sales Receipts",
-          "subtitle": "Cash Sales Management",
-          "description": "Document direct sales and cash collections",
-          "label": "Total Receipts",
-          "features": [
-            "Instant receipt issuance",
-            "Inventory linking",
-            "Detailed sales reports"
-          ]
-        },
-        "receiptVouchers": {
-          "title": "Receipt Vouchers",
-          "subtitle": "Incoming Funds",
-          "description": "Issue official receipt vouchers for funds received from customers",
-          "label": "Total Receipts",
-          "features": [
-            "Numbered vouchers",
-            "Multiple payment methods",
-            "Electronic archiving"
-          ]
-        },
-        "paymentVouchers": {
-          "title": "Payment Vouchers",
-          "subtitle": "Outgoing Funds",
-          "description": "Issue payment vouchers for suppliers and petty cash",
-          "label": "Total Payments",
-          "features": [
-            "Expense tracking",
-            "Financial approvals",
-            "Accounts integration"
-          ]
-        },
-        "promissoryNotes": {
-          "title": "Promissory Notes",
-          "subtitle": "Financial Obligations",
-          "description": "Manage promissory notes and financial guarantees",
-          "label": "Total Notes",
-          "features": [
-            "Legal vouchers",
-            "Due date alerts",
-            "Debt tracking"
-          ]
-        },
-        "quotations": {
-          "title": "Quotations",
-          "subtitle": "Customer Requests",
-          "description": "Create and manage price quotations and tenders",
-          "label": "Total Quotations",
-          "features": [
-            "Professional designs",
-            "Convert to invoice",
-            "Status tracking"
-          ]
-        },
-        "incomeVouchers": {
-          "title": "Income Vouchers",
-          "subtitle": "Other Income",
-          "description": "Document various income sources other than service sales",
-          "label": "Total Income",
-          "features": [
-            "Income classification",
-            "Quick manual entry",
-            "Accounting reports"
-          ]
-        }
-      },
-      "salesReceiptsPage": {
+  "systemSettings": {
+    "title": "System Settings",
+    "subtitle": "Manage system configuration, security, and tax integration",
+    "userAccount": "User Account",
+    "security": "Security & Protection",
+    "taxIntegration": "Tax Integration (ZATCA Phase 2)",
+    "systemInfo": "System Information",
+    "otherOptions": "Additional Options",
+    "email": "Email Address",
+    "emailNote": "Registered email cannot be changed",
+    "currentPassword": "Current Password",
+    "newPassword": "New Password",
+    "confirmNewPassword": "Confirm New Password",
+    "updatePassword": "Update Password",
+    "version": "System Version",
+    "zatcaPhase2": "Phase 2 (Integration & Linking)",
+    "vatSettings": "VAT Settings",
+    "apiKey": "API Key",
+    "environment": "Environment",
+    "sandbox": "Sandbox",
+    "production": "Production",
+    "region": "Region / Country",
+    "currency": "Default Currency",
+    "setupDate": "System Creation Date",
+    "systemKey": "Current System Key",
+    "autoBackup": "Auto Backup",
+    "notifications": "System Notifications",
+    "logs": "Event Logs",
+    "saveSettings": "Save Settings",
+    "passwordChangedSuccess": "Password changed successfully",
+    "passwordMismatch": "Passwords do not match",
+    "passwordError": "Current password is incorrect",
+    "zatcaEnabled": "Enable ZATCA Integration",
+    "zatcaEnabledDesc": "When enabled, invoices will be sent directly to ZATCA"
+  },
+  "financialVouchersPage": {
+    "managementCenter": "Unified Management Center",
+    "title": "Financial Vouchers",
+    "description": "Comprehensive management of all financial vouchers and quotations in one place",
+    "loading": "Loading...",
+    "updateData": "Update Data",
+    "totalIncome": "Total Income",
+    "expenses": "Expenses",
+    "netBalance": "Net Balance",
+    "sar": "SAR",
+    "voucherTemplates": "Voucher Templates",
+    "currency": "SAR",
+    "manageVoucher": "Manage {title}",
+    "voucherCount": "{count} Vouchers",
+    "quickActions": "Quick Actions",
+    "quickActionsDesc": "Direct access to all voucher types",
+    "systemTitle": "{name} Integrated System",
+    "allRightsReserved": "All Rights Reserved {year}",
+    "types": {
+      "salesReceipts": {
         "title": "Sales Receipts",
-        "subtitle": "Management and documentation of sales and collection",
-        "description": "Complete record of all issued sales receipts and cash collections",
-        "addNew": "Issue New Receipt",
-        "exportData": "Export Data",
-        "refreshData": "Refresh",
-        "totalReceipts": "Total Receipts",
-        "totalAmount": "Total Amount",
-        "linked": "Linked to Invoice",
-        "unlinked": "Unlinked",
-        "searchPlaceholder": "Search by receipt number or customer...",
-        "tableTitle": "Sales Receipts Log",
-        "noReceipts": "No Sales Receipts",
-        "noReceiptsDesc": "No sales receipts issued yet, you can start by issuing a new one",
-        "systemFooter": "Receipt Management System - {name}",
-        "allRightsReserved": "All Rights Reserved {year}"
+        "subtitle": "Cash Sales Management",
+        "description": "Document direct sales and cash collections",
+        "label": "Total Receipts",
+        "features": [
+          "Instant receipt issuance",
+          "Inventory linking",
+          "Detailed sales reports"
+        ]
       },
-      "newSalesReceiptPage": {
-        "title": "Issue New Sales Receipt",
-        "subtitle": "Document a new sale and cash collection",
-        "basicInfo": "Basic Information",
-        "receiptNumber": "Receipt Number",
-        "receiptNumberDesc": "Receipt number is generated automatically",
-        "receiptDate": "Receipt Date",
-        "customerData": "Customer Data",
-        "selectCustomer": "Select Customer",
-        "noCustomers": "No registered customers",
-        "addNewCustomer": "Add New Customer",
-        "notes": "Additional Notes",
-        "notesPlaceholder": "Enter any additional notes here...",
-        "backToList": "Back to List",
-        "saveReceipt": "Save and Issue Receipt",
-        "cancel": "Cancel",
-        "saving": "Saving...",
-        "saveSuccess": "Saved Successfully",
-        "saveSuccessMsg": "Sales receipt has been issued and saved in the system",
-        "saveFailed": "Save Failed",
-        "errorTitle": "Error",
-        "genericError": "An unexpected error occurred, please try again",
-        "selectCustomerError": "Please select a customer or enter customer data manually"
-      },
-      "receiptVouchersPage": {
+      "receiptVouchers": {
         "title": "Receipt Vouchers",
-        "subtitle": "Management and documentation of received funds",
-        "description": "Complete record of all official receipt vouchers issued for funds received",
-        "addNew": "Issue Receipt Voucher",
-        "exportData": "Export Records",
-        "refreshData": "Refresh",
-        "stats": {
-          "count": "Total Vouchers",
-          "nextNumber": "Next Voucher No."
-        },
-        "searchPlaceholder": "Search by voucher number or receiver...",
-        "table": {
-          "title": "Receipt Vouchers Log",
-          "no": "Voucher No.",
-          "date": "Date",
-          "from": "Received From",
-          "method": "Payment Method",
-          "total": "Total Amount",
-          "status": "Status",
-          "actions": "Actions",
-          "countLabel": "Vouchers"
-        },
-        "noVouchers": {
-          "title": "No Receipt Vouchers",
-          "desc": "No receipt vouchers issued yet, you can start by issuing a new one"
-        },
-        "form": {
-          "addTitle": "Add New Receipt Voucher",
-          "fillData": "Please fill in the voucher data accurately",
-          "receivedFrom": "Received From Mr./Messrs",
-          "receivedFromPlaceholder": "Enter customer or entity name",
-          "date": "Receipt Date",
-          "amount": "Received Amount",
-          "taxRate": "Tax Rate",
-          "method": "Receipt Method",
-          "taxValue": "Tax Value",
-          "total": "Total Incl. Tax",
-          "description": "Voucher Description / Statement",
-          "descriptionPlaceholder": "Example: Payment for invoice no...",
-          "save": "Save Voucher",
-          "cancel": "Cancel",
-          "cancelForm": "Close Form"
-        }
+        "subtitle": "Incoming Funds",
+        "description": "Issue official receipt vouchers for funds received from customers",
+        "label": "Total Receipts",
+        "features": [
+          "Numbered vouchers",
+          "Multiple payment methods",
+          "Electronic archiving"
+        ]
       },
-      "paymentVouchersPage": {
+      "paymentVouchers": {
         "title": "Payment Vouchers",
-        "subtitle": "Management and documentation of paid funds",
-        "description": "Complete record of all official payment vouchers issued for payments and suppliers",
-        "addNew": "Issue Payment Voucher",
-        "exportData": "Export Records",
-        "refreshData": "Refresh",
-        "stats": {
-          "count": "Total Vouchers",
-          "nextNumber": "Next Voucher No."
-        },
-        "searchPlaceholder": "Search by voucher number or payee...",
-        "table": {
-          "title": "Payment Vouchers Log",
-          "no": "Voucher No.",
-          "date": "Date",
-          "to": "Paid To Mr./Messrs",
-          "method": "Payment Method",
-          "total": "Total Amount",
-          "status": "Status",
-          "actions": "Actions",
-          "countLabel": "Vouchers"
-        },
-        "noVouchers": {
-          "title": "No Payment Vouchers",
-          "desc": "No payment vouchers issued yet, you can start by issuing a new one"
-        },
-        "form": {
-          "addTitle": "Add New Payment Voucher",
-          "fillData": "Please fill in the voucher data accurately",
-          "paidTo": "Paid To Mr. / Messrs",
-          "paidToPlaceholder": "Enter supplier or entity name",
-          "date": "Payment Date",
-          "amount": "Paid Amount",
-          "taxRate": "Tax Rate",
-          "method": "Payment Method",
-          "taxValue": "Tax Value",
-          "total": "Total Incl. Tax",
-          "description": "Voucher Description / Statement",
-          "descriptionPlaceholder": "Example: Payment for purchase order...",
-          "save": "Save Voucher",
-          "cancel": "Cancel",
-          "cancelForm": "Close Form"
-        }
+        "subtitle": "Outgoing Funds",
+        "description": "Issue payment vouchers for suppliers and petty cash",
+        "label": "Total Payments",
+        "features": [
+          "Expense tracking",
+          "Financial approvals",
+          "Accounts integration"
+        ]
       },
-      "promissoryNotesPage": {
+      "promissoryNotes": {
         "title": "Promissory Notes",
-        "subtitle": "Management of legal financial obligations and guarantees",
-        "description": "Integrated legal record for issuing and tracking promissory notes",
-        "legalManagement": "Legal Management",
-        "refreshData": "Refresh",
-        "createNew": "Issue New Promissory Note",
-        "exportData": "Export Notes",
-        "entity": "Issuing Entity",
-        "authorizedIssuer": "Authorized Issuer",
-        "totalCount": "Total Notes",
-        "registeredNotes": "Registered Note",
-        "searchPlaceholder": "Search by note number or debtor...",
-        "issuedNotesLog": "Issued Notes Log",
-        "notesCount": "Notes",
-        "active": "Active",
-        "currency": "SAR",
-        "noNotes": {
-          "title": "No Promissory Notes",
-          "desc": "No promissory notes issued yet"
-        },
-        "cancelForm": "Close",
-        "createNote": "Issue New Promissory Note",
-        "fillFormCarefully": "Please enter legal data accurately",
-        "beneficiaryData": "Beneficiary Data (Creditor)",
-        "automaticBeneficiary": "Use facility data as creditor",
-        "manualEdit": "Manual Edit",
-        "automatic": "Automatic",
-        "currentBeneficiary": "Current Beneficiary",
-        "commercialRegistry": "Commercial Registry",
-        "idOrRegistryNumber": "ID / Registry Number for Debtor",
-        "placeholderIdOrRegistry": "Enter debtor ID or registry number",
-        "debtorName": "Debtor Name (Issuer)",
-        "placeholderDebtorName": "Enter full debtor name",
-        "dueDate": "Due Date",
-        "creationDate": "Creation Date",
-        "amountLabel": "Amount in Figures",
-        "placeholderAmount": "Enter note amount",
-        "debtorAddress": "Debtor Address",
-        "placeholderDebtorAddress": "Enter detailed address",
-        "creationPlace": "Place of Issue",
-        "placeholderCreationPlace": "Example: Riyadh",
-        "issueNote": "Issue and Save Note",
-        "cancel": "Cancel",
-        "footerSystemName": "Legal Note System - {name}",
-        "allRightsReserved": "All Rights Reserved {year}"
+        "subtitle": "Financial Obligations",
+        "description": "Manage promissory notes and financial guarantees",
+        "label": "Total Notes",
+        "features": [
+          "Legal vouchers",
+          "Due date alerts",
+          "Debt tracking"
+        ]
       },
-      "quotationsPage": {
+      "quotations": {
         "title": "Quotations",
-        "subtitle": "Management of price quotations and tenders for customers",
-        "description": "Design and send professional quotations and convert them to invoices with one click",
-        "management": "Quotation Management",
-        "refreshData": "Refresh",
-        "createNew": "Create New Quotation",
-        "stats": {
-          "total": "Total Quotations",
-          "totalDesc": "All registered quotations",
-          "confirmed": "Confirmed Quotations",
-          "confirmedDesc": "Converted to invoices",
-          "drafts": "Drafts",
-          "draftsDesc": "Pending review",
-          "expired": "Expired Quotations",
-          "expiredDesc": "Past validity date"
-        },
-        "search": {
-          "placeholder": "Search by quotation number or customer...",
-          "export": "Export Quotations"
-        },
-        "table": {
-          "title": "Quotations Log",
-          "count": "Quotation",
-          "noData": "No Quotations",
-          "noDataDesc": "Start by creating a new quotation to attract more customers"
-        },
-        "form": {
-          "title": "Create New Quotation",
-          "subtitle": "Enter quotation data and required products",
-          "expiryDate": "Expiry Date",
-          "issueDate": "Issue Date",
-          "number": "Quotation Number",
-          "manualEntry": "Manual Entry",
-          "customerData": "Customer Data",
-          "customerSelectDesc": "Select a customer from the list or enter their data manually",
-          "selectCustomer": "Select Customer",
-          "products": "Products & Services",
-          "addProduct": "Add Product",
-          "table": {
-            "productName": "Product / Service Name",
-            "placeholder": "Item description",
-            "quantity": "Quantity",
-            "unitPrice": "Unit Price",
-            "tax": "Tax",
-            "total": "Total",
-            "totalWithTax": "Total Incl. Tax"
-          },
-          "subtotal": "Subtotal",
-          "totalTax": "Total Tax",
-          "grandTotal": "Grand Total",
-          "saveConfirm": "Confirm and Save Quotation",
-          "saveDraft": "Save as Draft",
-          "cancel": "Cancel",
-          "cancelForm": "Close"
-        },
-        "footer": {
-          "rights": "Quotation Management System - All Rights Reserved",
-          "system": "Logistics Systems Pro"
-        }
+        "subtitle": "Customer Requests",
+        "description": "Create and manage price quotations and tenders",
+        "label": "Total Quotations",
+        "features": [
+          "Professional designs",
+          "Convert to invoice",
+          "Status tracking"
+        ]
       },
-      "incomePage": {
+      "incomeVouchers": {
         "title": "Income Vouchers",
-        "subtitle": "Management and documentation of various income",
-        "description": "Integrated record for all financial income entering the facility",
-        "refreshData": "Refresh",
-        "addNew": "Add New Income",
-        "exportData": "Export Data",
-        "stats": {
-          "count": "Total Operations",
-          "nextNumber": "Next Voucher No."
-        },
-        "searchPlaceholder": "Search by voucher number or source...",
-        "table": {
-          "title": "Income Log",
-          "no": "Voucher No.",
-          "type": "Income Type",
-          "date": "Date",
-          "method": "Payment Method",
-          "total": "Total Amount",
-          "actions": "Actions"
-        },
-        "noRecords": {
-          "title": "No Income Records",
-          "desc": "No income records registered yet"
-        }
-      },
-    "salaryPayrollsPage": {
-      "title": "Salary Payrolls",
-      "description": "Manage and track monthly payroll sheets for employees",
+        "subtitle": "Other Income",
+        "description": "Document various income sources other than service sales",
+        "label": "Total Income",
+        "features": [
+          "Income classification",
+          "Quick manual entry",
+          "Accounting reports"
+        ]
+      }
+    },
+    "salesReceiptsPage": {
+      "title": "Sales Receipts",
+      "subtitle": "Management and documentation of sales and collection",
+      "description": "Complete record of all issued sales receipts and cash collections",
+      "addNew": "Issue New Receipt",
+      "exportData": "Export Data",
+      "refreshData": "Refresh",
+      "totalReceipts": "Total Receipts",
+      "totalAmount": "Total Amount",
+      "linked": "Linked to Invoice",
+      "unlinked": "Unlinked",
+      "searchPlaceholder": "Search by receipt number or customer...",
+      "tableTitle": "Sales Receipts Log",
+      "noReceipts": "No Sales Receipts",
+      "noReceiptsDesc": "No sales receipts issued yet, you can start by issuing a new one",
+      "receiptsCount": "Total Receipts",
+      "linkedCount": "Linked to Invoice",
+      "unlinkedCount": "Unlinked",
+      "receiptNo": "Receipt No.",
+      "customer": "Customer",
+      "date": "Date",
+      "amount": "Amount",
+      "status": "Status",
+      "actions": "Actions",
+      "receiptsFound": "Receipts Found",
+      "notLinked": "Not Linked",
+      "systemFooter": "Receipt Management System - {name}",
+      "allRightsReserved": "All Rights Reserved {year}"
+    },
+    "newSalesReceiptPage": {
+      "title": "Issue New Sales Receipt",
+      "subtitle": "Document a new sale and cash collection",
+      "basicInfo": "Basic Information",
+      "receiptNumber": "Receipt Number",
+      "receiptNumberDesc": "Receipt number is generated automatically",
+      "receiptDate": "Receipt Date",
+      "customerData": "Customer Data",
+      "selectCustomer": "Select Customer",
+      "noCustomers": "No registered customers",
+      "addNewCustomer": "Add New Customer",
+      "notes": "Additional Notes",
+      "notesPlaceholder": "Enter any additional notes here...",
+      "backToList": "Back to List",
+      "saveReceipt": "Save and Issue Receipt",
+      "cancel": "Cancel",
+      "saving": "Saving...",
+      "saveSuccess": "Saved Successfully",
+      "saveSuccessMsg": "Sales receipt has been issued and saved in the system",
+      "saveFailed": "Save Failed",
+      "errorTitle": "Error",
+      "genericError": "An unexpected error occurred, please try again",
+      "selectCustomerError": "Please select a customer or enter customer data manually"
+    },
+    "receiptVouchersPage": {
+      "title": "Receipt Vouchers",
+      "subtitle": "Management and documentation of received funds",
+      "description": "Complete record of all official receipt vouchers issued for funds received",
+      "addNew": "Issue Receipt Voucher",
+      "exportData": "Export Records",
+      "refreshData": "Refresh",
       "stats": {
-        "total": "Total Payrolls",
-        "sar": "SAR",
-        "confirmed": "Confirmed",
-        "draft": "Draft"
+        "count": "Total Vouchers",
+        "nextNumber": "Next Voucher No.",
+        "voucherLabel": "Voucher",
+        "sequential": "Sequential Vouchers"
       },
-      "searchPlaceholder": "Search by month, package, or creator...",
-      "createNew": "Create New Payroll",
+      "searchPlaceholder": "Search by voucher number or receiver...",
       "table": {
-        "title": "Payroll Records",
-        "count": "{count} Payrolls",
-        "no": "#",
-        "payrollMonth": "Payroll Month",
-        "package": "Package / Work System",
-        "employeesCount": "Employees",
-        "totalSalaries": "Total Salaries",
+        "title": "Receipt Vouchers Log",
+        "no": "Voucher No.",
+        "date": "Date",
+        "from": "Received From",
+        "method": "Payment Method",
+        "total": "Total Amount",
         "status": "Status",
         "actions": "Actions",
-        "notSpecified": "Not Specified",
-        "employee": "Employee"
+        "countLabel": "Vouchers"
+      },
+      "noVouchers": {
+        "title": "No Receipt Vouchers",
+        "desc": "No receipt vouchers issued yet, you can start by issuing a new one"
+      },
+      "form": {
+        "addTitle": "Add New Receipt Voucher",
+        "fillData": "Please fill in the voucher data accurately",
+        "receivedFrom": "Received From Mr./Messrs",
+        "receivedFromPlaceholder": "Enter customer or entity name",
+        "date": "Receipt Date",
+        "amount": "Received Amount",
+        "taxRate": "Tax Rate",
+        "method": "Receipt Method",
+        "taxValue": "Tax Value",
+        "total": "Total Incl. Tax",
+        "description": "Voucher Description / Statement",
+        "descriptionPlaceholder": "Example: Payment for invoice no...",
+        "save": "Save Voucher",
+        "cancel": "Cancel"
+      },
+      "cancelForm": "Cancel Form",
+      "notifications": {
+        "saveSuccess": "Receipt voucher saved successfully"
+      }
+    },
+    "paymentVouchersPage": {
+      "title": "Payment Vouchers",
+      "subtitle": "Management and documentation of paid funds",
+      "description": "Complete record of all official payment vouchers issued for payments and suppliers",
+      "addNew": "Issue Payment Voucher",
+      "exportData": "Export Records",
+      "refreshData": "Refresh",
+      "stats": {
+        "count": "Total Vouchers",
+        "nextNumber": "Next Voucher No.",
+        "voucherLabel": "Voucher",
+        "sequential": "Sequential Vouchers"
+      },
+      "searchPlaceholder": "Search by voucher number or payee...",
+      "table": {
+        "title": "Payment Vouchers Log",
+        "no": "Voucher No.",
+        "date": "Date",
+        "to": "Paid To Mr./Messrs",
+        "payee": "Paid to Mr./Messrs",
+        "method": "Payment Method",
+        "total": "Total Amount",
+        "status": "Status",
+        "actions": "Actions",
+        "countLabel": "Vouchers"
+      },
+      "noVouchers": {
+        "title": "No Payment Vouchers",
+        "desc": "No payment vouchers issued yet, you can start by issuing a new one"
+      },
+      "form": {
+        "addTitle": "Add New Payment Voucher",
+        "fillData": "Please fill in the voucher data accurately",
+        "paidTo": "Paid To Mr. / Messrs",
+        "paidToPlaceholder": "Enter supplier or entity name",
+        "payeeType": "Payee Type",
+        "payeeTypes": {
+          "individual": "Individual / Entity"
+        },
+        "payeeName": "Payee Name",
+        "payeeNamePlaceholder": "Enter payee name",
+        "purpose": "Payment Purpose",
+        "purposePlaceholder": "Enter payment purpose",
+        "date": "Payment Date",
+        "amount": "Paid Amount",
+        "taxRate": "Tax Rate",
+        "method": "Payment Method",
+        "taxValue": "Tax Value",
+        "total": "Total Incl. Tax",
+        "description": "Voucher Description / Statement",
+        "descriptionPlaceholder": "Example: Payment for purchase order...",
+        "save": "Save Voucher",
+        "cancel": "Cancel"
+      },
+      "cancelForm": "Cancel Form",
+      "notifications": {
+        "saveSuccess": "Payment voucher saved successfully"
       },
       "statuses": {
-        "draft": "Draft",
-        "confirmed": "Confirmed"
-      },
-      "actions": {
-        "view": "View",
-        "edit": "Edit",
-        "delete": "Delete"
-      },
-      "notifications": {
-        "deleting": "Deleting",
-        "deletingMsg": "Deleting payroll for {month}...",
-        "deleteSuccess": "Deleted",
-        "deleteSuccessMsg": "Payroll for {month} deleted successfully",
-        "deleteFailed": "Delete Failed",
-        "deleteFailedMsg": "An error occurred while deleting the payroll",
-        "error": "Error",
-        "errorMsg": "An unexpected error occurred",
-        "deleteConfirm": "Confirm Delete",
-        "deleteQuestion": "Are you sure you want to delete this payroll?",
-        "deleteWarning": "All data for this month will be deleted:",
-        "deleteNote": "* This action is permanent and cannot be undone",
-        "confirmBtn": "Yes, Delete Permanently"
-      },
-      "workTypes": {
-        "salary": "Basic Salary",
-        "target": "Target System",
-        "tiers": "Tier System",
-        "commission": "Commission System"
-      },
-      "noPayrolls": {
-        "title": "No Payrolls Found",
-        "desc": "Start by creating your first employee payroll using the button above"
+        "draft": "Draft"
       }
+    },
+    "promissoryNotesPage": {
+      "title": "Promissory Notes",
+      "subtitle": "Management of legal financial obligations and guarantees",
+      "description": "Integrated legal record for issuing and tracking promissory notes",
+      "legalManagement": "Legal Management",
+      "refreshData": "Refresh",
+      "createNew": "Issue New Promissory Note",
+      "exportData": "Export Notes",
+      "entity": "Issuing Entity",
+      "authorizedIssuer": "Authorized Issuer",
+      "totalCount": "Total Notes",
+      "registeredNotes": "Registered Note",
+      "noteNumber": "Note Number",
+      "debtor": "Debtor",
+      "date": "Date",
+      "amount": "Amount",
+      "status": "Status",
+      "actions": "Actions",
+      "searchPlaceholder": "Search by note number or debtor...",
+      "issuedNotesLog": "Issued Notes Log",
+      "notesCount": "Notes",
+      "active": "Active",
+      "currency": "SAR",
+      "noNotes": {
+        "title": "No Promissory Notes",
+        "desc": "No promissory notes issued yet"
+      },
+      "cancelForm": "Close",
+      "createNote": "Issue New Promissory Note",
+      "fillFormCarefully": "Please enter legal data accurately",
+      "beneficiaryData": "Beneficiary Data (Creditor)",
+      "automaticBeneficiary": "Use facility data as creditor",
+      "cancelManualEdit": "Cancel Manual Edit",
+      "manualBeneficiary": "Manual Beneficiary Entry",
+      "beneficiaryName": "Beneficiary Name (Creditor)",
+      "placeholderBeneficiaryName": "Enter beneficiary name",
+      "identifierType": "ID Type",
+      "commercialRegistryOption": "Commercial Registry",
+      "identifierNumber": "ID / Registry Number",
+      "placeholderIdentifier": "Enter number",
+      "manualEdit": "Manual Edit",
+      "automatic": "Automatic",
+      "currentBeneficiary": "Current Beneficiary",
+      "commercialRegistry": "Commercial Registry",
+      "idOrRegistryNumber": "ID / Registry Number for Debtor",
+      "placeholderIdOrRegistry": "Enter debtor ID or registry number",
+      "debtorName": "Debtor Name (Issuer)",
+      "placeholderDebtorName": "Enter full debtor name",
+      "dueDate": "Due Date",
+      "creationDate": "Creation Date",
+      "amountLabel": "Amount in Figures",
+      "placeholderAmount": "Enter note amount",
+      "debtorAddress": "Debtor Address",
+      "placeholderDebtorAddress": "Enter detailed address",
+      "creationPlace": "Place of Issue",
+      "placeholderCreationPlace": "Example: Riyadh",
+      "issueNote": "Issue and Save Note",
+      "cancel": "Cancel",
+      "footerSystemName": "Legal Note System - {name}",
+      "allRightsReserved": "All Rights Reserved {year}"
+    },
+    "quotationsPage": {
+      "title": "Quotations",
+      "subtitle": "Management of price quotations and tenders for customers",
+      "description": "Design and send professional quotations and convert them to invoices with one click",
+      "management": "Quotation Management",
+      "refreshData": "Refresh",
+      "createNew": "Create New Quotation",
+      "stats": {
+        "total": "Total Quotations",
+        "totalDesc": "All registered quotations",
+        "confirmed": "Confirmed Quotations",
+        "confirmedDesc": "Converted to invoices",
+        "drafts": "Drafts",
+        "draftsDesc": "Pending review",
+        "expired": "Expired Quotations",
+        "expiredDesc": "Past validity date"
+      },
+      "search": {
+        "placeholder": "Search by quotation number or customer...",
+        "export": "Export Quotations"
+      },
+      "table": {
+        "title": "Quotations Log",
+        "number": "Quotation Number",
+        "customer": "Customer",
+        "date": "Date",
+        "expiry": "Expiry Date",
+        "total": "Total",
+        "status": "Status",
+        "actions": "Actions",
+        "count": "Quotation",
+        "noData": "No Quotations",
+        "noDataDesc": "Start by creating a new quotation to attract more customers"
+      },
+      "form": {
+        "title": "Create New Quotation",
+        "subtitle": "Enter quotation data and required products",
+        "expiryDate": "Expiry Date",
+        "issueDate": "Issue Date",
+        "number": "Quotation Number",
+        "manualEntry": "Manual Entry",
+        "customerData": "Customer Data",
+        "customerSelectDesc": "Select a customer from the list or enter their data manually",
+        "selectCustomer": "Select Customer",
+        "cancelManual": "Cancel Manual Entry",
+        "customerName": "Customer Name",
+        "customerNamePlaceholder": "Enter customer name",
+        "commercialNumber": "Commercial Register",
+        "commercialNumberPlaceholder": "Enter commercial register",
+        "address": "Address",
+        "addressPlaceholder": "Enter address",
+        "products": "Products & Services",
+        "addProduct": "Add Product",
+        "table": {
+          "productName": "Product / Service Name",
+          "placeholder": "Item description",
+          "quantity": "Quantity",
+          "unitPrice": "Unit Price",
+          "price": "Price",
+          "tax": "Tax",
+          "total": "Total",
+          "totalWithTax": "Total Incl. Tax"
+        },
+        "subtotal": "Subtotal",
+        "totalTax": "Total Tax",
+        "grandTotal": "Grand Total",
+        "saveConfirm": "Confirm and Save Quotation",
+        "saveDraft": "Save as Draft",
+        "cancel": "Cancel",
+        "cancelForm": "Close"
+      },
+      "footer": {
+        "rights": "Quotation Management System - All Rights Reserved",
+        "system": "Logistics Systems Pro"
+      }
+    },
+    "incomePage": {
+      "title": "Income Vouchers",
+      "subtitle": "Management and documentation of various income",
+      "description": "Integrated record for all financial income entering the facility",
+      "refreshData": "Refresh",
+      "addNew": "Add New Income",
+      "exportData": "Export Data",
+      "stats": {
+        "count": "Total Operations",
+        "nextNumber": "Next Voucher No.",
+        "voucherLabel": "Voucher",
+        "sequential": "Sequential Vouchers"
+      },
+      "searchPlaceholder": "Search by voucher number or source...",
+      "table": {
+        "title": "Income Log",
+        "no": "Voucher No.",
+        "type": "Income Type",
+        "date": "Date",
+        "method": "Payment Method",
+        "total": "Total Amount",
+        "actions": "Actions"
+      },
+      "noRecords": {
+        "title": "No Income Records",
+        "desc": "No income records registered yet"
+      },
+      "form": {
+        "addTitle": "Add New Income",
+        "fillData": "Please fill in income data",
+        "incomeType": "Income Type",
+        "selectIncomeType": "Select income type",
+        "incomeDate": "Income Date",
+        "paymentMethod": "Payment Method",
+        "selectPaymentMethod": "Select payment method",
+        "amount": "Amount",
+        "taxValue": "Tax Value",
+        "totalAmount": "Total Amount",
+        "enableTax": "Enable Tax",
+        "account": "Account (Optional)",
+        "selectAccount": "Select account",
+        "costCenter": "Cost Center (Optional)",
+        "selectCostCenter": "Select cost center",
+        "description": "Description / Statement",
+        "descriptionPlaceholder": "Enter process description",
+        "cancel": "Cancel",
+        "save": "Save Income"
+      }
+    }
+  },
+  "salaryPayrollsPage": {
+    "title": "Salary Payrolls",
+    "description": "Manage and track monthly payroll sheets for employees",
+    "stats": {
+      "total": "Total Payrolls",
+      "sar": "SAR",
+      "confirmed": "Confirmed",
+      "draft": "Draft"
+    },
+    "searchPlaceholder": "Search by month, package, or creator...",
+    "createNew": "Create New Payroll",
+    "table": {
+      "title": "Payroll Records",
+      "count": "{count} Payrolls",
+      "no": "#",
+      "payrollMonth": "Payroll Month",
+      "package": "Package / Work System",
+      "employeesCount": "Employees",
+      "totalSalaries": "Total Salaries",
+      "status": "Status",
+      "actions": "Actions",
+      "notSpecified": "Not Specified",
+      "employee": "Employee"
+    },
+    "statuses": {
+      "draft": "Draft",
+      "confirmed": "Confirmed"
+    },
+    "actions": {
+      "view": "View",
+      "edit": "Edit",
+      "delete": "Delete"
+    },
+    "notifications": {
+      "deleting": "Deleting",
+      "deletingMsg": "Deleting payroll for {month}...",
+      "deleteSuccess": "Deleted",
+      "deleteSuccessMsg": "Payroll for {month} deleted successfully",
+      "deleteFailed": "Delete Failed",
+      "deleteFailedMsg": "An error occurred while deleting the payroll",
+      "error": "Error",
+      "errorMsg": "An unexpected error occurred",
+      "deleteConfirm": "Confirm Delete",
+      "deleteQuestion": "Are you sure you want to delete this payroll?",
+      "deleteWarning": "All data for this month will be deleted:",
+      "deleteNote": "* This action is permanent and cannot be undone",
+      "confirmBtn": "Yes, Delete Permanently"
+    },
+    "workTypes": {
+      "salary": "Basic Salary",
+      "target": "Target System",
+      "tiers": "Tier System",
+      "commission": "Commission System"
+    },
+    "noPayrolls": {
+      "title": "No Payrolls Found",
+      "desc": "Start by creating your first employee payroll using the button above"
     }
   }
 }
