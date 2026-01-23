@@ -303,15 +303,16 @@ export function TaxSettingsClient({ companyId }: TaxSettingsClientProps) {
                   <CardDescription className="text-white/40 font-medium">{t("subtitle")}</CardDescription>
                 </div>
                 <div className="flex items-center gap-3">
-                  <div className="relative">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30" />
-                    <Input 
-                      placeholder="بحث..." 
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                      className="bg-white/5 border-white/10 text-white ps-10 w-64 rounded-xl focus:ring-blue-500/20"
-                    />
-                  </div>
+                    <div className="relative">
+                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30" />
+                      <Input 
+                        placeholder={t("searchPlaceholder")} 
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        className="bg-white/5 border-white/10 text-white ps-10 w-64 rounded-xl focus:ring-blue-500/20"
+                      />
+                    </div>
+
                   <Button variant="outline" className="bg-white/5 border-white/10 text-white/70 hover:bg-white/10 hover:text-white rounded-xl">
                     <Download className="w-4 h-4 me-2" />
                     {t("export")}

@@ -230,10 +230,14 @@
         "nameEn": "Name (English)",
         "taxDescription": "Tax Description",
         "isDefault": "Set as Default",
-        "save": "Save Tax",
-        "update": "Update Tax",
-        "noTaxes": "No taxes found",
-        "updateSuccess": "Tax updated successfully",
+          "save": "Save Tax",
+          "update": "Update Tax",
+          "noTaxes": "No taxes found",
+          "noTaxesDesc": "Start by adding your tax types here to be used in the system",
+          "export": "Export",
+          "searchPlaceholder": "Search for tax...",
+          "updateSuccess": "Tax updated successfully",
+
         "addSuccess": "Tax added successfully",
         "operationFailed": "Operation failed",
         "errorOccurred": "An error occurred",
@@ -1300,6 +1304,7 @@
       "createUser": "Create User",
       "saveChanges": "Save Changes",
       "cancel": "Cancel",
+      "accessToData": "Access to Data",
       "sessions": "Active Sessions",
       "operations": "Operations Log",
       "noSessions": "No active sessions",
@@ -1352,5 +1357,105 @@
         "admin": "Administration",
         "others": "Others"
       }
+    },
+    "userProfile": {
+      "tabs": {
+        "overview": "Overview",
+        "bank": "Bank Accounts",
+        "license": "Licenses",
+        "files": "Files & Documents"
+      },
+      "messages": {
+        "uploadSuccess": "File uploaded successfully",
+        "uploadError": "Error uploading file",
+        "saveSuccess": "All changes saved successfully",
+        "saveError": "Failed to save changes",
+        "unexpectedError": "An unexpected error occurred",
+        "licenseUploadSuccess": "License file uploaded",
+        "licenseUploadError": "Failed to upload file"
+      },
+      "header": {
+        "companyName": "Company Name",
+        "noPhone": "No Phone",
+        "commercialNumber": "Commercial Registration",
+        "taxNumber": "Tax Number"
+      },
+      "overview": {
+        "ownerInfo": "Owner Information",
+        "fullName": "Full Name",
+        "email": "Email",
+        "registrationDate": "Registration Date",
+        "membershipStatus": "Membership Status",
+        "premiumMember": "Premium Member",
+        "facilityInfo": "Facility Information",
+        "commercialName": "Commercial Name",
+        "crNumber": "CR Number",
+        "vatNumber": "VAT Number",
+        "baseCurrency": "Base Currency",
+        "sar": "SAR",
+        "addressAndContact": "Address & Contact",
+        "country": "Country",
+        "cityRegion": "City/Region",
+        "district": "District",
+        "website": "Website"
+      },
+      "bank": {
+        "title": "Bank Account Management",
+        "addNewAccount": "Add New Account",
+        "deleteConfirm": "Do you want to delete this account?",
+        "deleteSuccess": "Deleted Successfully",
+        "bankName": "Bank Name",
+        "beneficiary": "Beneficiary",
+        "accountNumber": "Account Number",
+        "iban": "IBAN",
+        "noAccounts": "No bank accounts added yet"
+      },
+      "licenses": {
+        "title": "Licenses & Certificates",
+        "addLicense": "Add License",
+        "numberPrefix": "No:",
+        "deleteConfirm": "Do you want to delete this license?",
+        "issueDate": "Issue Date",
+        "expiryDate": "Expiry Date",
+        "viewFile": "View File",
+        "download": "Download",
+        "noLicenses": "No licenses added"
+      },
+      "files": {
+        "facilityIdentity": "Facility Identity",
+        "facilityLogo": "Facility Logo",
+        "companyStamp": "Company Stamp",
+        "managerSignature": "Manager Signature",
+        "officialDocuments": "Official Documents",
+        "commercialRegister": "Commercial Register",
+        "vatCertificate": "VAT Certificate",
+        "ibanCard": "IBAN Card",
+        "nationalAddress": "National Address",
+        "ownerId": "Owner ID"
+      },
+      "actions": {
+        "saving": "Saving...",
+        "saveAll": "Save All Changes",
+        "editAccount": "Edit Account",
+        "editLicense": "Edit License",
+        "save": "Save",
+        "cancel": "Cancel",
+        "edit": "Edit",
+        "delete": "Delete"
+      },
+      "forms": {
+        "licenseType": "License Type",
+        "licenseNumber": "License Number",
+        "startDate": "Start Date",
+        "endDate": "End Date",
+        "licenseFile": "License File",
+        "fileUploaded": "File Uploaded",
+        "deleteAndReplace": "Delete & Replace",
+        "clickToUpload": "Click here to upload license image",
+        "saveLicense": "Save License",
+        "uploading": "Uploading...",
+        "replace": "Replace",
+        "view": "View"
+      }
     }
-}
+  }

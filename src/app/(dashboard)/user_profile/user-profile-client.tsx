@@ -41,6 +41,7 @@ import {
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import { useTranslations } from "@/lib/locale-context";
 import { 
   updateCompanyProfile,
   updateCompanyFile,
@@ -62,6 +63,7 @@ interface Props {
 }
 
 export function UserProfileClient({ user, company, bankAccounts: initialBankAccounts, licenses: initialLicenses }: Props) {
+  const t = useTranslations("userProfile");
   const [activeTab, setActiveTab] = useState<TabType>("overview");
   const [isBankModalOpen, setIsBankModalOpen] = useState(false);
   const [isLicenseModalOpen, setIsLicenseModalOpen] = useState(false);
@@ -111,10 +113,10 @@ export function UserProfileClient({ user, company, bankAccounts: initialBankAcco
       
       setCompanyState((prev: any) => ({ ...prev, [field]: data.url }));
       setHasChanges(true);
-      toast.success("تم رفع الملف بنجاح");
+      toast.success(t("messages.uploadSuccess"));
     } catch (error) {
       console.error("Upload error:", error);
-      toast.error("حدث خطأ أثناء رفع الملف");
+      toast.error(t("messages.uploadError"));
     } finally {
       setUploadingField(null);
     }
@@ -125,13 +127,13 @@ export function UserProfileClient({ user, company, bankAccounts: initialBankAcco
     try {
       const res = await updateCompanyProfile(company.id, companyState);
       if (res.success) {
-        toast.success("تم حفظ جميع التغييرات بنجاح");
+        toast.success(t("messages.saveSuccess"));
         setHasChanges(false);
       } else {
-        toast.error("فشل حفظ التغييرات: " + res.error);
+        toast.error(t("messages.saveError") + ": " + res.error);
       }
     } catch (error) {
-      toast.error("حدث خطأ غير متوقع");
+      toast.error(t("messages.unexpectedError"));
     } finally {
       setIsSaving(false);
     }
@@ -155,17 +157,17 @@ export function UserProfileClient({ user, company, bankAccounts: initialBankAcco
 
       const data = await res.json();
       setLicenseFormData(prev => ({ ...prev, license_image: data.url }));
-      toast.success("تم رفع ملف الترخيص");
+      toast.success(t("messages.licenseUploadSuccess"));
     } catch (error) {
-      toast.error("فشل رفع الملف");
+      toast.error(t("messages.licenseUploadError"));
     }
   };
 
   const tabs = [
-    { id: "overview" as TabType, label: "نظرة عامة", icon: <Building className="w-6 h-6" /> },
-    { id: "bank" as TabType, label: "الحسابات البنكية", icon: <University className="w-6 h-6" /> },
-    { id: "license" as TabType, label: "التراخيص", icon: <IdCard className="w-6 h-6" /> },
-    { id: "files" as TabType, label: "الملفات والوثائق", icon: <FileText className="w-6 h-6" /> },
+    { id: "overview" as TabType, label: t("tabs.overview"), icon: <Building className="w-6 h-6" /> },
+    { id: "bank" as TabType, label: t("tabs.bank"), icon: <University className="w-6 h-6" /> },
+    { id: "license" as TabType, label: t("tabs.license"), icon: <IdCard className="w-6 h-6" /> },
+    { id: "files" as TabType, label: t("tabs.files"), icon: <FileText className="w-6 h-6" /> },
   ];
 
   return (
@@ -177,52 +179,53 @@ export function UserProfileClient({ user, company, bankAccounts: initialBankAcco
           <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-br from-blue-600/20 via-purple-600/10 to-transparent rounded-full -mr-48 -mt-48 blur-3xl group-hover:from-blue-500/30 transition-all duration-1000"></div>
           <div className="absolute bottom-0 left-0 w-64 h-64 bg-gradient-to-tr from-purple-600/15 via-pink-500/10 to-transparent rounded-full -ml-32 -mb-32 blur-3xl"></div>
           
-          <div className="flex flex-col md:flex-row items-center gap-8 relative z-10">
-            <div className="relative">
-                <div className="w-20 h-20 bg-white rounded-2xl flex items-center justify-center border border-slate-200 shadow-2xl overflow-hidden group/logo">
-                  {companyState?.logo_path ? (
-                    <img src={companyState.logo_path} alt="logo" className="w-full h-full object-contain p-2" />
-                  ) : (
-                    <Building size={32} className="text-slate-400" />
-                  )}
-                  <div className="absolute inset-0 bg-black/50 opacity-0 group-hover/logo:opacity-100 transition-opacity flex items-center justify-center">
-                    <Upload size={18} className="text-white" />
+            <div className="flex flex-col md:flex-row items-center gap-8 relative z-10">
+              <div className="relative">
+                  <div className="w-20 h-20 bg-white rounded-2xl flex items-center justify-center border border-slate-200 shadow-2xl overflow-hidden group/logo">
+                    {companyState?.logo_path ? (
+                      <img src={companyState.logo_path} alt="logo" className="w-full h-full object-contain p-2" />
+                    ) : (
+                      <Building size={32} className="text-slate-400" />
+                    )}
+                    <div className="absolute inset-0 bg-black/50 opacity-0 group-hover/logo:opacity-100 transition-opacity flex items-center justify-center">
+                      <Upload size={18} className="text-white" />
+                    </div>
                   </div>
+                <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-gradient-to-r from-emerald-500 to-teal-500 rounded-lg border-2 border-slate-900 flex items-center justify-center text-white shadow-lg shadow-emerald-500/30">
+                  <CheckCircle2 size={12} />
                 </div>
-              <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-gradient-to-r from-emerald-500 to-teal-500 rounded-lg border-2 border-slate-900 flex items-center justify-center text-white shadow-lg shadow-emerald-500/30">
-                <CheckCircle2 size={12} />
+              </div>
+
+              <div className="text-center md:text-right">
+                <h1 className="text-xl md:text-2xl font-black bg-gradient-to-r from-white via-blue-100 to-white bg-clip-text text-transparent mb-2 tracking-tight">
+                  {companyState?.name || t("header.companyName")}
+                </h1>
+                <div className="flex flex-wrap items-center justify-center md:justify-start gap-4">
+                  <span className="flex items-center gap-2 text-slate-400 text-sm font-medium">
+                    <Mail size={14} className="text-blue-400" />
+                    {user?.email}
+                  </span>
+                  <span className="w-1 h-1 bg-slate-600 rounded-full"></span>
+                  <span className="flex items-center gap-2 text-slate-400 text-sm font-medium">
+                    <Phone size={14} className="text-blue-400" />
+                    {companyState?.phone || t("header.noPhone")}
+                  </span>
+                </div>
               </div>
             </div>
 
-            <div className="text-center md:text-right">
-              <h1 className="text-xl md:text-2xl font-black bg-gradient-to-r from-white via-blue-100 to-white bg-clip-text text-transparent mb-2 tracking-tight">
-                {companyState?.name || "اسم الشركة"}
-              </h1>
-              <div className="flex flex-wrap items-center justify-center md:justify-start gap-4">
-                <span className="flex items-center gap-2 text-slate-400 text-sm font-medium">
-                  <Mail size={14} className="text-blue-400" />
-                  {user?.email}
-                </span>
-                <span className="w-1 h-1 bg-slate-600 rounded-full"></span>
-                <span className="flex items-center gap-2 text-slate-400 text-sm font-medium">
-                  <Phone size={14} className="text-blue-400" />
-                  {companyState?.phone || "لا يوجد هاتف"}
-                </span>
+            <div className="flex gap-4 relative z-10">
+              <div className="bg-gradient-to-br from-slate-800/80 to-slate-900/80 backdrop-blur px-6 py-4 rounded-2xl border border-white/5 text-center min-w-[130px]">
+                <p className="text-slate-500 text-[10px] font-black uppercase tracking-wider mb-1">{t("header.commercialNumber")}</p>
+                <p className="font-black text-white text-lg">{companyState?.commercial_number || "---"}</p>
               </div>
+                <div className="bg-gradient-to-br from-blue-600/20 to-purple-600/20 backdrop-blur px-6 py-4 rounded-2xl border border-blue-500/20 text-center min-w-[130px]">
+                  <p className="text-blue-300 text-[10px] font-black uppercase tracking-wider mb-1">{t("header.taxNumber")}</p>
+                  <p className="font-black text-blue-300 text-lg">{companyState?.vat_number || "---"}</p>
+                </div>
             </div>
           </div>
 
-          <div className="flex gap-4 relative z-10">
-            <div className="bg-gradient-to-br from-slate-800/80 to-slate-900/80 backdrop-blur px-6 py-4 rounded-2xl border border-white/5 text-center min-w-[130px]">
-              <p className="text-slate-500 text-[10px] font-black uppercase tracking-wider mb-1">السجل التجاري</p>
-              <p className="font-black text-white text-lg">{companyState?.commercial_number || "---"}</p>
-            </div>
-              <div className="bg-gradient-to-br from-blue-600/20 to-purple-600/20 backdrop-blur px-6 py-4 rounded-2xl border border-blue-500/20 text-center min-w-[130px]">
-                <p className="text-blue-300 text-[10px] font-black uppercase tracking-wider mb-1">الرقم الضريبي</p>
-                <p className="font-black text-blue-300 text-lg">{companyState?.vat_number || "---"}</p>
-              </div>
-          </div>
-        </div>
 
         {/* Centered Modern Tabs */}
         <div className="flex justify-center">
@@ -271,289 +274,298 @@ export function UserProfileClient({ user, company, bankAccounts: initialBankAcco
             transition={{ duration: 0.3 }}
           >
             {activeTab === "overview" && (
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                <CardSection title="بيانات المالك" icon={<User className="w-5 h-5" />} gradient="from-cyan-500 to-blue-600">
-                  <div className="grid grid-cols-2 gap-4">
-                    <InfoTile label="الاسم الكامل" value={user?.name} icon={<User />} />
-                    <InfoTile label="البريد الإلكتروني" value={user?.email} icon={<Mail />} />
-                    <InfoTile label="تاريخ التسجيل" value={user?.created_at?.split('T')[0]} icon={<Calendar />} />
-                    <InfoTile label="حالة العضوية" value="عضو متميز" icon={<Shield />} color="text-emerald-400" />
-                  </div>
-                </CardSection>
-
-                <CardSection title="بيانات المنشأة" icon={<Building className="w-5 h-5" />} gradient="from-violet-500 to-purple-600">
-                  <div className="grid grid-cols-2 gap-4">
-                    <InfoTile label="الاسم التجاري" value={companyState?.name} icon={<Briefcase />} />
-                    <InfoTile label="رقم السجل" value={companyState?.commercial_number} icon={<FileText />} />
-                      <InfoTile label="الرقم الضريبي" value={companyState?.vat_number} icon={<Hash />} />
-                      <InfoTile label="العملة الأساسية" value={companyState?.currency === "SAR" ? "ريال سعودي" : companyState?.currency} icon={<DollarSign />} />
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                  <CardSection title={t("overview.ownerInfo")} icon={<User className="w-5 h-5" />} gradient="from-cyan-500 to-blue-600">
+                    <div className="grid grid-cols-2 gap-4">
+                      <InfoTile label={t("overview.fullName")} value={user?.name} icon={<User />} />
+                      <InfoTile label={t("overview.email")} value={user?.email} icon={<Mail />} />
+                      <InfoTile label={t("overview.registrationDate")} value={user?.created_at?.split('T')[0]} icon={<Calendar />} />
+                      <InfoTile label={t("overview.membershipStatus")} value={t("overview.premiumMember")} icon={<Shield />} color="text-emerald-400" />
                     </div>
-                </CardSection>
-
-                <CardSection title="العناوين والتواصل" icon={<MapPin className="w-5 h-5" />} gradient="from-emerald-500 to-teal-600" className="lg:col-span-2">
-                  <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                    <InfoTile label="الدولة" value={companyState?.country} icon={<Flag />} />
-                    <InfoTile label="المدينة/المنطقة" value={companyState?.region} icon={<MapPin />} />
-                    <InfoTile label="الحي" value={companyState?.district} icon={<MapPin />} />
-                    <InfoTile label="الموقع الإلكتروني" value={companyState?.website} icon={<Globe />} />
-                  </div>
-                </CardSection>
-              </div>
-            )}
-
-            {activeTab === "bank" && (
-              <div className="space-y-6">
-                <div className="flex items-center justify-between mb-2">
-                  <h3 className="text-xl font-black text-white flex items-center gap-3">
-                    <div className="p-2 bg-gradient-to-r from-blue-600 to-cyan-600 rounded-xl">
-                      <Landmark className="text-white" size={20} />
+                  </CardSection>
+  
+                  <CardSection title={t("overview.facilityInfo")} icon={<Building className="w-5 h-5" />} gradient="from-violet-500 to-purple-600">
+                    <div className="grid grid-cols-2 gap-4">
+                      <InfoTile label={t("overview.commercialName")} value={companyState?.name} icon={<Briefcase />} />
+                      <InfoTile label={t("overview.crNumber")} value={companyState?.commercial_number} icon={<FileText />} />
+                        <InfoTile label={t("overview.vatNumber")} value={companyState?.vat_number} icon={<Hash />} />
+                        <InfoTile label={t("overview.baseCurrency")} value={companyState?.currency === "SAR" ? t("overview.sar") : companyState?.currency} icon={<DollarSign />} />
+                      </div>
+                  </CardSection>
+  
+                  <CardSection title={t("overview.addressAndContact")} icon={<MapPin className="w-5 h-5" />} gradient="from-emerald-500 to-teal-600" className="lg:col-span-2">
+                    <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                      <InfoTile label={t("overview.country")} value={companyState?.country} icon={<Flag />} />
+                      <InfoTile label={t("overview.cityRegion")} value={companyState?.region} icon={<MapPin />} />
+                      <InfoTile label={t("overview.district")} value={companyState?.district} icon={<MapPin />} />
+                      <InfoTile label={t("overview.website")} value={companyState?.website} icon={<Globe />} />
                     </div>
-                    إدارة الحسابات البنكية
-                  </h3>
-                  <button
-                    onClick={() => {
-                      setEditingBank(null);
-                      setBankFormData({ bank_beneficiary: "", bank_name: "", bank_account: "", bank_iban: "" });
-                      setIsBankModalOpen(true);
-                    }}
-                    className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-cyan-600 text-white rounded-2xl font-black text-sm hover:shadow-xl hover:shadow-blue-500/30 transition-all active:scale-95"
-                  >
-                    <PlusCircle size={18} />
-                    إضافة حساب جديد
-                  </button>
+                  </CardSection>
                 </div>
-                
-                {bankAccounts.length > 0 ? (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {bankAccounts.map((bank) => (
-                      <motion.div 
-                        layout
-                        key={bank.id} 
-                        className="bg-gradient-to-br from-slate-900/90 via-slate-800/70 to-slate-900/90 backdrop-blur-xl rounded-[2rem] p-6 border border-white/10 shadow-xl group relative overflow-hidden"
-                      >
-                        <div className="absolute top-0 left-0 w-1.5 h-full bg-gradient-to-b from-blue-500 via-cyan-500 to-blue-600"></div>
-                        <div className="flex justify-between items-start mb-6">
-                          <div className="flex items-center gap-4">
-                            <div className="w-14 h-14 bg-gradient-to-br from-blue-600/20 to-cyan-600/20 rounded-2xl flex items-center justify-center text-blue-400 border border-blue-500/20">
-                              <University size={24} />
-                            </div>
-                            <div>
-                              <h4 className="font-black text-lg text-white">{bank.bank_name}</h4>
-                              <p className="text-sm text-slate-400 font-medium">{bank.bank_beneficiary}</p>
-                            </div>
-                          </div>
-                          <div className="flex gap-2">
-                            <button 
-                              onClick={() => {
-                                setEditingBank(bank);
-                                setBankFormData({ ...bank });
-                                setIsBankModalOpen(true);
-                              }} 
-                              className="p-2.5 bg-white/5 text-slate-400 hover:text-blue-400 hover:bg-blue-500/10 rounded-xl transition-all border border-white/5"
-                            >
-                              <Edit size={16} />
-                            </button>
-                            <button 
-                              onClick={async () => {
-                                if(confirm("هل تريد حذف هذا الحساب؟")) {
-                                  const res = await deleteBankAccount(bank.id, company.id);
-                                  if(res.success) {
-                                    setBankAccounts(prev => prev.filter(b => b.id !== bank.id));
-                                    toast.success("تم الحذف");
-                                  }
-                                }
-                              }}
-                              className="p-2.5 bg-white/5 text-slate-400 hover:text-red-400 hover:bg-red-500/10 rounded-xl transition-all border border-white/5"
-                            >
-                              <Trash2 size={16} />
-                            </button>
-                          </div>
-                        </div>
-                        <div className="grid grid-cols-2 gap-4">
-                          <div className="bg-white/5 backdrop-blur p-4 rounded-2xl border border-white/5">
-                            <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">رقم الحساب</p>
-                            <p className="font-black text-slate-200">{bank.bank_account}</p>
-                          </div>
-                          <div className="bg-white/5 backdrop-blur p-4 rounded-2xl border border-white/5">
-                            <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">IBAN</p>
-                            <p className="font-black text-slate-200 text-xs truncate">{bank.bank_iban}</p>
-                          </div>
-                        </div>
-                      </motion.div>
-                    ))}
+              )}
+  
+              {activeTab === "bank" && (
+                <div className="space-y-6">
+                  <div className="flex items-center justify-between mb-2">
+                    <h3 className="text-xl font-black text-white flex items-center gap-3">
+                      <div className="p-2 bg-gradient-to-r from-blue-600 to-cyan-600 rounded-xl">
+                        <Landmark className="text-white" size={20} />
+                      </div>
+                      {t("bank.title")}
+                    </h3>
+                    <button
+                      onClick={() => {
+                        setEditingBank(null);
+                        setBankFormData({ bank_beneficiary: "", bank_name: "", bank_account: "", bank_iban: "" });
+                        setIsBankModalOpen(true);
+                      }}
+                      className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-cyan-600 text-white rounded-2xl font-black text-sm hover:shadow-xl hover:shadow-blue-500/30 transition-all active:scale-95"
+                    >
+                      <PlusCircle size={18} />
+                      {t("bank.addNewAccount")}
+                    </button>
                   </div>
-                ) : (
-                  <EmptyContent message="لا توجد حسابات بنكية مضافة حالياً" icon={<Landmark className="w-12 h-12" />} />
-                )}
-              </div>
-            )}
-
-            {activeTab === "license" && (
-              <div className="space-y-6">
-                <div className="flex items-center justify-between mb-2">
-                  <h3 className="text-xl font-black text-white flex items-center gap-3">
-                    <div className="p-2 bg-gradient-to-r from-purple-600 to-pink-600 rounded-xl">
-                      <Shield className="text-white" size={20} />
+                  
+                  {bankAccounts.length > 0 ? (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      {bankAccounts.map((bank) => (
+                        <motion.div 
+                          layout
+                          key={bank.id} 
+                          className="bg-gradient-to-br from-slate-900/90 via-slate-800/70 to-slate-900/90 backdrop-blur-xl rounded-[2rem] p-6 border border-white/10 shadow-xl group relative overflow-hidden"
+                        >
+                          <div className="absolute top-0 left-0 w-1.5 h-full bg-gradient-to-b from-blue-500 via-cyan-500 to-blue-600"></div>
+                          <div className="flex justify-between items-start mb-6">
+                            <div className="flex items-center gap-4">
+                              <div className="w-14 h-14 bg-gradient-to-br from-blue-600/20 to-cyan-600/20 rounded-2xl flex items-center justify-center text-blue-400 border border-blue-500/20">
+                                <University size={24} />
+                              </div>
+                              <div>
+                                <h4 className="font-black text-lg text-white">{bank.bank_name}</h4>
+                                <p className="text-sm text-slate-400 font-medium">{bank.bank_beneficiary}</p>
+                              </div>
+                            </div>
+                            <div className="flex gap-2">
+                              <button 
+                                onClick={() => {
+                                  setEditingBank(bank);
+                                  setBankFormData({ ...bank });
+                                  setIsBankModalOpen(true);
+                                }} 
+                                className="p-2.5 bg-white/5 text-slate-400 hover:text-blue-400 hover:bg-blue-500/10 rounded-xl transition-all border border-white/5"
+                              >
+                                <Edit size={16} />
+                              </button>
+                              <button 
+                                onClick={async () => {
+                                  if(confirm(t("bank.deleteConfirm"))) {
+                                    const res = await deleteBankAccount(bank.id, company.id);
+                                    if(res.success) {
+                                      setBankAccounts(prev => prev.filter(b => b.id !== bank.id));
+                                      toast.success(t("bank.deleteSuccess"));
+                                    }
+                                  }
+                                }}
+                                className="p-2.5 bg-white/5 text-slate-400 hover:text-red-400 hover:bg-red-500/10 rounded-xl transition-all border border-white/5"
+                              >
+                                <Trash2 size={16} />
+                              </button>
+                            </div>
+                          </div>
+                          <div className="grid grid-cols-2 gap-4">
+                            <div className="bg-white/5 backdrop-blur p-4 rounded-2xl border border-white/5">
+                              <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">{t("bank.accountNumber")}</p>
+                              <p className="font-black text-slate-200">{bank.bank_account}</p>
+                            </div>
+                            <div className="bg-white/5 backdrop-blur p-4 rounded-2xl border border-white/5">
+                              <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">{t("bank.iban")}</p>
+                              <p className="font-black text-slate-200 text-xs truncate">{bank.bank_iban}</p>
+                            </div>
+                          </div>
+                        </motion.div>
+                      ))}
                     </div>
-                    التراخيص والشهادات
-                  </h3>
-                  <button
-                    onClick={() => {
-                      setEditingLicense(null);
-                      setLicenseFormData({ license_number: "", license_type: "", start_date: "", end_date: "", license_image: "" });
-                      setIsLicenseModalOpen(true);
-                    }}
-                    className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-2xl font-black text-sm hover:shadow-xl hover:shadow-purple-500/30 transition-all active:scale-95"
-                  >
-                    <PlusCircle size={18} />
-                    إضافة ترخيص
-                  </button>
+                  ) : (
+                    <EmptyContent message={t("bank.noAccounts")} icon={<Landmark className="w-12 h-12" />} />
+                  )}
                 </div>
-
-                {licenses.length > 0 ? (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {licenses.map((license) => (
-                      <motion.div 
-                        layout
-                        key={license.id} 
-                        className="bg-gradient-to-br from-slate-900/90 via-slate-800/70 to-slate-900/90 backdrop-blur-xl rounded-[2rem] p-6 border border-white/10 shadow-xl group relative overflow-hidden"
-                      >
-                        <div className="absolute top-0 left-0 w-1.5 h-full bg-gradient-to-b from-purple-500 via-pink-500 to-purple-600"></div>
-                        <div className="flex justify-between items-start mb-6">
-                          <div className="flex items-center gap-4">
-                            <div className="w-14 h-14 bg-gradient-to-br from-purple-600/20 to-pink-600/20 rounded-2xl flex items-center justify-center text-purple-400 border border-purple-500/20">
-                              <IdCard size={24} />
+              )}
+  
+              {activeTab === "license" && (
+                <div className="space-y-6">
+                  <div className="flex items-center justify-between mb-2">
+                    <h3 className="text-xl font-black text-white flex items-center gap-3">
+                      <div className="p-2 bg-gradient-to-r from-purple-600 to-pink-600 rounded-xl">
+                        <Shield className="text-white" size={20} />
+                      </div>
+                      {t("licenses.title")}
+                    </h3>
+                    <button
+                      onClick={() => {
+                        setEditingLicense(null);
+                        setLicenseFormData({ license_number: "", license_type: "", start_date: "", end_date: "", license_image: "" });
+                        setIsLicenseModalOpen(true);
+                      }}
+                      className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-2xl font-black text-sm hover:shadow-xl hover:shadow-purple-500/30 transition-all active:scale-95"
+                    >
+                      <PlusCircle size={18} />
+                      {t("licenses.addLicense")}
+                    </button>
+                  </div>
+  
+                  {licenses.length > 0 ? (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      {licenses.map((license) => (
+                        <motion.div 
+                          layout
+                          key={license.id} 
+                          className="bg-gradient-to-br from-slate-900/90 via-slate-800/70 to-slate-900/90 backdrop-blur-xl rounded-[2rem] p-6 border border-white/10 shadow-xl group relative overflow-hidden"
+                        >
+                          <div className="absolute top-0 left-0 w-1.5 h-full bg-gradient-to-b from-purple-500 via-pink-500 to-purple-600"></div>
+                          <div className="flex justify-between items-start mb-6">
+                            <div className="flex items-center gap-4">
+                              <div className="w-14 h-14 bg-gradient-to-br from-purple-600/20 to-pink-600/20 rounded-2xl flex items-center justify-center text-purple-400 border border-purple-500/20">
+                                <IdCard size={24} />
+                              </div>
+                              <div>
+                                <h4 className="font-black text-lg text-white">{license.license_type}</h4>
+                                <p className="text-sm text-slate-400 font-medium">{t("licenses.numberPrefix")} {license.license_number}</p>
+                              </div>
                             </div>
-                            <div>
-                              <h4 className="font-black text-lg text-white">{license.license_type}</h4>
-                              <p className="text-sm text-slate-400 font-medium">رقم: {license.license_number}</p>
-                            </div>
-                          </div>
-                          <div className="flex gap-2">
-                            <button 
-                              onClick={() => {
-                                setEditingLicense(license);
-                                setLicenseFormData({ ...license });
-                                setIsLicenseModalOpen(true);
-                              }}
-                              className="p-2.5 bg-white/5 text-slate-400 hover:text-blue-400 hover:bg-blue-500/10 rounded-xl transition-all border border-white/5"
-                            >
-                              <Edit size={16} />
-                            </button>
-                            <button 
-                              onClick={async () => {
-                                if(confirm("هل تريد حذف هذا الترخيص؟")) {
-                                  const res = await deleteLicense(license.id, company.id);
-                                  if(res.success) {
-                                    setLicenses(prev => prev.filter(l => l.id !== license.id));
-                                    toast.success("تم الحذف");
+                            <div className="flex gap-2">
+                              <button 
+                                onClick={() => {
+                                  setEditingLicense(license);
+                                  setLicenseFormData({ ...license });
+                                  setIsLicenseModalOpen(true);
+                                }}
+                                className="p-2.5 bg-white/5 text-slate-400 hover:text-blue-400 hover:bg-blue-500/10 rounded-xl transition-all border border-white/5"
+                              >
+                                <Edit size={16} />
+                              </button>
+                              <button 
+                                onClick={async () => {
+                                  if(confirm(t("licenses.deleteConfirm"))) {
+                                    const res = await deleteLicense(license.id, company.id);
+                                    if(res.success) {
+                                      setLicenses(prev => prev.filter(l => l.id !== license.id));
+                                      toast.success(t("bank.deleteSuccess"));
+                                    }
                                   }
-                                }
-                              }}
-                              className="p-2.5 bg-white/5 text-slate-400 hover:text-red-400 hover:bg-red-500/10 rounded-xl transition-all border border-white/5"
-                            >
-                              <Trash2 size={16} />
-                            </button>
+                                }}
+                                className="p-2.5 bg-white/5 text-slate-400 hover:text-red-400 hover:bg-red-500/10 rounded-xl transition-all border border-white/5"
+                              >
+                                <Trash2 size={16} />
+                              </button>
+                            </div>
                           </div>
-                        </div>
-                        <div className="grid grid-cols-2 gap-4 mb-4">
-                          <div className="bg-white/5 backdrop-blur p-4 rounded-2xl border border-white/5">
-                            <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">تاريخ الإصدار</p>
-                            <p className="font-black text-slate-200">{license.start_date || "---"}</p>
+                          <div className="grid grid-cols-2 gap-4 mb-4">
+                            <div className="bg-white/5 backdrop-blur p-4 rounded-2xl border border-white/5">
+                              <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">{t("licenses.issueDate")}</p>
+                              <p className="font-black text-slate-200">{license.start_date || "---"}</p>
+                            </div>
+                            <div className="bg-white/5 backdrop-blur p-4 rounded-2xl border border-white/5">
+                              <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">{t("licenses.expiryDate")}</p>
+                              <p className="font-black text-slate-200">{license.end_date || "---"}</p>
+                            </div>
                           </div>
-                          <div className="bg-white/5 backdrop-blur p-4 rounded-2xl border border-white/5">
-                            <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">تاريخ الانتهاء</p>
-                            <p className="font-black text-slate-200">{license.end_date || "---"}</p>
-                          </div>
-                        </div>
-                        {license.license_image && (
-                          <div className="flex gap-2">
-                            <a href={license.license_image} target="_blank" className="flex-1 flex items-center justify-center gap-2 py-3 bg-blue-500/10 text-blue-400 rounded-xl text-xs font-black hover:bg-blue-500/20 transition-all border border-blue-500/20">
-                              <Eye size={14} /> عرض الملف
-                            </a>
-                            <a href={license.license_image} download className="flex-1 flex items-center justify-center gap-2 py-3 bg-emerald-500/10 text-emerald-400 rounded-xl text-xs font-black hover:bg-emerald-500/20 transition-all border border-emerald-500/20">
-                              <Download size={14} /> تحميل
-                            </a>
-                          </div>
-                        )}
-                      </motion.div>
-                    ))}
-                  </div>
-                ) : (
-                  <EmptyContent message="لا توجد تراخيص مضافة" icon={<Shield className="w-12 h-12" />} />
-                )}
-              </div>
-            )}
+                          {license.license_image && (
+                            <div className="flex gap-2">
+                              <a href={license.license_image} target="_blank" className="flex-1 flex items-center justify-center gap-2 py-3 bg-blue-500/10 text-blue-400 rounded-xl text-xs font-black hover:bg-blue-500/20 transition-all border border-blue-500/20">
+                                <Eye size={14} /> {t("licenses.viewFile")}
+                              </a>
+                              <a href={license.license_image} download className="flex-1 flex items-center justify-center gap-2 py-3 bg-emerald-500/10 text-emerald-400 rounded-xl text-xs font-black hover:bg-emerald-500/20 transition-all border border-emerald-500/20">
+                                <Download size={14} /> {t("licenses.download")}
+                              </a>
+                            </div>
+                          )}
+                        </motion.div>
+                      ))}
+                    </div>
+                  ) : (
+                    <EmptyContent message={t("licenses.noLicenses")} icon={<Shield className="w-12 h-12" />} />
+                  )}
+                </div>
+              )}
+  
+              {activeTab === "files" && (
+                <div className="space-y-8">
+                  <CardSection title={t("files.facilityIdentity")} icon={<ImageIcon className="w-5 h-5" />} gradient="from-amber-500 to-orange-600">
+                    <div className="grid grid-cols-3 md:grid-cols-3 gap-4">
+                      <SmallFileUploader 
+                        label={t("files.facilityLogo")} 
+                        field="logo_path" 
+                        value={companyState?.logo_path} 
+                        onUpload={handleFileUpload} 
+                        isUploading={uploadingField === "logo_path"}
+                        t={t}
+                      />
+                      <SmallFileUploader 
+                        label={t("files.companyStamp")} 
+                        field="stamp_path" 
+                        value={companyState?.stamp_path} 
+                        onUpload={handleFileUpload} 
+                        isUploading={uploadingField === "stamp_path"}
+                        t={t}
+                      />
+                      <SmallFileUploader 
+                        label={t("files.managerSignature")} 
+                        field="digital_seal_path" 
+                        value={companyState?.digital_seal_path} 
+                        onUpload={handleFileUpload} 
+                        isUploading={uploadingField === "digital_seal_path"}
+                        t={t}
+                      />
+                    </div>
+                  </CardSection>
+  
+                  <CardSection title={t("files.officialDocuments")} icon={<FileCheck className="w-5 h-5" />} gradient="from-rose-500 to-red-600">
+                    <div className="grid grid-cols-3 md:grid-cols-5 gap-4">
+                      <SmallFileUploader 
+                        label={t("files.commercialRegister")} 
+                        field="commercial_register_image" 
+                        value={companyState?.commercial_register_image} 
+                        onUpload={handleFileUpload} 
+                        isUploading={uploadingField === "commercial_register_image"}
+                        t={t}
+                      />
+                      <SmallFileUploader 
+                        label={t("files.vatCertificate")} 
+                        field="vat_certificate_image" 
+                        value={companyState?.vat_certificate_image} 
+                        onUpload={handleFileUpload} 
+                        isUploading={uploadingField === "vat_certificate_image"}
+                        t={t}
+                      />
+                      <SmallFileUploader 
+                        label={t("files.ibanCard")} 
+                        field="bank_account_image" 
+                        value={companyState?.bank_account_image} 
+                        onUpload={handleFileUpload} 
+                        isUploading={uploadingField === "bank_account_image"}
+                        t={t}
+                      />
+                      <SmallFileUploader 
+                        label={t("files.nationalAddress")} 
+                        field="national_address_image" 
+                        value={companyState?.national_address_image} 
+                        onUpload={handleFileUpload} 
+                        isUploading={uploadingField === "national_address_image"}
+                        t={t}
+                      />
+                      <SmallFileUploader 
+                        label={t("files.ownerId")} 
+                        field="owner_id_image" 
+                        value={companyState?.owner_id_image} 
+                        onUpload={handleFileUpload} 
+                        isUploading={uploadingField === "owner_id_image"}
+                        t={t}
+                      />
+                    </div>
+                  </CardSection>
+                </div>
+              )}
 
-            {activeTab === "files" && (
-              <div className="space-y-8">
-                <CardSection title="هوية المنشأة" icon={<ImageIcon className="w-5 h-5" />} gradient="from-amber-500 to-orange-600">
-                  <div className="grid grid-cols-3 md:grid-cols-3 gap-4">
-                    <SmallFileUploader 
-                      label="شعار المنشأة" 
-                      field="logo_path" 
-                      value={companyState?.logo_path} 
-                      onUpload={handleFileUpload} 
-                      isUploading={uploadingField === "logo_path"}
-                    />
-                    <SmallFileUploader 
-                      label="ختم الشركة" 
-                      field="stamp_path" 
-                      value={companyState?.stamp_path} 
-                      onUpload={handleFileUpload} 
-                      isUploading={uploadingField === "stamp_path"}
-                    />
-                    <SmallFileUploader 
-                      label="توقيع المدير" 
-                      field="digital_seal_path" 
-                      value={companyState?.digital_seal_path} 
-                      onUpload={handleFileUpload} 
-                      isUploading={uploadingField === "digital_seal_path"}
-                    />
-                  </div>
-                </CardSection>
-
-                <CardSection title="الوثائق الرسمية" icon={<FileCheck className="w-5 h-5" />} gradient="from-rose-500 to-red-600">
-                  <div className="grid grid-cols-3 md:grid-cols-5 gap-4">
-                    <SmallFileUploader 
-                      label="السجل التجاري" 
-                      field="commercial_register_image" 
-                      value={companyState?.commercial_register_image} 
-                      onUpload={handleFileUpload} 
-                      isUploading={uploadingField === "commercial_register_image"}
-                    />
-                    <SmallFileUploader 
-                      label="شهادة الضريبة" 
-                      field="vat_certificate_image" 
-                      value={companyState?.vat_certificate_image} 
-                      onUpload={handleFileUpload} 
-                      isUploading={uploadingField === "vat_certificate_image"}
-                    />
-                    <SmallFileUploader 
-                      label="بطاقة الآيبان" 
-                      field="bank_account_image" 
-                      value={companyState?.bank_account_image} 
-                      onUpload={handleFileUpload} 
-                      isUploading={uploadingField === "bank_account_image"}
-                    />
-                    <SmallFileUploader 
-                      label="العنوان الوطني" 
-                      field="national_address_image" 
-                      value={companyState?.national_address_image} 
-                      onUpload={handleFileUpload} 
-                      isUploading={uploadingField === "national_address_image"}
-                    />
-                    <SmallFileUploader 
-                      label="هوية المالك" 
-                      field="owner_id_image" 
-                      value={companyState?.owner_id_image} 
-                      onUpload={handleFileUpload} 
-                      isUploading={uploadingField === "owner_id_image"}
-                    />
-                  </div>
-                </CardSection>
-              </div>
-            )}
           </motion.div>
         </AnimatePresence>
       </div>
@@ -577,14 +589,14 @@ export function UserProfileClient({ user, company, bankAccounts: initialBankAcco
               ) : (
                 <Save className="w-6 h-6" />
               )}
-              {isSaving ? "جاري الحفظ..." : "حفظ كافة التغييرات"}
+              {isSaving ? t("actions.saving") : t("actions.saveAll")}
             </button>
           </motion.div>
         )}
       </AnimatePresence>
-
+  
       {/* Modals */}
-      <Modal isOpen={isBankModalOpen} onClose={() => setIsBankModalOpen(false)} title={editingBank ? "تعديل حساب" : "إضافة حساب"}>
+      <Modal isOpen={isBankModalOpen} onClose={() => setIsBankModalOpen(false)} title={editingBank ? t("actions.editAccount") : t("bank.addNewAccount")}>
         <form className="space-y-4" onSubmit={async (e) => {
           e.preventDefault();
           let res;
@@ -592,21 +604,21 @@ export function UserProfileClient({ user, company, bankAccounts: initialBankAcco
           else res = await addBankAccount(company.id, bankFormData);
           
           if(res.success) {
-            toast.success("تم الحفظ");
+            toast.success(t("messages.saveSuccess"));
             window.location.reload();
           }
         }}>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <FormInput label="اسم البنك" value={bankFormData.bank_name} onChange={v => setBankFormData({...bankFormData, bank_name: v})} required />
-            <FormInput label="المستفيد" value={bankFormData.bank_beneficiary} onChange={v => setBankFormData({...bankFormData, bank_beneficiary: v})} required />
-            <FormInput label="رقم الحساب" value={bankFormData.bank_account} onChange={v => setBankFormData({...bankFormData, bank_account: v})} required />
-            <FormInput label="IBAN" value={bankFormData.bank_iban} onChange={v => setBankFormData({...bankFormData, bank_iban: v})} required />
+            <FormInput label={t("bank.bankName")} value={bankFormData.bank_name} onChange={(v: string) => setBankFormData({...bankFormData, bank_name: v})} required />
+            <FormInput label={t("bank.beneficiary")} value={bankFormData.bank_beneficiary} onChange={(v: string) => setBankFormData({...bankFormData, bank_beneficiary: v})} required />
+            <FormInput label={t("bank.accountNumber")} value={bankFormData.bank_account} onChange={(v: string) => setBankFormData({...bankFormData, bank_account: v})} required />
+            <FormInput label={t("bank.iban")} value={bankFormData.bank_iban} onChange={(v: string) => setBankFormData({...bankFormData, bank_iban: v})} required />
           </div>
-          <button type="submit" className="w-full py-4 bg-gradient-to-r from-blue-600 to-cyan-600 text-white rounded-2xl font-black mt-4 hover:shadow-lg hover:shadow-blue-500/30 transition-all">حفظ</button>
+          <button type="submit" className="w-full py-4 bg-gradient-to-r from-blue-600 to-cyan-600 text-white rounded-2xl font-black mt-4 hover:shadow-lg hover:shadow-blue-500/30 transition-all">{t("actions.save")}</button>
         </form>
       </Modal>
-
-      <Modal isOpen={isLicenseModalOpen} onClose={() => setIsLicenseModalOpen(false)} title={editingLicense ? "تعديل ترخيص" : "إضافة ترخيص"}>
+  
+      <Modal isOpen={isLicenseModalOpen} onClose={() => setIsLicenseModalOpen(false)} title={editingLicense ? t("actions.editLicense") : t("licenses.addLicense")}>
         <form className="space-y-4" onSubmit={async (e) => {
           e.preventDefault();
           let res;
@@ -614,37 +626,38 @@ export function UserProfileClient({ user, company, bankAccounts: initialBankAcco
           else res = await addLicense(company.id, licenseFormData);
           
           if(res.success) {
-            toast.success("تم الحفظ");
+            toast.success(t("messages.saveSuccess"));
             window.location.reload();
           }
         }}>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <FormInput label="نوع الترخيص" value={licenseFormData.license_type} onChange={v => setLicenseFormData({...licenseFormData, license_type: v})} required />
-            <FormInput label="رقم الترخيص" value={licenseFormData.license_number} onChange={v => setLicenseFormData({...licenseFormData, license_number: v})} required />
-            <FormInput label="تاريخ البداية" type="date" value={licenseFormData.start_date} onChange={v => setLicenseFormData({...licenseFormData, start_date: v})} />
-            <FormInput label="تاريخ الانتهاء" type="date" value={licenseFormData.end_date} onChange={v => setLicenseFormData({...licenseFormData, end_date: v})} />
+            <FormInput label={t("forms.licenseType")} value={licenseFormData.license_type} onChange={(v: string) => setLicenseFormData({...licenseFormData, license_type: v})} required />
+            <FormInput label={t("forms.licenseNumber")} value={licenseFormData.license_number} onChange={(v: string) => setLicenseFormData({...licenseFormData, license_number: v})} required />
+            <FormInput label={t("forms.startDate")} type="date" value={licenseFormData.start_date} onChange={(v: string) => setLicenseFormData({...licenseFormData, start_date: v})} />
+            <FormInput label={t("forms.endDate")} type="date" value={licenseFormData.end_date} onChange={(v: string) => setLicenseFormData({...licenseFormData, end_date: v})} />
           </div>
           <div className="mt-4">
-            <label className="text-sm font-black text-slate-400 mb-2 block">ملف الترخيص</label>
+            <label className="text-sm font-black text-slate-400 mb-2 block">{t("forms.licenseFile")}</label>
             <div className="border-2 border-dashed border-white/10 rounded-2xl p-6 text-center bg-white/5">
               {licenseFormData.license_image ? (
                 <div className="flex flex-col items-center gap-2">
                   <CheckCircle2 className="text-emerald-400 w-10 h-10" />
-                  <p className="text-sm font-black text-white">تم رفع الملف</p>
-                  <button type="button" onClick={() => setLicenseFormData({...licenseFormData, license_image: ""})} className="text-red-400 text-xs font-bold">حذف واستبدال</button>
+                  <p className="text-sm font-black text-white">{t("forms.fileUploaded")}</p>
+                  <button type="button" onClick={() => setLicenseFormData({...licenseFormData, license_image: ""})} className="text-red-400 text-xs font-bold">{t("forms.deleteAndReplace")}</button>
                 </div>
               ) : (
                 <label className="cursor-pointer">
                   <Upload className="mx-auto text-slate-500 w-10 h-10 mb-2" />
-                  <p className="text-sm text-slate-400 font-bold">اضغط هنا لرفع صورة الترخيص</p>
+                  <p className="text-sm text-slate-400 font-bold">{t("forms.clickToUpload")}</p>
                   <input type="file" className="hidden" accept="image/*,application/pdf" onChange={handleLicenseFileUpload} />
                 </label>
               )}
             </div>
           </div>
-          <button type="submit" className="w-full py-4 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-2xl font-black mt-4 hover:shadow-lg hover:shadow-purple-500/30 transition-all">حفظ الترخيص</button>
+          <button type="submit" className="w-full py-4 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-2xl font-black mt-4 hover:shadow-lg hover:shadow-purple-500/30 transition-all">{t("forms.saveLicense")}</button>
         </form>
       </Modal>
+
     </div>
   );
 }
@@ -683,7 +696,7 @@ function InfoTile({ label, value, icon, color, description }: any) {
   );
 }
 
-function SmallFileUploader({ label, field, value, onUpload, isUploading }: any) {
+function SmallFileUploader({ label, field, value, onUpload, isUploading, t }: any) {
   const inputRef = useRef<HTMLInputElement>(null);
   const isPdf = value?.toLowerCase()?.endsWith('.pdf');
   
@@ -699,7 +712,7 @@ function SmallFileUploader({ label, field, value, onUpload, isUploading }: any) 
         {isUploading ? (
           <div className="flex flex-col items-center gap-2">
             <Loader2 className="w-6 h-6 text-blue-600 animate-spin" />
-            <span className="text-[10px] font-bold text-blue-600">جاري الرفع...</span>
+            <span className="text-[10px] font-bold text-blue-600">{t("forms.uploading")}</span>
           </div>
         ) : value ? (
           <div className="w-full h-full p-2 flex items-center justify-center relative bg-white">
@@ -712,7 +725,7 @@ function SmallFileUploader({ label, field, value, onUpload, isUploading }: any) 
               <img src={value} alt={label} className="max-w-full max-h-full object-contain" />
             )}
             <div className="absolute inset-0 bg-slate-900/80 opacity-0 group-hover/upload:opacity-100 transition-opacity flex items-center justify-center gap-2">
-              <span className="text-white text-[10px] font-bold">استبدال</span>
+              <span className="text-white text-[10px] font-bold">{t("forms.replace")}</span>
               {value && (
                 <a 
                   href={value} 
@@ -720,7 +733,7 @@ function SmallFileUploader({ label, field, value, onUpload, isUploading }: any) 
                   onClick={(e) => e.stopPropagation()}
                   className="text-blue-400 text-[10px] font-bold hover:underline"
                 >
-                  عرض
+                  {t("forms.view")}
                 </a>
               )}
             </div>
