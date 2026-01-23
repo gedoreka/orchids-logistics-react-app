@@ -443,10 +443,10 @@ export default function SubUsersPage() {
                 </div>
 
                 {user.last_login_at && (
-                  <div className="mt-4 pt-4 border-t border-white/5 flex items-center gap-2 text-sm text-slate-400">
-                    <Clock size={14} />
-                    {t("lastLogin")}: {new Date(user.last_login_at).toLocaleString("ar-SA")}
-                  </div>
+                    <div className="mt-4 pt-4 border-t border-white/5 flex items-center gap-2 text-sm text-slate-400">
+                      <Clock size={14} />
+                      {t("lastLogin")}: {new Date(user.last_login_at).toLocaleString("en-GB")}
+                    </div>
                 )}
               </motion.div>
             ))}
@@ -763,7 +763,7 @@ function ActivityLogModal({ user, onClose }: { user: SubUser; onClose: () => voi
                     <div>
                       <div className="text-white font-bold">{session.ip_address || commonT("notSpecified")}</div>
                       <div className="text-slate-400 text-sm">
-                        {new Date(session.login_at).toLocaleString("ar-SA")}
+                        {new Date(session.login_at).toLocaleString("en-GB")}
                       </div>
                     </div>
                     <div className={cn(
@@ -793,7 +793,7 @@ function ActivityLogModal({ user, onClose }: { user: SubUser; onClose: () => voi
                       <span className="text-white font-bold">{activity.action_description}</span>
                     </div>
                     <div className="text-slate-400 text-sm">
-                      {new Date(activity.created_at).toLocaleString("ar-SA")}
+                      {new Date(activity.created_at).toLocaleString("en-GB")}
                     </div>
                   </div>
                 ))}

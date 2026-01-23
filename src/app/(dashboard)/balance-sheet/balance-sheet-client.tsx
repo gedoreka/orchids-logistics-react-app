@@ -153,7 +153,7 @@ export function BalanceSheetClient({ companyId, companyInfo }: BalanceSheetClien
   };
 
   const formatNumber = (num: number) => new Intl.NumberFormat("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(num);
-  const formatDate = (date: string) => new Date(date).toLocaleDateString(locale === "ar" ? "ar-SA" : "en-US");
+  const formatDate = (date: string) => new Date(date).toLocaleDateString("en-GB");
 
   if (loading) {
     return (

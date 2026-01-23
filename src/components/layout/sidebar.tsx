@@ -91,9 +91,11 @@ const navItems: NavItem[] = [
   { titleKey: "incomeStatement", href: "/income-statement", icon: BarChart3, permission: "income_statement_module", gradient: "from-emerald-500 to-teal-500" },
   { titleKey: "balanceSheet", href: "/balance-sheet", icon: FileText, permission: "balance_sheet_module", gradient: "from-blue-500 to-cyan-500" },
   
-  { titleKey: "subUsersManagement", href: "/sub-users", icon: Users, permission: "sub_users_module", gradient: "from-violet-500 to-purple-500" },
-  { titleKey: "taxSettings", href: "/tax-settings", icon: Calculator, permission: "balance_sheet_module", gradient: "from-rose-500 to-pink-500" },
-];
+    { titleKey: "subUsersManagement", href: "/sub-users", icon: Users, permission: "sub_users_module", gradient: "from-violet-500 to-purple-500" },
+    { titleKey: "userProfile", href: "/user_profile", icon: Building2, gradient: "from-blue-500 to-indigo-500" },
+    { titleKey: "systemSettings", href: "/settings", icon: Settings, gradient: "from-slate-500 to-gray-500" },
+    { titleKey: "taxSettings", href: "/tax-settings", icon: Calculator, permission: "balance_sheet_module", gradient: "from-rose-500 to-pink-500" },
+  ];
 
 interface SidebarProps {
   userRole?: string;
