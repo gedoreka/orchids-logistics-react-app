@@ -29,6 +29,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { useLocale } from "@/lib/locale-context";
 import {
   Select,
   SelectContent,
@@ -68,19 +69,8 @@ interface TrialBalanceClientProps {
 
 const COLORS = ["#3b82f6", "#10b981", "#f59e0b", "#ef4444", "#8b5cf6", "#ec4899"];
 
-const TYPE_COLORS: { [key: string]: string } = {
-  "المنصرفات": "#ef4444",
-  "الرواتب": "#3b82f6",
-  "قيود اليومية": "#10b981",
-};
-
-const TYPE_ICONS: { [key: string]: any } = {
-  "المنصرفات": Wallet,
-  "الرواتب": Users,
-  "قيود اليومية": BookOpen,
-};
-
 export function TrialBalanceClient({ companyId, companyInfo }: TrialBalanceClientProps) {
+  const { t, locale } = useLocale();
   const [balances, setBalances] = useState<BalanceItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -110,6 +100,18 @@ export function TrialBalanceClient({ companyId, companyInfo }: TrialBalanceClien
     key: "type",
     direction: "asc",
   });
+
+  const TYPE_COLORS: { [key: string]: string } = {
+    [t("trialBalance.expenses")]: "#ef4444",
+    [t("trialBalance.payrolls")]: "#3b82f6",
+    [t("trialBalance.journals")]: "#10b981",
+  };
+
+  const TYPE_ICONS: { [key: string]: any } = {
+    [t("trialBalance.expenses")]: Wallet,
+    [t("trialBalance.payrolls")]: Users,
+    [t("trialBalance.journals")]: BookOpen,
+  };
 
   const fetchData = useCallback(async (isRefresh = false) => {
     try {
@@ -193,7 +195,13 @@ export function TrialBalanceClient({ companyId, companyInfo }: TrialBalanceClien
   };
 
   const handleExportExcel = () => {
-    const headers = ["نوع الحركة", "رمز الحساب", "اسم الحساب", "مدين", "دائن"];
+    const headers = [
+      t("trialBalance.entryType"),
+      t("trialBalance.accountCode"),
+      t("trialBalance.accountName"),
+      t("trialBalance.debit"),
+      t("trialBalance.credit")
+    ];
     const csvContent = [
       headers.join(","),
       ...balances.map(b => [
@@ -203,7 +211,7 @@ export function TrialBalanceClient({ companyId, companyInfo }: TrialBalanceClien
         b.debit.toFixed(2),
         b.credit.toFixed(2),
       ].join(",")),
-      ["", "", "الإجمالي", stats.totalDebit.toFixed(2), stats.totalCredit.toFixed(2)].join(","),
+      ["", "", t("trialBalance.total"), stats.totalDebit.toFixed(2), stats.totalCredit.toFixed(2)].join(","),
     ].join("\n");
 
     const blob = new Blob(["\ufeff" + csvContent], { type: "text/csv;charset=utf-8" });
@@ -228,14 +236,14 @@ export function TrialBalanceClient({ companyId, companyInfo }: TrialBalanceClien
             <div className="w-20 h-20 rounded-full border-4 border-blue-500/30 border-t-blue-500 animate-spin" />
             <Scale className="w-8 h-8 text-blue-500 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />
           </div>
-          <p className="text-slate-600 font-bold text-lg">جاري تحميل ميزان المراجعة...</p>
+          <p className="text-slate-600 font-bold text-lg">{t("trialBalance.loading")}</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="p-4 md:p-6" dir="rtl">
+    <div className="p-4 md:p-6" dir={locale === "ar" ? "rtl" : "ltr"}>
       <Card className="border-none shadow-2xl rounded-[2rem] overflow-hidden bg-[#1a2234] p-4 md:p-8 space-y-8">
         <div className="relative overflow-hidden rounded-[2rem] bg-gradient-to-br from-[#0f172a] via-[#1e293b] to-[#0f172a] text-white shadow-2xl border border-white/10 print:hidden">
           <div className="absolute inset-0 overflow-hidden">
@@ -257,7 +265,7 @@ export function TrialBalanceClient({ companyId, companyInfo }: TrialBalanceClien
                       className="w-16 h-16 md:w-20 md:h-20 rounded-2xl border-2 border-white/20 object-cover shadow-2xl"
                     />
                   ) : (
-                    <div className="w-16 h-16 md:w-20 md:h-20 rounded-2xl bg-gradient-to-br from-emerald-500 to-emerald-700 flex items-center justify-center shadow-2xl">
+                    <div className="w-16 h-16 md:w-20 md:h-20 rounded-2xl bg-gradient-to-br from-emerald-50 to-emerald-700 flex items-center justify-center shadow-2xl">
                       <Building2 className="w-8 h-8 md:w-10 md:h-10 text-white" />
                     </div>
                   )}
@@ -267,24 +275,24 @@ export function TrialBalanceClient({ companyId, companyInfo }: TrialBalanceClien
                 </div>
                 <div>
                   <h1 className="text-2xl md:text-4xl font-black tracking-tight bg-gradient-to-r from-white via-emerald-200 to-white bg-clip-text text-transparent">
-                    ميزان المراجعة
+                    {t("trialBalance.title")}
                   </h1>
                   <p className="text-white/60 font-medium mt-1 text-sm md:text-base">{companyInfo.name}</p>
                   <div className="flex items-center gap-2 mt-2">
                     {stats.isBalanced ? (
                       <Badge className="bg-emerald-500/20 text-emerald-300 border-emerald-500/30 font-bold text-xs">
                         <CheckCircle2 className="w-3 h-3 ml-1" />
-                        متوازن
+                        {t("trialBalance.balanced")}
                       </Badge>
                     ) : (
                       <Badge className="bg-rose-500/20 text-rose-300 border-rose-500/30 font-bold text-xs">
                         <AlertTriangle className="w-3 h-3 ml-1" />
-                        غير متوازن
+                        {t("trialBalance.unbalanced")}
                       </Badge>
                     )}
                     <Badge className="bg-blue-500/20 text-blue-300 border-blue-500/30 font-bold text-xs">
                       <Layers className="w-3 h-3 ml-1" />
-                      {stats.accountsCount} حساب
+                      {stats.accountsCount} {t("trialBalance.accountsCount")}
                     </Badge>
                   </div>
                 </div>
@@ -298,8 +306,8 @@ export function TrialBalanceClient({ companyId, companyInfo }: TrialBalanceClien
                   className="bg-white/10 border-white/20 text-white hover:bg-white/20 font-bold rounded-xl"
                   disabled={refreshing}
                 >
-                  <RefreshCw className={`w-4 h-4 ml-2 ${refreshing ? "animate-spin" : ""}`} />
-                  تحديث
+                  <RefreshCw className={`w-4 h-4 ${locale === "ar" ? "ml-2" : "mr-2"} ${refreshing ? "animate-spin" : ""}`} />
+                  {t("generalLedger.update")}
                 </Button>
                 <Button
                   onClick={handleExportExcel}
@@ -307,8 +315,8 @@ export function TrialBalanceClient({ companyId, companyInfo }: TrialBalanceClien
                   size="sm"
                   className="bg-emerald-500/20 border-emerald-500/30 text-emerald-300 hover:bg-emerald-500/30 font-bold rounded-xl"
                 >
-                  <FileSpreadsheet className="w-4 h-4 ml-2" />
-                  Excel
+                  <FileSpreadsheet className={`w-4 h-4 ${locale === "ar" ? "ml-2" : "mr-2"}`} />
+                  {t("generalLedger.excel")}
                 </Button>
                 <Button
                   onClick={handlePrint}
@@ -316,18 +324,18 @@ export function TrialBalanceClient({ companyId, companyInfo }: TrialBalanceClien
                   size="sm"
                   className="bg-amber-500/20 border-amber-500/30 text-amber-300 hover:bg-amber-500/30 font-bold rounded-xl"
                 >
-                  <Printer className="w-4 h-4 ml-2" />
-                  طباعة
+                  <Printer className={`w-4 h-4 ${locale === "ar" ? "ml-2" : "mr-2"}`} />
+                  {t("generalLedger.print")}
                 </Button>
               </div>
             </div>
 
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 mt-6 md:mt-8">
               {[
-                { label: "إجمالي المدين", value: stats.totalDebit, icon: TrendingUp, color: "from-rose-500 to-red-600", iconBg: "bg-rose-500/20", textColor: "text-rose-300" },
-                { label: "إجمالي الدائن", value: stats.totalCredit, icon: TrendingDown, color: "from-emerald-500 to-green-600", iconBg: "bg-emerald-500/20", textColor: "text-emerald-300" },
-                { label: "الفرق", value: Math.abs(stats.difference), icon: Scale, color: "from-blue-500 to-indigo-600", iconBg: "bg-blue-500/20", textColor: stats.isBalanced ? "text-emerald-300" : "text-rose-300" },
-                { label: "عدد الحسابات", value: stats.accountsCount, icon: Activity, color: "from-amber-500 to-orange-600", iconBg: "bg-amber-500/20", textColor: "text-amber-300", isCount: true },
+                { label: t("trialBalance.totalDebit"), value: stats.totalDebit, icon: TrendingUp, color: "from-rose-500 to-red-600", iconBg: "bg-rose-500/20", textColor: "text-rose-300" },
+                { label: t("trialBalance.totalCredit"), value: stats.totalCredit, icon: TrendingDown, color: "from-emerald-500 to-green-600", iconBg: "bg-emerald-500/20", textColor: "text-emerald-300" },
+                { label: t("trialBalance.difference"), value: Math.abs(stats.difference), icon: Scale, color: "from-blue-500 to-indigo-600", iconBg: "bg-blue-500/20", textColor: stats.isBalanced ? "text-emerald-300" : "text-rose-300" },
+                { label: t("trialBalance.accountsCount"), value: stats.accountsCount, icon: Activity, color: "from-amber-500 to-orange-600", iconBg: "bg-amber-500/20", textColor: "text-amber-300", isCount: true },
               ].map((stat, idx) => (
                 <div
                   key={idx}
@@ -351,12 +359,12 @@ export function TrialBalanceClient({ companyId, companyInfo }: TrialBalanceClien
               {stats.isBalanced ? (
                 <div className="flex items-center justify-center gap-3">
                   <CheckCircle2 className="w-6 h-6 text-emerald-400" />
-                  <span className="text-lg font-bold text-emerald-300">الميزان متوازن - المدين يساوي الدائن</span>
+                  <span className="text-lg font-bold text-emerald-300">{t("trialBalance.isBalancedDesc")}</span>
                 </div>
               ) : (
                 <div className="flex items-center justify-center gap-3">
                   <AlertTriangle className="w-6 h-6 text-rose-400" />
-                  <span className="text-lg font-bold text-rose-300">الميزان غير متوازن - الفرق: {formatNumber(stats.difference)} ر.س</span>
+                  <span className="text-lg font-bold text-rose-300">{t("trialBalance.isUnbalancedDesc")} - {t("trialBalance.difference")}: {formatNumber(stats.difference)} {t("common.sar")}</span>
                 </div>
               )}
             </div>
@@ -368,7 +376,7 @@ export function TrialBalanceClient({ companyId, companyInfo }: TrialBalanceClien
             <CardHeader className="border-b border-slate-100 bg-gradient-to-r from-blue-50 to-indigo-50">
               <CardTitle className="text-lg font-bold text-slate-800 flex items-center gap-2">
                 <BarChart3 className="w-5 h-5 text-blue-600" />
-                توزيع الأرصدة حسب النوع
+                {t("trialBalance.typeDistribution")}
               </CardTitle>
             </CardHeader>
             <CardContent className="p-6">
@@ -380,16 +388,16 @@ export function TrialBalanceClient({ companyId, companyInfo }: TrialBalanceClien
                     <YAxis stroke="#64748b" fontSize={12} tickFormatter={(v) => `${(v / 1000).toFixed(0)}K`} />
                     <Tooltip
                       contentStyle={{ background: "#1e293b", border: "none", borderRadius: "12px", color: "white" }}
-                      formatter={(value: number) => formatNumber(value) + " ر.س"}
+                      formatter={(value: number) => formatNumber(value) + " " + t("common.sar")}
                     />
                     <Legend />
-                    <Bar dataKey="debit" name="مدين" fill="#ef4444" radius={[8, 8, 0, 0]} />
-                    <Bar dataKey="credit" name="دائن" fill="#10b981" radius={[8, 8, 0, 0]} />
+                    <Bar dataKey="debit" name={t("trialBalance.debit")} fill="#ef4444" radius={[8, 8, 0, 0]} />
+                    <Bar dataKey="credit" name={t("trialBalance.credit")} fill="#10b981" radius={[8, 8, 0, 0]} />
                   </BarChart>
                 </ResponsiveContainer>
               ) : (
                 <div className="h-[300px] flex items-center justify-center text-slate-400">
-                  لا توجد بيانات
+                  {t("common.noData")}
                 </div>
               )}
             </CardContent>
@@ -399,7 +407,7 @@ export function TrialBalanceClient({ companyId, companyInfo }: TrialBalanceClien
             <CardHeader className="border-b border-slate-100 bg-gradient-to-r from-emerald-50 to-teal-50">
               <CardTitle className="text-lg font-bold text-slate-800 flex items-center gap-2">
                 <Scale className="w-5 h-5 text-emerald-600" />
-                نسبة المدين من الإجمالي
+                {t("trialBalance.debitRatio")}
               </CardTitle>
             </CardHeader>
             <CardContent className="p-6">
@@ -422,14 +430,14 @@ export function TrialBalanceClient({ companyId, companyInfo }: TrialBalanceClien
                     </Pie>
                     <Tooltip
                       contentStyle={{ background: "#1e293b", border: "none", borderRadius: "12px", color: "white" }}
-                      formatter={(value: number) => formatNumber(value) + " ر.س"}
+                      formatter={(value: number) => formatNumber(value) + " " + t("common.sar")}
                     />
                     <Legend />
                   </PieChart>
                 </ResponsiveContainer>
               ) : (
                 <div className="h-[300px] flex items-center justify-center text-slate-400">
-                  لا توجد بيانات
+                  {t("common.noData")}
                 </div>
               )}
             </CardContent>
@@ -440,12 +448,12 @@ export function TrialBalanceClient({ companyId, companyInfo }: TrialBalanceClien
           <CardContent className="p-4 md:p-6">
             <div className="flex flex-col lg:flex-row items-center gap-4">
               <div className="relative flex-1 w-full">
-                <Search className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+                <Search className={`absolute ${locale === "ar" ? "right-4" : "left-4"} top-1/2 -translate-y-1/2 text-slate-400`} size={20} />
                 <Input
-                  placeholder="بحث برمز الحساب أو الاسم..."
+                  placeholder={t("trialBalance.searchPlaceholder")}
                   value={filters.search}
                   onChange={(e) => setFilters(prev => ({ ...prev, search: e.target.value }))}
-                  className="pr-12 h-12 rounded-xl border-slate-200 focus:border-blue-500 text-right font-medium"
+                  className={`${locale === "ar" ? "pr-12 text-right" : "pl-12 text-left"} h-12 rounded-xl border-slate-200 focus:border-blue-500 font-medium`}
                 />
               </div>
 
@@ -455,20 +463,20 @@ export function TrialBalanceClient({ companyId, companyInfo }: TrialBalanceClien
                   onClick={() => setShowFilters(!showFilters)}
                   className={`rounded-xl font-bold h-12 ${showFilters ? "bg-blue-50 border-blue-300 text-blue-700" : ""}`}
                 >
-                  <Filter className="w-4 h-4 ml-2" />
-                  فلاتر متقدمة
-                  {showFilters ? <ChevronUp className="w-4 h-4 mr-2" /> : <ChevronDown className="w-4 h-4 mr-2" />}
+                  <Filter className={`w-4 h-4 ${locale === "ar" ? "ml-2" : "mr-2"}`} />
+                  {t("generalLedger.advancedFilters")}
+                  {showFilters ? <ChevronUp className={`w-4 h-4 ${locale === "ar" ? "mr-2" : "ml-2"}`} /> : <ChevronDown className={`w-4 h-4 ${locale === "ar" ? "mr-2" : "ml-2"}`} />}
                 </Button>
 
                 <Select value={filters.entryType} onValueChange={(v) => setFilters(prev => ({ ...prev, entryType: v }))}>
                   <SelectTrigger className="w-40 h-12 rounded-xl font-bold">
-                    <SelectValue placeholder="نوع الحركة" />
+                    <SelectValue placeholder={t("trialBalance.entryType")} />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="all">جميع الأنواع</SelectItem>
-                    <SelectItem value="expenses">المنصرفات</SelectItem>
-                    <SelectItem value="payrolls">الرواتب</SelectItem>
-                    <SelectItem value="journals">قيود اليومية</SelectItem>
+                    <SelectItem value="all">{t("trialBalance.allTypes")}</SelectItem>
+                    <SelectItem value="expenses">{t("trialBalance.expenses")}</SelectItem>
+                    <SelectItem value="payrolls">{t("trialBalance.payrolls")}</SelectItem>
+                    <SelectItem value="journals">{t("trialBalance.journals")}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -477,7 +485,7 @@ export function TrialBalanceClient({ companyId, companyInfo }: TrialBalanceClien
             {showFilters && (
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4 pt-4 border-t border-slate-100">
                 <div>
-                  <label className="block text-sm font-bold text-slate-600 mb-2">من تاريخ</label>
+                  <label className="block text-sm font-bold text-slate-600 mb-2">{t("generalLedger.fromDate")}</label>
                   <Input
                     type="date"
                     value={filters.fromDate}
@@ -486,7 +494,7 @@ export function TrialBalanceClient({ companyId, companyInfo }: TrialBalanceClien
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-bold text-slate-600 mb-2">إلى تاريخ</label>
+                  <label className="block text-sm font-bold text-slate-600 mb-2">{t("generalLedger.toDate")}</label>
                   <Input
                     type="date"
                     value={filters.toDate}
@@ -500,8 +508,8 @@ export function TrialBalanceClient({ companyId, companyInfo }: TrialBalanceClien
                     onClick={() => setFilters({ fromDate: "", toDate: "", entryType: "all", search: "" })}
                     className="rounded-xl font-bold w-full h-11"
                   >
-                    <X className="w-4 h-4 ml-2" />
-                    مسح الفلاتر
+                    <X className={`w-4 h-4 ${locale === "ar" ? "ml-2" : "mr-2"}`} />
+                    {t("generalLedger.clearFilters")}
                   </Button>
                 </div>
               </div>
@@ -514,10 +522,10 @@ export function TrialBalanceClient({ companyId, companyInfo }: TrialBalanceClien
             <div className="flex items-center justify-between">
               <CardTitle className="text-lg font-bold text-slate-800 flex items-center gap-2">
                 <FileText className="w-5 h-5 text-emerald-600" />
-                جدول ميزان المراجعة
+                {t("trialBalance.tableTitle")}
               </CardTitle>
               <div className="flex items-center gap-3 print:hidden">
-                <span className="text-sm text-slate-500 font-medium">عرض:</span>
+                <span className="text-sm text-slate-500 font-medium">{t("common.view")}:</span>
                 <Select value={String(pageSize)} onValueChange={(v) => { setPageSize(Number(v)); setCurrentPage(1); }}>
                   <SelectTrigger className="w-20 h-9 rounded-lg">
                     <SelectValue />
@@ -538,16 +546,16 @@ export function TrialBalanceClient({ companyId, companyInfo }: TrialBalanceClien
                 <thead>
                   <tr className="bg-gradient-to-r from-slate-800 to-slate-900 text-white">
                     {[
-                      { key: "type", label: "نوع الحركة", icon: Layers },
-                      { key: "account_code", label: "رمز الحساب", icon: FileText },
-                      { key: "account_name", label: "اسم الحساب", icon: BookOpen },
-                      { key: "debit", label: "مدين", icon: TrendingUp },
-                      { key: "credit", label: "دائن", icon: TrendingDown },
+                      { key: "type", label: t("trialBalance.entryType"), icon: Layers },
+                      { key: "account_code", label: t("trialBalance.accountCode"), icon: FileText },
+                      { key: "account_name", label: t("trialBalance.accountName"), icon: BookOpen },
+                      { key: "debit", label: t("trialBalance.debit"), icon: TrendingUp },
+                      { key: "credit", label: t("trialBalance.credit"), icon: TrendingDown },
                     ].map((col) => (
                       <th
                         key={col.key}
                         onClick={() => handleSort(col.key)}
-                        className="px-4 py-4 text-right text-xs font-bold cursor-pointer hover:bg-white/10 transition-colors whitespace-nowrap"
+                        className={`px-4 py-4 ${locale === "ar" ? "text-right" : "text-left"} text-xs font-bold cursor-pointer hover:bg-white/10 transition-colors whitespace-nowrap`}
                       >
                         <div className="flex items-center gap-2">
                           <col.icon className="w-4 h-4 opacity-70" />
@@ -612,7 +620,7 @@ export function TrialBalanceClient({ companyId, companyInfo }: TrialBalanceClien
                           <div className="w-20 h-20 bg-slate-100 rounded-full flex items-center justify-center">
                             <Scale className="w-10 h-10 text-slate-300" />
                           </div>
-                          <p className="text-slate-400 font-bold text-lg">لا توجد بيانات مطابقة للبحث</p>
+                          <p className="text-slate-400 font-bold text-lg">{t("trialBalance.noMatching")}</p>
                         </div>
                       </td>
                     </tr>
@@ -621,7 +629,7 @@ export function TrialBalanceClient({ companyId, companyInfo }: TrialBalanceClien
                 <tfoot>
                   <tr className="bg-gradient-to-r from-slate-100 to-emerald-100 font-bold">
                     <td colSpan={3} className="px-4 py-4 text-sm text-slate-700">
-                      الإجمالي
+                      {t("trialBalance.total")}
                     </td>
                     <td className="px-4 py-4 text-sm text-rose-600 font-black tabular-nums">
                       {formatNumber(stats.totalDebit)}
@@ -632,12 +640,12 @@ export function TrialBalanceClient({ companyId, companyInfo }: TrialBalanceClien
                   </tr>
                   <tr className={`font-bold ${stats.isBalanced ? "bg-emerald-50" : "bg-rose-50"}`}>
                     <td colSpan={3} className="px-4 py-3 text-sm text-slate-700">
-                      الفرق (المدين - الدائن)
+                      {t("trialBalance.diffLabel")}
                     </td>
                     <td colSpan={2} className={`px-4 py-3 text-sm font-black tabular-nums text-center ${stats.isBalanced ? "text-emerald-600" : "text-rose-600"}`}>
-                      {formatNumber(stats.difference)} ر.س
-                      {stats.isBalanced && <CheckCircle2 className="w-4 h-4 inline-block mr-2" />}
-                      {!stats.isBalanced && <AlertTriangle className="w-4 h-4 inline-block mr-2" />}
+                      {formatNumber(stats.difference)} {t("common.sar")}
+                      {stats.isBalanced && <CheckCircle2 className="w-4 h-4 inline-block mx-2" />}
+                      {!stats.isBalanced && <AlertTriangle className="w-4 h-4 inline-block mx-2" />}
                     </td>
                   </tr>
                 </tfoot>
@@ -647,7 +655,11 @@ export function TrialBalanceClient({ companyId, companyInfo }: TrialBalanceClien
             {totalPages > 1 && (
               <div className="flex flex-col md:flex-row items-center justify-between p-4 border-t border-slate-100 print:hidden gap-3">
                 <div className="text-sm text-slate-500 font-medium">
-                  عرض {((currentPage - 1) * pageSize) + 1} إلى {Math.min(currentPage * pageSize, filteredBalances.length)} من {filteredBalances.length} حساب
+                  {locale === "ar" ? (
+                    <>عرض {((currentPage - 1) * pageSize) + 1} إلى {Math.min(currentPage * pageSize, filteredBalances.length)} من {filteredBalances.length} حساب</>
+                  ) : (
+                    <>Showing {((currentPage - 1) * pageSize) + 1} to {Math.min(currentPage * pageSize, filteredBalances.length)} of {filteredBalances.length} records</>
+                  )}
                 </div>
                 <div className="flex items-center gap-2">
                   <Button
@@ -657,7 +669,7 @@ export function TrialBalanceClient({ companyId, companyInfo }: TrialBalanceClien
                     disabled={currentPage === 1}
                     className="rounded-lg font-bold"
                   >
-                    الأول
+                    {t("common.previous")}
                   </Button>
                   <Button
                     variant="outline"
@@ -666,7 +678,7 @@ export function TrialBalanceClient({ companyId, companyInfo }: TrialBalanceClien
                     disabled={currentPage === 1}
                     className="rounded-lg font-bold"
                   >
-                    السابق
+                    {t("common.previous")}
                   </Button>
                   <span className="px-4 py-2 bg-emerald-50 rounded-lg text-emerald-700 font-bold text-sm">
                     {currentPage} / {totalPages}
@@ -678,7 +690,7 @@ export function TrialBalanceClient({ companyId, companyInfo }: TrialBalanceClien
                     disabled={currentPage === totalPages}
                     className="rounded-lg font-bold"
                   >
-                    التالي
+                    {t("common.next")}
                   </Button>
                   <Button
                     variant="outline"
@@ -687,7 +699,7 @@ export function TrialBalanceClient({ companyId, companyInfo }: TrialBalanceClien
                     disabled={currentPage === totalPages}
                     className="rounded-lg font-bold"
                   >
-                    الأخير
+                    {t("common.next")}
                   </Button>
                 </div>
               </div>

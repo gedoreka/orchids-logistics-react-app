@@ -15,7 +15,6 @@ import {
   RefreshCw,
   ChevronDown,
   ChevronUp,
-  Eye,
   X,
   FileText,
   BarChart3,
@@ -33,6 +32,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { useLocale } from "@/lib/locale-context";
 import {
   Select,
   SelectContent,
@@ -93,6 +93,7 @@ interface GeneralLedgerClientProps {
 const COLORS = ["#3b82f6", "#10b981", "#f59e0b", "#ef4444", "#8b5cf6", "#ec4899", "#06b6d4", "#84cc16"];
 
 export function GeneralLedgerClient({ companyId, companyInfo }: GeneralLedgerClientProps) {
+  const { t, locale } = useLocale();
   const [entries, setEntries] = useState<LedgerEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -181,12 +182,12 @@ export function GeneralLedgerClient({ companyId, companyInfo }: GeneralLedgerCli
         setMetadata(data.metadata || { accounts: [], costCenters: [] });
       } catch (error) {
         console.error("Error fetching ledger data:", error);
-        setError("فشل تحميل البيانات. يرجى المحاولة مرة أخرى.");
+        setError(t("generalLedger.errorLoading"));
       } finally {
         setLoading(false);
         setRefreshing(false);
       }
-    }, [filters]);
+    }, [filters, t]);
 
   useEffect(() => {
     fetchData();
@@ -232,7 +233,17 @@ export function GeneralLedgerClient({ companyId, companyInfo }: GeneralLedgerCli
   };
 
   const handleExportExcel = () => {
-    const headers = ["التاريخ", "رقم المستند", "الوصف", "رمز الحساب", "اسم الحساب", "مركز التكلفة", "مدين", "دائن", "الرصيد"];
+    const headers = [
+      t("generalLedger.date"),
+      t("generalLedger.docNumber"),
+      t("generalLedger.description"),
+      t("accounts.accountCode"),
+      t("accounts.accountName"),
+      t("costCenters.centerCode"),
+      t("generalLedger.debit"),
+      t("generalLedger.credit"),
+      t("generalLedger.balance")
+    ];
     const csvContent = [
       headers.join(","),
       ...entries.map(e => [
@@ -260,8 +271,8 @@ export function GeneralLedgerClient({ companyId, companyInfo }: GeneralLedgerCli
     window.print();
   };
 
-  const formatNumber = (num: number) => new Intl.NumberFormat("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(num);
-  const formatDate = (date: string) => new Date(date).toLocaleDateString("ar-SA");
+  const formatNumber = (num: number) => new Intl.NumberFormat(locale === "ar" ? "en-US" : "en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(num);
+  const formatDate = (date: string) => new Date(date).toLocaleDateString(locale === "ar" ? "ar-SA" : "en-US");
 
     if (loading) {
       return (
@@ -271,7 +282,7 @@ export function GeneralLedgerClient({ companyId, companyInfo }: GeneralLedgerCli
               <div className="w-20 h-20 rounded-full border-4 border-blue-500/30 border-t-blue-500 animate-spin" />
               <BookOpen className="w-8 h-8 text-blue-500 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />
             </div>
-            <p className="text-slate-600 font-bold text-lg">جاري تحميل دفتر الأستاذ...</p>
+            <p className="text-slate-600 font-bold text-lg">{t("generalLedger.loading")}</p>
           </div>
         </div>
       );
@@ -284,13 +295,13 @@ export function GeneralLedgerClient({ companyId, companyInfo }: GeneralLedgerCli
             <div className="w-20 h-20 bg-rose-100 rounded-3xl flex items-center justify-center mx-auto mb-6">
               <X className="w-10 h-10 text-rose-600" />
             </div>
-            <h2 className="text-2xl font-bold text-slate-800 mb-2">خطأ في تحميل البيانات</h2>
+            <h2 className="text-2xl font-bold text-slate-800 mb-2">{t("generalLedger.errorLoading")}</h2>
             <p className="text-slate-600 mb-8">{error}</p>
             <Button 
               onClick={() => fetchData()} 
               className="w-full h-12 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold"
             >
-              إعادة المحاولة
+              {t("profitLoss.retry")}
             </Button>
           </Card>
         </div>
@@ -298,7 +309,7 @@ export function GeneralLedgerClient({ companyId, companyInfo }: GeneralLedgerCli
     }
 
   return (
-    <div className="p-4 md:p-6" dir="rtl">
+    <div className="p-4 md:p-6" dir={locale === "ar" ? "rtl" : "ltr"}>
       <Card className="border-none shadow-2xl rounded-[2rem] overflow-hidden bg-[#1a2234] p-4 md:p-8 space-y-8">
         <div className="relative overflow-hidden rounded-[2rem] bg-gradient-to-br from-[#0f172a] via-[#1e293b] to-[#0f172a] text-white shadow-2xl border border-white/10 print:hidden">
           <div className="absolute inset-0 overflow-hidden">
@@ -330,17 +341,17 @@ export function GeneralLedgerClient({ companyId, companyInfo }: GeneralLedgerCli
                 </div>
                 <div>
                   <h1 className="text-2xl md:text-4xl font-black tracking-tight bg-gradient-to-r from-white via-blue-200 to-white bg-clip-text text-transparent">
-                    دفتر الأستاذ العام
+                    {t("generalLedger.title")}
                   </h1>
                   <p className="text-white/60 font-medium mt-1 text-sm md:text-base">{companyInfo.name}</p>
                   <div className="flex items-center gap-2 mt-2">
                     <Badge className="bg-blue-500/20 text-blue-300 border-blue-500/30 font-bold text-xs">
                       <Activity className="w-3 h-3 ml-1" />
-                      مباشر
+                      {t("common.active")}
                     </Badge>
                     <Badge className="bg-emerald-500/20 text-emerald-300 border-emerald-500/30 font-bold text-xs">
                       <CheckCircle2 className="w-3 h-3 ml-1" />
-                      {entries.length} حركة
+                      {entries.length} {t("common.records")}
                     </Badge>
                   </div>
                 </div>
@@ -354,8 +365,8 @@ export function GeneralLedgerClient({ companyId, companyInfo }: GeneralLedgerCli
                   className="bg-white/10 border-white/20 text-white hover:bg-white/20 font-bold rounded-xl"
                   disabled={refreshing}
                 >
-                  <RefreshCw className={`w-4 h-4 ml-2 ${refreshing ? "animate-spin" : ""}`} />
-                  تحديث
+                  <RefreshCw className={`w-4 h-4 ${locale === "ar" ? "ml-2" : "mr-2"} ${refreshing ? "animate-spin" : ""}`} />
+                  {t("generalLedger.update")}
                 </Button>
                 <Button
                   onClick={() => setShowAnalytics(!showAnalytics)}
@@ -363,8 +374,8 @@ export function GeneralLedgerClient({ companyId, companyInfo }: GeneralLedgerCli
                   size="sm"
                   className="bg-purple-500/20 border-purple-500/30 text-purple-300 hover:bg-purple-500/30 font-bold rounded-xl"
                 >
-                  <BarChart3 className="w-4 h-4 ml-2" />
-                  التحليلات
+                  <BarChart3 className={`w-4 h-4 ${locale === "ar" ? "ml-2" : "mr-2"}`} />
+                  {t("generalLedger.analytics")}
                 </Button>
                 <Button
                   onClick={handleExportExcel}
@@ -372,8 +383,8 @@ export function GeneralLedgerClient({ companyId, companyInfo }: GeneralLedgerCli
                   size="sm"
                   className="bg-emerald-500/20 border-emerald-500/30 text-emerald-300 hover:bg-emerald-500/30 font-bold rounded-xl"
                 >
-                  <FileSpreadsheet className="w-4 h-4 ml-2" />
-                  Excel
+                  <FileSpreadsheet className={`w-4 h-4 ${locale === "ar" ? "ml-2" : "mr-2"}`} />
+                  {t("generalLedger.excel")}
                 </Button>
                 <Button
                   onClick={handlePrint}
@@ -381,19 +392,19 @@ export function GeneralLedgerClient({ companyId, companyInfo }: GeneralLedgerCli
                   size="sm"
                   className="bg-amber-500/20 border-amber-500/30 text-amber-300 hover:bg-amber-500/30 font-bold rounded-xl"
                 >
-                  <Printer className="w-4 h-4 ml-2" />
-                  طباعة
+                  <Printer className={`w-4 h-4 ${locale === "ar" ? "ml-2" : "mr-2"}`} />
+                  {t("generalLedger.print")}
                 </Button>
               </div>
             </div>
 
             <div className="grid grid-cols-2 md:grid-cols-5 gap-3 md:gap-4 mt-6 md:mt-8">
               {[
-                { label: "إجمالي المدين", value: stats.totalDebit, icon: TrendingUp, color: "from-rose-500 to-red-600", iconBg: "bg-rose-500/20" },
-                { label: "إجمالي الدائن", value: stats.totalCredit, icon: TrendingDown, color: "from-emerald-500 to-green-600", iconBg: "bg-emerald-500/20" },
-                { label: "الرصيد النهائي", value: stats.finalBalance, icon: Scale, color: "from-blue-500 to-indigo-600", iconBg: "bg-blue-500/20" },
-                { label: "عدد الحركات", value: stats.entriesCount, icon: Activity, color: "from-purple-500 to-violet-600", iconBg: "bg-purple-500/20", isCount: true },
-                { label: "الحسابات النشطة", value: stats.activeAccounts, icon: Layers, color: "from-amber-500 to-orange-600", iconBg: "bg-amber-500/20", isCount: true },
+                { label: t("generalLedger.totalDebit"), value: stats.totalDebit, icon: TrendingUp, color: "from-rose-500 to-red-600", iconBg: "bg-rose-500/20" },
+                { label: t("generalLedger.totalCredit"), value: stats.totalCredit, icon: TrendingDown, color: "from-emerald-500 to-green-600", iconBg: "bg-emerald-500/20" },
+                { label: t("generalLedger.finalBalance"), value: stats.finalBalance, icon: Scale, color: "from-blue-500 to-indigo-600", iconBg: "bg-blue-500/20" },
+                { label: t("generalLedger.entriesCount"), value: stats.entriesCount, icon: Activity, color: "from-purple-500 to-violet-600", iconBg: "bg-purple-500/20", isCount: true },
+                { label: t("generalLedger.activeAccounts"), value: stats.activeAccounts, icon: Layers, color: "from-amber-500 to-orange-600", iconBg: "bg-amber-500/20", isCount: true },
               ].map((stat, idx) => (
                 <div
                   key={idx}
@@ -421,7 +432,7 @@ export function GeneralLedgerClient({ companyId, companyInfo }: GeneralLedgerCli
               <CardHeader className="border-b border-slate-100 bg-gradient-to-r from-blue-50 to-indigo-50">
                 <CardTitle className="text-lg font-bold text-slate-800 flex items-center gap-2">
                   <BarChart3 className="w-5 h-5 text-blue-600" />
-                  تطور الحركات الشهرية
+                  {t("generalLedger.monthlyTrend")}
                 </CardTitle>
               </CardHeader>
               <CardContent className="p-6">
@@ -438,7 +449,7 @@ export function GeneralLedgerClient({ companyId, companyInfo }: GeneralLedgerCli
                     <YAxis stroke="#64748b" fontSize={12} tickFormatter={(v) => `${(v / 1000).toFixed(0)}K`} />
                     <Tooltip
                       contentStyle={{ background: "#1e293b", border: "none", borderRadius: "12px", color: "white" }}
-                      formatter={(value: number) => [formatNumber(value) + " ر.س", "المبلغ"]}
+                      formatter={(value: number) => [formatNumber(value) + " " + t("common.sar"), t("common.amount")]}
                     />
                     <Area type="monotone" dataKey="amount" stroke="#3b82f6" strokeWidth={3} fill="url(#colorAmount)" />
                   </AreaChart>
@@ -450,7 +461,7 @@ export function GeneralLedgerClient({ companyId, companyInfo }: GeneralLedgerCli
               <CardHeader className="border-b border-slate-100 bg-gradient-to-r from-purple-50 to-pink-50">
                 <CardTitle className="text-lg font-bold text-slate-800 flex items-center gap-2">
                   <PieChart className="w-5 h-5 text-purple-600" />
-                  توزيع مراكز التكلفة
+                  {t("generalLedger.costCenterDistribution")}
                 </CardTitle>
               </CardHeader>
               <CardContent className="p-6">
@@ -473,14 +484,14 @@ export function GeneralLedgerClient({ companyId, companyInfo }: GeneralLedgerCli
                       </Pie>
                       <Tooltip
                         contentStyle={{ background: "#1e293b", border: "none", borderRadius: "12px", color: "white" }}
-                        formatter={(value: number) => formatNumber(value) + " ر.س"}
+                        formatter={(value: number) => formatNumber(value) + " " + t("common.sar")}
                       />
                       <Legend />
                     </RechartPie>
                   </ResponsiveContainer>
                 ) : (
                   <div className="h-[300px] flex items-center justify-center text-slate-400">
-                    لا توجد بيانات مراكز تكلفة
+                    {t("common.noData")}
                   </div>
                 )}
               </CardContent>
@@ -490,7 +501,7 @@ export function GeneralLedgerClient({ companyId, companyInfo }: GeneralLedgerCli
               <CardHeader className="border-b border-slate-100 bg-gradient-to-r from-emerald-50 to-teal-50">
                 <CardTitle className="text-lg font-bold text-slate-800 flex items-center gap-2">
                   <TrendingUp className="w-5 h-5 text-emerald-600" />
-                  أكبر 10 حسابات حركة
+                  {t("generalLedger.topAccounts")}
                 </CardTitle>
               </CardHeader>
               <CardContent className="p-6">
@@ -502,14 +513,14 @@ export function GeneralLedgerClient({ companyId, companyInfo }: GeneralLedgerCli
                       <YAxis type="category" dataKey="name" stroke="#64748b" fontSize={11} width={150} />
                       <Tooltip
                         contentStyle={{ background: "#1e293b", border: "none", borderRadius: "12px", color: "white" }}
-                        formatter={(value: number) => [formatNumber(value) + " ر.س", "المجموع"]}
+                        formatter={(value: number) => [formatNumber(value) + " " + t("common.sar"), t("common.total")]}
                       />
                       <Bar dataKey="total" fill="#10b981" radius={[0, 8, 8, 0]} />
                     </BarChart>
                   </ResponsiveContainer>
                 ) : (
                   <div className="h-[300px] flex items-center justify-center text-slate-400">
-                    لا توجد بيانات حسابات
+                    {t("common.noData")}
                   </div>
                 )}
               </CardContent>
@@ -521,12 +532,12 @@ export function GeneralLedgerClient({ companyId, companyInfo }: GeneralLedgerCli
           <CardContent className="p-4 md:p-6">
             <div className="flex flex-col lg:flex-row items-center gap-4">
               <div className="relative flex-1 w-full">
-                <Search className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+                <Search className={`absolute ${locale === "ar" ? "right-4" : "left-4"} top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400`} />
                 <Input
-                  placeholder="بحث بالوصف، رقم المستند، رمز الحساب..."
+                  placeholder={t("generalLedger.searchPlaceholder")}
                   value={filters.search}
                   onChange={(e) => setFilters(prev => ({ ...prev, search: e.target.value }))}
-                  className="pr-12 h-12 rounded-xl border-slate-200 focus:border-blue-500 text-right font-medium"
+                  className={`${locale === "ar" ? "pr-12 text-right" : "pl-12 text-left"} h-12 rounded-xl border-slate-200 focus:border-blue-500 font-medium`}
                 />
               </div>
 
@@ -536,19 +547,19 @@ export function GeneralLedgerClient({ companyId, companyInfo }: GeneralLedgerCli
                   onClick={() => setShowFilters(!showFilters)}
                   className={`rounded-xl font-bold h-12 ${showFilters ? "bg-blue-50 border-blue-300 text-blue-700" : ""}`}
                 >
-                  <Filter className="w-4 h-4 ml-2" />
-                  فلاتر متقدمة
-                  {showFilters ? <ChevronUp className="w-4 h-4 mr-2" /> : <ChevronDown className="w-4 h-4 mr-2" />}
+                  <Filter className={`w-4 h-4 ${locale === "ar" ? "ml-2" : "mr-2"}`} />
+                  {t("generalLedger.advancedFilters")}
+                  {showFilters ? <ChevronUp className={`w-4 h-4 ${locale === "ar" ? "mr-2" : "ml-2"}`} /> : <ChevronDown className={`w-4 h-4 ${locale === "ar" ? "mr-2" : "ml-2"}`} />}
                 </Button>
 
                 <Select value={filters.entryType} onValueChange={(v) => setFilters(prev => ({ ...prev, entryType: v }))}>
                   <SelectTrigger className="w-40 h-12 rounded-xl font-bold">
-                    <SelectValue placeholder="نوع الحركة" />
+                    <SelectValue placeholder={t("generalLedger.entryType")} />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="all">جميع الحركات</SelectItem>
-                    <SelectItem value="debit">مدين فقط</SelectItem>
-                    <SelectItem value="credit">دائن فقط</SelectItem>
+                    <SelectItem value="all">{t("generalLedger.allEntries")}</SelectItem>
+                    <SelectItem value="debit">{t("generalLedger.debitOnly")}</SelectItem>
+                    <SelectItem value="credit">{t("generalLedger.creditOnly")}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -557,7 +568,7 @@ export function GeneralLedgerClient({ companyId, companyInfo }: GeneralLedgerCli
             {showFilters && (
               <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mt-4 pt-4 border-t border-slate-100">
                 <div>
-                  <label className="block text-sm font-bold text-slate-600 mb-2">من تاريخ</label>
+                  <label className="block text-sm font-bold text-slate-600 mb-2">{t("generalLedger.fromDate")}</label>
                   <Input
                     type="date"
                     value={filters.fromDate}
@@ -566,7 +577,7 @@ export function GeneralLedgerClient({ companyId, companyInfo }: GeneralLedgerCli
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-bold text-slate-600 mb-2">إلى تاريخ</label>
+                  <label className="block text-sm font-bold text-slate-600 mb-2">{t("generalLedger.toDate")}</label>
                   <Input
                     type="date"
                     value={filters.toDate}
@@ -575,13 +586,13 @@ export function GeneralLedgerClient({ companyId, companyInfo }: GeneralLedgerCli
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-bold text-slate-600 mb-2">الحساب</label>
+                  <label className="block text-sm font-bold text-slate-600 mb-2">{t("generalLedger.account")}</label>
                   <Select value={filters.accountId} onValueChange={(v) => setFilters(prev => ({ ...prev, accountId: v }))}>
                     <SelectTrigger className="h-11 rounded-xl">
-                      <SelectValue placeholder="جميع الحسابات" />
+                      <SelectValue placeholder={t("generalLedger.allAccounts")} />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">جميع الحسابات</SelectItem>
+                      <SelectItem value="">{t("generalLedger.allAccounts")}</SelectItem>
                       {metadata.accounts.map((acc) => (
                         <SelectItem key={acc.id} value={String(acc.id)}>
                           {acc.account_code} - {acc.account_name}
@@ -591,13 +602,13 @@ export function GeneralLedgerClient({ companyId, companyInfo }: GeneralLedgerCli
                   </Select>
                 </div>
                 <div>
-                  <label className="block text-sm font-bold text-slate-600 mb-2">مركز التكلفة</label>
+                  <label className="block text-sm font-bold text-slate-600 mb-2">{t("generalLedger.costCenter")}</label>
                   <Select value={filters.costCenterId} onValueChange={(v) => setFilters(prev => ({ ...prev, costCenterId: v }))}>
                     <SelectTrigger className="h-11 rounded-xl">
-                      <SelectValue placeholder="جميع المراكز" />
+                      <SelectValue placeholder={t("generalLedger.allCenters")} />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">جميع المراكز</SelectItem>
+                      <SelectItem value="">{t("generalLedger.allCenters")}</SelectItem>
                       {metadata.costCenters.map((cc) => (
                         <SelectItem key={cc.id} value={String(cc.id)}>
                           {cc.center_code} - {cc.center_name}
@@ -612,8 +623,8 @@ export function GeneralLedgerClient({ companyId, companyInfo }: GeneralLedgerCli
                     onClick={() => setFilters({ fromDate: "", toDate: "", accountId: "", costCenterId: "", search: "", entryType: "all" })}
                     className="rounded-xl font-bold"
                   >
-                    <X className="w-4 h-4 ml-2" />
-                    مسح الفلاتر
+                    <X className={`w-4 h-4 ${locale === "ar" ? "ml-2" : "mr-2"}`} />
+                    {t("generalLedger.clearFilters")}
                   </Button>
                 </div>
               </div>
@@ -626,10 +637,10 @@ export function GeneralLedgerClient({ companyId, companyInfo }: GeneralLedgerCli
             <div className="flex items-center justify-between">
               <CardTitle className="text-lg font-bold text-slate-800 flex items-center gap-2">
                 <FileText className="w-5 h-5 text-blue-600" />
-                سجل الحركات المالية
+                {t("generalLedger.financialLog")}
               </CardTitle>
               <div className="flex items-center gap-3 print:hidden">
-                <span className="text-sm text-slate-500 font-medium">عرض:</span>
+                <span className="text-sm text-slate-500 font-medium">{t("common.view")}:</span>
                 <Select value={String(pageSize)} onValueChange={(v) => { setPageSize(Number(v)); setCurrentPage(1); }}>
                   <SelectTrigger className="w-20 h-9 rounded-lg">
                     <SelectValue />
@@ -650,20 +661,20 @@ export function GeneralLedgerClient({ companyId, companyInfo }: GeneralLedgerCli
                 <thead>
                   <tr className="bg-gradient-to-r from-slate-800 to-slate-900 text-white">
                     {[
-                      { key: "date", label: "التاريخ", icon: Calendar },
-                      { key: "document_number", label: "رقم المستند", icon: Hash },
-                      { key: "description", label: "الوصف", icon: FileText },
-                      { key: "account_code", label: "الحساب", icon: Layers },
-                      { key: "cost_center_code", label: "مركز التكلفة", icon: Building },
-                      { key: "debit", label: "مدين", icon: ArrowUpRight },
-                      { key: "credit", label: "دائن", icon: ArrowDownRight },
-                      { key: "balance", label: "الرصيد", icon: Scale },
-                      { key: "source_type", label: "المصدر", icon: FileType },
+                      { key: "date", label: t("generalLedger.date"), icon: Calendar },
+                      { key: "document_number", label: t("generalLedger.docNumber"), icon: Hash },
+                      { key: "description", label: t("generalLedger.description"), icon: FileText },
+                      { key: "account_code", label: t("generalLedger.account"), icon: Layers },
+                      { key: "cost_center_code", label: t("generalLedger.costCenter"), icon: Building },
+                      { key: "debit", label: t("generalLedger.debit"), icon: ArrowUpRight },
+                      { key: "credit", label: t("generalLedger.credit"), icon: ArrowDownRight },
+                      { key: "balance", label: t("generalLedger.balance"), icon: Scale },
+                      { key: "source_type", label: t("generalLedger.source"), icon: FileType },
                     ].map((col) => (
                       <th
                         key={col.key}
                         onClick={() => handleSort(col.key)}
-                        className="px-3 md:px-4 py-4 text-right text-xs font-bold cursor-pointer hover:bg-white/10 transition-colors whitespace-nowrap"
+                        className={`px-3 md:px-4 py-4 ${locale === "ar" ? "text-right" : "text-left"} text-xs font-bold cursor-pointer hover:bg-white/10 transition-colors whitespace-nowrap`}
                       >
                         <div className="flex items-center gap-1 md:gap-2">
                           <col.icon className="w-3 h-3 md:w-4 md:h-4 opacity-70" />
@@ -675,7 +686,7 @@ export function GeneralLedgerClient({ companyId, companyInfo }: GeneralLedgerCli
                         </div>
                       </th>
                     ))}
-                    <th className="px-3 md:px-4 py-4 text-center text-xs font-bold print:hidden">عرض</th>
+                    <th className="px-3 md:px-4 py-4 text-center text-xs font-bold print:hidden">{t("generalLedger.view")}</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
@@ -754,7 +765,7 @@ export function GeneralLedgerClient({ companyId, companyInfo }: GeneralLedgerCli
                           <div className="w-20 h-20 bg-slate-100 rounded-full flex items-center justify-center">
                             <FileText className="w-10 h-10 text-slate-300" />
                           </div>
-                          <p className="text-slate-400 font-bold text-lg">لا توجد حركات مطابقة للبحث</p>
+                          <p className="text-slate-400 font-bold text-lg">{t("generalLedger.noMatching")}</p>
                         </div>
                       </td>
                     </tr>
@@ -763,7 +774,7 @@ export function GeneralLedgerClient({ companyId, companyInfo }: GeneralLedgerCli
                 <tfoot>
                   <tr className="bg-gradient-to-r from-slate-100 to-blue-100 font-bold">
                     <td colSpan={5} className="px-3 md:px-4 py-4 text-xs md:text-sm text-slate-700">
-                      الإجمالي
+                      {t("common.total")}
                     </td>
                     <td className="px-3 md:px-4 py-4 text-xs md:text-sm text-rose-600 font-black tabular-nums">
                       {formatNumber(stats.totalDebit)}
@@ -783,7 +794,11 @@ export function GeneralLedgerClient({ companyId, companyInfo }: GeneralLedgerCli
             {totalPages > 1 && (
               <div className="flex flex-col md:flex-row items-center justify-between p-4 border-t border-slate-100 print:hidden gap-3">
                 <div className="text-sm text-slate-500 font-medium">
-                  عرض {((currentPage - 1) * pageSize) + 1} إلى {Math.min(currentPage * pageSize, entries.length)} من {entries.length} حركة
+                  {locale === "ar" ? (
+                    <>عرض {((currentPage - 1) * pageSize) + 1} إلى {Math.min(currentPage * pageSize, entries.length)} من {entries.length} حركة</>
+                  ) : (
+                    <>Showing {((currentPage - 1) * pageSize) + 1} to {Math.min(currentPage * pageSize, entries.length)} of {entries.length} records</>
+                  )}
                 </div>
                 <div className="flex items-center gap-2">
                   <Button
@@ -793,7 +808,7 @@ export function GeneralLedgerClient({ companyId, companyInfo }: GeneralLedgerCli
                     disabled={currentPage === 1}
                     className="rounded-lg font-bold"
                   >
-                    الأول
+                    {t("common.previous")}
                   </Button>
                   <Button
                     variant="outline"
@@ -802,7 +817,7 @@ export function GeneralLedgerClient({ companyId, companyInfo }: GeneralLedgerCli
                     disabled={currentPage === 1}
                     className="rounded-lg font-bold"
                   >
-                    السابق
+                    {t("common.previous")}
                   </Button>
                   <span className="px-4 py-2 bg-blue-50 rounded-lg text-blue-700 font-bold text-sm">
                     {currentPage} / {totalPages}
@@ -814,7 +829,7 @@ export function GeneralLedgerClient({ companyId, companyInfo }: GeneralLedgerCli
                     disabled={currentPage === totalPages}
                     className="rounded-lg font-bold"
                   >
-                    التالي
+                    {t("common.next")}
                   </Button>
                   <Button
                     variant="outline"
@@ -823,7 +838,7 @@ export function GeneralLedgerClient({ companyId, companyInfo }: GeneralLedgerCli
                     disabled={currentPage === totalPages}
                     className="rounded-lg font-bold"
                   >
-                    الأخير
+                    {t("common.next")}
                   </Button>
                 </div>
               </div>
