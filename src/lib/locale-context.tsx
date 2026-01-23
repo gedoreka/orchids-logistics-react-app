@@ -48,7 +48,7 @@ export function LocaleProvider({ children }: { children: ReactNode }) {
     setLocaleState(newLocale);
   };
 
-  const t = (key: string, values?: Record<string, string | number>): string => {
+  const t = useCallback((key: string, values?: Record<string, string | number>): string => {
     const keys = key.split('.');
     let value: any = messagesMap[locale];
     
@@ -69,7 +69,7 @@ export function LocaleProvider({ children }: { children: ReactNode }) {
     }
 
     return result;
-  };
+  }, [locale]);
 
   const isRTL = locale === 'ar';
   const messages = messagesMap[locale];
