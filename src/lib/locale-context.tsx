@@ -92,10 +92,10 @@ export function useLocale() {
 export function useTranslations(namespace?: string) {
   const { t, locale, isRTL, messages } = useLocale();
   
-  const translate = (key: string, values?: Record<string, string | number>): string => {
+  const translate = useCallback((key: string, values?: Record<string, string | number>): string => {
     const fullKey = namespace ? `${namespace}.${key}` : key;
     return t(fullKey, values);
-  };
+  }, [namespace, t]);
 
   return translate;
 }
