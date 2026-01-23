@@ -111,9 +111,10 @@
       "chat": "المحادثات",
       "admin": "الإدارة",
       "companies": "الشركات",
-      "notifications": "الإشعارات",
-      "userProfile": "الملف الشخصي",
-      "salesReceipts": "إيصالات البيع",
+        "notifications": "الإشعارات",
+        "userProfile": "بيانات المنشأة",
+        "salesReceipts": "إيصالات البيع",
+
       "ecommerceOrders": "طلبات التجارة الإلكترونية",
       "personalShipments": "الشحنات الشخصية"
     },

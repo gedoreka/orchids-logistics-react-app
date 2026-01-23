@@ -55,6 +55,7 @@ interface NavItem {
 
 const navItems: NavItem[] = [
   { titleKey: "home", href: "/dashboard", icon: Home, gradient: "from-blue-500 to-cyan-500" },
+  { titleKey: "userProfile", href: "/user_profile", icon: Building2, gradient: "from-blue-600 to-indigo-600" },
   
   { titleKey: "companyRequests", href: "/admin/companies", icon: Building2, adminOnly: true, gradient: "from-violet-500 to-purple-500" },
   { titleKey: "addNewCompany", href: "/admin/companies/new", icon: PlusCircle, adminOnly: true, gradient: "from-emerald-500 to-green-500" },

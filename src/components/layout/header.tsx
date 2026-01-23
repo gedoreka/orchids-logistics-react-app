@@ -1452,11 +1452,22 @@ export function Header({ user, onToggleSidebar, unreadChatCount = 0, subscriptio
                         </motion.button>
                       )}
                     
-                    <motion.button
-                      whileHover={{ backgroundColor: "rgba(255,255,255,0.05)" }}
-                      onClick={() => { router.push("/settings"); setShowUserDropdown(false); }}
-                      className="w-full flex items-center gap-4 px-4 py-3.5 rounded-xl text-white/70 hover:text-white transition-colors"
-                    >
+                      <motion.button
+                        whileHover={{ backgroundColor: "rgba(255,255,255,0.05)" }}
+                        onClick={() => { router.push("/user_profile"); setShowUserDropdown(false); }}
+                        className="w-full flex items-center gap-4 px-4 py-3.5 rounded-xl text-white/70 hover:text-white transition-colors"
+                      >
+                        <div className="p-2 rounded-xl bg-blue-500/20">
+                          <Building2 size={18} className="text-blue-400" />
+                        </div>
+                        <span className="text-sm font-bold">{isRTL ? 'بيانات المنشأة' : 'Company Profile'}</span>
+                      </motion.button>
+
+                      <motion.button
+                        whileHover={{ backgroundColor: "rgba(255,255,255,0.05)" }}
+                        onClick={() => { router.push("/settings"); setShowUserDropdown(false); }}
+                        className="w-full flex items-center gap-4 px-4 py-3.5 rounded-xl text-white/70 hover:text-white transition-colors"
+                      >
                       <div className="p-2 rounded-xl bg-slate-500/20">
                         <Settings size={18} className="text-slate-400" />
                       </div>
