@@ -92,6 +92,52 @@ interface Invoice {
   total_amount: number;
   vat_total: number;
   status: string;
+  zatca_uuid?: string;
+  zatca_hash?: string;
+  zatca_status?: string;
+  vat_rate?: number;
+}
+
+function generateQRCodeTLV(
+  sellerName: string,
+  vatNumber: string,
+  invoiceDate: string,
+  totalWithVAT: string,
+  vatAmount: string,
+  uuid?: string,
+  hash?: string
+): string {
+  try {
+    const encoder = new TextEncoder();
+    const safeDate = invoiceDate && invoiceDate !== 'Invalid Date' ? invoiceDate : new Date().toISOString().split('T')[0];
+    
+    const values: string[] = [
+      sellerName || '',
+      vatNumber || '',
+      safeDate + 'T00:00:00Z',
+      totalWithVAT || '0.00',
+      vatAmount || '0.00'
+    ];
+
+    if (uuid) values.push(uuid);
+    if (hash) values.push(hash);
+    
+    const tlvParts: number[] = [];
+    values.forEach((value, index) => {
+      const encoded = encoder.encode(String(value));
+      tlvParts.push(index + 1);
+      tlvParts.push(encoded.length);
+      tlvParts.push(...encoded);
+    });
+    
+    const bytes = new Uint8Array(tlvParts);
+    let binary = '';
+    bytes.forEach(byte => binary += String.fromCharCode(byte));
+    return btoa(binary);
+  } catch (e) {
+    console.error('QR generation error:', e);
+    return '';
+  }
 }
 
 interface InvoiceViewClientProps {
@@ -196,13 +242,15 @@ export function InvoiceViewClient({
   const grandTotal = parseFloat(String(invoice.total_amount || 0));
   const invoiceStatus = items[0]?.status || invoice.status || 'due';
 
-  const qrData = generateQRCodeTLV(
-    company?.name || '',
-    company?.vat_number || '',
-    invoice.issue_date || '',
-    grandTotal.toFixed(2),
-    totalVat.toFixed(2)
-  );
+    const qrData = generateQRCodeTLV(
+      company?.name || '',
+      company?.vat_number || '',
+      invoice.issue_date || '',
+      grandTotal.toFixed(2),
+      totalVat.toFixed(2),
+      invoice.zatca_uuid,
+      invoice.zatca_hash
+    );
 
   const companyAddress = [
     company?.country,

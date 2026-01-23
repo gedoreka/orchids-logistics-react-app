@@ -85,6 +85,12 @@ export function SettingsContent({ company, taxSettings, userEmail, companyId }: 
   const [zatcaLogLevel, setZatcaLogLevel] = useState(taxSettings.zatca_log_level || "info");
   const [zatcaTimeout, setZatcaTimeout] = useState(taxSettings.zatca_timeout || 30);
   const [zatcaMaxRetries, setZatcaMaxRetries] = useState(taxSettings.zatca_max_retries || 3);
+  const [zatcaPhase, setZatcaPhase] = useState(taxSettings.zatca_phase || 1);
+  const [zatcaTokenEndpoint, setZatcaTokenEndpoint] = useState(taxSettings.zatca_token_endpoint || "");
+  const [zatcaApiVersion, setZatcaApiVersion] = useState(taxSettings.zatca_api_version || "1.0");
+  const [zatcaCsr, setZatcaCsr] = useState(taxSettings.zatca_csr || "");
+  const [zatcaVatRate, setZatcaVatRate] = useState(taxSettings.zatca_vat_rate || 15);
+  const [zatcaDocumentTypes, setZatcaDocumentTypes] = useState<string[]>(taxSettings.zatca_document_types || ["sale", "return", "adjustment"]);
 
   const toggleInvoiceType = (type: string) => {
     setZatcaInvoiceTypes(prev => 
@@ -147,10 +153,16 @@ export function SettingsContent({ company, taxSettings, userEmail, companyId }: 
           zatca_immediate_send: zatcaImmediateSend,
           zatca_backup_period: zatcaBackupPeriod,
           zatca_log_level: zatcaLogLevel,
-          zatca_timeout: zatcaTimeout,
-          zatca_max_retries: zatcaMaxRetries,
-          updated_at: new Date().toISOString()
-        }, { onConflict: "company_id" });
+            zatca_timeout: zatcaTimeout,
+            zatca_max_retries: zatcaMaxRetries,
+            zatca_phase: zatcaPhase,
+            zatca_token_endpoint: zatcaTokenEndpoint,
+            zatca_api_version: zatcaApiVersion,
+            zatca_csr: zatcaCsr,
+            zatca_vat_rate: zatcaVatRate,
+            zatca_document_types: zatcaDocumentTypes,
+            updated_at: new Date().toISOString()
+          }, { onConflict: "company_id" });
 
       if (error) throw error;
       toast.success(commonT("success"));
@@ -312,16 +324,41 @@ export function SettingsContent({ company, taxSettings, userEmail, companyId }: 
                     <p className="text-xs font-bold text-slate-500 uppercase tracking-widest mt-1">E-Invoicing & Compliance</p>
                   </div>
                 </div>
-                <div className="flex items-center gap-3">
-                  <div className="px-4 py-2 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex items-center gap-2">
-                    <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                    <span className="text-[10px] font-black text-emerald-400 uppercase tracking-widest">Phase 2 Compliant</span>
+                  <div className="flex items-center gap-3">
+                    <div className="px-4 py-2 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex items-center gap-2">
+                      <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                      <span className="text-[10px] font-black text-emerald-400 uppercase tracking-widest">{zatcaPhase === 1 ? t("phase1") : t("phase2")}</span>
+                    </div>
                   </div>
                 </div>
-              </div>
 
-              <div className="grid grid-cols-1 gap-10">
-                {/* Enable Switch - Large Card */}
+                <div className="grid grid-cols-1 gap-10">
+                  {/* Phase Selection */}
+                  <div className="space-y-4">
+                    <label className="text-xs font-black text-slate-400 uppercase tracking-[0.2em] px-1">{t("zatcaPhase")}</label>
+                    <div className="flex p-2 rounded-[1.5rem] bg-black/40 border border-white/5 shadow-inner max-w-md">
+                      <button 
+                        onClick={() => setZatcaPhase(1)}
+                        className={cn(
+                          "flex-1 py-4 text-xs font-black rounded-2xl transition-all tracking-widest uppercase",
+                          zatcaPhase === 1 ? "bg-white/10 text-white shadow-xl" : "text-slate-600 hover:text-slate-400"
+                        )}
+                      >
+                        {t("phase1")}
+                      </button>
+                      <button 
+                        onClick={() => setZatcaPhase(2)}
+                        className={cn(
+                          "flex-1 py-4 text-xs font-black rounded-2xl transition-all tracking-widest uppercase",
+                          zatcaPhase === 2 ? "bg-emerald-500/20 text-emerald-400 shadow-xl" : "text-slate-600 hover:text-slate-400"
+                        )}
+                      >
+                        {t("phase2")}
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Enable Switch - Large Card */}
                 <div className="group relative">
                   <div className="absolute -inset-0.5 bg-gradient-to-r from-emerald-500/20 to-teal-500/20 rounded-[2.5rem] blur opacity-0 group-hover:opacity-100 transition-opacity" />
                   <div className="relative flex items-center justify-between p-8 rounded-[2.5rem] bg-white/5 border border-white/10 backdrop-blur-xl">
@@ -389,19 +426,51 @@ export function SettingsContent({ company, taxSettings, userEmail, companyId }: 
                           </div>
                         </div>
 
-                        <div className="space-y-4">
-                          <label className="text-xs font-black text-slate-400 uppercase tracking-[0.2em] px-1">{t("zatcaApiUrl")}</label>
-                          <div className="relative group">
-                            <input 
-                              type="text"
-                              value={zatcaApiUrl}
-                              onChange={(e) => setZatcaApiUrl(e.target.value)}
-                              placeholder="https://..."
-                              className="w-full p-5 rounded-3xl bg-white/5 border border-white/10 text-white focus:border-emerald-500/50 focus:ring-8 focus:ring-emerald-500/5 outline-none transition-all font-bold font-mono text-sm"
-                            />
-                            <Network className="absolute right-5 top-1/2 -translate-y-1/2 text-white/10 group-focus-within:text-emerald-500/40 transition-colors" size={20} />
+                          <div className="space-y-4">
+                            <label className="text-xs font-black text-slate-400 uppercase tracking-[0.2em] px-1">{t("zatcaApiUrl")}</label>
+                            <div className="relative group">
+                              <input 
+                                type="text"
+                                value={zatcaApiUrl}
+                                onChange={(e) => setZatcaApiUrl(e.target.value)}
+                                placeholder="https://..."
+                                className="w-full p-5 rounded-3xl bg-white/5 border border-white/10 text-white focus:border-emerald-500/50 focus:ring-8 focus:ring-emerald-500/5 outline-none transition-all font-bold font-mono text-sm"
+                              />
+                              <Network className="absolute right-5 top-1/2 -translate-y-1/2 text-white/10 group-focus-within:text-emerald-500/40 transition-colors" size={20} />
+                            </div>
                           </div>
-                        </div>
+
+                          {zatcaPhase === 2 && (
+                            <>
+                              <div className="space-y-4">
+                                <label className="text-xs font-black text-slate-400 uppercase tracking-[0.2em] px-1">{t("zatcaTokenEndpoint")}</label>
+                                <div className="relative group">
+                                  <input 
+                                    type="text"
+                                    value={zatcaTokenEndpoint}
+                                    onChange={(e) => setZatcaTokenEndpoint(e.target.value)}
+                                    placeholder="https://..."
+                                    className="w-full p-5 rounded-3xl bg-white/5 border border-white/10 text-white focus:border-emerald-500/50 focus:ring-8 focus:ring-emerald-500/5 outline-none transition-all font-bold font-mono text-sm"
+                                  />
+                                  <Lock className="absolute right-5 top-1/2 -translate-y-1/2 text-white/10 group-focus-within:text-emerald-500/40 transition-colors" size={20} />
+                                </div>
+                              </div>
+
+                              <div className="space-y-4">
+                                <label className="text-xs font-black text-slate-400 uppercase tracking-[0.2em] px-1">{t("zatcaApiVersion")}</label>
+                                <div className="relative group">
+                                  <input 
+                                    type="text"
+                                    value={zatcaApiVersion}
+                                    onChange={(e) => setZatcaApiVersion(e.target.value)}
+                                    placeholder="1.0"
+                                    className="w-full p-5 rounded-3xl bg-white/5 border border-white/10 text-white focus:border-emerald-500/50 focus:ring-8 focus:ring-emerald-500/5 outline-none transition-all font-bold"
+                                  />
+                                  <Settings className="absolute right-5 top-1/2 -translate-y-1/2 text-white/10 group-focus-within:text-emerald-500/40 transition-colors" size={20} />
+                                </div>
+                              </div>
+                            </>
+                          )}
 
                         <div className="space-y-4">
                           <label className="text-xs font-black text-slate-400 uppercase tracking-[0.2em] px-1">{t("zatcaClientId")}</label>
@@ -444,17 +513,29 @@ export function SettingsContent({ company, taxSettings, userEmail, companyId }: 
                           </div>
                         </div>
 
-                        <div className="grid grid-cols-1 gap-8">
-                          <div className="space-y-4">
-                            <label className="text-xs font-black text-slate-400 uppercase tracking-[0.2em] px-1">{t("zatcaCert")}</label>
-                            <textarea 
-                              value={zatcaCert}
-                              onChange={(e) => setZatcaCert(e.target.value)}
-                              placeholder="-----BEGIN CERTIFICATE-----"
-                              rows={4}
-                              className="w-full p-5 rounded-3xl bg-white/5 border border-white/10 text-white focus:border-amber-500/50 outline-none transition-all font-mono text-xs leading-relaxed resize-none"
-                            />
-                          </div>
+                          <div className="grid grid-cols-1 gap-8">
+                            {zatcaPhase === 2 && (
+                              <div className="space-y-4">
+                                <label className="text-xs font-black text-slate-400 uppercase tracking-[0.2em] px-1">{t("zatcaCsr")}</label>
+                                <textarea 
+                                  value={zatcaCsr}
+                                  onChange={(e) => setZatcaCsr(e.target.value)}
+                                  placeholder="-----BEGIN CERTIFICATE REQUEST-----"
+                                  rows={4}
+                                  className="w-full p-5 rounded-3xl bg-white/5 border border-white/10 text-white focus:border-emerald-500/50 outline-none transition-all font-mono text-xs leading-relaxed resize-none"
+                                />
+                              </div>
+                            )}
+                            <div className="space-y-4">
+                              <label className="text-xs font-black text-slate-400 uppercase tracking-[0.2em] px-1">{t("zatcaCert")}</label>
+                              <textarea 
+                                value={zatcaCert}
+                                onChange={(e) => setZatcaCert(e.target.value)}
+                                placeholder="-----BEGIN CERTIFICATE-----"
+                                rows={4}
+                                className="w-full p-5 rounded-3xl bg-white/5 border border-white/10 text-white focus:border-amber-500/50 outline-none transition-all font-mono text-xs leading-relaxed resize-none"
+                              />
+                            </div>
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                             <div className="space-y-4">
                               <label className="text-xs font-black text-slate-400 uppercase tracking-[0.2em] px-1">{t("zatcaPrivateKey")}</label>
@@ -486,68 +567,123 @@ export function SettingsContent({ company, taxSettings, userEmail, companyId }: 
                         </div>
                       </div>
 
-                      {/* Invoice Types & Payment Methods */}
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-                        {/* Invoice Types */}
-                        <div className="p-8 rounded-[2.5rem] bg-white/5 border border-white/10 space-y-6">
-                          <div className="flex items-center gap-3 mb-2">
-                            <FileText className="w-5 h-5 text-emerald-400" />
-                            <h3 className="text-sm font-black text-white uppercase tracking-widest">{t("zatcaInvoiceTypes")}</h3>
+                        {/* Invoice Types & Payment Methods */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+                          {/* Invoice Types */}
+                          <div className="p-8 rounded-[2.5rem] bg-white/5 border border-white/10 space-y-6">
+                            <div className="flex items-center gap-3 mb-2">
+                              <FileText className="w-5 h-5 text-emerald-400" />
+                              <h3 className="text-sm font-black text-white uppercase tracking-widest">{t("zatcaInvoiceTypes")}</h3>
+                            </div>
+                            <div className="grid grid-cols-1 gap-3">
+                              {[
+                                { id: "standard", label: t("invoiceStandard") },
+                                { id: "simplified", label: t("invoiceSimplified") },
+                                { id: "credit", label: t("creditNote") },
+                                { id: "debit", label: t("debitNote") },
+                              ].map((type) => (
+                                <button
+                                  key={type.id}
+                                  onClick={() => toggleInvoiceType(type.id)}
+                                  className={cn(
+                                    "flex items-center justify-between p-4 rounded-2xl transition-all border",
+                                    zatcaInvoiceTypes.includes(type.id) 
+                                      ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-400" 
+                                      : "bg-black/20 border-white/5 text-slate-500 hover:border-white/10"
+                                  )}
+                                >
+                                  <span className="text-xs font-bold">{type.label}</span>
+                                  {zatcaInvoiceTypes.includes(type.id) && <CheckCircle2 className="w-4 h-4" />}
+                                </button>
+                              ))}
+                            </div>
                           </div>
-                          <div className="grid grid-cols-1 gap-3">
-                            {[
-                              { id: "standard", label: t("invoiceStandard") },
-                              { id: "simplified", label: t("invoiceSimplified") },
-                              { id: "credit", label: t("creditNote") },
-                              { id: "debit", label: t("debitNote") },
-                            ].map((type) => (
-                              <button
-                                key={type.id}
-                                onClick={() => toggleInvoiceType(type.id)}
-                                className={cn(
-                                  "flex items-center justify-between p-4 rounded-2xl transition-all border",
-                                  zatcaInvoiceTypes.includes(type.id) 
-                                    ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-400" 
-                                    : "bg-black/20 border-white/5 text-slate-500 hover:border-white/10"
-                                )}
-                              >
-                                <span className="text-xs font-bold">{type.label}</span>
-                                {zatcaInvoiceTypes.includes(type.id) && <CheckCircle2 className="w-4 h-4" />}
-                              </button>
-                            ))}
-                          </div>
-                        </div>
 
-                        {/* Payment Methods */}
-                        <div className="p-8 rounded-[2.5rem] bg-white/5 border border-white/10 space-y-6">
-                          <div className="flex items-center gap-3 mb-2">
-                            <CreditCard className="w-5 h-5 text-blue-400" />
-                            <h3 className="text-sm font-black text-white uppercase tracking-widest">{t("zatcaPaymentMethods")}</h3>
+                          {/* Document Types (Phase 2) */}
+                          {zatcaPhase === 2 && (
+                            <div className="p-8 rounded-[2.5rem] bg-white/5 border border-white/10 space-y-6">
+                              <div className="flex items-center gap-3 mb-2">
+                                <FileCode className="w-5 h-5 text-amber-400" />
+                                <h3 className="text-sm font-black text-white uppercase tracking-widest">{t("zatcaDocumentTypes")}</h3>
+                              </div>
+                              <div className="grid grid-cols-1 gap-3">
+                                {[
+                                  { id: "sale", label: t("documentSale") },
+                                  { id: "return", label: t("documentReturn") },
+                                  { id: "adjustment", label: t("documentAdjustment") },
+                                ].map((type) => (
+                                  <button
+                                    key={type.id}
+                                    onClick={() => {
+                                      setZatcaDocumentTypes(prev => 
+                                        prev.includes(type.id) ? prev.filter(t => t !== type.id) : [...prev, type.id]
+                                      );
+                                    }}
+                                    className={cn(
+                                      "flex items-center justify-between p-4 rounded-2xl transition-all border",
+                                      zatcaDocumentTypes.includes(type.id) 
+                                        ? "bg-amber-500/10 border-amber-500/30 text-amber-400" 
+                                        : "bg-black/20 border-white/5 text-slate-500 hover:border-white/10"
+                                    )}
+                                  >
+                                    <span className="text-xs font-bold">{type.label}</span>
+                                    {zatcaDocumentTypes.includes(type.id) && <CheckCircle2 className="w-4 h-4" />}
+                                  </button>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+
+                          {/* Payment Methods */}
+                          <div className="p-8 rounded-[2.5rem] bg-white/5 border border-white/10 space-y-6">
+                            <div className="flex items-center gap-3 mb-2">
+                              <CreditCard className="w-5 h-5 text-blue-400" />
+                              <h3 className="text-sm font-black text-white uppercase tracking-widest">{t("zatcaPaymentMethods")}</h3>
+                            </div>
+                            <div className="grid grid-cols-1 gap-3">
+                              {[
+                                { id: "cash", label: t("paymentCash") },
+                                { id: "card", label: t("paymentCard") },
+                                { id: "transfer", label: t("paymentTransfer") },
+                                { id: "credit", label: t("paymentCredit") },
+                              ].map((method) => (
+                                <button
+                                  key={method.id}
+                                  onClick={() => togglePaymentMethod(method.id)}
+                                  className={cn(
+                                    "flex items-center justify-between p-4 rounded-2xl transition-all border",
+                                    zatcaPaymentMethods.includes(method.id) 
+                                      ? "bg-blue-500/10 border-blue-500/30 text-blue-400" 
+                                      : "bg-black/20 border-white/5 text-slate-500 hover:border-white/10"
+                                  )}
+                                >
+                                  <span className="text-xs font-bold">{method.label}</span>
+                                  {zatcaPaymentMethods.includes(method.id) && <CheckCircle2 className="w-4 h-4" />}
+                                </button>
+                              ))}
+                            </div>
                           </div>
-                          <div className="grid grid-cols-1 gap-3">
-                            {[
-                              { id: "cash", label: t("paymentCash") },
-                              { id: "card", label: t("paymentCard") },
-                              { id: "transfer", label: t("paymentTransfer") },
-                              { id: "credit", label: t("paymentCredit") },
-                            ].map((method) => (
-                              <button
-                                key={method.id}
-                                onClick={() => togglePaymentMethod(method.id)}
-                                className={cn(
-                                  "flex items-center justify-between p-4 rounded-2xl transition-all border",
-                                  zatcaPaymentMethods.includes(method.id) 
-                                    ? "bg-blue-500/10 border-blue-500/30 text-blue-400" 
-                                    : "bg-black/20 border-white/5 text-slate-500 hover:border-white/10"
-                                )}
-                              >
-                                <span className="text-xs font-bold">{method.label}</span>
-                                {zatcaPaymentMethods.includes(method.id) && <CheckCircle2 className="w-4 h-4" />}
-                              </button>
-                            ))}
-                          </div>
+
+                          {/* Default VAT Rate (Phase 2) */}
+                          {zatcaPhase === 2 && (
+                            <div className="p-8 rounded-[2.5rem] bg-white/5 border border-white/10 space-y-6">
+                              <div className="flex items-center gap-3 mb-2">
+                                <Info className="w-5 h-5 text-purple-400" />
+                                <h3 className="text-sm font-black text-white uppercase tracking-widest">{t("zatcaVatRate")}</h3>
+                              </div>
+                              <div className="relative group">
+                                <input 
+                                  type="number"
+                                  value={zatcaVatRate}
+                                  onChange={(e) => setZatcaVatRate(parseFloat(e.target.value))}
+                                  placeholder="15"
+                                  className="w-full p-5 rounded-3xl bg-white/5 border border-white/10 text-white focus:border-purple-500/50 outline-none transition-all font-black text-center text-xl"
+                                />
+                                <span className="absolute right-8 top-1/2 -translate-y-1/2 text-white/20 font-black">%</span>
+                              </div>
+                            </div>
+                          )}
                         </div>
-                      </div>
 
                       {/* Advanced Settings */}
                       <div className="space-y-8">

@@ -1,6 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { query, execute } from "@/lib/db";
+import { createClient } from "@supabase/supabase-js";
+import { v4 as uuidv4 } from "uuid";
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+);
 
 async function getCompanyId(userId: number) {
   const users = await query<any>("SELECT company_id FROM users WHERE id = ?", [userId]);
@@ -62,144 +69,175 @@ export async function POST(request: NextRequest) {
       companyId = await getCompanyId(userId);
     }
 
-    if (!companyId) {
-      return NextResponse.json({ error: "غير مصرح" }, { status: 401 });
-    }
+      if (!companyId) {
+        return NextResponse.json({ error: "غير مصرح" }, { status: 401 });
+      }
 
-    const body = await request.json();
-    const {
-      invoice_number,
-      invoice_month,
-      client_id,
-      issue_date,
-      due_date,
-      status = 'due',
-      items = [],
-      adjustments = []
-    } = body;
+      // Fetch Tax Settings
+      const { data: taxSettings } = await supabase
+        .from("tax_settings")
+        .select("*")
+        .eq("company_id", companyId)
+        .single();
 
-    const customers = await query<any>(
-      "SELECT * FROM customers WHERE id = ? AND company_id = ?",
-      [client_id, companyId]
-    );
-    const client = customers[0];
-    
-    if (!client) {
-      return NextResponse.json({ error: "العميل غير موجود" }, { status: 400 });
-    }
+      const vatRate = taxSettings?.zatca_vat_rate || 15;
+      const vatDivisor = 1 + (vatRate / 100);
+      const vatMultiplier = vatRate / 100;
+      const isPhase2 = taxSettings?.zatca_phase === 2;
 
-    let totalBeforeVat = 0;
-    let totalVat = 0;
-    let totalWithVat = 0;
+      const body = await request.json();
+      const {
+        invoice_number,
+        invoice_month,
+        client_id,
+        issue_date,
+        due_date,
+        status = 'due',
+        items = [],
+        adjustments = []
+      } = body;
 
-    for (const item of items) {
-      const itemTotal = parseFloat(item.total_with_vat) || 0;
-      const beforeVat = itemTotal / 1.15;
-      const vat = itemTotal - beforeVat;
-      totalBeforeVat += beforeVat;
-      totalVat += vat;
-      totalWithVat += itemTotal;
-    }
-
-    let adjustmentAmount = 0;
-    let adjustmentVat = 0;
-    let adjustmentTotalWithVat = 0;
-    let adjustmentTitles: string[] = [];
-    let adjustmentType = '';
-
-    for (const adj of adjustments) {
-      const amount = parseFloat(adj.amount) || 0;
-      const isTaxable = adj.is_taxable;
-      const isInclusive = adj.is_inclusive;
+      const customers = await query<any>(
+        "SELECT * FROM customers WHERE id = ? AND company_id = ?",
+        [client_id, companyId]
+      );
+      const client = customers[0];
       
-      let vatAmount = 0;
-      let total = amount;
+      if (!client) {
+        return NextResponse.json({ error: "العميل غير موجود" }, { status: 400 });
+      }
 
-      if (isTaxable) {
-        if (isInclusive) {
-          const beforeVat = amount / 1.15;
-          vatAmount = amount - beforeVat;
-          total = amount;
-        } else {
-          vatAmount = amount * 0.15;
-          total = amount + vatAmount;
+      let totalBeforeVat = 0;
+      let totalVat = 0;
+      let totalWithVat = 0;
+
+      for (const item of items) {
+        const itemTotal = parseFloat(item.total_with_vat) || 0;
+        const beforeVat = itemTotal / vatDivisor;
+        const vat = itemTotal - beforeVat;
+        totalBeforeVat += beforeVat;
+        totalVat += vat;
+        totalWithVat += itemTotal;
+      }
+
+      let adjustmentAmount = 0;
+      let adjustmentVat = 0;
+      let adjustmentTotalWithVat = 0;
+      let adjustmentTitles: string[] = [];
+      let adjustmentType = '';
+
+      for (const adj of adjustments) {
+        const amount = parseFloat(adj.amount) || 0;
+        const isTaxable = adj.is_taxable;
+        const isInclusive = adj.is_inclusive;
+        
+        let vatAmount = 0;
+        let total = amount;
+
+        if (isTaxable) {
+          if (isInclusive) {
+            const beforeVat = amount / vatDivisor;
+            vatAmount = amount - beforeVat;
+            total = amount;
+          } else {
+            vatAmount = amount * vatMultiplier;
+            total = amount + vatAmount;
+          }
         }
+
+        if (adj.type === 'addition') {
+          adjustmentAmount += (total - vatAmount);
+          adjustmentVat += vatAmount;
+          adjustmentTotalWithVat += total;
+          totalVat += vatAmount;
+          totalWithVat += total;
+        } else {
+          adjustmentAmount -= (total - vatAmount);
+          adjustmentVat -= vatAmount;
+          adjustmentTotalWithVat -= total;
+          totalVat -= vatAmount;
+          totalWithVat -= total;
+        }
+
+        adjustmentTitles.push(adj.title);
+        adjustmentType = adj.type;
       }
 
-      if (adj.type === 'addition') {
-        adjustmentAmount += (total - vatAmount);
-        adjustmentVat += vatAmount;
-        adjustmentTotalWithVat += total;
-        totalVat += vatAmount;
-        totalWithVat += total;
-      } else {
-        adjustmentAmount -= (total - vatAmount);
-        adjustmentVat -= vatAmount;
-        adjustmentTotalWithVat -= total;
-        totalVat -= vatAmount;
-        totalWithVat -= total;
+      // Phase 2 Logic Placeholders
+      let zatcaUuid = null;
+      let zatcaHash = null;
+      let zatcaStatus = 'pending';
+
+      if (isPhase2 && taxSettings?.zatca_enabled) {
+        zatcaUuid = uuidv4();
+        // Placeholder for XML generation and signing
+        // const signedXml = await signInvoice(invoiceData, taxSettings);
+        // const response = await sendToZatca(signedXml, taxSettings);
+        zatcaHash = "SHA256_HASH_PLACEHOLDER_" + Date.now();
+        zatcaStatus = taxSettings.zatca_immediate_send ? 'reported' : 'pending';
       }
 
-      adjustmentTitles.push(adj.title);
-      adjustmentType = adj.type;
-    }
-
-    const result = await execute(`
-      INSERT INTO sales_invoices (
-        invoice_number, invoice_month, client_id, client_name, client_vat, client_address,
-        issue_date, due_date, total_amount, vat_total, discount, status, company_id, created_by,
-        adjustment_title, adjustment_type, adjustment_amount, adjustment_vat, adjustment_total_with_vat
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-    `, [
-      invoice_number,
-      invoice_month,
-      client_id,
-      client.company_name || client.customer_name || client.name,
-      client.vat_number,
-      client.address,
-      issue_date,
-      due_date,
-      totalWithVat,
-      totalVat,
-      0,
-      status,
-      companyId,
-      userId,
-      adjustmentTitles.join(' - '),
-      adjustmentType,
-      adjustmentAmount,
-      adjustmentVat,
-      adjustmentTotalWithVat
-    ]);
-
-    const invoiceId = result.insertId;
-
-    for (const item of items) {
-      const totalWithVatItem = parseFloat(item.total_with_vat) || 0;
-      const quantity = parseFloat(item.quantity) || 0;
-      const beforeVat = totalWithVatItem / 1.15;
-      const vatAmount = totalWithVatItem - beforeVat;
-      const unitPrice = quantity > 0 ? beforeVat / quantity : 0;
-
-      await execute(`
-        INSERT INTO invoice_items (
-          invoice_id, product_name, period_from, period_to, quantity, unit_price,
-          vat_rate, total_before_vat, vat_amount, total_with_vat, status
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      const result = await execute(`
+        INSERT INTO sales_invoices (
+          invoice_number, invoice_month, client_id, client_name, client_vat, client_address,
+          issue_date, due_date, total_amount, vat_total, discount, status, company_id, created_by,
+          adjustment_title, adjustment_type, adjustment_amount, adjustment_vat, adjustment_total_with_vat,
+          zatca_uuid, zatca_hash, zatca_status, vat_rate
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       `, [
-        invoiceId,
-        item.product_name,
-        item.period_from || null,
-        item.period_to || null,
-        quantity,
-        unitPrice,
-        15,
-        beforeVat,
-        vatAmount,
-        totalWithVatItem,
-        status
+        invoice_number,
+        invoice_month,
+        client_id,
+        client.company_name || client.customer_name || client.name,
+        client.vat_number,
+        client.address,
+        issue_date,
+        due_date,
+        totalWithVat,
+        totalVat,
+        0,
+        status,
+        companyId,
+        userId,
+        adjustmentTitles.join(' - '),
+        adjustmentType,
+        adjustmentAmount,
+        adjustmentVat,
+        adjustmentTotalWithVat,
+        zatcaUuid,
+        zatcaHash,
+        zatcaStatus,
+        vatRate
       ]);
-    }
+
+      const invoiceId = result.insertId;
+
+      for (const item of items) {
+        const totalWithVatItem = parseFloat(item.total_with_vat) || 0;
+        const quantity = parseFloat(item.quantity) || 0;
+        const beforeVat = totalWithVatItem / vatDivisor;
+        const vatAmountItem = totalWithVatItem - beforeVat;
+        const unitPrice = quantity > 0 ? beforeVat / quantity : 0;
+
+        await execute(`
+          INSERT INTO invoice_items (
+            invoice_id, product_name, period_from, period_to, quantity, unit_price,
+            vat_rate, total_before_vat, vat_amount, total_with_vat, status
+          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        `, [
+          invoiceId,
+          item.product_name,
+          item.period_from || null,
+          item.period_to || null,
+          quantity,
+          unitPrice,
+          vatRate,
+          beforeVat,
+          vatAmountItem,
+          totalWithVatItem,
+          status
+        ]);
+      }
 
     for (const adj of adjustments) {
       const amount = parseFloat(adj.amount) || 0;

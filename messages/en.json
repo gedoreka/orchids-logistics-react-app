@@ -1518,7 +1518,20 @@
         "zatcaLogLevel": "Operation Log Level",
         "logInfo": "General Info",
         "logDebug": "Detailed (Debug)",
-        "zatcaTimeout": "Connection Timeout (sec)",
-        "zatcaRetries": "Send Retry Count"
-      }
+          "zatcaTimeout": "Connection Timeout (sec)",
+          "zatcaRetries": "Send Retry Count",
+          "zatcaPhase": "Tax Phase",
+          "phase1": "Phase 1 (Reporting)",
+          "phase2": "Phase 2 (Integration)",
+          "zatcaTokenEndpoint": "Token Endpoint",
+          "zatcaApiVersion": "API Version",
+          "zatcaCsr": "Certificate Signing Request (CSR)",
+          "zatcaVatRate": "Default VAT Rate (%)",
+          "zatcaDocumentTypes": "Document Types",
+          "documentSale": "Sale",
+          "documentReturn": "Return",
+          "documentAdjustment": "Adjustment"
+        }
+    }
+}
   }
