@@ -308,7 +308,7 @@ export function PayrollsListClient({ payrolls: initialPayrolls, stats, companyId
         )}
       </AnimatePresence>
 
-      <div className="max-w-[1600px] mx-auto">
+      <div className="max-w-[97%] mx-auto">
         <motion.div 
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
