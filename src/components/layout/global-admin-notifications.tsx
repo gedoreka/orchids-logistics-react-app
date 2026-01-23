@@ -104,7 +104,7 @@ export function GlobalAdminNotifications() {
                   <div className="text-right">
                     <h2 className="text-2xl font-black tracking-tight">تنبيه إداري هام</h2>
                     <p className="text-white/60 font-bold text-xs uppercase tracking-widest mt-1">
-                      {new Date(activeNotification.created_at).toLocaleDateString(\'en-US\')}
+                        {new Date(activeNotification.created_at).toLocaleDateString('en-US')}
                     </p>
                   </div>
                 </div>

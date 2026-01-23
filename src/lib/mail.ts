@@ -45,8 +45,8 @@ export async function sendLoginNotification(email: string, name: string, company
     minute: '2-digit',
     hour12: true
   };
-  const arabicDate = now.toLocaleDateString(\'en-US\', dateOptions);
-  const arabicTime = now.toLocaleTimeString(\'en-US\', timeOptions);
+    const arabicDate = now.toLocaleDateString('en-US', dateOptions);
+    const arabicTime = now.toLocaleTimeString('en-US', timeOptions);
 
   const subject = "تم تسجيل دخول جديد إلى حسابك - Logistics Systems Pro";
   const html = `

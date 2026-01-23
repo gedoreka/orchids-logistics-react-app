@@ -258,7 +258,7 @@ export function DailyOrdersClient({ companyId }: DailyOrdersClientProps) {
     window.print();
   };
 
-  const formatNumber = (num: number) => new Intl.NumberFormat(\'en-US\').format(num);
+  const formatNumber = (num: number) => new Intl.NumberFormat( 'en-US' ).format(num);
   const totalValue = savedOrders.reduce((sum, order) => sum + (order.order_value || 0), 0);
 
   if (loading) {

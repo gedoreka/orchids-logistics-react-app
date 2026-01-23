@@ -218,7 +218,7 @@ export function StoresManagementClient({ companyId }: StoresManagementClientProp
     (store.phone_number && store.phone_number.includes(searchQuery))
   );
 
-  const formatDate = (date: string) => new Date(date).toLocaleDateString(\'en-US\');
+  const formatDate = (date: string) => new Date(date).toLocaleDateString( 'en-US' );
 
   const getStatusBadge = (status: string) => {
     const isActive = status === "نشط" || !status;

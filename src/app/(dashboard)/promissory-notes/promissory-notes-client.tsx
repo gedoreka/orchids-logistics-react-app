@@ -114,7 +114,7 @@ const numberToEnglishWords = (num: number): string => {
 
 const formatAmount = (amount: number | null, locale: string): string => {
   if (!amount) return "..........................................";
-  return amount.toLocaleString(locale === 'ar' ? \'en-US\' : "en-US", { minimumFractionDigits: 2 });
+  return amount.toLocaleString(locale === 'ar' ?  'en-US'  : "en-US", { minimumFractionDigits: 2 });
 };
 
 const formatDate = (date: string | null) => {

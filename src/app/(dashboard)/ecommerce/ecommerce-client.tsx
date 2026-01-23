@@ -431,8 +431,8 @@ export function EcommerceClient({ companyId }: EcommerceClientProps) {
     return new Date(year, m, 0).getDate();
   };
 
-  const formatNumber = (num: number) => new Intl.NumberFormat(\'en-US\').format(num);
-  const formatDate = (date: string) => new Date(date).toLocaleDateString(\'en-US\');
+  const formatNumber = (num: number) => new Intl.NumberFormat( 'en-US' ).format(num);
+  const formatDate = (date: string) => new Date(date).toLocaleDateString( 'en-US' );
 
   const getStatusBadge = (status: string) => {
     const statusConfig: { [key: string]: { color: string; icon: any } } = {

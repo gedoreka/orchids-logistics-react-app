@@ -345,7 +345,7 @@ export function SettingsContent({ company, taxSettings, userEmail, companyId }: 
                 {[
                   { label: t("region"), value: company.region || company.country || "السعودية", icon: MapPin, color: "text-blue-400", bg: "bg-blue-500/10" },
                   { label: t("currency"), value: company.currency || "SAR", icon: Coins, color: "text-amber-400", bg: "bg-amber-500/10" },
-                  { label: t("setupDate"), value: company.created_at ? new Date(company.created_at).toLocaleDateString(\'en-US\') : "-", icon: Calendar, color: "text-purple-400", bg: "bg-purple-500/10" },
+                  { label: t("setupDate"), value: company.created_at ? new Date(company.created_at).toLocaleDateString( 'en-US' ) : "-", icon: Calendar, color: "text-purple-400", bg: "bg-purple-500/10" },
                 ].map((item, i) => (
                   <div key={i} className="flex items-center justify-between p-4 rounded-2xl bg-white/5 border border-white/5 group hover:bg-white/10 transition-all">
                     <div className="flex items-center gap-3">

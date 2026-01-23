@@ -272,7 +272,7 @@ export function GeneralLedgerClient({ companyId, companyInfo }: GeneralLedgerCli
   };
 
   const formatNumber = (num: number) => new Intl.NumberFormat(locale === "ar" ? "en-US" : "en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(num);
-  const formatDate = (date: string) => new Date(date).toLocaleDateString(locale === "ar" ? \'en-US\' : "en-US");
+  const formatDate = (date: string) => new Date(date).toLocaleDateString(locale === "ar" ?  'en-US'  : "en-US");
 
     if (loading) {
       return (

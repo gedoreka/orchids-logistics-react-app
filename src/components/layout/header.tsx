@@ -1303,7 +1303,7 @@ export function Header({ user, onToggleSidebar, unreadChatCount = 0, subscriptio
                         </div>
                         <div className="flex-1">
                           <p className="text-sm font-bold text-white/90">{notif.title}</p>
-                          <p className="text-xs text-white/40">{new Date(notif.created_at).toLocaleDateString(\'en-US\')}</p>
+                            <p className="text-xs text-white/40">{new Date(notif.created_at).toLocaleDateString('en-US')}</p>
                         </div>
                       </div>
                     </motion.div>
@@ -1400,7 +1400,7 @@ export function Header({ user, onToggleSidebar, unreadChatCount = 0, subscriptio
                           </p>
                           {subscriptionData.endDate && (
                             <p className="text-xs text-white/40 mt-1">
-                              {isRTL ? 'تنتهي في: ' : 'Expires: '}{new Date(subscriptionData.endDate).toLocaleDateString(\'en-US\')}
+                              {isRTL ? 'تنتهي في: ' : 'Expires: '}{new Date(subscriptionData.endDate).toLocaleDateString( 'en-US' )}
                             </p>
                           )}
                         </div>
@@ -1563,7 +1563,7 @@ export function Header({ user, onToggleSidebar, unreadChatCount = 0, subscriptio
                           {subscriptionData.endDate && (
                             <div className="flex items-center justify-between">
                               <span className="text-sm text-white/50">{isRTL ? 'تاريخ الانتهاء' : 'End Date'}</span>
-                              <span className="text-sm font-bold text-white">{new Date(subscriptionData.endDate).toLocaleDateString(\'en-US\')}</span>
+                              <span className="text-sm font-bold text-white">{new Date(subscriptionData.endDate).toLocaleDateString( 'en-US' )}</span>
                             </div>
                           )}
                         </div>
@@ -2163,7 +2163,7 @@ export function Header({ user, onToggleSidebar, unreadChatCount = 0, subscriptio
                                         <span className="font-bold text-sm text-white/90 truncate">{email.from}</span>
                                       </div>
                                       <span className="text-[10px] text-white/30 whitespace-nowrap">
-                                        {new Date(email.date).toLocaleDateString(\'en-US\')}
+                                        {new Date(email.date).toLocaleDateString( 'en-US' )}
                                       </span>
                                     </div>
                                     <h4 className="text-xs font-bold text-blue-400 mb-1 truncate">{email.subject}</h4>

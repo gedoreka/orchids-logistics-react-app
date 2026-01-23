@@ -316,7 +316,7 @@ export default function SearchTokenPage() {
                   <InfoCard icon={Phone} label="الهاتف" value={company.phone || "غير متوفر"} />
                   <InfoCard icon={MapPin} label="الدولة" value={company.country || "غير معروفة"} />
                   <InfoCard icon={MapPin} label="المنطقة" value={company.region || "غير معروفة"} />
-                  <InfoCard icon={Calendar} label="تاريخ الإنشاء" value={company.created_at ? new Date(company.created_at).toLocaleDateString(\'en-US\') : "غير معروف"} />
+                  <InfoCard icon={Calendar} label="تاريخ الإنشاء" value={company.created_at ? new Date(company.created_at).toLocaleDateString( 'en-US' ) : "غير معروف"} />
                   <InfoCard icon={Clock} label="انتهاء الاشتراك" value={company.token_expiry || "دائم"} />
                 </div>
               </div>

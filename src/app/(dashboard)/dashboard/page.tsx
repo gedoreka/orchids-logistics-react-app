@@ -155,7 +155,7 @@ export default async function DashboardPage() {
           logo: company.logo_path,
           commercial_number: company.commercial_number,
           vat_number: company.vat_number,
-          created_at: company.created_at ? new Date(company.created_at).toLocaleDateString(\'en-US\') : undefined,
+            created_at: company.created_at ? new Date(company.created_at).toLocaleDateString('en-US') : undefined,
           is_active: company.is_active === 1,
           access_token: company.access_token,
         } : null}
