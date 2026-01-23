@@ -16,11 +16,19 @@ import {
   CheckCircle2,
   RefreshCw,
   Cpu,
-  Info
+  Info,
+  Key,
+  Calendar,
+  MapPin,
+  Coins,
+  Shield,
+  Zap,
+  LayoutGrid
 } from "lucide-react";
 import { createClient } from "@supabase/supabase-js";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
+import { cn } from "@/lib/utils";
 
 interface SettingsContentProps {
   company: any;
@@ -59,7 +67,6 @@ export function SettingsContent({ company, taxSettings, userEmail, companyId }: 
 
     setLoading(true);
     try {
-      // Supabase updateUser for password
       const { error } = await supabase.auth.updateUser({
         password: newPassword
       });
@@ -101,276 +108,289 @@ export function SettingsContent({ company, taxSettings, userEmail, companyId }: 
     }
   };
 
-  const sectionVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.5 } }
-  };
-
   return (
-    <div className="space-y-8 animate-in fade-in duration-700">
-      {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-blue-600">
-            {t("title")}
-          </h1>
-          <p className="text-muted-foreground">{t("subtitle")}</p>
-        </div>
-        <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 text-primary">
-          <Cpu className="w-4 h-4" />
-          <span className="font-semibold">{t("version")} 2.0</span>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Left Column - User & Security */}
-        <div className="lg:col-span-2 space-y-8">
-          {/* User Account Section */}
-          <motion.div 
-            variants={sectionVariants}
-            initial="hidden"
-            animate="visible"
-            className="p-6 rounded-2xl border border-border bg-card shadow-sm hover:shadow-md transition-shadow"
-          >
-            <div className="flex items-center gap-3 mb-6">
-              <div className="p-2 rounded-lg bg-blue-500/10 text-blue-600">
-                <User className="w-5 h-5" />
-              </div>
-              <h2 className="text-xl font-semibold">{t("userAccount")}</h2>
+    <div className="max-w-6xl mx-auto space-y-6">
+      {/* Header with Glass Effect */}
+      <motion.div 
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="relative p-8 rounded-[2.5rem] bg-gradient-to-br from-slate-900/80 to-slate-950/90 backdrop-blur-2xl border border-white/10 shadow-2xl overflow-hidden"
+      >
+        <div className="absolute top-0 right-0 w-64 h-64 bg-blue-500/10 rounded-full blur-3xl -mr-32 -mt-32" />
+        <div className="absolute bottom-0 left-0 w-64 h-64 bg-purple-500/10 rounded-full blur-3xl -ml-32 -mb-32" />
+        
+        <div className="relative flex flex-col md:flex-row md:items-center justify-between gap-6">
+          <div className="flex items-center gap-5">
+            <div className="p-4 rounded-3xl bg-gradient-to-br from-blue-500 to-indigo-600 shadow-xl shadow-blue-500/20">
+              <Settings size={32} className="text-white" />
             </div>
+            <div>
+              <h1 className="text-3xl font-black tracking-tight text-white mb-1">
+                {t("title")}
+              </h1>
+              <p className="text-slate-400 font-medium">{t("subtitle")}</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-3">
+            <div className="px-5 py-2.5 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-xl flex items-center gap-2">
+              <Cpu className="w-4 h-4 text-blue-400" />
+              <span className="text-sm font-bold text-white/90">{t("version")} 2.0</span>
+            </div>
+          </div>
+        </div>
+      </motion.div>
+
+      {/* Main Content Unified Card */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.1 }}
+        className="rounded-[2.5rem] bg-slate-900/40 backdrop-blur-xl border border-white/5 shadow-2xl overflow-hidden"
+      >
+        <div className="grid grid-cols-1 lg:grid-cols-12 divide-y lg:divide-y-0 lg:divide-x divide-white/5 rtl:divide-x-reverse">
+          
+          {/* Left Column - Main Settings */}
+          <div className="lg:col-span-8 p-8 md:p-10 space-y-12">
             
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <label className="text-sm font-medium">{t("email")}</label>
-                <div className="flex items-center gap-2 p-3 rounded-xl bg-muted/50 border border-border">
-                  <Globe className="w-4 h-4 text-muted-foreground" />
-                  <span className="text-sm">{userEmail}</span>
+            {/* Account & Security Section */}
+            <div className="space-y-8">
+              <div className="flex items-center gap-3">
+                <div className="w-1.5 h-6 bg-blue-500 rounded-full" />
+                <h2 className="text-xl font-bold text-white tracking-tight">{t("security")}</h2>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                {/* Email (Read Only) */}
+                <div className="space-y-3">
+                  <label className="text-xs font-black text-slate-400 uppercase tracking-widest px-1">{t("email")}</label>
+                  <div className="flex items-center gap-3 p-4 rounded-2xl bg-white/5 border border-white/10 text-white/50">
+                    <Globe size={18} className="text-slate-500" />
+                    <span className="text-sm font-medium">{userEmail}</span>
+                    <div className="ms-auto">
+                      <Shield size={14} className="text-slate-600" />
+                    </div>
+                  </div>
+                  <p className="text-[10px] text-slate-500 px-1 font-medium italic">{t("emailNote")}</p>
                 </div>
-                <p className="text-xs text-muted-foreground italic flex items-center gap-1">
-                  <Info className="w-3 h-3" />
-                  {t("emailNote")}
-                </p>
-              </div>
-            </div>
-          </motion.div>
 
-          {/* Security Section */}
-          <motion.div 
-            variants={sectionVariants}
-            initial="hidden"
-            animate="visible"
-            className="p-6 rounded-2xl border border-border bg-card shadow-sm hover:shadow-md transition-shadow"
-          >
-            <div className="flex items-center gap-3 mb-6">
-              <div className="p-2 rounded-lg bg-amber-500/10 text-amber-600">
-                <Lock className="w-5 h-5" />
+                {/* Password Fields */}
+                <div className="space-y-3">
+                  <label className="text-xs font-black text-slate-400 uppercase tracking-widest px-1">{t("currentPassword")}</label>
+                  <div className="relative">
+                    <input 
+                      type="password"
+                      value={currentPassword}
+                      onChange={(e) => setCurrentPassword(e.target.value)}
+                      placeholder="••••••••"
+                      className="w-full p-4 rounded-2xl bg-white/5 border border-white/10 text-white focus:border-blue-500/50 focus:ring-4 focus:ring-blue-500/10 outline-none transition-all placeholder:text-white/10"
+                    />
+                    <Lock className="absolute right-4 top-1/2 -translate-y-1/2 text-white/10" size={18} />
+                  </div>
+                </div>
               </div>
-              <h2 className="text-xl font-semibold">{t("security")}</h2>
-            </div>
-            
-            <form onSubmit={handleUpdatePassword} className="space-y-4 text-start" dir="rtl">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">{t("newPassword")}</label>
+
+              <form onSubmit={handleUpdatePassword} className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div className="space-y-3">
+                  <label className="text-xs font-black text-slate-400 uppercase tracking-widest px-1">{t("newPassword")}</label>
                   <input 
-                    type="password" 
+                    type="password"
                     value={newPassword}
                     onChange={(e) => setNewPassword(e.target.value)}
-                    className="w-full p-3 rounded-xl bg-background border border-border focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all"
+                    className="w-full p-4 rounded-2xl bg-white/5 border border-white/10 text-white focus:border-blue-500/50 focus:ring-4 focus:ring-blue-500/10 outline-none transition-all"
                     required
                   />
                 </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">{t("confirmNewPassword")}</label>
+                <div className="space-y-3">
+                  <label className="text-xs font-black text-slate-400 uppercase tracking-widest px-1">{t("confirmNewPassword")}</label>
                   <input 
-                    type="password" 
+                    type="password"
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
-                    className="w-full p-3 rounded-xl bg-background border border-border focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all"
+                    className="w-full p-4 rounded-2xl bg-white/5 border border-white/10 text-white focus:border-blue-500/50 focus:ring-4 focus:ring-blue-500/10 outline-none transition-all"
                     required
                   />
                 </div>
-              </div>
-              <button 
-                type="submit"
-                disabled={loading}
-                className="px-6 py-3 rounded-xl bg-primary text-primary-foreground font-medium hover:bg-primary/90 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
-              >
-                {loading ? <RefreshCw className="w-4 h-4 animate-spin" /> : <ShieldCheck className="w-4 h-4" />}
-                {t("updatePassword")}
-              </button>
-            </form>
-          </motion.div>
-
-          {/* Tax Integration Section */}
-          <motion.div 
-            variants={sectionVariants}
-            initial="hidden"
-            animate="visible"
-            className="p-6 rounded-2xl border border-border bg-card shadow-sm hover:shadow-md transition-shadow overflow-hidden relative"
-          >
-            <div className="absolute top-0 right-0 p-4 opacity-5 pointer-events-none">
-              <FileText className="w-24 h-24" />
-            </div>
-            
-            <div className="flex items-center gap-3 mb-6">
-              <div className="p-2 rounded-lg bg-emerald-500/10 text-emerald-600">
-                <CreditCard className="w-5 h-5" />
-              </div>
-              <h2 className="text-xl font-semibold">{t("taxIntegration")}</h2>
-            </div>
-            
-            <div className="space-y-6">
-              <div className="flex items-center justify-between p-4 rounded-xl bg-muted/30 border border-border/50">
-                <div className="space-y-0.5 text-start" dir="rtl">
-                  <div className="font-medium">{t("zatcaEnabled")}</div>
-                  <div className="text-sm text-muted-foreground">{t("zatcaEnabledDesc")}</div>
+                <div className="md:col-span-2">
+                  <motion.button 
+                    whileHover={{ scale: 1.01 }}
+                    whileTap={{ scale: 0.99 }}
+                    type="submit"
+                    disabled={loading}
+                    className="w-full md:w-auto px-10 py-4 rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-black text-sm shadow-xl shadow-blue-500/20 hover:shadow-blue-500/40 transition-all disabled:opacity-50 flex items-center justify-center gap-3"
+                  >
+                    {loading ? <RefreshCw className="w-5 h-5 animate-spin" /> : <ShieldCheck className="w-5 h-5" />}
+                    {t("updatePassword")}
+                  </motion.button>
                 </div>
-                <div 
-                  onClick={() => setZatcaEnabled(!zatcaEnabled)}
-                  className={`w-12 h-6 rounded-full p-1 cursor-pointer transition-colors duration-300 ${zatcaEnabled ? 'bg-primary' : 'bg-muted'}`}
-                >
-                  <div className={`w-4 h-4 rounded-full bg-white transition-transform duration-300 ${zatcaEnabled ? 'translate-x-6' : 'translate-x-0'}`} />
+              </form>
+            </div>
+
+            <div className="h-px bg-gradient-to-r from-transparent via-white/5 to-transparent" />
+
+            {/* Tax Integration Section */}
+            <div className="space-y-8">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-1.5 h-6 bg-emerald-500 rounded-full" />
+                  <h2 className="text-xl font-bold text-white tracking-tight">{t("taxIntegration")}</h2>
+                </div>
+                <div className="px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20">
+                  <span className="text-[10px] font-black text-emerald-400 uppercase tracking-wider">Phase 2 Ready</span>
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">{t("environment")}</label>
-                  <div className="flex p-1 rounded-xl bg-muted border border-border">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div className="md:col-span-2 flex items-center justify-between p-6 rounded-3xl bg-white/5 border border-white/10">
+                  <div className="space-y-1">
+                    <p className="text-sm font-bold text-white">{t("zatcaEnabled")}</p>
+                    <p className="text-xs text-slate-400">{t("zatcaEnabledDesc")}</p>
+                  </div>
+                  <motion.button
+                    whileTap={{ scale: 0.9 }}
+                    onClick={() => setZatcaEnabled(!zatcaEnabled)}
+                    className={cn(
+                      "w-14 h-8 rounded-full p-1.5 transition-colors duration-500",
+                      zatcaEnabled ? "bg-emerald-500 shadow-lg shadow-emerald-500/30" : "bg-slate-700"
+                    )}
+                  >
+                    <div className={cn(
+                      "w-5 h-5 rounded-full bg-white shadow-sm transition-transform duration-500",
+                      zatcaEnabled ? "translate-x-6 rtl:-translate-x-6" : "translate-x-0"
+                    )} />
+                  </motion.button>
+                </div>
+
+                <div className="space-y-3">
+                  <label className="text-xs font-black text-slate-400 uppercase tracking-widest px-1">{t("environment")}</label>
+                  <div className="flex p-1.5 rounded-2xl bg-black/40 border border-white/5">
                     <button 
                       onClick={() => setZatcaEnvironment("sandbox")}
-                      className={`flex-1 py-2 text-sm rounded-lg transition-all ${zatcaEnv === "sandbox" ? 'bg-background shadow-sm text-primary font-semibold' : 'text-muted-foreground'}`}
+                      className={cn(
+                        "flex-1 py-3 text-xs font-bold rounded-xl transition-all",
+                        zatcaEnv === "sandbox" ? "bg-white/10 text-white shadow-xl" : "text-slate-500 hover:text-slate-300"
+                      )}
                     >
                       {t("sandbox")}
                     </button>
                     <button 
                       onClick={() => setZatcaEnvironment("production")}
-                      className={`flex-1 py-2 text-sm rounded-lg transition-all ${zatcaEnv === "production" ? 'bg-background shadow-sm text-primary font-semibold' : 'text-muted-foreground'}`}
+                      className={cn(
+                        "flex-1 py-3 text-xs font-bold rounded-xl transition-all",
+                        zatcaEnv === "production" ? "bg-emerald-500/20 text-emerald-400 shadow-xl" : "text-slate-500 hover:text-slate-300"
+                      )}
                     >
                       {t("production")}
                     </button>
                   </div>
                 </div>
-                
-                <div className="space-y-2 text-start" dir="rtl">
-                  <label className="text-sm font-medium">{t("apiKey")}</label>
-                  <input 
-                    type="password" 
-                    value={zatcaApiKey}
-                    onChange={(e) => setZatcaApiKey(e.target.value)}
-                    placeholder="Enter ZATCA API Key..."
-                    className="w-full p-3 rounded-xl bg-background border border-border focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all"
-                  />
+
+                <div className="space-y-3">
+                  <label className="text-xs font-black text-slate-400 uppercase tracking-widest px-1">{t("apiKey")}</label>
+                  <div className="relative">
+                    <input 
+                      type="password"
+                      value={zatcaApiKey}
+                      onChange={(e) => setZatcaApiKey(e.target.value)}
+                      placeholder="Enter Key..."
+                      className="w-full p-4 rounded-2xl bg-white/5 border border-white/10 text-white focus:border-emerald-500/50 focus:ring-4 focus:ring-emerald-500/10 outline-none transition-all"
+                    />
+                    <Key className="absolute right-4 top-1/2 -translate-y-1/2 text-white/10" size={18} />
+                  </div>
+                </div>
+
+                <div className="md:col-span-2">
+                  <motion.button 
+                    whileHover={{ scale: 1.01 }}
+                    whileTap={{ scale: 0.99 }}
+                    onClick={handleSaveTaxSettings}
+                    disabled={loading}
+                    className="w-full md:w-auto px-10 py-4 rounded-2xl bg-white text-slate-900 font-black text-sm shadow-xl shadow-white/5 hover:shadow-white/10 transition-all disabled:opacity-50 flex items-center justify-center gap-3"
+                  >
+                    {loading ? <RefreshCw className="w-5 h-5 animate-spin" /> : <CheckCircle2 className="w-5 h-5" />}
+                    {t("saveSettings")}
+                  </motion.button>
                 </div>
               </div>
-
-              <button 
-                onClick={handleSaveTaxSettings}
-                disabled={loading}
-                className="w-full px-6 py-3 rounded-xl bg-secondary text-secondary-foreground font-semibold hover:bg-secondary/80 transition-colors flex items-center justify-center gap-2"
-              >
-                {loading ? <RefreshCw className="w-4 h-4 animate-spin" /> : <CheckCircle2 className="w-4 h-4" />}
-                {t("saveSettings")}
-              </button>
             </div>
-          </motion.div>
-        </div>
+          </div>
 
-        {/* Right Column - System Info & Extra */}
-        <div className="space-y-8">
-          {/* System Info Section */}
-          <motion.div 
-            variants={sectionVariants}
-            initial="hidden"
-            animate="visible"
-            className="p-6 rounded-2xl border border-border bg-card shadow-sm"
-          >
-            <div className="flex items-center gap-3 mb-6">
-              <div className="p-2 rounded-lg bg-purple-500/10 text-purple-600">
-                <Info className="w-5 h-5" />
-              </div>
-              <h2 className="text-xl font-semibold">{t("systemInfo")}</h2>
-            </div>
+          {/* Right Column - Info Panels */}
+          <div className="lg:col-span-4 bg-white/5 p-8 md:p-10 space-y-10">
             
-            <div className="space-y-4">
-              <div className="flex items-center justify-between p-3 rounded-lg hover:bg-muted/30 transition-colors">
-                <span className="text-sm text-muted-foreground">{t("region")}</span>
-                <span className="text-sm font-medium">{company.region || company.country || "-"}</span>
+            {/* System Information Panel */}
+            <div className="space-y-8">
+              <div className="flex items-center gap-3">
+                <div className="p-2 rounded-xl bg-purple-500/10 text-purple-400">
+                  <LayoutGrid size={20} />
+                </div>
+                <h3 className="text-lg font-bold text-white">{t("systemInfo")}</h3>
               </div>
-              <div className="flex items-center justify-between p-3 rounded-lg hover:bg-muted/30 transition-colors">
-                <span className="text-sm text-muted-foreground">{t("currency")}</span>
-                <span className="text-sm font-medium">{company.currency || "SAR"}</span>
-              </div>
-              <div className="flex items-center justify-between p-3 rounded-lg hover:bg-muted/30 transition-colors text-start" dir="rtl">
-                <span className="text-sm text-muted-foreground">{t("setupDate")}</span>
-                <span className="text-sm font-medium">
-                  {company.created_at ? new Date(company.created_at).toLocaleDateString('en-GB') : "-"}
-                </span>
-              </div>
-              <div className="space-y-2 mt-4">
-                <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">{t("systemKey")}</label>
-                <div className="p-3 rounded-xl bg-muted/50 border border-dashed border-border flex items-center justify-between">
-                  <code className="text-xs font-mono truncate max-w-[150px]">{company.access_token || "N/A"}</code>
-                  <div className="text-[10px] px-2 py-0.5 rounded bg-amber-500/10 text-amber-600 border border-amber-500/20 uppercase font-bold">
-                    Read Only
+
+              <div className="space-y-4">
+                {[
+                  { label: t("region"), value: company.region || company.country || "-", icon: MapPin, color: "text-blue-400" },
+                  { label: t("currency"), value: company.currency || "SAR", icon: Coins, color: "text-amber-400" },
+                  { label: t("setupDate"), value: company.created_at ? new Date(company.created_at).toLocaleDateString('en-GB') : "-", icon: Calendar, color: "text-purple-400" },
+                ].map((item, i) => (
+                  <div key={i} className="flex items-center justify-between p-4 rounded-2xl bg-white/5 border border-white/5 group hover:bg-white/10 transition-all">
+                    <div className="flex items-center gap-3">
+                      <item.icon size={16} className={item.color} />
+                      <span className="text-xs font-bold text-slate-400">{item.label}</span>
+                    </div>
+                    <span className="text-xs font-black text-white">{item.value}</span>
+                  </div>
+                ))}
+
+                <div className="p-5 rounded-2xl bg-slate-950/50 border border-white/10 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">{t("systemKey")}</label>
+                    <span className="text-[9px] px-2 py-0.5 rounded-full bg-slate-800 text-slate-400 font-bold border border-white/5">READ ONLY</span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <Key size={14} className="text-slate-600" />
+                    <code className="text-[11px] font-mono text-slate-400 truncate">{company.access_token || "N/A"}</code>
                   </div>
                 </div>
               </div>
             </div>
-          </motion.div>
 
-          {/* Other Options */}
-          <motion.div 
-            variants={sectionVariants}
-            initial="hidden"
-            animate="visible"
-            className="p-6 rounded-2xl border border-border bg-card shadow-sm"
-          >
-            <div className="flex items-center gap-3 mb-6">
-              <div className="p-2 rounded-lg bg-pink-500/10 text-pink-600">
-                <Settings className="w-5 h-5" />
-              </div>
-              <h2 className="text-xl font-semibold">{t("otherOptions")}</h2>
-            </div>
-            
-            <div className="space-y-4">
-              <div className="flex items-center justify-between group cursor-not-allowed">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 rounded-lg bg-muted group-hover:bg-primary/5 transition-colors">
-                    <Database className="w-4 h-4 text-muted-foreground" />
-                  </div>
-                  <span className="text-sm font-medium text-muted-foreground">{t("autoBackup")}</span>
+            {/* Upcoming Features Panel */}
+            <div className="space-y-8">
+              <div className="flex items-center gap-3">
+                <div className="p-2 rounded-xl bg-pink-500/10 text-pink-400">
+                  <Zap size={20} />
                 </div>
-                <div className="w-10 h-5 rounded-full bg-muted p-1">
-                  <div className="w-3 h-3 rounded-full bg-white" />
-                </div>
-              </div>
-              
-              <div className="flex items-center justify-between group cursor-not-allowed">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 rounded-lg bg-muted group-hover:bg-primary/5 transition-colors">
-                    <Bell className="w-4 h-4 text-muted-foreground" />
-                  </div>
-                  <span className="text-sm font-medium text-muted-foreground">{t("notifications")}</span>
-                </div>
-                <div className="w-10 h-5 rounded-full bg-muted p-1">
-                  <div className="w-3 h-3 rounded-full bg-white" />
-                </div>
+                <h3 className="text-lg font-bold text-white">{t("otherOptions")}</h3>
               </div>
 
-              <div className="pt-4 border-t border-border mt-4">
-                <div className="p-4 rounded-xl bg-amber-500/5 border border-amber-500/10 flex gap-3">
-                  <AlertCircle className="w-5 h-5 text-amber-500 shrink-0" />
-                  <p className="text-xs text-amber-600/80 leading-relaxed">
-                    These options are scheduled for implementation in the next release (v2.1). Stay tuned for more features!
+              <div className="space-y-3">
+                {[
+                  { label: t("autoBackup"), icon: Database },
+                  { label: t("notifications"), icon: Bell },
+                ].map((item, i) => (
+                  <div key={i} className="flex items-center justify-between p-4 rounded-2xl bg-white/5 border border-white/5 opacity-40 grayscale">
+                    <div className="flex items-center gap-3">
+                      <item.icon size={16} className="text-slate-500" />
+                      <span className="text-xs font-bold text-slate-500">{item.label}</span>
+                    </div>
+                    <div className="w-10 h-5 rounded-full bg-slate-800 p-1">
+                      <div className="w-3 h-3 rounded-full bg-slate-700" />
+                    </div>
+                  </div>
+                ))}
+
+                <div className="p-5 rounded-2xl bg-amber-500/5 border border-amber-500/10 flex gap-3 mt-4">
+                  <AlertCircle size={18} className="text-amber-500 shrink-0" />
+                  <p className="text-[10px] text-amber-500/70 font-bold leading-relaxed">
+                    Options scheduled for v2.1. Stay tuned!
                   </p>
                 </div>
               </div>
             </div>
-          </motion.div>
+
+          </div>
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 }
