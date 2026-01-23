@@ -243,7 +243,7 @@ export function NewCreditNoteClient({ invoices }: NewCreditNoteClientProps) {
                   </div>
                   <p className="text-white/70 text-[10px] font-black uppercase tracking-widest">{t('new.amountBeforeTax')}</p>
                   <p className="text-2xl font-black text-white mt-1.5 flex items-baseline gap-1">
-                    {calculations.beforeVat.toLocaleString(locale === 'ar' ? 'ar-SA' : 'en-US', { minimumFractionDigits: 2 })}
+                    {calculations.beforeVat.toLocaleString('en-US', { minimumFractionDigits: 2 })}
                     <span className="text-xs text-white/60 font-bold">{locale === 'ar' ? 'ريال' : 'SAR'}</span>
                   </p>
                   <p className="text-white/50 text-[10px] font-bold mt-2 flex items-center gap-1">
@@ -263,7 +263,7 @@ export function NewCreditNoteClient({ invoices }: NewCreditNoteClientProps) {
                   </div>
                   <p className="text-white/70 text-[10px] font-black uppercase tracking-widest">{t('new.refundedVat')}</p>
                   <p className="text-2xl font-black text-white mt-1.5 flex items-baseline gap-1">
-                    {calculations.vatAmount.toLocaleString(locale === 'ar' ? 'ar-SA' : 'en-US', { minimumFractionDigits: 2 })}
+                    {calculations.vatAmount.toLocaleString('en-US', { minimumFractionDigits: 2 })}
                     <span className="text-xs text-white/60 font-bold">{locale === 'ar' ? 'ريال' : 'SAR'}</span>
                   </p>
                   <p className="text-white/50 text-[10px] font-bold mt-2 flex items-center gap-1">
@@ -282,7 +282,7 @@ export function NewCreditNoteClient({ invoices }: NewCreditNoteClientProps) {
                   </div>
                   <p className="text-white/70 text-[10px] font-black uppercase tracking-widest">{t('new.totalIncludingVat')}</p>
                   <p className="text-2xl font-black text-white mt-1.5 flex items-baseline gap-1">
-                    {calculations.total.toLocaleString(locale === 'ar' ? 'ar-SA' : 'en-US', { minimumFractionDigits: 2 })}
+                    {calculations.total.toLocaleString('en-US', { minimumFractionDigits: 2 })}
                     <span className="text-xs text-white/60 font-bold">{locale === 'ar' ? 'ريال' : 'SAR'}</span>
                   </p>
                   <p className="text-white/50 text-[10px] font-bold mt-2 flex items-center gap-1">
@@ -464,7 +464,7 @@ export function NewCreditNoteClient({ invoices }: NewCreditNoteClientProps) {
                         </label>
                         <div className="w-full h-14 px-6 rounded-2xl bg-white/5 border-2 border-white/5 flex items-center justify-between shadow-inner">
                           <span className="text-sm font-black text-slate-200">
-                            {calculations.beforeVat.toLocaleString(locale === 'ar' ? 'ar-SA' : 'en-US', { minimumFractionDigits: 2 })}
+                            {calculations.beforeVat.toLocaleString('en-US', { minimumFractionDigits: 2 })}
                           </span>
                           <span className="text-[10px] font-black text-slate-500 uppercase">{locale === 'ar' ? 'ريال' : 'SAR'}</span>
                         </div>
@@ -477,7 +477,7 @@ export function NewCreditNoteClient({ invoices }: NewCreditNoteClientProps) {
                         </label>
                         <div className="w-full h-14 px-6 rounded-2xl bg-amber-500/5 border-2 border-amber-500/10 flex items-center justify-between shadow-inner">
                           <span className="text-sm font-black text-amber-400">
-                            {calculations.vatAmount.toLocaleString(locale === 'ar' ? 'ar-SA' : 'en-US', { minimumFractionDigits: 2 })}
+                            {calculations.vatAmount.toLocaleString('en-US', { minimumFractionDigits: 2 })}
                           </span>
                           <span className="text-[10px] font-black text-amber-500 uppercase">{locale === 'ar' ? 'ريال' : 'SAR'}</span>
                         </div>
@@ -512,7 +512,7 @@ export function NewCreditNoteClient({ invoices }: NewCreditNoteClientProps) {
                         <span className="text-slate-400 font-black text-xs uppercase tracking-wider">{t('new.totalIncludingVat')}</span>
                       </div>
                       <span className="font-black text-white text-lg">
-                        {calculations.total.toLocaleString(locale === 'ar' ? 'ar-SA' : 'en-US', { minimumFractionDigits: 2 })}
+                        {calculations.total.toLocaleString('en-US', { minimumFractionDigits: 2 })}
                         <span className="text-slate-500 mr-2 text-[10px] uppercase tracking-tighter">{locale === 'ar' ? 'ريال' : 'SAR'}</span>
                       </span>
                     </div>
@@ -523,7 +523,7 @@ export function NewCreditNoteClient({ invoices }: NewCreditNoteClientProps) {
                         <span className="text-rose-200/70 font-black text-xs uppercase tracking-wider">{t('new.netRefund')}</span>
                       </div>
                       <span className="font-black text-rose-400 text-lg">
-                        {calculations.beforeVat.toLocaleString(locale === 'ar' ? 'ar-SA' : 'en-US', { minimumFractionDigits: 2 })}
+                        {calculations.beforeVat.toLocaleString('en-US', { minimumFractionDigits: 2 })}
                         <span className="text-rose-300/50 mr-2 text-[10px] uppercase tracking-tighter">{locale === 'ar' ? 'ريال' : 'SAR'}</span>
                       </span>
                     </div>
@@ -534,7 +534,7 @@ export function NewCreditNoteClient({ invoices }: NewCreditNoteClientProps) {
                         <span className="text-amber-200/70 font-black text-xs uppercase tracking-wider">{t('new.totalVat')}</span>
                       </div>
                       <span className="font-black text-amber-400 text-lg">
-                        {calculations.vatAmount.toLocaleString(locale === 'ar' ? 'ar-SA' : 'en-US', { minimumFractionDigits: 2 })}
+                        {calculations.vatAmount.toLocaleString('en-US', { minimumFractionDigits: 2 })}
                         <span className="text-amber-300/50 mr-2 text-[10px] uppercase tracking-tighter">{locale === 'ar' ? 'ريال' : 'SAR'}</span>
                       </span>
                     </div>
@@ -552,7 +552,7 @@ export function NewCreditNoteClient({ invoices }: NewCreditNoteClientProps) {
                       </div>
                       <div className="text-left">
                         <span className="text-3xl font-black text-emerald-400 tracking-tighter">
-                          {calculations.total.toLocaleString(locale === 'ar' ? 'ar-SA' : 'en-US', { minimumFractionDigits: 2 })}
+                          {calculations.total.toLocaleString('en-US', { minimumFractionDigits: 2 })}
                         </span>
                         <span className="mr-2 text-[10px] font-black text-emerald-300/50 uppercase tracking-tighter">{locale === 'ar' ? 'ريال' : 'SAR'}</span>
                       </div>

@@ -172,7 +172,7 @@ export default function SubscriptionsPage() {
                     <p className="text-sm font-bold opacity-80">{t('currentSub', { plan: currentSubscription.plan_name })}</p>
                     <p className="text-xl font-black">{daysRemaining > 0 ? daysRemaining : 0} {t('daysRemaining')}</p>
                     <p className="text-[10px] font-medium opacity-60">
-                      {t('expiresAt', { date: new Date(currentSubscription.end_date).toLocaleDateString(isRTL ? 'ar-SA' : 'en-US') })}
+                      {t('expiresAt', { date: new Date(currentSubscription.end_date).toLocaleDateString(isRTL ? \'en-US\' : 'en-US') })}
                     </p>
                   </div>
                 </div>
@@ -297,7 +297,7 @@ export default function SubscriptionsPage() {
                         </div>
                         <div>
                           <p className="text-lg font-black text-white">{payment.plan_name}</p>
-                          <p className="text-sm text-slate-500 font-medium">{new Date(payment.created_at).toLocaleDateString(isRTL ? 'ar-SA' : 'en-US')}</p>
+                          <p className="text-sm text-slate-500 font-medium">{new Date(payment.created_at).toLocaleDateString(isRTL ? \'en-US\' : 'en-US')}</p>
                         </div>
                       </div>
                       <div className="flex items-center justify-between md:text-left gap-8">

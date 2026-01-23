@@ -285,11 +285,11 @@ export function EcommerceSectionClient({ companyId }: EcommerceSectionClientProp
     return new Date(year, m, 0).getDate();
   };
 
-  const formatNumber = (num: number) => new Intl.NumberFormat("ar-SA").format(num);
-  const formatDate = (date: string) => new Date(date).toLocaleDateString("ar-SA");
+  const formatNumber = (num: number) => new Intl.NumberFormat(\'en-US\').format(num);
+  const formatDate = (date: string) => new Date(date).toLocaleDateString(\'en-US\');
   const formatMonthYear = (month: string) => {
     const date = new Date(month + "-01");
-    return date.toLocaleDateString("ar-SA", { month: "long", year: "numeric" });
+    return date.toLocaleDateString(\'en-US\', { month: "long", year: "numeric" });
   };
 
   const getStatusBadge = (status: string) => {

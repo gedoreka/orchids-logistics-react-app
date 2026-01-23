@@ -24,7 +24,7 @@ export default function LivePage({ params }: { params: Promise<{ id: string }> }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 p-8" dir="rtl">
-      <div className="absolute top-4 left-4 flex items-center gap-2 text-white/60 text-sm"><div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" /><span>Live | {t.toLocaleTimeString('ar-SA')}</span></div>
+      <div className="absolute top-4 left-4 flex items-center gap-2 text-white/60 text-sm"><div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" /><span>Live | {t.toLocaleTimeString(\'en-US\')}</span></div>
       <div className="max-w-4xl mx-auto bg-white/10 backdrop-blur-xl rounded-3xl border border-white/20 overflow-hidden">
         <div className="bg-gradient-to-r from-blue-600 to-purple-600 p-8 flex items-center gap-8">
           <div className="relative">{e.personal_photo ? <img src={e.personal_photo} alt="" className="w-32 h-32 rounded-full object-cover border-4 border-white/30" /> : <div className="w-32 h-32 rounded-full bg-white/20 flex items-center justify-center border-4 border-white/30"><User size={48} className="text-white/70" /></div>}</div>

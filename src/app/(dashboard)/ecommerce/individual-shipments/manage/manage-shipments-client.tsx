@@ -293,7 +293,7 @@ export function ManageShipmentsClient({ companyId }: ManageShipmentsClientProps)
           <div class="header">
             <h1>فاتورة شحنة</h1>
             <p>رقم الطلب: ${shipment.order_number}</p>
-            <p>التاريخ: ${new Date(shipment.created_at).toLocaleDateString("ar-SA")}</p>
+            <p>التاريخ: ${new Date(shipment.created_at).toLocaleDateString(\'en-US\')}</p>
           </div>
           
           <div class="info-section">
@@ -400,8 +400,8 @@ export function ManageShipmentsClient({ companyId }: ManageShipmentsClientProps)
     return matchesSearch && matchesStatus;
   });
 
-  const formatDate = (date: string) => new Date(date).toLocaleDateString("ar-SA");
-  const formatNumber = (num: number) => new Intl.NumberFormat("ar-SA").format(num || 0);
+  const formatDate = (date: string) => new Date(date).toLocaleDateString(\'en-US\');
+  const formatNumber = (num: number) => new Intl.NumberFormat(\'en-US\').format(num || 0);
 
   if (loading) {
     return (

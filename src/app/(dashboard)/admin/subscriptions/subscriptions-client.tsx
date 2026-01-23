@@ -810,7 +810,7 @@ export default function SubscriptionsClient({ initialPlans, initialBankAccounts,
                             <h4 className="font-bold text-slate-900 dark:text-white">{payment.company_name}</h4>
                             <p className="text-sm text-slate-500">{payment.plan_name} - {payment.amount} ر.س</p>
                             <p className="text-xs text-slate-400 mt-1">
-                              {new Date(payment.created_at).toLocaleDateString('ar-SA')}
+                              {new Date(payment.created_at).toLocaleDateString(\'en-US\')}
                               {payment.bank_name && ` • ${payment.bank_name}`}
                             </p>
                           </div>

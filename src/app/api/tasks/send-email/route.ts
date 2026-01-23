@@ -56,8 +56,8 @@ export async function POST(request: NextRequest) {
       minute: '2-digit',
       hour12: true
     };
-    const arabicDate = now.toLocaleDateString('ar-SA', dateOptions);
-    const arabicTime = now.toLocaleTimeString('ar-SA', timeOptions);
+    const arabicDate = now.toLocaleDateString(\'en-US\', dateOptions);
+    const arabicTime = now.toLocaleTimeString(\'en-US\', timeOptions);
 
     const priorityLabels: Record<string, string> = {
       high: "عالية",

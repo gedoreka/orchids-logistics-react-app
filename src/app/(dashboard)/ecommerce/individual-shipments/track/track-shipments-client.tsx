@@ -128,8 +128,8 @@ export function TrackShipmentsClient({ companyId }: TrackShipmentsClientProps) {
     return matchesSearch && matchesStatus;
   });
 
-  const formatDate = (date: string) => new Date(date).toLocaleDateString("ar-SA");
-  const formatNumber = (num: number) => new Intl.NumberFormat("ar-SA").format(num);
+  const formatDate = (date: string) => new Date(date).toLocaleDateString(\'en-US\');
+  const formatNumber = (num: number) => new Intl.NumberFormat(\'en-US\').format(num);
 
   if (loading) {
     return (

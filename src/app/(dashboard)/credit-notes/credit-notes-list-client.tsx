@@ -156,7 +156,7 @@ export function CreditNotesListClient({ creditNotes: initialNotes }: CreditNotes
                   </div>
                   <p className="text-white/70 text-[10px] font-black uppercase tracking-widest">{t('totalReturns')}</p>
                   <p className="text-2xl font-black text-white mt-1.5 flex items-baseline gap-1">
-                    {totalAmount.toLocaleString(locale === 'ar' ? 'ar-SA' : 'en-US', { minimumFractionDigits: 2 })}
+                    {totalAmount.toLocaleString('en-US', { minimumFractionDigits: 2 })}
                     <span className="text-xs text-white/60 font-bold">{locale === 'ar' ? 'ريال' : 'SAR'}</span>
                   </p>
                   <p className="text-white/50 text-[10px] font-bold mt-2 flex items-center gap-1">
@@ -176,7 +176,7 @@ export function CreditNotesListClient({ creditNotes: initialNotes }: CreditNotes
                   </div>
                   <p className="text-white/70 text-[10px] font-black uppercase tracking-widest">{t('refundedTax')}</p>
                   <p className="text-2xl font-black text-white mt-1.5 flex items-baseline gap-1">
-                    {totalVat.toLocaleString(locale === 'ar' ? 'ar-SA' : 'en-US', { minimumFractionDigits: 2 })}
+                    {totalVat.toLocaleString('en-US', { minimumFractionDigits: 2 })}
                     <span className="text-xs text-white/60 font-bold">{locale === 'ar' ? 'ريال' : 'SAR'}</span>
                   </p>
                   <p className="text-white/50 text-[10px] font-bold mt-2 flex items-center gap-1">
@@ -318,7 +318,7 @@ export function CreditNotesListClient({ creditNotes: initialNotes }: CreditNotes
                           <td className="px-8 py-5 whitespace-nowrap text-center">
                             <div className="flex flex-col items-center">
                               <span className="font-black text-rose-400 text-sm">
-                                {parseFloat(String(note.total_amount)).toLocaleString(locale === 'ar' ? 'ar-SA' : 'en-US', { minimumFractionDigits: 2 })} {locale === 'ar' ? 'ريال' : 'SAR'}
+                                {parseFloat(String(note.total_amount)).toLocaleString('en-US', { minimumFractionDigits: 2 })} {locale === 'ar' ? 'ريال' : 'SAR'}
                               </span>
                               <span className="text-[10px] text-slate-500 font-black uppercase tracking-tighter opacity-70">{t('includingTax')}</span>
                             </div>

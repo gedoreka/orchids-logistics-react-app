@@ -802,7 +802,7 @@ export default function LettersClient() {
                             </span>
                           </div>
                           <h3 className="text-lg font-bold text-white">{letter.template_name_ar}</h3>
-                          <p className="text-slate-400 text-sm flex items-center gap-2"><Calendar className="w-4 h-4" />{new Date(letter.created_at).toLocaleDateString("ar-SA")}</p>
+                          <p className="text-slate-400 text-sm flex items-center gap-2"><Calendar className="w-4 h-4" />{new Date(letter.created_at).toLocaleDateString(\'en-US\')}</p>
                         </div>
                       </div>
                       <div className="flex items-center gap-2">

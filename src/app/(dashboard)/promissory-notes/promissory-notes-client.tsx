@@ -72,7 +72,7 @@ const numberToArabicWords = (num: number): string => {
     if (r === 0) return thousands[th];
     return thousands[th] + " و" + numberToArabicWords(r);
   }
-  return num.toLocaleString("ar-SA");
+  return num.toLocaleString('en-US');
 };
 
 const numberToEnglishWords = (num: number): string => {
@@ -114,7 +114,7 @@ const numberToEnglishWords = (num: number): string => {
 
 const formatAmount = (amount: number | null, locale: string): string => {
   if (!amount) return "..........................................";
-  return amount.toLocaleString(locale === 'ar' ? "ar-SA" : "en-US", { minimumFractionDigits: 2 });
+  return amount.toLocaleString(locale === 'ar' ? \'en-US\' : "en-US", { minimumFractionDigits: 2 });
 };
 
 const formatDate = (date: string | null) => {
@@ -405,7 +405,7 @@ export default function PromissoryNotesClient() {
                 ${getBeneficiaryIdLabelArabic(selectedNote!)} 
                 <span class="field">${getBeneficiaryIdNumber(selectedNote!)}</span>
                 ${printLabels.amountOf} 
-                <span class="field">${selectedNote?.amount ? selectedNote.amount.toLocaleString("ar-SA", { minimumFractionDigits: 2 }) : ".........................................."}</span>
+                <span class="field">${selectedNote?.amount ? selectedNote.amount.toLocaleString('en-US', { minimumFractionDigits: 2 }) : ".........................................."}</span>
                 ${printLabels.onlyReal} (
                 <span class="field field-large">${getAmountTextArabic(selectedNote?.amount || null)}</span>
                 ) ${printLabels.saudiRiyal}
@@ -1055,7 +1055,7 @@ export default function PromissoryNotesClient() {
                             </span>
                             {" "}{printLabels.amountOf}{" "}
                             <span className="font-black border-b border-black px-6 mx-2">
-                                {selectedNote.amount ? selectedNote.amount.toLocaleString("ar-SA", { minimumFractionDigits: 2 }) : ".........................................."}
+                                {selectedNote.amount ? selectedNote.amount.toLocaleString('en-US', { minimumFractionDigits: 2 }) : ".........................................."}
                             </span>
                             {" "}{printLabels.onlyReal} ({" "}
                             <span className="font-black border-b border-black px-6 mx-2">
