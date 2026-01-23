@@ -269,8 +269,9 @@ export function PayrollEditClient({ payroll, companyId }: PayrollEditClientProps
           )}
         </AnimatePresence>
 
-        <div className="flex-1 overflow-auto p-4">
-            <div className="w-[95%] mx-auto">
+          <div className="flex-1 overflow-auto p-4">
+              <div className="w-[97%] mx-auto">
+
               <div className="bg-white rounded-2xl border border-gray-100 shadow-xl overflow-hidden">
                 <div className="relative overflow-hidden bg-gradient-to-br from-[#1a237e] to-[#283593] p-6 text-white">
                   <div className="relative z-10">
