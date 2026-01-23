@@ -1035,6 +1035,104 @@
       "10": "أكتوبر",
       "11": "نوفمبر",
       "12": "ديسمبر"
+      }
+    },
+    "userProfile": {
+      "tabs": {
+        "overview": "نظرة عامة",
+        "bank": "الحسابات البنكية",
+        "license": "التراخيص والشهادات",
+        "files": "ملفات المنشأة"
+      },
+      "header": {
+        "companyName": "اسم المنشأة",
+        "noPhone": "لا يوجد هاتف",
+        "commercialNumber": "السجل التجاري",
+        "taxNumber": "الرقم الضريبي"
+      },
+      "overview": {
+        "ownerInfo": "معلومات المالك",
+        "fullName": "الاسم الكامل",
+        "email": "البريد الإلكتروني",
+        "registrationDate": "تاريخ التسجيل",
+        "membershipStatus": "حالة العضوية",
+        "premiumMember": "عضو مميز",
+        "facilityInfo": "معلومات المنشأة",
+        "commercialName": "الاسم التجاري",
+        "crNumber": "رقم السجل التجاري",
+        "vatNumber": "الرقم الضريبي",
+        "baseCurrency": "العملة الأساسية",
+        "sar": "ريال سعودي",
+        "addressAndContact": "العنوان والتواصل",
+        "country": "الدولة",
+        "cityRegion": "المدينة/المنطقة",
+        "district": "الحي",
+        "website": "الموقع الإلكتروني"
+      },
+      "bank": {
+        "title": "إدارة الحسابات البنكية",
+        "addNewAccount": "إضافة حساب جديد",
+        "deleteConfirm": "هل أنت متأكد من حذف هذا الحساب؟",
+        "deleteSuccess": "تم حذف الحساب بنجاح",
+        "accountNumber": "رقم الحساب",
+        "iban": "الآيبان",
+        "noAccounts": "لا توجد حسابات بنكية مضافة",
+        "bankName": "اسم البنك",
+        "beneficiary": "اسم المستفيد"
+      },
+      "licenses": {
+        "title": "التراخيص والشهادات",
+        "addLicense": "إضافة ترخيص جديد",
+        "numberPrefix": "رقم:",
+        "deleteConfirm": "هل أنت متأكد من حذف هذا الترخيص؟",
+        "issueDate": "تاريخ الإصدار",
+        "expiryDate": "تاريخ الانتهاء",
+        "viewFile": "عرض الملف",
+        "download": "تحميل",
+        "noLicenses": "لا توجد تراخيص أو شهادات مسجلة"
+      },
+      "files": {
+        "facilityIdentity": "هوية المنشأة",
+        "facilityLogo": "شعار المنشأة",
+        "companyStamp": "ختم المنشأة",
+        "managerSignature": "توقيع المدير",
+        "officialDocuments": "الوثائق الرسمية",
+        "commercialRegister": "السجل التجاري",
+        "vatCertificate": "شهادة الضريبة",
+        "ibanCard": "بطاقة الآيبان",
+        "nationalAddress": "العنوان الوطني",
+        "ownerId": "هوية المالك"
+      },
+      "actions": {
+        "saving": "جاري الحفظ...",
+        "saveAll": "حفظ جميع التغييرات",
+        "editAccount": "تعديل الحساب",
+        "save": "حفظ",
+        "editLicense": "تعديل الترخيص"
+      },
+      "forms": {
+        "licenseType": "نوع الترخيص",
+        "licenseNumber": "رقم الترخيص",
+        "startDate": "تاريخ البدء",
+        "endDate": "تاريخ الانتهاء",
+        "licenseFile": "ملف الترخيص",
+        "fileUploaded": "تم رفع الملف",
+        "deleteAndReplace": "حذف واستبدال",
+        "clickToUpload": "اضغط للرفع",
+        "saveLicense": "حفظ الترخيص",
+        "uploading": "جاري الرفع...",
+        "replace": "استبدال",
+        "view": "عرض"
+      },
+      "messages": {
+        "uploadSuccess": "تم رفع الملف بنجاح",
+        "uploadError": "حدث خطأ أثناء الرفع",
+        "saveSuccess": "تم حفظ البيانات بنجاح",
+        "saveError": "حدث خطأ أثناء حفظ البيانات",
+        "unexpectedError": "حدث خطأ غير متوقع",
+        "licenseUploadSuccess": "تم رفع صورة الترخيص بنجاح",
+        "licenseUploadError": "حدث خطأ أثناء رفع صورة الترخيص"
+      }
     }
   }
 }

@@ -1032,6 +1032,104 @@
       "10": "October",
       "11": "November",
       "12": "December"
+      }
+    },
+    "userProfile": {
+      "tabs": {
+        "overview": "Overview",
+        "bank": "Bank Accounts",
+        "license": "Licenses & Certificates",
+        "files": "Company Files"
+      },
+      "header": {
+        "companyName": "Company Name",
+        "noPhone": "No Phone",
+        "commercialNumber": "CR Number",
+        "taxNumber": "Tax Number"
+      },
+      "overview": {
+        "ownerInfo": "Owner Information",
+        "fullName": "Full Name",
+        "email": "Email",
+        "registrationDate": "Registration Date",
+        "membershipStatus": "Membership Status",
+        "premiumMember": "Premium Member",
+        "facilityInfo": "Facility Information",
+        "commercialName": "Commercial Name",
+        "crNumber": "CR Number",
+        "vatNumber": "VAT Number",
+        "baseCurrency": "Base Currency",
+        "sar": "SAR",
+        "addressAndContact": "Address & Contact",
+        "country": "Country",
+        "cityRegion": "City/Region",
+        "district": "District",
+        "website": "Website"
+      },
+      "bank": {
+        "title": "Bank Accounts Management",
+        "addNewAccount": "Add New Account",
+        "deleteConfirm": "Are you sure you want to delete this account?",
+        "deleteSuccess": "Account deleted successfully",
+        "accountNumber": "Account Number",
+        "iban": "IBAN",
+        "noAccounts": "No bank accounts added",
+        "bankName": "Bank Name",
+        "beneficiary": "Beneficiary Name"
+      },
+      "licenses": {
+        "title": "Licenses & Certificates",
+        "addLicense": "Add New License",
+        "numberPrefix": "Number:",
+        "deleteConfirm": "Are you sure you want to delete this license?",
+        "issueDate": "Issue Date",
+        "expiryDate": "Expiry Date",
+        "viewFile": "View File",
+        "download": "Download",
+        "noLicenses": "No licenses or certificates recorded"
+      },
+      "files": {
+        "facilityIdentity": "Facility Identity",
+        "facilityLogo": "Facility Logo",
+        "companyStamp": "Company Stamp",
+        "managerSignature": "Manager Signature",
+        "officialDocuments": "Official Documents",
+        "commercialRegister": "Commercial Register",
+        "vatCertificate": "VAT Certificate",
+        "ibanCard": "IBAN Card",
+        "nationalAddress": "National Address",
+        "ownerId": "Owner ID"
+      },
+      "actions": {
+        "saving": "Saving...",
+        "saveAll": "Save All Changes",
+        "editAccount": "Edit Account",
+        "save": "Save",
+        "editLicense": "Edit License"
+      },
+      "forms": {
+        "licenseType": "License Type",
+        "licenseNumber": "License Number",
+        "startDate": "Start Date",
+        "endDate": "End Date",
+        "licenseFile": "License File",
+        "fileUploaded": "File Uploaded",
+        "deleteAndReplace": "Delete and Replace",
+        "clickToUpload": "Click to upload",
+        "saveLicense": "Save License",
+        "uploading": "Uploading...",
+        "replace": "Replace",
+        "view": "View"
+      },
+      "messages": {
+        "uploadSuccess": "File uploaded successfully",
+        "uploadError": "Error uploading file",
+        "saveSuccess": "Data saved successfully",
+        "saveError": "Error saving data",
+        "unexpectedError": "An unexpected error occurred",
+        "licenseUploadSuccess": "License image uploaded successfully",
+        "licenseUploadError": "Error uploading license image"
+      }
     }
   }
 }
