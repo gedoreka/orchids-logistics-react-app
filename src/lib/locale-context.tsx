@@ -19,9 +19,9 @@ interface LocaleContextType {
 
 const LocaleContext = createContext<LocaleContextType | undefined>(undefined);
 
-const messagesMap: Record<Locale, any> = {
-  ar: (arMessages as any).default || arMessages,
-  en: (enMessages as any).default || enMessages,
+const messagesMap: Record<Locale, Messages> = {
+  ar: arMessages,
+  en: enMessages,
 };
 
 export function LocaleProvider({ children }: { children: ReactNode }) {
@@ -52,8 +52,6 @@ export function LocaleProvider({ children }: { children: ReactNode }) {
     const keys = key.split('.');
     let value: any = messagesMap[locale];
     
-    if (!value) return key;
-
     for (const k of keys) {
       if (value && typeof value === 'object' && k in value) {
         value = value[k];
@@ -64,7 +62,7 @@ export function LocaleProvider({ children }: { children: ReactNode }) {
     
     let result = typeof value === 'string' ? value : key;
 
-    if (values && typeof result === 'string') {
+    if (values) {
       Object.entries(values).forEach(([k, v]) => {
         result = result.replace(`{${k}}`, String(v));
       });

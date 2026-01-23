@@ -210,9 +210,8 @@ export function PayrollViewClient({ payroll, company }: PayrollViewClientProps) 
         )}
       </AnimatePresence>
 
-          <div className="flex-1 overflow-auto p-4 md:p-8 print:p-0">
-            <div className="max-w-[97%] mx-auto">
-
+        <div className="flex-1 overflow-auto p-4 md:p-8 print:p-0">
+          <div className="max-w-[1600px] mx-auto">
             <motion.div 
               initial={{ opacity: 0, y: -20 }}
               animate={{ opacity: 1, y: 0 }}
