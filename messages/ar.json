@@ -1801,8 +1801,10 @@
       "placeholderDebtorAddress": "أدخل العنوان بالتفصيل",
       "creationPlace": "مكان التحرير",
       "placeholderCreationPlace": "مثال: الرياض",
-      "issueNote": "إصدار وحفظ السند",
-      "cancel": "إلغاء",
+        "issueNote": "إصدار وحفظ السند",
+        "printPreview": "معاينة الطباعة",
+        "printNow": "طباعة الآن",
+        "cancel": "إلغاء",
       "footerSystemName": "نظام السندات القانوني - {name}",
       "allRightsReserved": "جميع الحقوق محفوظة {year}"
     },

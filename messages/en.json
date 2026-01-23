@@ -1798,8 +1798,10 @@
       "placeholderDebtorAddress": "Enter detailed address",
       "creationPlace": "Place of Issue",
       "placeholderCreationPlace": "Example: Riyadh",
-      "issueNote": "Issue and Save Note",
-      "cancel": "Cancel",
+        "issueNote": "Issue and Save Note",
+        "printPreview": "Print Preview",
+        "printNow": "Print Now",
+        "cancel": "Cancel",
       "footerSystemName": "Legal Note System - {name}",
       "allRightsReserved": "All Rights Reserved {year}"
     },
