@@ -112,7 +112,7 @@
     "admin": "Administration",
     "companies": "Companies",
     "notifications": "Notifications",
-    "userProfile": "User Profile",
+    "userProfile": "My Facility Data",
     "salesReceipts": "Sales Receipts",
     "ecommerceOrders": "E-commerce Orders",
     "personalShipments": "Personal Shipments"
@@ -123,7 +123,7 @@
     "notifications": "Notifications",
     "noNotifications": "No notifications",
     "viewAll": "View All",
-    "support": "Support",
+    "support": "Technical Support",
     "myData": "My Data",
     "driverApp": "Driver App",
     "language": "Language",
@@ -225,44 +225,7 @@
       "reason": "Reason",
       "startDate": "Start Date",
       "endDate": "End Date",
-      "actions": "Actions",
-      "nameAr": "Name (Arabic)",
-      "nameEn": "Name (English)",
-      "taxDescription": "Tax Description",
-      "isDefault": "Set as Default",
-      "save": "Save Tax",
-      "update": "Update Tax",
-      "noTaxes": "No taxes found",
-      "noTaxesDesc": "Start by adding your tax types here to be used in the system",
-      "export": "Export",
-      "searchPlaceholder": "Search for tax...",
-      "updateSuccess": "Tax updated successfully",
-      "addSuccess": "Tax added successfully",
-      "operationFailed": "Operation failed",
-      "errorOccurred": "An error occurred",
-      "deleteSuccess": "Tax deleted successfully",
-      "deleteError": "Error occurred during deletion",
-      "applyToModules": "Apply Tax to Modules",
-      "settingsGuide": "Tax Settings Guide",
-      "settingsDesc": "Configure general tax calculation rules",
-      "dialogDesc": "Enter tax type details below",
-      "saveSettings": "Save Settings",
-      "cancel": "Cancel",
-      "guide": {
-        "title": "Tax Settings Guide",
-        "step1": {
-          "title": "Included Tax Calculation",
-          "desc": "When enabled, tax is extracted from the total price (Price / 1.15). When disabled, tax is added on top of the price (Price * 1.15)."
-        },
-        "step2": {
-          "title": "Parcel Unit Tax",
-          "desc": "This tax applies to shipping and delivery fees for personal parcels."
-        },
-        "step3": {
-          "title": "Merchant Tax",
-          "desc": "Enabling this option allows the system to calculate VAT on commissions and fees due from merchants."
-        }
-      }
+      "actions": "Actions"
     }
   },
   "footer": {
