@@ -33,6 +33,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { useTranslations, useLocale } from "@/lib/locale-context";
+import { formatEnglishNumber } from "@/lib/number-utils";
 
 interface Invoice {
   id: number;
@@ -242,49 +243,49 @@ export function NewCreditNoteClient({ invoices }: NewCreditNoteClientProps) {
                     </div>
                   </div>
                   <p className="text-white/70 text-[10px] font-black uppercase tracking-widest">{t('new.amountBeforeTax')}</p>
-                  <p className="text-2xl font-black text-white mt-1.5 flex items-baseline gap-1">
-                    {calculations.beforeVat.toLocaleString('en-US', { minimumFractionDigits: 2 })}
-                    <span className="text-xs text-white/60 font-bold">{locale === 'ar' ? 'ريال' : 'SAR'}</span>
-                  </p>
-                  <p className="text-white/50 text-[10px] font-bold mt-2 flex items-center gap-1">
-                    <BadgeCheck size={12} />
-                    {t('new.netAmount')}
-                  </p>
-                </div>
-              </motion.div>
-              
-              <motion.div variants={itemVariants} className="relative group">
-                <div className="h-full rounded-2xl bg-gradient-to-br from-amber-500 to-orange-600 p-6 shadow-lg shadow-amber-500/20 transition-all group-hover:shadow-amber-500/30">
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="p-2.5 bg-white/15 rounded-xl text-white backdrop-blur-md">
-                      <Percent size={20} />
-                    </div>
-                    <span className="text-[10px] font-black text-white/90 bg-white/10 px-3 py-1 rounded-full border border-white/10">15%</span>
+                    <p className="text-2xl font-black text-white mt-1.5 flex items-baseline gap-1 font-latin">
+                      {formatEnglishNumber(calculations.beforeVat)}
+                      <span className="text-xs text-white/60 font-bold">{locale === 'ar' ? 'ريال' : 'SAR'}</span>
+                    </p>
+                    <p className="text-white/50 text-[10px] font-bold mt-2 flex items-center gap-1">
+                      <BadgeCheck size={12} />
+                      {t('new.netAmount')}
+                    </p>
                   </div>
-                  <p className="text-white/70 text-[10px] font-black uppercase tracking-widest">{t('new.refundedVat')}</p>
-                  <p className="text-2xl font-black text-white mt-1.5 flex items-baseline gap-1">
-                    {calculations.vatAmount.toLocaleString('en-US', { minimumFractionDigits: 2 })}
-                    <span className="text-xs text-white/60 font-bold">{locale === 'ar' ? 'ريال' : 'SAR'}</span>
-                  </p>
-                  <p className="text-white/50 text-[10px] font-bold mt-2 flex items-center gap-1">
-                    <CheckCircle size={12} />
-                    {t('new.vatRefund')}
-                  </p>
-                </div>
-              </motion.div>
-              
-              <motion.div variants={itemVariants} className="relative group">
-                <div className="h-full rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 p-6 shadow-lg shadow-emerald-500/20 transition-all group-hover:shadow-emerald-500/30">
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="p-2.5 bg-white/15 rounded-xl text-white backdrop-blur-md">
-                      <CircleDollarSign size={20} />
+                </motion.div>
+                
+                <motion.div variants={itemVariants} className="relative group">
+                  <div className="h-full rounded-2xl bg-gradient-to-br from-amber-500 to-orange-600 p-6 shadow-lg shadow-amber-500/20 transition-all group-hover:shadow-amber-500/30">
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="p-2.5 bg-white/15 rounded-xl text-white backdrop-blur-md">
+                        <Percent size={20} />
+                      </div>
+                      <span className="text-[10px] font-black text-white/90 bg-white/10 px-3 py-1 rounded-full border border-white/10">15%</span>
                     </div>
+                    <p className="text-white/70 text-[10px] font-black uppercase tracking-widest">{t('new.refundedVat')}</p>
+                    <p className="text-2xl font-black text-white mt-1.5 flex items-baseline gap-1 font-latin">
+                      {formatEnglishNumber(calculations.vatAmount)}
+                      <span className="text-xs text-white/60 font-bold">{locale === 'ar' ? 'ريال' : 'SAR'}</span>
+                    </p>
+                    <p className="text-white/50 text-[10px] font-bold mt-2 flex items-center gap-1">
+                      <CheckCircle size={12} />
+                      {t('new.vatRefund')}
+                    </p>
                   </div>
-                  <p className="text-white/70 text-[10px] font-black uppercase tracking-widest">{t('new.totalIncludingVat')}</p>
-                  <p className="text-2xl font-black text-white mt-1.5 flex items-baseline gap-1">
-                    {calculations.total.toLocaleString('en-US', { minimumFractionDigits: 2 })}
-                    <span className="text-xs text-white/60 font-bold">{locale === 'ar' ? 'ريال' : 'SAR'}</span>
-                  </p>
+                </motion.div>
+                
+                <motion.div variants={itemVariants} className="relative group">
+                  <div className="h-full rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 p-6 shadow-lg shadow-emerald-500/20 transition-all group-hover:shadow-emerald-500/30">
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="p-2.5 bg-white/15 rounded-xl text-white backdrop-blur-md">
+                        <CircleDollarSign size={20} />
+                      </div>
+                    </div>
+                    <p className="text-white/70 text-[10px] font-black uppercase tracking-widest">{t('new.totalIncludingVat')}</p>
+                    <p className="text-2xl font-black text-white mt-1.5 flex items-baseline gap-1 font-latin">
+                      {formatEnglishNumber(calculations.total)}
+                      <span className="text-xs text-white/60 font-bold">{locale === 'ar' ? 'ريال' : 'SAR'}</span>
+                    </p>
                   <p className="text-white/50 text-[10px] font-bold mt-2 flex items-center gap-1">
                     <Sparkles size={12} />
                     {t('new.includingVat')}
@@ -457,31 +458,31 @@ export function NewCreditNoteClient({ invoices }: NewCreditNoteClientProps) {
                         )}
                       </div>
 
-                      <div className="space-y-2.5">
-                        <label className="text-xs font-black text-slate-400 uppercase flex items-center gap-2 px-1">
-                          <Calculator size={14} className="text-slate-400" />
-                          {t('new.amountBeforeTax')}
-                        </label>
-                        <div className="w-full h-14 px-6 rounded-2xl bg-white/5 border-2 border-white/5 flex items-center justify-between shadow-inner">
-                          <span className="text-sm font-black text-slate-200">
-                            {calculations.beforeVat.toLocaleString('en-US', { minimumFractionDigits: 2 })}
-                          </span>
-                          <span className="text-[10px] font-black text-slate-500 uppercase">{locale === 'ar' ? 'ريال' : 'SAR'}</span>
+                        <div className="space-y-2.5">
+                          <label className="text-xs font-black text-slate-400 uppercase flex items-center gap-2 px-1">
+                            <Calculator size={14} className="text-slate-400" />
+                            {t('new.amountBeforeTax')}
+                          </label>
+                          <div className="w-full h-14 px-6 rounded-2xl bg-white/5 border-2 border-white/5 flex items-center justify-between shadow-inner">
+                            <span className="text-sm font-black text-slate-200 font-latin">
+                              {formatEnglishNumber(calculations.beforeVat)}
+                            </span>
+                            <span className="text-[10px] font-black text-slate-500 uppercase">{locale === 'ar' ? 'ريال' : 'SAR'}</span>
+                          </div>
                         </div>
-                      </div>
 
-                      <div className="space-y-2.5">
-                        <label className="text-xs font-black text-slate-400 uppercase flex items-center gap-2 px-1">
-                          <Percent size={14} className="text-amber-500" />
-                          {t('new.vatValue')}
-                        </label>
-                        <div className="w-full h-14 px-6 rounded-2xl bg-amber-500/5 border-2 border-amber-500/10 flex items-center justify-between shadow-inner">
-                          <span className="text-sm font-black text-amber-400">
-                            {calculations.vatAmount.toLocaleString('en-US', { minimumFractionDigits: 2 })}
-                          </span>
-                          <span className="text-[10px] font-black text-amber-500 uppercase">{locale === 'ar' ? 'ريال' : 'SAR'}</span>
+                        <div className="space-y-2.5">
+                          <label className="text-xs font-black text-slate-400 uppercase flex items-center gap-2 px-1">
+                            <Percent size={14} className="text-amber-500" />
+                            {t('new.vatValue')}
+                          </label>
+                          <div className="w-full h-14 px-6 rounded-2xl bg-amber-500/5 border-2 border-amber-500/10 flex items-center justify-between shadow-inner">
+                            <span className="text-sm font-black text-amber-400 font-latin">
+                              {formatEnglishNumber(calculations.vatAmount)}
+                            </span>
+                            <span className="text-[10px] font-black text-amber-500 uppercase">{locale === 'ar' ? 'ريال' : 'SAR'}</span>
+                          </div>
                         </div>
-                      </div>
                     </div>
                   </div>
                 </motion.div>
@@ -505,59 +506,59 @@ export function NewCreditNoteClient({ invoices }: NewCreditNoteClientProps) {
                     </div>
                   </div>
 
-                  <div className="space-y-4 mb-8 relative z-10">
-                    <div className="flex justify-between items-center p-5 bg-white/5 rounded-2xl border border-white/5 transition-colors hover:bg-white/10 group">
-                      <div className="flex items-center gap-3">
-                        <Receipt size={18} className="text-slate-500 group-hover:text-rose-400 transition-colors" />
-                        <span className="text-slate-400 font-black text-xs uppercase tracking-wider">{t('new.totalIncludingVat')}</span>
-                      </div>
-                      <span className="font-black text-white text-lg">
-                        {calculations.total.toLocaleString('en-US', { minimumFractionDigits: 2 })}
-                        <span className="text-slate-500 mr-2 text-[10px] uppercase tracking-tighter">{locale === 'ar' ? 'ريال' : 'SAR'}</span>
-                      </span>
-                    </div>
-                    
-                    <div className="flex justify-between items-center p-5 bg-rose-500/10 rounded-2xl border border-rose-500/20 transition-colors hover:bg-rose-500/20 group">
-                      <div className="flex items-center gap-3">
-                        <TrendingDown size={18} className="text-rose-400" />
-                        <span className="text-rose-200/70 font-black text-xs uppercase tracking-wider">{t('new.netRefund')}</span>
-                      </div>
-                      <span className="font-black text-rose-400 text-lg">
-                        {calculations.beforeVat.toLocaleString('en-US', { minimumFractionDigits: 2 })}
-                        <span className="text-rose-300/50 mr-2 text-[10px] uppercase tracking-tighter">{locale === 'ar' ? 'ريال' : 'SAR'}</span>
-                      </span>
-                    </div>
-
-                    <div className="flex justify-between items-center p-5 bg-amber-500/10 rounded-2xl border border-amber-500/20 transition-colors hover:bg-amber-500/20 group">
-                      <div className="flex items-center gap-3">
-                        <Percent size={18} className="text-amber-400" />
-                        <span className="text-amber-200/70 font-black text-xs uppercase tracking-wider">{t('new.totalVat')}</span>
-                      </div>
-                      <span className="font-black text-amber-400 text-lg">
-                        {calculations.vatAmount.toLocaleString('en-US', { minimumFractionDigits: 2 })}
-                        <span className="text-amber-300/50 mr-2 text-[10px] uppercase tracking-tighter">{locale === 'ar' ? 'ريال' : 'SAR'}</span>
-                      </span>
-                    </div>
-                  </div>
-
-                  <div className="h-px bg-gradient-to-r from-transparent via-white/10 to-transparent my-8 relative z-10" />
-
-                  <div className="p-6 bg-gradient-to-br from-emerald-500/20 to-teal-500/20 rounded-2xl border border-emerald-500/30 relative z-10 shadow-lg shadow-emerald-900/20 group">
-                    <div className="flex justify-between items-center">
-                      <div className="flex items-center gap-3">
-                        <div className="h-10 w-10 rounded-xl bg-emerald-500/20 flex items-center justify-center group-hover:scale-110 transition-transform">
-                          <CircleDollarSign size={20} className="text-emerald-400" />
+                    <div className="space-y-4 mb-8 relative z-10">
+                      <div className="flex justify-between items-center p-5 bg-white/5 rounded-2xl border border-white/5 transition-colors hover:bg-white/10 group">
+                        <div className="flex items-center gap-3">
+                          <Receipt size={18} className="text-slate-500 group-hover:text-rose-400 transition-colors" />
+                          <span className="text-slate-400 font-black text-xs uppercase tracking-wider">{t('new.totalIncludingVat')}</span>
                         </div>
-                        <span className="text-emerald-200 font-black text-xs uppercase tracking-widest">{t('new.totalDiscount')}</span>
-                      </div>
-                      <div className="text-left">
-                        <span className="text-3xl font-black text-emerald-400 tracking-tighter">
-                          {calculations.total.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                        <span className="font-black text-white text-lg font-latin">
+                          {formatEnglishNumber(calculations.total)}
+                          <span className="text-slate-500 mr-2 text-[10px] uppercase tracking-tighter">{locale === 'ar' ? 'ريال' : 'SAR'}</span>
                         </span>
-                        <span className="mr-2 text-[10px] font-black text-emerald-300/50 uppercase tracking-tighter">{locale === 'ar' ? 'ريال' : 'SAR'}</span>
+                      </div>
+                      
+                      <div className="flex justify-between items-center p-5 bg-rose-500/10 rounded-2xl border border-rose-500/20 transition-colors hover:bg-rose-500/20 group">
+                        <div className="flex items-center gap-3">
+                          <TrendingDown size={18} className="text-rose-400" />
+                          <span className="text-rose-200/70 font-black text-xs uppercase tracking-wider">{t('new.netRefund')}</span>
+                        </div>
+                        <span className="font-black text-rose-400 text-lg font-latin">
+                          {formatEnglishNumber(calculations.beforeVat)}
+                          <span className="text-rose-300/50 mr-2 text-[10px] uppercase tracking-tighter">{locale === 'ar' ? 'ريال' : 'SAR'}</span>
+                        </span>
+                      </div>
+
+                      <div className="flex justify-between items-center p-5 bg-amber-500/10 rounded-2xl border border-amber-500/20 transition-colors hover:bg-amber-500/20 group">
+                        <div className="flex items-center gap-3">
+                          <Percent size={18} className="text-amber-400" />
+                          <span className="text-amber-200/70 font-black text-xs uppercase tracking-wider">{t('new.totalVat')}</span>
+                        </div>
+                        <span className="font-black text-amber-400 text-lg font-latin">
+                          {formatEnglishNumber(calculations.vatAmount)}
+                          <span className="text-amber-300/50 mr-2 text-[10px] uppercase tracking-tighter">{locale === 'ar' ? 'ريال' : 'SAR'}</span>
+                        </span>
                       </div>
                     </div>
-                  </div>
+
+                    <div className="h-px bg-gradient-to-r from-transparent via-white/10 to-transparent my-8 relative z-10" />
+
+                    <div className="p-6 bg-gradient-to-br from-emerald-500/20 to-teal-500/20 rounded-2xl border border-emerald-500/30 relative z-10 shadow-lg shadow-emerald-900/20 group">
+                      <div className="flex justify-between items-center">
+                        <div className="flex items-center gap-3">
+                          <div className="h-10 w-10 rounded-xl bg-emerald-500/20 flex items-center justify-center group-hover:scale-110 transition-transform">
+                            <CircleDollarSign size={20} className="text-emerald-400" />
+                          </div>
+                          <span className="text-emerald-200 font-black text-xs uppercase tracking-widest">{t('new.totalDiscount')}</span>
+                        </div>
+                        <div className="text-left">
+                          <span className="text-3xl font-black text-emerald-400 tracking-tighter font-latin">
+                            {formatEnglishNumber(calculations.total)}
+                          </span>
+                          <span className="mr-2 text-[10px] font-black text-emerald-300/50 uppercase tracking-tighter">{locale === 'ar' ? 'ريال' : 'SAR'}</span>
+                        </div>
+                      </div>
+                    </div>
 
                   <div className="space-y-4 pt-8 relative z-10">
                     <motion.button

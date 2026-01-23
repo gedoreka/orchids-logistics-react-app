@@ -195,11 +195,17 @@
     font-family: var(--font-inter), 'Inter', 'Segoe UI', system-ui, sans-serif;
   }
   
-  .font-cairo {
-    font-family: var(--font-cairo), 'Cairo', 'Tajawal', 'Segoe UI', system-ui, sans-serif;
-  }
-  
-  [dir="ltr"] body {
+    .font-cairo {
+      font-family: var(--font-cairo), 'Cairo', 'Tajawal', 'Segoe UI', system-ui, sans-serif;
+    }
+
+    /* Force Latin Numerals */
+    .font-latin {
+      font-family: var(--font-inter), 'Inter', 'Segoe UI', system-ui, sans-serif !important;
+      font-variant-numeric: lining-nums tabular-nums !important;
+    }
+    
+    [dir="ltr"] body {
     font-family: var(--font-inter), 'Inter', 'Segoe UI', system-ui, sans-serif;
   }
   

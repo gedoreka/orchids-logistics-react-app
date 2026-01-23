@@ -83,7 +83,7 @@ function AnimatedCounter({ value, duration = 2 }: { value: number; duration?: nu
     };
   }, [value, duration, count, rounded]);
 
-  return <span>{displayValue}</span>;
+  return <span className="font-latin">{displayValue}</span>;
 }
 
 export function DashboardClient({ 
