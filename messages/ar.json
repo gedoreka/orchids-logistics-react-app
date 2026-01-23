@@ -1764,9 +1764,9 @@
         "status": "الحالة",
         "actions": "إجراءات",
         "searchPlaceholder": "البحث برقم السند أو المدين...",
-        "issuedNotesLog": "سجل السندات الصادرة",
-        "notesCount": "سند",
-        "active": "نشط",
+          "issuedNotesLog": "سجل السندات الصادرة",
+          "notesCount": "{count} سند",
+          "active": "نشط",
         "paid": "مدفوع",
         "cancelled": "ملغي",
         "draft": "مسودة",
@@ -1896,55 +1896,77 @@
         "system": "Logistics Systems Pro"
       }
     },
-    "incomePage": {
-      "title": "سندات الإيراد",
-      "subtitle": "إدارة وتوثيق الإيرادات المتنوعة",
-      "description": "سجل متكامل لكافة الإيرادات المالية التي تدخل المنشأة",
-      "refreshData": "تحديث",
-      "addNew": "إضافة إيراد جديد",
-      "exportData": "تصدير البيانات",
-      "stats": {
-        "count": "إجمالي العمليات",
-        "nextNumber": "رقم السند القادم",
-        "voucherLabel": "سند",
-        "sequential": "سندات متسلسلة"
-      },
-      "searchPlaceholder": "البحث برقم السند أو المصدر...",
-      "table": {
-        "title": "سجل الإيرادات",
-        "no": "رقم السند",
-        "type": "نوع الإيراد",
-        "date": "التاريخ",
-        "method": "طريقة الدفع",
-        "total": "المبلغ الإجمالي",
-        "actions": "إجراءات"
-      },
-      "noRecords": {
-        "title": "لا توجد سندات إيراد",
-        "desc": "لم يتم تسجيل أي سندات إيراد بعد"
-      },
-      "form": {
-        "addTitle": "إضافة إيراد جديد",
-        "fillData": "يرجى ملء بيانات الإيراد",
-        "incomeType": "نوع الإيراد",
-        "selectIncomeType": "اختر نوع الإيراد",
-        "incomeDate": "تاريخ الإيراد",
-        "paymentMethod": "طريقة الدفع",
-        "selectPaymentMethod": "اختر طريقة الدفع",
-        "amount": "المبلغ",
-        "taxValue": "قيمة الضريبة",
-        "totalAmount": "الإجمالي",
-        "enableTax": "تفعيل الضريبة",
-        "account": "الحساب (اختياري)",
-        "selectAccount": "اختر الحساب",
-        "costCenter": "مركز التكلفة (اختياري)",
-        "selectCostCenter": "اختر مركز التكلفة",
-        "description": "الوصف / البيان",
-        "descriptionPlaceholder": "أدخل وصف العملية",
-        "cancel": "إلغاء",
-        "save": "حفظ الإيراد"
+      "incomePage": {
+        "title": "سندات الإيراد",
+        "subtitle": "إدارة وتوثيق الإيرادات المتنوعة",
+        "description": "سجل متكامل لكافة الإيرادات المالية التي تدخل المنشأة",
+        "refreshData": "تحديث",
+        "addNew": "إضافة إيراد جديد",
+        "exportData": "تصدير البيانات",
+        "cancelForm": "إلغاء النموذج",
+        "stats": {
+          "count": "إجمالي العمليات",
+          "nextNumber": "رقم السند القادم",
+          "voucherLabel": "سند",
+          "sequential": "سندات متسلسلة"
+        },
+        "incomeTypes": {
+          "bankTransfer": "تحويل بنكي",
+          "capital": "رأس مال",
+          "otherRevenue": "إيرادات أخرى",
+          "investmentProfit": "أرباح استثمارية",
+          "rentalIncome": "إيرادات إيجار",
+          "depositReturn": "استرداد تأمين",
+          "financialAdjustments": "تسويات مالية"
+        },
+        "paymentMethods": {
+          "cash": "نقدي",
+          "transfer": "تحويل",
+          "deposit": "إيداع"
+        },
+        "footer": {
+          "system": "نظام إدارة الإيرادات - ZoolSpeed",
+          "rights": "جميع الحقوق محفوظة {year}"
+        },
+        "notifications": {
+          "saveSuccess": "تم حفظ الإيراد بنجاح"
+        },
+        "searchPlaceholder": "البحث برقم السند أو المصدر...",
+        "table": {
+          "title": "سجل الإيرادات",
+          "no": "رقم السند",
+          "type": "نوع الإيراد",
+          "date": "التاريخ",
+          "method": "طريقة الدفع",
+          "total": "المبلغ الإجمالي",
+          "actions": "إجراءات"
+        },
+        "noRecords": {
+          "title": "لا توجد سندات إيراد",
+          "desc": "لم يتم تسجيل أي سندات إيراد بعد"
+        },
+        "form": {
+          "addTitle": "إضافة إيراد جديد",
+          "fillData": "يرجى ملء بيانات الإيراد",
+          "incomeType": "نوع الإيراد",
+          "selectIncomeType": "اختر نوع الإيراد",
+          "incomeDate": "تاريخ الإيراد",
+          "paymentMethod": "طريقة الدفع",
+          "selectPaymentMethod": "اختر طريقة الدفع",
+          "amount": "المبلغ",
+          "taxValue": "قيمة الضريبة",
+          "totalAmount": "الإجمالي",
+          "enableTax": "تفعيل الضريبة",
+          "account": "الحساب (اختياري)",
+          "selectAccount": "اختر الحساب",
+          "costCenter": "مركز التكلفة (اختياري)",
+          "selectCostCenter": "اختر مركز التكلفة",
+          "description": "الوصف / البيان",
+          "descriptionPlaceholder": "أدخل وصف العملية",
+          "cancel": "إلغاء",
+          "save": "حفظ الإيراد"
+        }
       }
-    }
   },
   "salaryPayrollsPage": {
     "title": "مسيرات الرواتب",

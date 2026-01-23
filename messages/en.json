@@ -1761,9 +1761,9 @@
         "status": "Status",
         "actions": "Actions",
         "searchPlaceholder": "Search by note number or debtor...",
-        "issuedNotesLog": "Issued Notes Log",
-        "notesCount": "Notes",
-        "active": "Active",
+          "issuedNotesLog": "Issued Notes Log",
+          "notesCount": "{count} Notes",
+          "active": "Active",
         "paid": "Paid",
         "cancelled": "Cancelled",
         "draft": "Draft",
@@ -1893,55 +1893,77 @@
         "system": "Logistics Systems Pro"
       }
     },
-    "incomePage": {
-      "title": "Income Vouchers",
-      "subtitle": "Management and documentation of various income",
-      "description": "Integrated record for all financial income entering the facility",
-      "refreshData": "Refresh",
-      "addNew": "Add New Income",
-      "exportData": "Export Data",
-      "stats": {
-        "count": "Total Operations",
-        "nextNumber": "Next Voucher No.",
-        "voucherLabel": "Voucher",
-        "sequential": "Sequential Vouchers"
-      },
-      "searchPlaceholder": "Search by voucher number or source...",
-      "table": {
-        "title": "Income Log",
-        "no": "Voucher No.",
-        "type": "Income Type",
-        "date": "Date",
-        "method": "Payment Method",
-        "total": "Total Amount",
-        "actions": "Actions"
-      },
-      "noRecords": {
-        "title": "No Income Records",
-        "desc": "No income records registered yet"
-      },
-      "form": {
-        "addTitle": "Add New Income",
-        "fillData": "Please fill in income data",
-        "incomeType": "Income Type",
-        "selectIncomeType": "Select income type",
-        "incomeDate": "Income Date",
-        "paymentMethod": "Payment Method",
-        "selectPaymentMethod": "Select payment method",
-        "amount": "Amount",
-        "taxValue": "Tax Value",
-        "totalAmount": "Total Amount",
-        "enableTax": "Enable Tax",
-        "account": "Account (Optional)",
-        "selectAccount": "Select account",
-        "costCenter": "Cost Center (Optional)",
-        "selectCostCenter": "Select cost center",
-        "description": "Description / Statement",
-        "descriptionPlaceholder": "Enter process description",
-        "cancel": "Cancel",
-        "save": "Save Income"
+      "incomePage": {
+        "title": "Income Vouchers",
+        "subtitle": "Management and documentation of various income",
+        "description": "Integrated record for all financial income entering the facility",
+        "refreshData": "Refresh",
+        "addNew": "Add New Income",
+        "exportData": "Export Data",
+        "cancelForm": "Cancel Form",
+        "stats": {
+          "count": "Total Operations",
+          "nextNumber": "Next Voucher No.",
+          "voucherLabel": "Voucher",
+          "sequential": "Sequential Vouchers"
+        },
+        "incomeTypes": {
+          "bankTransfer": "Bank Transfer",
+          "capital": "Capital",
+          "otherRevenue": "Other Revenue",
+          "investmentProfit": "Investment Profit",
+          "rentalIncome": "Rental Income",
+          "depositReturn": "Deposit Return",
+          "financialAdjustments": "Financial Adjustments"
+        },
+        "paymentMethods": {
+          "cash": "Cash",
+          "transfer": "Transfer",
+          "deposit": "Deposit"
+        },
+        "footer": {
+          "system": "Income Management System - ZoolSpeed",
+          "rights": "All Rights Reserved {year}"
+        },
+        "notifications": {
+          "saveSuccess": "Income saved successfully"
+        },
+        "searchPlaceholder": "Search by voucher number or source...",
+        "table": {
+          "title": "Income Log",
+          "no": "Voucher No.",
+          "type": "Income Type",
+          "date": "Date",
+          "method": "Payment Method",
+          "total": "Total Amount",
+          "actions": "Actions"
+        },
+        "noRecords": {
+          "title": "No Income Records",
+          "desc": "No income records registered yet"
+        },
+        "form": {
+          "addTitle": "Add New Income",
+          "fillData": "Please fill in income data",
+          "incomeType": "Income Type",
+          "selectIncomeType": "Select income type",
+          "incomeDate": "Income Date",
+          "paymentMethod": "Payment Method",
+          "selectPaymentMethod": "Select payment method",
+          "amount": "Amount",
+          "taxValue": "Tax Value",
+          "totalAmount": "Total Amount",
+          "enableTax": "Enable Tax",
+          "account": "Account (Optional)",
+          "selectAccount": "Select account",
+          "costCenter": "Cost Center (Optional)",
+          "selectCostCenter": "Select cost center",
+          "description": "Description / Statement",
+          "descriptionPlaceholder": "Enter process description",
+          "cancel": "Cancel",
+          "save": "Save Income"
+        }
       }
-    }
   },
   "salaryPayrollsPage": {
     "title": "Salary Payrolls",
