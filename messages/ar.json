@@ -1078,12 +1078,50 @@
       "unexpectedError": "حدث خطأ غير متوقع",
       "deleteSuccess": "تم حذف الحساب بنجاح",
       "deleteError": "حدث خطأ أثناء الحذف",
-      "types": {
-        "expense": "مصروف",
-        "income": "دخل",
-        "asset": "أصل",
-        "liability": "التزام",
-        "equity": "حقوق ملكية"
+        "types": {
+          "expense": "مصروف",
+          "income": "دخل",
+          "asset": "أصل",
+          "liability": "التزام",
+          "equity": "حقوق ملكية"
+        }
+      },
+      "costCenters": {
+        "title": "مراكز التكلفة",
+        "subtitle": "توزيع وتحليل المصروفات والإيرادات حسب الأقسام والفروع",
+        "totalCenters": "إجمالي المراكز",
+        "activeCenters": "المراكز النشطة",
+        "branches": "الفروع",
+        "searchPlaceholder": "البحث عن مركز تكلفة بالاسم أو الرمز...",
+        "addNewCenter": "إضافة مركز جديد",
+        "centerCode": "رمز المركز",
+        "centerName": "اسم المركز",
+        "actions": "الإجراءات",
+        "edit": "تعديل",
+        "delete": "حذف",
+        "noMatchingCenters": "لا توجد مراكز تكلفة مطابقة",
+        "noMatchingCentersDesc": "جرب تغيير معايير البحث",
+        "view": "عرض",
+        "outOf": "من أصل",
+        "centersCount": "مركز",
+        "editCenter": "تعديل مركز تكلفة",
+        "addNewCenterTitle": "إضافة مركز تكلفة جديد",
+        "fillRequiredData": "يرجى ملء جميع البيانات المطلوبة",
+        "codeExample": "مثال: CC-001",
+        "nameExample": "مثال: فرع الرياض",
+        "confirmDelete": "تأكيد الحذف",
+        "confirmDeleteDesc": "هل أنت متأكد من حذف مركز التكلفة هذا؟ لا يمكن التراجع عن هذا الإجراء.",
+        "yesDelete": "نعم، احذف",
+        "cancel": "إلغاء",
+        "saveChanges": "حفظ التعديلات",
+        "addCenter": "إضافة المركز",
+        "addSuccess": "تم إضافة مركز التكلفة بنجاح",
+        "updateSuccess": "تم تحديث مركز التكلفة بنجاح",
+        "deleteSuccess": "تم حذف مركز التكلفة بنجاح",
+        "addError": "حدث خطأ أثناء الإضافة",
+        "updateError": "حدث خطأ أثناء التحديث",
+        "deleteError": "حدث خطأ أثناء الحذف",
+        "unexpectedError": "حدث خطأ غير متوقع"
       }
-    }
+
 }

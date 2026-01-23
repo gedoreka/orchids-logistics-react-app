@@ -20,6 +20,8 @@ import {
 import { toast } from "sonner";
 import { CostCenter } from "@/lib/types";
 import { createCostCenter, updateCostCenter, deleteCostCenter } from "@/lib/actions/accounting";
+import { useTranslations, useLocale } from "@/lib/locale-context";
+import { cn } from "@/lib/utils";
 
 interface CostCentersClientProps {
   initialCostCenters: CostCenter[];
@@ -27,6 +29,9 @@ interface CostCentersClientProps {
 }
 
 export function CostCentersClient({ initialCostCenters, companyId }: CostCentersClientProps) {
+  const t = useTranslations("costCenters");
+  const { isRTL: isRtl } = useLocale();
+  
   const [costCenters, setCostCenters] = useState(initialCostCenters);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingCenter, setEditingCenter] = useState<CostCenter | null>(null);
@@ -69,23 +74,23 @@ export function CostCentersClient({ initialCostCenters, companyId }: CostCenters
       if (editingCenter) {
         const result = await updateCostCenter(editingCenter.id, formData);
         if (result.success) {
-          toast.success("تم تحديث مركز التكلفة بنجاح");
+          toast.success(t("updateSuccess"));
           setCostCenters(prev => prev.map(c => c.id === editingCenter.id ? { ...c, ...formData } : c));
           setIsModalOpen(false);
         } else {
-          toast.error(result.error || "حدث خطأ أثناء التحديث");
+          toast.error(result.error || t("updateError"));
         }
       } else {
         const result = await createCostCenter({ ...formData, company_id: companyId });
         if (result.success) {
-          toast.success("تم إضافة مركز التكلفة بنجاح");
+          toast.success(t("addSuccess"));
           window.location.reload(); 
         } else {
-          toast.error(result.error || "حدث خطأ أثناء الإضافة");
+          toast.error(result.error || t("addError"));
         }
       }
     } catch {
-      toast.error("حدث خطأ غير متوقع");
+      toast.error(t("unexpectedError"));
     } finally {
       setIsLoading(false);
     }
@@ -95,19 +100,19 @@ export function CostCentersClient({ initialCostCenters, companyId }: CostCenters
     try {
       const result = await deleteCostCenter(id);
       if (result.success) {
-        toast.success("تم حذف مركز التكلفة بنجاح");
+        toast.success(t("deleteSuccess"));
         setCostCenters(prev => prev.filter(c => c.id !== id));
         setDeleteConfirm(null);
       } else {
-        toast.error(result.error || "حدث خطأ أثناء الحذف");
+        toast.error(result.error || t("deleteError"));
       }
     } catch {
-      toast.error("حدث خطأ غير متوقع");
+      toast.error(t("unexpectedError"));
     }
   };
 
   return (
-    <div className="w-full max-w-[98%] mx-auto px-6 py-6 rtl" dir="rtl">
+    <div className="w-full max-w-[98%] mx-auto px-6 py-6" dir={isRtl ? "rtl" : "ltr"}>
       <div className="bg-[#1a2234] rounded-3xl p-8 space-y-8 shadow-2xl border border-white/5">
         {/* Header */}
         <motion.div 
@@ -119,9 +124,9 @@ export function CostCentersClient({ initialCostCenters, companyId }: CostCenters
             <div className="p-3 bg-white/10 rounded-full backdrop-blur-sm">
               <LayoutGrid className="w-8 h-8 text-amber-200" />
             </div>
-            <h1 className="text-2xl font-bold tracking-tight">مراكز التكلفة</h1>
+            <h1 className="text-2xl font-bold tracking-tight">{t("title")}</h1>
             <p className="text-amber-100 max-w-2xl">
-              توزيع وتحليل المصروفات والإيرادات حسب الأقسام والفروع
+              {t("subtitle")}
             </p>
           </div>
           <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-yellow-400 via-orange-400 to-red-400"></div>
@@ -133,30 +138,30 @@ export function CostCentersClient({ initialCostCenters, companyId }: CostCenters
           animate={{ opacity: 1 }}
           className="grid grid-cols-1 md:grid-cols-3 gap-4"
         >
-          <div className="bg-white p-5 rounded-2xl border border-slate-100 shadow-lg flex items-center space-x-4 space-x-reverse group hover:border-amber-200 transition-colors">
+          <div className={cn("bg-white p-5 rounded-2xl border border-slate-100 shadow-lg flex items-center group hover:border-amber-200 transition-colors", isRtl ? "space-x-4 space-x-reverse" : "space-x-4")}>
             <div className="p-3 bg-amber-50 rounded-xl text-amber-600 group-hover:scale-110 transition-transform">
               <LayoutGrid className="w-6 h-6" />
             </div>
             <div>
-              <p className="text-xs text-slate-500 font-bold">إجمالي المراكز</p>
+              <p className="text-xs text-slate-500 font-bold">{t("totalCenters")}</p>
               <p className="text-2xl font-black text-slate-900">{costCenters.length}</p>
             </div>
           </div>
-          <div className="bg-white p-5 rounded-2xl border border-slate-100 shadow-lg flex items-center space-x-4 space-x-reverse group hover:border-emerald-200 transition-colors">
+          <div className={cn("bg-white p-5 rounded-2xl border border-slate-100 shadow-lg flex items-center group hover:border-emerald-200 transition-colors", isRtl ? "space-x-4 space-x-reverse" : "space-x-4")}>
             <div className="p-3 bg-emerald-50 rounded-xl text-emerald-600 group-hover:scale-110 transition-transform">
               <BarChart3 className="w-6 h-6" />
             </div>
             <div>
-              <p className="text-xs text-slate-500 font-bold">المراكز النشطة</p>
+              <p className="text-xs text-slate-500 font-bold">{t("activeCenters")}</p>
               <p className="text-2xl font-black text-slate-900">{costCenters.length}</p>
             </div>
           </div>
-          <div className="bg-white p-5 rounded-2xl border border-slate-100 shadow-lg flex items-center space-x-4 space-x-reverse group hover:border-blue-200 transition-colors">
+          <div className={cn("bg-white p-5 rounded-2xl border border-slate-100 shadow-lg flex items-center group hover:border-blue-200 transition-colors", isRtl ? "space-x-4 space-x-reverse" : "space-x-4")}>
             <div className="p-3 bg-blue-50 rounded-xl text-blue-600 group-hover:scale-110 transition-transform">
               <Building className="w-6 h-6" />
             </div>
             <div>
-              <p className="text-xs text-slate-500 font-bold">الفروع</p>
+              <p className="text-xs text-slate-500 font-bold">{t("branches")}</p>
               <p className="text-2xl font-black text-slate-900">{costCenters.length}</p>
             </div>
           </div>
@@ -168,21 +173,24 @@ export function CostCentersClient({ initialCostCenters, companyId }: CostCenters
           whileHover={{ y: -2 }}
         >
           <div className="flex-1 relative w-full md:w-auto">
-            <Search className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 w-5 h-5" />
+            <Search className={cn("absolute top-1/2 -translate-y-1/2 text-slate-400 w-5 h-5", isRtl ? "right-4" : "left-4")} />
             <input
               type="text"
-              placeholder="البحث عن مركز تكلفة بالاسم أو الرمز..."
+              placeholder={t("searchPlaceholder")}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 pr-12 pl-4 focus:ring-2 focus:ring-amber-500 focus:border-transparent outline-none transition-all text-sm"
+              className={cn(
+                "w-full bg-slate-50 border border-slate-200 rounded-xl py-3 focus:ring-2 focus:ring-amber-500 focus:border-transparent outline-none transition-all text-sm",
+                isRtl ? "pr-12 pl-4" : "pl-12 pr-4"
+              )}
             />
           </div>
           <button
             onClick={() => handleOpenModal()}
-            className="bg-amber-600 hover:bg-amber-700 text-white px-6 py-3 rounded-xl font-bold transition-all flex items-center space-x-2 space-x-reverse shadow-lg shadow-amber-200 text-sm whitespace-nowrap"
+            className={cn("bg-amber-600 hover:bg-amber-700 text-white px-6 py-3 rounded-xl font-bold transition-all flex items-center shadow-lg shadow-amber-200 text-sm whitespace-nowrap", isRtl ? "space-x-2 space-x-reverse" : "space-x-2")}
           >
             <Plus className="w-5 h-5" />
-            <span>إضافة مركز جديد</span>
+            <span>{t("addNewCenter")}</span>
           </button>
         </motion.div>
 
@@ -193,13 +201,13 @@ export function CostCentersClient({ initialCostCenters, companyId }: CostCenters
           className="bg-white rounded-2xl shadow-xl border border-slate-100 overflow-hidden"
         >
           <div className="overflow-x-auto">
-            <table className="w-full text-right border-collapse min-w-[600px]">
+            <table className={cn("w-full border-collapse min-w-[600px]", isRtl ? "text-right" : "text-left")}>
               <thead>
                 <tr className="bg-slate-50 border-b border-slate-100">
                   <th className="px-6 py-4 text-xs font-black text-slate-400 uppercase tracking-wider">#</th>
-                  <th className="px-6 py-4 text-xs font-black text-slate-400 uppercase tracking-wider">رمز المركز</th>
-                  <th className="px-6 py-4 text-xs font-black text-slate-400 uppercase tracking-wider">اسم المركز</th>
-                  <th className="px-6 py-4 text-xs font-black text-slate-400 uppercase tracking-wider text-center">الإجراءات</th>
+                  <th className="px-6 py-4 text-xs font-black text-slate-400 uppercase tracking-wider">{t("centerCode")}</th>
+                  <th className="px-6 py-4 text-xs font-black text-slate-400 uppercase tracking-wider">{t("centerName")}</th>
+                  <th className="px-6 py-4 text-xs font-black text-slate-400 uppercase tracking-wider text-center">{t("actions")}</th>
                 </tr>
               </thead>
               <tbody>
@@ -220,7 +228,7 @@ export function CostCentersClient({ initialCostCenters, companyId }: CostCenters
                           </span>
                         </td>
                         <td className="px-6 py-4">
-                          <div className="flex items-center space-x-2 space-x-reverse">
+                          <div className={cn("flex items-center", isRtl ? "space-x-2 space-x-reverse" : "space-x-2")}>
                             <Hash className="w-4 h-4 text-slate-300" />
                             <span className="font-mono font-bold text-slate-700 bg-slate-100 px-3 py-1 rounded-lg text-sm">
                               {center.center_code}
@@ -228,7 +236,7 @@ export function CostCentersClient({ initialCostCenters, companyId }: CostCenters
                           </div>
                         </td>
                         <td className="px-6 py-4">
-                          <div className="flex items-center space-x-3 space-x-reverse">
+                          <div className={cn("flex items-center", isRtl ? "space-x-3 space-x-reverse" : "space-x-3")}>
                             <div className="p-2 rounded-lg bg-amber-50">
                               <Building className="w-4 h-4 text-amber-600" />
                             </div>
@@ -240,14 +248,14 @@ export function CostCentersClient({ initialCostCenters, companyId }: CostCenters
                             <button
                               onClick={() => handleOpenModal(center)}
                               className="p-2 rounded-xl bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white transition-all"
-                              title="تعديل"
+                              title={t("edit")}
                             >
                               <Edit2 className="w-4 h-4" />
                             </button>
                             <button
                               onClick={() => setDeleteConfirm(center.id)}
                               className="p-2 rounded-xl bg-red-50 text-red-600 hover:bg-red-600 hover:text-white transition-all"
-                              title="حذف"
+                              title={t("delete")}
                             >
                               <Trash2 className="w-4 h-4" />
                             </button>
@@ -260,8 +268,8 @@ export function CostCentersClient({ initialCostCenters, companyId }: CostCenters
                       <td colSpan={4} className="px-6 py-20 text-center">
                         <div className="flex flex-col items-center space-y-4 text-slate-400">
                           <FileText className="w-16 h-16 opacity-30" />
-                          <p className="font-bold text-lg">لا توجد مراكز تكلفة مطابقة</p>
-                          <p className="text-sm">جرب تغيير معايير البحث</p>
+                          <p className="font-bold text-lg">{t("noMatchingCenters")}</p>
+                          <p className="text-sm">{t("noMatchingCentersDesc")}</p>
                         </div>
                       </td>
                     </tr>
@@ -274,7 +282,7 @@ export function CostCentersClient({ initialCostCenters, companyId }: CostCenters
           {/* Table Footer */}
           <div className="bg-slate-50 px-6 py-4 border-t border-slate-100 flex items-center justify-between">
             <p className="text-sm text-slate-500 font-bold">
-              عرض <span className="text-slate-900">{filteredCenters.length}</span> من أصل <span className="text-slate-900">{costCenters.length}</span> مركز
+              {t("view")} <span className="text-slate-900">{filteredCenters.length}</span> {t("outOf")} <span className="text-slate-900">{costCenters.length}</span> {t("centersCount")}
             </p>
           </div>
         </motion.div>
@@ -283,7 +291,7 @@ export function CostCentersClient({ initialCostCenters, companyId }: CostCenters
       {/* Add/Edit Modal */}
       <AnimatePresence>
         {isModalOpen && (
-          <div className="fixed inset-0 z-[150] flex items-center justify-center p-4" dir="rtl">
+          <div className="fixed inset-0 z-[150] flex items-center justify-center p-4" dir={isRtl ? "rtl" : "ltr"}>
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -298,13 +306,13 @@ export function CostCentersClient({ initialCostCenters, companyId }: CostCenters
               className="relative w-full max-w-lg bg-white rounded-3xl shadow-2xl overflow-hidden"
             >
               <div className="bg-gradient-to-r from-amber-700 to-orange-600 p-6 text-white flex items-center justify-between">
-                <div className="flex items-center space-x-4 space-x-reverse">
+                <div className={cn("flex items-center", isRtl ? "space-x-4 space-x-reverse" : "space-x-4")}>
                   <div className="p-2.5 bg-white/10 rounded-xl">
                     {editingCenter ? <Edit2 className="w-5 h-5" /> : <Plus className="w-5 h-5" />}
                   </div>
                   <div>
-                    <h3 className="text-lg font-bold">{editingCenter ? "تعديل مركز تكلفة" : "إضافة مركز تكلفة جديد"}</h3>
-                    <p className="text-amber-100 text-xs">يرجى ملء جميع البيانات المطلوبة</p>
+                    <h3 className="text-lg font-bold">{editingCenter ? t("editCenter") : t("addNewCenterTitle")}</h3>
+                    <p className="text-amber-100 text-xs">{t("fillRequiredData")}</p>
                   </div>
                 </div>
                 <button
@@ -317,31 +325,37 @@ export function CostCentersClient({ initialCostCenters, companyId }: CostCenters
 
               <form onSubmit={handleSubmit} className="p-6 space-y-5">
                 <div className="space-y-2">
-                  <label className="text-xs font-black text-slate-500 mr-1 uppercase tracking-wider">رمز المركز</label>
+                  <label className={cn("text-xs font-black text-slate-500 uppercase tracking-wider", isRtl ? "mr-1" : "ml-1")}>{t("centerCode")}</label>
                   <div className="relative">
-                    <Hash className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-300 w-4 h-4" />
+                    <Hash className={cn("absolute top-1/2 -translate-y-1/2 text-slate-300 w-4 h-4", isRtl ? "right-4" : "left-4")} />
                     <input
                       type="text"
                       required
                       value={formData.center_code}
                       onChange={(e) => setFormData({ ...formData, center_code: e.target.value })}
-                      placeholder="مثال: CC-001"
-                      className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 pr-11 pl-4 focus:ring-2 focus:ring-amber-500 focus:border-transparent outline-none transition-all text-sm font-bold"
+                      placeholder={t("codeExample")}
+                      className={cn(
+                        "w-full bg-slate-50 border border-slate-200 rounded-xl py-3 focus:ring-2 focus:ring-amber-500 focus:border-transparent outline-none transition-all text-sm font-bold",
+                        isRtl ? "pr-11 pl-4" : "pl-11 pr-4"
+                      )}
                     />
                   </div>
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-xs font-black text-slate-500 mr-1 uppercase tracking-wider">اسم المركز</label>
+                  <label className={cn("text-xs font-black text-slate-500 uppercase tracking-wider", isRtl ? "mr-1" : "ml-1")}>{t("centerName")}</label>
                   <div className="relative">
-                    <Building className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-300 w-4 h-4" />
+                    <Building className={cn("absolute top-1/2 -translate-y-1/2 text-slate-300 w-4 h-4", isRtl ? "right-4" : "left-4")} />
                     <input
                       type="text"
                       required
                       value={formData.center_name}
                       onChange={(e) => setFormData({ ...formData, center_name: e.target.value })}
-                      placeholder="مثال: فرع الرياض"
-                      className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 pr-11 pl-4 focus:ring-2 focus:ring-amber-500 focus:border-transparent outline-none transition-all text-sm font-bold"
+                      placeholder={t("nameExample")}
+                      className={cn(
+                        "w-full bg-slate-50 border border-slate-200 rounded-xl py-3 focus:ring-2 focus:ring-amber-500 focus:border-transparent outline-none transition-all text-sm font-bold",
+                        isRtl ? "pr-11 pl-4" : "pl-11 pr-4"
+                      )}
                     />
                   </div>
                 </div>
@@ -350,14 +364,14 @@ export function CostCentersClient({ initialCostCenters, companyId }: CostCenters
                   <button
                     type="submit"
                     disabled={isLoading}
-                    className="flex-1 bg-amber-600 hover:bg-amber-700 text-white py-3 rounded-xl font-bold transition-all flex items-center justify-center space-x-2 space-x-reverse disabled:opacity-50 shadow-lg shadow-amber-200"
+                    className={cn("flex-1 bg-amber-600 hover:bg-amber-700 text-white py-3 rounded-xl font-bold transition-all flex items-center justify-center disabled:opacity-50 shadow-lg shadow-amber-200", isRtl ? "space-x-2 space-x-reverse" : "space-x-2")}
                   >
                     {isLoading ? (
                       <div className="h-5 w-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                     ) : (
                       <>
                         <Save className="w-4 h-4" />
-                        <span>{editingCenter ? "حفظ التعديلات" : "إضافة المركز"}</span>
+                        <span>{editingCenter ? t("saveChanges") : t("addCenter")}</span>
                       </>
                     )}
                   </button>
@@ -366,7 +380,7 @@ export function CostCentersClient({ initialCostCenters, companyId }: CostCenters
                     onClick={() => setIsModalOpen(false)}
                     className="px-6 bg-slate-100 text-slate-600 py-3 rounded-xl font-bold hover:bg-slate-200 transition-all"
                   >
-                    إلغاء
+                    {t("cancel")}
                   </button>
                 </div>
               </form>
@@ -378,7 +392,7 @@ export function CostCentersClient({ initialCostCenters, companyId }: CostCenters
       {/* Delete Confirmation Modal */}
       <AnimatePresence>
         {deleteConfirm && (
-          <div className="fixed inset-0 z-[150] flex items-center justify-center p-4" dir="rtl">
+          <div className="fixed inset-0 z-[150] flex items-center justify-center p-4" dir={isRtl ? "rtl" : "ltr"}>
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -395,20 +409,20 @@ export function CostCentersClient({ initialCostCenters, companyId }: CostCenters
               <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-6">
                 <AlertCircle className="w-8 h-8 text-red-600" />
               </div>
-              <h3 className="text-xl font-black text-slate-900 mb-2">تأكيد الحذف</h3>
-              <p className="text-slate-500 mb-8">هل أنت متأكد من حذف مركز التكلفة هذا؟ لا يمكن التراجع عن هذا الإجراء.</p>
+              <h3 className="text-xl font-black text-slate-900 mb-2">{t("confirmDelete")}</h3>
+              <p className="text-slate-500 mb-8">{t("confirmDeleteDesc")}</p>
               <div className="flex gap-3">
                 <button
                   onClick={() => handleDelete(deleteConfirm)}
                   className="flex-1 bg-red-600 hover:bg-red-700 text-white py-3 rounded-xl font-bold transition-all"
                 >
-                  نعم، احذف
+                  {t("yesDelete")}
                 </button>
                 <button
                   onClick={() => setDeleteConfirm(null)}
                   className="flex-1 bg-slate-100 text-slate-600 py-3 rounded-xl font-bold hover:bg-slate-200 transition-all"
                 >
-                  إلغاء
+                  {t("cancel")}
                 </button>
               </div>
             </motion.div>
