@@ -27,8 +27,7 @@ interface CompanyInfo {
 
 function FinancialVouchersContent() {
   const t = useTranslations("financialVouchersPage");
-  const locale = useLocale();
-  const isRtl = locale === "ar";
+  const { locale, isRTL: isRtl } = useLocale();
 
   const [stats, setStats] = useState<Stats>({
     salesReceipts: { count: 0, total: 0 },
@@ -275,7 +274,8 @@ function FinancialVouchersContent() {
                 {t("description")}
               </p>
               
-              <div className={`flex flex-wrap justify-center gap-4 mt-8 ${isRtl ? "lg:justify-start" : "lg:justify-start"}`}>
+                <div className="flex flex-wrap justify-center lg:justify-start gap-4 mt-8">
+
                 <div className="flex items-center gap-3 px-6 py-3 bg-blue-500/20 backdrop-blur-md rounded-2xl border border-blue-500/30 text-blue-200 font-black text-sm shadow-xl">
                   <Building2 size={18} className="text-blue-400" />
                   {companyInfo?.name || t("loading")}
@@ -391,9 +391,10 @@ function FinancialVouchersContent() {
                             )}>
                               <voucher.icon className="w-6 h-6 text-white" />
                             </div>
-                            <div className={`w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-white/50 group-hover:bg-white/20 group-hover:text-white transition-all ${!isRtl ? "rotate-180" : ""}`}>
+                            <div className={`w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-white/50 group-hover:bg-white/20 group-hover:text-white transition-all ${isRtl ? "-scale-x-100" : ""}`}>
                               <ArrowUpRight size={16} />
                             </div>
+
                           </div>
 
                           <h3 className="text-lg font-black text-white mb-1">{voucher.title}</h3>
@@ -433,7 +434,8 @@ function FinancialVouchersContent() {
                           )}>
                             <span className="text-white font-black text-xs flex items-center justify-center gap-2">
                               {t("manageVoucher", { title: voucher.title })}
-                              <ArrowRight className={`w-4 h-4 transform group-hover:translate-x-1 transition-transform ${!isRtl ? "rotate-180" : ""}`} />
+                                <ArrowRight className={`w-4 h-4 transform group-hover:translate-x-1 transition-transform ${isRtl ? "rotate-180" : ""}`} />
+
                             </span>
                           </div>
                         </div>

@@ -20,15 +20,19 @@ export const metadata: Metadata = {
   description: "نظام إدارة الخدمات اللوجستية المتكامل",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const cookieStore = await import("next/headers").then((h) => h.cookies());
+  const locale = (await cookieStore).get("NEXT_LOCALE")?.value || "ar";
+  const dir = locale === "ar" ? "rtl" : "ltr";
+
   return (
     <html 
-      lang="ar" 
-      dir="rtl" 
+      lang={locale}
+      dir={dir} 
       suppressHydrationWarning
       style={{ fontFeatureSettings: '"tnum" on, "lnum" on' }}
       className={`${inter.variable} ${cairo.variable}`}

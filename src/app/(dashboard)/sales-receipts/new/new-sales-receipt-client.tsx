@@ -68,8 +68,7 @@ interface NotificationState {
 
 export function NewSalesReceiptClient({ customers, invoices, companyId, userName }: NewSalesReceiptClientProps) {
   const t = useTranslations("financialVouchersPage.newSalesReceiptPage");
-  const locale = useLocale();
-  const isRtl = locale === "ar";
+  const { locale, isRTL: isRtl } = useLocale();
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [notification, setNotification] = useState<NotificationState>({
