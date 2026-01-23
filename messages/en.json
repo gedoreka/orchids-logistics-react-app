@@ -243,7 +243,23 @@
         "settingsGuide": "Tax Settings Guide",
         "settingsDesc": "Configure general tax calculation rules",
         "dialogDesc": "Enter tax type details below",
-        "saveSettings": "Save Settings"
+        "saveSettings": "Save Settings",
+        "cancel": "Cancel",
+        "guide": {
+          "title": "Tax Settings Guide",
+          "step1": {
+            "title": "Included Tax Calculation",
+            "desc": "When enabled, tax is extracted from the total price (Price / 1.15). When disabled, tax is added on top of the price (Price * 1.15)."
+          },
+          "step2": {
+            "title": "Parcel Unit Tax",
+            "desc": "This tax applies to shipping and delivery fees for personal parcels."
+          },
+          "step3": {
+            "title": "Merchant Tax",
+            "desc": "Enabling this option allows the system to calculate VAT on commissions and fees due from merchants."
+          }
+        }
       }
     },
   "footer": {

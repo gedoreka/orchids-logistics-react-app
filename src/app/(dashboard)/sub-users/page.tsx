@@ -609,10 +609,10 @@ export default function SubUsersPage() {
                                   )}>
                                     <perm.icon size={20} />
                                   </div>
-                                  <div className="flex-1 min-w-0">
-                                    <div className="font-bold text-sm truncate">{t("permissionsList." + perm.key)}</div>
-                                    <div className="text-[10px] opacity-50 truncate leading-tight">الوصول لبيانات {t("permissionsList." + perm.key)}</div>
-                                  </div>
+                                    <div className="flex-1 min-w-0">
+                                      <div className="font-bold text-sm truncate">{t("permissionsList." + perm.key)}</div>
+                                      <div className="text-[10px] opacity-50 truncate leading-tight">{t("accessToData")} {t("permissionsList." + perm.key)}</div>
+                                    </div>
                                   <div className={cn(
                                     "w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all",
                                     formData.permissions.includes(perm.key)

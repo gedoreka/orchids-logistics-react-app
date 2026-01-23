@@ -91,99 +91,99 @@ export function TaxSettingsClient({ companyId }: TaxSettingsClientProps) {
     parcel_module_tax: false,
     vendor_tax: false
   });
-  const [isDialogOpen, setIsDialogOpened] = useState(false);
-  const [editingTax, setEditingTax] = useState<TaxType | null>(null);
-  const [searchQuery, setSearchQuery] = useState("");
+    const [isDialogOpen, setIsDialogOpen] = useState(false);
+    const [editingTax, setEditingTax] = useState<TaxType | null>(null);
+    const [searchQuery, setSearchQuery] = useState("");
 
-  const fetchTaxTypes = useCallback(async () => {
-    try {
-      const response = await fetch(`/api/taxes/types?company_id=${companyId}`);
-      const data = await response.json();
-      if (data.success) {
-        setTaxTypes(data.tax_types);
+    const fetchTaxTypes = useCallback(async () => {
+      try {
+        const response = await fetch(`/api/taxes/types?company_id=${companyId}`);
+        const data = await response.json();
+        if (data.success) {
+          setTaxTypes(data.tax_types);
+        }
+      } catch (error) {
+        console.error("Error fetching tax types:", error);
       }
-    } catch (error) {
-      console.error("Error fetching tax types:", error);
-    }
-  }, [companyId]);
+    }, [companyId]);
 
-  const fetchSettings = useCallback(async () => {
-    try {
-      const response = await fetch(`/api/taxes/settings?company_id=${companyId}`);
-      const data = await response.json();
-      if (data.success) {
-        setSettings(data.settings);
+    const fetchSettings = useCallback(async () => {
+      try {
+        const response = await fetch(`/api/taxes/settings?company_id=${companyId}`);
+        const data = await response.json();
+        if (data.success) {
+          setSettings(data.settings);
+        }
+      } catch (error) {
+        console.error("Error fetching settings:", error);
       }
-    } catch (error) {
-      console.error("Error fetching settings:", error);
-    }
-  }, [companyId]);
+    }, [companyId]);
 
-  useEffect(() => {
-    const loadData = async () => {
-      await Promise.all([fetchTaxTypes(), fetchSettings()]);
-    };
-    loadData();
-  }, [fetchTaxTypes, fetchSettings]);
+    useEffect(() => {
+      const loadData = async () => {
+        await Promise.all([fetchTaxTypes(), fetchSettings()]);
+      };
+      loadData();
+    }, [fetchTaxTypes, fetchSettings]);
 
-  const handleSaveSettings = async () => {
-    try {
-      const response = await fetch("/api/taxes/settings", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...settings, company_id: companyId })
-      });
-      const data = await response.json();
-      if (data.success) {
-        toast.success(t("saveSuccess"));
-      } else {
+    const handleSaveSettings = async () => {
+      try {
+        const response = await fetch("/api/taxes/settings", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ ...settings, company_id: companyId })
+        });
+        const data = await response.json();
+        if (data.success) {
+          toast.success(t("saveSuccess"));
+        } else {
+          toast.error(t("saveError"));
+        }
+      } catch (error) {
+        console.error("Error saving settings:", error);
         toast.error(t("saveError"));
       }
-    } catch (error) {
-      console.error("Error saving settings:", error);
-      toast.error(t("saveError"));
-    }
-  };
-
-  const handleAddUpdateTax = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const formData = new FormData(e.currentTarget);
-    const taxData = {
-      company_id: companyId,
-      tax_code: formData.get("tax_code"),
-      name_ar: formData.get("name_ar"),
-      name_en: formData.get("name_en"),
-      description: formData.get("description"),
-      tax_rate: formData.get("tax_rate"),
-      apply_to: formData.get("apply_to"),
-      status: formData.get("status"),
-      is_default: formData.get("is_default") === "on"
     };
 
-    try {
-      const url = editingTax ? `/api/taxes/types/${editingTax.id}` : "/api/taxes/types";
-      const method = editingTax ? "PATCH" : "POST";
-      
-      const response = await fetch(url, {
-        method,
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(taxData)
-      });
-      
-      const data = await response.json();
-      if (data.success) {
-        toast.success(editingTax ? t("updateSuccess") : t("addSuccess"));
-        setIsDialogOpened(false);
-        setEditingTax(null);
-        fetchTaxTypes();
-      } else {
-        toast.error(data.error || t("operationFailed"));
+    const handleAddUpdateTax = async (e: React.FormEvent<HTMLFormElement>) => {
+      e.preventDefault();
+      const formData = new FormData(e.currentTarget);
+      const taxData = {
+        company_id: companyId,
+        tax_code: formData.get("tax_code"),
+        name_ar: formData.get("name_ar"),
+        name_en: formData.get("name_en"),
+        description: formData.get("description"),
+        tax_rate: formData.get("tax_rate"),
+        apply_to: formData.get("apply_to"),
+        status: formData.get("status"),
+        is_default: formData.get("is_default") === "on"
+      };
+
+      try {
+        const url = editingTax ? `/api/taxes/types/${editingTax.id}` : "/api/taxes/types";
+        const method = editingTax ? "PATCH" : "POST";
+        
+        const response = await fetch(url, {
+          method,
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(taxData)
+        });
+        
+        const data = await response.json();
+        if (data.success) {
+          toast.success(editingTax ? t("updateSuccess") : t("addSuccess"));
+          setIsDialogOpen(false);
+          setEditingTax(null);
+          fetchTaxTypes();
+        } else {
+          toast.error(data.error || t("operationFailed"));
+        }
+      } catch (error) {
+        console.error("Error adding/updating tax:", error);
+        toast.error(t("errorOccurred"));
       }
-    } catch (error) {
-      console.error("Error adding/updating tax:", error);
-      toast.error(t("errorOccurred"));
-    }
-  };
+    };
 
   const handleDeleteTax = async (id: string) => {
     if (!confirm(t("deleteConfirm"))) return;
@@ -226,18 +226,18 @@ export function TaxSettingsClient({ companyId }: TaxSettingsClientProps) {
                     </div>
                   </div>
                 </div>
-                <div className="flex items-center gap-3">
-                  <Button 
-                    onClick={() => {
-                      setEditingTax(null);
-                      setIsDialogOpened(true);
-                    }}
-                    className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white border-0 shadow-lg shadow-blue-500/25 px-6 h-12 rounded-xl font-bold"
-                  >
-                    <Plus className="w-5 h-5 me-2" />
-                    {t("addTaxType")}
-                  </Button>
-                </div>
+                  <div className="flex items-center gap-3">
+                    <Button 
+                      onClick={() => {
+                        setEditingTax(null);
+                        setIsDialogOpen(true);
+                      }}
+                      className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white border-0 shadow-lg shadow-blue-500/25 px-6 h-12 rounded-xl font-bold"
+                    >
+                      <Plus className="w-5 h-5 me-2" />
+                      {t("addTaxType")}
+                    </Button>
+                  </div>
               </div>
             </CardContent>
           </Card>
@@ -376,7 +376,7 @@ export function TaxSettingsClient({ companyId }: TaxSettingsClientProps) {
                               <Button 
                                 onClick={() => {
                                   setEditingTax(tax);
-                                  setIsDialogOpened(true);
+                                  setIsDialogOpen(true);
                                 }}
                                 variant="ghost" 
                                 size="icon" 
@@ -417,7 +417,7 @@ export function TaxSettingsClient({ companyId }: TaxSettingsClientProps) {
               <Card className="bg-[#0d121f]/60 backdrop-blur-xl border-white/5">
                 <CardHeader className="border-b border-white/5">
                   <CardTitle className="text-white text-xl font-black">{t("settings")}</CardTitle>
-                  <CardDescription className="text-white/40">تكوين القواعد العامة لحساب الضرائب</CardDescription>
+                  <CardDescription className="text-white/40">{t("settingsDesc")}</CardDescription>
                 </CardHeader>
                 <CardContent className="p-6 space-y-8">
                   <div className="flex items-center justify-between p-4 bg-white/5 rounded-2xl border border-white/10 group hover:bg-white/[0.08] transition-all">
@@ -443,7 +443,7 @@ export function TaxSettingsClient({ companyId }: TaxSettingsClientProps) {
                   </div>
 
                   <div className="space-y-4">
-                    <h4 className="text-white/40 font-black text-[11px] uppercase tracking-widest">تطبيق الضريبة على الوحدات</h4>
+                    <h4 className="text-white/40 font-black text-[11px] uppercase tracking-widest">{t("applyToModules")}</h4>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       {[
                         { key: "order_module_tax", label: t("orderModuleTax"), icon: ShoppingBagIcon },
@@ -468,7 +468,7 @@ export function TaxSettingsClient({ companyId }: TaxSettingsClientProps) {
                       className="w-full bg-blue-600 hover:bg-blue-500 text-white font-black h-12 rounded-xl shadow-lg shadow-blue-500/20"
                     >
                       <Save className="w-5 h-5 me-2" />
-                      حفظ الإعدادات
+                      {t("saveSettings")}
                     </Button>
                   </div>
                 </CardContent>
@@ -479,15 +479,15 @@ export function TaxSettingsClient({ companyId }: TaxSettingsClientProps) {
                 <CardHeader>
                   <CardTitle className="text-white text-xl font-black flex items-center gap-2">
                     <Info className="w-5 h-5 text-blue-400" />
-                    دليل الإعدادات الضريبية
+                    {t("guide.title")}
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="p-6 relative">
                   <div className="space-y-6">
                     {[
-                      { title: "حساب الضريبة المضمنة", desc: "عند التفعيل، يتم استخراج الضريبة من السعر الإجمالي (السعر / 1.15). عند التعطيل، تضاف الضريبة فوق السعر (السعر * 1.15)." },
-                      { title: "ضريبة وحدة الطرود", desc: "تطبق هذه الضريبة على رسوم الشحن والتوصيل للطرود الشخصية." },
-                      { title: "ضريبة التاجر", desc: "تفعيل هذا الخيار يسمح للنظام بحساب ضريبة القيمة المضافة على العمولات والرسوم المستحقة من التجار." },
+                      { title: t("guide.step1.title"), desc: t("guide.step1.desc") },
+                      { title: t("guide.step2.title"), desc: t("guide.step2.desc") },
+                      { title: t("guide.step3.title"), desc: t("guide.step3.desc") },
                     ].map((tip, i) => (
                       <div key={i} className="flex gap-4 p-4 rounded-2xl bg-white/5 border border-white/5">
                         <div className="flex-shrink-0 w-8 h-8 rounded-full bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400 font-bold text-xs">
@@ -507,13 +507,13 @@ export function TaxSettingsClient({ companyId }: TaxSettingsClientProps) {
         </Tabs>
       </Card>
 
-      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpened}>
+      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent className="sm:max-w-[600px] bg-[#0d121f] text-white border-white/10">
           <form onSubmit={handleAddUpdateTax}>
             <DialogHeader>
               <DialogTitle>{editingTax ? t("editTaxType") : t("addTaxType")}</DialogTitle>
               <DialogDescription className="text-white/40">
-                أدخل تفاصيل نوع الضريبة أدناه
+                {t("dialogDesc")}
               </DialogDescription>
             </DialogHeader>
             
@@ -581,7 +581,7 @@ export function TaxSettingsClient({ companyId }: TaxSettingsClientProps) {
             </div>
 
             <DialogFooter>
-              <Button type="button" variant="outline" onClick={() => setIsDialogOpened(false)} className="bg-white/5 border-white/10">
+              <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)} className="bg-white/5 border-white/10">
                 {t("cancel")}
               </Button>
               <Button type="submit" className="bg-blue-600 hover:bg-blue-500">
