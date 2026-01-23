@@ -30,6 +30,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { useLocale } from "@/lib/locale-context";
 import {
   AreaChart,
   Area,
@@ -58,6 +59,7 @@ interface IncomeStatementClientProps {
 }
 
 export function IncomeStatementClient({ companyId, companyInfo }: IncomeStatementClientProps) {
+  const { t, locale } = useLocale();
   const [revenues, setRevenues] = useState<AccountItem[]>([]);
   const [expenses, setExpenses] = useState<AccountItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -128,22 +130,22 @@ export function IncomeStatementClient({ companyId, companyInfo }: IncomeStatemen
   }, [fetchData]);
 
   const handleExportExcel = () => {
-    const headers = ["البند", "رمز الحساب", "اسم الحساب", "المبلغ"];
+    const headers = [t("incomeStatement.accountName"), t("incomeStatement.accountCode"), t("incomeStatement.amount")];
     const csvRows = [headers.join(",")];
 
-    csvRows.push("الإيرادات,,,");
+    csvRows.push(`${t("incomeStatement.revenues")},,,`);
     revenues.forEach(r => {
-      csvRows.push([`""`, r.account_code, `"${r.account_name}"`, r.net_amount.toFixed(2)].join(","));
+      csvRows.push([`"${r.account_name}"`, r.account_code, r.net_amount.toFixed(2)].join(","));
     });
-    csvRows.push([`""`, "", "إجمالي الإيرادات", stats.totalRevenue.toFixed(2)].join(","));
+    csvRows.push([t("incomeStatement.totalRevenue"), "", stats.totalRevenue.toFixed(2)].join(","));
 
-    csvRows.push("المصروفات,,,");
+    csvRows.push(`${t("incomeStatement.expenses")},,,`);
     expenses.forEach(e => {
-      csvRows.push([`""`, e.account_code, `"${e.account_name}"`, e.net_amount.toFixed(2)].join(","));
+      csvRows.push([`"${e.account_name}"`, e.account_code, e.net_amount.toFixed(2)].join(","));
     });
-    csvRows.push([`""`, "", "إجمالي المصروفات", stats.totalExpenses.toFixed(2)].join(","));
+    csvRows.push([t("incomeStatement.totalExpenses"), "", stats.totalExpenses.toFixed(2)].join(","));
 
-    csvRows.push(["", "", "صافي الدخل", stats.netIncome.toFixed(2)].join(","));
+    csvRows.push([t("incomeStatement.netIncome"), "", stats.netIncome.toFixed(2)].join(","));
 
     const csvContent = csvRows.join("\n");
     const blob = new Blob(["\ufeff" + csvContent], { type: "text/csv;charset=utf-8" });
@@ -159,7 +161,7 @@ export function IncomeStatementClient({ companyId, companyInfo }: IncomeStatemen
   };
 
   const formatNumber = (num: number) => new Intl.NumberFormat("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(num);
-  const formatDate = (date: string) => new Date(date).toLocaleDateString("ar-SA");
+  const formatDate = (date: string) => new Date(date).toLocaleDateString(locale === "ar" ? "ar-SA" : "en-US");
 
   if (loading) {
     return (
@@ -169,14 +171,14 @@ export function IncomeStatementClient({ companyId, companyInfo }: IncomeStatemen
             <div className="w-20 h-20 rounded-full border-4 border-emerald-500/30 border-t-emerald-500 animate-spin" />
             <TrendingUp className="w-8 h-8 text-emerald-500 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />
           </div>
-          <p className="text-slate-600 font-bold text-lg">جاري تحميل قائمة الدخل...</p>
+          <p className="text-slate-600 font-bold text-lg">{t("incomeStatement.loading")}</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="p-4 md:p-6" dir="rtl">
+    <div className="p-4 md:p-6" dir={locale === "ar" ? "rtl" : "ltr"}>
       <Card className="border-none shadow-2xl rounded-[2rem] overflow-hidden bg-[#1a2234] p-4 md:p-8 space-y-8">
         <div className="relative overflow-hidden rounded-[2rem] bg-gradient-to-br from-[#0f172a] via-[#1e293b] to-[#0f172a] text-white shadow-2xl border border-white/10 print:hidden">
           <div className="absolute inset-0 overflow-hidden">
@@ -208,23 +210,23 @@ export function IncomeStatementClient({ companyId, companyInfo }: IncomeStatemen
                 </div>
                 <div>
                   <h1 className="text-2xl md:text-4xl font-black tracking-tight bg-gradient-to-r from-white via-emerald-200 to-white bg-clip-text text-transparent">
-                    قائمة الدخل الشاملة
+                    {t("incomeStatement.title")}
                   </h1>
                   <p className="text-white/60 font-medium mt-1 text-sm md:text-base">{companyInfo.name}</p>
                   <div className="flex items-center gap-2 mt-2">
                     <Badge className="bg-blue-500/20 text-blue-300 border-blue-500/30 font-bold text-xs">
-                      <Calendar className="w-3 h-3 ml-1" />
+                      <Calendar className={`w-3 h-3 ${locale === "ar" ? "ml-1" : "mr-1"}`} />
                       {formatDate(period.fromDate)} - {formatDate(period.toDate)}
                     </Badge>
                     {stats.isProfit ? (
                       <Badge className="bg-emerald-500/20 text-emerald-300 border-emerald-500/30 font-bold text-xs animate-pulse">
-                        <TrendingUp className="w-3 h-3 ml-1" />
-                        ربح
+                        <TrendingUp className={`w-3 h-3 ${locale === "ar" ? "ml-1" : "mr-1"}`} />
+                        {t("incomeStatement.profit")}
                       </Badge>
                     ) : (
                       <Badge className="bg-rose-500/20 text-rose-300 border-rose-500/30 font-bold text-xs animate-pulse">
-                        <TrendingDown className="w-3 h-3 ml-1" />
-                        خسارة
+                        <TrendingDown className={`w-3 h-3 ${locale === "ar" ? "ml-1" : "mr-1"}`} />
+                        {t("incomeStatement.loss")}
                       </Badge>
                     )}
                   </div>
@@ -232,34 +234,28 @@ export function IncomeStatementClient({ companyId, companyInfo }: IncomeStatemen
               </div>
 
               <div className="flex flex-wrap items-center gap-2 md:gap-3">
-                <Button
+                <button
                   onClick={() => fetchData(true)}
-                  variant="outline"
-                  size="sm"
-                  className="bg-white/10 border-white/20 text-white hover:bg-white/20 font-bold rounded-xl"
+                  className="flex items-center gap-2 px-4 py-2 bg-white/10 border border-white/20 text-white hover:bg-white/20 font-bold rounded-xl transition-all disabled:opacity-50"
                   disabled={refreshing}
                 >
-                  <RefreshCw className={`w-4 h-4 ml-2 ${refreshing ? "animate-spin" : ""}`} />
-                  تحديث
-                </Button>
-                <Button
+                  <RefreshCw className={`w-4 h-4 ${refreshing ? "animate-spin" : ""}`} />
+                  {t("common.update")}
+                </button>
+                <button
                   onClick={handleExportExcel}
-                  variant="outline"
-                  size="sm"
-                  className="bg-emerald-500/20 border-emerald-500/30 text-emerald-300 hover:bg-emerald-500/30 font-bold rounded-xl"
+                  className="flex items-center gap-2 px-4 py-2 bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 hover:bg-emerald-500/30 font-bold rounded-xl transition-all"
                 >
-                  <FileSpreadsheet className="w-4 h-4 ml-2" />
+                  <FileSpreadsheet className="w-4 h-4" />
                   Excel
-                </Button>
-                <Button
+                </button>
+                <button
                   onClick={handlePrint}
-                  variant="outline"
-                  size="sm"
-                  className="bg-amber-500/20 border-amber-500/30 text-amber-300 hover:bg-amber-500/30 font-bold rounded-xl"
+                  className="flex items-center gap-2 px-4 py-2 bg-amber-500/20 border border-amber-500/30 text-amber-300 hover:bg-amber-500/30 font-bold rounded-xl transition-all"
                 >
-                  <Printer className="w-4 h-4 ml-2" />
-                  طباعة
-                </Button>
+                  <Printer className="w-4 h-4" />
+                  {t("common.print")}
+                </button>
               </div>
             </div>
 
@@ -268,11 +264,11 @@ export function IncomeStatementClient({ companyId, companyInfo }: IncomeStatemen
                 <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-emerald-400 to-emerald-600" />
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-emerald-300/70 text-xs font-medium mb-1">إجمالي الإيرادات</p>
+                    <p className="text-emerald-300/70 text-xs font-medium mb-1">{t("incomeStatement.totalRevenue")}</p>
                     <p className="text-2xl md:text-3xl font-black text-emerald-300 tabular-nums">
                       {formatNumber(stats.totalRevenue)}
                     </p>
-                    <p className="text-emerald-300/50 text-xs mt-1">{stats.revenueAccountsCount} حساب</p>
+                    <p className="text-emerald-300/50 text-xs mt-1">{stats.revenueAccountsCount} {t("trialBalance.accountsCount")}</p>
                   </div>
                   <div className="p-3 bg-emerald-500/20 rounded-xl">
                     <DollarSign className="w-6 h-6 md:w-8 md:h-8 text-emerald-400" />
@@ -284,11 +280,11 @@ export function IncomeStatementClient({ companyId, companyInfo }: IncomeStatemen
                 <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-rose-400 to-rose-600" />
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-rose-300/70 text-xs font-medium mb-1">إجمالي المصروفات</p>
+                    <p className="text-rose-300/70 text-xs font-medium mb-1">{t("incomeStatement.totalExpenses")}</p>
                     <p className="text-2xl md:text-3xl font-black text-rose-300 tabular-nums">
                       {formatNumber(stats.totalExpenses)}
                     </p>
-                    <p className="text-rose-300/50 text-xs mt-1">{stats.expenseAccountsCount} حساب</p>
+                    <p className="text-rose-300/50 text-xs mt-1">{stats.expenseAccountsCount} {t("trialBalance.accountsCount")}</p>
                   </div>
                   <div className="p-3 bg-rose-500/20 rounded-xl">
                     <CreditCard className="w-6 h-6 md:w-8 md:h-8 text-rose-400" />
@@ -305,13 +301,13 @@ export function IncomeStatementClient({ companyId, companyInfo }: IncomeStatemen
                 <div className="flex items-center justify-between">
                   <div>
                     <p className={`text-xs font-medium mb-1 ${stats.isProfit ? "text-amber-300/70" : "text-red-300/70"}`}>
-                      صافي {stats.isProfit ? "الربح" : "الخسارة"}
+                      {t("incomeStatement.netIncome")}
                     </p>
                     <p className={`text-2xl md:text-3xl font-black tabular-nums ${stats.isProfit ? "text-amber-300" : "text-red-300"}`}>
                       {formatNumber(Math.abs(stats.netIncome))}
                     </p>
                     <p className={`text-xs mt-1 ${stats.isProfit ? "text-amber-300/50" : "text-red-300/50"}`}>
-                      {stats.isProfit ? "🏆 تحقيق ربح" : "📉 تحقيق خسارة"}
+                      {stats.isProfit ? `🏆 ${t("incomeStatement.isProfit")}` : `📉 ${t("incomeStatement.isLoss")}`}
                     </p>
                   </div>
                   <div className={`p-3 rounded-xl ${stats.isProfit ? "bg-amber-500/20" : "bg-red-500/20"}`}>
@@ -335,16 +331,16 @@ export function IncomeStatementClient({ companyId, companyInfo }: IncomeStatemen
                 onClick={() => setShowFilters(!showFilters)}
                 className={`rounded-xl font-bold h-12 ${showFilters ? "bg-blue-50 border-blue-300 text-blue-700" : ""}`}
               >
-                <Filter className="w-4 h-4 ml-2" />
-                تحديد الفترة الزمنية
-                {showFilters ? <ChevronUp className="w-4 h-4 mr-2" /> : <ChevronDown className="w-4 h-4 mr-2" />}
+                <Filter className={`w-4 h-4 ${locale === "ar" ? "ml-2" : "mr-2"}`} />
+                {t("incomeStatement.period")}
+                {showFilters ? <ChevronUp className={`w-4 h-4 ${locale === "ar" ? "mr-2" : "ml-2"}`} /> : <ChevronDown className={`w-4 h-4 ${locale === "ar" ? "mr-2" : "ml-2"}`} />}
               </Button>
             </div>
 
             {showFilters && (
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4 pt-4 border-t border-slate-100">
                 <div>
-                  <label className="block text-sm font-bold text-slate-600 mb-2">من تاريخ</label>
+                  <label className="block text-sm font-bold text-slate-600 mb-2">{t("generalLedger.fromDate")}</label>
                   <Input
                     type="date"
                     value={filters.fromDate}
@@ -353,7 +349,7 @@ export function IncomeStatementClient({ companyId, companyInfo }: IncomeStatemen
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-bold text-slate-600 mb-2">إلى تاريخ</label>
+                  <label className="block text-sm font-bold text-slate-600 mb-2">{t("generalLedger.toDate")}</label>
                   <Input
                     type="date"
                     value={filters.toDate}
@@ -366,16 +362,16 @@ export function IncomeStatementClient({ companyId, companyInfo }: IncomeStatemen
                     onClick={() => fetchData()}
                     className="rounded-xl font-bold h-11 bg-blue-600 hover:bg-blue-700"
                   >
-                    <Search className="w-4 h-4 ml-2" />
-                    تطبيق الفلترة
+                    <Search className={`w-4 h-4 ${locale === "ar" ? "ml-2" : "mr-2"}`} />
+                    {t("incomeStatement.applyFilter")}
                   </Button>
                   <Button
                     variant="outline"
                     onClick={() => setFilters({ fromDate: new Date().getFullYear() + "-01-01", toDate: new Date().toISOString().split("T")[0] })}
                     className="rounded-xl font-bold h-11"
                   >
-                    <X className="w-4 h-4 ml-2" />
-                    إعادة تعيين
+                    <X className={`w-4 h-4 ${locale === "ar" ? "ml-2" : "mr-2"}`} />
+                    {t("incomeStatement.reset")}
                   </Button>
                 </div>
               </div>
@@ -388,7 +384,7 @@ export function IncomeStatementClient({ companyId, companyInfo }: IncomeStatemen
             <CardHeader className="border-b border-slate-100 bg-gradient-to-r from-blue-50 to-indigo-50">
               <CardTitle className="text-lg font-bold text-slate-800 flex items-center gap-2">
                 <BarChart3 className="w-5 h-5 text-blue-600" />
-                تحليل الأداء الشهري
+                {t("incomeStatement.performanceAnalysis")}
               </CardTitle>
             </CardHeader>
             <CardContent className="p-6">
@@ -399,11 +395,11 @@ export function IncomeStatementClient({ companyId, companyInfo }: IncomeStatemen
                   <YAxis stroke="#64748b" fontSize={12} tickFormatter={(v) => `${(v / 1000).toFixed(0)}K`} />
                   <Tooltip
                     contentStyle={{ background: "#1e293b", border: "none", borderRadius: "12px", color: "white" }}
-                    formatter={(value: number) => formatNumber(value) + " ر.س"}
+                    formatter={(value: number) => formatNumber(value) + " " + t("common.sar")}
                   />
                   <Legend />
-                  <Bar dataKey="revenue" name="الإيرادات" fill="#10b981" radius={[8, 8, 0, 0]} />
-                  <Bar dataKey="expenses" name="المصروفات" fill="#ef4444" radius={[8, 8, 0, 0]} />
+                  <Bar dataKey="revenue" name={t("incomeStatement.revenues")} fill="#10b981" radius={[8, 8, 0, 0]} />
+                  <Bar dataKey="expenses" name={t("incomeStatement.expenses")} fill="#ef4444" radius={[8, 8, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             </CardContent>
@@ -415,10 +411,10 @@ export function IncomeStatementClient({ companyId, companyInfo }: IncomeStatemen
             <div className="flex items-center justify-between">
               <CardTitle className="text-lg font-bold text-emerald-800 flex items-center gap-2">
                 <DollarSign className="w-5 h-5 text-emerald-600" />
-                الإيرادات
+                {t("incomeStatement.revenues")}
               </CardTitle>
               <Badge className="bg-emerald-100 text-emerald-700 border-emerald-300 font-bold">
-                {formatNumber(stats.totalRevenue)} ر.س
+                {formatNumber(stats.totalRevenue)} {t("common.sar")}
               </Badge>
             </div>
           </CardHeader>
@@ -427,9 +423,9 @@ export function IncomeStatementClient({ companyId, companyInfo }: IncomeStatemen
               <table className="w-full">
                 <thead className="sticky top-0">
                   <tr className="bg-gradient-to-r from-emerald-600 to-emerald-700 text-white">
-                    <th className="px-4 py-3 text-right text-sm font-bold w-1/2">اسم الحساب</th>
-                    <th className="px-4 py-3 text-center text-sm font-bold w-1/4">الرمز</th>
-                    <th className="px-4 py-3 text-left text-sm font-bold w-1/4">المبلغ</th>
+                    <th className={`px-4 py-3 ${locale === "ar" ? "text-right" : "text-left"} text-sm font-bold w-1/2`}>{t("incomeStatement.accountName")}</th>
+                    <th className="px-4 py-3 text-center text-sm font-bold w-1/4">{t("incomeStatement.accountCode")}</th>
+                    <th className={`px-4 py-3 ${locale === "ar" ? "text-left" : "text-right"} text-sm font-bold w-1/4`}>{t("incomeStatement.amount")}</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-emerald-100">
@@ -437,19 +433,19 @@ export function IncomeStatementClient({ companyId, companyInfo }: IncomeStatemen
                     <>
                       {revenues.map((revenue, idx) => (
                         <tr key={idx} className={`hover:bg-emerald-50/50 transition-colors ${idx % 2 === 0 ? "bg-white" : "bg-emerald-50/30"}`}>
-                          <td className="px-4 py-3 text-sm font-medium text-slate-700">{revenue.account_name}</td>
+                          <td className={`px-4 py-3 text-sm font-medium text-slate-700 ${locale === "ar" ? "text-right" : "text-left"}`}>{revenue.account_name}</td>
                           <td className="px-4 py-3 text-sm text-center">
                             <Badge variant="secondary" className="bg-emerald-100 text-emerald-700">{revenue.account_code}</Badge>
                           </td>
-                          <td className="px-4 py-3 text-sm font-bold text-emerald-600 tabular-nums text-left">
-                            {formatNumber(revenue.net_amount)} ر.س
+                          <td className={`px-4 py-3 text-sm font-bold text-emerald-600 tabular-nums ${locale === "ar" ? "text-left" : "text-right"}`}>
+                            {formatNumber(revenue.net_amount)} {t("common.sar")}
                           </td>
                         </tr>
                       ))}
                       <tr className="bg-gradient-to-r from-emerald-100 to-emerald-50 font-bold">
-                        <td colSpan={2} className="px-4 py-4 text-sm text-emerald-800 text-left">إجمالي الإيرادات:</td>
-                        <td className="px-4 py-4 text-sm text-emerald-700 font-black tabular-nums text-left">
-                          {formatNumber(stats.totalRevenue)} ر.س
+                        <td colSpan={2} className={`px-4 py-4 text-sm text-emerald-800 ${locale === "ar" ? "text-left" : "text-right"}`}>{t("incomeStatement.totalRevenue")}:</td>
+                        <td className={`px-4 py-4 text-sm text-emerald-700 font-black tabular-nums ${locale === "ar" ? "text-left" : "text-right"}`}>
+                          {formatNumber(stats.totalRevenue)} {t("common.sar")}
                         </td>
                       </tr>
                     </>
@@ -458,7 +454,7 @@ export function IncomeStatementClient({ companyId, companyInfo }: IncomeStatemen
                       <td colSpan={3} className="px-4 py-12 text-center">
                         <div className="flex flex-col items-center gap-3">
                           <DollarSign className="w-12 h-12 text-emerald-200" />
-                          <p className="text-slate-400 font-bold">لا توجد إيرادات في هذه الفترة</p>
+                          <p className="text-slate-400 font-bold">{t("incomeStatement.noRevenues")}</p>
                         </div>
                       </td>
                     </tr>
@@ -474,10 +470,10 @@ export function IncomeStatementClient({ companyId, companyInfo }: IncomeStatemen
             <div className="flex items-center justify-between">
               <CardTitle className="text-lg font-bold text-rose-800 flex items-center gap-2">
                 <CreditCard className="w-5 h-5 text-rose-600" />
-                المصروفات
+                {t("incomeStatement.expenses")}
               </CardTitle>
               <Badge className="bg-rose-100 text-rose-700 border-rose-300 font-bold">
-                {formatNumber(stats.totalExpenses)} ر.س
+                {formatNumber(stats.totalExpenses)} {t("common.sar")}
               </Badge>
             </div>
           </CardHeader>
@@ -486,9 +482,9 @@ export function IncomeStatementClient({ companyId, companyInfo }: IncomeStatemen
               <table className="w-full">
                 <thead className="sticky top-0">
                   <tr className="bg-gradient-to-r from-rose-600 to-rose-700 text-white">
-                    <th className="px-4 py-3 text-right text-sm font-bold w-1/2">اسم الحساب</th>
-                    <th className="px-4 py-3 text-center text-sm font-bold w-1/4">الرمز</th>
-                    <th className="px-4 py-3 text-left text-sm font-bold w-1/4">المبلغ</th>
+                    <th className={`px-4 py-3 ${locale === "ar" ? "text-right" : "text-left"} text-sm font-bold w-1/2`}>{t("incomeStatement.accountName")}</th>
+                    <th className="px-4 py-3 text-center text-sm font-bold w-1/4">{t("incomeStatement.accountCode")}</th>
+                    <th className={`px-4 py-3 ${locale === "ar" ? "text-left" : "text-right"} text-sm font-bold w-1/4`}>{t("incomeStatement.amount")}</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-rose-100">
@@ -496,19 +492,19 @@ export function IncomeStatementClient({ companyId, companyInfo }: IncomeStatemen
                     <>
                       {expenses.map((expense, idx) => (
                         <tr key={idx} className={`hover:bg-rose-50/50 transition-colors ${idx % 2 === 0 ? "bg-white" : "bg-rose-50/30"}`}>
-                          <td className="px-4 py-3 text-sm font-medium text-slate-700">{expense.account_name}</td>
+                          <td className={`px-4 py-3 text-sm font-medium text-slate-700 ${locale === "ar" ? "text-right" : "text-left"}`}>{expense.account_name}</td>
                           <td className="px-4 py-3 text-sm text-center">
                             <Badge variant="secondary" className="bg-rose-100 text-rose-700">{expense.account_code}</Badge>
                           </td>
-                          <td className="px-4 py-3 text-sm font-bold text-rose-600 tabular-nums text-left">
-                            {formatNumber(expense.net_amount)} ر.س
+                          <td className={`px-4 py-3 text-sm font-bold text-rose-600 tabular-nums ${locale === "ar" ? "text-left" : "text-right"}`}>
+                            {formatNumber(expense.net_amount)} {t("common.sar")}
                           </td>
                         </tr>
                       ))}
                       <tr className="bg-gradient-to-r from-rose-100 to-rose-50 font-bold">
-                        <td colSpan={2} className="px-4 py-4 text-sm text-rose-800 text-left">إجمالي المصروفات:</td>
-                        <td className="px-4 py-4 text-sm text-rose-700 font-black tabular-nums text-left">
-                          {formatNumber(stats.totalExpenses)} ر.س
+                        <td colSpan={2} className={`px-4 py-4 text-sm text-rose-800 ${locale === "ar" ? "text-left" : "text-right"}`}>{t("incomeStatement.totalExpenses")}:</td>
+                        <td className={`px-4 py-4 text-sm text-rose-700 font-black tabular-nums ${locale === "ar" ? "text-left" : "text-right"}`}>
+                          {formatNumber(stats.totalExpenses)} {t("common.sar")}
                         </td>
                       </tr>
                     </>
@@ -517,7 +513,7 @@ export function IncomeStatementClient({ companyId, companyInfo }: IncomeStatemen
                       <td colSpan={3} className="px-4 py-12 text-center">
                         <div className="flex flex-col items-center gap-3">
                           <CreditCard className="w-12 h-12 text-rose-200" />
-                          <p className="text-slate-400 font-bold">لا توجد مصروفات في هذه الفترة</p>
+                          <p className="text-slate-400 font-bold">{t("incomeStatement.noExpenses")}</p>
                         </div>
                       </td>
                     </tr>
@@ -545,20 +541,20 @@ export function IncomeStatementClient({ companyId, companyInfo }: IncomeStatemen
                 )}
               </div>
               <h3 className={`text-2xl font-black ${stats.isProfit ? "text-emerald-700" : "text-rose-700"}`}>
-                {stats.isProfit ? "مبروك! تحقيق ربح" : "تنبيه! تحقيق خسارة"}
+                {stats.isProfit ? t("incomeStatement.isProfit") : t("incomeStatement.isLoss")}
               </h3>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="bg-white/80 rounded-2xl p-5 text-center shadow-lg border border-emerald-100">
-                <p className="text-emerald-600 font-bold text-sm mb-2">الإيرادات</p>
+                <p className="text-emerald-600 font-bold text-sm mb-2">{t("incomeStatement.revenues")}</p>
                 <p className="text-2xl font-black text-emerald-700 tabular-nums">{formatNumber(stats.totalRevenue)}</p>
-                <p className="text-emerald-500 text-xs">ر.س</p>
+                <p className="text-emerald-500 text-xs">{t("common.sar")}</p>
               </div>
               <div className="bg-white/80 rounded-2xl p-5 text-center shadow-lg border border-rose-100">
-                <p className="text-rose-600 font-bold text-sm mb-2">المصروفات</p>
+                <p className="text-rose-600 font-bold text-sm mb-2">{t("incomeStatement.expenses")}</p>
                 <p className="text-2xl font-black text-rose-700 tabular-nums">{formatNumber(stats.totalExpenses)}</p>
-                <p className="text-rose-500 text-xs">ر.س</p>
+                <p className="text-rose-500 text-xs">{t("common.sar")}</p>
               </div>
               <div className={`rounded-2xl p-5 text-center shadow-lg border ${
                 stats.isProfit 
@@ -566,12 +562,12 @@ export function IncomeStatementClient({ companyId, companyInfo }: IncomeStatemen
                   : "bg-gradient-to-br from-red-50 to-red-100 border-red-200"
               }`}>
                 <p className={`font-bold text-sm mb-2 ${stats.isProfit ? "text-amber-600" : "text-red-600"}`}>
-                  صافي {stats.isProfit ? "الربح" : "الخسارة"}
+                  {t("incomeStatement.netIncome")}
                 </p>
                 <p className={`text-2xl font-black tabular-nums ${stats.isProfit ? "text-amber-700" : "text-red-700"}`}>
                   {formatNumber(Math.abs(stats.netIncome))}
                 </p>
-                <p className={`text-xs ${stats.isProfit ? "text-amber-500" : "text-red-500"}`}>ر.س</p>
+                <p className={`text-xs ${stats.isProfit ? "text-amber-500" : "text-red-500"}`}>{t("common.sar")}</p>
               </div>
             </div>
 

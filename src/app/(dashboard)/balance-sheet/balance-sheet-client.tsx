@@ -27,6 +27,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { useLocale } from "@/lib/locale-context";
 
 interface AccountItem {
   account_name: string;
@@ -43,6 +44,7 @@ interface BalanceSheetClientProps {
 }
 
 export function BalanceSheetClient({ companyId, companyInfo }: BalanceSheetClientProps) {
+  const { t, locale } = useLocale();
   const [assets, setAssets] = useState<AccountItem[]>([]);
   const [liabilities, setLiabilities] = useState<AccountItem[]>([]);
   const [equities, setEquities] = useState<AccountItem[]>([]);
@@ -113,29 +115,29 @@ export function BalanceSheetClient({ companyId, companyInfo }: BalanceSheetClien
   }, [fetchData]);
 
   const handleExportExcel = () => {
-    const headers = ["القسم", "رمز الحساب", "اسم الحساب", "الرصيد"];
+    const headers = [t("common.category"), t("balanceSheet.accountCode"), t("balanceSheet.accountName"), t("balanceSheet.netBalance")];
     const csvRows = [headers.join(",")];
 
-    csvRows.push("الأصول,,,");
+    csvRows.push(`${t("balanceSheet.assets")},,,`);
     assets.forEach(a => {
       csvRows.push([`""`, a.account_code, `"${a.account_name}"`, a.net_balance.toFixed(2)].join(","));
     });
-    csvRows.push([`""`, "", "إجمالي الأصول", stats.totalAssets.toFixed(2)].join(","));
+    csvRows.push([t("balanceSheet.totalAssets"), "", "", stats.totalAssets.toFixed(2)].join(","));
 
-    csvRows.push("الالتزامات,,,");
+    csvRows.push(`${t("balanceSheet.liabilities")},,,`);
     liabilities.forEach(l => {
       csvRows.push([`""`, l.account_code, `"${l.account_name}"`, l.net_balance.toFixed(2)].join(","));
     });
-    csvRows.push([`""`, "", "إجمالي الالتزامات", stats.totalLiabilities.toFixed(2)].join(","));
+    csvRows.push([t("balanceSheet.totalLiabilities"), "", "", stats.totalLiabilities.toFixed(2)].join(","));
 
-    csvRows.push("حقوق الملكية,,,");
+    csvRows.push(`${t("balanceSheet.equities")},,,`);
     equities.forEach(e => {
       csvRows.push([`""`, e.account_code, `"${e.account_name}"`, e.net_balance.toFixed(2)].join(","));
     });
     if (Math.abs(stats.netIncome) > 0.01) {
-      csvRows.push([`""`, "---", stats.netIncome >= 0 ? "صافي الربح" : "صافي الخسارة", Math.abs(stats.netIncome).toFixed(2)].join(","));
+      csvRows.push([`""`, "---", stats.netIncome >= 0 ? t("balanceSheet.netProfit") : t("balanceSheet.netLoss"), Math.abs(stats.netIncome).toFixed(2)].join(","));
     }
-    csvRows.push([`""`, "", "إجمالي حقوق الملكية + صافي الدخل", stats.totalEquitiesWithIncome.toFixed(2)].join(","));
+    csvRows.push([t("balanceSheet.totalEquities"), "", "", stats.totalEquitiesWithIncome.toFixed(2)].join(","));
 
     const csvContent = csvRows.join("\n");
     const blob = new Blob(["\ufeff" + csvContent], { type: "text/csv;charset=utf-8" });
@@ -151,7 +153,7 @@ export function BalanceSheetClient({ companyId, companyInfo }: BalanceSheetClien
   };
 
   const formatNumber = (num: number) => new Intl.NumberFormat("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(num);
-  const formatDate = (date: string) => new Date(date).toLocaleDateString("ar-SA");
+  const formatDate = (date: string) => new Date(date).toLocaleDateString(locale === "ar" ? "ar-SA" : "en-US");
 
   if (loading) {
     return (
@@ -161,14 +163,14 @@ export function BalanceSheetClient({ companyId, companyInfo }: BalanceSheetClien
             <div className="w-20 h-20 rounded-full border-4 border-blue-500/30 border-t-blue-500 animate-spin" />
             <Scale className="w-8 h-8 text-blue-500 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />
           </div>
-          <p className="text-slate-600 font-bold text-lg">جاري تحميل الميزانية العمومية...</p>
+          <p className="text-slate-600 font-bold text-lg">{t("balanceSheet.loading")}</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="p-4 md:p-6" dir="rtl">
+    <div className="p-4 md:p-6" dir={locale === "ar" ? "rtl" : "ltr"}>
       <Card className="border-none shadow-2xl rounded-[2rem] overflow-hidden bg-[#1a2234] p-4 md:p-8 space-y-8">
         <div className="relative overflow-hidden rounded-[2rem] bg-gradient-to-br from-[#0f172a] via-[#1e293b] to-[#0f172a] text-white shadow-2xl border border-white/10 print:hidden">
           <div className="absolute inset-0 overflow-hidden">
@@ -200,23 +202,23 @@ export function BalanceSheetClient({ companyId, companyInfo }: BalanceSheetClien
                 </div>
                 <div>
                   <h1 className="text-2xl md:text-4xl font-black tracking-tight bg-gradient-to-r from-white via-blue-200 to-white bg-clip-text text-transparent">
-                    الميزانية العمومية
+                    {t("balanceSheet.title")}
                   </h1>
                   <p className="text-white/60 font-medium mt-1 text-sm md:text-base">{companyInfo.name}</p>
                   <div className="flex items-center gap-2 mt-2">
                     <Badge className="bg-blue-500/20 text-blue-300 border-blue-500/30 font-bold text-xs">
-                      <Calendar className="w-3 h-3 ml-1" />
+                      <Calendar className={`w-3 h-3 ${locale === "ar" ? "ml-1" : "mr-1"}`} />
                       {formatDate(period.fromDate)} - {formatDate(period.toDate)}
                     </Badge>
                     {stats.isBalanced ? (
                       <Badge className="bg-emerald-500/20 text-emerald-300 border-emerald-500/30 font-bold text-xs animate-pulse">
-                        <CheckCircle2 className="w-3 h-3 ml-1" />
-                        متوازنة
+                        <CheckCircle2 className={`w-3 h-3 ${locale === "ar" ? "ml-1" : "mr-1"}`} />
+                        {t("balanceSheet.isBalanced")}
                       </Badge>
                     ) : (
                       <Badge className="bg-rose-500/20 text-rose-300 border-rose-500/30 font-bold text-xs animate-pulse">
-                        <AlertTriangle className="w-3 h-3 ml-1" />
-                        غير متوازنة
+                        <AlertTriangle className={`w-3 h-3 ${locale === "ar" ? "ml-1" : "mr-1"}`} />
+                        {t("balanceSheet.isUnbalanced")}
                       </Badge>
                     )}
                   </div>
@@ -231,8 +233,8 @@ export function BalanceSheetClient({ companyId, companyInfo }: BalanceSheetClien
                   className="bg-white/10 border-white/20 text-white hover:bg-white/20 font-bold rounded-xl"
                   disabled={refreshing}
                 >
-                  <RefreshCw className={`w-4 h-4 ml-2 ${refreshing ? "animate-spin" : ""}`} />
-                  تحديث
+                  <RefreshCw className={`w-4 h-4 ${locale === "ar" ? "ml-2" : "mr-2"} ${refreshing ? "animate-spin" : ""}`} />
+                  {t("common.update")}
                 </Button>
                 <Button
                   onClick={handleExportExcel}
@@ -240,7 +242,7 @@ export function BalanceSheetClient({ companyId, companyInfo }: BalanceSheetClien
                   size="sm"
                   className="bg-emerald-500/20 border-emerald-500/30 text-emerald-300 hover:bg-emerald-500/30 font-bold rounded-xl"
                 >
-                  <FileSpreadsheet className="w-4 h-4 ml-2" />
+                  <FileSpreadsheet className={`w-4 h-4 ${locale === "ar" ? "ml-2" : "mr-2"}`} />
                   Excel
                 </Button>
                 <Button
@@ -249,8 +251,8 @@ export function BalanceSheetClient({ companyId, companyInfo }: BalanceSheetClien
                   size="sm"
                   className="bg-amber-500/20 border-amber-500/30 text-amber-300 hover:bg-amber-500/30 font-bold rounded-xl"
                 >
-                  <Printer className="w-4 h-4 ml-2" />
-                  طباعة
+                  <Printer className={`w-4 h-4 ${locale === "ar" ? "ml-2" : "mr-2"}`} />
+                  {t("common.print")}
                 </Button>
               </div>
             </div>
@@ -265,7 +267,7 @@ export function BalanceSheetClient({ companyId, companyInfo }: BalanceSheetClien
                   <span className="text-lg md:text-2xl font-black text-emerald-300 tabular-nums">
                     {formatNumber(stats.totalAssets)}
                   </span>
-                  <span className="text-[10px] md:text-xs font-medium text-emerald-300/50">إجمالي الأصول</span>
+                  <span className="text-[10px] md:text-xs font-medium text-emerald-300/50">{t("balanceSheet.totalAssets")}</span>
                 </div>
               </div>
 
@@ -278,7 +280,7 @@ export function BalanceSheetClient({ companyId, companyInfo }: BalanceSheetClien
                   <span className="text-lg md:text-2xl font-black text-rose-300 tabular-nums">
                     {formatNumber(stats.totalLiabilities)}
                   </span>
-                  <span className="text-[10px] md:text-xs font-medium text-rose-300/50">إجمالي الالتزامات</span>
+                  <span className="text-[10px] md:text-xs font-medium text-rose-300/50">{t("balanceSheet.totalLiabilities")}</span>
                 </div>
               </div>
 
@@ -291,7 +293,7 @@ export function BalanceSheetClient({ companyId, companyInfo }: BalanceSheetClien
                   <span className="text-lg md:text-2xl font-black text-blue-300 tabular-nums">
                     {formatNumber(stats.totalEquitiesWithIncome)}
                   </span>
-                  <span className="text-[10px] md:text-xs font-medium text-blue-300/50">حقوق الملكية + صافي الدخل</span>
+                  <span className="text-[10px] md:text-xs font-medium text-blue-300/50">{t("balanceSheet.totalEquities")}</span>
                 </div>
               </div>
 
@@ -309,7 +311,7 @@ export function BalanceSheetClient({ companyId, companyInfo }: BalanceSheetClien
                     {formatNumber(Math.abs(stats.difference))}
                   </span>
                   <span className={`text-[10px] md:text-xs font-medium ${stats.isBalanced ? "text-amber-300/50" : "text-red-300/50"}`}>
-                    الفرق
+                    {t("balanceSheet.difference")}
                   </span>
                 </div>
               </div>
@@ -319,12 +321,12 @@ export function BalanceSheetClient({ companyId, companyInfo }: BalanceSheetClien
               {stats.isBalanced ? (
                 <div className="flex items-center justify-center gap-3">
                   <CheckCircle2 className="w-6 h-6 text-emerald-400" />
-                  <span className="text-lg font-bold text-emerald-300">الميزانية متوازنة - الأصول = الالتزامات + حقوق الملكية</span>
+                  <span className="text-lg font-bold text-emerald-300">{t("balanceSheet.balancedDesc")}</span>
                 </div>
               ) : (
                 <div className="flex items-center justify-center gap-3">
                   <AlertTriangle className="w-6 h-6 text-rose-400" />
-                  <span className="text-lg font-bold text-rose-300">الميزانية غير متوازنة - الفرق: {formatNumber(stats.difference)} ر.س</span>
+                  <span className="text-lg font-bold text-rose-300">{t("balanceSheet.unbalancedDesc")} - {t("balanceSheet.difference")}: {formatNumber(stats.difference)} {t("common.sar")}</span>
                 </div>
               )}
             </div>
@@ -339,16 +341,16 @@ export function BalanceSheetClient({ companyId, companyInfo }: BalanceSheetClien
                 onClick={() => setShowFilters(!showFilters)}
                 className={`rounded-xl font-bold h-12 ${showFilters ? "bg-blue-50 border-blue-300 text-blue-700" : ""}`}
               >
-                <Filter className="w-4 h-4 ml-2" />
-                تحديد الفترة الزمنية
-                {showFilters ? <ChevronUp className="w-4 h-4 mr-2" /> : <ChevronDown className="w-4 h-4 mr-2" />}
+                <Filter className={`w-4 h-4 ${locale === "ar" ? "ml-2" : "mr-2"}`} />
+                {t("incomeStatement.period")}
+                {showFilters ? <ChevronUp className={`w-4 h-4 ${locale === "ar" ? "mr-2" : "ml-2"}`} /> : <ChevronDown className={`w-4 h-4 ${locale === "ar" ? "mr-2" : "ml-2"}`} />}
               </Button>
             </div>
 
             {showFilters && (
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4 pt-4 border-t border-slate-100">
                 <div>
-                  <label className="block text-sm font-bold text-slate-600 mb-2">من تاريخ</label>
+                  <label className="block text-sm font-bold text-slate-600 mb-2">{t("generalLedger.fromDate")}</label>
                   <Input
                     type="date"
                     value={filters.fromDate}
@@ -357,7 +359,7 @@ export function BalanceSheetClient({ companyId, companyInfo }: BalanceSheetClien
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-bold text-slate-600 mb-2">إلى تاريخ</label>
+                  <label className="block text-sm font-bold text-slate-600 mb-2">{t("generalLedger.toDate")}</label>
                   <Input
                     type="date"
                     value={filters.toDate}
@@ -370,16 +372,16 @@ export function BalanceSheetClient({ companyId, companyInfo }: BalanceSheetClien
                     onClick={() => fetchData()}
                     className="rounded-xl font-bold h-11 bg-blue-600 hover:bg-blue-700"
                   >
-                    <Search className="w-4 h-4 ml-2" />
-                    تطبيق الفلترة
+                    <Search className={`w-4 h-4 ${locale === "ar" ? "ml-2" : "mr-2"}`} />
+                    {t("incomeStatement.applyFilter")}
                   </Button>
                   <Button
                     variant="outline"
                     onClick={() => setFilters({ fromDate: new Date().getFullYear() + "-01-01", toDate: new Date().toISOString().split("T")[0] })}
                     className="rounded-xl font-bold h-11"
                   >
-                    <X className="w-4 h-4 ml-2" />
-                    إعادة تعيين
+                    <X className={`w-4 h-4 ${locale === "ar" ? "ml-2" : "mr-2"}`} />
+                    {t("incomeStatement.reset")}
                   </Button>
                 </div>
               </div>
@@ -393,10 +395,10 @@ export function BalanceSheetClient({ companyId, companyInfo }: BalanceSheetClien
               <div className="flex items-center justify-between">
                 <CardTitle className="text-lg font-bold text-emerald-800 flex items-center gap-2">
                   <Landmark className="w-5 h-5 text-emerald-600" />
-                  الأصول
+                  {t("balanceSheet.assets")}
                 </CardTitle>
                 <Badge className="bg-emerald-100 text-emerald-700 border-emerald-300 font-bold">
-                  {formatNumber(stats.totalAssets)} ر.س
+                  {formatNumber(stats.totalAssets)} {t("common.sar")}
                 </Badge>
               </div>
             </CardHeader>
@@ -405,9 +407,9 @@ export function BalanceSheetClient({ companyId, companyInfo }: BalanceSheetClien
                 <table className="w-full">
                   <thead className="sticky top-0">
                     <tr className="bg-gradient-to-r from-emerald-600 to-emerald-700 text-white">
-                      <th className="px-4 py-3 text-right text-sm font-bold w-1/2">اسم الحساب</th>
-                      <th className="px-4 py-3 text-center text-sm font-bold w-1/4">الرمز</th>
-                      <th className="px-4 py-3 text-left text-sm font-bold w-1/4">الصافي</th>
+                      <th className={`px-4 py-3 ${locale === "ar" ? "text-right" : "text-left"} text-sm font-bold w-1/2`}>{t("balanceSheet.accountName")}</th>
+                      <th className="px-4 py-3 text-center text-sm font-bold w-1/4">{t("balanceSheet.accountCode")}</th>
+                      <th className={`px-4 py-3 ${locale === "ar" ? "text-left" : "text-right"} text-sm font-bold w-1/4`}>{t("balanceSheet.netBalance")}</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-emerald-100">
@@ -415,19 +417,19 @@ export function BalanceSheetClient({ companyId, companyInfo }: BalanceSheetClien
                       <>
                         {assets.map((asset, idx) => (
                           <tr key={idx} className={`hover:bg-emerald-50/50 transition-colors ${idx % 2 === 0 ? "bg-white" : "bg-emerald-50/30"}`}>
-                            <td className="px-4 py-3 text-sm font-medium text-slate-700">{asset.account_name}</td>
+                            <td className={`px-4 py-3 text-sm font-medium text-slate-700 ${locale === "ar" ? "text-right" : "text-left"}`}>{asset.account_name}</td>
                             <td className="px-4 py-3 text-sm text-center">
                               <Badge variant="secondary" className="bg-emerald-100 text-emerald-700">{asset.account_code}</Badge>
                             </td>
-                            <td className="px-4 py-3 text-sm font-bold text-emerald-600 tabular-nums text-left">
-                              {formatNumber(asset.net_balance)} ر.س
+                            <td className={`px-4 py-3 text-sm font-bold text-emerald-600 tabular-nums ${locale === "ar" ? "text-left" : "text-right"}`}>
+                              {formatNumber(asset.net_balance)} {t("common.sar")}
                             </td>
                           </tr>
                         ))}
                         <tr className="bg-gradient-to-r from-emerald-100 to-emerald-50 font-bold">
-                          <td colSpan={2} className="px-4 py-4 text-sm text-emerald-800 text-left">إجمالي الأصول:</td>
-                          <td className="px-4 py-4 text-sm text-emerald-700 font-black tabular-nums text-left">
-                            {formatNumber(stats.totalAssets)} ر.س
+                          <td colSpan={2} className={`px-4 py-4 text-sm text-emerald-800 ${locale === "ar" ? "text-left" : "text-right"}`}>{t("balanceSheet.totalAssets")}:</td>
+                          <td className={`px-4 py-4 text-sm text-emerald-700 font-black tabular-nums ${locale === "ar" ? "text-left" : "text-right"}`}>
+                            {formatNumber(stats.totalAssets)} {t("common.sar")}
                           </td>
                         </tr>
                       </>
@@ -436,7 +438,7 @@ export function BalanceSheetClient({ companyId, companyInfo }: BalanceSheetClien
                         <td colSpan={3} className="px-4 py-12 text-center">
                           <div className="flex flex-col items-center gap-3">
                             <Landmark className="w-12 h-12 text-emerald-200" />
-                            <p className="text-slate-400 font-bold">لا توجد حسابات أصول</p>
+                            <p className="text-slate-400 font-bold">{t("balanceSheet.noAssets")}</p>
                           </div>
                         </td>
                       </tr>
@@ -452,10 +454,10 @@ export function BalanceSheetClient({ companyId, companyInfo }: BalanceSheetClien
               <div className="flex items-center justify-between">
                 <CardTitle className="text-lg font-bold text-blue-800 flex items-center gap-2">
                   <Scale className="w-5 h-5 text-blue-600" />
-                  الالتزامات وحقوق الملكية
+                  {t("balanceSheet.totalLiabEquities")}
                 </CardTitle>
                 <Badge className="bg-blue-100 text-blue-700 border-blue-300 font-bold">
-                  {formatNumber(stats.totalLiabilities + stats.totalEquitiesWithIncome)} ر.س
+                  {formatNumber(stats.totalLiabilities + stats.totalEquitiesWithIncome)} {t("common.sar")}
                 </Badge>
               </div>
             </CardHeader>
@@ -464,32 +466,32 @@ export function BalanceSheetClient({ companyId, companyInfo }: BalanceSheetClien
                 <table className="w-full">
                   <thead className="sticky top-0">
                     <tr className="bg-gradient-to-r from-blue-600 to-blue-700 text-white">
-                      <th className="px-4 py-3 text-right text-sm font-bold w-1/2">اسم الحساب</th>
-                      <th className="px-4 py-3 text-center text-sm font-bold w-1/4">الرمز</th>
-                      <th className="px-4 py-3 text-left text-sm font-bold w-1/4">الصافي</th>
+                      <th className={`px-4 py-3 ${locale === "ar" ? "text-right" : "text-left"} text-sm font-bold w-1/2`}>{t("balanceSheet.accountName")}</th>
+                      <th className="px-4 py-3 text-center text-sm font-bold w-1/4">{t("balanceSheet.accountCode")}</th>
+                      <th className={`px-4 py-3 ${locale === "ar" ? "text-left" : "text-right"} text-sm font-bold w-1/4`}>{t("balanceSheet.netBalance")}</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-blue-100">
                     {liabilities.length > 0 && (
                       <>
                         <tr className="bg-rose-50">
-                          <td colSpan={3} className="px-4 py-2 text-sm font-bold text-rose-700">الالتزامات</td>
+                          <td colSpan={3} className={`px-4 py-2 text-sm font-bold text-rose-700 ${locale === "ar" ? "text-right" : "text-left"}`}>{t("balanceSheet.liabilities")}</td>
                         </tr>
                         {liabilities.map((liability, idx) => (
                           <tr key={`l-${idx}`} className={`hover:bg-rose-50/50 transition-colors ${idx % 2 === 0 ? "bg-white" : "bg-rose-50/30"}`}>
-                            <td className="px-4 py-3 text-sm font-medium text-slate-700">{liability.account_name}</td>
+                            <td className={`px-4 py-3 text-sm font-medium text-slate-700 ${locale === "ar" ? "text-right" : "text-left"}`}>{liability.account_name}</td>
                             <td className="px-4 py-3 text-sm text-center">
                               <Badge variant="secondary" className="bg-rose-100 text-rose-700">{liability.account_code}</Badge>
                             </td>
-                            <td className="px-4 py-3 text-sm font-bold text-rose-600 tabular-nums text-left">
-                              {formatNumber(liability.net_balance)} ر.س
+                            <td className={`px-4 py-3 text-sm font-bold text-rose-600 tabular-nums ${locale === "ar" ? "text-left" : "text-right"}`}>
+                              {formatNumber(liability.net_balance)} {t("common.sar")}
                             </td>
                           </tr>
                         ))}
                         <tr className="bg-gradient-to-r from-rose-100 to-rose-50">
-                          <td colSpan={2} className="px-4 py-3 text-sm text-rose-800 text-left font-bold">إجمالي الالتزامات:</td>
-                          <td className="px-4 py-3 text-sm text-rose-700 font-black tabular-nums text-left">
-                            {formatNumber(stats.totalLiabilities)} ر.س
+                          <td colSpan={2} className={`px-4 py-3 text-sm text-rose-800 ${locale === "ar" ? "text-left" : "text-right"} font-bold`}>{t("balanceSheet.totalLiabilities")}:</td>
+                          <td className={`px-4 py-3 text-sm text-rose-700 font-black tabular-nums ${locale === "ar" ? "text-left" : "text-right"}`}>
+                            {formatNumber(stats.totalLiabilities)} {t("common.sar")}
                           </td>
                         </tr>
                       </>
@@ -498,47 +500,47 @@ export function BalanceSheetClient({ companyId, companyInfo }: BalanceSheetClien
                     {(equities.length > 0 || Math.abs(stats.netIncome) > 0.01) && (
                       <>
                         <tr className="bg-blue-50">
-                          <td colSpan={3} className="px-4 py-2 text-sm font-bold text-blue-700">حقوق الملكية</td>
+                          <td colSpan={3} className={`px-4 py-2 text-sm font-bold text-blue-700 ${locale === "ar" ? "text-right" : "text-left"}`}>{t("balanceSheet.equities")}</td>
                         </tr>
                         {equities.map((equity, idx) => (
                           <tr key={`e-${idx}`} className={`hover:bg-blue-50/50 transition-colors ${idx % 2 === 0 ? "bg-white" : "bg-blue-50/30"}`}>
-                            <td className="px-4 py-3 text-sm font-medium text-slate-700">{equity.account_name}</td>
+                            <td className={`px-4 py-3 text-sm font-medium text-slate-700 ${locale === "ar" ? "text-right" : "text-left"}`}>{equity.account_name}</td>
                             <td className="px-4 py-3 text-sm text-center">
                               <Badge variant="secondary" className="bg-blue-100 text-blue-700">{equity.account_code}</Badge>
                             </td>
-                            <td className="px-4 py-3 text-sm font-bold text-blue-600 tabular-nums text-left">
-                              {formatNumber(equity.net_balance)} ر.س
+                            <td className={`px-4 py-3 text-sm font-bold text-blue-600 tabular-nums ${locale === "ar" ? "text-left" : "text-right"}`}>
+                              {formatNumber(equity.net_balance)} {t("common.sar")}
                             </td>
                           </tr>
                         ))}
                         {Math.abs(stats.netIncome) > 0.01 && (
                           <tr className={`hover:bg-amber-50/50 transition-colors bg-amber-50/30`}>
-                            <td className="px-4 py-3 text-sm font-medium text-slate-700">
-                              صافي {stats.netIncome >= 0 ? "الربح" : "الخسارة"}
+                            <td className={`px-4 py-3 text-sm font-medium text-slate-700 ${locale === "ar" ? "text-right" : "text-left"}`}>
+                              {t("balanceSheet.netIncome")} ({stats.netIncome >= 0 ? t("balanceSheet.netProfit") : t("balanceSheet.netLoss")})
                             </td>
                             <td className="px-4 py-3 text-sm text-center">
                               <Badge variant="secondary" className={stats.netIncome >= 0 ? "bg-emerald-100 text-emerald-700" : "bg-rose-100 text-rose-700"}>
-                                {stats.netIncome >= 0 ? "ربح" : "خسارة"}
+                                {stats.netIncome >= 0 ? t("incomeStatement.profit") : t("incomeStatement.loss")}
                               </Badge>
                             </td>
-                            <td className={`px-4 py-3 text-sm font-bold tabular-nums text-left ${stats.netIncome >= 0 ? "text-emerald-600" : "text-rose-600"}`}>
-                              {formatNumber(Math.abs(stats.netIncome))} ر.س
+                            <td className={`px-4 py-3 text-sm font-bold tabular-nums ${locale === "ar" ? "text-left" : "text-right"} ${stats.netIncome >= 0 ? "text-emerald-600" : "text-rose-600"}`}>
+                              {formatNumber(Math.abs(stats.netIncome))} {t("common.sar")}
                             </td>
                           </tr>
                         )}
                         <tr className="bg-gradient-to-r from-blue-100 to-blue-50">
-                          <td colSpan={2} className="px-4 py-3 text-sm text-blue-800 text-left font-bold">إجمالي حقوق الملكية + صافي الدخل:</td>
-                          <td className="px-4 py-3 text-sm text-blue-700 font-black tabular-nums text-left">
-                            {formatNumber(stats.totalEquitiesWithIncome)} ر.س
+                          <td colSpan={2} className={`px-4 py-3 text-sm text-blue-800 ${locale === "ar" ? "text-left" : "text-right"} font-bold`}>{t("balanceSheet.totalEquities")}:</td>
+                          <td className={`px-4 py-3 text-sm text-blue-700 font-black tabular-nums ${locale === "ar" ? "text-left" : "text-right"}`}>
+                            {formatNumber(stats.totalEquitiesWithIncome)} {t("common.sar")}
                           </td>
                         </tr>
                       </>
                     )}
 
                     <tr className="bg-gradient-to-r from-slate-100 to-slate-50 font-bold">
-                      <td colSpan={2} className="px-4 py-4 text-sm text-slate-800 text-left">الإجمالي (الالتزامات + حقوق الملكية):</td>
-                      <td className="px-4 py-4 text-sm text-slate-700 font-black tabular-nums text-left">
-                        {formatNumber(stats.totalLiabilities + stats.totalEquitiesWithIncome)} ر.س
+                      <td colSpan={2} className={`px-4 py-4 text-sm text-slate-800 ${locale === "ar" ? "text-left" : "text-right"}`}>{t("balanceSheet.totalLiabEquities")}:</td>
+                      <td className={`px-4 py-4 text-sm text-slate-700 font-black tabular-nums ${locale === "ar" ? "text-left" : "text-right"}`}>
+                        {formatNumber(stats.totalLiabilities + stats.totalEquitiesWithIncome)} {t("common.sar")}
                       </td>
                     </tr>
 
@@ -547,7 +549,7 @@ export function BalanceSheetClient({ companyId, companyInfo }: BalanceSheetClien
                         <td colSpan={3} className="px-4 py-12 text-center">
                           <div className="flex flex-col items-center gap-3">
                             <Scale className="w-12 h-12 text-blue-200" />
-                            <p className="text-slate-400 font-bold">لا توجد حسابات التزامات أو حقوق ملكية</p>
+                            <p className="text-slate-400 font-bold">{t("balanceSheet.noLiabilities")}</p>
                           </div>
                         </td>
                       </tr>
@@ -576,21 +578,21 @@ export function BalanceSheetClient({ companyId, companyInfo }: BalanceSheetClien
                 )}
               </div>
               <h3 className={`text-2xl font-black ${stats.isBalanced ? "text-emerald-700" : "text-rose-700"}`}>
-                {stats.isBalanced ? "الميزانية متوازنة" : "الميزانية غير متوازنة"}
+                {stats.isBalanced ? t("balanceSheet.isBalanced") : t("balanceSheet.isUnbalanced")}
               </h3>
-              <p className="text-slate-500 mt-2">الأصول = الالتزامات + حقوق الملكية</p>
+              <p className="text-slate-500 mt-2">{t("balanceSheet.balancedDesc")}</p>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="bg-white/80 rounded-2xl p-5 text-center shadow-lg border border-emerald-100">
-                <p className="text-emerald-600 font-bold text-sm mb-2">الأصول</p>
+                <p className="text-emerald-600 font-bold text-sm mb-2">{t("balanceSheet.assets")}</p>
                 <p className="text-2xl font-black text-emerald-700 tabular-nums">{formatNumber(stats.totalAssets)}</p>
-                <p className="text-emerald-500 text-xs">ر.س</p>
+                <p className="text-emerald-500 text-xs">{t("common.sar")}</p>
               </div>
               <div className="bg-white/80 rounded-2xl p-5 text-center shadow-lg border border-blue-100">
-                <p className="text-blue-600 font-bold text-sm mb-2">الالتزامات + حقوق الملكية</p>
+                <p className="text-blue-600 font-bold text-sm mb-2">{t("balanceSheet.totalLiabEquities")}</p>
                 <p className="text-2xl font-black text-blue-700 tabular-nums">{formatNumber(stats.totalLiabilities + stats.totalEquitiesWithIncome)}</p>
-                <p className="text-blue-500 text-xs">ر.س</p>
+                <p className="text-blue-500 text-xs">{t("common.sar")}</p>
               </div>
               <div className={`rounded-2xl p-5 text-center shadow-lg border ${
                 stats.isBalanced 
@@ -598,19 +600,19 @@ export function BalanceSheetClient({ companyId, companyInfo }: BalanceSheetClien
                   : "bg-gradient-to-br from-red-50 to-red-100 border-red-200"
               }`}>
                 <p className={`font-bold text-sm mb-2 ${stats.isBalanced ? "text-amber-600" : "text-red-600"}`}>
-                  الفرق
+                  {t("balanceSheet.difference")}
                 </p>
                 <p className={`text-2xl font-black tabular-nums ${stats.isBalanced ? "text-amber-700" : "text-red-700"}`}>
                   {formatNumber(Math.abs(stats.difference))}
                 </p>
-                <p className={`text-xs ${stats.isBalanced ? "text-amber-500" : "text-red-500"}`}>ر.س</p>
+                <p className={`text-xs ${stats.isBalanced ? "text-amber-500" : "text-red-500"}`}>{t("common.sar")}</p>
               </div>
             </div>
 
             {!stats.isBalanced && (
               <div className="mt-6 p-4 bg-rose-100 border border-rose-300 rounded-xl text-center">
                 <AlertTriangle className="w-6 h-6 text-rose-600 mx-auto mb-2" />
-                <p className="text-rose-700 font-bold">تنبيه: هناك اختلاف في توازن الميزانية. يرجى مراجعة القيود المحاسبية.</p>
+                <p className="text-rose-700 font-bold">{t("balanceSheet.unbalancedDesc")}</p>
               </div>
             )}
           </CardContent>
