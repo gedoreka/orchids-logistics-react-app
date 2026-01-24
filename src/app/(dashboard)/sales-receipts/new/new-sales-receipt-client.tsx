@@ -186,13 +186,13 @@ export function NewSalesReceiptClient({ customers, invoices, companyId, userName
     }
 
     if (formData.use_custom_client && !formData.client_name) {
-      showNotification("error", t("errorTitle"), isRtl ? "يرجى إدخال اسم العميل" : "Please enter customer name");
+      showNotification("error", t("errorTitle"), t("customerNameError"));
       return;
     }
 
     const validItems = items.filter(item => item.product_name && item.quantity > 0 && item.amount_before_vat > 0);
     if (validItems.length === 0) {
-      showNotification("error", t("errorTitle"), isRtl ? "يرجى إضافة بند واحد على الأقل" : "Please add at least one item");
+      showNotification("error", t("errorTitle"), t("addItemError"));
       return;
     }
 
@@ -273,7 +273,7 @@ export function NewSalesReceiptClient({ customers, invoices, companyId, userName
                       notification.type === "success" ? "bg-emerald-500 hover:bg-emerald-600 shadow-emerald-200" : "bg-rose-500 hover:bg-rose-600 shadow-rose-200"
                     )}
                   >
-                    {isRtl ? "حسناً" : "OK"}
+                    {t("ok")}
                   </button>
                 )}
               </div>
@@ -397,7 +397,7 @@ export function NewSalesReceiptClient({ customers, invoices, companyId, userName
                       <ToggleLeft className="text-slate-400 w-6 h-6" />
                     )}
                     <span className="text-[10px] font-black uppercase tracking-widest">
-                      {isRtl ? "إدخال يدوي" : "Manual Entry"}
+                      {t("manualEntry")}
                     </span>
                   </button>
                 </div>
@@ -439,7 +439,7 @@ export function NewSalesReceiptClient({ customers, invoices, companyId, userName
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div className="space-y-2">
                         <label className="flex items-center gap-2 text-xs font-black text-slate-400 uppercase tracking-wider">
-                          {isRtl ? "اسم العميل / الشركة" : "Customer / Company Name"}
+                          {t("customerName")}
                           <span className="text-rose-500">*</span>
                         </label>
                         <input
@@ -452,7 +452,7 @@ export function NewSalesReceiptClient({ customers, invoices, companyId, userName
                       </div>
                       <div className="space-y-2">
                         <label className="flex items-center gap-2 text-xs font-black text-slate-400 uppercase tracking-wider">
-                          {isRtl ? "الرقم الضريبي" : "VAT Number"}
+                          {t("vatNumber")}
                         </label>
                         <input
                           type="text"
@@ -464,7 +464,7 @@ export function NewSalesReceiptClient({ customers, invoices, companyId, userName
                       </div>
                       <div className="space-y-2">
                         <label className="flex items-center gap-2 text-xs font-black text-slate-400 uppercase tracking-wider">
-                          {isRtl ? "رقم الهوية / السجل" : "ID / CR Number"}
+                          {t("idCrNumber")}
                         </label>
                         <input
                           type="text"
@@ -476,7 +476,7 @@ export function NewSalesReceiptClient({ customers, invoices, companyId, userName
                       </div>
                       <div className="space-y-2">
                         <label className="flex items-center gap-2 text-xs font-black text-slate-400 uppercase tracking-wider">
-                          {isRtl ? "العنوان" : "Address"}
+                          {t("address")}
                         </label>
                         <input
                           type="text"
@@ -505,7 +505,7 @@ export function NewSalesReceiptClient({ customers, invoices, companyId, userName
                   <div className="p-3 bg-emerald-500/20 rounded-2xl text-emerald-400 group-hover:scale-110 transition-transform">
                     <Building2 size={24} />
                   </div>
-                  <h3 className="text-xl font-black">{isRtl ? "بنود الإيصال" : "Receipt Items"}</h3>
+                  <h3 className="text-xl font-black">{t("receiptItems")}</h3>
                 </div>
                 
                 <button
@@ -514,7 +514,7 @@ export function NewSalesReceiptClient({ customers, invoices, companyId, userName
                   className="flex items-center gap-2 px-6 py-3 rounded-2xl bg-emerald-500 text-white font-black text-sm hover:bg-emerald-600 transition-all border border-emerald-400/20 shadow-xl active:scale-95"
                 >
                   <Plus size={18} />
-                  <span>{isRtl ? "إضافة بند" : "Add Item"}</span>
+                  <span>{t("addItem")}</span>
                 </button>
               </div>
 
@@ -522,13 +522,13 @@ export function NewSalesReceiptClient({ customers, invoices, companyId, userName
                   <table className="w-full text-sm text-right">
                     <thead>
                       <tr className="bg-white/10 text-slate-300 font-black uppercase text-[10px] tracking-widest">
-                        <th className="px-6 py-4">{isRtl ? "البند" : "Item"}</th>
-                        <th className="px-6 py-4">{isRtl ? "الوصف" : "Description"}</th>
-                        <th className="px-6 py-4 w-28">{isRtl ? "الكمية" : "Qty"}</th>
-                        <th className="px-6 py-4 w-36">{isRtl ? "المبلغ قبل الضريبة" : "Amount Before VAT"}</th>
-                        <th className="px-6 py-4 w-32">{isRtl ? "سعر الوحدة" : "Unit Price"}</th>
-                        <th className="px-6 py-4 w-32">{isRtl ? "الضريبة (15%)" : "VAT (15%)"}</th>
-                        <th className="px-6 py-4 w-36">{isRtl ? "المجموع شامل" : "Total w/VAT"}</th>
+                        <th className="px-6 py-4">{t("itemName")}</th>
+                        <th className="px-6 py-4">{t("description")}</th>
+                        <th className="px-6 py-4 w-28">{t("quantity")}</th>
+                        <th className="px-6 py-4 w-36">{t("amountBeforeVat")}</th>
+                        <th className="px-6 py-4 w-32">{t("unitPrice")}</th>
+                        <th className="px-6 py-4 w-32">{t("vatAmount")}</th>
+                        <th className="px-6 py-4 w-36">{t("totalWithVat")}</th>
                         <th className="px-6 py-4 w-16"></th>
                       </tr>
                     </thead>
@@ -541,7 +541,7 @@ export function NewSalesReceiptClient({ customers, invoices, companyId, userName
                               value={item.product_name}
                               onChange={(e) => handleItemChange(item.id, 'product_name', e.target.value)}
                               required
-                              placeholder={isRtl ? "اسم الخدمة / المنتج" : "Item Name"}
+                              placeholder={t("itemNamePlaceholder")}
                               className="w-full px-4 py-2 rounded-xl bg-white/10 border border-white/10 text-white text-xs outline-none focus:border-emerald-500"
                             />
                           </td>
@@ -550,7 +550,7 @@ export function NewSalesReceiptClient({ customers, invoices, companyId, userName
                               type="text"
                               value={item.product_desc}
                               onChange={(e) => handleItemChange(item.id, 'product_desc', e.target.value)}
-                              placeholder={isRtl ? "وصف اختياري" : "Optional description"}
+                              placeholder={t("itemDescriptionPlaceholder")}
                               className="w-full px-4 py-2 rounded-xl bg-white/10 border border-white/10 text-white text-xs outline-none focus:border-emerald-500"
                             />
                           </td>
@@ -646,24 +646,24 @@ export function NewSalesReceiptClient({ customers, invoices, companyId, userName
                   <div className="p-3 bg-emerald-500/20 rounded-2xl text-emerald-400 group-hover:scale-110 transition-transform">
                     <DollarSign size={24} />
                   </div>
-                  <h3 className="text-xl font-black">{isRtl ? "ملخص المبالغ" : "Totals Summary"}</h3>
+                  <h3 className="text-xl font-black">{t("totalsSummary")}</h3>
                 </div>
                 
                 <div className="space-y-4">
                   <div className="flex justify-between items-center p-6 rounded-2xl bg-white/5 border border-white/5">
-                    <span className="text-slate-400 font-black uppercase text-[10px] tracking-widest">{isRtl ? "المجموع الفرعي" : "Subtotal"}</span>
+                    <span className="text-slate-400 font-black uppercase text-[10px] tracking-widest">{t("subtotal")}</span>
                     <span className="text-xl font-black">{subtotal.toLocaleString('en-US', { minimumFractionDigits: 2 })} <span className="text-xs text-slate-500">SAR</span></span>
                   </div>
                   
                   <div className="flex justify-between items-center p-6 rounded-2xl bg-white/5 border border-white/5">
-                    <span className="text-slate-400 font-black uppercase text-[10px] tracking-widest">{isRtl ? "ضريبة القيمة المضافة" : "VAT Total"}</span>
+                    <span className="text-slate-400 font-black uppercase text-[10px] tracking-widest">{t("vatTotal")}</span>
                     <span className="text-xl font-black text-amber-400">{taxAmount.toLocaleString('en-US', { minimumFractionDigits: 2 })} <span className="text-xs text-slate-500">SAR</span></span>
                   </div>
                   
                   <div className="flex justify-between items-center p-8 rounded-[2rem] bg-gradient-to-r from-teal-500/20 to-emerald-500/20 border-2 border-emerald-500/30">
                     <div className="flex flex-col">
-                      <span className="text-emerald-400 font-black uppercase text-[10px] tracking-widest mb-1">{isRtl ? "الإجمالي النهائي" : "Grand Total"}</span>
-                      <span className="text-xs text-slate-500 font-medium">{isRtl ? "شامل الضريبة" : "Inclusive of VAT"}</span>
+                      <span className="text-emerald-400 font-black uppercase text-[10px] tracking-widest mb-1">{t("grandTotal")}</span>
+                      <span className="text-xs text-slate-500 font-medium">{t("inclusiveVat")}</span>
                     </div>
                     <span className="text-4xl md:text-5xl font-black text-emerald-400">{totalAmount.toLocaleString('en-US', { minimumFractionDigits: 2 })} <span className="text-sm text-emerald-600">SAR</span></span>
                   </div>
@@ -707,9 +707,9 @@ export function NewSalesReceiptClient({ customers, invoices, companyId, userName
       )}>
         <div className="flex items-center gap-2">
           <Sparkles size={12} className="text-teal-500" />
-          <span>{isRtl ? `نظام ${userName || "Logistics"} - إيصالات المبيعات` : `${userName || "Logistics"} System - Sales Receipts`}</span>
+          <span>{t("systemFooterBranding", { name: userName || "Logistics" })}</span>
         </div>
-        <span>{isRtl ? `جميع الحقوق محفوظة © ${new Date().getFullYear()}` : `All Rights Reserved © ${new Date().getFullYear()}`}</span>
+        <span>{t("allRightsReserved", { year: new Date().getFullYear() })}</span>
       </div>
     </div>
   );
