@@ -1749,35 +1749,95 @@
         "noQuotations": "لا توجد عروض",
         "noQuotationsDesc": "لم يتم تسجيل أي عروض أسعار حتى الآن."
       },
-      "incomeVouchersPage": {
-        "title": "سندات الدخل",
-        "subtitle": "إدارة الإيرادات المتنوعة",
-        "description": "تسجيل كافة مصادر الدخل والإيرادات الخارجية.",
-        "addNew": "إضافة سند دخل",
-        "refreshData": "تحديث",
-        "totalIncome": "إجمالي الدخل",
-        "incomeCount": "عملية",
-        "searchPlaceholder": "البحث بالبيان أو المصدر...",
-        "table": {
-          "no": "رقم السند",
-          "date": "التاريخ",
-          "source": "المصدر",
-          "amount": "المبلغ",
-          "actions": "الإجراءات"
+        "incomeVouchersPage": {
+          "title": "سندات الدخل",
+          "subtitle": "إدارة الإيرادات المتنوعة",
+          "description": "تسجيل كافة مصادر الدخل والإيرادات الخارجية.",
+          "addNew": "إضافة سند دخل",
+          "refreshData": "تحديث",
+          "totalIncome": "إجمالي الدخل",
+          "incomeCount": "عملية",
+          "searchPlaceholder": "البحث بالبيان أو المصدر...",
+          "table": {
+            "no": "رقم السند",
+            "date": "التاريخ",
+            "source": "المصدر",
+            "amount": "المبلغ",
+            "actions": "الإجراءات"
+          },
+          "form": {
+            "title": "إضافة إيراد جديد",
+            "date": "تاريخ العملية",
+            "source": "مصدر الدخل",
+            "amount": "المبلغ",
+            "description": "البيان",
+            "save": "حفظ الإيراد"
+          },
+          "notifications": {
+            "saveSuccess": "تم تسجيل الإيراد بنجاح"
+          }
         },
-        "form": {
-          "title": "إضافة إيراد جديد",
-          "date": "تاريخ العملية",
-          "source": "مصدر الدخل",
-          "amount": "المبلغ",
-          "description": "البيان",
-          "save": "حفظ الإيراد"
-        },
-        "notifications": {
-          "saveSuccess": "تم تسجيل الإيراد بنجاح"
+        "salaryPayrollsPage": {
+          "title": "مسيرات الرواتب الشهرية",
+          "description": "إدارة وتتبع مسيرات رواتب الموظفين والمستحقات الشهرية والعمولات بنظام واحد.",
+          "stats": {
+            "total": "إجمالي المسيرات",
+            "sar": "ر.س",
+            "confirmed": "معتمدة",
+            "draft": "مسودة"
+          },
+          "createNew": "إنشاء مسير جديد",
+          "searchPlaceholder": "بحث بالباقة، الشهر أو الحالة...",
+          "table": {
+            "title": "سجل مسيرات الرواتب",
+            "count": "مسير مسجل",
+            "no": "الرقم",
+            "payrollMonth": "شهر المسير",
+            "package": "الباقة",
+            "employeesCount": "عدد الموظفين",
+            "totalSalaries": "إجمالي الرواتب",
+            "status": "الحالة",
+            "actions": "الإجراءات",
+            "employee": "موظف"
+          },
+          "workTypes": {
+            "target": "تارجت",
+            "salary": "راتب"
+          },
+          "statuses": {
+            "confirmed": "معتمد",
+            "draft": "مسودة"
+          },
+          "actions": {
+            "view": "عرض",
+            "edit": "تعديل",
+            "delete": "حذف"
+          },
+          "form": {
+            "title": "إنشاء مسير رواتب جديد",
+            "editTitle": "تعديل مسير الرواتب",
+            "basicInfo": "المعلومات الأساسية",
+            "payrollMonth": "شهر المسير",
+            "selectPackage": "اختر الباقة",
+            "employeesList": "قائمة الموظفين",
+            "salaryDetails": "تفاصيل الراتب",
+            "commissions": "العمولات",
+            "deductions": "الخصومات",
+            "netSalary": "صافي الراتب",
+            "savePayroll": "حفظ المسير",
+            "confirmPayroll": "اعتماد المسير",
+            "cancel": "إلغاء",
+            "confirmDelete": "هل أنت متأكد من حذف هذا المسير؟",
+            "deleteSuccess": "تم حذف المسير بنجاح",
+            "saveSuccess": "تم حفظ المسير بنجاح",
+            "notifications": {
+              "selectPackage": "يرجى اختيار الباقة",
+              "selectMonth": "يرجى اختيار شهر المسير",
+              "noEmployees": "لا يوجد موظفين في هذه الباقة"
+            }
+          }
         }
-      }
-    },
+      },
     "officialLettersPage": {
       "title": "الخطابات الرسمية الجاهزة",
       "subtitle": "إنشاء وإدارة الخطابات والإقرارات الرسمية",
