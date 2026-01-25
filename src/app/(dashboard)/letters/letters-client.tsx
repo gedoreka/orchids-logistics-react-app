@@ -10,7 +10,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import * as pdfjsLib from "pdfjs-dist";
-import { useTranslations, useLocale } from "next-intl";
+import { useTranslations, useLocale } from "@/lib/locale-context";
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjsLib.version}/build/pdf.worker.min.mjs`;
 
@@ -180,7 +180,7 @@ const convertAmountToWords = (amount: number): string => {
 
 export default function LettersClient() {
   const t = useTranslations("officialLettersPage");
-  const locale = useLocale();
+  const { locale, isRTL } = useLocale();
   const [templates, setTemplates] = useState<LetterTemplate[]>([]);
   const [letters, setLetters] = useState<GeneratedLetter[]>([]);
   const [loading, setLoading] = useState(true);
