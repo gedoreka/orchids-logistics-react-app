@@ -1793,7 +1793,8 @@
               "totalSalaries": "Total Salaries",
               "status": "Status",
               "actions": "Actions",
-              "employee": "employee"
+              "employee": "employee",
+              "notSpecified": "Not Specified"
             },
             "workTypes": {
               "target": "Target",
@@ -1828,23 +1829,25 @@
                 "workSystem": "Work System",
                 "salaryDetails": "Salary Details",
                 "total": "Total",
-                "columns": {
-                  "no": "No",
-                  "name": "Employee Name",
-                  "iqama": "Iqama",
-                  "code": "Code",
-                  "salary": "Salary",
-                  "target": "Target",
-                  "orders": "Orders",
-                  "targetDeduction": "Target Deduction",
-                  "bonus": "Bonus",
-                  "operatorDeduction": "Operator Deduction",
-                  "internal": "Internal",
-                  "wallet": "Wallet",
-                  "reward": "Reward",
-                  "netSalary": "Net Salary",
-                  "paymentMethod": "Payment Method"
-                }
+                  "columns": {
+                    "no": "No",
+                    "name": "Employee Name",
+                    "iqama": "Iqama",
+                    "code": "Code",
+                    "salary": "Salary",
+                    "housing": "Housing",
+                    "target": "Target",
+                    "orders": "Orders",
+                    "targetDeduction": "Target Deduction",
+                    "bonus": "Bonus",
+                    "operatorDeduction": "Operator Deduction",
+                    "internal": "Internal",
+                    "internalDeduction": "Internal Deduction",
+                    "wallet": "Wallet",
+                    "reward": "Reward",
+                    "netSalary": "Net Salary",
+                    "paymentMethod": "Payment Method"
+                  }
               },
             "editPayroll": {
               "title": "Edit Salary Payroll",

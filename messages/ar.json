@@ -1799,7 +1799,8 @@
               "totalSalaries": "إجمالي الرواتب",
               "status": "الحالة",
               "actions": "الإجراءات",
-              "employee": "موظف"
+              "employee": "موظف",
+              "notSpecified": "غير محدد"
             },
             "workTypes": {
               "target": "تارجت",
@@ -1835,22 +1836,24 @@
                 "salaryDetails": "تفاصيل الرواتب",
                 "total": "الإجمالي",
                 "columns": {
-                "no": "م",
-                "name": "اسم الموظف",
-                "iqama": "رقم الإقامة",
-                "code": "الكود",
-                "salary": "الراتب",
-                "target": "التارجت",
-                "orders": "الطلبات",
-                "targetDeduction": "خصم التارجت",
-                "bonus": "البونص",
-                "operatorDeduction": "خصم المشغل",
-                "internal": "داخلي",
-                "wallet": "المحفظة",
-                "reward": "مكافأة",
-                "netSalary": "صافي الراتب",
-                "paymentMethod": "طريقة الدفع"
-              }
+                  "no": "م",
+                  "name": "اسم الموظف",
+                  "iqama": "رقم الإقامة",
+                  "code": "الكود",
+                  "salary": "الراتب",
+                  "housing": "السكن",
+                  "target": "التارجت",
+                  "orders": "الطلبات",
+                  "targetDeduction": "خصم التارجت",
+                  "bonus": "البونص",
+                  "operatorDeduction": "خصم المشغل",
+                  "internal": "داخلي",
+                  "internalDeduction": "خصم داخلي",
+                  "wallet": "المحفظة",
+                  "reward": "مكافأة",
+                  "netSalary": "صافي الراتب",
+                  "paymentMethod": "طريقة الدفع"
+                }
             },
             "editPayroll": {
               "title": "تعديل مسير الرواتب",
@@ -1911,65 +1914,25 @@
               "deleteUnselected": "حذف غير المحدد",
               "reload": "تحديث البيانات",
               "selected": "موظف مختار",
-              "columns": {
-                "no": "م",
-                "employeeName": "اسم الموظف",
-                "iqama": "رقم الإقامة",
-                "code": "الكود",
-                "salary": "الراتب",
-                "housing": "السكن",
-                "nationality": "الجنسية",
-                "target": "التارجت",
-                "bonus": "البونص",
-                "orders": "الطلبات",
-                "targetDeduction": "خصم التارجت",
-                "monthlyBonus": "مكافأة شهرية",
-                "operatorDeduction": "خصم المشغل",
-                "internal": "داخلي",
-                "internalDeduction": "خصم داخلي",
-                "wallet": "المحفظة",
-                "reward": "مكافأة",
-                "netSalary": "صافي الراتب",
-                "paymentMethod": "طريقة الدفع"
-              },
-                "paymentMethods": {
-                  "notSpecified": "غير محدد",
-                  "mudad": "مدد",
-                  "cash": "نقدي",
-                  "transfer": "تحويل"
-                },
-                "totals": {
-                  "totalSalaries": "إجمالي الرواتب",
-                  "totalOrders": "إجمالي الطلبات",
-                  "totalDeductions": "إجمالي الخصومات"
-                },
-                "cancel": "إلغاء",
-                "saveDraft": "حفظ كمسودة",
-                "savePayroll": "حفظ المسير",
-                "searchEmployee": "بحث عن موظف..."
-              },
-            "form": {
-              "title": "إنشاء مسير رواتب جديد",
-              "editTitle": "تعديل مسير الرواتب",
-              "basicInfo": "المعلومات الأساسية",
-              "payrollMonth": "شهر المسير",
-              "selectPackage": "اختر الباقة",
-              "employeesList": "قائمة الموظفين",
-              "salaryDetails": "تفاصيل الراتب",
-              "commissions": "العمولات",
-              "deductions": "الخصومات",
-              "netSalary": "صافي الراتب",
-              "savePayroll": "حفظ المسير",
-              "confirmPayroll": "اعتماد المسير",
-              "cancel": "إلغاء",
-              "confirmDelete": "هل أنت متأكد من حذف هذا المسير؟",
-              "deleteSuccess": "تم حذف المسير بنجاح",
-              "saveSuccess": "تم حفظ المسير بنجاح",
-              "notifications": {
-                "selectPackage": "يرجى اختيار الباقة",
-                "selectMonth": "يرجى اختيار شهر المسير",
-                  "noEmployees": "لا يوجد موظفين في هذه الباقة"
-                }
+                  "columns": {
+                    "no": "م",
+                    "name": "اسم الموظف",
+                    "iqama": "رقم الإقامة",
+                    "code": "الكود",
+                    "salary": "الراتب",
+                    "housing": "السكن",
+                    "target": "التارجت",
+                    "orders": "الطلبات",
+                    "targetDeduction": "خصم التارجت",
+                    "bonus": "البونص",
+                    "operatorDeduction": "خصم المشغل",
+                    "internal": "داخلي",
+                    "internalDeduction": "خصم داخلي",
+                    "wallet": "المحفظة",
+                    "reward": "مكافأة",
+                    "netSalary": "صافي الراتب",
+                    "paymentMethod": "طريقة الدفع"
+                  }
               },
               "notifications": {
                 "deleteConfirm": "تأكيد الحذف",
