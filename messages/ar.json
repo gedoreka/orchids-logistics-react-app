@@ -1831,9 +1831,10 @@
               "payrollInfo": "بيانات المسير",
               "createdBy": "أنشئ بواسطة",
               "createdAt": "تاريخ الإنشاء",
-              "workSystem": "نظام العمل",
-              "salaryDetails": "تفاصيل الرواتب",
-              "columns": {
+                "workSystem": "نظام العمل",
+                "salaryDetails": "تفاصيل الرواتب",
+                "total": "الإجمالي",
+                "columns": {
                 "no": "م",
                 "name": "اسم الموظف",
                 "iqama": "رقم الإقامة",
@@ -1887,10 +1888,12 @@
               "cancel": "إلغاء",
               "saveChanges": "حفظ التعديلات"
             },
-            "newPayroll": {
-              "title": "إنشاء مسير رواتب جديد",
-              "subtitle": "إعداد وتجهيز مسير رواتب جديد بناءً على الباقة المختارة",
-              "payrollMonth": "شهر المسير",
+              "newPayroll": {
+                "title": "إنشاء مسير رواتب جديد",
+                "subtitle": "إعداد وتجهيز مسير رواتب جديد بناءً على الباقة المختارة",
+                "welcomeTitle": "مرحباً بك في نظام مسيرات الرواتب",
+                "welcomeDesc": "قم بإعداد مسير الرواتب الشهري للموظفين بكل سهولة",
+                "payrollMonth": "شهر المسير",
               "selectPackage": "اختيار الباقة",
               "selectPackagePlaceholder": "اختر الباقة من القائمة...",
               "search": "بحث وجلب الموظفين",
@@ -1927,13 +1930,22 @@
                 "netSalary": "صافي الراتب",
                 "paymentMethod": "طريقة الدفع"
               },
-              "paymentMethods": {
-                "notSpecified": "غير محدد",
-                "mudad": "مدد",
-                "cash": "نقدي",
-                "transfer": "تحويل"
-              }
-            },
+                "paymentMethods": {
+                  "notSpecified": "غير محدد",
+                  "mudad": "مدد",
+                  "cash": "نقدي",
+                  "transfer": "تحويل"
+                },
+                "totals": {
+                  "totalSalaries": "إجمالي الرواتب",
+                  "totalOrders": "إجمالي الطلبات",
+                  "totalDeductions": "إجمالي الخصومات"
+                },
+                "cancel": "إلغاء",
+                "saveDraft": "حفظ كمسودة",
+                "savePayroll": "حفظ المسير",
+                "searchEmployee": "بحث عن موظف..."
+              },
             "form": {
               "title": "إنشاء مسير رواتب جديد",
               "editTitle": "تعديل مسير الرواتب",
@@ -1954,10 +1966,17 @@
               "notifications": {
                 "selectPackage": "يرجى اختيار الباقة",
                 "selectMonth": "يرجى اختيار شهر المسير",
-                "noEmployees": "لا يوجد موظفين في هذه الباقة"
+                  "noEmployees": "لا يوجد موظفين في هذه الباقة"
+                }
+              },
+              "notifications": {
+                "deleteConfirm": "تأكيد الحذف",
+                "deleteQuestion": "هل أنت متأكد من حذف هذا المسير؟",
+                "deleteWarning": "هذا الإجراء لا يمكن التراجع عنه وسيتم حذف كافة البيانات المرتبطة.",
+                "deleteNote": "سيتم إزالة كافة السجلات المالية المرتبطة بهذا المسير.",
+                "confirmBtn": "نعم، حذف"
               }
             }
-          }
       },
     "officialLettersPage": {
       "title": "الخطابات الرسمية الجاهزة",
