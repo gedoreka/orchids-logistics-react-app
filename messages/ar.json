@@ -1762,6 +1762,128 @@
           "saveSuccess": "تم تسجيل الإيراد بنجاح"
         }
       }
+    },
+    "officialLettersPage": {
+      "title": "الخطابات الرسمية الجاهزة",
+      "subtitle": "إنشاء وإدارة الخطابات والإقرارات الرسمية",
+      "paperSettings": "إعدادات الورق",
+      "newLetterTitle": "إنشاء خطاب جديد",
+      "fieldsToFill": "{count} حقل للتعبئة",
+      "searchPlaceholder": "بحث في الخطابات...",
+      "createdLettersTitle": "الخطابات المنشأة ({count})",
+      "noLetters": "لا توجد خطابات",
+      "noLettersDesc": "ابدأ بإنشاء خطاب جديد من القوالب أعلاه",
+      "status": {
+        "active": "نشط",
+        "cancelled": "ملغي",
+        "draft": "مسودة"
+      },
+      "date": "التاريخ",
+      "actions": {
+        "preview": "معاينة",
+        "sendEmail": "إرسال بالبريد",
+        "edit": "تعديل",
+        "delete": "حذف"
+      },
+      "templates": {
+        "salary_receipt": "إقرار استلام راتب",
+        "work_receipt": "إقرار استلام عمل",
+        "custody_receipt": "إقرار استلام عهدة",
+        "resignation_letter": "خطاب استقالة إلكتروني",
+        "final_clearance": "مخالصة نهائية وإقرار استلام الحقوق"
+      },
+      "settings": {
+        "title": "إعدادات الورق المروس",
+        "letterheadLabel": "الورق المروس (Image or PDF)",
+        "pdfSuccess": "تم رفع ملف PDF بنجاح",
+        "pdfNotice": "يفضل استخدام الصور لضمان أفضل جودة في المعاينة",
+        "changeFile": "تغيير الملف",
+        "dragDrop": "اسحب الملف هنا أو اضغط للرفع",
+        "topMargin": "الهامش العلوي (Header)",
+        "bottomMargin": "الهامش السفلي (Footer)",
+        "previewMargins": "معاينة ضبط الهوامش على الورقة",
+        "safeZone": "منطقة النص الآمنة",
+        "saveSettings": "حفظ الضبط",
+        "noFileUploaded": "لم يتم رفع ورقة"
+      },
+      "form": {
+        "editTitle": "تعديل الخطاب",
+        "createTitle": "إنشاء {template}",
+        "saveChanges": "حفظ التعديلات",
+        "createLetter": "إنشاء الخطاب",
+        "cancel": "إلغاء",
+        "placeholderPrefix": "أدخل {label}"
+      },
+      "preview": {
+        "title": "معاينة الخطاب - {number}",
+        "print": "طباعة",
+        "downloadPdf": "تحميل PDF"
+      },
+      "email": {
+        "title": "إرسال الخطاب بالبريد",
+        "letterType": "نوع الخطاب",
+        "letterNumber": "رقم الخطاب",
+        "sendToCompany": "إرسال لبريد الشركة",
+        "noCompanyEmail": "لا يوجد بريد مسجل للشركة",
+        "or": "أو",
+        "sendToOther": "إرسال لبريد آخر",
+        "emailPlaceholder": "أدخل البريد الإلكتروني...",
+        "sendingStatus": "جاري تجهيز وإرسال الخطاب..."
+      },
+      "placeholders": {
+        "employee_name": "اسم الموظف",
+        "id_number": "رقم الهوية / الإقامة",
+        "company_name": "اسم الشركة",
+        "commercial_number": "رقم السجل التجاري",
+        "start_date": "تاريخ البداية",
+        "job_title": "المسمى الوظيفي",
+        "profession": "المهنة",
+        "nationality": "الجنسية",
+        "resignation_day": "يوم الاستقالة",
+        "resignation_date": "تاريخ الاستقالة",
+        "resignation_reason": "سبب الاستقالة",
+        "receipt_date": "تاريخ الاستلام",
+        "item": "البند {n}",
+        "qty": "الكمية {n}",
+        "value": "القيمة {n}",
+        "status": "الحالة {n}",
+        "notes": "ملاحظات {n}",
+        "total_value": "إجمالي القيمة",
+        "service_days": "أيام الخدمة",
+        "service_months": "أشهر الخدمة",
+        "service_years": "سنوات الخدمة",
+        "end_date": "تاريخ النهاية",
+        "basic_salary": "الراتب الأساسي",
+        "housing_allowance": "بدل السكن",
+        "transport_allowance": "بدل المواصلات",
+        "end_service_bonus": "مكافأة نهاية الخدمة",
+        "vacation_balance": "رصيد الإجازات",
+        "total_amount": "إجمالي المستحقات",
+        "payroll_period": "فترة الراتب",
+        "period_from": "من تاريخ",
+        "period_to": "إلى تاريخ",
+        "total_amount_text": "المبلغ كتابة",
+        "bank_name": "اسم البنك",
+        "account_number": "رقم الحساب",
+        "transfer_date": "تاريخ التحويل",
+        "due_date": "تاريخ الاستحقاق",
+        "actual_receipt_date": "تاريخ الاستلام الفعلي"
+      },
+      "messages": {
+        "fetchError": "حدث خطأ في تحميل البيانات",
+        "uploadSuccess": "تم رفع الورق المروس بنجاح",
+        "uploadError": "حدث خطأ أثناء الرفع",
+        "dbSaveError": "فشل حفظ الرابط في قاعدة البيانات",
+        "updateSettingsError": "حدث خطأ أثناء تحديث الإعدادات",
+        "saveSuccess": "تم إنشاء الخطاب بنجاح: {number}",
+        "updateSuccess": "تم تحديث الخطاب بنجاح",
+        "deleteConfirm": "هل أنت متأكد من حذف هذا الخطاب؟",
+        "deleteSuccess": "تم حذف الخطاب بنجاح",
+        "emailSendSuccess": "تم إرسال الخطاب بنجاح إلى {email}",
+        "emailSendError": "حدث خطأ أثناء إرسال البريد",
+        "invalidEmail": "البريد الإلكتروني غير صحيح",
+        "enterEmail": "يرجى إدخال البريد الإلكتروني"
+      }
     }
   }
 }

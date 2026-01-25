@@ -1759,6 +1759,128 @@
           "saveSuccess": "Revenue recorded successfully"
         }
       }
+    },
+    "officialLettersPage": {
+      "title": "Official Ready-made Letters",
+      "subtitle": "Create and manage official letters and acknowledgements",
+      "paperSettings": "Paper Settings",
+      "newLetterTitle": "Create New Letter",
+      "fieldsToFill": "{count} Fields to Fill",
+      "searchPlaceholder": "Search letters...",
+      "createdLettersTitle": "Created Letters ({count})",
+      "noLetters": "No Letters Found",
+      "noLettersDesc": "Start by creating a new letter from the templates above",
+      "status": {
+        "active": "Active",
+        "cancelled": "Cancelled",
+        "draft": "Draft"
+      },
+      "date": "Date",
+      "actions": {
+        "preview": "Preview",
+        "sendEmail": "Send Email",
+        "edit": "Edit",
+        "delete": "Delete"
+      },
+      "templates": {
+        "salary_receipt": "Salary Receipt Acknowledgement",
+        "work_receipt": "Work Receipt Acknowledgement",
+        "custody_receipt": "Custody Receipt Acknowledgement",
+        "resignation_letter": "Electronic Resignation Letter",
+        "final_clearance": "Final Clearance and Rights Receipt"
+      },
+      "settings": {
+        "title": "Letterhead Settings",
+        "letterheadLabel": "Letterhead (Image or PDF)",
+        "pdfSuccess": "PDF file uploaded successfully",
+        "pdfNotice": "Prefer using images for best preview quality",
+        "changeFile": "Change File",
+        "dragDrop": "Drag file here or click to upload",
+        "topMargin": "Top Margin (Header)",
+        "bottomMargin": "Bottom Margin (Footer)",
+        "previewMargins": "Margin Adjustment Preview",
+        "safeZone": "Safe Text Area",
+        "saveSettings": "Save Settings",
+        "noFileUploaded": "No file uploaded"
+      },
+      "form": {
+        "editTitle": "Edit Letter",
+        "createTitle": "Create {template}",
+        "saveChanges": "Save Changes",
+        "createLetter": "Create Letter",
+        "cancel": "Cancel",
+        "placeholderPrefix": "Enter {label}"
+      },
+      "preview": {
+        "title": "Letter Preview - {number}",
+        "print": "Print",
+        "downloadPdf": "Download PDF"
+      },
+      "email": {
+        "title": "Send Letter by Email",
+        "letterType": "Letter Type",
+        "letterNumber": "Letter Number",
+        "sendToCompany": "Send to Company Email",
+        "noCompanyEmail": "No company email registered",
+        "or": "OR",
+        "sendToOther": "Send to Another Email",
+        "emailPlaceholder": "Enter email address...",
+        "sendingStatus": "Preparing and sending letter..."
+      },
+      "placeholders": {
+        "employee_name": "Employee Name",
+        "id_number": "ID / Residency Number",
+        "company_name": "Company Name",
+        "commercial_number": "Commercial Registry Number",
+        "start_date": "Start Date",
+        "job_title": "Job Title",
+        "profession": "Profession",
+        "nationality": "Nationality",
+        "resignation_day": "Resignation Day",
+        "resignation_date": "Resignation Date",
+        "resignation_reason": "Resignation Reason",
+        "receipt_date": "Receipt Date",
+        "item": "Item {n}",
+        "qty": "Quantity {n}",
+        "value": "Value {n}",
+        "status": "Status {n}",
+        "notes": "Notes {n}",
+        "total_value": "Total Value",
+        "service_days": "Service Days",
+        "service_months": "Service Months",
+        "service_years": "Service Years",
+        "end_date": "End Date",
+        "basic_salary": "Basic Salary",
+        "housing_allowance": "Housing Allowance",
+        "transport_allowance": "Transport Allowance",
+        "end_service_bonus": "End of Service Bonus",
+        "vacation_balance": "Vacation Balance",
+        "total_amount": "Total Entitlements",
+        "payroll_period": "Payroll Period",
+        "period_from": "Period From",
+        "period_to": "Period To",
+        "total_amount_text": "Amount in Words",
+        "bank_name": "Bank Name",
+        "account_number": "Account Number",
+        "transfer_date": "Transfer Date",
+        "due_date": "Due Date",
+        "actual_receipt_date": "Actual Receipt Date"
+      },
+      "messages": {
+        "fetchError": "Error loading data",
+        "uploadSuccess": "Letterhead uploaded successfully",
+        "uploadError": "Error during upload",
+        "dbSaveError": "Failed to save link to database",
+        "updateSettingsError": "Error updating settings",
+        "saveSuccess": "Letter created successfully: {number}",
+        "updateSuccess": "Letter updated successfully",
+        "deleteConfirm": "Are you sure you want to delete this letter?",
+        "deleteSuccess": "Letter deleted successfully",
+        "emailSendSuccess": "Letter sent successfully to {email}",
+        "emailSendError": "Error sending email",
+        "invalidEmail": "Invalid email address",
+        "enterEmail": "Please enter an email address"
+      }
     }
   }
 }

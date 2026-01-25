@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import React, { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   FileText, Plus, Search, Edit2, Trash2, Printer, Download,
@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import * as pdfjsLib from "pdfjs-dist";
+import { useTranslations, useLocale } from "next-intl";
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjsLib.version}/build/pdf.worker.min.mjs`;
 
@@ -178,6 +179,8 @@ const convertAmountToWords = (amount: number): string => {
 };
 
 export default function LettersClient() {
+  const t = useTranslations("officialLettersPage");
+  const locale = useLocale();
   const [templates, setTemplates] = useState<LetterTemplate[]>([]);
   const [letters, setLetters] = useState<GeneratedLetter[]>([]);
   const [loading, setLoading] = useState(true);
@@ -203,6 +206,39 @@ export default function LettersClient() {
   const [emailLetter, setEmailLetter] = useState<GeneratedLetter | null>(null);
   const [customEmail, setCustomEmail] = useState("");
   const [isSendingEmail, setIsSendingEmail] = useState(false);
+
+  const placeholderLabels = useMemo(() => ({
+    employee_name: t("placeholders.employee_name"),
+    id_number: t("placeholders.id_number"),
+    company_name: t("placeholders.company_name"),
+    commercial_number: t("placeholders.commercial_number"),
+    start_date: t("placeholders.start_date"),
+    job_title: t("placeholders.job_title"),
+    profession: t("placeholders.profession"),
+    nationality: t("placeholders.nationality"),
+    resignation_day: t("placeholders.resignation_day"),
+    resignation_date: t("placeholders.resignation_date"),
+    resignation_reason: t("placeholders.resignation_reason"),
+    receipt_date: t("placeholders.receipt_date"),
+    item_1: t("placeholders.item", { n: 1 }), qty_1: t("placeholders.qty", { n: 1 }), value_1: t("placeholders.value", { n: 1 }), status_1: t("placeholders.status", { n: 1 }), notes_1: t("placeholders.notes", { n: 1 }),
+    item_2: t("placeholders.item", { n: 2 }), qty_2: t("placeholders.qty", { n: 2 }), value_2: t("placeholders.value", { n: 2 }), status_2: t("placeholders.status", { n: 2 }), notes_2: t("placeholders.notes", { n: 2 }),
+    item_3: t("placeholders.item", { n: 3 }), qty_3: t("placeholders.qty", { n: 3 }), value_3: t("placeholders.value", { n: 3 }), status_3: t("placeholders.status", { n: 3 }), notes_3: t("placeholders.notes", { n: 3 }),
+    item_4: t("placeholders.item", { n: 4 }), qty_4: t("placeholders.qty", { n: 4 }), value_4: t("placeholders.value", { n: 4 }), status_4: t("placeholders.status", { n: 4 }), notes_4: t("placeholders.notes", { n: 4 }),
+    total_value: t("placeholders.total_value"),
+    service_days: t("placeholders.service_days"), service_months: t("placeholders.service_months"), service_years: t("placeholders.service_years"),
+    end_date: t("placeholders.end_date"),
+    basic_salary: t("placeholders.basic_salary"), housing_allowance: t("placeholders.housing_allowance"), transport_allowance: t("placeholders.transport_allowance"),
+    end_service_bonus: t("placeholders.end_service_bonus"), vacation_balance: t("placeholders.vacation_balance"), total_amount: t("placeholders.total_amount"),
+    payroll_period: t("placeholders.payroll_period"),
+    period_from: t("placeholders.period_from"),
+    period_to: t("placeholders.period_to"),
+    total_amount_text: t("placeholders.total_amount_text"),
+    bank_name: t("placeholders.bank_name"),
+    account_number: t("placeholders.account_number"),
+    transfer_date: t("placeholders.transfer_date"),
+    due_date: t("placeholders.due_date"),
+    actual_receipt_date: t("placeholders.actual_receipt_date"),
+  }), [t]);
 
   const renderPdfToCanvas = useCallback(async (pdfUrl: string, canvas: HTMLCanvasElement | null) => {
     if (!canvas || !pdfUrl) return;
@@ -274,7 +310,7 @@ export default function LettersClient() {
       }
     } catch (error) {
       console.error("Error fetching data:", error);
-      toast.error("حدث خطأ في تحميل البيانات");
+      toast.error(t("messages.fetchError"));
     } finally {
       setLoading(false);
     }
@@ -293,17 +329,17 @@ export default function LettersClient() {
         if (data.url) {
           const success = await updateCompanySettings({ letterhead_path: data.url });
           if (success) {
-            toast.success("تم رفع الورق المروس بنجاح");
+            toast.success(t("messages.uploadSuccess"));
             fetchData();
           } else {
-            toast.error("فشل حفظ الرابط في قاعدة البيانات");
+            toast.error(t("messages.dbSaveError"));
           }
         } else {
-          toast.error(data.error || "فشل الرفع");
+          toast.error(data.error || t("messages.uploadError"));
         }
       } catch (error) {
         console.error("Upload error:", error);
-        toast.error("حدث خطأ أثناء الرفع");
+        toast.error(t("messages.uploadError"));
       } finally {
         setIsUploading(false);
       }
@@ -324,7 +360,7 @@ export default function LettersClient() {
 
     } catch (error) {
       console.error("Update settings error:", error);
-      toast.error("حدث خطأ أثناء تحديث الإعدادات");
+      toast.error(t("messages.updateSettingsError"));
     }
     return false;
   };
@@ -373,32 +409,32 @@ export default function LettersClient() {
       });
       const data = await res.json();
       if (data.success) {
-        toast.success(editingLetter ? "تم تحديث الخطاب بنجاح" : `تم إنشاء الخطاب بنجاح: ${data.letter_number}`);
+        toast.success(editingLetter ? t("messages.updateSuccess") : t("messages.saveSuccess", { number: data.letter_number }));
         fetchData();
         resetForm();
       } else {
-        toast.error(data.error || "حدث خطأ");
+        toast.error(data.error || t("common.error"));
       }
     } catch (error) {
       console.error("Error saving letter:", error);
-      toast.error("حدث خطأ في حفظ الخطاب");
+      toast.error(t("common.error"));
     }
   };
 
   const handleDelete = async (id: number) => {
-    if (!confirm("هل أنت متأكد من حذف هذا الخطاب؟")) return;
+    if (!confirm(t("messages.deleteConfirm"))) return;
     try {
       const res = await fetch(`/api/letters?id=${id}`, { method: "DELETE" });
       const data = await res.json();
       if (data.success) {
-        toast.success("تم حذف الخطاب بنجاح");
+        toast.success(t("messages.deleteSuccess"));
         fetchData();
       } else {
-        toast.error(data.error || "حدث خطأ");
+        toast.error(data.error || t("common.error"));
       }
     } catch (error) {
       console.error("Error deleting letter:", error);
-      toast.error("حدث خطأ في حذف الخطاب");
+      toast.error(t("common.error"));
     }
   };
 
@@ -631,13 +667,13 @@ export default function LettersClient() {
     const recipientEmail = toCompanyEmail ? companyInfo?.email : customEmail;
     
     if (!recipientEmail) {
-      toast.error(toCompanyEmail ? "لا يوجد بريد إلكتروني مسجل للشركة" : "يرجى إدخال البريد الإلكتروني");
+      toast.error(toCompanyEmail ? t("email.noCompanyEmail") : t("messages.enterEmail"));
       return;
     }
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(recipientEmail)) {
-      toast.error("البريد الإلكتروني غير صحيح");
+      toast.error(t("messages.invalidEmail"));
       return;
     }
 
@@ -652,7 +688,7 @@ export default function LettersClient() {
         body: JSON.stringify({
           recipientEmail,
           letterNumber: emailLetter.letter_number,
-          letterType: emailLetter.template_name_ar,
+          letterType: t(`templates.${emailLetter.template_key}`),
           pdfBase64
         })
       });
@@ -660,16 +696,16 @@ export default function LettersClient() {
       const data = await res.json();
       
       if (data.success) {
-        toast.success(`تم إرسال الخطاب بنجاح إلى ${recipientEmail}`);
+        toast.success(t("messages.emailSendSuccess", { email: recipientEmail }));
         setShowEmailModal(false);
         setEmailLetter(null);
         setCustomEmail("");
       } else {
-        toast.error(data.error || "فشل إرسال البريد");
+        toast.error(data.error || t("messages.emailSendError"));
       }
     } catch (error) {
       console.error("Error sending email:", error);
-      toast.error("حدث خطأ أثناء إرسال البريد");
+      toast.error(t("messages.emailSendError"));
     } finally {
       setIsSendingEmail(false);
     }
@@ -677,8 +713,9 @@ export default function LettersClient() {
 
     const filteredLetters = letters.filter(letter =>
     letter.letter_number.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    letter.template_name_ar.includes(searchTerm)
+    t(`templates.${letter.template_key}`).includes(searchTerm)
   );
+
 
   const getPlaceholders = (template: LetterTemplate): string[] => {
     return typeof template.placeholders === 'string' ? JSON.parse(template.placeholders) : template.placeholders;
@@ -693,7 +730,7 @@ export default function LettersClient() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-blue-900 p-4 md:p-8" dir="rtl">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-blue-900 p-4 md:p-8" dir={locale === 'ar' ? 'rtl' : 'ltr'}>
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <motion.div
@@ -702,25 +739,25 @@ export default function LettersClient() {
           className="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-3xl p-8 mb-8 shadow-2xl"
         >
           <div className="flex flex-col md:flex-row justify-between items-center gap-6">
-            <div className="text-center md:text-right">
+            <div className={`text-center ${locale === 'ar' ? 'md:text-right' : 'md:text-left'}`}>
               <h1 className="text-3xl md:text-4xl font-bold text-white mb-2 flex items-center gap-3">
                 <FileText className="w-10 h-10" />
-                الخطابات الرسمية الجاهزة
+                {t("title")}
               </h1>
-              <p className="text-blue-100">إنشاء وإدارة الخطابات والإقرارات الرسمية</p>
+              <p className="text-blue-100">{t("subtitle")}</p>
             </div>
             <div className="flex items-center gap-3">
               <button
                 onClick={() => setShowSettings(true)}
                 className="bg-white/10 hover:bg-white/20 backdrop-blur-sm rounded-xl p-3 text-white transition-all flex items-center gap-2 border border-white/20"
-                title="إعدادات الورق المروس"
+                title={t("paperSettings")}
               >
                 <Settings className="w-5 h-5" />
-                <span className="hidden sm:inline">إعدادات الورق</span>
+                <span className="hidden sm:inline">{t("paperSettings")}</span>
               </button>
               {companyInfo && (
                 <div className="bg-white/20 backdrop-blur-sm rounded-xl px-4 py-2 text-white border border-white/10">
-                  <Building2 className="w-5 h-5 inline-block ml-2" />
+                  <Building2 className={`w-5 h-5 inline-block ${locale === 'ar' ? 'ml-2' : 'mr-2'}`} />
                   {companyInfo.name}
                 </div>
               )}
@@ -732,7 +769,7 @@ export default function LettersClient() {
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.1 }} className="mb-8">
           <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
             <Plus className="w-5 h-5 text-blue-400" />
-            إنشاء خطاب جديد
+            {t("newLetterTitle")}
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {templates.map((template) => {
@@ -744,14 +781,14 @@ export default function LettersClient() {
                   whileHover={{ scale: 1.02, y: -3 }}
                   whileTap={{ scale: 0.98 }}
                   onClick={() => openCreateForm(template)}
-                  className={`bg-gradient-to-br ${colorClass} p-6 rounded-2xl text-white text-right shadow-xl hover:shadow-2xl transition-all`}
+                  className={`bg-gradient-to-br ${colorClass} p-6 rounded-2xl text-white ${locale === 'ar' ? 'text-right' : 'text-left'} shadow-xl hover:shadow-2xl transition-all`}
                 >
                   <div className="flex items-start justify-between mb-3">
                     <div className="p-3 bg-white/20 rounded-xl"><Icon className="w-6 h-6" /></div>
-                    <ChevronLeft className="w-5 h-5 opacity-50" />
+                    {locale === 'ar' ? <ChevronLeft className="w-5 h-5 opacity-50" /> : <ChevronLeft className="w-5 h-5 opacity-50 rotate-180" />}
                   </div>
-                  <h3 className="font-bold text-lg mb-1">{template.template_name_ar}</h3>
-                  <p className="text-sm text-white/70">{getPlaceholders(template).length} حقل للتعبئة</p>
+                  <h3 className="font-bold text-lg mb-1">{t(`templates.${template.template_key}`)}</h3>
+                  <p className="text-sm text-white/70">{t("fieldsToFill", { count: getPlaceholders(template).length })}</p>
                 </motion.button>
               );
             })}
@@ -761,13 +798,13 @@ export default function LettersClient() {
         {/* Search */}
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }} className="bg-white/10 backdrop-blur-xl rounded-2xl p-6 mb-6">
           <div className="relative">
-            <Search className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 w-5 h-5" />
+            <Search className={`absolute ${locale === 'ar' ? 'right-4' : 'left-4'} top-1/2 -translate-y-1/2 text-slate-400 w-5 h-5`} />
             <input
               type="text"
-              placeholder="بحث في الخطابات..."
+              placeholder={t("searchPlaceholder")}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full bg-white/10 border border-white/20 rounded-xl py-3 pr-12 pl-4 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className={`w-full bg-white/10 border border-white/20 rounded-xl py-3 ${locale === 'ar' ? 'pr-12 pl-4' : 'pl-12 pr-4'} text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500`}
             />
           </div>
         </motion.div>
@@ -776,13 +813,13 @@ export default function LettersClient() {
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }}>
           <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
             <FileText className="w-5 h-5 text-blue-400" />
-            الخطابات المنشأة ({filteredLetters.length})
+            {t("createdLettersTitle", { count: filteredLetters.length })}
           </h2>
           {filteredLetters.length === 0 ? (
             <div className="bg-white/10 backdrop-blur-xl rounded-2xl p-12 text-center">
               <FileText className="w-16 h-16 text-slate-400 mx-auto mb-4" />
-              <h3 className="text-xl text-white mb-2">لا توجد خطابات</h3>
-              <p className="text-slate-400">ابدأ بإنشاء خطاب جديد من القوالب أعلاه</p>
+              <h3 className="text-xl text-white mb-2">{t("noLetters")}</h3>
+              <p className="text-slate-400">{t("noLettersDesc")}</p>
             </div>
           ) : (
             <div className="grid gap-4">
@@ -798,18 +835,18 @@ export default function LettersClient() {
                           <div className="flex items-center gap-3 mb-1">
                             <span className="bg-blue-500/20 text-blue-400 px-3 py-1 rounded-lg text-sm font-bold">{letter.letter_number}</span>
                             <span className={`px-3 py-1 rounded-lg text-sm font-bold ${letter.status === 'active' ? 'bg-green-500/20 text-green-400' : letter.status === 'cancelled' ? 'bg-red-500/20 text-red-400' : 'bg-yellow-500/20 text-yellow-400'}`}>
-                              {letter.status === 'active' ? 'نشط' : letter.status === 'cancelled' ? 'ملغي' : 'مسودة'}
+                              {t(`status.${letter.status}`)}
                             </span>
                           </div>
-                          <h3 className="text-lg font-bold text-white">{letter.template_name_ar}</h3>
-                          <p className="text-slate-400 text-sm flex items-center gap-2"><Calendar className="w-4 h-4" />{new Date(letter.created_at).toLocaleDateString( 'en-US' )}</p>
+                          <h3 className="text-lg font-bold text-white">{t(`templates.${letter.template_key}`)}</h3>
+                          <p className="text-slate-400 text-sm flex items-center gap-2"><Calendar className="w-4 h-4" />{new Date(letter.created_at).toLocaleDateString(locale === 'ar' ? 'ar-SA' : 'en-US')}</p>
                         </div>
                       </div>
                       <div className="flex items-center gap-2">
-                          <button onClick={() => openPreview(letter)} className="p-2 bg-blue-500/20 text-blue-400 rounded-lg hover:bg-blue-500/30 transition-all" title="معاينة"><Eye className="w-5 h-5" /></button>
-                          <button onClick={() => openEmailModal(letter)} className="p-2 bg-emerald-500/20 text-emerald-400 rounded-lg hover:bg-emerald-500/30 transition-all" title="إرسال بالبريد"><Send className="w-5 h-5" /></button>
-                          <button onClick={() => openEditForm(letter)} className="p-2 bg-yellow-500/20 text-yellow-400 rounded-lg hover:bg-yellow-500/30 transition-all" title="تعديل"><Edit2 className="w-5 h-5" /></button>
-                          <button onClick={() => handleDelete(letter.id)} className="p-2 bg-red-500/20 text-red-400 rounded-lg hover:bg-red-500/30 transition-all" title="حذف"><Trash2 className="w-5 h-5" /></button>
+                          <button onClick={() => openPreview(letter)} className="p-2 bg-blue-500/20 text-blue-400 rounded-lg hover:bg-blue-500/30 transition-all" title={t("actions.preview")}><Eye className="w-5 h-5" /></button>
+                          <button onClick={() => openEmailModal(letter)} className="p-2 bg-emerald-500/20 text-emerald-400 rounded-lg hover:bg-emerald-500/30 transition-all" title={t("actions.sendEmail")}><Send className="w-5 h-5" /></button>
+                          <button onClick={() => openEditForm(letter)} className="p-2 bg-yellow-500/20 text-yellow-400 rounded-lg hover:bg-yellow-500/30 transition-all" title={t("actions.edit")}><Edit2 className="w-5 h-5" /></button>
+                          <button onClick={() => handleDelete(letter.id)} className="p-2 bg-red-500/20 text-red-400 rounded-lg hover:bg-red-500/30 transition-all" title={t("actions.delete")}><Trash2 className="w-5 h-5" /></button>
                         </div>
                     </div>
                   </motion.div>
@@ -825,12 +862,12 @@ export default function LettersClient() {
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={(e) => e.target === e.currentTarget && setShowSettings(false)}>
               <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.9, opacity: 0 }} className="bg-slate-800 rounded-2xl p-6 w-full max-w-lg shadow-2xl border border-white/10">
                 <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-2xl font-bold text-white flex items-center gap-2"><Settings className="w-6 h-6 text-blue-500" /> إعدادات الورق المروس</h2>
+                  <h2 className="text-2xl font-bold text-white flex items-center gap-2"><Settings className="w-6 h-6 text-blue-500" /> {t("settings.title")}</h2>
                   <button onClick={() => setShowSettings(false)} className="text-slate-400 hover:text-white"><X className="w-6 h-6" /></button>
                 </div>
                 <div className="space-y-6">
                     <div className="bg-slate-700/50 p-6 rounded-xl border border-slate-600">
-                      <label className="block text-white font-bold mb-4 flex items-center gap-2"><Upload className="w-5 h-5 text-blue-400" /> الورق المروس (Image or PDF)</label>
+                      <label className="block text-white font-bold mb-4 flex items-center gap-2"><Upload className="w-5 h-5 text-blue-400" /> {t("settings.letterheadLabel")}</label>
                       <div className="relative group">
                         <input type="file" accept="image/*,.pdf" onChange={handleFileUpload} className="hidden" id="letterhead-upload" />
                         <label htmlFor="letterhead-upload" className="cursor-pointer block border-2 border-dashed border-slate-500 hover:border-blue-500 rounded-xl p-8 text-center transition-all bg-slate-800/50">
@@ -840,18 +877,18 @@ export default function LettersClient() {
                                 {companyInfo.letterhead_path.toLowerCase().endsWith('.pdf') ? (
                                   <div className="flex flex-col items-center gap-2">
                                     <FileText className="w-20 h-20 text-red-500" />
-                                    <span className="text-white text-sm">تم رفع ملف PDF بنجاح</span>
-                                    <span className="text-slate-400 text-xs">(ملاحظة: يفضل استخدام الصور لضمان أفضل جودة في المعاينة)</span>
+                                    <span className="text-white text-sm">{t("settings.pdfSuccess")}</span>
+                                    <span className="text-slate-400 text-xs">{t("settings.pdfNotice")}</span>
                                   </div>
                                 ) : (
                                   <img src={companyInfo.letterhead_path} alt="Letterhead" className="max-h-40 mx-auto rounded shadow-lg" />
                                 )}
                                 <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity rounded">
-                                  <span className="text-white text-sm">تغيير الملف</span>
+                                  <span className="text-white text-sm">{t("settings.changeFile")}</span>
                                 </div>
                               </div>
                             ) : (
-                              <div className="text-slate-400"><Upload className="w-12 h-12 mx-auto mb-2 opacity-20" /><p>اسحب الملف هنا أو اضغط للرفع</p></div>
+                              <div className="text-slate-400"><Upload className="w-12 h-12 mx-auto mb-2 opacity-20" /><p>{t("settings.dragDrop")}</p></div>
                             )
                           }
                         </label>
@@ -861,7 +898,7 @@ export default function LettersClient() {
                       <div className="space-y-4">
                         <div className="bg-slate-700/50 p-4 rounded-xl border border-slate-600">
                           <div className="flex justify-between items-center mb-4">
-                            <label className="text-white font-bold flex items-center gap-2"><MoveVertical className="w-5 h-5 text-blue-400" /> الهامش العلوي (Header)</label>
+                            <label className="text-white font-bold flex items-center gap-2"><MoveVertical className="w-5 h-5 text-blue-400" /> {t("settings.topMargin")}</label>
                             <span className="bg-blue-500 text-white px-2 py-1 rounded text-sm">{margins.top}px</span>
                           </div>
                           <input 
@@ -879,7 +916,7 @@ export default function LettersClient() {
                         </div>
                         <div className="bg-slate-700/50 p-4 rounded-xl border border-slate-600">
                           <div className="flex justify-between items-center mb-4">
-                            <label className="text-white font-bold flex items-center gap-2"><MoveVertical className="w-5 h-5 text-blue-400" /> الهامش السفلي (Footer)</label>
+                            <label className="text-white font-bold flex items-center gap-2"><MoveVertical className="w-5 h-5 text-blue-400" /> {t("settings.bottomMargin")}</label>
                             <span className="bg-blue-500 text-white px-2 py-1 rounded text-sm">{margins.bottom}px</span>
                           </div>
                           <input 
@@ -899,7 +936,7 @@ export default function LettersClient() {
 
                         {/* Visual Margin Preview with Full Letterhead */}
                         <div className="bg-slate-900/50 rounded-xl p-4">
-                          <p className="text-center text-slate-400 text-sm mb-3">معاينة ضبط الهوامش على الورقة</p>
+                          <p className="text-center text-slate-400 text-sm mb-3">{t("settings.previewMargins")}</p>
                           <div className="flex justify-center">
                             <div 
                               className="relative bg-white border-2 border-slate-500 overflow-hidden shadow-2xl"
@@ -915,7 +952,7 @@ export default function LettersClient() {
                                     {!pdfRendered && (
                                       <div className="absolute inset-0 flex flex-col items-center justify-center bg-gradient-to-b from-slate-100 to-slate-200">
                                         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mb-2"></div>
-                                        <span className="text-[9px] text-slate-500">جاري تحميل PDF...</span>
+                                        <span className="text-[9px] text-slate-500">Loading PDF...</span>
                                       </div>
                                     )}
                                   </div>
@@ -923,13 +960,13 @@ export default function LettersClient() {
                                   <img 
                                     src={companyInfo.letterhead_path} 
                                     className="absolute inset-0 w-full h-full object-cover" 
-                                    alt="الورق المروس" 
+                                    alt="Letterhead" 
                                   />
                                 )
                               ) : (
                                 <div className="absolute inset-0 flex flex-col items-center justify-center bg-slate-100 text-slate-400">
                                   <Upload className="w-10 h-10 mb-2 opacity-30" />
-                                  <span className="text-[9px]">لم يتم رفع ورقة</span>
+                                  <span className="text-[9px]">{t("settings.noFileUploaded")}</span>
                                 </div>
                               )}
                               
@@ -961,7 +998,7 @@ export default function LettersClient() {
                                   bottom: `${(margins.bottom / 1122) * 283}px`
                                 }}
                               >
-                                <span className="text-[7px] text-green-600 font-bold bg-white/80 px-1 rounded">منطقة النص الآمنة</span>
+                                <span className="text-[7px] text-green-600 font-bold bg-white/80 px-1 rounded">{t("settings.safeZone")}</span>
                               </div>
                             </div>
                           </div>
@@ -976,7 +1013,7 @@ export default function LettersClient() {
                             });
                             if (success) {
                               setHasUnsavedMargins(false);
-                              toast.success("تم حفظ إعدادات الهوامش");
+                              toast.success(t("messages.updateSuccess"));
                             }
                           }}
                           disabled={!hasUnsavedMargins}
@@ -987,7 +1024,7 @@ export default function LettersClient() {
                           }`}
                         >
                           <Check className="w-5 h-5" />
-                          حفظ الضبط
+                          {t("settings.saveSettings")}
                         </button>
                       </div>
                     </div>
@@ -1003,19 +1040,34 @@ export default function LettersClient() {
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={(e) => e.target === e.currentTarget && resetForm()}>
               <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.9, opacity: 0 }} className="bg-slate-800 rounded-2xl p-6 w-full max-w-3xl max-h-[90vh] overflow-y-auto">
                 <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-2xl font-bold text-white flex items-center gap-2"><FileText className="w-6 h-6 text-blue-500" /> {editingLetter ? "تعديل الخطاب" : `إنشاء ${selectedTemplate.template_name_ar}`}</h2>
+                  <h2 className="text-2xl font-bold text-white flex items-center gap-2"><FileText className="w-6 h-6 text-blue-500" /> {editingLetter ? t("form.editTitle") : t("form.createTitle", { template: t(`templates.${selectedTemplate.template_key}`) })}</h2>
                   <button onClick={resetForm} className="text-slate-400 hover:text-white"><X className="w-6 h-6" /></button>
                 </div>
                 <form onSubmit={handleSubmit} className="space-y-4">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {getPlaceholders(selectedTemplate).map((placeholder) => (
                       <div key={placeholder}>
-                        <label className="block text-slate-300 mb-2 text-sm font-medium">{placeholderLabels[placeholder] || placeholder}</label>
-                        <input type={placeholder.includes("date") ? "date" : "text"} value={formData[placeholder] || ""} onChange={(e) => setFormData({ ...formData, [placeholder]: e.target.value })} readOnly={placeholder === "total_amount" || placeholder === "total_amount_text"} className={`w-full bg-slate-700 border border-slate-600 rounded-xl py-3 px-4 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 ${(placeholder === "total_amount" || placeholder === "total_amount_text") ? "opacity-75 cursor-not-allowed bg-slate-800" : ""}`} placeholder={`أدخل ${placeholderLabels[placeholder] || placeholder}`} />
+                        <label className="block text-slate-300 mb-2 text-sm font-medium">{placeholderLabels[placeholder as keyof typeof placeholderLabels] || placeholder}</label>
+                        <input 
+                          type={placeholder.includes("date") ? "date" : "text"} 
+                          value={formData[placeholder] || ""} 
+                          onChange={(e) => setFormData({ ...formData, [placeholder]: e.target.value })} 
+                          readOnly={placeholder === "total_amount" || placeholder === "total_amount_text"} 
+                          className={`w-full bg-slate-700 border border-slate-600 rounded-xl py-3 px-4 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 ${(placeholder === "total_amount" || placeholder === "total_amount_text") ? "opacity-75 cursor-not-allowed bg-slate-800" : ""}`} 
+                          placeholder={t("form.placeholderPrefix", { label: placeholderLabels[placeholder as keyof typeof placeholderLabels] || placeholder })} 
+                        />
                       </div>
                     ))}
                   </div>
-                  <div className="flex gap-3 pt-4"><button type="submit" className="flex-1 bg-blue-500 hover:bg-blue-600 text-white py-3 rounded-xl font-bold transition-all flex items-center justify-center gap-2"><Check className="w-5 h-5" /> {editingLetter ? "حفظ التعديلات" : "إنشاء الخطاب"}</button><button type="button" onClick={resetForm} className="px-6 bg-slate-600 hover:bg-slate-500 text-white py-3 rounded-xl font-bold transition-all">إلغاء</button></div>
+                  <div className="flex gap-3 pt-4">
+                    <button type="submit" className="flex-1 bg-blue-500 hover:bg-blue-600 text-white py-3 rounded-xl font-bold transition-all flex items-center justify-center gap-2">
+                      <Check className="w-5 h-5" /> 
+                      {editingLetter ? t("form.saveChanges") : t("form.createLetter")}
+                    </button>
+                    <button type="button" onClick={resetForm} className="px-6 bg-slate-600 hover:bg-slate-500 text-white py-3 rounded-xl font-bold transition-all">
+                      {t("form.cancel")}
+                    </button>
+                  </div>
                 </form>
               </motion.div>
             </motion.div>
@@ -1028,10 +1080,10 @@ export default function LettersClient() {
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={(e) => e.target === e.currentTarget && setShowPreview(false)}>
               <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.9, opacity: 0 }} className="bg-white rounded-2xl w-full max-w-4xl max-h-[95vh] overflow-hidden flex flex-col">
                 <div className="bg-slate-800 p-4 flex items-center justify-between">
-                  <h2 className="text-xl font-bold text-white">معاينة الخطاب - {previewLetter.letter_number}</h2>
+                  <h2 className="text-xl font-bold text-white">{t("preview.title", { number: previewLetter.letter_number })}</h2>
                   <div className="flex items-center gap-2">
-                    <button onClick={handlePrint} className="flex items-center gap-2 bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-all"><Printer className="w-5 h-5" /> طباعة</button>
-                    <button onClick={handlePrint} className="flex items-center gap-2 bg-emerald-500 hover:bg-emerald-600 text-white px-4 py-2 rounded-lg transition-all"><Download className="w-5 h-5" /> تحميل PDF</button>
+                    <button onClick={handlePrint} className="flex items-center gap-2 bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-all"><Printer className="w-5 h-5" /> {t("preview.print")}</button>
+                    <button onClick={handlePrint} className="flex items-center gap-2 bg-emerald-500 hover:bg-emerald-600 text-white px-4 py-2 rounded-lg transition-all"><Download className="w-5 h-5" /> {t("preview.downloadPdf")}</button>
                     <button onClick={() => setShowPreview(false)} className="text-slate-400 hover:text-white p-2"><X className="w-6 h-6" /></button>
                   </div>
                 </div>
@@ -1064,7 +1116,7 @@ export default function LettersClient() {
                         )}
                         <div 
                           ref={printRef}
-                          className="absolute left-[50px] right-[50px] z-10 overflow-hidden"
+                          className={`absolute ${locale === 'ar' ? 'right-[50px] left-[50px]' : 'left-[50px] right-[50px]'} z-10 overflow-hidden`}
                           style={{ 
                             top: `${margins.top}px`,
                             bottom: `${margins.bottom}px`
@@ -1103,7 +1155,7 @@ export default function LettersClient() {
                       <div className="p-3 bg-emerald-500/20 rounded-xl">
                         <Send className="w-6 h-6 text-emerald-400" />
                       </div>
-                      إرسال الخطاب بالبريد
+                      {t("email.title")}
                     </h2>
                     <button 
                       onClick={() => !isSendingEmail && setShowEmailModal(false)} 
@@ -1120,7 +1172,7 @@ export default function LettersClient() {
                         <FileText className="w-5 h-5 text-blue-400" />
                       </div>
                       <div>
-                        <p className="text-white font-bold">{emailLetter.template_name_ar}</p>
+                        <p className="text-white font-bold">{t(`templates.${emailLetter.template_key}`)}</p>
                         <p className="text-slate-400 text-sm">{emailLetter.letter_number}</p>
                       </div>
                     </div>
@@ -1143,13 +1195,13 @@ export default function LettersClient() {
                           <Building2 className="w-6 h-6 text-emerald-400" />
                         )}
                       </div>
-                      <div className="text-right flex-1">
-                        <p className="text-white font-bold text-lg">إرسال لبريد الشركة</p>
+                      <div className={`${locale === 'ar' ? 'text-right' : 'text-left'} flex-1`}>
+                        <p className="text-white font-bold text-lg">{t("email.sendToCompany")}</p>
                         <p className="text-slate-400 text-sm">
-                          {companyInfo?.email || "لا يوجد بريد مسجل للشركة"}
+                          {companyInfo?.email || t("email.noCompanyEmail")}
                         </p>
                       </div>
-                      <Send className="w-5 h-5 text-emerald-400" />
+                      <Send className={`w-5 h-5 text-emerald-400 ${locale === 'ar' ? '' : 'rotate-180'}`} />
                     </button>
 
                     <div className="relative">
@@ -1157,7 +1209,7 @@ export default function LettersClient() {
                         <div className="w-full border-t border-slate-600"></div>
                       </div>
                       <div className="relative flex justify-center">
-                        <span className="bg-slate-800 px-4 text-slate-400 text-sm">أو</span>
+                        <span className="bg-slate-800 px-4 text-slate-400 text-sm">{t("email.or")}</span>
                       </div>
                     </div>
 
@@ -1166,12 +1218,12 @@ export default function LettersClient() {
                         <div className="p-2 bg-blue-500/20 rounded-lg">
                           <AtSign className="w-5 h-5 text-blue-400" />
                         </div>
-                        <p className="text-white font-bold">إرسال لبريد آخر</p>
+                        <p className="text-white font-bold">{t("email.sendToOther")}</p>
                       </div>
                       <div className="flex gap-3">
                         <input
                           type="email"
-                          placeholder="أدخل البريد الإلكتروني..."
+                          placeholder={t("email.emailPlaceholder")}
                           value={customEmail}
                           onChange={(e) => setCustomEmail(e.target.value)}
                           disabled={isSendingEmail}
@@ -1190,7 +1242,7 @@ export default function LettersClient() {
                           {isSendingEmail ? (
                             <Loader2 className="w-5 h-5 animate-spin" />
                           ) : (
-                            <Send className="w-5 h-5" />
+                            <Send className={`w-5 h-5 ${locale === 'ar' ? '' : 'rotate-180'}`} />
                           )}
                         </button>
                       </div>
@@ -1200,7 +1252,7 @@ export default function LettersClient() {
                   {isSendingEmail && (
                     <div className="mt-6 bg-blue-500/10 border border-blue-500/30 rounded-xl p-4 flex items-center gap-3">
                       <Loader2 className="w-5 h-5 text-blue-400 animate-spin" />
-                      <p className="text-blue-400 text-sm">جاري تجهيز وإرسال الخطاب...</p>
+                      <p className="text-blue-400 text-sm">{t("email.sendingStatus")}</p>
                     </div>
                   )}
                 </motion.div>
@@ -1210,4 +1262,5 @@ export default function LettersClient() {
         </div>
       </div>
     );
-  }
+}
+
