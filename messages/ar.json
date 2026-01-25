@@ -1777,66 +1777,187 @@
             "saveSuccess": "تم تسجيل الإيراد بنجاح"
           }
         },
-        "salaryPayrollsPage": {
-          "title": "مسيرات الرواتب الشهرية",
-          "description": "إدارة وتتبع مسيرات رواتب الموظفين والمستحقات الشهرية والعمولات بنظام واحد.",
-          "stats": {
-            "total": "إجمالي المسيرات",
-            "sar": "ر.س",
-            "confirmed": "معتمدة",
-            "draft": "مسودة"
-          },
-          "createNew": "إنشاء مسير جديد",
-          "searchPlaceholder": "بحث بالباقة، الشهر أو الحالة...",
-          "table": {
-            "title": "سجل مسيرات الرواتب",
-            "count": "مسير مسجل",
-            "no": "الرقم",
-            "payrollMonth": "شهر المسير",
-            "package": "الباقة",
-            "employeesCount": "عدد الموظفين",
-            "totalSalaries": "إجمالي الرواتب",
-            "status": "الحالة",
-            "actions": "الإجراءات",
-            "employee": "موظف"
-          },
-          "workTypes": {
-            "target": "تارجت",
-            "salary": "راتب"
-          },
-          "statuses": {
-            "confirmed": "معتمد",
-            "draft": "مسودة"
-          },
-          "actions": {
-            "view": "عرض",
-            "edit": "تعديل",
-            "delete": "حذف"
-          },
-          "form": {
-            "title": "إنشاء مسير رواتب جديد",
-            "editTitle": "تعديل مسير الرواتب",
-            "basicInfo": "المعلومات الأساسية",
-            "payrollMonth": "شهر المسير",
-            "selectPackage": "اختر الباقة",
-            "employeesList": "قائمة الموظفين",
-            "salaryDetails": "تفاصيل الراتب",
-            "commissions": "العمولات",
-            "deductions": "الخصومات",
-            "netSalary": "صافي الراتب",
-            "savePayroll": "حفظ المسير",
-            "confirmPayroll": "اعتماد المسير",
-            "cancel": "إلغاء",
-            "confirmDelete": "هل أنت متأكد من حذف هذا المسير؟",
-            "deleteSuccess": "تم حذف المسير بنجاح",
-            "saveSuccess": "تم حفظ المسير بنجاح",
-            "notifications": {
-              "selectPackage": "يرجى اختيار الباقة",
-              "selectMonth": "يرجى اختيار شهر المسير",
-              "noEmployees": "لا يوجد موظفين في هذه الباقة"
+          "salaryPayrollsPage": {
+            "title": "مسيرات الرواتب الشهرية",
+            "description": "إدارة وتتبع مسيرات رواتب الموظفين والمستحقات الشهرية والعمولات بنظام واحد.",
+            "backToList": "العودة للقائمة",
+            "stats": {
+              "total": "إجمالي المسيرات",
+              "sar": "ر.س",
+              "confirmed": "معتمدة",
+              "draft": "مسودة"
+            },
+            "createNew": "إنشاء مسير جديد",
+            "searchPlaceholder": "بحث بالباقة، الشهر أو الحالة...",
+            "table": {
+              "title": "سجل مسيرات الرواتب",
+              "count": "مسير مسجل",
+              "no": "الرقم",
+              "payrollMonth": "شهر المسير",
+              "package": "الباقة",
+              "employeesCount": "عدد الموظفين",
+              "totalSalaries": "إجمالي الرواتب",
+              "status": "الحالة",
+              "actions": "الإجراءات",
+              "employee": "موظف"
+            },
+            "workTypes": {
+              "target": "تارجت",
+              "salary": "راتب"
+            },
+            "statuses": {
+              "confirmed": "معتمد",
+              "draft": "مسودة"
+            },
+            "actions": {
+              "view": "عرض",
+              "edit": "تعديل",
+              "delete": "حذف"
+            },
+            "viewPayroll": {
+              "title": "عرض تفاصيل مسير الرواتب",
+              "editPayroll": "تعديل المسير",
+              "printPayroll": "طباعة المسير",
+              "deletePayroll": "حذف المسير",
+              "printTitle": "مسير رواتب موظفين",
+              "payrollMonth": "شهر المسير",
+              "package": "الباقة",
+              "employeesCount": "عدد الموظفين",
+              "status": "الحالة",
+              "facilityInfo": "بيانات المنشأة",
+              "name": "اسم المنشأة",
+              "vatNumber": "الرقم الضريبي",
+              "address": "العنوان",
+              "payrollInfo": "بيانات المسير",
+              "createdBy": "أنشئ بواسطة",
+              "createdAt": "تاريخ الإنشاء",
+              "workSystem": "نظام العمل",
+              "salaryDetails": "تفاصيل الرواتب",
+              "columns": {
+                "no": "م",
+                "name": "اسم الموظف",
+                "iqama": "رقم الإقامة",
+                "code": "الكود",
+                "salary": "الراتب",
+                "target": "التارجت",
+                "orders": "الطلبات",
+                "targetDeduction": "خصم التارجت",
+                "bonus": "البونص",
+                "operatorDeduction": "خصم المشغل",
+                "internal": "داخلي",
+                "wallet": "المحفظة",
+                "reward": "مكافأة",
+                "netSalary": "صافي الراتب",
+                "paymentMethod": "طريقة الدفع"
+              }
+            },
+            "editPayroll": {
+              "title": "تعديل مسير الرواتب",
+              "back": "العودة",
+              "editEmployeesData": "تعديل بيانات الموظفين",
+              "employee": "موظف",
+              "columns": {
+                "no": "م",
+                "name": "اسم الموظف",
+                "iqama": "رقم الإقامة",
+                "code": "الكود",
+                "salary": "الراتب",
+                "target": "التارجت",
+                "orders": "الطلبات",
+                "targetDeduction": "خصم التارجت",
+                "bonus": "البونص",
+                "operatorDeduction": "خصم المشغل",
+                "internal": "داخلي",
+                "wallet": "المحفظة",
+                "reward": "مكافأة",
+                "netSalary": "صافي الراتب",
+                "paymentMethod": "طريقة الدفع"
+              },
+              "paymentMethods": {
+                "notSpecified": "غير محدد",
+                "mudad": "مدد",
+                "cash": "نقدي",
+                "transfer": "تحويل"
+              },
+              "totals": {
+                "totalSalaries": "إجمالي الرواتب",
+                "totalOrders": "إجمالي الطلبات",
+                "totalDeductions": "إجمالي الخصومات"
+              },
+              "cancel": "إلغاء",
+              "saveChanges": "حفظ التعديلات"
+            },
+            "newPayroll": {
+              "title": "إنشاء مسير رواتب جديد",
+              "subtitle": "إعداد وتجهيز مسير رواتب جديد بناءً على الباقة المختارة",
+              "payrollMonth": "شهر المسير",
+              "selectPackage": "اختيار الباقة",
+              "selectPackagePlaceholder": "اختر الباقة من القائمة...",
+              "search": "بحث وجلب الموظفين",
+              "systemInfo": "معلومات النظام",
+              "workSystem": "نظام العمل",
+              "monthlyTarget": "التارجت الشهري",
+              "orderUnit": "طلب",
+              "bonusValue": "قيمة البونص",
+              "perOrder": "لكل طلب",
+              "targetTable": "جدول التارجت والعمولات",
+              "salaryTable": "جدول الرواتب",
+              "deselectAll": "إلغاء تحديد الكل",
+              "deleteUnselected": "حذف غير المحدد",
+              "reload": "تحديث البيانات",
+              "selected": "موظف مختار",
+              "columns": {
+                "no": "م",
+                "employeeName": "اسم الموظف",
+                "iqama": "رقم الإقامة",
+                "code": "الكود",
+                "salary": "الراتب",
+                "housing": "السكن",
+                "nationality": "الجنسية",
+                "target": "التارجت",
+                "bonus": "البونص",
+                "orders": "الطلبات",
+                "targetDeduction": "خصم التارجت",
+                "monthlyBonus": "مكافأة شهرية",
+                "operatorDeduction": "خصم المشغل",
+                "internal": "داخلي",
+                "internalDeduction": "خصم داخلي",
+                "wallet": "المحفظة",
+                "reward": "مكافأة",
+                "netSalary": "صافي الراتب",
+                "paymentMethod": "طريقة الدفع"
+              },
+              "paymentMethods": {
+                "notSpecified": "غير محدد",
+                "mudad": "مدد",
+                "cash": "نقدي",
+                "transfer": "تحويل"
+              }
+            },
+            "form": {
+              "title": "إنشاء مسير رواتب جديد",
+              "editTitle": "تعديل مسير الرواتب",
+              "basicInfo": "المعلومات الأساسية",
+              "payrollMonth": "شهر المسير",
+              "selectPackage": "اختر الباقة",
+              "employeesList": "قائمة الموظفين",
+              "salaryDetails": "تفاصيل الراتب",
+              "commissions": "العمولات",
+              "deductions": "الخصومات",
+              "netSalary": "صافي الراتب",
+              "savePayroll": "حفظ المسير",
+              "confirmPayroll": "اعتماد المسير",
+              "cancel": "إلغاء",
+              "confirmDelete": "هل أنت متأكد من حذف هذا المسير؟",
+              "deleteSuccess": "تم حذف المسير بنجاح",
+              "saveSuccess": "تم حفظ المسير بنجاح",
+              "notifications": {
+                "selectPackage": "يرجى اختيار الباقة",
+                "selectMonth": "يرجى اختيار شهر المسير",
+                "noEmployees": "لا يوجد موظفين في هذه الباقة"
+              }
             }
           }
-        }
       },
     "officialLettersPage": {
       "title": "الخطابات الرسمية الجاهزة",
