@@ -1314,8 +1314,8 @@
         "linkedToInvoice": "مرتبط بفاتورة {number}",
         "notLinked": "غير مرتبط بفاتورة",
         "viewDetails": "عرض التفاصيل",
-        "deleteReceipt": "حذف السند",
-        "noReceipts": "لا توجد سندات",
+          "deleteReceipt": "حذف السند",
+          "noReceipts": "لا توجد سندات",
           "noReceiptsDesc": "لم يتم العثور على أي سندات مبيعات في النظام.",
           "systemFooter": "نظام زول سبيد للخدمات اللوجستية",
           "allRightsReserved": "جميع الحقوق محفوظة © {year}"

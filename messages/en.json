@@ -1311,8 +1311,8 @@
         "linkedToInvoice": "Linked to Invoice {number}",
         "notLinked": "Not Linked to Invoice",
         "viewDetails": "View Details",
-        "deleteReceipt": "Delete Receipt",
-        "noReceipts": "No Receipts",
+          "deleteReceipt": "Delete Receipt",
+          "noReceipts": "No Receipts",
           "noReceiptsDesc": "No sales receipts found in the system.",
           "systemFooter": "ZoolSpeed Logistics System",
           "allRightsReserved": "All rights reserved © {year}"
