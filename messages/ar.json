@@ -1628,162 +1628,164 @@
         "idNo": "رقم الهوية:",
         "registryNo": "سجل تجاري رقم:"
       },
-      "quotationsPage": {
-        "title": "عروض الأسعار",
-        "subtitle": "إدارة عروض الأسعار والتقديرات",
-        "description": "إنشاء وتتبع عروض الأسعار المهنية للعملاء.",
-        "management": "مركز إدارة العروض",
-        "addNew": "إضافة عرض سعر",
-        "cancelForm": "إلغاء الإضافة",
-        "refreshData": "تحديث البيانات",
-        "totalQuotations": "إجمالي العروض",
-        "quotationsCount": "عرض",
-        "totalAmount": "إجمالي المبالغ",
-        "stats": {
-          "total": "إجمالي العروض",
-          "totalDesc": "عرض مسجل",
-          "confirmed": "عروض معتمدة",
-          "confirmedDesc": "عرض تم قبوله",
-          "drafts": "المسودات",
-          "draftsDesc": "عرض قيد التعديل",
-          "expired": "عروض منتهية",
-          "expiredDesc": "عرض تجاوز الصلاحية"
-        },
-        "form": {
-          "title": "إنشاء عرض سعر جديد",
-          "subtitle": "يرجى تعبئة بيانات العميل والمنتجات بدقة",
-          "number": "رقم عرض السعر",
-          "issueDate": "تاريخ العرض",
-          "expiryDate": "تاريخ الانتهاء",
-          "customerData": "بيانات العميل",
-          "customerSelectDesc": "اختر من قائمة العملاء المسجلين",
-          "customerManualDesc": "إدخال يدوي لبيانات عميل غير مسجل",
-          "manualEntry": "إدخال يدوي",
-          "cancelManual": "إلغاء اليدوي",
-          "selectCustomer": "اختر العميل...",
-          "selectedCustomer": "العميل المختار",
-          "crNumber": "السجل التجاري: {number}",
-          "registered": "مسجل",
-          "customerName": "اسم العميل",
-          "customerNamePlaceholder": "أدخل اسم العميل",
-          "commercialNumber": "الرقم الضريبي / السجل",
-          "commercialNumberPlaceholder": "أدخل رقم الهوية أو السجل",
-          "address": "العنوان",
-          "addressPlaceholder": "أدخل عنوان العميل",
-          "products": "المنتجات والخدمات",
-          "addProduct": "إضافة صنف",
-          "subtotal": "المجموع الفرعي",
-          "totalTax": "إجمالي الضريبة ({rate}%)",
-          "grandTotal": "الإجمالي النهائي",
-          "cancel": "إلغاء",
-          "saveDraft": "حفظ كمسودة",
-          "saveConfirm": "اعتماد وإصدار",
-          "saving": "جاري الحفظ",
-          "savingMsg": "يتم الآن معالجة بيانات عرض السعر...",
-          "table": {
-            "productName": "اسم الصنف / الخدمة",
-            "quantity": "الكمية",
-            "price": "السعر (قبل الضريبة)",
-            "unitPrice": "سعر الوحدة",
-            "tax": "الضريبة",
-            "totalWithTax": "الإجمالي مع الضريبة",
-            "placeholder": "اكتب اسم المنتج..."
-          }
-        },
-        "search": {
-          "placeholder": "البحث برقم العرض، اسم العميل، أو التفاصيل...",
-          "export": "تصدير العروض"
-        },
-        "table": {
-          "title": "سجل عروض الأسعار",
-          "count": "تم العثور على {count} عرض",
-          "number": "رقم العرض",
-          "customer": "العميل",
-          "date": "التاريخ",
-          "expiry": "الانتهاء",
-          "total": "المبلغ الإجمالي",
-          "status": "الحالة",
-          "actions": "إجراءات",
-          "view": "عرض",
-          "edit": "تعديل",
-          "delete": "حذف",
-          "noData": "لا توجد عروض أسعار",
-          "noDataDesc": "ابدأ بإنشاء أول عرض سعر بالضغط على زر إضافة عرض سعر"
-        },
-        "status": {
-          "confirmed": "معتمد",
-          "draft": "مسودة",
-          "expired": "منتهي"
-        },
-        "view": {
-          "title": "عرض عرض السعر",
-          "details": "تفاصيل العرض",
-          "facilityInfo": "بيانات المنشأة",
-          "customerData": "بيانات العميل",
-          "inclTax": "شامل الضريبة"
-        },
-        "common": {
-          "description": "الوصف",
-          "sar": "ر.س",
-          "total": "الإجمالي"
-        },
-        "notifications": {
-          "errorTitle": "تنبيه",
-          "selectCustomer": "يرجى اختيار عميل أولاً",
-          "enterCustomerName": "يرجى إدخل اسم العميل",
-          "selectExpiry": "يرجى تحديد تاريخ انتهاء العرض",
-          "addProductError": "يجب إضافة منتج واحد على الأقل",
-          "saveSuccess": "تم الحفظ بنجاح",
-          "confirmedSuccess": "تم اعتماد عرض السعر بنجاح",
-          "draftSuccess": "تم حفظ المسودة بنجاح",
-          "saveFailed": "فشل في حفظ البيانات",
-          "error": "خطأ",
-          "errorMsg": "حدث خطأ غير متوقع",
-          "ok": "موافق"
-        },
-        "footer": {
-          "system": "زول اسبيد لإدارة عروض الأسعار",
-          "rights": "جميع الحقوق محفوظة © {year}"
-        },
-        "searchPlaceholder": "البحث برقم العرض، العميل...",
-        "exportData": "تصدير البيانات",
-        "tableTitle": "قائمة عروض الأسعار",
-        "quotationsFound": "تم العثور على {count} عرض",
-        "quotationNo": "رقم العرض",
-        "customer": "العميل",
-        "date": "التاريخ",
-        "amount": "المبلغ",
-        "status": "الحالة",
-        "actions": "إجراءات",
-        "viewDetails": "عرض التفاصيل",
-        "deleteQuotation": "حذف العرض",
-        "noQuotations": "لا توجد عروض",
-        "noQuotationsDesc": "لم يتم تسجيل أي عروض أسعار حتى الآن."
-      },
-        "incomePage": {
-          "title": "سندات الدخل",
-          "subtitle": "إدارة وتتبع كافة الإيرادات المتنوعة",
-          "description": "تسجيل كافة مصادر الدخل والإيرادات الخارجية.",
-          "stats": {
-            "count": "عدد السندات",
-            "voucherLabel": "سند مسجل",
-            "nextNumber": "الرقم التالي",
-            "sequential": "تسلسلي تلقائي"
-          },
-          "table": {
-            "title": "سجل سندات الدخل",
-            "no": "رقم السند",
-            "type": "نوع الدخل",
+          "quotationsPage": {
+            "title": "عروض الأسعار",
+            "subtitle": "إدارة عروض الأسعار والتقديرات",
+            "description": "إنشاء وتتبع عروض الأسعار المهنية للعملاء.",
+            "management": "مركز إدارة العروض",
+            "addNew": "إضافة عرض سعر",
+            "cancelForm": "إلغاء الإضافة",
+            "refreshData": "تحديث البيانات",
+            "totalQuotations": "إجمالي العروض",
+            "quotationsCount": "عرض",
+            "totalAmount": "إجمالي المبالغ",
+            "stats": {
+              "total": "إجمالي العروض",
+              "totalDesc": "عرض مسجل",
+              "confirmed": "عروض معتمدة",
+              "confirmedDesc": "عرض تم قبوله",
+              "drafts": "المسودات",
+              "draftsDesc": "عرض قيد التعديل",
+              "expired": "عروض منتهية",
+              "expiredDesc": "عرض تجاوز الصلاحية"
+            },
+            "form": {
+              "title": "إنشاء عرض سعر جديد",
+              "subtitle": "يرجى تعبئة بيانات العميل والمنتجات بدقة",
+              "number": "رقم عرض السعر",
+              "issueDate": "تاريخ العرض",
+              "expiryDate": "تاريخ الانتهاء",
+              "customerData": "بيانات العميل",
+              "customerSelectDesc": "اختر من قائمة العملاء المسجلين",
+              "customerManualDesc": "إدخال يدوي لبيانات عميل غير مسجل",
+              "manualEntry": "إدخال يدوي",
+              "cancelManual": "إلغاء اليدوي",
+              "selectCustomer": "اختر العميل...",
+              "selectedCustomer": "العميل المختار",
+              "crNumber": "السجل التجاري: {number}",
+              "registered": "مسجل",
+              "customerName": "اسم العميل",
+              "customerNamePlaceholder": "أدخل اسم العميل",
+              "commercialNumber": "الرقم الضريبي / السجل",
+              "commercialNumberPlaceholder": "أدخل رقم الهوية أو السجل",
+              "address": "العنوان",
+              "addressPlaceholder": "أدخل عنوان العميل",
+              "products": "المنتجات والخدمات",
+              "addProduct": "إضافة صنف",
+              "subtotal": "المجموع الفرعي",
+              "totalTax": "إجمالي الضريبة ({rate}%)",
+              "grandTotal": "الإجمالي النهائي",
+              "cancel": "إلغاء",
+              "saveDraft": "حفظ كمسودة",
+              "saveConfirm": "اعتماد وإصدار",
+              "saving": "جاري الحفظ",
+              "savingMsg": "يتم الآن معالجة بيانات عرض السعر...",
+              "table": {
+                "productName": "اسم الصنف / الخدمة",
+                "quantity": "الكمية",
+                "price": "السعر (قبل الضريبة)",
+                "unitPrice": "سعر الوحدة",
+                "tax": "الضريبة",
+                "totalWithTax": "الإجمالي مع الضريبة",
+                "placeholder": "اكتب اسم المنتج..."
+              }
+            },
+            "search": {
+              "placeholder": "البحث برقم العرض، اسم العميل، أو التفاصيل...",
+              "export": "تصدير العروض"
+            },
+            "table": {
+              "title": "سجل عروض الأسعار",
+              "count": "تم العثور على {count} عرض",
+              "number": "رقم العرض",
+              "customer": "العميل",
+              "date": "التاريخ",
+              "expiry": "الانتهاء",
+              "total": "المبلغ الإجمالي",
+              "status": "الحالة",
+              "actions": "إجراءات",
+              "view": "عرض",
+              "edit": "تعديل",
+              "delete": "حذف",
+              "back": "رجوع",
+              "noData": "لا توجد عروض أسعار",
+              "noDataDesc": "ابدأ بإنشاء أول عرض سعر بالضغط على زر إضافة عرض سعر"
+            },
+            "status": {
+              "confirmed": "معتمد",
+              "draft": "مسودة",
+              "expired": "منتهي"
+            },
+            "view": {
+              "title": "عرض عرض السعر",
+              "details": "تفاصيل العرض",
+              "facilityInfo": "بيانات المنشأة",
+              "customerData": "بيانات العميل",
+              "inclTax": "شامل الضريبة"
+            },
+            "common": {
+              "description": "الوصف",
+              "sar": "ر.س",
+              "total": "الإجمالي"
+            },
+            "notifications": {
+              "errorTitle": "تنبيه",
+              "selectCustomer": "يرجى اختيار عميل أولاً",
+              "enterCustomerName": "يرجى إدخل اسم العميل",
+              "selectExpiry": "يرجى تحديد تاريخ انتهاء العرض",
+              "addProductError": "يجب إضافة منتج واحد على الأقل",
+              "saveSuccess": "تم الحفظ بنجاح",
+              "confirmedSuccess": "تم اعتماد عرض السعر بنجاح",
+              "draftSuccess": "تم حفظ المسودة بنجاح",
+              "saveFailed": "فشل في حفظ البيانات",
+              "error": "خطأ",
+              "errorMsg": "حدث خطأ غير متوقع",
+              "ok": "موافق"
+            },
+            "footer": {
+              "system": "زول اسبيد",
+              "rights": "جميع الحقوق محفوظة © {year}"
+            },
+            "searchPlaceholder": "البحث برقم العرض، العميل...",
+            "exportData": "تصدير البيانات",
+            "tableTitle": "قائمة عروض الأسعار",
+            "quotationsFound": "تم العثور على {count} عرض",
+            "quotationNo": "رقم العرض",
+            "customer": "العميل",
             "date": "التاريخ",
-            "method": "الطريقة",
-            "total": "المبلغ الإجمالي",
-            "actions": "الإجراءات"
+            "amount": "المبلغ",
+            "status": "الحالة",
+            "actions": "إجراءات",
+            "viewDetails": "عرض التفاصيل",
+            "deleteQuotation": "حذف العرض",
+            "noQuotations": "لا توجد عروض",
+            "noQuotationsDesc": "لم يتم تسجيل أي عروض أسعار حتى الآن."
           },
-          "noRecords": {
-            "title": "لا توجد سندات دخل",
-            "desc": "لم يتم العثور على أي سندات دخل في النظام."
-          }
-        },
+          "incomePage": {
+            "title": "سندات الدخل",
+            "subtitle": "إدارة وتتبع كافة الإيرادات المتنوعة",
+            "description": "تسجيل كافة مصادر الدخل والإيرادات الخارجية.",
+            "stats": {
+              "count": "عدد السندات",
+              "voucherLabel": "سند إيراد",
+              "nextNumber": "الرقم التالي (INC00001)",
+              "sequential": "تسلسلي"
+            },
+            "table": {
+              "title": "سجل سندات الدخل",
+              "countLabel": "{count} سجل",
+              "no": "رقم السند",
+              "type": "نوع الدخل",
+              "date": "التاريخ",
+              "method": "الطريقة",
+              "total": "المبلغ الإجمالي",
+              "actions": "إجراءات"
+            },
+            "noRecords": {
+              "title": "لا توجد سندات دخل",
+              "desc": "لم يتم العثور على أي سندات دخل في النظام."
+            }
+          },
         "incomeVouchersPage": {
           "title": "سندات الدخل",
           "subtitle": "إدارة الإيرادات المتنوعة",

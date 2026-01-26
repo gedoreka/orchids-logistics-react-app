@@ -33,7 +33,13 @@ export default async function PaymentVoucherViewPage({
 }) {
   const { id } = await params;
   const cookieStore = await cookies();
-  const companyId = cookieStore.get("company_id")?.value || "1";
+  const sessionCookie = cookieStore.get("auth_session");
+  const session = JSON.parse(sessionCookie?.value || "{}");
+  const companyId = session.company_id;
+
+  if (!companyId) {
+    notFound();
+  }
 
   const data = await getVoucherData(id, companyId);
 
