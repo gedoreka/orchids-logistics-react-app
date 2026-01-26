@@ -86,14 +86,14 @@ const statusOptions = [
   { value: "cancelled", label: "ملغي", color: "bg-red-100 text-red-700", icon: Ban },
 ];
 
-  function PaymentVouchersContent() {
-    const t = useTranslations("financialVouchersPage.paymentVouchersPage");
-    const tFinancial = useTranslations("financialVouchersPage");
-    const tSalesReceipts = useTranslations("financialVouchersPage.salesReceiptsPage");
-    const tCommon = useTranslations("common");
-    const { locale } = useLocale();
-    const isRtl = locale === "ar";
-    const [accounts, setAccounts] = useState<Account[]>([]);
+function PaymentVouchersContent({ companyId }: { companyId: string }) {
+  const t = useTranslations("financialVouchersPage.paymentVouchersPage");
+  const tFinancial = useTranslations("financialVouchersPage");
+  const tSalesReceipts = useTranslations("financialVouchersPage.salesReceiptsPage");
+  const tCommon = useTranslations("common");
+  const { locale } = useLocale();
+  const isRtl = locale === "ar";
+  const [accounts, setAccounts] = useState<Account[]>([]);
   const [costCenters, setCostCenters] = useState<CostCenter[]>([]);
   const [vouchers, setVouchers] = useState<Voucher[]>([]);
   const [voucherNumber, setVoucherNumber] = useState("");
@@ -109,7 +109,6 @@ const statusOptions = [
   const { notification, showDeleteConfirm, showLoading, showSuccess: showSuccessNotif, showError, hideNotification } = useDeleteNotification("rose");
   const printRef = useRef<HTMLDivElement>(null);
 
-  const companyId = "1";
 
   const initialForm = {
     voucher_date: new Date().toISOString().split("T")[0],
@@ -781,11 +780,11 @@ const statusOptions = [
   );
 }
 
-export function PaymentVouchersClient() {
+export function PaymentVouchersClient({ companyId }: { companyId: string }) {
   const t = useTranslations("common");
   return (
     <Suspense fallback={<div className="flex items-center justify-center min-h-screen">{t("loading")}</div>}>
-      <PaymentVouchersContent />
+      <PaymentVouchersContent companyId={companyId} />
     </Suspense>
   );
 }

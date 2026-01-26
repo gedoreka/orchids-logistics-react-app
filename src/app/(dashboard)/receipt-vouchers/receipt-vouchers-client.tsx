@@ -61,7 +61,7 @@ const paymentMethods = [
   { value: "التحويل الإلكتروني", label: "تحويل إلكتروني", icon: Landmark },
 ];
 
-function ReceiptVouchersContent() {
+function ReceiptVouchersContent({ companyId }: { companyId: string }) {
   const t = useTranslations("financialVouchersPage.receiptVouchersPage");
   const tFinancial = useTranslations("financialVouchersPage");
   const tSales = useTranslations("financialVouchersPage.salesReceiptsPage");
@@ -81,8 +81,6 @@ function ReceiptVouchersContent() {
   const [expandedId, setExpandedId] = useState<number | null>(null);
   const [deleteLoading, setDeleteLoading] = useState<number | null>(null);
   const { notification, showDeleteConfirm, showLoading, showSuccess: showSuccessNotif, showError, hideNotification } = useDeleteNotification("blue");
-
-  const companyId = "1";
 
   const initialForm = {
     receipt_date: new Date().toISOString().split("T")[0],
@@ -686,11 +684,12 @@ function ReceiptVouchersContent() {
     );
   }
   
-  export function ReceiptVouchersClient() {
-    const t = useTranslations("common");
-    return (
-      <Suspense fallback={<div className="flex items-center justify-center min-h-screen">{t("loading")}</div>}>
-        <ReceiptVouchersContent />
-      </Suspense>
-    );
-  }
+export function ReceiptVouchersClient({ companyId }: { companyId: string }) {
+  const t = useTranslations("common");
+  return (
+    <Suspense fallback={<div className="flex items-center justify-center min-h-screen">{t("loading")}</div>}>
+      <ReceiptVouchersContent companyId={companyId} />
+    </Suspense>
+  );
+}
+
