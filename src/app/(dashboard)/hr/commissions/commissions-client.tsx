@@ -32,7 +32,10 @@ import {
   Square,
   RefreshCw,
   X,
-  Clock
+  Clock,
+  Hash,
+  Activity,
+  CreditCard
 } from "lucide-react";
 import { useTranslations, useLocale } from "@/lib/locale-context";
 import { cn } from "@/lib/utils";
@@ -59,7 +62,7 @@ export function CommissionsClient({ companyId, initialPackages }: CommissionsCli
   // Filters
   const [month, setMonth] = useState(format(new Date(), "yyyy-MM"));
   const [selectedPackageId, setSelectedPackageId] = useState<string>("");
-  const [mode, setMode] = useState<"fixed" | "percentage">("fixed");
+  const [mode, setMode] = useState<"fixed_daily" | "fixed_monthly" | "percentage">("fixed_daily");
   const [searchQuery, setSearchQuery] = useState("");
   
   // Data
@@ -69,7 +72,7 @@ export function CommissionsClient({ companyId, initialPackages }: CommissionsCli
   const [commissions, setCommissions] = useState<any[]>([]);
   
   // Notification
-  const [notification, setNotification] = useState<{show: boolean, type: "success" | "error" | "loading", message: string} | null>(null);
+  const [notification, setNotification] = useState<{show: boolean, type: "success" | "error" | "loading" | "confirm", message: string, detail?: string, onConfirm?: () => void} | null>(null);
 
   const printRef = useRef<HTMLDivElement>(null);
   const handlePrint = useReactToPrint({
@@ -77,10 +80,10 @@ export function CommissionsClient({ companyId, initialPackages }: CommissionsCli
     documentTitle: `تقرير العمولات - ${month}`,
   });
 
-  const showNotify = (type: "success" | "error" | "loading", message: string) => {
-    setNotification({ show: true, type, message });
-    if (type !== "loading") {
-      setTimeout(() => setNotification(null), 3000);
+  const showNotify = (type: "success" | "error" | "loading" | "confirm", message: string, detail?: string, onConfirm?: () => void) => {
+    setNotification({ show: true, type, message, detail, onConfirm });
+    if (type !== "loading" && type !== "confirm") {
+      setTimeout(() => setNotification(null), 4000);
     }
   };
 
@@ -98,7 +101,7 @@ export function CommissionsClient({ companyId, initialPackages }: CommissionsCli
     }
   };
 
-  const loadGroup = async (pkgId: string, groupMode: "fixed" | "percentage") => {
+  const loadGroup = async (pkgId: string, groupMode: "fixed_daily" | "fixed_monthly" | "percentage") => {
     setSelectedPackageId(pkgId);
     setMode(groupMode);
     await fetchData(pkgId, groupMode);
@@ -156,9 +159,14 @@ export function CommissionsClient({ companyId, initialPackages }: CommissionsCli
     
     // Recalculate
     if (field !== "selected") {
-      if (mode === "fixed") {
+      if (mode === "fixed_daily") {
         if (field === "daily_amount" || field === "days") {
           updated[index].total = (parseFloat(updated[index].daily_amount) || 0) * (parseFloat(updated[index].days) || 0);
+        }
+      } else if (mode === "fixed_monthly") {
+        if (field === "daily_amount") {
+          updated[index].total = parseFloat(updated[index].daily_amount) || 0;
+          updated[index].days = 1;
         }
       } else {
         if (field === "percentage" || field === "revenue") {
@@ -220,7 +228,7 @@ export function CommissionsClient({ companyId, initialPackages }: CommissionsCli
     }
 
     setSaving(true);
-    showNotify("loading", tCommon("loading"));
+    showNotify("loading", "جاري حفظ البيانات...");
     try {
       const res = await fetch("/api/hr/commissions", {
         method: "POST",
@@ -235,7 +243,8 @@ export function CommissionsClient({ companyId, initialPackages }: CommissionsCli
       });
       
       if (res.ok) {
-        showNotify("success", t("notifications.saveSuccess"));
+        const data = await res.json();
+        showNotify("success", `تم حفظ التقرير بنجاح رقم ${data.serial_number}`, `تم حفظ عمولات لعدد ${selectedComms.length} موظف بنجاح.`);
         fetchSavedGroups();
       } else {
         showNotify("error", t("notifications.error"));
@@ -247,15 +256,19 @@ export function CommissionsClient({ companyId, initialPackages }: CommissionsCli
     }
   };
 
+  const handleDeleteClick = (pkgId: string, groupMode: string, pkgName: string) => {
+    showNotify("confirm", "هل أنت متأكد من حذف التقرير؟", `سيتم حذف تقرير ${pkgName} بشكل نهائي ولن يمكن استعادته.`, () => {
+      deleteGroup(pkgId, groupMode);
+    });
+  };
+
   const deleteGroup = async (pkgId: string, groupMode: string) => {
-    if (!confirm(t("notifications.deleteConfirm"))) return;
-    
     try {
       const res = await fetch(`/api/hr/commissions?company_id=${companyId}&month=${month}&package_id=${pkgId}&mode=${groupMode}`, {
         method: "DELETE"
       });
       if (res.ok) {
-        showNotify("success", t("notifications.deleteSuccess"));
+        showNotify("success", "تم حذف التقرير بنجاح", "تمت إزالة جميع بيانات التقرير من النظام.");
         fetchSavedGroups();
         if (selectedPackageId === pkgId && mode === groupMode) {
           setEmployees([]);
@@ -268,10 +281,51 @@ export function CommissionsClient({ companyId, initialPackages }: CommissionsCli
     }
   };
 
+  const toggleGroupStatus = async (group: any) => {
+    const newStatus = group.status === "paid" ? "unpaid" : "paid";
+    try {
+      const res = await fetch("/api/hr/commissions", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          company_id: companyId,
+          month,
+          package_id: group.package_id,
+          mode: group.mode,
+          status: newStatus
+        })
+      });
+      if (res.ok) {
+        showNotify("success", `تم تغيير الحالة إلى ${newStatus === 'paid' ? 'تم الدفع' : 'لم يتم الدفع'}`, "تم تحديث حالة جميع الموظفين في هذا التقرير.");
+        fetchSavedGroups();
+      }
+    } catch (error) {
+      showNotify("error", t("notifications.error"));
+    }
+  };
+
   // Stats
-  const totalDue = commissions.reduce((sum, c) => sum + (mode === "fixed" ? (Number(c.total) || 0) : (Number(c.commission) || 0)) + (Number(c.bonus) || 0) - (Number(c.deduction) || 0), 0);
+  const totalDue = commissions.reduce((sum, c) => sum + (mode.startsWith("fixed") ? (Number(c.total) || 0) : (Number(c.commission) || 0)) + (Number(c.bonus) || 0) - (Number(c.deduction) || 0), 0);
   const totalPaid = commissions.filter(c => c.status === "paid").length;
   const totalUnpaid = commissions.length - totalPaid;
+
+  const getModeLabel = (m: string) => {
+    switch (m) {
+      case "fixed_daily": return "مبلغ ثابت (يومي)";
+      case "fixed_monthly": return "مبلغ ثابت (شهري)";
+      case "percentage": return "نسبة مئوية";
+      default: return m;
+    }
+  };
+
+  const getModeColor = (m: string) => {
+    switch (m) {
+      case "fixed_daily": return "bg-blue-500";
+      case "fixed_monthly": return "bg-purple-500";
+      case "percentage": return "bg-amber-500";
+      default: return "bg-gray-500";
+    }
+  };
 
   return (
     <div className="min-h-screen bg-[#f8fafc] p-4 md:p-8" dir={isRtl ? "rtl" : "ltr"}>
@@ -324,21 +378,65 @@ export function CommissionsClient({ companyId, initialPackages }: CommissionsCli
       <AnimatePresence>
         {notification && (
           <motion.div
-            initial={{ opacity: 0, y: -20, scale: 0.95 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: -20, scale: 0.95 }}
-            className="fixed top-24 left-1/2 -translate-x-1/2 z-50 pointer-events-none"
+            initial={{ opacity: 0, scale: 0.9, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.9, y: 20 }}
+            className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm"
           >
-            <div className={cn(
-              "px-6 py-4 rounded-2xl shadow-2xl flex items-center gap-4 border-b-4 backdrop-blur-md",
-              notification.type === "success" ? "bg-emerald-50 text-emerald-800 border-emerald-500" :
-              notification.type === "error" ? "bg-red-50 text-red-800 border-red-500" :
-              "bg-blue-50 text-blue-800 border-blue-500"
-            )}>
-              {notification.type === "success" && <CheckCircle size={24} className="text-emerald-500" />}
-              {notification.type === "error" && <AlertCircle size={24} className="text-red-500" />}
-              {notification.type === "loading" && <Loader2 size={24} className="animate-spin text-blue-500" />}
-              <span className="font-black text-sm">{notification.message}</span>
+            <div className="bg-white rounded-[2.5rem] shadow-2xl border border-gray-100 max-w-md w-full p-8 text-center overflow-hidden relative">
+              {/* Decorative background */}
+              <div className={cn(
+                "absolute top-0 left-0 w-full h-2",
+                notification.type === "success" ? "bg-emerald-500" :
+                notification.type === "error" ? "bg-red-500" :
+                notification.type === "confirm" ? "bg-amber-500" : "bg-blue-500"
+              )} />
+              
+              <div className={cn(
+                "mx-auto h-20 w-20 rounded-3xl flex items-center justify-center mb-6 shadow-lg",
+                notification.type === "success" ? "bg-emerald-50 text-emerald-500" :
+                notification.type === "error" ? "bg-red-50 text-red-500" :
+                notification.type === "confirm" ? "bg-amber-50 text-amber-500" : "bg-blue-50 text-blue-500"
+              )}>
+                {notification.type === "success" && <CheckCircle size={40} />}
+                {notification.type === "error" && <AlertCircle size={40} />}
+                {notification.type === "confirm" && <Trash2 size={40} />}
+                {notification.type === "loading" && <Loader2 size={40} className="animate-spin" />}
+              </div>
+
+              <h3 className="text-xl font-black text-gray-900 mb-2">{notification.message}</h3>
+              {notification.detail && <p className="text-gray-500 text-sm font-medium mb-8 leading-relaxed">{notification.detail}</p>}
+
+              <div className="flex items-center gap-3">
+                {notification.type === "confirm" ? (
+                  <>
+                    <button 
+                      onClick={() => setNotification(null)}
+                      className="flex-1 py-4 rounded-2xl bg-gray-100 text-gray-700 font-black text-sm hover:bg-gray-200 transition-all"
+                    >
+                      إلغاء
+                    </button>
+                    <button 
+                      onClick={() => {
+                        notification.onConfirm?.();
+                        setNotification(null);
+                      }}
+                      className="flex-1 py-4 rounded-2xl bg-red-500 text-white font-black text-sm hover:bg-red-600 shadow-xl shadow-red-100 transition-all"
+                    >
+                      تأكيد الحذف
+                    </button>
+                  </>
+                ) : (
+                  notification.type !== "loading" && (
+                    <button 
+                      onClick={() => setNotification(null)}
+                      className="w-full py-4 rounded-2xl bg-gray-900 text-white font-black text-sm hover:bg-gray-800 shadow-xl transition-all"
+                    >
+                      حسناً
+                    </button>
+                  )
+                )}
+              </div>
             </div>
           </motion.div>
         )}
@@ -387,24 +485,36 @@ export function CommissionsClient({ companyId, initialPackages }: CommissionsCli
 
               <div>
                 <label className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-2 block">{t("commissionType")}</label>
-                <div className="grid grid-cols-2 gap-2 p-1.5 bg-gray-50 rounded-2xl border border-gray-100">
+                <div className="flex flex-col gap-2 p-2 bg-gray-50 rounded-2xl border border-gray-100">
                   <button 
-                    onClick={() => setMode("fixed")}
+                    onClick={() => setMode("fixed_daily")}
                     className={cn(
-                      "py-2.5 rounded-xl text-xs font-black transition-all",
-                      mode === "fixed" ? "bg-white text-blue-600 shadow-md border border-gray-100" : "text-gray-400 hover:text-gray-600"
+                      "py-2.5 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-2",
+                      mode === "fixed_daily" ? "bg-white text-blue-600 shadow-md border border-gray-100" : "text-gray-400 hover:text-gray-600"
                     )}
                   >
-                    {t("fixedAmount")}
+                    <Activity size={14} />
+                    <span>مبلغ ثابت (يومي)</span>
+                  </button>
+                  <button 
+                    onClick={() => setMode("fixed_monthly")}
+                    className={cn(
+                      "py-2.5 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-2",
+                      mode === "fixed_monthly" ? "bg-white text-purple-600 shadow-md border border-gray-100" : "text-gray-400 hover:text-gray-600"
+                    )}
+                  >
+                    <Calendar size={14} />
+                    <span>مبلغ ثابت (شهري)</span>
                   </button>
                   <button 
                     onClick={() => setMode("percentage")}
                     className={cn(
-                      "py-2.5 rounded-xl text-xs font-black transition-all",
-                      mode === "percentage" ? "bg-white text-blue-600 shadow-md border border-gray-100" : "text-gray-400 hover:text-gray-600"
+                      "py-2.5 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-2",
+                      mode === "percentage" ? "bg-white text-amber-600 shadow-md border border-gray-100" : "text-gray-400 hover:text-gray-600"
                     )}
                   >
-                    {t("percentage")}
+                    <Percent size={14} />
+                    <span>نسبة مئوية</span>
                   </button>
                 </div>
               </div>
@@ -435,39 +545,64 @@ export function CommissionsClient({ companyId, initialPackages }: CommissionsCli
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: i * 0.1 }}
-                    key={`${group.package_id}-${group.mode}`}
+                    key={`${group.package_id}-${group.mode}-${group.serial_number}`}
                     className="p-4 rounded-2xl border border-gray-50 bg-gray-50/50 hover:bg-white hover:border-blue-100 hover:shadow-md transition-all group"
                   >
                     <div className="flex justify-between items-start mb-2">
-                      <div className="flex flex-col">
-                        <span className="font-black text-sm text-gray-900 group-hover:text-blue-600 transition-colors">
-                          {pkg?.group_name || "باقة غير معروفة"}
-                        </span>
-                        <span className="text-[10px] text-gray-400 font-bold uppercase mt-0.5">
-                          {group.mode === "fixed" ? t("fixedAmount") : t("percentage")}
-                        </span>
+                      <div className="flex flex-col gap-1">
+                        <div className="flex items-center gap-2">
+                           <span className="h-5 w-5 rounded-md bg-gray-900 text-white flex items-center justify-center text-[10px] font-black">
+                            {group.serial_number || i + 1}
+                           </span>
+                           <span className="font-black text-sm text-gray-900 group-hover:text-blue-600 transition-colors">
+                            {pkg?.group_name || "باقة غير معروفة"}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <span className={cn("px-2 py-0.5 rounded text-[8px] font-black text-white", getModeColor(group.mode))}>
+                            {getModeLabel(group.mode)}
+                          </span>
+                        </div>
                       </div>
-                      <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <button 
-                          onClick={() => loadGroup(group.package_id, group.mode)}
-                          className="p-1.5 rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-500 hover:text-white transition-all"
-                        >
-                          <Eye size={14} />
-                        </button>
-                        <button 
-                          onClick={() => deleteGroup(group.package_id, group.mode)}
-                          className="p-1.5 rounded-lg bg-red-50 text-red-600 hover:bg-red-500 hover:text-white transition-all"
-                        >
-                          <Trash2 size={14} />
-                        </button>
+                      <div className="flex flex-col items-end gap-2">
+                         <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <button 
+                              onClick={() => loadGroup(group.package_id, group.mode)}
+                              className="p-1.5 rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-500 hover:text-white transition-all"
+                            >
+                              <Eye size={14} />
+                            </button>
+                            <button 
+                              onClick={() => handleDeleteClick(group.package_id, group.mode, pkg?.group_name || "")}
+                              className="p-1.5 rounded-lg bg-red-50 text-red-600 hover:bg-red-500 hover:text-white transition-all"
+                            >
+                              <Trash2 size={14} />
+                            </button>
+                          </div>
+                          {/* Payment Toggle Switch */}
+                          <button 
+                            onClick={() => toggleGroupStatus(group)}
+                            className={cn(
+                              "w-10 h-5 rounded-full relative transition-all duration-300 shadow-inner",
+                              group.status === "paid" ? "bg-emerald-500" : "bg-gray-300"
+                            )}
+                          >
+                            <div className={cn(
+                              "absolute top-0.5 w-4 h-4 bg-white rounded-full transition-all shadow-sm",
+                              group.status === "paid" ? "right-0.5" : "left-0.5"
+                            )} />
+                          </button>
                       </div>
                     </div>
                     <div className="flex items-center justify-between mt-3 pt-2 border-t border-gray-100/50">
-                      <div className="flex items-center gap-1.5 text-[10px] text-gray-400 font-medium">
-                        <Clock size={12} />
-                        <span>{format(new Date(group.created_at), "yyyy/MM/dd HH:mm")}</span>
+                      <div className="flex flex-col gap-0.5">
+                        <span className="text-[9px] text-gray-400 font-bold uppercase">إجمالي العمولات</span>
+                        <span className="text-xs font-black text-gray-900">{Number(group.total_amount).toLocaleString()} ر.س</span>
                       </div>
-                      <ChevronRight size={14} className={cn("text-gray-300", isRtl && "rotate-180")} />
+                      <div className="flex items-center gap-1.5 text-[10px] text-gray-400 font-medium self-end">
+                        <Clock size={12} />
+                        <span>{format(new Date(group.created_at), "yyyy/MM/dd")}</span>
+                      </div>
                     </div>
                   </motion.div>
                 );
@@ -527,7 +662,7 @@ export function CommissionsClient({ companyId, initialPackages }: CommissionsCli
                         <h3 className="text-xl font-black text-gray-900">{t("employeeDetails")}</h3>
                         <div className="flex items-center gap-2 mt-0.5">
                           <p className="text-sm text-gray-400 font-medium">
-                            {mode === "fixed" ? t("fixedSystem") : t("percentageSystem")} • {month}
+                            {getModeLabel(mode)} • {month}
                           </p>
                           {commissions.length > 0 && (
                             <span className="bg-blue-100 text-blue-600 px-2 py-0.5 rounded-lg text-[10px] font-bold">
@@ -618,13 +753,17 @@ export function CommissionsClient({ companyId, initialPackages }: CommissionsCli
                             </th>
                             <th className="px-6 py-5 text-right text-xs font-black text-gray-400 uppercase tracking-widest border-b border-gray-50">الموظف</th>
                             <th className="px-6 py-5 text-center text-xs font-black text-gray-400 uppercase tracking-widest border-b border-gray-50">تاريخ البداية</th>
-                            {mode === "fixed" ? (
+                            {mode === "fixed_daily" && (
                               <>
                                 <th className="px-6 py-5 text-center text-xs font-black text-gray-400 uppercase tracking-widest border-b border-gray-50">{t("dailyAmount")}</th>
                                 <th className="px-6 py-5 text-center text-xs font-black text-gray-400 uppercase tracking-widest border-b border-gray-50">{t("days")}</th>
                                 <th className="px-6 py-5 text-center text-xs font-black text-gray-400 uppercase tracking-widest border-b border-gray-50">{t("total")}</th>
                               </>
-                            ) : (
+                            )}
+                            {mode === "fixed_monthly" && (
+                              <th className="px-6 py-5 text-center text-xs font-black text-gray-400 uppercase tracking-widest border-b border-gray-50">المبلغ الشهري</th>
+                            )}
+                            {mode === "percentage" && (
                               <>
                                 <th className="px-6 py-5 text-center text-xs font-black text-gray-400 uppercase tracking-widest border-b border-gray-50">{t("commissionPercent")}</th>
                                 <th className="px-6 py-5 text-center text-xs font-black text-gray-400 uppercase tracking-widest border-b border-gray-50">{t("revenue")}</th>
@@ -633,12 +772,14 @@ export function CommissionsClient({ companyId, initialPackages }: CommissionsCli
                             )}
                             <th className="px-6 py-5 text-center text-xs font-black text-gray-400 uppercase tracking-widest border-b border-gray-50">{t("deductions")}</th>
                             <th className="px-6 py-5 text-center text-xs font-black text-gray-400 uppercase tracking-widest border-b border-gray-50">{t("bonuses")}</th>
+                            <th className="px-6 py-5 text-center text-xs font-black text-gray-400 uppercase tracking-widest border-b border-gray-50">الإجمالي</th>
                             <th className="px-6 py-5 text-center text-xs font-black text-gray-400 uppercase tracking-widest border-b border-gray-50">{t("paymentStatus")}</th>
                           </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-50">
                           {filteredCommissions.map((comm, fIdx) => {
                             const realIdx = getRealIndex(fIdx);
+                            const net = (mode.startsWith("fixed") ? Number(comm.total) : Number(comm.commission)) + (Number(comm.bonus) || 0) - (Number(comm.deduction) || 0);
                             return (
                               <motion.tr 
                                 initial={{ opacity: 0, y: 10 }}
@@ -672,7 +813,7 @@ export function CommissionsClient({ companyId, initialPackages }: CommissionsCli
                                     className="w-32 px-3 py-2 rounded-xl border border-gray-100 bg-gray-50/50 focus:bg-white focus:border-blue-500 outline-none text-xs font-bold transition-all"
                                   />
                                 </td>
-                                {mode === "fixed" ? (
+                                {mode === "fixed_daily" && (
                                   <>
                                     <td className="px-6 py-4 text-center">
                                       <input 
@@ -694,7 +835,18 @@ export function CommissionsClient({ companyId, initialPackages }: CommissionsCli
                                         <span className="font-black text-sm text-blue-600">{Number(comm.total || 0).toFixed(2)}</span>
                                       </td>
                                     </>
-                                  ) : (
+                                  )}
+                                  {mode === "fixed_monthly" && (
+                                    <td className="px-6 py-4 text-center">
+                                      <input 
+                                        type="number" 
+                                        value={comm.daily_amount}
+                                        onChange={(e) => handleCommChange(realIdx, "daily_amount", e.target.value)}
+                                        className="w-32 px-3 py-2 rounded-xl border border-gray-100 bg-gray-50/50 text-center focus:bg-white focus:border-blue-500 outline-none text-xs font-black transition-all"
+                                      />
+                                    </td>
+                                  )}
+                                  {mode === "percentage" && (
                                     <>
                                       <td className="px-6 py-4 text-center">
                                         <div className="relative inline-block">
@@ -735,6 +887,9 @@ export function CommissionsClient({ companyId, initialPackages }: CommissionsCli
                                     onChange={(e) => handleCommChange(realIdx, "bonus", e.target.value)}
                                     className="w-24 px-3 py-2 rounded-xl border border-gray-100 bg-gray-50/50 text-center focus:bg-white focus:border-blue-500 outline-none text-xs font-black text-emerald-500 transition-all"
                                   />
+                                </td>
+                                <td className="px-6 py-4 text-center">
+                                  <span className="font-black text-sm text-gray-900">{net.toFixed(2)}</span>
                                 </td>
                                 <td className="px-6 py-4 text-center">
                                   <select 
@@ -814,9 +969,9 @@ export function CommissionsClient({ companyId, initialPackages }: CommissionsCli
                         <span className="text-lg font-black">{commissions.length} <span className="text-xs opacity-50">موظف</span></span>
                       </div>
                       <div className="flex flex-col gap-1 relative z-10 border-r border-white/10 pr-6">
-                        <span className="text-[10px] text-white/40 uppercase font-black tracking-[0.2em]">نسبة الإنجاز</span>
+                        <span className="text-[10px] text-white/40 uppercase font-black tracking-[0.2em]">نوع العمولات</span>
                         <span className="text-lg font-black text-emerald-400">
-                          {commissions.length > 0 ? Math.round((totalPaid / commissions.length) * 100) : 0}%
+                          {getModeLabel(mode)}
                         </span>
                       </div>
                       
@@ -840,12 +995,12 @@ export function CommissionsClient({ companyId, initialPackages }: CommissionsCli
                         </thead>
                         <tbody className="divide-y divide-gray-50">
                           {commissions.map((comm, idx) => {
-                            const net = (mode === "fixed" ? comm.total : comm.commission) + Number(comm.bonus) - Number(comm.deduction);
+                            const net = (mode.startsWith("fixed") ? Number(comm.total) : Number(comm.commission)) + Number(comm.bonus) - Number(comm.deduction);
                             return (
                               <tr key={comm.employee_id} className="hover:bg-gray-50/50">
                                 <td className="px-6 py-5 font-black text-gray-900 text-sm">{comm.name}</td>
                                 <td className="px-6 py-5 text-center font-medium text-gray-500 text-xs">{comm.start_date || "-"}</td>
-                                <td className="px-6 py-5 text-center font-black text-blue-600">{(mode === "fixed" ? comm.total : comm.commission).toLocaleString()}</td>
+                                <td className="px-6 py-5 text-center font-black text-blue-600">{(mode.startsWith("fixed") ? Number(comm.total) : Number(comm.commission)).toLocaleString()}</td>
                                 <td className="px-6 py-5 text-center font-black text-emerald-500">{(Number(comm.bonus) || 0).toLocaleString()}</td>
                                 <td className="px-6 py-5 text-center font-black text-red-500">{(Number(comm.deduction) || 0).toLocaleString()}</td>
                                 <td className="px-6 py-5 text-center bg-gray-50/50">

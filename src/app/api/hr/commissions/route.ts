@@ -20,8 +20,23 @@ export async function GET(req: NextRequest) {
     );
 
     // 2. Fetch Saved Commission Groups for the month
+    // We group by serial_number if it exists, otherwise fallback to old grouping
     const savedGroups = await query(
-      "SELECT DISTINCT package_id, mode, MAX(created_at) as created_at FROM employee_commissions WHERE company_id = ? AND month = ? GROUP BY package_id, mode ORDER BY created_at DESC",
+      `SELECT 
+        package_id, 
+        mode, 
+        serial_number,
+        MAX(status) as status,
+        MAX(created_at) as created_at,
+        COUNT(*) as employee_count,
+        SUM(CASE 
+          WHEN mode LIKE 'fixed%' THEN total 
+          ELSE commission 
+        END + bonus - deduction) as total_amount
+      FROM employee_commissions 
+      WHERE company_id = ? AND month = ? 
+      GROUP BY package_id, mode, serial_number 
+      ORDER BY serial_number ASC, created_at DESC`,
       [company_id, month]
     );
 
@@ -64,6 +79,23 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
     }
 
+    // Determine the serial number
+    // If it's an update, keep the existing one. If new, get the next one.
+    const existing = await query(
+      "SELECT serial_number FROM employee_commissions WHERE company_id = ? AND month = ? AND package_id = ? AND mode = ? LIMIT 1",
+      [company_id, month, package_id, mode]
+    );
+
+    let serial_number = existing.length > 0 ? existing[0].serial_number : null;
+
+    if (!serial_number) {
+      const lastSerial = await query(
+        "SELECT MAX(serial_number) as max_sn FROM employee_commissions WHERE company_id = ? AND month = ?",
+        [company_id, month]
+      );
+      serial_number = (lastSerial[0]?.max_sn || 0) + 1;
+    }
+
     // First, delete existing entries for this specific group to update
     await execute(
       "DELETE FROM employee_commissions WHERE company_id = ? AND month = ? AND package_id = ? AND mode = ?",
@@ -74,8 +106,8 @@ export async function POST(req: NextRequest) {
     for (const comm of commissions) {
       await execute(
         `INSERT INTO employee_commissions 
-        (company_id, employee_id, package_id, month, mode, start_date, daily_amount, days, total, percentage, revenue, commission, remaining, deduction, bonus, status)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        (company_id, employee_id, package_id, month, mode, start_date, daily_amount, days, total, percentage, revenue, commission, remaining, deduction, bonus, status, serial_number)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         [
           company_id,
           comm.employee_id,
@@ -92,14 +124,35 @@ export async function POST(req: NextRequest) {
           comm.remaining || 0,
           comm.deduction || 0,
           comm.bonus || 0,
-          comm.status || 'unpaid'
+          comm.status || 'unpaid',
+          serial_number
         ]
       );
     }
 
-    return NextResponse.json({ success: true });
+    return NextResponse.json({ success: true, serial_number });
   } catch (error: any) {
     console.error("POST API Error:", error);
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+}
+
+export async function PATCH(req: NextRequest) {
+  try {
+    const body = await req.json();
+    const { company_id, month, package_id, mode, status } = body;
+
+    if (!company_id || !month || !package_id || !mode || !status) {
+      return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
+    }
+
+    await execute(
+      "UPDATE employee_commissions SET status = ? WHERE company_id = ? AND month = ? AND package_id = ? AND mode = ?",
+      [status, company_id, month, package_id, mode]
+    );
+
+    return NextResponse.json({ success: true });
+  } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
