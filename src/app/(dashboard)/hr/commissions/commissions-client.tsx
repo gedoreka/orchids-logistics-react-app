@@ -37,13 +37,17 @@ import {
   Activity,
   CreditCard,
   Send,
-  Mail
+  Mail,
+  PieChart,
+  ShieldCheck,
+  Zap
 } from "lucide-react";
 import { useTranslations, useLocale } from "@/lib/locale-context";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { useRouter } from "next/navigation";
 import { useReactToPrint } from "react-to-print";
+import { PageInstructions } from "@/components/page-instructions";
 
 interface CommissionsClientProps {
   companyId: number;
@@ -57,6 +61,49 @@ export function CommissionsClient({ companyId, initialPackages }: CommissionsCli
   const { locale } = useLocale();
   const isRtl = locale === "ar";
   
+  const commissionInstructions = [
+    {
+      icon: <Activity size={24} />,
+      title: "نظرة عامة على النظام",
+      description: "يتيح لك النظام تتبع دقيق لعمليات الصرف والعمولات الشهرية الخاصة بمؤسستك، مما يضمن الشفافية والكفاءة في إدارة المستحقات."
+    },
+    {
+      icon: <Users size={24} />,
+      title: "إعداد الموظفين",
+      description: "ابدأ أولاً بإضافة الموظفين من صفحة 'إدارة الموارد البشرية'، مع اختيار نوع الباقة (عمولة) وتعبئة البيانات ليتم إدراجهم تلقائياً هنا."
+    },
+    {
+      icon: <Settings size={24} />,
+      title: "تخصيص العمولات",
+      description: "حدد نوع العمولة (مبلغ ثابت يومي/شهري أو نسبة مئوية) لكل موظف بكل مرونة حسب سياسة الشركة."
+    },
+    {
+      icon: <Trash2 size={24} />,
+      title: "التحكم بالجدول",
+      description: "واجهة تفاعلية تسمح لك بحذف الموظفين أو تعديل بياناتهم، مع إمكانية تحديد الكل أو استبعاد غير المختارين قبل الحفظ."
+    },
+    {
+      icon: <Save size={24} />,
+      title: "الأرشفة والحفظ",
+      description: "عند حفظ البيانات، يتم تخزينها في 'المجموعات المحفوظة' للرجوع إليها لاحقاً ومتابعة حالة السداد بشكل مستقل."
+    },
+    {
+      icon: <CheckCircle size={24} />,
+      title: "تحديث حالة السداد",
+      description: "بعد حفظ التقرير، يمكنك تحديث حالة الدفع (مدفوع/معلق) بضغطة زر واحدة لتنظيم التدفقات النقدية."
+    },
+    {
+      icon: <Mail size={24} />,
+      title: "نظام المراسلات الذكي",
+      description: "يرسل النظام تلقائياً إيصال سداد عند الدفع، أو إشعار مطالبة احترافي ولبق في حال كانت الحالة 'معلق'."
+    },
+    {
+      icon: <Printer size={24} />,
+      title: "أدوات إدارية متقدمة",
+      description: "استفد من ميزات الطباعة الاحترافية وتصدير البيانات والمتابعة الدقيقة لكل تفاصيل قسم العمولات."
+    }
+  ];
+
   const [activeTab, setActiveTab] = useState<"manage" | "report">("manage");
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -440,15 +487,24 @@ export function CommissionsClient({ companyId, initialPackages }: CommissionsCli
       {/* Header Section */}
       <div className="relative mb-8 rounded-[2rem] bg-gradient-to-r from-[#1e293b] to-[#334155] p-8 text-white shadow-2xl overflow-hidden">
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
-          <div className="flex items-center gap-6">
-            <div className="h-16 w-16 rounded-2xl bg-white/10 backdrop-blur-md flex items-center justify-center border border-white/20 shadow-inner">
-              <DollarSign size={32} className="text-blue-400" />
+            <div className="flex items-center gap-6">
+              <div className="h-16 w-16 rounded-2xl bg-white/10 backdrop-blur-md flex items-center justify-center border border-white/20 shadow-inner">
+                <DollarSign size={32} className="text-blue-400" />
+              </div>
+              <div>
+                <h1 className="text-3xl font-black tracking-tight">{t("title")}</h1>
+                <div className="flex items-center gap-4 mt-1">
+                  <p className="text-blue-200 font-medium opacity-80">{t("subtitle")}</p>
+                  <div className="h-4 w-px bg-white/10" />
+                  <PageInstructions 
+                    title="نظام العمولات الشهرية"
+                    instructions={commissionInstructions}
+                    triggerText="عرض تعليمات الصفحة"
+                  />
+                </div>
+              </div>
             </div>
-            <div>
-              <h1 className="text-3xl font-black tracking-tight">{t("title")}</h1>
-              <p className="text-blue-200 font-medium opacity-80">{t("subtitle")}</p>
-            </div>
-          </div>
+
           
           <div className="flex items-center gap-2 bg-white/5 backdrop-blur-sm p-1.5 rounded-2xl border border-white/10">
             <button 
