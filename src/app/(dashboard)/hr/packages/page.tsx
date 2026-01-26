@@ -1,4 +1,4 @@
-import React from "react";
+import React, { Suspense } from "react";
 import { cookies } from "next/headers";
 import { query } from "@/lib/db";
 import { PackagesClient } from "./packages-client";
@@ -16,9 +16,11 @@ export default async function PackagesPage() {
   );
 
   return (
-    <PackagesClient 
-      initialPackages={packages} 
-      companyId={companyId}
-    />
+    <Suspense fallback={<div className="p-8 text-center font-black">جاري التحميل...</div>}>
+      <PackagesClient 
+        initialPackages={packages} 
+        companyId={companyId}
+      />
+    </Suspense>
   );
 }

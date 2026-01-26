@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
   Plus, 
@@ -28,7 +28,7 @@ import {
 import { toast } from "sonner";
 import { createPackageWithEmployees, deleteEmployeePackage } from "@/lib/actions/hr";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useLocale, useTranslations } from "@/lib/locale-context";
 import { cn } from "@/lib/utils";
 
@@ -48,6 +48,7 @@ export function PackagesClient({ initialPackages, companyId }: PackagesClientPro
   const [isLoading, setIsLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const router = useRouter();
+  const searchParams = useSearchParams();
 
   const [formData, setFormData] = useState({
     group_name: "",
@@ -55,6 +56,16 @@ export function PackagesClient({ initialPackages, companyId }: PackagesClientPro
     monthly_target: 0,
     bonus_after_target: 10,
   });
+
+  useEffect(() => {
+    const type = searchParams.get('type');
+    const create = searchParams.get('create');
+    
+    if (type === 'commission' && create === 'true') {
+      setIsModalOpen(true);
+      setFormData(prev => ({ ...prev, work_type: 'commission' }));
+    }
+  }, [searchParams]);
 
   const [employees, setEmployees] = useState([
     {

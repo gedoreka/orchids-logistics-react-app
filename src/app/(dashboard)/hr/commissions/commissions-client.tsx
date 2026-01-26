@@ -46,6 +46,7 @@ import { useTranslations, useLocale } from "@/lib/locale-context";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { useReactToPrint } from "react-to-print";
 import { PageInstructions } from "@/components/page-instructions";
 
@@ -712,39 +713,50 @@ export function CommissionsClient({ companyId, initialPackages }: CommissionsCli
                 <h2 className="font-black text-lg">{t("filters")}</h2>
               </div>
               
-              <div className="space-y-5">
-                <div>
-                  <label className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-2 block">{t("month")}</label>
-                  <div className="relative group">
-                    <Calendar className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-blue-500 transition-colors" size={18} />
-                    <input 
-                      type="month" 
-                      value={month}
-                      onChange={(e) => setMonth(e.target.value)}
-                      className="w-full pl-4 pr-10 py-3 rounded-2xl border border-gray-100 bg-gray-50 focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/5 outline-none font-bold text-sm transition-all"
-                    />
+                <div className="space-y-5">
+                  <div>
+                    <label className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-2 block">{t("month")}</label>
+                    <div className="relative group">
+                      <Calendar className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-blue-500 transition-colors" size={18} />
+                      <input 
+                        type="month" 
+                        value={month}
+                        onChange={(e) => setMonth(e.target.value)}
+                        className="w-full pl-4 pr-10 py-3 rounded-2xl border border-gray-100 bg-gray-50 focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/5 outline-none font-bold text-sm transition-all"
+                      />
+                    </div>
                   </div>
-                </div>
 
-                <div>
-                  <label className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-2 block">{t("package")}</label>
-                  <div className="relative group">
-                    <Briefcase className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-blue-500 transition-colors" size={18} />
-                    <select 
-                      value={selectedPackageId}
-                      onChange={(e) => setSelectedPackageId(e.target.value)}
-                      className="w-full pl-4 pr-10 py-3 rounded-2xl border border-gray-100 bg-gray-50 focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/5 outline-none font-bold text-sm transition-all appearance-none"
+                  <div>
+                    <label className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-2 block">{t("package")}</label>
+                    <div className="relative group">
+                      <Briefcase className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-blue-500 transition-colors" size={18} />
+                      <select 
+                        value={selectedPackageId}
+                        onChange={(e) => setSelectedPackageId(e.target.value)}
+                        className="w-full pl-4 pr-10 py-3 rounded-2xl border border-gray-100 bg-gray-50 focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/5 outline-none font-bold text-sm transition-all appearance-none"
+                      >
+                        <option value="">{t("package")}</option>
+                        {packages.map(p => (
+                          <option key={p.id} value={p.id}>{p.group_name}</option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+
+                  <div className="pt-2">
+                    <Link 
+                      href="/hr/packages?type=commission&create=true"
+                      className="w-full py-3 rounded-2xl bg-purple-50 text-purple-600 font-black text-[10px] border border-purple-100 hover:bg-purple-100 transition-all flex items-center justify-center gap-2 group/btn"
                     >
-                      <option value="">{t("package")}</option>
-                      {packages.map(p => (
-                        <option key={p.id} value={p.id}>{p.group_name}</option>
-                      ))}
-                    </select>
+                      <Plus size={14} className="group-hover/btn:rotate-90 transition-transform" />
+                      <span>إضافة باقة عمولة جديدة</span>
+                    </Link>
                   </div>
-                </div>
 
-                <div>
-                  <label className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-2 block">{t("commissionType")}</label>
+                  <div>
+                    <label className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-2 block">{t("commissionType")}</label>
+
                   <div className="flex flex-col gap-2 p-2 bg-gray-50 rounded-2xl border border-gray-100">
                     <button 
                       onClick={() => setMode("fixed_daily")}
