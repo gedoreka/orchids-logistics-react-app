@@ -1586,7 +1586,7 @@
       "deleteReceipt": "حذف السند",
       "noReceipts": "لا توجد سندات",
       "noReceiptsDesc": "لم يتم العثور على أي سندات مبيعات في النظام.",
-      "systemFooter": "نظام زول سبيد للخدمات اللوجستية",
+      "systemFooter": "Logistics Systems Pro",
       "allRightsReserved": "جميع الحقوق محفوظة © {year}"
     },
     "newSalesReceiptPage": {
@@ -2407,7 +2407,7 @@
     "vatNumberLabel": "الرقم الضريبي",
     "addressLabel": "العنوان",
     "phoneLabel": "رقم الهاتف",
-    "systemName": "نظام زول سبيد للخدمات اللوجستية",
+    "systemName": "Logistics Systems Pro",
     "rightsReserved": "جميع الحقوق محفوظة © {year}",
     "saving": "جاري الحفظ...",
     "savingDesc": "يتم الآن حفظ بيانات الفاتورة...",
