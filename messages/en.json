@@ -825,10 +825,11 @@
       "other": "Other",
       "deductions": "Deductions"
     },
-    "deductions": {
-      "title": "Add Monthly Deductions",
-      "subtitle": "Record all monthly deductions and discounts for employees and the facility"
-    },
+      "deductions": {
+        "title": "Add Monthly Deductions",
+        "subtitle": "Record all monthly deductions and discounts for employees and the facility",
+        "saveAll": "Save All"
+      },
     "subtypeManager": {
       "title": "Manage Custom Types",
       "subtitle": "Customize and edit expense sub-types for the system",
@@ -861,15 +862,16 @@
       "allTypes": "All Types",
       "total": "Total"
     },
-    "common": {
-      "operationCount": "{count} operations",
-      "status": "Status",
-      "details": "Details",
-      "type": "Type",
-      "actions": "Actions",
-      "cancel": "Cancel",
-      "save": "Save"
-    },
+      "common": {
+        "operationCount": "{count} operations",
+        "status": "Status",
+        "details": "Details",
+        "type": "Type",
+        "actions": "Actions",
+        "cancel": "Cancel",
+        "save": "Save",
+        "records": "records"
+      },
     "actions": {
       "title": "Actions",
       "view": "View",
