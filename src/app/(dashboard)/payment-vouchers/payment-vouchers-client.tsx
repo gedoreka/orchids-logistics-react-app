@@ -734,9 +734,9 @@ const statusOptions = [
       <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-[10px] font-black text-slate-500 uppercase tracking-widest pt-4 opacity-60">
         <div className="flex items-center gap-2">
           <Sparkles size={10} className="text-rose-500" />
-          <span>{useTranslations("financialVouchersPage")("systemTitle", { name: "Logistics Systems Pro" })} - {t("subtitle")}</span>
+          <span>{tFinancial("systemTitle", { name: "Logistics Systems Pro" })} - {t("subtitle")}</span>
         </div>
-        <span>{useTranslations("financialVouchersPage")("allRightsReserved", { year: new Date().getFullYear() })}</span>
+        <span>{tFinancial("allRightsReserved", { year: new Date().getFullYear() })}</span>
       </div>
 
       <AnimatePresence>
