@@ -797,19 +797,24 @@
           "manualEntry": "إدخال البيانات يدوياً",
           "iqamaRenewal": "تجديد إقامة",
           "selectAccount": "-- اختر الحساب --",
-          "selectCostCenter": "-- اختر مركز التكلفة --"
+            "selectCostCenter": "-- اختر مركز التكلفة --",
+            "searchPlaceholder": "البحث في المنصرفات...",
+            "employeeName": "اسم الموظف",
+            "noResults": "لا توجد نتائج مطابقة",
+            "success": "تم الحفظ بنجاح",
+            "successDesc": "تم حفظ {count} عملية منصرفات بنجاح"
+          },
+        "types": {
+          "iqama": "مصاريف الإقامة",
+          "fuel": "مصاريف الوقود",
+          "housing": "إيجار السكن",
+          "maintenance": "الصيانة والمشتريات",
+          "general": "منصرفات عامة",
+          "traffic": "المخالفات المرورية",
+          "advances": "السلفيات",
+          "other": "أخرى",
+          "deductions": "استقطاعات"
         },
-      "types": {
-        "iqama": "إصدار إقامة",
-        "fuel": "وقود",
-        "housing": "سكن",
-        "maintenance": "صيانة المركبات",
-        "general": "عام",
-        "traffic": "مخالفات مرورية",
-        "advances": "سلفيات",
-        "other": "أخرى",
-        "deductions": "استقطاعات"
-      },
       "deductions": {
         "title": "إضافة استقطاعات شهرية",
         "subtitle": "تسجيل كافة الاستقطاعات والخصومات الشهرية للموظفين والمنشأة"

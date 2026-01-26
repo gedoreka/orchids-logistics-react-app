@@ -807,8 +807,13 @@
         "manualEntry": "Manual Data Entry",
         "iqamaRenewal": "Iqama Renewal",
         "selectAccount": "-- Select Account --",
-        "selectCostCenter": "-- Select Cost Center --"
-      },
+          "selectCostCenter": "-- Select Cost Center --",
+          "searchPlaceholder": "Search expenses...",
+          "employeeName": "Employee Name",
+          "noResults": "No matching results",
+          "success": "Saved Successfully",
+          "successDesc": "{count} expense operations saved successfully"
+        },
     "types": {
       "iqama": "Iqama Expenses",
       "fuel": "Fuel Expenses",
