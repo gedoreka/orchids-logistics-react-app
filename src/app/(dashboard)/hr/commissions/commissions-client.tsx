@@ -387,7 +387,6 @@ export function CommissionsClient({ companyId, initialPackages }: CommissionsCli
     }
 
     setSendingEmail(commission.id);
-    setEmailDialog({ ...emailDialog, show: false });
     
     showNotify("loading", "جاري إرسال البريد الإلكتروني...");
     
@@ -403,6 +402,7 @@ export function CommissionsClient({ companyId, initialPackages }: CommissionsCli
       const data = await res.json();
       if (res.ok) {
         showNotify("success", "تم إرسال سند السداد بنجاح", `تم إرسال البريد الإلكتروني إلى ${commission.name} بنجاح.`);
+        setEmailDialog({ ...emailDialog, show: false });
       } else {
         showNotify("error", data.error || "فشل إرسال البريد");
       }

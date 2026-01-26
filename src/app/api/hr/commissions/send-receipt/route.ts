@@ -115,14 +115,14 @@ export async function POST(req: NextRequest) {
           </div>
         </div>
         
-        <div style="background-color: #f8fafc; padding: 15px; text-align: center; color: #cbd5e1; font-size: 10px;">
-          تم إنشاء هذا السند آلياً عبر نظام ZoolSpeed. جميع الحقوق محفوظة © 2026
-        </div>
+          <div style="background-color: #f8fafc; padding: 15px; text-align: center; color: #cbd5e1; font-size: 10px;">
+            تم إنشاء هذا السند آلياً عبر نظام Logistics Systems Pro. جميع الحقوق محفوظة © 2026
+          </div>
       </div>
     `;
 
     await transporter.sendMail({
-      from: `"${process.env.SMTP_FROM_NAME || company.name}" <${process.env.SMTP_FROM}>`,
+      from: `"${company.name} | Logistics Systems Pro" <${process.env.SMTP_FROM}>`,
       to: targetEmail,
       subject: `سند تأكيد صرف عمولة - ${comm.month}`,
       html: htmlContent,
