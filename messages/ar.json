@@ -162,7 +162,8 @@
     "userProfile": "بيانات المنشأة",
     "salesReceipts": "إيصالات البيع",
     "ecommerceOrders": "طلبات التجارة الإلكترونية",
-    "personalShipments": "الشحنات الشخصية"
+    "personalShipments": "الشحنات الشخصية",
+    "commissions": "نظام العمولة الشهرية"
   },
   "header": {
     "welcome": "مرحباً",
@@ -214,7 +215,8 @@
     "storeManagement": "إدارة المتاجر",
     "personalShipments": "الشحنات الشخصية",
     "shipmentManagement": "إدارة الشحنات",
-    "monthlyCommissionSystem": "نظام العمولة الشهرية",
+    "monthlyCommissions": "نظام العمولة الشهرية",
+    "commissionsReport": "تقرير العمولات",
     "expensesCenter": "مركز المصاريف",
     "journalEntries": "القيود اليومية",
     "profitLossSummary": "ملخص الأرباح والخسائر",
@@ -299,12 +301,12 @@
       "export": "تصدير",
       "nameAr": "الاسم بالعربي",
       "nameEn": "الاسم بالإنجليزي",
-        "taxDescription": "وصف الضريبة",
-        "isDefault": "افتراضي",
-        "noTaxes": "لا توجد ضرائب",
-        "noTaxesDesc": "لم يتم العثور على أي ضرائب مسجلة"
-      }
-    },
+      "taxDescription": "وصف الضريبة",
+      "isDefault": "افتراضي",
+      "noTaxes": "لا توجد ضرائب",
+      "noTaxesDesc": "لم يتم العثور على أي ضرائب مسجلة"
+    }
+  },
   "footer": {
     "copyright": "جميع الحقوق محفوظة الي شركة زول اسبيد للانشطة المتعددة",
     "systemStatus": "حالة النظام",
@@ -509,6 +511,61 @@
     "packageView": {
       "expired": "منتهية",
       "expiringSoon": "تنتهي قريباً"
+    },
+    "commissions": {
+      "title": "نظام العمولة الشهرية",
+      "subtitle": "إدارة وحساب عمولات الموظفين بشكل منظم واحترافي",
+      "filters": "فلترة البيانات",
+      "month": "الشهر",
+      "package": "الباقة",
+      "commissionType": "نوع العمولة",
+      "fixedAmount": "مبلغ ثابت",
+      "percentage": "نسبة مئوية %",
+      "viewData": "عرض البيانات",
+      "savedGroups": "المجموعات المحفوظة",
+      "savedGroupsDesc": "المجموعات المحفوظة لهذا الشهر",
+      "creationDate": "تاريخ الإنشاء",
+      "noSavedCommissions": "لا توجد أي عمولات محفوظة لهذا الشهر حتى الآن.",
+      "employeeDetails": "تفاصيل عمولات الموظفين",
+      "fixedSystem": "نظام المبلغ الثابت",
+      "percentageSystem": "نظام النسبة المئوية",
+      "employeeName": "الاسم",
+      "iqamaNumber": "رقم الهوية",
+      "nationality": "الجنسية",
+      "phone": "رقم الهاتف",
+      "userCode": "رقم المستخدم",
+      "startDate": "تاريخ بداية العمل",
+      "dailyAmount": "المبلغ اليومي",
+      "days": "عدد الأيام",
+      "total": "الإجمالي",
+      "commissionPercent": "نسبة العمولة %",
+      "deliveryTotal": "إجمالي التوصيل",
+      "revenue": "الإيرادات",
+      "due": "المستحق",
+      "commission": "العمولة",
+      "remaining": "المتبقي",
+      "deductions": "الخصومات",
+      "bonuses": "المكافآت",
+      "paymentStatus": "حالة الدفع",
+      "paid": "دُفع",
+      "unpaid": "لم يُدفع",
+      "saveData": "حفظ البيانات",
+      "report": {
+        "title": "تقرير العمولات الشهرية",
+        "subtitle": "عرض وتصدير تقارير العمولات الشهرية للموظفين",
+        "allTypes": "كل الأنواع",
+        "print": "طباعة",
+        "pdf": "PDF",
+        "excel": "Excel",
+        "noPackageData": "لا توجد بيانات عمولات لهذه الباقة.",
+        "noPackages": "لا توجد باقات متاحة."
+      },
+      "notifications": {
+        "saveSuccess": "تم حفظ بيانات العمولات بنجاح",
+        "deleteConfirm": "هل أنت متأكد من حذف هذه المجموعة؟",
+        "deleteSuccess": "تم حذف المجموعة بنجاح",
+        "error": "حدث خطأ أثناء المعالجة"
+      }
     }
   },
   "packages": {
@@ -933,13 +990,13 @@
       "employee": "الموظف",
       "account": "الحساب",
       "costCenter": "مركز التكلفة",
-        "description": "البيان",
-        "document": "المستند",
-        "delete": "حذف",
-        "selectEmployee": "اختر الموظف",
-        "employeeName": "اسم الموظف",
-        "tax": "الضريبة",
-        "net": "الصافي",
+      "description": "البيان",
+      "document": "المستند",
+      "delete": "حذف",
+      "selectEmployee": "اختر الموظف",
+      "employeeName": "اسم الموظف",
+      "tax": "الضريبة",
+      "net": "الصافي",
       "driver": "السائق",
       "addRow": "إضافة سطر",
       "saveAll": "حفظ الكل",
@@ -1019,11 +1076,11 @@
       "confirmDelete": "هل أنت متأكد من حذف هذا النوع المخصص؟"
     }
   },
-    "journalEntries": {
-      "title": "نظام القيود اليومية",
-      "subtitle": "إدارة شاملة لجميع القيود والعمليات المحاسبية",
-      "loading": "جاري التحميل...",
-      "createEntry": "إنشاء قيد جديد",
+  "journalEntries": {
+    "title": "نظام القيود اليومية",
+    "subtitle": "إدارة شاملة لجميع القيود والعمليات المحاسبية",
+    "loading": "جاري التحميل...",
+    "createEntry": "إنشاء قيد جديد",
     "journalLog": "سجل القيود اليومية",
     "entryNumber": "رقم القيد",
     "entryDate": "تاريخ القيد",
@@ -1434,10 +1491,10 @@
     "allRightsReserved": "جميع الحقوق محفوظة © {year}",
     "types": {
       "salesReceipts": {
-        "title": "سندات المبيعات",
+        "title": "إيصالات البيع",
         "subtitle": "إيصالات البيع المباشر",
         "description": "توثيق عمليات البيع النقدي وإصدار الإيصالات الفورية.",
-        "label": "سندات المبيعات",
+        "label": "إيصالات البيع",
         "features": [
           "تتبع المبيعات",
           "إصدار فوري",
@@ -1467,10 +1524,10 @@
         ]
       },
       "promissoryNotes": {
-        "title": "سندات لأمر",
+        "title": "السندات لأمر",
         "subtitle": "الالتزامات المالية والكمبيالات",
         "description": "إنشاء وإدارة السندات الإذنية والالتزامات المالية المستقبلية.",
-        "label": "سندات لأمر",
+        "label": "السندات لأمر",
         "features": [
           "تاريخ الاستحقاق",
           "توثيق الدين",
@@ -1501,7 +1558,7 @@
       }
     },
     "salesReceiptsPage": {
-      "title": "سندات المبيعات",
+      "title": "إيصالات البيع",
       "subtitle": "إدارة إيصالات المبيعات",
       "description": "تتبع وإدارة كافة سندات المبيعات الصادرة والتحقق من حالتها.",
       "addNew": "إضافة سند جديد",
@@ -1838,11 +1895,6 @@
           "placeholder": "اكتب اسم المنتج..."
         }
       },
-      "customers": {
-        "viewPage": {
-          "facilityInfo": "بيانات المنشأة"
-        }
-      },
       "search": {
         "placeholder": "البحث برقم العرض، اسم العميل، أو التفاصيل...",
         "export": "تصدير العروض"
@@ -1864,20 +1916,25 @@
         "noData": "لا توجد عروض أسعار",
         "noDataDesc": "ابدأ بإنشاء أول عرض سعر بالضغط على زر إضافة عرض سعر"
       },
-        "status": {
-          "confirmed": "معتمد",
-          "draft": "مسودة",
-          "expired": "منتهي"
-        },
-        "view": {
-          "title": "عرض عرض السعر",
-          "details": "تفاصيل العرض",
-          "facilityInfo": "بيانات المنشأة",
-          "customerData": "بيانات العميل",
-          "inclTax": "شامل الضريبة",
-          "summary": "ملخص عرض السعر"
-        },
-        "common": {
+      "status": {
+        "confirmed": "معتمد",
+        "draft": "مسودة",
+        "expired": "منتهي"
+      },
+      "view": {
+        "title": "عرض عرض السعر",
+        "details": "تفاصيل العرض",
+        "facilityInfo": "بيانات المنشأة",
+        "customerData": "بيانات العميل",
+        "inclTax": "شامل الضريبة",
+        "summary": "ملخص عرض السعر"
+      },
+      "customers": {
+        "viewPage": {
+          "facilityInfo": "بيانات المنشأة"
+        }
+      },
+      "common": {
         "description": "الوصف",
         "sar": "ر.س",
         "total": "الإجمالي"
@@ -1980,19 +2037,19 @@
       },
       "createNew": "إنشاء مسير جديد",
       "searchPlaceholder": "بحث بالباقة، الشهر أو الحالة...",
-        "table": {
-          "title": "سجل مسيرات الرواتب",
-          "count": "مسير مسجل",
-          "no": "الرقم",
-          "payrollMonth": "شهر المسير",
-          "package": "الباقة",
-          "employeesCount": "عدد الموظفين",
-          "totalSalaries": "إجمالي الرواتب",
-          "status": "الحالة",
-          "actions": "إجراءات",
-          "employee": "موظف",
-          "notSpecified": "غير محدد"
-        },
+      "table": {
+        "title": "سجل مسيرات الرواتب",
+        "count": "مسير مسجل",
+        "no": "الرقم",
+        "payrollMonth": "شهر المسير",
+        "package": "الباقة",
+        "employeesCount": "عدد الموظفين",
+        "totalSalaries": "إجمالي الرواتب",
+        "status": "الحالة",
+        "actions": "إجراءات",
+        "employee": "موظف",
+        "notSpecified": "غير محدد"
+      },
       "workTypes": {
         "target": "تارجت",
         "salary": "راتب"
@@ -2297,72 +2354,73 @@
       "enterEmail": "يرجى إدخال البريد الإلكتروني"
     }
   },
-    "newInvoicePage": {
-      "breadcrumbDashboard": "لوحة التحكم",
-      "breadcrumbInvoices": "الفواتير الضريبية",
-      "breadcrumbNew": "فاتورة جديدة",
-      "title": "إنشاء فاتورة ضريبية جديدة",
-      "zatcaCompliant": "نظام الفواتير الضريبية المعتمد",
-      "invoiceNumberLabelINV6": "رقم الفاتورة",
-      "newBadge": "جديد",
-      "invoiceNumberLabel": "رقم الفاتورة",
-      "totalBeforeTax": "الإجمالي قبل الضريبة",
-      "taxableAmount": "المبلغ الخاضع للضريبة",
-      "vatAmount": "قيمة الضريبة",
-      "vatAmountLabel": "ضريبة القيمة المضافة",
-      "customerData": "بيانات العميل",
-      "selectCustomerDesc": "اختر من قائمة العملاء المسجلين",
-      "invoiceDates": "تواريخ الفاتورة",
-      "datesDesc": "تحديد تاريخ الإصدار والاستحقاق",
-      "issueDateLabel": "تاريخ الإصدار",
-      "dueDateLabel": "تاريخ الاستحقاق",
-      "invoiceMonth": "شهر الفاتورة",
-      "servicesDetails": "تفاصيل الخدمات",
-      "itemsInInvoice": "البنود في الفاتورة",
-      "itemNo": "م",
-      "serviceName": "اسم الخدمة / المنتج",
-      "quantity": "الكمية",
-      "unitPrice": "سعر الوحدة",
-      "totalInclusive": "المجموع شامل",
-      "fromDate": "من تاريخ",
-      "toDate": "إلى تاريخ",
-      "tax": "الضريبة",
-      "selectCustomerPlaceholder": "اختر العميل من هنا...",
-      "addService": "إضافة خدمة",
-      "serviceNamePlaceholder": "اسم الخدمة...",
-      "addAdjustment": "إضافة تعديل",
-      "CANCELANDRETURN": "إلغاء والعودة",
-      "cancelAndReturn": "إلغاء والعودة",
-      "savesDraft": "حفظ كمسودة",
-      "saveAsDraft": "حفظ كمسودة",
-      "saveAndissue": "حفظ وإصدار",
-      "saveAndIssue": "حفظ وإصدار",
-      "delete": "حذف",
-      "totalItems": "إجمالي البنود",
-      "adjustments": "التعديلات",
-      "adjustmentsDesc": "إضافة خصومات أو إضافات للفاتورة",
-      "noAdjustments": "لا توجد تعديلات",
-      "addAdjustmentDesc": "إضافة خصم أو مبلغ إضافي",
-      "taxSummary": "ملخص الضريبة",
-      "automaticTax": "حساب الضريبة تلقائي",
-      "amountBeforeTax": "المبلغ قبل الضريبة",
-      "vat15": "الضريبة 15%",
-      "finalTotal": "الإجمالي النهائي",
-      "zatcaRequirement": "متطلب هيئة الزكاة والدخل",
-      "companyNameLabel": "اسم الشركة",
-      "vatNumberLabel": "الرقم الضريبي",
-      "addressLabel": "العنوان",
-      "phoneLabel": "رقم الهاتف",
-      "systemName": "نظام زول سبيد للخدمات اللوجستية",
-      "rightsReserved": "جميع الحقوق محفوظة © {year}",
-      "saving": "جاري الحفظ...",
-      "savingDesc": "يتم الآن حفظ بيانات الفاتورة...",
-      "savedSuccess": "تم الحفظ بنجاح",
-      "error": "خطأ",
-      "selectCustomerError": "يرجى اختيار العميل",
-      "addItemError": "يرجى إضافة بند واحد على الأقل",
-      "connectionError": "حدث خطأ في الاتصال بالخادم"
-    },
+  "newInvoicePage": {
+    "breadcrumbDashboard": "لوحة التحكم",
+    "breadcrumbInvoices": "الفواتير الضريبية",
+    "breadcrumbNew": "فاتورة جديدة",
+    "title": "إنشاء فاتورة ضريبية جديدة",
+    "zatcaCompliant": "نظام الفواتير الضريبية المعتمد",
+    "invoiceNumberLabelINV6": "رقم الفاتورة",
+    "newBadge": "جديد",
+    "invoiceNumberLabel": "رقم الفاتورة",
+    "totalBeforeTax": "الإجمالي قبل الضريبة",
+    "taxableAmount": "المبلغ الخاضع للضريبة",
+    "vatAmount": "قيمة الضريبة",
+    "vatAmountLabel": "ضريبة القيمة المضافة",
+    "customerData": "بيانات العميل",
+    "selectCustomerDesc": "اختر من قائمة العملاء المسجلين",
+    "invoiceDates": "تواريخ الفاتورة",
+    "datesDesc": "تحديد تاريخ الإصدار والاستحقاق",
+    "issueDateLabel": "تاريخ الإصدار",
+    "dueDateLabel": "تاريخ الاستحقاق",
+    "invoiceMonth": "شهر الفاتورة",
+    "servicesDetails": "تفاصيل الخدمات",
+    "itemsInInvoice": "البنود في الفاتورة",
+    "itemNo": "م",
+    "serviceName": "اسم الخدمة / المنتج",
+    "quantity": "الكمية",
+    "unitPrice": "سعر الوحدة",
+    "totalInclusive": "المجموع شامل",
+    "fromDate": "من تاريخ",
+    "toDate": "إلى تاريخ",
+    "tax": "الضريبة",
+    "selectCustomerPlaceholder": "اختر العميل من هنا...",
+    "addService": "إضافة خدمة",
+    "serviceNamePlaceholder": "اسم الخدمة...",
+    "addAdjustment": "إضافة تعديل",
+    "cancelAndReturn": "إلغاء والعودة",
+    "saveAsDraft": "حفظ كمسودة",
+    "saveAndIssue": "حفظ وإصدار",
+    "delete": "حذف",
+    "totalItems": "إجمالي البنود",
+    "adjustments": "التعديلات",
+    "adjustmentsDesc": "إضافة خصومات أو إضافات للفاتورة",
+    "noAdjustments": "لا توجد تعديلات",
+    "addAdjustmentDesc": "إضافة خصم أو مبلغ إضافي",
+    "taxSummary": "ملخص الضريبة",
+    "automaticTax": "حساب الضريبة تلقائي",
+    "amountBeforeTax": "المبلغ قبل الضريبة",
+    "vat15": "الضريبة 15%",
+    "finalTotal": "الإجمالي النهائي",
+    "zatcaRequirement": "متطلب هيئة الزكاة والدخل",
+    "companyNameLabel": "اسم الشركة",
+    "vatNumberLabel": "الرقم الضريبي",
+    "addressLabel": "العنوان",
+    "phoneLabel": "رقم الهاتف",
+    "systemName": "نظام زول سبيد للخدمات اللوجستية",
+    "rightsReserved": "جميع الحقوق محفوظة © {year}",
+    "saving": "جاري الحفظ...",
+    "savingDesc": "يتم الآن حفظ بيانات الفاتورة...",
+    "savedSuccess": "تم الحفظ بنجاح",
+    "error": "خطأ",
+    "selectCustomerError": "يرجى اختيار العميل",
+    "addItemError": "يرجى إضافة بند واحد على الأقل",
+    "connectionError": "حدث خطأ في الاتصال بالخادم",
+    "notifications": {
+      "saveError": "حدث خطأ أثناء حفظ الفاتورة",
+      "invalidData": "يرجى التأكد من صحة البيانات المدخلة"
+    }
+  },
   "creditNotes": {
     "createNew": "إنشاء إشعار دائن",
     "searchPlaceholder": "بحث في إشعارات الدائن...",
@@ -2432,12 +2490,12 @@
     "systemName": "Logistics Systems Pro",
     "allRightsReserved": "جميع الحقوق محفوظة © 2026"
   },
-    "accounts": {
-      "title": "شجرة الحسابات",
-      "subtitle": "إدارة الدليل المحاسبي",
-      "codeExample": "مثال: 10101",
-      "nameExample": "مثال: حساب البنك الأهلي",
-      "totalAccounts": "إجمالي الحسابات",
+  "accounts": {
+    "title": "شجرة الحسابات",
+    "subtitle": "إدارة الدليل المحاسبي",
+    "codeExample": "مثال: 10101",
+    "nameExample": "مثال: حساب البنك الأهلي",
+    "totalAccounts": "إجمالي الحسابات",
     "expenseAccounts": "حسابات المصروفات",
     "incomeAccounts": "حسابات الإيرادات",
     "others": "أخرى",
@@ -2526,30 +2584,30 @@
     "applyFilter": "تطبيق",
     "reset": "إعادة"
   },
-    "balanceSheet": {
-      "title": "الميزانية العمومية",
-      "loading": "جاري تحميل الميزانية العمومية...",
-      "isUnbalanced": "غير متوازنة",
-      "totalAssets": "إجمالي الأصول",
-      "totalLiabilities": "إجمالي الخصوم",
-      "totalEquities": "إجمالي حقوق ملكية",
-      "difference": "الفرق",
-      "unbalancedDesc": "الميزانية غير متوازنة، يوجد فرق قدره",
-      "assets": "الأصول",
-      "accountName": "اسم الحساب",
-      "accountCode": "كود الحساب",
-      "netBalance": "صافي الرصيد",
-      "totalLiabEquities": "إجمالي الخصوم وحقوق الملكية",
-      "noLiabilities": "لا توجد خصوم",
-      "balancedDesc": "الميزانية متوازنة تماماً"
-    },
-    "subUsers": {
-      "title": "المستخدمين الفرعيين",
-      "subtitle": "إدارة صلاحيات الموظفين",
-      "addNewUser": "إضافة مستخدم جديد",
-      "editUser": "تعديل المستخدم",
-      "lastLogin": "آخر تسجيل دخول",
-      "searchPlaceholder": "بحث...",
+  "balanceSheet": {
+    "title": "الميزانية العمومية",
+    "loading": "جاري تحميل الميزانية العمومية...",
+    "isUnbalanced": "غير متوازنة",
+    "totalAssets": "إجمالي الأصول",
+    "totalLiabilities": "إجمالي الخصوم",
+    "totalEquities": "إجمالي حقوق ملكية",
+    "difference": "الفرق",
+    "unbalancedDesc": "الميزانية غير متوازنة، يوجد فرق قدره",
+    "assets": "الأصول",
+    "accountName": "اسم الحساب",
+    "accountCode": "كود الحساب",
+    "netBalance": "صافي الرصيد",
+    "totalLiabEquities": "إجمالي الخصوم وحقوق الملكية",
+    "noLiabilities": "لا توجد خصوم",
+    "balancedDesc": "الميزانية متوازنة تماماً"
+  },
+  "subUsers": {
+    "title": "المستخدمين الفرعيين",
+    "subtitle": "إدارة صلاحيات الموظفين",
+    "addNewUser": "إضافة مستخدم جديد",
+    "editUser": "تعديل المستخدم",
+    "lastLogin": "آخر تسجيل دخول",
+    "searchPlaceholder": "بحث...",
     "permissions": "صلاحية",
     "active": "نشط",
     "suspended": "موقوف",

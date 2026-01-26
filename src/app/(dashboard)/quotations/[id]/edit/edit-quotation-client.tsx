@@ -87,11 +87,23 @@ export function EditQuotationClient({ quotation, customers, companyId }: EditQuo
     title: "",
     message: ""
   });
+    const formatDate = (dateValue: any) => {
+      if (!dateValue) return "";
+      try {
+        if (typeof dateValue === 'string') return dateValue.split('T')[0];
+        const date = new Date(dateValue);
+        if (isNaN(date.getTime())) return "";
+        return date.toISOString().split('T')[0];
+      } catch {
+        return "";
+      }
+    };
+
     const [formData, setFormData] = useState({
       quotation_number: quotation.quotation_number,
       client_id: String(quotation.client_id),
-      issue_date: quotation.issue_date ? (typeof quotation.issue_date === 'string' ? quotation.issue_date.split('T')[0] : new Date(quotation.issue_date).toISOString().split('T')[0]) : "",
-      due_date: quotation.due_date ? (typeof quotation.due_date === 'string' ? quotation.due_date.split('T')[0] : new Date(quotation.due_date).toISOString().split('T')[0]) : ""
+      issue_date: formatDate(quotation.issue_date),
+      due_date: formatDate(quotation.due_date)
     });
   const [items, setItems] = useState<ProductItem[]>(
     quotation.items?.length > 0
