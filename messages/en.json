@@ -795,8 +795,20 @@
       "tax": "Tax 15%",
       "net": "Net",
       "account": "Account",
-      "costCenter": "Cost Center"
-    },
+        "costCenter": "Cost Center",
+        "type": "Type",
+        "description": "Description",
+        "document": "Document",
+        "delete": "Delete",
+        "selectEmployee": "Select Employee",
+        "addRow": "Add Row",
+        "saveAll": "Save All",
+        "driver": "Driver",
+        "manualEntry": "Manual Data Entry",
+        "iqamaRenewal": "Iqama Renewal",
+        "selectAccount": "-- Select Account --",
+        "selectCostCenter": "-- Select Cost Center --"
+      },
     "types": {
       "iqama": "Iqama Expenses",
       "fuel": "Fuel Expenses",
