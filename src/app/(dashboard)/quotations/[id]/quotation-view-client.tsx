@@ -100,10 +100,22 @@ function generateQRCodeTLV(
   totalWithVAT: string,
   vatAmount: string
 ): string {
-  try {
-    const encoder = new TextEncoder();
-    const safeDate = invoiceDate && invoiceDate !== 'Invalid Date' ? invoiceDate : new Date().toISOString().split('T')[0];
-    const values = [
+    try {
+      const encoder = new TextEncoder();
+      
+      // Fix: Handle Date objects and ensure we have a valid ISO string before split
+      let dateStr = '';
+      if (invoiceDate instanceof Date) {
+        dateStr = invoiceDate.toISOString();
+      } else if (typeof invoiceDate === 'string') {
+        dateStr = invoiceDate;
+      } else if (invoiceDate) {
+        dateStr = new Date(invoiceDate).toISOString();
+      }
+      
+      const safeDate = dateStr && dateStr !== 'Invalid Date' ? dateStr.split('T')[0] : new Date().toISOString().split('T')[0];
+      const values = [
+
       sellerName || '',
       vatNumber || '',
       safeDate + 'T00:00:00Z',

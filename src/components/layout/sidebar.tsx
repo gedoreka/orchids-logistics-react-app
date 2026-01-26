@@ -77,9 +77,8 @@ const navItems: NavItem[] = [
     
     { titleKey: "ecommerce", href: "/ecommerce", icon: Store, permission: "ecommerce_orders_module", gradient: "from-emerald-500 to-teal-500" },
     
-    { titleKey: "monthlyCommissions", href: "/monthly-commissions", icon: HandCoins, permission: "monthly_commissions_module", gradient: "from-amber-500 to-orange-500" },
-  { titleKey: "commissionsReport", href: "/commissions-summary", icon: FileSpreadsheet, permission: "commissions_summary_module", gradient: "from-lime-500 to-green-500" },
-  
+    { titleKey: "monthlyCommissionSystem", href: "/hr/commissions", icon: HandCoins, permission: "monthly_commissions_module", gradient: "from-amber-500 to-orange-500" },
+    
     { titleKey: "expensesCenter", href: "/expenses", icon: BarChart3, permission: "expenses_module", gradient: "from-red-500 to-orange-500" },
     { titleKey: "journalEntries", href: "/journal-entries", icon: FileEdit, permission: "journal_entries_module", gradient: "from-violet-500 to-indigo-500" },
     { titleKey: "profitLossSummary", href: "/profit-loss", icon: PieChart, permission: "income_report_module", gradient: "from-sky-500 to-blue-500" },
