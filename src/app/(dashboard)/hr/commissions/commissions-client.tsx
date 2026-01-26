@@ -651,33 +651,43 @@ export function CommissionsClient({ companyId, initialPackages }: CommissionsCli
                         </div>
                       </div>
                       <div className="flex flex-col items-end gap-2">
-                         <div className="flex gap-1">
-                            <button 
-                              onClick={() => loadGroup(group.package_id, group.mode)}
-                              className="p-1.5 rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-500 hover:text-white transition-all"
-                            >
-                              <Eye size={14} />
-                            </button>
-                            <button 
-                              onClick={() => handleDeleteClick(group.package_id, group.mode, pkg?.group_name || "")}
-                              className="p-1.5 rounded-lg bg-red-50 text-red-600 hover:bg-red-500 hover:text-white transition-all"
-                            >
-                              <Trash2 size={14} />
-                            </button>
-                          </div>
+                             <div className="flex gap-1">
+                                <button 
+                                  onClick={() => loadGroup(group.package_id, group.mode)}
+                                  className="p-1.5 rounded-lg bg-blue-100 text-blue-700 hover:bg-blue-600 hover:text-white transition-all shadow-sm"
+                                  title="عرض التقرير"
+                                >
+                                  <Eye size={14} />
+                                </button>
+                                <button 
+                                  onClick={() => handleDeleteClick(group.package_id, group.mode, pkg?.group_name || "")}
+                                  className="p-1.5 rounded-lg bg-red-100 text-red-700 hover:bg-red-600 hover:text-white transition-all shadow-sm"
+                                  title="حذف التقرير"
+                                >
+                                  <Trash2 size={14} />
+                                </button>
+                              </div>
                           {/* Payment Toggle Switch */}
-                          <button 
-                            onClick={() => toggleGroupStatus(group)}
-                            className={cn(
-                              "w-10 h-5 rounded-full relative transition-all duration-300 shadow-inner",
-                              group.status === "paid" ? "bg-emerald-500" : "bg-gray-300"
-                            )}
-                          >
-                            <div className={cn(
-                              "absolute top-0.5 w-4 h-4 bg-white rounded-full transition-all shadow-sm",
-                              group.status === "paid" ? "right-0.5" : "left-0.5"
-                            )} />
-                          </button>
+                          <div className="flex flex-col items-center gap-1">
+                            <button 
+                              onClick={() => toggleGroupStatus(group)}
+                              className={cn(
+                                "w-10 h-5 rounded-full relative transition-all duration-300 shadow-inner group/toggle",
+                                group.status === "paid" ? "bg-emerald-500" : "bg-gray-300"
+                              )}
+                            >
+                              <div className={cn(
+                                "absolute top-0.5 w-4 h-4 bg-white rounded-full transition-all shadow-sm group-hover/toggle:scale-110",
+                                group.status === "paid" ? "right-0.5" : "left-0.5"
+                              )} />
+                            </button>
+                            <span className={cn(
+                              "text-[7px] font-black uppercase",
+                              group.status === "paid" ? "text-emerald-600" : "text-gray-400"
+                            )}>
+                              {group.status === "paid" ? "مدفوع" : "معلق"}
+                            </span>
+                          </div>
                       </div>
                     </div>
                     <div className="flex items-center justify-between mt-3 pt-2 border-t border-gray-100/50">
@@ -977,19 +987,28 @@ export function CommissionsClient({ companyId, initialPackages }: CommissionsCli
                                 <td className="px-6 py-4 text-center">
                                   <span className="font-black text-sm text-gray-900">{net.toFixed(2)}</span>
                                 </td>
-                                <td className="px-6 py-4 text-center">
-                                  <select 
-                                    value={comm.status}
-                                    onChange={(e) => handleCommChange(realIdx, "status", e.target.value)}
-                                    className={cn(
-                                      "px-4 py-2 rounded-xl text-[10px] font-black outline-none border transition-all appearance-none cursor-pointer",
-                                      comm.status === "paid" ? "bg-emerald-50 text-emerald-600 border-emerald-100" : "bg-red-50 text-red-600 border-red-100"
-                                    )}
-                                  >
-                                    <option value="unpaid">{t("unpaid")}</option>
-                                    <option value="paid">{t("paid")}</option>
-                                  </select>
-                                </td>
+                                  <td className="px-6 py-4 text-center">
+                                    <div className="flex flex-col items-center gap-1">
+                                      <button 
+                                        onClick={() => handleCommChange(realIdx, "status", comm.status === "paid" ? "unpaid" : "paid")}
+                                        className={cn(
+                                          "w-10 h-5 rounded-full relative transition-all duration-300 shadow-inner group/toggle",
+                                          comm.status === "paid" ? "bg-emerald-500" : "bg-gray-300"
+                                        )}
+                                      >
+                                        <div className={cn(
+                                          "absolute top-0.5 w-4 h-4 bg-white rounded-full transition-all shadow-md group-hover/toggle:scale-110",
+                                          comm.status === "paid" ? "right-0.5" : "left-0.5"
+                                        )} />
+                                      </button>
+                                      <span className={cn(
+                                        "text-[8px] font-black",
+                                        comm.status === "paid" ? "text-emerald-600" : "text-gray-400"
+                                      )}>
+                                        {comm.status === "paid" ? "تم الدفع" : "معلق"}
+                                      </span>
+                                    </div>
+                                  </td>
                               </motion.tr>
                             );
                           })}
@@ -1098,17 +1117,28 @@ export function CommissionsClient({ companyId, initialPackages }: CommissionsCli
                                 <td className="px-6 py-5 text-center bg-gray-50/50">
                                   <span className="font-black text-gray-900 text-base">{net.toLocaleString()}</span>
                                 </td>
-                                <td className="px-6 py-5 text-center">
-                                  <button 
-                                    onClick={() => handleCommChange(idx, "status", comm.status === "paid" ? "unpaid" : "paid")}
-                                    className={cn(
-                                      "px-3 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest transition-all",
-                                      comm.status === "paid" ? "bg-emerald-500 text-white shadow-lg shadow-emerald-100" : "bg-gray-200 text-gray-500 hover:bg-gray-300"
-                                    )}
-                                  >
-                                    {comm.status === "paid" ? "تم الدفع" : "معلق"}
-                                  </button>
-                                </td>
+                                  <td className="px-6 py-5 text-center">
+                                    <div className="flex flex-col items-center gap-1.5">
+                                      <button 
+                                        onClick={() => handleCommChange(idx, "status", comm.status === "paid" ? "unpaid" : "paid")}
+                                        className={cn(
+                                          "w-12 h-6 rounded-full relative transition-all duration-300 shadow-inner group/toggle",
+                                          comm.status === "paid" ? "bg-emerald-500" : "bg-gray-300"
+                                        )}
+                                      >
+                                        <div className={cn(
+                                          "absolute top-1 w-4 h-4 bg-white rounded-full transition-all shadow-md group-hover/toggle:scale-110",
+                                          comm.status === "paid" ? "right-1" : "left-1"
+                                        )} />
+                                      </button>
+                                      <span className={cn(
+                                        "text-[9px] font-black uppercase tracking-widest",
+                                        comm.status === "paid" ? "text-emerald-600" : "text-gray-400"
+                                      )}>
+                                        {comm.status === "paid" ? "تم الدفع" : "معلق"}
+                                      </span>
+                                    </div>
+                                  </td>
                                 <td className="px-6 py-5 text-center print:hidden">
                                   <div className="flex items-center justify-center gap-2">
                                     <button 
