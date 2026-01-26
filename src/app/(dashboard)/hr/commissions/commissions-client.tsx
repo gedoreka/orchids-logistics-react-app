@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
   DollarSign, 
@@ -27,7 +27,11 @@ import {
   TrendingDown,
   UserCheck,
   UserMinus,
-  Briefcase
+  Briefcase,
+  CheckSquare,
+  Square,
+  RefreshCw,
+  X
 } from "lucide-react";
 import { useTranslations, useLocale } from "@/lib/locale-context";
 import { cn } from "@/lib/utils";
@@ -55,6 +59,7 @@ export function CommissionsClient({ companyId, initialPackages }: CommissionsCli
   const [month, setMonth] = useState(format(new Date(), "yyyy-MM"));
   const [selectedPackageId, setSelectedPackageId] = useState<string>("");
   const [mode, setMode] = useState<"fixed" | "percentage">("fixed");
+  const [searchQuery, setSearchQuery] = useState("");
   
   // Data
   const [packages, setPackages] = useState(initialPackages);
@@ -130,7 +135,8 @@ export function CommissionsClient({ companyId, initialPackages }: CommissionsCli
           remaining: existing.remaining || 0,
           deduction: existing.deduction || 0,
           bonus: existing.bonus || 0,
-          status: existing.status || "unpaid"
+          status: existing.status || "unpaid",
+          selected: true
         };
       });
       
@@ -148,27 +154,70 @@ export function CommissionsClient({ companyId, initialPackages }: CommissionsCli
     updated[index][field] = value;
     
     // Recalculate
-    if (mode === "fixed") {
-      if (field === "daily_amount" || field === "days") {
-        updated[index].total = (parseFloat(updated[index].daily_amount) || 0) * (parseFloat(updated[index].days) || 0);
-      }
-    } else {
-      if (field === "percentage" || field === "revenue") {
-        const revenue = parseFloat(updated[index].revenue) || 0;
-        const percentage = parseFloat(updated[index].percentage) || 0;
-        updated[index].commission = (revenue * percentage) / 100;
-        updated[index].remaining = revenue - updated[index].commission;
+    if (field !== "selected") {
+      if (mode === "fixed") {
+        if (field === "daily_amount" || field === "days") {
+          updated[index].total = (parseFloat(updated[index].daily_amount) || 0) * (parseFloat(updated[index].days) || 0);
+        }
+      } else {
+        if (field === "percentage" || field === "revenue") {
+          const revenue = parseFloat(updated[index].revenue) || 0;
+          const percentage = parseFloat(updated[index].percentage) || 0;
+          updated[index].commission = (revenue * percentage) / 100;
+          updated[index].remaining = revenue - updated[index].commission;
+        }
       }
     }
     
     setCommissions(updated);
   };
 
+  const filteredCommissions = useMemo(() => {
+    if (!searchQuery.trim()) return commissions;
+    const q = searchQuery.toLowerCase().trim();
+    return commissions.filter(c => 
+      c.name.toLowerCase().includes(q) || 
+      c.iqama_number.includes(q) || 
+      c.user_code.includes(q)
+    );
+  }, [commissions, searchQuery]);
+
+  const toggleSelectAll = () => {
+    const allSelected = filteredCommissions.every(c => c.selected);
+    setCommissions(prev => {
+      const filteredIds = new Set(filteredCommissions.map(c => c.employee_id));
+      return prev.map(c => {
+        if (filteredIds.has(c.employee_id)) {
+          return { ...c, selected: !allSelected };
+        }
+        return c;
+      });
+    });
+  };
+
+  const removeUnselected = () => {
+    setCommissions(prev => prev.filter(c => c.selected));
+  };
+
+  const getRealIndex = (filteredIdx: number) => {
+    const filteredItem = filteredCommissions[filteredIdx];
+    return commissions.findIndex(c => c.employee_id === filteredItem.employee_id);
+  };
+
+  const selectedCount = commissions.filter(c => c.selected).length;
+
   const saveCommissions = async () => {
     if (!selectedPackageId) {
       showNotify("error", t("notifications.error"));
       return;
     }
+
+    const selectedComms = commissions.filter(c => c.selected);
+    if (selectedComms.length === 0) {
+      showNotify("error", "يرجى تحديد موظف واحد على الأقل");
+      return;
+    }
+
     setSaving(true);
     showNotify("loading", tCommon("loading"));
     try {
@@ -180,7 +229,7 @@ export function CommissionsClient({ companyId, initialPackages }: CommissionsCli
           month,
           mode,
           package_id: selectedPackageId,
-          commissions
+          commissions: selectedComms
         })
       });
       
@@ -467,171 +516,255 @@ export function CommissionsClient({ companyId, initialPackages }: CommissionsCli
           <div className="bg-white rounded-[2.5rem] shadow-sm border border-gray-100 overflow-hidden min-h-[600px] flex flex-col">
             {activeTab === "manage" ? (
               <>
-                {/* Manage Header */}
-                <div className="p-8 border-b border-gray-50 flex flex-col md:flex-row md:items-center justify-between gap-6 bg-gray-50/30">
-                  <div className="flex items-center gap-4">
-                    <div className="h-12 w-12 rounded-2xl bg-blue-500/10 flex items-center justify-center text-blue-600">
-                      <Users size={24} />
+                  {/* Manage Header */}
+                  <div className="p-8 border-b border-gray-50 flex flex-col md:flex-row md:items-center justify-between gap-6 bg-gray-50/30">
+                    <div className="flex items-center gap-4">
+                      <div className="h-12 w-12 rounded-2xl bg-blue-500/10 flex items-center justify-center text-blue-600">
+                        <Users size={24} />
+                      </div>
+                      <div>
+                        <h3 className="text-xl font-black text-gray-900">{t("employeeDetails")}</h3>
+                        <div className="flex items-center gap-2 mt-0.5">
+                          <p className="text-sm text-gray-400 font-medium">
+                            {mode === "fixed" ? t("fixedSystem") : t("percentageSystem")} • {month}
+                          </p>
+                          {commissions.length > 0 && (
+                            <span className="bg-blue-100 text-blue-600 px-2 py-0.5 rounded-lg text-[10px] font-bold">
+                              {selectedCount} / {commissions.length} مختار
+                            </span>
+                          )}
+                        </div>
+                      </div>
                     </div>
-                    <div>
-                      <h3 className="text-xl font-black text-gray-900">{t("employeeDetails")}</h3>
-                      <p className="text-sm text-gray-400 font-medium">
-                        {mode === "fixed" ? t("fixedSystem") : t("percentageSystem")} • {month}
-                      </p>
+
+                    <div className="flex flex-wrap items-center gap-3">
+                      {commissions.length > 0 && (
+                        <>
+                          <div className="relative group">
+                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-blue-500 transition-colors" size={16} />
+                            <input 
+                              type="text" 
+                              placeholder="بحث بالاسم أو الكود..."
+                              value={searchQuery}
+                              onChange={(e) => setSearchQuery(e.target.value)}
+                              className="pl-10 pr-4 py-2.5 rounded-xl border border-gray-200 bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/5 outline-none font-bold text-xs transition-all w-64"
+                            />
+                            {searchQuery && (
+                              <button 
+                                onClick={() => setSearchQuery("")}
+                                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                              >
+                                <X size={14} />
+                              </button>
+                            )}
+                          </div>
+
+                          <div className="flex items-center gap-2">
+                            <button 
+                              onClick={toggleSelectAll}
+                              className="px-4 py-2.5 rounded-xl bg-white text-gray-700 font-black text-[10px] border border-gray-200 hover:bg-gray-50 transition-all flex items-center gap-2 shadow-sm"
+                              title={filteredCommissions.every(c => c.selected) ? "إلغاء تحديد الكل" : "تحديد الكل"}
+                            >
+                              {filteredCommissions.every(c => c.selected) ? <CheckSquare size={16} className="text-blue-500" /> : <Square size={16} />}
+                              <span>{filteredCommissions.every(c => c.selected) ? "إلغاء الكل" : "تحديد الكل"}</span>
+                            </button>
+
+                            <button 
+                              onClick={removeUnselected}
+                              disabled={selectedCount === commissions.length || selectedCount === 0}
+                              className="px-4 py-2.5 rounded-xl bg-red-50 text-red-600 font-black text-[10px] border border-red-100 hover:bg-red-100 transition-all flex items-center gap-2 shadow-sm disabled:opacity-50"
+                            >
+                              <Trash2 size={16} />
+                              <span>حذف غير المختار</span>
+                            </button>
+
+                            <button 
+                              onClick={() => fetchData()}
+                              className="px-4 py-2.5 rounded-xl bg-white text-gray-700 font-black text-[10px] border border-gray-200 hover:bg-gray-50 transition-all flex items-center gap-2 shadow-sm"
+                            >
+                              <RefreshCw size={16} />
+                              <span>تحديث</span>
+                            </button>
+                          </div>
+                        </>
+                      )}
+                      
+                      <button 
+                        onClick={saveCommissions}
+                        disabled={saving || commissions.length === 0 || selectedCount === 0}
+                        className="px-8 py-3.5 rounded-2xl bg-emerald-500 text-white font-black text-sm shadow-xl shadow-emerald-100 hover:bg-emerald-600 active:scale-95 transition-all disabled:opacity-50 flex items-center gap-2 ml-auto"
+                      >
+                        {saving ? <Loader2 size={18} className="animate-spin" /> : <Save size={18} />}
+                        <span>{t("saveData")}</span>
+                      </button>
                     </div>
                   </div>
-                  
-                  <button 
-                    onClick={saveCommissions}
-                    disabled={saving || commissions.length === 0}
-                    className="px-8 py-3.5 rounded-2xl bg-emerald-500 text-white font-black text-sm shadow-xl shadow-emerald-100 hover:bg-emerald-600 active:scale-95 transition-all disabled:opacity-50 flex items-center gap-2"
-                  >
-                    {saving ? <Loader2 size={18} className="animate-spin" /> : <Save size={18} />}
-                    <span>{t("saveData")}</span>
-                  </button>
-                </div>
 
-                {/* Table Content */}
-                <div className="flex-1 overflow-x-auto">
-                  {commissions.length > 0 ? (
-                    <table className="w-full border-collapse">
-                      <thead>
-                        <tr className="bg-gray-50/50">
-                          <th className="px-6 py-5 text-right text-xs font-black text-gray-400 uppercase tracking-widest border-b border-gray-50">الموظف</th>
-                          <th className="px-6 py-5 text-center text-xs font-black text-gray-400 uppercase tracking-widest border-b border-gray-50">تاريخ البداية</th>
-                          {mode === "fixed" ? (
-                            <>
-                              <th className="px-6 py-5 text-center text-xs font-black text-gray-400 uppercase tracking-widest border-b border-gray-50">{t("dailyAmount")}</th>
-                              <th className="px-6 py-5 text-center text-xs font-black text-gray-400 uppercase tracking-widest border-b border-gray-50">{t("days")}</th>
-                              <th className="px-6 py-5 text-center text-xs font-black text-gray-400 uppercase tracking-widest border-b border-gray-50">{t("total")}</th>
-                            </>
-                          ) : (
-                            <>
-                              <th className="px-6 py-5 text-center text-xs font-black text-gray-400 uppercase tracking-widest border-b border-gray-50">{t("commissionPercent")}</th>
-                              <th className="px-6 py-5 text-center text-xs font-black text-gray-400 uppercase tracking-widest border-b border-gray-50">{t("revenue")}</th>
-                              <th className="px-6 py-5 text-center text-xs font-black text-gray-400 uppercase tracking-widest border-b border-gray-50">{t("commission")}</th>
-                            </>
-                          )}
-                          <th className="px-6 py-5 text-center text-xs font-black text-gray-400 uppercase tracking-widest border-b border-gray-50">{t("deductions")}</th>
-                          <th className="px-6 py-5 text-center text-xs font-black text-gray-400 uppercase tracking-widest border-b border-gray-50">{t("bonuses")}</th>
-                          <th className="px-6 py-5 text-center text-xs font-black text-gray-400 uppercase tracking-widest border-b border-gray-50">{t("paymentStatus")}</th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-gray-50">
-                        {commissions.map((comm, idx) => (
-                          <motion.tr 
-                            initial={{ opacity: 0, y: 10 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: idx * 0.05 }}
-                            key={comm.employee_id} 
-                            className="hover:bg-blue-50/30 transition-colors"
-                          >
-                            <td className="px-6 py-4">
-                              <div className="flex flex-col">
-                                <span className="font-black text-gray-900 text-sm">{comm.name}</span>
-                                <span className="text-[10px] text-gray-400 font-bold mt-0.5 tracking-tighter">{comm.user_code} • {comm.iqama_number}</span>
-                              </div>
-                            </td>
-                            <td className="px-6 py-4">
+
+                  {/* Table Content */}
+                  <div className="flex-1 overflow-x-auto">
+                    {commissions.length > 0 ? (
+                      <table className="w-full border-collapse">
+                        <thead>
+                          <tr className="bg-gray-50/50">
+                            <th className="px-6 py-5 text-center text-xs font-black text-gray-400 border-b border-gray-50 w-10">
                               <input 
-                                type="date" 
-                                value={comm.start_date}
-                                onChange={(e) => handleCommChange(idx, "start_date", e.target.value)}
-                                className="w-32 px-3 py-2 rounded-xl border border-gray-100 bg-gray-50/50 focus:bg-white focus:border-blue-500 outline-none text-xs font-bold transition-all"
+                                type="checkbox"
+                                checked={filteredCommissions.length > 0 && filteredCommissions.every(c => c.selected)}
+                                onChange={toggleSelectAll}
+                                className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
                               />
-                            </td>
+                            </th>
+                            <th className="px-6 py-5 text-right text-xs font-black text-gray-400 uppercase tracking-widest border-b border-gray-50">الموظف</th>
+                            <th className="px-6 py-5 text-center text-xs font-black text-gray-400 uppercase tracking-widest border-b border-gray-50">تاريخ البداية</th>
                             {mode === "fixed" ? (
                               <>
-                                <td className="px-6 py-4">
-                                  <input 
-                                    type="number" 
-                                    value={comm.daily_amount}
-                                    onChange={(e) => handleCommChange(idx, "daily_amount", e.target.value)}
-                                    className="w-24 px-3 py-2 rounded-xl border border-gray-100 bg-gray-50/50 text-center focus:bg-white focus:border-blue-500 outline-none text-xs font-black transition-all"
-                                  />
-                                </td>
-                                <td className="px-6 py-4">
-                                  <input 
-                                    type="number" 
-                                    value={comm.days}
-                                    onChange={(e) => handleCommChange(idx, "days", e.target.value)}
-                                    className="w-20 px-3 py-2 rounded-xl border border-gray-100 bg-gray-50/50 text-center focus:bg-white focus:border-blue-500 outline-none text-xs font-black transition-all"
-                                  />
-                                </td>
-                                <td className="px-6 py-4">
-                                  <span className="font-black text-sm text-blue-600">{(comm.total).toFixed(2)}</span>
-                                </td>
+                                <th className="px-6 py-5 text-center text-xs font-black text-gray-400 uppercase tracking-widest border-b border-gray-50">{t("dailyAmount")}</th>
+                                <th className="px-6 py-5 text-center text-xs font-black text-gray-400 uppercase tracking-widest border-b border-gray-50">{t("days")}</th>
+                                <th className="px-6 py-5 text-center text-xs font-black text-gray-400 uppercase tracking-widest border-b border-gray-50">{t("total")}</th>
                               </>
                             ) : (
                               <>
-                                <td className="px-6 py-4">
-                                  <div className="relative inline-block">
-                                    <input 
-                                      type="number" 
-                                      value={comm.percentage}
-                                      onChange={(e) => handleCommChange(idx, "percentage", e.target.value)}
-                                      className="w-24 px-3 py-2 rounded-xl border border-gray-100 bg-gray-50/50 text-center focus:bg-white focus:border-blue-500 outline-none text-xs font-black transition-all pr-6"
-                                    />
-                                    <span className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 text-[10px]">%</span>
-                                  </div>
-                                </td>
-                                <td className="px-6 py-4">
+                                <th className="px-6 py-5 text-center text-xs font-black text-gray-400 uppercase tracking-widest border-b border-gray-50">{t("commissionPercent")}</th>
+                                <th className="px-6 py-5 text-center text-xs font-black text-gray-400 uppercase tracking-widest border-b border-gray-50">{t("revenue")}</th>
+                                <th className="px-6 py-5 text-center text-xs font-black text-gray-400 uppercase tracking-widest border-b border-gray-50">{t("commission")}</th>
+                              </>
+                            )}
+                            <th className="px-6 py-5 text-center text-xs font-black text-gray-400 uppercase tracking-widest border-b border-gray-50">{t("deductions")}</th>
+                            <th className="px-6 py-5 text-center text-xs font-black text-gray-400 uppercase tracking-widest border-b border-gray-50">{t("bonuses")}</th>
+                            <th className="px-6 py-5 text-center text-xs font-black text-gray-400 uppercase tracking-widest border-b border-gray-50">{t("paymentStatus")}</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-gray-50">
+                          {filteredCommissions.map((comm, fIdx) => {
+                            const realIdx = getRealIndex(fIdx);
+                            return (
+                              <motion.tr 
+                                initial={{ opacity: 0, y: 10 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ delay: fIdx * 0.05 }}
+                                key={comm.employee_id} 
+                                className={cn(
+                                  "hover:bg-blue-50/30 transition-colors",
+                                  !comm.selected && "bg-gray-50/50 opacity-60"
+                                )}
+                              >
+                                <td className="px-6 py-4 text-center">
                                   <input 
-                                    type="number" 
-                                    value={comm.revenue}
-                                    onChange={(e) => handleCommChange(idx, "revenue", e.target.value)}
-                                    className="w-28 px-3 py-2 rounded-xl border border-gray-100 bg-gray-50/50 text-center focus:bg-white focus:border-blue-500 outline-none text-xs font-black transition-all"
+                                    type="checkbox"
+                                    checked={comm.selected}
+                                    onChange={(e) => handleCommChange(realIdx, "selected", e.target.checked)}
+                                    className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
                                   />
                                 </td>
                                 <td className="px-6 py-4">
-                                  <span className="font-black text-sm text-blue-600">{(comm.commission).toFixed(2)}</span>
+                                  <div className="flex flex-col">
+                                    <span className="font-black text-gray-900 text-sm">{comm.name}</span>
+                                    <span className="text-[10px] text-gray-400 font-bold mt-0.5 tracking-tighter">{comm.user_code} • {comm.iqama_number}</span>
+                                  </div>
                                 </td>
-                              </>
-                            )}
-                            <td className="px-6 py-4">
-                              <input 
-                                type="number" 
-                                value={comm.deduction}
-                                onChange={(e) => handleCommChange(idx, "deduction", e.target.value)}
-                                className="w-24 px-3 py-2 rounded-xl border border-gray-100 bg-gray-50/50 text-center focus:bg-white focus:border-blue-500 outline-none text-xs font-black text-red-500 transition-all"
-                              />
-                            </td>
-                            <td className="px-6 py-4">
-                              <input 
-                                type="number" 
-                                value={comm.bonus}
-                                onChange={(e) => handleCommChange(idx, "bonus", e.target.value)}
-                                className="w-24 px-3 py-2 rounded-xl border border-gray-100 bg-gray-50/50 text-center focus:bg-white focus:border-blue-500 outline-none text-xs font-black text-emerald-500 transition-all"
-                              />
-                            </td>
-                            <td className="px-6 py-4">
-                              <select 
-                                value={comm.status}
-                                onChange={(e) => handleCommChange(idx, "status", e.target.value)}
-                                className={cn(
-                                  "px-4 py-2 rounded-xl text-[10px] font-black outline-none border transition-all appearance-none cursor-pointer",
-                                  comm.status === "paid" ? "bg-emerald-50 text-emerald-600 border-emerald-100" : "bg-red-50 text-red-600 border-red-100"
+                                <td className="px-6 py-4 text-center">
+                                  <input 
+                                    type="date" 
+                                    value={comm.start_date}
+                                    onChange={(e) => handleCommChange(realIdx, "start_date", e.target.value)}
+                                    className="w-32 px-3 py-2 rounded-xl border border-gray-100 bg-gray-50/50 focus:bg-white focus:border-blue-500 outline-none text-xs font-bold transition-all"
+                                  />
+                                </td>
+                                {mode === "fixed" ? (
+                                  <>
+                                    <td className="px-6 py-4 text-center">
+                                      <input 
+                                        type="number" 
+                                        value={comm.daily_amount}
+                                        onChange={(e) => handleCommChange(realIdx, "daily_amount", e.target.value)}
+                                        className="w-24 px-3 py-2 rounded-xl border border-gray-100 bg-gray-50/50 text-center focus:bg-white focus:border-blue-500 outline-none text-xs font-black transition-all"
+                                      />
+                                    </td>
+                                    <td className="px-6 py-4 text-center">
+                                      <input 
+                                        type="number" 
+                                        value={comm.days}
+                                        onChange={(e) => handleCommChange(realIdx, "days", e.target.value)}
+                                        className="w-20 px-3 py-2 rounded-xl border border-gray-100 bg-gray-50/50 text-center focus:bg-white focus:border-blue-500 outline-none text-xs font-black transition-all"
+                                      />
+                                    </td>
+                                    <td className="px-6 py-4 text-center">
+                                      <span className="font-black text-sm text-blue-600">{(comm.total).toFixed(2)}</span>
+                                    </td>
+                                  </>
+                                ) : (
+                                  <>
+                                    <td className="px-6 py-4 text-center">
+                                      <div className="relative inline-block">
+                                        <input 
+                                          type="number" 
+                                          value={comm.percentage}
+                                          onChange={(e) => handleCommChange(realIdx, "percentage", e.target.value)}
+                                          className="w-24 px-3 py-2 rounded-xl border border-gray-100 bg-gray-50/50 text-center focus:bg-white focus:border-blue-500 outline-none text-xs font-black transition-all pr-6"
+                                        />
+                                        <span className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 text-[10px]">%</span>
+                                      </div>
+                                    </td>
+                                    <td className="px-6 py-4 text-center">
+                                      <input 
+                                        type="number" 
+                                        value={comm.revenue}
+                                        onChange={(e) => handleCommChange(realIdx, "revenue", e.target.value)}
+                                        className="w-28 px-3 py-2 rounded-xl border border-gray-100 bg-gray-50/50 text-center focus:bg-white focus:border-blue-500 outline-none text-xs font-black transition-all"
+                                      />
+                                    </td>
+                                    <td className="px-6 py-4 text-center">
+                                      <span className="font-black text-sm text-blue-600">{(comm.commission).toFixed(2)}</span>
+                                    </td>
+                                  </>
                                 )}
-                              >
-                                <option value="unpaid">{t("unpaid")}</option>
-                                <option value="paid">{t("paid")}</option>
-                              </select>
-                            </td>
-                          </motion.tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  ) : (
-                    <div className="flex flex-col items-center justify-center py-32 opacity-20 grayscale">
-                      <div className="h-24 w-24 rounded-full bg-gray-100 flex items-center justify-center mb-6">
-                        <Users size={48} />
+                                <td className="px-6 py-4 text-center">
+                                  <input 
+                                    type="number" 
+                                    value={comm.deduction}
+                                    onChange={(e) => handleCommChange(realIdx, "deduction", e.target.value)}
+                                    className="w-24 px-3 py-2 rounded-xl border border-gray-100 bg-gray-50/50 text-center focus:bg-white focus:border-blue-500 outline-none text-xs font-black text-red-500 transition-all"
+                                  />
+                                </td>
+                                <td className="px-6 py-4 text-center">
+                                  <input 
+                                    type="number" 
+                                    value={comm.bonus}
+                                    onChange={(e) => handleCommChange(realIdx, "bonus", e.target.value)}
+                                    className="w-24 px-3 py-2 rounded-xl border border-gray-100 bg-gray-50/50 text-center focus:bg-white focus:border-blue-500 outline-none text-xs font-black text-emerald-500 transition-all"
+                                  />
+                                </td>
+                                <td className="px-6 py-4 text-center">
+                                  <select 
+                                    value={comm.status}
+                                    onChange={(e) => handleCommChange(realIdx, "status", e.target.value)}
+                                    className={cn(
+                                      "px-4 py-2 rounded-xl text-[10px] font-black outline-none border transition-all appearance-none cursor-pointer",
+                                      comm.status === "paid" ? "bg-emerald-50 text-emerald-600 border-emerald-100" : "bg-red-50 text-red-600 border-red-100"
+                                    )}
+                                  >
+                                    <option value="unpaid">{t("unpaid")}</option>
+                                    <option value="paid">{t("paid")}</option>
+                                  </select>
+                                </td>
+                              </motion.tr>
+                            );
+                          })}
+                        </tbody>
+                      </table>
+                    ) : (
+                      <div className="flex flex-col items-center justify-center py-32 opacity-20 grayscale">
+                        <div className="h-24 w-24 rounded-full bg-gray-100 flex items-center justify-center mb-6">
+                          <Users size={48} />
+                        </div>
+                        <p className="font-black text-lg">لم يتم اختيار باقة أو لا يوجد موظفين</p>
                       </div>
-                      <p className="font-black text-lg">لم يتم اختيار باقة أو لا يوجد موظفين</p>
-                    </div>
-                  )}
-                </div>
-              </>
-            ) : (
+                    )}
+                  </div>
+                </>
+              ) : (
+
               <div className="flex-1 flex flex-col">
                 {/* Report Header */}
                 <div className="p-8 border-b border-gray-50 flex flex-col md:flex-row md:items-center justify-between gap-6">
