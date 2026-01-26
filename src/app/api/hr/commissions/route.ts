@@ -20,7 +20,6 @@ export async function GET(req: NextRequest) {
     );
 
     // 2. Fetch Saved Commission Groups for the month
-    // We group by serial_number if it exists, otherwise fallback to old grouping
     const savedGroups = await query(
       `SELECT 
         package_id, 
@@ -80,7 +79,6 @@ export async function POST(req: NextRequest) {
     }
 
     // Determine the serial number
-    // If it's an update, keep the existing one. If new, get the next one.
     const existing = await query(
       "SELECT serial_number FROM employee_commissions WHERE company_id = ? AND month = ? AND package_id = ? AND mode = ? LIMIT 1",
       [company_id, month, package_id, mode]
@@ -140,16 +138,25 @@ export async function POST(req: NextRequest) {
 export async function PATCH(req: NextRequest) {
   try {
     const body = await req.json();
-    const { company_id, month, package_id, mode, status } = body;
+    const { company_id, month, package_id, mode, status, employee_commission_id } = body;
 
-    if (!company_id || !month || !package_id || !mode || !status) {
-      return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
+    if (employee_commission_id) {
+      // Individual update
+      await execute(
+        "UPDATE employee_commissions SET status = ? WHERE id = ?",
+        [status, employee_commission_id]
+      );
+    } else {
+      // Group update
+      if (!company_id || !month || !package_id || !mode || !status) {
+        return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
+      }
+
+      await execute(
+        "UPDATE employee_commissions SET status = ? WHERE company_id = ? AND month = ? AND package_id = ? AND mode = ?",
+        [status, company_id, month, package_id, mode]
+      );
     }
-
-    await execute(
-      "UPDATE employee_commissions SET status = ? WHERE company_id = ? AND month = ? AND package_id = ? AND mode = ?",
-      [status, company_id, month, package_id, mode]
-    );
 
     return NextResponse.json({ success: true });
   } catch (error: any) {

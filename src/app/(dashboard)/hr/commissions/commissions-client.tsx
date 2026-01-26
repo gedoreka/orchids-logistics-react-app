@@ -35,7 +35,9 @@ import {
   Clock,
   Hash,
   Activity,
-  CreditCard
+  CreditCard,
+  Send,
+  Mail
 } from "lucide-react";
 import { useTranslations, useLocale } from "@/lib/locale-context";
 import { cn } from "@/lib/utils";
@@ -58,6 +60,7 @@ export function CommissionsClient({ companyId, initialPackages }: CommissionsCli
   const [activeTab, setActiveTab] = useState<"manage" | "report">("manage");
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [sendingEmail, setSendingEmail] = useState<number | null>(null);
   
   // Filters
   const [month, setMonth] = useState(format(new Date(), "yyyy-MM"));
@@ -104,10 +107,11 @@ export function CommissionsClient({ companyId, initialPackages }: CommissionsCli
   const loadGroup = async (pkgId: string, groupMode: "fixed_daily" | "fixed_monthly" | "percentage") => {
     setSelectedPackageId(pkgId);
     setMode(groupMode);
-    await fetchData(pkgId, groupMode);
+    await fetchData(pkgId, groupMode, true);
+    setActiveTab("report");
   };
 
-  const fetchData = async (pkgId = selectedPackageId, currentMode = mode) => {
+  const fetchData = async (pkgId = selectedPackageId, currentMode = mode, onlySaved = false) => {
     if (!pkgId) return;
     setLoading(true);
     try {
@@ -120,29 +124,61 @@ export function CommissionsClient({ companyId, initialPackages }: CommissionsCli
       const commissionMap = new Map();
       loadedComms.forEach((c: any) => commissionMap.set(c.employee_id, c));
       
-      const initialComms = employeeList.map((emp: any) => {
-        const existing = commissionMap.get(emp.id) || {};
-        return {
-          employee_id: emp.id,
-          name: emp.name,
-          iqama_number: emp.iqama_number,
-          nationality: emp.nationality,
-          phone: emp.phone,
-          user_code: emp.user_code,
-          start_date: existing.start_date ? format(new Date(existing.start_date), "yyyy-MM-dd") : "",
-          daily_amount: Number(existing.daily_amount) || 0,
-          days: Number(existing.days) || 0,
-          total: Number(existing.total) || 0,
-          percentage: Number(existing.percentage) || 0,
-          revenue: Number(existing.revenue) || 0,
-          commission: Number(existing.commission) || 0,
-          remaining: Number(existing.remaining) || 0,
-          deduction: Number(existing.deduction) || 0,
-          bonus: Number(existing.bonus) || 0,
-          status: existing.status || "unpaid",
-          selected: true
-        };
-      });
+      let initialComms = [];
+      
+      if (onlySaved) {
+        // Only show saved commissions
+        initialComms = loadedComms.map((c: any) => {
+          const emp = employeeList.find((e: any) => e.id === c.employee_id) || {};
+          return {
+            id: c.id,
+            employee_id: c.employee_id,
+            name: emp.name || "موظف محذوف",
+            iqama_number: emp.iqama_number || "",
+            nationality: emp.nationality || "",
+            phone: emp.phone || "",
+            user_code: emp.user_code || "",
+            start_date: c.start_date ? format(new Date(c.start_date), "yyyy-MM-dd") : "",
+            daily_amount: Number(c.daily_amount) || 0,
+            days: Number(c.days) || 0,
+            total: Number(c.total) || 0,
+            percentage: Number(c.percentage) || 0,
+            revenue: Number(c.revenue) || 0,
+            commission: Number(c.commission) || 0,
+            remaining: Number(c.remaining) || 0,
+            deduction: Number(c.deduction) || 0,
+            bonus: Number(c.bonus) || 0,
+            status: c.status || "unpaid",
+            selected: true
+          };
+        });
+      } else {
+        // Show all employees in package
+        initialComms = employeeList.map((emp: any) => {
+          const existing = commissionMap.get(emp.id) || {};
+          return {
+            id: existing.id,
+            employee_id: emp.id,
+            name: emp.name,
+            iqama_number: emp.iqama_number,
+            nationality: emp.nationality,
+            phone: emp.phone,
+            user_code: emp.user_code,
+            start_date: existing.start_date ? format(new Date(existing.start_date), "yyyy-MM-dd") : "",
+            daily_amount: Number(existing.daily_amount) || 0,
+            days: Number(existing.days) || 0,
+            total: Number(existing.total) || 0,
+            percentage: Number(existing.percentage) || 0,
+            revenue: Number(existing.revenue) || 0,
+            commission: Number(existing.commission) || 0,
+            remaining: Number(existing.remaining) || 0,
+            deduction: Number(existing.deduction) || 0,
+            bonus: Number(existing.bonus) || 0,
+            status: existing.status || "unpaid",
+            selected: !!existing.id
+          };
+        });
+      }
       
       setEmployees(employeeList);
       setCommissions(initialComms);
@@ -153,12 +189,12 @@ export function CommissionsClient({ companyId, initialPackages }: CommissionsCli
     }
   };
 
-  const handleCommChange = (index: number, field: string, value: any) => {
+  const handleCommChange = async (index: number, field: string, value: any) => {
     const updated = [...commissions];
     updated[index][field] = value;
     
     // Recalculate
-    if (field !== "selected") {
+    if (field !== "selected" && field !== "status") {
       if (mode === "fixed_daily") {
         if (field === "daily_amount" || field === "days") {
           updated[index].total = (parseFloat(updated[index].daily_amount) || 0) * (parseFloat(updated[index].days) || 0);
@@ -175,6 +211,23 @@ export function CommissionsClient({ companyId, initialPackages }: CommissionsCli
           updated[index].commission = (revenue * percentage) / 100;
           updated[index].remaining = revenue - updated[index].commission;
         }
+      }
+    }
+
+    // If updating status for a saved commission, sync with DB
+    if (field === "status" && updated[index].id) {
+      try {
+        await fetch("/api/hr/commissions", {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            employee_commission_id: updated[index].id,
+            status: value
+          })
+        });
+        showNotify("success", `تم تحديث حالة ${updated[index].name} إلى ${value === 'paid' ? 'تم الدفع' : 'لم يتم الدفع'}`);
+      } catch (error) {
+        console.error("Update status error:", error);
       }
     }
     
@@ -246,6 +299,9 @@ export function CommissionsClient({ companyId, initialPackages }: CommissionsCli
         const data = await res.json();
         showNotify("success", `تم حفظ التقرير بنجاح رقم ${data.serial_number}`, `تم حفظ عمولات لعدد ${selectedComms.length} موظف بنجاح.`);
         fetchSavedGroups();
+        // Reload to get IDs
+        fetchData(selectedPackageId, mode, true);
+        setActiveTab("report");
       } else {
         showNotify("error", t("notifications.error"));
       }
@@ -298,9 +354,39 @@ export function CommissionsClient({ companyId, initialPackages }: CommissionsCli
       if (res.ok) {
         showNotify("success", `تم تغيير الحالة إلى ${newStatus === 'paid' ? 'تم الدفع' : 'لم يتم الدفع'}`, "تم تحديث حالة جميع الموظفين في هذا التقرير.");
         fetchSavedGroups();
+        // Update local commissions if currently viewing this group
+        if (selectedPackageId === group.package_id && mode === group.mode) {
+          setCommissions(prev => prev.map(c => ({ ...c, status: newStatus })));
+        }
       }
     } catch (error) {
       showNotify("error", t("notifications.error"));
+    }
+  };
+
+  const sendEmailReceipt = async (comm: any) => {
+    if (!comm.id) {
+      showNotify("error", "يجب حفظ التقرير أولاً قبل إرسال السند");
+      return;
+    }
+
+    setSendingEmail(comm.id);
+    try {
+      const res = await fetch("/api/hr/commissions/send-receipt", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ commission_id: comm.id })
+      });
+      const data = await res.json();
+      if (res.ok) {
+        showNotify("success", "تم إرسال سند السداد بنجاح", `تم إرسال البريد الإلكتروني إلى ${comm.name} بنجاح.`);
+      } else {
+        showNotify("error", data.error || "فشل إرسال البريد");
+      }
+    } catch (error) {
+      showNotify("error", "حدث خطأ أثناء الإرسال");
+    } finally {
+      setSendingEmail(null);
     }
   };
 
@@ -565,7 +651,7 @@ export function CommissionsClient({ companyId, initialPackages }: CommissionsCli
                         </div>
                       </div>
                       <div className="flex flex-col items-end gap-2">
-                         <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                         <div className="flex gap-1">
                             <button 
                               onClick={() => loadGroup(group.package_id, group.mode)}
                               className="p-1.5 rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-500 hover:text-white transition-all"
@@ -991,6 +1077,7 @@ export function CommissionsClient({ companyId, initialPackages }: CommissionsCli
                             <th className="px-6 py-5 text-center text-[10px] font-black text-gray-400 uppercase tracking-widest">الخصومات (-)</th>
                             <th className="px-6 py-5 text-center text-[10px] font-black text-gray-400 uppercase tracking-widest">الصافي النهائي</th>
                             <th className="px-6 py-5 text-center text-[10px] font-black text-gray-400 uppercase tracking-widest">الحالة</th>
+                            <th className="px-6 py-5 text-center text-[10px] font-black text-gray-400 uppercase tracking-widest print:hidden">إجراءات</th>
                           </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-50">
@@ -998,7 +1085,12 @@ export function CommissionsClient({ companyId, initialPackages }: CommissionsCli
                             const net = (mode.startsWith("fixed") ? Number(comm.total) : Number(comm.commission)) + Number(comm.bonus) - Number(comm.deduction);
                             return (
                               <tr key={comm.employee_id} className="hover:bg-gray-50/50">
-                                <td className="px-6 py-5 font-black text-gray-900 text-sm">{comm.name}</td>
+                                <td className="px-6 py-5 font-black text-gray-900 text-sm">
+                                  <div className="flex flex-col">
+                                    <span>{comm.name}</span>
+                                    <span className="text-[10px] text-gray-400 font-bold">{comm.user_code}</span>
+                                  </div>
+                                </td>
                                 <td className="px-6 py-5 text-center font-medium text-gray-500 text-xs">{comm.start_date || "-"}</td>
                                 <td className="px-6 py-5 text-center font-black text-blue-600">{(mode.startsWith("fixed") ? Number(comm.total) : Number(comm.commission)).toLocaleString()}</td>
                                 <td className="px-6 py-5 text-center font-black text-emerald-500">{(Number(comm.bonus) || 0).toLocaleString()}</td>
@@ -1007,12 +1099,34 @@ export function CommissionsClient({ companyId, initialPackages }: CommissionsCli
                                   <span className="font-black text-gray-900 text-base">{net.toLocaleString()}</span>
                                 </td>
                                 <td className="px-6 py-5 text-center">
-                                  <span className={cn(
-                                    "px-3 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest",
-                                    comm.status === "paid" ? "bg-emerald-500 text-white shadow-lg shadow-emerald-100" : "bg-gray-200 text-gray-500"
-                                  )}>
+                                  <button 
+                                    onClick={() => handleCommChange(idx, "status", comm.status === "paid" ? "unpaid" : "paid")}
+                                    className={cn(
+                                      "px-3 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest transition-all",
+                                      comm.status === "paid" ? "bg-emerald-500 text-white shadow-lg shadow-emerald-100" : "bg-gray-200 text-gray-500 hover:bg-gray-300"
+                                    )}
+                                  >
                                     {comm.status === "paid" ? "تم الدفع" : "معلق"}
-                                  </span>
+                                  </button>
+                                </td>
+                                <td className="px-6 py-5 text-center print:hidden">
+                                  <div className="flex items-center justify-center gap-2">
+                                    <button 
+                                      onClick={() => sendEmailReceipt(comm)}
+                                      disabled={sendingEmail === comm.id}
+                                      className="p-2 rounded-xl bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white transition-all shadow-sm"
+                                      title="إرسال سند سداد بالبريد"
+                                    >
+                                      {sendingEmail === comm.id ? <Loader2 size={16} className="animate-spin" /> : <Mail size={16} />}
+                                    </button>
+                                    <button 
+                                      onClick={() => handlePrint()}
+                                      className="p-2 rounded-xl bg-gray-50 text-gray-600 hover:bg-gray-600 hover:text-white transition-all shadow-sm"
+                                      title="طباعة السند"
+                                    >
+                                      <Printer size={16} />
+                                    </button>
+                                  </div>
                                 </td>
                               </tr>
                             );
