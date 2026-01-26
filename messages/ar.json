@@ -275,7 +275,7 @@
       "reason": "السبب",
       "startDate": "تاريخ البدء",
       "endDate": "تاريخ الانتهاء",
-      "actions": "الإجراءات",
+      "actions": "إجراءات",
       "dialogDesc": "تعديل إعدادات الضرائب العامة في النظام",
       "cancel": "إلغاء",
       "save": "حفظ",
@@ -1238,7 +1238,7 @@
       "04": "أبريل",
       "05": "مايو",
       "06": "يونيو",
-      "07": "يوليو",
+      "07": "جايليو",
       "08": "أغسطس",
       "09": "سبتمبر",
       "10": "أكتوبر",
@@ -1766,9 +1766,10 @@
       "startByCreating": "ابدأ بإنشاء أول سند لأمر",
       "printPreview": "معاينة الطباعة",
       "printNow": "طباعة الآن",
-      "footerSystemName": "نظام زول سبيد القانوني",
+      "footerSystemName": "نظام LOGISTICS PRO القانوني",
       "idNo": "رقم الهوية:",
-      "registryNo": "سجل تجاري رقم:"
+      "registryNo": "سجل تجاري رقم:",
+      "allRightsReserved": "جميع الحقوق محفوظة © {year}"
     },
     "quotationsPage": {
       "title": "عروض الأسعار",
@@ -1885,7 +1886,7 @@
         "ok": "موافق"
       },
       "footer": {
-        "system": "زول اسبيد",
+        "system": "Logistics Systems Pro",
         "rights": "جميع الحقوق محفوظة © {year}"
       },
       "searchPlaceholder": "البحث برقم العرض، العميل...",
@@ -2305,7 +2306,7 @@
     "dueDateLabel": "تاريخ الاستحقاق",
     "invoiceMonth": "شهر الفاتورة",
     "servicesDetails": "تفاصيل الخدمات",
-    "itemsInInvoices": "البنود في الفاتورة",
+    "itemsInInvoice": "البنود في الفاتورة",
     "itemNo": "م",
     "serviceName": "اسم الخدمة / المنتج",
     "quantity": "الكمية",
@@ -2400,7 +2401,7 @@
     "totalItems": "إجمالي البنود",
     "active": "نشط",
     "cancelled": "ملغي",
-    "systemName": "زول اسبيد",
+    "systemName": "Logistics Systems Pro",
     "allRightsReserved": "جميع الحقوق محفوظة © 2026"
   },
   "accounts": {
