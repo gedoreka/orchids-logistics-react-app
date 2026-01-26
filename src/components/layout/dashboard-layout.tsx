@@ -133,7 +133,7 @@ export function DashboardLayout({ children, user, permissions, userType, subscri
             <Header user={user} onToggleSidebar={() => setIsSidebarOpen(true)} unreadChatCount={unreadChatCount} subscriptionData={subscriptionData} />
           </div>
 
-          <main className="flex-1 overflow-y-auto overflow-x-hidden relative z-0">
+          <main className="flex-1 overflow-y-auto overflow-x-hidden relative">
             {isBlocked ? (
               <div className="flex items-center justify-center min-h-[80vh] p-6 text-center">
                 <motion.div 
