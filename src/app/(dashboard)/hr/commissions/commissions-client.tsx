@@ -31,7 +31,8 @@ import {
   CheckSquare,
   Square,
   RefreshCw,
-  X
+  X,
+  Clock
 } from "lucide-react";
 import { useTranslations, useLocale } from "@/lib/locale-context";
 import { cn } from "@/lib/utils";
