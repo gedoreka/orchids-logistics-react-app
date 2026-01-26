@@ -58,73 +58,98 @@ export async function POST(req: NextRequest) {
       },
     });
 
+    const isPaid = comm.status === 'paid';
     const netAmount = (comm.mode.startsWith("fixed") ? Number(comm.total) : Number(comm.commission)) + Number(comm.bonus) - Number(comm.deduction);
 
     const htmlContent = `
-      <div dir="rtl" style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; background-color: #ffffff;">
-        <div style="background-color: #1e293b; padding: 30px; text-align: center; color: #ffffff;">
-          <h2 style="margin: 0; font-size: 24px;">سند تأكيد صرف عمولة</h2>
-          <p style="margin: 5px 0 0; opacity: 0.8;">${company.name}</p>
+      <div dir="rtl" style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 650px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 20px; overflow: hidden; background-color: #ffffff; box-shadow: 0 10px 30px rgba(0,0,0,0.05);">
+        <div style="background-color: ${isPaid ? '#0f172a' : '#92400e'}; padding: 40px 30px; text-align: center; color: #ffffff; position: relative; overflow: hidden;">
+          <div style="position: relative; z-index: 10;">
+            <h2 style="margin: 0; font-size: 28px; font-weight: 900; letter-spacing: -0.5px;">${isPaid ? 'سند تأكيد صرف عمولة' : 'إشعار استحقاق مالي'}</h2>
+            <p style="margin: 10px 0 0; opacity: 0.9; font-size: 16px; font-weight: 500;">${company.name}</p>
+          </div>
+          <div style="position: absolute; top: -50px; right: -50px; width: 150px; height: 150px; background: rgba(255,255,255,0.05); border-radius: 50%;"></div>
         </div>
         
-        <div style="padding: 30px;">
-          <div style="margin-bottom: 25px; border-bottom: 2px solid #f1f5f9; padding-bottom: 15px;">
-            <p style="margin: 0; color: #64748b; font-size: 12px; font-weight: bold; text-transform: uppercase;">بيانات الموظف</p>
-            <h3 style="margin: 5px 0; color: #0f172a;">${comm.employee_name}</h3>
-            <p style="margin: 0; color: #64748b; font-size: 14px;">كود الموظف: ${comm.user_code} | رقم الإقامة: ${comm.iqama_number}</p>
+        <div style="padding: 40px;">
+          <div style="margin-bottom: 35px; border-bottom: 2px solid #f8fafc; padding-bottom: 20px;">
+            <p style="margin: 0; color: #94a3b8; font-size: 11px; font-weight: 900; text-transform: uppercase; tracking: 1.5px;">بيانات المستحق</p>
+            <h3 style="margin: 8px 0; color: #0f172a; font-size: 22px; font-weight: 900;">السيد/ ${comm.employee_name}</h3>
+            <div style="display: flex; gap: 15px; margin-top: 5px;">
+              <span style="color: #64748b; font-size: 13px; font-weight: 600;">كود: ${comm.user_code}</span>
+              <span style="color: #64748b; font-size: 13px; font-weight: 600;">|</span>
+              <span style="color: #64748b; font-size: 13px; font-weight: 600;">رقم الهوية: ${comm.iqama_number}</span>
+            </div>
           </div>
 
-          <div style="background-color: #f8fafc; border-radius: 8px; padding: 20px; margin-bottom: 25px;">
+          ${!isPaid ? `
+          <div style="background-color: #fffbeb; border-right: 4px solid #f59e0b; padding: 20px; margin-bottom: 30px; border-radius: 8px;">
+            <p style="margin: 0; color: #92400e; font-size: 15px; line-height: 1.6; font-weight: 600;">
+              نود إحاطتكم علماً بوجود مستحقات مالية معلقة خاصة بعمولات شهر <b>${comm.month}</b>. 
+              نرجو منكم التكرم بمراجعة القسم المالي لاستكمال إجراءات الصرف في أقرب وقت ممكن لضمان انتظام العمليات المالية.
+            </p>
+          </div>
+          ` : `
+          <div style="background-color: #f0fdf4; border-right: 4px solid #22c55e; padding: 20px; margin-bottom: 30px; border-radius: 8px;">
+            <p style="margin: 0; color: #166534; font-size: 15px; line-height: 1.6; font-weight: 600;">
+              تم اعتماد وإيداع مستحقاتكم المالية بنجاح لعمولات شهر <b>${comm.month}</b>. 
+              نسعد بجهودكم المستمرة ونتمنى لكم مزيداً من النجاح والتوفيق.
+            </p>
+          </div>
+          `}
+
+          <div style="background-color: #f8fafc; border-radius: 16px; padding: 30px; margin-bottom: 35px; border: 1px solid #f1f5f9;">
             <table style="width: 100%; border-collapse: collapse;">
               <tr>
-                <td style="padding: 8px 0; color: #64748b; font-size: 14px;">الفترة (الشهر):</td>
-                <td style="padding: 8px 0; text-align: left; font-weight: bold; color: #0f172a;">${comm.month}</td>
+                <td style="padding: 12px 0; color: #64748b; font-size: 14px; font-weight: 600;">الفترة الزمنية:</td>
+                <td style="padding: 12px 0; text-align: left; font-weight: 800; color: #0f172a;">${comm.month}</td>
               </tr>
               <tr>
-                <td style="padding: 8px 0; color: #64748b; font-size: 14px;">نوع العمولة:</td>
-                <td style="padding: 8px 0; text-align: left; font-weight: bold; color: #0f172a;">${comm.mode === 'fixed_daily' ? 'مبلغ ثابت (يومي)' : comm.mode === 'fixed_monthly' ? 'مبلغ ثابت (شهري)' : 'نسبة مئوية'}</td>
+                <td style="padding: 12px 0; color: #64748b; font-size: 14px; font-weight: 600;">نظام الاحتساب:</td>
+                <td style="padding: 12px 0; text-align: left; font-weight: 800; color: #0f172a;">${comm.mode === 'fixed_daily' ? 'مبلغ ثابت (يومي)' : comm.mode === 'fixed_monthly' ? 'مبلغ ثابت (شهري)' : 'نسبة مئوية'}</td>
+              </tr>
+              <tr style="border-bottom: 1px dashed #e2e8f0;">
+                <td style="padding: 12px 0; color: #64748b; font-size: 14px; font-weight: 600;">العمولة الأساسية:</td>
+                <td style="padding: 12px 0; text-align: left; font-weight: 800; color: #3b82f6;">${(comm.mode.startsWith("fixed") ? Number(comm.total) : Number(comm.commission)).toLocaleString()} ر.س</td>
               </tr>
               <tr>
-                <td style="padding: 8px 0; color: #64748b; font-size: 14px;">قيمة العمولة المستحقة:</td>
-                <td style="padding: 8px 0; text-align: left; font-weight: bold; color: #3b82f6;">${(comm.mode.startsWith("fixed") ? Number(comm.total) : Number(comm.commission)).toLocaleString()} ر.س</td>
+                <td style="padding: 12px 0; color: #64748b; font-size: 14px; font-weight: 600;">إضافات / مكافآت:</td>
+                <td style="padding: 12px 0; text-align: left; font-weight: 800; color: #10b981;">+ ${Number(comm.bonus).toLocaleString()} ر.س</td>
               </tr>
               <tr>
-                <td style="padding: 8px 0; color: #64748b; font-size: 14px;">المكافآت:</td>
-                <td style="padding: 8px 0; text-align: left; font-weight: bold; color: #10b981;">+ ${Number(comm.bonus).toLocaleString()} ر.س</td>
+                <td style="padding: 12px 0; color: #64748b; font-size: 14px; font-weight: 600;">خصومات إدارية:</td>
+                <td style="padding: 12px 0; text-align: left; font-weight: 800; color: #ef4444;">- ${Number(comm.deduction).toLocaleString()} ر.س</td>
               </tr>
-              <tr>
-                <td style="padding: 8px 0; color: #64748b; font-size: 14px;">الخصومات:</td>
-                <td style="padding: 8px 0; text-align: left; font-weight: bold; color: #ef4444;">- ${Number(comm.deduction).toLocaleString()} ر.س</td>
-              </tr>
-              <tr style="border-top: 1px solid #e2e8f0;">
-                <td style="padding: 15px 0 0; color: #0f172a; font-size: 16px; font-weight: bold;">إجمالي الصافي:</td>
-                <td style="padding: 15px 0 0; text-align: left; font-size: 20px; font-weight: 900; color: #0f172a;">${netAmount.toLocaleString()} ر.س</td>
+              <tr style="border-top: 2px solid #e2e8f0;">
+                <td style="padding: 20px 0 0; color: #0f172a; font-size: 18px; font-weight: 900;">الصافي المستحق:</td>
+                <td style="padding: 20px 0 0; text-align: left; font-size: 26px; font-weight: 950; color: ${isPaid ? '#0f172a' : '#92400e'};">${netAmount.toLocaleString()} ر.س</td>
               </tr>
             </table>
           </div>
 
-          <div style="text-align: center; margin-bottom: 25px;">
-            <span style="display: inline-block; padding: 8px 20px; border-radius: 50px; background-color: #ecfdf5; color: #059669; font-weight: bold; font-size: 14px;">
-              حالة السداد: ${comm.status === 'paid' ? 'تم الدفع بنجاح' : 'بانتظار الصرف'}
-            </span>
+          <div style="text-align: center; margin-bottom: 35px;">
+            <div style="display: inline-block; padding: 12px 30px; border-radius: 50px; background-color: ${isPaid ? '#ecfdf5' : '#fff7ed'}; color: ${isPaid ? '#059669' : '#c2410c'}; font-weight: 900; font-size: 15px; border: 1px solid ${isPaid ? '#d1fae5' : '#ffedd5'};">
+              حالة العملية: ${isPaid ? 'تم صرف المستحقات' : 'بانتظار السداد والمراجعة'}
+            </div>
           </div>
 
-          <div style="border-top: 1px solid #f1f5f9; padding-top: 20px; text-align: center; color: #94a3b8; font-size: 12px;">
-            <p style="margin: 0;">شكراً لجهودكم المتميزة مع ${company.name}</p>
-            ${company.phone ? `<p style="margin: 5px 0 0;">للتواصل: ${company.phone}</p>` : ''}
+          <div style="border-top: 1px solid #f1f5f9; padding-top: 30px; text-align: center; color: #94a3b8; font-size: 13px;">
+            <p style="margin: 0; font-weight: 600;">هذا الإشعار رسمي صادر عن ${company.name}</p>
+            ${company.phone ? `<p style="margin: 8px 0 0; font-weight: 700;">للمراجعة والاستفسار: ${company.phone}</p>` : ''}
           </div>
         </div>
         
-          <div style="background-color: #f8fafc; padding: 15px; text-align: center; color: #cbd5e1; font-size: 10px;">
-            تم إنشاء هذا السند آلياً عبر نظام Logistics Systems Pro. جميع الحقوق محفوظة © 2026
-          </div>
+        <div style="background-color: #f8fafc; padding: 20px; text-align: center; color: #94a3b8; font-size: 11px; font-weight: 600; border-top: 1px solid #f1f5f9;">
+          صدر هذا المستند آلياً عبر منصة <b>Logistics Systems Pro</b><br/>
+          جميع الحقوق محفوظة © 2026
+        </div>
       </div>
     `;
 
     await transporter.sendMail({
       from: `"${company.name} | Logistics Systems Pro" <${process.env.SMTP_FROM}>`,
       to: targetEmail,
-      subject: `سند تأكيد صرف عمولة - ${comm.month}`,
+      subject: `${isPaid ? 'تأكيد صرف عمولة' : 'تنبيه استحقاق مالي'} - ${comm.month}`,
       html: htmlContent,
     });
 

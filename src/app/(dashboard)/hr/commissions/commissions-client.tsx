@@ -563,68 +563,85 @@ export function CommissionsClient({ companyId, initialPackages }: CommissionsCli
               exit={{ scale: 0.9, y: 20 }}
               className="bg-white rounded-[2.5rem] shadow-2xl w-full max-w-md p-8 relative overflow-hidden"
             >
-              <div className="absolute top-0 left-0 w-full h-2 bg-blue-500" />
-              <button 
-                onClick={() => setEmailDialog({ ...emailDialog, show: false })}
-                className="absolute top-6 right-6 p-2 rounded-xl hover:bg-gray-100 text-gray-400 transition-all"
-              >
-                <X size={20} />
-              </button>
-
-              <div className="flex items-center gap-4 mb-8">
-                <div className="h-14 w-14 rounded-2xl bg-blue-50 flex items-center justify-center text-blue-500 shadow-sm border border-blue-100">
-                  <Mail size={28} />
-                </div>
-                <div>
-                  <h3 className="text-xl font-black text-gray-900">إرسال سند سداد</h3>
-                  <p className="text-sm text-gray-400 font-medium">أدخل البريد الإلكتروني للموظف</p>
-                </div>
-              </div>
-
-              <div className="space-y-6">
-                <div className="p-4 rounded-2xl bg-gray-50 border border-gray-100 mb-6">
-                  <div className="flex items-center gap-3">
-                    <div className="h-10 w-10 rounded-full bg-white flex items-center justify-center text-gray-400 shadow-sm">
-                      <Users size={18} />
-                    </div>
-                    <div>
-                      <p className="text-[10px] text-gray-400 font-black uppercase">الموظف</p>
-                      <p className="font-black text-gray-900">{emailDialog.commission?.name}</p>
-                    </div>
+                <div className="absolute top-0 left-0 w-full h-2 bg-blue-500" />
+                <div className={cn(
+                  "absolute top-0 left-0 w-full h-2",
+                  emailDialog.commission?.status === 'paid' ? "bg-emerald-500" : "bg-amber-500"
+                )} />
+                <button 
+                  onClick={() => setEmailDialog({ ...emailDialog, show: false })}
+                  className="absolute top-6 right-6 p-2 rounded-xl hover:bg-gray-100 text-gray-400 transition-all"
+                >
+                  <X size={20} />
+                </button>
+  
+                <div className="flex items-center gap-4 mb-8">
+                  <div className={cn(
+                    "h-14 w-14 rounded-2xl flex items-center justify-center shadow-sm border",
+                    emailDialog.commission?.status === 'paid' ? "bg-emerald-50 text-emerald-500 border-emerald-100" : "bg-amber-50 text-amber-500 border-amber-100"
+                  )}>
+                    <Mail size={28} />
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-black text-gray-900">
+                      {emailDialog.commission?.status === 'paid' ? 'إرسال سند سداد' : 'إرسال تنبيه سداد'}
+                    </h3>
+                    <p className="text-sm text-gray-400 font-medium">
+                      {emailDialog.commission?.status === 'paid' ? 'سيتم إرسال تأكيد بالصرف للموظف' : 'سيتم إرسال إشعار استحقاق مالي احترافي'}
+                    </p>
                   </div>
                 </div>
-
-                <div className="space-y-2">
-                  <label className="text-xs font-bold text-gray-400 uppercase tracking-widest mr-2 block">البريد الإلكتروني</label>
-                  <div className="relative">
-                    <Mail className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
-                    <input 
-                      type="email"
-                      value={emailDialog.email}
-                      onChange={(e) => setEmailDialog({ ...emailDialog, email: e.target.value })}
-                      placeholder="employee@example.com"
-                      className="w-full pl-4 pr-12 py-4 rounded-2xl border border-gray-100 bg-gray-50 focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/5 outline-none font-bold transition-all text-sm"
-                      autoFocus
-                    />
+  
+                <div className="space-y-6">
+                  <div className={cn(
+                    "p-4 rounded-2xl border mb-6",
+                    emailDialog.commission?.status === 'paid' ? "bg-emerald-50/30 border-emerald-100/50" : "bg-amber-50/30 border-amber-100/50"
+                  )}>
+                    <div className="flex items-center gap-3">
+                      <div className="h-10 w-10 rounded-full bg-white flex items-center justify-center text-gray-400 shadow-sm">
+                        <Users size={18} />
+                      </div>
+                      <div>
+                        <p className="text-[10px] text-gray-400 font-black uppercase">الموظف</p>
+                        <p className="font-black text-gray-900">{emailDialog.commission?.name}</p>
+                      </div>
+                    </div>
+                  </div>
+  
+                  <div className="space-y-2">
+                    <label className="text-xs font-bold text-gray-400 uppercase tracking-widest mr-2 block">البريد الإلكتروني</label>
+                    <div className="relative">
+                      <Mail className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+                      <input 
+                        type="email"
+                        value={emailDialog.email}
+                        onChange={(e) => setEmailDialog({ ...emailDialog, email: e.target.value })}
+                        placeholder="employee@example.com"
+                        className="w-full pl-4 pr-12 py-4 rounded-2xl border border-gray-100 bg-gray-50 focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/5 outline-none font-bold transition-all text-sm"
+                        autoFocus
+                      />
+                    </div>
+                  </div>
+  
+                  <div className="flex items-center gap-3 pt-4">
+                    <button 
+                      onClick={() => setEmailDialog({ ...emailDialog, show: false })}
+                      className="flex-1 py-4 rounded-2xl bg-gray-100 text-gray-700 font-black text-sm hover:bg-gray-200 transition-all"
+                    >
+                      إلغاء
+                    </button>
+                    <button 
+                      onClick={executeSendEmail}
+                      className={cn(
+                        "flex-2 px-8 py-4 rounded-2xl text-white font-black text-sm shadow-xl active:scale-95 transition-all flex items-center justify-center gap-2",
+                        emailDialog.commission?.status === 'paid' ? "bg-emerald-600 hover:bg-emerald-700 shadow-emerald-100" : "bg-amber-600 hover:bg-amber-700 shadow-amber-100"
+                      )}
+                    >
+                      <Send size={18} />
+                      <span>{emailDialog.commission?.status === 'paid' ? 'إرسال السند' : 'إرسال التنبيه'}</span>
+                    </button>
                   </div>
                 </div>
-
-                <div className="flex items-center gap-3 pt-4">
-                  <button 
-                    onClick={() => setEmailDialog({ ...emailDialog, show: false })}
-                    className="flex-1 py-4 rounded-2xl bg-gray-100 text-gray-700 font-black text-sm hover:bg-gray-200 transition-all"
-                  >
-                    إلغاء
-                  </button>
-                  <button 
-                    onClick={executeSendEmail}
-                    className="flex-2 px-8 py-4 rounded-2xl bg-blue-600 text-white font-black text-sm hover:bg-blue-700 shadow-xl shadow-blue-100 active:scale-95 transition-all flex items-center justify-center gap-2"
-                  >
-                    <Send size={18} />
-                    <span>إرسال الآن</span>
-                  </button>
-                </div>
-              </div>
             </motion.div>
           </motion.div>
         )}
