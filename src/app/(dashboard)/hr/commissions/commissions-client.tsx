@@ -127,15 +127,15 @@ export function CommissionsClient({ companyId, initialPackages }: CommissionsCli
           phone: emp.phone,
           user_code: emp.user_code,
           start_date: existing.start_date ? format(new Date(existing.start_date), "yyyy-MM-dd") : "",
-          daily_amount: existing.daily_amount || 0,
-          days: existing.days || 0,
-          total: existing.total || 0,
-          percentage: existing.percentage || 0,
-          revenue: existing.revenue || 0,
-          commission: existing.commission || 0,
-          remaining: existing.remaining || 0,
-          deduction: existing.deduction || 0,
-          bonus: existing.bonus || 0,
+          daily_amount: Number(existing.daily_amount) || 0,
+          days: Number(existing.days) || 0,
+          total: Number(existing.total) || 0,
+          percentage: Number(existing.percentage) || 0,
+          revenue: Number(existing.revenue) || 0,
+          commission: Number(existing.commission) || 0,
+          remaining: Number(existing.remaining) || 0,
+          deduction: Number(existing.deduction) || 0,
+          bonus: Number(existing.bonus) || 0,
           status: existing.status || "unpaid",
           selected: true
         };
@@ -690,34 +690,34 @@ export function CommissionsClient({ companyId, initialPackages }: CommissionsCli
                                         className="w-20 px-3 py-2 rounded-xl border border-gray-100 bg-gray-50/50 text-center focus:bg-white focus:border-blue-500 outline-none text-xs font-black transition-all"
                                       />
                                     </td>
-                                    <td className="px-6 py-4 text-center">
-                                      <span className="font-black text-sm text-blue-600">{(comm.total).toFixed(2)}</span>
-                                    </td>
-                                  </>
-                                ) : (
-                                  <>
-                                    <td className="px-6 py-4 text-center">
-                                      <div className="relative inline-block">
+                                      <td className="px-6 py-4 text-center">
+                                        <span className="font-black text-sm text-blue-600">{Number(comm.total || 0).toFixed(2)}</span>
+                                      </td>
+                                    </>
+                                  ) : (
+                                    <>
+                                      <td className="px-6 py-4 text-center">
+                                        <div className="relative inline-block">
+                                          <input 
+                                            type="number" 
+                                            value={comm.percentage}
+                                            onChange={(e) => handleCommChange(realIdx, "percentage", e.target.value)}
+                                            className="w-24 px-3 py-2 rounded-xl border border-gray-100 bg-gray-50/50 text-center focus:bg-white focus:border-blue-500 outline-none text-xs font-black transition-all pr-6"
+                                          />
+                                          <span className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 text-[10px]">%</span>
+                                        </div>
+                                      </td>
+                                      <td className="px-6 py-4 text-center">
                                         <input 
                                           type="number" 
-                                          value={comm.percentage}
-                                          onChange={(e) => handleCommChange(realIdx, "percentage", e.target.value)}
-                                          className="w-24 px-3 py-2 rounded-xl border border-gray-100 bg-gray-50/50 text-center focus:bg-white focus:border-blue-500 outline-none text-xs font-black transition-all pr-6"
+                                          value={comm.revenue}
+                                          onChange={(e) => handleCommChange(realIdx, "revenue", e.target.value)}
+                                          className="w-28 px-3 py-2 rounded-xl border border-gray-100 bg-gray-50/50 text-center focus:bg-white focus:border-blue-500 outline-none text-xs font-black transition-all"
                                         />
-                                        <span className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 text-[10px]">%</span>
-                                      </div>
-                                    </td>
-                                    <td className="px-6 py-4 text-center">
-                                      <input 
-                                        type="number" 
-                                        value={comm.revenue}
-                                        onChange={(e) => handleCommChange(realIdx, "revenue", e.target.value)}
-                                        className="w-28 px-3 py-2 rounded-xl border border-gray-100 bg-gray-50/50 text-center focus:bg-white focus:border-blue-500 outline-none text-xs font-black transition-all"
-                                      />
-                                    </td>
-                                    <td className="px-6 py-4 text-center">
-                                      <span className="font-black text-sm text-blue-600">{(comm.commission).toFixed(2)}</span>
-                                    </td>
+                                      </td>
+                                      <td className="px-6 py-4 text-center">
+                                        <span className="font-black text-sm text-blue-600">{Number(comm.commission || 0).toFixed(2)}</span>
+                                      </td>
                                   </>
                                 )}
                                 <td className="px-6 py-4 text-center">

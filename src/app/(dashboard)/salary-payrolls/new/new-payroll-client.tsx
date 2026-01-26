@@ -1062,22 +1062,22 @@ export function NewPayrollClient({ packages, debts, companyId, userName }: NewPa
                                           min="0"
                                         />
                                       </td>
-                                      <td className="px-3 py-2 border-l border-gray-100">
-                                        <input
-                                          type="text"
-                                          value={row.target_deduction.toFixed(2)}
-                                          readOnly
-                                          className="w-16 px-2 py-1 rounded-lg border border-gray-100 bg-gray-50 text-center text-sm text-red-600 font-bold"
-                                        />
-                                      </td>
-                                      <td className="px-3 py-2 border-l border-gray-100">
-                                        <input
-                                          type="text"
-                                          value={row.monthly_bonus.toFixed(2)}
-                                          readOnly
-                                          className="w-16 px-2 py-1 rounded-lg border border-gray-100 bg-gray-50 text-center text-sm text-emerald-600 font-bold"
-                                        />
-                                      </td>
+                                        <td className="px-3 py-2 border-l border-gray-100">
+                                          <input
+                                            type="text"
+                                            value={(Number(row.target_deduction) || 0).toFixed(2)}
+                                            readOnly
+                                            className="w-16 px-2 py-1 rounded-lg border border-gray-100 bg-gray-50 text-center text-sm text-red-600 font-bold"
+                                          />
+                                        </td>
+                                        <td className="px-3 py-2 border-l border-gray-100">
+                                          <input
+                                            type="text"
+                                            value={(Number(row.monthly_bonus) || 0).toFixed(2)}
+                                            readOnly
+                                            className="w-16 px-2 py-1 rounded-lg border border-gray-100 bg-gray-50 text-center text-sm text-emerald-600 font-bold"
+                                          />
+                                        </td>
                                       <td className="px-3 py-2 border-l border-gray-100">
                                         <input
                                           type="number"
