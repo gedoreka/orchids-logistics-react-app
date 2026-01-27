@@ -7,7 +7,7 @@ import { notFound } from "next/navigation";
 export default async function CompanyDetailsPage({
   params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
   

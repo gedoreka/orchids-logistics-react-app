@@ -35,7 +35,7 @@ async function getCreditNoteDetails(id: string, companyId: number) {
   return creditNotes[0];
 }
 
-export default async function CreditNoteViewPage({ params }: { params: { id: string } }) {
+export default async function CreditNoteViewPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const cookieStore = await cookies();
   const sessionCookie = cookieStore.get("auth_session");
