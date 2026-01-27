@@ -27,9 +27,10 @@ function calculateEndDate(startDate: Date, durationValue: number, durationUnit: 
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const body = await request.json();
     const { action, rejection_reason, processed_by } = body;
 
@@ -39,7 +40,7 @@ export async function PATCH(
        JOIN subscription_plans sp ON pr.plan_id = sp.id
        JOIN companies c ON pr.company_id = c.id
        WHERE pr.id = ?`,
-      [params.id]
+      [id]
     );
 
     if (requests.length === 0) {
@@ -81,7 +82,7 @@ export async function PATCH(
           processed_at = NOW(),
           subscription_id = ?
         WHERE id = ?
-      `, [processed_by, subResult.insertId, params.id]);
+      `, [processed_by, subResult.insertId, id]);
 
       return NextResponse.json({ 
         success: true, 
@@ -102,7 +103,7 @@ export async function PATCH(
           processed_by = ?,
           processed_at = NOW()
         WHERE id = ?
-      `, [rejection_reason, processed_by, params.id]);
+      `, [rejection_reason, processed_by, id]);
 
       return NextResponse.json({ success: true, message: "تم رفض طلب الدفع" });
     }

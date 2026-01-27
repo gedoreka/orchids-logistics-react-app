@@ -4,6 +4,8 @@ import { query } from "@/lib/db";
 import { CostCenter } from "@/lib/types";
 import { CostCentersClient } from "./cost-centers-client";
 
+export const dynamic = "force-dynamic";
+
 export default async function CostCentersPage() {
   const cookieStore = await cookies();
   const sessionCookie = cookieStore.get("auth_session");

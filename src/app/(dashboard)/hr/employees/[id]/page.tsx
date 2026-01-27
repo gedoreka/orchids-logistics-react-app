@@ -4,7 +4,11 @@ import { query } from "@/lib/db";
 import { EmployeeDetailsClient } from "./employee-details-client";
 import { notFound } from "next/navigation";
 
-export default async function EmployeeDetailsPage({ params }: { params: { id: string } }) {
+export default async function EmployeeDetailsPage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
   const { id } = await params;
   const employeeId = parseInt(id);
 

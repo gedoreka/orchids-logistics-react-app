@@ -4,6 +4,8 @@ import { Company } from "@/lib/types";
 import { CompanyDetailsClient } from "./company-details-client";
 import { notFound } from "next/navigation";
 
+export const dynamic = "force-dynamic";
+
 export default async function CompanyDetailsPage({
   params,
 }: {

@@ -4,6 +4,8 @@ import { query } from "@/lib/db";
 import { CreditNoteViewClient } from "./credit-note-view-client";
 import { generateZatcaQR } from "@/lib/zatca-qr";
 
+export const dynamic = "force-dynamic";
+
 async function getCompanyId(userId: number) {
   const users = await query<any>("SELECT company_id FROM users WHERE id = ?", [userId]);
   return users[0]?.company_id;

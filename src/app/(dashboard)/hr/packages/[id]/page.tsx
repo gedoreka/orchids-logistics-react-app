@@ -4,14 +4,18 @@ import { query } from "@/lib/db";
 import { PackageViewClient } from "./package-view-client";
 import { notFound } from "next/navigation";
 
-export default async function PackageViewPage({ params, searchParams }: { 
-  params: { id: string },
-  searchParams: { search?: string, filter?: string }
+export default async function PackageViewPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ id: string }>;
+  searchParams: Promise<{ search?: string; filter?: string }>;
 }) {
   const { id } = await params;
   const packageId = parseInt(id);
-  const search = (await searchParams).search || "";
-  const filter = (await searchParams).filter || "all";
+  const resolvedSearchParams = await searchParams;
+  const search = resolvedSearchParams.search || "";
+  const filter = resolvedSearchParams.filter || "all";
 
   const cookieStore = await cookies();
   const sessionCookie = cookieStore.get("auth_session");

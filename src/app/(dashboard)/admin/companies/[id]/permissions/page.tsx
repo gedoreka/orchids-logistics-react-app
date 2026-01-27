@@ -14,7 +14,7 @@ interface Permission {
 export default async function CompanyPermissionsPage({
   params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
   

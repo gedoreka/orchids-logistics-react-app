@@ -4,7 +4,11 @@ import { query } from "@/lib/db";
 import { DigitalIdClient } from "./digital-id-client";
 import { notFound } from "next/navigation";
 
-export default async function DigitalIdPage({ params }: { params: { id: string } }) {
+export default async function DigitalIdPage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
   const { id } = await params;
   const employeeId = parseInt(id);
 
