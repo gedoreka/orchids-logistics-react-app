@@ -1,15 +1,19 @@
-# This file is to prevent 403 errors on Hostinger by ensuring the server knows how to handle the requests.
-# It disables directory listing and ensures requests are handled correctly.
-
+# Disable directory listing
 Options -Indexes
+
+# Set the default handler to server.js (if Apache tries to handle it)
 DirectoryIndex server.js index.html index.php
 
 <IfModule mod_rewrite.c>
   RewriteEngine On
-  RewriteBase /
   
-  # Forward all requests to the Node.js application if it's not a real file
+  # If the request is not for a real file or directory
+  # Hostinger's Node.js selector usually handles the proxying automatically
+  # but we can add a fallback if needed.
+  # For now, let's keep it minimal to avoid 403.
+  
   RewriteCond %{REQUEST_FILENAME} !-f
   RewriteCond %{REQUEST_FILENAME} !-d
-  RewriteRule ^(.*)$ server.js/$1 [L]
+  # We don't rewrite to server.js/$1 here because Node.js is not a PHP script.
+  # The Node.js process listens on a port and the web server proxies to it.
 </IfModule>
