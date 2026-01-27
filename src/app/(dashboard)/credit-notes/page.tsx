@@ -3,6 +3,8 @@ import { redirect } from "next/navigation";
 import { query } from "@/lib/db";
 import { CreditNotesListClient } from "./credit-notes-list-client";
 
+export const dynamic = "force-dynamic";
+
 async function getCompanyId(userId: number) {
   const users = await query<any>("SELECT company_id FROM users WHERE id = ?", [userId]);
   return users[0]?.company_id;
