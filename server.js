@@ -10,8 +10,8 @@ const handle = app.getRequestHandler();
 
 // Hostinger passes the port via process.env.PORT
 const port = process.env.PORT || 3000;
-// Use 127.0.0.1 for local binding in Hostinger's proxy environment
-const hostname = '127.0.0.1';
+// Using 0.0.0.0 to listen on all interfaces, common for proxy setups
+const hostname = '0.0.0.0';
 
 const logFile = path.join(__dirname, 'server.log');
 function log(msg) {
@@ -27,10 +27,11 @@ log('--- SERVER INITIALIZING ---');
 log(`Node Version: ${process.version}`);
 log(`Directory: ${__dirname}`);
 log(`Port: ${port}`);
+log(`Env: ${process.env.NODE_ENV}`);
 
-// Check if .next folder exists
+// Check for .next folder in production
 if (!dev && !fs.existsSync(path.join(__dirname, '.next'))) {
-    log('CRITICAL: .next folder not found! Please run "npm run build" in the Hostinger panel.');
+    log('CRITICAL ERROR: .next folder not found! You must run "npm run build" first.');
 }
 
 app.prepare()
@@ -62,7 +63,5 @@ app.prepare()
   .catch(err => {
     log(`CRITICAL ERROR during startup: ${err.message}`);
     log(err.stack);
-    // On Hostinger, we don't want to exit immediately if it's a transient error
-    // but for Next.js prepare, it's fatal.
     setTimeout(() => process.exit(1), 1000);
   });

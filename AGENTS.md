@@ -10,6 +10,7 @@ This is a logistics and management system built with Next.js 15, Supabase, and M
 
 ## Architecture
 - Flat structure: `/app`, `/components`, `/hooks`, `/lib`, `/i18n` at the root for maximum compatibility with hosting environments.
+- The `src` directory has been removed to avoid duplication and build conflicts.
 - Standalone output enabled for efficient deployment on Hostinger.
 
 ## User Preferences

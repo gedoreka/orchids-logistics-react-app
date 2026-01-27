@@ -1,19 +1,18 @@
 # Disable directory listing
 Options -Indexes
 
-# Set the default handler to server.js (if Apache tries to handle it)
-DirectoryIndex server.js index.html index.php
+# Set the default handler to index.php (if it exists) or index.html
+# NEVER include server.js here as it will cause the source code to be displayed
+DirectoryIndex index.php index.html
 
 <IfModule mod_rewrite.c>
   RewriteEngine On
   
-  # If the request is not for a real file or directory
-  # Hostinger's Node.js selector usually handles the proxying automatically
-  # but we can add a fallback if needed.
-  # For now, let's keep it minimal to avoid 403.
+  # Forward all requests to the Node.js app if it's not a static file
+  # The Hostinger Node.js selector handles the actual proxying.
+  # We just need to ensure Apache doesn't try to handle it.
   
   RewriteCond %{REQUEST_FILENAME} !-f
   RewriteCond %{REQUEST_FILENAME} !-d
-  # We don't rewrite to server.js/$1 here because Node.js is not a PHP script.
-  # The Node.js process listens on a port and the web server proxies to it.
+  RewriteRule ^(.*)$ index.php [L]
 </IfModule>
