@@ -1,0 +1,1 @@
+"use strict";exports.id=8922,exports.ids=[8922],exports.modules={56541:(a,b,c)=>{c.d(b,{saveEmployees:()=>d.D});var d=c(75480)},75480:(a,b,c)=>{c.d(b,{D:()=>e});var d=c(85708);let e=(0,d.createServerReference)("60ce660e0ef5f9a7f1b56eded9c5b0fb94d0762bf2",d.callServer,void 0,d.findSourceMapURL,"saveEmployees")}};
