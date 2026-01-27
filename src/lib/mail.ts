@@ -101,10 +101,11 @@ export async function sendLoginNotification(email: string, name: string, company
             </div>
             
             <div style="text-align: center; margin: 30px 0;">
-              <a href="https://zoolspeed.com/login" style="display: inline-block; background: #1e293b; color: white; text-decoration: none; padding: 14px 35px; border-radius: 12px; font-size: 14px; font-weight: 700;">
-                لوحة التحكم
-              </a>
-            </div>
+                <a href="${process.env.NEXT_PUBLIC_APP_URL}/login" style="display: inline-block; background: #1e293b; color: white; text-decoration: none; padding: 14px 35px; border-radius: 12px; font-size: 14px; font-weight: 700;">
+                  لوحة التحكم
+                </a>
+              </div>
+
           </div>
           
           <div style="background: #f8fafc; padding: 25px; text-align: center; border-top: 1px solid #f1f5f9;">
@@ -249,11 +250,12 @@ export async function sendWelcomeSubUserEmail(email: string, name: string, passw
               </div>
             </div>
             
-            <div style="text-align: center; margin: 35px 0;">
-              <a href="https://zoolspeed.com/login" style="display: inline-block; background: linear-gradient(135deg, #10b981 0%, #047857 100%); color: white; text-decoration: none; padding: 16px 45px; border-radius: 14px; font-size: 16px; font-weight: 700; box-shadow: 0 10px 30px rgba(16,185,129,0.3);">
-                تسجيل الدخول الآن →
-              </a>
-            </div>
+              <div style="text-align: center; margin: 35px 0;">
+                <a href="${process.env.NEXT_PUBLIC_APP_URL}/login" style="display: inline-block; background: linear-gradient(135deg, #10b981 0%, #047857 100%); color: white; text-decoration: none; padding: 16px 45px; border-radius: 14px; font-size: 16px; font-weight: 700; box-shadow: 0 10px 30px rgba(16,185,129,0.3);">
+                  تسجيل الدخول الآن →
+                </a>
+              </div>
+
             
             <div style="background: #f8fafc; border-radius: 16px; padding: 20px; text-align: center; border: 1px solid #e2e8f0;">
               <p style="color: #64748b; font-size: 13px; margin: 0 0 8px 0;">هل تحتاج مساعدة؟</p>

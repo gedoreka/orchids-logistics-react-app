@@ -146,7 +146,7 @@ const formatNumber = (num: number) => {
   }).format(num);
 };
 
-const UPLOADS_BASE_URL = "https://accounts.zoolspeed.com/uploads/";
+const UPLOADS_BASE_URL = `${process.env.NEXT_PUBLIC_APP_URL}/uploads/`;
 const SUPABASE_STORAGE_URL = "https://xaexoopjqkrzhbochbef.supabase.co/storage/v1/object/public/expenses/";
 
 const getAttachmentUrl = (attachment: string | null | undefined) => {

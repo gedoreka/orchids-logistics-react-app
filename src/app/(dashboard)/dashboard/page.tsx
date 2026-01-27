@@ -25,7 +25,7 @@ export default async function DashboardPage() {
   }
 
   const session = JSON.parse(sessionCookie.value);
-  const isAdmin = session.email === "admin@zoolspeed.com";
+  const isAdmin = session.email === process.env.ADMIN_EMAIL;
 
   let company: Company | null = null;
   let subscription = {

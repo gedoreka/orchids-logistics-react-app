@@ -51,7 +51,7 @@ const getPublicUrl = (path: string | null) => {
     return path;
   }
 
-  return `https://accounts.zoolspeed.com/${cleanPath}`;
+  return `${process.env.NEXT_PUBLIC_APP_URL}/${cleanPath}`;
 };
 
 interface PackageViewClientProps {

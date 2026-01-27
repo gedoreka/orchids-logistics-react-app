@@ -112,7 +112,7 @@ export async function loginAction(formData: FormData): Promise<AuthResponse> {
 
     if (users && users.length > 0) {
       user = users[0];
-      userType = user.email === "admin@zoolspeed.com" ? "admin" : "owner";
+      userType = user.email === process.env.ADMIN_EMAIL ? "admin" : "owner";
     } else {
       // 2. Try to find in company_sub_users table
       const { data: subUser, error: subError } = await supabase

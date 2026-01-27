@@ -120,13 +120,13 @@ export function Footer() {
           <div className="flex items-center flex-wrap justify-center gap-3">
             <motion.a 
               whileHover={{ scale: 1.05, y: -2 }}
-              href="mailto:info@zoolspeed.com"
+              href={`mailto:${process.env.SMTP_FROM}`}
               className="flex items-center gap-2 px-3 py-1.5 bg-white/5 hover:bg-white/10 rounded-xl border border-white/10 hover:border-blue-500/30 transition-all group"
             >
               <div className="p-1 rounded-md bg-blue-500/20">
                 <Mail size={10} className="text-blue-400" />
               </div>
-              <span className="text-[10px] font-bold text-white/50 group-hover:text-white/80 transition-colors">info@zoolspeed.com</span>
+              <span className="text-[10px] font-bold text-white/50 group-hover:text-white/80 transition-colors">{process.env.SMTP_FROM}</span>
             </motion.a>
 
             <motion.button 

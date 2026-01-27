@@ -79,7 +79,7 @@ function getPublicUrl(path: string | null) {
     const sPath = path.replace('employees/', '');
     return `https://xaexoopjqkrzhbochbef.supabase.co/storage/v1/object/public/employees/${sPath}`;
   }
-  return `https://accounts.zoolspeed.com/${cleanPath}`;
+  return `${process.env.NEXT_PUBLIC_APP_URL}/${cleanPath}`;
 }
 
 export function EmployeeDetailsClient({ 

@@ -38,7 +38,7 @@ const getPublicUrl = (path: string | null) => {
   }
 
   // Fallback to original server for all legacy data
-  return `https://accounts.zoolspeed.com/${cleanPath}`;
+  return `${process.env.NEXT_PUBLIC_APP_URL}/${cleanPath}`;
 };
 
 interface DigitalIdClientProps {

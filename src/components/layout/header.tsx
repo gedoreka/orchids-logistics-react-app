@@ -689,7 +689,7 @@ export function Header({ user, onToggleSidebar, unreadChatCount = 0, subscriptio
   };
 
   const copyDriverLink = () => {
-    navigator.clipboard.writeText("https://accounts.zoolspeed.com/driver/");
+    navigator.clipboard.writeText(`${process.env.NEXT_PUBLIC_APP_URL}/driver/`);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
@@ -2259,7 +2259,7 @@ export function Header({ user, onToggleSidebar, unreadChatCount = 0, subscriptio
 
               <div className="relative z-10 grid grid-cols-1 gap-3 mb-6">
                 <a 
-                  href="https://accounts.zoolspeed.com/driver/" 
+                  href={`${process.env.NEXT_PUBLIC_APP_URL}/driver/`} 
                   target="_blank"
                   className="flex items-center justify-between p-4 bg-white/5 hover:bg-white/10 rounded-2xl transition-all group border border-white/10 hover:border-white/20"
                 >
@@ -2307,7 +2307,7 @@ export function Header({ user, onToggleSidebar, unreadChatCount = 0, subscriptio
                   >
                     <div className="bg-slate-100 p-4 rounded-2xl">
                       <img 
-                        src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://accounts.zoolspeed.com/driver/" 
+                        src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${process.env.NEXT_PUBLIC_APP_URL}/driver/`} 
                         alt="QR Code"
                         className="w-32 h-32"
                       />

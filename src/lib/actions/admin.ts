@@ -137,11 +137,12 @@ function generateApprovalEmailTemplate(companyName: string): string {
               </ul>
             </div>
             
-            <div style="text-align: center; margin: 40px 0;">
-              <a href="https://zoolspeed.com/login" style="display: inline-block; background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; text-decoration: none; padding: 18px 50px; border-radius: 14px; font-size: 18px; font-weight: 700; box-shadow: 0 10px 30px rgba(16,185,129,0.4); transition: all 0.3s;">
-                ابدأ رحلتك الآن →
-              </a>
-            </div>
+              <div style="text-align: center; margin: 40px 0;">
+                <a href="${process.env.NEXT_PUBLIC_APP_URL}/login" style="display: inline-block; background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; text-decoration: none; padding: 18px 50px; border-radius: 14px; font-size: 18px; font-weight: 700; box-shadow: 0 10px 30px rgba(16,185,129,0.4); transition: all 0.3s;">
+                  تسجيل الدخول للنظام →
+                </a>
+              </div>
+
             
             <div style="background: #f8fafc; border-radius: 16px; padding: 25px; text-align: center; border: 1px solid #e2e8f0;">
               <p style="color: #64748b; font-size: 14px; margin: 0 0 10px 0;">هل تحتاج مساعدة؟ فريق الدعم الفني جاهز لخدمتك</p>

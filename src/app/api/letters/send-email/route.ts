@@ -142,7 +142,7 @@ export async function POST(request: NextRequest) {
               
               <div style="background: #f8fafc; border-radius: 16px; padding: 20px; text-align: center; border: 1px solid #e2e8f0;">
                 <p style="color: #64748b; font-size: 13px; margin: 0 0 8px 0;">للاستفسارات والتواصل</p>
-                <p style="color: #0078D4; font-size: 15px; font-weight: 700; margin: 0;">info@zoolspeed.com</p>
+                <p style="color: #0078D4; font-size: 15px; font-weight: 700; margin: 0;">${process.env.SMTP_FROM}</p>
               </div>
             </div>
             
