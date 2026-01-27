@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunk_N_E=self.webpackChunk_N_E||[]).push([[906],{11723:(e,a,c)=>{c.d(a,{D:()=>f});var r=c(30926);let f=(0,r.createServerReference)("600fc3396fcc8551341cfa59a4a1ef52c80cadf87a",r.callServer,void 0,r.findSourceMapURL,"saveEmployees")},30906:(e,a,c)=>{c.d(a,{saveEmployees:()=>r.D});var r=c(11723)}}]);
