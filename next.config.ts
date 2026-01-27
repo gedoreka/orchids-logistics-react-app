@@ -22,7 +22,6 @@ const nextConfig: NextConfig = {
   eslint: {
     ignoreDuringBuilds: true,
   },
-  output: 'standalone',
   poweredByHeader: false,
 } as NextConfig;
 
