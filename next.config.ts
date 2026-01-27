@@ -15,14 +15,15 @@ const nextConfig: NextConfig = {
         hostname: '**',
       },
     ],
-    },
-    typescript: {
+  },
+  typescript: {
     ignoreBuildErrors: true,
   },
   eslint: {
     ignoreDuringBuilds: true,
   },
   output: 'standalone',
+  poweredByHeader: false,
 } as NextConfig;
 
 export default nextConfig;
