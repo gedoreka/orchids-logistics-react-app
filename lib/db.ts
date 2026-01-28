@@ -13,6 +13,7 @@ const pool = mysql.createPool({
   keepAliveInitialDelay: 10000,
   idleTimeout: 60000,
   maxIdle: 10,
+  connectTimeout: 10000, // 10 seconds timeout
 });
 
 pool.on('error', (err) => {
@@ -31,17 +32,24 @@ async function withRetry<T>(operation: () => Promise<T>, retries = 3): Promise<T
         error.code === 'EPIPE' || 
         error.code === 'ECONNRESET' ||
         error.code === 'ECONNREFUSED' ||
+        error.code === 'ETIMEDOUT' ||
         error.fatal === true;
       
-          console.error(`DB Operation failed (attempt ${i + 1}/${retries}):`, {
-            code: error.code,
-            message: error.message,
-            errno: error.errno,
-            sqlState: error.sqlState,
-            host: process.env.DB_HOST === 'localhost' ? '127.0.0.1 (localhost)' : process.env.DB_HOST,
-            user: process.env.DB_USER,
-            port: process.env.DB_PORT || '3306'
-          });
+      if (error.code === 'ECONNREFUSED' && (process.env.DB_HOST === 'localhost' || process.env.DB_HOST === '127.0.0.1')) {
+        console.error('\n' + '='.repeat(50));
+        console.error('CRITICAL: Local MySQL Connection Refused');
+        console.error('You are running locally but DB_HOST is set to localhost.');
+        console.error('If you want to connect to the remote database, update DB_HOST in .env');
+        console.error('to your server IP (e.g., 92.113.18.38) and whitelist your IP.');
+        console.error('='.repeat(50) + '\n');
+      }
+
+      console.error(`DB Operation failed (attempt ${i + 1}/${retries}):`, {
+        code: error.code,
+        message: error.message,
+        host: process.env.DB_HOST,
+        user: process.env.DB_USER
+      });
 
       
       if (isNetworkError && i < retries - 1) {
