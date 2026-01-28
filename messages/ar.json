@@ -1001,9 +1001,9 @@
         "addRow": "إضافة سطر",
         "saveAll": "حفظ الكل",
         "searchPlaceholder": "بحث...",
-        "backToCenter": "العودة للمركز",
         "success": "تم الحفظ بنجاح",
-        "successDesc": "تم حفظ {count} من السجلات بنجاح في النظام."
+        "successDesc": "تم حفظ {count} من السجلات بنجاح في النظام.",
+        "backToCenter": "العودة للمركز"
       },
     "types": {
       "iqama": "منصرفات الاقامة / وكروت العمل",
