@@ -125,7 +125,12 @@ const placeholderLabels: Record<string, string> = {
   total_value: "إجمالي القيمة",
   service_days: "أيام الخدمة", service_months: "أشهر الخدمة", service_years: "سنوات الخدمة",
   end_date: "تاريخ النهاية",
-  basic_salary: "الراتب الأساسي", housing_allowance: "بدل السكن", transport_allowance: "بدل المواصلات",
+    basic_salary: "الراتب الأساسي الشهري", 
+    housing_allowance: "بدل السكن الشهري",
+    salary_period_type: "نوع فترة الراتب",
+    total_deduction: "إجمالي الخصم المستحق",
+    transport_allowance: "بدل المواصلات",
+
   end_service_bonus: "مكافأة نهاية الخدمة", vacation_balance: "رصيد الإجازات", total_amount: "إجمالي المستحقات",
   payroll_period: "فترة الراتب",
   period_from: "من تاريخ",
@@ -227,7 +232,11 @@ export default function LettersClient() {
     total_value: t("placeholders.total_value"),
     service_days: t("placeholders.service_days"), service_months: t("placeholders.service_months"), service_years: t("placeholders.service_years"),
     end_date: t("placeholders.end_date"),
-    basic_salary: t("placeholders.basic_salary"), housing_allowance: t("placeholders.housing_allowance"), transport_allowance: t("placeholders.transport_allowance"),
+    basic_salary: "الراتب الأساسي الشهري", 
+    housing_allowance: "بدل السكن الشهري",
+    salary_period_type: "نوع فترة الراتب",
+    total_deduction: "إجمالي الخصم المستحق",
+    transport_allowance: t("placeholders.transport_allowance"),
     end_service_bonus: t("placeholders.end_service_bonus"), vacation_balance: t("placeholders.vacation_balance"), total_amount: t("placeholders.total_amount"),
     payroll_period: t("placeholders.payroll_period"),
     period_from: t("placeholders.period_from"),
@@ -271,6 +280,19 @@ export default function LettersClient() {
     }
   }, [showSettings, companyInfo?.letterhead_path, renderPdfToCanvas]);
 
+  const calculateMonths = (from: string, to: string): number => {
+    if (!from || !to) return 1;
+    const startDate = new Date(from);
+    const endDate = new Date(to);
+    if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) return 1;
+    
+    let months = (endDate.getFullYear() - startDate.getFullYear()) * 12;
+    months -= startDate.getMonth();
+    months += endDate.getMonth();
+    
+    return Math.max(1, months + 1);
+  };
+
   useEffect(() => {
     if (selectedTemplate?.template_key === "salary_receipt" || selectedTemplate?.template_key === "final_clearance") {
       const basic = parseFloat(formData.basic_salary || "0");
@@ -278,8 +300,17 @@ export default function LettersClient() {
       const transport = parseFloat(formData.transport_allowance || "0");
       const bonus = parseFloat(formData.end_service_bonus || "0");
       const vacation = parseFloat(formData.vacation_balance || "0");
-      const total = basic + housing + transport + bonus + vacation;
-      if (total > 0 && total.toString() !== formData.total_amount) {
+      const deduction = parseFloat(formData.total_deduction || "0");
+      
+      let months = 1;
+      if (selectedTemplate?.template_key === "salary_receipt") {
+        months = calculateMonths(formData.period_from, formData.period_to);
+      }
+      
+      const subtotal = (basic + housing + transport) * months + bonus + vacation;
+      const total = Math.max(0, subtotal - deduction);
+      
+      if (total.toString() !== formData.total_amount) {
         setFormData(prev => ({
           ...prev,
           total_amount: total.toString(),
@@ -287,7 +318,7 @@ export default function LettersClient() {
         }));
       }
     }
-  }, [formData.basic_salary, formData.housing_allowance, formData.transport_allowance, formData.end_service_bonus, formData.vacation_balance, selectedTemplate]);
+  }, [formData.basic_salary, formData.housing_allowance, formData.transport_allowance, formData.end_service_bonus, formData.vacation_balance, formData.total_deduction, formData.period_from, formData.period_to, selectedTemplate]);
 
   const fetchData = async () => {
     try {
@@ -718,7 +749,16 @@ export default function LettersClient() {
 
 
   const getPlaceholders = (template: LetterTemplate): string[] => {
-    return typeof template.placeholders === 'string' ? JSON.parse(template.placeholders) : template.placeholders;
+    let placeholders = typeof template.placeholders === 'string' ? JSON.parse(template.placeholders) : template.placeholders;
+    if (template.template_key === "salary_receipt") {
+      const essential = ["salary_period_type", "total_deduction"];
+      essential.forEach(field => {
+        if (!placeholders.includes(field)) {
+          placeholders.push(field);
+        }
+      });
+    }
+    return placeholders;
   };
 
   if (loading) {
@@ -1045,19 +1085,37 @@ export default function LettersClient() {
                 </div>
                 <form onSubmit={handleSubmit} className="space-y-4">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {getPlaceholders(selectedTemplate).map((placeholder) => (
-                      <div key={placeholder}>
-                        <label className="block text-slate-300 mb-2 text-sm font-medium">{placeholderLabels[placeholder as keyof typeof placeholderLabels] || placeholder}</label>
-                          <input 
-                            type={placeholder.includes("date") || placeholder.includes("period_") ? "date" : "text"} 
-                            value={formData[placeholder] || ""} 
-                            onChange={(e) => setFormData({ ...formData, [placeholder]: e.target.value })} 
-                            readOnly={placeholder === "total_amount" || placeholder === "total_amount_text"} 
-                            className={`w-full bg-slate-700 border border-slate-600 rounded-xl py-3 px-4 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 ${(placeholder === "total_amount" || placeholder === "total_amount_text") ? "opacity-75 cursor-not-allowed bg-slate-800" : ""}`} 
-                            placeholder={t("form.placeholderPrefix", { label: placeholderLabels[placeholder as keyof typeof placeholderLabels] || placeholder })} 
-                          />
-                      </div>
-                    ))}
+                      {getPlaceholders(selectedTemplate).map((placeholder) => (
+                        <div key={placeholder}>
+                          <label className="block text-slate-300 mb-2 text-sm font-medium">{placeholderLabels[placeholder as keyof typeof placeholderLabels] || placeholder}</label>
+                          {placeholder === "salary_period_type" ? (
+                            <select
+                              value={formData[placeholder] || ""}
+                              onChange={(e) => setFormData({ ...formData, [placeholder]: e.target.value })}
+                              className="w-full bg-slate-700 border border-slate-600 rounded-xl py-3 px-4 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            >
+                              <option value="">{t("form.select") || "اختر..."}</option>
+                              <option value="شهري">شهري</option>
+                              <option value="سنوي">سنوي</option>
+                            </select>
+                          ) : (
+                            <>
+                              <input 
+                                type={placeholder.includes("date") || placeholder.includes("period_") ? "date" : "text"} 
+                                value={formData[placeholder] || ""} 
+                                onChange={(e) => setFormData({ ...formData, [placeholder]: e.target.value })} 
+                                readOnly={placeholder === "total_amount" || placeholder === "total_amount_text"} 
+                                className={`w-full bg-slate-700 border border-slate-600 rounded-xl py-3 px-4 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 ${(placeholder === "total_amount" || placeholder === "total_amount_text") ? "opacity-75 cursor-not-allowed bg-slate-800" : ""}`} 
+                                placeholder={t("form.placeholderPrefix", { label: placeholderLabels[placeholder as keyof typeof placeholderLabels] || placeholder })} 
+                              />
+                              {placeholder === "total_deduction" && (
+                                <p className="text-xs text-slate-400 mt-1">يمكنك إضافة مبلغ خصم هنا من الإجمالي إذا كان المبلغ لا يطابق أو أشهر رواتبها منخفضة</p>
+                              )}
+                            </>
+                          )}
+                        </div>
+                      ))}
+
                   </div>
                   <div className="flex gap-3 pt-4">
                     <button type="submit" className="flex-1 bg-blue-500 hover:bg-blue-600 text-white py-3 rounded-xl font-bold transition-all flex items-center justify-center gap-2">
