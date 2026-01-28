@@ -18,6 +18,18 @@ log('--- SERVER STARTING ---');
 log(`Node Version: ${process.version}`);
 log(`Directory: ${__dirname}`);
 
+// Diagnostic: Check .env file
+const envPath = path.join(__dirname, '.env');
+if (fs.existsSync(envPath)) {
+    log('.env file found.');
+} else {
+    log('WARNING: .env file NOT found. Database connections may fail.');
+}
+
+// Diagnostic: Check database variables (masked)
+log(`DB_HOST: ${process.env.DB_HOST ? 'Set' : 'NOT Set'}`);
+log(`DB_USER: ${process.env.DB_USER ? 'Set' : 'NOT Set'}`);
+
 // Hostinger passes the port via process.env.PORT
 const port = process.env.PORT || 3000;
 const hostname = '0.0.0.0';

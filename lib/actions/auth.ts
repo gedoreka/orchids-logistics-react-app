@@ -260,10 +260,23 @@ export async function loginAction(formData: FormData): Promise<AuthResponse> {
       },
       permissions,
     };
-  } catch (error) {
-    console.error("Login error:", error);
-    return { success: false, error: "خطأ في الاتصال بقاعدة البيانات." };
-  }
+    } catch (error: any) {
+      console.error("Login process exception:", {
+        message: error.message,
+        code: error.code,
+        stack: error.stack
+      });
+      
+      let errorMessage = "خطأ في الاتصال بقاعدة البيانات.";
+      
+      if (error.code === 'ECONNREFUSED' || error.code === 'ETIMEDOUT') {
+        errorMessage = "فشل الاتصال بسيرفر MySQL. يرجى التأكد من بيانات قاعدة البيانات في ملف .env";
+      } else if (error.message?.includes('supabase')) {
+        errorMessage = "فشل الاتصال بخدمة Supabase. يرجى مراجعة مفاتيح الربط.";
+      }
+      
+      return { success: false, error: errorMessage };
+    }
 }
 
 export async function forgotPasswordAction(formData: FormData): Promise<AuthResponse> {

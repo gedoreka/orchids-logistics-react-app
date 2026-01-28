@@ -3,7 +3,10 @@
   RewriteEngine On
   RewriteBase /
   
-  # Allow access to server.js for the proxy
+  # Avoid loops for server.js
+  RewriteCond %{REQUEST_URI} ^/server.js
+  RewriteRule ^.*$ - [L]
+
   # Forward all requests to the Node.js application
   RewriteCond %{REQUEST_FILENAME} !-f
   RewriteCond %{REQUEST_FILENAME} !-d
@@ -12,7 +15,4 @@
 
 # Prevent Directory Listing
 Options -Indexes
-
-# Error Handling
-# Let Next.js handle errors where possible
 

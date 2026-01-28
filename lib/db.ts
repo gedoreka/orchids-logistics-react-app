@@ -1,7 +1,7 @@
 import mysql from 'mysql2/promise';
 
 const pool = mysql.createPool({
-  host: process.env.DB_HOST,
+  host: process.env.DB_HOST === 'localhost' ? '127.0.0.1' : process.env.DB_HOST,
   user: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
   database: process.env.DB_NAME,
@@ -29,7 +29,15 @@ async function withRetry<T>(operation: () => Promise<T>, retries = 3): Promise<T
         error.code === 'PROTOCOL_CONNECTION_LOST' || 
         error.code === 'EPIPE' || 
         error.code === 'ECONNRESET' ||
+        error.code === 'ECONNREFUSED' ||
         error.fatal === true;
+      
+      console.error(`DB Operation failed (attempt ${i + 1}/${retries}):`, {
+        code: error.code,
+        message: error.message,
+        errno: error.errno,
+        sqlState: error.sqlState
+      });
       
       if (isNetworkError && i < retries - 1) {
         const delay = Math.pow(2, i) * 500; // Exponential backoff
