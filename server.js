@@ -21,7 +21,15 @@ log(`Directory: ${__dirname}`);
 // Diagnostic: Check .env file
 const envPath = path.join(__dirname, '.env');
 if (fs.existsSync(envPath)) {
-    log('.env file found.');
+    log('.env file found. Loading variables...');
+    const envContent = fs.readFileSync(envPath, 'utf8');
+    envContent.split('\n').forEach(line => {
+        const [key, ...valueParts] = line.split('=');
+        if (key && valueParts.length > 0) {
+            const value = valueParts.join('=').trim().replace(/^["']|["']$/g, '');
+            process.env[key.trim()] = value;
+        }
+    });
 } else {
     log('WARNING: .env file NOT found. Database connections may fail.');
 }
