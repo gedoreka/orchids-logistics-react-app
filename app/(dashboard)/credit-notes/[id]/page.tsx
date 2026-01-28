@@ -20,15 +20,16 @@ async function getCreditNoteDetails(id: string, companyId: number) {
         c.email as client_email,
         c.phone as client_phone,
         c.commercial_number as client_cr,
+        c.short_address as client_short_address,
         comp.name as company_name,
         comp.vat_number as company_vat,
         comp.commercial_number as company_cr,
-        CONCAT(comp.street, ' ', comp.district, ' ', comp.region) as company_address,
+        CONCAT(COALESCE(comp.street, ''), ' ', COALESCE(comp.district, ''), ' ', COALESCE(comp.region, '')) as company_address,
         comp.phone as company_phone,
         comp.logo_path as company_logo
       FROM credit_notes cn
       JOIN sales_invoices si ON cn.invoice_id = si.id
-      JOIN customers c ON cn.client_id = c.id
+      LEFT JOIN customers c ON cn.client_id = c.id
       JOIN companies comp ON cn.company_id = comp.id
       WHERE cn.id = ? AND cn.company_id = ?
     `, [id, companyId]);
