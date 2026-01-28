@@ -228,12 +228,23 @@ export function InvoiceViewClient({
         if (!element) return;
         
         const canvas = await html2canvas(element, {
-          scale: 3,
+          scale: 4,
           useCORS: true,
           logging: false,
           backgroundColor: '#ffffff',
-          windowWidth: element.scrollWidth,
-          windowHeight: element.scrollHeight
+          width: 794, // 210mm in pixels at 96dpi
+          height: 1123, // 297mm in pixels at 96dpi
+          windowWidth: 794,
+          windowHeight: 1123,
+          onclone: (clonedDoc) => {
+            const el = clonedDoc.querySelector('.invoice-container') as HTMLElement;
+            if (el) {
+              el.style.width = '210mm';
+              el.style.height = '297mm';
+              el.style.margin = '0';
+              el.style.padding = '0';
+            }
+          }
         });
         
         const imgData = canvas.toDataURL('image/png');
@@ -432,16 +443,16 @@ export function InvoiceViewClient({
               </div>
             </div>
 
-            <div className="invoice-content p-8 space-y-6 flex-grow flex flex-col">
+            <div className="invoice-content p-6 space-y-4 flex-grow flex flex-col">
               {/* Info Cards */}
-              <div className="grid grid-cols-2 gap-6 flex-shrink-0">
+              <div className="grid grid-cols-2 gap-4 flex-shrink-0">
                 {/* Company Info */}
                 <div className="info-card rounded-2xl p-4 border border-[#f1f5f9]" style={{ backgroundColor: '#f8fafc' }}>
-                  <h3 className="font-black text-[#0f172a] mb-3 pb-2 border-b border-[#e2e8f0] flex items-center gap-2 text-[13px]">
+                  <h3 className="font-black text-[#0f172a] mb-2 pb-1 border-b border-[#e2e8f0] flex items-center gap-2 text-[12px]">
                     <div className="w-1.5 h-4 bg-[#2563eb] rounded-full"></div>
                     {t("facilityData")}
                   </h3>
-                  <div className="space-y-2 text-[11px]">
+                  <div className="space-y-1.5 text-[10px]">
                     <div className="flex justify-between items-start gap-4">
                       <span className="text-[#64748b]">{tc("name")}:</span>
                       <span className="font-bold text-[#0f172a] text-right">{company?.name}</span>
@@ -463,11 +474,11 @@ export function InvoiceViewClient({
 
                 {/* Customer Info */}
                 <div className="info-card rounded-2xl p-4 border border-[#f1f5f9]" style={{ backgroundColor: '#f8fafc' }}>
-                  <h3 className="font-black text-[#0f172a] mb-3 pb-2 border-b border-[#e2e8f0] flex items-center gap-2 text-[13px]">
+                  <h3 className="font-black text-[#0f172a] mb-2 pb-1 border-b border-[#e2e8f0] flex items-center gap-2 text-[12px]">
                     <div className="w-1.5 h-4 bg-[#059669] rounded-full"></div>
                     {t("customerData")}
                   </h3>
-                  <div className="space-y-2 text-[11px]">
+                  <div className="space-y-1.5 text-[10px]">
                     <div className="flex justify-between items-start gap-4">
                       <span className="text-[#64748b]">{tc("name")}:</span>
                       <span className="font-bold text-[#0f172a] text-right">{customer?.company_name || customer?.name || invoice.client_name}</span>
@@ -490,41 +501,41 @@ export function InvoiceViewClient({
 
               {/* Items Table */}
               <div className="rounded-xl border border-[#f1f5f9] overflow-hidden shadow-sm flex-shrink-0">
-                <table className="items-table w-full text-[11px] border-collapse">
+                <table className="items-table w-full text-[10px] border-collapse">
                   <thead style={{ background: '#1e293b', color: '#ffffff' }}>
                     <tr>
-                      <th className="px-3 py-3 text-right font-bold">{t("itemNameHeader")}</th>
-                      <th className="px-3 py-3 text-center font-bold">{t("quantity")}</th>
-                      <th className="px-3 py-3 text-center font-bold">{t("unitPrice")}</th>
-                      <th className="px-3 py-3 text-center font-bold">{t("beforeTax")}</th>
-                      <th className="px-3 py-3 text-center font-bold">{t("taxRateHeader")}</th>
-                      <th className="px-3 py-3 text-center font-bold">{tc("total")}</th>
+                      <th className="px-3 py-2 text-right font-bold">{t("itemNameHeader")}</th>
+                      <th className="px-3 py-2 text-center font-bold">{t("quantity")}</th>
+                      <th className="px-3 py-2 text-center font-bold">{t("unitPrice")}</th>
+                      <th className="px-3 py-2 text-center font-bold">{t("beforeTax")}</th>
+                      <th className="px-3 py-2 text-center font-bold">{t("taxRateHeader")}</th>
+                      <th className="px-3 py-2 text-center font-bold">{tc("total")}</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-[#f1f5f9] bg-white">
                     {items.map((item) => (
                       <tr key={item.id} className="hover:bg-[#f8fafc]">
-                        <td className="px-3 py-2 text-[#0f172a] font-medium">{item.product_name}</td>
-                        <td className="px-3 py-2 text-center">{item.quantity}</td>
-                        <td className="px-3 py-2 text-center">{parseFloat(String(item.unit_price)).toFixed(2)}</td>
-                        <td className="px-3 py-2 text-center">{parseFloat(String(item.total_before_vat)).toLocaleString('en-US', { minimumFractionDigits: 2 })}</td>
-                        <td className="px-3 py-2 text-center text-[#2563eb] font-bold">{parseFloat(String(item.vat_amount)).toLocaleString('en-US', { minimumFractionDigits: 2 })}</td>
-                        <td className="px-3 py-2 text-center font-black text-[#0f172a]">{parseFloat(String(item.total_with_vat)).toLocaleString('en-US', { minimumFractionDigits: 2 })}</td>
+                        <td className="px-3 py-1.5 text-[#0f172a] font-medium">{item.product_name}</td>
+                        <td className="px-3 py-1.5 text-center">{item.quantity}</td>
+                        <td className="px-3 py-1.5 text-center">{parseFloat(String(item.unit_price)).toFixed(2)}</td>
+                        <td className="px-3 py-1.5 text-center">{parseFloat(String(item.total_before_vat)).toLocaleString('en-US', { minimumFractionDigits: 2 })}</td>
+                        <td className="px-3 py-1.5 text-center text-[#2563eb] font-bold">{parseFloat(String(item.vat_amount)).toLocaleString('en-US', { minimumFractionDigits: 2 })}</td>
+                        <td className="px-3 py-1.5 text-center font-black text-[#0f172a]">{parseFloat(String(item.total_with_vat)).toLocaleString('en-US', { minimumFractionDigits: 2 })}</td>
                       </tr>
                     ))}
                     
                     {adjustments.map((adj) => (
                       <tr key={adj.id} style={{ backgroundColor: adj.type === 'discount' ? '#fff1f2' : '#f0fdf4' }}>
-                        <td className="px-3 py-2 font-bold text-[#1e293b]">
+                        <td className="px-3 py-1.5 font-bold text-[#1e293b]">
                           {adj.title} <span className="text-[9px] opacity-60">({adj.type === 'discount' ? t("adjustmentDiscount") : t("adjustmentAddition")})</span>
                         </td>
-                        <td className="px-3 py-2 text-center opacity-40">-</td>
-                        <td className="px-3 py-2 text-center opacity-40">-</td>
-                        <td className={`px-3 py-2 text-center font-bold ${adj.type === 'discount' ? 'text-[#e11d48]' : 'text-[#059669]'}`}>
+                        <td className="px-3 py-1.5 text-center opacity-40">-</td>
+                        <td className="px-3 py-1.5 text-center opacity-40">-</td>
+                        <td className={`px-3 py-1.5 text-center font-bold ${adj.type === 'discount' ? 'text-[#e11d48]' : 'text-[#059669]'}`}>
                           {adj.type === 'discount' ? '-' : ''}{parseFloat(String(adj.amount)).toLocaleString('en-US', { minimumFractionDigits: 2 })}
                         </td>
-                        <td className="px-3 py-2 text-center opacity-40">-</td>
-                        <td className={`px-3 py-2 text-center font-black ${adj.type === 'discount' ? 'text-[#be123c]' : 'text-[#047857]'}`}>
+                        <td className="px-3 py-1.5 text-center opacity-40">-</td>
+                        <td className={`px-3 py-1.5 text-center font-black ${adj.type === 'discount' ? 'text-[#be123c]' : 'text-[#047857]'}`}>
                           {adj.type === 'discount' ? '-' : ''}{parseFloat(String(adj.total_with_vat)).toLocaleString('en-US', { minimumFractionDigits: 2 })}
                         </td>
                       </tr>
@@ -534,30 +545,30 @@ export function InvoiceViewClient({
               </div>
 
               {/* Summary and QR Section */}
-              <div className="summary-section grid grid-cols-2 gap-6 items-stretch flex-shrink-0">
+              <div className="summary-section grid grid-cols-2 gap-4 items-stretch flex-shrink-0">
                 {/* Summary Box */}
                 <div 
                   className="rounded-2xl p-4 border border-[#f1f5f9] flex flex-col justify-between"
                   style={{ background: '#f8fafc' }}
                 >
                   <div>
-                    <h3 className="font-black text-[#0f172a] mb-2 flex items-center gap-2 text-[12px]">
+                    <h3 className="font-black text-[#0f172a] mb-2 flex items-center gap-2 text-[11px]">
                       <CreditCard size={14} className="text-[#2563eb]" />
                       {t("summary")}
                     </h3>
-                    <div className="space-y-2">
+                    <div className="space-y-1.5">
                       <div className="flex justify-between items-center py-1 border-b border-dashed border-[#e2e8f0]">
-                        <span className="text-[#64748b] text-[10px]">{t("beforeTax")}:</span>
-                        <span className="font-bold text-[#0f172a] text-[10px]">{totalBeforeVat.toLocaleString('en-US', { minimumFractionDigits: 2 })} {tc("sar")}</span>
+                        <span className="text-[#64748b] text-[9px]">{t("beforeTax")}:</span>
+                        <span className="font-bold text-[#0f172a] text-[9px]">{totalBeforeVat.toLocaleString('en-US', { minimumFractionDigits: 2 })} {tc("sar")}</span>
                       </div>
                       <div className="flex justify-between items-center py-1 border-b border-dashed border-[#e2e8f0]">
-                        <span className="text-[#64748b] text-[10px]">{t("taxRateHeader")}:</span>
-                        <span className="font-bold text-[#2563eb] text-[10px]">{totalVat.toLocaleString('en-US', { minimumFractionDigits: 2 })} {tc("sar")}</span>
+                        <span className="text-[#64748b] text-[9px]">{t("taxRateHeader")}:</span>
+                        <span className="font-bold text-[#2563eb] text-[9px]">{totalVat.toLocaleString('en-US', { minimumFractionDigits: 2 })} {tc("sar")}</span>
                       </div>
                       {(discountTotal > 0 || additionTotal > 0) && (
                         <div className="flex justify-between items-center py-1 border-b border-dashed border-[#e2e8f0]">
-                          <span className="text-[#64748b] text-[10px]">{tc("discount")}/{tc("add")}:</span>
-                          <span className={`font-bold text-[10px] ${additionTotal - discountTotal < 0 ? 'text-[#e11d48]' : 'text-[#059669]'}`}>
+                          <span className="text-[#64748b] text-[9px]">{tc("discount")}/{tc("add")}:</span>
+                          <span className={`font-bold text-[9px] ${additionTotal - discountTotal < 0 ? 'text-[#e11d48]' : 'text-[#059669]'}`}>
                             {(additionTotal - discountTotal).toLocaleString('en-US', { minimumFractionDigits: 2 })} {tc("sar")}
                           </span>
                         </div>
@@ -566,11 +577,11 @@ export function InvoiceViewClient({
                   </div>
                   
                   <div 
-                    className="flex justify-between items-center py-2 px-4 rounded-xl mt-3 shadow-md"
+                    className="flex justify-between items-center py-2 px-4 rounded-xl mt-2 shadow-md"
                     style={{ background: '#059669' }}
                   >
-                    <span className="font-black text-white text-[11px]">{t("amountDue")}</span>
-                    <span className="font-black text-[13px] text-white">
+                    <span className="font-black text-white text-[10px]">{t("amountDue")}</span>
+                    <span className="font-black text-[12px] text-white">
                       {grandTotal.toLocaleString('en-US', { minimumFractionDigits: 2 })} {tc("sar")}
                     </span>
                   </div>
@@ -579,7 +590,7 @@ export function InvoiceViewClient({
                 {/* QR and Period */}
                 <div className="rounded-2xl p-4 border border-[#f1f5f9] bg-white text-center flex flex-col justify-between shadow-sm">
                   <div>
-                    <h3 className="font-black text-[#0f172a] mb-2 flex items-center justify-center gap-2 text-[12px]">
+                    <h3 className="font-black text-[#0f172a] mb-2 flex items-center justify-center gap-2 text-[11px]">
                       <QrCode size={14} className="text-[#2563eb]" />
                       {t("zatcaBarcode")}
                     </h3>
@@ -588,7 +599,7 @@ export function InvoiceViewClient({
                         {isMounted && (
                           <QRCodeCanvas
                             value={qrData}
-                            size={100}
+                            size={90}
                             level="H"
                             includeMargin={false}
                           />
@@ -597,8 +608,8 @@ export function InvoiceViewClient({
                     </div>
                   </div>
                   
-                  <div className="pt-1.5 border-t border-[#f1f5f9]">
-                    <p className="font-bold text-[#2563eb] text-[9px]">
+                  <div className="pt-1 border-t border-[#f1f5f9]">
+                    <p className="font-bold text-[#2563eb] text-[8px]">
                       {t("period")} {formatDate(items[0]?.period_from)} - {formatDate(items[0]?.period_to)}
                     </p>
                   </div>
@@ -608,32 +619,32 @@ export function InvoiceViewClient({
               {/* Bank Info */}
               {selectedBank && (
                 <div 
-                  className="bank-info-box rounded-2xl p-4 border border-[#ccfbf1] flex-shrink-0"
+                  className="bank-info-box rounded-2xl p-3 border border-[#ccfbf1] flex-shrink-0"
                   style={{ background: '#f0fdfa' }}
                 >
-                  <div className="flex justify-between items-center mb-2">
+                  <div className="flex justify-between items-center mb-1.5">
                     <div className="flex items-center gap-2">
-                      <University size={16} className="text-[#059669]" />
-                      <h3 className="font-black text-[#0f172a] text-[12px]">{t("bankInfo")}</h3>
+                      <University size={14} className="text-[#059669]" />
+                      <h3 className="font-black text-[#0f172a] text-[11px]">{t("bankInfo")}</h3>
                     </div>
                   </div>
                   
-                  <div className="grid grid-cols-4 gap-3">
-                    <div className="bg-white rounded-xl p-2 border border-[#f1f5f9] shadow-sm">
-                      <p className="text-[8px] text-[#94a3b8] mb-0.5">{tc("bank") || "Bank"}</p>
-                      <p className="font-bold text-[#0f172a] text-[9px] truncate">{selectedBank.bank_name}</p>
+                  <div className="grid grid-cols-4 gap-2">
+                    <div className="bg-white rounded-xl p-1.5 border border-[#f1f5f9] shadow-sm text-center">
+                      <p className="text-[7px] text-[#94a3b8] mb-0.5">{tc("bank") || "Bank"}</p>
+                      <p className="font-bold text-[#0f172a] text-[8px] truncate">{selectedBank.bank_name}</p>
                     </div>
-                    <div className="bg-white rounded-xl p-2 border border-[#f1f5f9] shadow-sm">
-                      <p className="text-[8px] text-[#94a3b8] mb-0.5">{tc("beneficiary") || "Beneficiary"}</p>
-                      <p className="font-bold text-[#0f172a] text-[9px] truncate">{selectedBank.bank_beneficiary}</p>
+                    <div className="bg-white rounded-xl p-1.5 border border-[#f1f5f9] shadow-sm text-center">
+                      <p className="text-[7px] text-[#94a3b8] mb-0.5">{tc("beneficiary") || "Beneficiary"}</p>
+                      <p className="font-bold text-[#0f172a] text-[8px] truncate">{selectedBank.bank_beneficiary}</p>
                     </div>
-                    <div className="bg-white rounded-xl p-2 border border-[#f1f5f9] shadow-sm">
-                      <p className="text-[8px] text-[#94a3b8] mb-0.5">{tc("account") || "Account"}</p>
-                      <p className="font-bold text-[#2563eb] text-[10px]">{selectedBank.bank_account}</p>
+                    <div className="bg-white rounded-xl p-1.5 border border-[#f1f5f9] shadow-sm text-center">
+                      <p className="text-[7px] text-[#94a3b8] mb-0.5">{tc("account") || "Account"}</p>
+                      <p className="font-bold text-[#2563eb] text-[9px]">{selectedBank.bank_account}</p>
                     </div>
-                    <div className="bg-white rounded-xl p-2 border border-[#f1f5f9] shadow-sm">
-                      <p className="text-[8px] text-[#94a3b8] mb-0.5">{tc("iban") || "IBAN"}</p>
-                      <p className="font-bold text-[#0f172a] text-[8px] break-all leading-tight">{selectedBank.bank_iban}</p>
+                    <div className="bg-white rounded-xl p-1.5 border border-[#f1f5f9] shadow-sm text-center">
+                      <p className="text-[7px] text-[#94a3b8] mb-0.5">{tc("iban") || "IBAN"}</p>
+                      <p className="font-bold text-[#0f172a] text-[7px] break-all leading-tight">{selectedBank.bank_iban}</p>
                     </div>
                   </div>
                 </div>
