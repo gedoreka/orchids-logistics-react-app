@@ -40,6 +40,7 @@ export async function GET(
             c.email as client_email,
             c.phone as client_phone,
             c.commercial_number as client_cr,
+            c.short_address as client_short_address,
             comp.name as company_name,
             comp.vat_number as company_vat,
             comp.commercial_number as company_cr,

@@ -288,10 +288,10 @@ export function CreditNoteViewClient({ creditNote, qrData }: CreditNoteViewClien
                       <span className="text-[#64748b] font-bold">الرقم الضريبي:</span>
                       <span className="font-black text-[#059669] text-sm">{creditNote.client_vat || '-'}</span>
                     </div>
-                    <div className="flex justify-start gap-3 mt-2 pt-2 border-t border-slate-100">
-                      <span className="text-[#64748b] font-bold whitespace-nowrap">العنوان:</span>
-                      <span className="font-bold text-[#0f172a] leading-relaxed text-right text-[11px]">{creditNote.client_address || '-'}</span>
-                    </div>
+                      <div className="flex justify-start gap-3 mt-2 pt-2 border-t border-slate-100">
+                        <span className="text-[#64748b] font-bold whitespace-nowrap">العنوان:</span>
+                        <span className="font-bold text-[#0f172a] leading-relaxed text-right text-[11px]">{creditNote.client_short_address || '-'}</span>
+                      </div>
                   </div>
                 </div>
               </div>

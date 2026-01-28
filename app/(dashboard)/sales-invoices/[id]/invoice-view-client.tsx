@@ -76,6 +76,7 @@ interface Customer {
   email: string;
   phone: string;
   address: string;
+  short_address?: string;
   vat_number: string;
   commercial_number: string;
 }
@@ -453,10 +454,10 @@ export function InvoiceViewClient({
                     <span className="text-[#64748b]">{tc("vatNumber")}:</span>
                     <span className="font-bold text-[#059669]">{customer?.vat_number || invoice.client_vat || '-'}</span>
                   </div>
-                  <div className="flex justify-start gap-2">
-                    <span className="text-[#64748b] whitespace-nowrap">{tc("address")}:</span>
-                    <span className="font-bold text-[#0f172a] leading-tight text-right">{customer?.address || invoice.client_address || "-"}</span>
-                  </div>
+                    <div className="flex justify-start gap-2">
+                      <span className="text-[#64748b] whitespace-nowrap">{tc("address")}:</span>
+                      <span className="font-bold text-[#0f172a] leading-tight text-right">{customer?.short_address || customer?.address || invoice.client_address || "-"}</span>
+                    </div>
                 </div>
               </div>
             </div>
