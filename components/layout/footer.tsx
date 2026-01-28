@@ -117,17 +117,27 @@ export function Footer() {
               </div>
             </div>
 
-          <div className="flex items-center flex-wrap justify-center gap-3">
-            <motion.a 
-              whileHover={{ scale: 1.05, y: -2 }}
-              href={`mailto:${process.env.SMTP_FROM}`}
-              className="flex items-center gap-2 px-3 py-1.5 bg-white/5 hover:bg-white/10 rounded-xl border border-white/10 hover:border-blue-500/30 transition-all group"
-            >
-              <div className="p-1 rounded-md bg-blue-500/20">
-                <Mail size={10} className="text-blue-400" />
-              </div>
-              <span className="text-[10px] font-bold text-white/50 group-hover:text-white/80 transition-colors">{process.env.SMTP_FROM}</span>
-            </motion.a>
+            <div className="flex items-center flex-wrap justify-center gap-3">
+              <motion.div 
+                whileHover={{ scale: 1.05 }}
+                className="flex items-center gap-2 px-3 py-1.5 bg-blue-500/5 rounded-xl border border-blue-500/10"
+              >
+                <div className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse" />
+                <span className="text-[10px] font-bold text-blue-400">
+                  {isRTL ? 'نسخة النظام الحالي 1.2' : 'System Version 1.2'}
+                </span>
+              </motion.div>
+
+              <motion.a 
+                whileHover={{ scale: 1.05, y: -2 }}
+                href="mailto:Info@zoolspeed.com"
+                className="flex items-center gap-2 px-3 py-1.5 bg-white/5 hover:bg-white/10 rounded-xl border border-white/10 hover:border-blue-500/30 transition-all group"
+              >
+                <div className="p-1 rounded-md bg-blue-500/20">
+                  <Mail size={10} className="text-blue-400" />
+                </div>
+                <span className="text-[10px] font-bold text-white/50 group-hover:text-white/80 transition-colors">Info@zoolspeed.com</span>
+              </motion.a>
 
             <motion.button 
               whileHover={{ scale: 1.05, y: -2 }}
