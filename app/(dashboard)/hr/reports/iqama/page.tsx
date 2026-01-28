@@ -39,8 +39,9 @@ export default async function IqamaReportPage({ searchParams }: {
   let params: any[] = [companyId];
 
   if (search) {
+    const cleanSearch = search.trim().startsWith('#') ? search.trim().substring(1) : search.trim();
     sql += " AND (e.name LIKE ? OR e.iqama_number LIKE ? OR e.user_code LIKE ?)";
-    params.push(`%${search}%`, `%${search}%`, `%${search}%`);
+    params.push(`%${search.trim()}%`, `%${cleanSearch}%`, `%${cleanSearch}%`);
   }
 
     const allData: any[] = await query(sql, params);

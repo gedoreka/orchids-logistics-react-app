@@ -111,7 +111,8 @@ export function PackageViewClient({
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    router.push(`/hr/packages/${packageData.id}?search=${search}&filter=${filter}`);
+    const trimmedSearch = search.trim();
+    router.push(`/hr/packages/${packageData.id}?search=${encodeURIComponent(trimmedSearch)}&filter=${filter}`);
   };
 
   const handleFilterChange = (newFilter: string) => {

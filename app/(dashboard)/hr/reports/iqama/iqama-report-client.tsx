@@ -64,7 +64,8 @@ export function IqamaReportClient({
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    router.push(`/hr/reports/iqama?search=${search}&filter=${activeFilter}`);
+    const trimmedSearch = search.trim();
+    router.push(`/hr/reports/iqama?search=${encodeURIComponent(trimmedSearch)}&filter=${activeFilter}`);
   };
 
   const handleFilterChange = (filter: string) => {

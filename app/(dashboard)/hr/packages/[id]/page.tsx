@@ -14,7 +14,7 @@ export default async function PackageViewPage({
   const { id } = await params;
   const packageId = parseInt(id);
   const resolvedSearchParams = await searchParams;
-  const search = resolvedSearchParams.search || "";
+  const search = (resolvedSearchParams.search || "").trim();
   const filter = resolvedSearchParams.filter || "all";
 
   const cookieStore = await cookies();
@@ -59,8 +59,10 @@ export default async function PackageViewPage({
   let paramsArr: any[] = [packageId, companyId];
 
   if (search) {
+    // Clean search term: remove # and trim
+    const cleanSearch = search.startsWith('#') ? search.substring(1) : search;
     condition += " AND (iqama_number LIKE ? OR user_code LIKE ? OR name LIKE ?)";
-    paramsArr.push(`%${search}%`, `%${search}%`, `%${search}%`);
+    paramsArr.push(`%${cleanSearch}%`, `%${cleanSearch}%`, `%${search}%`);
   }
 
   if (filter === "expired") {
