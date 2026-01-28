@@ -1,23 +1,26 @@
-# BEGIN Next.js
+# BEGIN Next.js Reverse Proxy
 <IfModule mod_rewrite.c>
   RewriteEngine On
-  RewriteBase /
   
-  # Avoid loops for server.js and other assets
-  RewriteCond %{REQUEST_URI} ^/server.js [OR]
-  RewriteCond %{REQUEST_URI} ^/public/ [OR]
-  RewriteCond %{REQUEST_URI} ^/.next/
-  RewriteRule ^.*$ - [L]
-
-  # Forward all requests to the Node.js application
-  # This works if the Node.js app is started via the selector
+  # Forward all requests to the Node.js application running on port 3000
+  # Note: Make sure your Node.js app is started and listening on port 3000
   RewriteCond %{REQUEST_FILENAME} !-f
   RewriteCond %{REQUEST_FILENAME} !-d
-  RewriteRule ^(.*)$ server.js/$1 [L]
+  RewriteRule ^(.*)$ http://127.0.0.1:3000/$1 [P,L]
+
+  # Proxy Settings
+  ProxyPreserveHost On
+  ProxyPass / http://127.0.0.1:3000/
+  ProxyPassReverse / http://127.0.0.1:3000/
 </IfModule>
 
-# Handle 403 errors by explaining the issue
-ErrorDocument 403 "The Node.js application is not running or permissions are incorrect. Please ensure you have started the application in the Hostinger Node.js Selector."
+# Fallback for Phusion Passenger (if used by Hostinger Node Selector)
+# If the above proxy rules cause a 500 error, comment them out and use these:
+# <IfModule mod_passenger.c>
+#   PassengerAppRoot /home/u464748164/domains/accounts.iw-om.com/public_html
+#   PassengerAppType node
+#   PassengerStartupFile server.js
+# </IfModule>
 
-# Prevent Directory Listing
+# Prevent Directory Listing (Fixes 403 Forbidden when Node is not running)
 Options -Indexes
