@@ -713,11 +713,11 @@ export function NewInvoiceClient({ customers, invoiceNumber, companyId, userName
                                 className="w-full px-2 py-2 rounded-xl bg-white border border-gray-200 text-sm font-black text-center focus:border-emerald-500/30 outline-none"
                               />
                               {calculationMode === 'quantity' && (
-                                <div className="flex flex-col items-center gap-1">
-                                  <span className="text-[8px] font-black text-gray-400 uppercase leading-none whitespace-nowrap">
-                                    {t("isUnitPriceInclusive")}
-                                  </span>
-                                  <label className="relative inline-flex items-center cursor-pointer scale-75">
+                                  <div className="flex flex-col items-center gap-1">
+                                    <span className="text-[8px] font-black text-gray-400 uppercase leading-none whitespace-nowrap">
+                                      {item.is_unit_price_inclusive ? t("unitPriceInclusive") : t("unitPriceExclusive")}
+                                    </span>
+                                    <label className="relative inline-flex items-center cursor-pointer scale-75">
                                     <input
                                       type="checkbox"
                                       checked={item.is_unit_price_inclusive || false}
