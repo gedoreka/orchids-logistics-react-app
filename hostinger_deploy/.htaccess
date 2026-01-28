@@ -3,16 +3,21 @@
   RewriteEngine On
   RewriteBase /
   
-  # Avoid loops for server.js
-  RewriteCond %{REQUEST_URI} ^/server.js
+  # Avoid loops for server.js and other assets
+  RewriteCond %{REQUEST_URI} ^/server.js [OR]
+  RewriteCond %{REQUEST_URI} ^/public/ [OR]
+  RewriteCond %{REQUEST_URI} ^/.next/
   RewriteRule ^.*$ - [L]
 
   # Forward all requests to the Node.js application
+  # This works if the Node.js app is started via the selector
   RewriteCond %{REQUEST_FILENAME} !-f
   RewriteCond %{REQUEST_FILENAME} !-d
   RewriteRule ^(.*)$ server.js/$1 [L]
 </IfModule>
 
+# Handle 403 errors by explaining the issue
+ErrorDocument 403 "The Node.js application is not running or permissions are incorrect. Please ensure you have started the application in the Hostinger Node.js Selector."
+
 # Prevent Directory Listing
 Options -Indexes
-

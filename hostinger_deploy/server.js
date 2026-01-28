@@ -45,6 +45,8 @@ log(`DB_USER: ${process.env.DB_USER ? 'Set' : 'NOT Set'}`);
 const port = process.env.PORT || 3000;
 const hostname = '0.0.0.0';
 
+log(`Server will attempt to listen on port: ${port}`);
+
 // Check for standalone build (Next.js 12+ optimization)
 const standalonePath = path.join(__dirname, '.next', 'standalone', 'server.js');
 
