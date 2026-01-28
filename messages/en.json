@@ -2283,7 +2283,8 @@
       "saveChanges": "Save Changes",
       "createLetter": "Create Letter",
       "cancel": "Cancel",
-      "placeholderPrefix": "Enter {label}"
+      "placeholderPrefix": "Enter {label}",
+      "select": "Salary Period Type"
     },
     "preview": {
       "title": "Letter Preview - {number}",
@@ -2324,8 +2325,10 @@
       "service_months": "Service Months",
       "service_years": "Service Years",
       "end_date": "End Date",
-      "basic_salary": "Basic Salary",
-      "housing_allowance": "Housing Allowance",
+      "basic_salary": "Monthly Basic Salary",
+      "housing_allowance": "Monthly Housing Allowance",
+      "salary_period_type": "Salary Period Type",
+      "total_deduction": "Total Due Deduction",
       "transport_allowance": "Transport Allowance",
       "end_service_bonus": "End of Service Bonus",
       "vacation_balance": "Vacation Balance",

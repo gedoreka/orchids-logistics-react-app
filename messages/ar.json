@@ -2283,7 +2283,8 @@
       "saveChanges": "حفظ التعديلات",
       "createLetter": "إنشاء الخطاب",
       "cancel": "إلغاء",
-      "placeholderPrefix": "أدخل {label}"
+      "placeholderPrefix": "أدخل {label}",
+      "select": "نوع فترة الراتب"
     },
     "preview": {
       "title": "معاينة الخطاب - {number}",
@@ -2324,8 +2325,10 @@
       "service_months": "أشهر الخدمة",
       "service_years": "سنوات الخدمة",
       "end_date": "تاريخ النهاية",
-      "basic_salary": "الراتب الأساسي",
-      "housing_allowance": "بدل السكن",
+      "basic_salary": "الراتب الأساسي الشهري",
+      "housing_allowance": "بدل السكن الشهري",
+      "salary_period_type": "نوع فترة الراتب",
+      "total_deduction": "إجمالي الخصم المستحق",
       "transport_allowance": "بدل المواصلات",
       "end_service_bonus": "مكافأة نهاية الخدمة",
       "vacation_balance": "رصيد الإجازات",
