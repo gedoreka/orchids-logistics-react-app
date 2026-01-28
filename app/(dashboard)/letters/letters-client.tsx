@@ -1048,14 +1048,14 @@ export default function LettersClient() {
                     {getPlaceholders(selectedTemplate).map((placeholder) => (
                       <div key={placeholder}>
                         <label className="block text-slate-300 mb-2 text-sm font-medium">{placeholderLabels[placeholder as keyof typeof placeholderLabels] || placeholder}</label>
-                        <input 
-                          type={placeholder.includes("date") ? "date" : "text"} 
-                          value={formData[placeholder] || ""} 
-                          onChange={(e) => setFormData({ ...formData, [placeholder]: e.target.value })} 
-                          readOnly={placeholder === "total_amount" || placeholder === "total_amount_text"} 
-                          className={`w-full bg-slate-700 border border-slate-600 rounded-xl py-3 px-4 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 ${(placeholder === "total_amount" || placeholder === "total_amount_text") ? "opacity-75 cursor-not-allowed bg-slate-800" : ""}`} 
-                          placeholder={t("form.placeholderPrefix", { label: placeholderLabels[placeholder as keyof typeof placeholderLabels] || placeholder })} 
-                        />
+                          <input 
+                            type={placeholder.includes("date") || placeholder.includes("period_") ? "date" : "text"} 
+                            value={formData[placeholder] || ""} 
+                            onChange={(e) => setFormData({ ...formData, [placeholder]: e.target.value })} 
+                            readOnly={placeholder === "total_amount" || placeholder === "total_amount_text"} 
+                            className={`w-full bg-slate-700 border border-slate-600 rounded-xl py-3 px-4 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 ${(placeholder === "total_amount" || placeholder === "total_amount_text") ? "opacity-75 cursor-not-allowed bg-slate-800" : ""}`} 
+                            placeholder={t("form.placeholderPrefix", { label: placeholderLabels[placeholder as keyof typeof placeholderLabels] || placeholder })} 
+                          />
                       </div>
                     ))}
                   </div>
