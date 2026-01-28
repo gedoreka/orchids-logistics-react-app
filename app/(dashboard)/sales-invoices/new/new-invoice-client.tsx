@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useCallback, useMemo, useEffect } from "react";
+import React, { useState, useCallback, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
   FileText,
@@ -93,30 +93,29 @@ export function NewInvoiceClient({ customers, invoiceNumber, companyId, userName
     message: string;
   }>({ show: false, type: "success", title: "", message: "" });
 
-    const today = new Date().toISOString().split('T')[0];
-    const defaultDueDate = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+  const today = new Date().toISOString().split('T')[0];
+  const defaultDueDate = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
 
-    const [clientId, setClientId] = useState<number>(0);
-    const [issueDate, setIssueDate] = useState(today);
-    const [dueDate, setDueDate] = useState(defaultDueDate);
-    const [invoiceMonth, setInvoiceMonth] = useState(today.slice(0, 7));
-    const [calculationMethod, setCalculationMethod] = useState<'total' | 'quantity'>('total');
-    
-    const [items, setItems] = useState<InvoiceItem[]>([
-      {
-        id: '1',
-        product_name: '',
-        quantity: 0,
-        total_with_vat: 0,
-        period_from: '',
-        period_to: '',
-        unit_price: 0,
-        before_vat: 0,
-        vat_amount: 0,
-        is_unit_price_inclusive: false
-      }
-    ]);
-
+  const [clientId, setClientId] = useState<number>(0);
+  const [issueDate, setIssueDate] = useState(today);
+  const [dueDate, setDueDate] = useState(defaultDueDate);
+  const [calculationMode, setCalculationMode] = useState<'total' | 'quantity'>('total');
+  
+  const invoiceMonth = useMemo(() => issueDate.slice(0, 7), [issueDate]);
+  
+  const [items, setItems] = useState<InvoiceItem[]>([
+    {
+      id: '1',
+      product_name: '',
+      quantity: 0,
+      total_with_vat: 0,
+      period_from: '',
+      period_to: '',
+      unit_price: 0,
+      before_vat: 0,
+      vat_amount: 0
+    }
+  ]);
 
   const [adjustments, setAdjustments] = useState<Adjustment[]>([]);
 
@@ -124,71 +123,70 @@ export function NewInvoiceClient({ customers, invoiceNumber, companyId, userName
     setNotification({ show: true, type, title, message });
   };
 
-  const calculateItem = useCallback((item: InvoiceItem, source: 'total' | 'unit_price' | 'quantity_method' = 'total'): InvoiceItem => {
-    let totalWithVat = item.total_with_vat;
-    let unitPrice = item.unit_price;
+  const calculateItem = useCallback((item: InvoiceItem, source: 'total' | 'unit_price' | 'quantity' = 'total', currentMode: 'total' | 'quantity' = 'total'): InvoiceItem => {
+    let totalWithVat = item.total_with_vat || 0;
+    let unitPrice = item.unit_price || 0;
     const quantity = item.quantity || 0;
-    const isInclusive = item.is_unit_price_inclusive;
+    const isInclusive = item.is_unit_price_inclusive || false;
 
-    if (source === 'quantity_method') {
+    if (currentMode === 'quantity') {
       if (isInclusive) {
-        // Price entered is inclusive of tax (177 * 8 = 1416 total)
-        const total = quantity * unitPrice;
-        const subtotal = total / 1.15;
-        const tax = total - subtotal;
+        totalWithVat = quantity * unitPrice;
+        const beforeVat = totalWithVat / 1.15;
+        const vatAmount = totalWithVat - beforeVat;
         return {
           ...item,
-          before_vat: subtotal,
-          vat_amount: tax,
-          total_with_vat: total
+          total_with_vat: totalWithVat,
+          before_vat: beforeVat,
+          vat_amount: vatAmount,
+          unit_price: unitPrice
         };
       } else {
-        // Price entered is exclusive of tax (177 * 8 = 1416 subtotal, total = 1416 * 1.15 = 1628.4)
-        const subtotal = quantity * unitPrice;
-        const tax = subtotal * 0.15;
-        const total = subtotal + tax;
+        const beforeVat = quantity * unitPrice;
+        const vatAmount = beforeVat * 0.15;
+        totalWithVat = beforeVat + vatAmount;
         return {
           ...item,
-          before_vat: subtotal,
-          vat_amount: tax,
-          total_with_vat: total
+          total_with_vat: totalWithVat,
+          before_vat: beforeVat,
+          vat_amount: vatAmount,
+          unit_price: unitPrice
         };
       }
-    }
+    } else {
+      // Legacy total mode
+      if (source === 'unit_price') {
+        const beforeVat = unitPrice * quantity;
+        totalWithVat = beforeVat * 1.15;
+      }
 
-    if (source === 'unit_price') {
-      const beforeVat = unitPrice * quantity;
-      totalWithVat = beforeVat * 1.15;
+      const beforeVat = totalWithVat / 1.15;
+      const vatAmount = totalWithVat - beforeVat;
+      
+      if (source === 'total') {
+        unitPrice = quantity > 0 ? beforeVat / quantity : 0;
+      }
+      
+      return {
+        ...item,
+        before_vat: beforeVat,
+        vat_amount: vatAmount,
+        unit_price: unitPrice,
+        total_with_vat: totalWithVat
+      };
     }
-
-    const beforeVat = totalWithVat / 1.15;
-    const vatAmount = totalWithVat - beforeVat;
-    if (source === 'total') {
-      unitPrice = quantity > 0 ? beforeVat / quantity : 0;
-    }
-    
-    return {
-      ...item,
-      before_vat: beforeVat,
-      vat_amount: vatAmount,
-      unit_price: unitPrice,
-      total_with_vat: totalWithVat
-    };
   }, []);
 
   const handleItemChange = (index: number, field: keyof InvoiceItem, value: string | number | boolean) => {
     setItems(prev => {
       const newItems = [...prev];
-      newItems[index] = { ...newItems[index], [field]: value } as InvoiceItem;
+      newItems[index] = { ...newItems[index], [field]: value };
       
-      let source: 'total' | 'unit_price' | 'quantity_method' = 'total';
-      if (calculationMethod === 'quantity') {
-        source = 'quantity_method';
-      } else {
-        source = field === 'unit_price' ? 'unit_price' : 'total';
-      }
+      let source: 'total' | 'unit_price' | 'quantity' = 'total';
+      if (field === 'unit_price') source = 'unit_price';
+      else if (field === 'quantity' || field === 'is_unit_price_inclusive') source = 'quantity';
       
-      newItems[index] = calculateItem(newItems[index], source);
+      newItems[index] = calculateItem(newItems[index], source, calculationMode);
       return newItems;
     });
   };
@@ -222,10 +220,6 @@ export function NewInvoiceClient({ customers, invoiceNumber, companyId, userName
     });
   };
 
-  useEffect(() => {
-    setInvoiceMonth(issueDate.slice(0, 7));
-  }, [issueDate]);
-
   const addItem = () => {
     setItems(prev => [...prev, {
       id: Date.now().toString(),
@@ -236,8 +230,7 @@ export function NewInvoiceClient({ customers, invoiceNumber, companyId, userName
       period_to: '',
       unit_price: 0,
       before_vat: 0,
-      vat_amount: 0,
-      is_unit_price_inclusive: false
+      vat_amount: 0
     }]);
   };
 
@@ -634,26 +627,27 @@ export function NewInvoiceClient({ customers, invoiceNumber, companyId, userName
 
             {/* Items Table Section */}
             <div className="space-y-6">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-gray-100">
-                <div className="flex items-center gap-3">
-                  <div className="h-10 w-10 rounded-xl bg-emerald-50 flex items-center justify-center">
-                    <ShoppingCart className="text-emerald-600" size={20} />
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-gray-100">
+                  <div className="flex items-center gap-3">
+                    <div className="h-10 w-10 rounded-xl bg-emerald-50 flex items-center justify-center">
+                      <ShoppingCart className="text-emerald-600" size={20} />
+                    </div>
+                    <div>
+                      <h3 className="text-gray-900 font-black">{t("servicesDetails")}</h3>
+                      <p className="text-gray-400 text-xs font-bold">{t("itemsInInvoice", { count: items.length })}</p>
+                    </div>
                   </div>
-                  <div>
-                    <h3 className="text-gray-900 font-black">{t("servicesDetails")}</h3>
-                    <p className="text-gray-400 text-xs font-bold">{t("itemsInInvoice", { count: items.length })}</p>
-                  </div>
-                  <div className="flex flex-wrap items-center gap-3">
+                  <div className="flex items-center gap-3">
                     <motion.button
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
                       type="button"
-                      onClick={() => setCalculationMethod(prev => prev === 'total' ? 'quantity' : 'total')}
+                      onClick={() => setCalculationMode(prev => prev === 'total' ? 'quantity' : 'total')}
                       className={cn(
                         "flex items-center gap-2 px-5 py-2.5 rounded-xl transition-all font-black text-xs shadow-lg",
-                        calculationMethod === 'quantity' 
+                        calculationMode === 'quantity' 
                           ? "bg-amber-500 text-white shadow-amber-500/20" 
-                          : "bg-white text-gray-700 border border-gray-200 hover:bg-gray-50 shadow-gray-200/50"
+                          : "bg-white border border-gray-200 text-gray-600 hover:bg-gray-50 shadow-gray-200/20"
                       )}
                     >
                       <Calculator size={16} />
@@ -671,7 +665,6 @@ export function NewInvoiceClient({ customers, invoiceNumber, companyId, userName
                     </motion.button>
                   </div>
                 </div>
-              </div>
 
                   <div className="overflow-x-auto rounded-2xl border border-gray-100">
                   <table className="w-full">
@@ -679,10 +672,9 @@ export function NewInvoiceClient({ customers, invoiceNumber, companyId, userName
                       <tr className="bg-gray-50 border-b border-gray-100">
                         <th className="px-4 py-4 text-[10px] font-black text-black uppercase tracking-widest text-right w-12">{t("itemNo")}</th>
                         <th className="px-4 py-4 text-[10px] font-black text-black uppercase tracking-widest text-right min-w-[200px]">{t("serviceName")}</th>
-                          <th className="px-4 py-4 text-[10px] font-black text-black uppercase tracking-widest text-center w-24">{t("quantity")}</th>
-                          <th className="px-4 py-4 text-[10px] font-black text-black uppercase tracking-widest text-center w-40">{t("unitPrice")}</th>
-                          <th className="px-4 py-4 text-[10px] font-black text-black uppercase tracking-widest text-center w-36">{t("totalInclusive")}</th>
-
+                        <th className="px-4 py-4 text-[10px] font-black text-black uppercase tracking-widest text-center w-24">{t("quantity")}</th>
+                        <th className="px-4 py-4 text-[10px] font-black text-black uppercase tracking-widest text-center w-32">{t("unitPrice")}</th>
+                        <th className="px-4 py-4 text-[10px] font-black text-black uppercase tracking-widest text-center w-36">{t("totalInclusive")}</th>
                         <th className="px-4 py-4 text-[10px] font-black text-black uppercase tracking-widest text-center w-32">{t("fromDate")}</th>
                         <th className="px-4 py-4 text-[10px] font-black text-black uppercase tracking-widest text-center w-32">{t("toDate")}</th>
                         <th className="px-4 py-4 text-[10px] font-black text-black uppercase tracking-widest text-center w-24">{t("tax")}</th>
@@ -712,61 +704,64 @@ export function NewInvoiceClient({ customers, invoiceNumber, companyId, userName
                             className="w-full px-3 py-2 rounded-xl bg-white border border-gray-200 text-sm font-bold focus:border-emerald-500/30 outline-none transition-all"
                           />
                         </td>
-                        <td className="px-4 py-4">
-                          <input
-                            type="number"
-                            value={item.quantity || ''}
-                            onChange={(e) => handleItemChange(index, 'quantity', parseFloat(e.target.value) || 0)}
-                            className="w-full px-2 py-2 rounded-xl bg-white border border-gray-200 text-sm font-black text-center focus:border-emerald-500/30 outline-none"
-                          />
-                        </td>
                           <td className="px-4 py-4">
-                            {calculationMethod === 'total' ? (
+                            <div className="space-y-2">
+                              <input
+                                type="number"
+                                value={item.quantity || ''}
+                                onChange={(e) => handleItemChange(index, 'quantity', parseFloat(e.target.value) || 0)}
+                                className="w-full px-2 py-2 rounded-xl bg-white border border-gray-200 text-sm font-black text-center focus:border-emerald-500/30 outline-none"
+                              />
+                              {calculationMode === 'quantity' && (
+                                <div className="flex flex-col items-center gap-1">
+                                  <span className="text-[8px] font-black text-gray-400 uppercase leading-none whitespace-nowrap">
+                                    {t("isUnitPriceInclusive")}
+                                  </span>
+                                  <label className="relative inline-flex items-center cursor-pointer scale-75">
+                                    <input
+                                      type="checkbox"
+                                      checked={item.is_unit_price_inclusive || false}
+                                      onChange={(e) => handleItemChange(index, 'is_unit_price_inclusive', e.target.checked)}
+                                      className="sr-only peer"
+                                    />
+                                    <div className="w-9 h-5 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-amber-500"></div>
+                                  </label>
+                                </div>
+                              )}
+                            </div>
+                          </td>
+                          <td className="px-4 py-4">
+                            {calculationMode === 'quantity' ? (
+                              <input
+                                type="number"
+                                value={item.unit_price || ''}
+                                onChange={(e) => handleItemChange(index, 'unit_price', parseFloat(e.target.value) || 0)}
+                                className="w-full px-2 py-2 rounded-xl bg-white border border-gray-200 text-sm font-black text-center focus:border-blue-500/30 outline-none text-blue-600"
+                              />
+                            ) : (
                               <div className="w-full px-2 py-2 rounded-xl bg-blue-50/50 border border-blue-100 text-center">
                                 <span className="text-sm font-black text-blue-600">
                                   {item.unit_price ? Number(item.unit_price.toFixed(2)).toLocaleString('en-US', { minimumFractionDigits: 2 }) : '0.00'}
                                 </span>
                               </div>
-                            ) : (
-                              <div className="space-y-2">
-                                <input
-                                  type="number"
-                                  value={item.unit_price || ''}
-                                  onChange={(e) => handleItemChange(index, 'unit_price', parseFloat(e.target.value) || 0)}
-                                  className="w-full px-2 py-2 rounded-xl bg-white border border-blue-200 text-sm font-black text-center text-blue-600 focus:border-blue-400 outline-none"
-                                />
-                                <div className="flex items-center justify-center gap-1">
-                                  <input
-                                    type="checkbox"
-                                    id={`inclusive-${item.id}`}
-                                    checked={item.is_unit_price_inclusive}
-                                    onChange={(e) => handleItemChange(index, 'is_unit_price_inclusive', e.target.checked)}
-                                    className="h-3 w-3 rounded border-gray-300 text-emerald-500 focus:ring-emerald-500"
-                                  />
-                                  <label htmlFor={`inclusive-${item.id}`} className="text-[8px] font-black text-gray-500 cursor-pointer uppercase">
-                                    {t("isUnitPriceInclusive")}
-                                  </label>
-                                </div>
-                              </div>
                             )}
                           </td>
                           <td className="px-4 py-4">
-                            {calculationMethod === 'total' ? (
+                            {calculationMode === 'quantity' ? (
+                              <div className="w-full px-2 py-2 rounded-xl bg-emerald-50/50 border border-emerald-100 text-center">
+                                <span className="text-sm font-black text-emerald-600">
+                                  {item.total_with_vat ? Number(item.total_with_vat.toFixed(2)).toLocaleString('en-US', { minimumFractionDigits: 2 }) : '0.00'}
+                                </span>
+                              </div>
+                            ) : (
                               <input
                                 type="number"
                                 value={item.total_with_vat || ''}
                                 onChange={(e) => handleItemChange(index, 'total_with_vat', parseFloat(e.target.value) || 0)}
                                 className="w-full px-2 py-2 rounded-xl bg-emerald-50 border border-emerald-100 text-sm font-black text-center text-emerald-600 focus:border-emerald-400 outline-none"
                               />
-                            ) : (
-                              <div className="w-full px-2 py-2 rounded-xl bg-emerald-50/50 border border-emerald-100 text-center">
-                                <span className="text-sm font-black text-emerald-600">
-                                  {item.total_with_vat ? Number(item.total_with_vat.toFixed(2)).toLocaleString('en-US', { minimumFractionDigits: 2 }) : '0.00'}
-                                </span>
-                              </div>
                             )}
                           </td>
-
                         <td className="px-4 py-4">
                           <input
                             type="date"
