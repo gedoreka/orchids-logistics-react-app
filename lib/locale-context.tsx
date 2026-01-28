@@ -3,8 +3,8 @@
 import { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react';
 import Cookies from 'js-cookie';
 
-import arMessages from '../../messages/ar.json';
-import enMessages from '../../messages/en.json';
+import arMessages from '../messages/ar.json';
+import enMessages from '../messages/en.json';
 
 type Locale = 'ar' | 'en';
 type Messages = typeof arMessages;

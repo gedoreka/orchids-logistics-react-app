@@ -1,18 +1,25 @@
-# Disable directory listing
+# Disable directory listing to prevent 403 Forbidden errors
 Options -Indexes
 
-# Set the default handler to index.php (if it exists) or index.html
-# NEVER include server.js here as it will cause the source code to be displayed
-DirectoryIndex index.php index.html
+# Set the default index to something that doesn't exist to force the proxy to work
+# or just disable it entirely
+DirectoryIndex disabled
+
+# Hostinger Node.js selector usually handles the proxy automatically.
+# This .htaccess is designed to stay out of the way while ensuring
+# that sensitive files aren't served as text.
 
 <IfModule mod_rewrite.c>
-  RewriteEngine On
-  
-  # Forward all requests to the Node.js app if it's not a static file
-  # The Hostinger Node.js selector handles the actual proxying.
-  # We just need to ensure Apache doesn't try to handle it.
-  
-  RewriteCond %{REQUEST_FILENAME} !-f
-  RewriteCond %{REQUEST_FILENAME} !-d
-  RewriteRule ^(.*)$ index.php [L]
+    RewriteEngine On
+
+    # Prevent direct access to server.js source code
+    RewriteRule ^server\.js$ - [F,L]
+
+    # If it's a real file or directory in public/, serve it
+    RewriteCond %{DOCUMENT_ROOT}/public/%{REQUEST_URI} -f
+    RewriteRule ^(.*)$ /public/$1 [L]
+
+    # Otherwise, let the Node.js process handle it.
+    # On Hostinger, the proxying is done at a higher level, 
+    # so we don't need to specify a RewriteRule here that might conflict.
 </IfModule>
