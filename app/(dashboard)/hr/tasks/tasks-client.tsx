@@ -82,21 +82,49 @@ export function TasksClient({
     cancelled: { label: t("cancelled"), color: "from-slate-500 to-gray-600", bg: "bg-slate-500/10", text: "text-slate-500", icon: X }
   };
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [search, setSearch] = useState(searchQuery);
-  const [selectedTask, setSelectedTask] = useState<Task | null>(null);
-  const [showPreview, setShowPreview] = useState(false);
-  const [showEmailModal, setShowEmailModal] = useState(false);
-  const [emailTask, setEmailTask] = useState<Task | null>(null);
-  const [customEmail, setCustomEmail] = useState("");
-  const [isSendingEmail, setIsSendingEmail] = useState(false);
-  const [showEmployeeSelector, setShowEmployeeSelector] = useState(false);
-  const [employeeSearch, setEmployeeSearch] = useState("");
-  const [isEditMode, setIsEditMode] = useState(false);
-  const router = useRouter();
-  const printRef = useRef<HTMLDivElement>(null);
+    const [isLoading, setIsLoading] = useState(false);
+    const [search, setSearch] = useState(searchQuery);
+    const [debouncedSearch, setDebouncedSearch] = useState(searchQuery);
+    const [selectedTask, setSelectedTask] = useState<Task | null>(null);
+    const [showPreview, setShowPreview] = useState(false);
+    const [showEmailModal, setShowEmailModal] = useState(false);
+    const [emailTask, setEmailTask] = useState<Task | null>(null);
+    const [customEmail, setCustomEmail] = useState("");
+    const [isSendingEmail, setIsSendingEmail] = useState(false);
+    const [showEmployeeSelector, setShowEmployeeSelector] = useState(false);
+    const [employeeSearch, setEmployeeSearch] = useState("");
+    const [isEditMode, setIsEditMode] = useState(false);
+    const [mounted, setMounted] = useState(false);
+    const router = useRouter();
+    const printRef = useRef<HTMLDivElement>(null);
 
-  const [formData, setFormData] = useState({
+    useEffect(() => {
+      setMounted(true);
+    }, []);
+
+    // Handle debounce
+    useEffect(() => {
+      const timer = setTimeout(() => {
+        setDebouncedSearch(search);
+      }, 300);
+      return () => clearTimeout(timer);
+    }, [search]);
+
+    // Sync with URL
+    useEffect(() => {
+      if (!mounted) return;
+      const trimmedSearch = debouncedSearch.trim();
+      const params = new URLSearchParams();
+      if (trimmedSearch) params.set('search', trimmedSearch);
+      if (activeFilter !== 'all') params.set('filter', activeFilter);
+      
+      const queryStr = params.toString();
+      const url = `/hr/tasks${queryStr ? `?${queryStr}` : ''}`;
+      
+      router.replace(url, { scroll: false });
+    }, [debouncedSearch, activeFilter, router, mounted]);
+
+    const [formData, setFormData] = useState({
     title: "",
     description: "",
     assigned_to: "",

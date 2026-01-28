@@ -57,20 +57,51 @@ export function IqamaReportClient({
   const { locale, isRTL } = useLocale();
   const dateLocale = locale === "ar" ? ar : enUS;
 
-  const [search, setSearch] = useState(searchQuery);
-  const [showExportMenu, setShowExportMenu] = useState(false);
-  const router = useRouter();
-  const reportRef = useRef<HTMLDivElement>(null);
-
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    const trimmedSearch = search.trim();
-    router.push(`/hr/reports/iqama?search=${encodeURIComponent(trimmedSearch)}&filter=${activeFilter}`);
-  };
-
-  const handleFilterChange = (filter: string) => {
-    router.push(`/hr/reports/iqama?search=${search}&filter=${filter}`);
-  };
+    const [search, setSearch] = useState(searchQuery);
+    const [debouncedSearch, setDebouncedSearch] = useState(searchQuery);
+    const [showExportMenu, setShowExportMenu] = useState(false);
+    const [mounted, setMounted] = useState(false);
+    const router = useRouter();
+    const reportRef = useRef<HTMLDivElement>(null);
+  
+    useEffect(() => {
+      setMounted(true);
+    }, []);
+  
+    // Handle debounce
+    useEffect(() => {
+      const timer = setTimeout(() => {
+        setDebouncedSearch(search);
+      }, 300);
+      return () => clearTimeout(timer);
+    }, [search]);
+  
+    // Sync with URL
+    useEffect(() => {
+      if (!mounted) return;
+      const trimmedSearch = debouncedSearch.trim();
+      const params = new URLSearchParams();
+      if (trimmedSearch) params.set('search', trimmedSearch);
+      if (activeFilter !== 'all') params.set('filter', activeFilter);
+      
+      const queryStr = params.toString();
+      const url = `/hr/reports/iqama${queryStr ? `?${queryStr}` : ''}`;
+      
+      router.replace(url, { scroll: false });
+    }, [debouncedSearch, activeFilter, router, mounted]);
+  
+    const handleSearch = (e: React.FormEvent) => {
+      e.preventDefault();
+      const trimmedSearch = search.trim();
+      router.replace(`/hr/reports/iqama?search=${encodeURIComponent(trimmedSearch)}&filter=${activeFilter}`, { scroll: false });
+    };
+  
+    const handleFilterChange = (filter: string) => {
+      const params = new URLSearchParams();
+      if (search.trim()) params.set('search', search.trim());
+      if (filter !== 'all') params.set('filter', filter);
+      router.replace(`/hr/reports/iqama${params.toString() ? `?${params.toString()}` : ''}`, { scroll: false });
+    };
 
   const handlePrint = () => {
     window.print();

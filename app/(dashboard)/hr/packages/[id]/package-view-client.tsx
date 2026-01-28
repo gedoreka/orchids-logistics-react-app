@@ -74,29 +74,41 @@ export function PackageViewClient({
   const { isRTL } = useLocale();
   const t = useTranslations('packages.packageView');
   
-  const [employees, setEmployees] = useState(initialEmployees);
-  const [search, setSearch] = useState(searchQuery);
-  const [debouncedSearch, setDebouncedSearch] = useState(searchQuery);
-  const [filter, setFilter] = useState(activeFilter);
-  const [mounted, setMounted] = useState(false);
-  const router = useRouter();
-
-  // Handle debounce
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setDebouncedSearch(search);
-    }, 500); // 500ms delay
-
-    return () => clearTimeout(timer);
-  }, [search]);
-
-  // Sync search and filter with URL
-  useEffect(() => {
-    if (!mounted) return;
-    
-    const trimmedSearch = debouncedSearch.trim();
-    router.push(`/hr/packages/${packageData.id}?search=${encodeURIComponent(trimmedSearch)}&filter=${filter}`, { scroll: false });
-  }, [debouncedSearch, filter, packageData.id, router, mounted]);
+    const [employees, setEmployees] = useState(initialEmployees);
+    const [search, setSearch] = useState(searchQuery);
+    const [debouncedSearch, setDebouncedSearch] = useState(searchQuery);
+    const [filter, setFilter] = useState(activeFilter);
+    const [mounted, setMounted] = useState(false);
+    const router = useRouter();
+  
+    // Update local employees when initialEmployees prop changes (from server)
+    useEffect(() => {
+      setEmployees(initialEmployees);
+    }, [initialEmployees]);
+  
+    // Handle debounce
+    useEffect(() => {
+      const timer = setTimeout(() => {
+        setDebouncedSearch(search);
+      }, 300); // Reduced to 300ms for faster response
+  
+      return () => clearTimeout(timer);
+    }, [search]);
+  
+    // Sync search and filter with URL
+    useEffect(() => {
+      if (!mounted) return;
+      
+      const trimmedSearch = debouncedSearch.trim();
+      const params = new URLSearchParams();
+      if (trimmedSearch) params.set('search', trimmedSearch);
+      if (filter !== 'all') params.set('filter', filter);
+      
+      const queryStr = params.toString();
+      const url = `/hr/packages/${packageData.id}${queryStr ? `?${queryStr}` : ''}`;
+      
+      router.replace(url, { scroll: false });
+    }, [debouncedSearch, filter, packageData.id, router, mounted]);
 
   useEffect(() => {
     setMounted(true);
