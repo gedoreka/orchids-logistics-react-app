@@ -998,11 +998,13 @@
       "tax": "الضريبة",
       "net": "الصافي",
       "driver": "السائق",
-      "addRow": "إضافة سطر",
-      "saveAll": "حفظ الكل",
-      "searchPlaceholder": "بحث...",
-      "backToCenter": "العودة للمركز"
-    },
+        "addRow": "إضافة سطر",
+        "saveAll": "حفظ الكل",
+        "searchPlaceholder": "بحث...",
+        "backToCenter": "العودة للمركز",
+        "success": "تم الحفظ بنجاح",
+        "successDesc": "تم حفظ {count} من السجلات بنجاح في النظام."
+      },
     "types": {
       "iqama": "منصرفات الاقامة / وكروت العمل",
       "fuel": "منصرفات الوقود",

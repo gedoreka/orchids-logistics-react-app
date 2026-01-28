@@ -33,6 +33,7 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { getPublicUrl } from "@/lib/utils";
 import {
   Select,
   SelectContent,
@@ -150,54 +151,7 @@ const UPLOADS_BASE_URL = `${process.env.NEXT_PUBLIC_APP_URL}/uploads/`;
 const SUPABASE_STORAGE_URL = "https://xaexoopjqkrzhbochbef.supabase.co/storage/v1/object/public/expenses/";
 
   const getAttachmentUrl = (attachment: string | null | undefined) => {
-    if (!attachment || attachment === "0" || attachment === "") return null;
-    
-    let isFullUrl = attachment.startsWith('http');
-    let pathOnly = attachment;
-    
-    // If it's a Supabase URL, we extract the path to check for Arabic/Spaces
-    if (isFullUrl && attachment.includes('supabase.co')) {
-      const parts = attachment.split('/public/expenses/');
-      if (parts.length > 1) {
-        pathOnly = decodeURIComponent(parts[1]);
-      }
-    } else if (isFullUrl) {
-      // It's a non-Supabase full URL, return as is
-      return attachment;
-    }
-
-    // Clean the path for Hostinger fallback
-    const cleanPath = pathOnly.replace(/^uploads\//, '');
-    
-    // Check for Arabic characters or spaces
-    const hasArabic = /[\u0600-\u06FF]/.test(pathOnly);
-    const hasSpaces = pathOnly.includes(' ');
-    
-    // If it has Arabic or Spaces, we MUST use Hostinger to ensure compatibility
-    // and we MUST encode it correctly segment by segment
-    if (hasArabic || hasSpaces) {
-      const encodedPath = cleanPath.split('/').map(s => encodeURIComponent(s)).join('/');
-      return `${UPLOADS_BASE_URL}${encodedPath}`;
-    }
-  
-    // If it was already a valid Supabase URL without issues, return it
-    if (isFullUrl) return attachment;
-
-    // Heuristic: Files with timestamps after approx Oct 2025 (1760000000) 
-    // are likely in Supabase. Old ones are on Hostinger.
-    const timestampMatch = pathOnly.match(/(\d{10})/);
-    if (timestampMatch) {
-      const ts = parseInt(timestampMatch[1]);
-      if (ts > 1760000000) {
-        const fullPath = pathOnly.startsWith('uploads/') ? pathOnly : 'uploads/' + pathOnly;
-        const encodedKey = fullPath.split('/').map(segment => encodeURIComponent(segment)).join('/');
-        return `${SUPABASE_STORAGE_URL}${encodedKey}`;
-      }
-    }
-
-    // Default to Hostinger for everything else
-    const finalEncodedPath = cleanPath.split('/').map(s => encodeURIComponent(s)).join('/');
-    return `${UPLOADS_BASE_URL}${finalEncodedPath}`;
+    return getPublicUrl(attachment, 'expenses');
   };
 
 const isImageFile = (filename: string) => {

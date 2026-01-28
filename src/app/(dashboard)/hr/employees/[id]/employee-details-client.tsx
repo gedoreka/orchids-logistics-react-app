@@ -59,6 +59,7 @@ import {
 } from "@/lib/actions/hr";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { getPublicUrl } from "@/lib/utils";
 
 type EmployeeDetailsClientProps = {
   employee: any;
@@ -70,16 +71,8 @@ type EmployeeDetailsClientProps = {
   bankAccounts: any[];
 };
 
-function getPublicUrl(path: string | null) {
-  if (!path) return null;
-  if (path.startsWith('http')) return path;
-  const cleanPath = path.startsWith('/') ? path.slice(1) : path;
-  if (path.includes('supabase')) return path;
-  if (path.startsWith('employees/')) {
-    const sPath = path.replace('employees/', '');
-    return `https://xaexoopjqkrzhbochbef.supabase.co/storage/v1/object/public/employees/${sPath}`;
-  }
-  return `${process.env.NEXT_PUBLIC_APP_URL}/${cleanPath}`;
+function getPublicUrlLocal(path: string | null) {
+  return getPublicUrl(path, 'employees');
 }
 
 export function EmployeeDetailsClient({ 
@@ -344,13 +337,14 @@ export function EmployeeDetailsClient({
                   whileHover={{ scale: 1.05 }}
                   className="relative mb-4"
                 >
-                  <div className="h-32 w-32 rounded-3xl border-4 border-white/20 overflow-hidden bg-white/10 shadow-2xl backdrop-blur-md">
-                    {getPublicUrl(employee.personal_photo) ? (
-                      <img src={getPublicUrl(employee.personal_photo)!} alt={employee.name} className="h-full w-full object-cover" />
-                    ) : (
-                      <div className="h-full w-full flex items-center justify-center text-white/50"><User size={48} /></div>
-                    )}
-                  </div>
+                    <div className="h-32 w-32 rounded-3xl border-4 border-white/20 overflow-hidden bg-white/10 shadow-2xl backdrop-blur-md">
+                      {getPublicUrlLocal(employee.personal_photo) ? (
+                        <img src={getPublicUrlLocal(employee.personal_photo)!} alt={employee.name} className="h-full w-full object-cover" />
+                      ) : (
+                        <div className="h-full w-full flex items-center justify-center text-white/50"><User size={48} /></div>
+                      )}
+                    </div>
+
                   <div className={`absolute bottom-1 right-1 h-6 w-6 rounded-full border-4 border-indigo-700 dark:border-slate-900 ${employee.is_active === 1 ? 'bg-emerald-400' : 'bg-orange-400'} shadow-lg animate-pulse`} />
                 </motion.div>
                 

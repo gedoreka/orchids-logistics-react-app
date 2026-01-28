@@ -33,6 +33,7 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { getPublicUrl } from "@/lib/utils";
 import {
   Select,
   SelectContent,
@@ -149,17 +150,10 @@ const formatNumber = (num: number) => {
 const UPLOADS_BASE_URL = `${process.env.NEXT_PUBLIC_APP_URL}/uploads/`;
 const SUPABASE_STORAGE_URL = "https://xaexoopjqkrzhbochbef.supabase.co/storage/v1/object/public/expenses/";
 
-const getAttachmentUrl = (attachment: string | null | undefined) => {
-  if (!attachment || attachment === "0" || attachment === "") return null;
-  if (attachment.startsWith('http')) return attachment;
-  
-  // Clean the path for Hostinger fallback
-  const cleanPath = attachment.replace(/^uploads\//, '');
-  
-  // Helper to encode Supabase key segments
-  const encodeKey = (path: string) => {
-    return path.split('/').map(segment => encodeURIComponent(segment)).join('/');
+  const getAttachmentUrl = (attachment: string | null | undefined) => {
+    return getPublicUrl(attachment, 'expenses');
   };
+
 
   // Check for Arabic characters - if present, fallback to Hostinger for better compatibility
   const hasArabic = /[\u0600-\u06FF]/.test(attachment);
