@@ -63,12 +63,17 @@ export function Footer() {
       <div className="relative z-10 max-w-[1800px] mx-auto px-4 md:px-6 py-3">
         <div className="flex flex-col md:flex-row items-center justify-between gap-4">
           
-          <div className="flex items-center gap-4">
-            <div className="hidden sm:flex items-center gap-1.5 text-white/30 text-[10px] font-bold">
-              <Copyright size={10} />
-              <span>2026 {t('copyright')}</span>
+            <div className="flex items-center gap-4">
+              <div className="flex items-center gap-2 px-3 py-1.5 bg-white/5 rounded-xl border border-white/10">
+                <span className="text-[10px] font-bold text-white/50">{t('currentSystemVersion')}</span>
+                <span className="text-[10px] font-black text-emerald-400">1.2</span>
+              </div>
+              
+              <div className="hidden sm:flex items-center gap-1.5 text-white/30 text-[10px] font-bold">
+                <Copyright size={10} />
+                <span>2026 {t('copyright')}</span>
+              </div>
             </div>
-          </div>
 
           <div className="hidden lg:flex items-center gap-3">
             <motion.div 

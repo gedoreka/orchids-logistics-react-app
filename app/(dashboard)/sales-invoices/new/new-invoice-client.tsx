@@ -132,24 +132,26 @@ export function NewInvoiceClient({ customers, invoiceNumber, companyId, userName
 
     if (source === 'quantity_method') {
       if (isInclusive) {
-        totalWithVat = quantity * unitPrice;
-        const beforeVat = totalWithVat / 1.15;
-        const vatAmount = totalWithVat - beforeVat;
+        // Price entered is inclusive of tax (177 * 8 = 1416 total)
+        const total = quantity * unitPrice;
+        const subtotal = total / 1.15;
+        const tax = total - subtotal;
         return {
           ...item,
-          before_vat: beforeVat,
-          vat_amount: vatAmount,
-          total_with_vat: totalWithVat
+          before_vat: subtotal,
+          vat_amount: tax,
+          total_with_vat: total
         };
       } else {
-        const beforeVat = quantity * unitPrice;
-        const vatAmount = beforeVat * 0.15;
-        totalWithVat = beforeVat + vatAmount;
+        // Price entered is exclusive of tax (177 * 8 = 1416 subtotal, total = 1416 * 1.15 = 1628.4)
+        const subtotal = quantity * unitPrice;
+        const tax = subtotal * 0.15;
+        const total = subtotal + tax;
         return {
           ...item,
-          before_vat: beforeVat,
-          vat_amount: vatAmount,
-          total_with_vat: totalWithVat
+          before_vat: subtotal,
+          vat_amount: tax,
+          total_with_vat: total
         };
       }
     }
