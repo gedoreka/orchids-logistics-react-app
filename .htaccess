@@ -3,22 +3,16 @@
   RewriteEngine On
   RewriteBase /
   
-  # Protect server.js and other sensitive files from direct access
-  RewriteRule ^(server\.js|package\.json|package-lock\.json|next\.config\.ts|tsconfig\.json|\.env)$ - [F,L]
-  
-  # Forward all requests to the Node.js application via Passenger
-  # Passenger usually handles the port automatically when "Startup File" is set.
-  # If Passenger is not active, this rule will ensure server.js is the entry point.
-  
+  # Allow access to server.js for the proxy
+  # Forward all requests to the Node.js application
   RewriteCond %{REQUEST_FILENAME} !-f
   RewriteCond %{REQUEST_FILENAME} !-d
   RewriteRule ^(.*)$ server.js/$1 [L]
 </IfModule>
-# END Next.js
 
 # Prevent Directory Listing
 Options -Indexes
 
 # Error Handling
-ErrorDocument 403 /server.js
-ErrorDocument 500 /server.js
+# Let Next.js handle errors where possible
+
