@@ -15,47 +15,73 @@ interface AdminNotification {
   sent_to_all: boolean;
 }
 
-export function GlobalAdminNotifications() {
-  const [activeNotification, setActiveNotification] = useState<AdminNotification | null>(null);
-  const [showCenterAlert, setShowCenterAlert] = useState(false);
-  const lastCheckedIdRef = useRef<number>(0);
-  const router = useRouter();
+  export function GlobalAdminNotifications() {
+    const [activeNotification, setActiveNotification] = useState<AdminNotification | null>(null);
+    const [showCenterAlert, setShowCenterAlert] = useState(false);
+    const lastCheckedIdRef = useRef<number>(0);
+    const router = useRouter();
 
-  const checkForNewNotifications = useCallback(async () => {
-    try {
-      // Get the last seen notification ID from localStorage to avoid showing the same one multiple times
-      const lastSeenId = parseInt(localStorage.getItem("last_admin_notification_id") || "0");
-      
-      const response = await fetch(`/api/admin/notifications?limit=1&last_id=${lastSeenId}`);
-      const data = await response.json();
-      
-      if (data.success && data.notifications && data.notifications.length > 0) {
-        const latest = data.notifications[0];
+    const checkForNewNotifications = useCallback(async () => {
+      try {
+        // Get the last seen notification ID from localStorage to avoid showing the same one multiple times
+        const lastSeenId = parseInt(localStorage.getItem("last_admin_notification_id") || "0");
         
-        // Only show if it's actually new
-        if (latest.id > lastSeenId) {
-          setActiveNotification(latest);
-          setShowCenterAlert(true);
+        const response = await fetch(`/api/admin/notifications?limit=1&last_id=${lastSeenId}`);
+        const data = await response.json();
+        
+        if (data.success && data.notifications && data.notifications.length > 0) {
+          const latest = data.notifications[0];
           
-          // Play sound
-          try {
-            const audio = new Audio('/notification.mp3');
-            audio.volume = 0.4;
-            audio.play().catch(() => {});
-          } catch (e) {}
+          // Only show if it's actually new
+          if (latest.id > lastSeenId) {
+            setActiveNotification(latest);
+            setShowCenterAlert(true);
+            
+            // Play sound
+            try {
+              const audio = new Audio('/notification.mp3');
+              audio.volume = 0.4;
+              audio.play().catch(() => {});
+            } catch (e) {}
+          }
         }
+      } catch (error) {
+        console.error("Error checking for admin notifications:", error);
       }
-    } catch (error) {
-      console.error("Error checking for admin notifications:", error);
-    }
-  }, []);
+    }, []);
 
-  useEffect(() => {
-    // Check every 30 seconds for admin announcements (less frequent than chat)
-    checkForNewNotifications();
-    const interval = setInterval(checkForNewNotifications, 30000);
-    return () => clearInterval(interval);
-  }, [checkForNewNotifications]);
+    useEffect(() => {
+      // Check every 30 seconds for admin announcements (less frequent than chat)
+      checkForNewNotifications();
+      const interval = setInterval(checkForNewNotifications, 30000);
+
+      // Listen for manual trigger from header
+      const handleTrigger = (event: any) => {
+        if (event.detail && event.detail.notification) {
+          setActiveNotification(event.detail.notification);
+          setShowCenterAlert(true);
+        } else if (activeNotification) {
+          setShowCenterAlert(true);
+        } else {
+          // If no active notification in state, fetch the latest one
+          fetch(`/api/admin/notifications?limit=1`)
+            .then(res => res.json())
+            .then(data => {
+              if (data.success && data.notifications && data.notifications.length > 0) {
+                setActiveNotification(data.notifications[0]);
+                setShowCenterAlert(true);
+              }
+            });
+        }
+      };
+
+      window.addEventListener("open-admin-notification", handleTrigger);
+      return () => {
+        clearInterval(interval);
+        window.removeEventListener("open-admin-notification", handleTrigger);
+      };
+    }, [checkForNewNotifications, activeNotification]);
+
 
   const handleDismiss = () => {
     if (activeNotification) {

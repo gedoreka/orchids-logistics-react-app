@@ -1284,19 +1284,26 @@ export function Header({ user, onToggleSidebar, unreadChatCount = 0, subscriptio
                 </div>
                 <div className="max-h-80 overflow-y-auto">
                   {adminNotifications.length > 0 ? adminNotifications.map((notif) => (
-                    <motion.div
-                      key={notif.id}
-                      whileHover={{ backgroundColor: "rgba(255,255,255,0.05)" }}
-                      className="p-4 border-b border-white/5 cursor-pointer"
-                      onClick={() => {
-                        const currentLastSeen = parseInt(localStorage.getItem("last_admin_notification_id") || "0");
-                        if (notif.id > currentLastSeen) {
-                          localStorage.setItem("last_admin_notification_id", notif.id.toString());
-                          setUnreadAdminCount(prev => Math.max(0, prev - 1));
-                        }
-                        setShowNotifications(false);
-                      }}
-                    >
+                      <motion.div
+                        key={notif.id}
+                        whileHover={{ backgroundColor: "rgba(255,255,255,0.05)" }}
+                        className="p-4 border-b border-white/5 cursor-pointer"
+                        onClick={() => {
+                          const currentLastSeen = parseInt(localStorage.getItem("last_admin_notification_id") || "0");
+                          if (notif.id > currentLastSeen) {
+                            localStorage.setItem("last_admin_notification_id", notif.id.toString());
+                            setUnreadAdminCount(prev => Math.max(0, prev - 1));
+                          }
+                          
+                          // Trigger the detailed notification view
+                          window.dispatchEvent(new CustomEvent("open-admin-notification", { 
+                            detail: { notification: notif } 
+                          }));
+                          
+                          setShowNotifications(false);
+                        }}
+                      >
+
                       <div className="flex items-start gap-3">
                         <div className="p-2 rounded-xl bg-blue-500/20">
                           <Bell size={16} className="text-blue-400" />

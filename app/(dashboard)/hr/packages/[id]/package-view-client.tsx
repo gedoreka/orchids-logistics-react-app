@@ -76,9 +76,27 @@ export function PackageViewClient({
   
   const [employees, setEmployees] = useState(initialEmployees);
   const [search, setSearch] = useState(searchQuery);
+  const [debouncedSearch, setDebouncedSearch] = useState(searchQuery);
   const [filter, setFilter] = useState(activeFilter);
   const [mounted, setMounted] = useState(false);
   const router = useRouter();
+
+  // Handle debounce
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(search);
+    }, 500); // 500ms delay
+
+    return () => clearTimeout(timer);
+  }, [search]);
+
+  // Sync search and filter with URL
+  useEffect(() => {
+    if (!mounted) return;
+    
+    const trimmedSearch = debouncedSearch.trim();
+    router.push(`/hr/packages/${packageData.id}?search=${encodeURIComponent(trimmedSearch)}&filter=${filter}`, { scroll: false });
+  }, [debouncedSearch, filter, packageData.id, router, mounted]);
 
   useEffect(() => {
     setMounted(true);
@@ -112,12 +130,11 @@ export function PackageViewClient({
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     const trimmedSearch = search.trim();
-    router.push(`/hr/packages/${packageData.id}?search=${encodeURIComponent(trimmedSearch)}&filter=${filter}`);
+    router.push(`/hr/packages/${packageData.id}?search=${encodeURIComponent(trimmedSearch)}&filter=${filter}`, { scroll: false });
   };
 
   const handleFilterChange = (newFilter: string) => {
     setFilter(newFilter);
-    router.push(`/hr/packages/${packageData.id}?search=${search}&filter=${newFilter}`);
   };
 
   const containerVariants = {
