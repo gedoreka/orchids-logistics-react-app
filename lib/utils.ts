@@ -48,10 +48,11 @@ export function getPublicUrl(path: string | null | undefined, bucket: string = '
   const finalEncodedPath = cleanPath.split('/').map(s => encodeURIComponent(s)).join('/');
   const baseUrl = (process.env.NEXT_PUBLIC_APP_URL || '').replace(/\/$/, '');
   
-  // If it doesn't have a folder prefix, it's likely in the uploads folder on Hostinger
-  if (!finalEncodedPath.includes('/')) {
-    return `${baseUrl}/uploads/${finalEncodedPath}`;
-  }
-  
-  return `${baseUrl}/${finalEncodedPath}`;
+  // For Hostinger files, they must be served from the /uploads/ directory
+  // If the path doesn't already start with uploads/, we add it
+  const hostingerPath = finalEncodedPath.startsWith('uploads/') 
+    ? finalEncodedPath 
+    : `uploads/${finalEncodedPath}`;
+    
+  return `${baseUrl}/${hostingerPath}`;
 }

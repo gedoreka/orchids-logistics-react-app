@@ -78,11 +78,15 @@ export async function POST(request: NextRequest) {
         const safeName = sanitizedBase || `file_${Date.now()}`;
         const fileName = `${Date.now()}_${safeName}.${ext}`;
         
-        const { data, error } = await supabase.storage
+        const { data, error: uploadError } = await supabase.storage
           .from("expenses")
           .upload(`uploads/${fileName}`, attachment);
         
-        if (!error && data) {
+        if (uploadError) {
+          console.error("Supabase upload error:", uploadError);
+        }
+
+        if (!uploadError && data) {
           attachmentPath = data.path;
         }
       }
