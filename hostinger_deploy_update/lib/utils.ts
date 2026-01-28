@@ -34,7 +34,6 @@ export function getPublicUrl(path: string | null | undefined, bucket: string = '
   cleanPath = cleanPath.startsWith('/') ? cleanPath.slice(1) : cleanPath;
   
   // 4. Determine if it's Supabase or Hostinger
-  // New uploads to Supabase always start with 'uploads/' in the DB or are full Supabase URLs
   const isSupabase = cleanPath.startsWith('uploads/') || path.includes('supabase.co');
 
   if (isSupabase) {
@@ -44,12 +43,9 @@ export function getPublicUrl(path: string | null | undefined, bucket: string = '
   }
 
   // 5. Fallback to Hostinger
-  // Old files on Hostinger are in the 'uploads' folder
   const finalEncodedPath = cleanPath.split('/').map(s => encodeURIComponent(s)).join('/');
   const baseUrl = (process.env.NEXT_PUBLIC_APP_URL || '').replace(/\/$/, '');
   
-  // For Hostinger files, they must be served from the /uploads/ directory
-  // If the path doesn't already start with uploads/, we add it
   const hostingerPath = finalEncodedPath.startsWith('uploads/') 
     ? finalEncodedPath 
     : `uploads/${finalEncodedPath}`;
