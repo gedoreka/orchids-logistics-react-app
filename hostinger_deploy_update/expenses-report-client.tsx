@@ -149,36 +149,38 @@ const formatNumber = (num: number) => {
 const UPLOADS_BASE_URL = `${process.env.NEXT_PUBLIC_APP_URL}/uploads/`;
 const SUPABASE_STORAGE_URL = "https://xaexoopjqkrzhbochbef.supabase.co/storage/v1/object/public/expenses/";
 
-const getAttachmentUrl = (attachment: string | null | undefined) => {
-  if (!attachment || attachment === "0" || attachment === "") return null;
-  if (attachment.startsWith('http')) return attachment;
-  
-  // Clean the path for Hostinger fallback
-  const cleanPath = attachment.replace(/^uploads\//, '');
-  
-  // Helper to encode Supabase key segments
-  const encodeKey = (path: string) => {
-    return path.split('/').map(segment => encodeURIComponent(segment)).join('/');
-  };
-
-  // Check for Arabic characters - if present, fallback to Hostinger for better compatibility
-  const hasArabic = /[\u0600-\u06FF]/.test(attachment);
-  
-  // Heuristic: Files with timestamps after approx Oct 2025 (1760000000) 
-  // are likely in Supabase. Old ones are on Hostinger.
-  const timestampMatch = attachment.match(/(\d{10})/);
-  if (timestampMatch && !hasArabic) {
-    const ts = parseInt(timestampMatch[1]);
-    if (ts > 1760000000) {
-      const fullPath = attachment.startsWith('uploads/') ? attachment : 'uploads/' + attachment;
-      return `${SUPABASE_STORAGE_URL}${encodeKey(fullPath)}`;
+  const getAttachmentUrl = (attachment: string | null | undefined) => {
+    if (!attachment || attachment === "0" || attachment === "") return null;
+    if (attachment.startsWith('http')) return attachment;
+    
+    // Clean the path for Hostinger fallback
+    const cleanPath = attachment.replace(/^uploads\//, '');
+    
+    // Check for Arabic characters or spaces - if present, fallback to Hostinger
+    // Hostinger's static file serving handles these filenames more reliably than current Supabase URL logic
+    const hasArabic = /[\u0600-\u06FF]/.test(attachment);
+    const hasSpaces = attachment.includes(' ');
+    
+    // If it has Arabic or Spaces, we MUST use Hostinger to ensure compatibility
+    if (hasArabic || hasSpaces) {
+      return `${UPLOADS_BASE_URL}${encodeURIComponent(cleanPath)}`;
     }
-  }
+  
+    // Heuristic: Files with timestamps after approx Oct 2025 (1760000000) 
+    // are likely in Supabase. Old ones are on Hostinger.
+    const timestampMatch = attachment.match(/(\d{10})/);
+    if (timestampMatch) {
+      const ts = parseInt(timestampMatch[1]);
+      if (ts > 1760000000) {
+        const fullPath = attachment.startsWith('uploads/') ? attachment : 'uploads/' + attachment;
+        const encodedKey = fullPath.split('/').map(segment => encodeURIComponent(segment)).join('/');
+        return `${SUPABASE_STORAGE_URL}${encodedKey}`;
+      }
+    }
 
-  // Default to Hostinger for Arabic names, older files, or if no timestamp match
-  // We use encodeURIComponent on the filename to ensure the browser handles Arabic/spaces correctly
-  return `${UPLOADS_BASE_URL}${encodeURIComponent(cleanPath)}`;
-};
+    // Default to Hostinger
+    return `${UPLOADS_BASE_URL}${encodeURIComponent(cleanPath)}`;
+  };
 
 const isImageFile = (filename: string) => {
   const ext = filename.toLowerCase().split('.').pop();
