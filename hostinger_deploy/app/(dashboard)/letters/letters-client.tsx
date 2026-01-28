@@ -747,11 +747,11 @@ export default function LettersClient() {
               <p className="text-blue-100">{t("subtitle")}</p>
             </div>
             <div className="flex items-center gap-3">
-              <button
-                onClick={() => setShowSettings(true)}
-                className="bg-white/10 hover:bg-white/20 backdrop-blur-sm rounded-xl p-3 text-white transition-all flex items-center gap-2 border border-white/20"
-                title={t("paperSettings")}
-              >
+                <button
+                  onClick={() => setShowSettings(true)}
+                  className="bg-amber-500 hover:bg-amber-600 text-white shadow-lg shadow-amber-500/30 rounded-xl p-3 transition-all flex items-center gap-2 border border-amber-400/50"
+                  title={t("paperSettings")}
+                >
                 <Settings className="w-5 h-5" />
                 <span className="hidden sm:inline">{t("paperSettings")}</span>
               </button>
