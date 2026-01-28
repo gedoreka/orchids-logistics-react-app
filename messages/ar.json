@@ -2359,8 +2359,22 @@
       "enterEmail": "يرجى إدخال البريد الإلكتروني"
     }
   },
-  "newInvoicePage": {
-    "breadcrumbDashboard": "لوحة التحكم",
+    "newInvoicePage": {
+      "electronicTaxInvoice": "فاتورة ضريبية إلكترونية",
+      "inclusiveTax": "شامل ضريبة القيمة المضافة",
+      "adjustmentPlaceholder": "وصف التعديل (خصم/إضافة)",
+      "type": "النوع",
+      "discount": "خصم",
+      "addition": "إضافة",
+      "amount": "المبلغ",
+      "taxable": "خاضع للضريبة",
+      "inclusive": "شامل",
+      "exclusive": "غير شامل",
+      "taxLabel": "الضريبة",
+      "totalLabel": "الإجمالي",
+      "calculateByQuantity": "الحساب حسب الكمية",
+      "isUnitPriceInclusive": "سعر الوحدة شامل الضريبة",
+      "breadcrumbDashboard": "لوحة التحكم",
     "breadcrumbInvoices": "الفواتير الضريبية",
     "breadcrumbNew": "فاتورة جديدة",
     "title": "إنشاء فاتورة ضريبية جديدة",
