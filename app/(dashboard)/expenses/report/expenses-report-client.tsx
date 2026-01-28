@@ -151,35 +151,53 @@ const SUPABASE_STORAGE_URL = "https://xaexoopjqkrzhbochbef.supabase.co/storage/v
 
   const getAttachmentUrl = (attachment: string | null | undefined) => {
     if (!attachment || attachment === "0" || attachment === "") return null;
-    if (attachment.startsWith('http')) return attachment;
     
+    let isFullUrl = attachment.startsWith('http');
+    let pathOnly = attachment;
+    
+    // If it's a Supabase URL, we extract the path to check for Arabic/Spaces
+    if (isFullUrl && attachment.includes('supabase.co')) {
+      const parts = attachment.split('/public/expenses/');
+      if (parts.length > 1) {
+        pathOnly = decodeURIComponent(parts[1]);
+      }
+    } else if (isFullUrl) {
+      // It's a non-Supabase full URL, return as is
+      return attachment;
+    }
+
     // Clean the path for Hostinger fallback
-    const cleanPath = attachment.replace(/^uploads\//, '');
+    const cleanPath = pathOnly.replace(/^uploads\//, '');
     
-    // Check for Arabic characters or spaces - if present, fallback to Hostinger
-    // Hostinger's static file serving handles these filenames more reliably than current Supabase URL logic
-    const hasArabic = /[\u0600-\u06FF]/.test(attachment);
-    const hasSpaces = attachment.includes(' ');
+    // Check for Arabic characters or spaces
+    const hasArabic = /[\u0600-\u06FF]/.test(pathOnly);
+    const hasSpaces = pathOnly.includes(' ');
     
     // If it has Arabic or Spaces, we MUST use Hostinger to ensure compatibility
+    // and we MUST encode it correctly segment by segment
     if (hasArabic || hasSpaces) {
-      return `${UPLOADS_BASE_URL}${encodeURIComponent(cleanPath)}`;
+      const encodedPath = cleanPath.split('/').map(s => encodeURIComponent(s)).join('/');
+      return `${UPLOADS_BASE_URL}${encodedPath}`;
     }
   
+    // If it was already a valid Supabase URL without issues, return it
+    if (isFullUrl) return attachment;
+
     // Heuristic: Files with timestamps after approx Oct 2025 (1760000000) 
     // are likely in Supabase. Old ones are on Hostinger.
-    const timestampMatch = attachment.match(/(\d{10})/);
+    const timestampMatch = pathOnly.match(/(\d{10})/);
     if (timestampMatch) {
       const ts = parseInt(timestampMatch[1]);
       if (ts > 1760000000) {
-        const fullPath = attachment.startsWith('uploads/') ? attachment : 'uploads/' + attachment;
+        const fullPath = pathOnly.startsWith('uploads/') ? pathOnly : 'uploads/' + pathOnly;
         const encodedKey = fullPath.split('/').map(segment => encodeURIComponent(segment)).join('/');
         return `${SUPABASE_STORAGE_URL}${encodedKey}`;
       }
     }
 
-    // Default to Hostinger
-    return `${UPLOADS_BASE_URL}${encodeURIComponent(cleanPath)}`;
+    // Default to Hostinger for everything else
+    const finalEncodedPath = cleanPath.split('/').map(s => encodeURIComponent(s)).join('/');
+    return `${UPLOADS_BASE_URL}${finalEncodedPath}`;
   };
 
 const isImageFile = (filename: string) => {

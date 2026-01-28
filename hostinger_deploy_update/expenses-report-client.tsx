@@ -151,35 +151,53 @@ const SUPABASE_STORAGE_URL = "https://xaexoopjqkrzhbochbef.supabase.co/storage/v
 
   const getAttachmentUrl = (attachment: string | null | undefined) => {
     if (!attachment || attachment === "0" || attachment === "") return null;
-    if (attachment.startsWith('http')) return attachment;
     
+    let isFullUrl = attachment.startsWith('http');
+    let pathOnly = attachment;
+    
+    // If it's a Supabase URL, we extract the path to check for Arabic/Spaces
+    if (isFullUrl && attachment.includes('supabase.co')) {
+      const parts = attachment.split('/public/expenses/');
+      if (parts.length > 1) {
+        pathOnly = decodeURIComponent(parts[1]);
+      }
+    } else if (isFullUrl) {
+      // It's a non-Supabase full URL, return as is
+      return attachment;
+    }
+
     // Clean the path for Hostinger fallback
-    const cleanPath = attachment.replace(/^uploads\//, '');
+    const cleanPath = pathOnly.replace(/^uploads\//, '');
     
-    // Check for Arabic characters or spaces - if present, fallback to Hostinger
-    // Hostinger's static file serving handles these filenames more reliably than current Supabase URL logic
-    const hasArabic = /[\u0600-\u06FF]/.test(attachment);
-    const hasSpaces = attachment.includes(' ');
+    // Check for Arabic characters or spaces
+    const hasArabic = /[\u0600-\u06FF]/.test(pathOnly);
+    const hasSpaces = pathOnly.includes(' ');
     
     // If it has Arabic or Spaces, we MUST use Hostinger to ensure compatibility
+    // and we MUST encode it correctly segment by segment
     if (hasArabic || hasSpaces) {
-      return `${UPLOADS_BASE_URL}${encodeURIComponent(cleanPath)}`;
+      const encodedPath = cleanPath.split('/').map(s => encodeURIComponent(s)).join('/');
+      return `${UPLOADS_BASE_URL}${encodedPath}`;
     }
   
+    // If it was already a valid Supabase URL without issues, return it
+    if (isFullUrl) return attachment;
+
     // Heuristic: Files with timestamps after approx Oct 2025 (1760000000) 
     // are likely in Supabase. Old ones are on Hostinger.
-    const timestampMatch = attachment.match(/(\d{10})/);
+    const timestampMatch = pathOnly.match(/(\d{10})/);
     if (timestampMatch) {
       const ts = parseInt(timestampMatch[1]);
       if (ts > 1760000000) {
-        const fullPath = attachment.startsWith('uploads/') ? attachment : 'uploads/' + attachment;
+        const fullPath = pathOnly.startsWith('uploads/') ? pathOnly : 'uploads/' + pathOnly;
         const encodedKey = fullPath.split('/').map(segment => encodeURIComponent(segment)).join('/');
         return `${SUPABASE_STORAGE_URL}${encodedKey}`;
       }
     }
 
-    // Default to Hostinger
-    return `${UPLOADS_BASE_URL}${encodeURIComponent(cleanPath)}`;
+    // Default to Hostinger for everything else
+    const finalEncodedPath = cleanPath.split('/').map(s => encodeURIComponent(s)).join('/');
+    return `${UPLOADS_BASE_URL}${finalEncodedPath}`;
   };
 
 const isImageFile = (filename: string) => {
@@ -872,286 +890,286 @@ export function ExpensesReportClient({ companyId }: ExpensesReportClientProps) {
                             )}
                           </AnimatePresence>
                         </div>
-                      );
-                    })
-                  ) : (
-                    <div className="text-center py-10">
-                      <HandCoins className="w-10 h-10 text-slate-300 mx-auto mb-2" />
-                      <p className="text-sm font-bold text-slate-600">{t("dashboard.noActivity")}</p>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-            </motion.div>
-          )}
-
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.7 }}>
-            <Card className="border-none shadow-xl rounded-3xl overflow-hidden bg-gradient-to-r from-rose-600 via-rose-700 to-red-700 text-white">
-              <CardContent className="p-5 text-center">
-                <div className="flex items-center justify-center gap-3 mb-3">
-                  <Calculator className="w-7 h-7 text-amber-300" />
-                  <h2 className="text-lg font-bold">{t("report.summary")} {getMonthName(selectedMonth)}</h2>
-                </div>
-                <p className="text-3xl font-bold">{formatNumber(stats.totalAll)} SAR</p>
+                    );
+                  })
+                ) : (
+                  <div className="text-center py-10">
+                    <HandCoins className="w-10 h-10 text-slate-300 mx-auto mb-2" />
+                    <p className="text-sm font-bold text-slate-600">{t("dashboard.noActivity")}</p>
+                  </div>
+                )}
               </CardContent>
             </Card>
           </motion.div>
+        )}
 
-          {/* Dialogs & Notifications */}
-          <Dialog open={showDetailsModal} onOpenChange={setShowDetailsModal}>
-            <DialogContent className="max-w-2xl rtl" dir="rtl">
-              <DialogHeader className="bg-gradient-to-r from-blue-600 via-purple-600 to-rose-600 text-white p-4 -m-6 mb-4 rounded-t-lg">
-                <DialogTitle className="flex items-center gap-2 text-lg font-bold"><Eye className="w-6 h-6" /> {t("common.details")}</DialogTitle>
-              </DialogHeader>
-              {selectedItem && (
-                <div className="space-y-4 p-3">
-                    <div className="grid grid-cols-2 md:grid-cols-3 gap-3 text-sm">
-                        <div className="p-3 bg-white border rounded-xl shadow-sm">
-                          <p className="text-[10px] text-slate-500 font-bold mb-1 uppercase tracking-wider">{t("common.type")}</p>
-                          <p className="font-bold text-slate-800">
-                            {translateType("expense_type" in selectedItem ? selectedItem.expense_type : selectedItem.deduction_type)}
-                          </p>
-                        </div>
-                      <div className="p-3 bg-white border rounded-xl shadow-sm"><p className="text-[10px] text-slate-500 font-bold mb-1 uppercase tracking-wider">{t("form.date")}</p><p className="font-bold text-slate-800">{formatDate(selectedItem.expense_date)}</p></div>
-                    <div className="p-3 bg-white border rounded-xl shadow-sm"><p className="text-[10px] text-slate-500 font-bold mb-1 uppercase tracking-wider">{t("form.employee")}</p><p className="font-bold text-slate-800">{selectedItem.employee_name || "-"}</p></div>
-                    <div className="p-3 bg-white border rounded-xl shadow-sm"><p className="text-[10px] text-slate-500 font-bold mb-1 uppercase tracking-wider">{t("form.iqamaNumber")}</p><p className="font-bold text-slate-800">{selectedItem.employee_iqama || "-"}</p></div>
-                    <div className="p-3 bg-white border rounded-xl shadow-sm"><p className="text-[10px] text-slate-500 font-bold mb-1 uppercase tracking-wider">{t("form.account")}</p><p className="font-bold text-slate-800">{selectedItem.account_code || "-"}</p></div>
-                    <div className="p-3 bg-blue-50 border border-blue-100 rounded-xl shadow-sm"><p className="text-[10px] text-blue-600 font-bold mb-1 uppercase tracking-wider">{t("form.amount")}</p><p className="font-bold text-lg text-blue-700">{formatNumber(selectedItem.amount || 0)} SAR</p></div>
-                  </div>
-                  
-                  {selectedItem.description && (
-                    <div className="p-4 bg-slate-50 border rounded-2xl">
-                      <p className="text-[10px] text-slate-500 font-bold mb-2 uppercase tracking-wider">{t("form.description")}</p>
-                      <p className="text-sm font-medium text-slate-700 leading-relaxed">{selectedItem.description}</p>
-                    </div>
-                  )}
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.7 }}>
+          <Card className="border-none shadow-xl rounded-3xl overflow-hidden bg-gradient-to-r from-rose-600 via-rose-700 to-red-700 text-white">
+            <CardContent className="p-5 text-center">
+              <div className="flex items-center justify-center gap-3 mb-3">
+                <Calculator className="w-7 h-7 text-amber-300" />
+                <h2 className="text-lg font-bold">{t("report.summary")} {getMonthName(selectedMonth)}</h2>
+              </div>
+              <p className="text-3xl font-bold">{formatNumber(stats.totalAll)} SAR</p>
+            </CardContent>
+          </Card>
+        </motion.div>
 
-                  {"status" in selectedItem && (
-                    <div className="p-4 bg-rose-50 border border-rose-100 rounded-2xl flex items-center justify-between">
-                      <div>
-                        <p className="text-[10px] text-rose-500 font-bold mb-1 uppercase tracking-wider">{t("common.status")}</p>
-                        <p className={`text-base font-black ${selectedItem.status === "completed" ? "text-emerald-600" : "text-rose-600"}`}>
-                          {selectedItem.status === "completed" ? "تم الخصم (مدفوع)" : "لم يتم الخصم (غير مدفوع)"}
+        {/* Dialogs & Notifications */}
+        <Dialog open={showDetailsModal} onOpenChange={setShowDetailsModal}>
+          <DialogContent className="max-w-2xl rtl" dir="rtl">
+            <DialogHeader className="bg-gradient-to-r from-blue-600 via-purple-600 to-rose-600 text-white p-4 -m-6 mb-4 rounded-t-lg">
+              <DialogTitle className="flex items-center gap-2 text-lg font-bold"><Eye className="w-6 h-6" /> {t("common.details")}</DialogTitle>
+            </DialogHeader>
+            {selectedItem && (
+              <div className="space-y-4 p-3">
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-3 text-sm">
+                      <div className="p-3 bg-white border rounded-xl shadow-sm">
+                        <p className="text-[10px] text-slate-500 font-bold mb-1 uppercase tracking-wider">{t("common.type")}</p>
+                        <p className="font-bold text-slate-800">
+                          {translateType("expense_type" in selectedItem ? selectedItem.expense_type : selectedItem.deduction_type)}
                         </p>
                       </div>
-                      <Button 
-                        onClick={() => handleToggleDeductionStatus(selectedItem as DeductionItem)}
-                        disabled={statusUpdating === selectedItem.id}
-                        className={`${selectedItem.status === "completed" ? "bg-rose-600 hover:bg-rose-700" : "bg-emerald-600 hover:bg-emerald-700"} text-white rounded-xl px-6 font-bold h-12 shadow-lg transition-all active:scale-95`}
-                      >
-                        {statusUpdating === selectedItem.id ? <Loader2 className="animate-spin w-5 h-5" /> : (selectedItem.status === "completed" ? "تغيير لغير مدفوع" : "تأكيد السداد")}
-                      </Button>
-                    </div>
-                  )}
-
-                  {selectedItem.attachment && (
-                    <div className="p-4 bg-blue-50 border border-blue-100 rounded-2xl">
-                      <p className="text-[10px] text-blue-500 font-bold mb-3 uppercase tracking-wider">{t("form.document")}</p>
-                      <div className="flex flex-col gap-4">
-                        {isImageFile(selectedItem.attachment) ? (
-                          <div className="relative group overflow-hidden rounded-xl border border-blue-200 bg-white">
-                            <img 
-                              src={getAttachmentUrl(selectedItem.attachment) || ''} 
-                              alt="Attachment" 
-                              className="max-h-[300px] w-full object-contain p-2"
-                            />
-                            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                              <Button 
-                                variant="secondary" 
-                                onClick={() => window.open(getAttachmentUrl(selectedItem.attachment) || '', '_blank')}
-                                className="rounded-full h-12 w-12 p-0"
-                              >
-                                <ExternalLink className="w-6 h-6" />
-                              </Button>
-                            </div>
-                          </div>
-                        ) : (
-                          <Button 
-                            variant="outline" 
-                            className="w-full h-16 rounded-xl border-blue-200 bg-white hover:bg-blue-50 flex items-center justify-center gap-3 text-blue-700 font-bold"
-                            onClick={() => window.open(getAttachmentUrl(selectedItem.attachment) || '', '_blank')}
-                          >
-                            <FileText className="w-6 h-6" />
-                            <span>عرض وتحميل الملف المرفق</span>
-                            <ExternalLink className="w-4 h-4 mr-auto" />
-                          </Button>
-                        )}
-                      </div>
-                    </div>
-                  )}
+                    <div className="p-3 bg-white border rounded-xl shadow-sm"><p className="text-[10px] text-slate-500 font-bold mb-1 uppercase tracking-wider">{t("form.date")}</p><p className="font-bold text-slate-800">{formatDate(selectedItem.expense_date)}</p></div>
+                  <div className="p-3 bg-white border rounded-xl shadow-sm"><p className="text-[10px] text-slate-500 font-bold mb-1 uppercase tracking-wider">{t("form.employee")}</p><p className="font-bold text-slate-800">{selectedItem.employee_name || "-"}</p></div>
+                  <div className="p-3 bg-white border rounded-xl shadow-sm"><p className="text-[10px] text-slate-500 font-bold mb-1 uppercase tracking-wider">{t("form.iqamaNumber")}</p><p className="font-bold text-slate-800">{selectedItem.employee_iqama || "-"}</p></div>
+                  <div className="p-3 bg-white border rounded-xl shadow-sm"><p className="text-[10px] text-slate-500 font-bold mb-1 uppercase tracking-wider">{t("form.account")}</p><p className="font-bold text-slate-800">{selectedItem.account_code || "-"}</p></div>
+                  <div className="p-3 bg-blue-50 border border-blue-100 rounded-xl shadow-sm"><p className="text-[10px] text-blue-600 font-bold mb-1 uppercase tracking-wider">{t("form.amount")}</p><p className="font-bold text-lg text-blue-700">{formatNumber(selectedItem.amount || 0)} SAR</p></div>
                 </div>
-              )}
-            </DialogContent>
-            </Dialog>
-  
-          <Dialog open={showEditModal} onOpenChange={setShowEditModal}>
-            <DialogContent className="max-w-3xl rtl" dir="rtl">
-              <DialogHeader className="bg-gradient-to-r from-amber-500 to-amber-600 text-white p-4 -m-6 mb-4 rounded-t-lg">
-                <DialogTitle className="flex items-center gap-2 text-lg font-bold">
-                  <Pencil className="w-6 h-6" /> {t("actions.edit")}
-                </DialogTitle>
-              </DialogHeader>
-              <div className="grid grid-cols-2 gap-4 p-2 max-h-[70vh] overflow-y-auto">
-                <div className="space-y-2">
-                  <Label>{t("form.date")}</Label>
-                  <Input 
-                    type="date" 
-                    value={editForm.expense_date || ""} 
-                    onChange={(e) => setEditForm({...editForm, expense_date: e.target.value})}
-                  />
-                </div>
-                  <div className="space-y-2">
-                    <Label>{t("common.type")}</Label>
-                    <Input 
-                      disabled 
-                      value={translateType(editForm.expense_type)} 
-                    />
+                
+                {selectedItem.description && (
+                  <div className="p-4 bg-slate-50 border rounded-2xl">
+                    <p className="text-[10px] text-slate-500 font-bold mb-2 uppercase tracking-wider">{t("form.description")}</p>
+                    <p className="text-sm font-medium text-slate-700 leading-relaxed">{selectedItem.description}</p>
                   </div>
-                <div className="space-y-2">
-                  <Label>{t("form.employee")}</Label>
-                  <Input 
-                    value={editForm.employee_name || ""} 
-                    onChange={(e) => setEditForm({...editForm, employee_name: e.target.value})}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label>{t("form.iqamaNumber")}</Label>
-                  <Input 
-                    value={editForm.employee_iqama || ""} 
-                    onChange={(e) => setEditForm({...editForm, employee_iqama: e.target.value})}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label>{t("form.amount")}</Label>
-                  <Input 
-                    type="number" 
-                    value={editForm.amount || 0} 
-                    onChange={(e) => {
-                      const val = parseFloat(e.target.value);
-                      const tax = "tax_value" in editForm ? val * 0.15 : 0;
-                      setEditForm({
-                        ...editForm, 
-                        amount: val, 
-                        tax_value: tax,
-                        net_amount: "tax_value" in editForm ? val - tax : val
-                      });
-                    }}
-                  />
-                </div>
-                {"tax_value" in editForm && (
-                  <>
-                    <div className="space-y-2">
-                      <Label>{t("form.tax")}</Label>
-                      <Input disabled value={formatNumber(editForm.tax_value || 0)} />
-                    </div>
-                    <div className="space-y-2">
-                      <Label>{t("form.net")}</Label>
-                      <Input disabled value={formatNumber(editForm.net_amount || 0)} />
-                    </div>
-                  </>
                 )}
+
+                {"status" in selectedItem && (
+                  <div className="p-4 bg-rose-50 border border-rose-100 rounded-2xl flex items-center justify-between">
+                    <div>
+                      <p className="text-[10px] text-rose-500 font-bold mb-1 uppercase tracking-wider">{t("common.status")}</p>
+                      <p className={`text-base font-black ${selectedItem.status === "completed" ? "text-emerald-600" : "text-rose-600"}`}>
+                        {selectedItem.status === "completed" ? "تم الخصم (مدفوع)" : "لم يتم الخصم (غير مدفوع)"}
+                      </p>
+                    </div>
+                    <Button 
+                      onClick={() => handleToggleDeductionStatus(selectedItem as DeductionItem)}
+                      disabled={statusUpdating === selectedItem.id}
+                      className={`${selectedItem.status === "completed" ? "bg-rose-600 hover:bg-rose-700" : "bg-emerald-600 hover:bg-emerald-700"} text-white rounded-xl px-6 font-bold h-12 shadow-lg transition-all active:scale-95`}
+                    >
+                      {statusUpdating === selectedItem.id ? <Loader2 className="animate-spin w-5 h-5" /> : (selectedItem.status === "completed" ? "تغيير لغير مدفوع" : "تأكيد السداد")}
+                    </Button>
+                  </div>
+                )}
+
+                {selectedItem.attachment && (
+                  <div className="p-4 bg-blue-50 border border-blue-100 rounded-2xl">
+                    <p className="text-[10px] text-blue-500 font-bold mb-3 uppercase tracking-wider">{t("form.document")}</p>
+                    <div className="flex flex-col gap-4">
+                      {isImageFile(selectedItem.attachment) ? (
+                        <div className="relative group overflow-hidden rounded-xl border border-blue-200 bg-white">
+                          <img 
+                            src={getAttachmentUrl(selectedItem.attachment) || ''} 
+                            alt="Attachment" 
+                            className="max-h-[300px] w-full object-contain p-2"
+                          />
+                          <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                            <Button 
+                              variant="secondary" 
+                              onClick={() => window.open(getAttachmentUrl(selectedItem.attachment) || '', '_blank')}
+                              className="rounded-full h-12 w-12 p-0"
+                            >
+                              <ExternalLink className="w-6 h-6" />
+                            </Button>
+                          </div>
+                        </div>
+                      ) : (
+                        <Button 
+                          variant="outline" 
+                          className="w-full h-16 rounded-xl border-blue-200 bg-white hover:bg-blue-50 flex items-center justify-center gap-3 text-blue-700 font-bold"
+                          onClick={() => window.open(getAttachmentUrl(selectedItem.attachment) || '', '_blank')}
+                        >
+                          <FileText className="w-6 h-6" />
+                          <span>عرض وتحميل الملف المرفق</span>
+                          <ExternalLink className="w-4 h-4 mr-auto" />
+                        </Button>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+          </DialogContent>
+          </Dialog>
+
+        <Dialog open={showEditModal} onOpenChange={setShowEditModal}>
+          <DialogContent className="max-w-3xl rtl" dir="rtl">
+            <DialogHeader className="bg-gradient-to-r from-amber-500 to-amber-600 text-white p-4 -m-6 mb-4 rounded-t-lg">
+              <DialogTitle className="flex items-center gap-2 text-lg font-bold">
+                <Pencil className="w-6 h-6" /> {t("actions.edit")}
+              </DialogTitle>
+            </DialogHeader>
+            <div className="grid grid-cols-2 gap-4 p-2 max-h-[70vh] overflow-y-auto">
+              <div className="space-y-2">
+                <Label>{t("form.date")}</Label>
+                <Input 
+                  type="date" 
+                  value={editForm.expense_date || ""} 
+                  onChange={(e) => setEditForm({...editForm, expense_date: e.target.value})}
+                />
+              </div>
                 <div className="space-y-2">
-                  <Label>{t("form.account")}</Label>
-                  <Select 
-                    value={editForm.account_id?.toString()} 
-                    onValueChange={(val) => setEditForm({...editForm, account_id: val})}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder={t("form.account")} />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {accounts.map(acc => (
-                        <SelectItem key={acc.id} value={acc.id.toString()}>{acc.account_code} - {acc.account_name}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="space-y-2">
-                  <Label>{t("form.costCenter")}</Label>
-                  <Select 
-                    value={editForm.cost_center_id?.toString()} 
-                    onValueChange={(val) => setEditForm({...editForm, cost_center_id: val})}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder={t("form.costCenter")} />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {costCenters.map(center => (
-                        <SelectItem key={center.id} value={center.id.toString()}>{center.center_code} - {center.center_name}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="col-span-2 space-y-2">
-                  <Label>{t("form.description")}</Label>
-                  <Textarea 
-                    value={editForm.description || ""} 
-                    onChange={(e) => setEditForm({...editForm, description: e.target.value})}
+                  <Label>{t("common.type")}</Label>
+                  <Input 
+                    disabled 
+                    value={translateType(editForm.expense_type)} 
                   />
                 </div>
-                <div className="col-span-2 space-y-2">
-                  <Label>{t("form.document")}</Label>
-                  <div className="flex items-center gap-4">
-                    {editForm.attachment && !editForm.newFile && (
-                      <div className="flex items-center gap-2 text-xs text-blue-600 bg-blue-50 px-3 py-1 rounded-lg">
-                        <Paperclip className="w-3 h-3" />
-                        <span>مرفق موجود</span>
-                      </div>
-                    )}
-                    <Input 
-                      type="file" 
-                      onChange={(e) => setEditForm({...editForm, newFile: e.target.files?.[0] || null})}
-                    />
+              <div className="space-y-2">
+                <Label>{t("form.employee")}</Label>
+                <Input 
+                  value={editForm.employee_name || ""} 
+                  onChange={(e) => setEditForm({...editForm, employee_name: e.target.value})}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>{t("form.iqamaNumber")}</Label>
+                <Input 
+                  value={editForm.employee_iqama || ""} 
+                  onChange={(e) => setEditForm({...editForm, employee_iqama: e.target.value})}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>{t("form.amount")}</Label>
+                <Input 
+                  type="number" 
+                  value={editForm.amount || 0} 
+                  onChange={(e) => {
+                    const val = parseFloat(e.target.value);
+                    const tax = "tax_value" in editForm ? val * 0.15 : 0;
+                    setEditForm({
+                      ...editForm, 
+                      amount: val, 
+                      tax_value: tax,
+                      net_amount: "tax_value" in editForm ? val - tax : val
+                    });
+                  }}
+                />
+              </div>
+              {"tax_value" in editForm && (
+                <>
+                  <div className="space-y-2">
+                    <Label>{t("form.tax")}</Label>
+                    <Input disabled value={formatNumber(editForm.tax_value || 0)} />
                   </div>
+                  <div className="space-y-2">
+                    <Label>{t("form.net")}</Label>
+                    <Input disabled value={formatNumber(editForm.net_amount || 0)} />
+                  </div>
+                </>
+              )}
+              <div className="space-y-2">
+                <Label>{t("form.account")}</Label>
+                <Select 
+                  value={editForm.account_id?.toString()} 
+                  onValueChange={(val) => setEditForm({...editForm, account_id: val})}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder={t("form.account")} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {accounts.map(acc => (
+                      <SelectItem key={acc.id} value={acc.id.toString()}>{acc.account_code} - {acc.account_name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label>{t("form.costCenter")}</Label>
+                <Select 
+                  value={editForm.cost_center_id?.toString()} 
+                  onValueChange={(val) => setEditForm({...editForm, cost_center_id: val})}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder={t("form.costCenter")} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {costCenters.map(center => (
+                      <SelectItem key={center.id} value={center.id.toString()}>{center.center_code} - {center.center_name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="col-span-2 space-y-2">
+                <Label>{t("form.description")}</Label>
+                <Textarea 
+                  value={editForm.description || ""} 
+                  onChange={(e) => setEditForm({...editForm, description: e.target.value})}
+                />
+              </div>
+              <div className="col-span-2 space-y-2">
+                <Label>{t("form.document")}</Label>
+                <div className="flex items-center gap-4">
+                  {editForm.attachment && !editForm.newFile && (
+                    <div className="flex items-center gap-2 text-xs text-blue-600 bg-blue-50 px-3 py-1 rounded-lg">
+                      <Paperclip className="w-3 h-3" />
+                      <span>مرفق موجود</span>
+                    </div>
+                  )}
+                  <Input 
+                    type="file" 
+                    onChange={(e) => setEditForm({...editForm, newFile: e.target.files?.[0] || null})}
+                  />
                 </div>
               </div>
-              <DialogFooter className="gap-2">
-                <Button onClick={handleEditSubmit} disabled={editLoading} className="bg-amber-600 hover:bg-amber-700 text-white">
-                  {editLoading ? <Loader2 className="animate-spin" /> : <Save className="w-4 h-4 ml-2" />}
-                  {t("common.save")}
-                </Button>
-                <Button onClick={() => setShowEditModal(false)} variant="outline">{t("common.cancel")}</Button>
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
-  
-    <Dialog open={showDeleteModal} onOpenChange={setShowDeleteModal}>
-      <DialogContent className="max-w-md rtl text-center" dir="rtl">
-        <DialogHeader>
-          <DialogTitle className="text-xl font-bold flex flex-col items-center gap-4">
-            <AlertTriangle className="w-16 h-16 text-red-500" />
-            {t("accounts.confirmDelete")}
-          </DialogTitle>
-        </DialogHeader>
-        <div className="py-4">
-          <p className="text-slate-500">{t("accounts.confirmDeleteMessage")}</p>
-        </div>
-        <DialogFooter className="flex gap-3 justify-center sm:justify-center">
-          <Button onClick={handleDelete} disabled={deleteLoading} className="bg-red-600 hover:bg-red-700 text-white">
-            {deleteLoading ? <Loader2 className="animate-spin" /> : t("accounts.yesDelete")}
-          </Button>
-          <Button onClick={() => setShowDeleteModal(false)} variant="outline">{t("common.cancel")}</Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+            </div>
+            <DialogFooter className="gap-2">
+              <Button onClick={handleEditSubmit} disabled={editLoading} className="bg-amber-600 hover:bg-amber-700 text-white">
+                {editLoading ? <Loader2 className="animate-spin" /> : <Save className="w-4 h-4 ml-2" />}
+                {t("common.save")}
+              </Button>
+              <Button onClick={() => setShowEditModal(false)} variant="outline">{t("common.cancel")}</Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
 
-        <AnimatePresence>
-          {notification.show && (
-            <motion.div initial={{ opacity: 0, y: -50 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -50 }} className="fixed top-10 left-1/2 -translate-x-1/2 z-[100]">
-              <div className={`px-6 py-3 rounded-2xl shadow-2xl flex items-center gap-3 text-white ${notification.type === 'success' ? 'bg-emerald-600' : 'bg-rose-600'}`}>
-                {notification.type === 'success' ? <CheckCircle2 /> : <X />}
-                <span className="font-bold">{notification.message}</span>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
+  <Dialog open={showDeleteModal} onOpenChange={setShowDeleteModal}>
+    <DialogContent className="max-w-md rtl text-center" dir="rtl">
+      <DialogHeader>
+        <DialogTitle className="text-xl font-bold flex flex-col items-center gap-4">
+          <AlertTriangle className="w-16 h-16 text-red-500" />
+          {t("accounts.confirmDelete")}
+        </DialogTitle>
+      </DialogHeader>
+      <div className="py-4">
+        <p className="text-slate-500">{t("accounts.confirmDeleteMessage")}</p>
       </div>
+      <DialogFooter className="flex gap-3 justify-center sm:justify-center">
+        <Button onClick={handleDelete} disabled={deleteLoading} className="bg-red-600 hover:bg-red-700 text-white">
+          {deleteLoading ? <Loader2 className="animate-spin" /> : t("accounts.yesDelete")}
+        </Button>
+        <Button onClick={() => setShowDeleteModal(false)} variant="outline">{t("common.cancel")}</Button>
+      </DialogFooter>
+    </DialogContent>
+  </Dialog>
 
-      <style jsx global>{`
-        .animate-gradient-x { background-size: 200% 100%; animation: gradient-x 3s ease infinite; }
-        @keyframes gradient-x { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
-        @media print { .print\\:hidden { display: none !important; } }
-      `}</style>
+      <AnimatePresence>
+        {notification.show && (
+          <motion.div initial={{ opacity: 0, y: -50 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -50 }} className="fixed top-10 left-1/2 -translate-x-1/2 z-[100]">
+            <div className={`px-6 py-3 rounded-2xl shadow-2xl flex items-center gap-3 text-white ${notification.type === 'success' ? 'bg-emerald-600' : 'bg-rose-600'}`}>
+              {notification.type === 'success' ? <CheckCircle2 /> : <X />}
+              <span className="font-bold">{notification.message}</span>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
-  );
+
+    <style jsx global>{`
+      .animate-gradient-x { background-size: 200% 100%; animation: gradient-x 3s ease infinite; }
+      @keyframes gradient-x { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+      @media print { .print\\:hidden { display: none !important; } }
+    `}</style>
+  </div>
+);
 }
