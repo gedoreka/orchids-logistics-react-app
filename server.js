@@ -24,9 +24,12 @@ if (fs.existsSync(envPath)) {
     log('.env file found. Loading variables...');
     const envContent = fs.readFileSync(envPath, 'utf8');
     envContent.split('\n').forEach(line => {
-        const [key, ...valueParts] = line.split('=');
+        const trimmedLine = line.trim();
+        if (!trimmedLine || trimmedLine.startsWith('#')) return;
+        
+        const [key, ...valueParts] = trimmedLine.split('=');
         if (key && valueParts.length > 0) {
-            const value = valueParts.join('=').trim().replace(/^["']|["']$/g, '');
+            const value = valueParts.join('=').split('#')[0].trim().replace(/^["']|["']$/g, '');
             process.env[key.trim()] = value;
         }
     });

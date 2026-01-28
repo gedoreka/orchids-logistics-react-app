@@ -260,23 +260,27 @@ export async function loginAction(formData: FormData): Promise<AuthResponse> {
       },
       permissions,
     };
-    } catch (error: any) {
-      console.error("Login process exception:", {
-        message: error.message,
-        code: error.code,
-        stack: error.stack
-      });
-      
-      let errorMessage = "خطأ في الاتصال بقاعدة البيانات.";
-      
-      if (error.code === 'ECONNREFUSED' || error.code === 'ETIMEDOUT') {
-        errorMessage = "فشل الاتصال بسيرفر MySQL. يرجى التأكد من بيانات قاعدة البيانات في ملف .env";
-      } else if (error.message?.includes('supabase')) {
-        errorMessage = "فشل الاتصال بخدمة Supabase. يرجى مراجعة مفاتيح الربط.";
+      } catch (error: any) {
+        console.error("Login process exception:", {
+          message: error.message,
+          code: error.code,
+          errno: error.errno,
+          host: process.env.DB_HOST,
+          stack: error.stack
+        });
+        
+        let errorMessage = "خطأ في الاتصال بقاعدة البيانات.";
+        
+        if (error.code === 'ECONNREFUSED' || error.code === 'ETIMEDOUT' || error.code === 'ENOTFOUND') {
+          errorMessage = `فشل الاتصال بسيرفر MySQL (${error.code}). يرجى التأكد من بيانات قاعدة البيانات في ملف .env`;
+        } else if (error.code === 'ER_ACCESS_DENIED_ERROR') {
+          errorMessage = "فشل تسجيل الدخول إلى MySQL: اسم المستخدم أو كلمة المرور غير صحيحة في ملف .env";
+        } else if (error.message?.includes('supabase')) {
+          errorMessage = "فشل الاتصال بخدمة Supabase. يرجى مراجعة مفاتيح الربط.";
+        }
+        
+        return { success: false, error: errorMessage };
       }
-      
-      return { success: false, error: errorMessage };
-    }
 }
 
 export async function forgotPasswordAction(formData: FormData): Promise<AuthResponse> {
