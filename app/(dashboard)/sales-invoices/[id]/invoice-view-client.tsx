@@ -301,374 +301,383 @@ export function InvoiceViewClient({
           </button>
         </div>
 
-          {/* Invoice Layout */}
-            <div 
-              ref={printRef} 
-              className="invoice-container bg-white shadow-xl overflow-hidden border border-[#f1f5f9] mx-auto"
-              style={{ 
-                width: '210mm', 
-                minHeight: '297mm', 
-                backgroundColor: '#ffffff',
-                color: '#0f172a',
-                display: 'flex',
-                flexDirection: 'column',
-                boxSizing: 'border-box'
-              }}
-            >
-              <style>{`
-                @media print {
-                  .no-print { display: none !important; }
-                  body { 
-                    background: white !important; 
-                    margin: 0 !important; 
-                    padding: 0 !important;
-                  }
-                  .invoice-container { 
-                    box-shadow: none !important; 
-                    margin: 0 !important; 
-                    width: 210mm !important; 
-                    min-height: 297mm !important;
-                    max-width: 100% !important; 
-                    border: none !important;
-                    padding: 0 !important;
-                    overflow: visible !important;
-                    display: flex !important;
-                    flex-direction: column !important;
-                    background: white !important;
-                    -webkit-print-color-adjust: exact !important;
-                    print-color-adjust: exact !important;
-                  }
-                  @page {
-                    size: A4 portrait;
-                    margin: 0;
-                  }
-                  * {
-                    -webkit-print-color-adjust: exact !important;
-                    print-color-adjust: exact !important;
-                  }
-                }
-              `}</style>
-
-
-          {/* Header */}
-          <div 
-            className="text-white p-6 relative overflow-hidden"
-            style={{ background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)' }}
-          >
-            <div className="flex flex-row justify-between items-center gap-4 relative z-10">
-              {/* Company Logo */}
+            {/* Invoice Layout */}
               <div 
-                className="w-20 h-20 rounded-xl flex items-center justify-center p-3 border border-[#ffffff33]"
-                style={{ backgroundColor: 'rgba(255,255,255,0.1)' }}
+                ref={printRef} 
+                className="invoice-container bg-white shadow-xl overflow-hidden border border-[#f1f5f9] mx-auto"
+                style={{ 
+                  width: '210mm', 
+                  height: '297mm', 
+                  backgroundColor: '#ffffff',
+                  color: '#0f172a',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  boxSizing: 'border-box',
+                  position: 'relative'
+                }}
               >
-                {company.logo_path ? (
-                  <img 
-                    src={getPublicUrl(company.logo_path) || ''} 
-                    alt="Logo" 
-                    className="max-w-full max-h-full object-contain rounded-md"
-                    crossOrigin="anonymous"
-                  />
-                ) : (
-                  <Building2 size={36} className="text-white/60" />
-                )}
-              </div>
+                <style>{`
+                  @media print {
+                    .no-print { display: none !important; }
+                    body { 
+                      background: white !important; 
+                      margin: 0 !important; 
+                      padding: 0 !important;
+                      -webkit-print-color-adjust: exact !important;
+                      print-color-adjust: exact !important;
+                    }
+                    .invoice-container { 
+                      box-shadow: none !important; 
+                      margin: 0 !important; 
+                      width: 210mm !important; 
+                      height: 297mm !important;
+                      max-width: 210mm !important; 
+                      max-height: 297mm !important;
+                      border: none !important;
+                      padding: 0 !important;
+                      overflow: hidden !important;
+                      display: flex !important;
+                      flex-direction: column !important;
+                      background: white !important;
+                      position: relative !important;
+                      box-sizing: border-box !important;
+                    }
+                    @page {
+                      size: A4 portrait;
+                      margin: 0;
+                    }
+                    .invoice-content {
+                      padding: 1.25rem !important;
+                      gap: 1.25rem !important;
+                    }
+                    .info-card {
+                      padding: 1rem !important;
+                      border-radius: 1rem !important;
+                    }
+                    .items-table th, .items-table td {
+                      padding: 0.4rem 0.6rem !important;
+                    }
+                    .summary-section {
+                      gap: 1rem !important;
+                    }
+                    .bank-info-box {
+                      padding: 0.75rem !important;
+                      margin-top: 0.5rem !important;
+                    }
+                    .stamp-sig-section {
+                      margin-top: auto !important;
+                      padding-top: 1rem !important;
+                    }
+                    * {
+                      -webkit-print-color-adjust: exact !important;
+                      print-color-adjust: exact !important;
+                    }
+                  }
+                `}</style>
 
-              {/* Title Center */}
-              <div className="text-center flex-1">
-                <h1 className="text-2xl font-black mb-0 tracking-wider">{t("vatInvoice")}</h1>
-                <p className="text-white/60 text-[12px] uppercase font-light">{t("vatInvoiceEn")}</p>
-                <div className="mt-2 inline-flex items-center gap-2 px-4 py-1 rounded-lg border border-[#ffffff1a]" style={{ backgroundColor: 'rgba(255,255,255,0.05)' }}>
-                  <span className="font-bold text-[10px]">{t("electronicInvoicingSystem")}</span>
+
+            {/* Header */}
+            <div 
+              className="text-white p-6 relative overflow-hidden flex-shrink-0"
+              style={{ background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)' }}
+            >
+              <div className="flex flex-row justify-between items-center gap-4 relative z-10">
+                {/* Company Logo */}
+                <div 
+                  className="w-20 h-20 rounded-xl flex items-center justify-center p-3 border border-[#ffffff33]"
+                  style={{ backgroundColor: 'rgba(255,255,255,0.1)' }}
+                >
+                  {company.logo_path ? (
+                    <img 
+                      src={getPublicUrl(company.logo_path) || ''} 
+                      alt="Logo" 
+                      className="max-w-full max-h-full object-contain rounded-md"
+                      crossOrigin="anonymous"
+                    />
+                  ) : (
+                    <Building2 size={36} className="text-white/60" />
+                  )}
+                </div>
+
+                {/* Title Center */}
+                <div className="text-center flex-1">
+                  <h1 className="text-2xl font-black mb-0 tracking-wider">{t("vatInvoice")}</h1>
+                  <p className="text-white/60 text-[12px] uppercase font-light">{t("vatInvoiceEn")}</p>
+                  <div className="mt-2 inline-flex items-center gap-2 px-4 py-1 rounded-lg border border-[#ffffff1a]" style={{ backgroundColor: 'rgba(255,255,255,0.05)' }}>
+                    <span className="font-bold text-[10px]">{t("electronicInvoicingSystem")}</span>
+                  </div>
+                </div>
+
+                {/* System Logo */}
+                <div className="flex flex-col items-center gap-1 p-3 rounded-xl border border-[#ffffff1a] min-w-[120px]" style={{ backgroundColor: 'rgba(255,255,255,0.05)' }}>
+                  <Truck size={24} className="text-[#3b82f6]" />
+                  <h2 className="text-[10px] font-black text-white uppercase">Logistics Systems</h2>
                 </div>
               </div>
 
-              {/* System Logo */}
-              <div className="flex flex-col items-center gap-1 p-3 rounded-xl border border-[#ffffff1a] min-w-[120px]" style={{ backgroundColor: 'rgba(255,255,255,0.05)' }}>
-                <Truck size={24} className="text-[#3b82f6]" />
-                <h2 className="text-[10px] font-black text-white uppercase">Logistics Systems</h2>
-              </div>
-            </div>
-
-            {/* Header Meta */}
-            <div className="grid grid-cols-3 gap-4 mt-6 pt-4 border-t border-[#ffffff1a] relative z-10">
-              <div className="text-center">
-                <span className="text-[#ffffff66] text-[10px] block">{t("claimMonth")}</span>
-                <p className="font-bold text-[13px]">{invoice.invoice_month || getClaimMonth(invoice.issue_date)}</p>
-              </div>
-              <div className="text-center">
-                <span className="text-[#ffffff66] text-[10px] block">{t("invoiceNumber")}:</span>
-                <p className="font-bold text-[13px] tracking-widest">{invoice.invoice_number}</p>
-              </div>
-              <div className="text-center">
-                <span className="text-[#ffffff66] text-[10px] block">{t("issueDateLabel")}</span>
-                <p className="font-bold text-[13px]">{formatDate(invoice.issue_date)}</p>
-              </div>
-            </div>
-          </div>
-
-          <div className="p-8 space-y-6 flex-grow flex flex-col">
-            {/* Info Cards */}
-            <div className="grid grid-cols-2 gap-6">
-              {/* Company Info */}
-              <div className="rounded-2xl p-4 border border-[#f1f5f9]" style={{ backgroundColor: '#f8fafc' }}>
-                <h3 className="font-black text-[#0f172a] mb-3 pb-2 border-b border-[#e2e8f0] flex items-center gap-2 text-[13px]">
-                  <div className="w-1.5 h-4 bg-[#2563eb] rounded-full"></div>
-                  {t("facilityData")}
-                </h3>
-                <div className="space-y-2 text-[11px]">
-                  <div className="flex justify-between items-start gap-4">
-                    <span className="text-[#64748b]">{tc("name")}:</span>
-                    <span className="font-bold text-[#0f172a] text-right">{company?.name}</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-[#64748b]">{tc("commercialNumber")}:</span>
-                    <span className="font-bold text-[#0f172a]">{company?.commercial_number}</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-[#64748b]">{tc("vatNumber")}:</span>
-                    <span className="font-bold text-[#2563eb]">{company?.vat_number}</span>
-                  </div>
-                  <div className="flex justify-start gap-2">
-                    <span className="text-[#64748b] whitespace-nowrap">{tc("address")}:</span>
-                    <span className="font-bold text-[#0f172a] leading-tight text-right">{companyAddress}</span>
-                  </div>
+              {/* Header Meta */}
+              <div className="grid grid-cols-3 gap-4 mt-6 pt-4 border-t border-[#ffffff1a] relative z-10">
+                <div className="text-center">
+                  <span className="text-[#ffffff66] text-[10px] block">{t("claimMonth")}</span>
+                  <p className="font-bold text-[13px]">{invoice.invoice_month || getClaimMonth(invoice.issue_date)}</p>
+                </div>
+                <div className="text-center">
+                  <span className="text-[#ffffff66] text-[10px] block">{t("invoiceNumber")}:</span>
+                  <p className="font-bold text-[13px] tracking-widest">{invoice.invoice_number}</p>
+                </div>
+                <div className="text-center">
+                  <span className="text-[#ffffff66] text-[10px] block">{t("issueDateLabel")}</span>
+                  <p className="font-bold text-[13px]">{formatDate(invoice.issue_date)}</p>
                 </div>
               </div>
+            </div>
 
-              {/* Customer Info */}
-              <div className="rounded-2xl p-4 border border-[#f1f5f9]" style={{ backgroundColor: '#f8fafc' }}>
-                <h3 className="font-black text-[#0f172a] mb-3 pb-2 border-b border-[#e2e8f0] flex items-center gap-2 text-[13px]">
-                  <div className="w-1.5 h-4 bg-[#059669] rounded-full"></div>
-                  {t("customerData")}
-                </h3>
-                <div className="space-y-2 text-[11px]">
-                  <div className="flex justify-between items-start gap-4">
-                    <span className="text-[#64748b]">{tc("name")}:</span>
-                    <span className="font-bold text-[#0f172a] text-right">{customer?.company_name || customer?.name || invoice.client_name}</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-[#64748b]">{tc("commercialNumber")}:</span>
-                    <span className="font-bold text-[#0f172a]">{customer?.commercial_number || '-'}</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-[#64748b]">{tc("vatNumber")}:</span>
-                    <span className="font-bold text-[#059669]">{customer?.vat_number || invoice.client_vat || '-'}</span>
-                  </div>
+            <div className="invoice-content p-8 space-y-6 flex-grow flex flex-col">
+              {/* Info Cards */}
+              <div className="grid grid-cols-2 gap-6 flex-shrink-0">
+                {/* Company Info */}
+                <div className="info-card rounded-2xl p-4 border border-[#f1f5f9]" style={{ backgroundColor: '#f8fafc' }}>
+                  <h3 className="font-black text-[#0f172a] mb-3 pb-2 border-b border-[#e2e8f0] flex items-center gap-2 text-[13px]">
+                    <div className="w-1.5 h-4 bg-[#2563eb] rounded-full"></div>
+                    {t("facilityData")}
+                  </h3>
+                  <div className="space-y-2 text-[11px]">
+                    <div className="flex justify-between items-start gap-4">
+                      <span className="text-[#64748b]">{tc("name")}:</span>
+                      <span className="font-bold text-[#0f172a] text-right">{company?.name}</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-[#64748b]">{tc("commercialNumber")}:</span>
+                      <span className="font-bold text-[#0f172a]">{company?.commercial_number}</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-[#64748b]">{tc("vatNumber")}:</span>
+                      <span className="font-bold text-[#2563eb]">{company?.vat_number}</span>
+                    </div>
                     <div className="flex justify-start gap-2">
                       <span className="text-[#64748b] whitespace-nowrap">{tc("address")}:</span>
-                      <span className="font-bold text-[#0f172a] leading-tight text-right">{customer?.short_address || customer?.address || invoice.client_address || "-"}</span>
+                      <span className="font-bold text-[#0f172a] leading-tight text-right">{companyAddress}</span>
                     </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Items Table */}
-            <div className="rounded-xl border border-[#f1f5f9] overflow-hidden shadow-sm">
-              <table className="w-full text-[11px] border-collapse">
-                <thead style={{ background: '#1e293b', color: '#ffffff' }}>
-                  <tr>
-                    <th className="px-3 py-3 text-right font-bold">{t("itemNameHeader")}</th>
-                    <th className="px-3 py-3 text-center font-bold">{t("quantity")}</th>
-                    <th className="px-3 py-3 text-center font-bold">{t("unitPrice")}</th>
-                    <th className="px-3 py-3 text-center font-bold">{t("beforeTax")}</th>
-                    <th className="px-3 py-3 text-center font-bold">{t("taxRateHeader")}</th>
-                    <th className="px-3 py-3 text-center font-bold">{tc("total")}</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-[#f1f5f9] bg-white">
-                  {items.map((item) => (
-                    <tr key={item.id} className="hover:bg-[#f8fafc]">
-                      <td className="px-3 py-2.5 font-bold text-[#0f172a]">{item.product_name}</td>
-                      <td className="px-3 py-2.5 text-center">{item.quantity}</td>
-                      <td className="px-3 py-2.5 text-center">{parseFloat(String(item.unit_price)).toFixed(2)}</td>
-                      <td className="px-3 py-2.5 text-center font-medium">{parseFloat(String(item.total_before_vat)).toLocaleString('en-US', { minimumFractionDigits: 2 })}</td>
-                      <td className="px-3 py-2.5 text-center text-[#2563eb] font-bold">{parseFloat(String(item.vat_amount)).toLocaleString('en-US', { minimumFractionDigits: 2 })}</td>
-                      <td className="px-3 py-2.5 text-center font-black text-[#0f172a]">{parseFloat(String(item.total_with_vat)).toLocaleString('en-US', { minimumFractionDigits: 2 })}</td>
-                    </tr>
-                  ))}
-                  
-                  {adjustments.map((adj) => (
-                    <tr key={adj.id} style={{ backgroundColor: adj.type === 'discount' ? '#fff1f2' : '#f0fdf4' }}>
-                      <td className="px-3 py-2.5 font-bold text-[#1e293b]">
-                        {adj.title} <span className="text-[9px] opacity-60">({adj.type === 'discount' ? t("adjustmentDiscount") : t("adjustmentAddition")})</span>
-                      </td>
-                      <td className="px-3 py-2.5 text-center opacity-40">-</td>
-                      <td className="px-3 py-2.5 text-center opacity-40">-</td>
-                      <td className={`px-3 py-2.5 text-center font-bold ${adj.type === 'discount' ? 'text-[#e11d48]' : 'text-[#059669]'}`}>
-                        {adj.type === 'discount' ? '-' : ''}{parseFloat(String(adj.amount)).toLocaleString('en-US', { minimumFractionDigits: 2 })}
-                      </td>
-                      <td className="px-3 py-2.5 text-center opacity-40">-</td>
-                      <td className={`px-3 py-2.5 text-center font-black ${adj.type === 'discount' ? 'text-[#be123c]' : 'text-[#047857]'}`}>
-                        {adj.type === 'discount' ? '-' : ''}{parseFloat(String(adj.total_with_vat)).toLocaleString('en-US', { minimumFractionDigits: 2 })}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-
-            {/* Summary and QR Section */}
-            <div className="grid grid-cols-2 gap-6 items-stretch">
-              {/* Summary Box */}
-              <div 
-                className="rounded-2xl p-5 border border-[#f1f5f9] flex flex-col justify-between"
-                style={{ background: '#f8fafc' }}
-              >
-                <div>
-                  <h3 className="font-black text-[#0f172a] mb-3 flex items-center gap-2 text-[13px]">
-                    <CreditCard size={16} className="text-[#2563eb]" />
-                    {t("summary")}
-                  </h3>
-                  <div className="space-y-3">
-                    <div className="flex justify-between items-center py-1.5 border-b border-dashed border-[#e2e8f0]">
-                      <span className="text-[#64748b] text-[11px]">{t("beforeTax")}:</span>
-                      <span className="font-bold text-[#0f172a] text-[11px]">{totalBeforeVat.toLocaleString('en-US', { minimumFractionDigits: 2 })} {tc("sar")}</span>
-                    </div>
-                    <div className="flex justify-between items-center py-1.5 border-b border-dashed border-[#e2e8f0]">
-                      <span className="text-[#64748b] text-[11px]">{t("taxRateHeader")}:</span>
-                      <span className="font-bold text-[#2563eb] text-[11px]">{totalVat.toLocaleString('en-US', { minimumFractionDigits: 2 })} {tc("sar")}</span>
-                    </div>
-                    {(discountTotal > 0 || additionTotal > 0) && (
-                      <div className="flex justify-between items-center py-1.5 border-b border-dashed border-[#e2e8f0]">
-                        <span className="text-[#64748b] text-[11px]">{tc("discount")}/{tc("add")}:</span>
-                        <span className={`font-bold text-[11px] ${additionTotal - discountTotal < 0 ? 'text-[#e11d48]' : 'text-[#059669]'}`}>
-                          {(additionTotal - discountTotal).toLocaleString('en-US', { minimumFractionDigits: 2 })} {tc("sar")}
-                        </span>
-                      </div>
-                    )}
                   </div>
                 </div>
-                
-                <div 
-                  className="flex justify-between items-center py-3 px-4 rounded-xl mt-4 shadow-md"
-                  style={{ background: '#059669' }}
-                >
-                  <span className="font-black text-white text-[12px]">{t("amountDue")}</span>
-                  <span className="font-black text-[14px] text-white">
-                    {grandTotal.toLocaleString('en-US', { minimumFractionDigits: 2 })} {tc("sar")}
-                  </span>
+
+                {/* Customer Info */}
+                <div className="info-card rounded-2xl p-4 border border-[#f1f5f9]" style={{ backgroundColor: '#f8fafc' }}>
+                  <h3 className="font-black text-[#0f172a] mb-3 pb-2 border-b border-[#e2e8f0] flex items-center gap-2 text-[13px]">
+                    <div className="w-1.5 h-4 bg-[#059669] rounded-full"></div>
+                    {t("customerData")}
+                  </h3>
+                  <div className="space-y-2 text-[11px]">
+                    <div className="flex justify-between items-start gap-4">
+                      <span className="text-[#64748b]">{tc("name")}:</span>
+                      <span className="font-bold text-[#0f172a] text-right">{customer?.company_name || customer?.name || invoice.client_name}</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-[#64748b]">{tc("commercialNumber")}:</span>
+                      <span className="font-bold text-[#0f172a]">{customer?.commercial_number || '-'}</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-[#64748b]">{tc("vatNumber")}:</span>
+                      <span className="font-bold text-[#059669]">{customer?.vat_number || invoice.client_vat || '-'}</span>
+                    </div>
+                      <div className="flex justify-start gap-2">
+                        <span className="text-[#64748b] whitespace-nowrap">{tc("address")}:</span>
+                        <span className="font-bold text-[#0f172a] leading-tight text-right">{customer?.short_address || customer?.address || invoice.client_address || "-"}</span>
+                      </div>
+                  </div>
                 </div>
               </div>
 
-              {/* QR and Period */}
-              <div className="rounded-2xl p-5 border border-[#f1f5f9] bg-white text-center flex flex-col justify-between shadow-sm">
-                <div>
-                  <h3 className="font-black text-[#0f172a] mb-3 flex items-center justify-center gap-2 text-[13px]">
-                    <QrCode size={16} className="text-[#2563eb]" />
-                    {t("zatcaBarcode")}
-                  </h3>
-                  <div className="flex justify-center mb-2">
-                    <div className="p-2 bg-white rounded-xl shadow-sm border border-[#f8fafc]">
-                      {isMounted && (
-                        <QRCodeCanvas
-                          value={qrData}
-                          size={130}
-                          level="H"
-                          includeMargin={false}
-                        />
+              {/* Items Table */}
+              <div className="rounded-xl border border-[#f1f5f9] overflow-hidden shadow-sm flex-shrink-0">
+                <table className="items-table w-full text-[11px] border-collapse">
+                  <thead style={{ background: '#1e293b', color: '#ffffff' }}>
+                    <tr>
+                      <th className="px-3 py-3 text-right font-bold">{t("itemNameHeader")}</th>
+                      <th className="px-3 py-3 text-center font-bold">{t("quantity")}</th>
+                      <th className="px-3 py-3 text-center font-bold">{t("unitPrice")}</th>
+                      <th className="px-3 py-3 text-center font-bold">{t("beforeTax")}</th>
+                      <th className="px-3 py-3 text-center font-bold">{t("taxRateHeader")}</th>
+                      <th className="px-3 py-3 text-center font-bold">{tc("total")}</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-[#f1f5f9] bg-white">
+                    {items.map((item) => (
+                      <tr key={item.id} className="hover:bg-[#f8fafc]">
+                        <td className="px-3 py-2 text-[#0f172a] font-medium">{item.product_name}</td>
+                        <td className="px-3 py-2 text-center">{item.quantity}</td>
+                        <td className="px-3 py-2 text-center">{parseFloat(String(item.unit_price)).toFixed(2)}</td>
+                        <td className="px-3 py-2 text-center">{parseFloat(String(item.total_before_vat)).toLocaleString('en-US', { minimumFractionDigits: 2 })}</td>
+                        <td className="px-3 py-2 text-center text-[#2563eb] font-bold">{parseFloat(String(item.vat_amount)).toLocaleString('en-US', { minimumFractionDigits: 2 })}</td>
+                        <td className="px-3 py-2 text-center font-black text-[#0f172a]">{parseFloat(String(item.total_with_vat)).toLocaleString('en-US', { minimumFractionDigits: 2 })}</td>
+                      </tr>
+                    ))}
+                    
+                    {adjustments.map((adj) => (
+                      <tr key={adj.id} style={{ backgroundColor: adj.type === 'discount' ? '#fff1f2' : '#f0fdf4' }}>
+                        <td className="px-3 py-2 font-bold text-[#1e293b]">
+                          {adj.title} <span className="text-[9px] opacity-60">({adj.type === 'discount' ? t("adjustmentDiscount") : t("adjustmentAddition")})</span>
+                        </td>
+                        <td className="px-3 py-2 text-center opacity-40">-</td>
+                        <td className="px-3 py-2 text-center opacity-40">-</td>
+                        <td className={`px-3 py-2 text-center font-bold ${adj.type === 'discount' ? 'text-[#e11d48]' : 'text-[#059669]'}`}>
+                          {adj.type === 'discount' ? '-' : ''}{parseFloat(String(adj.amount)).toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                        </td>
+                        <td className="px-3 py-2 text-center opacity-40">-</td>
+                        <td className={`px-3 py-2 text-center font-black ${adj.type === 'discount' ? 'text-[#be123c]' : 'text-[#047857]'}`}>
+                          {adj.type === 'discount' ? '-' : ''}{parseFloat(String(adj.total_with_vat)).toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Summary and QR Section */}
+              <div className="summary-section grid grid-cols-2 gap-6 items-stretch flex-shrink-0">
+                {/* Summary Box */}
+                <div 
+                  className="rounded-2xl p-4 border border-[#f1f5f9] flex flex-col justify-between"
+                  style={{ background: '#f8fafc' }}
+                >
+                  <div>
+                    <h3 className="font-black text-[#0f172a] mb-2 flex items-center gap-2 text-[12px]">
+                      <CreditCard size={14} className="text-[#2563eb]" />
+                      {t("summary")}
+                    </h3>
+                    <div className="space-y-2">
+                      <div className="flex justify-between items-center py-1 border-b border-dashed border-[#e2e8f0]">
+                        <span className="text-[#64748b] text-[10px]">{t("beforeTax")}:</span>
+                        <span className="font-bold text-[#0f172a] text-[10px]">{totalBeforeVat.toLocaleString('en-US', { minimumFractionDigits: 2 })} {tc("sar")}</span>
+                      </div>
+                      <div className="flex justify-between items-center py-1 border-b border-dashed border-[#e2e8f0]">
+                        <span className="text-[#64748b] text-[10px]">{t("taxRateHeader")}:</span>
+                        <span className="font-bold text-[#2563eb] text-[10px]">{totalVat.toLocaleString('en-US', { minimumFractionDigits: 2 })} {tc("sar")}</span>
+                      </div>
+                      {(discountTotal > 0 || additionTotal > 0) && (
+                        <div className="flex justify-between items-center py-1 border-b border-dashed border-[#e2e8f0]">
+                          <span className="text-[#64748b] text-[10px]">{tc("discount")}/{tc("add")}:</span>
+                          <span className={`font-bold text-[10px] ${additionTotal - discountTotal < 0 ? 'text-[#e11d48]' : 'text-[#059669]'}`}>
+                            {(additionTotal - discountTotal).toLocaleString('en-US', { minimumFractionDigits: 2 })} {tc("sar")}
+                          </span>
+                        </div>
                       )}
                     </div>
                   </div>
-                </div>
-                
-                <div className="pt-2 border-t border-[#f1f5f9]">
-                  <p className="font-bold text-[#2563eb] text-[10px]">
-                    {t("period")} {formatDate(items[0]?.period_from)} - {formatDate(items[0]?.period_to)}
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            {/* Bank Info */}
-            {selectedBank && (
-              <div 
-                className="rounded-2xl p-5 border border-[#ccfbf1]"
-                style={{ background: '#f0fdfa' }}
-              >
-                <div className="flex justify-between items-center mb-3">
-                  <div className="flex items-center gap-2">
-                    <University size={18} className="text-[#059669]" />
-                    <h3 className="font-black text-[#0f172a] text-[13px]">{t("bankInfo")}</h3>
-                  </div>
-                  <div className="flex items-center gap-1 bg-[#10b981] text-white px-3 py-1 rounded-full text-[9px] font-bold">
-                    <ShieldCheck size={12} />
-                    <span>{t("certifiedAccount")}</span>
-                  </div>
-                </div>
-                
-                <div className="grid grid-cols-4 gap-4">
-                  <div className="bg-white rounded-xl p-3 border border-[#f1f5f9] shadow-sm">
-                    <p className="text-[9px] text-[#94a3b8] mb-1">{tc("bank") || "Bank"}</p>
-                    <p className="font-bold text-[#0f172a] text-[10px] truncate">{selectedBank.bank_name}</p>
-                  </div>
-                  <div className="bg-white rounded-xl p-3 border border-[#f1f5f9] shadow-sm">
-                    <p className="text-[9px] text-[#94a3b8] mb-1">{tc("beneficiary") || "Beneficiary"}</p>
-                    <p className="font-bold text-[#0f172a] text-[10px] truncate">{selectedBank.bank_beneficiary}</p>
-                  </div>
-                  <div className="bg-white rounded-xl p-3 border border-[#f1f5f9] shadow-sm">
-                    <p className="text-[9px] text-[#94a3b8] mb-1">{tc("account") || "Account"}</p>
-                    <p className="font-bold text-[#2563eb] text-[11px]">{selectedBank.bank_account}</p>
-                  </div>
-                  <div className="bg-white rounded-xl p-3 border border-[#f1f5f9] shadow-sm">
-                    <p className="text-[9px] text-[#94a3b8] mb-1">{tc("iban") || "IBAN"}</p>
-                    <p className="font-bold text-[#0f172a] text-[9px] break-all leading-tight">{selectedBank.bank_iban}</p>
+                  
+                  <div 
+                    className="flex justify-between items-center py-2 px-4 rounded-xl mt-3 shadow-md"
+                    style={{ background: '#059669' }}
+                  >
+                    <span className="font-black text-white text-[11px]">{t("amountDue")}</span>
+                    <span className="font-black text-[13px] text-white">
+                      {grandTotal.toLocaleString('en-US', { minimumFractionDigits: 2 })} {tc("sar")}
+                    </span>
                   </div>
                 </div>
 
-                <div className="flex justify-end mt-3">
-                  {invoiceStatus === 'paid' ? (
-                    <div className="flex items-center gap-1.5 text-[#059669] text-[10px] font-black uppercase">
-                      <CheckCircle size={12} />
-                      <span>{t("paidSuccessfully")}</span>
+                {/* QR and Period */}
+                <div className="rounded-2xl p-4 border border-[#f1f5f9] bg-white text-center flex flex-col justify-between shadow-sm">
+                  <div>
+                    <h3 className="font-black text-[#0f172a] mb-2 flex items-center justify-center gap-2 text-[12px]">
+                      <QrCode size={14} className="text-[#2563eb]" />
+                      {t("zatcaBarcode")}
+                    </h3>
+                    <div className="flex justify-center mb-1">
+                      <div className="p-1.5 bg-white rounded-xl shadow-sm border border-[#f8fafc]">
+                        {isMounted && (
+                          <QRCodeCanvas
+                            value={qrData}
+                            size={100}
+                            level="H"
+                            includeMargin={false}
+                          />
+                        )}
+                      </div>
                     </div>
-                  ) : (
-                    <div className="flex items-center gap-2 text-[#d97706] text-[10px] font-black uppercase">
-                      <Clock size={12} />
-                      <span>{t("pendingPayment")} - {t("dueDatePrefix")} {formatDate(invoice.due_date)}</span>
+                  </div>
+                  
+                  <div className="pt-1.5 border-t border-[#f1f5f9]">
+                    <p className="font-bold text-[#2563eb] text-[9px]">
+                      {t("period")} {formatDate(items[0]?.period_from)} - {formatDate(items[0]?.period_to)}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Bank Info */}
+              {selectedBank && (
+                <div 
+                  className="bank-info-box rounded-2xl p-4 border border-[#ccfbf1] flex-shrink-0"
+                  style={{ background: '#f0fdfa' }}
+                >
+                  <div className="flex justify-between items-center mb-2">
+                    <div className="flex items-center gap-2">
+                      <University size={16} className="text-[#059669]" />
+                      <h3 className="font-black text-[#0f172a] text-[12px]">{t("bankInfo")}</h3>
                     </div>
-                  )}
+                  </div>
+                  
+                  <div className="grid grid-cols-4 gap-3">
+                    <div className="bg-white rounded-xl p-2 border border-[#f1f5f9] shadow-sm">
+                      <p className="text-[8px] text-[#94a3b8] mb-0.5">{tc("bank") || "Bank"}</p>
+                      <p className="font-bold text-[#0f172a] text-[9px] truncate">{selectedBank.bank_name}</p>
+                    </div>
+                    <div className="bg-white rounded-xl p-2 border border-[#f1f5f9] shadow-sm">
+                      <p className="text-[8px] text-[#94a3b8] mb-0.5">{tc("beneficiary") || "Beneficiary"}</p>
+                      <p className="font-bold text-[#0f172a] text-[9px] truncate">{selectedBank.bank_beneficiary}</p>
+                    </div>
+                    <div className="bg-white rounded-xl p-2 border border-[#f1f5f9] shadow-sm">
+                      <p className="text-[8px] text-[#94a3b8] mb-0.5">{tc("account") || "Account"}</p>
+                      <p className="font-bold text-[#2563eb] text-[10px]">{selectedBank.bank_account}</p>
+                    </div>
+                    <div className="bg-white rounded-xl p-2 border border-[#f1f5f9] shadow-sm">
+                      <p className="text-[8px] text-[#94a3b8] mb-0.5">{tc("iban") || "IBAN"}</p>
+                      <p className="font-bold text-[#0f172a] text-[8px] break-all leading-tight">{selectedBank.bank_iban}</p>
+                    </div>
+                  </div>
                 </div>
-              </div>
-            )}
+              )}
 
-            {/* Stamp and Signature Section */}
-            <div className="grid grid-cols-2 gap-12 pt-8 mt-auto border-t border-[#f1f5f9]">
-              {/* Stamp */}
-              <div className="text-center">
-                <h4 className="text-[#64748b] font-bold text-[10px] mb-3 uppercase tracking-tight">{t("companyStamp")}</h4>
-                <div className="w-32 h-32 mx-auto bg-white rounded-2xl border border-dashed border-[#e2e8f0] flex items-center justify-center p-4 shadow-sm hover:border-[#2563eb] transition-all">
-                  {company.stamp_path ? (
-                    <img 
-                      src={getPublicUrl(company.stamp_path) || ''} 
-                      alt="Stamp" 
-                      className="max-w-full max-h-full object-contain grayscale opacity-80"
-                      crossOrigin="anonymous"
-                    />
-                  ) : (
-                    <Stamp size={48} className="text-[#e2e8f0]" />
-                  )}
+              {/* Stamp and Signature Section */}
+              <div className="stamp-sig-section grid grid-cols-2 gap-12 pt-4 mt-auto border-t border-[#f1f5f9] flex-shrink-0">
+                {/* Stamp */}
+                <div className="text-center">
+                  <h4 className="text-[#64748b] font-bold text-[9px] mb-2 uppercase tracking-tight">{t("companyStamp")}</h4>
+                  <div className="w-24 h-24 mx-auto bg-white rounded-2xl border border-dashed border-[#e2e8f0] flex items-center justify-center p-3 shadow-sm transition-all">
+                    {company.stamp_path ? (
+                      <img 
+                        src={getPublicUrl(company.stamp_path) || ''} 
+                        alt="Stamp" 
+                        className="max-w-full max-h-full object-contain grayscale opacity-80"
+                        crossOrigin="anonymous"
+                      />
+                    ) : (
+                      <Stamp size={36} className="text-[#e2e8f0]" />
+                    )}
+                  </div>
                 </div>
-              </div>
 
-              {/* Signature */}
-              <div className="text-center">
-                <h4 className="text-[#64748b] font-bold text-[10px] mb-3 uppercase tracking-tight">{t("digitalSignature")}</h4>
-                <div className="w-32 h-32 mx-auto bg-white rounded-2xl border border-dashed border-[#e2e8f0] flex items-center justify-center p-4 shadow-sm hover:border-[#2563eb] transition-all">
-                  {company.digital_seal_path ? (
-                    <img 
-                      src={getPublicUrl(company.digital_seal_path) || ''} 
-                      alt="Signature" 
-                      className="max-w-full max-h-full object-contain"
-                      crossOrigin="anonymous"
-                    />
-                  ) : (
-                    <Signature size={48} className="text-[#e2e8f0]" />
-                  )}
+                {/* Signature */}
+                <div className="text-center">
+                  <h4 className="text-[#64748b] font-bold text-[9px] mb-2 uppercase tracking-tight">{t("digitalSignature")}</h4>
+                  <div className="w-24 h-24 mx-auto bg-white rounded-2xl border border-dashed border-[#e2e8f0] flex items-center justify-center p-3 shadow-sm transition-all">
+                    {company.digital_seal_path ? (
+                      <img 
+                        src={getPublicUrl(company.digital_seal_path) || ''} 
+                        alt="Signature" 
+                        className="max-w-full max-h-full object-contain"
+                        crossOrigin="anonymous"
+                      />
+                    ) : (
+                      <Signature size={36} className="text-[#e2e8f0]" />
+                    )}
+                  </div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
+
         </div>
       </div>
     );
