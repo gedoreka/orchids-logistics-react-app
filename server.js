@@ -14,34 +14,26 @@ function log(msg) {
     console.log(logMsg);
 }
 
-log('--- HOSTINGER NODE.JS STARTUP ---');
+log('--- SERVER STARTING ---');
 log(`Node Version: ${process.version}`);
 log(`Directory: ${__dirname}`);
-log(`Port Env: ${process.env.PORT}`);
 
+// Hostinger passes the port via process.env.PORT
 const port = process.env.PORT || 3000;
 const hostname = '0.0.0.0';
 
-// Check if we should use the standalone server (recommended for Hostinger)
+// Check for standalone build (Next.js 12+ optimization)
 const standalonePath = path.join(__dirname, '.next', 'standalone', 'server.js');
 
 if (fs.existsSync(standalonePath)) {
-    log('Detected standalone build. Using .next/standalone/server.js');
-    // Note: standalone server.js usually expects to be in the standalone root
-    // and might need some env variables.
-    try {
-        process.env.PORT = port;
-        process.env.HOSTNAME = hostname;
-        require(standalonePath);
-    } catch (err) {
-        log(`CRITICAL ERROR running standalone server: ${err.message}`);
-        log(err.stack);
-        process.exit(1);
-    }
+    log('Using standalone build server...');
+    process.env.PORT = port;
+    process.env.HOSTNAME = hostname;
+    require(standalonePath);
 } else {
-    log('Standalone build NOT found. Falling back to standard Next.js server.');
-    log('Make sure "node_modules" are installed and "npm run build" has been executed.');
-    
+    log('Standalone build not found. Falling back to standard Next.js handler.');
+    log('Make sure "npm run build" has been executed.');
+
     try {
         const next = require('next');
         const dev = process.env.NODE_ENV !== 'production';
@@ -49,8 +41,8 @@ if (fs.existsSync(standalonePath)) {
         const handle = app.getRequestHandler();
 
         app.prepare().then(() => {
-            log('Standard app prepared successfully');
-            const server = createServer(async (req, res) => {
+            log('App prepared, listening on port ' + port);
+            createServer(async (req, res) => {
                 try {
                     const parsedUrl = parse(req.url, true);
                     await handle(req, res, parsedUrl);
@@ -59,18 +51,12 @@ if (fs.existsSync(standalonePath)) {
                     res.statusCode = 500;
                     res.end('Internal Server Error');
                 }
-            });
-
-            server.listen(port, hostname, (err) => {
+            }).listen(port, hostname, (err) => {
                 if (err) {
                     log(`CRITICAL ERROR: Failed to listen on port ${port}: ${err.message}`);
                     process.exit(1);
                 }
-                log(`>>> SERVER RUNNING at http://${hostname}:${port}`);
-            });
-
-            server.on('error', (err) => {
-                log(`SERVER ERROR: ${err.message}`);
+                log(`>>> SERVER READY AT http://${hostname}:${port}`);
             });
         }).catch(err => {
             log(`CRITICAL ERROR during app.prepare: ${err.message}`);
@@ -78,8 +64,8 @@ if (fs.existsSync(standalonePath)) {
             process.exit(1);
         });
     } catch (err) {
-        log(`CRITICAL ERROR: "next" module not found or failed to load: ${err.message}`);
-        log('Please run "npm install" on the server.');
+        log(`CRITICAL ERROR: "next" module not found: ${err.message}`);
+        log('Verify that node_modules are installed and "server.js" is in the root directory.');
         process.exit(1);
     }
 }

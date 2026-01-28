@@ -1,25 +1,24 @@
-# Disable directory listing to prevent 403 Forbidden errors
+# BEGIN Next.js
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteBase /
+  
+  # Protect server.js and other sensitive files from direct access
+  RewriteRule ^(server\.js|package\.json|package-lock\.json|next\.config\.ts|tsconfig\.json|\.env)$ - [F,L]
+  
+  # Forward all requests to the Node.js application via Passenger
+  # Passenger usually handles the port automatically when "Startup File" is set.
+  # If Passenger is not active, this rule will ensure server.js is the entry point.
+  
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteRule ^(.*)$ server.js/$1 [L]
+</IfModule>
+# END Next.js
+
+# Prevent Directory Listing
 Options -Indexes
 
-# Set the default index to something that doesn't exist to force the proxy to work
-# or just disable it entirely
-DirectoryIndex disabled
-
-# Hostinger Node.js selector usually handles the proxy automatically.
-# This .htaccess is designed to stay out of the way while ensuring
-# that sensitive files aren't served as text.
-
-<IfModule mod_rewrite.c>
-    RewriteEngine On
-
-    # Prevent direct access to server.js source code
-    RewriteRule ^server\.js$ - [F,L]
-
-    # If it's a real file or directory in public/, serve it
-    RewriteCond %{DOCUMENT_ROOT}/public/%{REQUEST_URI} -f
-    RewriteRule ^(.*)$ /public/$1 [L]
-
-    # Otherwise, let the Node.js process handle it.
-    # On Hostinger, the proxying is done at a higher level, 
-    # so we don't need to specify a RewriteRule here that might conflict.
-</IfModule>
+# Error Handling
+ErrorDocument 403 /server.js
+ErrorDocument 500 /server.js
