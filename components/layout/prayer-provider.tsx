@@ -43,7 +43,27 @@ export function PrayerProvider({ children }: { children: React.ReactNode }) {
   const [locationName, setLocationName] = useState('الرياض، السعودية');
   const [coords, setCoords] = useState<{ lat: number; lng: number }>({ lat: 24.7136, lng: 46.6753 });
   const [alert, setAlert] = useState<{ type: 'adhan' | 'iqama'; prayer: string } | null>(null);
+  const [lastAlerted, setLastAlerted] = useState<{ prayer: string; type: string; date: string } | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  const stopAdhan = () => {
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.currentTime = 0;
+    }
+  };
+
+  const handleCloseAlert = () => {
+    if (alert) {
+      setLastAlerted({
+        prayer: alert.prayer,
+        type: alert.type,
+        date: new Date().toLocaleDateString()
+      });
+    }
+    setAlert(null);
+    stopAdhan();
+  };
 
   const fetchLocationName = useCallback(async (lat: number, lng: number) => {
     try {
@@ -98,7 +118,11 @@ export function PrayerProvider({ children }: { children: React.ReactNode }) {
             
             // Adhan: within the same minute
             if (diffSeconds >= 0 && diffSeconds < 60) {
-              if (alert?.prayer !== p || alert?.type !== 'adhan') {
+              const isHandled = lastAlerted?.prayer === p && 
+                              lastAlerted?.type === 'adhan' && 
+                              lastAlerted?.date === now.toLocaleDateString();
+
+              if (!isHandled && (alert?.prayer !== p || alert?.type !== 'adhan')) {
                 setAlert({ type: 'adhan', prayer: p });
                 playAdhan();
               }
@@ -108,9 +132,12 @@ export function PrayerProvider({ children }: { children: React.ReactNode }) {
             const iqamaTime = new Date(prayerTime.getTime() + IQAMA_OFFSETS[p] * 60000);
             const iqamaDiffSeconds = Math.floor((now.getTime() - iqamaTime.getTime()) / 1000);
             if (iqamaDiffSeconds >= 0 && iqamaDiffSeconds < 60) {
-               if (alert?.prayer !== p || alert?.type !== 'iqama') {
+               const isHandled = lastAlerted?.prayer === p && 
+                               lastAlerted?.type === 'iqama' && 
+                               lastAlerted?.date === now.toLocaleDateString();
+
+               if (!isHandled && (alert?.prayer !== p || alert?.type !== 'iqama')) {
                 setAlert({ type: 'iqama', prayer: p });
-                // Optional: distinct sound for iqama
               }
             }
           }
@@ -166,11 +193,8 @@ export function PrayerProvider({ children }: { children: React.ReactNode }) {
       setAlert({ type: 'adhan', prayer: 'fajr' });
       playAdhan();
       setTimeout(() => {
-        setAlert({ type: 'iqama', prayer: 'fajr' });
+        setAlert(prev => (prev?.type === 'adhan' ? { type: 'iqama', prayer: 'fajr' } : prev));
       }, 5000); // After 5 seconds show iqama
-      setTimeout(() => {
-        setAlert(null);
-      }, 10000); // Clear after 10 seconds total
     }
   };
 
@@ -182,7 +206,7 @@ export function PrayerProvider({ children }: { children: React.ReactNode }) {
         src="https://www.islamcan.com/audio/adhan/azan1.mp3" 
         preload="auto"
       />
-      <PrayerAlert alert={alert} onClose={() => setAlert(null)} />
+      <PrayerAlert alert={alert} onClose={handleCloseAlert} />
     </PrayerContext.Provider>
   );
 }
@@ -200,7 +224,6 @@ function PrayerAlert({ alert, onClose }: { alert: { type: 'adhan' | 'iqama'; pra
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          onClick={onClose}
           className="absolute inset-0 bg-black/80 backdrop-blur-xl"
         />
         <motion.div
