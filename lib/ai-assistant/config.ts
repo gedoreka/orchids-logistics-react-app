@@ -11,6 +11,13 @@ const openai = new OpenAI({
   dangerouslyAllowBrowser: true,
 });
 
+// ==================== إعداد DeepSeek ====================
+const deepseek = new OpenAI({
+  apiKey: process.env.DEEPSEEK_API_KEY || "",
+  baseURL: "https://api.deepseek.com",
+  dangerouslyAllowBrowser: true,
+});
+
 // ==================== أنواع TypeScript ====================
 export interface AIResponse {
   id: string;
@@ -152,79 +159,121 @@ export class AIAssistantService {
         const score = this.calculateSimilarity(message, keyword);
         if (score > maxScore) {
           maxScore = score;
-          bestMatch = entry;
+    bestMatch = entry;
+          }
         }
+      }
+
+      if (maxScore > 0.6) {
+        return { ...bestMatch!, confidenceScore: maxScore };
+      }
+
+      return null;
+    }
+
+    /**
+     * توليد رد باستخدام OpenAI
+     */
+    static async generateOpenAIResponse(userMessage: string, context: string[] = []): Promise<string> {
+      try {
+        const localContext = KNOWLEDGE_BASE.slice(0, 10).map(e => `س: ${e.keywords[0]} ج: ${e.text}`).join('\n');
+        
+        const response = await openai.chat.completions.create({
+          model: "gpt-4o",
+          messages: [
+            {
+              role: "system",
+              content: `أنت "سام"، مساعد ذكاء اصطناعي متطور لنظام Logistics Pro. 
+              أنت مرتبط بقاعدة معرفة ضخمة للنظام ولديك القدرة على البحث في الإنترنت وتقديم إجابات دقيقة وشاملة.
+              
+              قواعد الرد:
+              1. إذا كان السؤال عن نظام Logistics Pro، استخدم المعلومات التالية كمرجع:
+              ${localContext}
+              
+              2. إذا كان السؤال عاماً أو يحتاج لمعلومات من الإنترنت، قدم إجابة دقيقة بناءً على معلوماتك المحدثة.
+              3. كن ودوداً، احترافياً، واستخدم الرموز التعبيرية بشكل مناسب.
+              4. تحدث دائماً باللغة العربية بلهجة مهذبة ومحترفة.`
+            },
+            ...context.map(m => ({ role: "user" as const, content: m })),
+            { role: "user", content: userMessage }
+          ],
+          temperature: 0.7,
+        });
+
+        return response.choices[0].message.content || "";
+      } catch (error) {
+        console.error("OpenAI Error:", error);
+        return "";
       }
     }
 
-    if (maxScore > 0.6) {
-      return { ...bestMatch!, confidenceScore: maxScore };
+    /**
+     * توليد رد باستخدام DeepSeek
+     */
+    static async generateDeepSeekResponse(userMessage: string, context: string[] = []): Promise<string> {
+      try {
+        const localContext = KNOWLEDGE_BASE.slice(0, 5).map(e => `س: ${e.keywords[0]} ج: ${e.text}`).join('\n');
+        
+        const response = await deepseek.chat.completions.create({
+          model: "deepseek-chat",
+          messages: [
+            {
+              role: "system",
+              content: `أنت المساعد الذكي الرديف "سام - محرك ديب سيك". مهمتك هي دعم محرك OpenAI في تقديم أدق الإجابات الممكنة لنظام Logistics Pro.
+              لديك وصول لقاعدة المعرفة والبحث العالمي.
+              
+              المرجع المحلي:
+              ${localContext}
+              
+              كن دقيقاً جداً في المعلومات التقنية والبرمجية.`
+            },
+            ...context.map(m => ({ role: "user" as const, content: m })),
+            { role: "user", content: userMessage }
+          ],
+          temperature: 0.5,
+        });
+
+        return response.choices[0].message.content || "";
+      } catch (error) {
+        console.error("DeepSeek Error:", error);
+        return "";
+      }
     }
 
-    return null;
-  }
-
-  /**
-   * توليد رد باستخدام OpenAI
-   */
-  static async generateOpenAIResponse(userMessage: string, context: string[] = []): Promise<string> {
-    try {
-      // جلب بعض السياق من قاعدة المعرفة لتعزيز الرد
-      const localContext = KNOWLEDGE_BASE.slice(0, 10).map(e => `س: ${e.keywords[0]} ج: ${e.text}`).join('\n');
+    /**
+     * الرد التفاعلي الرئيسي (Hybrid AI - Dual Engine)
+     */
+    static async generateInteractiveResponse(userMessage: string, context: string[] = []): Promise<AIResponse> {
+      // 1. محاولة البحث المحلي أولاً لضمان الدقة في معلومات النظام
+      const localMatch = await this.findInKnowledgeBase(userMessage);
       
-      const response = await openai.chat.completions.create({
-        model: "gpt-4o",
-        messages: [
-          {
-            role: "system",
-            content: `أنت "سام"، مساعد ذكاء اصطناعي متطور لنظام Logistics Pro. 
-            أنت مرتبط بقاعدة معرفة ضخمة للنظام ولديك القدرة على البحث في الإنترنت وتقديم إجابات دقيقة وشاملة.
-            
-            قواعد الرد:
-            1. إذا كان السؤال عن نظام Logistics Pro، استخدم المعلومات التالية كمرجع:
-            ${localContext}
-            
-            2. إذا كان السؤال عاماً أو يحتاج لمعلومات من الإنترنت، قدم إجابة دقيقة بناءً على معلوماتك المحدثة.
-            3. كن ودوداً، احترافياً، واستخدم الرموز التعبيرية بشكل مناسب.
-            4. تحدث دائماً باللغة العربية بلهجة مهذبة ومحترفة.
-            5. إذا لم يكن السؤال واضحاً، قدم اقتراحات (هل تقصد كذا؟) مرتبطة بمحتوى النظام.`
-          },
-          ...context.map(m => ({ role: "user" as const, content: m })),
-          { role: "user", content: userMessage }
-        ],
-        temperature: 0.7,
-      });
+      // 2. إذا وجدنا تطابقاً قوياً جداً (أكثر من 95%) نستخدمه مباشرة
+      if (localMatch && localMatch.confidenceScore! > 0.95) {
+        return localMatch;
+      }
 
-      return response.choices[0].message.content || "عذراً، لم أستطع توليد رد حالياً.";
-    } catch (error) {
-      console.error("OpenAI Error:", error);
-      return "عذراً، أواجه مشكلة في الاتصال بمحرك OpenAI حالياً.";
-    }
-  }
+      // 3. تشغيل المحركين بالتوازي للحصول على أفضل إجابة (أو استخدام أحدهما كاحتياطي)
+      // سنحاول OpenAI أولاً، وإذا فشل أو كان الرد قصيراً جداً، نستخدم DeepSeek
+      let finalResponseText = await this.generateOpenAIResponse(userMessage, context);
+      
+      if (!finalResponseText || finalResponseText.length < 10) {
+        finalResponseText = await this.generateDeepSeekResponse(userMessage, context);
+      }
 
-  /**
-   * الرد التفاعلي الرئيسي (Hybrid AI)
-   */
-  static async generateInteractiveResponse(userMessage: string, context: string[] = []): Promise<AIResponse> {
-    // 1. محاولة البحث المحلي أولاً لضمان الدقة في معلومات النظام
-    const localMatch = await this.findInKnowledgeBase(userMessage);
-    
-    // 2. إذا وجدنا تطابقاً قوياً جداً (أكثر من 90%) نستخدمه مباشرة لسرعة الاستجابة
-    if (localMatch && localMatch.confidenceScore! > 0.9) {
-      return localMatch;
+      // إذا فشل كلاهما
+      if (!finalResponseText) {
+        finalResponseText = "عذراً، أواجه ضغطاً في المحركات حالياً. سأحاول البحث في قاعدة المعرفة المحلية... " + (localMatch?.text || "لا أستطيع العثور على إجابة دقيقة حالياً.");
+      }
+      
+      return {
+        id: `ai-${Date.now()}`,
+        text: finalResponseText,
+        category: localMatch?.category || 'general',
+        keywords: [],
+        confidenceScore: 0.95
+      };
     }
 
-    // 3. استخدام OpenAI للردود الأكثر تعقيداً أو إذا لم نجد تطابقاً قوياً
-    const aiText = await this.generateOpenAIResponse(userMessage, context);
-    
-    return {
-      id: `ai-${Date.now()}`,
-      text: aiText,
-      category: localMatch?.category || 'general',
-      keywords: [],
-      confidenceScore: 0.95
-    };
-  }
 
   static getPersonality(): AIPersonality {
     return AI_PERSONALITY;
