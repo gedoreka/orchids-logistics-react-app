@@ -33,7 +33,7 @@ import {
   Hash
 } from "lucide-react";
 import { toast } from "sonner";
-import { sendMessage, getMessages } from "@/lib/actions/chat";
+// Removed unused server actions to prevent 404 error during build
 
 interface ChatClientProps {
   initialMessages: any[];
@@ -62,6 +62,8 @@ export function ChatClient({ initialMessages, companyId, senderRole, companyToke
   const [currentTicketId, setCurrentTicketId] = useState<string | null>(null);
   const [tickets, setTickets] = useState<any[]>([]);
   const [showTicketSelector, setShowTicketSelector] = useState(false);
+  const [conversation, setConversation] = useState<any>(null);
+  const [isAiThinking, setIsAiThinking] = useState(false);
   
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -96,9 +98,11 @@ export function ChatClient({ initialMessages, companyId, senderRole, companyToke
   useEffect(() => {
     const pollMessages = async () => {
       try {
-        const res = await getMessages(companyId);
-        if (res.success && res.data) {
-          const newMessages = res.data;
+        const response = await fetch(`/api/ai/chat?company_id=${companyId}`);
+        const data = await response.json();
+        
+        if (data.messages) {
+          const newMessages = data.messages;
           
           if (newMessages.length > lastMessageCountRef.current) {
             const latestMsg = newMessages[newMessages.length - 1];
@@ -109,7 +113,7 @@ export function ChatClient({ initialMessages, companyId, senderRole, companyToke
               setTimeout(() => setShowNewMessageAlert(false), 5000);
               
               if ("Notification" in window && Notification.permission === "granted") {
-                new Notification("رسالة جديدة من الدعم الفني", {
+                new Notification("رسالة جديدة من الدعم", {
                   body: latestMsg.message?.substring(0, 100),
                   icon: "/favicon.ico"
                 });
@@ -119,9 +123,7 @@ export function ChatClient({ initialMessages, companyId, senderRole, companyToke
           
           lastMessageCountRef.current = newMessages.length;
           setMessages(newMessages);
-          
-          const uniqueTickets = [...new Set(newMessages.filter((m: any) => m.ticket_id).map((m: any) => m.ticket_id))];
-          setTickets(uniqueTickets.map(id => ({ id, status: 'open' })));
+          setConversation(data.conversation);
         }
       } catch (error) {
         console.error("Polling error:", error);
@@ -173,18 +175,12 @@ export function ChatClient({ initialMessages, companyId, senderRole, companyToke
     if (e) e.preventDefault();
     
     if (!inputValue.trim() && !selectedFile && !customData) return;
-    if (isLoading || isUploading) return;
+    if (isLoading || isUploading || isAiThinking) return;
 
     setIsLoading(true);
     let filePath = customData?.file_path || "";
     let messageType: any = customData?.message_type || "text";
     let messageText = customData?.message || inputValue.trim();
-
-    const ticketId = currentTicketId || generateTicketId();
-    if (!currentTicketId) {
-      setCurrentTicketId(ticketId);
-      setTickets(prev => [...prev, { id: ticketId, status: 'open' }]);
-    }
 
     try {
       if (selectedFile && !customData) {
@@ -204,7 +200,6 @@ export function ChatClient({ initialMessages, companyId, senderRole, companyToke
         message: messageText,
         file_path: filePath,
         message_type: messageType,
-        ticket_id: ticketId,
         created_at: new Date().toISOString(),
         is_read: 0,
         _pending: true
@@ -213,29 +208,43 @@ export function ChatClient({ initialMessages, companyId, senderRole, companyToke
       setMessages(prev => [...prev, optimisticMessage]);
       setInputValue("");
       setShowEmojis(false);
+      
+      if (senderRole === 'client') {
+        setIsAiThinking(true);
+      }
 
-      const result = await sendMessage({
-        company_id: companyId,
-        sender_role: senderRole,
-        message: messageText,
-        file_path: filePath,
-        message_type: messageType,
-        ticket_id: ticketId
+      const response = await fetch("/api/ai/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          message: messageText,
+          company_id: companyId,
+          sender_role: senderRole,
+          file_path: filePath,
+          message_type: messageType
+        })
       });
 
-      if (!result.success) {
+      const result = await response.json();
+
+      if (!response.ok) {
         setMessages(prev => prev.filter(m => m.id !== tempId));
-        toast.error("فشل في إرسال الرسالة");
+        toast.error(result.error || "فشل في إرسال الرسالة");
       } else {
-        setMessages(prev => prev.map(m => 
-          m.id === tempId ? { ...m, id: result.insertId, _pending: false } : m
-        ));
+        // Poll for new messages immediately to show AI response
+        const messagesRes = await fetch(`/api/ai/chat?company_id=${companyId}`);
+        const messagesData = await messagesRes.json();
+        if (messagesData.messages) {
+          setMessages(messagesData.messages);
+          setConversation(messagesData.conversation);
+        }
       }
     } catch (error: any) {
       toast.error(error.message || "حدث خطأ أثناء الإرسال");
     } finally {
       setIsLoading(false);
       setIsUploading(false);
+      setIsAiThinking(false);
     }
   };
 
@@ -565,8 +574,25 @@ export function ChatClient({ initialMessages, companyId, senderRole, companyToke
           </div>
         )}
         
-        <div className="max-w-4xl mx-auto space-y-6">
-          {Object.entries(messageGroups).map(([date, msgs]) => (
+          <div className="max-w-4xl mx-auto space-y-6">
+            {conversation?.status === 'pending_human' && (
+              <motion.div 
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="bg-amber-50 border border-amber-200 p-4 rounded-2xl flex items-center gap-3 shadow-sm"
+              >
+                <div className="w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center shrink-0">
+                  <Clock className="text-amber-600" size={20} />
+                </div>
+                <div>
+                  <p className="text-amber-800 font-bold text-sm">جاري تحويلك لممثل بشري</p>
+                  <p className="text-amber-600 text-xs">شكراً لصبرك، سيقوم أحد موظفينا بالرد عليك قريباً.</p>
+                </div>
+              </motion.div>
+            )}
+
+            {Object.entries(messageGroups).map(([date, msgs]) => (
+
             <div key={date} className="space-y-4">
               <div className="flex justify-center sticky top-2 z-10">
                 <span className="bg-white/95 backdrop-blur-md text-gray-600 text-xs font-bold px-5 py-2 rounded-full shadow-lg border border-gray-200">

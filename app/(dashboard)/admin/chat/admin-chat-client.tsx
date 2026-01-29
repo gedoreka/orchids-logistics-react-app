@@ -55,6 +55,9 @@ interface Company {
   last_message_date: string | null;
   last_message: string | null;
   replied?: boolean;
+  conversation_status?: string;
+  needs_human?: number;
+  ai_handled?: number;
 }
 
 interface Message {
@@ -421,11 +424,22 @@ export default function AdminChatPage() {
                   <p className="text-2xl font-bold text-white">{pendingCount}</p>
                   <p className="text-[10px] text-white/70 font-medium">معلقة</p>
                 </div>
-                <div className="flex-1 bg-white/10 backdrop-blur-sm rounded-xl p-3 text-center border border-white/20">
-                  <p className="text-2xl font-bold text-white">{answeredCount}</p>
-                  <p className="text-[10px] text-white/70 font-medium">مردود عليها</p>
+                  <div className="flex-1 bg-white/10 backdrop-blur-sm rounded-xl p-3 text-center border border-white/20">
+                    <p className="text-2xl font-bold text-white">{answeredCount}</p>
+                    <p className="text-[10px] text-white/70 font-medium">مردود عليها</p>
+                  </div>
                 </div>
-              </div>
+
+                <div className="flex gap-2 mb-4">
+                  <a 
+                    href="/admin/chat/knowledge-base" 
+                    className="flex-1 bg-white/20 hover:bg-white/30 backdrop-blur-sm rounded-xl p-3 text-center border border-white/20 text-white text-xs font-bold transition-all flex items-center justify-center gap-2"
+                  >
+                    <BookOpen size={14} />
+                    قاعدة المعرفة
+                  </a>
+                </div>
+
 
               {/* Search */}
               <div className="relative">
@@ -475,36 +489,57 @@ export default function AdminChatPage() {
                       )}>
                         {company.name.charAt(0)}
                       </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center justify-between mb-1">
-                          <h3 className="font-bold text-gray-800 text-sm truncate">{company.name}</h3>
-                          {company.unread_count > 0 && (
-                            <motion.span 
-                              initial={{ scale: 0 }}
-                              animate={{ scale: 1 }}
-                              className="bg-red-500 text-white text-[10px] font-bold w-6 h-6 rounded-full flex items-center justify-center shadow-lg animate-pulse"
-                            >
-                              {company.unread_count}
-                            </motion.span>
-                          )}
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center justify-between mb-1">
+                            <h3 className="font-bold text-gray-800 text-sm truncate">{company.name}</h3>
+                            <div className="flex items-center gap-2">
+                              {company.needs_human === 1 && (
+                                <motion.span 
+                                  initial={{ scale: 0 }}
+                                  animate={{ scale: 1 }}
+                                  className="bg-amber-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1 shadow-sm"
+                                >
+                                  <Clock size={10} />
+                                  تدخل
+                                </motion.span>
+                              )}
+                              {company.unread_count > 0 && (
+                                <motion.span 
+                                  initial={{ scale: 0 }}
+                                  animate={{ scale: 1 }}
+                                  className="bg-red-500 text-white text-[10px] font-bold w-6 h-6 rounded-full flex items-center justify-center shadow-lg animate-pulse"
+                                >
+                                  {company.unread_count}
+                                </motion.span>
+                              )}
+                            </div>
+                          </div>
+                          <p className="text-xs text-gray-500 truncate mb-2">
+                            {company.last_message || "لا توجد رسائل"}
+                          </p>
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                              <span className={cn(
+                                "text-[10px] px-2 py-1 rounded-full font-bold",
+                                company.is_active ? "bg-emerald-100 text-emerald-700" : "bg-red-100 text-red-700"
+                              )}>
+                                {company.is_active ? "نشط" : "موقوف"}
+                              </span>
+                              {company.ai_handled === 1 && (
+                                <span className="text-[10px] bg-indigo-100 text-indigo-700 px-2 py-1 rounded-full font-bold flex items-center gap-1">
+                                  <RefreshCw size={10} className="animate-spin-slow" />
+                                  AI
+                                </span>
+                              )}
+                            </div>
+                            {company.last_message_date && (
+                              <span className="text-[10px] text-gray-400 font-medium">
+                                {formatDateShort(company.last_message_date)}
+                              </span>
+                            )}
+                          </div>
                         </div>
-                        <p className="text-xs text-gray-500 truncate mb-2">
-                          {company.last_message || "لا توجد رسائل"}
-                        </p>
-                        <div className="flex items-center justify-between">
-                          <span className={cn(
-                            "text-[10px] px-2 py-1 rounded-full font-bold",
-                            company.is_active ? "bg-emerald-100 text-emerald-700" : "bg-red-100 text-red-700"
-                          )}>
-                            {company.is_active ? "نشط" : "موقوف"}
-                          </span>
-                          {company.last_message_date && (
-                            <span className="text-[10px] text-gray-400 font-medium">
-                              {formatDateShort(company.last_message_date)}
-                            </span>
-                          )}
-                        </div>
-                      </div>
+
                     </div>
                   </motion.div>
                 ))

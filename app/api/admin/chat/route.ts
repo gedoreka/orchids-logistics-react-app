@@ -69,24 +69,33 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ messages });
     }
 
-    const companies = await query(`
-      SELECT DISTINCT 
-        c.id,
-        c.name,
-        c.phone,
-        c.access_token,
-        c.token_expiry,
-        c.is_active,
-        c.created_at as company_created_at,
-        (SELECT COUNT(*) FROM chat_messages m WHERE m.company_id = c.id AND m.sender_role = 'client' AND m.is_read = 0) AS unread_count,
-        (SELECT MAX(created_at) FROM chat_messages WHERE company_id = c.id) AS last_message_date,
-        (SELECT message FROM chat_messages WHERE company_id = c.id ORDER BY created_at DESC LIMIT 1) AS last_message
-      FROM companies c
-      WHERE EXISTS (
-        SELECT 1 FROM chat_messages cm WHERE cm.company_id = c.id
-      )
-      ORDER BY last_message_date DESC, c.name ASC
-    `);
+      const companies = await query(`
+        SELECT DISTINCT 
+          c.id,
+          c.name,
+          c.phone,
+          c.access_token,
+          c.token_expiry,
+          c.is_active,
+          c.created_at as company_created_at,
+          cv.status as conversation_status,
+          cv.needs_human,
+          cv.ai_handled,
+          (SELECT COUNT(*) FROM chat_messages m WHERE m.company_id = c.id AND m.sender_role = 'client' AND m.is_read = 0) AS unread_count,
+          (SELECT MAX(created_at) FROM chat_messages WHERE company_id = c.id) AS last_message_date,
+          (SELECT message FROM chat_messages WHERE company_id = c.id ORDER BY created_at DESC LIMIT 1) AS last_message
+        FROM companies c
+        LEFT JOIN (
+          SELECT company_id, status, needs_human, ai_handled
+          FROM conversations
+          WHERE id IN (SELECT MAX(id) FROM conversations GROUP BY company_id)
+        ) cv ON c.id = cv.company_id
+        WHERE EXISTS (
+          SELECT 1 FROM chat_messages cm WHERE cm.company_id = c.id
+        )
+        ORDER BY cv.needs_human DESC, last_message_date DESC, c.name ASC
+      `);
+
 
     const totalUnread = await query<{ count: number }>(
       "SELECT COUNT(*) as count FROM chat_messages WHERE sender_role = 'client' AND is_read = 0"
@@ -117,6 +126,12 @@ export async function POST(request: NextRequest) {
     await execute(
       "INSERT INTO chat_messages (company_id, sender_role, message, file_path, message_type) VALUES (?, ?, ?, ?, ?)",
       [company_id, sender_role || "admin", message, attachment || null, message_type || "text"]
+    );
+
+    // If admin sends a message, mark conversation as human-handled
+    await execute(
+      "UPDATE conversations SET status = 'active', needs_human = 0 WHERE company_id = ? AND status = 'pending_human'",
+      [company_id]
     );
 
     return NextResponse.json({ success: true });
