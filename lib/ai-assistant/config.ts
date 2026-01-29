@@ -631,3 +631,5 @@ export class AIAssistantService {
     );
   }
 }
+
+export default AIAssistantService;
