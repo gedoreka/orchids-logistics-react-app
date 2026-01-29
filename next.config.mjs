@@ -1,7 +1,5 @@
-import type { NextConfig } from "next";
-import path from "node:path";
-
-const nextConfig: NextConfig = {
+/** @type {import('next').NextConfig} */
+const nextConfig = {
   images: {
     remotePatterns: [
       {
@@ -20,14 +18,10 @@ const nextConfig: NextConfig = {
   eslint: {
     ignoreDuringBuilds: true,
   },
-  experimental: {
-    // Keep it minimal
-  },
   compiler: {
     styledComponents: true,
   },
   poweredByHeader: false,
-  output: 'standalone',
-} as NextConfig;
+};
 
 export default nextConfig;
