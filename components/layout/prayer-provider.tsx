@@ -14,6 +14,7 @@ interface PrayerContextType {
   isFriday: boolean;
   islamicEvent: string | null;
   hijriDate: string;
+  triggerTestAlert: () => void;
 }
 
 const PrayerContext = createContext<PrayerContextType | null>(null);
@@ -161,6 +162,16 @@ export function PrayerProvider({ children }: { children: React.ReactNode }) {
     isFriday: isFriday(currentTime),
     islamicEvent: getIslamicEvent(currentTime),
     hijriDate: getHijriDate(currentTime),
+    triggerTestAlert: () => {
+      setAlert({ type: 'adhan', prayer: 'fajr' });
+      playAdhan();
+      setTimeout(() => {
+        setAlert({ type: 'iqama', prayer: 'fajr' });
+      }, 5000); // After 5 seconds show iqama
+      setTimeout(() => {
+        setAlert(null);
+      }, 10000); // Clear after 10 seconds total
+    }
   };
 
   return (
