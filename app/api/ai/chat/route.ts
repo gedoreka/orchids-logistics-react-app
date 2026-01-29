@@ -79,6 +79,10 @@ export async function POST(request: NextRequest) {
     }
 
     // 5. Generate AI Response
+    // Get Company Name for personalized Sam response
+    const companyInfo = await query<any>("SELECT name FROM companies WHERE id = ?", [company_id]);
+    const companyName = companyInfo[0]?.name || "العميل العزيز";
+
     // Search Knowledge Base
     const kbResults = await searchKnowledgeBase(message, analysis.language);
     
@@ -86,6 +90,7 @@ export async function POST(request: NextRequest) {
       try {
         aiResult = await generateAIResponse(message, {
           company_id: company_id,
+          user_name: companyName,
           knowledge_base: kbResults,
           analysis: analysis,
           conversation_history: []
@@ -93,22 +98,19 @@ export async function POST(request: NextRequest) {
 
         // Check for low confidence or "I don't know" style responses
         if (aiResult.confidence < 0.4) {
-          aiResult.text = "أعتذر منك، لم أتمكن من العثور على إجابة دقيقة لطلبك. 🧐 تم تحويل طلبك لفريق الدعم البشري لمساعدتك بشكل أفضل.";
+          aiResult.text = `أعتذر منك يا ${companyName}، لم أتمكن من العثور على إجابة دقيقة لطلبك حالياً. 🧐 تم تحويل طلبك لفريق الدعم البشري لمساعدتك بشكل أفضل، وسنرد عليك في أقرب وقت ممكن.`;
         }
       } catch (aiError) {
-        console.error("AI Generation failed, using KB fallback:", aiError);
-        // Fallback: If AI fails, use the best KB result if available
-        if (kbResults.length > 0 && kbResults[0].confidence > 0.7) {
-          aiResult = {
-            text: kbResults[0].answer,
-            confidence: 0.8
-          };
-        } else {
-          aiResult = {
-            text: "انتظرنا قليلاً سيتم الرد عليك بأسرع وقت عبر فريق الدعم الخاص بنا.",
-            confidence: 0.4
-          };
-        }
+        console.error("AI Generation failed, using Sam Engine fallback:", aiError);
+        // Fallback: If AI fails, use Sam Engine (already handled in generateAIResponse, but adding extra safety here)
+        aiResult = {
+          text: `أهلاً بك يا ${companyName}! 🌟 عذراً، أواجه ضغطاً في الطلبات حالياً، ولكنني هنا لمساعدتك. بخصوص استفسارك، هل يمكنك تزويدي بتفاصيل أكثر؟`,
+          confidence: 0.5,
+          buttons: [
+            { text: "🧾 الفواتير", action: "showInvoices", emoji: "🧾" },
+            { text: "📊 التقارير", action: "showReports", emoji: "📊" }
+          ]
+        };
       }
 
     // If conversation was pending human but AI is very confident, we still allow the AI to respond

@@ -1,15 +1,31 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { knowledgeBase } from "@/ai-assistant/core/knowledge-base";
 import { getSystemStats } from "@/ai-assistant/data/system-data";
+import { generateResponse as generateSamLocalResponse } from "@/ai-assistant/core/response-generator";
 
 const genAI = new GoogleGenerativeAI(process.env.GOOGLE_GEMINI_API_KEY || "");
 
 export async function generateAIResponse(message: string, context: any = {}) {
-  if (!process.env.GOOGLE_GEMINI_API_KEY) {
-    console.error("CRITICAL: GOOGLE_GEMINI_API_KEY is missing from environment variables");
+  const userName = context.user_name || "العميل";
+  const userId = context.company_id?.toString() || "default";
+
+  // 1. Try local Sam Engine first for speed and quota saving
+  const localResponse = await generateSamLocalResponse(userId, userName, message);
+  
+  // If local engine is highly confident (greeting or direct match), return it
+  if (localResponse.analysis.confidence > 0.8) {
     return {
-      text: "🤖 سام: عذراً، لم يتم تكوين مفتاح الـ AI بشكل صحيح. يرجى التواصل مع المدير.",
-      confidence: 0
+      text: localResponse.text,
+      confidence: localResponse.analysis.confidence,
+      buttons: localResponse.buttons || []
+    };
+  }
+
+  if (!process.env.GOOGLE_GEMINI_API_KEY) {
+    return {
+      text: localResponse.text,
+      confidence: 0.5,
+      buttons: localResponse.buttons
     };
   }
 
@@ -29,7 +45,7 @@ export async function generateAIResponse(message: string, context: any = {}) {
 أنت لست مجرد روبوت، بل شريك ذكي، دافئ، ومتفاعل يفهم السياق والمزاج.
 
 قواعدك الذهبية:
-1. الشخصية: كن ودوداً للغاية، استخدم الرموز التعبيرية (Emojis) بشكل ذكي، ونادِ المستخدم باسمه إذا توفر.
+1. الشخصية: كن ودوداً للغاية، استخدم الرموز التعبيرية (Emojis) بشكل ذكي، ونادِ المستخدم باسمه: ${userName}.
 2. المعرفة الحية: استخدم الإحصائيات الحالية للنظام إذا تم تزويدك بها.
 3. الذكاء السياقي: افهم مزاج المستخدم. إذا كان غاضباً، كن متعاطفاً جداً. إذا كان سعيداً، شاركه الفرحة.
 4. قاعدة المعرفة: استند إلى هذه البيانات الأساسية:
@@ -46,21 +62,24 @@ ${JSON.stringify(context.conversation_history || [], null, 2)}
 - اجعل ردودك تفاعلية، واقترح خطوات قادمة.
 - إذا سألك المستخدم "من أنت؟" أو "ما اسمك؟"، أجب بأنك "سام"، مساعدهم الذكي.
 - استخدم التنسيق الغني (Markdown) لجعل الردود جميلة (جداول، قوائم، خط عريض).
+- إذا كنت غير متأكد، استخدم المعلومات من قاعدة المعرفة المحلية المرفقة أعلاه.
 `;
 
     let result;
     try {
       result = await model.generateContent([systemPrompt, message]);
     } catch (genError: any) {
-      console.error("Primary model failed, trying fallback...", genError.message);
-      const fallbackModel = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
-      result = await fallbackModel.generateContent([systemPrompt, message]);
+      console.error("Gemini model failed, falling back to Sam Engine:", genError.message);
+      return {
+        text: localResponse.text,
+        confidence: 0.6,
+        buttons: localResponse.buttons
+      };
     }
 
     const response = await result.response;
     let text = response.text().trim();
 
-    // Clean up any forced prefixes
     text = text.replace(/^🤖 سام:\s*/, "");
     text = text.replace(/^سام:\s*/, "");
 
@@ -69,10 +88,14 @@ ${JSON.stringify(context.conversation_history || [], null, 2)}
       confidence = 0.4;
     }
 
-    return { text, confidence, buttons: context.buttons || [] };
+    return { text, confidence, buttons: localResponse.buttons.length > 0 ? localResponse.buttons : (context.buttons || []) };
   } catch (error: any) {
-    console.error("Gemini API Error Details:", error.message);
-    throw error;
+    console.error("Gemini API Error, using Sam fallback:", error.message);
+    return {
+      text: localResponse.text,
+      confidence: 0.5,
+      buttons: localResponse.buttons
+    };
   }
 }
 
