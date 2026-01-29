@@ -36,7 +36,6 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { sendMessage, getMessages, clearChatHistory } from "@/lib/actions/chat";
-import AIAssistantService from "@/lib/ai-assistant/config";
 
 interface ChatClientProps {
   initialMessages: any[];
@@ -274,16 +273,28 @@ export function ChatClient({ initialMessages, companyId, senderRole, companyToke
         // AI Response Logic
         if (isAiEnabled && messageType === "text" && senderRole === "client") {
           setTimeout(async () => {
-            const aiResponse = AIAssistantService.generateInteractiveResponse(messageText);
-            if (aiResponse && aiResponse.text) {
-              await sendMessage({
-                company_id: companyId,
-                sender_role: "support",
-                message: aiResponse.text,
-                message_type: "text",
-                ticket_id: ticketId
+            try {
+              const response = await fetch("/api/ai/chat", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ 
+                  message: messageText,
+                  context: messages.slice(-5).map(m => m.message)
+                })
               });
-              // Polling will catch this message
+              const data = await response.json();
+              if (data.success && data.response) {
+                await sendMessage({
+                  company_id: companyId,
+                  sender_role: "support",
+                  message: data.response,
+                  message_type: "text",
+                  ticket_id: ticketId
+                });
+                // Polling will catch this message
+              }
+            } catch (err) {
+              console.error("AI Error:", err);
             }
           }, 1000);
         }
