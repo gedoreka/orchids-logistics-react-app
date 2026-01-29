@@ -549,33 +549,40 @@ export class AIAssistantService {
       for (const response of allResponses) {
         for (const keyword of response.keywords) {
           const normKeyword = this.normalizeText(keyword);
-          if (message === normKeyword || (message.length > 4 && normKeyword.includes(message))) {
+          if (message === normKeyword || (message.length > 3 && normKeyword === message)) {
             return { ...response, confidenceScore: 1.0 };
+          }
+          // التحقق من احتواء الكلمة المفتاحية في الرسالة أو العكس
+          if (message.length > 3 && (message.includes(normKeyword) || normKeyword.includes(message))) {
+            return { ...response, confidenceScore: 0.9 };
           }
         }
       }
 
       // 2. البحث عن تشابه جزئي (Fuzzy Matching)
-      let bestMatch: AIResponse | null = null;
-      let highestScore = 0;
+      let bestMatches: { response: AIResponse, score: number }[] = [];
 
       for (const response of allResponses) {
+        let maxScore = 0;
         for (const keyword of response.keywords) {
           const score = this.calculateSimilarity(userMessage, keyword);
-          if (score > highestScore) {
-            highestScore = score;
-            bestMatch = response;
-          }
+          if (score > maxScore) maxScore = score;
+        }
+        if (maxScore > 0.3) {
+          bestMatches.push({ response, score: maxScore });
         }
       }
 
-      if (bestMatch && highestScore > 0.6) {
-        return { ...bestMatch, confidenceScore: highestScore };
+      bestMatches.sort((a, b) => b.score - a.score);
+
+      if (bestMatches.length > 0 && bestMatches[0].score > 0.7) {
+        return { ...bestMatches[0].response, confidenceScore: bestMatches[0].score };
       }
 
       // 3. البحث في المرادفات والخدمات المرتبطة
       for (const [mainWord, synonyms] of Object.entries(SYNONYM_MAP)) {
-        if (this.calculateSimilarity(userMessage, mainWord) > 0.7) {
+        const simToMain = this.calculateSimilarity(userMessage, mainWord);
+        if (simToMain > 0.7) {
           const relatedService = this.findRelatedService(mainWord);
           if (relatedService) return this.createServiceResponse(relatedService);
         }
@@ -588,34 +595,34 @@ export class AIAssistantService {
         }
       }
 
-      // 4. إذا كان التشابه ضعيفاً، نقوم بجمع أفضل 3 اقتراحات لتقديمها للمستخدم
-      const suggestions = allResponses
-        .map(r => ({ 
-          response: r, 
-          score: Math.max(...r.keywords.map(k => this.calculateSimilarity(userMessage, k))) 
-        }))
-        .filter(s => s.score > 0.3)
-        .sort((a, b) => b.score - a.score)
-        .slice(0, 3);
+      // 4. نظام الاقتراحات "هل تقصد؟"
+      if (bestMatches.length > 0) {
+        const topSuggestions = bestMatches
+          .filter(m => m.response.id !== "unclear-001")
+          .slice(0, 3);
 
-      if (suggestions.length > 0) {
-        const unclearResponse = RESPONSE_LIBRARY.find(r => r.id === "unclear-001")!;
-        const suggestionText = suggestions.map((s, i) => `${i + 1}. ${s.response.keywords[0] || s.response.id}`).join('\n');
-        
-        return {
-          ...unclearResponse,
-          text: `أعتذر، لم أفهم طلبك بدقة، هل تقصد أحد هذه المواضيع؟ 🤔\n\n${suggestionText}\n\nأو يمكنك إخباري بمزيد من التفاصيل لمساعدتك بشكل أفضل.`,
-          relatedServices: suggestions.map(s => s.response.keywords[0] || s.response.id),
-          confidenceScore: 0.4
-        };
+        if (topSuggestions.length > 0) {
+          const unclearResponse = RESPONSE_LIBRARY.find(r => r.id === "unclear-001")!;
+          const suggestionList = topSuggestions
+            .map((s, i) => `${i + 1}. **${s.response.keywords[0] || "موضوع مرتبط"}**`)
+            .join('\n');
+          
+          return {
+            ...unclearResponse,
+            text: `أعتقد أنني لم ألتقط فكرتك بشكل كامل، ولكن دعني أحاول مساعدتك! 🧐 هل تقصد أحد هذه المواضيع؟\n\n${suggestionList}\n\nإذا لم يكن كذلك، يرجى تزويدي بمزيد من التفاصيل لأتمكن من فهمك بشكل أدق.`,
+            category: "error",
+            confidenceScore: 0.4,
+            relatedServices: topSuggestions.map(s => s.response.id)
+          };
+        }
       }
       
       return RESPONSE_LIBRARY.find(r => r.id === "unclear-001")!;
     }
   
-  /**
-   * البحث عن خدمة مرتبطة بكلمة
-   */
+    /**
+     * البحث عن خدمة مرتبطة بكلمة
+     */
   static findRelatedService(keyword: string): ServiceDefinition | null {
     for (const service of SERVICE_DEFINITIONS) {
       if (service.keywords.some(k => k.includes(keyword) || keyword.includes(k))) {
