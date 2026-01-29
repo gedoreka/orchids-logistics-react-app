@@ -20,8 +20,14 @@ const nextConfig: NextConfig = {
   eslint: {
     ignoreDuringBuilds: true,
   },
-    poweredByHeader: false,
-    output: 'standalone',
-  } as NextConfig;
+  experimental: {
+    // Keep it minimal
+  },
+  compiler: {
+    styledComponents: true,
+  },
+  poweredByHeader: false,
+  output: 'standalone',
+} as NextConfig;
 
 export default nextConfig;

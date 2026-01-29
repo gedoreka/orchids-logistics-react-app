@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter, Cairo } from "next/font/google";
+import { Inter } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/sonner";
 import { LocaleProvider } from "@/lib/locale-context";
@@ -8,11 +8,6 @@ import { ThemeProvider } from "@/components/theme-provider";
 const inter = Inter({
   subsets: ["latin"],
   variable: "--font-inter",
-});
-
-const cairo = Cairo({
-  subsets: ["arabic", "latin"],
-  variable: "--font-cairo",
 });
 
 export const metadata: Metadata = {
@@ -35,10 +30,10 @@ export default async function RootLayout({
       dir={dir} 
       suppressHydrationWarning
       style={{ fontFeatureSettings: '"tnum" on, "lnum" on' }}
-      className={`${inter.variable} ${cairo.variable}`}
+      className={`${inter.variable}`}
     >
       <body
-        className="antialiased font-cairo bg-background text-foreground"
+        className="antialiased bg-background text-foreground"
         style={{ fontFeatureSettings: '"tnum" on, "lnum" on' }}
       >
         <ThemeProvider

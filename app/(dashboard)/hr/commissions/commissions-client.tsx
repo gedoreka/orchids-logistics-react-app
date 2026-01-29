@@ -563,31 +563,29 @@ export function CommissionsClient({ packages: initialPackages, companyId }: { pa
                     </div>
                     
                       <div className="space-y-3">
-                        {savedGroups.length > 0 ? savedGroups.map((group, i) => {
-                          return (
-                            <motion.div 
-                              initial={{ opacity: 0, x: -20 }}
-                              animate={{ opacity: 1, x: 0 }}
-                              transition={{ delay: i * 0.1 }}
-                              key={`${group.package_id}-${group.mode}-${group.serial_number}`}
-                              className="p-4 rounded-2xl border border-gray-50 bg-gray-50/50 hover:bg-white hover:border-blue-100 hover:shadow-md transition-all group"
-                            >
-                              <div className="flex justify-between items-start mb-2">
-                                <div className="flex flex-col gap-1">
+                          {savedGroups.length > 0 ? savedGroups.map((group, i) => {
+                            return (
+                              <motion.div 
+                                initial={{ opacity: 0, x: -20 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                transition={{ delay: i * 0.1 }}
+                                key={`${group.package_id}-${group.mode}`}
+                                className="p-4 rounded-2xl border border-gray-50 bg-gray-50/50 hover:bg-white hover:border-blue-100 hover:shadow-md transition-all group"
+                              >
+                                <div className="flex justify-between items-start mb-2">
+                                  <div className="flex flex-col gap-1">
+                                    <div className="flex items-center gap-2">
+                                       <span className="font-black text-sm text-gray-900 group-hover:text-blue-600 transition-colors">
+                                        {(group as any).package_name || "باقة عامة"}
+                                      </span>
+                                    </div>
                                   <div className="flex items-center gap-2">
-                                     <span className="h-5 w-5 rounded-md bg-gray-900 text-white flex items-center justify-center text-[10px] font-black">
-                                      {group.serial_number || i + 1}
-                                     </span>
-                                     <span className="font-black text-sm text-gray-900 group-hover:text-blue-600 transition-colors">
-                                      {(group as any).package_name || "باقة غير معروفة"}
+                                    <span className={cn("px-2 py-0.5 rounded text-[8px] font-black text-white", getModeColor(group.mode))}>
+                                      {getModeLabel(group.mode)}
                                     </span>
                                   </div>
-                                <div className="flex items-center gap-2">
-                                  <span className={cn("px-2 py-0.5 rounded text-[8px] font-black text-white", getModeColor(group.mode))}>
-                                    {getModeLabel(group.mode)}
-                                  </span>
                                 </div>
-                              </div>
+
                               <div className="flex flex-col items-end gap-2">
                                 <div className="flex gap-1">
                                   <button 
