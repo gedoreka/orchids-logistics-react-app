@@ -64,6 +64,7 @@ interface SavedGroup {
   status: "paid" | "unpaid";
   created_at: string;
   serial_number?: number;
+  group_name?: string;
 }
 
 export function CommissionsClient({ packages: initialPackages, companyId }: { packages: any[], companyId: string }) {
@@ -574,9 +575,9 @@ export function CommissionsClient({ packages: initialPackages, companyId }: { pa
                                    <span className="h-5 w-5 rounded-md bg-gray-900 text-white flex items-center justify-center text-[10px] font-black">
                                     {group.serial_number || i + 1}
                                    </span>
-                                   <span className="font-black text-sm text-gray-900 group-hover:text-blue-600 transition-colors">
-                                    {pkg?.group_name || "باقة غير معروفة"}
-                                  </span>
+                                     <span className="font-black text-sm text-gray-900 group-hover:text-blue-600 transition-colors">
+                                      {group.group_name || pkg?.group_name || "باقة غير معروفة"}
+                                    </span>
                                 </div>
                                 <div className="flex items-center gap-2">
                                   <span className={cn("px-2 py-0.5 rounded text-[8px] font-black text-white", getModeColor(group.mode))}>

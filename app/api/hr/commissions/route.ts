@@ -22,20 +22,22 @@ export async function GET(req: NextRequest) {
     // 2. Fetch Saved Commission Groups for the month
     const savedGroups = await query(
       `SELECT 
-        package_id, 
-        mode, 
-        serial_number,
-        MAX(status) as status,
-        MAX(created_at) as created_at,
+        ec.package_id, 
+        ec.mode, 
+        ec.serial_number,
+        MAX(ec.status) as status,
+        MAX(ec.created_at) as created_at,
         COUNT(*) as employee_count,
         SUM(CASE 
-          WHEN mode LIKE 'fixed%' THEN total 
-          ELSE commission 
-        END + bonus - deduction) as total_amount
-      FROM employee_commissions 
-      WHERE company_id = ? AND month = ? 
-      GROUP BY package_id, mode, serial_number 
-      ORDER BY serial_number ASC, created_at DESC`,
+          WHEN ec.mode LIKE 'fixed%' THEN ec.total 
+          ELSE ec.commission 
+        END + ec.bonus - ec.deduction) as total_amount,
+        ep.group_name
+      FROM employee_commissions ec
+      LEFT JOIN employee_packages ep ON ec.package_id = ep.id
+      WHERE ec.company_id = ? AND ec.month = ? 
+      GROUP BY ec.package_id, ec.mode, ec.serial_number, ep.group_name
+      ORDER BY ec.serial_number ASC, ec.created_at DESC`,
       [company_id, month]
     );
 
