@@ -141,14 +141,12 @@ export async function POST(request: NextRequest) {
       await supabase.from("sub_user_permissions").insert(permissionsToInsert);
     }
 
-    // Fetch company name for email
-    const { data: companyData } = await supabase
-      .from("companies")
-      .select("name")
-      .eq("id", session.company_id)
-      .single();
-    
-    const companyName = companyData?.name || "شركتنا";
+    // Fetch company name for email from MySQL
+    const companyResult = await query<{ name: string }>(
+      "SELECT name FROM companies WHERE id = ?",
+      [session.company_id]
+    );
+    const companyName = companyResult[0]?.name || "شركتنا";
 
     // Log the creation activity
     await logSubUserActivity({

@@ -196,39 +196,47 @@ export async function sendWelcomeSubUserEmail(
 ) {
   const subject = `مرحباً بك في ${companyName} - بيانات حسابك في Logistics Systems Pro`;
   
-  // Format permissions for display
-  const permissionTranslations: { [key: string]: string } = {
-    'employees_module': 'إدارة الموظفين',
-    'salary_payrolls_module': 'مسيرات الرواتب',
-    'clients_module': 'إدارة العملاء',
-    'receipts_module': 'سندات المبيعات',
-    'quotations_module': 'عروض الأسعار',
-    'sales_module': 'الفواتير الضريبية',
-    'income_module': 'سندات الدخل',
-    'credit_notes_module': 'إشعارات الدائن',
-    'receipt_vouchers_module': 'سندات القبض',
-    'vehicles_list': 'قائمة المركبات',
-    'expenses_module': 'المصروفات',
-    'journal_entries_module': 'القيود اليومية',
-    'income_report_module': 'تقرير الدخل',
-    'expenses_report_module': 'تقرير المصروفات',
-    'accounts_module': 'دليل الحسابات',
-    'cost_centers_module': 'مراكز التكلفة',
-    'ledger_module': 'الأستاذ العام',
-    'trial_balance_module': 'ميزان المراجعة',
-    'income_statement_module': 'قائمة الدخل',
-    'balance_sheet_module': 'الميزانية العمومية',
-    'tax_settings_module': 'إعدادات الضريبة',
-    'letters_templates_module': 'الخطابات الجاهزة',
-    'sub_users_module': 'إدارة المستخدمين',
-    'monthly_commissions_module': 'العمولات الشهرية',
-    'commissions_summary_module': 'ملخص العمولات',
-    'ecommerce_orders_module': 'طلبات التجارة الإلكترونية',
-    'daily_orders_module': 'طلبات اليوم',
-    'ecommerce_stores_module': 'إدارة المتاجر',
-    'personal_shipments_module': 'الشحنات الشخصية',
-    'manage_shipments_module': 'إدارة الشحنات'
-  };
+    // Format permissions for display
+    const permissionTranslations: { [key: string]: string } = {
+      'employees_module': 'إدارة الموظفين',
+      'salary_payrolls_module': 'مسيرات الرواتب',
+      'clients_module': 'إدارة العملاء',
+      'receipts_module': 'سندات المبيعات',
+      'quotations_module': 'عروض الأسعار',
+      'sales_module': 'الفواتير الضريبية',
+      'sales_invoices_module': 'الفواتير الضريبية',
+      'sales_receipts_module': 'سندات المبيعات',
+      'income_module': 'سندات الدخل',
+      'credit_notes_module': 'إشعارات الدائن',
+      'receipt_vouchers_module': 'سندات القبض',
+      'vehicles_list': 'قائمة المركبات',
+      'fleet_module': 'إدارة الأسطول',
+      'expenses_module': 'المصروفات',
+      'journal_entries_module': 'القيود اليومية',
+      'income_report_module': 'تقرير الدخل',
+      'expenses_report_module': 'تقرير المصروفات',
+      'accounts_module': 'دليل الحسابات',
+      'cost_centers_module': 'مراكز التكلفة',
+      'ledger_module': 'الأستاذ العام',
+      'trial_balance_module': 'ميزان المراجعة',
+      'income_statement_module': 'قائمة الدخل',
+      'balance_sheet_module': 'الميزانية العمومية',
+      'tax_settings_module': 'إعدادات الضريبة',
+      'letters_templates_module': 'الخطابات الجاهزة',
+      'sub_users_module': 'إدارة المستخدمين',
+      'monthly_commissions_module': 'العمولات الشهرية',
+      'commissions_summary_module': 'ملخص العمولات',
+      'ecommerce_orders_module': 'طلبات التجارة الإلكترونية',
+      'daily_orders_module': 'طلبات اليوم',
+      'ecommerce_stores_module': 'إدارة المتاجر',
+      'personal_shipments_module': 'الشحنات الشخصية',
+      'manage_shipments_module': 'إدارة الشحنات',
+      'hr_module': 'إدارة الموارد البشرية',
+      'financial_vouchers_module': 'السندات المالية',
+      'payment_vouchers_module': 'سندات الصرف',
+      'promissory_notes_module': 'السندات لأمر'
+    };
+
 
   const permissionsHtml = permissions.length > 0 
     ? permissions.map(p => `<li style="color: #475569; font-size: 14px; margin-bottom: 5px;">• ${permissionTranslations[p] || p}</li>`).join('')

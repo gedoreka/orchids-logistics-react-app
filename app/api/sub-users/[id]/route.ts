@@ -98,13 +98,12 @@ export async function PUT(
     const body = await request.json();
     const { name, email, password, permissions, status, profile_image } = body;
 
-    // Fetch company name
-    const { data: companyData } = await supabase
-      .from("companies")
-      .select("name")
-      .eq("id", session.company_id)
-      .single();
-    const companyName = companyData?.name || "شركتنا";
+    // Fetch company name from MySQL
+    const companyResult = await query<{ name: string }>(
+      "SELECT name FROM companies WHERE id = ?",
+      [session.company_id]
+    );
+    const companyName = companyResult[0]?.name || "شركتنا";
 
     // Fetch user current data for comparison
     const { data: currentUser } = await supabase
@@ -205,13 +204,12 @@ export async function DELETE(
       return NextResponse.json({ error: "المستخدم غير موجود" }, { status: 404 });
     }
 
-    // Fetch company name
-    const { data: companyData } = await supabase
-      .from("companies")
-      .select("name")
-      .eq("id", session.company_id)
-      .single();
-    const companyName = companyData?.name || "شركتنا";
+    // Fetch company name from MySQL
+    const companyResult = await query<{ name: string }>(
+      "SELECT name FROM companies WHERE id = ?",
+      [session.company_id]
+    );
+    const companyName = companyResult[0]?.name || "شركتنا";
 
     // Delete related data first to avoid foreign key violations
     await supabase.from("sub_user_permissions").delete().eq("sub_user_id", id);
