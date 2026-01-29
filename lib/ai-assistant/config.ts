@@ -2,6 +2,8 @@
  * تكوين شامل لمساعد الذكاء الاصطناعي لـ Logistics Pro
  */
 
+import { KNOWLEDGE_BASE } from "@/ai-assistant/data/knowledge-base";
+
 // ==================== أنواع TypeScript ====================
 export interface AIResponse {
   id: string;
@@ -490,22 +492,32 @@ export const SERVICE_CONNECTIONS: Record<string, string[]> = {
 
 // ==================== وظائف مساعدة ====================
 export class AIAssistantService {
-  /**
-   * البحث عن رد مناسب بناءً على رسالة المستخدم
-   */
-  static findResponse(userMessage: string): AIResponse {
-    const message = userMessage.toLowerCase().trim();
-    
-    // البحث في مكتبة الردود
-    for (const response of RESPONSE_LIBRARY) {
-      for (const keyword of response.keywords) {
-        if (message.includes(keyword.toLowerCase())) {
-          return { ...response, confidenceScore: 0.9 };
+    /**
+     * البحث عن رد مناسب بناءً على رسالة المستخدم
+     */
+    static findResponse(userMessage: string): AIResponse {
+      const message = userMessage.toLowerCase().trim();
+      
+      // 1. البحث في قاعدة المعرفة الشاملة (100 سؤال وجواب) أولاً لضمان الدقة العالية
+      for (const response of KNOWLEDGE_BASE) {
+        for (const keyword of response.keywords) {
+          if (message.includes(keyword.toLowerCase())) {
+            return { ...response, confidenceScore: 1.0 };
+          }
         }
       }
-    }
-    
-    // البحث في المرادفات
+
+      // 2. البحث في مكتبة الردود التفاعلية
+      for (const response of RESPONSE_LIBRARY) {
+        for (const keyword of response.keywords) {
+          if (message.includes(keyword.toLowerCase())) {
+            return { ...response, confidenceScore: 0.9 };
+          }
+        }
+      }
+      
+      // 3. البحث في المرادفات والخدمات المرتبطة
+
     for (const [mainWord, synonyms] of Object.entries(SYNONYM_MAP)) {
       if (message.includes(mainWord.toLowerCase())) {
         const relatedService = this.findRelatedService(mainWord);
