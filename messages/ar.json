@@ -2685,10 +2685,12 @@
     "noLiabilities": "لا توجد خصوم",
     "balancedDesc": "الميزانية متوازنة تماماً"
   },
-  "subUsers": {
-    "title": "المستخدمين الفرعيين",
-    "subtitle": "إدارة صلاحيات الموظفين",
-    "addNewUser": "إضافة مستخدم جديد",
+    "subUsers": {
+      "title": "المستخدمين الفرعيين",
+      "subtitle": "إدارة صلاحيات الموظفين",
+      "noUsers": "لا يوجد مستخدمين فرعيين حالياً",
+      "startAdding": "ابدأ بإضافة أول مستخدم لمؤسستك لتوزيع الصلاحيات والمهام.",
+      "addNewUser": "إضافة مستخدم جديد",
     "editUser": "تعديل المستخدم",
     "lastLogin": "آخر تسجيل دخول",
     "searchPlaceholder": "بحث...",
@@ -2707,16 +2709,17 @@
     "availablePermissions": "الصلاحيات المتاحة",
     "selectAll": "تحديد الكل",
     "deselectAll": "إلغاء الكل",
-    "categories": {
-      "hr": "الموارد البشرية",
-      "sales": "المبيعات",
-      "financial": "المالية",
-      "fleet": "الأسطول",
-      "accounting": "المحاسبة",
-      "accounts": "الحسابات",
-      "others": "أخرى",
-      "admin": "الإدارة"
-    },
+      "categories": {
+        "hr": "الموارد البشرية",
+        "sales": "المبيعات",
+        "financial": "المالية",
+        "fleet": "الأسطول",
+        "accounting": "المحاسبة",
+        "accounts": "الحسابات",
+        "commissions": "العمولات",
+        "others": "أخرى",
+        "admin": "الإدارة"
+      },
     "permissionsList": {
       "employees_module": "وحدة الموظفين",
       "salary_payrolls_module": "مسيرات الرواتب",

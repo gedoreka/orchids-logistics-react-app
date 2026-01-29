@@ -15,14 +15,16 @@ export async function sendEmail({
   subject,
   text,
   html,
+  fromName,
 }: {
   to: string;
   subject: string;
   text?: string;
   html?: string;
+  fromName?: string;
 }) {
   const mailOptions = {
-    from: `"${process.env.SMTP_FROM_NAME}" <${process.env.SMTP_FROM}>`,
+    from: `"${fromName || process.env.SMTP_FROM_NAME}" <${process.env.SMTP_FROM}>`,
     to,
     subject,
     text,
@@ -120,7 +122,7 @@ export async function sendLoginNotification(email: string, name: string, company
   `;
 
   try {
-    return await sendEmail({ to: email, subject, html });
+    return await sendEmail({ to: email, subject, html, fromName: companyName });
   } catch (error) {
     console.error("Failed to send login notification email:", error);
   }
@@ -254,7 +256,7 @@ export async function sendWelcomeSubUserEmail(
             </div>
 
             <div style="text-align: center; margin: 40px 0;">
-              <a href="https://accounts.zoolspeed.com/login" style="display: inline-block; background: linear-gradient(135deg, #1e293b 0%, #334155 100%); color: #ffffff; text-decoration: none; padding: 20px 45px; border-radius: 20px; font-size: 18px; font-weight: 800; box-shadow: 0 15px 30px rgba(30,41,59,0.2); transition: all 0.3s ease;">
+              <a href="https://accounts.zoolspeed.com/login" style="display: inline-block; background: linear-gradient(135deg, #1e293b 0%, #334155 100%); color: #ffffff; text-decoration: none; padding: 20px 45px; border-radius: 20px; font-size: 18px; font-weight: 800; box-shadow: 0 15px 30px rgba(30,41,59,0.2); transition: all 0.3s elegance;">
                 <span style="vertical-align: middle; margin-left: 10px;">🚀</span> سجل الدخول الآن
               </a>
               <p style="color: #94a3b8; font-size: 12px; margin-top: 15px;">أو انسخ الرابط: https://accounts.zoolspeed.com/login</p>
@@ -279,7 +281,7 @@ export async function sendWelcomeSubUserEmail(
   `;
 
   try {
-    return await sendEmail({ to: email, subject, html });
+    return await sendEmail({ to: email, subject, html, fromName: companyName });
   } catch (error) {
     console.error("Failed to send welcome sub-user email:", error);
   }
@@ -359,7 +361,7 @@ export async function sendSubUserStatusEmail(
   `;
 
   try {
-    return await sendEmail({ to: email, subject, html });
+    return await sendEmail({ to: email, subject, html, fromName: companyName });
   } catch (error) {
     console.error("Failed to send status update email:", error);
   }
@@ -418,7 +420,7 @@ export async function sendSubUserDeletionEmail(email: string, name: string, comp
   `;
 
   try {
-    return await sendEmail({ to: email, subject, html });
+    return await sendEmail({ to: email, subject, html, fromName: companyName });
   } catch (error) {
     console.error("Failed to send deletion email:", error);
   }

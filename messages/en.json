@@ -2685,10 +2685,12 @@
     "noLiabilities": "No Liabilities",
     "balancedDesc": "Balance sheet is perfectly balanced"
   },
-  "subUsers": {
-    "title": "Sub-users",
-    "subtitle": "Manage employee permissions",
-    "addNewUser": "Add New User",
+    "subUsers": {
+      "title": "Sub-users",
+      "subtitle": "Manage employee permissions",
+      "noUsers": "No sub-users available currently",
+      "startAdding": "Start by adding the first sub-user to your organization to distribute permissions and tasks.",
+      "addNewUser": "Add New User",
     "editUser": "Edit User",
     "lastLogin": "Last Login",
     "searchPlaceholder": "Search...",
@@ -2707,16 +2709,17 @@
     "availablePermissions": "Available Permissions",
     "selectAll": "Select All",
     "deselectAll": "Deselect All",
-    "categories": {
-      "hr": "Human Resources",
-      "sales": "Sales",
-      "financial": "Financial",
-      "fleet": "Fleet",
-      "accounting": "Accounting",
-      "accounts": "Accounts",
-      "others": "Others",
-      "admin": "Administration"
-    },
+      "categories": {
+        "hr": "Human Resources",
+        "sales": "Sales",
+        "financial": "Financial",
+        "fleet": "Fleet",
+        "accounting": "Accounting",
+        "accounts": "Accounts",
+        "commissions": "Commissions",
+        "others": "Others",
+        "admin": "Administration"
+      },
     "permissionsList": {
       "employees_module": "Employees Module",
       "salary_payrolls_module": "Salary Payrolls",
