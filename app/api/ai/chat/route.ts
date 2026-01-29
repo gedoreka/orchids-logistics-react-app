@@ -13,7 +13,7 @@ export async function POST(request: NextRequest) {
     }
     
     // توليد الرد باستخدام نظام الذكاء الاصطناعي
-    const response = AIAssistantService.generateInteractiveResponse(message, context);
+    const response = await AIAssistantService.generateInteractiveResponse(message, context);
     
     return NextResponse.json({
       success: true,
