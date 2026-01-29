@@ -44,12 +44,15 @@ async function withRetry<T>(operation: () => Promise<T>, retries = 3): Promise<T
         console.error('='.repeat(50) + '\n');
       }
 
-      console.error(`DB Operation failed (attempt ${i + 1}/${retries}):`, {
-        code: error.code,
-        message: error.message,
-        host: process.env.DB_HOST,
-        user: process.env.DB_USER
-      });
+        console.error(`DB Operation failed (attempt ${i + 1}/${retries}):`, {
+          code: error.code,
+          message: error.message,
+          errno: error.errno,
+          sqlState: error.sqlState,
+          sqlMessage: error.sqlMessage,
+          host: process.env.DB_HOST,
+          user: process.env.DB_USER
+        });
 
       
       if (isNetworkError && i < retries - 1) {

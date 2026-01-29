@@ -154,37 +154,42 @@ export function CommissionsClient({ packages: initialPackages, companyId }: { pa
     }
   }
 
-  const handleCommChange = async (index: number, field: keyof CommissionEmployee, value: any) => {
-    const updated = [...commissions];
-    const item = { ...updated[index], [field]: value };
+    const handleCommChange = async (index: number, field: keyof CommissionEmployee, value: any) => {
+      const updated = [...commissions];
+      const item = { ...updated[index], [field]: value };
 
-    if (field === "daily_amount" || field === "days") {
-      item.total = Number(item.daily_amount || 0) * Number(item.days || 0);
-    } else if (field === "percentage" || field === "revenue") {
-      item.commission = (Number(item.revenue || 0) * Number(item.percentage || 0)) / 100;
-    }
-
-    updated[index] = item;
-    setCommissions(updated);
-
-    // If status changed and item has an ID (already saved in DB), save immediately
-    if (field === "status" && item.id) {
-      try {
-        await fetch("/api/hr/commissions", {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            employee_commission_id: item.id,
-            status: value
-          })
-        });
-        toast.success(t("notifications.success"));
-        fetchSavedGroups();
-      } catch (error) {
-        toast.error(t("notifications.error"));
+      if (field === "daily_amount" || field === "days") {
+        item.total = Number(item.daily_amount || 0) * Number(item.days || 0);
+      } else if (field === "percentage" || field === "revenue") {
+        item.commission = (Number(item.revenue || 0) * Number(item.percentage || 0)) / 100;
       }
-    }
-  };
+
+      updated[index] = item;
+      setCommissions(updated);
+
+      // If status changed and item has an ID (already saved in DB), save immediately
+      const dbId = (item as any).id;
+      if (field === "status" && dbId) {
+        try {
+          const res = await fetch("/api/hr/commissions", {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              employee_commission_id: dbId,
+              status: value
+            })
+          });
+          if (res.ok) {
+            toast.success(t("notifications.success"));
+            fetchSavedGroups();
+          } else {
+            toast.error(t("notifications.error"));
+          }
+        } catch (error) {
+          toast.error(t("notifications.error"));
+        }
+      }
+    };
 
   const saveCommissions = async () => {
     const selectedData = commissions.filter(c => c.selected);
@@ -557,27 +562,26 @@ export function CommissionsClient({ packages: initialPackages, companyId }: { pa
                       <h2 className="font-black text-lg">{t("savedGroups")}</h2>
                     </div>
                     
-                    <div className="space-y-3">
-                      {savedGroups.length > 0 ? savedGroups.map((group, i) => {
-                        const pkg = packages.find(p => p.id === group.package_id);
-                        return (
-                          <motion.div 
-                            initial={{ opacity: 0, x: -20 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            transition={{ delay: i * 0.1 }}
-                            key={`${group.package_id}-${group.mode}-${group.serial_number}`}
-                            className="p-4 rounded-2xl border border-gray-50 bg-gray-50/50 hover:bg-white hover:border-blue-100 hover:shadow-md transition-all group"
-                          >
-                            <div className="flex justify-between items-start mb-2">
-                              <div className="flex flex-col gap-1">
-                                <div className="flex items-center gap-2">
-                                   <span className="h-5 w-5 rounded-md bg-gray-900 text-white flex items-center justify-center text-[10px] font-black">
-                                    {group.serial_number || i + 1}
-                                   </span>
-                                   <span className="font-black text-sm text-gray-900 group-hover:text-blue-600 transition-colors">
-                                    {pkg?.group_name || "باقة غير معروفة"}
-                                  </span>
-                                </div>
+                      <div className="space-y-3">
+                        {savedGroups.length > 0 ? savedGroups.map((group, i) => {
+                          return (
+                            <motion.div 
+                              initial={{ opacity: 0, x: -20 }}
+                              animate={{ opacity: 1, x: 0 }}
+                              transition={{ delay: i * 0.1 }}
+                              key={`${group.package_id}-${group.mode}-${group.serial_number}`}
+                              className="p-4 rounded-2xl border border-gray-50 bg-gray-50/50 hover:bg-white hover:border-blue-100 hover:shadow-md transition-all group"
+                            >
+                              <div className="flex justify-between items-start mb-2">
+                                <div className="flex flex-col gap-1">
+                                  <div className="flex items-center gap-2">
+                                     <span className="h-5 w-5 rounded-md bg-gray-900 text-white flex items-center justify-center text-[10px] font-black">
+                                      {group.serial_number || i + 1}
+                                     </span>
+                                     <span className="font-black text-sm text-gray-900 group-hover:text-blue-600 transition-colors">
+                                      {(group as any).package_name || "باقة غير معروفة"}
+                                    </span>
+                                  </div>
                                 <div className="flex items-center gap-2">
                                   <span className={cn("px-2 py-0.5 rounded text-[8px] font-black text-white", getModeColor(group.mode))}>
                                     {getModeLabel(group.mode)}

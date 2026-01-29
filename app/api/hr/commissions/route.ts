@@ -12,32 +12,34 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: "Missing company_id" }, { status: 400 });
   }
 
-  try {
-    // 1. Fetch Packages
-    const packages = await query(
-      "SELECT id, group_name, work_type FROM employee_packages WHERE company_id = ? AND work_type IN ('commission', 'target')",
-      [company_id]
-    );
+    try {
+      // 1. Fetch Packages
+      const packages = await query(
+        "SELECT id, group_name, work_type FROM employee_packages WHERE company_id = ? AND LOWER(work_type) IN ('commission', 'target')",
+        [company_id]
+      );
 
-    // 2. Fetch Saved Commission Groups for the month
-    const savedGroups = await query(
-      `SELECT 
-        package_id, 
-        mode, 
-        serial_number,
-        MAX(status) as status,
-        MAX(created_at) as created_at,
-        COUNT(*) as employee_count,
-        SUM(CASE 
-          WHEN mode LIKE 'fixed%' THEN total 
-          ELSE commission 
-        END + bonus - deduction) as total_amount
-      FROM employee_commissions 
-      WHERE company_id = ? AND month = ? 
-      GROUP BY package_id, mode, serial_number 
-      ORDER BY serial_number ASC, created_at DESC`,
-      [company_id, month]
-    );
+      // 2. Fetch Saved Commission Groups for the month
+      const savedGroups = await query(
+        `SELECT 
+          ec.package_id, 
+          ec.mode, 
+          ec.serial_number,
+          ep.group_name as package_name,
+          MAX(ec.status) as status,
+          MAX(ec.created_at) as created_at,
+          COUNT(*) as employee_count,
+          SUM(CASE 
+            WHEN ec.mode LIKE 'fixed%' THEN ec.total 
+            ELSE ec.commission 
+          END + ec.bonus - ec.deduction) as total_amount
+        FROM employee_commissions ec
+        LEFT JOIN employee_packages ep ON ec.package_id = ep.id
+        WHERE ec.company_id = ? AND ec.month = ? 
+        GROUP BY ec.package_id, ec.mode, ec.serial_number 
+        ORDER BY ec.serial_number ASC, ec.created_at DESC`,
+        [company_id, month]
+      );
 
     // 3. Fetch Employees for a specific package if provided
     let employees: any[] = [];
