@@ -80,9 +80,31 @@ export function ChatClient({ initialMessages, companyId, senderRole, companyToke
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, []);
 
+  // التحكم في التمرير الذكي - يسمح للمستخدم بالتوقف في أي مكان
   useEffect(() => {
-    scrollToBottom();
-  }, [messages, scrollToBottom]);
+    const container = containerRef.current;
+    if (!container) return;
+
+    const { scrollTop, scrollHeight, clientHeight } = container;
+    
+    // نحدد ما إذا كان المستخدم قريباً من القاع (بمنطقة 150 بكسل)
+    const isNearBottom = scrollHeight - scrollTop - clientHeight < 150;
+    
+    // الرسالة الأخيرة
+    const lastMessage = messages[messages.length - 1];
+    // هل الرسالة مرسلة من قبل المستخدم الحالي؟
+    const sentByMe = lastMessage?.sender_role === senderRole;
+    // هل هذه أول عملية تحميل للرسائل؟
+    const isInitialLoad = messages.length === initialMessages.length;
+
+    // نقوم بالتمرير تلقائياً فقط في هذه الحالات:
+    // 1. عند التحميل الأول
+    // 2. إذا كان المستخدم أصلاً في القاع
+    // 3. إذا كان المستخدم هو من أرسل الرسالة الأخيرة
+    if (isInitialLoad || isNearBottom || sentByMe) {
+      scrollToBottom();
+    }
+  }, [messages, scrollToBottom, senderRole, initialMessages.length]);
 
   useEffect(() => {
     const container = containerRef.current;
