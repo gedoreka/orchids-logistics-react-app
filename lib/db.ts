@@ -7,13 +7,13 @@ const pool = mysql.createPool({
   database: process.env.DB_NAME,
   port: parseInt(process.env.DB_PORT || '3306'),
   waitForConnections: true,
-  connectionLimit: 20,
+  connectionLimit: 10,
   queueLimit: 0,
   enableKeepAlive: true,
   keepAliveInitialDelay: 10000,
-  idleTimeout: 30000,
-  maxIdle: 15,
-  connectTimeout: 20000, // 20 seconds timeout
+  idleTimeout: 60000,
+  maxIdle: 10,
+  connectTimeout: 10000, // 10 seconds timeout
 });
 
 pool.on('error', (err) => {
@@ -44,16 +44,12 @@ async function withRetry<T>(operation: () => Promise<T>, retries = 3): Promise<T
         console.error('='.repeat(50) + '\n');
       }
 
-        console.error(`DB Operation failed (attempt ${i + 1}/${retries}):`, {
-          code: error.code,
-          message: error.message,
-          errno: error.errno,
-          sqlState: error.sqlState,
-          sqlMessage: error.sqlMessage,
-          host: process.env.DB_HOST,
-          user: process.env.DB_USER,
-          stack: error.stack
-        });
+      console.error(`DB Operation failed (attempt ${i + 1}/${retries}):`, {
+        code: error.code,
+        message: error.message,
+        host: process.env.DB_HOST,
+        user: process.env.DB_USER
+      });
 
       
       if (isNetworkError && i < retries - 1) {

@@ -1,5 +1,9 @@
-/** @type {import('next').NextConfig} */
-const nextConfig = {
+import type { NextConfig } from "next";
+import path from "node:path";
+
+const loaderPath = require.resolve('orchids-visual-edits/loader.js');
+
+const nextConfig: NextConfig = {
   images: {
     remotePatterns: [
       {
@@ -18,10 +22,8 @@ const nextConfig = {
   eslint: {
     ignoreDuringBuilds: true,
   },
-  compiler: {
-    styledComponents: true,
-  },
-  poweredByHeader: false,
-};
+    poweredByHeader: false,
+    output: 'standalone',
+  } as NextConfig;
 
-module.exports = nextConfig;
+export default nextConfig;

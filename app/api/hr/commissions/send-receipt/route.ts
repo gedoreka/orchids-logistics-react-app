@@ -64,115 +64,128 @@ export async function POST(req: NextRequest) {
 
     const htmlContent = `
       <!DOCTYPE html>
-      <html dir="rtl">
+      <html>
       <head>
         <meta charset="utf-8">
         <style>
-          body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #1e293b; margin: 0; padding: 0; background-color: #f1f5f9; }
-          .wrapper { padding: 40px 20px; }
-          .container { max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 24px; overflow: hidden; box-shadow: 0 20px 50px rgba(0,0,0,0.1); border: 1px solid #e2e8f0; }
-          .header { background: ${isPaid ? 'linear-gradient(135deg, #059669 0%, #10b981 100%)' : 'linear-gradient(135deg, #dc2626 0%, #ef4444 100%)'}; padding: 50px 40px; text-align: center; color: #ffffff; position: relative; }
-          .header h1 { margin: 0; font-size: 28px; font-weight: 900; letter-spacing: -0.5px; }
-          .header p { margin: 10px 0 0; opacity: 0.9; font-size: 15px; font-weight: 600; }
-          .status-badge { display: inline-block; padding: 6px 16px; background: rgba(255,255,255,0.2); border-radius: 100px; font-size: 12px; font-weight: 800; text-transform: uppercase; margin-top: 20px; border: 1px solid rgba(255,255,255,0.3); }
+          body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #334155; margin: 0; padding: 0; }
+          .container { max-width: 650px; margin: 20px auto; border: 1px solid #e2e8f0; border-radius: 20px; overflow: hidden; background-color: #ffffff; box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
+          .header { background-color: ${isPaid ? '#059669' : '#e11d48'}; padding: 40px 30px; text-align: center; color: #ffffff; }
+          .header h2 { margin: 0; font-size: 26px; font-weight: 900; }
+          .header p { margin: 10px 0 0; opacity: 0.9; font-size: 14px; }
           .content { padding: 40px; }
-          .welcome-text { text-align: center; margin-bottom: 40px; }
-          .welcome-text h2 { margin: 0; font-size: 24px; font-weight: 900; color: #0f172a; }
-          .welcome-text p { margin: 10px 0 0; color: #64748b; font-size: 15px; }
-          .details-card { background-color: #f8fafc; border-radius: 20px; padding: 30px; border: 1px solid #f1f5f9; margin-bottom: 30px; }
-          .detail-row { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px dashed #e2e8f0; }
-          .detail-row:last-child { border-bottom: none; }
-          .label { color: #64748b; font-size: 13px; font-weight: 700; }
-          .value { color: #0f172a; font-size: 14px; font-weight: 800; }
-          .amount-section { text-align: center; padding: 30px; background: ${isPaid ? '#f0fdf4' : '#fff1f2'}; border-radius: 20px; margin-bottom: 30px; border: 2px solid ${isPaid ? '#dcfce7' : '#fee2e2'}; }
-          .amount-label { font-size: 12px; font-weight: 800; color: ${isPaid ? '#166534' : '#991b1b'}; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 5px; display: block; }
-          .amount-value { font-size: 36px; font-weight: 950; color: ${isPaid ? '#059669' : '#dc2626'}; }
-          .amount-currency { font-size: 16px; font-weight: 700; margin-right: 5px; opacity: 0.7; }
-          .action-box { text-align: center; padding: 25px; border-radius: 20px; background-color: #0f172a; color: #ffffff; margin-bottom: 30px; }
-          .action-box p { margin: 0; font-size: 14px; font-weight: 600; line-height: 1.6; }
-          .footer { text-align: center; padding: 40px; border-top: 1px solid #f1f5f9; background-color: #f8fafc; }
-          .footer p { margin: 0; color: #94a3b8; font-size: 12px; font-weight: 600; }
-          .footer .company-name { color: #475569; font-size: 14px; font-weight: 800; margin-bottom: 5px; display: block; }
-          .bilingual { display: flex; flex-direction: column; gap: 5px; }
-          .ar { font-weight: 800; }
-          .en { font-size: 12px; opacity: 0.8; font-weight: 600; }
+          .section-title { color: #94a3b8; font-size: 11px; font-weight: 900; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 10px; }
+          .employee-info { margin-bottom: 30px; border-bottom: 2px solid #f8fafc; padding-bottom: 20px; }
+          .employee-name { margin: 0; color: #0f172a; font-size: 22px; font-weight: 900; }
+          .employee-meta { color: #64748b; font-size: 13px; font-weight: 600; margin-top: 5px; }
+          .notice-box { padding: 20px; margin-bottom: 30px; border-radius: 12px; font-weight: 600; border-right: 4px solid ${isPaid ? '#059669' : '#e11d48'}; background-color: ${isPaid ? '#f0fdf4' : '#fff1f2'}; }
+          .details-table { width: 100%; border-collapse: collapse; margin-bottom: 30px; background-color: #f8fafc; border-radius: 16px; border: 1px solid #f1f5f9; }
+          .details-table td { padding: 15px 20px; font-size: 14px; }
+          .label { color: #64748b; font-weight: 600; }
+          .value { font-weight: 800; color: #0f172a; text-align: right; }
+          .total-row { border-top: 2px solid #e2e8f0; }
+          .total-label { color: #0f172a; font-size: 18px; font-weight: 900; }
+          .total-value { font-size: 26px; font-weight: 950; color: ${isPaid ? '#059669' : '#e11d48'}; text-align: right; }
+          .footer { border-top: 1px solid #f1f5f9; padding: 30px; text-align: center; color: #94a3b8; font-size: 13px; }
+          .app-footer { background-color: #f8fafc; padding: 20px; text-align: center; color: #94a3b8; font-size: 11px; font-weight: 600; border-top: 1px solid #f1f5f9; }
+          .bilingual { display: flex; justify-content: space-between; gap: 20px; }
+          .rtl { direction: rtl; text-align: right; }
+          .ltr { direction: ltr; text-align: left; }
         </style>
       </head>
       <body>
-        <div class="wrapper">
-          <div class="container">
-            <div class="header">
-              <div class="bilingual">
-                <div class="ar"><h1>${isPaid ? 'سند صرف عمولة' : 'إشعار استحقاق مالي'}</h1></div>
-                <div class="en">${isPaid ? 'Commission Disbursement Receipt' : 'Financial Due Notification'}</div>
+        <div class="container">
+          <div class="header">
+            <div class="bilingual">
+              <div class="rtl">
+                <h2>${isPaid ? 'سند صرف عمولة' : 'إشعار استحقاق مالي'}</h2>
               </div>
-              <p>${company.name}</p>
-              <div class="status-badge">${isPaid ? 'مدفوع / PAID' : 'مستحق / UNPAID'}</div>
+              <div class="ltr">
+                <h2>${isPaid ? 'Commission Payment Receipt' : 'Payment Reminder Notice'}</h2>
+              </div>
             </div>
-            
-            <div class="content">
-              <div class="welcome-text">
-                <div class="bilingual">
-                  <div class="ar"><h2>عزيزي، ${comm.employee_name}</h2></div>
-                  <div class="en">Dear, ${comm.employee_name}</div>
+            <p>${company.name}</p>
+          </div>
+          
+          <div class="content">
+            <div class="employee-info">
+              <div class="bilingual">
+                <div class="rtl">
+                  <p class="section-title">بيانات الموظف</p>
+                  <h3 class="employee-name">${comm.employee_name}</h3>
+                  <div class="employee-meta">كود: ${comm.user_code} | هوية: ${comm.iqama_number}</div>
+                </div>
+                <div class="ltr">
+                  <p class="section-title">Employee Details</p>
+                  <h3 class="employee-name">${comm.employee_name}</h3>
+                  <div class="employee-meta">Code: ${comm.user_code} | ID: ${comm.iqama_number}</div>
                 </div>
               </div>
+            </div>
 
-              <div class="amount-section">
-                <span class="amount-label">
-                  <div class="bilingual">
-                    <div class="ar">الصافي المستحق</div>
-                    <div class="en">Net Payable Amount</div>
-                  </div>
-                </span>
-                <div class="amount-value">
-                  <span class="amount-currency">SAR</span>${netAmount.toLocaleString()}
-                </div>
-              </div>
-
-              <div class="details-card">
-                <div class="detail-row">
-                  <span class="label">الفترة / Month</span>
-                  <span class="value">${comm.month}</span>
-                </div>
-                <div class="detail-row">
-                  <span class="label">كود الموظف / ID</span>
-                  <span class="value">${comm.user_code}</span>
-                </div>
-                <div class="detail-row">
-                  <span class="label">نوع العمولة / Type</span>
-                  <span class="value">${comm.mode === 'fixed_daily' ? 'يومي ثابت / Daily' : comm.mode === 'fixed_monthly' ? 'شهري ثابت / Monthly' : 'نسبة مئوية / Percentage'}</span>
-                </div>
-                <div class="detail-row">
-                  <span class="label">الإضافات / Bonus</span>
-                  <span class="value" style="color: #059669;">+ ${Number(comm.bonus).toLocaleString()}</span>
-                </div>
-                <div class="detail-row">
-                  <span class="label">الخصومات / Deductions</span>
-                  <span class="value" style="color: #dc2626;">- ${Number(comm.deduction).toLocaleString()}</span>
-                </div>
-              </div>
-
-              <div class="action-box">
-                <div class="bilingual">
+            <div class="notice-box">
+              <div class="bilingual">
+                <div class="rtl">
                   ${isPaid ? `
-                    <div class="ar"><p>تم تحويل مستحقاتك المالية بنجاح. شكراً لجهودك المتميزة.</p></div>
-                    <div class="en"><p>Your payment has been successfully processed. Thank you for your hard work.</p></div>
+                    تم إيداع مستحقاتكم المالية بنجاح لعمولات شهر <b>${comm.month}</b>. نسعد بجهودكم المستمرة.
                   ` : `
-                    <div class="ar"><p>نحيطكم علماً بوجود مستحقات مالية معلقة. يرجى مراجعة الإدارة المالية لاتمام الصرف.</p></div>
-                    <div class="en"><p>This is a notice for an outstanding payment. Please contact finance to finalize the disbursement.</p></div>
+                    نود إحاطتكم بوجود مستحقات مالية معلقة لشهر <b>${comm.month}</b>. نرجو مراجعة الإدارة المالية.
+                  `}
+                </div>
+                <div class="ltr">
+                  ${isPaid ? `
+                    Your commission for <b>${comm.month}</b> has been successfully paid. We appreciate your hard work.
+                  ` : `
+                    You have an outstanding payment for <b>${comm.month}</b>. Please contact the finance department.
                   `}
                 </div>
               </div>
             </div>
-            
+
+            <table class="details-table">
+              <tr>
+                <td class="label rtl">الفترة الزمنية / Period:</td>
+                <td class="value">${comm.month}</td>
+              </tr>
+              <tr>
+                <td class="label rtl">نظام الاحتساب / Mode:</td>
+                <td class="value">${comm.mode === 'fixed_daily' ? 'Daily Fixed' : comm.mode === 'fixed_monthly' ? 'Monthly Fixed' : 'Percentage %'}</td>
+              </tr>
+              <tr>
+                <td class="label rtl">العمولة الأساسية / Base Commission:</td>
+                <td class="value">${(comm.mode.startsWith("fixed") ? Number(comm.total) : Number(comm.commission)).toLocaleString()} SAR</td>
+              </tr>
+              <tr>
+                <td class="label rtl">إضافات / Bonuses (+):</td>
+                <td class="value" style="color: #059669;">${Number(comm.bonus).toLocaleString()} SAR</td>
+              </tr>
+              <tr>
+                <td class="label rtl">خصومات / Deductions (-):</td>
+                <td class="value" style="color: #e11d48;">${Number(comm.deduction).toLocaleString()} SAR</td>
+              </tr>
+              <tr class="total-row">
+                <td class="total-label rtl">الصافي المستحق / Net Total:</td>
+                <td class="total-value">${netAmount.toLocaleString()} SAR</td>
+              </tr>
+            </table>
+
             <div class="footer">
-              <span class="company-name">${company.name}</span>
               <div class="bilingual">
-                <div class="ar"><p>هذا المستند صادر آلياً من نظام إدارة اللوجستيات</p></div>
-                <div class="en"><p>This is an automated document from Logistics Management System</p></div>
+                <div class="rtl">
+                  <p>هذا الإشعار رسمي صادر عن ${company.name}</p>
+                  ${company.phone ? `<p style="font-weight: 700; margin-top: 5px;">للاستفسار: ${company.phone}</p>` : ''}
+                </div>
+                <div class="ltr">
+                  <p>Official notice from ${company.name}</p>
+                  ${company.phone ? `<p style="font-weight: 700; margin-top: 5px;">Contact: ${company.phone}</p>` : ''}
+                </div>
               </div>
             </div>
+          </div>
+          
+          <div class="app-footer">
+            Bilingual Document Issued via <b>Logistics Systems Pro</b><br/>
+            All Rights Reserved © 2026
           </div>
         </div>
       </body>
