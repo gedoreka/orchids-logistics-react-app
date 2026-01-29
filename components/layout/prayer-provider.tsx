@@ -38,10 +38,10 @@ const IQAMA_OFFSETS: Record<string, number> = {
 };
 
 export function PrayerProvider({ children }: { children: React.ReactNode }) {
-  const [times, setTimes] = useState<PrayerTimesData | null>(null);
+  const [times, setTimes] = useState<PrayerTimesData | null>(getPrayerTimesLocal(24.7136, 46.6753));
   const [currentTime, setCurrentTime] = useState(new Date());
   const [locationName, setLocationName] = useState('الرياض، السعودية');
-  const [coords, setCoords] = useState<{ lat: number; lng: number } | null>(null);
+  const [coords, setCoords] = useState<{ lat: number; lng: number }>({ lat: 24.7136, lng: 46.6753 });
   const [alert, setAlert] = useState<{ type: 'adhan' | 'iqama'; prayer: string } | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 

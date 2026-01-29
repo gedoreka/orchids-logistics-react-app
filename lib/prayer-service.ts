@@ -53,18 +53,22 @@ export function isFriday(date: Date = new Date()): boolean {
   return date.getDay() === 5;
 }
 
-export function getIslamicEvent(date: Date = new Date()): string | null {
-  const hijri = new Intl.DateTimeFormat('en-u-ca-islamic-nu-latn', {
-    day: 'numeric',
-    month: 'numeric'
-  }).format(date);
-  
-  const [day, month] = hijri.split('/').map(Number);
-  
-  // Basic Eid detection (1st Shawwal, 10th Dhu al-Hijjah)
-  // Month 10 = Shawwal, Month 12 = Dhu al-Hijjah
-  if (month === 10 && day === 1) return "Eid al-Fitr";
-  if (month === 12 && day === 10) return "Eid al-Adha";
-  
-  return null;
+export function getIslamicEvent(date: Date = new Date(), locale: 'ar' | 'en' = 'ar'): string | null {
+  try {
+    // Use a reliable way to get hijri day/month
+    const formatter = new Intl.DateTimeFormat('en-u-ca-islamic-nu-latn', { day: 'numeric', month: 'numeric' });
+    const formattedParts = formatter.formatToParts(date);
+    const hDay = parseInt(formattedParts.find(p => p.type === 'day')?.value || '0');
+    const hMonth = parseInt(formattedParts.find(p => p.type === 'month')?.value || '0');
+
+    if (hMonth === 10 && hDay === 1) return locale === 'ar' ? "عيد الفطر المبارك" : "Eid al-Fitr";
+    if (hMonth === 12 && hDay === 10) return locale === 'ar' ? "عيد الأضحى المبارك" : "Eid al-Adha";
+    if (hMonth === 12 && hDay === 9) return locale === 'ar' ? "يوم عرفة" : "Day of Arafah";
+    if (hMonth === 9 && hDay === 1) return locale === 'ar' ? "بداية شهر رمضان" : "Ramadan Start";
+    if (hMonth === 1 && hDay === 1) return locale === 'ar' ? "رأس السنة الهجرية" : "Islamic New Year";
+    
+    return null;
+  } catch (e) {
+    return null;
+  }
 }

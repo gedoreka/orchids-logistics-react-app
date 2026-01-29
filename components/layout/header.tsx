@@ -990,7 +990,7 @@ export function Header({ user, onToggleSidebar, unreadChatCount = 0, subscriptio
 
         {/* Prayer Times Modal */}
         <AnimatePresence>
-          {showPrayerModal && prayerTimesData && (
+          {showPrayerModal && (
             <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
               <motion.div 
                 initial={{ opacity: 0 }}
@@ -1005,125 +1005,134 @@ export function Header({ user, onToggleSidebar, unreadChatCount = 0, subscriptio
                 exit={{ scale: 0.9, opacity: 0, y: 20 }}
                 className="relative w-full max-w-sm bg-gradient-to-b from-slate-900 to-slate-950 rounded-[2.5rem] shadow-2xl overflow-hidden border border-emerald-500/20"
               >
-                <button 
-                  onClick={() => setShowPrayerModal(false)}
-                  className="absolute top-6 left-6 p-2 text-white/30 hover:text-white hover:bg-white/10 rounded-full transition-all z-10"
-                >
-                  <X size={20} />
-                </button>
-                
-                <div className="p-8 bg-gradient-to-br from-emerald-500/20 to-teal-500/20 border-b border-emerald-500/10">
-                  <div className="flex flex-col items-center text-center space-y-4">
-                    <div className="relative">
-                      <motion.div
-                        animate={{ scale: [1, 1.1, 1], opacity: [0.3, 0.6, 0.3] }}
-                        transition={{ duration: 3, repeat: Infinity }}
-                        className="absolute inset-0 bg-emerald-500 rounded-full blur-xl"
-                      />
-                      <div className="relative p-4 rounded-3xl bg-emerald-500/30 border border-emerald-500/20">
-                        <Moon size={32} className="text-emerald-400" />
-                      </div>
-                    </div>
-                    <div>
-                      <h3 className="font-black text-white text-2xl tracking-tight mb-1">{isRTL ? 'أوقات الصلاة' : 'Prayer Times'}</h3>
-                      <div className="flex items-center justify-center gap-2 text-emerald-400/80">
-                        <MapPin size={14} />
-                        <span className="text-sm font-bold">{prayerLocation}</span>
-                      </div>
-                    </div>
+                {!prayerTimesData ? (
+                  <div className="p-12 text-center">
+                    <Loader2 className="w-12 h-12 text-emerald-500 animate-spin mx-auto mb-4" />
+                    <p className="text-white/60">{isRTL ? "جاري جلب الأوقات..." : "Fetching times..."}</p>
                   </div>
-                </div>
-
-                <div className="p-6 space-y-2">
-                  <div className="flex items-center justify-between px-4 py-2 text-[10px] font-black text-white/30 uppercase tracking-widest border-b border-white/5 mb-2">
-                    <span>{isRTL ? 'الصلاة' : 'Prayer'}</span>
-                    <span>{isRTL ? 'الوقت' : 'Time'}</span>
-                  </div>
-                  
-                  {[
-                    { id: 'fajr', name: isRTL ? "الفجر" : "Fajr", time: prayerTimesData.fajr, icon: <Moon size={18} /> },
-                    { id: 'sunrise', name: isRTL ? "الشروق" : "Sunrise", time: prayerTimesData.sunrise, icon: <Sun size={18} /> },
-                    { id: 'dhuhr', name: isRTL ? "الظهر" : "Dhuhr", time: prayerTimesData.dhuhr, icon: <Sun size={18} /> },
-                    { id: 'asr', name: isRTL ? "العصر" : "Asr", time: prayerTimesData.asr, icon: <Sun size={18} /> },
-                    { id: 'maghrib', name: isRTL ? "المغرب" : "Maghrib", time: prayerTimesData.maghrib, icon: <Moon size={18} /> },
-                    { id: 'isha', name: isRTL ? "العشاء" : "Isha", time: prayerTimesData.isha, icon: <Moon size={18} /> },
-                  ].map((prayer, i) => {
-                    const isNext = prayerContextNext?.name === prayer.name;
-                    const timeStr = prayer.time.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false });
+                ) : (
+                  <>
+                    <button 
+                      onClick={() => setShowPrayerModal(false)}
+                      className="absolute top-6 left-6 p-2 text-white/30 hover:text-white hover:bg-white/10 rounded-full transition-all z-10"
+                    >
+                      <X size={20} />
+                    </button>
                     
-                    return (
-                      <motion.div 
-                        key={i}
-                        whileHover={{ x: isRTL ? -4 : 4 }}
-                        className={cn(
-                          "flex items-center justify-between p-4 rounded-2xl transition-all border",
-                          isNext 
-                            ? "bg-emerald-500/20 border-emerald-500/40 shadow-[0_0_20px_rgba(16,185,129,0.1)] scale-[1.02]" 
-                            : "bg-white/[0.02] border-white/5 hover:bg-white/[0.05]"
-                        )}
-                      >
-                        <div className="flex items-center gap-4">
-                          <div className={cn(
-                            "p-2 rounded-xl transition-colors",
-                            isNext ? "bg-emerald-500 text-white" : "bg-white/5 text-white/40"
-                          )}>
-                            {prayer.icon}
+                    <div className="p-8 bg-gradient-to-br from-emerald-500/20 to-teal-500/20 border-b border-emerald-500/10">
+                      <div className="flex flex-col items-center text-center space-y-4">
+                        <div className="relative">
+                          <motion.div
+                            animate={{ scale: [1, 1.1, 1], opacity: [0.3, 0.6, 0.3] }}
+                            transition={{ duration: 3, repeat: Infinity }}
+                            className="absolute inset-0 bg-emerald-500 rounded-full blur-xl"
+                          />
+                          <div className="relative p-4 rounded-3xl bg-emerald-500/30 border border-emerald-500/20">
+                            <Moon size={32} className="text-emerald-400" />
                           </div>
-                          <span className={cn(
-                            "text-sm font-black",
-                            isNext ? "text-white" : "text-white/60"
-                          )}>{prayer.name}</span>
                         </div>
-                        <div className="flex flex-col items-end">
-                          <span className={cn(
-                            "text-lg font-black tracking-tighter",
-                            isNext ? "text-emerald-400" : "text-white/80"
-                          )}>{timeStr}</span>
-                          {isNext && (
-                            <span className="text-[10px] font-bold text-emerald-500/60 uppercase">
-                              {isRTL ? `بعد ${prayerContextNext.remaining}` : `in ${prayerContextNext.remaining}`}
-                            </span>
-                          )}
+                        <div>
+                          <h3 className="font-black text-white text-2xl tracking-tight mb-1">{isRTL ? 'أوقات الصلاة' : 'Prayer Times'}</h3>
+                          <div className="flex items-center justify-center gap-2 text-emerald-400/80">
+                            <MapPin size={14} />
+                            <span className="text-sm font-bold">{prayerLocation}</span>
+                          </div>
                         </div>
-                      </motion.div>
-                    );
-                  })}
-                </div>
-
-                <div className="p-6 pt-0 space-y-4">
-                  <div className="p-4 bg-white/5 rounded-3xl border border-white/10 space-y-3">
-                    <div className="flex items-center justify-between text-xs font-bold">
-                      <span className="text-white/40">{isRTL ? 'التاريخ الهجري' : 'Hijri Date'}</span>
-                      <span className="text-emerald-400">{prayerHijri}</span>
+                      </div>
                     </div>
-                    {prayerEvent && (
-                      <div className="flex items-center gap-2 p-2 bg-emerald-500/10 rounded-xl border border-emerald-500/20">
-                        <Star size={14} className="text-emerald-400 fill-emerald-400" />
-                        <span className="text-[11px] font-black text-emerald-400">{prayerEvent}</span>
-                      </div>
-                    )}
-                    {prayerIsFriday && (
-                      <div className="flex items-center gap-2 p-2 bg-blue-500/10 rounded-xl border border-blue-500/20">
-                        <Clock size={14} className="text-blue-400" />
-                        <span className="text-[11px] font-black text-blue-400">{isRTL ? 'جمعة مباركة - وقت الصلاة قريب' : 'Jumuah Mubarak'}</span>
-                      </div>
-                    )}
-                  </div>
 
-                  <motion.button
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                    onClick={() => {
-                      triggerTestAlert();
-                      setShowPrayerModal(false);
-                      toast.success(isRTL ? "بدء الإشعار التجريبي الفاخر" : "Starting luxury test alert");
-                    }}
-                    className="w-full flex items-center justify-center gap-2 py-4 bg-gradient-to-r from-emerald-500 to-teal-600 rounded-2xl text-white font-black text-sm shadow-xl shadow-emerald-500/20 transition-all"
-                  >
-                    <Bell size={18} />
-                    <span>{isRTL ? 'عرض الإشعار الفاخر (تجربة)' : 'Show Luxury Alert (Test)'}</span>
-                  </motion.button>
-                </div>
+                    <div className="p-6 space-y-2">
+                      <div className="flex items-center justify-between px-4 py-2 text-[10px] font-black text-white/30 uppercase tracking-widest border-b border-white/5 mb-2">
+                        <span>{isRTL ? 'الصلاة' : 'Prayer'}</span>
+                        <span>{isRTL ? 'الوقت' : 'Time'}</span>
+                      </div>
+                      
+                      {[
+                        { id: 'fajr', name: isRTL ? "الفجر" : "Fajr", time: prayerTimesData.fajr, icon: <Moon size={18} /> },
+                        { id: 'sunrise', name: isRTL ? "الشروق" : "Sunrise", time: prayerTimesData.sunrise, icon: <Sun size={18} /> },
+                        { id: 'dhuhr', name: isRTL ? "الظهر" : "Dhuhr", time: prayerTimesData.dhuhr, icon: <Sun size={18} /> },
+                        { id: 'asr', name: isRTL ? "العصر" : "Asr", time: prayerTimesData.asr, icon: <Sun size={18} /> },
+                        { id: 'maghrib', name: isRTL ? "المغرب" : "Maghrib", time: prayerTimesData.maghrib, icon: <Moon size={18} /> },
+                        { id: 'isha', name: isRTL ? "العشاء" : "Isha", time: prayerTimesData.isha, icon: <Moon size={18} /> },
+                      ].map((prayer, i) => {
+                        const isNext = prayerContextNext?.name === prayer.name;
+                        const timeStr = prayer.time.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false });
+                        
+                        return (
+                          <motion.div 
+                            key={i}
+                            whileHover={{ x: isRTL ? -4 : 4 }}
+                            className={cn(
+                              "flex items-center justify-between p-4 rounded-2xl transition-all border",
+                              isNext 
+                                ? "bg-emerald-500/20 border-emerald-500/40 shadow-[0_0_20px_rgba(16,185,129,0.1)] scale-[1.02]" 
+                                : "bg-white/[0.02] border-white/5 hover:bg-white/[0.05]"
+                            )}
+                          >
+                            <div className="flex items-center gap-4">
+                              <div className={cn(
+                                "p-2 rounded-xl transition-colors",
+                                isNext ? "bg-emerald-500 text-white" : "bg-white/5 text-white/40"
+                              )}>
+                                {prayer.icon}
+                              </div>
+                              <span className={cn(
+                                "text-sm font-black",
+                                isNext ? "text-white" : "text-white/60"
+                              )}>{prayer.name}</span>
+                            </div>
+                            <div className="flex flex-col items-end">
+                              <span className={cn(
+                                "text-lg font-black tracking-tighter",
+                                isNext ? "text-emerald-400" : "text-white/80"
+                              )}>{timeStr}</span>
+                              {isNext && (
+                                <span className="text-[10px] font-bold text-emerald-500/60 uppercase">
+                                  {isRTL ? `بعد ${prayerContextNext.remaining}` : `in ${prayerContextNext.remaining}`}
+                                </span>
+                              )}
+                            </div>
+                          </motion.div>
+                        );
+                      })}
+                    </div>
+
+                    <div className="p-6 pt-0 space-y-4">
+                      <div className="p-4 bg-white/5 rounded-3xl border border-white/10 space-y-3">
+                        <div className="flex items-center justify-between text-xs font-bold">
+                          <span className="text-white/40">{isRTL ? 'التاريخ الهجري' : 'Hijri Date'}</span>
+                          <span className="text-emerald-400">{prayerHijri}</span>
+                        </div>
+                        {prayerEvent && (
+                          <div className="flex items-center gap-2 p-2 bg-emerald-500/10 rounded-xl border border-emerald-500/20">
+                            <Star size={14} className="text-emerald-400 fill-emerald-400" />
+                            <span className="text-[11px] font-black text-emerald-400">{prayerEvent}</span>
+                          </div>
+                        )}
+                        {prayerIsFriday && (
+                          <div className="flex items-center gap-2 p-2 bg-blue-500/10 rounded-xl border border-blue-500/20">
+                            <Clock size={14} className="text-blue-400" />
+                            <span className="text-[11px] font-black text-blue-400">{isRTL ? 'جمعة مباركة - وقت الصلاة قريب' : 'Jumuah Mubarak'}</span>
+                          </div>
+                        )}
+                      </div>
+
+                      <motion.button
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                        onClick={() => {
+                          triggerTestAlert();
+                          setShowPrayerModal(false);
+                          toast.success(isRTL ? "بدء الإشعار التجريبي الفاخر" : "Starting luxury test alert");
+                        }}
+                        className="w-full flex items-center justify-center gap-2 py-4 bg-gradient-to-r from-emerald-500 to-teal-600 rounded-2xl text-white font-black text-sm shadow-xl shadow-emerald-500/20 transition-all"
+                      >
+                        <Bell size={18} />
+                        <span>{isRTL ? 'عرض الإشعار الفاخر (تجربة)' : 'Show Luxury Alert (Test)'}</span>
+                      </motion.button>
+                    </div>
+                  </>
+                )}
               </motion.div>
             </div>
           )}
