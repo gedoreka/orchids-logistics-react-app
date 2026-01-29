@@ -65,6 +65,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { useLocale, useTranslations } from '@/lib/locale-context';
 import { LanguageSwitcher } from "./language-switcher";
+import { usePrayer } from "./prayer-provider";
 
 interface EmailAccount {
   id: string;
@@ -1115,65 +1116,113 @@ export function Header({ user, onToggleSidebar, unreadChatCount = 0, subscriptio
                 initial={{ scale: 0.9, opacity: 0, y: 20 }}
                 animate={{ scale: 1, opacity: 1, y: 0 }}
                 exit={{ scale: 0.9, opacity: 0, y: 20 }}
-                className="relative w-full max-w-sm bg-gradient-to-b from-slate-900 to-slate-950 rounded-3xl shadow-2xl overflow-hidden border border-emerald-500/20"
+                className="relative w-full max-w-sm bg-gradient-to-b from-slate-900 to-slate-950 rounded-[2.5rem] shadow-2xl overflow-hidden border border-emerald-500/20"
               >
                 <button 
                   onClick={() => setShowPrayerModal(false)}
-                  className="absolute top-4 left-4 p-2 text-white/30 hover:text-white hover:bg-white/10 rounded-xl transition-all z-10"
+                  className="absolute top-6 left-6 p-2 text-white/30 hover:text-white hover:bg-white/10 rounded-full transition-all z-10"
                 >
                   <X size={20} />
                 </button>
                 
-                <div className="p-6 bg-gradient-to-r from-emerald-500/20 to-teal-500/20 border-b border-emerald-500/20">
-                  <div className="flex items-center gap-4">
-                    <div className="p-3 rounded-2xl bg-emerald-500/30">
-                      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" className="text-emerald-400">
-                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" fill="currentColor"/>
-                      </svg>
+                <div className="p-8 bg-gradient-to-br from-emerald-500/20 to-teal-500/20 border-b border-emerald-500/10">
+                  <div className="flex flex-col items-center text-center space-y-4">
+                    <div className="relative">
+                      <motion.div
+                        animate={{ scale: [1, 1.1, 1], opacity: [0.3, 0.6, 0.3] }}
+                        transition={{ duration: 3, repeat: Infinity }}
+                        className="absolute inset-0 bg-emerald-500 rounded-full blur-xl"
+                      />
+                      <div className="relative p-4 rounded-3xl bg-emerald-500/30 border border-emerald-500/20">
+                        <Moon size={32} className="text-emerald-400" />
+                      </div>
                     </div>
                     <div>
-                      <h3 className="font-bold text-white text-xl">{isRTL ? 'أوقات الصلاة' : 'Prayer Times'}</h3>
-                      <p className="text-sm text-emerald-400">{location}</p>
-                    </div>
-                  </div>
-                </div>
-                <div className="p-4 space-y-3">
-                  {[
-                    { name: isRTL ? "الفجر" : "Fajr", time: prayerTimes.Fajr, icon: "🌙" },
-                    { name: isRTL ? "الشروق" : "Sunrise", time: prayerTimes.Sunrise, icon: "🌅" },
-                    { name: isRTL ? "الظهر" : "Dhuhr", time: prayerTimes.Dhuhr, icon: "☀️" },
-                    { name: isRTL ? "العصر" : "Asr", time: prayerTimes.Asr, icon: "🌤️" },
-                    { name: isRTL ? "المغرب" : "Maghrib", time: prayerTimes.Maghrib, icon: "🌇" },
-                    { name: isRTL ? "العشاء" : "Isha", time: prayerTimes.Isha, icon: "🌃" },
-                  ].map((prayer, i) => (
-                    <div 
-                      key={i} 
-                      className={cn(
-                        "flex items-center justify-between p-4 rounded-2xl transition-all",
-                        nextPrayer?.name === prayer.name 
-                          ? "bg-emerald-500/20 border-2 border-emerald-500/40 shadow-lg shadow-emerald-500/20" 
-                          : "bg-white/5 hover:bg-white/10 border border-white/10"
-                      )}
-                    >
-                      <div className="flex items-center gap-3">
-                        <span className="text-2xl">{prayer.icon}</span>
-                        <span className="text-sm font-bold text-white">{prayer.name}</span>
+                      <h3 className="font-black text-white text-2xl tracking-tight mb-1">{isRTL ? 'أوقات الصلاة' : 'Prayer Times'}</h3>
+                      <div className="flex items-center justify-center gap-2 text-emerald-400/80">
+                        <MapPin size={14} />
+                        <span className="text-sm font-bold">{location}</span>
                       </div>
-                      <span className={cn(
-                        "text-lg font-bold",
-                        nextPrayer?.name === prayer.name ? "text-emerald-400" : "text-white/60"
-                      )}>{prayer.time}</span>
-                    </div>
-                  ))}
-                </div>
-                {nextPrayer && (
-                  <div className="p-4 border-t border-white/10 bg-emerald-500/10">
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm text-white/60">{isRTL ? 'الصلاة القادمة' : 'Next Prayer'}</span>
-                      <span className="text-sm font-bold text-emerald-400">{nextPrayer.name} - {isRTL ? `بعد ${nextPrayer.remaining}` : `in ${nextPrayer.remaining}`}</span>
                     </div>
                   </div>
-                )}
+                </div>
+
+                <div className="p-6 space-y-2">
+                  <div className="flex items-center justify-between px-4 py-2 text-[10px] font-black text-white/30 uppercase tracking-widest border-b border-white/5 mb-2">
+                    <span>{isRTL ? 'الصلاة' : 'Prayer'}</span>
+                    <span>{isRTL ? 'الوقت' : 'Time'}</span>
+                  </div>
+                  
+                  {[
+                    { id: 'fajr', name: isRTL ? "الفجر" : "Fajr", time: prayerTimes.fajr, icon: <Moon size={18} /> },
+                    { id: 'sunrise', name: isRTL ? "الشروق" : "Sunrise", time: prayerTimes.sunrise, icon: <Sun size={18} /> },
+                    { id: 'dhuhr', name: isRTL ? "الظهر" : "Dhuhr", time: prayerTimes.dhuhr, icon: <Sun size={18} /> },
+                    { id: 'asr', name: isRTL ? "العصر" : "Asr", time: prayerTimes.asr, icon: <Sun size={18} /> },
+                    { id: 'maghrib', name: isRTL ? "المغرب" : "Maghrib", time: prayerTimes.maghrib, icon: <Moon size={18} /> },
+                    { id: 'isha', name: isRTL ? "العشاء" : "Isha", time: prayerTimes.isha, icon: <Moon size={18} /> },
+                  ].map((prayer, i) => {
+                    const isNext = nextPrayer?.name === prayer.name;
+                    const timeStr = prayer.time.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false });
+                    
+                    return (
+                      <motion.div 
+                        key={i}
+                        whileHover={{ x: isRTL ? -4 : 4 }}
+                        className={cn(
+                          "flex items-center justify-between p-4 rounded-2xl transition-all border",
+                          isNext 
+                            ? "bg-emerald-500/20 border-emerald-500/40 shadow-[0_0_20px_rgba(16,185,129,0.1)] scale-[1.02]" 
+                            : "bg-white/[0.02] border-white/5 hover:bg-white/[0.05]"
+                        )}
+                      >
+                        <div className="flex items-center gap-4">
+                          <div className={cn(
+                            "p-2 rounded-xl transition-colors",
+                            isNext ? "bg-emerald-500 text-white" : "bg-white/5 text-white/40"
+                          )}>
+                            {prayer.icon}
+                          </div>
+                          <span className={cn(
+                            "text-sm font-black",
+                            isNext ? "text-white" : "text-white/60"
+                          )}>{prayer.name}</span>
+                        </div>
+                        <div className="flex flex-col items-end">
+                          <span className={cn(
+                            "text-lg font-black tracking-tighter",
+                            isNext ? "text-emerald-400" : "text-white/80"
+                          )}>{timeStr}</span>
+                          {isNext && (
+                            <span className="text-[10px] font-bold text-emerald-500/60 uppercase">
+                              {isRTL ? `بعد ${nextPrayer.remaining}` : `in ${nextPrayer.remaining}`}
+                            </span>
+                          )}
+                        </div>
+                      </motion.div>
+                    );
+                  })}
+                </div>
+
+                <div className="p-6 pt-0">
+                  <div className="p-4 bg-white/5 rounded-3xl border border-white/10 space-y-3">
+                    <div className="flex items-center justify-between text-xs font-bold">
+                      <span className="text-white/40">{isRTL ? 'التاريخ الهجري' : 'Hijri Date'}</span>
+                      <span className="text-emerald-400">{hijriDate}</span>
+                    </div>
+                    {islamicEvent && (
+                      <div className="flex items-center gap-2 p-2 bg-emerald-500/10 rounded-xl border border-emerald-500/20">
+                        <Star size={14} className="text-emerald-400 fill-emerald-400" />
+                        <span className="text-[11px] font-black text-emerald-400">{islamicEvent}</span>
+                      </div>
+                    )}
+                    {isFriday && (
+                      <div className="flex items-center gap-2 p-2 bg-blue-500/10 rounded-xl border border-blue-500/20">
+                        <Clock size={14} className="text-blue-400" />
+                        <span className="text-[11px] font-black text-blue-400">{isRTL ? 'جمعة مباركة - وقت الصلاة قريب' : 'Jumuah Mubarak'}</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
               </motion.div>
             </div>
           )}

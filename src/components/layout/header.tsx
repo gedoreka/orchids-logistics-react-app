@@ -74,6 +74,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { useLocale, useTranslations } from '@/lib/locale-context';
 import { LanguageSwitcher } from "./language-switcher";
+import { usePrayer } from "./prayer-provider";
 
 interface EmailAccount {
   id: string;
@@ -275,11 +276,17 @@ export function Header({ user, onToggleSidebar, unreadChatCount = 0, subscriptio
   const tCommon = useTranslations('common');
   const { locale, isRTL } = useLocale();
   
+  const { 
+    times: prayerTimes, 
+    nextPrayer, 
+    currentTime, 
+    locationName: location, 
+    isFriday, 
+    islamicEvent, 
+    hijriDate 
+  } = usePrayer();
+
   const [mounted, setMounted] = useState(false);
-  const [currentTime, setCurrentTime] = useState(new Date());
-  const [location, setLocation] = useState(isRTL ? "الرياض، السعودية" : "Riyadh, Saudi Arabia");
-  const [cityName, setCityName] = useState("Riyadh");
-  const [countryName, setCountryName] = useState("Saudi Arabia");
   const [isDriverModalOpen, setIsDriverModalOpen] = useState(false);
   const [showQR, setShowQR] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -289,13 +296,10 @@ export function Header({ user, onToggleSidebar, unreadChatCount = 0, subscriptio
   const [showNotifications, setShowNotifications] = useState(false);
   const [adminNotifications, setAdminNotifications] = useState<any[]>([]);
   const [unreadAdminCount, setUnreadAdminCount] = useState(0);
-  const [prayerTimes, setPrayerTimes] = useState<PrayerTimes | null>(null);
   const [showPrayerModal, setShowPrayerModal] = useState(false);
-  const [nextPrayer, setNextPrayer] = useState<{ name: string; time: string; remaining: string } | null>(null);
   const [showQuranPlayer, setShowQuranPlayer] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentSurahIndex, setCurrentSurahIndex] = useState(0);
-  const [coords, setCoords] = useState<{ lat: number; lng: number } | null>(null);
   const [showSubscriptionModal, setShowSubscriptionModal] = useState(false);
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const [showPaymentModal, setShowPaymentModal] = useState<{ plan: Plan; type: 'new' | 'renewal' | 'upgrade' } | null>(null);
@@ -303,202 +307,104 @@ export function Header({ user, onToggleSidebar, unreadChatCount = 0, subscriptio
   const [bankAccounts, setBankAccounts] = useState<BankAccount[]>([]);
   const [currentPlanDetails, setCurrentPlanDetails] = useState<any>(null);
   const [receiptImage, setReceiptImage] = useState<string | null>(null);
-    const [volume, setVolume] = useState(1);
-    const [prevVolume, setPrevVolume] = useState(1);
-    const [isSubmitting, setIsSubmitting] = useState(false);
-    
-    // Email states
-    const [showEmailModal, setShowEmailModal] = useState(false);
-    const [isEmailMaximized, setIsEmailMaximized] = useState(false);
-    const [activeEmailFolder, setActiveEmailFolder] = useState("INBOX");
-    const [showEmailSettings, setShowEmailSettings] = useState(false);
-    const [emailAccounts, setEmailAccounts] = useState<EmailAccount[]>([]);
-    const [selectedEmailAccount, setSelectedEmailAccount] = useState<EmailAccount | null>(null);
-    const [emails, setEmails] = useState<EmailMessage[]>([]);
-    const [loadingEmails, setLoadingEmails] = useState(false);
-    const [unreadEmailCount, setUnreadEmailCount] = useState(0);
-    const [fetchingUnread, setFetchingUnread] = useState(false);
-    const [isAddingAccount, setIsAddingAccount] = useState(false);
+  const [volume, setVolume] = useState(1);
+  const [prevVolume, setPrevVolume] = useState(1);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  
+  // Email states
+  const [showEmailModal, setShowEmailModal] = useState(false);
+  const [isEmailMaximized, setIsEmailMaximized] = useState(false);
+  const [activeEmailFolder, setActiveEmailFolder] = useState("INBOX");
+  const [showEmailSettings, setShowEmailSettings] = useState(false);
+  const [emailAccounts, setEmailAccounts] = useState<EmailAccount[]>([]);
+  const [selectedEmailAccount, setSelectedEmailAccount] = useState<EmailAccount | null>(null);
+  const [emails, setEmails] = useState<EmailMessage[]>([]);
+  const [loadingEmails, setLoadingEmails] = useState(false);
+  const [unreadEmailCount, setUnreadEmailCount] = useState(0);
+  const [fetchingUnread, setFetchingUnread] = useState(false);
+  const [isAddingAccount, setIsAddingAccount] = useState(false);
 
-    
-    const audioRef = useRef<HTMLAudioElement | null>(null);
-    
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  
   useEffect(() => {
     if (audioRef.current) {
       audioRef.current.volume = volume;
     }
   }, [volume]);
+
   const pathname = usePathname();
   const router = useRouter();
 
-    useEffect(() => {
-      const fetchAdminNotifications = async () => {
-        try {
-          const response = await fetch("/api/admin/notifications?limit=5");
-          const data = await response.json();
-          if (data.success) {
-            setAdminNotifications(data.notifications);
-            
-            const lastSeenId = parseInt(localStorage.getItem("last_admin_notification_id") || "0");
-            const unread = data.notifications.filter((n: any) => n.id > lastSeenId).length;
-            setUnreadAdminCount(unread);
-          }
-        } catch (error) {
-          console.error("Error fetching header notifications:", error);
-        }
-      };
-
-      const fetchEmailData = async () => {
-        if (!user?.company_id || fetchingUnread) return;
-        setFetchingUnread(true);
-        try {
-          const res = await fetch(`/api/email/accounts?company_id=${user.company_id}`);
-          const data = await res.json();
+  useEffect(() => {
+    const fetchAdminNotifications = async () => {
+      try {
+        const response = await fetch("/api/admin/notifications?limit=5");
+        const data = await response.json();
+        if (data.success) {
+          setAdminNotifications(data.notifications);
           
-          if (data.accounts) {
-            setEmailAccounts(data.accounts);
-            if (data.accounts.length > 0 && !selectedEmailAccount) {
-              setSelectedEmailAccount(data.accounts[0]);
-            }
-
-              // Fetch unread counts more reliably
-              const unreadResults = [];
-              for (const account of data.accounts) {
-                try {
-                  const res = await fetch(`/api/email/fetch?accountId=${account.id}&company_id=${user.company_id}&action=unread`);
-                  if (res.ok) {
-                    const data = await res.json();
-                    unreadResults.push(data.unreadCount || 0);
-                  } else {
-                    unreadResults.push(0);
-                  }
-                } catch (e) {
-                  console.error(`Error fetching unread for ${account.email}:`, e);
-                  unreadResults.push(0);
-                }
-              }
-            
-            const totalUnread = unreadResults.reduce((sum, count) => sum + count, 0);
-            setUnreadEmailCount(totalUnread);
-          }
-        } catch (error) {
-          console.error("Error fetching email data:", error);
-        } finally {
-          setFetchingUnread(false);
+          const lastSeenId = parseInt(localStorage.getItem("last_admin_notification_id") || "0");
+          const unread = data.notifications.filter((n: any) => n.id > lastSeenId).length;
+          setUnreadAdminCount(unread);
         }
-      };
+      } catch (error) {
+        console.error("Error fetching header notifications:", error);
+      }
+    };
 
+    const fetchEmailData = async () => {
+      if (!user?.company_id || fetchingUnread) return;
+      setFetchingUnread(true);
+      try {
+        const res = await fetch(`/api/email/accounts?company_id=${user.company_id}`);
+        const data = await res.json();
+        
+        if (data.accounts) {
+          setEmailAccounts(data.accounts);
+          if (data.accounts.length > 0 && !selectedEmailAccount) {
+            setSelectedEmailAccount(data.accounts[0]);
+          }
+
+          const unreadResults = [];
+          for (const account of data.accounts) {
+            try {
+              const res = await fetch(`/api/email/fetch?accountId=${account.id}&company_id=${user.company_id}&action=unread`);
+              if (res.ok) {
+                const data = await res.json();
+                unreadResults.push(data.unreadCount || 0);
+              } else {
+                unreadResults.push(0);
+              }
+            } catch (e) {
+              console.error(`Error fetching unread for ${account.email}:`, e);
+              unreadResults.push(0);
+            }
+          }
+          
+          const totalUnread = unreadResults.reduce((sum, count) => sum + count, 0);
+          setUnreadEmailCount(totalUnread);
+        }
+      } catch (error) {
+        console.error("Error fetching email data:", error);
+      } finally {
+        setFetchingUnread(false);
+      }
+    };
+
+    fetchAdminNotifications();
+    fetchEmailData();
+    
+    const interval = setInterval(() => {
       fetchAdminNotifications();
       fetchEmailData();
-      
-      const interval = setInterval(() => {
-        fetchAdminNotifications();
-        fetchEmailData();
-      }, 60000); 
-      return () => clearInterval(interval);
-    }, [user?.company_id]);
+    }, 60000); 
+    return () => clearInterval(interval);
+  }, [user?.company_id]);
 
   useEffect(() => {
     setMounted(true);
-    const timer = setInterval(() => {
-      setCurrentTime(new Date());
-    }, 1000);
-    return () => clearInterval(timer);
   }, []);
 
-  useEffect(() => {
-    if ("geolocation" in navigator) {
-      navigator.geolocation.getCurrentPosition(
-        async (position) => {
-          const lat = position.coords.latitude;
-          const lng = position.coords.longitude;
-          setCoords({ lat, lng });
-          try {
-            const response = await fetch(
-              `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&accept-language=ar`
-            );
-            const data = await response.json();
-            const addr = data.address;
-            const city = addr.city || addr.town || addr.village || addr.state || "";
-            const country = addr.country || "السعودية";
-            setCityName(city);
-            setCountryName(country);
-            setLocation(`${city}، ${country}`);
-          } catch {
-            setLocation("الرياض، السعودية");
-          }
-        },
-        () => {
-          setLocation("الرياض، السعودية");
-          setCoords({ lat: 24.7136, lng: 46.6753 });
-        }
-      );
-    } else {
-      setCoords({ lat: 24.7136, lng: 46.6753 });
-    }
-  }, []);
-
-  useEffect(() => {
-    if (!coords) return;
-    const fetchPrayerTimes = async () => {
-      try {
-        const today = new Date();
-        const date = `${today.getDate()}-${today.getMonth() + 1}-${today.getFullYear()}`;
-        const response = await fetch(
-          `https://api.aladhan.com/v1/timings/${date}?latitude=${coords.lat}&longitude=${coords.lng}&method=4`
-        );
-        const data = await response.json();
-        if (data.code === 200) {
-          setPrayerTimes(data.data.timings);
-        }
-      } catch (error) {
-        console.error("Error fetching prayer times:", error);
-      }
-    };
-    fetchPrayerTimes();
-  }, [coords]);
-
-  const calculateNextPrayer = useCallback(() => {
-    if (!prayerTimes) return;
-    const prayers = [
-      { name: isRTL ? "الفجر" : "Fajr", time: prayerTimes.Fajr },
-      { name: isRTL ? "الشروق" : "Sunrise", time: prayerTimes.Sunrise },
-      { name: isRTL ? "الظهر" : "Dhuhr", time: prayerTimes.Dhuhr },
-      { name: isRTL ? "العصر" : "Asr", time: prayerTimes.Asr },
-      { name: isRTL ? "المغرب" : "Maghrib", time: prayerTimes.Maghrib },
-      { name: isRTL ? "العشاء" : "Isha", time: prayerTimes.Isha },
-    ];
-
-    const now = new Date();
-    const currentMinutes = now.getHours() * 60 + now.getMinutes();
-
-    for (const prayer of prayers) {
-      const [hours, minutes] = prayer.time.split(":").map(Number);
-      const prayerMinutes = hours * 60 + minutes;
-      if (prayerMinutes > currentMinutes) {
-        const diff = prayerMinutes - currentMinutes;
-        const h = Math.floor(diff / 60);
-        const m = diff % 60;
-        setNextPrayer({
-          name: prayer.name,
-          time: prayer.time,
-          remaining: h > 0 ? `${h}س ${m}د` : `${m}د`,
-        });
-        return;
-      }
-    }
-    setNextPrayer({
-      name: prayers[0].name,
-      time: prayers[0].time,
-      remaining: isRTL ? "غداً" : "Tomorrow",
-    });
-  }, [prayerTimes, isRTL]);
-
-  useEffect(() => {
-    calculateNextPrayer();
-    const interval = setInterval(calculateNextPrayer, 60000);
-    return () => clearInterval(interval);
-  }, [calculateNextPrayer]);
 
   useEffect(() => {
     const savedSurah = localStorage.getItem('quran_last_surah');
@@ -1119,65 +1025,113 @@ export function Header({ user, onToggleSidebar, unreadChatCount = 0, subscriptio
                 initial={{ scale: 0.9, opacity: 0, y: 20 }}
                 animate={{ scale: 1, opacity: 1, y: 0 }}
                 exit={{ scale: 0.9, opacity: 0, y: 20 }}
-                className="relative w-full max-w-sm bg-gradient-to-b from-slate-900 to-slate-950 rounded-3xl shadow-2xl overflow-hidden border border-emerald-500/20"
+                className="relative w-full max-w-sm bg-gradient-to-b from-slate-900 to-slate-950 rounded-[2.5rem] shadow-2xl overflow-hidden border border-emerald-500/20"
               >
                 <button 
                   onClick={() => setShowPrayerModal(false)}
-                  className="absolute top-4 left-4 p-2 text-white/30 hover:text-white hover:bg-white/10 rounded-xl transition-all z-10"
+                  className="absolute top-6 left-6 p-2 text-white/30 hover:text-white hover:bg-white/10 rounded-full transition-all z-10"
                 >
                   <X size={20} />
                 </button>
                 
-                <div className="p-6 bg-gradient-to-r from-emerald-500/20 to-teal-500/20 border-b border-emerald-500/20">
-                  <div className="flex items-center gap-4">
-                    <div className="p-3 rounded-2xl bg-emerald-500/30">
-                      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" className="text-emerald-400">
-                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" fill="currentColor"/>
-                      </svg>
+                <div className="p-8 bg-gradient-to-br from-emerald-500/20 to-teal-500/20 border-b border-emerald-500/10">
+                  <div className="flex flex-col items-center text-center space-y-4">
+                    <div className="relative">
+                      <motion.div
+                        animate={{ scale: [1, 1.1, 1], opacity: [0.3, 0.6, 0.3] }}
+                        transition={{ duration: 3, repeat: Infinity }}
+                        className="absolute inset-0 bg-emerald-500 rounded-full blur-xl"
+                      />
+                      <div className="relative p-4 rounded-3xl bg-emerald-500/30 border border-emerald-500/20">
+                        <Moon size={32} className="text-emerald-400" />
+                      </div>
                     </div>
                     <div>
-                      <h3 className="font-bold text-white text-xl">{isRTL ? 'أوقات الصلاة' : 'Prayer Times'}</h3>
-                      <p className="text-sm text-emerald-400">{location}</p>
-                    </div>
-                  </div>
-                </div>
-                <div className="p-4 space-y-3">
-                  {[
-                    { name: isRTL ? "الفجر" : "Fajr", time: prayerTimes.Fajr, icon: "🌙" },
-                    { name: isRTL ? "الشروق" : "Sunrise", time: prayerTimes.Sunrise, icon: "🌅" },
-                    { name: isRTL ? "الظهر" : "Dhuhr", time: prayerTimes.Dhuhr, icon: "☀️" },
-                    { name: isRTL ? "العصر" : "Asr", time: prayerTimes.Asr, icon: "🌤️" },
-                    { name: isRTL ? "المغرب" : "Maghrib", time: prayerTimes.Maghrib, icon: "🌇" },
-                    { name: isRTL ? "العشاء" : "Isha", time: prayerTimes.Isha, icon: "🌃" },
-                  ].map((prayer, i) => (
-                    <div 
-                      key={i} 
-                      className={cn(
-                        "flex items-center justify-between p-4 rounded-2xl transition-all",
-                        nextPrayer?.name === prayer.name 
-                          ? "bg-emerald-500/20 border-2 border-emerald-500/40 shadow-lg shadow-emerald-500/20" 
-                          : "bg-white/5 hover:bg-white/10 border border-white/10"
-                      )}
-                    >
-                      <div className="flex items-center gap-3">
-                        <span className="text-2xl">{prayer.icon}</span>
-                        <span className="text-sm font-bold text-white">{prayer.name}</span>
+                      <h3 className="font-black text-white text-2xl tracking-tight mb-1">{isRTL ? 'أوقات الصلاة' : 'Prayer Times'}</h3>
+                      <div className="flex items-center justify-center gap-2 text-emerald-400/80">
+                        <MapPin size={14} />
+                        <span className="text-sm font-bold">{location}</span>
                       </div>
-                      <span className={cn(
-                        "text-lg font-bold",
-                        nextPrayer?.name === prayer.name ? "text-emerald-400" : "text-white/60"
-                      )}>{prayer.time}</span>
-                    </div>
-                  ))}
-                </div>
-                {nextPrayer && (
-                  <div className="p-4 border-t border-white/10 bg-emerald-500/10">
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm text-white/60">{isRTL ? 'الصلاة القادمة' : 'Next Prayer'}</span>
-                      <span className="text-sm font-bold text-emerald-400">{nextPrayer.name} - {isRTL ? `بعد ${nextPrayer.remaining}` : `in ${nextPrayer.remaining}`}</span>
                     </div>
                   </div>
-                )}
+                </div>
+
+                <div className="p-6 space-y-2">
+                  <div className="flex items-center justify-between px-4 py-2 text-[10px] font-black text-white/30 uppercase tracking-widest border-b border-white/5 mb-2">
+                    <span>{isRTL ? 'الصلاة' : 'Prayer'}</span>
+                    <span>{isRTL ? 'الوقت' : 'Time'}</span>
+                  </div>
+                  
+                  {[
+                    { id: 'fajr', name: isRTL ? "الفجر" : "Fajr", time: prayerTimes.fajr, icon: <Moon size={18} /> },
+                    { id: 'sunrise', name: isRTL ? "الشروق" : "Sunrise", time: prayerTimes.sunrise, icon: <Sun size={18} /> },
+                    { id: 'dhuhr', name: isRTL ? "الظهر" : "Dhuhr", time: prayerTimes.dhuhr, icon: <Sun size={18} /> },
+                    { id: 'asr', name: isRTL ? "العصر" : "Asr", time: prayerTimes.asr, icon: <Sun size={18} /> },
+                    { id: 'maghrib', name: isRTL ? "المغرب" : "Maghrib", time: prayerTimes.maghrib, icon: <Moon size={18} /> },
+                    { id: 'isha', name: isRTL ? "العشاء" : "Isha", time: prayerTimes.isha, icon: <Moon size={18} /> },
+                  ].map((prayer, i) => {
+                    const isNext = nextPrayer?.name === prayer.name;
+                    const timeStr = prayer.time.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false });
+                    
+                    return (
+                      <motion.div 
+                        key={i}
+                        whileHover={{ x: isRTL ? -4 : 4 }}
+                        className={cn(
+                          "flex items-center justify-between p-4 rounded-2xl transition-all border",
+                          isNext 
+                            ? "bg-emerald-500/20 border-emerald-500/40 shadow-[0_0_20px_rgba(16,185,129,0.1)] scale-[1.02]" 
+                            : "bg-white/[0.02] border-white/5 hover:bg-white/[0.05]"
+                        )}
+                      >
+                        <div className="flex items-center gap-4">
+                          <div className={cn(
+                            "p-2 rounded-xl transition-colors",
+                            isNext ? "bg-emerald-500 text-white" : "bg-white/5 text-white/40"
+                          )}>
+                            {prayer.icon}
+                          </div>
+                          <span className={cn(
+                            "text-sm font-black",
+                            isNext ? "text-white" : "text-white/60"
+                          )}>{prayer.name}</span>
+                        </div>
+                        <div className="flex flex-col items-end">
+                          <span className={cn(
+                            "text-lg font-black tracking-tighter",
+                            isNext ? "text-emerald-400" : "text-white/80"
+                          )}>{timeStr}</span>
+                          {isNext && (
+                            <span className="text-[10px] font-bold text-emerald-500/60 uppercase">
+                              {isRTL ? `بعد ${nextPrayer.remaining}` : `in ${nextPrayer.remaining}`}
+                            </span>
+                          )}
+                        </div>
+                      </motion.div>
+                    );
+                  })}
+                </div>
+
+                <div className="p-6 pt-0">
+                  <div className="p-4 bg-white/5 rounded-3xl border border-white/10 space-y-3">
+                    <div className="flex items-center justify-between text-xs font-bold">
+                      <span className="text-white/40">{isRTL ? 'التاريخ الهجري' : 'Hijri Date'}</span>
+                      <span className="text-emerald-400">{hijriDate}</span>
+                    </div>
+                    {islamicEvent && (
+                      <div className="flex items-center gap-2 p-2 bg-emerald-500/10 rounded-xl border border-emerald-500/20">
+                        <Star size={14} className="text-emerald-400 fill-emerald-400" />
+                        <span className="text-[11px] font-black text-emerald-400">{islamicEvent}</span>
+                      </div>
+                    )}
+                    {isFriday && (
+                      <div className="flex items-center gap-2 p-2 bg-blue-500/10 rounded-xl border border-blue-500/20">
+                        <Clock size={14} className="text-blue-400" />
+                        <span className="text-[11px] font-black text-blue-400">{isRTL ? 'جمعة مباركة - وقت الصلاة قريب' : 'Jumuah Mubarak'}</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
               </motion.div>
             </div>
           )}

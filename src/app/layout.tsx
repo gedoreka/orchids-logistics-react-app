@@ -4,6 +4,7 @@ import "./globals.css";
 import { Toaster } from "@/components/ui/sonner";
 import { LocaleProvider } from "@/lib/locale-context";
 import { ThemeProvider } from "@/components/theme-provider";
+import { PrayerProvider } from "@/components/layout/prayer-provider";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -49,7 +50,9 @@ export default async function RootLayout({
           storageKey="logistics-theme"
         >
           <LocaleProvider>
-            {children}
+            <PrayerProvider>
+              {children}
+            </PrayerProvider>
             <Toaster position="top-center" richColors />
           </LocaleProvider>
         </ThemeProvider>
