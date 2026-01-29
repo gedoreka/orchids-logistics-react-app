@@ -56,8 +56,10 @@ import {
       Inbox,
       AlertTriangle,
       Plus,
-      PlusCircle
-      } from "lucide-react";
+    PlusCircle,
+    Moon,
+    Sun
+    } from "lucide-react";
 
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";

@@ -65,7 +65,9 @@ import {
     HandCoins,
     BarChart3,
     FileEdit,
-    PieChart
+    PieChart,
+    Moon,
+    Sun
     } from "lucide-react";
 
 import { toast } from "sonner";
@@ -1620,68 +1622,27 @@ export function Header({ user, onToggleSidebar, unreadChatCount = 0, subscriptio
                             <div className="flex items-center justify-between">
                               <span className="text-sm text-white/50">{isRTL ? 'تاريخ الانتهاء' : 'End Date'}</span>
                               <span className="text-sm font-bold text-white">{new Date(subscriptionData.endDate).toLocaleDateString( 'en-US' )}</span>
-                            </div>
-                          )}
-                        </div>
-                      )}
-                    </div>
-                  )}
-
-                  {currentPlanDetails?.features && (
-                    <div className="p-5 rounded-2xl bg-white/5 border border-white/10">
-                      <div className="flex items-center gap-3 mb-4">
-                        <Star size={20} className="text-amber-400" />
-                        <p className="font-bold text-white">{isRTL ? 'مميزات الباقة' : 'Plan Features'}</p>
-                      </div>
-                      <div className="space-y-2">
-                        {(currentPlanDetails.features || '').split(',').map((feature: string, i: number) => (
-                          <div key={i} className="flex items-center gap-3">
-                            <CheckCircle2 size={16} className="text-emerald-400" />
-                            <span className="text-sm text-white/70">{feature.trim()}</span>
-                          </div>
-                        ))}
                       </div>
                     </div>
-                  )}
 
-                  <div className="grid grid-cols-2 gap-3">
                     <motion.button
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
                       onClick={() => {
-                        if (currentPlanDetails) {
-                          setShowPaymentModal({ 
-                            plan: { 
-                              id: currentPlanDetails.plan_id, 
-                              name: currentPlanDetails.plan_name,
-                              price: currentPlanDetails.plan_price,
-                              duration_value: currentPlanDetails.duration_value || 30,
-                              duration_unit: currentPlanDetails.duration_unit || 'day'
-                            }, 
-                            type: 'renewal' 
-                          });
-                        }
+                        triggerTestAlert();
+                        setShowPrayerModal(false);
+                        toast.success(isRTL ? "بدء الإشعار التجريبي الفاخر" : "Starting luxury test alert");
                       }}
-                      className="flex items-center justify-center gap-2 py-4 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 rounded-xl text-white text-sm font-bold shadow-lg shadow-emerald-500/30 transition-all"
+                      className="w-full mt-4 flex items-center justify-center gap-2 py-4 bg-gradient-to-r from-emerald-500 to-teal-600 rounded-2xl text-white font-black text-sm shadow-xl shadow-emerald-500/20 transition-all"
                     >
-                      <RefreshCw size={18} />
-                      {isRTL ? 'تجديد الباقة' : 'Renew Plan'}
-                    </motion.button>
-                    <motion.button
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
-                      onClick={openUpgradeModal}
-                      className="flex items-center justify-center gap-2 py-4 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 rounded-xl text-white text-sm font-bold shadow-lg shadow-purple-500/30 transition-all"
-                    >
-                      <Zap size={18} />
-                      {isRTL ? 'ترقية الباقة' : 'Upgrade Plan'}
+                      <Bell size={18} />
+                      <span>{isRTL ? 'عرض الإشعار الفاخر (تجربة)' : 'Show Luxury Alert (Test)'}</span>
                     </motion.button>
                   </div>
-                </div>
-              </motion.div>
-            </div>
-          )}
-        </AnimatePresence>
+                </motion.div>
+              </div>
+            )}
+          </AnimatePresence>
 
         {/* Upgrade Plans Modal */}
         <AnimatePresence>
