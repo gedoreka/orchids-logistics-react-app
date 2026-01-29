@@ -440,12 +440,12 @@ export function ChatClient({ initialMessages, companyId, senderRole, companyToke
               onClick={() => setShowTicketSelector(!showTicketSelector)}
               className="flex items-center gap-2 bg-white/20 hover:bg-white/30 text-white px-4 py-2 rounded-xl transition-all border border-white/20"
             >
-              <Ticket size={18} />
-              <span className="text-sm font-bold hidden sm:inline">
-                {currentTicketId ? `#${currentTicketId.slice(-8)}` : 'تذكرة جديدة'}
-              </span>
-              <ChevronDown size={16} />
-            </button>
+                <Ticket size={18} />
+                <span className="text-sm font-bold hidden sm:inline">
+                  {currentTicketId ? `#${String(currentTicketId).slice(-8)}` : 'تذكرة جديدة'}
+                </span>
+                <ChevronDown size={16} />
+              </button>
             
             <AnimatePresence>
               {showTicketSelector && (
@@ -469,7 +469,7 @@ export function ChatClient({ initialMessages, companyId, senderRole, companyToke
                         className={`w-full px-4 py-3 flex items-center gap-3 hover:bg-gray-50 transition-all ${currentTicketId === ticket.id ? 'bg-indigo-50' : ''}`}
                       >
                         <Hash size={16} className="text-indigo-500" />
-                        <span className="text-sm font-medium text-gray-700">{ticket.id.slice(-8)}</span>
+                        <span className="text-sm font-medium text-gray-700">{String(ticket.id).slice(-8)}</span>
                         {ticket.status === 'open' && <span className="text-[10px] bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full">مفتوحة</span>}
                       </button>
                     ))}

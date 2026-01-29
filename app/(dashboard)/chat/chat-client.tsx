@@ -546,9 +546,9 @@ export function ChatClient({ initialMessages, companyId, senderRole, companyToke
               className="flex items-center gap-2 bg-white/20 hover:bg-white/30 text-white px-4 py-2 rounded-xl transition-all border border-white/20"
             >
               <Ticket size={18} />
-              <span className="text-sm font-bold hidden sm:inline">
-                {currentTicketId ? `#${currentTicketId.slice(-8)}` : 'تذكرة جديدة'}
-              </span>
+                <span className="text-sm font-bold hidden sm:inline">
+                  {activeTicket ? `#${activeTicket.ticket_number.slice(-8)}` : 'تذكرة جديدة'}
+                </span>
               <ChevronDown size={16} />
             </button>
             
@@ -573,9 +573,9 @@ export function ChatClient({ initialMessages, companyId, senderRole, companyToke
                         }}
                         className={`w-full px-4 py-3 flex items-center gap-3 hover:bg-gray-50 transition-all ${currentTicketId === ticket.id ? 'bg-indigo-50' : ''}`}
                       >
-                        <Hash size={16} className="text-indigo-500" />
-                        <span className="text-sm font-medium text-gray-700">{ticket.id.slice(-8)}</span>
-                        {ticket.status === 'open' && <span className="text-[10px] bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full">مفتوحة</span>}
+                          <Hash size={16} className="text-indigo-500" />
+                          <span className="text-sm font-medium text-gray-700">{ticket.ticket_number.slice(-8)}</span>
+                          {ticket.status === 'open' && <span className="text-[10px] bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full">مفتوحة</span>}
                       </button>
                     ))}
                   </div>
@@ -664,9 +664,9 @@ export function ChatClient({ initialMessages, companyId, senderRole, companyToke
         {currentTicketId && (
           <div className="flex justify-center mb-4">
             <div className="bg-white/90 backdrop-blur-sm px-4 py-2 rounded-full shadow-md border border-gray-200 flex items-center gap-2">
-              <Ticket size={14} className="text-indigo-600" />
-              <span className="text-xs font-bold text-gray-700">تذكرة رقم: {currentTicketId}</span>
-            </div>
+                <Ticket size={14} className="text-indigo-600" />
+                <span className="text-xs font-bold text-gray-700">تذكرة رقم: {activeTicket?.ticket_number || currentTicketId}</span>
+              </div>
           </div>
         )}
         
