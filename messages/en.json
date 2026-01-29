@@ -455,46 +455,46 @@
     "bonusAfterTarget": "Bonus After Target",
     "newEmployeeAdded": "New Employee Added",
     "withoutPackage": "Without Package",
-    "commissions": {
-      "title": "Monthly Commission System",
+      "commissions": {
+        "title": "Monthly Commission System",
         "subtitle": "Manage and calculate employee commissions in an organized and professional manner",
-        "instructionsTitle": "Monthly Commission System",
+        "instructionsTitle": "User Guide and Features",
         "instructionsTrigger": "Instructions",
-      "instruction1": {
-        "title": "System Overview",
-        "description": "The system allows you to accurately track monthly payments and commissions for your organization, ensuring transparency and efficiency in managing dues."
-      },
-      "instruction2": {
-        "title": "Employee Setup",
-        "description": "First, start by adding employees from the 'HR Management' page, choosing the package type (commission) and filling in the data to be automatically included here."
-      },
-      "instruction3": {
-        "title": "Customize Commissions",
-        "description": "Flexibly define the type of commission (fixed daily/monthly amount or percentage) for each employee according to company policy."
-      },
-      "instruction4": {
-        "title": "Table Control",
-        "description": "An interactive interface that allows you to delete employees or modify their data, with the ability to select all or exclude unselected ones before saving."
-      },
-      "instruction5": {
-        "title": "Archiving and Saving",
-        "description": "When saving data, it is stored in 'Saved Groups' for later reference and to track payment status independently."
-      },
-      "instruction6": {
-        "title": "Update Payment Status",
-        "description": "After saving the report, you can update the payment status (Paid/Pending) with a single click to organize cash flows."
-      },
-      "instruction7": {
-        "title": "Smart Messaging System",
-        "description": "The system automatically sends a payment receipt when paid, or a professional and polite claim notification if the status is 'Pending'."
-      },
-      "instruction8": {
-        "title": "Advanced Administrative Tools",
-        "description": "Take advantage of professional printing features, data export, and precise follow-up of all details in the commissions department."
-      },
-      "manageCommissions": "Manage Commissions",
-      "commissionsReport": "Commissions Report",
-      "filters": "Data Filtering",
+        "instruction1": {
+          "title": "System Overview",
+          "description": "The system allows you to accurately track monthly payments and commissions for your organization, ensuring transparency and efficiency in managing dues."
+        },
+        "instruction2": {
+          "title": "Employee Setup",
+          "description": "First, start by adding employees from the 'HR Management' page, choosing the package type (commission) and filling in the data to be automatically included here."
+        },
+        "instruction3": {
+          "title": "Customize Commissions",
+          "description": "Flexibly define the type of commission (fixed daily/monthly amount or percentage) for each employee according to company policy."
+        },
+        "instruction4": {
+          "title": "Table Control",
+          "description": "An interactive interface that allows you to delete employees or modify their data, with the ability to select all or exclude unselected ones before saving."
+        },
+        "instruction5": {
+          "title": "Archiving and Saving",
+          "description": "When saving data, it is stored in 'Saved Groups' for later reference and to track payment status independently."
+        },
+        "instruction6": {
+          "title": "Update Payment Status",
+          "description": "After saving the report, you can update the payment status (Paid/Pending) with a single click to organize cash flows."
+        },
+        "instruction7": {
+          "title": "Smart Messaging System",
+          "description": "The system automatically sends a payment receipt when paid, or a professional and polite claim notification if the status is 'Pending'."
+        },
+        "instruction8": {
+          "title": "Advanced Administrative Tools",
+          "description": "Take advantage of professional printing features, data export, and precise follow-up of all details in the commissions department."
+        },
+        "manageCommissions": "Manage Commissions",
+        "commissionsReport": "Commissions Report",
+        "filters": "Data Filtering",
         "month": "Month",
         "package": "Package",
         "addPackage": "Add Package",
@@ -536,21 +536,21 @@
         "paidStatus": "Paid",
         "unpaidStatus": "Pending",
         "noEmployees": "No employees found",
-      "report": {
-        "title": "Final Commissions Report",
-        "subtitle": "Review and approve monthly commission statement",
-        "print": "Print Report",
-        "totalDue": "Total Dues",
-        "includedEmployees": "Included Employees",
-        "commissionType": "Commission Type",
-        "accountantSignature": "Accountant Signature",
-        "managerApproval": "Manager Approval"
+        "report": {
+          "title": "Final Commissions Report",
+          "subtitle": "Review and approve monthly commission statement",
+          "print": "Print Report",
+          "totalDue": "Total Dues",
+          "includedEmployees": "Included Employees",
+          "commissionType": "Commission Type",
+          "accountantSignature": "Accountant Signature",
+          "managerApproval": "Manager Approval"
+        },
+        "notifications": {
+          "error": "An error occurred while loading data",
+          "success": "Operation completed successfully"
+        }
       },
-      "notifications": {
-        "error": "An error occurred while loading data",
-        "success": "Operation completed successfully"
-      }
-    },
     "tasksPage": {
       "title": "Tasks Management",
       "hrAffairs": "Employee Affairs",
