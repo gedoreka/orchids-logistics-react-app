@@ -46,7 +46,7 @@ interface AdminNotification {
           }
         }
       } catch (error: any) {
-        if (error.message === "Failed to fetch") {
+        if (error.name === 'TypeError' && error.message.includes('fetch')) {
           return;
         }
         console.error("Error checking for admin notifications:", error);

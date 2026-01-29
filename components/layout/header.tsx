@@ -363,10 +363,14 @@ export function Header({ user, onToggleSidebar, unreadChatCount = 0, subscriptio
                   } else {
                     unreadResults.push(0);
                   }
-                } catch (e) {
-                  console.error(`Error fetching unread for ${account.email}:`, e);
-                  unreadResults.push(0);
-                }
+                  } catch (e: any) {
+                    if (e.name === 'TypeError' && e.message.includes('fetch')) {
+                      unreadResults.push(0);
+                      continue;
+                    }
+                    console.error(`Error fetching unread for ${account.email}:`, e);
+                    unreadResults.push(0);
+                  }
               }
             
             const totalUnread = unreadResults.reduce((sum, count) => sum + count, 0);

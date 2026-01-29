@@ -109,7 +109,7 @@ export function GlobalChatNotifications({ isAdmin, companyId }: GlobalChatNotifi
           setUnreadCount(newUnreadCount);
         }
         } catch (error: any) {
-          if (error.message === "Failed to fetch") {
+          if (error.name === 'TypeError' && error.message.includes('fetch')) {
             return;
           }
           console.error("Error checking for new messages:", error);

@@ -51,7 +51,7 @@ export function DashboardLayout({ children, user, permissions, userType, subscri
         setUnreadChatCount(data.unread_count);
       }
       } catch (error: any) {
-        if (error.message === "Failed to fetch") {
+        if (error.name === 'TypeError' && error.message.includes('fetch')) {
           return;
         }
         console.error("Error fetching unread count:", error);
