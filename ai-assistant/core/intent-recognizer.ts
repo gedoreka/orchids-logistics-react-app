@@ -9,7 +9,8 @@ export interface IntentAnalysis {
 }
 
 export function analyzeIntent(message: string): IntentAnalysis {
-  const msg = message.toLowerCase();
+  const msg = message.toLowerCase().trim();
+  const cleanMsg = msg.replace(/[؟?.,!]/g, '').trim();
   
   // 1. Language Detection (Simple)
   const isEnglish = /[a-zA-Z]/.test(msg);
@@ -33,22 +34,27 @@ export function analyzeIntent(message: string): IntentAnalysis {
   let intent = 'general';
   let confidence = 0.5;
 
-  if (knowledgeBase.greetings.arabic.some(g => msg.includes(g)) || 
-      knowledgeBase.greetings.english.some(g => msg.includes(g))) {
+  const isGreeting = knowledgeBase.greetings.arabic.some(g => cleanMsg === g || cleanMsg.includes(g)) || 
+                     knowledgeBase.greetings.english.some(g => cleanMsg === g || cleanMsg.includes(g));
+
+  if (isGreeting) {
     intent = 'greeting';
-    confidence = 0.9;
-  } else if (msg.includes('فاتورة') || msg.includes('invoice') || msg.includes('دفع')) {
+    confidence = 0.95;
+  } else if (msg.includes('فاتورة') || msg.includes('invoice') || msg.includes('دفع') || msg.includes('سداد')) {
     intent = 'invoice';
-    confidence = 0.8;
-  } else if (msg.includes('راتب') || msg.includes('payroll') || msg.includes('موظف')) {
+    confidence = 0.85;
+  } else if (msg.includes('راتب') || msg.includes('payroll') || msg.includes('موظف') || msg.includes('عمال')) {
     intent = 'payroll';
-    confidence = 0.8;
-  } else if (msg.includes('تقرير') || msg.includes('report') || msg.includes('كشف')) {
+    confidence = 0.85;
+  } else if (msg.includes('تقرير') || msg.includes('report') || msg.includes('كشف') || msg.includes('تحليل')) {
     intent = 'report';
-    confidence = 0.8;
-  } else if (msg.includes('مشكلة') || msg.includes('خطأ') || msg.includes('error') || msg.includes('help')) {
+    confidence = 0.85;
+  } else if (msg.includes('كلمة المرور') || msg.includes('باسورد') || msg.includes('password') || msg.includes('دخول')) {
+    intent = 'auth_help';
+    confidence = 0.9;
+  } else if (msg.includes('مشكلة') || msg.includes('خطأ') || msg.includes('error') || msg.includes('help') || msg.includes('مساعدة')) {
     intent = 'technical_help';
-    confidence = 0.7;
+    confidence = 0.8;
   }
 
   return { intent, mood, urgency, language, confidence };

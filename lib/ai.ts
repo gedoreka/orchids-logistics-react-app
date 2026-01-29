@@ -88,12 +88,24 @@ ${JSON.stringify(context.conversation_history || [], null, 2)}
       confidence = 0.4;
     }
 
-    return { text, confidence, buttons: localResponse.buttons.length > 0 ? localResponse.buttons : (context.buttons || []) };
+    return { 
+      text, 
+      confidence, 
+      buttons: localResponse.buttons.length > 0 ? localResponse.buttons : (context.buttons || []) 
+    };
   } catch (error: any) {
-    console.error("Gemini API Error, using Sam fallback:", error.message);
+    console.error("Gemini API Error, using Sam fallback with KB:", error.message);
+    
+    // Improved fallback: If KB results exist, mention them even if Gemini failed
+    let fallbackText = localResponse.text;
+    if (context.knowledge_base && context.knowledge_base.length > 0) {
+      const bestArticle = context.knowledge_base[0];
+      fallbackText = `أهلاً بك يا ${userName}! 🌟 أعتذر، هناك ضغط تقني بسيط، ولكن وجدت لك هذه المعلومة من قاعدة معرفتنا:\n\n**${bestArticle.title}**\n${bestArticle.content.substring(0, 200)}...\n\nهل هذا هو ما تبحث عنه؟`;
+    }
+
     return {
-      text: localResponse.text,
-      confidence: 0.5,
+      text: fallbackText,
+      confidence: 0.6,
       buttons: localResponse.buttons
     };
   }
