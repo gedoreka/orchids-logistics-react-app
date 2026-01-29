@@ -75,36 +75,50 @@ export function ChatClient({ initialMessages, companyId, senderRole, companyToke
   const recordingIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const lastMessageCountRef = useRef(messages.length);
+  const isFirstLoadRef = useRef(true);
 
-  const scrollToBottom = useCallback(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  const scrollToBottom = useCallback((behavior: ScrollBehavior = "smooth") => {
+    messagesEndRef.current?.scrollIntoView({ behavior });
   }, []);
 
   // التحكم في التمرير الذكي - يسمح للمستخدم بالتوقف في أي مكان
   useEffect(() => {
     const container = containerRef.current;
-    if (!container) return;
+    if (!container || messages.length === 0) return;
+
+    // 1. عند التحميل الأول للمحادثة، ننتقل للقاع فوراً
+    if (isFirstLoadRef.current) {
+      scrollToBottom("auto");
+      isFirstLoadRef.current = false;
+      lastMessageCountRef.current = messages.length;
+      return;
+    }
 
     const { scrollTop, scrollHeight, clientHeight } = container;
     
     // نحدد ما إذا كان المستخدم قريباً من القاع (بمنطقة 150 بكسل)
     const isNearBottom = scrollHeight - scrollTop - clientHeight < 150;
     
-    // الرسالة الأخيرة
-    const lastMessage = messages[messages.length - 1];
-    // هل الرسالة مرسلة من قبل المستخدم الحالي؟
-    const sentByMe = lastMessage?.sender_role === senderRole;
-    // هل هذه أول عملية تحميل للرسائل؟
-    const isInitialLoad = messages.length === initialMessages.length;
+    // هل هناك رسائل جديدة فعلاً؟
+    const hasNewMessages = messages.length > lastMessageCountRef.current;
+    
+    if (hasNewMessages) {
+      // الرسالة الأخيرة
+      const lastMessage = messages[messages.length - 1];
+      // هل الرسالة مرسلة من قبل المستخدم الحالي؟
+      const sentByMe = lastMessage?.sender_role === senderRole;
 
-    // نقوم بالتمرير تلقائياً فقط في هذه الحالات:
-    // 1. عند التحميل الأول
-    // 2. إذا كان المستخدم أصلاً في القاع
-    // 3. إذا كان المستخدم هو من أرسل الرسالة الأخيرة
-    if (isInitialLoad || isNearBottom || sentByMe) {
-      scrollToBottom();
+      // نقوم بالتمرير تلقائياً فقط إذا:
+      // 1. كان المستخدم أصلاً في القاع
+      // 2. أو إذا كان المستخدم هو من أرسل الرسالة الأخيرة (يريد رؤية رده)
+      if (isNearBottom || sentByMe) {
+        // نستخدم timeout بسيط لضمان رندر العناصر الجديدة قبل التمرير
+        setTimeout(() => scrollToBottom("smooth"), 50);
+      }
     }
-  }, [messages, scrollToBottom, senderRole, initialMessages.length]);
+    
+    lastMessageCountRef.current = messages.length;
+  }, [messages, scrollToBottom, senderRole]);
 
   useEffect(() => {
     const container = containerRef.current;
@@ -143,8 +157,9 @@ export function ChatClient({ initialMessages, companyId, senderRole, companyToke
             }
           }
           
-          lastMessageCountRef.current = newMessages.length;
-          setMessages(newMessages);
+            // lastMessageCountRef.current = newMessages.length; // تم نقله إلى effect التمرير لضمان اكتشاف الرسائل الجديدة
+            setMessages(newMessages);
+
           
           const uniqueTickets = [...new Set(newMessages.filter((m: any) => m.ticket_id).map((m: any) => m.ticket_id))];
           setTickets(uniqueTickets.map(id => ({ id, status: 'open' })));
