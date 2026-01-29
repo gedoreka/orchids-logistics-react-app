@@ -1,4 +1,6 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
+import { knowledgeBase } from "@/ai-assistant/core/knowledge-base";
+import { getSystemStats } from "@/ai-assistant/data/system-data";
 
 const genAI = new GoogleGenerativeAI(process.env.GOOGLE_GEMINI_API_KEY || "");
 
@@ -6,94 +8,98 @@ export async function generateAIResponse(message: string, context: any = {}) {
   if (!process.env.GOOGLE_GEMINI_API_KEY) {
     console.error("CRITICAL: GOOGLE_GEMINI_API_KEY is missing from environment variables");
     return {
-      text: "🤖 مساعد الدعم الذكي: عذراً، لم يتم تكوين مفتاح الـ AI بشكل صحيح. يرجى التواصل مع المدير.",
+      text: "🤖 سام: عذراً، لم يتم تكوين مفتاح الـ AI بشكل صحيح. يرجى التواصل مع المدير.",
       confidence: 0
     };
   }
 
-    try {
-      const model = genAI.getGenerativeModel({ 
-        model: "gemini-2.0-flash",
-        generationConfig: {
-          maxOutputTokens: 1000,
-          temperature: 0.7,
-        }
-      });
-
+  try {
+    const stats = context.company_id ? await getSystemStats(context.company_id) : null;
+    
+    const model = genAI.getGenerativeModel({ 
+      model: "gemini-2.0-flash",
+      generationConfig: {
+        maxOutputTokens: 1000,
+        temperature: 0.8,
+      }
+    });
 
     const systemPrompt = `
-أنت "مساعد الدعم الذكي" المتميز في نظام Logistics Systems Pro. 
+أنت "سام" (Sam)، المساعد الذكي والخبير المحاسبي في نظام المحاسب الذكي (Smart Accountant System).
+أنت لست مجرد روبوت، بل شريك ذكي، دافئ، ومتفاعل يفهم السياق والمزاج.
 
-مهمتك هي تقديم دعم استثنائي وذكي للعملاء.
-القواعد الذهبية لردودك:
-1. الشخصية: كن ودوداً، مهنياً، ومتميزاً في أسلوبك. تجنب الردود الآلية الجافة.
-2. الدقة: استند فقط إلى قاعدة المعرفة المزودة لك. لا تخترع حقائق.
-3. التفاعل: إذا كان السؤال غير واضح، اطلب توضيحاً بلباقة.
-4. الصدق: إذا لم تجد الإجابة في قاعدة المعرفة، لا تحاول التخمين. بدلاً من ذلك، أخبر العميل بلباقة أنك ستحيله للدعم البشري.
+قواعدك الذهبية:
+1. الشخصية: كن ودوداً للغاية، استخدم الرموز التعبيرية (Emojis) بشكل ذكي، ونادِ المستخدم باسمه إذا توفر.
+2. المعرفة الحية: استخدم الإحصائيات الحالية للنظام إذا تم تزويدك بها.
+3. الذكاء السياقي: افهم مزاج المستخدم. إذا كان غاضباً، كن متعاطفاً جداً. إذا كان سعيداً، شاركه الفرحة.
+4. قاعدة المعرفة: استند إلى هذه البيانات الأساسية:
+${JSON.stringify(knowledgeBase, null, 2)}
 
-قاعدة المعرفة المتاحة:
-${JSON.stringify(context.knowledge_base || [], null, 2)}
+إحصائيات حية للشركة الحالية:
+${JSON.stringify(stats, null, 2)}
 
 تاريخ المحادثة:
 ${JSON.stringify(context.conversation_history || [], null, 2)}
 
-ملاحظة هامة: ابدأ ردك مباشرة بالحل أو التحية، ولا تستخدم أي بادئة ثابتة مكررة مثل "🤖 مساعد الدعم الذكي:". دع ردك يكون طبيعياً كأنك إنسان خبير.
+مهم جداً:
+- لا تستخدم مقدمات مكررة مثل "بصفتي مساعد ذكي".
+- اجعل ردودك تفاعلية، واقترح خطوات قادمة.
+- إذا سألك المستخدم "من أنت؟" أو "ما اسمك؟"، أجب بأنك "سام"، مساعدهم الذكي.
+- استخدم التنسيق الغني (Markdown) لجعل الردود جميلة (جداول، قوائم، خط عريض).
 `;
 
     let result;
-      try {
-        result = await model.generateContent([systemPrompt, message]);
-      } catch (genError: any) {
-        console.error("Primary model failed, trying fallback...", genError.message);
-        const fallbackModel = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
-        result = await fallbackModel.generateContent([systemPrompt, message]);
-      }
-
+    try {
+      result = await model.generateContent([systemPrompt, message]);
+    } catch (genError: any) {
+      console.error("Primary model failed, trying fallback...", genError.message);
+      const fallbackModel = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+      result = await fallbackModel.generateContent([systemPrompt, message]);
+    }
 
     const response = await result.response;
     let text = response.text().trim();
 
-    // Remove any forced prefixes if the model still adds them
-    text = text.replace(/^🤖 مساعد الدعم الذكي:\s*/, "");
-    text = text.replace(/^مساعد الدعم الذكي:\s*/, "");
+    // Clean up any forced prefixes
+    text = text.replace(/^🤖 سام:\s*/, "");
+    text = text.replace(/^سام:\s*/, "");
 
     let confidence = 0.9;
     if (text.includes("تحويلك لممثل بشري") || text.includes("لا أملك معلومات") || text.includes("غير متأكد")) {
       confidence = 0.4;
     }
 
-    return { text, confidence };
+    return { text, confidence, buttons: context.buttons || [] };
   } catch (error: any) {
     console.error("Gemini API Error Details:", error.message);
-    throw error; // Let the caller handle the fallback
+    throw error;
   }
 }
 
-  export async function analyzeMessage(message: string) {
+export async function analyzeMessage(message: string) {
+  try {
+    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+    const prompt = `
+    حلل رسالة العميل التالية وأجب بتنسيق JSON فقط:
+    {
+      "language": "ar" أو "en",
+      "category": "technical" أو "financial" أو "service" أو "general",
+      "urgency": "normal" أو "urgent" أو "critical",
+      "request_human": true إذا طلب صراحة موظف أو إنسان، وإلا false
+    }
+
+    الرسالة: "${message}"
+    `;
+
+    let result;
     try {
-      const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
-      const prompt = `
-  حلل رسالة العميل التالية وأجب بتنسيق JSON فقط:
-  {
-    "language": "ar" أو "en",
-    "category": "technical" أو "financial" أو "service" أو "general",
-    "urgency": "normal" أو "urgent" أو "critical",
-    "request_human": true إذا طلب صراحة موظف أو إنسان، وإلا false
-  }
+      result = await model.generateContent(prompt);
+    } catch (genError: any) {
+      console.error("Analysis Primary model failed, trying fallback...", genError.message);
+      const fallbackModel = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+      result = await fallbackModel.generateContent(prompt);
+    }
 
-  الرسالة: "${message}"
-  `;
-
-      let result;
-      try {
-        result = await model.generateContent(prompt);
-      } catch (genError: any) {
-        console.error("Analysis Primary model failed, trying fallback...", genError.message);
-        const fallbackModel = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
-        result = await fallbackModel.generateContent(prompt);
-      }
-
-    
     const response = await result.response;
     const text = response.text();
     

@@ -85,14 +85,15 @@ export async function POST(request: NextRequest) {
       let aiResult;
       try {
         aiResult = await generateAIResponse(message, {
+          company_id: company_id,
           knowledge_base: kbResults,
           analysis: analysis,
           conversation_history: []
         });
 
         // Check for low confidence or "I don't know" style responses
-        if (aiResult.confidence < 0.5) {
-          aiResult.text = "انتظرنا قليلاً سيتم الرد عليك بأسرع وقت عبر فريق الدعم الخاص بنا.";
+        if (aiResult.confidence < 0.4) {
+          aiResult.text = "أعتذر منك، لم أتمكن من العثور على إجابة دقيقة لطلبك. 🧐 تم تحويل طلبك لفريق الدعم البشري لمساعدتك بشكل أفضل.";
         }
       } catch (aiError) {
         console.error("AI Generation failed, using KB fallback:", aiError);
@@ -115,8 +116,8 @@ export async function POST(request: NextRequest) {
 
     // 6. Save AI Message
     await execute(
-      "INSERT INTO chat_messages (company_id, conversation_id, sender_role, message, is_ai, ai_confidence) VALUES (?, ?, 'admin', ?, 1, ?)",
-      [company_id, conversationId, aiResult.text, aiResult.confidence]
+      "INSERT INTO chat_messages (company_id, conversation_id, sender_role, message, is_ai, ai_confidence, buttons) VALUES (?, ?, 'admin', ?, 1, ?, ?)",
+      [company_id, conversationId, aiResult.text, aiResult.confidence, JSON.stringify(aiResult.buttons || [])]
     );
 
     // 7. Update Conversation Stats
@@ -136,7 +137,8 @@ export async function POST(request: NextRequest) {
       success: true,
       handled_by: 'ai',
       response: aiResult.text,
-      confidence: aiResult.confidence
+      confidence: aiResult.confidence,
+      buttons: aiResult.buttons || []
     });
 
   } catch (error) {

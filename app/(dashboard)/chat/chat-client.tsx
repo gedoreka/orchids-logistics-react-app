@@ -748,7 +748,12 @@ export function ChatClient({ initialMessages, companyId, senderRole, companyToke
                               )}
                             </div>
 
-                          <MessageContent msg={msg} isMe={isMe} />
+                            <MessageContent msg={msg} isMe={isMe} onAction={(action: string) => {
+                              setInputValue(action);
+                              // We can trigger send automatically if it's a known action
+                              setTimeout(() => handleSend(), 100);
+                            }} />
+
 
                         
                         <div className={`flex items-center gap-2 mt-2 ${isMe ? 'justify-start' : 'justify-end'}`}>
@@ -984,10 +989,13 @@ export function ChatClient({ initialMessages, companyId, senderRole, companyToke
   );
 }
 
-function MessageContent({ msg, isMe }: { msg: any; isMe: boolean }) {
+function MessageContent({ msg, isMe, onAction }: { msg: any; isMe: boolean; onAction?: (action: string) => void }) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [progress, setProgress] = useState(0);
   const audioRef = useRef<HTMLAudioElement>(null);
+
+  // Parse buttons if they are a string (MySQL might return as string or object)
+  const buttons = typeof msg.buttons === 'string' ? JSON.parse(msg.buttons) : (msg.buttons || []);
 
   useEffect(() => {
     const audio = audioRef.current;
@@ -1091,5 +1099,28 @@ function MessageContent({ msg, isMe }: { msg: any; isMe: boolean }) {
     );
   }
 
-  return <p className="text-[15px] leading-relaxed whitespace-pre-wrap break-words">{msg.message}</p>;
+  return (
+    <div className="space-y-3">
+      <p className="text-[15px] leading-relaxed whitespace-pre-wrap break-words">{msg.message}</p>
+      
+      {buttons.length > 0 && (
+        <div className="flex flex-wrap gap-2 mt-3">
+          {buttons.map((btn: any, idx: number) => (
+            <button
+              key={idx}
+              onClick={() => onAction?.(btn.text)}
+              className={`px-4 py-2 rounded-xl text-sm font-bold transition-all flex items-center gap-2 hover:scale-105 active:scale-95 shadow-md ${
+                isMe 
+                  ? 'bg-indigo-100 text-indigo-700 hover:bg-indigo-200' 
+                  : 'bg-white/20 text-white hover:bg-white/30 border border-white/30'
+              }`}
+            >
+              {btn.emoji && <span>{btn.emoji}</span>}
+              {btn.text}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
 }
