@@ -52,7 +52,10 @@ export async function GET(req: NextRequest) {
     let loadedCommissions: any[] = [];
     if (package_id && mode && month) {
       loadedCommissions = await query(
-        "SELECT * FROM employee_commissions WHERE company_id = ? AND month = ? AND package_id = ? AND mode = ?",
+        `SELECT ec.*, e.name, e.user_code, e.iqama_number 
+         FROM employee_commissions ec
+         JOIN employees e ON ec.employee_id = e.id
+         WHERE ec.company_id = ? AND ec.month = ? AND ec.package_id = ? AND ec.mode = ?`,
         [company_id, month, package_id, mode]
       );
     }

@@ -281,8 +281,8 @@ export function CommissionsClient({ packages: initialPackages, companyId }: { pa
   };
 
   const filteredCommissions = commissions.filter(c => 
-    c.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
-    c.user_code.includes(searchQuery)
+    (c.name || "").toLowerCase().includes(searchQuery.toLowerCase()) || 
+    (c.user_code || "").includes(searchQuery)
   );
 
   const getRealIndex = (filteredIdx: number) => {

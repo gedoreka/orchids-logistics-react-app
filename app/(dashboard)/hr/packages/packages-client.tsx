@@ -102,7 +102,7 @@ export function PackagesClient({ initialPackages, companyId }: PackagesClientPro
   ]);
 
   const filteredPackages = packages.filter(pkg =>
-    pkg.group_name?.toLowerCase().includes(searchTerm.toLowerCase())
+    (pkg.group_name || "").toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const stats = {
