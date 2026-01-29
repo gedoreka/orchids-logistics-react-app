@@ -617,7 +617,16 @@ export function ChatClient({ initialMessages, companyId, senderRole, companyToke
                             : 'bg-gradient-to-br from-indigo-600 to-purple-600 text-white rounded-tl-sm'
                         }`}
                       >
-                        <MessageContent msg={msg} isMe={isMe} />
+                          <div className="flex items-center gap-2 mb-1">
+                            {msg.is_ai === 1 && (
+                              <span className="bg-indigo-100 text-indigo-700 text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1">
+                                <RefreshCw size={10} className="animate-spin" />
+                                ذكاء اصطناعي
+                              </span>
+                            )}
+                          </div>
+                          <MessageContent msg={msg} isMe={isMe} />
+
                         
                         <div className={`flex items-center gap-2 mt-2 ${isMe ? 'justify-start' : 'justify-end'}`}>
                           <span className={`text-[10px] font-medium ${isMe ? 'text-gray-400' : 'text-white/70'}`}>
