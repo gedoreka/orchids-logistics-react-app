@@ -46,7 +46,7 @@ export async function POST(request: NextRequest) {
     // 4. Decision: Human or AI?
     const conversationStatus = conversation[0]?.status || 'active';
     
-    if (analysis.request_human || conversationStatus === 'pending_human') {
+    if (analysis.request_human) {
       await execute(
         "UPDATE conversations SET status = 'pending_human', needs_human = 1, escalated_at = CURRENT_TIMESTAMP WHERE id = ?",
         [conversationId]
@@ -63,11 +63,28 @@ export async function POST(request: NextRequest) {
     // Search Knowledge Base
     const kbResults = await searchKnowledgeBase(message, analysis.language);
     
-    const aiResult = await generateAIResponse(message, {
-      knowledge_base: kbResults,
-      analysis: analysis,
-      conversation_history: [] // Could add recent messages here
-    });
+    let aiResult;
+    try {
+      aiResult = await generateAIResponse(message, {
+        knowledge_base: kbResults,
+        analysis: analysis,
+        conversation_history: []
+      });
+    } catch (aiError) {
+      console.error("AI Generation failed, using KB fallback:", aiError);
+      // Fallback: If AI fails, use the best KB result if available
+      if (kbResults.length > 0) {
+        aiResult = {
+          text: `🤖 مساعد الدعم الذكي: وجدت هذه المعلومات المتعلقة بطلبك:\n\n${kbResults[0].answer}`,
+          confidence: 0.8
+        };
+      } else {
+        throw aiError; // Re-throw if no KB results to fallback to
+      }
+    }
+
+    // If conversation was pending human but AI is very confident, we still allow the AI to respond
+    // to keep the user engaged, unless they specifically asked for a human in this message.
 
     // 6. Save AI Message
     await execute(

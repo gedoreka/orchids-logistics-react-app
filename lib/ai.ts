@@ -11,14 +11,15 @@ export async function generateAIResponse(message: string, context: any = {}) {
     };
   }
 
-  try {
-    const model = genAI.getGenerativeModel({ 
-      model: "gemini-1.5-flash",
-      generationConfig: {
-        maxOutputTokens: 1000,
-        temperature: 0.7,
-      }
-    });
+    try {
+      const model = genAI.getGenerativeModel({ 
+        model: "gemini-2.0-flash",
+        generationConfig: {
+          maxOutputTokens: 1000,
+          temperature: 0.7,
+        }
+      });
+
 
     const systemPrompt = `
 أنت "مساعد الدعم الذكي" في نظام Logistics Systems Pro.
@@ -48,13 +49,14 @@ ${JSON.stringify(context.conversation_history || [], null, 2)}
 `;
 
     let result;
-    try {
-      result = await model.generateContent([systemPrompt, message]);
-    } catch (genError: any) {
-      console.error("Primary model failed, trying fallback...", genError.message);
-      const fallbackModel = genAI.getGenerativeModel({ model: "gemini-1.5-pro" });
-      result = await fallbackModel.generateContent([systemPrompt, message]);
-    }
+      try {
+        result = await model.generateContent([systemPrompt, message]);
+      } catch (genError: any) {
+        console.error("Primary model failed, trying fallback...", genError.message);
+        const fallbackModel = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+        result = await fallbackModel.generateContent([systemPrompt, message]);
+      }
+
 
     const response = await result.response;
     let text = response.text().trim();
@@ -71,36 +73,34 @@ ${JSON.stringify(context.conversation_history || [], null, 2)}
     return { text, confidence };
   } catch (error: any) {
     console.error("Gemini API Error Details:", error.message);
-    return {
-      text: "🤖 مساعد الدعم الذكي: عذراً، أواجه صعوبة في معالجة طلبك حالياً. سأقوم بتحويلك لممثل بشري فوراً لمساعدتك.",
-      confidence: 0
-    };
+    throw error; // Let the caller handle the fallback
   }
 }
 
-export async function analyzeMessage(message: string) {
-  try {
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-    const prompt = `
-حلل رسالة العميل التالية وأجب بتنسيق JSON فقط:
-{
-  "language": "ar" أو "en",
-  "category": "technical" أو "financial" أو "service" أو "general",
-  "urgency": "normal" أو "urgent" أو "critical",
-  "request_human": true إذا طلب صراحة موظف أو إنسان، وإلا false
-}
-
-الرسالة: "${message}"
-`;
-
-    let result;
+  export async function analyzeMessage(message: string) {
     try {
-      result = await model.generateContent(prompt);
-    } catch (genError: any) {
-      console.error("Analysis Primary model failed, trying fallback...", genError.message);
-      const fallbackModel = genAI.getGenerativeModel({ model: "gemini-1.5-pro" });
-      result = await fallbackModel.generateContent(prompt);
-    }
+      const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+      const prompt = `
+  حلل رسالة العميل التالية وأجب بتنسيق JSON فقط:
+  {
+    "language": "ar" أو "en",
+    "category": "technical" أو "financial" أو "service" أو "general",
+    "urgency": "normal" أو "urgent" أو "critical",
+    "request_human": true إذا طلب صراحة موظف أو إنسان، وإلا false
+  }
+
+  الرسالة: "${message}"
+  `;
+
+      let result;
+      try {
+        result = await model.generateContent(prompt);
+      } catch (genError: any) {
+        console.error("Analysis Primary model failed, trying fallback...", genError.message);
+        const fallbackModel = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+        result = await fallbackModel.generateContent(prompt);
+      }
+
     
     const response = await result.response;
     const text = response.text();
