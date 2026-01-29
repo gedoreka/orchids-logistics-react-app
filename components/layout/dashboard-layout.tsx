@@ -137,44 +137,46 @@ export function DashboardLayout({ children, user, permissions, userType, subscri
           </div>
 
           <main className="flex-1 overflow-y-auto overflow-x-hidden relative">
-            {isBlocked ? (
-              <div className="flex items-center justify-center min-h-[80vh] p-6 text-center">
-                <motion.div 
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  className="bg-slate-900/80 backdrop-blur-xl border border-red-500/20 p-8 rounded-3xl max-w-md w-full"
-                >
-                  <div className="w-20 h-20 bg-red-500/10 rounded-full flex items-center justify-center mx-auto mb-6">
-                    <AlertCircle size={40} className="text-red-500" />
-                  </div>
-                  <h2 className="text-2xl font-black text-white mb-4">
-                    {isRTL ? 'تنبيه: اشتراك غير نشط' : 'Alert: Inactive Subscription'}
-                  </h2>
-                  <p className="text-slate-400 mb-8">
-                    {isRTL 
-                      ? 'عذراً، يجب أن يكون لديك اشتراك نشط لتتمكن من استخدام ميزات النظام. يرجى تفعيل باقة اشتراك للمتابعة.' 
-                      : 'Sorry, you must have an active subscription to use system features. Please activate a subscription plan to continue.'}
-                  </p>
-                  <motion.button
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                    onClick={() => router.push('/subscriptions')}
-                    className="w-full py-4 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-bold rounded-2xl shadow-xl shadow-blue-500/20"
+            <div className="w-[95%] lg:w-[90%] mx-auto py-6">
+              {isBlocked ? (
+                <div className="flex items-center justify-center min-h-[70vh] p-6 text-center">
+                  <motion.div 
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    className="bg-slate-900/80 backdrop-blur-xl border border-red-500/20 p-8 rounded-3xl max-w-md w-full"
                   >
-                    {isRTL ? 'الذهاب لصفحة الاشتراكات' : 'Go to Subscriptions'}
-                  </motion.button>
+                    <div className="w-20 h-20 bg-red-500/10 rounded-full flex items-center justify-center mx-auto mb-6">
+                      <AlertCircle size={40} className="text-red-500" />
+                    </div>
+                    <h2 className="text-2xl font-black text-white mb-4">
+                      {isRTL ? 'تنبيه: اشتراك غير نشط' : 'Alert: Inactive Subscription'}
+                    </h2>
+                    <p className="text-slate-400 mb-8">
+                      {isRTL 
+                        ? 'عذراً، يجب أن يكون لديك اشتراك نشط لتتمكن من استخدام ميزات النظام. يرجى تفعيل باقة اشتراك للمتابعة.' 
+                        : 'Sorry, you must have an active subscription to use system features. Please activate a subscription plan to continue.'}
+                    </p>
+                    <motion.button
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      onClick={() => router.push('/subscriptions')}
+                      className="w-full py-4 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-bold rounded-2xl shadow-xl shadow-blue-500/20"
+                    >
+                      {isRTL ? 'الذهاب لصفحة الاشتراكات' : 'Go to Subscriptions'}
+                    </motion.button>
+                  </motion.div>
+                </div>
+              ) : (
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.4, ease: "easeOut" }}
+                  className="min-h-full w-full"
+                >
+                  {children}
                 </motion.div>
-              </div>
-            ) : (
-              <motion.div
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.4, ease: "easeOut" }}
-                className="min-h-full w-full"
-              >
-                {children}
-              </motion.div>
-            )}
+              )}
+            </div>
           </main>
 
 

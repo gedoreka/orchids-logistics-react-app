@@ -803,63 +803,139 @@ export function Header({ user, onToggleSidebar, unreadChatCount = 0, subscriptio
                   <Menu size={20} />
                 </motion.button>
 
-                  {pathname !== "/dashboard" && (
-                    <div className="hidden sm:flex items-center gap-2">
-                      <motion.button 
-                        whileHover={{ scale: 1.02, x: isRTL ? 3 : -3 }}
-                        whileTap={{ scale: 0.98 }}
-                        onClick={() => router.back()}
-                        className="flex items-center gap-2 px-4 py-2 bg-white/5 hover:bg-white/10 rounded-xl transition-all border border-white/10 group"
-                      >
-                        <BackIcon size={16} className={cn("text-white/60 transition-transform", isRTL ? "group-hover:translate-x-1" : "group-hover:-translate-x-1")} />
-                        <span className="text-[11px] font-bold text-white/60">{tCommon('back')}</span>
-                      </motion.button>
-                      
-                      <motion.button 
-                        whileHover={{ scale: 1.02 }}
-                        whileTap={{ scale: 0.98 }}
-                        onClick={() => router.push("/dashboard")}
-                        className="flex items-center gap-2 px-4 py-2 bg-white/5 hover:bg-white/10 rounded-xl transition-all border border-white/10 group"
-                      >
-                        <Home size={16} className="text-white/60 group-hover:scale-110 transition-transform" />
-                        <span className="text-[11px] font-bold text-white/60">{isRTL ? 'الرئيسية' : 'Home'}</span>
-                      </motion.button>
-                    </div>
-                  )}
+                    {pathname !== "/dashboard" && (
+                      <div className="hidden sm:flex items-center gap-2">
+                        <motion.button 
+                          whileHover={{ scale: 1.02, x: isRTL ? 3 : -3 }}
+                          whileTap={{ scale: 0.98 }}
+                          onClick={() => router.back()}
+                          className="flex items-center gap-2 px-4 py-2 bg-white/5 hover:bg-white/10 rounded-xl transition-all border border-white/10 group"
+                        >
+                          <BackIcon size={16} className={cn("text-white/60 transition-transform", isRTL ? "group-hover:translate-x-1" : "group-hover:-translate-x-1")} />
+                          <span className="text-[11px] font-bold text-white/60">{tCommon('back')}</span>
+                        </motion.button>
+                      </div>
+                    )}
+
               </div>
 
-              <div className="flex-1 max-w-xl hidden md:block">
-                <motion.div 
-                  animate={{ 
-                    boxShadow: isSearchFocused 
-                      ? "0 0 0 2px rgba(59, 130, 246, 0.3), 0 4px 20px rgba(0, 0, 0, 0.3)" 
-                      : "0 0 0 1px rgba(255, 255, 255, 0.05)"
-                  }}
-                  className={cn(
-                    "relative flex items-center gap-3 px-4 py-2.5 rounded-2xl transition-all duration-300",
-                    "bg-white/5 border border-white/10",
-                    isSearchFocused && "bg-white/10 border-blue-500/30"
-                  )}
-                >
-                  <Search size={16} className={cn(
-                    "transition-colors",
-                    isSearchFocused ? "text-blue-400" : "text-white/30"
-                  )} />
-                    <input
-                      type="text"
-                      placeholder={t('searchPlaceholder')}
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                      onFocus={() => setIsSearchFocused(true)}
-                      onBlur={() => setIsSearchFocused(false)}
-                        className="flex-1 !bg-transparent border-none text-white/90 text-[12px] font-medium placeholder:text-white/30 outline-none"
-                    />
-                  <div className="hidden lg:flex items-center gap-1 px-2 py-1 bg-white/5 rounded-lg border border-white/10">
-                    <Command size={10} className="text-white/30" />
-                    <span className="text-[9px] font-bold text-white/30">K</span>
-                  </div>
-                </motion.div>
-              </div>
+                  <AnimatePresence>
+                    {isSearchFocused ? (
+                      <motion.div 
+                        initial={{ width: 40, opacity: 0 }}
+                        animate={{ width: "100%", opacity: 1 }}
+                        exit={{ width: 40, opacity: 0 }}
+                        className="flex-1"
+                      >
+                        <div className={cn(
+                          "relative flex items-center gap-3 px-4 py-2.5 rounded-2xl transition-all duration-300",
+                          "bg-white/10 border border-blue-500/30 shadow-lg shadow-blue-500/10"
+                        )}>
+                          <Search size={16} className="text-blue-400" />
+                          <input
+                            autoFocus
+                            type="text"
+                            placeholder={t('searchPlaceholder')}
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            onBlur={() => {
+                              if (searchQuery === "") setIsSearchFocused(false);
+                            }}
+                            className="flex-1 !bg-transparent border-none text-white/90 text-[12px] font-medium placeholder:text-white/30 outline-none"
+                          />
+                          <button 
+                            onClick={() => {
+                              setSearchQuery("");
+                              setIsSearchFocused(false);
+                            }}
+                            className="p-1 hover:bg-white/10 rounded-lg text-white/40"
+                          >
+                            <X size={14} />
+                          </button>
+                        </div>
+
+                        {/* Search Results Dropdown */}
+                        <AnimatePresence>
+                          {searchQuery && (
+                            <motion.div
+                              initial={{ opacity: 0, y: 10 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              exit={{ opacity: 0, y: 10 }}
+                              className="absolute top-full mt-2 left-0 right-0 bg-slate-900/95 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl overflow-hidden z-[1000] max-h-[400px] overflow-y-auto custom-scrollbar"
+                            >
+                              <div className="p-2 space-y-1">
+                                {(() => {
+                                  const navItems = [
+                                    { title: isRTL ? "لوحة التحكم" : "Dashboard", href: "/dashboard", icon: Home },
+                                    { title: isRTL ? "إدارة الموظفين" : "HR Management", href: "/hr", icon: Users },
+                                    { title: isRTL ? "قائمة العملاء" : "Customers List", href: "/customers", icon: Users },
+                                    { title: isRTL ? "السندات المالية" : "Financial Vouchers", href: "/financial-vouchers", icon: Receipt },
+                                    { title: isRTL ? "مسيرات الرواتب" : "Salary Payrolls", href: "/salary-payrolls", icon: BadgeDollarSign },
+                                    { title: isRTL ? "الفواتير الضريبية" : "Tax Invoices", href: "/sales-invoices", icon: FileText },
+                                    { title: isRTL ? "إدارة الأسطول" : "Fleet Management", href: "/fleet", icon: Car },
+                                    { title: isRTL ? "التجارة الإلكترونية" : "E-commerce", href: "/ecommerce", icon: Store },
+                                    { title: isRTL ? "العمولات الشهرية" : "Monthly Commissions", href: "/hr/commissions", icon: HandCoins },
+                                    { title: isRTL ? "مركز المصروفات" : "Expenses Center", href: "/expenses", icon: BarChart3 },
+                                    { title: isRTL ? "القيود اليومية" : "Journal Entries", href: "/journal-entries", icon: FileEdit },
+                                    { title: isRTL ? "ملخص الأرباح والخسائر" : "Profit & Loss", href: "/profit-loss", icon: PieChart },
+                                    { title: isRTL ? "مركز الحسابات" : "Accounts Center", href: "/accounts", icon: BookOpen },
+                                    { title: isRTL ? "مراكز التكلفة" : "Cost Centers", href: "/cost-centers", icon: Landmark },
+                                    { title: isRTL ? "إعدادات النظام" : "System Settings", href: "/settings", icon: Settings },
+                                    { title: isRTL ? "الملف الشخصي" : "User Profile", href: "/user_profile", icon: UserCircle },
+                                  ];
+
+                                  const filteredResults = navItems.filter(item => 
+                                    item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                                    item.href.toLowerCase().includes(searchQuery.toLowerCase())
+                                  );
+
+                                  if (filteredResults.length === 0) {
+                                    return (
+                                      <div className="p-8 text-center">
+                                        <Search size={32} className="mx-auto mb-2 text-white/10" />
+                                        <p className="text-sm text-white/30">{isRTL ? "لا توجد نتائج" : "No results found"}</p>
+                                      </div>
+                                    );
+                                  }
+
+                                  return filteredResults.map((item, idx) => (
+                                    <motion.button
+                                      key={item.href}
+                                      whileHover={{ backgroundColor: "rgba(255,255,255,0.05)" }}
+                                      onClick={() => {
+                                        router.push(item.href);
+                                        setSearchQuery("");
+                                        setIsSearchFocused(false);
+                                      }}
+                                      className="w-full flex items-center gap-3 p-3 rounded-xl transition-all"
+                                    >
+                                      <div className="p-2 rounded-lg bg-blue-500/20 text-blue-400">
+                                        <item.icon size={16} />
+                                      </div>
+                                      <div className="text-right">
+                                        <p className="text-sm font-bold text-white/90">{item.title}</p>
+                                        <p className="text-[10px] text-white/30 font-mono">{item.href}</p>
+                                      </div>
+                                    </motion.button>
+                                  ));
+                                })()}
+                              </div>
+                            </motion.div>
+                          )}
+                        </AnimatePresence>
+                      </motion.div>
+                    ) : (
+                      <motion.button
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        onClick={() => setIsSearchFocused(true)}
+                        className="p-3 bg-white/5 hover:bg-white/10 rounded-2xl transition-all border border-white/10 text-white/40 hover:text-blue-400"
+                      >
+                        <Search size={20} />
+                      </motion.button>
+                    )}
+                  </AnimatePresence>
+
 
               <div className="hidden xl:flex items-center gap-4 px-4 py-2 bg-white/5 rounded-2xl border border-white/10">
                   {mounted && (
@@ -1007,10 +1083,10 @@ export function Header({ user, onToggleSidebar, unreadChatCount = 0, subscriptio
                         </div>
                         <span className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 bg-emerald-500 rounded-full border-2 border-slate-950" />
                       </div>
-                        <div className="hidden md:block text-right">
-                          <p className="text-[11px] font-bold text-white/90">{user?.name || (isRTL ? "المستخدم" : "User")}</p>
-                          <p className="text-[9px] text-white/40">{user?.role === "admin" ? (isRTL ? "مدير النظام" : "System Admin") : (isRTL ? "مدير منشأة" : "Manager")}</p>
-                        </div>
+                          <div className="hidden md:block text-right">
+                            <p className="text-[11px] font-bold text-white/90">{user?.role === "admin" ? (isRTL ? "مدير النظام" : "System Admin") : (isRTL ? "مدير منشأة" : "Manager")}</p>
+                          </div>
+
                       <ChevronDown size={14} className={cn(
                         "text-white/40 transition-transform",
                         showUserDropdown && "rotate-180"
