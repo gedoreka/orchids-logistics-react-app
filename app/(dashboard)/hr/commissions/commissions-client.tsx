@@ -63,7 +63,6 @@ interface SavedGroup {
   total_amount: number;
   status: "paid" | "unpaid";
   created_at: string;
-  serial_number?: number;
 }
 
 export function CommissionsClient({ packages: initialPackages, companyId }: { packages: any[], companyId: string }) {
