@@ -1,77 +1,50 @@
-'use client';
+import React from "react";
+import { cookies } from "next/headers";
+import { query } from "@/lib/db";
+import { ChatClient } from "./chat-client";
 
-import { useState } from 'react';
-import { ChatInterface, ServiceExplorer, ServiceDetails } from '@/components/ai-assistant';
+export default async function ChatPage() {
+  const cookieStore = await cookies();
+  const sessionCookie = cookieStore.get("auth_session");
+  const session = JSON.parse(sessionCookie?.value || "{}");
+  const companyId = session.company_id;
 
-export default function ChatPage() {
-  const [activeView, setActiveView] = useState<'chat' | 'services' | 'service-details'>('chat');
-  const [selectedService, setSelectedService] = useState<string>('');
-  
-  const handleServiceSelect = (serviceId: string) => {
-    setSelectedService(serviceId);
-    setActiveView('service-details');
-  };
-  
-  const handleBackToServices = () => {
-    setActiveView('services');
-  };
-  
-  const handleAction = (action: string, data?: any) => {
-    console.log('Action triggered:', action, data);
-    // هنا يمكنك تنفيذ الإجراءات في تطبيقك
-    // مثل فتح نموذج إضافة موظف، أو إنشاء فاتورة، الخ
-  };
-  
-  return (
-    <div className="chat-page container mx-auto p-4">
-      <header className="page-header text-center mb-8">
-        <h1 className="text-3xl font-bold mb-2">🤖 مساعد لوجستك برو الذكي</h1>
-        <p className="text-gray-600">مساعدك الشخصي لإدارة أعمالك بكل سهولة وذكاء</p>
-      </header>
-      
-      <div className="view-switcher flex justify-center gap-4 mb-8">
-        <button 
-          className={`px-6 py-2 rounded-full font-semibold transition-all ${activeView === 'chat' ? 'bg-indigo-600 text-white shadow-lg' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}`}
-          onClick={() => setActiveView('chat')}
-        >
-          💬 المحادثة
-        </button>
-        <button 
-          className={`px-6 py-2 rounded-full font-semibold transition-all ${activeView === 'services' ? 'bg-indigo-600 text-white shadow-lg' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}`}
-          onClick={() => setActiveView('services')}
-        >
-          📊 الخدمات
-        </button>
-      </div>
-      
-      <div className="content-area max-w-5xl mx-auto">
-        {activeView === 'chat' && (
-          <div className="chat-container h-[600px]">
-            <ChatInterface 
-              initialMessage="مرحباً بك في نظام لوجستك برو"
-              onAction={handleAction}
-            />
-          </div>
-        )}
-        
-        {activeView === 'services' && (
-          <ServiceExplorer onServiceSelect={handleServiceSelect} />
-        )}
-        
-        {activeView === 'service-details' && (
-          <ServiceDetails 
-            serviceId={selectedService}
-            onBack={handleBackToServices}
-            onRelatedServiceSelect={handleServiceSelect}
+  let initialMessages: any[] = [];
+  try {
+    initialMessages = await query(
+      `SELECT * FROM chat_messages WHERE company_id = ? ORDER BY created_at ASC`,
+      [companyId]
+    );
+  } catch (error) {
+    console.error("Error loading messages:", error);
+  }
+
+    let companyToken = "";
+    let companyName = "";
+    try {
+      const companyData = await query<{ access_token: string; name: string }>(
+        `SELECT access_token, name FROM companies WHERE id = ? LIMIT 1`,
+        [companyId]
+      );
+      if (companyData.length > 0) {
+        companyToken = companyData[0].access_token;
+        companyName = companyData[0].name;
+      }
+    } catch (e) {
+      console.error("Error fetching company token:", e);
+    }
+
+    return (
+      <div className="flex justify-center items-center min-h-[calc(100vh-4rem)] p-4 md:p-6">
+        <div className="w-full md:w-[88%] max-w-7xl">
+          <ChatClient 
+            initialMessages={initialMessages} 
+            companyId={companyId}
+            senderRole="client"
+            companyToken={companyToken}
+            companyName={companyName}
           />
-        )}
+        </div>
       </div>
-
-      <style jsx>{`
-        .chat-page {
-          direction: rtl;
-        }
-      `}</style>
-    </div>
-  );
+    );
 }
