@@ -13,7 +13,12 @@ import {
   Globe,
   Tag,
   Loader2,
-  X
+  X,
+  BrainCircuit,
+  Sparkles,
+  Layers,
+  SearchCode,
+  Lightbulb
 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
@@ -103,209 +108,318 @@ export default function KnowledgeBasePage() {
   );
 
   return (
-    <div className="p-6 max-w-7xl mx-auto space-y-8">
-      {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div className="flex items-center gap-4">
-          <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-indigo-600 to-purple-600 flex items-center justify-center text-white shadow-lg shadow-indigo-200">
-            <BookOpen size={28} />
-          </div>
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900">قاعدة المعرفة الذكية</h1>
-            <p className="text-gray-500 text-sm">إدارة المعلومات التي يستخدمها المساعد الذكي للرد على العملاء</p>
-          </div>
-        </div>
-        
-        <button 
-          onClick={() => setShowAddModal(true)}
-          className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-xl font-bold transition-all shadow-lg shadow-indigo-100 flex items-center justify-center gap-2"
-        >
-          <Plus size={20} />
-          إضافة معلومة جديدة
-        </button>
-      </div>
+    <div className="min-h-screen bg-[#fcfcfd] p-4 lg:p-8">
+      <motion.div 
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="max-w-7xl mx-auto bg-white rounded-[2.5rem] shadow-[0_32px_64px_-16px_rgba(0,0,0,0.05)] border border-slate-100 overflow-hidden"
+      >
+        {/* Modern Header Section */}
+        <div className="relative overflow-hidden bg-gradient-to-br from-indigo-950 via-indigo-900 to-slate-900 px-8 py-12">
+          {/* Decorative Elements */}
+          <div className="absolute top-0 right-0 w-96 h-96 bg-indigo-500/10 blur-[100px] rounded-full -mr-20 -mt-20" />
+          <div className="absolute bottom-0 left-0 w-64 h-64 bg-purple-500/10 blur-[80px] rounded-full -ml-20 -mb-20" />
+          
+          <div className="relative flex flex-col lg:flex-row lg:items-center justify-between gap-8">
+            <div className="flex items-center gap-6">
+              <div className="w-20 h-20 rounded-[2rem] bg-white/10 backdrop-blur-xl border border-white/20 flex items-center justify-center text-white shadow-2xl">
+                <BrainCircuit size={40} className="text-indigo-300" />
+              </div>
+              <div className="space-y-1">
+                <div className="flex items-center gap-3">
+                  <h1 className="text-3xl lg:text-4xl font-black text-white tracking-tight">قاعدة المعرفة الذكية</h1>
+                  <span className="bg-indigo-500/20 text-indigo-200 text-[10px] font-bold px-3 py-1 rounded-full border border-indigo-500/30 uppercase flex items-center gap-1">
+                    <Sparkles size={10} />
+                    AI Ready
+                  </span>
+                </div>
+                <p className="text-indigo-200/60 text-lg font-medium">إدارة وتدريب المساعد الذكي بمعلومات شركتك الخاصة</p>
+              </div>
+            </div>
 
-      {/* Search and Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <div className="md:col-span-3 relative">
-          <input
-            type="text"
-            placeholder="ابحث في الأسئلة، الأجوبة، أو التصنيفات..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full bg-white border border-gray-200 rounded-2xl px-6 py-4 pr-12 text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition-all shadow-sm"
-          />
-          <Search className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
-        </div>
-        <div className="bg-indigo-50 border border-indigo-100 rounded-2xl p-4 flex items-center justify-center gap-4">
-          <div className="text-center">
-            <p className="text-2xl font-bold text-indigo-600">{articles.length}</p>
-            <p className="text-[10px] text-indigo-400 font-bold uppercase tracking-wider">إجمالي المعلومات</p>
-          </div>
-        </div>
-      </div>
-
-      {/* Content */}
-      {loading ? (
-        <div className="flex items-center justify-center py-20">
-          <Loader2 className="animate-spin text-indigo-600" size={40} />
-        </div>
-      ) : filteredArticles.length === 0 ? (
-        <div className="text-center py-20 bg-gray-50 rounded-3xl border-2 border-dashed border-gray-200">
-          <HelpCircle size={60} className="mx-auto mb-4 text-gray-300" />
-          <h3 className="text-xl font-bold text-gray-600">لا توجد معلومات متوفرة</h3>
-          <p className="text-gray-400 mt-2">ابدأ بإضافة أول معلومة لمساعدة الـ AI على التعلم</p>
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {filteredArticles.map((article) => (
-            <motion.div
-              layout
-              key={article.id}
-              className="bg-white border border-gray-100 rounded-2xl p-6 hover:shadow-xl transition-all group"
+            <motion.button 
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={() => setShowAddModal(true)}
+              className="bg-white text-indigo-950 px-8 py-4 rounded-[1.5rem] font-black transition-all shadow-xl shadow-white/5 flex items-center justify-center gap-3 group"
             >
-              <div className="flex items-start justify-between mb-4">
-                <div className="flex items-center gap-2">
-                  <span className="bg-indigo-100 text-indigo-700 text-[10px] font-bold px-3 py-1 rounded-full uppercase">
-                    {article.category}
-                  </span>
-                  <span className="flex items-center gap-1 text-[10px] text-gray-400 font-medium">
-                    <Globe size={10} />
-                    {article.language === 'ar' ? 'العربية' : 'English'}
-                  </span>
-                </div>
-                <button 
-                  onClick={() => handleDelete(article.id)}
-                  className="p-2 text-gray-300 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all opacity-0 group-hover:opacity-100"
-                >
-                  <Trash2 size={18} />
-                </button>
-              </div>
-              
-              <h3 className="text-lg font-bold text-gray-900 mb-3 leading-snug">
-                {article.question}
-              </h3>
-              
-              <p className="text-gray-600 text-sm leading-relaxed mb-6 line-clamp-3">
-                {article.answer}
-              </p>
-              
-              <div className="flex items-center justify-between pt-4 border-t border-gray-50">
-                <div className="flex items-center gap-2">
-                  <Tag size={14} className="text-indigo-400" />
-                  <span className="text-[10px] text-gray-400 font-medium">
-                    {Array.isArray(article.keywords) ? article.keywords.join(", ") : ""}
-                  </span>
-                </div>
-                <div className="flex items-center gap-1 text-[10px] text-gray-400 font-bold">
-                  <MessageSquare size={12} />
-                  استخدم {article.used_count} مرات
-                </div>
-              </div>
-            </motion.div>
-          ))}
+              <Plus size={24} className="group-hover:rotate-90 transition-transform duration-300" />
+              إضافة معلومة جديدة
+            </motion.button>
+          </div>
         </div>
-      )}
 
-      {/* Add Modal */}
+        {/* Content Area */}
+        <div className="p-8 lg:p-12 space-y-10">
+          {/* Controls Bar */}
+          <div className="flex flex-col lg:flex-row gap-6">
+            <div className="flex-1 relative group">
+              <input
+                type="text"
+                placeholder="ابحث عن سؤال، جواب، أو تصنيف محدد..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full bg-slate-50 border border-slate-100 rounded-[1.5rem] px-8 py-5 pr-14 text-sm font-medium focus:ring-4 focus:ring-indigo-500/5 focus:border-indigo-500 outline-none transition-all shadow-sm group-hover:bg-white"
+              />
+              <Search className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-600 transition-colors" size={24} />
+            </div>
+
+            <div className="flex items-center gap-4">
+              <div className="bg-indigo-50/50 border border-indigo-100/50 rounded-[1.5rem] px-8 py-4 flex items-center gap-4">
+                <div className="w-12 h-12 rounded-2xl bg-indigo-600 flex items-center justify-center text-white shadow-lg shadow-indigo-200">
+                  <Layers size={22} />
+                </div>
+                <div>
+                  <p className="text-2xl font-black text-indigo-950 leading-none">{articles.length}</p>
+                  <p className="text-[10px] text-indigo-400 font-bold uppercase tracking-[0.1em] mt-1">إجمالي السجلات</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Grid Layout for Articles */}
+          {loading ? (
+            <div className="flex flex-col items-center justify-center py-32 space-y-4">
+              <div className="relative">
+                <div className="w-20 h-20 border-4 border-indigo-100 rounded-full" />
+                <div className="w-20 h-20 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin absolute top-0" />
+              </div>
+              <p className="text-slate-400 font-bold animate-pulse">جاري جلب المعلومات...</p>
+            </div>
+          ) : filteredArticles.length === 0 ? (
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="text-center py-32 bg-slate-50/50 rounded-[3rem] border-2 border-dashed border-slate-200/60"
+            >
+              <div className="w-24 h-24 bg-white rounded-[2rem] shadow-xl shadow-slate-200/50 flex items-center justify-center mx-auto mb-8 border border-slate-100">
+                <SearchCode size={48} className="text-slate-300" />
+              </div>
+              <h3 className="text-2xl font-black text-slate-800">لا توجد بيانات متاحة</h3>
+              <p className="text-slate-400 mt-3 max-w-sm mx-auto font-medium">ابدأ الآن بإضافة معلومات شركتك ليتمكن المساعد الذكي من الرد على استفسارات عملائك بدقة.</p>
+              <button 
+                onClick={() => setShowAddModal(true)}
+                className="mt-8 text-indigo-600 font-black flex items-center gap-2 mx-auto hover:gap-4 transition-all"
+              >
+                أضف أول معلومة الآن <ChevronRight size={20} />
+              </button>
+            </motion.div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              <AnimatePresence mode="popLayout">
+                {filteredArticles.map((article) => (
+                  <motion.div
+                    layout
+                    key={article.id}
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.9 }}
+                    className="group bg-white border border-slate-100 rounded-[2.5rem] p-8 hover:shadow-[0_40px_80px_-20px_rgba(0,0,0,0.08)] transition-all duration-500 relative flex flex-col h-full overflow-hidden"
+                  >
+                    {/* Hover Effect Gradient */}
+                    <div className="absolute inset-0 bg-gradient-to-br from-indigo-50/0 via-transparent to-purple-50/0 group-hover:from-indigo-50/50 group-hover:to-purple-50/50 transition-all duration-500 -z-10" />
+                    
+                    <div className="flex items-start justify-between mb-6">
+                      <div className="flex items-center gap-3">
+                        <div className="bg-indigo-100/50 text-indigo-700 text-[10px] font-black px-4 py-1.5 rounded-full uppercase tracking-wider border border-indigo-100">
+                          {article.category === 'general' ? 'عام' : 
+                           article.category === 'technical' ? 'فني' : 
+                           article.category === 'financial' ? 'مالي' : 'خدمات'}
+                        </div>
+                        <div className="flex items-center gap-1.5 bg-slate-50 px-3 py-1.5 rounded-full border border-slate-100">
+                          <Globe size={12} className="text-slate-400" />
+                          <span className="text-[10px] text-slate-600 font-bold uppercase">
+                            {article.language === 'ar' ? 'العربية' : 'English'}
+                          </span>
+                        </div>
+                      </div>
+                      
+                      <motion.button 
+                        whileHover={{ scale: 1.1 }}
+                        whileTap={{ scale: 0.9 }}
+                        onClick={() => handleDelete(article.id)}
+                        className="p-3 text-slate-300 hover:text-red-600 hover:bg-red-50 rounded-2xl transition-all"
+                      >
+                        <Trash2 size={20} />
+                      </motion.button>
+                    </div>
+                    
+                    <div className="flex-1 space-y-4">
+                      <div className="flex items-start gap-4">
+                        <div className="mt-1.5">
+                          <Lightbulb className="text-indigo-600" size={20} />
+                        </div>
+                        <h3 className="text-xl font-black text-slate-900 leading-[1.4]">
+                          {article.question}
+                        </h3>
+                      </div>
+                      
+                      <div className="pr-9">
+                        <p className="text-slate-500 text-[15px] leading-[1.8] font-medium line-clamp-4">
+                          {article.answer}
+                        </p>
+                      </div>
+                    </div>
+                    
+                    <div className="mt-8 pt-8 border-t border-slate-50 flex flex-wrap items-center justify-between gap-4">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-full bg-slate-50 border border-slate-100 flex items-center justify-center">
+                          <Tag size={14} className="text-indigo-400" />
+                        </div>
+                        <div className="flex flex-wrap gap-1.5">
+                          {(Array.isArray(article.keywords) ? article.keywords : []).slice(0, 3).map((k, i) => (
+                            <span key={i} className="text-[10px] text-slate-400 font-bold bg-slate-50/50 px-2 py-0.5 rounded-md">
+                              #{k}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-2 bg-indigo-50/30 px-4 py-2 rounded-2xl border border-indigo-50/50">
+                        <MessageSquare size={14} className="text-indigo-600" />
+                        <span className="text-[11px] text-indigo-950 font-black">
+                          استخدم {article.used_count} مرات
+                        </span>
+                      </div>
+                    </div>
+                  </motion.div>
+                ))}
+              </AnimatePresence>
+            </div>
+          )}
+        </div>
+      </motion.div>
+
+      {/* Modernized Add Modal */}
       <AnimatePresence>
         {showAddModal && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 lg:p-8 overflow-y-auto">
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setShowAddModal(false)}
-              className="absolute inset-0 bg-black/40 backdrop-blur-sm"
+              className="fixed inset-0 bg-indigo-950/20 backdrop-blur-md"
             />
             <motion.div
-              initial={{ scale: 0.95, opacity: 0, y: 20 }}
+              initial={{ scale: 0.9, opacity: 0, y: 30 }}
               animate={{ scale: 1, opacity: 1, y: 0 }}
-              exit={{ scale: 0.95, opacity: 0, y: 20 }}
-              className="relative bg-white w-full max-w-2xl rounded-3xl shadow-2xl overflow-hidden"
+              exit={{ scale: 0.9, opacity: 0, y: 30 }}
+              className="relative bg-white w-full max-w-2xl rounded-[3rem] shadow-[0_40px_100px_-20px_rgba(0,0,0,0.15)] overflow-hidden my-auto"
             >
-              <div className="bg-gradient-to-r from-indigo-600 to-purple-600 p-6 flex items-center justify-between">
-                <h2 className="text-white font-bold text-xl">إضافة معلومة جديدة</h2>
-                <button onClick={() => setShowAddModal(false)} className="text-white/70 hover:text-white">
-                  <X size={24} />
-                </button>
+              <div className="bg-indigo-950 p-10 relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-500/10 blur-3xl rounded-full -mr-32 -mt-32" />
+                <div className="relative flex items-center justify-between">
+                  <div className="space-y-1">
+                    <h2 className="text-white font-black text-2xl">توسيع قاعدة المعرفة</h2>
+                    <p className="text-indigo-300/60 font-medium">أضف معلومة جديدة لتدريب ذكاء المساعد</p>
+                  </div>
+                  <button 
+                    onClick={() => setShowAddModal(false)} 
+                    className="w-12 h-12 rounded-2xl bg-white/5 border border-white/10 text-white hover:bg-white/10 transition-all flex items-center justify-center"
+                  >
+                    <X size={24} />
+                  </button>
+                </div>
               </div>
               
-              <form onSubmit={handleAdd} className="p-8 space-y-6">
-                <div className="grid grid-cols-2 gap-6">
-                  <div className="space-y-2">
-                    <label className="text-sm font-bold text-gray-700">التصنيف</label>
+              <form onSubmit={handleAdd} className="p-10 space-y-8">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                  <div className="space-y-3">
+                    <label className="text-sm font-black text-slate-900 flex items-center gap-2">
+                      <div className="w-1.5 h-1.5 rounded-full bg-indigo-600" />
+                      التصنيف الوظيفي
+                    </label>
                     <select 
                       value={newArticle.category}
                       onChange={(e) => setNewArticle({...newArticle, category: e.target.value})}
-                      className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-indigo-500 outline-none"
+                      className="w-full bg-slate-50 border border-slate-100 rounded-2xl px-6 py-4 text-sm font-bold focus:ring-4 focus:ring-indigo-500/5 focus:border-indigo-500 outline-none transition-all cursor-pointer"
                     >
-                      <option value="general">عام</option>
-                      <option value="technical">فني</option>
-                      <option value="financial">مالي</option>
-                      <option value="service">خدمات</option>
+                      <option value="general">عام (معلومات عامة)</option>
+                      <option value="technical">فني (طريقة الاستخدام)</option>
+                      <option value="financial">مالي (الأسعار والفوترة)</option>
+                      <option value="service">خدمات (شرح الخدمات)</option>
                     </select>
                   </div>
-                  <div className="space-y-2">
-                    <label className="text-sm font-bold text-gray-700">اللغة</label>
+                  <div className="space-y-3">
+                    <label className="text-sm font-black text-slate-900 flex items-center gap-2">
+                      <div className="w-1.5 h-1.5 rounded-full bg-indigo-600" />
+                      لغة المعلومة
+                    </label>
                     <select 
                       value={newArticle.language}
                       onChange={(e) => setNewArticle({...newArticle, language: e.target.value})}
-                      className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-indigo-500 outline-none"
+                      className="w-full bg-slate-50 border border-slate-100 rounded-2xl px-6 py-4 text-sm font-bold focus:ring-4 focus:ring-indigo-500/5 focus:border-indigo-500 outline-none transition-all cursor-pointer"
                     >
-                      <option value="ar">العربية</option>
-                      <option value="en">English</option>
+                      <option value="ar">العربية (الأم)</option>
+                      <option value="en">English (Secondary)</option>
                     </select>
                   </div>
                 </div>
 
-                <div className="space-y-2">
-                  <label className="text-sm font-bold text-gray-700">السؤال / الكلمة المفتاحية</label>
+                <div className="space-y-3">
+                  <label className="text-sm font-black text-slate-900 flex items-center gap-2">
+                    <div className="w-1.5 h-1.5 rounded-full bg-indigo-600" />
+                    السؤال أو المحفز (Trigger)
+                  </label>
                   <input
                     required
                     type="text"
                     value={newArticle.question}
                     onChange={(e) => setNewArticle({...newArticle, question: e.target.value})}
-                    placeholder="مثال: كيف أعيد تعيين كلمة المرور؟"
-                    className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-indigo-500 outline-none"
+                    placeholder="مثال: كيف يمكنني طلب شحنة دولية؟"
+                    className="w-full bg-slate-50 border border-slate-100 rounded-2xl px-6 py-4 text-sm font-bold focus:ring-4 focus:ring-indigo-500/5 focus:border-indigo-500 outline-none transition-all"
                   />
                 </div>
 
-                <div className="space-y-2">
-                  <label className="text-sm font-bold text-gray-700">الجواب المنسق</label>
+                <div className="space-y-3">
+                  <label className="text-sm font-black text-slate-900 flex items-center gap-2">
+                    <div className="w-1.5 h-1.5 rounded-full bg-indigo-600" />
+                    الإجابة النموذجية للـ AI
+                  </label>
                   <textarea
                     required
-                    rows={4}
+                    rows={5}
                     value={newArticle.answer}
                     onChange={(e) => setNewArticle({...newArticle, answer: e.target.value})}
-                    placeholder="اكتب الإجابة التفصيلية التي سيقدمها المساعد..."
-                    className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-indigo-500 outline-none resize-none"
+                    placeholder="اكتب الرد الذي سيستخدمه الذكاء الاصطناعي بدقة..."
+                    className="w-full bg-slate-50 border border-slate-100 rounded-2xl px-6 py-5 text-sm font-medium focus:ring-4 focus:ring-indigo-500/5 focus:border-indigo-500 outline-none transition-all resize-none leading-relaxed"
                   />
                 </div>
 
-                <div className="space-y-2">
-                  <label className="text-sm font-bold text-gray-700">كلمات دلالية (مفصولة بفاصلة)</label>
+                <div className="space-y-3">
+                  <label className="text-sm font-black text-slate-900 flex items-center gap-2">
+                    <div className="w-1.5 h-1.5 rounded-full bg-indigo-600" />
+                    الكلمات المفتاحية (لفهم السياق)
+                  </label>
                   <input
                     type="text"
                     value={newArticle.keywords}
                     onChange={(e) => setNewArticle({...newArticle, keywords: e.target.value})}
-                    placeholder="كلمة، سر، دخول، نسيت"
-                    className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-indigo-500 outline-none"
+                    placeholder="شحن، دولي، طلب، سعر، طرد (افصل بفاصلة)"
+                    className="w-full bg-slate-50 border border-slate-100 rounded-2xl px-6 py-4 text-sm font-bold focus:ring-4 focus:ring-indigo-500/5 focus:border-indigo-500 outline-none transition-all"
                   />
                 </div>
 
-                <div className="pt-4 flex gap-4">
+                <div className="pt-6 flex gap-4">
                   <button
                     type="submit"
                     disabled={loading}
-                    className="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white py-4 rounded-xl font-bold transition-all disabled:opacity-50"
+                    className="flex-[2] bg-indigo-950 hover:bg-indigo-900 text-white py-5 rounded-2xl font-black transition-all disabled:opacity-50 shadow-xl shadow-indigo-950/10 flex items-center justify-center gap-2"
                   >
-                    {loading ? "جاري الحفظ..." : "حفظ المعلومة"}
+                    {loading ? (
+                      <Loader2 size={24} className="animate-spin" />
+                    ) : (
+                      <>
+                        <Sparkles size={20} />
+                        حفظ وتدريب المساعد
+                      </>
+                    )}
                   </button>
                   <button
                     type="button"
                     onClick={() => setShowAddModal(false)}
-                    className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 py-4 rounded-xl font-bold transition-all"
+                    className="flex-1 bg-slate-50 hover:bg-slate-100 text-slate-600 py-5 rounded-2xl font-black transition-all border border-slate-100"
                   >
                     إلغاء
                   </button>
