@@ -93,10 +93,10 @@ export function CommissionsClient({ packages: initialPackages, companyId }: { pa
 
   async function fetchSavedGroups() {
     try {
-      const res = await fetch(`/api/hr/commissions?month=${month}`);
+      const res = await fetch(`/api/hr/commissions?company_id=${companyId}&month=${month}`);
       const data = await res.json();
-      if (data.success) {
-        setSavedGroups(data.groups || []);
+      if (data.savedGroups) {
+        setSavedGroups(data.savedGroups || []);
       }
     } catch (error) {
       console.error("Error fetching groups:", error);
@@ -107,11 +107,18 @@ export function CommissionsClient({ packages: initialPackages, companyId }: { pa
     if (!selectedPackageId) return;
     setLoading(true);
     try {
-      const res = await fetch(`/api/hr/commissions?packageId=${selectedPackageId}&mode=${mode}&month=${month}`);
+      const res = await fetch(`/api/hr/commissions?company_id=${companyId}&package_id=${selectedPackageId}&mode=${mode}&month=${month}`);
       const data = await res.json();
-      if (data.success) {
-        setCommissions(data.employees.map((emp: any) => ({
+      
+      if (data.employees) {
+        // If we have loadedCommissions, use them. Otherwise use raw employees.
+        const baseEmployees = data.loadedCommissions && data.loadedCommissions.length > 0 
+          ? data.loadedCommissions 
+          : data.employees;
+
+        setCommissions(baseEmployees.map((emp: any) => ({
           ...emp,
+          employee_id: emp.employee_id || emp.id, // Fallback if it's raw employee
           selected: true,
           status: emp.status || "unpaid"
         })));
@@ -131,10 +138,10 @@ export function CommissionsClient({ packages: initialPackages, companyId }: { pa
     setMode(groupMode);
     setLoading(true);
     try {
-      const res = await fetch(`/api/hr/commissions?packageId=${packageId}&mode=${groupMode}&month=${month}&saved=true`);
+      const res = await fetch(`/api/hr/commissions?company_id=${companyId}&package_id=${packageId}&mode=${groupMode}&month=${month}`);
       const data = await res.json();
-      if (data.success) {
-        setCommissions(data.employees.map((emp: any) => ({
+      if (data.loadedCommissions) {
+        setCommissions(data.loadedCommissions.map((emp: any) => ({
           ...emp,
           selected: true
         })));
@@ -171,10 +178,11 @@ export function CommissionsClient({ packages: initialPackages, companyId }: { pa
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          company_id: companyId,
           month,
-          packageId: selectedPackageId,
+          package_id: selectedPackageId,
           mode,
-          employees: selectedData
+          commissions: selectedData
         })
       });
       const data = await res.json();
@@ -206,11 +214,12 @@ export function CommissionsClient({ packages: initialPackages, companyId }: { pa
   const toggleGroupStatus = async (group: SavedGroup) => {
     const newStatus = group.status === "paid" ? "unpaid" : "paid";
     try {
-      const res = await fetch("/api/hr/commissions/status", {
-        method: "PUT",
+      const res = await fetch("/api/hr/commissions", {
+        method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          packageId: group.package_id,
+          company_id: companyId,
+          package_id: group.package_id,
           mode: group.mode,
           month: group.month,
           status: newStatus
@@ -228,7 +237,7 @@ export function CommissionsClient({ packages: initialPackages, companyId }: { pa
   const handleDeleteClick = async (packageId: string, groupMode: string, packageName: string) => {
     if (!confirm(`هل أنت متأكد من حذف تقرير ${packageName}؟`)) return;
     try {
-      const res = await fetch(`/api/hr/commissions?packageId=${packageId}&mode=${groupMode}&month=${month}`, {
+      const res = await fetch(`/api/hr/commissions?company_id=${companyId}&package_id=${packageId}&mode=${groupMode}&month=${month}`, {
         method: "DELETE"
       });
       if (res.ok) {
