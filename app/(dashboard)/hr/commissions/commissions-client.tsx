@@ -62,48 +62,48 @@ export function CommissionsClient({ companyId, initialPackages }: CommissionsCli
   const { locale } = useLocale();
   const isRtl = locale === "ar";
   
-  const commissionInstructions = [
-    {
-      icon: <Activity size={24} />,
-      title: "نظرة عامة على النظام",
-      description: "يتيح لك النظام تتبع دقيق لعمليات الصرف والعمولات الشهرية الخاصة بمؤسستك، مما يضمن الشفافية والكفاءة في إدارة المستحقات."
-    },
-    {
-      icon: <Users size={24} />,
-      title: "إعداد الموظفين",
-      description: "ابدأ أولاً بإضافة الموظفين من صفحة 'إدارة الموارد البشرية'، مع اختيار نوع الباقة (عمولة) وتعبئة البيانات ليتم إدراجهم تلقائياً هنا."
-    },
-    {
-      icon: <Settings size={24} />,
-      title: "تخصيص العمولات",
-      description: "حدد نوع العمولة (مبلغ ثابت يومي/شهري أو نسبة مئوية) لكل موظف بكل مرونة حسب سياسة الشركة."
-    },
-    {
-      icon: <Trash2 size={24} />,
-      title: "التحكم بالجدول",
-      description: "واجهة تفاعلية تسمح لك بحذف الموظفين أو تعديل بياناتهم، مع إمكانية تحديد الكل أو استبعاد غير المختارين قبل الحفظ."
-    },
-    {
-      icon: <Save size={24} />,
-      title: "الأرشفة والحفظ",
-      description: "عند حفظ البيانات، يتم تخزينها في 'المجموعات المحفوظة' للرجوع إليها لاحقاً ومتابعة حالة السداد بشكل مستقل."
-    },
-    {
-      icon: <CheckCircle size={24} />,
-      title: "تحديث حالة السداد",
-      description: "بعد حفظ التقرير، يمكنك تحديث حالة الدفع (مدفوع/معلق) بضغطة زر واحدة لتنظيم التدفقات النقدية."
-    },
-    {
-      icon: <Mail size={24} />,
-      title: "نظام المراسلات الذكي",
-      description: "يرسل النظام تلقائياً إيصال سداد عند الدفع، أو إشعار مطالبة احترافي ولبق في حال كانت الحالة 'معلق'."
-    },
-    {
-      icon: <Printer size={24} />,
-      title: "أدوات إدارية متقدمة",
-      description: "استفد من ميزات الطباعة الاحترافية وتصدير البيانات والمتابعة الدقيقة لكل تفاصيل قسم العمولات."
-    }
-  ];
+    const commissionInstructions = [
+      {
+        icon: <Activity size={24} />,
+        title: t("instruction1.title"),
+        description: t("instruction1.description")
+      },
+      {
+        icon: <Users size={24} />,
+        title: t("instruction2.title"),
+        description: t("instruction2.description")
+      },
+      {
+        icon: <Settings size={24} />,
+        title: t("instruction3.title"),
+        description: t("instruction3.description")
+      },
+      {
+        icon: <Trash2 size={24} />,
+        title: t("instruction4.title"),
+        description: t("instruction4.description")
+      },
+      {
+        icon: <Save size={24} />,
+        title: t("instruction5.title"),
+        description: t("instruction5.description")
+      },
+      {
+        icon: <CheckCircle size={24} />,
+        title: t("instruction6.title"),
+        description: t("instruction6.description")
+      },
+      {
+        icon: <Mail size={24} />,
+        title: t("instruction7.title"),
+        description: t("instruction7.description")
+      },
+      {
+        icon: <Printer size={24} />,
+        title: t("instruction8.title"),
+        description: t("instruction8.description")
+      }
+    ];
 
   const [activeTab, setActiveTab] = useState<"manage" | "report">("manage");
   const [loading, setLoading] = useState(false);
@@ -484,7 +484,7 @@ export function CommissionsClient({ companyId, initialPackages }: CommissionsCli
   };
 
   return (
-    <div className="min-h-screen bg-[#f8fafc] p-4 md:p-8" dir={isRtl ? "rtl" : "ltr"}>
+    <div className="min-h-screen bg-[#f1f5f9] p-4 md:p-8" dir={isRtl ? "rtl" : "ltr"}>
       {/* Header Section */}
       <div className="relative mb-8 rounded-[2rem] bg-gradient-to-r from-[#1e293b] to-[#334155] p-8 text-white shadow-2xl overflow-hidden">
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
@@ -493,46 +493,46 @@ export function CommissionsClient({ companyId, initialPackages }: CommissionsCli
                 <DollarSign size={32} className="text-blue-400" />
               </div>
               <div>
-                <h1 className="text-3xl font-black tracking-tight">{t("title")}</h1>
-                <div className="flex items-center gap-4 mt-1">
-                  <p className="text-blue-200 font-medium opacity-80">{t("subtitle")}</p>
-                  <div className="h-4 w-px bg-white/10" />
-                  <PageInstructions 
-                    title="نظام العمولات الشهرية"
-                    instructions={commissionInstructions}
-                    triggerText="عرض تعليمات الصفحة"
-                  />
+                  <h1 className="text-3xl font-black tracking-tight">{t("title")}</h1>
+                  <div className="flex items-center gap-4 mt-1">
+                    <p className="text-blue-200 font-medium opacity-80">{t("subtitle")}</p>
+                    <div className="h-4 w-px bg-white/10" />
+                    <PageInstructions 
+                      title={t("instructionsTitle")}
+                      instructions={commissionInstructions}
+                      triggerText={t("instructionsTrigger")}
+                    />
+                  </div>
                 </div>
               </div>
+  
+            
+            <div className="flex items-center gap-2 bg-white/5 backdrop-blur-sm p-1.5 rounded-2xl border border-white/10">
+              <button 
+                onClick={() => setActiveTab("manage")}
+                className={cn(
+                  "px-6 py-2.5 rounded-xl font-bold text-sm transition-all duration-300",
+                  activeTab === "manage" ? "bg-blue-500 text-white shadow-lg" : "text-white/60 hover:text-white hover:bg-white/5"
+                )}
+              >
+                <div className="flex items-center gap-2">
+                  <Settings size={16} />
+                  <span>{t("manageCommissions")}</span>
+                </div>
+              </button>
+              <button 
+                onClick={() => setActiveTab("report")}
+                className={cn(
+                  "px-6 py-2.5 rounded-xl font-bold text-sm transition-all duration-300",
+                  activeTab === "report" ? "bg-blue-500 text-white shadow-lg" : "text-white/60 hover:text-white hover:bg-white/5"
+                )}
+              >
+                <div className="flex items-center gap-2">
+                  <FileText size={16} />
+                  <span>{t("commissionsReport")}</span>
+                </div>
+              </button>
             </div>
-
-          
-          <div className="flex items-center gap-2 bg-white/5 backdrop-blur-sm p-1.5 rounded-2xl border border-white/10">
-            <button 
-              onClick={() => setActiveTab("manage")}
-              className={cn(
-                "px-6 py-2.5 rounded-xl font-bold text-sm transition-all duration-300",
-                activeTab === "manage" ? "bg-blue-500 text-white shadow-lg" : "text-white/60 hover:text-white hover:bg-white/5"
-              )}
-            >
-              <div className="flex items-center gap-2">
-                <Settings size={16} />
-                <span>إدارة العمولات</span>
-              </div>
-            </button>
-            <button 
-              onClick={() => setActiveTab("report")}
-              className={cn(
-                "px-6 py-2.5 rounded-xl font-bold text-sm transition-all duration-300",
-                activeTab === "report" ? "bg-blue-500 text-white shadow-lg" : "text-white/60 hover:text-white hover:bg-white/5"
-              )}
-            >
-              <div className="flex items-center gap-2">
-                <FileText size={16} />
-                <span>تقرير العمولات</span>
-              </div>
-            </button>
-          </div>
         </div>
         <div className="absolute -top-24 -right-24 w-64 h-64 bg-blue-500/10 rounded-full blur-3xl" />
         <div className="absolute -bottom-24 -left-24 w-64 h-64 bg-purple-500/10 rounded-full blur-3xl" />
@@ -571,134 +571,134 @@ export function CommissionsClient({ companyId, initialPackages }: CommissionsCli
               {notification.detail && <p className="text-gray-500 text-sm font-medium mb-8 leading-relaxed">{notification.detail}</p>}
 
               <div className="flex items-center gap-3">
-                {notification.type === "confirm" ? (
-                  <>
-                    <button 
-                      onClick={() => setNotification(null)}
-                      className="flex-1 py-4 rounded-2xl bg-gray-100 text-gray-700 font-black text-sm hover:bg-gray-200 transition-all"
-                    >
-                      إلغاء
-                    </button>
-                    <button 
-                      onClick={() => {
-                        notification.onConfirm?.();
-                        setNotification(null);
-                      }}
-                      className="flex-1 py-4 rounded-2xl bg-red-500 text-white font-black text-sm hover:bg-red-600 shadow-xl shadow-red-100 transition-all"
-                    >
-                      تأكيد الحذف
-                    </button>
-                  </>
-                ) : (
-                  notification.type !== "loading" && (
-                    <button 
-                      onClick={() => setNotification(null)}
-                      className="w-full py-4 rounded-2xl bg-gray-900 text-white font-black text-sm hover:bg-gray-800 shadow-xl transition-all"
-                    >
-                      حسناً
-                    </button>
-                  )
-                )}
+                  {notification.type === "confirm" ? (
+                    <>
+                      <button 
+                        onClick={() => setNotification(null)}
+                        className="flex-1 py-4 rounded-2xl bg-gray-100 text-gray-700 font-black text-sm hover:bg-gray-200 transition-all"
+                      >
+                        {t("dialogs.delete.cancel")}
+                      </button>
+                      <button 
+                        onClick={() => {
+                          notification.onConfirm?.();
+                          setNotification(null);
+                        }}
+                        className="flex-1 py-4 rounded-2xl bg-red-500 text-white font-black text-sm hover:bg-red-600 shadow-xl shadow-red-100 transition-all"
+                      >
+                        {t("dialogs.delete.confirm")}
+                      </button>
+                    </>
+                  ) : (
+                    notification.type !== "loading" && (
+                      <button 
+                        onClick={() => setNotification(null)}
+                        className="w-full py-4 rounded-2xl bg-gray-900 text-white font-black text-sm hover:bg-gray-800 shadow-xl transition-all"
+                      >
+                        {tCommon("ok")}
+                      </button>
+                    )
+                  )}
+                </div>
               </div>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* Email Input Dialog */}
-      <AnimatePresence>
-        {emailDialog.show && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-black/60 backdrop-blur-md"
-          >
+            </motion.div>
+          )}
+        </AnimatePresence>
+  
+        {/* Email Input Dialog */}
+        <AnimatePresence>
+          {emailDialog.show && (
             <motion.div
-              initial={{ scale: 0.9, y: 20 }}
-              animate={{ scale: 1, y: 0 }}
-              exit={{ scale: 0.9, y: 20 }}
-              className="bg-white rounded-[2.5rem] shadow-2xl w-full max-w-md p-8 relative overflow-hidden"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-black/60 backdrop-blur-md"
             >
-                <div className="absolute top-0 left-0 w-full h-2 bg-blue-500" />
-                  <div className={cn(
-                    "absolute top-0 left-0 w-full h-2",
-                    emailDialog.commission?.status === 'paid' ? "bg-emerald-500" : "bg-red-500"
-                  )} />
-                  <button 
-                    onClick={() => setEmailDialog({ ...emailDialog, show: false })}
-                    className="absolute top-6 right-6 p-2 rounded-xl hover:bg-gray-100 text-gray-400 transition-all"
-                  >
-                    <X size={20} />
-                  </button>
-    
-                  <div className="flex items-center gap-4 mb-8">
+              <motion.div
+                initial={{ scale: 0.9, y: 20 }}
+                animate={{ scale: 1, y: 0 }}
+                exit={{ scale: 0.9, y: 20 }}
+                className="bg-white rounded-[2.5rem] shadow-2xl w-full max-w-md p-8 relative overflow-hidden"
+              >
+                  <div className="absolute top-0 left-0 w-full h-2 bg-blue-500" />
                     <div className={cn(
-                      "h-14 w-14 rounded-2xl flex items-center justify-center shadow-sm border",
-                      emailDialog.commission?.status === 'paid' ? "bg-emerald-50 text-emerald-500 border-emerald-100" : "bg-red-50 text-red-500 border-red-100"
-                    )}>
-                      <Mail size={28} />
-                    </div>
-                    <div>
-                      <h3 className="text-xl font-black text-gray-900">
-                        {emailDialog.commission?.status === 'paid' ? 'إرسال سند سداد' : 'إرسال مطالبة مالية'}
-                      </h3>
-                      <p className="text-sm text-gray-400 font-medium">
-                        {emailDialog.commission?.status === 'paid' ? 'سيتم إرسال تأكيد بالصرف للموظف' : 'سيتم إرسال إشعار مطالبة مالية لتنبيه الموظف بسرعة السداد'}
-                      </p>
-                    </div>
-                  </div>
-    
-                  <div className="space-y-6">
-                    <div className={cn(
-                      "p-4 rounded-2xl border mb-6",
-                      emailDialog.commission?.status === 'paid' ? "bg-emerald-50/30 border-emerald-100/50" : "bg-red-50/30 border-red-100/50"
-                    )}>
-                    <div className="flex items-center gap-3">
-                      <div className="h-10 w-10 rounded-full bg-white flex items-center justify-center text-gray-400 shadow-sm">
-                        <Users size={18} />
-                      </div>
-                      <div>
-                        <p className="text-[10px] text-gray-400 font-black uppercase">الموظف</p>
-                        <p className="font-black text-gray-900">{emailDialog.commission?.name}</p>
-                      </div>
-                    </div>
-                  </div>
-  
-                  <div className="space-y-2">
-                    <label className="text-xs font-bold text-gray-400 uppercase tracking-widest mr-2 block">البريد الإلكتروني</label>
-                    <div className="relative">
-                      <Mail className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
-                      <input 
-                        type="email"
-                        value={emailDialog.email}
-                        onChange={(e) => setEmailDialog({ ...emailDialog, email: e.target.value })}
-                        placeholder="employee@example.com"
-                        className="w-full pl-4 pr-12 py-4 rounded-2xl border border-gray-100 bg-gray-50 focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/5 outline-none font-bold transition-all text-sm"
-                        autoFocus
-                      />
-                    </div>
-                  </div>
-  
-                  <div className="flex items-center gap-3 pt-4">
+                      "absolute top-0 left-0 w-full h-2",
+                      emailDialog.commission?.status === 'paid' ? "bg-emerald-500" : "bg-red-500"
+                    )} />
                     <button 
                       onClick={() => setEmailDialog({ ...emailDialog, show: false })}
-                      className="flex-1 py-4 rounded-2xl bg-gray-100 text-gray-700 font-black text-sm hover:bg-gray-200 transition-all"
+                      className="absolute top-6 right-6 p-2 rounded-xl hover:bg-gray-100 text-gray-400 transition-all"
                     >
-                      إلغاء
+                      <X size={20} />
                     </button>
-                      <button 
-                        onClick={executeSendEmail}
-                        className={cn(
-                          "flex-2 px-8 py-4 rounded-2xl text-white font-black text-sm shadow-xl active:scale-95 transition-all flex items-center justify-center gap-2",
-                          emailDialog.commission?.status === 'paid' ? "bg-emerald-600 hover:bg-emerald-700 shadow-emerald-100" : "bg-red-600 hover:bg-red-700 shadow-red-100"
-                        )}
-                      >
-                      <Send size={18} />
-                        <span>{emailDialog.commission?.status === 'paid' ? 'إرسال السند' : 'إرسال المطالبة'}</span>
-                      </button>
+      
+                    <div className="flex items-center gap-4 mb-8">
+                      <div className={cn(
+                        "h-14 w-14 rounded-2xl flex items-center justify-center shadow-sm border",
+                        emailDialog.commission?.status === 'paid' ? "bg-emerald-50 text-emerald-500 border-emerald-100" : "bg-red-50 text-red-500 border-red-100"
+                      )}>
+                        <Mail size={28} />
+                      </div>
+                      <div>
+                        <h3 className="text-xl font-black text-gray-900">
+                          {emailDialog.commission?.status === 'paid' ? t("dialogs.email.sendReceipt") : t("dialogs.email.sendClaim")}
+                        </h3>
+                        <p className="text-sm text-gray-400 font-medium">
+                          {emailDialog.commission?.status === 'paid' ? t("dialogs.email.receiptDesc") : t("dialogs.email.claimDesc")}
+                        </p>
+                      </div>
                     </div>
-                  </div>
+      
+                    <div className="space-y-6">
+                      <div className={cn(
+                        "p-4 rounded-2xl border mb-6",
+                        emailDialog.commission?.status === 'paid' ? "bg-emerald-50/30 border-emerald-100/50" : "bg-red-50/30 border-red-100/50"
+                      )}>
+                      <div className="flex items-center gap-3">
+                        <div className="h-10 w-10 rounded-full bg-white flex items-center justify-center text-gray-400 shadow-sm">
+                          <Users size={18} />
+                        </div>
+                        <div>
+                          <p className="text-[10px] text-gray-400 font-black uppercase">{t("dialogs.email.employee")}</p>
+                          <p className="font-black text-gray-900">{emailDialog.commission?.name}</p>
+                        </div>
+                      </div>
+                    </div>
+    
+                    <div className="space-y-2">
+                      <label className="text-xs font-bold text-gray-400 uppercase tracking-widest mr-2 block">{t("dialogs.email.email")}</label>
+                      <div className="relative">
+                        <Mail className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+                        <input 
+                          type="email"
+                          value={emailDialog.email}
+                          onChange={(e) => setEmailDialog({ ...emailDialog, email: e.target.value })}
+                          placeholder="employee@example.com"
+                          className="w-full pl-4 pr-12 py-4 rounded-2xl border border-gray-100 bg-gray-50 focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/5 outline-none font-bold transition-all text-sm"
+                          autoFocus
+                        />
+                      </div>
+                    </div>
+    
+                    <div className="flex items-center gap-3 pt-4">
+                      <button 
+                        onClick={() => setEmailDialog({ ...emailDialog, show: false })}
+                        className="flex-1 py-4 rounded-2xl bg-gray-100 text-gray-700 font-black text-sm hover:bg-gray-200 transition-all"
+                      >
+                        {t("dialogs.email.cancel")}
+                      </button>
+                        <button 
+                          onClick={executeSendEmail}
+                          className={cn(
+                            "flex-2 px-8 py-4 rounded-2xl text-white font-black text-sm shadow-xl active:scale-95 transition-all flex items-center justify-center gap-2",
+                            emailDialog.commission?.status === 'paid' ? "bg-emerald-600 hover:bg-emerald-700 shadow-emerald-100" : "bg-red-600 hover:bg-red-700 shadow-red-100"
+                          )}
+                        >
+                        <Send size={18} />
+                          <span>{emailDialog.commission?.status === 'paid' ? t("dialogs.email.btnReceipt") : t("dialogs.email.btnClaim")}</span>
+                        </button>
+                      </div>
+                    </div>
               </motion.div>
             </motion.div>
           )}
@@ -745,50 +745,50 @@ export function CommissionsClient({ companyId, initialPackages }: CommissionsCli
                   </div>
 
                   <div className="pt-2">
-                    <Link 
-                      href="/hr/packages?type=commission&create=true"
-                      className="w-full py-3 rounded-2xl bg-purple-50 text-purple-600 font-black text-[10px] border border-purple-100 hover:bg-purple-100 transition-all flex items-center justify-center gap-2 group/btn"
-                    >
-                      <Plus size={14} className="group-hover/btn:rotate-90 transition-transform" />
-                      <span>إضافة باقة عمولة جديدة</span>
-                    </Link>
-                  </div>
-
-                  <div>
-                    <label className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-2 block">{t("commissionType")}</label>
-
-                  <div className="flex flex-col gap-2 p-2 bg-gray-50 rounded-2xl border border-gray-100">
-                    <button 
-                      onClick={() => setMode("fixed_daily")}
-                      className={cn(
-                        "py-2.5 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-2",
-                        mode === "fixed_daily" ? "bg-white text-blue-600 shadow-md border border-gray-100" : "text-gray-400 hover:text-gray-600"
-                      )}
-                    >
-                      <Activity size={14} />
-                      <span>مبلغ ثابت (يومي)</span>
-                    </button>
-                    <button 
-                      onClick={() => setMode("fixed_monthly")}
-                      className={cn(
-                        "py-2.5 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-2",
-                        mode === "fixed_monthly" ? "bg-white text-purple-600 shadow-md border border-gray-100" : "text-gray-400 hover:text-gray-600"
-                      )}
-                    >
-                      <Calendar size={14} />
-                      <span>مبلغ ثابت (شهري)</span>
-                    </button>
-                    <button 
-                      onClick={() => setMode("percentage")}
-                      className={cn(
-                        "py-2.5 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-2",
-                        mode === "percentage" ? "bg-white text-amber-600 shadow-md border border-gray-100" : "text-gray-400 hover:text-gray-600"
-                      )}
-                    >
-                      <Percent size={14} />
-                      <span>نسبة مئوية</span>
-                    </button>
-                  </div>
+                          <Link 
+                        href="/hr/packages?type=commission&create=true"
+                        className="w-full py-3 rounded-2xl bg-purple-50 text-purple-600 font-black text-[10px] border border-purple-100 hover:bg-purple-100 transition-all flex items-center justify-center gap-2 group/btn"
+                      >
+                        <Plus size={14} className="group-hover/btn:rotate-90 transition-transform" />
+                        <span>{t("addPackage")}</span>
+                      </Link>
+                    </div>
+  
+                    <div>
+                      <label className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-2 block">{t("commissionType")}</label>
+  
+                    <div className="flex flex-col gap-2 p-2 bg-gray-50 rounded-2xl border border-gray-100">
+                      <button 
+                        onClick={() => setMode("fixed_daily")}
+                        className={cn(
+                          "py-2.5 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-2",
+                          mode === "fixed_daily" ? "bg-white text-blue-600 shadow-md border border-gray-100" : "text-gray-400 hover:text-gray-600"
+                        )}
+                      >
+                        <Activity size={14} />
+                        <span>{t("fixedDaily")}</span>
+                      </button>
+                      <button 
+                        onClick={() => setMode("fixed_monthly")}
+                        className={cn(
+                          "py-2.5 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-2",
+                          mode === "fixed_monthly" ? "bg-white text-purple-600 shadow-md border border-gray-100" : "text-gray-400 hover:text-gray-600"
+                        )}
+                      >
+                        <Calendar size={14} />
+                        <span>{t("fixedMonthly")}</span>
+                      </button>
+                      <button 
+                        onClick={() => setMode("percentage")}
+                        className={cn(
+                          "py-2.5 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-2",
+                          mode === "percentage" ? "bg-white text-amber-600 shadow-md border border-gray-100" : "text-gray-400 hover:text-gray-600"
+                        )}
+                      >
+                        <Percent size={14} />
+                        <span>{t("percentage")}</span>
+                      </button>
+                    </div>
                 </div>
 
                 <button 
@@ -901,33 +901,33 @@ export function CommissionsClient({ companyId, initialPackages }: CommissionsCli
 
           {/* Main Content Area */}
           <div className="lg:col-span-3 space-y-8">
-            {/* Stats Summary */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <StatCard 
-                label="إجمالي المستحقات" 
-                value={totalDue.toLocaleString()} 
-                icon={<DollarSign size={24} />} 
-                color="blue" 
-                isRtl={isRtl}
-                suffix="ر.س"
-              />
-              <StatCard 
-                label="تم دفعها" 
-                value={totalPaid.toString()} 
-                icon={<UserCheck size={24} />} 
-                color="emerald" 
-                isRtl={isRtl}
-                suffix="موظف"
-              />
-              <StatCard 
-                label="بانتظار الدفع" 
-                value={totalUnpaid.toString()} 
-                icon={<UserMinus size={24} />} 
-                color="amber" 
-                isRtl={isRtl}
-                suffix="موظف"
-              />
-            </div>
+              {/* Stats Summary */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <StatCard 
+                  label={t("totalDue")} 
+                  value={totalDue.toLocaleString()} 
+                  icon={<DollarSign size={24} />} 
+                  color="blue" 
+                  isRtl={isRtl}
+                  suffix={t("currency")}
+                />
+                <StatCard 
+                  label={t("paidCount")} 
+                  value={totalPaid.toString()} 
+                  icon={<UserCheck size={24} />} 
+                  color="emerald" 
+                  isRtl={isRtl}
+                  suffix={t("employee")}
+                />
+                <StatCard 
+                  label={t("unpaidCount")} 
+                  value={totalUnpaid.toString()} 
+                  icon={<UserMinus size={24} />} 
+                  color="amber" 
+                  isRtl={isRtl}
+                  suffix={t("employee")}
+                />
+              </div>
 
             {/* Tab Content */}
             <div className="bg-white rounded-[2.5rem] shadow-sm border border-gray-100 overflow-hidden min-h-[600px] flex flex-col">
@@ -947,114 +947,112 @@ export function CommissionsClient({ companyId, initialPackages }: CommissionsCli
                             </p>
                             {commissions.length > 0 && (
                               <span className="bg-blue-100 text-blue-600 px-2 py-0.5 rounded-lg text-[10px] font-bold">
-                                {selectedCount} / {commissions.length} مختار
+                                {selectedCount} / {commissions.length} {t("selected")}
                               </span>
                             )}
                           </div>
                         </div>
-                      </div>
-
-                      <div className="flex flex-wrap items-center gap-3">
-                        {commissions.length > 0 && (
-                          <>
-                            <div className="relative group">
-                              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-blue-500 transition-colors" size={16} />
-                              <input 
-                                type="text" 
-                                placeholder="بحث بالاسم أو الكود..."
-                                value={searchQuery}
-                                onChange={(e) => setSearchQuery(e.target.value)}
-                                className="pl-10 pr-4 py-2.5 rounded-xl border border-gray-200 bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/5 outline-none font-bold text-xs transition-all w-64"
-                              />
-                              {searchQuery && (
-                                <button 
-                                  onClick={() => setSearchQuery("")}
-                                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                                >
-                                  <X size={14} />
-                                </button>
-                              )}
-                            </div>
-
-                            <div className="flex items-center gap-2">
-                              <button 
-                                onClick={toggleSelectAll}
-                                className="px-4 py-2.5 rounded-xl bg-white text-gray-700 font-black text-[10px] border border-gray-200 hover:bg-gray-50 transition-all flex items-center gap-2 shadow-sm"
-                                title={filteredCommissions.every(c => c.selected) ? "إلغاء تحديد الكل" : "تحديد الكل"}
-                              >
-                                {filteredCommissions.every(c => c.selected) ? <CheckSquare size={16} className="text-blue-500" /> : <Square size={16} />}
-                                <span>{filteredCommissions.every(c => c.selected) ? "إلغاء الكل" : "تحديد الكل"}</span>
-                              </button>
-
-                              <button 
-                                onClick={removeUnselected}
-                                disabled={selectedCount === commissions.length || selectedCount === 0}
-                                className="px-4 py-2.5 rounded-xl bg-red-50 text-red-600 font-black text-[10px] border border-red-100 hover:bg-red-100 transition-all flex items-center gap-2 shadow-sm disabled:opacity-50"
-                              >
-                                <Trash2 size={16} />
-                                <span>حذف غير المختار</span>
-                              </button>
-
-                              <button 
-                                onClick={() => fetchData()}
-                                className="px-4 py-2.5 rounded-xl bg-white text-gray-700 font-black text-[10px] border border-gray-200 hover:bg-gray-50 transition-all flex items-center gap-2 shadow-sm"
-                              >
-                                <RefreshCw size={16} />
-                                <span>تحديث</span>
-                              </button>
-                            </div>
-                          </>
-                        )}
-                        
-                        <button 
-                          onClick={saveCommissions}
-                          disabled={saving || commissions.length === 0 || selectedCount === 0}
-                          className="px-8 py-3.5 rounded-2xl bg-emerald-500 text-white font-black text-sm shadow-xl shadow-emerald-100 hover:bg-emerald-600 active:scale-95 transition-all disabled:opacity-50 flex items-center gap-2 ml-auto"
-                        >
-                          {saving ? <Loader2 size={18} className="animate-spin" /> : <Save size={18} />}
-                          <span>{t("saveData")}</span>
-                        </button>
-                      </div>
-                    </div>
-
-                    <div className="flex-1 overflow-x-auto">
-                      {commissions.length > 0 ? (
-                        <table className="w-full border-collapse">
-                          <thead>
-                            <tr className="bg-gray-50/50">
-                              <th className="px-6 py-5 text-center text-xs font-black text-gray-400 border-b border-gray-50 w-10">
+  
+                        <div className="flex flex-wrap items-center gap-3">
+                          {commissions.length > 0 && (
+                            <>
+                              <div className="relative group">
+                                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-blue-500 transition-colors" size={16} />
                                 <input 
-                                  type="checkbox"
-                                  checked={filteredCommissions.length > 0 && filteredCommissions.every(c => c.selected)}
-                                  onChange={toggleSelectAll}
-                                  className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
+                                  type="text" 
+                                  placeholder={t("searchPlaceholder")}
+                                  value={searchQuery}
+                                  onChange={(e) => setSearchQuery(e.target.value)}
+                                  className="pl-10 pr-4 py-2.5 rounded-xl border border-gray-200 bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/5 outline-none font-bold text-xs transition-all w-64"
                                 />
-                              </th>
-                              <th className="px-6 py-5 text-right text-xs font-black text-gray-400 uppercase tracking-widest border-b border-gray-50">الموظف</th>
-                              <th className="px-6 py-5 text-center text-xs font-black text-gray-400 uppercase tracking-widest border-b border-gray-50">تاريخ البداية</th>
-                              {mode === "fixed_daily" && (
-                                <>
-                                  <th className="px-6 py-5 text-center text-xs font-black text-gray-400 uppercase tracking-widest border-b border-gray-50">{t("dailyAmount")}</th>
-                                  <th className="px-6 py-5 text-center text-xs font-black text-gray-400 uppercase tracking-widest border-b border-gray-50">{t("days")}</th>
-                                  <th className="px-6 py-5 text-center text-xs font-black text-gray-400 uppercase tracking-widest border-b border-gray-50">{t("total")}</th>
-                                </>
-                              )}
-                              {mode === "fixed_monthly" && (
-                                <th className="px-6 py-5 text-center text-xs font-black text-gray-400 uppercase tracking-widest border-b border-gray-50">المبلغ الشهري</th>
-                              )}
-                              {mode === "percentage" && (
-                                <>
-                                  <th className="px-6 py-5 text-center text-xs font-black text-gray-400 uppercase tracking-widest border-b border-gray-50">{t("commissionPercent")}</th>
-                                  <th className="px-6 py-5 text-center text-xs font-black text-gray-400 uppercase tracking-widest border-b border-gray-50">{t("revenue")}</th>
-                                  <th className="px-6 py-5 text-center text-xs font-black text-gray-400 uppercase tracking-widest border-b border-gray-50">{t("commission")}</th>
-                                </>
-                              )}
-                              <th className="px-6 py-5 text-center text-xs font-black text-gray-400 uppercase tracking-widest border-b border-gray-50">{t("deductions")}</th>
-                              <th className="px-6 py-5 text-center text-xs font-black text-gray-400 uppercase tracking-widest border-b border-gray-50">{t("bonuses")}</th>
-                              <th className="px-6 py-5 text-center text-xs font-black text-gray-400 uppercase tracking-widest border-b border-gray-50">الإجمالي</th>
-                              <th className="px-6 py-5 text-center text-xs font-black text-gray-400 uppercase tracking-widest border-b border-gray-50">{t("paymentStatus")}</th>
-                            </tr>
-                          </thead>
+                                {searchQuery && (
+                                  <button 
+                                    onClick={() => setSearchQuery("")}
+                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                                  >
+                                    <X size={14} />
+                                  </button>
+                                )}
+                              </div>
+  
+                              <div className="flex items-center gap-2">
+                                <button 
+                                  onClick={toggleSelectAll}
+                                  className="px-4 py-2.5 rounded-xl bg-white text-gray-700 font-black text-[10px] border border-gray-200 hover:bg-gray-50 transition-all flex items-center gap-2 shadow-sm"
+                                  title={filteredCommissions.every(c => c.selected) ? t("deselectAll") : t("selectAll")}
+                                >
+                                  {filteredCommissions.every(c => c.selected) ? <CheckSquare size={16} className="text-blue-500" /> : <Square size={16} />}
+                                  <span>{filteredCommissions.every(c => c.selected) ? t("cancelAll") : t("selectAll")}</span>
+                                </button>
+  
+                                <button 
+                                  onClick={removeUnselected}
+                                  disabled={selectedCount === commissions.length || selectedCount === 0}
+                                  className="px-4 py-2.5 rounded-xl bg-red-50 text-red-600 font-black text-[10px] border border-red-100 hover:bg-red-100 transition-all flex items-center gap-2 shadow-sm disabled:opacity-50"
+                                >
+                                  <Trash2 size={16} />
+                                  <span>{t("removeUnselected")}</span>
+                                </button>
+  
+                                <button 
+                                  onClick={() => fetchData()}
+                                  className="px-4 py-2.5 rounded-xl bg-white text-gray-700 font-black text-[10px] border border-gray-200 hover:bg-gray-50 transition-all flex items-center gap-2 shadow-sm"
+                                >
+                                  <RefreshCw size={16} />
+                                  <span>{t("refresh")}</span>
+                                </button>
+                              </div>
+                            </>
+                          )}
+                          
+                          <button 
+                            onClick={saveCommissions}
+                            disabled={saving || commissions.length === 0 || selectedCount === 0}
+                            className="px-8 py-3.5 rounded-2xl bg-emerald-500 text-white font-black text-sm shadow-xl shadow-emerald-100 hover:bg-emerald-600 active:scale-95 transition-all disabled:opacity-50 flex items-center gap-2 ml-auto"
+                          >
+                            {saving ? <Loader2 size={18} className="animate-spin" /> : <Save size={18} />}
+                            <span>{t("saveData")}</span>
+                          </button>
+                        </div>
+  
+                      <div className="flex-1 overflow-x-auto">
+                        {commissions.length > 0 ? (
+                          <table className="w-full border-collapse">
+                            <thead>
+                              <tr className="bg-gray-50/50">
+                                <th className="px-6 py-5 text-center text-xs font-black text-gray-400 border-b border-gray-50 w-10">
+                                  <input 
+                                    type="checkbox"
+                                    checked={filteredCommissions.length > 0 && filteredCommissions.every(c => c.selected)}
+                                    onChange={toggleSelectAll}
+                                    className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
+                                  />
+                                </th>
+                                <th className="px-6 py-5 text-right text-xs font-black text-gray-400 uppercase tracking-widest border-b border-gray-50">{t("employee")}</th>
+                                <th className="px-6 py-5 text-center text-xs font-black text-gray-400 uppercase tracking-widest border-b border-gray-50">{t("startDate")}</th>
+                                {mode === "fixed_daily" && (
+                                  <>
+                                    <th className="px-6 py-5 text-center text-xs font-black text-gray-400 uppercase tracking-widest border-b border-gray-50">{t("dailyAmount")}</th>
+                                    <th className="px-6 py-5 text-center text-xs font-black text-gray-400 uppercase tracking-widest border-b border-gray-50">{t("days")}</th>
+                                    <th className="px-6 py-5 text-center text-xs font-black text-gray-400 uppercase tracking-widest border-b border-gray-50">{t("total")}</th>
+                                  </>
+                                )}
+                                {mode === "fixed_monthly" && (
+                                  <th className="px-6 py-5 text-center text-xs font-black text-gray-400 uppercase tracking-widest border-b border-gray-50">{t("monthlyAmount")}</th>
+                                )}
+                                {mode === "percentage" && (
+                                  <>
+                                    <th className="px-6 py-5 text-center text-xs font-black text-gray-400 uppercase tracking-widest border-b border-gray-50">{t("commissionPercent")}</th>
+                                    <th className="px-6 py-5 text-center text-xs font-black text-gray-400 uppercase tracking-widest border-b border-gray-50">{t("revenue")}</th>
+                                    <th className="px-6 py-5 text-center text-xs font-black text-gray-400 uppercase tracking-widest border-b border-gray-50">{t("commission")}</th>
+                                  </>
+                                )}
+                                <th className="px-6 py-5 text-center text-xs font-black text-gray-400 uppercase tracking-widest border-b border-gray-50">{t("deductions")}</th>
+                                <th className="px-6 py-5 text-center text-xs font-black text-gray-400 uppercase tracking-widest border-b border-gray-50">{t("bonuses")}</th>
+                                <th className="px-6 py-5 text-center text-xs font-black text-gray-400 uppercase tracking-widest border-b border-gray-50">{t("total")}</th>
+                                <th className="px-6 py-5 text-center text-xs font-black text-gray-400 uppercase tracking-widest border-b border-gray-50">{t("paymentStatus")}</th>
+                              </tr>
+                            </thead>
                           <tbody className="divide-y divide-gray-50">
                             {filteredCommissions.map((comm, fIdx) => {
                               const realIdx = getRealIndex(fIdx);
@@ -1184,193 +1182,193 @@ export function CommissionsClient({ companyId, initialPackages }: CommissionsCli
                                             comm.status === "paid" ? "right-0.5" : "left-0.5"
                                           )} />
                                         </button>
-                                        <span className={cn(
-                                          "text-[8px] font-black",
-                                          comm.status === "paid" ? "text-emerald-600" : "text-gray-400"
-                                        )}>
-                                          {comm.status === "paid" ? "تم الدفع" : "معلق"}
-                                        </span>
-                                      </div>
-                                    </td>
-                                </motion.tr>
-                              );
-                            })}
-                          </tbody>
-                        </table>
-                      ) : (
-                        <div className="flex flex-col items-center justify-center py-32 opacity-20 grayscale">
-                          <div className="h-24 w-24 rounded-full bg-gray-100 flex items-center justify-center mb-6">
-                            <Users size={48} />
+                                          <span className={cn(
+                                            "text-[8px] font-black",
+                                            comm.status === "paid" ? "text-emerald-600" : "text-gray-400"
+                                          )}>
+                                            {comm.status === "paid" ? t("paidStatus") : t("unpaidStatus")}
+                                          </span>
+                                        </div>
+                                      </td>
+                                  </motion.tr>
+                                );
+                              })}
+                            </tbody>
+                          </table>
+                        ) : (
+                          <div className="flex flex-col items-center justify-center py-32 opacity-20 grayscale">
+                            <div className="h-24 w-24 rounded-full bg-gray-100 flex items-center justify-center mb-6">
+                              <Users size={48} />
+                            </div>
+                            <p className="font-black text-lg">{t("noEmployees")}</p>
                           </div>
-                          <p className="font-black text-lg">لم يتم اختيار باقة أو لا يوجد موظفين</p>
-                        </div>
-                      )}
-                    </div>
-                  </>
-                ) : (
-
-                <div className="flex-1 flex flex-col">
-                  {/* Report Header */}
-                  <div className="p-8 border-b border-gray-50 flex flex-col md:flex-row md:items-center justify-between gap-6">
-                    <div className="flex items-center gap-4">
-                      <div className="h-12 w-12 rounded-2xl bg-amber-500/10 flex items-center justify-center text-amber-600">
-                        <TrendingUp size={24} />
+                        )}
                       </div>
-                      <div>
-                        <h3 className="text-xl font-black text-gray-900">{t("report.title")}</h3>
-                        <p className="text-sm text-gray-400 font-medium">{t("report.subtitle")}</p>
-                      </div>
-                    </div>
-                    
-                    <div className="flex items-center gap-2">
-                      <button 
-                        onClick={() => handlePrint()}
-                        className="px-6 py-2.5 rounded-xl bg-white text-gray-700 font-black text-sm border border-gray-200 hover:bg-gray-50 active:scale-95 transition-all flex items-center gap-2 shadow-sm"
-                      >
-                        <Printer size={18} />
-                        <span>{t("report.print")}</span>
-                      </button>
-                      <button 
-                        className="px-6 py-2.5 rounded-xl bg-[#1d6f42] text-white font-black text-sm hover:bg-[#165a35] active:scale-95 transition-all flex items-center gap-2 shadow-xl shadow-green-100"
-                      >
-                        <Download size={18} />
-                        <span>Excel</span>
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* Print Content Container */}
-                  <div className="flex-1 p-8 overflow-auto" ref={printRef}>
-                    <div className="space-y-10 print:space-y-6">
-                      {/* Report Statistics Header */}
-                      <div className="grid grid-cols-2 md:grid-cols-4 gap-6 p-8 rounded-3xl bg-gray-900 text-white shadow-2xl relative overflow-hidden">
-                        <div className="flex flex-col gap-1 relative z-10">
-                          <span className="text-[10px] text-white/40 uppercase font-black tracking-[0.2em]">{t("month")}</span>
-                          <span className="text-lg font-black">{month}</span>
+                    </>
+                  ) : (
+  
+                  <div className="flex-1 flex flex-col">
+                    {/* Report Header */}
+                    <div className="p-8 border-b border-gray-50 flex flex-col md:flex-row md:items-center justify-between gap-6">
+                      <div className="flex items-center gap-4">
+                        <div className="h-12 w-12 rounded-2xl bg-amber-500/10 flex items-center justify-center text-amber-600">
+                          <TrendingUp size={24} />
                         </div>
-                        <div className="flex flex-col gap-1 relative z-10 border-r border-white/10 pr-6">
-                          <span className="text-[10px] text-white/40 uppercase font-black tracking-[0.2em]">إجمالي المستحقات</span>
-                          <span className="text-lg font-black text-blue-400">{totalDue.toLocaleString()} <span className="text-xs opacity-50">ر.س</span></span>
+                        <div>
+                          <h3 className="text-xl font-black text-gray-900">{t("report.title")}</h3>
+                          <p className="text-sm text-gray-400 font-medium">{t("report.subtitle")}</p>
                         </div>
-                        <div className="flex flex-col gap-1 relative z-10 border-r border-white/10 pr-6">
-                          <span className="text-[10px] text-white/40 uppercase font-black tracking-[0.2em]">الموظفين المشمولين</span>
-                          <span className="text-lg font-black">{commissions.length} <span className="text-xs opacity-50">موظف</span></span>
-                        </div>
-                        <div className="flex flex-col gap-1 relative z-10 border-r border-white/10 pr-6">
-                          <span className="text-[10px] text-white/40 uppercase font-black tracking-[0.2em]">نوع العمولات</span>
-                          <span className="text-lg font-black text-emerald-400">
-                            {getModeLabel(mode)}
-                          </span>
-                        </div>
-                        <div className="absolute top-0 right-0 w-32 h-full bg-gradient-to-l from-white/5 to-transparent pointer-events-none" />
-                      </div>
-
-                      {/* Final Report Table */}
-                      <div className="rounded-3xl border border-gray-100 overflow-hidden">
-                        <table className="w-full">
-                          <thead>
-                            <tr className="bg-gray-50 border-b border-gray-100">
-                              <th className="px-6 py-5 text-right text-[10px] font-black text-gray-400 uppercase tracking-widest">الموظف</th>
-                              <th className="px-6 py-5 text-center text-[10px] font-black text-gray-400 uppercase tracking-widest">تاريخ البداية</th>
-                              <th className="px-6 py-5 text-center text-[10px] font-black text-gray-400 uppercase tracking-widest">العمولة المستحقة</th>
-                              <th className="px-6 py-5 text-center text-[10px] font-black text-gray-400 uppercase tracking-widest">المكافآت (+)</th>
-                              <th className="px-6 py-5 text-center text-[10px] font-black text-gray-400 uppercase tracking-widest">الخصومات (-)</th>
-                              <th className="px-6 py-5 text-center text-[10px] font-black text-gray-400 uppercase tracking-widest">الصافي النهائي</th>
-                              <th className="px-6 py-5 text-center text-[10px] font-black text-gray-400 uppercase tracking-widest">الحالة</th>
-                              <th className="px-6 py-5 text-center text-[10px] font-black text-gray-400 uppercase tracking-widest print:hidden">إجراءات</th>
-                            </tr>
-                          </thead>
-                          <tbody className="divide-y divide-gray-50">
-                            {commissions.map((comm, idx) => {
-                              const net = (mode.startsWith("fixed") ? Number(comm.total) : Number(comm.commission)) + Number(comm.bonus) - Number(comm.deduction);
-                              return (
-                                <tr key={comm.employee_id} className="hover:bg-gray-50/50">
-                                  <td className="px-6 py-5 font-black text-gray-900 text-sm">
-                                    <div className="flex flex-col">
-                                      <span>{comm.name}</span>
-                                      <span className="text-[10px] text-gray-400 font-bold">{comm.user_code}</span>
-                                    </div>
-                                  </td>
-                                  <td className="px-6 py-5 text-center font-medium text-gray-500 text-xs">{comm.start_date || "-"}</td>
-                                  <td className="px-6 py-5 text-center font-black text-blue-600">{(mode.startsWith("fixed") ? Number(comm.total) : Number(comm.commission)).toLocaleString()}</td>
-                                  <td className="px-6 py-5 text-center font-black text-emerald-500">{(Number(comm.bonus) || 0).toLocaleString()}</td>
-                                  <td className="px-6 py-5 text-center font-black text-red-500">{(Number(comm.deduction) || 0).toLocaleString()}</td>
-                                  <td className="px-6 py-5 text-center bg-gray-50/50">
-                                    <span className="font-black text-gray-900 text-base">{net.toLocaleString()}</span>
-                                  </td>
-                                    <td className="px-6 py-5 text-center">
-                                      <div className="flex flex-col items-center gap-1.5">
-                                        <button 
-                                          onClick={() => handleCommChange(idx, "status", comm.status === "paid" ? "unpaid" : "paid")}
-                                          className={cn(
-                                            "w-12 h-6 rounded-full relative transition-all duration-300 shadow-inner group/toggle",
-                                            comm.status === "paid" ? "bg-emerald-500" : "bg-gray-300"
-                                          )}
-                                        >
-                                          <div className={cn(
-                                            "absolute top-1 w-4 h-4 bg-white rounded-full transition-all shadow-md group-hover/toggle:scale-110",
-                                            comm.status === "paid" ? "right-1" : "left-1"
-                                          )} />
-                                        </button>
-                                        <span className={cn(
-                                          "text-[9px] font-black uppercase tracking-widest",
-                                          comm.status === "paid" ? "text-emerald-600" : "text-gray-400"
-                                        )}>
-                                          {comm.status === "paid" ? "تم الدفع" : "معلق"}
-                                        </span>
-                                      </div>
-                                    </td>
-                                  <td className="px-6 py-5 text-center print:hidden">
-                                    <div className="flex items-center justify-center gap-2">
-                                      <button 
-                                        onClick={() => handleOpenEmailDialog(comm)}
-                                        disabled={sendingEmail === comm.id}
-                                        className={cn(
-                                          "p-2 rounded-xl transition-all shadow-sm",
-                                          comm.status === 'paid' 
-                                            ? "bg-emerald-50 text-emerald-600 hover:bg-emerald-600 hover:text-white" 
-                                            : "bg-red-50 text-red-600 hover:bg-red-600 hover:text-white"
-                                        )}
-                                        title={comm.status === 'paid' ? "إرسال سند سداد" : "إرسال مطالبة مالية"}
-                                      >
-                                        {sendingEmail === comm.id ? <Loader2 size={16} className="animate-spin" /> : <Mail size={16} />}
-                                      </button>
-                                      <button 
-                                        onClick={() => handlePrint()}
-                                        className="p-2 rounded-xl bg-gray-50 text-gray-600 hover:bg-gray-600 hover:text-white transition-all shadow-sm"
-                                        title="طباعة السند"
-                                      >
-                                        <Printer size={16} />
-                                      </button>
-                                    </div>
-                                  </td>
-                                </tr>
-                              );
-                            })}
-                          </tbody>
-                        </table>
                       </div>
                       
-                      <div className="grid grid-cols-2 gap-12 pt-16 mt-16 border-t border-dashed border-gray-200 opacity-0 print:opacity-100 h-0 print:h-auto overflow-hidden">
-                        <div className="text-center">
-                          <span className="text-[10px] text-gray-400 font-black uppercase tracking-widest block mb-12">توقيع المحاسب</span>
-                          <div className="w-48 h-px bg-gray-200 mx-auto" />
+                      <div className="flex items-center gap-2">
+                        <button 
+                          onClick={() => handlePrint()}
+                          className="px-6 py-2.5 rounded-xl bg-white text-gray-700 font-black text-sm border border-gray-200 hover:bg-gray-50 active:scale-95 transition-all flex items-center gap-2 shadow-sm"
+                        >
+                          <Printer size={18} />
+                          <span>{t("report.print")}</span>
+                        </button>
+                        <button 
+                          className="px-6 py-2.5 rounded-xl bg-[#1d6f42] text-white font-black text-sm hover:bg-[#165a35] active:scale-95 transition-all flex items-center gap-2 shadow-xl shadow-green-100"
+                        >
+                          <Download size={18} />
+                          <span>Excel</span>
+                        </button>
+                      </div>
+                    </div>
+  
+                    {/* Print Content Container */}
+                    <div className="flex-1 p-8 overflow-auto" ref={printRef}>
+                      <div className="space-y-10 print:space-y-6">
+                        {/* Report Statistics Header */}
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 p-8 rounded-3xl bg-gray-900 text-white shadow-2xl relative overflow-hidden">
+                          <div className="flex flex-col gap-1 relative z-10">
+                            <span className="text-[10px] text-white/40 uppercase font-black tracking-[0.2em]">{t("month")}</span>
+                            <span className="text-lg font-black">{month}</span>
+                          </div>
+                          <div className="flex flex-col gap-1 relative z-10 border-r border-white/10 pr-6">
+                            <span className="text-[10px] text-white/40 uppercase font-black tracking-[0.2em]">{t("report.totalDue")}</span>
+                            <span className="text-lg font-black text-blue-400">{totalDue.toLocaleString()} <span className="text-xs opacity-50">{t("currency")}</span></span>
+                          </div>
+                          <div className="flex flex-col gap-1 relative z-10 border-r border-white/10 pr-6">
+                            <span className="text-[10px] text-white/40 uppercase font-black tracking-[0.2em]">{t("report.includedEmployees")}</span>
+                            <span className="text-lg font-black">{commissions.length} <span className="text-xs opacity-50">{t("employee")}</span></span>
+                          </div>
+                          <div className="flex flex-col gap-1 relative z-10 border-r border-white/10 pr-6">
+                            <span className="text-[10px] text-white/40 uppercase font-black tracking-[0.2em]">{t("report.commissionType")}</span>
+                            <span className="text-lg font-black text-emerald-400">
+                              {getModeLabel(mode)}
+                            </span>
+                          </div>
+                          <div className="absolute top-0 right-0 w-32 h-full bg-gradient-to-l from-white/5 to-transparent pointer-events-none" />
                         </div>
-                        <div className="text-center">
-                          <span className="text-[10px] text-gray-400 font-black uppercase tracking-widest block mb-12">اعتماد المدير</span>
-                          <div className="w-48 h-px bg-gray-200 mx-auto" />
+  
+                        {/* Final Report Table */}
+                        <div className="rounded-3xl border border-gray-100 overflow-hidden">
+                          <table className="w-full">
+                            <thead>
+                              <tr className="bg-gray-50 border-b border-gray-100">
+                                <th className="px-6 py-5 text-right text-[10px] font-black text-gray-400 uppercase tracking-widest">{t("employee")}</th>
+                                <th className="px-6 py-5 text-center text-[10px] font-black text-gray-400 uppercase tracking-widest">{t("startDate")}</th>
+                                <th className="px-6 py-5 text-center text-[10px] font-black text-gray-400 uppercase tracking-widest">{t("commission")}</th>
+                                <th className="px-6 py-5 text-center text-[10px] font-black text-gray-400 uppercase tracking-widest">{t("bonuses")} (+)</th>
+                                <th className="px-6 py-5 text-center text-[10px] font-black text-gray-400 uppercase tracking-widest">{t("deductions")} (-)</th>
+                                <th className="px-6 py-5 text-center text-[10px] font-black text-gray-400 uppercase tracking-widest">{t("total")}</th>
+                                <th className="px-6 py-5 text-center text-[10px] font-black text-gray-400 uppercase tracking-widest">{t("paymentStatus")}</th>
+                                <th className="px-6 py-5 text-center text-[10px] font-black text-gray-400 uppercase tracking-widest print:hidden">إجراءات</th>
+                              </tr>
+                            </thead>
+                            <tbody className="divide-y divide-gray-50">
+                              {commissions.map((comm, idx) => {
+                                const net = (mode.startsWith("fixed") ? Number(comm.total) : Number(comm.commission)) + Number(comm.bonus) - Number(comm.deduction);
+                                return (
+                                  <tr key={comm.employee_id} className="hover:bg-gray-50/50">
+                                    <td className="px-6 py-5 font-black text-gray-900 text-sm">
+                                      <div className="flex flex-col">
+                                        <span>{comm.name}</span>
+                                        <span className="text-[10px] text-gray-400 font-bold">{comm.user_code}</span>
+                                      </div>
+                                    </td>
+                                    <td className="px-6 py-5 text-center font-medium text-gray-500 text-xs">{comm.start_date || "-"}</td>
+                                    <td className="px-6 py-5 text-center font-black text-blue-600">{(mode.startsWith("fixed") ? Number(comm.total) : Number(comm.commission)).toLocaleString()}</td>
+                                    <td className="px-6 py-5 text-center font-black text-emerald-500">{(Number(comm.bonus) || 0).toLocaleString()}</td>
+                                    <td className="px-6 py-5 text-center font-black text-red-500">{(Number(comm.deduction) || 0).toLocaleString()}</td>
+                                    <td className="px-6 py-5 text-center bg-gray-50/50">
+                                      <span className="font-black text-gray-900 text-base">{net.toLocaleString()}</span>
+                                    </td>
+                                      <td className="px-6 py-5 text-center">
+                                        <div className="flex flex-col items-center gap-1.5">
+                                          <button 
+                                            onClick={() => handleCommChange(idx, "status", comm.status === "paid" ? "unpaid" : "paid")}
+                                            className={cn(
+                                              "w-12 h-6 rounded-full relative transition-all duration-300 shadow-inner group/toggle",
+                                              comm.status === "paid" ? "bg-emerald-500" : "bg-gray-300"
+                                            )}
+                                          >
+                                            <div className={cn(
+                                              "absolute top-1 w-4 h-4 bg-white rounded-full transition-all shadow-md group-hover/toggle:scale-110",
+                                              comm.status === "paid" ? "right-1" : "left-1"
+                                            )} />
+                                          </button>
+                                          <span className={cn(
+                                            "text-[9px] font-black uppercase tracking-widest",
+                                            comm.status === "paid" ? "text-emerald-600" : "text-gray-400"
+                                          )}>
+                                            {comm.status === "paid" ? t("paidStatus") : t("unpaidStatus")}
+                                          </span>
+                                        </div>
+                                      </td>
+                                    <td className="px-6 py-5 text-center print:hidden">
+                                      <div className="flex items-center justify-center gap-2">
+                                        <button 
+                                          onClick={() => handleOpenEmailDialog(comm)}
+                                          disabled={sendingEmail === comm.id}
+                                          className={cn(
+                                            "p-2 rounded-xl transition-all shadow-sm",
+                                            comm.status === 'paid' 
+                                              ? "bg-emerald-50 text-emerald-600 hover:bg-emerald-600 hover:text-white" 
+                                              : "bg-red-50 text-red-600 hover:bg-red-600 hover:text-white"
+                                          )}
+                                          title={comm.status === 'paid' ? "إرسال سند سداد" : "إرسال مطالبة مالية"}
+                                        >
+                                          {sendingEmail === comm.id ? <Loader2 size={16} className="animate-spin" /> : <Mail size={16} />}
+                                        </button>
+                                        <button 
+                                          onClick={() => handlePrint()}
+                                          className="p-2 rounded-xl bg-gray-50 text-gray-600 hover:bg-gray-600 hover:text-white transition-all shadow-sm"
+                                          title="طباعة السند"
+                                        >
+                                          <Printer size={16} />
+                                        </button>
+                                      </div>
+                                    </td>
+                                  </tr>
+                                );
+                              })}
+                            </tbody>
+                          </table>
+                        </div>
+                        
+                        <div className="grid grid-cols-2 gap-12 pt-16 mt-16 border-t border-dashed border-gray-200 opacity-0 print:opacity-100 h-0 print:h-auto overflow-hidden">
+                          <div className="text-center">
+                            <span className="text-[10px] text-gray-400 font-black uppercase tracking-widest block mb-12">{t("report.accountantSignature")}</span>
+                            <div className="w-48 h-px bg-gray-200 mx-auto" />
+                          </div>
+                          <div className="text-center">
+                            <span className="text-[10px] text-gray-400 font-black uppercase tracking-widest block mb-12">{t("report.managerApproval")}</span>
+                            <div className="w-48 h-px bg-gray-200 mx-auto" />
+                          </div>
                         </div>
                       </div>
                     </div>
                   </div>
-                </div>
-              )}
+                )}
+              </div>
             </div>
           </div>
         </div>
-      </div>
-    );
-  }
+      );
+    }
 
 
 function StatCard({ label, value, icon, color, isRtl, suffix }: { label: string; value: string; icon: React.ReactNode; color: "blue" | "emerald" | "amber"; isRtl: boolean; suffix?: string }) {
