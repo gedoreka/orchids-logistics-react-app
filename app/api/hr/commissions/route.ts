@@ -15,7 +15,7 @@ export async function GET(req: NextRequest) {
     try {
       // 1. Fetch Packages
       const packages = await query(
-        "SELECT id, group_name, work_type FROM employee_packages WHERE company_id = ? AND LOWER(work_type) IN ('commission', 'target')",
+        "SELECT id, group_name, work_type FROM employee_packages WHERE (company_id = ? OR company_id IS NULL) AND LOWER(work_type) IN ('commission', 'target')",
         [company_id]
       );
 
@@ -24,8 +24,9 @@ export async function GET(req: NextRequest) {
         `SELECT 
           ec.package_id, 
           ec.mode, 
+          ec.month,
           ec.serial_number,
-          ep.group_name as package_name,
+          IFNULL(ep.group_name, 'باقة عامة') as package_name,
           MAX(ec.status) as status,
           MAX(ec.created_at) as created_at,
           COUNT(*) as employee_count,
@@ -36,7 +37,7 @@ export async function GET(req: NextRequest) {
         FROM employee_commissions ec
         LEFT JOIN employee_packages ep ON ec.package_id = ep.id
         WHERE ec.company_id = ? AND ec.month = ? 
-        GROUP BY ec.package_id, ec.mode, ec.serial_number 
+        GROUP BY ec.package_id, ec.mode, ec.month, ec.serial_number 
         ORDER BY ec.serial_number ASC, ec.created_at DESC`,
         [company_id, month]
       );
@@ -157,10 +158,18 @@ export async function PATCH(req: NextRequest) {
         return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
       }
 
-      await execute(
-        "UPDATE employee_commissions SET status = ? WHERE company_id = ? AND month = ? AND package_id = ? AND mode = ?",
-        [status, company_id, month, package_id, mode]
-      );
+        const whereClause = package_id 
+          ? "WHERE company_id = ? AND month = ? AND package_id = ? AND mode = ?"
+          : "WHERE company_id = ? AND month = ? AND package_id IS NULL AND mode = ?";
+        
+        const params = package_id
+          ? [status, company_id, month, package_id, mode]
+          : [status, company_id, month, mode];
+
+        await execute(
+          `UPDATE employee_commissions SET status = ? ${whereClause}`,
+          params
+        );
     }
 
     return NextResponse.json({ success: true });

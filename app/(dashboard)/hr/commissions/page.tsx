@@ -17,7 +17,7 @@ export default async function CommissionsPage() {
   // Initial data can be fetched here or via the API on the client side.
   // We'll fetch packages here to have them ready.
   const packages = await query(
-    "SELECT id, group_name, work_type FROM employee_packages WHERE company_id = ? AND work_type IN ('commission', 'target')",
+    "SELECT id, group_name, work_type FROM employee_packages WHERE (company_id = ? OR company_id IS NULL) AND work_type IN ('commission', 'target')",
     [companyId]
   );
 

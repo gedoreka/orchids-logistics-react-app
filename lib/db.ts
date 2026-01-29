@@ -51,7 +51,8 @@ async function withRetry<T>(operation: () => Promise<T>, retries = 3): Promise<T
           sqlState: error.sqlState,
           sqlMessage: error.sqlMessage,
           host: process.env.DB_HOST,
-          user: process.env.DB_USER
+          user: process.env.DB_USER,
+          stack: error.stack
         });
 
       

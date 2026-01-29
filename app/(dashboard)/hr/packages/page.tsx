@@ -11,7 +11,7 @@ export default async function PackagesPage() {
   const companyId = session.company_id;
 
   const packages = await query(
-    "SELECT * FROM employee_packages WHERE company_id = ? ORDER BY id DESC",
+    "SELECT * FROM employee_packages WHERE (company_id = ? OR company_id IS NULL) ORDER BY id DESC",
     [companyId]
   );
 
