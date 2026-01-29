@@ -938,28 +938,28 @@ export function CommissionsClient({ companyId, initialPackages }: CommissionsCli
                   </div>
                 </div>
 
-                {/* Content Area */}
-                <div className="lg:col-span-3">
-                  <div className="bg-white rounded-[2.5rem] shadow-sm border border-gray-100 overflow-hidden min-h-[600px] flex flex-col">
-                    {activeTab === "manage" ? (
-                      <>
-                        {/* Manage Header */}
-                        <div className="p-8 border-b border-gray-50 flex flex-col md:flex-row md:items-center justify-between gap-6 bg-gray-50/30">
-                          <div className="flex items-center gap-4">
-                            <div className="h-12 w-12 rounded-2xl bg-blue-500/10 flex items-center justify-center text-blue-600">
-                              <Users size={24} />
-                            </div>
-                            <div>
-                              <h3 className="text-xl font-black text-gray-900">{t("employeeDetails")}</h3>
-                              <div className="flex items-center gap-2 mt-0.5">
-                                <p className="text-sm text-gray-400 font-medium">
-                                  {getModeLabel(mode)} • {month}
-                                </p>
-                                {commissions.length > 0 && (
-                                  <span className="bg-blue-100 text-blue-600 px-2 py-0.5 rounded-lg text-[10px] font-bold">
-                                    {selectedCount} / {commissions.length} {t("selected")}
-                                  </span>
-                                )}
+                  {/* Content Area */}
+                  <div className="lg:col-span-3">
+                    <div className="bg-white rounded-[3rem] shadow-2xl border border-white/20 overflow-hidden min-h-[700px] flex flex-col">
+                      {activeTab === "manage" ? (
+                        <>
+                          {/* Manage Header */}
+                          <div className="p-8 border-b border-gray-50 flex flex-col md:flex-row md:items-center justify-between gap-6 bg-gray-50/30">
+                            <div className="flex items-center gap-4">
+                              <div className="h-12 w-12 rounded-2xl bg-blue-500/10 flex items-center justify-center text-blue-600">
+                                <Users size={24} />
+                              </div>
+                              <div>
+                                <h3 className="text-xl font-black text-gray-900">{t("employeeDetails")}</h3>
+                                <div className="flex items-center gap-2 mt-0.5">
+                                  <p className="text-sm text-gray-400 font-medium">
+                                    {getModeLabel(mode)} • {month}
+                                  </p>
+                                  {commissions.length > 0 && (
+                                    <span className="bg-blue-100 text-blue-600 px-2 py-0.5 rounded-lg text-[10px] font-bold">
+                                      {selectedCount} / {commissions.length} {t("selected")}
+                                    </span>
+                                  )}
                                 </div>
                               </div>
                             </div>
@@ -1065,61 +1065,61 @@ export function CommissionsClient({ companyId, initialPackages }: CommissionsCli
                                     <th className="px-6 py-5 text-center text-xs font-black text-gray-400 uppercase tracking-widest border-b border-gray-50">{t("paymentStatus")}</th>
                                   </tr>
                                 </thead>
-                              <tbody className="divide-y divide-gray-50">
-                                {filteredCommissions.map((comm, fIdx) => {
-                                  const realIdx = getRealIndex(fIdx);
-                                  const net = (mode.startsWith("fixed") ? Number(comm.total) : Number(comm.commission)) + (Number(comm.bonus) || 0) - (Number(comm.deduction) || 0);
-                                  return (
-                                    <motion.tr 
-                                      initial={{ opacity: 0, y: 10 }}
-                                      animate={{ opacity: 1, y: 0 }}
-                                      transition={{ delay: fIdx * 0.05 }}
-                                      key={comm.employee_id} 
-                                      className={cn(
-                                        "hover:bg-blue-50/30 transition-colors",
-                                        !comm.selected && "bg-gray-50/50 opacity-60"
-                                      )}
-                                    >
-                                      <td className="px-6 py-4 text-center">
-                                        <input 
-                                          type="checkbox"
-                                          checked={comm.selected}
-                                          onChange={(e) => handleCommChange(realIdx, "selected", e.target.checked)}
-                                          className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
-                                        />
-                                      </td>
-                                      <td className="px-6 py-4">
-                                        <div className="flex flex-col">
-                                          <span className="font-black text-gray-900 text-sm">{comm.name}</span>
-                                          <span className="text-[10px] text-gray-400 font-bold mt-0.5 tracking-tighter">{comm.user_code} • {comm.iqama_number}</span>
-                                        </div>
-                                      </td>
-                                      <td className="px-6 py-4 text-center">
-                                        <input 
-                                          type="date" 
-                                          value={comm.start_date}
-                                          onChange={(e) => handleCommChange(realIdx, "start_date", e.target.value)}
-                                          className="w-32 px-3 py-2 rounded-xl border border-gray-100 bg-gray-50/50 focus:bg-white focus:border-blue-500 outline-none text-xs font-bold transition-all"
-                                        />
-                                      </td>
-                                      {mode === "fixed_daily" && (
-                                        <>
-                                          <td className="px-6 py-4 text-center">
-                                            <input 
-                                              type="number" 
-                                              value={comm.daily_amount}
-                                              onChange={(e) => handleCommChange(realIdx, "daily_amount", e.target.value)}
-                                              className="w-24 px-3 py-2 rounded-xl border border-gray-100 bg-gray-50/50 text-center focus:bg-white focus:border-blue-500 outline-none text-xs font-black transition-all"
-                                            />
-                                          </td>
-                                          <td className="px-6 py-4 text-center">
-                                            <input 
-                                              type="number" 
-                                              value={comm.days}
-                                              onChange={(e) => handleCommChange(realIdx, "days", e.target.value)}
-                                              className="w-20 px-3 py-2 rounded-xl border border-gray-100 bg-gray-50/50 text-center focus:bg-white focus:border-blue-500 outline-none text-xs font-black transition-all"
-                                            />
-                                          </td>
+                                <tbody className="divide-y divide-gray-50">
+                                  {filteredCommissions.map((comm, fIdx) => {
+                                    const realIdx = getRealIndex(fIdx);
+                                    const net = (mode.startsWith("fixed") ? Number(comm.total) : Number(comm.commission)) + (Number(comm.bonus) || 0) - (Number(comm.deduction) || 0);
+                                    return (
+                                      <motion.tr 
+                                        initial={{ opacity: 0, y: 10 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        transition={{ delay: fIdx * 0.05 }}
+                                        key={comm.employee_id} 
+                                        className={cn(
+                                          "hover:bg-blue-50/30 transition-colors",
+                                          !comm.selected && "bg-gray-50/50 opacity-60"
+                                        )}
+                                      >
+                                        <td className="px-6 py-4 text-center">
+                                          <input 
+                                            type="checkbox"
+                                            checked={comm.selected}
+                                            onChange={(e) => handleCommChange(realIdx, "selected", e.target.checked)}
+                                            className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
+                                          />
+                                        </td>
+                                        <td className="px-6 py-4">
+                                          <div className="flex flex-col">
+                                            <span className="font-black text-gray-900 text-sm">{comm.name}</span>
+                                            <span className="text-[10px] text-gray-400 font-bold mt-0.5 tracking-tighter">{comm.user_code} • {comm.iqama_number}</span>
+                                          </div>
+                                        </td>
+                                        <td className="px-6 py-4 text-center">
+                                          <input 
+                                            type="date" 
+                                            value={comm.start_date}
+                                            onChange={(e) => handleCommChange(realIdx, "start_date", e.target.value)}
+                                            className="w-32 px-3 py-2 rounded-xl border border-gray-100 bg-gray-50/50 focus:bg-white focus:border-blue-500 outline-none text-xs font-bold transition-all"
+                                          />
+                                        </td>
+                                        {mode === "fixed_daily" && (
+                                          <>
+                                            <td className="px-6 py-4 text-center">
+                                              <input 
+                                                type="number" 
+                                                value={comm.daily_amount}
+                                                onChange={(e) => handleCommChange(realIdx, "daily_amount", e.target.value)}
+                                                className="w-24 px-3 py-2 rounded-xl border border-gray-100 bg-gray-50/50 text-center focus:bg-white focus:border-blue-500 outline-none text-xs font-black transition-all"
+                                              />
+                                            </td>
+                                            <td className="px-6 py-4 text-center">
+                                              <input 
+                                                type="number" 
+                                                value={comm.days}
+                                                onChange={(e) => handleCommChange(realIdx, "days", e.target.value)}
+                                                className="w-20 px-3 py-2 rounded-xl border border-gray-100 bg-gray-50/50 text-center focus:bg-white focus:border-blue-500 outline-none text-xs font-black transition-all"
+                                              />
+                                            </td>
                                             <td className="px-6 py-4 text-center">
                                               <span className="font-black text-sm text-blue-600">{Number(comm.total || 0).toFixed(2)}</span>
                                             </td>
@@ -1159,50 +1159,50 @@ export function CommissionsClient({ companyId, initialPackages }: CommissionsCli
                                             <td className="px-6 py-4 text-center">
                                               <span className="font-black text-sm text-blue-600">{Number(comm.commission || 0).toFixed(2)}</span>
                                             </td>
-                                        </>
-                                      )}
-                                      <td className="px-6 py-4 text-center">
-                                        <input 
-                                          type="number" 
-                                          value={comm.deduction}
-                                          onChange={(e) => handleCommChange(realIdx, "deduction", e.target.value)}
-                                          className="w-24 px-3 py-2 rounded-xl border border-gray-100 bg-gray-50/50 text-center focus:bg-white focus:border-blue-500 outline-none text-xs font-black text-red-500 transition-all"
-                                        />
-                                      </td>
-                                      <td className="px-6 py-4 text-center">
-                                        <input 
-                                          type="number" 
-                                          value={comm.bonus}
-                                          onChange={(e) => handleCommChange(realIdx, "bonus", e.target.value)}
-                                          className="w-24 px-3 py-2 rounded-xl border border-gray-100 bg-gray-50/50 text-center focus:bg-white focus:border-blue-500 outline-none text-xs font-black text-emerald-500 transition-all"
-                                        />
-                                      </td>
-                                      <td className="px-6 py-4 text-center">
-                                        <span className="font-black text-sm text-gray-900">{net.toFixed(2)}</span>
-                                      </td>
-                                      <td className="px-6 py-4 text-center">
-                                        <div className="flex flex-col items-center gap-1">
-                                          <button 
-                                            onClick={() => handleCommChange(realIdx, "status", comm.status === "paid" ? "unpaid" : "paid")}
-                                            className={cn(
-                                              "w-10 h-5 rounded-full relative transition-all duration-300 shadow-inner group/toggle",
-                                              comm.status === "paid" ? "bg-emerald-500" : "bg-gray-300"
-                                            )}
-                                          >
-                                            <div className={cn(
-                                              "absolute top-0.5 w-4 h-4 bg-white rounded-full transition-all shadow-md group-hover/toggle:scale-110",
-                                              comm.status === "paid" ? "right-0.5" : "left-0.5"
-                                            )} />
-                                          </button>
-                                          <span className={cn(
-                                            "text-[8px] font-black",
-                                            comm.status === "paid" ? "text-emerald-600" : "text-gray-400"
-                                          )}>
-                                            {comm.status === "paid" ? t("paidStatus") : t("unpaidStatus")}
-                                          </span>
-                                        </div>
-                                      </td>
-                                    </motion.tr>
+                                          </>
+                                        )}
+                                        <td className="px-6 py-4 text-center">
+                                          <input 
+                                            type="number" 
+                                            value={comm.deduction}
+                                            onChange={(e) => handleCommChange(realIdx, "deduction", e.target.value)}
+                                            className="w-24 px-3 py-2 rounded-xl border border-gray-100 bg-gray-50/50 text-center focus:bg-white focus:border-blue-500 outline-none text-xs font-black text-red-500 transition-all"
+                                          />
+                                        </td>
+                                        <td className="px-6 py-4 text-center">
+                                          <input 
+                                            type="number" 
+                                            value={comm.bonus}
+                                            onChange={(e) => handleCommChange(realIdx, "bonus", e.target.value)}
+                                            className="w-24 px-3 py-2 rounded-xl border border-gray-100 bg-gray-50/50 text-center focus:bg-white focus:border-blue-500 outline-none text-xs font-black text-emerald-500 transition-all"
+                                          />
+                                        </td>
+                                        <td className="px-6 py-4 text-center">
+                                          <span className="font-black text-sm text-gray-900">{net.toFixed(2)}</span>
+                                        </td>
+                                        <td className="px-6 py-4 text-center">
+                                          <div className="flex flex-col items-center gap-1">
+                                            <button 
+                                              onClick={() => handleCommChange(realIdx, "status", comm.status === "paid" ? "unpaid" : "paid")}
+                                              className={cn(
+                                                "w-10 h-5 rounded-full relative transition-all duration-300 shadow-inner group/toggle",
+                                                comm.status === "paid" ? "bg-emerald-500" : "bg-gray-300"
+                                              )}
+                                            >
+                                              <div className={cn(
+                                                "absolute top-0.5 w-4 h-4 bg-white rounded-full transition-all shadow-md group-hover/toggle:scale-110",
+                                                comm.status === "paid" ? "right-0.5" : "left-0.5"
+                                              )} />
+                                            </button>
+                                            <span className={cn(
+                                              "text-[8px] font-black",
+                                              comm.status === "paid" ? "text-emerald-600" : "text-gray-400"
+                                            )}>
+                                              {comm.status === "paid" ? t("paidStatus") : t("unpaidStatus")}
+                                            </span>
+                                          </div>
+                                        </td>
+                                      </motion.tr>
                                     );
                                   })}
                                 </tbody>
@@ -1216,174 +1216,174 @@ export function CommissionsClient({ companyId, initialPackages }: CommissionsCli
                               </div>
                             )}
                           </div>
-                      </>
-                    ) : (
-  
-                    <div className="flex-1 flex flex-col">
-                      {/* Report Header */}
-                      <div className="p-8 border-b border-gray-50 flex flex-col md:flex-row md:items-center justify-between gap-6">
-                        <div className="flex items-center gap-4">
-                          <div className="h-12 w-12 rounded-2xl bg-amber-500/10 flex items-center justify-center text-amber-600">
-                            <TrendingUp size={24} />
+                        </>
+                      ) : (
+                        <div className="flex-1 flex flex-col">
+                          {/* Report Header */}
+                          <div className="p-8 border-b border-gray-50 flex flex-col md:flex-row md:items-center justify-between gap-6">
+                            <div className="flex items-center gap-4">
+                              <div className="h-12 w-12 rounded-2xl bg-amber-500/10 flex items-center justify-center text-amber-600">
+                                <TrendingUp size={24} />
+                              </div>
+                              <div>
+                                <h3 className="text-xl font-black text-gray-900">{t("report.title")}</h3>
+                                <p className="text-sm text-gray-400 font-medium">{t("report.subtitle")}</p>
+                              </div>
+                            </div>
+                            
+                            <div className="flex items-center gap-2">
+                              <button 
+                                onClick={() => handlePrint()}
+                                className="px-6 py-2.5 rounded-xl bg-white text-gray-700 font-black text-sm border border-gray-200 hover:bg-gray-50 active:scale-95 transition-all flex items-center gap-2 shadow-sm"
+                              >
+                                <Printer size={18} />
+                                <span>{t("report.print")}</span>
+                              </button>
+                              <button 
+                                className="px-6 py-2.5 rounded-xl bg-[#1d6f42] text-white font-black text-sm hover:bg-[#165a35] active:scale-95 transition-all flex items-center gap-2 shadow-xl shadow-green-100"
+                              >
+                                <Download size={18} />
+                                <span>Excel</span>
+                              </button>
+                            </div>
                           </div>
-                          <div>
-                            <h3 className="text-xl font-black text-gray-900">{t("report.title")}</h3>
-                            <p className="text-sm text-gray-400 font-medium">{t("report.subtitle")}</p>
-                          </div>
-                        </div>
-                        
-                        <div className="flex items-center gap-2">
-                          <button 
-                            onClick={() => handlePrint()}
-                            className="px-6 py-2.5 rounded-xl bg-white text-gray-700 font-black text-sm border border-gray-200 hover:bg-gray-50 active:scale-95 transition-all flex items-center gap-2 shadow-sm"
-                          >
-                            <Printer size={18} />
-                            <span>{t("report.print")}</span>
-                          </button>
-                          <button 
-                            className="px-6 py-2.5 rounded-xl bg-[#1d6f42] text-white font-black text-sm hover:bg-[#165a35] active:scale-95 transition-all flex items-center gap-2 shadow-xl shadow-green-100"
-                          >
-                            <Download size={18} />
-                            <span>Excel</span>
-                          </button>
-                        </div>
-                      </div>
-    
-                      {/* Print Content Container */}
-                      <div className="flex-1 p-8 overflow-auto" ref={printRef}>
-                        <div className="space-y-10 print:space-y-6">
-                          {/* Report Statistics Header */}
-                          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 p-8 rounded-3xl bg-gray-900 text-white shadow-2xl relative overflow-hidden">
-                            <div className="flex flex-col gap-1 relative z-10">
-                              <span className="text-[10px] text-white/40 uppercase font-black tracking-[0.2em]">{t("month")}</span>
-                              <span className="text-lg font-black">{month}</span>
-                            </div>
-                            <div className="flex flex-col gap-1 relative z-10 border-r border-white/10 pr-6">
-                              <span className="text-[10px] text-white/40 uppercase font-black tracking-[0.2em]">{t("report.totalDue")}</span>
-                              <span className="text-lg font-black text-blue-400">{totalDue.toLocaleString()} <span className="text-xs opacity-50">{t("currency")}</span></span>
-                            </div>
-                            <div className="flex flex-col gap-1 relative z-10 border-r border-white/10 pr-6">
-                              <span className="text-[10px] text-white/40 uppercase font-black tracking-[0.2em]">{t("report.includedEmployees")}</span>
-                              <span className="text-lg font-black">{commissions.length} <span className="text-xs opacity-50">{t("employee")}</span></span>
-                            </div>
-                            <div className="flex flex-col gap-1 relative z-10 border-r border-white/10 pr-6">
-                              <span className="text-[10px] text-white/40 uppercase font-black tracking-[0.2em]">{t("report.commissionType")}</span>
-                              <span className="text-lg font-black text-emerald-400">
-                                {getModeLabel(mode)}
-                              </span>
-                            </div>
-                            <div className="absolute top-0 right-0 w-32 h-full bg-gradient-to-l from-white/5 to-transparent pointer-events-none" />
-                          </div>
-    
-                          {/* Final Report Table */}
-                          <div className="rounded-3xl border border-gray-100 overflow-hidden">
-                            <table className="w-full">
-                              <thead>
-                                <tr className="bg-gray-50 border-b border-gray-100">
-                                  <th className="px-6 py-5 text-right text-[10px] font-black text-gray-400 uppercase tracking-widest">{t("employee")}</th>
-                                  <th className="px-6 py-5 text-center text-[10px] font-black text-gray-400 uppercase tracking-widest">{t("startDate")}</th>
-                                  <th className="px-6 py-5 text-center text-[10px] font-black text-gray-400 uppercase tracking-widest">{t("commission")}</th>
-                                  <th className="px-6 py-5 text-center text-[10px] font-black text-gray-400 uppercase tracking-widest">{t("bonuses")} (+)</th>
-                                  <th className="px-6 py-5 text-center text-[10px] font-black text-gray-400 uppercase tracking-widest">{t("deductions")} (-)</th>
-                                  <th className="px-6 py-5 text-center text-[10px] font-black text-gray-400 uppercase tracking-widest">{t("total")}</th>
-                                  <th className="px-6 py-5 text-center text-[10px] font-black text-gray-400 uppercase tracking-widest">{t("paymentStatus")}</th>
-                                  <th className="px-6 py-5 text-center text-[10px] font-black text-gray-400 uppercase tracking-widest print:hidden">إجراءات</th>
-                                </tr>
-                              </thead>
-                              <tbody className="divide-y divide-gray-50">
-                                {commissions.map((comm, idx) => {
-                                  const net = (mode.startsWith("fixed") ? Number(comm.total) : Number(comm.commission)) + Number(comm.bonus) - Number(comm.deduction);
-                                  return (
-                                    <tr key={comm.employee_id} className="hover:bg-gray-50/50">
-                                      <td className="px-6 py-5 font-black text-gray-900 text-sm">
-                                        <div className="flex flex-col">
-                                          <span>{comm.name}</span>
-                                          <span className="text-[10px] text-gray-400 font-bold">{comm.user_code}</span>
-                                        </div>
-                                      </td>
-                                      <td className="px-6 py-5 text-center font-medium text-gray-500 text-xs">{comm.start_date || "-"}</td>
-                                      <td className="px-6 py-5 text-center font-black text-blue-600">{(mode.startsWith("fixed") ? Number(comm.total) : Number(comm.commission)).toLocaleString()}</td>
-                                      <td className="px-6 py-5 text-center font-black text-emerald-500">{(Number(comm.bonus) || 0).toLocaleString()}</td>
-                                      <td className="px-6 py-5 text-center font-black text-red-500">{(Number(comm.deduction) || 0).toLocaleString()}</td>
-                                      <td className="px-6 py-5 text-center bg-gray-50/50">
-                                        <span className="font-black text-gray-900 text-base">{net.toLocaleString()}</span>
-                                      </td>
-                                        <td className="px-6 py-5 text-center">
-                                          <div className="flex flex-col items-center gap-1.5">
-                                            <button 
-                                              onClick={() => handleCommChange(idx, "status", comm.status === "paid" ? "unpaid" : "paid")}
-                                              className={cn(
-                                                "w-12 h-6 rounded-full relative transition-all duration-300 shadow-inner group/toggle",
-                                                comm.status === "paid" ? "bg-emerald-500" : "bg-gray-300"
-                                              )}
-                                            >
-                                              <div className={cn(
-                                                "absolute top-1 w-4 h-4 bg-white rounded-full transition-all shadow-md group-hover/toggle:scale-110",
-                                                comm.status === "paid" ? "right-1" : "left-1"
-                                              )} />
-                                            </button>
-                                            <span className={cn(
-                                              "text-[9px] font-black uppercase tracking-widest",
-                                              comm.status === "paid" ? "text-emerald-600" : "text-gray-400"
-                                            )}>
-                                              {comm.status === "paid" ? t("paidStatus") : t("unpaidStatus")}
-                                            </span>
-                                          </div>
-                                        </td>
-                                      <td className="px-6 py-5 text-center print:hidden">
-                                        <div className="flex items-center justify-center gap-2">
-                                          <button 
-                                            onClick={() => handleOpenEmailDialog(comm)}
-                                            disabled={sendingEmail === comm.id}
-                                            className={cn(
-                                              "p-2 rounded-xl transition-all shadow-sm",
-                                              comm.status === 'paid' 
-                                                ? "bg-emerald-50 text-emerald-600 hover:bg-emerald-600 hover:text-white" 
-                                                : "bg-red-50 text-red-600 hover:bg-red-600 hover:text-white"
-                                            )}
-                                            title={comm.status === 'paid' ? "إرسال سند سداد" : "إرسال مطالبة مالية"}
-                                          >
-                                            {sendingEmail === comm.id ? <Loader2 size={16} className="animate-spin" /> : <Mail size={16} />}
-                                          </button>
-                                          <button 
-                                            onClick={() => handlePrint()}
-                                            className="p-2 rounded-xl bg-gray-50 text-gray-600 hover:bg-gray-600 hover:text-white transition-all shadow-sm"
-                                            title="طباعة السند"
-                                          >
-                                            <Printer size={16} />
-                                          </button>
-                                        </div>
-                                      </td>
+
+                          {/* Print Content Container */}
+                          <div className="flex-1 p-8 overflow-auto" ref={printRef}>
+                            <div className="space-y-10 print:space-y-6">
+                              {/* Report Statistics Header */}
+                              <div className="grid grid-cols-2 md:grid-cols-4 gap-6 p-8 rounded-3xl bg-gray-900 text-white shadow-2xl relative overflow-hidden">
+                                <div className="flex flex-col gap-1 relative z-10">
+                                  <span className="text-[10px] text-white/40 uppercase font-black tracking-[0.2em]">{t("month")}</span>
+                                  <span className="text-lg font-black">{month}</span>
+                                </div>
+                                <div className="flex flex-col gap-1 relative z-10 border-r border-white/10 pr-6">
+                                  <span className="text-[10px] text-white/40 uppercase font-black tracking-[0.2em]">{t("report.totalDue")}</span>
+                                  <span className="text-lg font-black text-blue-400">{totalDue.toLocaleString()} <span className="text-xs opacity-50">{t("currency")}</span></span>
+                                </div>
+                                <div className="flex flex-col gap-1 relative z-10 border-r border-white/10 pr-6">
+                                  <span className="text-[10px] text-white/40 uppercase font-black tracking-[0.2em]">{t("report.includedEmployees")}</span>
+                                  <span className="text-lg font-black">{commissions.length} <span className="text-xs opacity-50">{t("employee")}</span></span>
+                                </div>
+                                <div className="flex flex-col gap-1 relative z-10 border-r border-white/10 pr-6">
+                                  <span className="text-[10px] text-white/40 uppercase font-black tracking-[0.2em]">{t("report.commissionType")}</span>
+                                  <span className="text-lg font-black text-emerald-400">
+                                    {getModeLabel(mode)}
+                                  </span>
+                                </div>
+                                <div className="absolute top-0 right-0 w-32 h-full bg-gradient-to-l from-white/5 to-transparent pointer-events-none" />
+                              </div>
+
+                              {/* Final Report Table */}
+                              <div className="rounded-3xl border border-gray-100 overflow-hidden">
+                                <table className="w-full">
+                                  <thead>
+                                    <tr className="bg-gray-50 border-b border-gray-100">
+                                      <th className="px-6 py-5 text-right text-[10px] font-black text-gray-400 uppercase tracking-widest">{t("employee")}</th>
+                                      <th className="px-6 py-5 text-center text-[10px] font-black text-gray-400 uppercase tracking-widest">{t("startDate")}</th>
+                                      <th className="px-6 py-5 text-center text-[10px] font-black text-gray-400 uppercase tracking-widest">{t("commission")}</th>
+                                      <th className="px-6 py-5 text-center text-[10px] font-black text-gray-400 uppercase tracking-widest">{t("bonuses")} (+)</th>
+                                      <th className="px-6 py-5 text-center text-[10px] font-black text-gray-400 uppercase tracking-widest">{t("deductions")} (-)</th>
+                                      <th className="px-6 py-5 text-center text-[10px] font-black text-gray-400 uppercase tracking-widest">{t("total")}</th>
+                                      <th className="px-6 py-5 text-center text-[10px] font-black text-gray-400 uppercase tracking-widest">{t("paymentStatus")}</th>
+                                      <th className="px-6 py-5 text-center text-[10px] font-black text-gray-400 uppercase tracking-widest print:hidden">إجراءات</th>
                                     </tr>
-                                  );
-                                })}
-                              </tbody>
-                            </table>
-                          </div>
-                          
-                          <div className="grid grid-cols-2 gap-12 pt-16 mt-16 border-t border-dashed border-gray-200 opacity-0 print:opacity-100 h-0 print:h-auto overflow-hidden">
-                            <div className="text-center">
-                              <span className="text-[10px] text-gray-400 font-black uppercase tracking-widest block mb-12">{t("report.accountantSignature")}</span>
-                              <div className="w-48 h-px bg-gray-200 mx-auto" />
-                            </div>
-                            <div className="text-center">
-                              <span className="text-[10px] text-gray-400 font-black uppercase tracking-widest block mb-12">{t("report.managerApproval")}</span>
-                              <div className="w-48 h-px bg-gray-200 mx-auto" />
+                                  </thead>
+                                  <tbody className="divide-y divide-gray-50">
+                                    {commissions.map((comm, idx) => {
+                                      const net = (mode.startsWith("fixed") ? Number(comm.total) : Number(comm.commission)) + Number(comm.bonus) - Number(comm.deduction);
+                                      return (
+                                        <tr key={comm.employee_id} className="hover:bg-gray-50/50">
+                                          <td className="px-6 py-5 font-black text-gray-900 text-sm">
+                                            <div className="flex flex-col">
+                                              <span>{comm.name}</span>
+                                              <span className="text-[10px] text-gray-400 font-bold">{comm.user_code}</span>
+                                            </div>
+                                          </td>
+                                          <td className="px-6 py-5 text-center font-medium text-gray-500 text-xs">{comm.start_date || "-"}</td>
+                                          <td className="px-6 py-5 text-center font-black text-blue-600">{(mode.startsWith("fixed") ? Number(comm.total) : Number(comm.commission)).toLocaleString()}</td>
+                                          <td className="px-6 py-5 text-center font-black text-emerald-500">{(Number(comm.bonus) || 0).toLocaleString()}</td>
+                                          <td className="px-6 py-5 text-center font-black text-red-500">{(Number(comm.deduction) || 0).toLocaleString()}</td>
+                                          <td className="px-6 py-5 text-center bg-gray-50/50">
+                                            <span className="font-black text-gray-900 text-base">{net.toLocaleString()}</span>
+                                          </td>
+                                          <td className="px-6 py-5 text-center">
+                                            <div className="flex flex-col items-center gap-1.5">
+                                              <button 
+                                                onClick={() => handleCommChange(idx, "status", comm.status === "paid" ? "unpaid" : "paid")}
+                                                className={cn(
+                                                  "w-12 h-6 rounded-full relative transition-all duration-300 shadow-inner group/toggle",
+                                                  comm.status === "paid" ? "bg-emerald-500" : "bg-gray-300"
+                                                )}
+                                              >
+                                                <div className={cn(
+                                                  "absolute top-1 w-4 h-4 bg-white rounded-full transition-all shadow-md group-hover/toggle:scale-110",
+                                                  comm.status === "paid" ? "right-1" : "left-1"
+                                                )} />
+                                              </button>
+                                              <span className={cn(
+                                                "text-[9px] font-black uppercase tracking-widest",
+                                                comm.status === "paid" ? "text-emerald-600" : "text-gray-400"
+                                              )}>
+                                                {comm.status === "paid" ? t("paidStatus") : t("unpaidStatus")}
+                                              </span>
+                                            </div>
+                                          </td>
+                                          <td className="px-6 py-5 text-center print:hidden">
+                                            <div className="flex items-center justify-center gap-2">
+                                              <button 
+                                                onClick={() => handleOpenEmailDialog(comm)}
+                                                disabled={sendingEmail === comm.id}
+                                                className={cn(
+                                                  "p-2 rounded-xl transition-all shadow-sm",
+                                                  comm.status === 'paid' 
+                                                    ? "bg-emerald-50 text-emerald-600 hover:bg-emerald-600 hover:text-white" 
+                                                    : "bg-red-50 text-red-600 hover:bg-red-600 hover:text-white"
+                                                )}
+                                                title={comm.status === 'paid' ? "إرسال سند سداد" : "إرسال مطالبة مالية"}
+                                              >
+                                                {sendingEmail === comm.id ? <Loader2 size={16} className="animate-spin" /> : <Mail size={16} />}
+                                              </button>
+                                              <button 
+                                                onClick={() => handlePrint()}
+                                                className="p-2 rounded-xl bg-gray-50 text-gray-600 hover:bg-gray-600 hover:text-white transition-all shadow-sm"
+                                                title="طباعة السند"
+                                              >
+                                                <Printer size={16} />
+                                              </button>
+                                            </div>
+                                          </td>
+                                        </tr>
+                                      );
+                                    })}
+                                  </tbody>
+                                </table>
+                              </div>
+                              
+                              <div className="grid grid-cols-2 gap-12 pt-16 mt-16 border-t border-dashed border-gray-200 opacity-0 print:opacity-100 h-0 print:h-auto overflow-hidden">
+                                <div className="text-center">
+                                  <span className="text-[10px] text-gray-400 font-black uppercase tracking-widest block mb-12">{t("report.accountantSignature")}</span>
+                                  <div className="w-48 h-px bg-gray-200 mx-auto" />
+                                </div>
+                                <div className="text-center">
+                                  <span className="text-[10px] text-gray-400 font-black uppercase tracking-widest block mb-12">{t("report.managerApproval")}</span>
+                                  <div className="w-48 h-px bg-gray-200 mx-auto" />
+                                </div>
+                              </div>
                             </div>
                           </div>
                         </div>
-                      </div>
+                      )}
                     </div>
-                  )}
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-        </motion.div>
+          </motion.div>
+        </div>
       </div>
-    </div>
-  );
-}
+    );
+  }
 
 
 function StatCard({ label, value, icon, color, isRtl, suffix }: { label: string; value: string; icon: React.ReactNode; color: "blue" | "emerald" | "amber"; isRtl: boolean; suffix?: string }) {
