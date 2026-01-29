@@ -154,7 +154,7 @@ export function CommissionsClient({ packages: initialPackages, companyId }: { pa
     }
   }
 
-  const handleCommChange = (index: number, field: keyof CommissionEmployee, value: any) => {
+  const handleCommChange = async (index: number, field: keyof CommissionEmployee, value: any) => {
     const updated = [...commissions];
     const item = { ...updated[index], [field]: value };
 
@@ -166,6 +166,24 @@ export function CommissionsClient({ packages: initialPackages, companyId }: { pa
 
     updated[index] = item;
     setCommissions(updated);
+
+    // If status changed and item has an ID (already saved in DB), save immediately
+    if (field === "status" && item.id) {
+      try {
+        await fetch("/api/hr/commissions", {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            employee_commission_id: item.id,
+            status: value
+          })
+        });
+        toast.success(t("notifications.success"));
+        fetchSavedGroups();
+      } catch (error) {
+        toast.error(t("notifications.error"));
+      }
+    }
   };
 
   const saveCommissions = async () => {
@@ -263,8 +281,8 @@ export function CommissionsClient({ packages: initialPackages, companyId }: { pa
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          commissionId: comm.id,
-          employeeId: comm.employee_id,
+          commission_id: comm.id,
+          employee_id: comm.employee_id,
           status: comm.status
         })
       });

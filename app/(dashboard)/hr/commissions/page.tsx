@@ -21,10 +21,10 @@ export default async function CommissionsPage() {
     [companyId]
   );
 
-  return (
-    <CommissionsClient 
-      companyId={companyId}
-      initialPackages={packages}
-    />
-  );
+    return (
+      <CommissionsClient 
+        companyId={companyId}
+        packages={packages}
+      />
+    );
 }
