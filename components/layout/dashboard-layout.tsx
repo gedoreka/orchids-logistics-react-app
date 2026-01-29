@@ -50,9 +50,12 @@ export function DashboardLayout({ children, user, permissions, userType, subscri
       if (data.unread_count !== undefined) {
         setUnreadChatCount(data.unread_count);
       }
-    } catch (error) {
-      console.error("Error fetching unread count:", error);
-    } finally {
+      } catch (error: any) {
+        if (error.message === "Failed to fetch") {
+          return;
+        }
+        console.error("Error fetching unread count:", error);
+      } finally {
       isFetchingRef.current = false;
     }
   }, [user?.company_id, user?.role]);

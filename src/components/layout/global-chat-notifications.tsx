@@ -108,9 +108,12 @@ export function GlobalChatNotifications({ isAdmin, companyId }: GlobalChatNotifi
           lastUnreadCountRef.current = newUnreadCount;
           setUnreadCount(newUnreadCount);
         }
-      } catch (error) {
-        console.error("Error checking for new messages:", error);
-      } finally {
+        } catch (error: any) {
+          if (error.message === "Failed to fetch") {
+            return;
+          }
+          console.error("Error checking for new messages:", error);
+        } finally {
         isFetchingRef.current = false;
       }
     }, [isAdmin, companyId, isOnChatPage]);

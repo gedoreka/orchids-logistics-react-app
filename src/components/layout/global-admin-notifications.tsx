@@ -45,9 +45,12 @@ export function GlobalAdminNotifications() {
           } catch (e) {}
         }
       }
-    } catch (error) {
-      console.error("Error checking for admin notifications:", error);
-    }
+      } catch (error: any) {
+        if (error.message === "Failed to fetch") {
+          return;
+        }
+        console.error("Error checking for admin notifications:", error);
+      }
   }, []);
 
   useEffect(() => {
