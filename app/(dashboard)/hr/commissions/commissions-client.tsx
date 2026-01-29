@@ -950,9 +950,10 @@ export function CommissionsClient({ companyId, initialPackages }: CommissionsCli
                                 {selectedCount} / {commissions.length} {t("selected")}
                               </span>
                             )}
+                            </div>
                           </div>
                         </div>
-  
+
                         <div className="flex flex-wrap items-center gap-3">
                           {commissions.length > 0 && (
                             <>
@@ -974,7 +975,7 @@ export function CommissionsClient({ companyId, initialPackages }: CommissionsCli
                                   </button>
                                 )}
                               </div>
-  
+
                               <div className="flex items-center gap-2">
                                 <button 
                                   onClick={toggleSelectAll}
@@ -984,7 +985,7 @@ export function CommissionsClient({ companyId, initialPackages }: CommissionsCli
                                   {filteredCommissions.every(c => c.selected) ? <CheckSquare size={16} className="text-blue-500" /> : <Square size={16} />}
                                   <span>{filteredCommissions.every(c => c.selected) ? t("cancelAll") : t("selectAll")}</span>
                                 </button>
-  
+
                                 <button 
                                   onClick={removeUnselected}
                                   disabled={selectedCount === commissions.length || selectedCount === 0}
@@ -993,7 +994,7 @@ export function CommissionsClient({ companyId, initialPackages }: CommissionsCli
                                   <Trash2 size={16} />
                                   <span>{t("removeUnselected")}</span>
                                 </button>
-  
+
                                 <button 
                                   onClick={() => fetchData()}
                                   className="px-4 py-2.5 rounded-xl bg-white text-gray-700 font-black text-[10px] border border-gray-200 hover:bg-gray-50 transition-all flex items-center gap-2 shadow-sm"
@@ -1014,7 +1015,8 @@ export function CommissionsClient({ companyId, initialPackages }: CommissionsCli
                             <span>{t("saveData")}</span>
                           </button>
                         </div>
-  
+                      </div>
+
                       <div className="flex-1 overflow-x-auto">
                         {commissions.length > 0 ? (
                           <table className="w-full border-collapse">
@@ -1168,29 +1170,29 @@ export function CommissionsClient({ companyId, initialPackages }: CommissionsCli
                                   <td className="px-6 py-4 text-center">
                                     <span className="font-black text-sm text-gray-900">{net.toFixed(2)}</span>
                                   </td>
-                                    <td className="px-6 py-4 text-center">
-                                      <div className="flex flex-col items-center gap-1">
-                                        <button 
-                                          onClick={() => handleCommChange(realIdx, "status", comm.status === "paid" ? "unpaid" : "paid")}
-                                          className={cn(
-                                            "w-10 h-5 rounded-full relative transition-all duration-300 shadow-inner group/toggle",
-                                            comm.status === "paid" ? "bg-emerald-500" : "bg-gray-300"
-                                          )}
-                                        >
-                                          <div className={cn(
-                                            "absolute top-0.5 w-4 h-4 bg-white rounded-full transition-all shadow-md group-hover/toggle:scale-110",
-                                            comm.status === "paid" ? "right-0.5" : "left-0.5"
-                                          )} />
-                                        </button>
-                                          <span className={cn(
-                                            "text-[8px] font-black",
-                                            comm.status === "paid" ? "text-emerald-600" : "text-gray-400"
-                                          )}>
-                                            {comm.status === "paid" ? t("paidStatus") : t("unpaidStatus")}
-                                          </span>
-                                        </div>
-                                      </td>
-                                  </motion.tr>
+                                  <td className="px-6 py-4 text-center">
+                                    <div className="flex flex-col items-center gap-1">
+                                      <button 
+                                        onClick={() => handleCommChange(realIdx, "status", comm.status === "paid" ? "unpaid" : "paid")}
+                                        className={cn(
+                                          "w-10 h-5 rounded-full relative transition-all duration-300 shadow-inner group/toggle",
+                                          comm.status === "paid" ? "bg-emerald-500" : "bg-gray-300"
+                                        )}
+                                      >
+                                        <div className={cn(
+                                          "absolute top-0.5 w-4 h-4 bg-white rounded-full transition-all shadow-md group-hover/toggle:scale-110",
+                                          comm.status === "paid" ? "right-0.5" : "left-0.5"
+                                        )} />
+                                      </button>
+                                      <span className={cn(
+                                        "text-[8px] font-black",
+                                        comm.status === "paid" ? "text-emerald-600" : "text-gray-400"
+                                      )}>
+                                        {comm.status === "paid" ? t("paidStatus") : t("unpaidStatus")}
+                                      </span>
+                                    </div>
+                                  </td>
+                                </motion.tr>
                                 );
                               })}
                             </tbody>
