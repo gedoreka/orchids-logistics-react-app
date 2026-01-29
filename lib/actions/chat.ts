@@ -56,3 +56,24 @@ export async function markMessagesAsRead(companyId: number, role: string) {
     return { success: false, error: error.message };
   }
 }
+
+export async function clearChatHistory(companyId: number, ticketId?: string) {
+  try {
+    if (ticketId) {
+      await execute(
+        `DELETE FROM chat_messages WHERE company_id = ? AND ticket_id = ?`,
+        [companyId, ticketId]
+      );
+    } else {
+      await execute(
+        `DELETE FROM chat_messages WHERE company_id = ?`,
+        [companyId]
+      );
+    }
+    revalidatePath("/chat");
+    revalidatePath("/admin/chat");
+    return { success: true };
+  } catch (error: any) {
+    return { success: false, error: error.message };
+  }
+}

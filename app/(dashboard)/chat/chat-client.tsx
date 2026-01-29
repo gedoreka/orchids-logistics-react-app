@@ -35,7 +35,7 @@ import {
   Bot
 } from "lucide-react";
 import { toast } from "sonner";
-import { sendMessage, getMessages } from "@/lib/actions/chat";
+import { sendMessage, getMessages, clearChatHistory } from "@/lib/actions/chat";
 import AIAssistantService from "@/lib/ai-assistant/config";
 
 interface ChatClientProps {
@@ -463,22 +463,53 @@ export function ChatClient({ initialMessages, companyId, senderRole, companyToke
         </div>
         
         <div className="flex items-center gap-3">
-          {/* AI Toggle */}
-          <button 
-            onClick={() => {
-              setIsAiEnabled(!isAiEnabled);
-              toast.success(isAiEnabled ? "تم إيقاف المساعد الذكي" : "تم تفعيل المساعد الذكي");
-            }}
-            className={`flex items-center gap-2 px-4 py-2 rounded-xl border transition-all ${
-              isAiEnabled 
-                ? 'bg-white/30 text-white border-white/40 shadow-inner' 
-                : 'bg-white/10 text-white/60 border-white/10'
-            }`}
-          >
-            <Bot size={18} className={isAiEnabled ? 'animate-bounce' : ''} />
-            <span className="text-sm font-bold hidden sm:inline">مساعد سام</span>
-            {isAiEnabled && <Sparkles size={14} className="text-yellow-300" />}
-          </button>
+            {/* AI Toggle */}
+            <button 
+              onClick={() => {
+                setIsAiEnabled(!isAiEnabled);
+                toast.success(isAiEnabled ? "تم إيقاف المساعد الذكي" : "تم تفعيل المساعد الذكي");
+              }}
+              className={`flex items-center gap-2 px-4 py-2 rounded-xl border transition-all ${
+                isAiEnabled 
+                  ? 'bg-white/30 text-white border-white/40 shadow-inner' 
+                  : 'bg-white/10 text-white/60 border-white/10'
+              }`}
+            >
+              <Bot size={18} className={isAiEnabled ? 'animate-bounce' : ''} />
+              <span className="text-sm font-bold hidden sm:inline">مساعد سام</span>
+              {isAiEnabled && <Sparkles size={14} className="text-yellow-300" />}
+            </button>
+
+            {/* Clear Chat Button */}
+            <button 
+              onClick={async () => {
+                const confirmMsg = currentTicketId 
+                  ? `هل أنت متأكد من حذف كافة الرسائل في التذكرة الحالية (${currentTicketId})؟`
+                  : "هل أنت متأكد من حذف كافة محادثاتك؟ لا يمكن التراجع عن هذا الإجراء.";
+                
+                if (window.confirm(confirmMsg)) {
+                  setIsLoading(true);
+                  const res = await clearChatHistory(companyId, currentTicketId || undefined);
+                  if (res.success) {
+                    if (currentTicketId) {
+                      setMessages(prev => prev.filter(m => m.ticket_id !== currentTicketId));
+                    } else {
+                      setMessages([]);
+                    }
+                    toast.success("تم مسح المحادثة بنجاح");
+                  } else {
+                    toast.error("فشل في مسح المحادثة");
+                  }
+                  setIsLoading(false);
+                }
+              }}
+              className="flex items-center gap-2 px-4 py-2 rounded-xl bg-red-500/20 hover:bg-red-500/40 text-white border border-red-500/30 transition-all group"
+              title="تصفية المحادثة"
+            >
+              <Trash2 size={18} className="group-hover:scale-110 transition-transform" />
+              <span className="text-sm font-bold hidden sm:inline">تصفية</span>
+            </button>
+
 
           {/* Unread Badge */}
           {unreadCount > 0 && (
