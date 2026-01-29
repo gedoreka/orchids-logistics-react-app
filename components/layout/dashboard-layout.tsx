@@ -61,6 +61,20 @@ export function DashboardLayout({ children, user, permissions, userType, subscri
   }, [user?.company_id, user?.role]);
 
   useEffect(() => {
+    if (pathname === "/chat" && user?.company_id && unreadChatCount > 0) {
+      const clearUnread = async () => {
+        try {
+          await fetch(`/api/admin/chat?company_id=${user.company_id}`, { method: 'GET' });
+          setUnreadChatCount(0);
+        } catch (error) {
+          console.error("Error clearing chat notifications:", error);
+        }
+      };
+      clearUnread();
+    }
+  }, [pathname, user?.company_id, unreadChatCount]);
+
+  useEffect(() => {
     setMounted(true);
   }, []);
 

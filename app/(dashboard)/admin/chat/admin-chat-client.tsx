@@ -75,6 +75,8 @@ interface Message {
 
 const EMOJI_LIST = ["😊", "👍", "❤️", "😂", "🙏", "👏", "🎉", "✅", "⭐", "🔥", "💯", "😍", "🤝", "👋", "💪", "🙌", "😎", "🤔", "😢", "🥳"];
 
+import { supabase } from "@/lib/supabase";
+
 export default function AdminChatPage() {
   const [companies, setCompanies] = useState<Company[]>([]);
   const [selectedCompany, setSelectedCompany] = useState<Company | null>(null);
@@ -90,6 +92,8 @@ export default function AdminChatPage() {
   const [recordingTime, setRecordingTime] = useState(0);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
+  const [isTyping, setIsTyping] = useState(false);
+  const [remoteStatus, setRemoteStatus] = useState<any>(null);
   
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -181,11 +185,56 @@ export default function AdminChatPage() {
     return "file";
   };
 
+  useEffect(() => {
+    if (!selectedCompany) return;
+
+    const channel = supabase.channel(`chat_${selectedCompany.id}`, {
+      config: {
+        broadcast: { self: false },
+      },
+    });
+
+    channel
+      .on("broadcast", { event: "status" }, (payload) => {
+        if (payload.payload.sender_role !== "admin") {
+          setRemoteStatus(payload.payload);
+        }
+      })
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [selectedCompany]);
+
+  // Typing effect
+  useEffect(() => {
+    if (!selectedCompany) return;
+    const channel = supabase.channel(`chat_${selectedCompany.id}`);
+    channel.send({
+      type: "broadcast",
+      event: "status",
+      payload: { sender_role: "admin", typing: isTyping },
+    });
+  }, [isTyping, selectedCompany]);
+
+  // Recording effect
+  useEffect(() => {
+    if (!selectedCompany) return;
+    const channel = supabase.channel(`chat_${selectedCompany.id}`);
+    channel.send({
+      type: "broadcast",
+      event: "status",
+      payload: { sender_role: "admin", recording: isRecording },
+    });
+  }, [isRecording, selectedCompany]);
+
   const handleSendMessage = async (customData?: any) => {
     if (!newMessage.trim() && !selectedFile && !customData) return;
     if (!selectedCompany) return;
 
     setSending(true);
+    setIsTyping(false);
     let filePath = customData?.file_path || "";
     let messageType = customData?.message_type || "text";
     let messageText = customData?.message || newMessage.trim();
@@ -580,7 +629,31 @@ export default function AdminChatPage() {
                   </button>
                 </div>
 
-                <div className="flex-1 flex overflow-hidden">
+                  {/* Remote Status (Typing/Recording) */}
+                  <AnimatePresence>
+                    {remoteStatus && (remoteStatus.typing || remoteStatus.recording) && (
+                      <motion.div
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: 10 }}
+                        className="flex justify-end px-6 mb-2"
+                      >
+                        <div className="bg-white/80 backdrop-blur-sm px-4 py-2 rounded-full shadow-sm border border-gray-100 flex items-center gap-2">
+                          <div className="flex gap-1">
+                            <span className="w-1.5 h-1.5 bg-indigo-500 rounded-full animate-bounce [animation-delay:-0.3s]" />
+                            <span className="w-1.5 h-1.5 bg-indigo-500 rounded-full animate-bounce [animation-delay:-0.15s]" />
+                            <span className="w-1.5 h-1.5 bg-indigo-500 rounded-full animate-bounce" />
+                          </div>
+                          <span className="text-[10px] font-bold text-indigo-600">
+                            {remoteStatus.recording ? 'جاري التسجيل...' : 'جاري الكتابة...'}
+                          </span>
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+
+                  <div className="flex-1 flex overflow-hidden">
+
                   {/* Messages */}
                   <div className={cn("flex-1 flex flex-col transition-all", showCompanyInfo && "ml-80")}>
                     <div 
@@ -621,13 +694,24 @@ export default function AdminChatPage() {
                                     msg.sender_role === "admin" ? "justify-start" : "justify-end"
                                   )}
                                 >
-                                  <div className={cn(
-                                    "max-w-[75%] rounded-2xl px-5 py-4 shadow-lg",
-                                    msg.sender_role === "admin"
-                                      ? "bg-gradient-to-br from-indigo-600 to-purple-600 text-white rounded-tr-sm"
-                                      : "bg-white text-gray-800 rounded-tl-sm border border-gray-100"
-                                  )}>
-                                    <MessageContent msg={msg} isAdmin={msg.sender_role === "admin"} />
+                                    <div className={cn(
+                                      "max-w-[75%] rounded-2xl px-5 py-4 shadow-lg",
+                                      msg.sender_role === "admin"
+                                        ? msg.is_ai === 1 
+                                          ? "bg-gradient-to-br from-violet-600 to-indigo-700 text-white rounded-tr-sm"
+                                          : "bg-gradient-to-br from-indigo-600 to-purple-600 text-white rounded-tr-sm"
+                                        : "bg-white text-gray-800 rounded-tl-sm border border-gray-100"
+                                    )}>
+                                      <div className="flex items-center gap-2 mb-1">
+                                        {msg.is_ai === 1 && (
+                                          <span className="bg-white/20 text-white text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1">
+                                            <RefreshCw size={10} className="animate-spin" />
+                                            ذكاء اصطناعي
+                                          </span>
+                                        )}
+                                      </div>
+                                      <MessageContent msg={msg} isAdmin={msg.sender_role === "admin"} />
+
                                     <div className={cn(
                                       "text-[10px] mt-2 flex items-center gap-2",
                                       msg.sender_role === "admin" ? "text-white/70" : "text-gray-400"
@@ -764,8 +848,16 @@ export default function AdminChatPage() {
                             <textarea
                               ref={inputRef}
                               value={newMessage}
-                              onChange={(e) => setNewMessage(e.target.value)}
+                              onChange={(e) => {
+                                setNewMessage(e.target.value);
+                                if (!isTyping) setIsTyping(true);
+                              }}
+                              onBlur={() => setIsTyping(false)}
                               onKeyDown={handleKeyPress}
+                              onKeyUp={() => {
+                                const timeout = setTimeout(() => setIsTyping(false), 2000);
+                                return () => clearTimeout(timeout);
+                              }}
                               placeholder="اكتب رسالتك هنا..."
                               rows={1}
                               className="w-full text-base resize-none focus:outline-none max-h-32 bg-transparent leading-relaxed text-gray-800"

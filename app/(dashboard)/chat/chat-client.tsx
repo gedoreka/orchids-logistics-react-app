@@ -35,6 +35,8 @@ import {
 import { toast } from "sonner";
 // Removed unused server actions to prevent 404 error during build
 
+import { supabase } from "@/lib/supabase";
+
 interface ChatClientProps {
   initialMessages: any[];
   companyId: number;
@@ -59,11 +61,13 @@ export function ChatClient({ initialMessages, companyId, senderRole, companyToke
   const [showNewMessageAlert, setShowNewMessageAlert] = useState(false);
   const [newMessagePreview, setNewMessagePreview] = useState("");
   const [showTokenCard, setShowTokenCard] = useState(false);
-  const [currentTicketId, setCurrentTicketId] = useState<string | null>(null);
+  const [currentTicketId, setCurrentTicketId] = useState<any>(null);
   const [tickets, setTickets] = useState<any[]>([]);
   const [showTicketSelector, setShowTicketSelector] = useState(false);
   const [conversation, setConversation] = useState<any>(null);
   const [isAiThinking, setIsAiThinking] = useState(false);
+  const [isTyping, setIsTyping] = useState(false);
+  const [remoteStatus, setRemoteStatus] = useState<any>(null); // { typing: boolean, recording: boolean }
   
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -163,21 +167,112 @@ export function ChatClient({ initialMessages, companyId, senderRole, companyToke
     return `TKT-${timestamp}-${random}`;
   };
 
-  const createNewTicket = () => {
-    const newTicketId = generateTicketId();
-    setCurrentTicketId(newTicketId);
-    setTickets(prev => [...prev, { id: newTicketId, status: 'open' }]);
-    setShowTicketSelector(false);
-    toast.success(`تم إنشاء تذكرة جديدة: ${newTicketId}`);
+  useEffect(() => {
+    // 1. Fetch Tickets
+    const fetchTickets = async () => {
+      try {
+        const res = await fetch(`/api/support/tickets?company_id=${companyId}`);
+        const data = await res.json();
+        if (data.success) {
+          setTickets(data.tickets);
+          const active = data.tickets.find((t: any) => t.status === 'open' && new Date(t.expires_at) > new Date());
+          if (active) setCurrentTicketId(active.id);
+        }
+      } catch (error) {
+        console.error("Fetch Tickets Error:", error);
+      }
+    };
+    fetchTickets();
+
+    // 2. Realtime Setup
+    const channel = supabase.channel(`chat_${companyId}`, {
+      config: {
+        broadcast: { self: false },
+      },
+    });
+
+    channel
+      .on("broadcast", { event: "status" }, (payload) => {
+        if (payload.payload.sender_role !== senderRole) {
+          setRemoteStatus(payload.payload);
+        }
+      })
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [companyId, senderRole]);
+
+  // Typing effect
+  useEffect(() => {
+    const channel = supabase.channel(`chat_${companyId}`);
+    if (isTyping) {
+      channel.send({
+        type: "broadcast",
+        event: "status",
+        payload: { sender_role: senderRole, typing: true },
+      });
+    } else {
+      channel.send({
+        type: "broadcast",
+        event: "status",
+        payload: { sender_role: senderRole, typing: false },
+      });
+    }
+  }, [isTyping, companyId, senderRole]);
+
+  // Recording effect
+  useEffect(() => {
+    const channel = supabase.channel(`chat_${companyId}`);
+    channel.send({
+      type: "broadcast",
+      event: "status",
+      payload: { sender_role: senderRole, recording: isRecording },
+    });
+  }, [isRecording, companyId, senderRole]);
+
+  const createNewTicket = async () => {
+    try {
+      const res = await fetch("/api/support/tickets", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ company_id: companyId }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setTickets(prev => [data.ticket, ...prev]);
+        setCurrentTicketId(data.ticket.id);
+        setShowTicketSelector(false);
+        toast.success(`تم إنشاء تذكرة جديدة: ${data.ticket.ticket_number}`);
+      }
+    } catch (error) {
+      toast.error("فشل إنشاء التذكرة");
+    }
   };
+
+  const isTicketExpired = (ticketId: any) => {
+    const ticket = tickets.find(t => t.id === ticketId);
+    if (!ticket) return true;
+    return new Date(ticket.expires_at) < new Date();
+  };
+
+  const activeTicket = tickets.find(t => t.id === currentTicketId);
+  const isTicketValid = activeTicket && new Date(activeTicket.expires_at) > new Date();
 
   const handleSend = async (e?: React.FormEvent, customData?: any) => {
     if (e) e.preventDefault();
+    
+    if (!isTicketValid && senderRole !== 'admin') {
+      toast.error("التذكرة الحالية منتهية. يرجى فتح تذكرة جديدة.");
+      return;
+    }
     
     if (!inputValue.trim() && !selectedFile && !customData) return;
     if (isLoading || isUploading || isAiThinking) return;
 
     setIsLoading(true);
+    setIsTyping(false);
     let filePath = customData?.file_path || "";
     let messageType: any = customData?.message_type || "text";
     let messageText = customData?.message || inputValue.trim();
@@ -221,7 +316,8 @@ export function ChatClient({ initialMessages, companyId, senderRole, companyToke
           company_id: companyId,
           sender_role: senderRole,
           file_path: filePath,
-          message_type: messageType
+          message_type: messageType,
+          ticket_id: currentTicketId
         })
       });
 
@@ -574,7 +670,31 @@ export function ChatClient({ initialMessages, companyId, senderRole, companyToke
           </div>
         )}
         
+          {/* Remote Status (Typing/Recording) */}
+          <AnimatePresence>
+            {remoteStatus && (remoteStatus.typing || remoteStatus.recording) && (
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 10 }}
+                className="flex justify-end mb-4"
+              >
+                <div className="bg-white/80 backdrop-blur-sm px-4 py-2 rounded-full shadow-sm border border-gray-100 flex items-center gap-2">
+                  <div className="flex gap-1">
+                    <span className="w-1.5 h-1.5 bg-indigo-500 rounded-full animate-bounce [animation-delay:-0.3s]" />
+                    <span className="w-1.5 h-1.5 bg-indigo-500 rounded-full animate-bounce [animation-delay:-0.15s]" />
+                    <span className="w-1.5 h-1.5 bg-indigo-500 rounded-full animate-bounce" />
+                  </div>
+                  <span className="text-[10px] font-bold text-indigo-600">
+                    {remoteStatus.recording ? 'جاري التسجيل...' : 'جاري الكتابة...'}
+                  </span>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
           <div className="max-w-4xl mx-auto space-y-6">
+
             {conversation?.status === 'pending_human' && (
               <motion.div 
                 initial={{ opacity: 0, y: -10 }}
@@ -609,22 +729,25 @@ export function ChatClient({ initialMessages, companyId, senderRole, companyToke
                     animate={{ opacity: msg._pending ? 0.7 : 1, x: 0, scale: 1 }}
                     className={`flex ${isMe ? 'justify-start' : 'justify-end'}`}
                   >
-                    <div className={`flex flex-col max-w-[85%] md:max-w-[70%] ${isMe ? 'items-start' : 'items-end'}`}>
-                      <div 
-                        className={`relative p-4 rounded-2xl shadow-lg ${
-                          isMe 
-                            ? 'bg-white text-gray-800 border border-gray-100 rounded-tr-sm' 
-                            : 'bg-gradient-to-br from-indigo-600 to-purple-600 text-white rounded-tl-sm'
-                        }`}
-                      >
-                          <div className="flex items-center gap-2 mb-1">
-                            {msg.is_ai === 1 && (
-                              <span className="bg-indigo-100 text-indigo-700 text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1">
-                                <RefreshCw size={10} className="animate-spin" />
-                                ذكاء اصطناعي
-                              </span>
-                            )}
-                          </div>
+                      <div className={`flex flex-col max-w-[85%] md:max-w-[70%] ${isMe ? 'items-start' : 'items-end'}`}>
+                        <div 
+                          className={`relative p-4 rounded-2xl shadow-lg ${
+                            isMe 
+                              ? 'bg-white text-gray-800 border border-gray-100 rounded-tr-sm' 
+                              : msg.is_ai === 1 
+                                ? 'bg-gradient-to-br from-violet-600 to-indigo-700 text-white rounded-tl-sm'
+                                : 'bg-gradient-to-br from-indigo-600 to-purple-600 text-white rounded-tl-sm'
+                          }`}
+                        >
+                            <div className="flex items-center gap-2 mb-1">
+                              {msg.is_ai === 1 && (
+                                <span className="bg-white/20 text-white text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1">
+                                  <RefreshCw size={10} className="animate-spin" />
+                                  ذكاء اصطناعي
+                                </span>
+                              )}
+                            </div>
+
                           <MessageContent msg={msg} isMe={isMe} />
 
                         
@@ -798,16 +921,26 @@ export function ChatClient({ initialMessages, companyId, senderRole, companyToke
                 </div>
               </div>
             ) : (
-              <textarea
-                value={inputValue}
-                onChange={(e) => setInputValue(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' && !e.shiftKey) {
-                    e.preventDefault();
-                    handleSend(e);
-                  }
-                }}
-                placeholder="اكتب رسالتك هنا..."
+                <textarea
+                  value={inputValue}
+                  onChange={(e) => {
+                    setInputValue(e.target.value);
+                    if (!isTyping) setIsTyping(true);
+                  }}
+                  onBlur={() => setIsTyping(false)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                      e.preventDefault();
+                      handleSend(e);
+                    }
+                  }}
+                  onKeyUp={() => {
+                    // Simple debounce for typing status
+                    const timeout = setTimeout(() => setIsTyping(false), 2000);
+                    return () => clearTimeout(timeout);
+                  }}
+                  placeholder="اكتب رسالتك هنا..."
+
                 rows={1}
                 className="w-full text-base resize-none focus:outline-none max-h-32 bg-transparent leading-relaxed text-gray-800"
                 style={{ minHeight: '28px' }}

@@ -5,13 +5,28 @@ import { searchKnowledgeBase, incrementArticleUsage } from "@/lib/knowledge-base
 
 export async function POST(request: NextRequest) {
   try {
-    const { message, company_id, sender_role } = await request.json();
+    const { message, company_id, sender_role, ticket_id, message_type, file_path } = await request.json();
 
-    if (!message || !company_id) {
+    if (!company_id) {
       return NextResponse.json({ error: "بيانات غير مكتملة" }, { status: 400 });
     }
 
-    // 1. Get or create active conversation
+    // 1. Validate Ticket
+    let currentTicketId = ticket_id;
+    if (!currentTicketId) {
+      // Find latest active ticket
+      const activeTickets = await query<any>(
+        "SELECT id FROM support_tickets WHERE company_id = ? AND expires_at > NOW() AND status = 'open' ORDER BY created_at DESC LIMIT 1",
+        [company_id]
+      );
+      if (activeTickets.length > 0) {
+        currentTicketId = activeTickets[0].id;
+      } else if (sender_role !== 'admin') {
+        return NextResponse.json({ error: "لا توجد تذكرة نشطة. يرجى فتح تذكرة جديدة.", needs_new_ticket: true }, { status: 403 });
+      }
+    }
+
+    // 2. Get or create conversation (legacy support)
     let conversation = await query<any>(
       "SELECT * FROM conversations WHERE company_id = ? AND status != 'closed' ORDER BY created_at DESC LIMIT 1",
       [company_id]
@@ -28,16 +43,20 @@ export async function POST(request: NextRequest) {
       conversationId = conversation[0].id;
     }
 
-    // 2. Save user message
-    await execute(
-      "INSERT INTO chat_messages (company_id, conversation_id, sender_role, message) VALUES (?, ?, ?, ?)",
-      [company_id, conversationId, sender_role || "client", message]
+    // 3. Save message
+    const msgResult = await execute(
+      "INSERT INTO chat_messages (company_id, conversation_id, sender_role, message, message_type, file_path, ticket_id) VALUES (?, ?, ?, ?, ?, ?, ?)",
+      [company_id, conversationId, sender_role || "client", message || "", message_type || "text", file_path || null, currentTicketId]
     );
 
-    // 3. AI Router Logic
+    // 4. Handle Admin Message
     if (sender_role === "admin") {
-      // If admin sends a message, just save it and update conversation status if needed
-      return NextResponse.json({ success: true, handled_by: 'human' });
+      // Mark all client messages as read when admin responds
+      await execute(
+        "UPDATE chat_messages SET is_read = 1 WHERE company_id = ? AND sender_role = 'client' AND is_read = 0",
+        [company_id]
+      );
+      return NextResponse.json({ success: true, handled_by: 'human', message_id: msgResult.insertId });
     }
 
     // Analyze message
