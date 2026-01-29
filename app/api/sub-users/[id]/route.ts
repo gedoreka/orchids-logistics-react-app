@@ -213,30 +213,27 @@ export async function DELETE(
       .single();
     const companyName = companyData?.name || "شركتنا";
 
-    await supabase
+    // Delete related data first to avoid foreign key violations
+    await supabase.from("sub_user_permissions").delete().eq("sub_user_id", id);
+    await supabase.from("sub_user_sessions").delete().eq("sub_user_id", id);
+    await supabase.from("sub_user_activity_logs").delete().eq("sub_user_id", id);
+
+    // Finally delete the user completely from the database
+    const { error: deleteError } = await supabase
       .from("company_sub_users")
-      .update({ status: "deleted", updated_at: new Date().toISOString() })
+      .delete()
       .eq("id", id)
       .eq("company_id", session.company_id);
 
-    await supabase
-      .from("sub_user_sessions")
-      .update({ is_active: false })
-      .eq("sub_user_id", id);
-
-    // Log the activity
-    await logSubUserActivity({
-      subUserId: parseInt(id),
-      companyId: session.company_id,
-      actionType: "USER_DELETED",
-      actionDescription: `تم حذف حساب المستخدم: ${currentUser.name}`,
-      metadata: { deleted_by: session.user_id }
-    });
+    if (deleteError) {
+      console.error("Delete error:", deleteError);
+      return NextResponse.json({ error: "خطأ في حذف المستخدم من القاعدة" }, { status: 500 });
+    }
 
     // Send deletion email
     sendSubUserDeletionEmail(currentUser.email, currentUser.name, companyName).catch(console.error);
 
-    return NextResponse.json({ success: true, message: "تم حذف المستخدم بنجاح" });
+    return NextResponse.json({ success: true, message: "تم حذف المستخدم نهائياً بنجاح" });
   } catch (error) {
     console.error("Error deleting sub-user:", error);
     return NextResponse.json({ error: "خطأ في حذف المستخدم" }, { status: 500 });

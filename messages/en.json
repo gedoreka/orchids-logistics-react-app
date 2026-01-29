@@ -2757,6 +2757,9 @@
       "deleteConfirmMessage": "Are you sure you want to permanently delete this user? You will not be able to recover the account or associated permissions again.",
       "statusChangeTitle": "Account Status Update",
       "statusActive": "Account activated successfully",
-      "statusSuspended": "Account suspended successfully"
+        "statusSuspended": "Account suspended successfully",
+        "createUserSuccess": "User created successfully",
+        "saveChangesSuccess": "Changes saved successfully",
+        "deleteSuccess": "User deleted successfully"
+      }
     }
-  }

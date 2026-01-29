@@ -2757,7 +2757,10 @@
       "deleteConfirmMessage": "هل أنت متأكد من حذف هذا المستخدم نهائياً؟ لن تتمكن من استعادة الحساب أو الصلاحيات المرتبطة به مرة أخرى.",
       "statusChangeTitle": "تحديث حالة الحساب",
       "statusActive": "تم تنشيط الحساب بنجاح",
-      "statusSuspended": "تم تعليق الحساب بنجاح"
+        "statusSuspended": "تم تعليق الحساب بنجاح",
+        "createUserSuccess": "تم إنشاء المستخدم بنجاح",
+        "saveChangesSuccess": "تم حفظ التعديلات بنجاح",
+        "deleteSuccess": "تم حذف المستخدم بنجاح"
+      }
     }
-  }
 
