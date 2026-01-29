@@ -4,6 +4,7 @@ import { query } from "@/lib/db";
 import { supabase } from "@/lib/supabase-client";
 import bcrypt from "bcryptjs";
 import { sendWelcomeSubUserEmail } from "@/lib/mail";
+import { logSubUserActivity } from "@/lib/activity";
 
 interface SessionData {
   user_id: number;
@@ -140,7 +141,25 @@ export async function POST(request: NextRequest) {
       await supabase.from("sub_user_permissions").insert(permissionsToInsert);
     }
 
-    sendWelcomeSubUserEmail(email, name, password).catch(console.error);
+    // Fetch company name for email
+    const { data: companyData } = await supabase
+      .from("companies")
+      .select("name")
+      .eq("id", session.company_id)
+      .single();
+    
+    const companyName = companyData?.name || "شركتنا";
+
+    // Log the creation activity
+    await logSubUserActivity({
+      subUserId: subUserId,
+      companyId: session.company_id,
+      actionType: "USER_CREATED",
+      actionDescription: `تم إنشاء حساب مستخدم جديد: ${name} (${email})`,
+      metadata: { created_by: session.user_id, permissions }
+    });
+
+    sendWelcomeSubUserEmail(email, name, password, companyName, permissions).catch(console.error);
 
     return NextResponse.json({ 
       success: true, 

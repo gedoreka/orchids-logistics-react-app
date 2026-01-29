@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { Card } from "@/components/ui/card";
 import { useTranslations } from "@/lib/locale-context";
+import { notify } from "@/lib/notifications";
 import {
   Users,
   Plus,
@@ -51,7 +52,8 @@ import {
   FileSpreadsheet,
   Home,
   CheckCircle,
-  Sparkles
+  Sparkles,
+  AlertTriangle
 } from "lucide-react";
 
 interface SubUser {
@@ -113,9 +115,11 @@ export default function SubUsersPage() {
   const [showAddModal, setShowAddModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showActivityModal, setShowActivityModal] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [selectedUser, setSelectedUser] = useState<SubUser | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [companyPermissions, setCompanyPermissions] = useState<string[]>([]);
+  const [companyName, setCompanyName] = useState("");
 
   const [formData, setFormData] = useState({
     name: "",
@@ -148,6 +152,7 @@ export default function SubUsersPage() {
     try {
       const res = await fetch("/api/company-info");
       const data = await res.json();
+      if (data.companyName) setCompanyName(data.companyName);
       if (data.permissions) {
         const enabledPerms = Object.entries(data.permissions)
           .filter(([, value]) => value === 1)
@@ -182,12 +187,13 @@ export default function SubUsersPage() {
         setShowAddModal(false);
         setFormData({ name: "", email: "", password: "", confirmPassword: "", permissions: [] });
         fetchSubUsers();
+        notify.success(t("createUserSuccess") || "تم إنشاء المستخدم بنجاح");
       } else {
-        alert(data.error || commonT("error"));
+        notify.error(data.error || commonT("error"));
       }
     } catch (error) {
       console.error("Error creating user:", error);
-      alert(t("errorCreating"));
+      notify.error(t("errorCreating"));
     }
   };
 
@@ -211,11 +217,13 @@ export default function SubUsersPage() {
         setShowEditModal(false);
         setSelectedUser(null);
         fetchSubUsers();
+        notify.success(t("saveChangesSuccess") || "تم حفظ التعديلات بنجاح");
       } else {
-        alert(data.error || commonT("error"));
+        notify.error(data.error || commonT("error"));
       }
     } catch (error) {
       console.error("Error updating user:", error);
+      notify.error(commonT("error"));
     }
   };
 
@@ -230,25 +238,34 @@ export default function SubUsersPage() {
 
       if (res.ok) {
         fetchSubUsers();
+        notify.success({
+          title: t("statusChangeTitle"),
+          description: newStatus === "active" ? t("statusActive") : t("statusSuspended")
+        });
       }
     } catch (error) {
       console.error("Error toggling status:", error);
+      notify.error(commonT("error"));
     }
   };
 
-  const handleDeleteUser = async (user: SubUser) => {
-    if (!confirm(t("deleteConfirm"))) return;
+  const handleDeleteUser = async () => {
+    if (!selectedUser) return;
 
     try {
-      const res = await fetch(`/api/sub-users/${user.id}`, {
+      const res = await fetch(`/api/sub-users/${selectedUser.id}`, {
         method: "DELETE",
       });
 
       if (res.ok) {
+        setShowDeleteModal(false);
+        setSelectedUser(null);
         fetchSubUsers();
+        notify.success(t("deleteSuccess") || "تم حذف المستخدم بنجاح");
       }
     } catch (error) {
       console.error("Error deleting user:", error);
+      notify.error(commonT("error"));
     }
   };
 
@@ -386,60 +403,76 @@ export default function SubUsersPage() {
                     </div>
                   </div>
 
-                  <div className="flex flex-wrap items-center justify-center gap-6 w-full md:w-auto">
-                    <div className="text-center">
-                      <div className="text-2xl font-bold text-white">{user.permissions?.length || 0}</div>
-                      <div className="text-xs text-slate-400">{t("permissions")}</div>
-                    </div>
+                      <div className="flex flex-wrap items-center justify-center gap-3 w-full md:w-auto">
+                        <div className="text-center px-4">
+                          <div className="text-2xl font-bold text-white">{user.permissions?.length || 0}</div>
+                          <div className="text-xs text-slate-400">{t("permissions")}</div>
+                        </div>
 
-                    <div className={cn(
-                      "px-4 py-2 rounded-lg text-sm font-bold",
-                      user.status === "active" 
-                        ? "bg-emerald-500/20 text-emerald-400" 
-                        : "bg-red-500/20 text-red-400"
-                    )}>
-                      {t(user.status)}
-                    </div>
+                        <div className={cn(
+                          "px-4 py-2 rounded-lg text-sm font-bold",
+                          user.status === "active" 
+                            ? "bg-emerald-500/20 text-emerald-400" 
+                            : "bg-red-500/20 text-red-400"
+                        )}>
+                          {t(user.status)}
+                        </div>
 
-                    <div className="flex items-center gap-2">
-                      <button
-                        onClick={() => openEditModal(user)}
-                        className="p-2 rounded-lg bg-blue-500/20 text-blue-400 hover:bg-blue-500/30 transition-colors"
-                        title={commonT("edit")}
-                      >
-                        <Edit size={18} />
-                      </button>
-                      <button
-                        onClick={() => handleToggleStatus(user)}
-                        className={cn(
-                          "p-2 rounded-lg transition-colors",
-                          user.status === "active"
-                            ? "bg-amber-500/20 text-amber-400 hover:bg-amber-500/30"
-                            : "bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500/30"
-                        )}
-                        title={user.status === "active" ? t("suspended") : t("active")}
-                      >
-                        {user.status === "active" ? <Lock size={18} /> : <Unlock size={18} />}
-                      </button>
-                      <button
-                        onClick={() => {
-                          setSelectedUser(user);
-                          setShowActivityModal(true);
-                        }}
-                        className="p-2 rounded-lg bg-purple-500/20 text-purple-400 hover:bg-purple-500/30 transition-colors"
-                        title={t("activityLog")}
-                      >
-                        <Activity size={18} />
-                      </button>
-                      <button
-                        onClick={() => handleDeleteUser(user)}
-                        className="p-2 rounded-lg bg-red-500/20 text-red-400 hover:bg-red-500/30 transition-colors"
-                        title={commonT("delete")}
-                      >
-                        <Trash2 size={18} />
-                      </button>
-                    </div>
-                  </div>
+                        <div className="flex flex-wrap items-center gap-2">
+                          <button
+                            onClick={() => openEditModal(user)}
+                            className="flex items-center gap-2 px-3 py-2 rounded-lg bg-blue-500/10 text-blue-400 hover:bg-blue-500/20 transition-all border border-blue-500/20"
+                          >
+                            <Edit size={16} />
+                            <span className="text-xs font-bold">{t("editUser")}</span>
+                          </button>
+                          
+                          <button
+                            onClick={() => handleToggleStatus(user)}
+                            className={cn(
+                              "flex items-center gap-2 px-3 py-2 rounded-lg transition-all border",
+                              user.status === "active"
+                                ? "bg-amber-500/10 text-amber-400 border-amber-500/20 hover:bg-amber-500/20"
+                                : "bg-emerald-500/10 text-emerald-400 border-emerald-500/20 hover:bg-emerald-500/20"
+                            )}
+                          >
+                            {user.status === "active" ? (
+                              <>
+                                <Lock size={16} />
+                                <span className="text-xs font-bold">{t("suspended")}</span>
+                              </>
+                            ) : (
+                              <>
+                                <Unlock size={16} />
+                                <span className="text-xs font-bold">{t("active")}</span>
+                              </>
+                            )}
+                          </button>
+
+                          <button
+                            onClick={() => {
+                              setSelectedUser(user);
+                              setShowActivityModal(true);
+                            }}
+                            className="flex items-center gap-2 px-3 py-2 rounded-lg bg-purple-500/10 text-purple-400 hover:bg-purple-500/20 transition-all border border-purple-500/20"
+                          >
+                            <Activity size={16} />
+                            <span className="text-xs font-bold">{t("operations")}</span>
+                          </button>
+
+                          <button
+                            onClick={() => {
+                              setSelectedUser(user);
+                              setShowDeleteModal(true);
+                            }}
+                            className="flex items-center gap-2 px-3 py-2 rounded-lg bg-red-500/10 text-red-400 hover:bg-red-500/20 transition-all border border-red-500/20"
+                          >
+                            <Trash2 size={16} />
+                            <span className="text-xs font-bold">{commonT("delete")}</span>
+                          </button>
+                        </div>
+                      </div>
+
                 </div>
 
                 {user.last_login_at && (
@@ -665,8 +698,80 @@ export default function SubUsersPage() {
             }}
           />
         )}
+        {showDeleteModal && selectedUser && (
+          <DeleteConfirmModal
+            user={selectedUser}
+            onClose={() => {
+              setShowDeleteModal(false);
+              setSelectedUser(null);
+            }}
+            onConfirm={handleDeleteUser}
+          />
+        )}
       </AnimatePresence>
     </div>
+  );
+}
+
+function DeleteConfirmModal({ user, onClose, onConfirm }: { user: SubUser; onClose: () => void; onConfirm: () => void }) {
+  const t = useTranslations("subUsers");
+  const commonT = useTranslations("common");
+
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="fixed inset-0 bg-black/80 backdrop-blur-md z-[100] flex items-center justify-center p-4"
+      onClick={onClose}
+    >
+      <motion.div
+        initial={{ scale: 0.9, y: 20, opacity: 0 }}
+        animate={{ scale: 1, y: 0, opacity: 1 }}
+        exit={{ scale: 0.9, y: 20, opacity: 0 }}
+        onClick={(e) => e.stopPropagation()}
+        className="bg-[#1a2234] border border-white/10 rounded-[2.5rem] w-full max-w-lg overflow-hidden shadow-2xl"
+      >
+        <div className="relative p-8 md:p-12 text-center">
+          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-red-500 to-transparent opacity-50" />
+          
+          <div className="mb-8 relative inline-block">
+            <div className="absolute inset-0 bg-red-500/20 blur-2xl rounded-full" />
+            <div className="relative w-24 h-24 bg-gradient-to-br from-red-500/20 to-red-600/20 rounded-3xl flex items-center justify-center border border-red-500/30 shadow-xl">
+              <AlertTriangle size={48} className="text-red-500 animate-pulse" />
+            </div>
+          </div>
+
+          <h2 className="text-3xl font-black text-white mb-4 tracking-tight">
+            {t("deleteConfirmTitle")}
+          </h2>
+          
+          <p className="text-slate-400 text-lg leading-relaxed mb-10 font-medium">
+            {t("deleteConfirmMessage")}
+            <br />
+            <span className="text-white font-bold mt-2 block px-4 py-2 bg-white/5 rounded-xl border border-white/10 inline-block">
+              {user.name} ({user.email})
+            </span>
+          </p>
+
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <button
+              onClick={onClose}
+              className="px-8 py-4 rounded-2xl bg-slate-800 text-slate-300 font-bold hover:bg-slate-700 transition-all border border-slate-700 order-2 sm:order-1"
+            >
+              {t("cancel")}
+            </button>
+            <button
+              onClick={onConfirm}
+              className="px-8 py-4 rounded-2xl bg-gradient-to-r from-red-600 to-red-500 text-white font-black hover:shadow-lg hover:shadow-red-500/30 transition-all transform hover:-translate-y-1 active:scale-95 order-1 sm:order-2 flex items-center justify-center gap-2"
+            >
+              <Trash2 size={20} />
+              {commonT("delete")}
+            </button>
+          </div>
+        </div>
+      </motion.div>
+    </motion.div>
   );
 }
 

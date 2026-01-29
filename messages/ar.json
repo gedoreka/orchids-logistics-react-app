@@ -2740,10 +2740,21 @@
       "balance_sheet_module": "الميزانية العمومية",
       "tax_settings_module": "إعدادات الضريبة",
       "letters_templates_module": "الخطابات الجاهزة",
-      "sub_users_module": "إدارة المستخدمين"
-    },
-    "accessToData": "وصول إلى",
-    "cancel": "إلغاء",
-    "createUser": "إنشاء المستخدم"
+        "sub_users_module": "إدارة المستخدمين",
+        "monthly_commissions_module": "العمولات الشهرية",
+        "commissions_summary_module": "ملخص العمولات"
+      },
+      "accessToData": "وصول إلى",
+      "cancel": "إلغاء",
+      "createUser": "إنشاء المستخدم",
+      "saveChanges": "حفظ التعديلات",
+      "noSessions": "لا توجد جلسات نشطة حالياً",
+      "deleteConfirm": "هل أنت متأكد من حذف هذا المستخدم؟",
+      "deleteConfirmTitle": "تأكيد حذف المستخدم",
+      "deleteConfirmMessage": "هل أنت متأكد من حذف هذا المستخدم نهائياً؟ لن تتمكن من استعادة الحساب أو الصلاحيات المرتبطة به مرة أخرى.",
+      "statusChangeTitle": "تحديث حالة الحساب",
+      "statusActive": "تم تنشيط الحساب بنجاح",
+      "statusSuspended": "تم تعليق الحساب بنجاح"
+    }
   }
-}
+

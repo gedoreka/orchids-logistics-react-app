@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { query, execute } from "@/lib/db";
+import { logSubUserActivity } from "@/lib/activity";
 
 async function getCompanyId(userId: number) {
   const users = await query<any>("SELECT company_id FROM users WHERE id = ?", [userId]);
@@ -173,6 +174,17 @@ export async function POST(request: NextRequest) {
     ]);
 
     const invoiceId = result.insertId;
+
+    // Log activity if sub-user
+    if (session.user_type === "sub_user") {
+      await logSubUserActivity({
+        subUserId: userId,
+        companyId: companyId,
+        actionType: "INVOICE_CREATED",
+        actionDescription: `تم إنشاء فاتورة ضريبية جديدة رقم: ${invoice_number} بمبلغ: ${totalWithVat}`,
+        metadata: { invoice_id: invoiceId, invoice_number, amount: totalWithVat }
+      });
+    }
 
     for (const item of items) {
       const totalWithVatItem = parseFloat(item.total_with_vat) || 0;

@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
+import { cookies } from "next/headers";
 import { query, execute } from "@/lib/db";
 import { supabase } from "@/lib/supabase";
+import { logSubUserActivity } from "@/lib/activity";
 
 export async function POST(request: NextRequest) {
   try {
@@ -30,6 +32,12 @@ export async function POST(request: NextRequest) {
 
     const count = expenseDates.length;
     let savedCount = 0;
+
+    // Check if sub-user for logging
+    const cookieStore = await cookies();
+    const authSession = cookieStore.get("auth_session")?.value;
+    const session = authSession ? JSON.parse(authSession) : null;
+    const isSubUser = session?.user_type === "sub_user";
 
     // Fetch account and cost center IDs for mapping
     const accounts = await query<{ id: number; account_code: string }>(
@@ -159,6 +167,16 @@ export async function POST(request: NextRequest) {
           );
         }
       }
+    }
+
+    if (isSubUser && savedCount > 0) {
+      await logSubUserActivity({
+        subUserId: parseInt(userId),
+        companyId: parseInt(companyId),
+        actionType: "EXPENSES_CREATED",
+        actionDescription: `تم تسجيل عدد (${savedCount}) من المنصرفات/الاستقطاعات لشهر: ${month}`,
+        metadata: { count: savedCount, month }
+      });
     }
 
     return NextResponse.json({ success: true, savedCount });

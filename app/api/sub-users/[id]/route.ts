@@ -3,6 +3,8 @@ import { cookies } from "next/headers";
 import { supabase } from "@/lib/supabase-client";
 import { query } from "@/lib/db";
 import bcrypt from "bcryptjs";
+import { sendSubUserStatusEmail, sendSubUserDeletionEmail } from "@/lib/mail";
+import { logSubUserActivity } from "@/lib/activity";
 
 interface SessionData {
   user_id: number;
@@ -96,34 +98,23 @@ export async function PUT(
     const body = await request.json();
     const { name, email, password, permissions, status, profile_image } = body;
 
-    const { data: existing } = await supabase
+    // Fetch company name
+    const { data: companyData } = await supabase
+      .from("companies")
+      .select("name")
+      .eq("id", session.company_id)
+      .single();
+    const companyName = companyData?.name || "شركتنا";
+
+    // Fetch user current data for comparison
+    const { data: currentUser } = await supabase
       .from("company_sub_users")
-      .select("id")
+      .select("*")
       .eq("id", id)
-      .eq("company_id", session.company_id);
+      .single();
 
-    if (!existing || existing.length === 0) {
+    if (!currentUser) {
       return NextResponse.json({ error: "المستخدم غير موجود" }, { status: 404 });
-    }
-
-    if (email) {
-      const emailCheck = await query(
-        "SELECT id FROM users WHERE email = ?",
-        [email.toLowerCase()]
-      );
-      if ((emailCheck as Array<{ id: number }>).length > 0) {
-        return NextResponse.json({ error: "البريد الإلكتروني مستخدم" }, { status: 400 });
-      }
-
-      const { data: subEmailCheck } = await supabase
-        .from("company_sub_users")
-        .select("id")
-        .eq("email", email.toLowerCase())
-        .neq("id", id);
-      
-      if (subEmailCheck && subEmailCheck.length > 0) {
-        return NextResponse.json({ error: "البريد الإلكتروني مستخدم" }, { status: 400 });
-      }
     }
 
     const updateData: Record<string, string | null> = {
@@ -141,6 +132,26 @@ export async function PUT(
       .update(updateData)
       .eq("id", id)
       .eq("company_id", session.company_id);
+
+    // Log the activity
+    let actionType = "USER_UPDATED";
+    let actionDesc = `تم تحديث بيانات المستخدم: ${currentUser.name}`;
+
+    if (status && status !== currentUser.status) {
+      actionType = status === "active" ? "USER_ACTIVATED" : "USER_SUSPENDED";
+      actionDesc = status === "active" ? `تم تنشيط حساب المستخدم: ${currentUser.name}` : `تم تعليق حساب المستخدم: ${currentUser.name}`;
+      
+      // Send status change email
+      sendSubUserStatusEmail(currentUser.email, currentUser.name, status as "active" | "suspended", companyName).catch(console.error);
+    }
+
+    await logSubUserActivity({
+      subUserId: parseInt(id),
+      companyId: session.company_id,
+      actionType,
+      actionDescription: actionDesc,
+      metadata: { updated_by: session.user_id, status }
+    });
 
     if (permissions !== undefined) {
       await supabase
@@ -183,6 +194,25 @@ export async function DELETE(
 
     const { id } = await params;
 
+    // Fetch user current data for email and logging
+    const { data: currentUser } = await supabase
+      .from("company_sub_users")
+      .select("*")
+      .eq("id", id)
+      .single();
+
+    if (!currentUser) {
+      return NextResponse.json({ error: "المستخدم غير موجود" }, { status: 404 });
+    }
+
+    // Fetch company name
+    const { data: companyData } = await supabase
+      .from("companies")
+      .select("name")
+      .eq("id", session.company_id)
+      .single();
+    const companyName = companyData?.name || "شركتنا";
+
     await supabase
       .from("company_sub_users")
       .update({ status: "deleted", updated_at: new Date().toISOString() })
@@ -193,6 +223,18 @@ export async function DELETE(
       .from("sub_user_sessions")
       .update({ is_active: false })
       .eq("sub_user_id", id);
+
+    // Log the activity
+    await logSubUserActivity({
+      subUserId: parseInt(id),
+      companyId: session.company_id,
+      actionType: "USER_DELETED",
+      actionDescription: `تم حذف حساب المستخدم: ${currentUser.name}`,
+      metadata: { deleted_by: session.user_id }
+    });
+
+    // Send deletion email
+    sendSubUserDeletionEmail(currentUser.email, currentUser.name, companyName).catch(console.error);
 
     return NextResponse.json({ success: true, message: "تم حذف المستخدم بنجاح" });
   } catch (error) {

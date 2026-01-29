@@ -2740,10 +2740,20 @@
       "balance_sheet_module": "Balance Sheet",
       "tax_settings_module": "Tax Settings",
       "letters_templates_module": "Ready-made Letters",
-      "sub_users_module": "Sub-users Management"
-    },
-    "accessToData": "Access to",
-    "cancel": "Cancel",
-    "createUser": "Create User"
+        "sub_users_module": "Sub-users Management",
+        "monthly_commissions_module": "Monthly Commissions",
+        "commissions_summary_module": "Commissions Summary"
+      },
+      "accessToData": "Access to",
+      "cancel": "Cancel",
+      "createUser": "Create User",
+      "saveChanges": "Save Changes",
+      "noSessions": "No active sessions currently",
+      "deleteConfirm": "Are you sure you want to delete this user?",
+      "deleteConfirmTitle": "Confirm User Deletion",
+      "deleteConfirmMessage": "Are you sure you want to permanently delete this user? You will not be able to recover the account or associated permissions again.",
+      "statusChangeTitle": "Account Status Update",
+      "statusActive": "Account activated successfully",
+      "statusSuspended": "Account suspended successfully"
+    }
   }
-}
