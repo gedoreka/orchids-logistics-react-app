@@ -493,52 +493,125 @@ export const SERVICE_CONNECTIONS: Record<string, string[]> = {
 // ==================== وظائف مساعدة ====================
 export class AIAssistantService {
     /**
+     * تنظيف وتجهيز النص للبحث
+     */
+    private static normalizeText(text: string): string {
+      return text
+        .toLowerCase()
+        .replace(/[أإآ]/g, 'ا')
+        .replace(/ة/g, 'ه')
+        .replace(/[^\w\s\u0600-\u06FF]/g, '')
+        .trim();
+    }
+
+    /**
+     * حساب نسبة التشابه بين نصين (Dice's Coefficient)
+     */
+    private static calculateSimilarity(str1: string, str2: string): number {
+      const s1 = this.normalizeText(str1);
+      const s2 = this.normalizeText(str2);
+      
+      if (s1 === s2) return 1.0;
+      if (s1.includes(s2) || s2.includes(s1)) return 0.8;
+
+      const pairs = (str: string) => {
+        const set = new Set<string>();
+        for (let i = 0; i < str.length - 1; i++) {
+          set.add(str.substring(i, i + 2));
+        }
+        return set;
+      };
+
+      const pairs1 = pairs(s1);
+      const pairs2 = pairs(s2);
+      
+      if (pairs1.size === 0 || pairs2.size === 0) return 0;
+
+      let union = pairs1.size + pairs2.size;
+      let intersection = 0;
+      pairs1.forEach(p => {
+        if (pairs2.has(p)) intersection++;
+      });
+
+      return (2.0 * intersection) / union;
+    }
+
+    /**
      * البحث عن رد مناسب بناءً على رسالة المستخدم
      */
     static findResponse(userMessage: string): AIResponse {
-      const message = userMessage.toLowerCase().trim();
+      const message = this.normalizeText(userMessage);
       
-      // 1. البحث في قاعدة المعرفة الشاملة (100 سؤال وجواب) أولاً لضمان الدقة العالية
-      for (const response of KNOWLEDGE_BASE) {
+      // 1. البحث عن تطابق تام أو احتواء في الكلمات المفتاحية
+      const allResponses = [...KNOWLEDGE_BASE, ...RESPONSE_LIBRARY];
+      
+      // محاولة البحث عن تطابق قوي أولاً
+      for (const response of allResponses) {
         for (const keyword of response.keywords) {
-          if (message.includes(keyword.toLowerCase())) {
+          const normKeyword = this.normalizeText(keyword);
+          if (message === normKeyword || (message.length > 4 && normKeyword.includes(message))) {
             return { ...response, confidenceScore: 1.0 };
           }
         }
       }
 
-      // 2. البحث في مكتبة الردود التفاعلية
-      for (const response of RESPONSE_LIBRARY) {
-        for (const keyword of response.keywords) {
-          if (message.includes(keyword.toLowerCase())) {
-            return { ...response, confidenceScore: 0.9 };
-          }
-        }
-      }
-      
-      // 3. البحث في المرادفات والخدمات المرتبطة
+      // 2. البحث عن تشابه جزئي (Fuzzy Matching)
+      let bestMatch: AIResponse | null = null;
+      let highestScore = 0;
 
-    for (const [mainWord, synonyms] of Object.entries(SYNONYM_MAP)) {
-      if (message.includes(mainWord.toLowerCase())) {
-        const relatedService = this.findRelatedService(mainWord);
-        if (relatedService) {
-          return this.createServiceResponse(relatedService);
-        }
-      }
-      
-      for (const synonym of synonyms) {
-        if (message.includes(synonym.toLowerCase())) {
-          const relatedService = this.findRelatedService(mainWord);
-          if (relatedService) {
-            return this.createServiceResponse(relatedService);
+      for (const response of allResponses) {
+        for (const keyword of response.keywords) {
+          const score = this.calculateSimilarity(userMessage, keyword);
+          if (score > highestScore) {
+            highestScore = score;
+            bestMatch = response;
           }
         }
       }
+
+      if (bestMatch && highestScore > 0.6) {
+        return { ...bestMatch, confidenceScore: highestScore };
+      }
+
+      // 3. البحث في المرادفات والخدمات المرتبطة
+      for (const [mainWord, synonyms] of Object.entries(SYNONYM_MAP)) {
+        if (this.calculateSimilarity(userMessage, mainWord) > 0.7) {
+          const relatedService = this.findRelatedService(mainWord);
+          if (relatedService) return this.createServiceResponse(relatedService);
+        }
+        
+        for (const synonym of synonyms) {
+          if (this.calculateSimilarity(userMessage, synonym) > 0.7) {
+            const relatedService = this.findRelatedService(mainWord);
+            if (relatedService) return this.createServiceResponse(relatedService);
+          }
+        }
+      }
+
+      // 4. إذا كان التشابه ضعيفاً، نقوم بجمع أفضل 3 اقتراحات لتقديمها للمستخدم
+      const suggestions = allResponses
+        .map(r => ({ 
+          response: r, 
+          score: Math.max(...r.keywords.map(k => this.calculateSimilarity(userMessage, k))) 
+        }))
+        .filter(s => s.score > 0.3)
+        .sort((a, b) => b.score - a.score)
+        .slice(0, 3);
+
+      if (suggestions.length > 0) {
+        const unclearResponse = RESPONSE_LIBRARY.find(r => r.id === "unclear-001")!;
+        const suggestionText = suggestions.map((s, i) => `${i + 1}. ${s.response.keywords[0] || s.response.id}`).join('\n');
+        
+        return {
+          ...unclearResponse,
+          text: `أعتذر، لم أفهم طلبك بدقة، هل تقصد أحد هذه المواضيع؟ 🤔\n\n${suggestionText}\n\nأو يمكنك إخباري بمزيد من التفاصيل لمساعدتك بشكل أفضل.`,
+          relatedServices: suggestions.map(s => s.response.keywords[0] || s.response.id),
+          confidenceScore: 0.4
+        };
+      }
+      
+      return RESPONSE_LIBRARY.find(r => r.id === "unclear-001")!;
     }
-    
-    // إذا لم يتم العثور على شيء
-    return RESPONSE_LIBRARY.find(r => r.id === "unclear-001")!;
-  }
   
   /**
    * البحث عن خدمة مرتبطة بكلمة
@@ -586,39 +659,52 @@ export class AIAssistantService {
     };
   }
   
-  /**
-   * توليد رد تفاعلي مع الربط الذكي
-   */
-  static generateInteractiveResponse(userMessage: string, context: string[] = []): AIResponse {
-    const baseResponse = this.findResponse(userMessage);
-    
-    // إذا كان الرد غير واضح، نضيف سياق من المحادثة السابقة
-    if (baseResponse.confidenceScore! < 0.5 && context.length > 0) {
-      const lastContext = context[context.length - 1];
-      const contextualResponse = this.findResponse(lastContext);
+    /**
+     * توليد رد تفاعلي مع الربط الذكي
+     */
+    static generateInteractiveResponse(userMessage: string, context: string[] = []): AIResponse {
+      const baseResponse = this.findResponse(userMessage);
       
-      if (contextualResponse.confidenceScore! > 0.7) {
-        return {
-          ...baseResponse,
-          text: `${baseResponse.text}\n\n💡 **بناءً على حديثنا السابق عن ${contextualResponse.category}،** ربما تقصد شيئاً مشابهاً؟`,
-          confidenceScore: 0.6
-        };
+      // إذا كان الرد غير واضح، نحاول البحث في السياق
+      if (baseResponse.confidenceScore! < 0.5) {
+        // محاولة فهم القصد من الكلمات الفردية إذا فشل البحث عن الجملة كاملة
+        const words = userMessage.split(/\s+/);
+        for (const word of words) {
+          if (word.length > 3) {
+            const relatedService = this.findRelatedService(word);
+            if (relatedService) {
+              const serviceResp = this.createServiceResponse(relatedService);
+              return {
+                ...serviceResp,
+                text: `لم أفهم الجملة كاملة، ولكن يبدو أنك تسأل عن "${relatedService.name}":\n\n${serviceResp.text}`,
+                confidenceScore: 0.6
+              };
+            }
+          }
+        }
       }
-    }
-    
-    // إضافة اقتراحات مرتبطة للردود الجيدة
-    if (baseResponse.confidenceScore! > 0.7 && baseResponse.relatedServices) {
-      if (baseResponse.relatedServices.length > 0) {
-        return {
-          ...baseResponse,
-          text: `${baseResponse.text}\n\n🔍 **هل تريد معرفة المزيد عن:**\n${baseResponse.relatedServices.slice(0, 2).map(s => `• ${s}`).join('\n')}`,
-          requiresFollowup: true
-        };
+
+      // إضافة طابع "ذكاء اصطناعي" وليس روبوت
+      if (baseResponse.confidenceScore! >= 0.8) {
+        const intros = [
+          "بالتأكيد، إليك التفاصيل حول ما طلبت: ",
+          "سؤال رائع! بخصوص ذلك، يمكنني إخبارك أن: ",
+          "يسعدني مساعدتك في هذا الأمر. إليك ما تحتاجه: ",
+          "بالطبع، هذا ما تبحث عنه: "
+        ];
+        const intro = intros[Math.floor(Math.random() * intros.length)];
+        
+        // لا تضف المقدمة إذا كان الرد أصلاً طويلاً جداً أو يبدأ بترحيب
+        if (!baseResponse.text.startsWith("مرحبا") && baseResponse.text.length < 500) {
+          return {
+            ...baseResponse,
+            text: `${intro}\n\n${baseResponse.text}`
+          };
+        }
       }
+      
+      return baseResponse;
     }
-    
-    return baseResponse;
-  }
   
   /**
    * الحصول على شخصية المساعد
