@@ -3,8 +3,15 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 const genAI = new GoogleGenerativeAI(process.env.GOOGLE_GEMINI_API_KEY || "");
 
 export async function generateAIResponse(message: string, context: any = {}) {
+  if (!process.env.GOOGLE_GEMINI_API_KEY) {
+    console.error("CRITICAL: GOOGLE_GEMINI_API_KEY is missing from environment variables");
+    return {
+      text: "🤖 مساعد الدعم الذكي: عذراً، لم يتم تكوين مفتاح الـ AI بشكل صحيح. يرجى التواصل مع المدير.",
+      confidence: 0
+    };
+  }
+
   try {
-    // Using a more stable model name or latest
     const model = genAI.getGenerativeModel({ 
       model: "gemini-1.5-flash",
       generationConfig: {

@@ -13,7 +13,7 @@ import {
   Clock,
   CheckCircle,
   XCircle,
-  Infinity,
+  Infinity as InfinityIcon,
   RefreshCw,
   Paperclip,
   Info,
@@ -34,10 +34,11 @@ import {
   Eye,
   Copy,
   Hash,
-  Mail,
-  MapPin,
-  ExternalLink
-} from "lucide-react";
+    Mail,
+    MapPin,
+    ExternalLink,
+    BookOpen
+  } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
@@ -340,7 +341,7 @@ export default function AdminChatPage() {
 
   const getSubscriptionStatus = (company: Company) => {
     if (!company.token_expiry) {
-      return { text: "دائم", color: "text-indigo-600 bg-indigo-100", icon: Infinity };
+      return { text: "دائم", color: "text-indigo-600 bg-indigo-100", icon: InfinityIcon };
     }
     const remaining = (new Date(company.token_expiry).getTime() - Date.now()) / (1000 * 60 * 60 * 24);
     if (remaining > 30) return { text: `${Math.floor(remaining)} يوم`, color: "text-emerald-600 bg-emerald-100", icon: CheckCircle };
