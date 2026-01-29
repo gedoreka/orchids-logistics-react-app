@@ -145,15 +145,19 @@ export async function POST(request: NextRequest) {
 export async function PATCH(request: NextRequest) {
   try {
     const body = await request.json();
-    const { company_id } = body;
+    const { company_id, role } = body;
 
     if (!company_id) {
       return NextResponse.json({ error: "بيانات غير مكتملة" }, { status: 400 });
     }
 
+    // If role is provided as 'client', mark admin messages as read
+    // Otherwise (default), mark client messages as read (for admin view)
+    const senderRoleToMarkAsRead = role === 'client' ? 'admin' : 'client';
+
     await execute(
-      "UPDATE chat_messages SET is_read = 1 WHERE company_id = ? AND sender_role = 'client'",
-      [company_id]
+      "UPDATE chat_messages SET is_read = 1 WHERE company_id = ? AND sender_role = ?",
+      [company_id, senderRoleToMarkAsRead]
     );
 
     return NextResponse.json({ success: true });

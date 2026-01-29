@@ -76,18 +76,18 @@ export function ChatClient({ initialMessages, companyId, senderRole, companyToke
   const fileInputRef = useRef<HTMLInputElement>(null);
     const lastMessageCountRef = useRef(messages.length);
   
-    const markAsRead = useCallback(async () => {
-      try {
-        await fetch("/api/admin/chat", {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ company_id: companyId })
-        });
-        setUnreadCount(0);
-      } catch (error) {
-        console.error("Error marking as read:", error);
-      }
-    }, [companyId]);
+      const markAsRead = useCallback(async () => {
+        try {
+          await fetch("/api/admin/chat", {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ company_id: companyId, role: senderRole })
+          });
+          setUnreadCount(0);
+        } catch (error) {
+          console.error("Error marking as read:", error);
+        }
+      }, [companyId, senderRole]);
   
     useEffect(() => {
       markAsRead();
@@ -679,55 +679,53 @@ export function ChatClient({ initialMessages, companyId, senderRole, companyToke
                 <div className="w-24 h-24 mx-auto mb-6 rounded-3xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-2xl transform rotate-12">
                   <Headset size={40} className="text-white -rotate-12" />
                 </div>
-                <h3 className="text-2xl font-black text-gray-800 mb-2">كيف يمكنني خدمتك الآن؟</h3>
-                <p className="text-gray-500 max-w-sm mx-auto mb-10 font-medium">أنا مساعدك الذكي في Logistics Pro، جاهز للإجابة على استفساراتك حول الشحن، المحاسبة، والموارد البشرية.</p>
+                <h3 className="text-3xl font-black text-gray-800 mb-2">أهلاً بك! كيف يمكنني خدمتك الآن؟</h3>
+                <p className="text-gray-500 max-w-sm mx-auto mb-10 font-bold text-lg">أنا مساعدك الذكي في Logistics Pro، خبيرك في الحلول اللوجستية والمالية.</p>
                 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-lg mx-auto">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-xl mx-auto">
                   <button 
                     onClick={() => {
-                      setInputValue("نسيت كلمة المرور");
-                      setShowWelcome(false);
+                      setInputValue("أحتاج للمساعدة في استعادة كلمة المرور الخاصة بي");
+                      // Trigger send manually via a helper if needed or just let user click send
                     }}
-                    className="flex items-center gap-3 p-4 bg-white hover:bg-indigo-50 border-2 border-gray-100 hover:border-indigo-200 rounded-2xl transition-all group text-right"
+                    className="flex items-center gap-4 p-5 bg-white hover:bg-indigo-50 border-2 border-gray-100 hover:border-indigo-300 rounded-3xl transition-all group text-right shadow-sm hover:shadow-md"
                   >
-                    <div className="w-10 h-10 rounded-xl bg-indigo-100 flex items-center justify-center group-hover:bg-indigo-500 transition-all">
-                      <Key size={18} className="text-indigo-600 group-hover:text-white" />
+                    <div className="w-12 h-12 rounded-2xl bg-indigo-100 flex items-center justify-center group-hover:bg-indigo-600 transition-all shrink-0">
+                      <Key size={22} className="text-indigo-600 group-hover:text-white" />
                     </div>
                     <div>
-                      <p className="font-bold text-gray-800 text-sm">نسيت كلمة المرور</p>
-                      <p className="text-[10px] text-gray-500">استعادة الوصول لحسابك</p>
+                      <p className="font-bold text-gray-800 text-base">نسيت كلمة المرور</p>
+                      <p className="text-xs text-gray-500 mt-0.5">خطوات سريعة لاستعادة حسابك</p>
                     </div>
                   </button>
 
                   <button 
                     onClick={() => {
-                      setInputValue("التعرف على الخدمات");
-                      setShowWelcome(false);
+                      setInputValue("أريد التعرف على الخدمات التي يقدمها النظام بالتفصيل");
                     }}
-                    className="flex items-center gap-3 p-4 bg-white hover:bg-purple-50 border-2 border-gray-100 hover:border-purple-200 rounded-2xl transition-all group text-right"
+                    className="flex items-center gap-4 p-5 bg-white hover:bg-purple-50 border-2 border-gray-100 hover:border-purple-300 rounded-3xl transition-all group text-right shadow-sm hover:shadow-md"
                   >
-                    <div className="w-10 h-10 rounded-xl bg-purple-100 flex items-center justify-center group-hover:bg-purple-500 transition-all">
-                      <Ticket size={18} className="text-purple-600 group-hover:text-white" />
+                    <div className="w-12 h-12 rounded-2xl bg-purple-100 flex items-center justify-center group-hover:bg-purple-600 transition-all shrink-0">
+                      <Ticket size={22} className="text-purple-600 group-hover:text-white" />
                     </div>
                     <div>
-                      <p className="font-bold text-gray-800 text-sm">التعرف على الخدمات</p>
-                      <p className="text-[10px] text-gray-500">ماذا نقدم لك في النظام</p>
+                      <p className="font-bold text-gray-800 text-base">التعرف على الخدمات</p>
+                      <p className="text-xs text-gray-500 mt-0.5">اكتشف كيف نطور أعمالك</p>
                     </div>
                   </button>
 
                   <button 
                     onClick={() => {
-                      setInputValue("التحدث مع مسؤول النظام");
-                      setShowWelcome(false);
+                      setInputValue("أريد التحدث مع مسؤول النظام أو الدعم البشري");
                     }}
-                    className="flex items-center gap-3 p-4 bg-white hover:bg-pink-50 border-2 border-gray-100 hover:border-pink-200 rounded-2xl transition-all group text-right sm:col-span-2"
+                    className="flex items-center gap-4 p-5 bg-white hover:bg-pink-50 border-2 border-gray-100 hover:border-pink-300 rounded-3xl transition-all group text-right shadow-sm hover:shadow-md sm:col-span-2"
                   >
-                    <div className="w-10 h-10 rounded-xl bg-pink-100 flex items-center justify-center group-hover:bg-pink-500 transition-all">
-                      <MessageCircle size={18} className="text-pink-600 group-hover:text-white" />
+                    <div className="w-12 h-12 rounded-2xl bg-pink-100 flex items-center justify-center group-hover:bg-pink-600 transition-all shrink-0">
+                      <MessageCircle size={22} className="text-pink-600 group-hover:text-white" />
                     </div>
-                    <div>
-                      <p className="font-bold text-gray-800 text-sm">التحدث مع مسؤول النظام</p>
-                      <p className="text-[10px] text-gray-500">تحويل المحادثة لدعم بشري متخصص</p>
+                    <div className="flex-1">
+                      <p className="font-bold text-gray-800 text-base">التحدث مع مسؤول النظام</p>
+                      <p className="text-xs text-gray-500 mt-0.5">تحويل مباشر لأحد خبرائنا لخدمتك بشكل مخصص</p>
                     </div>
                   </button>
                 </div>

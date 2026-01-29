@@ -63,33 +63,33 @@ export async function POST(request: NextRequest) {
     // Search Knowledge Base
     const kbResults = await searchKnowledgeBase(message, analysis.language);
     
-      let aiResult;
-      try {
-        aiResult = await generateAIResponse(message, {
-          knowledge_base: kbResults,
-          analysis: analysis,
-          conversation_history: []
-        });
+        let aiResult;
+        try {
+          aiResult = await generateAIResponse(message, {
+            knowledge_base: kbResults,
+            analysis: analysis,
+            conversation_history: []
+          });
 
-        // Check for low confidence or "I don't know" style responses
-        if (aiResult.confidence < 0.5) {
-          aiResult.text = "انتظرنا قليلاً سيتم الرد عليك بأسرع وقت عبر فريق الدعم الخاص بنا.";
+          // Only use the hard fallback if confidence is extremely low and we have no text
+          if (!aiResult.text || aiResult.text.length < 5) {
+            aiResult.text = "انتظرنا قليلاً سيتم الرد عليك بأسرع وقت عبر فريق الدعم الخاص بنا.";
+          }
+        } catch (aiError) {
+          console.error("AI Generation failed, using KB fallback:", aiError);
+          // Fallback: If AI fails, use the best KB result if available
+          if (kbResults.length > 0 && kbResults[0].confidence > 0.7) {
+            aiResult = {
+              text: kbResults[0].answer,
+              confidence: 0.8
+            };
+          } else {
+            aiResult = {
+              text: "أهلاً بك! لقد تلقيت رسالتك، وسيقوم فريق الدعم الفني بالرد عليك فوراً لضمان أفضل خدمة. شكراً لصبرك.",
+              confidence: 0.4
+            };
+          }
         }
-      } catch (aiError) {
-        console.error("AI Generation failed, using KB fallback:", aiError);
-        // Fallback: If AI fails, use the best KB result if available
-        if (kbResults.length > 0 && kbResults[0].confidence > 0.7) {
-          aiResult = {
-            text: kbResults[0].answer,
-            confidence: 0.8
-          };
-        } else {
-          aiResult = {
-            text: "انتظرنا قليلاً سيتم الرد عليك بأسرع وقت عبر فريق الدعم الخاص بنا.",
-            confidence: 0.4
-          };
-        }
-      }
 
     // If conversation was pending human but AI is very confident, we still allow the AI to respond
     // to keep the user engaged, unless they specifically asked for a human in this message.
