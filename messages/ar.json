@@ -604,67 +604,12 @@
       "delete": "حذف",
       "unknownUser": "غير معروف"
     },
-    "packageView": {
-      "expired": "منتهية",
-      "expiringSoon": "تنتهي قريباً"
-    },
-    "commissions": {
-      "title": "نظام العمولة الشهرية",
-      "subtitle": "إدارة وحساب عمولات الموظفين بشكل منظم واحترافي",
-      "filters": "فلترة البيانات",
-      "month": "الشهر",
-      "package": "الباقة",
-      "commissionType": "نوع العمولة",
-      "fixedAmount": "مبلغ ثابت",
-      "percentage": "نسبة مئوية %",
-      "viewData": "عرض البيانات",
-      "savedGroups": "المجموعات المحفوظة",
-      "savedGroupsDesc": "المجموعات المحفوظة لهذا الشهر",
-      "creationDate": "تاريخ الإنشاء",
-      "noSavedCommissions": "لا توجد أي عمولات محفوظة لهذا الشهر حتى الآن.",
-      "employeeDetails": "تفاصيل عمولات الموظفين",
-      "fixedSystem": "نظام المبلغ الثابت",
-      "percentageSystem": "نظام النسبة المئوية",
-      "employeeName": "الاسم",
-      "iqamaNumber": "رقم الهوية",
-      "nationality": "الجنسية",
-      "phone": "رقم الهاتف",
-      "userCode": "رقم المستخدم",
-      "startDate": "تاريخ بداية العمل",
-      "dailyAmount": "المبلغ اليومي",
-      "days": "عدد الأيام",
-      "total": "الإجمالي",
-      "commissionPercent": "نسبة العمولة %",
-      "deliveryTotal": "إجمالي التوصيل",
-      "revenue": "الإيرادات",
-      "due": "المستحق",
-      "commission": "العمولة",
-      "remaining": "المتبقي",
-      "deductions": "الخصومات",
-      "bonuses": "المكافآت",
-      "paymentStatus": "حالة الدفع",
-      "paid": "دُفع",
-      "unpaid": "لم يُدفع",
-      "saveData": "حفظ البيانات",
-      "report": {
-        "title": "تقرير العمولات الشهرية",
-        "subtitle": "عرض وتصدير تقارير العمولات الشهرية للموظفين",
-        "allTypes": "كل الأنواع",
-        "print": "طباعة",
-        "pdf": "PDF",
-        "excel": "Excel",
-        "noPackageData": "لا توجد بيانات عمولات لهذه الباقة.",
-        "noPackages": "لا توجد باقات متاحة."
-      },
-      "notifications": {
-        "saveSuccess": "تم حفظ بيانات العمولات بنجاح",
-        "deleteConfirm": "هل أنت متأكد من حذف هذه المجموعة؟",
-        "deleteSuccess": "تم حذف المجموعة بنجاح",
-        "error": "حدث خطأ أثناء المعالجة"
+      "packageView": {
+        "expired": "منتهية",
+        "expiringSoon": "تنتهي قريباً"
       }
-    }
-  },
-  "packages": {
+    },
+    "packages": {
     "title": "باقات الموظفين",
     "hrAffairs": "شؤون الموظفين",
     "packagesManagement": "إدارة الباقات",

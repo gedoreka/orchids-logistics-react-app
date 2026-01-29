@@ -604,67 +604,12 @@
       "delete": "Delete",
       "unknownUser": "Unknown"
     },
-    "packageView": {
-      "expired": "Expired",
-      "expiringSoon": "Expiring Soon"
-    },
-    "commissions": {
-      "title": "Monthly Commission System",
-      "subtitle": "Manage and calculate employee commissions in an organized and professional manner",
-      "filters": "Data Filtering",
-      "month": "Month",
-      "package": "Package",
-      "commissionType": "Commission Type",
-      "fixedAmount": "Fixed Amount",
-      "percentage": "Percentage %",
-      "viewData": "View Data",
-      "savedGroups": "Saved Groups",
-      "savedGroupsDesc": "Saved groups for this month",
-      "creationDate": "Creation Date",
-      "noSavedCommissions": "No commissions saved for this month yet.",
-      "employeeDetails": "Employee Commission Details",
-      "fixedSystem": "Fixed Amount System",
-      "percentageSystem": "Percentage System",
-      "employeeName": "Name",
-      "iqamaNumber": "ID Number",
-      "nationality": "Nationality",
-      "phone": "Phone Number",
-      "userCode": "User Code",
-      "startDate": "Work Start Date",
-      "dailyAmount": "Daily Amount",
-      "days": "Number of Days",
-      "total": "Total",
-      "commissionPercent": "Commission Percentage %",
-      "deliveryTotal": "Total Deliveries",
-      "revenue": "Revenue",
-      "due": "Due",
-      "commission": "Commission",
-      "remaining": "Remaining",
-      "deductions": "Deductions",
-      "bonuses": "Bonuses",
-      "paymentStatus": "Payment Status",
-      "paid": "Paid",
-      "unpaid": "Unpaid",
-      "saveData": "Save Data",
-      "report": {
-        "title": "Monthly Commissions Report",
-        "subtitle": "View and export monthly commission reports for employees",
-        "allTypes": "All Types",
-        "print": "Print",
-        "pdf": "PDF",
-        "excel": "Excel",
-        "noPackageData": "No commission data for this package.",
-        "noPackages": "No packages available."
-      },
-      "notifications": {
-        "saveSuccess": "Commission data saved successfully",
-        "deleteConfirm": "Are you sure you want to delete this group?",
-        "deleteSuccess": "Group deleted successfully",
-        "error": "An error occurred during processing"
+      "packageView": {
+        "expired": "Expired",
+        "expiringSoon": "Expiring Soon"
       }
-    }
-  },
-  "packages": {
+    },
+    "packages": {
     "title": "Employee Packages",
     "hrAffairs": "Employee Affairs",
     "packagesManagement": "Packages Management",

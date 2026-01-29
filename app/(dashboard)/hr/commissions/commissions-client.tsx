@@ -9,25 +9,26 @@ import {
   Printer, 
   Trash2, 
   Save, 
-  RefreshCw, 
-  Eye, 
-  TrendingUp, 
-  Activity, 
-  Calendar, 
-  Percent, 
-  UserCheck, 
-  UserMinus, 
-  Briefcase,
-  Loader2,
-  CheckSquare,
-  Square,
-  X,
-  Mail,
-  Clock,
-  Info,
-  ChevronRight,
-  Sparkles
-} from "lucide-react";
+    RefreshCw, 
+    Eye, 
+    TrendingUp, 
+    Activity, 
+    Calendar, 
+    Percent, 
+    UserCheck, 
+    UserMinus, 
+    Briefcase,
+    Loader2,
+    CheckSquare,
+    Square,
+    X,
+    Mail,
+    Clock,
+    Info,
+    ChevronRight,
+    Sparkles,
+    Plus
+  } from "lucide-react";
 import { format } from "date-fns";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
@@ -302,7 +303,7 @@ export function CommissionsClient({ packages: initialPackages, companyId }: { pa
   };
 
   return (
-    <div className="min-h-screen bg-[#0f172a] bg-gradient-to-br from-slate-950 via-slate-900 to-blue-950 p-4 md:p-8">
+    <div className="min-h-screen bg-slate-950 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-slate-900 via-slate-950 to-black p-4 md:p-8" dir={isRtl ? "rtl" : "ltr"}>
       <div className="max-w-[1600px] mx-auto">
         <motion.div 
           initial={{ opacity: 0, y: -20 }}
@@ -310,7 +311,7 @@ export function CommissionsClient({ packages: initialPackages, companyId }: { pa
           className="space-y-8"
         >
           {/* Main Container Plate */}
-          <div className="bg-white/10 backdrop-blur-md rounded-[3rem] p-8 border border-white/10 shadow-2xl">
+          <div className="bg-slate-900/40 backdrop-blur-xl rounded-[3rem] p-8 border border-white/5 shadow-2xl">
             <div className="flex flex-col gap-8">
               {/* Header */}
               <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
