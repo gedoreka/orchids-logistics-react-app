@@ -13,7 +13,7 @@ export async function generateAIResponse(message: string, context: any = {}) {
 
   try {
     const model = genAI.getGenerativeModel({ 
-      model: "gemini-flash-latest",
+      model: "gemini-1.5-flash",
       generationConfig: {
         maxOutputTokens: 1000,
         temperature: 0.7,
@@ -52,7 +52,7 @@ ${JSON.stringify(context.conversation_history || [], null, 2)}
       result = await model.generateContent([systemPrompt, message]);
     } catch (genError: any) {
       console.error("Primary model failed, trying fallback...", genError.message);
-      const fallbackModel = genAI.getGenerativeModel({ model: "gemini-pro-latest" });
+      const fallbackModel = genAI.getGenerativeModel({ model: "gemini-1.5-pro" });
       result = await fallbackModel.generateContent([systemPrompt, message]);
     }
 
@@ -80,7 +80,7 @@ ${JSON.stringify(context.conversation_history || [], null, 2)}
 
 export async function analyzeMessage(message: string) {
   try {
-    const model = genAI.getGenerativeModel({ model: "gemini-flash-latest" });
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
     const prompt = `
 حلل رسالة العميل التالية وأجب بتنسيق JSON فقط:
 {
@@ -98,7 +98,7 @@ export async function analyzeMessage(message: string) {
       result = await model.generateContent(prompt);
     } catch (genError: any) {
       console.error("Analysis Primary model failed, trying fallback...", genError.message);
-      const fallbackModel = genAI.getGenerativeModel({ model: "gemini-pro-latest" });
+      const fallbackModel = genAI.getGenerativeModel({ model: "gemini-1.5-pro" });
       result = await fallbackModel.generateContent(prompt);
     }
     
