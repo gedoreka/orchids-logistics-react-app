@@ -116,8 +116,8 @@ export function EmployeeDetailsClient({
 
   const filteredEmployees = useMemo(() => {
     return allEmployees.filter(emp => 
-      (emp.name || "").toLowerCase().includes(searchTerm.toLowerCase()) || 
-      (emp.iqama_number || "").includes(searchTerm)
+      emp.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
+      emp.iqama_number?.includes(searchTerm)
     );
   }, [allEmployees, searchTerm]);
 
