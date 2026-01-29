@@ -54,9 +54,11 @@ export function ChatClient({ initialMessages, companyId, senderRole, companyToke
   const [recordingTime, setRecordingTime] = useState(0);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
-  const [showEmojis, setShowEmojis] = useState(false);
-  const [unreadCount, setUnreadCount] = useState(0);
-  const [showNewMessageAlert, setShowNewMessageAlert] = useState(false);
+    const [showEmojis, setShowEmojis] = useState(false);
+    const [unreadCount, setUnreadCount] = useState(0);
+    const [showWelcome, setShowWelcome] = useState(initialMessages.length === 0);
+    const [showNewMessageAlert, setShowNewMessageAlert] = useState(false);
+
   const [newMessagePreview, setNewMessagePreview] = useState("");
   const [showTokenCard, setShowTokenCard] = useState(false);
   const [currentTicketId, setCurrentTicketId] = useState<string | null>(null);
@@ -72,7 +74,25 @@ export function ChatClient({ initialMessages, companyId, senderRole, companyToke
   const audioChunksRef = useRef<Blob[]>([]);
   const recordingIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const lastMessageCountRef = useRef(messages.length);
+    const lastMessageCountRef = useRef(messages.length);
+  
+    const markAsRead = useCallback(async () => {
+      try {
+        await fetch("/api/admin/chat", {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ company_id: companyId })
+        });
+        setUnreadCount(0);
+      } catch (error) {
+        console.error("Error marking as read:", error);
+      }
+    }, [companyId]);
+  
+    useEffect(() => {
+      markAsRead();
+    }, [markAsRead]);
+
 
   const scrollToBottom = useCallback(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -650,15 +670,70 @@ export function ChatClient({ initialMessages, companyId, senderRole, companyToke
             </div>
           ))}
           
-          {messages.length === 0 && (
-            <div className="text-center py-20">
-              <div className="w-24 h-24 mx-auto mb-6 rounded-full bg-gradient-to-br from-indigo-100 to-purple-100 flex items-center justify-center">
-                <MessageCircle size={40} className="text-indigo-500" />
-              </div>
-              <h3 className="text-xl font-bold text-gray-700 mb-2">مرحباً بك في الدعم الفني</h3>
-              <p className="text-gray-500 max-w-sm mx-auto">أرسل رسالتك وسيقوم فريق الدعم بالرد عليك في أقرب وقت ممكن</p>
-            </div>
-          )}
+            {messages.length === 0 && (
+              <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="text-center py-10"
+              >
+                <div className="w-24 h-24 mx-auto mb-6 rounded-3xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-2xl transform rotate-12">
+                  <Headset size={40} className="text-white -rotate-12" />
+                </div>
+                <h3 className="text-2xl font-black text-gray-800 mb-2">كيف يمكنني خدمتك الآن؟</h3>
+                <p className="text-gray-500 max-w-sm mx-auto mb-10 font-medium">أنا مساعدك الذكي في Logistics Pro، جاهز للإجابة على استفساراتك حول الشحن، المحاسبة، والموارد البشرية.</p>
+                
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-lg mx-auto">
+                  <button 
+                    onClick={() => {
+                      setInputValue("نسيت كلمة المرور");
+                      setShowWelcome(false);
+                    }}
+                    className="flex items-center gap-3 p-4 bg-white hover:bg-indigo-50 border-2 border-gray-100 hover:border-indigo-200 rounded-2xl transition-all group text-right"
+                  >
+                    <div className="w-10 h-10 rounded-xl bg-indigo-100 flex items-center justify-center group-hover:bg-indigo-500 transition-all">
+                      <Key size={18} className="text-indigo-600 group-hover:text-white" />
+                    </div>
+                    <div>
+                      <p className="font-bold text-gray-800 text-sm">نسيت كلمة المرور</p>
+                      <p className="text-[10px] text-gray-500">استعادة الوصول لحسابك</p>
+                    </div>
+                  </button>
+
+                  <button 
+                    onClick={() => {
+                      setInputValue("التعرف على الخدمات");
+                      setShowWelcome(false);
+                    }}
+                    className="flex items-center gap-3 p-4 bg-white hover:bg-purple-50 border-2 border-gray-100 hover:border-purple-200 rounded-2xl transition-all group text-right"
+                  >
+                    <div className="w-10 h-10 rounded-xl bg-purple-100 flex items-center justify-center group-hover:bg-purple-500 transition-all">
+                      <Ticket size={18} className="text-purple-600 group-hover:text-white" />
+                    </div>
+                    <div>
+                      <p className="font-bold text-gray-800 text-sm">التعرف على الخدمات</p>
+                      <p className="text-[10px] text-gray-500">ماذا نقدم لك في النظام</p>
+                    </div>
+                  </button>
+
+                  <button 
+                    onClick={() => {
+                      setInputValue("التحدث مع مسؤول النظام");
+                      setShowWelcome(false);
+                    }}
+                    className="flex items-center gap-3 p-4 bg-white hover:bg-pink-50 border-2 border-gray-100 hover:border-pink-200 rounded-2xl transition-all group text-right sm:col-span-2"
+                  >
+                    <div className="w-10 h-10 rounded-xl bg-pink-100 flex items-center justify-center group-hover:bg-pink-500 transition-all">
+                      <MessageCircle size={18} className="text-pink-600 group-hover:text-white" />
+                    </div>
+                    <div>
+                      <p className="font-bold text-gray-800 text-sm">التحدث مع مسؤول النظام</p>
+                      <p className="text-[10px] text-gray-500">تحويل المحادثة لدعم بشري متخصص</p>
+                    </div>
+                  </button>
+                </div>
+              </motion.div>
+            )}
+
         </div>
         <div ref={messagesEndRef} />
       </div>
