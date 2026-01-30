@@ -19,9 +19,20 @@ export async function searchEmployee(searchTerm: string) {
 export async function searchInvoice(invoiceNumber: string) {
   try {
     const results = await query<any>(
-      `SELECT * FROM sales_invoices WHERE invoice_number = ?`,
-      [invoiceNumber]
+      `SELECT * FROM sales_invoices WHERE invoice_number = ? OR id = ?`,
+      [invoiceNumber, invoiceNumber]
     );
+    
+    if (results.length > 0) {
+      const invoice = results[0];
+      // Fetch items for this invoice
+      const items = await query<any>(
+        `SELECT * FROM invoice_items WHERE invoice_id = ?`,
+        [invoice.id]
+      );
+      invoice.items = items;
+    }
+    
     return results;
   } catch (error) {
     console.error('Search Invoice Error:', error);
@@ -46,8 +57,8 @@ export async function searchVehicle(searchTerm: string) {
 export async function searchCreditNote(noteNumber: string) {
   try {
     const results = await query<any>(
-      `SELECT * FROM credit_notes WHERE credit_note_number = ?`,
-      [noteNumber]
+      `SELECT * FROM credit_notes WHERE credit_note_number = ? OR id = ?`,
+      [noteNumber, noteNumber]
     );
     return results;
   } catch (error) {
@@ -60,12 +71,12 @@ export async function searchVoucher(voucherNumber: string) {
   try {
     // Search in both receipt_vouchers and promissory_notes
     const receipts = await query<any>(
-      `SELECT *, 'receipt' as type FROM receipt_vouchers WHERE receipt_number = ?`,
-      [voucherNumber]
+      `SELECT *, 'receipt' as type FROM receipt_vouchers WHERE receipt_number = ? OR id = ?`,
+      [voucherNumber, voucherNumber]
     );
     const promissory = await query<any>(
-      `SELECT *, 'promissory' as type FROM promissory_notes WHERE note_number = ?`,
-      [voucherNumber]
+      `SELECT *, 'promissory' as type FROM promissory_notes WHERE note_number = ? OR id = ?`,
+      [voucherNumber, voucherNumber]
     );
     return [...receipts, ...promissory];
   } catch (error) {

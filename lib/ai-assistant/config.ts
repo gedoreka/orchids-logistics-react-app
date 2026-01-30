@@ -295,19 +295,46 @@ export class AIAssistantService {
       }
     }
 
-    // استخراج أرقام الفواتير (مثال: INV-2024-001)
-    const invMatch = message.match(/INV-\d{4}-\d+/i) || message.match(/\b\d{5,}\b/);
+    // استخراج أرقام الفواتير (مثال: INV3 أو INV-2024-001)
+    const invMatch = message.match(/INV-?\d+/i) || message.match(/\b\d{5,}\b/);
     if (invMatch) {
       const results = await searchInvoice(invMatch[0]);
       if (results && results.length > 0) {
         const inv = results[0];
+        let itemsText = "";
+        if (inv.items && inv.items.length > 0) {
+          itemsText = "\n\n**تفاصيل الخدمات:**\n" + inv.items.map((item: any, index: number) => 
+            `${index + 1}. ${item.product_name || item.product_desc || 'خدمة'} - ${item.quantity} × ${item.unit_price} ريال = ${item.total_with_vat} ريال`
+          ).join('\n');
+        }
+
         return `📄 **بيانات الفاتورة الضريبية:**
 • رقم الفاتورة: ${inv.invoice_number}
 • العميل: ${inv.client_name}
+• السجل الضريبي: ${inv.client_vat || 'غير متوفر'}
 • التاريخ: ${new Date(inv.issue_date).toLocaleDateString('ar-SA')}
-• المبلغ الإجمالي: ${inv.total_amount} ريال
-• الحالة: ${inv.status === 'paid' ? 'مدفوعة ✅' : 'مستحقة ⏳'}`;
+• المبلغ الإجمالي: **${inv.total_amount} ريال** 💰
+• الحالة: ${inv.status === 'paid' ? 'مدفوعة ✅' : 'مستحقة ⏳'}${itemsText}
+
+💡 يمكنك عرض الفاتورة بالكامل من قسم الماليات → الفواتير الضريبية.`;
       }
+    }
+
+    // استخراج أرقام السندات
+    const voucherMatch = message.match(/CRN\d+/i) || message.match(/REC\d+/i);
+    if (voucherMatch) {
+        if (voucherMatch[0].startsWith('CRN')) {
+            const results = await searchCreditNote(voucherMatch[0]);
+            if (results && results.length > 0) {
+                const note = results[0];
+                return `🧾 **بيانات إشعار الدائن:**
+• رقم الإشعار: ${note.credit_note_number}
+• رقم الفاتورة المرتبطة: ${note.invoice_number}
+• العميل: ${note.client_name}
+• السبب: ${note.reason}
+• المبلغ الإجمالي: **${note.total_amount} ريال** 💰`;
+            }
+        }
     }
 
     return null;
@@ -347,6 +374,7 @@ export class AIAssistantService {
       4. قدم النتائج بتنسيق جميل ومنظم باستخدام النقاط والرموز التعبيرية.
       5. أجب على كافة الأسئلة العامة والعالمية بذكاء ومباشرة.
       6. تحدث دائماً باللغة العربية بأسلوب احترافي وودود.
+      7. إذا طلب المستخدم البحث عن "INV3" مثلاً، قم باستدعاء searchInvoice بالقيمة "INV3".
       
       ${localMatch ? `سياق محلي: ${localMatch.text}` : ""}`;
 
