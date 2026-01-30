@@ -8,11 +8,20 @@ export async function createAccount(data: {
   account_name: string;
   type: string;
   company_id: number;
+  parent_id?: number | null;
+  account_type?: "main" | "sub";
 }) {
   try {
     await query(
-      "INSERT INTO accounts (account_code, account_name, type, company_id) VALUES (?, ?, ?, ?)",
-      [data.account_code, data.account_name, data.type, data.company_id]
+      "INSERT INTO accounts (account_code, account_name, type, company_id, parent_id, account_type) VALUES (?, ?, ?, ?, ?, ?)",
+      [
+        data.account_code, 
+        data.account_name, 
+        data.type, 
+        data.company_id, 
+        data.parent_id || null, 
+        data.account_type || "sub"
+      ]
     );
     revalidatePath("/accounts");
     return { success: true };
@@ -25,11 +34,20 @@ export async function updateAccount(id: number, data: {
   account_code: string;
   account_name: string;
   type: string;
+  parent_id?: number | null;
+  account_type?: "main" | "sub";
 }) {
   try {
     await query(
-      "UPDATE accounts SET account_code = ?, account_name = ?, type = ? WHERE id = ?",
-      [data.account_code, data.account_name, data.type, id]
+      "UPDATE accounts SET account_code = ?, account_name = ?, type = ?, parent_id = ?, account_type = ? WHERE id = ?",
+      [
+        data.account_code, 
+        data.account_name, 
+        data.type, 
+        data.parent_id || null, 
+        data.account_type || "sub", 
+        id
+      ]
     );
     revalidatePath("/accounts");
     return { success: true };
@@ -40,6 +58,15 @@ export async function updateAccount(id: number, data: {
 
 export async function deleteAccount(id: number) {
   try {
+    // Check for sub-accounts first
+    const children = await query<{ count: string }>(
+      "SELECT COUNT(*) as count FROM accounts WHERE parent_id = ?",
+      [id]
+    );
+    if (Number(children[0].count) > 0) {
+      return { success: false, error: "لا يمكن حذف هذا الحساب لأنه يحتوي على حسابات فرعية." };
+    }
+
     // Check for expenses first
     const expenses = await query<{ count: string }>(
       "SELECT COUNT(*) as count FROM monthly_expenses WHERE account_id = ?",

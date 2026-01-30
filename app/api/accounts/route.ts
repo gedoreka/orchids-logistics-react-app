@@ -11,10 +11,10 @@ export async function GET(request: NextRequest) {
     }
 
     const accounts = await query(
-      `SELECT id, account_code, account_name, type, company_id, created_at 
+      `SELECT id, account_code, account_name, type, company_id, parent_id, account_type, created_at 
        FROM accounts 
        WHERE company_id = ? 
-       ORDER BY created_at DESC`,
+       ORDER BY account_code ASC`,
       [companyId]
     );
 
@@ -28,7 +28,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { account_code, account_name, type, company_id } = body;
+    const { account_code, account_name, type, company_id, parent_id, account_type } = body;
 
     if (!account_code || !account_name || !type || !company_id) {
       return NextResponse.json({ error: "All fields are required" }, { status: 400 });
@@ -43,12 +43,16 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "رمز الحساب موجود مسبقاً" }, { status: 400 });
     }
 
-    await query(
-      "INSERT INTO accounts (account_code, account_name, type, company_id) VALUES (?, ?, ?, ?)",
-      [account_code, account_name, type, company_id]
+    const result = await query(
+      "INSERT INTO accounts (account_code, account_name, type, company_id, parent_id, account_type) VALUES (?, ?, ?, ?, ?, ?)",
+      [account_code, account_name, type, company_id, parent_id || null, account_type || 'sub']
     );
 
-    return NextResponse.json({ success: true, message: "تم إضافة الحساب بنجاح" });
+    return NextResponse.json({ 
+      success: true, 
+      message: "تم إضافة الحساب بنجاح",
+      id: result.insertId 
+    });
   } catch (error) {
     console.error("Error creating account:", error);
     return NextResponse.json({ error: "Failed to create account" }, { status: 500 });

@@ -9,7 +9,7 @@ export async function GET(
     const { id } = await params;
 
     const accounts = await query(
-      "SELECT id, account_code, account_name, type, company_id, created_at FROM accounts WHERE id = ?",
+      "SELECT id, account_code, account_name, type, company_id, parent_id, account_type, created_at FROM accounts WHERE id = ?",
       [id]
     );
 
@@ -31,7 +31,7 @@ export async function PUT(
   try {
     const { id } = await params;
     const body = await request.json();
-    const { account_code, account_name, type, company_id } = body;
+    const { account_code, account_name, type, company_id, parent_id, account_type } = body;
 
     if (!account_code || !account_name || !type) {
       return NextResponse.json({ error: "All fields are required" }, { status: 400 });
@@ -47,8 +47,8 @@ export async function PUT(
     }
 
     await query(
-      "UPDATE accounts SET account_code = ?, account_name = ?, type = ? WHERE id = ?",
-      [account_code, account_name, type, id]
+      "UPDATE accounts SET account_code = ?, account_name = ?, type = ?, parent_id = ?, account_type = ? WHERE id = ?",
+      [account_code, account_name, type, parent_id || null, account_type || 'sub', id]
     );
 
     return NextResponse.json({ success: true, message: "تم تعديل الحساب بنجاح" });
@@ -64,6 +64,14 @@ export async function DELETE(
 ) {
   try {
     const { id } = await params;
+
+    // Check if it has children
+    const children = await query("SELECT COUNT(*) as count FROM accounts WHERE parent_id = ?", [id]);
+    if (Number(children[0]?.count || 0) > 0) {
+      return NextResponse.json({ 
+        error: "لا يمكن حذف هذا الحساب لأنه يحتوي على حسابات فرعية" 
+      }, { status: 400 });
+    }
 
     const linkedExpenses = await query(
       "SELECT COUNT(*) as count FROM monthly_expenses WHERE account_id = ?",

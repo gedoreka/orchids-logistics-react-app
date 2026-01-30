@@ -126,6 +126,8 @@ export interface Account {
   account_name: string;
   type: string;
   company_id: number;
+  parent_id?: number | null;
+  account_type?: 'main' | 'sub';
   created_at: string;
 }
 
