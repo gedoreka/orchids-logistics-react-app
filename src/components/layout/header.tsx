@@ -337,61 +337,81 @@ export function Header({ user, onToggleSidebar, unreadChatCount = 0, subscriptio
   const pathname = usePathname();
   const router = useRouter();
 
-  useEffect(() => {
-    const fetchAdminNotifications = async () => {
-      try {
-        const response = await fetch("/api/admin/notifications?limit=5");
-        const data = await response.json();
-        if (data.success) {
-          setAdminNotifications(data.notifications);
-          
-          const lastSeenId = parseInt(localStorage.getItem("last_admin_notification_id") || "0");
-          const unread = data.notifications.filter((n: any) => n.id > lastSeenId).length;
-          setUnreadAdminCount(unread);
-        }
-      } catch (error) {
-        console.error("Error fetching header notifications:", error);
-      }
-    };
-
-    const fetchEmailData = async () => {
-      if (!user?.company_id || fetchingUnread) return;
-      setFetchingUnread(true);
-      try {
-        const res = await fetch(`/api/email/accounts?company_id=${user.company_id}`);
-        const data = await res.json();
-        
-        if (data.accounts) {
-          setEmailAccounts(data.accounts);
-          if (data.accounts.length > 0 && !selectedEmailAccount) {
-            setSelectedEmailAccount(data.accounts[0]);
-          }
-
-          const unreadResults = [];
-          for (const account of data.accounts) {
-            try {
-              const res = await fetch(`/api/email/fetch?accountId=${account.id}&company_id=${user.company_id}&action=unread`);
-              if (res.ok) {
-                const data = await res.json();
-                unreadResults.push(data.unreadCount || 0);
-              } else {
-                unreadResults.push(0);
-              }
-            } catch (e) {
-              console.error(`Error fetching unread for ${account.email}:`, e);
-              unreadResults.push(0);
+      useEffect(() => {
+        const fetchAdminNotifications = async () => {
+          try {
+            const response = await fetch("/api/admin/notifications?limit=5");
+            if (!response.ok) {
+              return;
             }
+            const contentType = response.headers.get("content-type");
+            if (!contentType || !contentType.includes("application/json")) {
+              return;
+            }
+            const data = await response.json();
+            if (data.success) {
+              setAdminNotifications(data.notifications);
+              
+              const lastSeenId = parseInt(localStorage.getItem("last_admin_notification_id") || "0");
+              const unread = data.notifications.filter((n: any) => n.id > lastSeenId).length;
+              setUnreadAdminCount(unread);
+            }
+          } catch (error: any) {
+            // Silently fail
           }
-          
-          const totalUnread = unreadResults.reduce((sum, count) => sum + count, 0);
-          setUnreadEmailCount(totalUnread);
-        }
-      } catch (error) {
-        console.error("Error fetching email data:", error);
-      } finally {
-        setFetchingUnread(false);
-      }
-    };
+        };
+  
+        const fetchEmailData = async () => {
+          if (!user?.company_id || fetchingUnread) return;
+          setFetchingUnread(true);
+          try {
+            const res = await fetch(`/api/email/accounts?company_id=${user.company_id}`);
+            if (!res.ok) {
+              setFetchingUnread(false);
+              return;
+            }
+            const contentType = res.headers.get("content-type");
+            if (!contentType || !contentType.includes("application/json")) {
+              setFetchingUnread(false);
+              return;
+            }
+            const data = await res.json();
+            
+            if (data.accounts) {
+              setEmailAccounts(data.accounts);
+              if (data.accounts.length > 0 && !selectedEmailAccount) {
+                setSelectedEmailAccount(data.accounts[0]);
+              }
+  
+              const unreadResults = [];
+              for (const account of data.accounts) {
+                try {
+                  const res = await fetch(`/api/email/fetch?accountId=${account.id}&company_id=${user.company_id}&action=unread`);
+                  if (res.ok) {
+                    const contentType = res.headers.get("content-type");
+                    if (contentType && contentType.includes("application/json")) {
+                      const data = await res.json();
+                      unreadResults.push(data.unreadCount || 0);
+                    } else {
+                      unreadResults.push(0);
+                    }
+                  } else {
+                    unreadResults.push(0);
+                  }
+                } catch (e) {
+                  unreadResults.push(0);
+                }
+              }
+              
+              const totalUnread = unreadResults.reduce((sum, count) => sum + count, 0);
+              setUnreadEmailCount(totalUnread);
+            }
+          } catch (error) {
+            // Silently fail
+          } finally {
+            setFetchingUnread(false);
+          }
+        };
 
     fetchAdminNotifications();
     fetchEmailData();

@@ -1122,72 +1122,76 @@ function GlassField({ label, value, onChange, editable, type = "text", icon }: a
   );
 }
 
-function GlassDocCard({ label, path }: any) {
-  const imageUrl = getPublicUrl(path);
-
-  const handleDownload = async (e: React.MouseEvent) => {
-    e.stopPropagation();
-    if (!imageUrl) return;
-    
-    try {
-      const response = await fetch(imageUrl);
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
+  function GlassDocCard({ label, path }: any) {
+    const imageUrl = getPublicUrl(path);
+  
+    const handleDownload = async (e: React.MouseEvent) => {
+      e.stopPropagation();
+      if (!imageUrl) return;
       
-      // Extract extension from path or default to jpg
-      const extension = path?.split('.').pop() || 'jpg';
-      link.download = `${label}.${extension}`;
-      
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      window.URL.revokeObjectURL(url);
-      toast.success("تم بدء التحميل");
-    } catch (error) {
-      console.error('Download error:', error);
-      toast.error("فشل تحميل الملف");
-    }
-  };
-
-  return (
-    <motion.div 
-      whileHover={{ scale: 1.02 }}
-      className="group"
-    >
-      <div className="relative overflow-hidden rounded-2xl border border-slate-200 dark:border-white/10 bg-white/60 dark:bg-white/5 backdrop-blur-xl aspect-video cursor-pointer hover:border-indigo-500/30 transition-all shadow-sm hover:shadow-lg">
-        {imageUrl ? (
-          <>
-            <img src={imageUrl} alt={label} className="h-full w-full object-cover group-hover:scale-110 transition-transform duration-500" />
-            <div className="absolute inset-0 bg-gradient-to-t from-indigo-900/90 via-indigo-900/50 to-transparent opacity-0 group-hover:opacity-100 transition-all flex items-center justify-center gap-4">
-              <div 
-                onClick={() => window.open(imageUrl, '_blank')}
-                className="p-3 bg-white/20 hover:bg-white/30 rounded-full backdrop-blur-md transition-all border border-white/30 group/btn"
-                title="عرض المستند"
-              >
-                <Eye size={24} className="text-white group-hover/btn:scale-110 transition-transform" />
+      try {
+        const response = await fetch(imageUrl);
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        
+        const extension = path?.split('.').pop() || 'jpg';
+        link.download = `${label}.${extension}`;
+        
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(url);
+        toast.success("تم بدء التحميل");
+      } catch (error) {
+        console.error('Download error:', error);
+        toast.error("فشل تحميل الملف");
+      }
+    };
+  
+    return (
+      <motion.div 
+        whileHover={{ scale: 1.02 }}
+        className="group"
+      >
+        <div 
+          onClick={() => imageUrl && window.open(imageUrl, '_blank')}
+          className="relative overflow-hidden rounded-2xl border border-slate-200 dark:border-white/10 bg-white/60 dark:bg-white/5 backdrop-blur-xl aspect-video cursor-pointer hover:border-indigo-500/30 transition-all shadow-sm hover:shadow-lg"
+        >
+          {imageUrl ? (
+            <>
+              <img src={imageUrl} alt={label} className="h-full w-full object-cover group-hover:scale-110 transition-transform duration-500" />
+              <div className="absolute inset-0 bg-gradient-to-t from-indigo-900/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-all flex items-center justify-center">
+                <div className="p-3 bg-white/20 hover:bg-white/30 rounded-full backdrop-blur-md transition-all border border-white/30">
+                  <Eye size={24} className="text-white" />
+                </div>
               </div>
-              <div 
-                onClick={handleDownload}
-                className="p-3 bg-white/20 hover:bg-white/30 rounded-full backdrop-blur-md transition-all border border-white/30 group/btn"
-                title="تحميل المستند"
-              >
-                <Download size={24} className="text-white group-hover/btn:scale-110 transition-transform" />
-              </div>
+            </>
+          ) : (
+            <div className="h-full w-full flex flex-col items-center justify-center text-slate-400 dark:text-white/30">
+              <FileText size={28} className="opacity-30" />
+              <span className="text-[11px] font-bold mt-2">لم يُرفع بعد</span>
             </div>
-          </>
-        ) : (
-          <div className="h-full w-full flex flex-col items-center justify-center text-slate-400 dark:text-white/30">
-            <FileText size={28} className="opacity-30" />
-            <span className="text-[11px] font-bold mt-2">لم يُرفع بعد</span>
-          </div>
-        )}
-      </div>
-      <p className="text-xs font-black text-slate-600 dark:text-white/70 mt-2 text-center">{label}</p>
-    </motion.div>
-  );
-}
+          )}
+        </div>
+        <div className="mt-3 flex flex-col gap-2">
+          <p className="text-xs font-black text-slate-600 dark:text-white/70 text-center">{label}</p>
+          {imageUrl && (
+            <motion.button
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={handleDownload}
+              className="w-full bg-blue-500/10 hover:bg-blue-500/20 text-blue-600 dark:text-blue-400 py-2.5 rounded-xl text-[10px] font-black flex items-center justify-center gap-2 border border-blue-500/20 transition-all"
+            >
+              <Download size={14} />
+              تحميل المستند
+            </motion.button>
+          )}
+        </div>
+      </motion.div>
+    );
+  }
 
 function GlassStatBox({ label, value, color, unit = "" }: any) {
   const colors: any = {

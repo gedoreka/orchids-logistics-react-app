@@ -324,77 +324,91 @@ export function Header({ user, onToggleSidebar, unreadChatCount = 0, subscriptio
   const pathname = usePathname();
   const router = useRouter();
 
-    useEffect(() => {
-      const fetchAdminNotifications = async () => {
-        try {
-          const response = await fetch("/api/admin/notifications?limit=5");
-          const data = await response.json();
-          if (data.success) {
-            setAdminNotifications(data.notifications);
-            
-            const lastSeenId = parseInt(localStorage.getItem("last_admin_notification_id") || "0");
-            const unread = data.notifications.filter((n: any) => n.id > lastSeenId).length;
-            setUnreadAdminCount(unread);
-          }
-        } catch (error: any) {
-          if (error.name !== 'TypeError') {
-            console.error("Error fetching header notifications:", error);
-          }
-        }
-      };
-
-      const fetchEmailData = async () => {
-        if (!user?.company_id || fetchingUnread) return;
-        setFetchingUnread(true);
-        try {
-          const res = await fetch(`/api/email/accounts?company_id=${user.company_id}`);
-          const data = await res.json();
-          
-          if (data.accounts) {
-            setEmailAccounts(data.accounts);
-            if (data.accounts.length > 0 && !selectedEmailAccount) {
-              setSelectedEmailAccount(data.accounts[0]);
+      useEffect(() => {
+        const fetchAdminNotifications = async () => {
+          try {
+            const response = await fetch("/api/admin/notifications?limit=5");
+            if (!response.ok) {
+              return;
             }
-
-              // Fetch unread counts more reliably
+            const contentType = response.headers.get("content-type");
+            if (!contentType || !contentType.includes("application/json")) {
+              return;
+            }
+            const data = await response.json();
+            if (data.success) {
+              setAdminNotifications(data.notifications);
+              
+              const lastSeenId = parseInt(localStorage.getItem("last_admin_notification_id") || "0");
+              const unread = data.notifications.filter((n: any) => n.id > lastSeenId).length;
+              setUnreadAdminCount(unread);
+            }
+          } catch (error: any) {
+            // Silently fail
+          }
+        };
+  
+        const fetchEmailData = async () => {
+          if (!user?.company_id || fetchingUnread) return;
+          setFetchingUnread(true);
+          try {
+            const res = await fetch(`/api/email/accounts?company_id=${user.company_id}`);
+            if (!res.ok) {
+              setFetchingUnread(false);
+              return;
+            }
+            const contentType = res.headers.get("content-type");
+            if (!contentType || !contentType.includes("application/json")) {
+              setFetchingUnread(false);
+              return;
+            }
+            const data = await res.json();
+            
+            if (data.accounts) {
+              setEmailAccounts(data.accounts);
+              if (data.accounts.length > 0 && !selectedEmailAccount) {
+                setSelectedEmailAccount(data.accounts[0]);
+              }
+  
               const unreadResults = [];
               for (const account of data.accounts) {
                 try {
                   const res = await fetch(`/api/email/fetch?accountId=${account.id}&company_id=${user.company_id}&action=unread`);
                   if (res.ok) {
-                    const data = await res.json();
-                    unreadResults.push(data.unreadCount || 0);
+                    const contentType = res.headers.get("content-type");
+                    if (contentType && contentType.includes("application/json")) {
+                      const data = await res.json();
+                      unreadResults.push(data.unreadCount || 0);
+                    } else {
+                      unreadResults.push(0);
+                    }
                   } else {
                     unreadResults.push(0);
                   }
-                  } catch (e: any) {
-                    // Ignore network errors during fetch
-                    unreadResults.push(0);
-                    continue;
-                  }
+                } catch (e) {
+                  unreadResults.push(0);
+                }
               }
-            
-            const totalUnread = unreadResults.reduce((sum, count) => sum + count, 0);
-            setUnreadEmailCount(totalUnread);
+              
+              const totalUnread = unreadResults.reduce((sum, count) => sum + count, 0);
+              setUnreadEmailCount(totalUnread);
+            }
+          } catch (error) {
+            // Silently fail
+          } finally {
+            setFetchingUnread(false);
           }
-        } catch (error: any) {
-          if (error.name !== 'TypeError') {
-            console.error("Error fetching email data:", error);
-          }
-        } finally {
-          setFetchingUnread(false);
-        }
-      };
-
-      fetchAdminNotifications();
-      fetchEmailData();
-      
-      const interval = setInterval(() => {
+        };
+  
         fetchAdminNotifications();
         fetchEmailData();
-      }, 60000); 
-      return () => clearInterval(interval);
-    }, [user?.company_id]);
+        
+        const interval = setInterval(() => {
+          fetchAdminNotifications();
+          fetchEmailData();
+        }, 60000); 
+        return () => clearInterval(interval);
+      }, [user?.company_id]);
 
   useEffect(() => {
     setMounted(true);
