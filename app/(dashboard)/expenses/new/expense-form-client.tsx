@@ -35,6 +35,8 @@ interface CostCenter {
   id: number;
   center_code: string;
   center_name: string;
+  center_level?: number;
+  parent_center?: string | null;
 }
 
 interface Subtype {
@@ -648,20 +650,22 @@ export default function ExpenseFormClient({ user }: { user: User }) {
                                   />
                                 </div>
                               </td>
-                              <td className="px-2 py-4">
-                                <div className="w-48">
-                                  <HierarchicalSearchableSelect
-                                    items={(metadata?.costCenters || []).map(cc => ({
-                                      id: cc.id,
-                                      code: cc.center_code,
-                                      name: cc.center_name
-                                    }))}
-                                    value={row.cost_center_code}
-                                    onSelect={(val) => updateRow(type, row.id, 'cost_center_code', val)}
-                                    placeholder={t("form.costCenter")}
-                                  />
-                                </div>
-                              </td>
+                                <td className="px-2 py-4">
+                                  <div className="w-48">
+                                    <HierarchicalSearchableSelect
+                                      items={(metadata?.costCenters || []).map(cc => ({
+                                        id: cc.id,
+                                        code: cc.center_code,
+                                        name: cc.center_name,
+                                        level: cc.center_level,
+                                        parent: cc.parent_center
+                                      }))}
+                                      value={row.cost_center_code}
+                                      onSelect={(val) => updateRow(type, row.id, 'cost_center_code', val)}
+                                      placeholder={t("form.costCenter")}
+                                    />
+                                  </div>
+                                </td>
                           <td className="px-2 py-4">
                             <input 
                               type="text" 

@@ -19,7 +19,7 @@ export async function GET(request: NextRequest) {
 
     // 2. Fetch Cost Centers
     const costCenters = await query(
-      "SELECT id, center_code, center_name FROM cost_centers WHERE company_id = ? ORDER BY center_code",
+      "SELECT id, center_code, center_name, center_level, parent_center FROM cost_centers WHERE company_id = ? ORDER BY center_code",
       [companyId]
     );
 
