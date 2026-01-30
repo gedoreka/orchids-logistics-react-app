@@ -19,9 +19,11 @@ export async function POST(request: NextRequest) {
     const buffer = Buffer.from(bytes);
 
     const sanitizedOriginalName = file.name
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^\x00-\x7F]/g, "")
       .replace(/\s+/g, "_")
-      // Allow Arabic characters, Latin letters, numbers, dots, underscores, and hyphens
-      .replace(/[^a-zA-Z0-9._\-\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF\uFB50-\uFDFF\uFE70-\uFEFF]/g, "")
+      .replace(/[^a-zA-Z0-9._-]/g, "")
       .replace(/_{2,}/g, "_")
       .replace(/^_+|_+$/g, "");
 

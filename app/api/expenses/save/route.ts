@@ -72,14 +72,16 @@ export async function POST(request: NextRequest) {
 
       let attachmentPath = "";
         if (attachment && attachment instanceof File && attachment.size > 0) {
-          // Sanitize filename to avoid Supabase storage errors with Arabic characters
-          const ext = attachment.name.split('.').pop() || 'file';
-          const sanitizedBase = attachment.name
-            .replace(/\s+/g, "_")
-            // Allow Arabic characters, Latin letters, numbers, dots, underscores, and hyphens
-            .replace(/[^a-zA-Z0-9._\-\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF\uFB50-\uFDFF\uFE70-\uFEFF]/g, "")
-            .replace(/_{2,}/g, "_")
-            .replace(/^_+|_+$/g, "");
+            // Sanitize filename strictly to ASCII to avoid Supabase/S3 storage errors
+            const ext = attachment.name.split('.').pop() || 'file';
+            const sanitizedBase = attachment.name
+              .normalize('NFD')
+              .replace(/[\u0300-\u036f]/g, '')
+              .replace(/[^\x00-\x7F]/g, "")
+              .replace(/\s+/g, "_")
+              .replace(/[^a-zA-Z0-9._-]/g, "")
+              .replace(/_{2,}/g, "_")
+              .replace(/^_+|_+$/g, "");
           
           const safeName = sanitizedBase || `file_${Date.now()}`;
           const fileName = `${Date.now()}_${safeName}`;

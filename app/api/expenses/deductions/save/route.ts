@@ -39,12 +39,14 @@ export async function POST(request: NextRequest) {
         let attachmentPath = null;
         const file = formData.get(`file_${rowId}`);
           if (file && file instanceof File && file.size > 0) {
-            // Sanitize filename to avoid Supabase storage errors with Arabic characters
+            // Sanitize filename strictly to ASCII to avoid Supabase/S3 storage errors
             const ext = file.name.split('.').pop() || 'file';
             const sanitizedBase = file.name
+              .normalize('NFD')
+              .replace(/[\u0300-\u036f]/g, '')
+              .replace(/[^\x00-\x7F]/g, "")
               .replace(/\s+/g, "_")
-              // Allow Arabic characters, Latin letters, numbers, dots, underscores, and hyphens
-              .replace(/[^a-zA-Z0-9._\-\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF\uFB50-\uFDFF\uFE70-\uFEFF]/g, "")
+              .replace(/[^a-zA-Z0-9._-]/g, "")
               .replace(/_{2,}/g, "_")
               .replace(/^_+|_+$/g, "");
             

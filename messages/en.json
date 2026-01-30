@@ -1076,9 +1076,10 @@
       "viewAll": "View All",
       "totalExpenses": "Total Expenses",
       "totalDeductions": "Total Deductions",
-      "totalSalaries": "Total Salaries",
-      "grandTotal": "Grand Total",
-      "recentActivity": "Recent Activity",
+        "totalSalaries": "Total Salaries",
+        "grandTotal": "Grand Total",
+        "noActivity": "No financial activities for this month yet",
+        "recentActivity": "Recent Activity",
       "quickActions": "Quick Actions"
     },
     "form": {

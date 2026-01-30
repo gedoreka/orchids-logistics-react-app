@@ -1076,9 +1076,10 @@
       "viewAll": "عرض الكل",
       "totalExpenses": "إجمالي المصروفات",
       "totalDeductions": "إجمالي الاستقطاعات",
-      "totalSalaries": "إجمالي الرواتب",
-      "grandTotal": "الإجمالي النهائي",
-      "recentActivity": "النشاط الأخير",
+        "totalSalaries": "إجمالي الرواتب",
+        "grandTotal": "الإجمالي النهائي",
+        "noActivity": "لا توجد حركات مالية لهذا الشهر حتى الآن",
+        "recentActivity": "النشاط الأخير",
       "quickActions": "إجراءات سريعة"
     },
     "form": {

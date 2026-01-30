@@ -34,8 +34,13 @@ export function getPublicUrl(path: string | null | undefined, bucket: string = '
   cleanPath = cleanPath.startsWith('/') ? cleanPath.slice(1) : cleanPath;
   
   // 4. Determine if it's Supabase or Hostinger
+  // Check for non-ASCII characters (like Arabic). If present, it's likely an old file on Hostinger
+  // since we now strictly sanitize new Supabase uploads to be ASCII-only.
+  const hasNonAscii = /[^\x00-\x7F]/.test(cleanPath);
+  
   // New uploads to Supabase always start with 'uploads/' in the DB or are full Supabase URLs
-  const isSupabase = cleanPath.startsWith('uploads/') || path.includes('supabase.co');
+  // but they MUST be ASCII-only to be considered valid Supabase paths.
+  const isSupabase = !hasNonAscii && (cleanPath.startsWith('uploads/') || path.includes('supabase.co'));
 
   if (isSupabase) {
     const fullPath = cleanPath.startsWith('uploads/') ? cleanPath : 'uploads/' + cleanPath;
@@ -53,6 +58,6 @@ export function getPublicUrl(path: string | null | undefined, bucket: string = '
   const hostingerPath = finalEncodedPath.startsWith('uploads/') 
     ? finalEncodedPath 
     : `uploads/${finalEncodedPath}`;
-    
+      
   return `${baseUrl}/${hostingerPath}`;
 }

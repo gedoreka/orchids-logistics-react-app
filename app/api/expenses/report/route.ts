@@ -353,7 +353,7 @@ export async function PUT(request: NextRequest) {
     const attachmentFile = formData.get('attachment');
     if (attachmentFile && attachmentFile instanceof File && attachmentFile.size > 0) {
       const { supabase } = await import('@/lib/supabase');
-      // Sanitize filename to avoid Supabase storage errors with Arabic characters
+      // Sanitize filename strictly to ASCII to avoid Supabase/S3 storage errors
       const ext = attachmentFile.name.split('.').pop() || 'file';
       const sanitizedBase = attachmentFile.name
         .normalize('NFD')
@@ -365,11 +365,13 @@ export async function PUT(request: NextRequest) {
         .replace(/^_+|_+$/g, "");
       
       const safeName = sanitizedBase || `file_${Date.now()}`;
-      const fileName = `${Date.now()}_${safeName}.${ext}`;
+      const fileName = `${Date.now()}_${safeName}`;
+      // Make sure extension is preserved if not already in safeName
+      const finalFileName = fileName.endsWith(`.${ext}`) ? fileName : `${fileName}.${ext}`;
 
       const { data, error } = await supabase.storage
         .from("expenses")
-        .upload(`uploads/${fileName}`, attachmentFile);
+        .upload(`uploads/${finalFileName}`, attachmentFile);
       
       if (!error && data) {
         attachmentToSave = data.path;
