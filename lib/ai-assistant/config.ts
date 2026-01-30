@@ -13,6 +13,7 @@ import {
     searchMaintenanceOrder,
     searchCreditNote, 
     searchVoucher, 
+    searchPayroll,
     dbToolsDefinitions 
   } from "./db-tools";
 
@@ -261,6 +262,8 @@ export class AIAssistantService {
         return await searchCreditNote(args.noteNumber);
       case "searchVoucher":
         return await searchVoucher(args.voucherNumber);
+      case "searchPayroll":
+        return await searchPayroll(args.payrollId, args.companyId);
       default:
         return { error: "Unknown tool" };
     }
@@ -384,6 +387,37 @@ export class AIAssistantService {
       }
     }
 
+    // استخراج رقم مسير الرواتب (رقم تسلسلي قصير مثل 50)
+    const payrollMatch = message.match(/مسير\s*(\d+)/i) || (message.match(/\b\d+\b/) && (message.includes('مسير') || message.includes('رواتب')));
+    if (payrollMatch) {
+      const payrollId = payrollMatch[1] || payrollMatch[0];
+      const results = await searchPayroll(payrollId);
+      if (results && results.length > 0) {
+        const payroll = results[0];
+        let itemsText = "";
+        if (payroll.items && payroll.items.length > 0) {
+          itemsText = "\n\n**تفاصيل الموظفين في المسير:**\n" + payroll.items.slice(0, 10).map((item: any, index: number) => 
+            `${index + 1}. ${item.employee_name} - صافي الراتب: ${item.net_salary} ريال`
+          ).join('\n');
+          if (payroll.items.length > 10) {
+            itemsText += `\n... و ${payroll.items.length - 10} موظفين آخرين.`;
+          }
+        }
+
+        return `📊 **تفاصيل مسير الرواتب رقم ${payroll.id}:**
+        
+**معلومات المسير:**
+• الشركة: ${payroll.company_name}
+• شهر المسير: ${payroll.payroll_month}
+• عدد الموظفين: ${payroll.employee_count} موظف
+• الإجمالي العام: **${payroll.total_amount} ريال** 💰
+• الحالة: ${payroll.is_paid ? 'تم الصرف ✅' : 'قيد الانتظار ⏳'}
+• نوع المسير: ${payroll.is_draft ? 'مسودة' : 'معتمد'}${itemsText}
+
+💡 يمكنك مراجعة المسير بالكامل من قسم الموارد البشرية → مسيرات الرواتب.`;
+      }
+    }
+
     return null;
   }
 
@@ -415,13 +449,14 @@ export class AIAssistantService {
       لديك القدرة على الوصول إلى قاعدة بيانات النظام الحقيقية باستخدام الأدوات المتاحة.
       
       قواعد صارمة:
-      1. إذا طلب المستخدم معلومات عن (موظف، فاتورة، مركبة، أمر صيانة، سند، إشعار دائن)، استخدم الأداة المناسبة فوراً.
+      1. إذا طلب المستخدم معلومات عن (موظف، فاتورة، مركبة، أمر صيانة، سند، إشعار دائن، مسير رواتب)، استخدم الأداة المناسبة فوراً.
       2. لا تقدم أبداً بيانات وهمية أو أمثلة إذا كانت هناك أداة يمكنها جلب البيانات الحقيقية.
       3. إذا لم تجد نتائج في قاعدة البيانات بعد البحث، أخبر المستخدم بوضوح أن البيانات غير موجودة.
       4. قدم النتائج بتنسيق جميل ومنظم باستخدام النقاط والرموز التعبيرية.
       5. أجب على كافة الأسئلة العامة والعالمية بذكاء ومباشرة.
       6. تحدث دائماً باللغة العربية بأسلوب احترافي وودود.
       7. إذا طلب المستخدم البحث عن "INV3" مثلاً، قم باستدعاء searchInvoice بالقيمة "INV3".
+      8. للبحث عن مسير رواتب، استخدم searchPayroll.
       
       ${localMatch ? `سياق محلي: ${localMatch.text}` : ""}`;
 

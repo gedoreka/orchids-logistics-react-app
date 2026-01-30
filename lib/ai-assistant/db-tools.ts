@@ -116,8 +116,43 @@ export async function searchVoucher(voucherNumber: string) {
       [voucherNumber, voucherNumber]
     );
     return [...receipts, ...promissory];
-  } catch (error) {
+    } catch (error) {
     console.error('Search Voucher Error:', error);
+    return [];
+  }
+}
+
+export async function searchPayroll(payrollId: string, companyId?: string) {
+  try {
+    let queryStr = `
+      SELECT sp.*, c.name as company_name 
+      FROM salary_payrolls sp
+      JOIN companies c ON sp.company_id = c.id
+      WHERE sp.id = ?
+    `;
+    let params: any[] = [payrollId];
+
+    if (companyId) {
+      queryStr += ` AND sp.company_id = ?`;
+      params.push(companyId);
+    }
+
+    const results = await query<any>(queryStr, params);
+    
+    if (results.length > 0) {
+      for (const payroll of results) {
+        // Fetch items for this payroll
+        const items = await query<any>(
+          `SELECT * FROM salary_payroll_items WHERE payroll_id = ?`,
+          [payroll.id]
+        );
+        payroll.items = items;
+      }
+    }
+    
+    return results;
+  } catch (error) {
+    console.error('Search Payroll Error:', error);
     return [];
   }
 }
@@ -224,5 +259,27 @@ export const dbToolsDefinitions = [
         required: ["voucherNumber"]
       }
     }
+  },
+  {
+    type: "function",
+    function: {
+      name: "searchPayroll",
+      description: "Search for a salary payroll (مسير رواتب) by its serial number (ID) and optionally by company ID",
+      parameters: {
+        type: "object",
+        properties: {
+          payrollId: {
+            type: "string",
+            description: "The payroll serial number (ID)"
+          },
+          companyId: {
+            type: "string",
+            description: "Optional company ID to filter results"
+          }
+        },
+        required: ["payrollId"]
+      }
+    }
   }
 ];
+
