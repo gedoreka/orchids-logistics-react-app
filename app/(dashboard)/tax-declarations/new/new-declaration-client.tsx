@@ -22,10 +22,18 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { toast } from "sonner";
 import { useRouter } from "next/navigation";
+import { DeleteNotification, useDeleteNotification } from "@/components/ui/delete-notification";
 
 export function NewTaxDeclarationClient({ companyId }: { companyId: number }) {
+  const { 
+    notification, 
+    showLoading, 
+    showSuccess, 
+    showError, 
+    hideNotification 
+  } = useDeleteNotification("indigo");
+  
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [collecting, setCollecting] = useState(false);
@@ -57,56 +65,62 @@ export function NewTaxDeclarationClient({ companyId }: { companyId: number }) {
     }
   };
 
-  const handleCollectData = async () => {
-    setCollecting(true);
-    const { start, end } = getPeriodDates(period.year, period.quarter);
-    try {
-      const response = await fetch(`/api/taxes/declarations/collect?company_id=${companyId}&start_date=${start}&end_date=${end}`);
-      const data = await response.json();
-      if (data.success) {
-        setDeclarationData(data.data);
-        setStep(2);
-        toast.success("تم تجميع البيانات الضريبية بنجاح");
-      } else {
-        toast.error(data.error || "فشل في تجميع البيانات");
+    const handleCollectData = async () => {
+      setCollecting(true);
+      showLoading("جاري تجميع البيانات...", "يتم الآن جلب البيانات الضريبية من السجلات المالية.");
+      const { start, end } = getPeriodDates(period.year, period.quarter);
+      try {
+        const response = await fetch(`/api/taxes/declarations/collect?company_id=${companyId}&start_date=${start}&end_date=${end}`);
+        const data = await response.json();
+        if (data.success) {
+          setDeclarationData(data.data);
+          setStep(2);
+          showSuccess("تم تجميع البيانات", "تم استخراج البيانات الضريبية بنجاح لهذه الفترة.");
+        } else {
+          showError("فشل تجميع البيانات", data.error || "عذراً، لم نتمكن من الوصول للبيانات المطلوبة.");
+        }
+      } catch (error) {
+        showError("خطأ في الاتصال", "تعذر الاتصال بالخادم، يرجى المحاولة مرة أخرى.");
+      } finally {
+        setCollecting(false);
       }
-    } catch (error) {
-      toast.error("حدث خطأ أثناء الاتصال بالخادم");
-    } finally {
-      setCollecting(false);
-    }
-  };
+    };
 
-  const handleSave = async (status: string) => {
-    setLoading(true);
-    const { start, end } = getPeriodDates(period.year, period.quarter);
-    try {
-      const response = await fetch("/api/taxes/declarations", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          company_id: companyId,
-          period_year: parseInt(period.year),
-          period_quarter: parseInt(period.quarter),
-          start_date: start,
-          end_date: end,
-          status,
-          ...declarationData
-        })
-      });
-      const data = await response.json();
-      if (data.success) {
-        toast.success(status === 'submitted' ? "تم تقديم الإقرار بنجاح" : "تم حفظ المسودة");
-        router.push("/tax-declarations");
-      } else {
-        toast.error(data.error || "فشل في حفظ الإقرار");
+    const handleSave = async (status: string) => {
+      setLoading(true);
+      showLoading(status === 'submitted' ? "جاري التقديم..." : "جاري الحفظ...", "يتم الآن مزامنة الإقرار مع قاعدة البيانات.");
+      const { start, end } = getPeriodDates(period.year, period.quarter);
+      try {
+        const response = await fetch("/api/taxes/declarations", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            company_id: companyId,
+            period_year: parseInt(period.year),
+            period_quarter: parseInt(period.quarter),
+            start_date: start,
+            end_date: end,
+            status,
+            ...declarationData
+          })
+        });
+        const data = await response.json();
+        if (data.success) {
+          showSuccess(
+            status === 'submitted' ? "تم التقديم بنجاح" : "تم الحفظ بنجاح", 
+            status === 'submitted' ? "تم تقديم الإقرار الضريبي النهائي للنظام." : "تم حفظ مسودة الإقرار الضريبي بنجاح."
+          );
+          setTimeout(() => router.push("/tax-declarations"), 1500);
+        } else {
+          showError("فشل العملية", data.error || "حدث خطأ أثناء محاولة الحفظ.");
+        }
+      } catch (error) {
+        showError("خطأ في الاتصال", "تعذر الاتصال بالخادم، يرجى المحاولة مرة أخرى.");
+      } finally {
+        setLoading(false);
       }
-    } catch (error) {
-      toast.error("حدث خطأ أثناء الحفظ");
-    } finally {
-      setLoading(false);
-    }
-  };
+    };
+
 
   return (
     <div className="min-h-screen bg-[#f8fafc] pb-12" dir="rtl">
@@ -423,6 +437,11 @@ export function NewTaxDeclarationClient({ companyId }: { companyId: number }) {
           )}
         </AnimatePresence>
       </div>
+
+      <DeleteNotification 
+        notification={notification} 
+        onClose={hideNotification} 
+      />
     </div>
   );
 }

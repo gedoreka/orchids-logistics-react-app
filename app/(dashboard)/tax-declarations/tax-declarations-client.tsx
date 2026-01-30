@@ -2,26 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { 
-  FileText, 
-  Plus, 
-  Search, 
-  Calendar, 
-  FileCheck, 
-  AlertCircle, 
-  ArrowRight, 
-  Download,
-  Filter,
-  MoreVertical,
-    CheckCircle2, 
-    Clock,
-    History,
-    RefreshCw,
-    Eye,
-    Pencil,
-    Trash2,
-    Printer
-  } from "lucide-react";
+import { FileText, Eye, Pencil, Trash2, Printer, Search, Calendar, FileCheck, AlertCircle, ArrowRight, Download, Filter, MoreVertical, CheckCircle2, Clock, History, RefreshCw } from "lucide-react";
 import { format } from "date-fns";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -35,6 +16,7 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
+import { DeleteNotification, useDeleteNotification } from "@/components/ui/delete-notification";
 
 interface TaxDeclaration {
   id: string;
@@ -51,13 +33,23 @@ interface TaxDeclaration {
   created_at: string;
 }
 
-export function TaxDeclarationsClient({ companyId }: { companyId: number }) {
-  const [declarations, setDeclarations] = useState<TaxDeclaration[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [selectedDeclaration, setSelectedDeclaration] = useState<TaxDeclaration | null>(null);
-  const [isViewOpen, setIsViewOpen] = useState(false);
-  const [isEditOpen, setIsEditOpen] = useState(false);
+  export function TaxDeclarationsClient({ companyId }: { companyId: number }) {
+    const { 
+      notification, 
+      showDeleteConfirm, 
+      showLoading, 
+      showSuccess, 
+      showError, 
+      hideNotification 
+    } = useDeleteNotification("indigo");
+    
+    const [declarations, setDeclarations] = useState<TaxDeclaration[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [searchTerm, setSearchTerm] = useState("");
+    const [selectedDeclaration, setSelectedDeclaration] = useState<TaxDeclaration | null>(null);
+    const [isViewOpen, setIsViewOpen] = useState(false);
+    const [isEditOpen, setIsEditOpen] = useState(false);
+
 
   useEffect(() => {
     fetchDeclarations();
@@ -78,43 +70,55 @@ export function TaxDeclarationsClient({ companyId }: { companyId: number }) {
     }
   };
 
-  const handleDelete = async (id: string) => {
-    if (!confirm("هل أنت متأكد من حذف هذا الإقرار الضريبي؟")) return;
+    const handleDelete = async (id: string) => {
+      showDeleteConfirm(
+        "تأكيد الحذف",
+        "هل أنت متأكد من حذف هذا الإقرار الضريبي؟ لا يمكن التراجع عن هذا الإجراء.",
+        async () => {
+          try {
+            showLoading("جاري الحذف...", "يتم الآن حذف الإقرار الضريبي نهائياً.");
+            const response = await fetch(`/api/taxes/declarations/${id}`, {
+              method: 'DELETE'
+            });
+            const data = await response.json();
+            if (data.success) {
+              setDeclarations(declarations.filter(d => d.id !== id));
+              showSuccess("تم الحذف بنجاح", "تمت إزالة الإقرار الضريبي من النظام.");
+            } else {
+              showError("فشل الحذف", data.error || "عذراً، حدث خطأ أثناء محاولة حذف الإقرار.");
+            }
+          } catch (error) {
+            console.error("Error deleting declaration:", error);
+            showError("خطأ في الاتصال", "تعذر الاتصال بالخادم، يرجى المحاولة مرة أخرى.");
+          }
+        }
+      );
+    };
 
-    try {
-      const response = await fetch(`/api/taxes/declarations/${id}`, {
-        method: 'DELETE'
-      });
-      const data = await response.json();
-      if (data.success) {
-        setDeclarations(declarations.filter(d => d.id !== id));
-      } else {
-        alert("فشل حذف الإقرار");
+    const handleUpdateStatus = async (status: string) => {
+      if (!selectedDeclaration) return;
+
+      try {
+        showLoading("جاري التحديث...", "يتم الآن تحديث حالة الإقرار الضريبي.");
+        const response = await fetch(`/api/taxes/declarations/${selectedDeclaration.id}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ status })
+        });
+        const data = await response.json();
+        if (data.success) {
+          setDeclarations(declarations.map(d => d.id === selectedDeclaration.id ? { ...d, status } : d));
+          setIsEditOpen(false);
+          showSuccess("تم التحديث بنجاح", "تم تغيير حالة الإقرار الضريبي بنجاح.");
+        } else {
+          showError("فشل التحديث", "عذراً، حدث خطأ أثناء محاولة تحديث الحالة.");
+        }
+      } catch (error) {
+        console.error("Error updating declaration:", error);
+        showError("خطأ في الاتصال", "تعذر الاتصال بالخادم، يرجى المحاولة مرة أخرى.");
       }
-    } catch (error) {
-      console.error("Error deleting declaration:", error);
-      alert("خطأ في الاتصال بالسيرفر");
-    }
-  };
+    };
 
-  const handleUpdateStatus = async (status: string) => {
-    if (!selectedDeclaration) return;
-
-    try {
-      const response = await fetch(`/api/taxes/declarations/${selectedDeclaration.id}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status })
-      });
-      const data = await response.json();
-      if (data.success) {
-        setDeclarations(declarations.map(d => d.id === selectedDeclaration.id ? { ...d, status } : d));
-        setIsEditOpen(false);
-      }
-    } catch (error) {
-      console.error("Error updating declaration:", error);
-    }
-  };
 
   const handlePrint = (d: TaxDeclaration) => {
     const printContent = `
@@ -513,6 +517,11 @@ export function TaxDeclarationsClient({ companyId }: { companyId: number }) {
             </div>
           </DialogContent>
         </Dialog>
+
+        <DeleteNotification 
+          notification={notification} 
+          onClose={hideNotification} 
+        />
       </div>
     );
   }
