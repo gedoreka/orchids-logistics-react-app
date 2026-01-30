@@ -72,11 +72,11 @@ export const AI_PERSONALITY: AIPersonality = {
   farewell: "إلى اللقاء! 👋 لا تنسَ أنني هنا في انتظارك عندما تحتاجني. أتمنى لك يوماً منتجاً ومليئاً بالإنجازات. سلامتك!",
   emojis: ["🌟", "🔐", "📊", "💼", "🌼", "🔥", "👋", "🤔", "👨‍💼", "👩‍💼", "🛠️", "📚", "🛡️", "📋", "✍️", "🤝", "💸", "📜", "📨", "💰", "🧮", "🏢", "🔄", "🚗", "📉", "📈", "⚖️", "🗺️", "👨‍💻", "⚙️", "✅", "⚠️", "❌"],
   rules: [
-    "كن نموذج AI متفاعل وليس مجرد ردود جاهزة",
+    "كن مساعداً ذكياً متفاعلاً واحترافياً",
     "استخدم قاعدة المعرفة أولاً للإجابة عن أسئلة نظام لوجستك برو",
-    "إذا كان السؤال خارج نطاق النظام، استخدم قدراتك في البحث العام (OpenAI)",
+    "قدم إجابات شاملة ودقيقة بناءً على السياق المتاح",
     "قدم اقتراحات 'هل تقصد؟' إذا كان السؤال غامضاً",
-    "حافظ على نبرة احترافية ومحفزة"
+    "حافظ على نبرة احترافية، ودودة، ومحفزة"
   ]
 };
 
@@ -84,7 +84,7 @@ export const AI_PERSONALITY: AIPersonality = {
 export const RESPONSE_LIBRARY: AIResponse[] = [
   {
     id: "greeting-001",
-    text: "مرحباً وسهلاً بك في عالم Logistics Pro! 🌼 يومك سعيد ومثمر. أنا 'سام'، مساعدك الذكي المعتمد على OpenAI. كيف يمكنني خدمتك اليوم في إدارة أعمالك؟",
+    text: "مرحباً وسهلاً بك في عالم Logistics Pro! 🌼 يومك سعيد ومثمر. أنا 'سام'، مساعدك الذكي هنا لخدمتك في إدارة أعمالك. كيف يمكنني مساعدتك اليوم؟",
     category: "greeting",
     keywords: ["مرحبا", "السلام عليكم", "أهلا", "hello", "hi", "صباح الخير", "مساء الخير"],
     confidenceScore: 1.0
@@ -106,7 +106,7 @@ export const SERVICE_DEFINITIONS: ServiceDefinition[] = [
     name: "إدارة الموارد البشرية",
     description: "نظام ذكي لإدارة فريقك، الرواتب، المهام، والخطابات الرسمية.",
     features: ["باقات الموظفين", "مسيرات الرواتب", "إدارة المهام", "تقرير الهويات"],
-    keywords: ["الموارد البشرية", "HR", "موظفين", "رواتب"],
+    keywords: ["الموارد البشرية", "HR", "موارد بشرية", "إدارة الموظفين"],
     relatedServices: ["hr-packages", "hr-employees"]
   },
   {
@@ -159,121 +159,119 @@ export class AIAssistantService {
         const score = this.calculateSimilarity(message, keyword);
         if (score > maxScore) {
           maxScore = score;
-    bestMatch = entry;
-          }
+          bestMatch = entry;
         }
       }
-
-      if (maxScore > 0.6) {
-        return { ...bestMatch!, confidenceScore: maxScore };
-      }
-
-      return null;
     }
 
-    /**
-     * توليد رد باستخدام OpenAI
-     */
-    static async generateOpenAIResponse(userMessage: string, context: string[] = []): Promise<string> {
-      try {
-        const localContext = KNOWLEDGE_BASE.slice(0, 10).map(e => `س: ${e.keywords[0]} ج: ${e.text}`).join('\n');
-        
-        const response = await openai.chat.completions.create({
-          model: "gpt-4o",
-          messages: [
-            {
-              role: "system",
-              content: `أنت "سام"، مساعد ذكاء اصطناعي متطور لنظام Logistics Pro. 
-              أنت مرتبط بقاعدة معرفة ضخمة للنظام ولديك القدرة على البحث في الإنترنت وتقديم إجابات دقيقة وشاملة.
-              
-              قواعد الرد:
-              1. إذا كان السؤال عن نظام Logistics Pro، استخدم المعلومات التالية كمرجع:
-              ${localContext}
-              
-              2. إذا كان السؤال عاماً أو يحتاج لمعلومات من الإنترنت، قدم إجابة دقيقة بناءً على معلوماتك المحدثة.
-              3. كن ودوداً، احترافياً، واستخدم الرموز التعبيرية بشكل مناسب.
-              4. تحدث دائماً باللغة العربية بلهجة مهذبة ومحترفة.`
-            },
-            ...context.map(m => ({ role: "user" as const, content: m })),
-            { role: "user", content: userMessage }
-          ],
-          temperature: 0.7,
-        });
-
-        return response.choices[0].message.content || "";
-      } catch (error) {
-        console.error("OpenAI Error:", error);
-        return "";
-      }
+    if (maxScore > 0.6) {
+      return { ...bestMatch!, confidenceScore: maxScore };
     }
 
-    /**
-     * توليد رد باستخدام DeepSeek
-     */
-    static async generateDeepSeekResponse(userMessage: string, context: string[] = []): Promise<string> {
-      try {
-        const localContext = KNOWLEDGE_BASE.slice(0, 5).map(e => `س: ${e.keywords[0]} ج: ${e.text}`).join('\n');
-        
-        const response = await deepseek.chat.completions.create({
-          model: "deepseek-chat",
-          messages: [
-            {
-              role: "system",
-              content: `أنت المساعد الذكي الرديف "سام - محرك ديب سيك". مهمتك هي دعم محرك OpenAI في تقديم أدق الإجابات الممكنة لنظام Logistics Pro.
-              لديك وصول لقاعدة المعرفة والبحث العالمي.
-              
-              المرجع المحلي:
-              ${localContext}
-              
-              كن دقيقاً جداً في المعلومات التقنية والبرمجية.`
-            },
-            ...context.map(m => ({ role: "user" as const, content: m })),
-            { role: "user", content: userMessage }
-          ],
-          temperature: 0.5,
-        });
+    return null;
+  }
 
-        return response.choices[0].message.content || "";
-      } catch (error) {
-        console.error("DeepSeek Error:", error);
-        return "";
-      }
-    }
-
-    /**
-     * الرد التفاعلي الرئيسي (Hybrid AI - Dual Engine)
-     */
-    static async generateInteractiveResponse(userMessage: string, context: string[] = []): Promise<AIResponse> {
-      // 1. محاولة البحث المحلي أولاً لضمان الدقة في معلومات النظام
-      const localMatch = await this.findInKnowledgeBase(userMessage);
+  /**
+   * توليد رد باستخدام OpenAI
+   */
+  static async generateOpenAIResponse(userMessage: string, context: string[] = []): Promise<string> {
+    try {
+      const localContext = KNOWLEDGE_BASE.slice(0, 10).map(e => `س: ${e.keywords[0]} ج: ${e.text}`).join('\n');
       
-      // 2. إذا وجدنا تطابقاً قوياً جداً (أكثر من 95%) نستخدمه مباشرة
-      if (localMatch && localMatch.confidenceScore! > 0.95) {
-        return localMatch;
-      }
+      const response = await openai.chat.completions.create({
+        model: "gpt-4o",
+        messages: [
+          {
+            role: "system",
+            content: `أنت "سام"، مساعد ذكاء اصطناعي متطور لنظام Logistics Pro. 
+            أنت مرتبط بقاعدة معرفة ضخمة للنظام ولديك القدرة على تقديم إجابات دقيقة وشاملة.
+            
+            قواعد الرد:
+            1. إذا كان السؤال عن نظام Logistics Pro، استخدم المعلومات التالية كمرجع:
+            ${localContext}
+            
+            2. إذا كان السؤال عاماً، قدم إجابة دقيقة بناءً على معلوماتك المحدثة.
+            3. كن ودوداً، احترافياً، واستخدم الرموز التعبيرية بشكل مناسب.
+            4. تحدث دائماً باللغة العربية بلهجة مهذبة ومحترفة.`
+          },
+          ...context.map(m => ({ role: "user" as const, content: m })),
+          { role: "user", content: userMessage }
+        ],
+        temperature: 0.7,
+      });
 
-      // 3. تشغيل المحركين بالتوازي للحصول على أفضل إجابة (أو استخدام أحدهما كاحتياطي)
-      // سنحاول OpenAI أولاً، وإذا فشل أو كان الرد قصيراً جداً، نستخدم DeepSeek
-      let finalResponseText = await this.generateOpenAIResponse(userMessage, context);
-      
-      if (!finalResponseText || finalResponseText.length < 10) {
-        finalResponseText = await this.generateDeepSeekResponse(userMessage, context);
-      }
+      return response.choices[0].message.content || "";
+    } catch (error) {
+      console.error("Primary Engine Error:", error);
+      return "";
+    }
+  }
 
-      // إذا فشل كلاهما
-      if (!finalResponseText) {
-        finalResponseText = "عذراً، أواجه ضغطاً في المحركات حالياً. سأحاول البحث في قاعدة المعرفة المحلية... " + (localMatch?.text || "لا أستطيع العثور على إجابة دقيقة حالياً.");
-      }
+  /**
+   * توليد رد باستخدام DeepSeek
+   */
+  static async generateDeepSeekResponse(userMessage: string, context: string[] = []): Promise<string> {
+    try {
+      const localContext = KNOWLEDGE_BASE.slice(0, 5).map(e => `س: ${e.keywords[0]} ج: ${e.text}`).join('\n');
       
-      return {
-        id: `ai-${Date.now()}`,
-        text: finalResponseText,
-        category: localMatch?.category || 'general',
-        keywords: [],
-        confidenceScore: 0.95
-      };
+      const response = await deepseek.chat.completions.create({
+        model: "deepseek-chat",
+        messages: [
+          {
+            role: "system",
+            content: `أنت المساعد الذكي الرديف "سام". مهمتك هي تقديم أدق الإجابات الممكنة لنظام Logistics Pro.
+            لديك وصول لقاعدة المعرفة والبحث العالمي.
+            
+            المرجع المحلي:
+            ${localContext}
+            
+            كن دقيقاً جداً في المعلومات التقنية والبرمجية.`
+          },
+          ...context.map(m => ({ role: "user" as const, content: m })),
+          { role: "user", content: userMessage }
+        ],
+        temperature: 0.5,
+      });
+
+      return response.choices[0].message.content || "";
+    } catch (error) {
+      console.error("Backup Engine Error:", error);
+      return "";
+    }
+  }
+
+  /**
+   * الرد التفاعلي الرئيسي (Hybrid AI - Dual Engine)
+   */
+  static async generateInteractiveResponse(userMessage: string, context: string[] = []): Promise<AIResponse> {
+    // 1. محاولة البحث المحلي أولاً لضمان الدقة في معلومات النظام
+    const localMatch = await this.findInKnowledgeBase(userMessage);
+    
+    // 2. إذا وجدنا تطابقاً قوياً جداً (أكثر من 95%) نستخدمه مباشرة
+    if (localMatch && localMatch.confidenceScore! > 0.95) {
+      return localMatch;
     }
 
+    // 3. تشغيل المحركات بالتوالي للحصول على أفضل إجابة
+    let finalResponseText = await this.generateOpenAIResponse(userMessage, context);
+    
+    if (!finalResponseText || finalResponseText.length < 10) {
+      finalResponseText = await this.generateDeepSeekResponse(userMessage, context);
+    }
+
+    // إذا فشل كلاهما
+    if (!finalResponseText) {
+      finalResponseText = "عذراً، أواجه ضغطاً في معالجة الطلبات حالياً. سأحاول البحث في قاعدة المعرفة المحلية... " + (localMatch?.text || "لا أستطيع العثور على إجابة دقيقة حالياً.");
+    }
+    
+    return {
+      id: `ai-${Date.now()}`,
+      text: finalResponseText,
+      category: localMatch?.category || 'general',
+      keywords: [],
+      confidenceScore: 0.95
+    };
+  }
 
   static getPersonality(): AIPersonality {
     return AI_PERSONALITY;
