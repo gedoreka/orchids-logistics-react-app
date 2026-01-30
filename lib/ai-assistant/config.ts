@@ -138,27 +138,35 @@ export class AIAssistantService {
       .trim();
   }
 
-  /**
-   * حساب نسبة التشابه بشكل أكثر مرونة
-   */
-  private static calculateSimilarity(str1: string, str2: string): number {
-    const s1 = this.normalizeText(str1);
-    const s2 = this.normalizeText(str2);
-    
-    if (s1 === s2) return 1.0;
-    if (s1.includes(s2) || s2.includes(s1)) return 0.85;
+    /**
+     * حساب نسبة التشابه بشكل أكثر مرونة واحترافية
+     */
+    private static calculateSimilarity(str1: string, str2: string): number {
+      const s1 = this.normalizeText(str1);
+      const s2 = this.normalizeText(str2);
+      
+      if (s1 === s2) return 1.0;
+      if (s1.includes(s2) || s2.includes(s1)) return 0.90;
 
-    // تقسيم الكلمات للبحث عن تقاطعات
-    const words1 = s1.split(/\s+/);
-    const words2 = s2.split(/\s+/);
-    const intersection = words1.filter(w => words2.includes(w) && w.length > 2);
-    
-    if (intersection.length > 0) {
-      return (intersection.length / Math.max(words1.length, words2.length)) + 0.5;
+      // تقسيم الكلمات للبحث عن تقاطعات
+      const words1 = s1.split(/\s+/).filter(w => w.length > 1);
+      const words2 = s2.split(/\s+/).filter(w => w.length > 1);
+      
+      const intersection = words1.filter(w => words2.includes(w));
+      
+      if (intersection.length > 0) {
+        // حساب النسبة بناءً على الكلمات المشتركة مقارنة بالكلمات المهمة في السؤال أو الكلمات المفتاحية
+        const matchRatio = intersection.length / Math.min(words1.length, words2.length);
+        const overlapRatio = intersection.length / Math.max(words1.length, words2.length);
+        
+        // إذا كانت جميع كلمات الكلمات المفتاحية موجودة في رسالة المستخدم، فهذا تطابق قوي جداً
+        if (intersection.length === words2.length) return 0.95;
+        
+        return (matchRatio * 0.7) + (overlapRatio * 0.3);
+      }
+      
+      return 0;
     }
-    
-    return 0;
-  }
 
   /**
    * البحث في قاعدة المعرفة المحلية
@@ -286,8 +294,11 @@ export class AIAssistantService {
       return localMatch;
     }
 
-    // 3. محاولة المحركات (OpenAI -> DeepSeek -> Gemini)
-    let finalResponseText = await this.generateOpenAIResponse(userMessage, context, localMatch);
+    // 3. تعطيل المحركات الخارجية مؤقتاً والاعتماد على قاعدة المعرفة المحلية فقط بناءً على طلب المستخدم
+    let finalResponseText = "";
+
+    /* 
+    finalResponseText = await this.generateOpenAIResponse(userMessage, context, localMatch);
     
     if (!finalResponseText || finalResponseText.length < 5) {
       finalResponseText = await this.generateDeepSeekResponse(userMessage, context, localMatch);
@@ -296,11 +307,12 @@ export class AIAssistantService {
     if (!finalResponseText || finalResponseText.length < 5) {
       finalResponseText = await this.generateGeminiResponse(userMessage, context, localMatch);
     }
+    */
 
     // 4. السقوط الأخير (Fallback)
     if (!finalResponseText || finalResponseText.length < 5) {
       finalResponseText = localMatch?.text || 
-        "أعتذر منك، أواجه ضغطاً تقنياً حالياً. هل يمكنك إعادة صياغة سؤالك أو سؤالي عن شيء آخر في النظام؟";
+        "أهلاً بك! أنا 'سام'، مساعدك الذكي في Logistics Pro. أعتذر منك، لم أتمكن من العثور على إجابة دقيقة لهذا السؤال في قاعدة بياناتي حالياً. هل يمكنك سؤالي عن شيء آخر يخص النظام؟";
     }
     
     return {
