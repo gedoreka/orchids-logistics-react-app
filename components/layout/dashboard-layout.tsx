@@ -151,7 +151,7 @@ export function DashboardLayout({ children, user, permissions, userType, subscri
           </div>
 
           <main className="flex-1 overflow-y-auto overflow-x-hidden relative">
-            <div className="w-[95%] lg:w-[90%] mx-auto py-6">
+            <div className={`${pathname === '/salary-payrolls/new' ? 'w-full px-4' : 'w-[95%] lg:w-[90%] mx-auto'} py-6`}>
               {isBlocked ? (
                 <div className="flex items-center justify-center min-h-[70vh] p-6 text-center">
                   <motion.div 
