@@ -13,6 +13,7 @@ import { User } from "@/lib/types";
 import DeductionSubtypeManager from "./deduction-subtype-manager";
 import { useTranslations } from "@/lib/locale-context";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { HierarchicalSearchableSelect } from "@/components/ui/hierarchical-searchable-select";
 
 interface Employee {
   id: number;
@@ -25,6 +26,8 @@ interface Account {
   id: number;
   account_code: string;
   account_name: string;
+  account_level?: number;
+  parent_account?: string | null;
 }
 
 interface CostCenter {
@@ -585,30 +588,36 @@ export default function DeductionFormClient({ user }: { user: User }) {
                                 placeholder="رقم الإقامة"
                               />
                             </td>
-                            <td className="px-4 py-4">
-                              <select 
-                                className="w-full bg-transparent border-none focus:ring-0 text-[11px] font-bold text-slate-600 truncate appearance-none"
-                                value={row.account_id}
-                                onChange={(e) => updateRow(type, row.id, 'account_id', e.target.value)}
-                              >
-                                <option value="">الحساب</option>
-                                {(metadata?.accounts || []).map(acc => (
-                                  <option key={acc.id} value={acc.id}>{acc.account_code} - {acc.account_name}</option>
-                                ))}
-                              </select>
-                            </td>
-                            <td className="px-4 py-4">
-                              <select 
-                                className="w-full bg-transparent border-none focus:ring-0 text-[11px] font-bold text-slate-600 truncate appearance-none"
-                                value={row.cost_center_id}
-                                onChange={(e) => updateRow(type, row.id, 'cost_center_id', e.target.value)}
-                              >
-                                <option value="">مركز التكلفة</option>
-                                {(metadata?.costCenters || []).map(cc => (
-                                  <option key={cc.id} value={cc.id}>{cc.center_code} - {cc.center_name}</option>
-                                ))}
-                              </select>
-                            </td>
+                              <td className="px-4 py-4">
+                                <HierarchicalSearchableSelect
+                                  items={(metadata?.accounts || []).map(acc => ({
+                                    id: acc.id,
+                                    code: acc.account_code,
+                                    name: acc.account_name,
+                                    level: acc.account_level,
+                                    parent: acc.parent_account
+                                  }))}
+                                  value={row.account_id}
+                                  valueKey="id"
+                                  onSelect={(val) => updateRow(type, row.id, 'account_id', val)}
+                                  placeholder={t("form.account")}
+                                  className="w-40"
+                                />
+                              </td>
+                              <td className="px-4 py-4">
+                                <HierarchicalSearchableSelect
+                                  items={(metadata?.costCenters || []).map(cc => ({
+                                    id: cc.id,
+                                    code: cc.center_code,
+                                    name: cc.center_name
+                                  }))}
+                                  value={row.cost_center_id}
+                                  valueKey="id"
+                                  onSelect={(val) => updateRow(type, row.id, 'cost_center_id', val)}
+                                  placeholder={t("form.costCenter")}
+                                  className="w-40"
+                                />
+                              </td>
                             <td className="px-4 py-4">
                               <input 
                                 type="text" 

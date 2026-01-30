@@ -48,11 +48,14 @@ import Link from "next/link";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { useTranslations, useLocale } from "@/lib/locale-context";
+import { HierarchicalSearchableSelect } from "@/components/ui/hierarchical-searchable-select";
 
 interface Account {
   id: number;
   account_code: string;
   account_name: string;
+  account_level?: number;
+  parent_account?: string | null;
 }
 
 interface CostCenter {
@@ -548,30 +551,40 @@ export default function IncomeFormClient({ user }: { user: User }) {
                             </div>
                         </div>
 
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                            <div className="space-y-2">
-                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mr-2">{t("form.account")} <span className="text-slate-500">({tCommon("optional")})</span></label>
-                                <select
-                                    value={formData.account_id}
-                                    onChange={(e) => setFormData({...formData, account_id: e.target.value})}
-                                    className="w-full px-6 py-3 bg-white/5 border border-white/10 rounded-2xl text-white font-bold focus:bg-white/10 focus:border-cyan-500 outline-none appearance-none"
-                                >
-                                    <option value="" className="bg-slate-800">{t("form.selectAccount")}</option>
-                                    {(metadata?.accounts || []).map(acc => <option key={acc.id} value={acc.id} className="bg-slate-800">{acc.account_code} - {acc.account_name}</option>)}
-                                </select>
-                            </div>
-                            <div className="space-y-2">
-                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mr-2">{t("form.costCenter")} <span className="text-slate-500">({tCommon("optional")})</span></label>
-                                <select
-                                    value={formData.cost_center_id}
-                                    onChange={(e) => setFormData({...formData, cost_center_id: e.target.value})}
-                                    className="w-full px-6 py-3 bg-white/5 border border-white/10 rounded-2xl text-white font-bold focus:bg-white/10 focus:border-cyan-500 outline-none appearance-none"
-                                >
-                                    <option value="" className="bg-slate-800">{t("form.selectCostCenter")}</option>
-                                    {(metadata?.costCenters || []).map(cc => <option key={cc.id} value={cc.id} className="bg-slate-800">{cc.center_code} - {cc.center_name}</option>)}
-                                </select>
-                            </div>
-                        </div>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                              <div className="space-y-2">
+                                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mr-2">{t("form.account")} <span className="text-slate-500">({tCommon("optional")})</span></label>
+                                  <HierarchicalSearchableSelect
+                                      items={(metadata?.accounts || []).map(acc => ({
+                                          id: acc.id,
+                                          code: acc.account_code,
+                                          name: acc.account_name,
+                                          level: acc.account_level,
+                                          parent: acc.parent_account
+                                      }))}
+                                      value={formData.account_id}
+                                      valueKey="id"
+                                      onSelect={(val) => setFormData({...formData, account_id: val})}
+                                      placeholder={t("form.selectAccount")}
+                                      className="bg-white/5 border-white/10 text-white rounded-2xl h-[52px]"
+                                  />
+                              </div>
+                              <div className="space-y-2">
+                                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mr-2">{t("form.costCenter")} <span className="text-slate-500">({tCommon("optional")})</span></label>
+                                  <HierarchicalSearchableSelect
+                                      items={(metadata?.costCenters || []).map(cc => ({
+                                          id: cc.id,
+                                          code: cc.center_code,
+                                          name: cc.center_name
+                                      }))}
+                                      value={formData.cost_center_id}
+                                      valueKey="id"
+                                      onSelect={(val) => setFormData({...formData, cost_center_id: val})}
+                                      placeholder={t("form.selectCostCenter")}
+                                      className="bg-white/5 border-white/10 text-white rounded-2xl h-[52px]"
+                                  />
+                              </div>
+                          </div>
 
                         <div className="space-y-2">
                             <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mr-2">{t("form.description")}</label>

@@ -19,7 +19,7 @@ export async function GET(request: NextRequest) {
       // Fetch accounts from Supabase instead of MySQL
       const { data: accounts, error: accountsError } = await supabase
         .from("accounts")
-        .select("id, account_code, account_name")
+        .select("id, account_code, account_name, account_level, parent_account")
         .eq("company_id", companyId)
         .order("account_code", { ascending: true });
 

@@ -13,6 +13,7 @@ import { User } from "@/lib/types";
 import SubtypeManager from "./subtype-manager";
 import { useTranslations } from "@/lib/locale-context";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { HierarchicalSearchableSelect } from "@/components/ui/hierarchical-searchable-select";
 
 interface Employee {
   id: number;
@@ -26,6 +27,8 @@ interface Account {
   id: number;
   account_code: string;
   account_name: string;
+  account_level?: number;
+  parent_account?: string | null;
 }
 
 interface CostCenter {
@@ -629,34 +632,36 @@ export default function ExpenseFormClient({ user }: { user: User }) {
                                 </td>
                               </>
                             )}
-                            <td className="px-2 py-4">
-                              <div className="w-32">
-                                <select 
-                                  className="w-full bg-transparent border-none focus:ring-0 text-xs font-bold truncate"
-                                  value={row.account_code}
-                                  onChange={(e) => updateRow(type, row.id, 'account_code', e.target.value)}
-                                >
-                                  <option value="">-- {t("form.account")} --</option>
-                                  {(metadata?.accounts || []).map(acc => (
-                                    <option key={acc.id} value={acc.account_code}>{acc.account_code} - {acc.account_name}</option>
-                                  ))}
-                                </select>
-                              </div>
-                            </td>
-                            <td className="px-2 py-4">
-                              <div className="w-32">
-                                <select 
-                                  className="w-full bg-transparent border-none focus:ring-0 text-xs font-bold truncate"
-                                  value={row.cost_center_code}
-                                  onChange={(e) => updateRow(type, row.id, 'cost_center_code', e.target.value)}
-                                >
-                                  <option value="">-- {t("form.costCenter")} --</option>
-                                  {(metadata?.costCenters || []).map(cc => (
-                                    <option key={cc.id} value={cc.center_code}>{cc.center_code} - {cc.center_name}</option>
-                                  ))}
-                                </select>
-                              </div>
-                            </td>
+                              <td className="px-2 py-4">
+                                <div className="w-48">
+                                  <HierarchicalSearchableSelect
+                                    items={(metadata?.accounts || []).map(acc => ({
+                                      id: acc.id,
+                                      code: acc.account_code,
+                                      name: acc.account_name,
+                                      level: acc.account_level,
+                                      parent: acc.parent_account
+                                    }))}
+                                    value={row.account_code}
+                                    onSelect={(val) => updateRow(type, row.id, 'account_code', val)}
+                                    placeholder={t("form.account")}
+                                  />
+                                </div>
+                              </td>
+                              <td className="px-2 py-4">
+                                <div className="w-48">
+                                  <HierarchicalSearchableSelect
+                                    items={(metadata?.costCenters || []).map(cc => ({
+                                      id: cc.id,
+                                      code: cc.center_code,
+                                      name: cc.center_name
+                                    }))}
+                                    value={row.cost_center_code}
+                                    onSelect={(val) => updateRow(type, row.id, 'cost_center_code', val)}
+                                    placeholder={t("form.costCenter")}
+                                  />
+                                </div>
+                              </td>
                           <td className="px-2 py-4">
                             <input 
                               type="text" 

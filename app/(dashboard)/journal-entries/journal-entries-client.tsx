@@ -12,11 +12,14 @@ import { toast } from "sonner";
 import { useSearchParams } from "next/navigation";
 import { Suspense } from "react";
 import { useTranslations, useLocale } from "@/lib/locale-context";
+import { HierarchicalSearchableSelect } from "@/components/ui/hierarchical-searchable-select";
 
 interface Account {
   id: number;
   account_code: string;
   account_name: string;
+  account_level?: number;
+  parent_account?: string | null;
 }
 
 interface CostCenter {
@@ -509,42 +512,43 @@ function JournalEntriesContent() {
                       <tbody className="divide-y divide-blue-50">
                         <AnimatePresence>
                           {lines.map((line, index) => (
-                            <motion.tr 
-                              key={index}
-                              initial={{ opacity: 0, x: -20 }}
-                              animate={{ opacity: 1, x: 0 }}
-                              exit={{ opacity: 0, x: 20 }}
-                              className="hover:bg-blue-50/30 transition-colors"
-                            >
-                              <td className="p-2">
-                                <select 
-                                  value={line.account_id}
-                                  onChange={(e) => handleLineChange(index, "account_id", e.target.value)}
-                                  className="w-full p-3 border-2 border-gray-100 rounded-lg focus:border-blue-400 outline-none bg-white transition-all text-sm"
-                                  required
-                                >
-                                  <option value="">{t("selectAccount")}</option>
-                                  {accounts.map(acc => (
-                                    <option key={acc.id} value={acc.id}>
-                                      {acc.account_code} - {acc.account_name}
-                                    </option>
-                                  ))}
-                                </select>
-                              </td>
-                              <td className="p-2">
-                                <select 
-                                  value={line.cost_center_id}
-                                  onChange={(e) => handleLineChange(index, "cost_center_id", e.target.value)}
-                                  className="w-full p-3 border-2 border-gray-100 rounded-lg focus:border-blue-400 outline-none bg-white transition-all text-sm"
-                                >
-                                  <option value="">{t("selectCostCenter")}</option>
-                                  {costCenters.map(cc => (
-                                    <option key={cc.id} value={cc.id}>
-                                      {cc.center_code} - {cc.center_name}
-                                    </option>
-                                  ))}
-                                </select>
-                              </td>
+                              <motion.tr 
+                                key={index}
+                                initial={{ opacity: 0, x: -20 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                exit={{ opacity: 0, x: 20 }}
+                                className="hover:bg-blue-50/30 transition-colors"
+                              >
+                                <td className="p-2">
+                                  <HierarchicalSearchableSelect
+                                    items={accounts.map(acc => ({
+                                      id: acc.id,
+                                      code: acc.account_code,
+                                      name: acc.account_name,
+                                      level: acc.account_level,
+                                      parent: acc.parent_account
+                                    }))}
+                                    value={line.account_id}
+                                    valueKey="id"
+                                    onSelect={(val) => handleLineChange(index, "account_id", val)}
+                                    placeholder={t("selectAccount")}
+                                    className="border-gray-100 h-12"
+                                  />
+                                </td>
+                                <td className="p-2">
+                                  <HierarchicalSearchableSelect
+                                    items={costCenters.map(cc => ({
+                                      id: cc.id,
+                                      code: cc.center_code,
+                                      name: cc.center_name
+                                    }))}
+                                    value={line.cost_center_id || ""}
+                                    valueKey="id"
+                                    onSelect={(val) => handleLineChange(index, "cost_center_id", val)}
+                                    placeholder={t("selectCostCenter")}
+                                    className="border-gray-100 h-12"
+                                  />
+                                </td>
                               <td className="p-2">
                                 <input 
                                   type="text"

@@ -15,11 +15,11 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: "company_id required" }, { status: 400 });
   }
 
-  try {
-    const accounts = await query<any>(
-      "SELECT id, account_code, account_name FROM accounts WHERE company_id = ? ORDER BY account_code",
-      [companyId]
-    );
+    try {
+      const accounts = await query<any>(
+        "SELECT id, account_code, account_name, account_level, parent_account FROM accounts WHERE company_id = ? ORDER BY account_code",
+        [companyId]
+      );
 
     const costCenters = await query<any>(
       "SELECT id, center_code, center_name FROM cost_centers WHERE company_id = ? ORDER BY center_code",

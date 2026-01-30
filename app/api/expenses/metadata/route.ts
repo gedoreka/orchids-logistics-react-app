@@ -13,7 +13,7 @@ export async function GET(request: NextRequest) {
 
     // 1. Fetch Accounts
     const accounts = await query(
-      "SELECT id, account_code, account_name FROM accounts WHERE company_id = ? ORDER BY account_code",
+      "SELECT id, account_code, account_name, account_level, parent_account FROM accounts WHERE company_id = ? ORDER BY account_code",
       [companyId]
     );
 
