@@ -4,6 +4,7 @@
 
 import { KNOWLEDGE_BASE } from "@/ai-assistant/data/knowledge-base";
 import OpenAI from "openai";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 
 // ==================== إعداد OpenAI ====================
 const openai = new OpenAI({
@@ -17,6 +18,10 @@ const deepseek = new OpenAI({
   baseURL: "https://api.deepseek.com",
   dangerouslyAllowBrowser: true,
 });
+
+// ==================== إعداد Gemini ====================
+const genAI = new GoogleGenerativeAI(process.env.GOOGLE_GEMINI_API_KEY || "");
+const geminiModel = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
 // ==================== أنواع TypeScript ====================
 export interface AIResponse {
@@ -134,13 +139,24 @@ export class AIAssistantService {
   }
 
   /**
-   * حساب نسبة التشابه
+   * حساب نسبة التشابه بشكل أكثر مرونة
    */
   private static calculateSimilarity(str1: string, str2: string): number {
     const s1 = this.normalizeText(str1);
     const s2 = this.normalizeText(str2);
+    
     if (s1 === s2) return 1.0;
-    if (s1.includes(s2) || s2.includes(s1)) return 0.8;
+    if (s1.includes(s2) || s2.includes(s1)) return 0.85;
+
+    // تقسيم الكلمات للبحث عن تقاطعات
+    const words1 = s1.split(/\s+/);
+    const words2 = s2.split(/\s+/);
+    const intersection = words1.filter(w => words2.includes(w) && w.length > 2);
+    
+    if (intersection.length > 0) {
+      return (intersection.length / Math.max(words1.length, words2.length)) + 0.5;
+    }
+    
     return 0;
   }
 
@@ -174,9 +190,9 @@ export class AIAssistantService {
   /**
    * توليد رد باستخدام OpenAI
    */
-  static async generateOpenAIResponse(userMessage: string, context: string[] = []): Promise<string> {
+  static async generateOpenAIResponse(userMessage: string, context: string[] = [], localMatch?: AIResponse | null): Promise<string> {
     try {
-      const localContext = KNOWLEDGE_BASE.slice(0, 10).map(e => `س: ${e.keywords[0]} ج: ${e.text}`).join('\n');
+      const systemContext = localMatch ? `معلومات من قاعدة المعرفة: ${localMatch.text}` : "";
       
       const response = await openai.chat.completions.create({
         model: "gpt-4o",
@@ -186,13 +202,13 @@ export class AIAssistantService {
             content: `أنت "سام"، مساعد ذكاء اصطناعي متطور لنظام Logistics Pro. 
             أنت مرتبط بقاعدة معرفة ضخمة للنظام ولديك القدرة على تقديم إجابات دقيقة وشاملة.
             
-            قواعد الرد:
-            1. إذا كان السؤال عن نظام Logistics Pro، استخدم المعلومات التالية كمرجع:
-            ${localContext}
+            ${systemContext}
             
+            قواعد الرد:
+            1. استخدم معلومات قاعدة المعرفة الموفرة أعلاه إذا كانت ذات صلة.
             2. إذا كان السؤال عاماً، قدم إجابة دقيقة بناءً على معلوماتك المحدثة.
-            3. كن ودوداً، احترافياً، واستخدم الرموز التعبيرية بشكل مناسب.
-            4. تحدث دائماً باللغة العربية بلهجة مهذبة ومحترفة.`
+            3. كن ودوداً، احترافياً، ولا تذكر أسماء شركات الذكاء الاصطناعي.
+            4. تحدث دائماً باللغة العربية.`
           },
           ...context.map(m => ({ role: "user" as const, content: m })),
           { role: "user", content: userMessage }
@@ -210,22 +226,18 @@ export class AIAssistantService {
   /**
    * توليد رد باستخدام DeepSeek
    */
-  static async generateDeepSeekResponse(userMessage: string, context: string[] = []): Promise<string> {
+  static async generateDeepSeekResponse(userMessage: string, context: string[] = [], localMatch?: AIResponse | null): Promise<string> {
     try {
-      const localContext = KNOWLEDGE_BASE.slice(0, 5).map(e => `س: ${e.keywords[0]} ج: ${e.text}`).join('\n');
+      const systemContext = localMatch ? `المرجع المحلي: ${localMatch.text}` : "";
       
       const response = await deepseek.chat.completions.create({
         model: "deepseek-chat",
         messages: [
           {
             role: "system",
-            content: `أنت المساعد الذكي الرديف "سام". مهمتك هي تقديم أدق الإجابات الممكنة لنظام Logistics Pro.
-            لديك وصول لقاعدة المعرفة والبحث العالمي.
-            
-            المرجع المحلي:
-            ${localContext}
-            
-            كن دقيقاً جداً في المعلومات التقنية والبرمجية.`
+            content: `أنت المساعد الذكي "سام" لنظام Logistics Pro.
+            ${systemContext}
+            كن دقيقاً جداً في المعلومات التقنية والبرمجية وباللغة العربية.`
           },
           ...context.map(m => ({ role: "user" as const, content: m })),
           { role: "user", content: userMessage }
@@ -241,27 +253,54 @@ export class AIAssistantService {
   }
 
   /**
-   * الرد التفاعلي الرئيسي (Hybrid AI - Dual Engine)
+   * توليد رد باستخدام Gemini
+   */
+  static async generateGeminiResponse(userMessage: string, context: string[] = [], localMatch?: AIResponse | null): Promise<string> {
+    try {
+      const systemContext = localMatch ? `المرجع المحلي: ${localMatch.text}` : "";
+      
+      const prompt = `أنت المساعد الذكي "سام" لنظام Logistics Pro.
+      ${systemContext}
+      سياق المحادثة: ${context.join(' | ')}
+      المستخدم: ${userMessage}
+      أجب باحترافية باللغة العربية دون ذكر جوجل أو Gemini.`;
+
+      const result = await geminiModel.generateContent(prompt);
+      const response = await result.response;
+      return response.text() || "";
+    } catch (error) {
+      console.error("Gemini Engine Error:", error);
+      return "";
+    }
+  }
+
+  /**
+   * الرد التفاعلي الرئيسي (Hybrid AI - Multi Engine)
    */
   static async generateInteractiveResponse(userMessage: string, context: string[] = []): Promise<AIResponse> {
-    // 1. محاولة البحث المحلي أولاً لضمان الدقة في معلومات النظام
+    // 1. محاولة البحث المحلي أولاً
     const localMatch = await this.findInKnowledgeBase(userMessage);
     
-    // 2. إذا وجدنا تطابقاً قوياً جداً (أكثر من 95%) نستخدمه مباشرة
-    if (localMatch && localMatch.confidenceScore! > 0.95) {
+    // 2. إذا وجدنا تطابقاً قوياً جداً نستخدمه مباشرة
+    if (localMatch && localMatch.confidenceScore! > 0.98) {
       return localMatch;
     }
 
-    // 3. تشغيل المحركات بالتوالي للحصول على أفضل إجابة
-    let finalResponseText = await this.generateOpenAIResponse(userMessage, context);
+    // 3. محاولة المحركات (OpenAI -> DeepSeek -> Gemini)
+    let finalResponseText = await this.generateOpenAIResponse(userMessage, context, localMatch);
     
-    if (!finalResponseText || finalResponseText.length < 10) {
-      finalResponseText = await this.generateDeepSeekResponse(userMessage, context);
+    if (!finalResponseText || finalResponseText.length < 5) {
+      finalResponseText = await this.generateDeepSeekResponse(userMessage, context, localMatch);
     }
 
-    // إذا فشل كلاهما
-    if (!finalResponseText) {
-      finalResponseText = "عذراً، أواجه ضغطاً في معالجة الطلبات حالياً. سأحاول البحث في قاعدة المعرفة المحلية... " + (localMatch?.text || "لا أستطيع العثور على إجابة دقيقة حالياً.");
+    if (!finalResponseText || finalResponseText.length < 5) {
+      finalResponseText = await this.generateGeminiResponse(userMessage, context, localMatch);
+    }
+
+    // 4. السقوط الأخير (Fallback)
+    if (!finalResponseText || finalResponseText.length < 5) {
+      finalResponseText = localMatch?.text || 
+        "أعتذر منك، أواجه ضغطاً تقنياً حالياً. هل يمكنك إعادة صياغة سؤالك أو سؤالي عن شيء آخر في النظام؟";
     }
     
     return {
