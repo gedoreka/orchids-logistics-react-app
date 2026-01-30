@@ -135,14 +135,22 @@ export function CostCentersClient({ initialCostCenters, companyId }: CostCenters
     e.preventDefault();
     setIsLoading(true);
 
+    const previousCenters = [...costCenters];
+
     try {
       if (editingCenter) {
+        // Optimistic update
+        const updatedCenter = { ...editingCenter, ...formData };
+        setCostCenters(prev => prev.map(c => c.id === editingCenter.id ? updatedCenter : c));
+        
         const result = await updateCostCenter(editingCenter.id, formData);
         if (result.success) {
           toast.success(t("updateSuccess"));
           setIsModalOpen(false);
           router.refresh();
         } else {
+          // Rollback
+          setCostCenters(previousCenters);
           toast.error(result.error || t("updateError"));
         }
       } else {
@@ -150,12 +158,15 @@ export function CostCentersClient({ initialCostCenters, companyId }: CostCenters
         if (result.success) {
           toast.success(t("addSuccess"));
           setIsModalOpen(false);
+          // For create, we wait for the result to get the ID, but we update state immediately after success
+          // instead of just waiting for router.refresh()
           router.refresh();
         } else {
           toast.error(result.error || t("addError"));
         }
       }
     } catch {
+      setCostCenters(previousCenters);
       toast.error(t("unexpectedError"));
     } finally {
       setIsLoading(false);
@@ -163,16 +174,25 @@ export function CostCentersClient({ initialCostCenters, companyId }: CostCenters
   };
 
   const handleDelete = async (id: number) => {
+    const previousCenters = [...costCenters];
+    
+    // Optimistic update
+    setCostCenters(prev => prev.filter(c => c.id !== id));
+    setDeleteConfirm(null);
+
     try {
       const result = await deleteCostCenter(id);
       if (result.success) {
         toast.success(t("deleteSuccess"));
-        setDeleteConfirm(null);
         router.refresh();
       } else {
+        // Rollback
+        setCostCenters(previousCenters);
         toast.error(result.error || t("deleteError"));
       }
     } catch {
+      // Rollback
+      setCostCenters(previousCenters);
       toast.error(t("unexpectedError"));
     }
   };
@@ -189,6 +209,7 @@ export function CostCentersClient({ initialCostCenters, companyId }: CostCenters
       const data = await response.json();
       if (data.success) {
         toast.success(t("seedSuccess"));
+        // Re-fetch or refresh to show new data immediately
         router.refresh();
       } else {
         toast.error(data.error || t("seedError"));
@@ -505,22 +526,23 @@ export function CostCentersClient({ initialCostCenters, companyId }: CostCenters
                     <label className="text-xs font-black text-slate-500 uppercase tracking-wider">{t("parentCenter")}</label>
                     <div className="relative">
                       <Layers className={cn("absolute top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4", isRtl ? "right-4" : "left-4")} />
-                      <select
-                        value={formData.parent_id || ""}
-                        onChange={(e) => setFormData({ ...formData, parent_id: e.target.value ? Number(e.target.value) : null })}
-                        className={cn(
-                          "w-full bg-slate-50 border border-slate-200 rounded-xl py-3 focus:ring-2 focus:ring-amber-500 focus:border-transparent outline-none transition-all text-sm font-bold appearance-none",
-                          isRtl ? "pr-11 pl-4" : "pl-11 pr-4"
-                        )}
-                      >
-                        <option value="">{isRtl ? "بدون أب (مركز رئيسي)" : "No Parent (Main Center)"}</option>
-                        {costCenters
-                          .filter(c => c.center_type === 'main' && c.id !== editingCenter?.id)
-                          .map(c => (
-                            <option key={c.id} value={c.id}>{c.center_code} - {c.center_name}</option>
-                          ))
-                        }
-                      </select>
+                        <select
+                          value={formData.parent_id || ""}
+                          onChange={(e) => setFormData({ ...formData, parent_id: e.target.value ? Number(e.target.value) : null })}
+                          className={cn(
+                            "w-full bg-slate-50 border border-slate-200 rounded-xl py-3 focus:ring-2 focus:ring-amber-500 focus:border-transparent outline-none transition-all text-sm font-bold appearance-none",
+                            isRtl ? "pr-11 pl-4" : "pl-11 pr-4"
+                          )}
+                        >
+                          <option value="">{t("noParent")}</option>
+                          {costCenters
+                            .filter(c => c.center_type === 'main' && c.id !== editingCenter?.id)
+                            .map(c => (
+                              <option key={c.id} value={c.id}>{c.center_code} - {c.center_name}</option>
+                            ))
+                          }
+                        </select>
+
                     </div>
                   </div>
                 </div>
@@ -530,35 +552,36 @@ export function CostCentersClient({ initialCostCenters, companyId }: CostCenters
                     <label className="text-xs font-black text-slate-500 uppercase tracking-wider">{t("centerCode")}</label>
                     <div className="relative">
                       <Hash className={cn("absolute top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4", isRtl ? "right-4" : "left-4")} />
-                      <input
-                        type="text"
-                        required
-                        value={formData.center_code}
-                        onChange={(e) => setFormData({ ...formData, center_code: e.target.value })}
-                        placeholder={t("codeExample")}
-                        className={cn(
-                          "w-full bg-slate-50 border border-slate-200 rounded-xl py-3 focus:ring-2 focus:ring-amber-500 outline-none transition-all text-sm font-bold",
-                          isRtl ? "pr-11 pl-4" : "pl-11 pr-4"
-                        )}
-                      />
+                        <input
+                          type="text"
+                          required
+                          value={formData.center_code}
+                          onChange={(e) => setFormData({ ...formData, center_code: e.target.value })}
+                          placeholder={t("codePlaceholder")}
+                          className={cn(
+                            "w-full bg-slate-50 border border-slate-200 rounded-xl py-3 focus:ring-2 focus:ring-amber-500 outline-none transition-all text-sm font-bold",
+                            isRtl ? "pr-11 pl-4" : "pl-11 pr-4"
+                          )}
+                        />
+                      </div>
                     </div>
-                  </div>
+  
+                    <div className="space-y-2">
+                      <label className="text-xs font-black text-slate-500 uppercase tracking-wider">{t("centerName")}</label>
+                      <div className="relative">
+                        <Building className={cn("absolute top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4", isRtl ? "right-4" : "left-4")} />
+                        <input
+                          type="text"
+                          required
+                          value={formData.center_name}
+                          onChange={(e) => setFormData({ ...formData, center_name: e.target.value })}
+                          placeholder={t("namePlaceholder")}
+                          className={cn(
+                            "w-full bg-slate-50 border border-slate-200 rounded-xl py-3 focus:ring-2 focus:ring-amber-500 outline-none transition-all text-sm font-bold",
+                            isRtl ? "pr-11 pl-4" : "pl-11 pr-4"
+                          )}
+                        />
 
-                  <div className="space-y-2">
-                    <label className="text-xs font-black text-slate-500 uppercase tracking-wider">{t("centerName")}</label>
-                    <div className="relative">
-                      <Building className={cn("absolute top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4", isRtl ? "right-4" : "left-4")} />
-                      <input
-                        type="text"
-                        required
-                        value={formData.center_name}
-                        onChange={(e) => setFormData({ ...formData, center_name: e.target.value })}
-                        placeholder={t("nameExample")}
-                        className={cn(
-                          "w-full bg-slate-50 border border-slate-200 rounded-xl py-3 focus:ring-2 focus:ring-amber-500 outline-none transition-all text-sm font-bold",
-                          isRtl ? "pr-11 pl-4" : "pl-11 pr-4"
-                        )}
-                      />
                     </div>
                   </div>
                 </div>
