@@ -9,12 +9,13 @@ interface CompanyWithUser {
   name: string;
   email: string;
   commercial_number: string;
+  temp_password?: string;
 }
 
 export async function approveCompany(id: number) {
   try {
     const companies = await query<CompanyWithUser>(
-      "SELECT c.id, c.name, c.commercial_number, u.email FROM companies c LEFT JOIN users u ON u.company_id = c.id WHERE c.id = ? LIMIT 1",
+      "SELECT c.id, c.name, c.commercial_number, c.temp_password, u.email FROM companies c LEFT JOIN users u ON u.company_id = c.id WHERE c.id = ? LIMIT 1",
       [id]
     );
     
@@ -24,15 +25,23 @@ export async function approveCompany(id: number) {
     
     const company = companies[0];
 
-    await execute("UPDATE companies SET status = 'approved', is_active = 1 WHERE id = ?", [id]);
+    // Calculate trial end date (14 days from now)
+    const endDate = new Date();
+    endDate.setDate(endDate.getDate() + 14);
+    const subscriptionEndDate = endDate.toISOString().split('T')[0];
+
+    await execute(
+      "UPDATE companies SET status = 'approved', is_active = 1, selected_plan_id = 1, is_subscription_active = 1, subscription_end_date = ?, temp_password = NULL WHERE id = ?", 
+      [subscriptionEndDate, id]
+    );
     
     await execute(
-      "UPDATE users SET role = 'user', is_active = 1, is_activated = 1, activation_date = NOW() WHERE company_id = ?",
+      "UPDATE users SET role = 'admin', is_active = 1, is_activated = 1, activation_date = NOW() WHERE company_id = ?",
       [id]
     );
 
     if (company.email) {
-      const html = generateApprovalEmailTemplate(company.name);
+      const html = generateApprovalEmailTemplate(company.name, company.email, company.temp_password || "الكلمة التي اخترتها عند التسجيل");
       await sendEmail({
         to: company.email,
         subject: "تهانينا! تم تفعيل حسابك في ZoolSpeed - مرحباً بك في عائلتنا",
@@ -61,7 +70,7 @@ export async function rejectCompany(id: number) {
     
     const company = companies[0];
 
-    await execute("UPDATE companies SET status = 'rejected', is_active = 0 WHERE id = ?", [id]);
+    await execute("UPDATE companies SET status = 'rejected', is_active = 0, temp_password = NULL WHERE id = ?", [id]);
     
     await execute(
       "UPDATE users SET is_active = 0, is_activated = 0 WHERE company_id = ?",
@@ -85,7 +94,7 @@ export async function rejectCompany(id: number) {
   }
 }
 
-function generateApprovalEmailTemplate(companyName: string): string {
+function generateApprovalEmailTemplate(companyName: string, email: string, password: string): string {
   return `
     <!DOCTYPE html>
     <html dir="rtl" lang="ar">
@@ -113,6 +122,23 @@ function generateApprovalEmailTemplate(companyName: string): string {
                 <strong style="color: #10b981; font-size: 28px; display: block; margin: 15px 0; background: linear-gradient(135deg, #10b981, #059669); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">${companyName}</strong>
                 في عائلة ZoolSpeed
               </p>
+            </div>
+
+            <div style="background: #f8fafc; border-radius: 20px; padding: 25px; margin-bottom: 30px; border: 1px solid #e2e8f0; text-align: right;">
+              <h3 style="color: #1e293b; font-size: 18px; margin: 0 0 15px 0; font-weight: 700; border-bottom: 2px solid #10b981; padding-bottom: 10px; display: inline-block;">بيانات الدخول الخاصة بك:</h3>
+              <div style="margin-bottom: 15px;">
+                <p style="margin: 5px 0; color: #64748b; font-size: 14px;">البريد الإلكتروني:</p>
+                <p style="margin: 0; color: #1e293b; font-size: 16px; font-weight: 700;">${email}</p>
+              </div>
+              <div style="margin-bottom: 15px;">
+                <p style="margin: 5px 0; color: #64748b; font-size: 14px;">كلمة المرور:</p>
+                <p style="margin: 0; color: #1e293b; font-size: 16px; font-weight: 700;">${password}</p>
+              </div>
+              <div style="background: #fffbeb; border: 1px solid #fde68a; border-radius: 12px; padding: 15px; margin-top: 20px;">
+                <p style="margin: 0; color: #92400e; font-size: 14px; font-weight: 600;">
+                  ⚠️ تنبيه: لقد تم منحك <strong>باقة تجريبية مجانية لمدة 14 يوم</strong> لتجربة كافة خدمات النظام. يمكنك الترقية إلى الباقة الدائمة في أي وقت من داخل النظام.
+                </p>
+              </div>
             </div>
             
             <div style="background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%); border-radius: 20px; padding: 30px; margin-bottom: 30px; border: 1px solid #bbf7d0;">
@@ -147,75 +173,6 @@ function generateApprovalEmailTemplate(companyName: string): string {
             <div style="background: #f8fafc; border-radius: 16px; padding: 25px; text-align: center; border: 1px solid #e2e8f0;">
               <p style="color: #64748b; font-size: 14px; margin: 0 0 10px 0;">هل تحتاج مساعدة؟ فريق الدعم الفني جاهز لخدمتك</p>
               <p style="color: #10b981; font-size: 16px; font-weight: 700; margin: 0;">support@zoolspeed.com</p>
-            </div>
-          </div>
-          
-          <div style="background: #0f172a; padding: 30px 40px; text-align: center;">
-            <p style="color: #64748b; font-size: 12px; margin: 0 0 10px 0;">© ${new Date().getFullYear()} ZoolSpeed. جميع الحقوق محفوظة</p>
-            <p style="color: #475569; font-size: 11px; margin: 0;">هذا البريد مرسل آلياً، يرجى عدم الرد عليه</p>
-          </div>
-          
-        </div>
-      </div>
-    </body>
-    </html>
-  `;
-}
-
-function generateRejectionEmailTemplate(companyName: string): string {
-  return `
-    <!DOCTYPE html>
-    <html dir="rtl" lang="ar">
-    <head>
-      <meta charset="UTF-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    </head>
-    <body style="margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); min-height: 100vh;">
-      <div style="max-width: 650px; margin: 0 auto; padding: 40px 20px;">
-        <div style="background: linear-gradient(180deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%); backdrop-filter: blur(20px); border-radius: 32px; overflow: hidden; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);">
-          
-          <div style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 50%, #b45309 100%); padding: 50px 40px; text-align: center; position: relative;">
-            <div style="position: absolute; top: 0; left: 0; right: 0; height: 4px; background: linear-gradient(90deg, #fbbf24, #f59e0b, #d97706, #b45309, #d97706, #f59e0b, #fbbf24); background-size: 200% 100%;"></div>
-            <div style="width: 100px; height: 100px; background: rgba(255,255,255,0.2); border-radius: 24px; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 24px; box-shadow: 0 20px 40px rgba(0,0,0,0.2);">
-              <span style="font-size: 50px;">⚠</span>
-            </div>
-            <h1 style="color: #ffffff; font-size: 32px; font-weight: 800; margin: 0 0 12px 0; text-shadow: 0 4px 20px rgba(0,0,0,0.3);">تحديث حالة الطلب</h1>
-            <p style="color: rgba(255,255,255,0.9); font-size: 18px; margin: 0; font-weight: 500;">نأسف لإبلاغك بهذا الخبر</p>
-          </div>
-          
-          <div style="padding: 50px 40px; background: #ffffff;">
-            <div style="text-align: center; margin-bottom: 40px;">
-              <p style="font-size: 20px; color: #1e293b; line-height: 1.8; margin: 0;">
-                عزيزي العميل في شركة<br>
-                <strong style="color: #f59e0b; font-size: 26px; display: block; margin: 15px 0;">${companyName}</strong>
-              </p>
-            </div>
-            
-            <div style="background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%); border-radius: 20px; padding: 30px; margin-bottom: 30px; border: 1px solid #fde68a;">
-              <p style="color: #92400e; font-size: 16px; line-height: 1.8; margin: 0; text-align: center;">
-                نأسف لإبلاغك بأن طلب التسجيل الخاص بشركتك لم يتم الموافقة عليه في الوقت الحالي. 
-                قد يكون ذلك بسبب عدم اكتمال المستندات المطلوبة أو عدم مطابقة بعض المعلومات.
-              </p>
-            </div>
-            
-            <div style="background: #f0fdf4; border-radius: 16px; padding: 25px; margin-bottom: 30px; border: 1px solid #bbf7d0;">
-              <h3 style="color: #166534; font-size: 16px; margin: 0 0 15px 0; font-weight: 700;">ماذا يمكنك فعله؟</h3>
-              <ul style="margin: 0; padding: 0 20px; color: #374151; font-size: 14px; line-height: 2;">
-                <li>مراجعة البيانات والمستندات المرفقة</li>
-                <li>التأكد من صحة رقم السجل التجاري</li>
-                <li>التواصل مع فريق الدعم لمعرفة التفاصيل</li>
-                <li>إعادة تقديم الطلب بعد استكمال المتطلبات</li>
-              </ul>
-            </div>
-            
-            <div style="text-align: center; margin: 40px 0;">
-              <a href="mailto:support@zoolspeed.com" style="display: inline-block; background: linear-gradient(135deg, #0078D4 0%, #8A2BE2 100%); color: white; text-decoration: none; padding: 18px 50px; border-radius: 14px; font-size: 18px; font-weight: 700; box-shadow: 0 10px 30px rgba(0,120,212,0.4);">
-                تواصل مع الدعم الفني
-              </a>
-            </div>
-            
-            <div style="background: #f8fafc; border-radius: 16px; padding: 25px; text-align: center; border: 1px solid #e2e8f0;">
-              <p style="color: #64748b; font-size: 14px; margin: 0;">نحن هنا لمساعدتك في أي استفسار</p>
             </div>
           </div>
           

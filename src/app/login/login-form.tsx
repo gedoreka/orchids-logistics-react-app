@@ -128,9 +128,16 @@ export default function LoginForm({ initialEmail = "" }: LoginFormProps) {
       if (result.user?.company_name) {
         localStorage.setItem("last_company_name", result.user.company_name);
       }
+      
+      const isFirstLogin = result.user?.is_first_login === 1;
       setShowWelcome(true);
+      
       setTimeout(() => {
-        router.push("/dashboard");
+        if (isFirstLogin) {
+          router.push("/subscriptions");
+        } else {
+          router.push("/dashboard");
+        }
         router.refresh();
       }, 2500);
     } else {
