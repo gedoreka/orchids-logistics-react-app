@@ -37,7 +37,8 @@ import {
   Sparkles,
   ChevronLeft,
   ChevronRight,
-  Zap
+  Zap,
+  FileCheck
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useLocale, useTranslations } from "@/lib/locale-context";
@@ -91,6 +92,7 @@ const navItems: NavItem[] = [
   { titleKey: "balanceSheet", href: "/balance-sheet", icon: FileText, permission: "balance_sheet_module", gradient: "from-blue-500 to-cyan-500" },
   
     { titleKey: "subUsersManagement", href: "/sub-users", icon: Users, permission: "sub_users_module", gradient: "from-violet-500 to-purple-500" },
+    { titleKey: "taxDeclarations", href: "/tax-declarations", icon: FileCheck, permission: "balance_sheet_module", gradient: "from-blue-600 to-indigo-600" },
     { titleKey: "taxSettings", href: "/tax-settings", icon: Calculator, permission: "balance_sheet_module", gradient: "from-rose-500 to-pink-500" },
   ];
 
