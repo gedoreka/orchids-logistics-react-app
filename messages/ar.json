@@ -267,7 +267,7 @@
     "shipmentManagement": "إدارة الشحنات",
     "monthlyCommissions": "نظام العمولة الشهرية",
     "commissionsReport": "تقرير العمولات",
-    "expensesCenter": "مركز المصاريف",
+      "expensesCenter": "مركز المنصرفات العامة",
     "journalEntries": "القيود اليومية",
     "profitLossSummary": "ملخص الأرباح والخسائر",
       "letterTemplates": "الخطابات الجاهزة",
@@ -1060,10 +1060,10 @@
     "vatInvoiceEn": "VAT Invoice"
   },
   "expenses": {
-    "title": "مركز المنصرفات الشهرية",
-    "subtitle": "إدارة مصروفات المنشأة",
-    "dashboard": {
-      "title": "مركز المصاريف",
+      "title": "مركز المنصرفات العامة",
+      "subtitle": "إدارة مصروفات المنشأة",
+      "dashboard": {
+        "title": "مركز المنصرفات العامة",
       "addExpense": "إضافة مصروف",
       "newMonthlyExpense": "مصروف شهري جديد",
       "addDeduction": "إضافة استقطاع",
