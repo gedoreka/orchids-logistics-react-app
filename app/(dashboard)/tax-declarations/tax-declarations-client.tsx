@@ -16,7 +16,11 @@ import {
     CheckCircle2, 
     Clock,
     History,
-    RefreshCw
+    RefreshCw,
+    Eye,
+    Pencil,
+    Trash2,
+    Printer
   } from "lucide-react";
 import { format } from "date-fns";
 import Link from "next/link";
@@ -24,6 +28,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
 
 interface TaxDeclaration {
   id: string;
@@ -44,6 +55,9 @@ export function TaxDeclarationsClient({ companyId }: { companyId: number }) {
   const [declarations, setDeclarations] = useState<TaxDeclaration[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
+  const [selectedDeclaration, setSelectedDeclaration] = useState<TaxDeclaration | null>(null);
+  const [isViewOpen, setIsViewOpen] = useState(false);
+  const [isEditOpen, setIsEditOpen] = useState(false);
 
   useEffect(() => {
     fetchDeclarations();
@@ -51,6 +65,7 @@ export function TaxDeclarationsClient({ companyId }: { companyId: number }) {
 
   const fetchDeclarations = async () => {
     try {
+      setLoading(true);
       const response = await fetch(`/api/taxes/declarations?company_id=${companyId}`);
       const data = await response.json();
       if (data.success) {
@@ -60,6 +75,92 @@ export function TaxDeclarationsClient({ companyId }: { companyId: number }) {
       console.error("Error fetching declarations:", error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleDelete = async (id: string) => {
+    if (!confirm("هل أنت متأكد من حذف هذا الإقرار الضريبي؟")) return;
+
+    try {
+      const response = await fetch(`/api/taxes/declarations/${id}`, {
+        method: 'DELETE'
+      });
+      const data = await response.json();
+      if (data.success) {
+        setDeclarations(declarations.filter(d => d.id !== id));
+      } else {
+        alert("فشل حذف الإقرار");
+      }
+    } catch (error) {
+      console.error("Error deleting declaration:", error);
+      alert("خطأ في الاتصال بالسيرفر");
+    }
+  };
+
+  const handleUpdateStatus = async (status: string) => {
+    if (!selectedDeclaration) return;
+
+    try {
+      const response = await fetch(`/api/taxes/declarations/${selectedDeclaration.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status })
+      });
+      const data = await response.json();
+      if (data.success) {
+        setDeclarations(declarations.map(d => d.id === selectedDeclaration.id ? { ...d, status } : d));
+        setIsEditOpen(false);
+      }
+    } catch (error) {
+      console.error("Error updating declaration:", error);
+    }
+  };
+
+  const handlePrint = (d: TaxDeclaration) => {
+    const printContent = `
+      <div dir="rtl" style="font-family: Arial, sans-serif; padding: 40px;">
+        <h1 style="text-align: center;">إقرار ضريبة القيمة المضافة</h1>
+        <hr/>
+        <p><strong>الفترة:</strong> الربع ${d.period_quarter} - ${d.period_year}</p>
+        <p><strong>التاريخ:</strong> ${d.start_date} إلى ${d.end_date}</p>
+        <p><strong>الحالة:</strong> ${d.status === 'submitted' ? 'مقدم' : d.status === 'completed' ? 'مكتمل' : 'مسودة'}</p>
+        <br/>
+        <table style="width: 100%; border-collapse: collapse;">
+          <tr style="background: #f0f0f0;">
+            <th style="border: 1px solid #ddd; padding: 10px;">البيان</th>
+            <th style="border: 1px solid #ddd; padding: 10px;">المبلغ (ر.س)</th>
+          </tr>
+          <tr>
+            <td style="border: 1px solid #ddd; padding: 10px;">إجمالي المبيعات الخاضعة للضريبة</td>
+            <td style="border: 1px solid #ddd; padding: 10px;">${Number(d.total_sales_taxable).toLocaleString()}</td>
+          </tr>
+          <tr>
+            <td style="border: 1px solid #ddd; padding: 10px;">ضريبة المخرجات</td>
+            <td style="border: 1px solid #ddd; padding: 10px;">${Number(d.total_output_tax).toLocaleString()}</td>
+          </tr>
+          <tr>
+            <td style="border: 1px solid #ddd; padding: 10px;">إجمالي المشتريات الخاضعة للضريبة</td>
+            <td style="border: 1px solid #ddd; padding: 10px;">${Number(d.total_purchases_taxable).toLocaleString()}</td>
+          </tr>
+          <tr>
+            <td style="border: 1px solid #ddd; padding: 10px;">ضريبة المدخلات</td>
+            <td style="border: 1px solid #ddd; padding: 10px;">${Number(d.total_input_tax).toLocaleString()}</td>
+          </tr>
+          <tr style="font-weight: bold; background: #eef2ff;">
+            <td style="border: 1px solid #ddd; padding: 10px;">صافي الضريبة المستحقة</td>
+            <td style="border: 1px solid #ddd; padding: 10px;">${Number(d.net_tax_payable).toLocaleString()}</td>
+          </tr>
+        </table>
+        <br/>
+        <p style="text-align: center; color: #666; font-size: 12px;">تم الطباعة في ${new Date().toLocaleString()}</p>
+      </div>
+    `;
+
+    const printWindow = window.open('', '_blank');
+    if (printWindow) {
+      printWindow.document.write(`<html><head><title>Print Tax Declaration</title></head><body>${printContent}</body></html>`);
+      printWindow.document.close();
+      printWindow.print();
     }
   };
 
@@ -263,16 +364,52 @@ export function TaxDeclarationsClient({ companyId }: { companyId: number }) {
                         <td className="px-6 py-5 text-gray-400 text-sm font-medium">
                           {format(new Date(d.created_at), "yyyy-MM-dd")}
                         </td>
-                        <td className="px-8 py-5">
-                          <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-all transform translate-x-2 group-hover:translate-x-0">
-                            <Button variant="ghost" size="icon" className="h-9 w-9 text-gray-400 hover:text-indigo-600 hover:bg-white shadow-sm border border-transparent hover:border-indigo-100">
-                              <Download className="w-4.5 h-4.5" />
-                            </Button>
-                            <Button variant="ghost" size="icon" className="h-9 w-9 text-gray-400 hover:text-indigo-600 hover:bg-white shadow-sm border border-transparent hover:border-indigo-100">
-                              <MoreVertical className="w-4.5 h-4.5" />
-                            </Button>
-                          </div>
-                        </td>
+                          <td className="px-8 py-5">
+                            <div className="flex items-center gap-2">
+                              <Button 
+                                variant="ghost" 
+                                size="icon" 
+                                className="h-8 w-8 text-indigo-600 hover:bg-indigo-50"
+                                onClick={() => {
+                                  setSelectedDeclaration(d);
+                                  setIsViewOpen(true);
+                                }}
+                                title="عرض التفاصيل"
+                              >
+                                <Eye className="w-4 h-4" />
+                              </Button>
+                              <Button 
+                                variant="ghost" 
+                                size="icon" 
+                                className="h-8 w-8 text-amber-600 hover:bg-amber-50"
+                                onClick={() => {
+                                  setSelectedDeclaration(d);
+                                  setIsEditOpen(true);
+                                }}
+                                title="تعديل الحالة"
+                              >
+                                <Pencil className="w-4 h-4" />
+                              </Button>
+                              <Button 
+                                variant="ghost" 
+                                size="icon" 
+                                className="h-8 w-8 text-blue-600 hover:bg-blue-50"
+                                onClick={() => handlePrint(d)}
+                                title="طباعة الإقرار"
+                              >
+                                <Printer className="w-4 h-4" />
+                              </Button>
+                              <Button 
+                                variant="ghost" 
+                                size="icon" 
+                                className="h-8 w-8 text-rose-600 hover:bg-rose-50"
+                                onClick={() => handleDelete(d.id)}
+                                title="حذف"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </Button>
+                            </div>
+                          </td>
                       </motion.tr>
                     ))
                   )}
@@ -281,7 +418,101 @@ export function TaxDeclarationsClient({ companyId }: { companyId: number }) {
             </div>
           </CardContent>
         </Card>
+        </div>
+
+        {/* View Modal */}
+        <Dialog open={isViewOpen} onOpenChange={setIsViewOpen}>
+          <DialogContent className="max-w-2xl bg-white" dir="rtl">
+            <DialogHeader>
+              <DialogTitle className="text-xl font-black">تفاصيل الإقرار الضريبي</DialogTitle>
+              <DialogDescription>
+                الربع {selectedDeclaration?.period_quarter} - {selectedDeclaration?.period_year}
+              </DialogDescription>
+            </DialogHeader>
+            {selectedDeclaration && (
+              <div className="space-y-6">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="p-4 bg-gray-50 rounded-xl">
+                    <p className="text-xs text-gray-500 font-bold mb-1">تاريخ البداية</p>
+                    <p className="font-black">{selectedDeclaration.start_date}</p>
+                  </div>
+                  <div className="p-4 bg-gray-50 rounded-xl">
+                    <p className="text-xs text-gray-500 font-bold mb-1">تاريخ النهاية</p>
+                    <p className="font-black">{selectedDeclaration.end_date}</p>
+                  </div>
+                </div>
+
+                <div className="space-y-3">
+                  <h4 className="font-black text-sm text-indigo-600 border-b pb-2">تفاصيل الضريبة</h4>
+                  <div className="flex justify-between items-center py-2 border-b border-dashed">
+                    <span className="text-gray-600 font-medium">إجمالي المبيعات الخاضعة للضريبة</span>
+                    <span className="font-black">{Number(selectedDeclaration.total_sales_taxable).toLocaleString()} ر.س</span>
+                  </div>
+                  <div className="flex justify-between items-center py-2 border-b border-dashed">
+                    <span className="text-gray-600 font-medium text-emerald-600">ضريبة المخرجات (+)</span>
+                    <span className="font-black text-emerald-600">{Number(selectedDeclaration.total_output_tax).toLocaleString()} ر.س</span>
+                  </div>
+                  <div className="flex justify-between items-center py-2 border-b border-dashed">
+                    <span className="text-gray-600 font-medium">إجمالي المشتريات الخاضعة للضريبة</span>
+                    <span className="font-black">{Number(selectedDeclaration.total_purchases_taxable).toLocaleString()} ر.س</span>
+                  </div>
+                  <div className="flex justify-between items-center py-2 border-b border-dashed">
+                    <span className="text-gray-600 font-medium text-rose-600">ضريبة المدخلات (-)</span>
+                    <span className="font-black text-rose-600">{Number(selectedDeclaration.total_input_tax).toLocaleString()} ر.س</span>
+                  </div>
+                  <div className="flex justify-between items-center py-4 bg-indigo-50 px-4 rounded-xl mt-4">
+                    <span className="font-black text-indigo-900">صافي الضريبة المستحقة</span>
+                    <span className="text-xl font-black text-indigo-600">{Number(selectedDeclaration.net_tax_payable).toLocaleString()} ر.س</span>
+                  </div>
+                </div>
+
+                <div className="flex justify-end gap-3 pt-4">
+                  <Button variant="outline" onClick={() => setIsViewOpen(false)}>إغلاق</Button>
+                  <Button className="bg-indigo-600 text-white" onClick={() => handlePrint(selectedDeclaration)}>
+                    <Printer className="w-4 h-4 ml-2" />
+                    طباعة
+                  </Button>
+                </div>
+              </div>
+            )}
+          </DialogContent>
+        </Dialog>
+
+        {/* Edit Status Modal */}
+        <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
+          <DialogContent className="max-w-md bg-white" dir="rtl">
+            <DialogHeader>
+              <DialogTitle className="text-xl font-black">تعديل حالة الإقرار</DialogTitle>
+              <DialogDescription>تحديث حالة الإقرار الضريبي الحالي</DialogDescription>
+            </DialogHeader>
+            <div className="grid gap-3 py-4">
+              <Button 
+                variant={selectedDeclaration?.status === 'draft' ? 'default' : 'outline'}
+                className="justify-start h-12 font-bold"
+                onClick={() => handleUpdateStatus('draft')}
+              >
+                <div className="w-3 h-3 rounded-full bg-yellow-400 ml-3" />
+                مسودة
+              </Button>
+              <Button 
+                variant={selectedDeclaration?.status === 'submitted' ? 'default' : 'outline'}
+                className="justify-start h-12 font-bold"
+                onClick={() => handleUpdateStatus('submitted')}
+              >
+                <div className="w-3 h-3 rounded-full bg-green-500 ml-3" />
+                تم التقديم
+              </Button>
+              <Button 
+                variant={selectedDeclaration?.status === 'completed' ? 'default' : 'outline'}
+                className="justify-start h-12 font-bold"
+                onClick={() => handleUpdateStatus('completed')}
+              >
+                <div className="w-3 h-3 rounded-full bg-blue-500 ml-3" />
+                مكتمل ومسدد
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
-    </div>
-  );
-}
+    );
+  }
