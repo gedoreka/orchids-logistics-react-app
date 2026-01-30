@@ -27,6 +27,7 @@ import {
   Info,
   Edit3,
   Eye,
+  Download,
   Umbrella,
   CheckCircle2,
   ShieldCheck,
@@ -1123,17 +1124,57 @@ function GlassField({ label, value, onChange, editable, type = "text", icon }: a
 
 function GlassDocCard({ label, path }: any) {
   const imageUrl = getPublicUrl(path);
+
+  const handleDownload = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!imageUrl) return;
+    
+    try {
+      const response = await fetch(imageUrl);
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      
+      // Extract extension from path or default to jpg
+      const extension = path?.split('.').pop() || 'jpg';
+      link.download = `${label}.${extension}`;
+      
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+      toast.success("تم بدء التحميل");
+    } catch (error) {
+      console.error('Download error:', error);
+      toast.error("فشل تحميل الملف");
+    }
+  };
+
   return (
     <motion.div 
       whileHover={{ scale: 1.02 }}
       className="group"
     >
-      <div onClick={() => imageUrl && window.open(imageUrl, '_blank')} className="relative overflow-hidden rounded-2xl border border-slate-200 dark:border-white/10 bg-white/60 dark:bg-white/5 backdrop-blur-xl aspect-video cursor-pointer hover:border-indigo-500/30 transition-all shadow-sm hover:shadow-lg">
+      <div className="relative overflow-hidden rounded-2xl border border-slate-200 dark:border-white/10 bg-white/60 dark:bg-white/5 backdrop-blur-xl aspect-video cursor-pointer hover:border-indigo-500/30 transition-all shadow-sm hover:shadow-lg">
         {imageUrl ? (
           <>
             <img src={imageUrl} alt={label} className="h-full w-full object-cover group-hover:scale-110 transition-transform duration-500" />
-            <div className="absolute inset-0 bg-gradient-to-t from-indigo-900/90 via-indigo-900/50 to-transparent opacity-0 group-hover:opacity-100 transition-all flex items-center justify-center">
-              <Eye size={24} className="text-white" />
+            <div className="absolute inset-0 bg-gradient-to-t from-indigo-900/90 via-indigo-900/50 to-transparent opacity-0 group-hover:opacity-100 transition-all flex items-center justify-center gap-4">
+              <div 
+                onClick={() => window.open(imageUrl, '_blank')}
+                className="p-3 bg-white/20 hover:bg-white/30 rounded-full backdrop-blur-md transition-all border border-white/30 group/btn"
+                title="عرض المستند"
+              >
+                <Eye size={24} className="text-white group-hover/btn:scale-110 transition-transform" />
+              </div>
+              <div 
+                onClick={handleDownload}
+                className="p-3 bg-white/20 hover:bg-white/30 rounded-full backdrop-blur-md transition-all border border-white/30 group/btn"
+                title="تحميل المستند"
+              >
+                <Download size={24} className="text-white group-hover/btn:scale-110 transition-transform" />
+              </div>
             </div>
           </>
         ) : (
