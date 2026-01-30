@@ -2608,9 +2608,11 @@
         "fillRequiredData": "Please fill required data",
     "searchPlaceholder": "Search in accounts...",
     "allTypes": "All Types",
-    "addAccount": "Add Account",
-    "cancel": "Cancel"
-  },
+      "addAccount": "Add Account",
+      "cancel": "Cancel",
+      "confirmDelete": "The account will be permanently deleted. Make sure there are no financial transactions associated with it.",
+      "yesDelete": "Yes, Delete"
+    },
   "account": {
     "codeExample": "Example: 101001",
     "nameExample": "Example: Al Rajhi Bank"

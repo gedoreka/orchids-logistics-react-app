@@ -2608,9 +2608,11 @@
         "fillRequiredData": "يرجى ملء البيانات المطلوبة",
     "searchPlaceholder": "بحث في الحسابات...",
     "allTypes": "جميع الأنواع",
-    "addAccount": "إضافة الحساب",
-    "cancel": "إلغاء"
-  },
+      "addAccount": "إضافة الحساب",
+      "cancel": "إلغاء",
+      "confirmDelete": "سيتم حذف الحساب نهائياً. تأكد من عدم وجود حركات مالية مرتبطة به.",
+      "yesDelete": "نعم، حذف"
+    },
   "account": {
     "codeExample": "مثال: 101001",
     "nameExample": "مثال: بنك الراجحي"
