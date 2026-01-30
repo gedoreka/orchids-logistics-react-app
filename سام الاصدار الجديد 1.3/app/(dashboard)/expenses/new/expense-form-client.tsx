@@ -15,6 +15,8 @@ import { useTranslations } from "@/lib/locale-context";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { HierarchicalSearchableSelect } from "@/components/ui/hierarchical-searchable-select";
 
+import { toast } from "sonner";
+
 interface Employee {
   id: number;
   name: string;
@@ -350,6 +352,22 @@ export default function ExpenseFormClient({ user }: { user: User }) {
 
   const handleSubmit = async () => {
     if (Object.keys(sections).length === 0) return;
+
+    // Validation
+    let isValid = true;
+    Object.values(sections).forEach(rows => {
+      rows.forEach(row => {
+        if (!row.amount || !row.expense_date || !row.account_code || !row.cost_center_code) {
+          isValid = false;
+        }
+      });
+    });
+
+    if (!isValid) {
+      toast.error("يرجى التأكد من إدخال المبلغ، التاريخ، شجرة الحسابات، ومركز التكلفة لجميع الصفوف.");
+      return;
+    }
+
     setSubmitting(true);
     const formData = new FormData();
     formData.append("company_id", user.company_id.toString());

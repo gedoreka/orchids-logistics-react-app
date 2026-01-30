@@ -15,6 +15,8 @@ import { useTranslations } from "@/lib/locale-context";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { HierarchicalSearchableSelect } from "@/components/ui/hierarchical-searchable-select";
 
+import { toast } from "sonner";
+
 interface Employee {
   id: number;
   name: string;
@@ -326,8 +328,24 @@ export default function DeductionFormClient({ user }: { user: User }) {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (Object.keys(sections).length === 0) return;
+
+    // Validation
+    let isValid = true;
+    Object.values(sections).forEach(rows => {
+      rows.forEach(row => {
+        if (!row.amount || !row.expense_date || !row.account_id || !row.cost_center_id) {
+          isValid = false;
+        }
+      });
+    });
+
+    if (!isValid) {
+      toast.error("يرجى التأكد من إدخال المبلغ، التاريخ، شجرة الحسابات، ومركز التكلفة لجميع الصفوف.");
+      return;
+    }
+
     setSubmitting(true);
-      const allDeductions = Object.values(sections).flat();
+    const allDeductions = Object.values(sections).flat();
       try {
         const formData = new FormData();
         formData.append("company_id", user.company_id.toString());

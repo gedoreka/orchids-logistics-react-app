@@ -252,19 +252,20 @@ export async function loginAction(formData: FormData): Promise<AuthResponse> {
       }
     }
 
-    return {
-      success: true,
-      user: {
-        id: user.id,
-        name: user.name,
-        email: user.email,
-        role: sessionData.role,
-        company_id: user.company_id,
-        is_activated: user.is_activated ?? 1,
-        user_type: userType,
-      },
-      permissions,
-    };
+      return {
+        success: true,
+        user: {
+          id: user.id,
+          name: user.name,
+          email: user.email,
+          role: sessionData.role,
+          company_id: user.company_id,
+          is_activated: user.is_activated ?? 1,
+          user_type: userType,
+          is_first_login: user.is_first_login === 1
+        },
+        permissions,
+      };
       } catch (error: any) {
         console.error("Login process exception:", {
           message: error.message,
