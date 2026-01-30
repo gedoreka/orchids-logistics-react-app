@@ -68,7 +68,7 @@ export async function registerAction(formData: FormData): Promise<AuthResponse> 
     }
 
     const companyResult = await execute(
-      `INSERT INTO companies (name, status, is_active, commercial_number, vat_number, phone, website, currency, logo_path, stamp_path, digital_seal_path, country, region, district, street, postal_code, short_address, bank_beneficiary, bank_name, bank_account, bank_iban, transport_license_number, transport_license_type, license_image, license_start, license_end, created_at, temp_password) VALUES (?, 'pending', 0, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), ?)`,
+      `INSERT INTO companies (name, status, is_active, commercial_number, vat_number, phone, website, currency, logo_path, stamp_path, digital_seal_path, country, region, district, street, postal_code, short_address, bank_beneficiary, bank_name, bank_account, bank_iban, transport_license_number, transport_license_type, license_image, license_start, license_end, created_at, temp_password) VALUES (?, 'pending', 0, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), ?)`,
       [name, commercial_number, vat_number, phone, website, currency, logo_path, stamp_path, digital_seal_path, country, region, district, street, postal_code, short_address, bank_beneficiary, bank_name, bank_account, bank_iban, transport_license_number, transport_license_type, transport_license_image, license_start || null, license_end || null, password]
     );
     
@@ -143,8 +143,8 @@ export async function loginAction(formData: FormData): Promise<AuthResponse> {
     }
 
     // Get company data
-    const companies = await query<{ name: string; status: string; is_active: number }>(
-      "SELECT name, status, is_active FROM companies WHERE id = ?",
+    const companies = await query<{ name: string; status: string; is_active: number; is_subscription_active: number }>(
+      "SELECT name, status, is_active, is_subscription_active FROM companies WHERE id = ?",
       [user.company_id]
     );
 
@@ -252,20 +252,22 @@ export async function loginAction(formData: FormData): Promise<AuthResponse> {
       }
     }
 
-      return {
-        success: true,
-        user: {
-          id: user.id,
-          name: user.name,
-          email: user.email,
-          role: sessionData.role,
-          company_id: user.company_id,
-          is_activated: user.is_activated ?? 1,
-          user_type: userType,
-          is_first_login: user.is_first_login === 1
-        },
-        permissions,
-      };
+    return {
+      success: true,
+      user: {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        role: sessionData.role,
+        company_id: user.company_id,
+        company_name: company.name,
+        is_activated: user.is_activated ?? 1,
+        user_type: userType,
+        is_first_login: user.is_first_login === 1,
+        is_subscription_active: company.is_subscription_active === 1
+      },
+      permissions,
+    };
       } catch (error: any) {
         console.error("Login process exception:", {
           message: error.message,
