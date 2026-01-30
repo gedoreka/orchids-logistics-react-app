@@ -710,7 +710,7 @@ export function NewPayrollClient({ packages, debts, companyId, userName }: NewPa
       </AnimatePresence>
 
       <div className="flex-1 overflow-auto p-6">
-        <div className="max-w-[97%] mx-auto">
+        <div className="max-w-full mx-auto">
           <div className="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
             <div className="relative overflow-hidden bg-gradient-to-br from-[#1a237e] to-[#283593] p-6 text-white border-b border-white/10">
               <div className="relative z-10">
