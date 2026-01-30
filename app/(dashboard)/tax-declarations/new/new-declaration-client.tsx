@@ -107,250 +107,320 @@ export function NewTaxDeclarationClient({ companyId }: { companyId: number }) {
   };
 
   return (
-    <div className="p-6 max-w-5xl mx-auto space-y-6" dir="rtl">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">إنشاء إقرار ضريبي جديد</h1>
-          <p className="text-gray-500">اتباع الخطوات لإعداد الإقرار الربع سنوي</p>
-        </div>
-        <Button variant="ghost" onClick={() => router.back()} className="gap-2">
-          <ChevronLeft className="w-4 h-4" />
-          رجوع
-        </Button>
-      </div>
-
-      <div className="flex items-center gap-4 mb-8">
-        {[1, 2, 3].map((s) => (
-          <React.Fragment key={s}>
-            <div className={`flex items-center gap-2 ${step >= s ? 'text-indigo-600' : 'text-gray-400'}`}>
-              <div className={`w-8 h-8 rounded-full flex items-center justify-center border-2 ${step >= s ? 'border-indigo-600 bg-indigo-50' : 'border-gray-200'}`}>
-                {s}
-              </div>
-              <span className="font-medium">
-                {s === 1 ? "الفترة" : s === 2 ? "المراجعة" : "التأكيد"}
-              </span>
+    <div className="min-h-screen bg-[#f8fafc] pb-12" dir="rtl">
+      {/* Header Section */}
+      <div className="bg-white border-b border-gray-200/60 pb-12 pt-8 px-6 mb-8">
+        <div className="max-w-5xl mx-auto">
+          <div className="flex items-center justify-between mb-10">
+            <div>
+              <h1 className="text-3xl font-black text-gray-900 tracking-tight">إنشاء إقرار ضريبي جديد</h1>
+              <p className="text-gray-500 font-medium mt-1">اتباع الخطوات الذكية لإعداد الإقرار الضريبي الربع سنوي بدقة</p>
             </div>
-            {s < 3 && <div className={`flex-1 h-px ${step > s ? 'bg-indigo-600' : 'bg-gray-200'}`} />}
-          </React.Fragment>
-        ))}
-      </div>
+            <Button 
+              variant="ghost" 
+              onClick={() => router.back()} 
+              className="gap-2 text-gray-500 hover:text-gray-900 font-bold"
+            >
+              <ChevronLeft className="w-5 h-5" />
+              رجوع للرئيسية
+            </Button>
+          </div>
 
-      <AnimatePresence mode="wait">
-        {step === 1 && (
-          <motion.div
-            key="step1"
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -20 }}
-          >
-            <Card className="border-none shadow-sm">
-              <CardHeader>
-                <CardTitle>تحديد الفترة الضريبية</CardTitle>
-                <CardDescription>اختر السنة والربع السنوي المراد إصدار الإقرار له</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium">السنة</label>
-                    <Select value={period.year} onValueChange={(v) => setPeriod({...period, year: v})}>
-                      <SelectTrigger className="bg-gray-50 border-none">
-                        <SelectValue placeholder="اختر السنة" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="2024">2024</SelectItem>
-                        <SelectItem value="2025">2025</SelectItem>
-                        <SelectItem value="2026">2026</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium">الربع السنوي</label>
-                    <Select value={period.quarter} onValueChange={(v) => setPeriod({...period, quarter: v})}>
-                      <SelectTrigger className="bg-gray-50 border-none">
-                        <SelectValue placeholder="اختر الربع" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="1">الربع الأول (يناير - مارس)</SelectItem>
-                        <SelectItem value="2">الربع الثاني (أبريل - يونيو)</SelectItem>
-                        <SelectItem value="3">الربع الثالث (يوليو - سبتمبر)</SelectItem>
-                        <SelectItem value="4">الربع الرابع (أكتوبر - ديسمبر)</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-
-                <div className="p-4 bg-blue-50 rounded-xl flex gap-3 text-blue-700 text-sm">
-                  <Info className="w-5 h-5 flex-shrink-0" />
-                  <p>سيقوم النظام بتجميع كافة الفواتير، المصروفات، والإيرادات المسجلة ضمن هذه الفترة تلقائياً وحساب المبالغ الضريبية المستحقة.</p>
-                </div>
-
-                <Button 
-                  onClick={handleCollectData} 
-                  disabled={collecting}
-                  className="w-full bg-indigo-600 hover:bg-indigo-700 h-12 text-lg"
+          {/* Stepper */}
+          <div className="relative flex items-center justify-between max-w-3xl mx-auto px-4">
+            <div className="absolute top-1/2 left-0 w-full h-1 bg-gray-100 -translate-y-1/2 -z-0" />
+            <div 
+              className="absolute top-1/2 left-0 h-1 bg-indigo-600 -translate-y-1/2 transition-all duration-500 -z-0" 
+              style={{ width: `${((step - 1) / 2) * 100}%` }}
+            />
+            
+            {[1, 2, 3].map((s) => (
+              <div key={s} className="relative z-10 flex flex-col items-center gap-3">
+                <motion.div 
+                  initial={false}
+                  animate={{ 
+                    scale: step >= s ? 1.1 : 1,
+                    backgroundColor: step > s ? '#4f46e5' : step === s ? '#ffffff' : '#f3f4f6',
+                    borderColor: step >= s ? '#4f46e5' : '#e5e7eb',
+                    color: step > s ? '#ffffff' : step === s ? '#4f46e5' : '#9ca3af'
+                  }}
+                  className={`w-12 h-12 rounded-full flex items-center justify-center border-4 font-black text-lg shadow-sm`}
                 >
-                  {collecting ? (
-                    <RefreshCw className="w-5 h-5 animate-spin" />
-                  ) : (
-                    <>
-                      <Calculator className="w-5 h-5 ml-2" />
-                      تجميع البيانات وحساب الضريبة
-                    </>
-                  )}
-                </Button>
-              </CardContent>
-            </Card>
-          </motion.div>
-        )}
+                  {step > s ? <CheckCircle2 className="w-6 h-6" /> : s}
+                </motion.div>
+                <span className={`text-sm font-black uppercase tracking-wider ${step >= s ? 'text-indigo-600' : 'text-gray-400'}`}>
+                  {s === 1 ? "الفترة" : s === 2 ? "المراجعة" : "التأكيد"}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
 
-        {step === 2 && (
-          <motion.div
-            key="step2"
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -20 }}
-            className="space-y-6"
-          >
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <Card className="border-none shadow-sm border-r-4 border-r-emerald-500">
-                <CardHeader className="pb-2">
-                  <div className="flex items-center justify-between">
-                    <CardTitle className="text-emerald-700 flex items-center gap-2 text-base">
-                      <TrendingUp className="w-4 h-4" />
-                      المخرجات (المبيعات والإيرادات)
-                    </CardTitle>
-                    <Badge variant="outline" className="text-emerald-600 border-emerald-100">ضريبة مستحقة</Badge>
+      <div className="max-w-5xl mx-auto px-6">
+        <AnimatePresence mode="wait">
+          {step === 1 && (
+            <motion.div
+              key="step1"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+            >
+              <Card className="border-none shadow-[0_8px_30px_rgb(0,0,0,0.04)] bg-white overflow-hidden">
+                <CardHeader className="p-8 border-b border-gray-50">
+                  <div className="flex items-center gap-3 mb-1">
+                    <Calendar className="w-6 h-6 text-indigo-600" />
+                    <CardTitle className="text-xl font-black">تحديد الفترة الضريبية</CardTitle>
                   </div>
+                  <CardDescription className="text-gray-500 font-medium">اختر السنة والربع السنوي المراد إصدار الإقرار له لمباشرة التجميع الذكي</CardDescription>
                 </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="flex justify-between items-end border-b border-dashed border-gray-100 pb-2">
-                    <span className="text-gray-500 text-sm">إجمالي المبيعات الخاضعة</span>
-                    <span className="font-bold">{declarationData.total_sales_taxable.toLocaleString()} ر.س</span>
+                <CardContent className="p-8 space-y-8">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div className="space-y-3">
+                      <label className="text-sm font-black text-gray-700 uppercase tracking-wider">السنة المالية</label>
+                      <Select value={period.year} onValueChange={(v) => setPeriod({...period, year: v})}>
+                        <SelectTrigger className="h-14 bg-gray-50 border-gray-100 font-black text-lg focus:ring-indigo-500/20">
+                          <SelectValue placeholder="اختر السنة" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="2024">2024</SelectItem>
+                          <SelectItem value="2025">2025</SelectItem>
+                          <SelectItem value="2026">2026</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="space-y-3">
+                      <label className="text-sm font-black text-gray-700 uppercase tracking-wider">الربع السنوي</label>
+                      <Select value={period.quarter} onValueChange={(v) => setPeriod({...period, quarter: v})}>
+                        <SelectTrigger className="h-14 bg-gray-50 border-gray-100 font-black text-lg focus:ring-indigo-500/20">
+                          <SelectValue placeholder="اختر الربع" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="1" className="font-bold">الربع الأول (يناير - مارس)</SelectItem>
+                          <SelectItem value="2" className="font-bold">الربع الثاني (أبريل - يونيو)</SelectItem>
+                          <SelectItem value="3" className="font-bold">الربع الثالث (يوليو - سبتمبر)</SelectItem>
+                          <SelectItem value="4" className="font-bold">الربع الرابع (أكتوبر - ديسمبر)</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
                   </div>
-                  <div className="flex justify-between items-end">
-                    <span className="text-gray-500 text-sm">إجمالي ضريبة المخرجات</span>
-                    <span className="text-2xl font-black text-emerald-600">{declarationData.total_output_tax.toLocaleString()} ر.س</span>
+
+                  <div className="p-6 bg-blue-50/50 rounded-2xl flex gap-4 border border-blue-100/50">
+                    <div className="p-3 bg-blue-100 rounded-xl text-blue-600 h-fit">
+                      <Info className="w-6 h-6" />
+                    </div>
+                    <div className="space-y-1">
+                      <p className="font-black text-blue-900">ملاحظة هامة</p>
+                      <p className="text-blue-700/80 font-medium leading-relaxed">سيقوم النظام بتجميع كافة الفواتير، المصروفات، والإيرادات المسجلة ضمن هذه الفترة تلقائياً وحساب المبالغ الضريبية المستحقة بدقة متناهية.</p>
+                    </div>
+                  </div>
+
+                  <Button 
+                    onClick={handleCollectData} 
+                    disabled={collecting}
+                    className="w-full bg-indigo-600 hover:bg-indigo-700 h-16 text-xl font-black shadow-lg shadow-indigo-100 transition-all active:scale-95"
+                  >
+                    {collecting ? (
+                      <div className="flex items-center gap-3">
+                        <RefreshCw className="w-6 h-6 animate-spin" />
+                        جاري معالجة البيانات الضريبية...
+                      </div>
+                    ) : (
+                      <>
+                        <Calculator className="w-6 h-6 ml-3" />
+                        تجميع البيانات وحساب الضريبة
+                      </>
+                    )}
+                  </Button>
+                </CardContent>
+              </Card>
+            </motion.div>
+          )}
+
+          {step === 2 && (
+            <motion.div
+              key="step2"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              className="space-y-8"
+            >
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <Card className="border-none shadow-[0_8px_30px_rgb(0,0,0,0.04)] bg-white overflow-hidden relative group">
+                  <div className="absolute top-0 right-0 w-2 h-full bg-emerald-500" />
+                  <CardHeader className="pb-4 p-8">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className="p-2 bg-emerald-50 rounded-lg text-emerald-600">
+                          <TrendingUp className="w-6 h-6" />
+                        </div>
+                        <CardTitle className="text-gray-900 font-black">المخرجات</CardTitle>
+                      </div>
+                      <Badge className="bg-emerald-50 text-emerald-600 border-none font-black px-3 py-1 uppercase tracking-wider text-[10px]">ضريبة مستحقة</Badge>
+                    </div>
+                    <CardDescription className="mr-11 font-medium text-gray-500 italic mt-1">(المبيعات والإيرادات)</CardDescription>
+                  </CardHeader>
+                  <CardContent className="p-8 pt-0 space-y-6">
+                    <div className="flex justify-between items-center bg-gray-50 p-4 rounded-xl border border-gray-100">
+                      <span className="text-gray-500 font-bold uppercase tracking-tight text-xs">إجمالي المبيعات الخاضعة</span>
+                      <span className="font-black text-gray-900 text-lg">{declarationData.total_sales_taxable.toLocaleString()} <span className="text-xs text-gray-400 font-bold mr-1">ر.س</span></span>
+                    </div>
+                    <div className="space-y-1">
+                      <p className="text-gray-400 font-bold text-[10px] uppercase tracking-widest mr-1 mb-2">إجمالي ضريبة المخرجات</p>
+                      <div className="text-4xl font-black text-emerald-600 tracking-tighter">
+                        {declarationData.total_output_tax.toLocaleString()} 
+                        <span className="text-lg font-bold text-emerald-600/50 mr-2 uppercase">ر.س</span>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card className="border-none shadow-[0_8px_30px_rgb(0,0,0,0.04)] bg-white overflow-hidden relative group">
+                  <div className="absolute top-0 right-0 w-2 h-full bg-rose-500" />
+                  <CardHeader className="pb-4 p-8">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className="p-2 bg-rose-50 rounded-lg text-rose-600">
+                          <TrendingDown className="w-6 h-6" />
+                        </div>
+                        <CardTitle className="text-gray-900 font-black">المدخلات</CardTitle>
+                      </div>
+                      <Badge className="bg-rose-50 text-rose-600 border-none font-black px-3 py-1 uppercase tracking-wider text-[10px]">ضريبة مستردة</Badge>
+                    </div>
+                    <CardDescription className="mr-11 font-medium text-gray-500 italic mt-1">(المشتريات والمصروفات)</CardDescription>
+                  </CardHeader>
+                  <CardContent className="p-8 pt-0 space-y-6">
+                    <div className="flex justify-between items-center bg-gray-50 p-4 rounded-xl border border-gray-100">
+                      <span className="text-gray-500 font-bold uppercase tracking-tight text-xs">إجمالي المشتريات الخاضعة</span>
+                      <span className="font-black text-gray-900 text-lg">{declarationData.total_purchases_taxable.toLocaleString()} <span className="text-xs text-gray-400 font-bold mr-1">ر.س</span></span>
+                    </div>
+                    <div className="space-y-1">
+                      <p className="text-gray-400 font-bold text-[10px] uppercase tracking-widest mr-1 mb-2">إجمالي ضريبة المدخلات</p>
+                      <div className="text-4xl font-black text-rose-600 tracking-tighter">
+                        {declarationData.total_input_tax.toLocaleString()} 
+                        <span className="text-lg font-bold text-rose-600/50 mr-2 uppercase">ر.س</span>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+
+              <Card className="bg-indigo-950 text-white border-none shadow-[0_20px_50px_rgba(79,70,229,0.2)] overflow-hidden relative py-4">
+                <div className="absolute right-0 top-0 w-64 h-64 bg-indigo-600/10 rounded-full -mr-32 -mt-32 blur-3xl" />
+                <div className="absolute left-0 bottom-0 w-48 h-48 bg-indigo-400/5 rounded-full -ml-24 -mb-24 blur-2xl" />
+                <CardContent className="p-10 relative z-10">
+                  <div className="flex flex-col md:flex-row items-center justify-between gap-10">
+                    <div className="text-center md:text-right">
+                      <h3 className="text-indigo-300 text-sm font-black uppercase tracking-widest mb-3">صافي الضريبة المستحقة للسداد</h3>
+                      <div className="flex items-baseline gap-3 justify-center md:justify-start">
+                        <span className="text-6xl font-black tracking-tighter tabular-nums">
+                          {declarationData.net_tax_payable.toLocaleString()}
+                        </span>
+                        <span className="text-2xl font-bold text-indigo-400 uppercase">ر.س</span>
+                      </div>
+                    </div>
+                    <div className="flex flex-col sm:flex-row gap-4 w-full md:w-auto">
+                      <Button 
+                        variant="outline" 
+                        onClick={() => setStep(1)} 
+                        className="h-14 bg-white/5 border-white/10 text-white hover:bg-white/10 font-bold px-8 text-lg"
+                      >
+                        تعديل الفترة
+                      </Button>
+                      <Button 
+                        onClick={() => setStep(3)} 
+                        className="h-14 bg-white text-indigo-950 hover:bg-gray-100 font-black px-10 text-lg shadow-xl"
+                      >
+                        مراجعة التفاصيل والمتابعة
+                        <ChevronRight className="w-6 h-6 mr-2" />
+                      </Button>
+                    </div>
                   </div>
                 </CardContent>
               </Card>
+            </motion.div>
+          )}
 
-              <Card className="border-none shadow-sm border-r-4 border-r-rose-500">
-                <CardHeader className="pb-2">
-                  <div className="flex items-center justify-between">
-                    <CardTitle className="text-rose-700 flex items-center gap-2 text-base">
-                      <TrendingDown className="w-4 h-4" />
-                      المدخلات (المشتريات والمصروفات)
-                    </CardTitle>
-                    <Badge variant="outline" className="text-rose-600 border-rose-100">ضريبة مستردة</Badge>
+          {step === 3 && (
+            <motion.div
+              key="step3"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+            >
+              <Card className="border-none shadow-[0_8px_30px_rgb(0,0,0,0.04)] bg-white overflow-hidden">
+                <CardHeader className="p-8 border-b border-gray-50">
+                  <div className="flex items-center gap-3 mb-1">
+                    <FileText className="w-6 h-6 text-indigo-600" />
+                    <CardTitle className="text-xl font-black">التأكيد النهائي والتقديم</CardTitle>
                   </div>
+                  <CardDescription className="text-gray-500 font-medium">يرجى مراجعة كافة المبالغ الضريبية قبل الحفظ النهائي أو الإرسال</CardDescription>
                 </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="flex justify-between items-end border-b border-dashed border-gray-100 pb-2">
-                    <span className="text-gray-500 text-sm">إجمالي المشتريات الخاضعة</span>
-                    <span className="font-bold">{declarationData.total_purchases_taxable.toLocaleString()} ر.س</span>
+                <CardContent className="p-8 space-y-10">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
+                    <div className="space-y-6">
+                      <h4 className="font-black text-xs text-gray-400 uppercase tracking-widest border-b border-gray-100 pb-2">تفاصيل الفترة</h4>
+                      <div className="space-y-4">
+                        <div className="flex justify-between items-center">
+                          <span className="text-gray-500 font-bold">السنة المالية:</span> 
+                          <span className="font-black text-gray-900 text-lg">{period.year}</span>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <span className="text-gray-500 font-bold">الربع السنوي:</span> 
+                          <Badge className="bg-indigo-50 text-indigo-700 font-black border-none text-base px-4 py-1">الربع {period.quarter}</Badge>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="md:col-span-2 space-y-6">
+                      <h4 className="font-black text-xs text-gray-400 uppercase tracking-widest border-b border-gray-100 pb-2">الملخص المالي النهائي</h4>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                        <div className="p-6 bg-gray-50 rounded-2xl border border-gray-100 group hover:border-emerald-200 transition-colors">
+                          <p className="text-[10px] text-gray-400 font-black uppercase tracking-widest mb-2">إجمالي ضريبة المخرجات (+)</p>
+                          <p className="text-2xl font-black text-emerald-600 tabular-nums">{declarationData.total_output_tax.toLocaleString()} <span className="text-xs opacity-60">ر.س</span></p>
+                        </div>
+                        <div className="p-6 bg-gray-50 rounded-2xl border border-gray-100 group hover:border-rose-200 transition-colors">
+                          <p className="text-[10px] text-gray-400 font-black uppercase tracking-widest mb-2">إجمالي ضريبة المدخلات (-)</p>
+                          <p className="text-2xl font-black text-rose-600 tabular-nums">{declarationData.total_input_tax.toLocaleString()} <span className="text-xs opacity-60">ر.س</span></p>
+                        </div>
+                      </div>
+                    </div>
                   </div>
-                  <div className="flex justify-between items-end">
-                    <span className="text-gray-500 text-sm">إجمالي ضريبة المدخلات</span>
-                    <span className="text-2xl font-black text-rose-600">{declarationData.total_input_tax.toLocaleString()} ر.س</span>
+
+                  <div className="p-6 bg-amber-50 rounded-2xl flex gap-5 border border-amber-100">
+                    <div className="p-3 bg-amber-100 rounded-xl text-amber-600 h-fit">
+                      <AlertCircle className="w-8 h-8" />
+                    </div>
+                    <div className="space-y-1">
+                      <p className="font-black text-amber-900 text-lg">إقرار بالصحة والمسؤولية</p>
+                      <p className="text-amber-700/80 font-medium leading-relaxed">بالنقر على "تقديم الإقرار"، فإنك تقر بصفتك المخولة بصحة كافة البيانات المذكورة أعلاه ومطابقتها التامة للسجلات المالية والفواتير الضريبية الموثقة في النظام.</p>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-col md:flex-row gap-4 pt-6">
+                    <Button 
+                      variant="outline" 
+                      className="flex-1 h-16 border-gray-200 hover:bg-gray-50 font-bold text-lg text-gray-600"
+                      onClick={() => handleSave('draft')}
+                      disabled={loading}
+                    >
+                      <Save className="w-5 h-5 ml-2 opacity-40" />
+                      حفظ كمسودة للمراجعة
+                    </Button>
+                    <Button 
+                      className="flex-[2] h-16 bg-indigo-600 hover:bg-indigo-700 font-black text-xl shadow-lg shadow-indigo-100"
+                      onClick={() => handleSave('submitted')}
+                      disabled={loading}
+                    >
+                      {loading ? <RefreshCw className="w-6 h-6 animate-spin" /> : <Send className="w-6 h-6 ml-3" />}
+                      تقديم الإقرار الضريبي النهائي
+                    </Button>
                   </div>
                 </CardContent>
               </Card>
-            </div>
-
-            <Card className="bg-indigo-900 text-white border-none shadow-lg overflow-hidden relative">
-              <div className="absolute right-0 top-0 w-32 h-32 bg-white/5 rounded-full -mr-16 -mt-16" />
-              <CardContent className="p-8">
-                <div className="flex flex-col md:flex-row items-center justify-between gap-6">
-                  <div>
-                    <h3 className="text-indigo-200 text-sm font-medium mb-1">صافي الضريبة المستحقة للسداد</h3>
-                    <p className="text-4xl font-black tracking-tight">
-                      {declarationData.net_tax_payable.toLocaleString()} ر.س
-                    </p>
-                  </div>
-                  <div className="flex gap-3">
-                    <Button variant="outline" onClick={() => setStep(1)} className="bg-white/10 border-white/20 text-white hover:bg-white/20">
-                      تعديل الفترة
-                    </Button>
-                    <Button onClick={() => setStep(3)} className="bg-white text-indigo-900 hover:bg-indigo-50">
-                      مراجعة التفاصيل والمتابعة
-                      <ChevronRight className="w-4 h-4 mr-2" />
-                    </Button>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </motion.div>
-        )}
-
-        {step === 3 && (
-          <motion.div
-            key="step3"
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -20 }}
-            className="space-y-6"
-          >
-            <Card className="border-none shadow-sm">
-              <CardHeader className="border-b border-gray-50">
-                <CardTitle>التأكيد النهائي والتقديم</CardTitle>
-                <CardDescription>يرجى مراجعة البيانات قبل الحفظ أو التقديم النهائي</CardDescription>
-              </CardHeader>
-              <CardContent className="p-6 space-y-8">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                  <div className="space-y-4">
-                    <h4 className="font-bold text-sm text-gray-400 uppercase tracking-wider">تفاصيل الفترة</h4>
-                    <div className="space-y-2">
-                      <p className="flex justify-between"><span className="text-gray-500">السنة:</span> <span className="font-medium">{period.year}</span></p>
-                      <p className="flex justify-between"><span className="text-gray-500">الربع السنوي:</span> <span className="font-medium">الربع {period.quarter}</span></p>
-                    </div>
-                  </div>
-                  <div className="md:col-span-2 space-y-4">
-                    <h4 className="font-bold text-sm text-gray-400 uppercase tracking-wider">الملخص المالي</h4>
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="p-4 bg-gray-50 rounded-xl">
-                        <p className="text-xs text-gray-500 mb-1">إجمالي المخرجات</p>
-                        <p className="text-lg font-bold text-emerald-600">{declarationData.total_output_tax.toLocaleString()} ر.س</p>
-                      </div>
-                      <div className="p-4 bg-gray-50 rounded-xl">
-                        <p className="text-xs text-gray-500 mb-1">إجمالي المدخلات</p>
-                        <p className="text-lg font-bold text-rose-600">{declarationData.total_input_tax.toLocaleString()} ر.س</p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="p-4 border-2 border-amber-100 bg-amber-50/30 rounded-xl flex gap-3">
-                  <AlertCircle className="w-5 h-5 text-amber-600 flex-shrink-0" />
-                  <div className="text-sm text-amber-800">
-                    <p className="font-bold">تنبيه قانوني</p>
-                    <p className="opacity-80">بالنقر على "تقديم الإقرار"، فإنك تقر بصحة البيانات الواردة أعلاه ومطابقتها للسجلات المالية للشركة.</p>
-                  </div>
-                </div>
-
-                <div className="flex flex-col md:flex-row gap-4 pt-4 border-t border-gray-50">
-                  <Button 
-                    variant="outline" 
-                    className="flex-1 h-12"
-                    onClick={() => handleSave('draft')}
-                    disabled={loading}
-                  >
-                    <Save className="w-4 h-4 ml-2 text-gray-400" />
-                    حفظ كمسودة
-                  </Button>
-                  <Button 
-                    className="flex-[2] h-12 bg-indigo-600 hover:bg-indigo-700"
-                    onClick={() => handleSave('submitted')}
-                    disabled={loading}
-                  >
-                    <Send className="w-4 h-4 ml-2" />
-                    تقديم الإقرار الضريبي النهائي
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          </motion.div>
-        )}
-      </AnimatePresence>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
     </div>
   );
 }
