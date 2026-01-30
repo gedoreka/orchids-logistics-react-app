@@ -20,7 +20,7 @@ export interface DeleteNotificationState {
   onConfirm?: () => void;
   itemId?: number;
   itemName?: string;
-  color?: "blue" | "teal" | "rose" | "amber" | "purple" | "emerald" | "cyan";
+  color?: "blue" | "teal" | "rose" | "amber" | "purple" | "emerald" | "cyan" | "indigo";
 }
 
 interface DeleteNotificationProps {
@@ -32,7 +32,7 @@ interface DeleteNotificationProps {
   isRtl?: boolean;
 }
 
-const colorStyles = {
+const colorStyles: Record<string, { confirm: string; confirmBg: string; deleteBtn: string }> = {
   blue: {
     confirm: "border-blue-500",
     confirmBg: "bg-blue-100 text-blue-500",
@@ -46,7 +46,12 @@ const colorStyles = {
   rose: {
     confirm: "border-rose-500",
     confirmBg: "bg-rose-100 text-rose-500",
-    deleteBtn: "bg-rose-500 hover:bg-rose-600 shadow-rose-200"
+    deleteBtn: "bg-rose-500 hover:bg-red-600 shadow-red-200"
+  },
+  indigo: {
+    confirm: "border-indigo-500",
+    confirmBg: "bg-indigo-100 text-indigo-500",
+    deleteBtn: "bg-indigo-500 hover:bg-indigo-600 shadow-indigo-200"
   },
   amber: {
     confirm: "border-amber-500",
@@ -79,7 +84,7 @@ export function DeleteNotification({
   isRtl = true
 }: DeleteNotificationProps) {
   const color = notification.color || "rose";
-  const styles = colorStyles[color];
+  const styles = colorStyles[color] || colorStyles.rose;
 
   return (
     <AnimatePresence>
