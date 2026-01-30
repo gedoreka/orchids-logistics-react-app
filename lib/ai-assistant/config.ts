@@ -21,7 +21,7 @@ const deepseek = new OpenAI({
 
 // ==================== إعداد Gemini ====================
 const genAI = new GoogleGenerativeAI(process.env.GOOGLE_GEMINI_API_KEY || "");
-const geminiModel = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+const geminiModel = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
 // ==================== أنواع TypeScript ====================
 export interface AIResponse {
@@ -294,10 +294,9 @@ export class AIAssistantService {
       return localMatch;
     }
 
-    // 3. تعطيل المحركات الخارجية مؤقتاً والاعتماد على قاعدة المعرفة المحلية فقط بناءً على طلب المستخدم
+    // 3. استخدام المحركات الخارجية (OpenAI -> DeepSeek -> Gemini)
     let finalResponseText = "";
 
-    /* 
     finalResponseText = await this.generateOpenAIResponse(userMessage, context, localMatch);
     
     if (!finalResponseText || finalResponseText.length < 5) {
@@ -307,7 +306,6 @@ export class AIAssistantService {
     if (!finalResponseText || finalResponseText.length < 5) {
       finalResponseText = await this.generateGeminiResponse(userMessage, context, localMatch);
     }
-    */
 
     // 4. السقوط الأخير (Fallback)
     if (!finalResponseText || finalResponseText.length < 5) {
