@@ -117,20 +117,44 @@ export async function POST(request: NextRequest) {
         ]
       );
 
-      if (result.insertId) {
-        savedCount++;
+        if (result.insertId) {
+          savedCount++;
 
-        // 2. Insert into journal_entries
-        if (accId) {
-          await execute(
-            `INSERT INTO journal_entries (
-              entry_date, account_id, description, debit, credit, company_id
-            ) VALUES (?, ?, ?, ?, 0, ?)`,
-            [date, accId, desc || `Expense: ${type}`, net, companyId]
-          );
-        }
+          // --- INTEGRATED ACCOUNTING: Record Journal Entry in Supabase ---
+          if (accId) {
+            try {
+              const { recordJournalEntry } = await import("@/lib/accounting");
+              const journalLines = [
+                {
+                  account_id: accId,
+                  cost_center_id: centerId || undefined,
+                  description: desc || `Expense: ${type}`,
+                  debit: net,
+                  credit: 0
+                },
+                {
+                  account_id: 1, // الصندوق (Default Credit for Expenses)
+                  description: `سداد مصروف: ${type}`,
+                  debit: 0,
+                  credit: net
+                }
+              ];
 
-        // 3. Business Logic based on mainType
+              await recordJournalEntry({
+                entry_date: date,
+                entry_number: `EXP-${result.insertId}`,
+                description: desc || `مصروف: ${type}`,
+                company_id: parseInt(companyId),
+                created_by: "System",
+                lines: journalLines
+              });
+            } catch (accError) {
+              console.error("Error recording accounting entry for expense:", accError);
+            }
+          }
+          // -----------------------------------------------------------
+
+          // 3. Business Logic based on mainType
         
         // A. Iqama Renewal Logic
         if (mainType === 'iqama' && empId > 0) {

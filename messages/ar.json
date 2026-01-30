@@ -140,7 +140,7 @@
         "delete": "حذف"
       },
     "generalLedger": {
-    "title": "الأستاذ العام",
+      "title": "دفتر الاستاذ العام",
     "update": "تحديث البيانات",
     "analytics": "التحليلات",
     "excel": "تصدير إكسل",
@@ -282,7 +282,7 @@
     "mySubscription": "اشتراكي",
     "logout": "تسجيل الخروج",
     "subUsersManagement": "إدارة المستخدمين الفرعيين",
-    "generalLedger": "الأستاذ العام",
+      "generalLedger": "دفتر الاستاذ العام",
     "taxSettingsPage": {
       "title": "إعدادات الضريبة",
       "subtitle": "إدارة أنواع الضرائب والإعدادات العامة للضريبة",
