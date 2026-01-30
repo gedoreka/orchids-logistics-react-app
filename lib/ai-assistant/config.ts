@@ -5,11 +5,22 @@
 import { KNOWLEDGE_BASE } from "@/ai-assistant/data/knowledge-base";
 import OpenAI from "openai";
 import { GoogleGenerativeAI } from "@google/generative-ai";
+import { UniversalKnowledgeEngine } from "./knowledge-engine";
 
 // ==================== إعداد OpenAI ====================
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY || "",
   dangerouslyAllowBrowser: true,
+});
+
+// ==================== إعداد Universal Engine ====================
+const globalKnowledgeEngine = new UniversalKnowledgeEngine({
+  cacheEnabled: true,
+  realtimeUpdates: true,
+  language: "ar",
+  detailLevel: "comprehensive",
+  visualMode: true,
+  learningEnabled: true
 });
 
 // ==================== إعداد DeepSeek ====================
@@ -325,7 +336,23 @@ export class AIAssistantService {
       return localMatch;
     }
 
-    // 3. استخدام المحركات الخارجية (OpenAI -> DeepSeek -> Gemini)
+    // 3. استخدام المحرك العالمي (Universal Knowledge Engine)
+    try {
+      const globalResult = await globalKnowledgeEngine.answerAnything(userMessage, { context });
+      if (globalResult.metadata.confidence > 0.9) {
+        return {
+          id: globalResult.id,
+          text: globalResult.mainContent.text,
+          category: 'general',
+          keywords: [],
+          confidenceScore: globalResult.metadata.confidence
+        };
+      }
+    } catch (error) {
+      console.error("Global Engine Error:", error);
+    }
+
+    // 4. استخدام المحركات الخارجية التقليدية (OpenAI -> DeepSeek -> Gemini)
     let finalResponseText = "";
 
     finalResponseText = await this.generateOpenAIResponse(userMessage, context, localMatch);
@@ -338,7 +365,7 @@ export class AIAssistantService {
       finalResponseText = await this.generateGeminiResponse(userMessage, context, localMatch);
     }
 
-    // 4. السقوط الأخير (Fallback)
+    // 5. السقوط الأخير (Fallback)
     if (!finalResponseText || finalResponseText.length < 5) {
       finalResponseText = localMatch?.text || 
         "أهلاً بك! أنا 'سام'، مساعدك الذكي في Logistics Pro. أعتذر منك، لم أتمكن من العثور على إجابة دقيقة لهذا السؤال في قاعدة بياناتي حالياً. هل يمكنك سؤالي عن شيء آخر يخص النظام؟";
