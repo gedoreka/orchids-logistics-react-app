@@ -10,11 +10,12 @@ import {
   AlertCircle, 
   ArrowLeft,
   Filter,
-  DollarSign,
-  Calendar,
-  ExternalLink,
-  ChevronLeft
-} from "lucide-react";
+    DollarSign,
+    Calendar,
+    ExternalLink,
+    ChevronLeft,
+    RefreshCw
+  } from "lucide-react";
 import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
