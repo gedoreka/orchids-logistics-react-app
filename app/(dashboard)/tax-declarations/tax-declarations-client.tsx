@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { FileText, Eye, Pencil, Trash2, Printer, Search, Calendar, FileCheck, AlertCircle, ArrowRight, Download, Filter, MoreVertical, CheckCircle2, Clock, History, RefreshCw } from "lucide-react";
+import { FileText, Eye, Pencil, Trash2, Printer, Search, Calendar, FileCheck, AlertCircle, ArrowRight, Download, Filter, MoreVertical, CheckCircle2, Clock, History, RefreshCw, Plus } from "lucide-react";
 import { format } from "date-fns";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
