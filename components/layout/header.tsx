@@ -336,8 +336,10 @@ export function Header({ user, onToggleSidebar, unreadChatCount = 0, subscriptio
             const unread = data.notifications.filter((n: any) => n.id > lastSeenId).length;
             setUnreadAdminCount(unread);
           }
-        } catch (error) {
-          console.error("Error fetching header notifications:", error);
+        } catch (error: any) {
+          if (error.name !== 'TypeError') {
+            console.error("Error fetching header notifications:", error);
+          }
         }
       };
 
@@ -366,20 +368,19 @@ export function Header({ user, onToggleSidebar, unreadChatCount = 0, subscriptio
                     unreadResults.push(0);
                   }
                   } catch (e: any) {
-                    if (e.name === 'TypeError' && e.message.includes('fetch')) {
-                      unreadResults.push(0);
-                      continue;
-                    }
-                    console.error(`Error fetching unread for ${account.email}:`, e);
+                    // Ignore network errors during fetch
                     unreadResults.push(0);
+                    continue;
                   }
               }
             
             const totalUnread = unreadResults.reduce((sum, count) => sum + count, 0);
             setUnreadEmailCount(totalUnread);
           }
-        } catch (error) {
-          console.error("Error fetching email data:", error);
+        } catch (error: any) {
+          if (error.name !== 'TypeError') {
+            console.error("Error fetching email data:", error);
+          }
         } finally {
           setFetchingUnread(false);
         }

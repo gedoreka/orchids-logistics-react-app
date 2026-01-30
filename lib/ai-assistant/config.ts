@@ -21,7 +21,7 @@ const deepseek = new OpenAI({
 
 // ==================== إعداد Gemini ====================
 const genAI = new GoogleGenerativeAI(process.env.GOOGLE_GEMINI_API_KEY || "");
-const geminiModel = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+const geminiModel = genAI.getGenerativeModel({ model: "gemini-2.0-flash-exp" });
 
 // ==================== أنواع TypeScript ====================
 export interface AIResponse {
