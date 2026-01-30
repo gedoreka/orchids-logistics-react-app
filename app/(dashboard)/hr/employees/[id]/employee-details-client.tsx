@@ -1130,19 +1130,17 @@ function GlassField({ label, value, onChange, editable, type = "text", icon }: a
       if (!imageUrl) return;
       
       try {
-        const response = await fetch(imageUrl);
-        const blob = await response.blob();
-        const url = window.URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-        
         const extension = path?.split('.').pop() || 'jpg';
-        link.download = `${label}.${extension}`;
+        const filename = `${label}.${extension}`;
+        const downloadUrl = `/api/download?url=${encodeURIComponent(imageUrl)}&filename=${encodeURIComponent(filename)}`;
         
+        const link = document.createElement('a');
+        link.href = downloadUrl;
+        link.download = filename;
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
-        window.URL.revokeObjectURL(url);
+        
         toast.success("تم بدء التحميل");
       } catch (error) {
         console.error('Download error:', error);
