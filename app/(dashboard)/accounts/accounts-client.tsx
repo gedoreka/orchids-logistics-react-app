@@ -1,7 +1,8 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useRouter } from "next/navigation";
 import { 
   Plus, 
   Search, 
@@ -37,12 +38,19 @@ interface AccountsClientProps {
   companyId: number;
 }
 
-export function AccountsClient({ initialAccounts, companyId }: AccountsClientProps) {
-  const t = useTranslations("accounts");
-  const { locale, isRTL: isRtl } = useLocale();
-  
-  const [accounts, setAccounts] = useState(initialAccounts);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  export function AccountsClient({ initialAccounts, companyId }: AccountsClientProps) {
+    const t = useTranslations("accounts");
+    const { locale, isRTL: isRtl } = useLocale();
+    const router = useRouter();
+    
+    const [accounts, setAccounts] = useState(initialAccounts);
+
+    useEffect(() => {
+      setAccounts(initialAccounts);
+    }, [initialAccounts]);
+
+    const [isModalOpen, setIsModalOpen] = useState(false);
+
   const [editingAccount, setEditingAccount] = useState<Account | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterType, setFilterType] = useState<string>("all");
@@ -155,22 +163,26 @@ export function AccountsClient({ initialAccounts, companyId }: AccountsClientPro
     try {
       if (editingAccount) {
         const result = await updateAccount(editingAccount.id, formData);
-        if (result.success) {
-          toast.success(t("updateSuccess"));
-          // Refresh data
-          window.location.reload();
+          if (result.success) {
+            toast.success(t("updateSuccess"));
+            // Optimistic update
+            setAccounts(prev => prev.map(a => a.id === editingAccount.id ? { ...a, ...formData } : a));
+            setIsModalOpen(false);
+            router.refresh();
+          } else {
+            toast.error(result.error || t("updateError"));
+          }
         } else {
-          toast.error(result.error || t("updateError"));
+          const result = await createAccount({ ...formData, company_id: companyId });
+          if (result.success) {
+            toast.success(t("addSuccess"));
+            setIsModalOpen(false);
+            router.refresh();
+          } else {
+            toast.error(result.error || t("addError"));
+          }
         }
-      } else {
-        const result = await createAccount({ ...formData, company_id: companyId });
-        if (result.success) {
-          toast.success(t("addSuccess"));
-          window.location.reload();
-        } else {
-          toast.error(result.error || t("addError"));
-        }
-      }
+
     } catch {
       toast.error(t("unexpectedError"));
     } finally {
@@ -181,11 +193,13 @@ export function AccountsClient({ initialAccounts, companyId }: AccountsClientPro
   const handleDelete = async (id: number) => {
     try {
       const result = await deleteAccount(id);
-      if (result.success) {
-        toast.success(t("deleteSuccess"));
-        setAccounts(prev => prev.filter(a => a.id !== id));
-        setDeleteConfirm(null);
-      } else {
+        if (result.success) {
+          toast.success(t("deleteSuccess"));
+          setAccounts(prev => prev.filter(a => a.id !== id));
+          setDeleteConfirm(null);
+          router.refresh();
+        } else {
+
         toast.error(result.error || t("deleteError"));
       }
     } catch {
@@ -205,7 +219,7 @@ export function AccountsClient({ initialAccounts, companyId }: AccountsClientPro
       const data = await response.json();
       if (data.success) {
         toast.success(data.message || "تم تهيئة شجرة الحسابات بنجاح");
-        window.location.reload();
+        router.refresh();
       } else {
         toast.error(data.error || "فشل تهيئة شجرة الحسابات");
       }
