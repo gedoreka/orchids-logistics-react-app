@@ -7,13 +7,14 @@ import OpenAI from "openai";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { UniversalKnowledgeEngine } from "./knowledge-engine";
 import { 
-  searchEmployee, 
-  searchInvoice, 
-  searchVehicle, 
-  searchCreditNote, 
-  searchVoucher, 
-  dbToolsDefinitions 
-} from "./db-tools";
+    searchEmployee, 
+    searchInvoice, 
+    searchVehicle, 
+    searchMaintenanceOrder,
+    searchCreditNote, 
+    searchVoucher, 
+    dbToolsDefinitions 
+  } from "./db-tools";
 
 // ==================== إعداد OpenAI ====================
 const openai = new OpenAI({
@@ -254,6 +255,8 @@ export class AIAssistantService {
         return await searchInvoice(args.invoiceNumber);
       case "searchVehicle":
         return await searchVehicle(args.searchTerm);
+      case "searchMaintenanceOrder":
+        return await searchMaintenanceOrder(args.orderNumber);
       case "searchCreditNote":
         return await searchCreditNote(args.noteNumber);
       case "searchVoucher":
@@ -337,6 +340,50 @@ export class AIAssistantService {
         }
     }
 
+    // استخراج رقم اللوحة (أ ب 5606 أو AB5606)
+    const plateMatch = message.match(/[أ-ي\s]{1,4}\s*\d{1,4}/) || message.match(/[A-Z\s]{1,4}\s*\d{1,4}/i);
+    if (plateMatch && plateMatch[0].length >= 4) {
+      const results = await searchVehicle(plateMatch[0]);
+      if (results && results.length > 0) {
+        const v = results[0];
+        return `🚗 **بيانات المركبة:**
+• لوحة السيارة (عربي): ${v.plate_number_ar}
+• لوحة السيارة (إنجليزي): ${v.plate_number_en}
+• النوع والموديل: ${v.make} ${v.model} (${v.manufacture_year})
+• رقم الشاسيه: ${v.chassis_number}
+• السائق الحالي: ${v.driver_name || 'غير محدد'}
+• القراءة الحالية للعداد: ${v.current_km} كم
+• الحالة: ${v.status === 'active' ? 'نشطة ✅' : 'خارج الخدمة ❌'}
+
+💡 يمكنك عرض التفاصيل الكاملة من قسم أسطول المركبات.`;
+      }
+    }
+
+    // استخراج رقم أمر الصيانة (6 أرقام مثل 000011)
+    const orderMatch = message.match(/\b\d{5,6}\b/);
+    if (orderMatch) {
+      const results = await searchMaintenanceOrder(orderMatch[0]);
+      if (results && results.length > 0) {
+        const order = results[0];
+        let detailsText = "";
+        if (order.details && order.details.length > 0) {
+          detailsText = "\n\n**قطع الغيار المستخدمة:**\n" + order.details.map((d: any) => 
+            `• ${d.spare_name} (${d.spare_code}): ${d.quantity_used} قطعة`
+          ).join('\n');
+        }
+
+        return `🔧 **تفاصيل أمر الصيانة رقم ${order.id}:**
+• المركبة: ${order.make} ${order.model} (${order.plate_number_ar})
+• التاريخ: ${new Date(order.maintenance_date).toLocaleDateString('ar-SA')}
+• المسؤول: ${order.maintenance_person}
+• القراءة عند الصيانة: ${order.current_km} كم
+• التكلفة الإجمالية: **${order.total_cost} ريال** 💰
+• الحالة: ${order.status === 'completed' ? 'مكتمل ✅' : 'قيد التنفيذ ⏳'}${detailsText}
+
+💡 يمكنك مراجعة سجلات الصيانة من قسم أسطول المركبات.`;
+      }
+    }
+
     return null;
   }
 
@@ -368,7 +415,7 @@ export class AIAssistantService {
       لديك القدرة على الوصول إلى قاعدة بيانات النظام الحقيقية باستخدام الأدوات المتاحة.
       
       قواعد صارمة:
-      1. إذا طلب المستخدم معلومات عن (موظف، فاتورة، مركبة، سند، إشعار دائن)، استخدم الأداة المناسبة فوراً.
+      1. إذا طلب المستخدم معلومات عن (موظف، فاتورة، مركبة، أمر صيانة، سند، إشعار دائن)، استخدم الأداة المناسبة فوراً.
       2. لا تقدم أبداً بيانات وهمية أو أمثلة إذا كانت هناك أداة يمكنها جلب البيانات الحقيقية.
       3. إذا لم تجد نتائج في قاعدة البيانات بعد البحث، أخبر المستخدم بوضوح أن البيانات غير موجودة.
       4. قدم النتائج بتنسيق جميل ومنظم باستخدام النقاط والرموز التعبيرية.

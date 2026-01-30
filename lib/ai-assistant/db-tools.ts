@@ -42,14 +42,51 @@ export async function searchInvoice(invoiceNumber: string) {
 
 export async function searchVehicle(searchTerm: string) {
   try {
+    // Normalize search term (remove spaces)
+    const normalized = searchTerm.replace(/\s+/g, '');
     const results = await query<any>(
-      `SELECT * FROM vehicles 
-       WHERE plate_number_ar = ? OR plate_number_en = ? OR chassis_number = ? OR owner_id_number = ?`,
-      [searchTerm, searchTerm, searchTerm, searchTerm]
+      `SELECT v.*, d.name as driver_name 
+       FROM vehicles v
+       LEFT JOIN employees d ON v.driver_id = d.id
+       WHERE REPLACE(v.plate_number_ar, ' ', '') = ? 
+          OR REPLACE(v.plate_number_en, ' ', '') = ? 
+          OR v.chassis_number = ? 
+          OR v.owner_id_number = ?`,
+      [normalized, normalized, searchTerm, searchTerm]
     );
     return results;
   } catch (error) {
     console.error('Search Vehicle Error:', error);
+    return [];
+  }
+}
+
+export async function searchMaintenanceOrder(orderNumber: string) {
+  try {
+    const results = await query<any>(
+      `SELECT mr.*, v.plate_number_ar, v.plate_number_en, v.model, v.make
+       FROM maintenance_requests mr
+       JOIN vehicles v ON mr.vehicle_id = v.id
+       WHERE mr.id = ?`,
+      [orderNumber]
+    );
+    
+    if (results.length > 0) {
+      const order = results[0];
+      // Fetch details for this maintenance order
+      const details = await query<any>(
+        `SELECT md.*, s.name as spare_name, s.code as spare_code 
+         FROM maintenance_details md 
+         JOIN spares s ON md.spare_id = s.id 
+         WHERE md.maintenance_id = ?`,
+        [order.id]
+      );
+      order.details = details;
+    }
+    
+    return results;
+  } catch (error) {
+    console.error('Search Maintenance Order Error:', error);
     return [];
   }
 }
@@ -134,6 +171,23 @@ export const dbToolsDefinitions = [
           }
         },
         required: ["searchTerm"]
+      }
+    }
+  },
+  {
+    type: "function",
+    function: {
+      name: "searchMaintenanceOrder",
+      description: "Search for a maintenance order or record by its number (ID)",
+      parameters: {
+        type: "object",
+        properties: {
+          orderNumber: {
+            type: "string",
+            description: "The maintenance order number or ID"
+          }
+        },
+        required: ["orderNumber"]
       }
     }
   },
