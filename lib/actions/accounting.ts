@@ -99,11 +99,21 @@ export async function createCostCenter(data: {
   center_code: string;
   center_name: string;
   company_id: number;
+  parent_id?: number | null;
+  center_type?: "main" | "sub";
+  description?: string;
 }) {
   try {
     await query(
-      "INSERT INTO cost_centers (center_code, center_name, company_id) VALUES (?, ?, ?)",
-      [data.center_code, data.center_name, data.company_id]
+      "INSERT INTO cost_centers (center_code, center_name, company_id, parent_id, center_type, description) VALUES (?, ?, ?, ?, ?, ?)",
+      [
+        data.center_code, 
+        data.center_name, 
+        data.company_id,
+        data.parent_id || null,
+        data.center_type || "sub",
+        data.description || null
+      ]
     );
     revalidatePath("/cost-centers");
     return { success: true };
@@ -115,11 +125,21 @@ export async function createCostCenter(data: {
 export async function updateCostCenter(id: number, data: {
   center_code: string;
   center_name: string;
+  parent_id?: number | null;
+  center_type?: "main" | "sub";
+  description?: string;
 }) {
   try {
     await query(
-      "UPDATE cost_centers SET center_code = ?, center_name = ? WHERE id = ?",
-      [data.center_code, data.center_name, id]
+      "UPDATE cost_centers SET center_code = ?, center_name = ?, parent_id = ?, center_type = ?, description = ? WHERE id = ?",
+      [
+        data.center_code, 
+        data.center_name, 
+        data.parent_id || null,
+        data.center_type || "sub",
+        data.description || null,
+        id
+      ]
     );
     revalidatePath("/cost-centers");
     return { success: true };
@@ -130,6 +150,15 @@ export async function updateCostCenter(id: number, data: {
 
 export async function deleteCostCenter(id: number) {
   try {
+    // Check for sub-centers first
+    const children = await query<{ count: string }>(
+      "SELECT COUNT(*) as count FROM cost_centers WHERE parent_id = ?",
+      [id]
+    );
+    if (Number(children[0].count) > 0) {
+      return { success: false, error: "لا يمكن حذف مركز التكلفة هذا لأنه يحتوي على مراكز فرعية." };
+    }
+
     // Check for expenses first
     const expenses = await query<{ count: string }>(
       "SELECT COUNT(*) as count FROM monthly_expenses WHERE cost_center_id = ?",

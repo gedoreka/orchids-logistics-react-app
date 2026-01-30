@@ -136,5 +136,8 @@ export interface CostCenter {
   center_code: string;
   center_name: string;
   company_id: number;
+  parent_id?: number | null;
+  center_type?: 'main' | 'sub';
+  description?: string;
   created_at: string;
 }
