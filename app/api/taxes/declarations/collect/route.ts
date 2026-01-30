@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { query } from "@/lib/db";
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -19,58 +20,68 @@ export async function GET(request: NextRequest) {
 
     const cId = parseInt(companyId);
 
-    // 1. Fetch Output Tax (Sales)
-    const [salesInvoices, manualIncome, receiptVouchers] = await Promise.all([
-      supabase
-        .from("sales_invoices")
-        .select("vat_total, total_amount")
-        .eq("company_id", cId)
-        .gte("issue_date", startDate)
-        .lte("issue_date", endDate),
-      supabase
-        .from("manual_income")
-        .select("vat, amount")
-        .eq("company_id", cId)
-        .gte("income_date", startDate)
-        .lte("income_date", endDate),
-      supabase
-        .from("receipt_vouchers")
-        .select("tax_value, amount")
-        .eq("company_id", cId)
-        .gte("receipt_date", startDate)
-        .lte("receipt_date", endDate)
+    // 1. Fetch from MySQL
+    const [salesInvoices, manualIncome, receiptVouchers, monthlyExpenses] = await Promise.all([
+      query<any>(
+        "SELECT total_amount, vat_rate FROM sales_invoices WHERE company_id = ? AND issue_date >= ? AND issue_date <= ?",
+        [cId, startDate, endDate]
+      ),
+      query<any>(
+        "SELECT amount, vat FROM manual_income WHERE company_id = ? AND income_date >= ? AND income_date <= ?",
+        [cId, startDate, endDate]
+      ),
+      query<any>(
+        "SELECT amount, tax_value FROM receipt_vouchers WHERE company_id = ? AND receipt_date >= ? AND receipt_date <= ?",
+        [cId, startDate, endDate]
+      ),
+      query<any>(
+        "SELECT amount, tax_value FROM monthly_expenses WHERE company_id = ? AND expense_date >= ? AND expense_date <= ?",
+        [cId, startDate, endDate]
+      )
     ]);
 
+    // 2. Fetch Payment Vouchers from Supabase (as they don't exist in MySQL)
+    const { data: paymentVouchers } = await supabase
+      .from("payment_vouchers")
+      .select("tax_value, amount")
+      .eq("company_id", cId)
+      .gte("voucher_date", startDate)
+      .lte("voucher_date", endDate);
+
+    // 3. Calculate Output Tax (Sales/Income)
     const outputTax = {
-      sales_vat: (salesInvoices.data || []).reduce((sum, item) => sum + (Number(item.vat_total) || 0), 0),
-      sales_taxable: (salesInvoices.data || []).reduce((sum, item) => sum + (Number(item.total_amount) || 0), 0),
-      income_vat: (manualIncome.data || []).reduce((sum, item) => sum + (Number(item.vat) || 0), 0),
-      income_taxable: (manualIncome.data || []).reduce((sum, item) => sum + (Number(item.amount) || 0), 0),
-      receipt_vat: (receiptVouchers.data || []).reduce((sum, item) => sum + (Number(item.tax_value) || 0), 0),
-      receipt_taxable: (receiptVouchers.data || []).reduce((sum, item) => sum + (Number(item.amount) || 0), 0),
+      // Sales Invoices: total_amount is gross, calculate net and vat
+      sales_vat: salesInvoices.reduce((sum, item) => {
+        const gross = Number(item.total_amount) || 0;
+        const rate = (Number(item.vat_rate) || 15) / 100;
+        const net = gross / (1 + rate);
+        return sum + (gross - net);
+      }, 0),
+      sales_taxable: salesInvoices.reduce((sum, item) => {
+        const gross = Number(item.total_amount) || 0;
+        const rate = (Number(item.vat_rate) || 15) / 100;
+        return sum + (gross / (1 + rate));
+      }, 0),
+      // Manual Income: amount is taxable, vat is stored
+      income_vat: manualIncome.reduce((sum, item) => sum + (Number(item.vat) || 0), 0),
+      income_taxable: manualIncome.reduce((sum, item) => sum + (Number(item.amount) || 0), 0),
+      // Receipt Vouchers: amount is taxable, tax_value is stored
+      receipt_vat: receiptVouchers.reduce((sum, item) => sum + (Number(item.tax_value) || 0), 0),
+      receipt_taxable: receiptVouchers.reduce((sum, item) => sum + (Number(item.amount) || 0), 0),
     };
 
-    // 2. Fetch Input Tax (Purchases/Expenses)
-    const [monthlyExpenses, paymentVouchers] = await Promise.all([
-      supabase
-        .from("monthly_expenses")
-        .select("tax_value, amount")
-        .eq("company_id", cId)
-        .gte("expense_date", startDate)
-        .lte("expense_date", endDate),
-      supabase
-        .from("payment_vouchers")
-        .select("tax_value, amount")
-        .eq("company_id", cId)
-        .gte("voucher_date", startDate)
-        .lte("voucher_date", endDate)
-    ]);
-
+    // 4. Calculate Input Tax (Expenses/Purchases)
     const inputTax = {
-      expense_vat: (monthlyExpenses.data || []).reduce((sum, item) => sum + (Number(item.tax_value) || 0), 0),
-      expense_taxable: (monthlyExpenses.data || []).reduce((sum, item) => sum + (Number(item.amount) || 0), 0),
-      payment_vat: (paymentVouchers.data || []).reduce((sum, item) => sum + (Number(item.tax_value) || 0), 0),
-      payment_taxable: (paymentVouchers.data || []).reduce((sum, item) => sum + (Number(item.amount) || 0), 0),
+      // Monthly Expenses: amount is gross, tax_value is stored
+      expense_vat: monthlyExpenses.reduce((sum, item) => sum + (Number(item.tax_value) || 0), 0),
+      expense_taxable: monthlyExpenses.reduce((sum, item) => {
+        const gross = Number(item.amount) || 0;
+        const tax = Number(item.tax_value) || 0;
+        return sum + (gross - tax);
+      }, 0),
+      // Payment Vouchers: amount is taxable, tax_value is stored
+      payment_vat: (paymentVouchers || []).reduce((sum, item) => sum + (Number(item.tax_value) || 0), 0),
+      payment_taxable: (paymentVouchers || []).reduce((sum, item) => sum + (Number(item.amount) || 0), 0),
     };
 
     const totalOutputTax = outputTax.sales_vat + outputTax.income_vat + outputTax.receipt_vat;
@@ -100,3 +111,4 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: "Failed to collect tax data" }, { status: 500 });
   }
 }
+

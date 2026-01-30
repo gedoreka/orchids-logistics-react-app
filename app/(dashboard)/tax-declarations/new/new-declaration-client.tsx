@@ -180,30 +180,30 @@ export function NewTaxDeclarationClient({ companyId }: { companyId: number }) {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                     <div className="space-y-3">
                       <label className="text-sm font-black text-gray-700 uppercase tracking-wider">السنة المالية</label>
-                      <Select value={period.year} onValueChange={(v) => setPeriod({...period, year: v})}>
-                        <SelectTrigger className="h-14 bg-gray-50 border-gray-100 font-black text-lg focus:ring-indigo-500/20">
-                          <SelectValue placeholder="اختر السنة" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="2024">2024</SelectItem>
-                          <SelectItem value="2025">2025</SelectItem>
-                          <SelectItem value="2026">2026</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div className="space-y-3">
-                      <label className="text-sm font-black text-gray-700 uppercase tracking-wider">الربع السنوي</label>
-                      <Select value={period.quarter} onValueChange={(v) => setPeriod({...period, quarter: v})}>
-                        <SelectTrigger className="h-14 bg-gray-50 border-gray-100 font-black text-lg focus:ring-indigo-500/20">
-                          <SelectValue placeholder="اختر الربع" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="1" className="font-bold">الربع الأول (يناير - مارس)</SelectItem>
-                          <SelectItem value="2" className="font-bold">الربع الثاني (أبريل - يونيو)</SelectItem>
-                          <SelectItem value="3" className="font-bold">الربع الثالث (يوليو - سبتمبر)</SelectItem>
-                          <SelectItem value="4" className="font-bold">الربع الرابع (أكتوبر - ديسمبر)</SelectItem>
-                        </SelectContent>
-                      </Select>
+                        <Select value={period.year} onValueChange={(v) => setPeriod({...period, year: v})}>
+                          <SelectTrigger className="h-14 bg-white border-gray-200 font-black text-lg focus:ring-indigo-500/20 text-gray-900">
+                            <SelectValue placeholder="اختر السنة" />
+                          </SelectTrigger>
+                          <SelectContent className="bg-white border-gray-200 shadow-xl z-[100]">
+                            <SelectItem value="2024" className="text-gray-900 font-bold py-3">2024</SelectItem>
+                            <SelectItem value="2025" className="text-gray-900 font-bold py-3">2025</SelectItem>
+                            <SelectItem value="2026" className="text-gray-900 font-bold py-3">2026</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="space-y-3">
+                        <label className="text-sm font-black text-gray-700 uppercase tracking-wider">الربع السنوي</label>
+                        <Select value={period.quarter} onValueChange={(v) => setPeriod({...period, quarter: v})}>
+                          <SelectTrigger className="h-14 bg-white border-gray-200 font-black text-lg focus:ring-indigo-500/20 text-gray-900">
+                            <SelectValue placeholder="اختر الربع" />
+                          </SelectTrigger>
+                          <SelectContent className="bg-white border-gray-200 shadow-xl z-[100]">
+                            <SelectItem value="1" className="text-gray-900 font-bold py-3">الربع الأول (يناير - مارس)</SelectItem>
+                            <SelectItem value="2" className="text-gray-900 font-bold py-3">الربع الثاني (أبريل - يونيو)</SelectItem>
+                            <SelectItem value="3" className="text-gray-900 font-bold py-3">الربع الثالث (يوليو - سبتمبر)</SelectItem>
+                            <SelectItem value="4" className="text-gray-900 font-bold py-3">الربع الرابع (أكتوبر - ديسمبر)</SelectItem>
+                          </SelectContent>
+                        </Select>
                     </div>
                   </div>
 
