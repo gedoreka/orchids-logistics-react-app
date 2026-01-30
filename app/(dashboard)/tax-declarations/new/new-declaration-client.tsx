@@ -10,11 +10,13 @@ import {
   RefreshCw, 
   Calculator, 
   FileText, 
-  AlertCircle,
-  TrendingUp,
-  TrendingDown,
-  Info
-} from "lucide-react";
+    AlertCircle,
+    TrendingUp,
+    TrendingDown,
+    Info,
+    Calendar,
+    CheckCircle2
+  } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
