@@ -76,7 +76,7 @@ export async function registerAction(formData: FormData): Promise<AuthResponse> 
 
     const hashedPassword = await bcrypt.hash(password, 10);
     await execute(
-      "INSERT INTO users (name, email, password, role, company_id, is_activated, created_at) VALUES (?, ?, ?, 'admin', ?, 0, NOW())",
+      "INSERT INTO users (name, email, password, role, company_id, is_activated, created_at) VALUES (?, ?, ?, 'user', ?, 0, NOW())",
       [name, user_email, hashedPassword, companyId]
     );
 
@@ -214,7 +214,7 @@ export async function loginAction(formData: FormData): Promise<AuthResponse> {
       sub_user_id: userType === "sub_user" ? user.id : undefined,
       user_name: user.name,
       company_id: user.company_id,
-      role: user.role || (userType === "sub_user" ? "user" : "admin"),
+      role: user.email === process.env.ADMIN_EMAIL ? "admin" : (user.role === "admin" ? "user" : (user.role || "user")),
       permissions,
       user_type: userType,
     };
