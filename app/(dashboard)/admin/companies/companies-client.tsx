@@ -181,24 +181,24 @@ export function CompaniesClient({ initialCompanies, statusFilter, search, plans 
                 <div className="w-10 h-10 rounded-xl bg-emerald-500/20 flex items-center justify-center text-emerald-400">
                   <CheckCircle size={20} />
                 </div>
-                <div className="text-right">
-                  <span className="block text-emerald-400/50 text-[10px] font-black uppercase tracking-widest">المقبولة</span>
-                  <span className="text-xl font-black text-emerald-100">
-                    {companies.filter(c => c.status === 'approved').length}
-                  </span>
-                </div>
-              </div>
-
-              <div className="bg-amber-500/10 backdrop-blur-md px-6 py-2.5 rounded-2xl border border-amber-500/20 flex items-center gap-4">
-                  <div className="w-10 h-10 rounded-xl bg-amber-500/20 flex items-center justify-center text-amber-400">
-                    <RefreshCw size={20} className="animate-spin-slow" />
-                  </div>
                   <div className="text-right">
-                    <span className="block text-amber-400/50 text-[10px] font-black uppercase tracking-widest">قيد المراجعة</span>
-                    <span className="text-xl font-black text-amber-100">
-                      {companies.filter(c => c.status === 'pending').length}
+                    <span className="block text-emerald-400/50 text-[10px] font-black uppercase tracking-widest">المقبولة</span>
+                    <span className="text-xl font-black text-emerald-100">
+                      {companies.filter(c => c.status === 'approved' || c.status === 'active').length}
                     </span>
                   </div>
+                </div>
+
+                <div className="bg-amber-500/10 backdrop-blur-md px-6 py-2.5 rounded-2xl border border-amber-500/20 flex items-center gap-4">
+                    <div className="w-10 h-10 rounded-xl bg-amber-500/20 flex items-center justify-center text-amber-400">
+                      <RefreshCw size={20} className="animate-spin-slow" />
+                    </div>
+                    <div className="text-right">
+                      <span className="block text-amber-400/50 text-[10px] font-black uppercase tracking-widest">قيد المراجعة</span>
+                      <span className="text-xl font-black text-amber-100">
+                        {companies.filter(c => c.status === 'pending' || (!['approved', 'rejected', 'active'].includes(c.status || ''))).length}
+                      </span>
+                    </div>
                 </div>
               </div>
               
@@ -298,24 +298,24 @@ export function CompaniesClient({ initialCompanies, statusFilter, search, plans 
                     </div>
                   </div>
 
-                  <div className="flex flex-wrap gap-2">
-                    <div className={cn(
-                      "flex items-center gap-2 px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-widest shadow-sm border",
-                      company.status === 'approved' ? "bg-emerald-50 text-emerald-600 border-emerald-100" :
-                      company.status === 'rejected' ? "bg-rose-50 text-rose-600 border-rose-100" :
-                      "bg-amber-50 text-amber-600 border-amber-100"
-                    )}>
-                      {company.status === 'approved' ? <CheckCircle size={12}/> : company.status === 'rejected' ? <XCircle size={12}/> : <RefreshCw size={12} className="animate-spin-slow"/>}
-                      {company.status === 'approved' ? 'مقبول' : company.status === 'rejected' ? 'مرفوض' : 'قيد المراجعة'}
+                    <div className="flex flex-wrap gap-2">
+                      <div className={cn(
+                        "flex items-center gap-2 px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-widest shadow-sm border",
+                        (company.status === 'approved' || company.status === 'active') ? "bg-emerald-50 text-emerald-600 border-emerald-100" :
+                        company.status === 'rejected' ? "bg-rose-50 text-rose-600 border-rose-100" :
+                        "bg-amber-50 text-amber-600 border-amber-100"
+                      )}>
+                        {(company.status === 'approved' || company.status === 'active') ? <CheckCircle size={12}/> : company.status === 'rejected' ? <XCircle size={12}/> : <RefreshCw size={12} className="animate-spin-slow"/>}
+                        {(company.status === 'approved' || company.status === 'active') ? 'مقبول' : company.status === 'rejected' ? 'مرفوض' : 'قيد المراجعة'}
+                      </div>
+                      <div className={cn(
+                        "flex items-center gap-2 px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-widest shadow-sm border",
+                        company.is_active ? "bg-blue-50 text-blue-600 border-blue-100" : "bg-slate-50 text-slate-400 border-slate-100"
+                      )}>
+                        {company.is_active ? <PlayCircle size={12}/> : <PauseCircle size={12}/>}
+                        {company.is_active ? 'نشط' : 'موقوف'}
+                      </div>
                     </div>
-                    <div className={cn(
-                      "flex items-center gap-2 px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-widest shadow-sm border",
-                      company.is_active ? "bg-blue-50 text-blue-600 border-blue-100" : "bg-slate-50 text-slate-400 border-slate-100"
-                    )}>
-                      {company.is_active ? <PlayCircle size={12}/> : <PauseCircle size={12}/>}
-                      {company.is_active ? 'نشط' : 'موقوف'}
-                    </div>
-                  </div>
                 </div>
 
                 {/* Company Info Grid */}
@@ -414,40 +414,40 @@ export function CompaniesClient({ initialCompanies, statusFilter, search, plans 
                       </Link>
 
 <motion.button
-                          whileHover={company.status === 'pending' ? { scale: 1.02 } : {}}
-                          whileTap={company.status === 'pending' ? { scale: 0.98 } : {}}
-                          onClick={() => company.status === 'pending' && handleAction(company.id, () => approveCompany(company.id))}
-                          disabled={isLoading === company.id || company.status !== 'pending'}
-                          className={cn(
-                            "w-full h-full flex flex-col items-center justify-center gap-1.5 p-3 rounded-xl font-black shadow-lg transition-all",
-                            company.status === 'pending' 
-                              ? "bg-gradient-to-br from-emerald-500 to-emerald-600 text-white shadow-emerald-500/20 hover:shadow-emerald-500/40 cursor-pointer"
-                              : "bg-slate-200 text-slate-400 cursor-not-allowed shadow-none"
-                          )}
-                        >
-                          <CheckCircle size={18} />
-                          <span className="text-[9px] uppercase tracking-wider text-center">
-                            {company.status === 'approved' ? 'تم القبول' : 'قبول الطلب'}
-                          </span>
-                        </motion.button>
+                            whileHover={company.status === 'pending' ? { scale: 1.02 } : {}}
+                            whileTap={company.status === 'pending' ? { scale: 0.98 } : {}}
+                            onClick={() => company.status === 'pending' && handleAction(company.id, () => approveCompany(company.id))}
+                            disabled={isLoading === company.id || (company.status !== 'pending' && company.status !== null && !['approved', 'rejected', 'active'].includes(company.status))}
+                            className={cn(
+                              "w-full h-full flex flex-col items-center justify-center gap-1.5 p-3 rounded-xl font-black shadow-lg transition-all",
+                              (company.status === 'pending' || company.status === null || !['approved', 'rejected', 'active'].includes(company.status))
+                                ? "bg-gradient-to-br from-emerald-500 to-emerald-600 text-white shadow-emerald-500/20 hover:shadow-emerald-500/40 cursor-pointer"
+                                : "bg-slate-200 text-slate-400 cursor-not-allowed shadow-none"
+                            )}
+                          >
+                            <CheckCircle size={18} />
+                            <span className="text-[9px] uppercase tracking-wider text-center">
+                              {(company.status === 'approved' || company.status === 'active') ? 'تم القبول' : 'قبول الطلب'}
+                            </span>
+                          </motion.button>
 
-                        <motion.button
-                          whileHover={company.status === 'pending' ? { scale: 1.02 } : {}}
-                          whileTap={company.status === 'pending' ? { scale: 0.98 } : {}}
-                          onClick={() => company.status === 'pending' && handleAction(company.id, () => rejectCompany(company.id))}
-                          disabled={isLoading === company.id || company.status !== 'pending'}
-                          className={cn(
-                            "w-full h-full flex flex-col items-center justify-center gap-1.5 p-3 rounded-xl font-black shadow-lg transition-all",
-                            company.status === 'pending' 
-                              ? "bg-gradient-to-br from-rose-500 to-rose-600 text-white shadow-rose-500/20 hover:shadow-rose-500/40 cursor-pointer"
-                              : "bg-slate-200 text-slate-400 cursor-not-allowed shadow-none"
-                          )}
-                        >
-                          <XCircle size={18} />
-                          <span className="text-[9px] uppercase tracking-wider text-center">
-                            {company.status === 'rejected' ? 'تم الرفض' : 'رفض الطلب'}
-                          </span>
-                        </motion.button>
+                          <motion.button
+                            whileHover={company.status === 'pending' ? { scale: 1.02 } : {}}
+                            whileTap={company.status === 'pending' ? { scale: 0.98 } : {}}
+                            onClick={() => company.status === 'pending' && handleAction(company.id, () => rejectCompany(company.id))}
+                            disabled={isLoading === company.id || (company.status !== 'pending' && company.status !== null && !['approved', 'rejected', 'active'].includes(company.status))}
+                            className={cn(
+                              "w-full h-full flex flex-col items-center justify-center gap-1.5 p-3 rounded-xl font-black shadow-lg transition-all",
+                              (company.status === 'pending' || company.status === null || !['approved', 'rejected', 'active'].includes(company.status))
+                                ? "bg-gradient-to-br from-rose-500 to-rose-600 text-white shadow-rose-500/20 hover:shadow-rose-500/40 cursor-pointer"
+                                : "bg-slate-200 text-slate-400 cursor-not-allowed shadow-none"
+                            )}
+                          >
+                            <XCircle size={18} />
+                            <span className="text-[9px] uppercase tracking-wider text-center">
+                              {company.status === 'rejected' ? 'تم الرفض' : 'رفض الطلب'}
+                            </span>
+                          </motion.button>
 
                         <motion.button
                           whileHover={{ scale: 1.02 }}

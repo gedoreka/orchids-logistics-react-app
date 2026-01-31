@@ -73,14 +73,21 @@ export default async function Layout({ children }: { children: React.ReactNode }
     }
 
 
-  return (
-    <DashboardLayout 
-      user={user}
-      permissions={session.permissions}
-      userType={userType}
-      subscriptionData={subscriptionData}
-    >
-      {children}
-    </DashboardLayout>
-  );
+    // Enforcement: If subscription is inactive and user is not admin, redirect to subscriptions page
+    // (Note: This is a server component, so we use redirect. 
+    // We should check the current path if possible, but in App Router layout, 
+    // we can't easily get the current path without headers. 
+    // Better to handle this in a client component or middleware, 
+    // but here we can at least pass the state to the layout.)
+    
+    return (
+      <DashboardLayout 
+        user={user}
+        permissions={session.permissions}
+        userType={userType}
+        subscriptionData={subscriptionData}
+      >
+        {children}
+      </DashboardLayout>
+    );
 }

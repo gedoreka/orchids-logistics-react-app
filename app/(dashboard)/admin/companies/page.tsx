@@ -21,11 +21,11 @@ export default async function AdminCompaniesPage({
   }
 
   if (statusFilter === "approved") {
-    sql += " AND status = 'approved'";
+    sql += " AND (status = 'approved' OR status = 'active')";
   } else if (statusFilter === "rejected") {
     sql += " AND status = 'rejected'";
   } else if (statusFilter === "pending") {
-    sql += " AND (status IS NULL OR status NOT IN ('approved', 'rejected'))";
+    sql += " AND (status = 'pending' OR (status IS NULL AND status NOT IN ('approved', 'rejected', 'active')))";
   }
 
   sql += " ORDER BY created_at DESC";

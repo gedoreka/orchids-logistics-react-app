@@ -8,6 +8,7 @@ export interface User {
   company_id: number;
   is_activated: number;
   user_type?: UserType;
+  is_first_login?: number;
 }
 
 export interface SubUser {

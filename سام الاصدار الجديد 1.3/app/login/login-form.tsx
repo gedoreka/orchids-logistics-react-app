@@ -130,10 +130,10 @@ export default function LoginForm({ initialEmail = "" }: LoginFormProps) {
         }
         setShowWelcome(true);
         setTimeout(() => {
-          if (result.user?.is_first_login) {
-            router.push("/subscriptions");
-          } else {
+          if (result.user?.is_subscription_active) {
             router.push("/dashboard");
+          } else {
+            router.push("/subscriptions");
           }
           router.refresh();
         }, 2500);

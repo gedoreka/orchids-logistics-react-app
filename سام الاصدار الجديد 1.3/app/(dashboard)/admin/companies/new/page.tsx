@@ -67,9 +67,9 @@ interface Plan {
   description: string;
 }
 
-interface FormData {
+interface FormDataState {
   admin_name: string;
-  email: string;
+  user_email: string;
   password: string;
   confirm_password: string;
   name: string;
@@ -98,6 +98,211 @@ interface FormData {
   plan_id: string;
 }
 
+const InputField = ({ 
+  label, 
+  name, 
+  type = "text", 
+  placeholder, 
+  icon: Icon, 
+  required = false,
+  accentColor = "indigo",
+  value,
+  onChange
+}: {
+  label: string;
+  name: string;
+  type?: string;
+  placeholder: string;
+  icon: React.ElementType;
+  required?: boolean;
+  accentColor?: string;
+  value: string;
+  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+}) => {
+  const colorMap: Record<string, string> = {
+    violet: "focus:border-violet-500 focus:ring-violet-500/20",
+    indigo: "focus:border-indigo-500 focus:ring-indigo-500/20",
+    emerald: "focus:border-emerald-500 focus:ring-emerald-500/20",
+    amber: "focus:border-amber-500 focus:ring-amber-500/20",
+    rose: "focus:border-rose-500 focus:ring-rose-500/20"
+  };
+  const iconColorMap: Record<string, string> = {
+    violet: "text-violet-500",
+    indigo: "text-indigo-500",
+    emerald: "text-emerald-500",
+    amber: "text-amber-500",
+    rose: "text-rose-500"
+  };
+  
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="relative group"
+    >
+      <label className="block text-sm font-bold text-slate-700 mb-2 flex items-center gap-2">
+        <Icon size={16} className={iconColorMap[accentColor]} />
+        {label} {required && <span className="text-rose-500">*</span>}
+      </label>
+      <div className="relative">
+        <input
+          type={type}
+          name={name}
+          value={value}
+          onChange={onChange}
+          required={required}
+          className={cn(
+            "w-full px-4 py-3.5 rounded-xl border-2 border-slate-200 transition-all duration-300 text-slate-800 bg-white/80 backdrop-blur-sm",
+            "hover:border-slate-300 hover:bg-white",
+            colorMap[accentColor],
+            "focus:ring-4 focus:outline-none",
+            "placeholder:text-slate-400"
+          )}
+          placeholder={placeholder}
+        />
+        <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-transparent via-white/5 to-transparent opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity" />
+      </div>
+    </motion.div>
+  );
+};
+
+const SelectField = ({
+  label,
+  name,
+  options,
+  icon: Icon,
+  accentColor = "indigo",
+  placeholder = "اختر...",
+  value,
+  onChange
+}: {
+  label: string;
+  name: string;
+  options: { value: string; label: string }[];
+  icon: React.ElementType;
+  accentColor?: string;
+  placeholder?: string;
+  value: string;
+  onChange: (e: React.ChangeEvent<HTMLSelectElement>) => void;
+}) => {
+  const colorMap: Record<string, string> = {
+    violet: "focus:border-violet-500 focus:ring-violet-500/20",
+    indigo: "focus:border-indigo-500 focus:ring-indigo-500/20",
+    emerald: "focus:border-emerald-500 focus:ring-emerald-500/20",
+    amber: "focus:border-amber-500 focus:ring-amber-500/20",
+    rose: "focus:border-rose-500 focus:ring-rose-500/20"
+  };
+  const iconColorMap: Record<string, string> = {
+    violet: "text-violet-500",
+    indigo: "text-indigo-500",
+    emerald: "text-emerald-500",
+    amber: "text-amber-500",
+    rose: "text-rose-500"
+  };
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="relative group"
+    >
+      <label className="block text-sm font-bold text-slate-700 mb-2 flex items-center gap-2">
+        <Icon size={16} className={iconColorMap[accentColor]} />
+        {label}
+      </label>
+      <div className="relative">
+        <select
+          name={name}
+          value={value}
+          onChange={onChange}
+          className={cn(
+            "w-full px-4 py-3.5 rounded-xl border-2 border-slate-200 transition-all duration-300 text-slate-800 bg-white/80 backdrop-blur-sm appearance-none cursor-pointer",
+            "hover:border-slate-300 hover:bg-white",
+            colorMap[accentColor],
+            "focus:ring-4 focus:outline-none"
+          )}
+        >
+          <option value="">{placeholder}</option>
+          {options.map(opt => (
+            <option key={opt.value} value={opt.value}>{opt.label}</option>
+          ))}
+        </select>
+        <ChevronDown className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 pointer-events-none" />
+      </div>
+    </motion.div>
+  );
+};
+
+const FileUploadBox = ({ 
+  label, 
+  icon: Icon, 
+  fileKey,
+  accept = "image/*",
+  gradient,
+  hasFile,
+  fileName,
+  onChange
+}: { 
+  label: string; 
+  icon: React.ElementType;
+  fileKey: string;
+  accept?: string;
+  gradient: string;
+  hasFile: boolean;
+  fileName?: string;
+  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+}) => (
+  <motion.div 
+    className="relative group"
+    whileHover={{ scale: 1.02 }}
+    transition={{ type: "spring", stiffness: 300 }}
+  >
+    <label className="block text-sm font-bold text-slate-700 mb-2 flex items-center gap-2">
+      <Icon size={16} className={gradient.includes("indigo") ? "text-indigo-500" : gradient.includes("emerald") ? "text-emerald-500" : "text-purple-500"} />
+      {label}
+    </label>
+    <label className={cn(
+      "relative flex flex-col items-center justify-center w-full h-36 border-2 border-dashed rounded-2xl cursor-pointer transition-all duration-500 overflow-hidden",
+      hasFile 
+        ? "border-emerald-400 bg-gradient-to-br from-emerald-50 to-teal-50" 
+        : "border-slate-200 bg-gradient-to-br from-slate-50 to-white hover:border-indigo-400 hover:from-indigo-50 hover:to-violet-50"
+    )}>
+      <div className="absolute inset-0 bg-gradient-to-br from-white/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+      <div className="flex flex-col items-center justify-center pt-5 pb-6 relative z-10">
+        {hasFile ? (
+          <motion.div
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            className="text-center"
+          >
+            <div className="w-12 h-12 mx-auto rounded-full bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center mb-2 shadow-lg shadow-emerald-500/30">
+              <CheckCircle className="w-6 h-6 text-white" />
+            </div>
+            <p className="text-sm text-emerald-700 font-bold truncate max-w-[150px]">{fileName}</p>
+          </motion.div>
+        ) : (
+          <>
+            <div className={cn(
+              "w-12 h-12 rounded-xl flex items-center justify-center mb-3 transition-all duration-300",
+              "bg-gradient-to-br from-slate-100 to-slate-200 group-hover:from-indigo-100 group-hover:to-violet-100"
+            )}>
+              <Upload className="w-5 h-5 text-slate-400 group-hover:text-indigo-500 transition-colors" />
+            </div>
+            <p className="text-sm text-slate-500 group-hover:text-indigo-600 transition-colors font-medium">اختر ملف {label}</p>
+            <p className="text-xs text-slate-400 mt-1">PNG, JPG حتى 5MB</p>
+          </>
+        )}
+      </div>
+      <input 
+        type="file" 
+        className="hidden" 
+        accept={accept}
+        onChange={onChange}
+      />
+    </label>
+  </motion.div>
+);
+
 export default function NewCompanyPage() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
@@ -106,9 +311,9 @@ export default function NewCompanyPage() {
   const [activeSection, setActiveSection] = useState<number | null>(0);
   const [plans, setPlans] = useState<Plan[]>([]);
   
-  const [formData, setFormData] = useState<FormData>({
+  const [formData, setFormData] = useState<FormDataState>({
     admin_name: "",
-    email: "",
+    user_email: "",
     password: "",
     confirm_password: "",
     name: "",
@@ -210,7 +415,7 @@ export default function NewCompanyPage() {
       return;
     }
 
-    if (!formData.email) {
+    if (!formData.user_email) {
       toast.error("الرجاء إدخال البريد الإلكتروني");
       return;
     }
@@ -265,70 +470,6 @@ export default function NewCompanyPage() {
       setIsLoading(false);
     }
   };
-
-  const FileUploadBox = ({ 
-    label, 
-    icon: Icon, 
-    fileKey,
-    accept = "image/*",
-    gradient
-  }: { 
-    label: string; 
-    icon: React.ElementType;
-    fileKey: keyof typeof files;
-    accept?: string;
-    gradient: string;
-  }) => (
-    <motion.div 
-      className="relative group"
-      whileHover={{ scale: 1.02 }}
-      transition={{ type: "spring", stiffness: 300 }}
-    >
-      <label className="block text-sm font-bold text-slate-700 mb-2 flex items-center gap-2">
-        <Icon size={16} className={gradient.includes("indigo") ? "text-indigo-500" : gradient.includes("emerald") ? "text-emerald-500" : "text-purple-500"} />
-        {label}
-      </label>
-      <label className={cn(
-        "relative flex flex-col items-center justify-center w-full h-36 border-2 border-dashed rounded-2xl cursor-pointer transition-all duration-500 overflow-hidden",
-        files[fileKey] 
-          ? "border-emerald-400 bg-gradient-to-br from-emerald-50 to-teal-50" 
-          : "border-slate-200 bg-gradient-to-br from-slate-50 to-white hover:border-indigo-400 hover:from-indigo-50 hover:to-violet-50"
-      )}>
-        <div className="absolute inset-0 bg-gradient-to-br from-white/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-        <div className="flex flex-col items-center justify-center pt-5 pb-6 relative z-10">
-          {files[fileKey] ? (
-            <motion.div
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              className="text-center"
-            >
-              <div className="w-12 h-12 mx-auto rounded-full bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center mb-2 shadow-lg shadow-emerald-500/30">
-                <CheckCircle className="w-6 h-6 text-white" />
-              </div>
-              <p className="text-sm text-emerald-700 font-bold truncate max-w-[150px]">{files[fileKey]?.name}</p>
-            </motion.div>
-          ) : (
-            <>
-              <div className={cn(
-                "w-12 h-12 rounded-xl flex items-center justify-center mb-3 transition-all duration-300",
-                "bg-gradient-to-br from-slate-100 to-slate-200 group-hover:from-indigo-100 group-hover:to-violet-100"
-              )}>
-                <Upload className="w-5 h-5 text-slate-400 group-hover:text-indigo-500 transition-colors" />
-              </div>
-              <p className="text-sm text-slate-500 group-hover:text-indigo-600 transition-colors font-medium">اختر ملف {label}</p>
-              <p className="text-xs text-slate-400 mt-1">PNG, JPG حتى 5MB</p>
-            </>
-          )}
-        </div>
-        <input 
-          type="file" 
-          className="hidden" 
-          accept={accept}
-          onChange={(e) => handleFileChange(e, fileKey)}
-        />
-      </label>
-    </motion.div>
-  );
 
   const sections = [
     {
@@ -386,133 +527,6 @@ export default function NewCompanyPage() {
       accentColor: "indigo"
     }
   ];
-
-  const InputField = ({ 
-    label, 
-    name, 
-    type = "text", 
-    placeholder, 
-    icon: Icon, 
-    required = false,
-    accentColor = "indigo"
-  }: {
-    label: string;
-    name: string;
-    type?: string;
-    placeholder: string;
-    icon: React.ElementType;
-    required?: boolean;
-    accentColor?: string;
-  }) => {
-    const colorMap: Record<string, string> = {
-      violet: "focus:border-violet-500 focus:ring-violet-500/20",
-      indigo: "focus:border-indigo-500 focus:ring-indigo-500/20",
-      emerald: "focus:border-emerald-500 focus:ring-emerald-500/20",
-      amber: "focus:border-amber-500 focus:ring-amber-500/20",
-      rose: "focus:border-rose-500 focus:ring-rose-500/20"
-    };
-    const iconColorMap: Record<string, string> = {
-      violet: "text-violet-500",
-      indigo: "text-indigo-500",
-      emerald: "text-emerald-500",
-      amber: "text-amber-500",
-      rose: "text-rose-500"
-    };
-    
-    return (
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="relative group"
-      >
-        <label className="block text-sm font-bold text-slate-700 mb-2 flex items-center gap-2">
-          <Icon size={16} className={iconColorMap[accentColor]} />
-          {label} {required && <span className="text-rose-500">*</span>}
-        </label>
-        <div className="relative">
-          <input
-            type={type}
-            name={name}
-            value={formData[name as keyof FormData]}
-            onChange={handleInputChange}
-            required={required}
-            className={cn(
-              "w-full px-4 py-3.5 rounded-xl border-2 border-slate-200 transition-all duration-300 text-slate-800 bg-white/80 backdrop-blur-sm",
-              "hover:border-slate-300 hover:bg-white",
-              colorMap[accentColor],
-              "focus:ring-4 focus:outline-none",
-              "placeholder:text-slate-400"
-            )}
-            placeholder={placeholder}
-          />
-          <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-transparent via-white/5 to-transparent opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity" />
-        </div>
-      </motion.div>
-    );
-  };
-
-  const SelectField = ({
-    label,
-    name,
-    options,
-    icon: Icon,
-    accentColor = "indigo",
-    placeholder = "اختر..."
-  }: {
-    label: string;
-    name: string;
-    options: { value: string; label: string }[];
-    icon: React.ElementType;
-    accentColor?: string;
-    placeholder?: string;
-  }) => {
-    const colorMap: Record<string, string> = {
-      violet: "focus:border-violet-500 focus:ring-violet-500/20",
-      indigo: "focus:border-indigo-500 focus:ring-indigo-500/20",
-      emerald: "focus:border-emerald-500 focus:ring-emerald-500/20",
-      amber: "focus:border-amber-500 focus:ring-amber-500/20",
-      rose: "focus:border-rose-500 focus:ring-rose-500/20"
-    };
-    const iconColorMap: Record<string, string> = {
-      violet: "text-violet-500",
-      indigo: "text-indigo-500",
-      emerald: "text-emerald-500",
-      amber: "text-amber-500",
-      rose: "text-rose-500"
-    };
-
-    return (
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="relative group"
-      >
-        <label className="block text-sm font-bold text-slate-700 mb-2 flex items-center gap-2">
-          <Icon size={16} className={iconColorMap[accentColor]} />
-          {label}
-        </label>
-        <div className="relative">
-          <select
-            name={name}
-            value={formData[name as keyof FormData]}
-            onChange={handleInputChange}
-            className={cn(
-              "w-full px-4 py-3.5 rounded-xl border-2 border-slate-200 transition-all duration-300 text-slate-800 bg-white/80 backdrop-blur-sm appearance-none cursor-pointer",
-              "hover:border-slate-300 hover:bg-white",
-              colorMap[accentColor],
-              "focus:ring-4 focus:outline-none"
-            )}
-          >
-            <option value="">{placeholder}</option>
-            {options.map(opt => (
-              <option key={opt.value} value={opt.value}>{opt.label}</option>
-            ))}
-          </select>
-          <ChevronDown className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 pointer-events-none" />
-        </div>
-      </motion.div>
-    );
-  };
 
   return (
     <div className="min-h-screen">
@@ -646,10 +660,10 @@ export default function NewCompanyPage() {
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6 relative">
-                    <InputField label="اسم مدير الحساب" name="admin_name" placeholder="أدخل اسم مدير الحساب" icon={User} required accentColor="violet" />
-                    <InputField label="البريد الإلكتروني" name="email" type="email" placeholder="example@company.com" icon={Mail} required accentColor="violet" />
-                    <InputField label="كلمة المرور" name="password" type="password" placeholder="أدخل كلمة المرور (6 أحرف على الأقل)" icon={Lock} required accentColor="violet" />
-                    <InputField label="تأكيد كلمة المرور" name="confirm_password" type="password" placeholder="أعد إدخال كلمة المرور" icon={Lock} required accentColor="violet" />
+                    <InputField label="اسم مدير الحساب" name="admin_name" placeholder="أدخل اسم مدير الحساب" icon={User} required accentColor="violet" value={formData.admin_name} onChange={handleInputChange} />
+                    <InputField label="البريد الإلكتروني" name="user_email" type="email" placeholder="example@company.com" icon={Mail} required accentColor="violet" value={formData.user_email} onChange={handleInputChange} />
+                    <InputField label="كلمة المرور" name="password" type="password" placeholder="أدخل كلمة المرور (6 أحرف على الأقل)" icon={Lock} required accentColor="violet" value={formData.password} onChange={handleInputChange} />
+                    <InputField label="تأكيد كلمة المرور" name="confirm_password" type="password" placeholder="أعد إدخال كلمة المرور" icon={Lock} required accentColor="violet" value={formData.confirm_password} onChange={handleInputChange} />
                   </div>
                 </div>
               </motion.div>
@@ -684,16 +698,18 @@ export default function NewCompanyPage() {
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 relative">
-                    <InputField label="اسم المنشأة" name="name" placeholder="أدخل اسم المنشأة" icon={Building2} required accentColor="indigo" />
-                    <InputField label="رقم السجل التجاري" name="commercial_number" placeholder="أدخل رقم السجل التجاري" icon={IdCard} accentColor="indigo" />
-                    <InputField label="الرقم الضريبي" name="vat_number" placeholder="أدخل الرقم الضريبي" icon={Receipt} accentColor="indigo" />
-                    <InputField label="رقم الهاتف" name="phone" placeholder="أدخل رقم الهاتف" icon={Phone} accentColor="indigo" />
-                    <InputField label="الموقع الإلكتروني" name="website" type="url" placeholder="https://example.com" icon={Globe} accentColor="indigo" />
+                    <InputField label="اسم المنشأة" name="name" placeholder="أدخل اسم المنشأة" icon={Building2} required accentColor="indigo" value={formData.name} onChange={handleInputChange} />
+                    <InputField label="رقم السجل التجاري" name="commercial_number" placeholder="أدخل رقم السجل التجاري" icon={IdCard} accentColor="indigo" value={formData.commercial_number} onChange={handleInputChange} />
+                    <InputField label="الرقم الضريبي" name="vat_number" placeholder="أدخل الرقم الضريبي" icon={Receipt} accentColor="indigo" value={formData.vat_number} onChange={handleInputChange} />
+                    <InputField label="رقم الهاتف" name="phone" placeholder="أدخل رقم الهاتف" icon={Phone} accentColor="indigo" value={formData.phone} onChange={handleInputChange} />
+                    <InputField label="الموقع الإلكتروني" name="website" type="url" placeholder="https://example.com" icon={Globe} accentColor="indigo" value={formData.website} onChange={handleInputChange} />
                     <SelectField 
                       label="العملة" 
                       name="currency" 
                       icon={DollarSign} 
                       accentColor="indigo"
+                      value={formData.currency}
+                      onChange={handleInputChange}
                       options={currencies.map(c => ({ value: c.code, label: `${c.name} (${c.code})` }))}
                     />
                   </div>
@@ -704,9 +720,9 @@ export default function NewCompanyPage() {
                       ملفات الهوية البصرية
                     </h3>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                      <FileUploadBox label="شعار المنشأة" icon={ImageIcon} fileKey="logo" gradient="indigo" />
-                      <FileUploadBox label="الختم الرسمي" icon={Stamp} fileKey="stamp" gradient="indigo" />
-                      <FileUploadBox label="التوقيع الرقمي" icon={FileText} fileKey="digital_seal" gradient="indigo" />
+                      <FileUploadBox label="شعار المنشأة" icon={ImageIcon} fileKey="logo" gradient="indigo" hasFile={!!files.logo} fileName={files.logo?.name} onChange={(e) => handleFileChange(e, "logo")} />
+                      <FileUploadBox label="الختم الرسمي" icon={Stamp} fileKey="stamp" gradient="indigo" hasFile={!!files.stamp} fileName={files.stamp?.name} onChange={(e) => handleFileChange(e, "stamp")} />
+                      <FileUploadBox label="التوقيع الرقمي" icon={FileText} fileKey="digital_seal" gradient="indigo" hasFile={!!files.digital_seal} fileName={files.digital_seal?.name} onChange={(e) => handleFileChange(e, "digital_seal")} />
                     </div>
                   </div>
                 </div>
@@ -743,6 +759,8 @@ export default function NewCompanyPage() {
                       icon={Flag} 
                       accentColor="emerald"
                       placeholder="اختر الدولة"
+                      value={formData.country_code}
+                      onChange={handleInputChange}
                       options={locationLibrary.countries.map(c => ({ value: c.code, label: c.nativeName }))}
                     />
                     <SelectField 
@@ -751,6 +769,8 @@ export default function NewCompanyPage() {
                       icon={Map} 
                       accentColor="emerald"
                       placeholder="اختر المنطقة"
+                      value={formData.region_code}
+                      onChange={handleInputChange}
                       options={locationLibrary.getRegions(formData.country_code).map(r => ({ value: r.code, label: r.name }))}
                     />
                     <SelectField 
@@ -759,6 +779,8 @@ export default function NewCompanyPage() {
                       icon={Navigation} 
                       accentColor="emerald"
                       placeholder="اختر المدينة"
+                      value={formData.city}
+                      onChange={handleInputChange}
                       options={locationLibrary.getCities(formData.country_code, formData.region_code).map(c => ({ value: c.name, label: c.name }))}
                     />
                     <SelectField 
@@ -767,11 +789,13 @@ export default function NewCompanyPage() {
                         icon={Home} 
                         accentColor="emerald"
                         placeholder="اختر الحي"
+                        value={formData.district}
+                        onChange={handleInputChange}
                         options={locationLibrary.getDistricts(formData.country_code, formData.city).map(d => ({ value: d, label: d }))}
                       />
-                    <InputField label="الشارع" name="street" placeholder="أدخل اسم الشارع" icon={Navigation} accentColor="emerald" />
-                    <InputField label="الرمز البريدي" name="postal_code" placeholder="أدخل الرمز البريدي" icon={Hash} accentColor="emerald" />
-                    <InputField label="العنوان المختصر" name="short_address" placeholder="أدخل العنوان المختصر" icon={MapPin} accentColor="emerald" />
+                    <InputField label="الشارع" name="street" placeholder="أدخل اسم الشارع" icon={Navigation} accentColor="emerald" value={formData.street} onChange={handleInputChange} />
+                    <InputField label="الرمز البريدي" name="postal_code" placeholder="أدخل الرمز البريدي" icon={Hash} accentColor="emerald" value={formData.postal_code} onChange={handleInputChange} />
+                    <InputField label="العنوان المختصر" name="short_address" placeholder="أدخل العنوان المختصر" icon={MapPin} accentColor="emerald" value={formData.short_address} onChange={handleInputChange} />
                   </div>
                 </div>
               </motion.div>
@@ -801,10 +825,10 @@ export default function NewCompanyPage() {
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6 relative">
-                    <InputField label="اسم المستفيد" name="bank_beneficiary" placeholder="أدخل اسم المستفيد" icon={User} accentColor="amber" />
-                    <InputField label="اسم البنك" name="bank_name" placeholder="أدخل اسم البنك" icon={Landmark} accentColor="amber" />
-                    <InputField label="رقم الحساب" name="bank_account" placeholder="أدخل رقم الحساب" icon={CreditCard} accentColor="amber" />
-                    <InputField label="رقم الآيبان" name="bank_iban" placeholder="أدخل رقم الآيبان" icon={Wallet} accentColor="amber" />
+                    <InputField label="اسم المستفيد" name="bank_beneficiary" placeholder="أدخل اسم المستفيد" icon={User} accentColor="amber" value={formData.bank_beneficiary} onChange={handleInputChange} />
+                    <InputField label="اسم البنك" name="bank_name" placeholder="أدخل اسم البنك" icon={Landmark} accentColor="amber" value={formData.bank_name} onChange={handleInputChange} />
+                    <InputField label="رقم الحساب" name="bank_account" placeholder="أدخل رقم الحساب" icon={CreditCard} accentColor="amber" value={formData.bank_account} onChange={handleInputChange} />
+                    <InputField label="رقم الآيبان" name="bank_iban" placeholder="أدخل رقم الآيبان" icon={Wallet} accentColor="amber" value={formData.bank_iban} onChange={handleInputChange} />
                   </div>
                 </div>
               </motion.div>
@@ -834,11 +858,11 @@ export default function NewCompanyPage() {
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 relative">
-                    <InputField label="رقم الترخيص" name="transport_license_number" placeholder="أدخل رقم الترخيص" icon={IdCard} accentColor="rose" />
-                    <InputField label="نوع الترخيص" name="transport_license_type" placeholder="أدخل نوع الترخيص" icon={FileText} accentColor="rose" />
-                    <FileUploadBox label="صورة الترخيص" icon={Camera} fileKey="license_image" gradient="rose" />
-                    <InputField label="تاريخ البداية" name="license_start" type="date" placeholder="" icon={Calendar} accentColor="rose" />
-                    <InputField label="تاريخ الانتهاء" name="license_end" type="date" placeholder="" icon={Calendar} accentColor="rose" />
+                    <InputField label="رقم الترخيص" name="transport_license_number" placeholder="أدخل رقم الترخيص" icon={IdCard} accentColor="rose" value={formData.transport_license_number} onChange={handleInputChange} />
+                    <InputField label="نوع الترخيص" name="transport_license_type" placeholder="أدخل نوع الترخيص" icon={FileText} accentColor="rose" value={formData.transport_license_type} onChange={handleInputChange} />
+                    <FileUploadBox label="صورة الترخيص" icon={Camera} fileKey="license_image" gradient="rose" hasFile={!!files.license_image} fileName={files.license_image?.name} onChange={(e) => handleFileChange(e, "license_image")} />
+                    <InputField label="تاريخ البداية" name="license_start" type="date" placeholder="" icon={Calendar} accentColor="rose" value={formData.license_start} onChange={handleInputChange} />
+                    <InputField label="تاريخ الانتهاء" name="license_end" type="date" placeholder="" icon={Calendar} accentColor="rose" value={formData.license_end} onChange={handleInputChange} />
                   </div>
                 </div>
               </motion.div>
@@ -999,7 +1023,7 @@ export default function NewCompanyPage() {
                         setActiveSection(0);
                         setFormData({
                           admin_name: "",
-                          email: "",
+                          user_email: "",
                           password: "",
                           confirm_password: "",
                           name: "",
