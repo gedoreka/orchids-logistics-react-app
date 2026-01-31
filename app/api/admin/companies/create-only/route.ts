@@ -98,7 +98,7 @@ export async function POST(request: NextRequest) {
         transport_license_number, transport_license_type, license_start, license_end,
         logo_path, stamp_path, digital_seal_path, license_image,
         status, is_active, source, created_at
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'active', 1, 'admin', NOW())`,
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'approved', 1, 'admin', NOW())`,
       [
         name, commercial_number, vat_number, phone, website, currency,
         country, region, district, street, postal_code, short_address,
