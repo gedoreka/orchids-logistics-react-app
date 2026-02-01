@@ -186,10 +186,10 @@ export function LuxurySearchableSelect({
 
           <div className="max-h-[350px] overflow-y-auto overflow-x-hidden custom-scrollbar p-2">
             {filteredOptions.length > 0 ? (
-              filteredOptions.map((option, index) => (
-                <div
-                  key={option.value}
-                  onMouseEnter={() => setActiveIndex(index)}
+                filteredOptions.map((option, index) => (
+                  <div
+                    key={`${option.value}-${index}`}
+                    onMouseEnter={() => setActiveIndex(index)}
                   onClick={() => handleSelect(option.value)}
                   className={`
                     flex items-center justify-between px-4 py-3.5 rounded-[1rem] cursor-pointer transition-all mb-1
