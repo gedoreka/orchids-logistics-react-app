@@ -254,212 +254,212 @@ export function CostCentersClient({ initialCostCenters, companyId }: CostCenters
           <div className="absolute -top-12 -left-12 w-48 h-48 bg-orange-500/10 rounded-full blur-3xl" />
         </motion.div>
 
-        {/* Stats Cards */}
-        <motion.div 
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          className="grid grid-cols-1 md:grid-cols-3 gap-6"
-        >
-          <div className={cn("bg-white/80 backdrop-blur-xl p-6 rounded-[2rem] border border-white/50 shadow-xl flex items-center space-x-4 group hover:border-amber-200 transition-all hover:shadow-2xl hover:-translate-y-1", isRtl ? "space-x-reverse" : "space-x")}>
-            <div className="p-4 bg-gradient-to-br from-amber-500 to-amber-700 rounded-2xl text-white shadow-lg">
-              <ClipboardList className="w-6 h-6" />
+          {/* Stats Cards */}
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="grid grid-cols-1 md:grid-cols-3 gap-6"
+          >
+            <div className={cn("bg-slate-800/80 backdrop-blur-xl p-6 rounded-[2rem] border border-white/10 shadow-xl flex items-center space-x-4 group hover:border-amber-500/50 transition-all hover:shadow-2xl hover:-translate-y-1", isRtl ? "space-x-reverse" : "space-x")}>
+              <div className="p-4 bg-gradient-to-br from-amber-500 to-amber-700 rounded-2xl text-white shadow-lg">
+                <ClipboardList className="w-6 h-6" />
+              </div>
+              <div>
+                <p className="text-xs text-slate-400 font-black mb-1">{t("totalCenters")}</p>
+                <p className="text-3xl font-black text-white tracking-tight">{stats.total}</p>
+              </div>
             </div>
-            <div>
-              <p className="text-xs text-slate-500 font-black mb-1">{t("totalCenters")}</p>
-              <p className="text-3xl font-black text-slate-900 tracking-tight">{stats.total}</p>
+            <div className={cn("bg-slate-800/80 backdrop-blur-xl p-6 rounded-[2rem] border border-white/10 shadow-xl flex items-center space-x-4 group hover:border-emerald-500/50 transition-all hover:shadow-2xl hover:-translate-y-1", isRtl ? "space-x-reverse" : "space-x")}>
+              <div className="p-4 bg-gradient-to-br from-emerald-500 to-emerald-700 rounded-2xl text-white shadow-lg">
+                <Building className="w-6 h-6" />
+              </div>
+              <div>
+                <p className="text-xs text-slate-400 font-black mb-1">{t("activeCenters")}</p>
+                <p className="text-3xl font-black text-white tracking-tight">{stats.main}</p>
+              </div>
             </div>
-          </div>
-          <div className={cn("bg-white/80 backdrop-blur-xl p-6 rounded-[2rem] border border-white/50 shadow-xl flex items-center space-x-4 group hover:border-emerald-200 transition-all hover:shadow-2xl hover:-translate-y-1", isRtl ? "space-x-reverse" : "space-x")}>
-            <div className="p-4 bg-gradient-to-br from-emerald-500 to-emerald-700 rounded-2xl text-white shadow-lg">
-              <Building className="w-6 h-6" />
+            <div className={cn("bg-slate-800/80 backdrop-blur-xl p-6 rounded-[2rem] border border-white/10 shadow-xl flex items-center space-x-4 group hover:border-blue-500/50 transition-all hover:shadow-2xl hover:-translate-y-1", isRtl ? "space-x-reverse" : "space-x")}>
+              <div className="p-4 bg-gradient-to-br from-blue-500 to-blue-700 rounded-2xl text-white shadow-lg">
+                <MapPin className="w-6 h-6" />
+              </div>
+              <div>
+                <p className="text-xs text-slate-400 font-black mb-1">{t("branches")}</p>
+                <p className="text-3xl font-black text-white tracking-tight">{stats.sub}</p>
+              </div>
             </div>
-            <div>
-              <p className="text-xs text-slate-500 font-black mb-1">{t("activeCenters")}</p>
-              <p className="text-3xl font-black text-slate-900 tracking-tight">{stats.main}</p>
-            </div>
-          </div>
-          <div className={cn("bg-white/80 backdrop-blur-xl p-6 rounded-[2rem] border border-white/50 shadow-xl flex items-center space-x-4 group hover:border-blue-200 transition-all hover:shadow-2xl hover:-translate-y-1", isRtl ? "space-x-reverse" : "space-x")}>
-            <div className="p-4 bg-gradient-to-br from-blue-500 to-blue-700 rounded-2xl text-white shadow-lg">
-              <MapPin className="w-6 h-6" />
-            </div>
-            <div>
-              <p className="text-xs text-slate-500 font-black mb-1">{t("branches")}</p>
-              <p className="text-3xl font-black text-slate-900 tracking-tight">{stats.sub}</p>
-            </div>
-          </div>
-        </motion.div>
+          </motion.div>
 
-        {/* Search and Action Bar */}
-        <motion.div 
-          className="bg-white/80 backdrop-blur-xl p-6 rounded-[2rem] shadow-xl border border-white/50 flex flex-col md:flex-row gap-4 items-center justify-between"
-        >
-          <div className="flex-1 relative w-full md:w-auto">
-            <Search className={cn("absolute top-1/2 -translate-y-1/2 text-slate-400 w-5 h-5", isRtl ? "right-5" : "left-5")} />
-            <input
-              type="text"
-              placeholder={t("searchPlaceholder")}
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className={cn(
-                "w-full bg-slate-50/50 border border-slate-200 rounded-2xl py-4 focus:ring-2 focus:ring-amber-500 focus:border-transparent outline-none transition-all text-sm font-bold shadow-sm",
-                isRtl ? "pr-14 pl-6" : "pl-14 pr-6"
-              )}
-            />
-          </div>
-          <div className="flex items-center gap-4 w-full md:w-auto">
-            <button
-              onClick={handleSeed}
-              disabled={isSeeding}
-              className={cn(
-                "bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-4 rounded-2xl font-black transition-all flex items-center shadow-xl shadow-emerald-500/20 text-sm whitespace-nowrap active:scale-95 disabled:opacity-50",
-                isRtl ? "space-x-2 space-x-reverse" : "space-x-2"
-              )}
-            >
-              <RefreshCw className={cn("w-5 h-5", isSeeding && "animate-spin")} />
-              <span>{isSeeding ? t("seeding") : t("seed")}</span>
-            </button>
-            <button
-              onClick={() => handleOpenModal()}
-              className={cn("bg-amber-600 hover:bg-amber-700 text-white px-8 py-4 rounded-2xl font-black transition-all flex items-center shadow-xl shadow-amber-500/20 text-sm whitespace-nowrap active:scale-95", isRtl ? "space-x-2 space-x-reverse" : "space-x-2")}
-            >
-              <Plus className="w-5 h-5" />
-              <span>{t("addNewCenter")}</span>
-            </button>
-          </div>
-        </motion.div>
+          {/* Search and Action Bar */}
+          <motion.div 
+            className="bg-slate-800/80 backdrop-blur-xl p-6 rounded-[2rem] shadow-xl border border-white/10 flex flex-col md:flex-row gap-4 items-center justify-between"
+          >
+            <div className="flex-1 relative w-full md:w-auto">
+              <Search className={cn("absolute top-1/2 -translate-y-1/2 text-slate-400 w-5 h-5", isRtl ? "right-5" : "left-5")} />
+              <input
+                type="text"
+                placeholder={t("searchPlaceholder")}
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className={cn(
+                  "w-full bg-slate-900/50 border border-slate-700 rounded-2xl py-4 focus:ring-2 focus:ring-amber-500 focus:border-transparent outline-none transition-all text-sm font-bold shadow-sm text-white",
+                  isRtl ? "pr-14 pl-6" : "pl-14 pr-6"
+                )}
+              />
+            </div>
+            <div className="flex items-center gap-4 w-full md:w-auto">
+              <button
+                onClick={handleSeed}
+                disabled={isSeeding}
+                className={cn(
+                  "bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-4 rounded-2xl font-black transition-all flex items-center shadow-xl shadow-emerald-500/20 text-sm whitespace-nowrap active:scale-95 disabled:opacity-50",
+                  isRtl ? "space-x-2 space-x-reverse" : "space-x-2"
+                )}
+              >
+                <RefreshCw className={cn("w-5 h-5", isSeeding && "animate-spin")} />
+                <span>{isSeeding ? t("seeding") : t("seed")}</span>
+              </button>
+              <button
+                onClick={() => handleOpenModal()}
+                className={cn("bg-amber-600 hover:bg-amber-700 text-white px-8 py-4 rounded-2xl font-black transition-all flex items-center shadow-xl shadow-amber-500/20 text-sm whitespace-nowrap active:scale-95", isRtl ? "space-x-2 space-x-reverse" : "space-x-2")}
+              >
+                <Plus className="w-5 h-5" />
+                <span>{t("addNewCenter")}</span>
+              </button>
+            </div>
+          </motion.div>
 
-        {/* Cost Centers Table */}
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="bg-white/80 backdrop-blur-xl rounded-[2.5rem] shadow-2xl border border-white/50 overflow-hidden"
-        >
-          <div className="overflow-x-auto">
-            <table className={cn("w-full border-collapse min-w-[800px]", isRtl ? "text-right" : "text-left")}>
-              <thead>
-                <tr className="bg-slate-50/50 border-b border-slate-100">
-                  <th className="px-8 py-6 text-xs font-black text-slate-400 uppercase tracking-widest">{t("centerCode")}</th>
-                  <th className="px-8 py-6 text-xs font-black text-slate-400 uppercase tracking-widest">{t("centerName")}</th>
-                  <th className="px-8 py-6 text-xs font-black text-slate-400 uppercase tracking-widest">{t("mainLevel")}</th>
-                  <th className="px-8 py-6 text-xs font-black text-slate-400 uppercase tracking-widest text-center">{t("actions")}</th>
-                </tr>
-              </thead>
-              <tbody>
-                <AnimatePresence mode="popLayout">
-                  {displayCenters.length > 0 ? (
-                    displayCenters.map((center, index) => {
-                      const hasChildren = center.children && center.children.length > 0;
-                      return (
-                        <motion.tr
-                          key={center.id}
-                          initial={{ opacity: 0, y: 10 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          exit={{ opacity: 0, x: -20 }}
-                          className={cn(
-                            "border-b border-slate-50/50 hover:bg-amber-50/30 transition-colors group",
-                            center.center_type === 'main' ? "bg-slate-50/30 font-bold" : ""
-                          )}
-                        >
-                          <td className="px-8 py-5">
-                            <div className={cn("flex items-center space-x-2", isRtl && "space-x-reverse")}>
-                              <div style={{ width: `${center.level * 24}px` }} />
-                              {hasChildren ? (
-                                <button 
-                                  onClick={() => toggleRow(center.id)}
-                                  className="p-1 hover:bg-slate-200 rounded-md transition-colors"
-                                >
-                                  <ChevronRight className={cn(
-                                    "w-4 h-4 text-slate-500 transition-transform",
-                                    expandedRows[center.id] ? "rotate-90" : ""
-                                  )} />
-                                </button>
-                              ) : (
-                                <div className="w-6" />
-                              )}
-                              <Hash className="w-4 h-4 text-slate-300" />
-                              <span className="font-mono font-black text-slate-700 bg-slate-100/50 px-4 py-1.5 rounded-xl text-xs border border-slate-200">
-                                {center.center_code}
-                              </span>
-                            </div>
-                          </td>
-                          <td className="px-8 py-5">
-                            <div className={cn("flex items-center space-x-4", isRtl && "space-x-reverse")}>
-                              <div className={cn("p-2.5 rounded-xl shadow-sm border bg-amber-50 border-amber-200")}>
-                                <Building className="w-5 h-5 text-amber-600" />
-                              </div>
-                              <div className="flex flex-col">
-                                <span className={cn(
-                                  "font-black",
-                                  center.center_type === 'main' ? "text-slate-900" : "text-slate-700"
-                                )}>
-                                  {center.center_name}
-                                </span>
-                                {center.description && (
-                                  <span className="text-[10px] text-slate-400 font-medium truncate max-w-xs">
-                                    {center.description}
-                                  </span>
+          {/* Cost Centers Table */}
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="bg-slate-800/80 backdrop-blur-xl rounded-[2.5rem] shadow-2xl border border-white/10 overflow-hidden"
+          >
+            <div className="overflow-x-auto">
+              <table className={cn("w-full border-collapse min-w-[800px]", isRtl ? "text-right" : "text-left")}>
+                <thead>
+                  <tr className="bg-slate-900/50 border-b border-slate-700">
+                    <th className="px-8 py-6 text-xs font-black text-slate-400 uppercase tracking-widest">{t("centerCode")}</th>
+                    <th className="px-8 py-6 text-xs font-black text-slate-400 uppercase tracking-widest">{t("centerName")}</th>
+                    <th className="px-8 py-6 text-xs font-black text-slate-400 uppercase tracking-widest">{t("mainLevel")}</th>
+                    <th className="px-8 py-6 text-xs font-black text-slate-400 uppercase tracking-widest text-center">{t("actions")}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <AnimatePresence mode="popLayout">
+                    {displayCenters.length > 0 ? (
+                      displayCenters.map((center, index) => {
+                        const hasChildren = center.children && center.children.length > 0;
+                        return (
+                          <motion.tr
+                            key={center.id}
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, x: -20 }}
+                            className={cn(
+                              "border-b border-white/5 hover:bg-white/5 transition-colors group",
+                              center.center_type === 'main' ? "bg-white/5 font-bold" : ""
+                            )}
+                          >
+                            <td className="px-8 py-5">
+                              <div className={cn("flex items-center space-x-2", isRtl && "space-x-reverse")}>
+                                <div style={{ width: `${center.level * 24}px` }} />
+                                {hasChildren ? (
+                                  <button 
+                                    onClick={() => toggleRow(center.id)}
+                                    className="p-1 hover:bg-white/10 rounded-md transition-colors"
+                                  >
+                                    <ChevronRight className={cn(
+                                      "w-4 h-4 text-slate-400 transition-transform",
+                                      expandedRows[center.id] ? "rotate-90" : ""
+                                    )} />
+                                  </button>
+                                ) : (
+                                  <div className="w-6" />
                                 )}
+                                <Hash className="w-4 h-4 text-slate-500" />
+                                <span className="font-mono font-black text-amber-400 bg-amber-500/10 px-4 py-1.5 rounded-xl text-xs border border-amber-500/20">
+                                  {center.center_code}
+                                </span>
                               </div>
+                            </td>
+                            <td className="px-8 py-5">
+                              <div className={cn("flex items-center space-x-4", isRtl && "space-x-reverse")}>
+                                <div className={cn("p-2.5 rounded-xl shadow-sm border bg-amber-500/10 border-amber-500/20")}>
+                                  <Building className="w-5 h-5 text-amber-500" />
+                                </div>
+                                <div className="flex flex-col">
+                                  <span className={cn(
+                                    "font-black text-white",
+                                    center.center_type === 'main' ? "text-lg" : "text-sm"
+                                  )}>
+                                    {center.center_name}
+                                  </span>
+                                  {center.description && (
+                                    <span className="text-[10px] text-slate-400 font-medium truncate max-w-xs">
+                                      {center.description}
+                                    </span>
+                                  )}
+                                </div>
+                              </div>
+                            </td>
+                            <td className="px-8 py-5">
+                              <span className={cn(
+                                "px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider",
+                                center.center_type === 'main' 
+                                  ? "bg-amber-500/20 text-amber-400 border border-amber-500/30" 
+                                  : "bg-slate-700/50 text-slate-300 border border-slate-600"
+                              )}>
+                                {center.center_type === 'main' ? t("main") : t("sub")}
+                              </span>
+                            </td>
+                            <td className="px-8 py-5">
+                              <div className="flex items-center justify-center gap-3">
+                                <button
+                                  onClick={() => handleOpenModal(center)}
+                                  className="p-3 rounded-xl bg-blue-500/10 text-blue-400 hover:bg-blue-600 hover:text-white transition-all shadow-sm"
+                                  title={t("edit")}
+                                >
+                                  <Edit2 className="w-4 h-4" />
+                                </button>
+                                <button
+                                  onClick={() => setDeleteConfirm(center.id)}
+                                  className="p-3 rounded-xl bg-red-500/10 text-red-400 hover:bg-red-600 hover:text-white transition-all shadow-sm"
+                                  title={t("delete")}
+                                >
+                                  <Trash2 className="w-4 h-4" />
+                                </button>
+                              </div>
+                            </td>
+                          </motion.tr>
+                        );
+                      })
+                    ) : (
+                      <tr>
+                        <td colSpan={4} className="px-8 py-32 text-center">
+                          <div className="flex flex-col items-center space-y-6 text-slate-500">
+                            <div className="w-24 h-24 bg-slate-900 rounded-full flex items-center justify-center">
+                              <FileText className="w-12 h-12 opacity-20" />
                             </div>
-                          </td>
-                          <td className="px-8 py-5">
-                            <span className={cn(
-                              "px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider",
-                              center.center_type === 'main' 
-                                ? "bg-amber-100 text-amber-700 border border-amber-200" 
-                                : "bg-slate-100 text-slate-700 border border-slate-200"
-                            )}>
-                              {center.center_type === 'main' ? t("main") : t("sub")}
-                            </span>
-                          </td>
-                          <td className="px-8 py-5">
-                            <div className="flex items-center justify-center gap-3">
-                              <button
-                                onClick={() => handleOpenModal(center)}
-                                className="p-3 rounded-xl bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white transition-all shadow-sm"
-                                title={t("edit")}
-                              >
-                                <Edit2 className="w-4 h-4" />
-                              </button>
-                              <button
-                                onClick={() => setDeleteConfirm(center.id)}
-                                className="p-3 rounded-xl bg-red-50 text-red-600 hover:bg-red-600 hover:text-white transition-all shadow-sm"
-                                title={t("delete")}
-                              >
-                                <Trash2 className="w-4 h-4" />
-                              </button>
+                            <div className="space-y-2">
+                              <p className="font-black text-2xl text-white">{t("noMatchingCenters")}</p>
+                              <p className="text-sm font-medium">{t("noMatchingCentersDesc")}</p>
                             </div>
-                          </td>
-                        </motion.tr>
-                      );
-                    })
-                  ) : (
-                    <tr>
-                      <td colSpan={4} className="px-8 py-32 text-center">
-                        <div className="flex flex-col items-center space-y-6 text-slate-400">
-                          <div className="w-24 h-24 bg-slate-50 rounded-full flex items-center justify-center">
-                            <FileText className="w-12 h-12 opacity-20" />
                           </div>
-                          <div className="space-y-2">
-                            <p className="font-black text-2xl text-slate-900">{t("noMatchingCenters")}</p>
-                            <p className="text-sm font-medium">{t("noMatchingCentersDesc")}</p>
-                          </div>
-                        </div>
-                      </td>
-                    </tr>
-                  )}
-                </AnimatePresence>
-              </tbody>
-            </table>
-          </div>
-          
-          {/* Table Footer */}
-          <div className="bg-slate-50/50 px-8 py-6 border-t border-slate-100 flex items-center justify-between">
-            <p className="text-sm text-slate-500 font-bold">
-              {t("view")} <span className="text-slate-900 font-black px-1">{displayCenters.length}</span> {t("outOf")} <span className="text-slate-900 font-black px-1">{costCenters.length}</span> {t("centersCount")}
-            </p>
-          </div>
-        </motion.div>
+                        </td>
+                      </tr>
+                    )}
+                  </AnimatePresence>
+                </tbody>
+              </table>
+            </div>
+            
+            {/* Table Footer */}
+            <div className="bg-slate-900/50 px-8 py-6 border-t border-slate-700 flex items-center justify-between">
+              <p className="text-sm text-slate-400 font-bold">
+                {t("view")} <span className="text-white font-black px-1">{displayCenters.length}</span> {t("outOf")} <span className="text-white font-black px-1">{costCenters.length}</span> {t("centersCount")}
+              </p>
+            </div>
+          </motion.div>
       </div>
 
       {/* Modal */}
