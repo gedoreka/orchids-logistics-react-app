@@ -29,10 +29,8 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { getAllCountries, getCitiesByCountry, getDistrictsByCity } from "@/lib/countries-data";
-import { useTranslations, useLocale } from "@/lib/locale-context";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import { locationLibrary } from "@/lib/location-data";
+import { LuxurySearchableSelect } from "@/components/ui/luxury-searchable-select";
 
 interface Customer {
   id: number;
@@ -82,8 +80,6 @@ interface NotificationState {
 
 export function EditCustomerClient({ customer, accounts, costCenters, companyId }: EditCustomerClientProps) {
   const router = useRouter();
-  const t = useTranslations("customers.editPage");
-  const { isRTL } = useLocale();
   const [loading, setLoading] = useState(false);
   const [notification, setNotification] = useState<NotificationState>({
     show: false,
@@ -91,6 +87,10 @@ export function EditCustomerClient({ customer, accounts, costCenters, companyId 
     title: "",
     message: ""
   });
+
+  // Map country name back to code if possible, default to SA
+  const countryCode = locationLibrary.countries.find(c => c.nativeName === customer.country)?.code || "SA";
+
   const [formData, setFormData] = useState({
     customer_name: customer.customer_name || "",
     company_name: customer.company_name || "",
@@ -99,7 +99,8 @@ export function EditCustomerClient({ customer, accounts, costCenters, companyId 
     unified_number: customer.unified_number || "",
     email: customer.email || "",
     phone: customer.phone || "",
-    country: customer.country || "",
+    country: countryCode,
+    region: "", // Regions aren't stored in DB, we'll try to match city if needed or just let user re-select
     city: customer.city || "",
     district: customer.district || "",
     street_name: customer.street_name || "",
@@ -110,34 +111,39 @@ export function EditCustomerClient({ customer, accounts, costCenters, companyId 
     is_active: customer.is_active === 1
   });
 
-  const [countries] = useState(getAllCountries());
-  const [cities, setCities] = useState<string[]>([]);
+  const [regions, setRegions] = useState<{ code: string; name: string }[]>([]);
+  const [cities, setCities] = useState<{ name: string }[]>([]);
   const [districts, setDistricts] = useState<string[]>([]);
 
   useEffect(() => {
     if (formData.country) {
-      const newCities = getCitiesByCountry(formData.country);
-      setCities(newCities);
-      if (!newCities.includes(formData.city)) {
-        setDistricts([]);
+      const countryRegions = locationLibrary.getRegions(formData.country);
+      setRegions(countryRegions);
+      
+      // If we have a city, try to find which region it belongs to
+      if (formData.city) {
+        for (const region of countryRegions) {
+          const regionCities = locationLibrary.getCities(formData.country, region.code);
+          if (regionCities.some(c => c.name === formData.city)) {
+            setFormData(prev => ({ ...prev, region: region.code }));
+            break;
+          }
+        }
       }
     }
   }, [formData.country]);
 
   useEffect(() => {
-    if (formData.country && formData.city) {
-      setDistricts(getDistrictsByCity(formData.country, formData.city));
+    if (formData.country && formData.region) {
+      setCities(locationLibrary.getCities(formData.country, formData.region));
     }
-  }, [formData.country, formData.city]);
+  }, [formData.country, formData.region]);
 
   useEffect(() => {
-    if (customer.country) {
-      setCities(getCitiesByCountry(customer.country));
+    if (formData.country && formData.city) {
+      setDistricts(locationLibrary.getDistricts(formData.country, formData.city));
     }
-    if (customer.country && customer.city) {
-      setDistricts(getDistrictsByCity(customer.country, customer.city));
-    }
-  }, []);
+  }, [formData.country, formData.city]);
 
   const showNotification = (type: "success" | "error" | "loading", title: string, message: string) => {
     setNotification({ show: true, type, title, message });
@@ -147,30 +153,41 @@ export function EditCustomerClient({ customer, accounts, costCenters, companyId 
     setNotification(prev => ({ ...prev, show: false }));
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    const { name, value, type } = e.target;
-    
-    if (name === "country") {
-      setFormData(prev => ({ ...prev, country: value, city: "", district: "" }));
-    } else if (name === "city") {
-      setFormData(prev => ({ ...prev, city: value, district: "" }));
-    } else if (type === "checkbox") {
-      setFormData(prev => ({ ...prev, [name]: (e.target as HTMLInputElement).checked }));
-    } else {
-      setFormData(prev => ({ ...prev, [name]: value }));
-    }
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value, type, checked } = e.target;
+    setFormData(prev => ({ 
+      ...prev, 
+      [name]: type === "checkbox" ? checked : value 
+    }));
+  };
+
+  const handleSelectChange = (name: string, value: string | number) => {
+    setFormData(prev => {
+      const newData = { ...prev, [name]: value };
+      if (name === "country") {
+        newData.region = "";
+        newData.city = "";
+        newData.district = "";
+      } else if (name === "region") {
+        newData.city = "";
+        newData.district = "";
+      } else if (name === "city") {
+        newData.district = "";
+      }
+      return newData;
+    });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!formData.company_name || !formData.commercial_number || !formData.vat_number) {
-      showNotification("error", t("validationError"), t("requiredFieldsError"));
+      showNotification("error", "خطأ في البيانات", "يرجى ملء جميع الحقول الإجبارية (اسم المنشأة، السجل التجاري، الرقم الضريبي)");
       return;
     }
 
     setLoading(true);
-    showNotification("loading", t("savingTitle"), t("savingMessage"));
+    showNotification("loading", "جاري الحفظ", "جاري تحديث بيانات العميل...");
 
     try {
       const res = await fetch(`/api/customers/${customer.id}`, {
@@ -180,29 +197,30 @@ export function EditCustomerClient({ customer, accounts, costCenters, companyId 
           ...formData,
           company_id: companyId,
           account_id: formData.account_id || null,
-          cost_center_id: formData.cost_center_id || null
+          cost_center_id: formData.cost_center_id || null,
+          country: locationLibrary.countries.find(c => c.code === formData.country)?.nativeName || formData.country
         })
       });
 
       if (res.ok) {
-        showNotification("success", t("saveSuccess"), t("saveSuccessMessage"));
+        showNotification("success", "تم التحديث بنجاح", "تم تحديث بيانات العميل بنجاح");
         setTimeout(() => {
           router.push(`/customers/${customer.id}`);
           router.refresh();
         }, 1500);
       } else {
         const data = await res.json();
-        showNotification("error", t("saveFailed"), data.error || t("errorMessage"));
+        showNotification("error", "فشل الحفظ", data.error || "فشل تحديث بيانات العميل");
       }
     } catch {
-      showNotification("error", t("errorTitle"), t("errorMessage"));
+      showNotification("error", "خطأ", "حدث خطأ أثناء الحفظ");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="p-4 md:p-6 space-y-8" dir={isRTL ? "rtl" : "ltr"}>
+    <div className="h-full flex flex-col bg-[#f8fafc]">
       <AnimatePresence>
         {notification.show && (
           <>
@@ -210,38 +228,38 @@ export function EditCustomerClient({ customer, accounts, costCenters, companyId 
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50"
+              className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[100]"
               onClick={() => notification.type !== "loading" && hideNotification()}
             />
             <motion.div
               initial={{ opacity: 0, scale: 0.9, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.9, y: 20 }}
-              className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50 w-full max-w-md"
+              className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[101] w-full max-w-md p-4"
             >
-              <div className={`bg-white rounded-3xl p-8 shadow-2xl border-t-4 ${
+              <div className={`bg-white rounded-[2rem] p-8 shadow-2xl border-t-8 ${
                 notification.type === "success" ? "border-emerald-500" :
                 notification.type === "error" ? "border-red-500" : "border-blue-500"
               }`}>
                 <div className="text-center">
-                  <div className={`h-20 w-20 rounded-full mx-auto mb-6 flex items-center justify-center ${
+                  <div className={`h-24 w-24 rounded-full mx-auto mb-6 flex items-center justify-center ${
                     notification.type === "success" ? "bg-emerald-100 text-emerald-500" :
                     notification.type === "error" ? "bg-red-100 text-red-500" : "bg-blue-100 text-blue-500"
                   }`}>
-                    {notification.type === "success" && <CheckCircle size={40} />}
-                    {notification.type === "error" && <AlertCircle size={40} />}
-                    {notification.type === "loading" && <Loader2 size={40} className="animate-spin" />}
+                    {notification.type === "success" && <CheckCircle size={48} />}
+                    {notification.type === "error" && <AlertCircle size={48} />}
+                    {notification.type === "loading" && <Loader2 size={48} className="animate-spin" />}
                   </div>
                   <h3 className="text-2xl font-black text-gray-900 mb-2">{notification.title}</h3>
-                  <p className="text-gray-500 mb-6">{notification.message}</p>
+                  <p className="text-gray-500 mb-8 leading-relaxed font-medium">{notification.message}</p>
                   {notification.type !== "loading" && (
                     <button
                       onClick={hideNotification}
-                      className={`px-8 py-3 rounded-xl font-bold text-white transition-all ${
-                        notification.type === "success" ? "bg-emerald-500 hover:bg-emerald-600" : "bg-red-500 hover:bg-red-600"
+                      className={`w-full py-4 rounded-2xl font-black text-white text-lg shadow-xl shadow-opacity-20 transition-all active:scale-95 ${
+                        notification.type === "success" ? "bg-emerald-500 hover:bg-emerald-600 shadow-emerald-500/20" : "bg-red-500 hover:bg-red-600 shadow-red-500/20"
                       }`}
                     >
-                      {t("okBtn")}
+                      موافق
                     </button>
                   )}
                 </div>
@@ -251,299 +269,291 @@ export function EditCustomerClient({ customer, accounts, costCenters, companyId 
         )}
       </AnimatePresence>
 
-      <Card className="border-none shadow-2xl rounded-[2rem] overflow-hidden bg-[#1a2234]">
-        <div className="relative overflow-hidden bg-gradient-to-br from-[#0f172a] via-[#1e293b] to-[#0f172a] text-white p-8 md:p-12">
-          <div className="absolute inset-0 overflow-hidden">
-            <div className="absolute -top-40 -right-40 w-80 h-80 bg-amber-500/20 rounded-full blur-3xl" />
-            <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-orange-500/20 rounded-full blur-3xl" />
-          </div>
-          
-          <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-amber-500 via-orange-500 to-rose-500" />
-          
-          <div className="relative z-10 space-y-8">
-            <div className="flex flex-col md:flex-row items-center justify-between gap-6">
-              <div className="flex items-center gap-6 text-center md:text-right">
-                <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center shadow-2xl rotate-3">
-                  <Edit className="w-10 h-10 text-white" />
+      <div className="flex-1 overflow-auto p-4 md:p-8">
+        <div className="max-w-[1100px] mx-auto space-y-8">
+          <div className="relative overflow-hidden bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 rounded-[2.5rem] p-8 md:p-10 text-white shadow-2xl border border-white/10">
+            <div className="relative z-10">
+              <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+                <div className="flex items-center gap-6">
+                  <div className="h-20 w-24 rounded-3xl bg-amber-500 flex items-center justify-center shadow-2xl shadow-amber-500/20 rotate-3">
+                    <Edit size={40} className="-rotate-3" />
+                  </div>
+                  <div>
+                    <h1 className="text-3xl md:text-4xl font-black tracking-tight mb-2">تعديل بيانات العميل</h1>
+                    <p className="text-white/60 text-lg font-medium">{customer.customer_name || customer.company_name}</p>
+                  </div>
                 </div>
-                <div>
-                  <h1 className="text-3xl md:text-5xl font-black tracking-tight bg-gradient-to-r from-white via-amber-200 to-white bg-clip-text text-transparent">
-                    {t("title")}
-                  </h1>
-                  <p className="text-white/60 font-medium mt-2 text-lg">
-                    {customer.customer_name || customer.company_name}
-                  </p>
+                <div className="flex gap-3">
+                  <Link href={`/customers/${customer.id}`}>
+                    <button className="flex items-center gap-3 px-6 py-4 rounded-[1.5rem] bg-white/10 text-white font-black text-sm hover:bg-white/20 transition-all border border-white/10 backdrop-blur-md">
+                      <Eye size={20} />
+                      <span>عرض العميل</span>
+                    </button>
+                  </Link>
+                  <Link href="/customers">
+                    <button className="flex items-center gap-3 px-6 py-4 rounded-[1.5rem] bg-white/5 text-white font-black text-sm hover:bg-white/10 transition-all border border-white/10">
+                      <ArrowRight size={20} />
+                      <span>العودة للقائمة</span>
+                    </button>
+                  </Link>
                 </div>
               </div>
-
-              <div className="flex flex-wrap gap-3">
-                <Link href="/customers">
-                  <Button variant="outline" className="bg-white/10 border-white/20 text-white hover:bg-white/20 rounded-xl font-bold">
-                    {isRTL ? <ArrowRight className="ml-2 w-4 h-4" /> : <ArrowLeft className="mr-2 w-4 h-4" />}
-                    {t("backToList")}
-                  </Button>
-                </Link>
-                <Link href={`/customers/${customer.id}`}>
-                  <Button className="bg-blue-500/80 border-blue-500/30 text-white hover:bg-blue-500 font-bold rounded-xl">
-                    <Eye className="w-4 h-4 ml-2" />
-                    {t("viewBtn")}
-                  </Button>
-                </Link>
-              </div>
             </div>
+            <div className="absolute top-0 right-0 w-64 h-64 bg-amber-500/10 rounded-full -mr-32 -mt-32 blur-3xl animate-pulse" />
+            <div className="absolute bottom-0 left-0 w-48 h-48 bg-orange-500/10 rounded-full -ml-24 -mb-24 blur-3xl animate-pulse" />
           </div>
-        </div>
-      </Card>
 
-      <form onSubmit={handleSubmit} className="space-y-6">
-        <Card className="border-none shadow-xl rounded-[2rem] overflow-hidden bg-white/90 backdrop-blur-xl">
-          <CardHeader className="border-b border-blue-100 bg-gradient-to-r from-blue-50 to-indigo-50">
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-blue-500 rounded-xl">
-                <Building2 className="w-5 h-5 text-white" />
-              </div>
-              <CardTitle className="text-lg font-bold text-blue-800">{t("basicInfo")}</CardTitle>
-            </div>
-          </CardHeader>
-          <CardContent className="p-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <FormField 
-                icon={<User size={18} />} 
-                label={t("customerName")} 
-                name="customer_name"
-                value={formData.customer_name}
-                onChange={handleChange}
-                placeholder={t("customerNamePlaceholder")}
-              />
-              <FormField 
-                icon={<Building2 size={18} />} 
-                label={t("facilityName")} 
-                name="company_name"
-                value={formData.company_name}
-                onChange={handleChange}
-                placeholder={t("facilityNamePlaceholder")}
-                required
-              />
-              <FormField 
-                icon={<FileText size={18} />} 
-                label={t("commercialNumber")} 
-                name="commercial_number"
-                value={formData.commercial_number}
-                onChange={handleChange}
-                placeholder={t("commercialNumberPlaceholder")}
-                required
-              />
-              <FormField 
-                icon={<Receipt size={18} />} 
-                label={t("vatNumber")} 
-                name="vat_number"
-                value={formData.vat_number}
-                onChange={handleChange}
-                placeholder={t("vatNumberPlaceholder")}
-                required
-              />
-              <FormField 
-                icon={<Hash size={18} />} 
-                label={t("unifiedNumber")} 
-                name="unified_number"
-                value={formData.unified_number}
-                onChange={handleChange}
-                placeholder={t("unifiedNumberPlaceholder")}
-              />
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="border-none shadow-xl rounded-[2rem] overflow-hidden bg-white/90 backdrop-blur-xl">
-          <CardHeader className="border-b border-emerald-100 bg-gradient-to-r from-emerald-50 to-teal-50">
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-emerald-500 rounded-xl">
-                <Phone className="w-5 h-5 text-white" />
-              </div>
-              <CardTitle className="text-lg font-bold text-emerald-800">{t("contactInfo")}</CardTitle>
-            </div>
-          </CardHeader>
-          <CardContent className="p-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <FormField 
-                icon={<Mail size={18} />} 
-                label={t("email")} 
-                name="email"
-                type="email"
-                value={formData.email}
-                onChange={handleChange}
-                placeholder={t("emailPlaceholder")}
-              />
-              <FormField 
-                icon={<Phone size={18} />} 
-                label={t("phone")} 
-                name="phone"
-                value={formData.phone}
-                onChange={handleChange}
-                placeholder={t("phonePlaceholder")}
-              />
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="border-none shadow-xl rounded-[2rem] overflow-hidden bg-white/90 backdrop-blur-xl">
-          <CardHeader className="border-b border-purple-100 bg-gradient-to-r from-purple-50 to-violet-50">
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-purple-500 rounded-xl">
-                <MapPin className="w-5 h-5 text-white" />
-              </div>
-              <CardTitle className="text-lg font-bold text-purple-800">{t("addressInfo")}</CardTitle>
-            </div>
-          </CardHeader>
-          <CardContent className="p-6">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <SelectField 
-                icon={<Globe size={18} />} 
-                label={t("country")} 
-                name="country"
-                value={formData.country}
-                onChange={handleChange}
-                options={countries.map(c => ({ value: c, label: c }))}
-                placeholder={t("countryPlaceholder")}
-              />
-              <SelectField 
-                icon={<Building size={18} />} 
-                label={t("city")} 
-                name="city"
-                value={formData.city}
-                onChange={handleChange}
-                options={cities.map(c => ({ value: c, label: c }))}
-                placeholder={t("cityPlaceholder")}
-                disabled={!formData.country}
-              />
-              <SelectField 
-                icon={<MapPinned size={18} />} 
-                label={t("district")} 
-                name="district"
-                value={formData.district}
-                onChange={handleChange}
-                options={districts.map(d => ({ value: d, label: d }))}
-                placeholder={t("districtPlaceholder")}
-                disabled={!formData.city}
-              />
-              <FormField 
-                icon={<Route size={18} />} 
-                label={t("street")} 
-                name="street_name"
-                value={formData.street_name}
-                onChange={handleChange}
-                placeholder={t("streetPlaceholder")}
-              />
-              <FormField 
-                icon={<Hash size={18} />} 
-                label={t("postalCode")} 
-                name="postal_code"
-                value={formData.postal_code}
-                onChange={handleChange}
-                placeholder={t("postalCodePlaceholder")}
-              />
-              <FormField 
-                icon={<MapPin size={18} />} 
-                label={t("shortAddress")} 
-                name="short_address"
-                value={formData.short_address}
-                onChange={handleChange}
-                placeholder={t("shortAddressPlaceholder")}
-              />
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="border-none shadow-xl rounded-[2rem] overflow-hidden bg-white/90 backdrop-blur-xl">
-          <CardHeader className="border-b border-amber-100 bg-gradient-to-r from-amber-50 to-orange-50">
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-amber-500 rounded-xl">
-                <Wallet className="w-5 h-5 text-white" />
-              </div>
-              <CardTitle className="text-lg font-bold text-amber-800">{t("financialInfo")}</CardTitle>
-            </div>
-          </CardHeader>
-          <CardContent className="p-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <SelectField 
-                icon={<Wallet size={18} />} 
-                label={t("accountCenter")} 
-                name="account_id"
-                value={formData.account_id}
-                onChange={handleChange}
-                options={accounts.map(a => ({ value: String(a.id), label: `${a.account_code} - ${a.account_name}` }))}
-                placeholder={t("accountCenterPlaceholder")}
-              />
-              <SelectField 
-                icon={<Calculator size={18} />} 
-                label={t("costCenter")} 
-                name="cost_center_id"
-                value={formData.cost_center_id}
-                onChange={handleChange}
-                options={costCenters.map(c => ({ value: String(c.id), label: `${c.center_code} - ${c.center_name}` }))}
-                placeholder={t("costCenterPlaceholder")}
-              />
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="border-none shadow-xl rounded-[2rem] overflow-hidden bg-white/90 backdrop-blur-xl">
-          <CardHeader className="border-b border-slate-100 bg-gradient-to-r from-slate-50 to-gray-50">
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-slate-500 rounded-xl">
-                <Power className="w-5 h-5 text-white" />
-              </div>
-              <CardTitle className="text-lg font-bold text-slate-800">{t("accountSettings")}</CardTitle>
-            </div>
-          </CardHeader>
-          <CardContent className="p-6">
-            <label className="flex items-center gap-4 cursor-pointer p-4 bg-slate-50 rounded-2xl hover:bg-slate-100 transition-all">
-              <div className="relative">
-                <input
-                  type="checkbox"
-                  name="is_active"
-                  checked={formData.is_active}
+          <form onSubmit={handleSubmit} className="space-y-8">
+            {/* Basic Info */}
+            <Section title="المعلومات الأساسية" icon={<Building2 size={24} />} color="blue">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <FormField 
+                  icon={<User size={18} />} 
+                  label="اسم العميل" 
+                  name="customer_name"
+                  value={formData.customer_name}
                   onChange={handleChange}
-                  className="sr-only peer"
+                  placeholder="أدخل الاسم الكامل للعميل"
                 />
-                <div className="w-14 h-7 bg-gray-200 rounded-full peer peer-checked:bg-emerald-500 transition-colors"></div>
-                <div className="absolute top-0.5 left-0.5 w-6 h-6 bg-white rounded-full shadow peer-checked:translate-x-7 transition-transform"></div>
+                <FormField 
+                  icon={<Building2 size={18} />} 
+                  label="اسم المنشأة" 
+                  name="company_name"
+                  value={formData.company_name}
+                  onChange={handleChange}
+                  placeholder="أدخل المسمى الرسمي للمنشأة"
+                  required
+                />
+                <FormField 
+                  icon={<FileText size={18} />} 
+                  label="السجل التجاري" 
+                  name="commercial_number"
+                  value={formData.commercial_number}
+                  onChange={handleChange}
+                  placeholder="رقم السجل التجاري المكون من 10 أرقام"
+                  required
+                />
+                <FormField 
+                  icon={<Receipt size={18} />} 
+                  label="الرقم الضريبي" 
+                  name="vat_number"
+                  value={formData.vat_number}
+                  onChange={handleChange}
+                  placeholder="الرقم الضريبي المكون من 15 رقم"
+                  required
+                />
+                <FormField 
+                  icon={<Hash size={18} />} 
+                  label="الرقم الموحد" 
+                  name="unified_number"
+                  value={formData.unified_number}
+                  onChange={handleChange}
+                  placeholder="الرقم الموحد للمنشأة (700xxxxxxx)"
+                />
               </div>
-              <div className="flex items-center gap-3">
-                <Power size={20} className="text-slate-500" />
-                <span className="font-bold text-slate-700">{t("isActive")}</span>
-              </div>
-            </label>
-          </CardContent>
-        </Card>
+            </Section>
 
-        <div className="flex flex-col md:flex-row items-center justify-center gap-4 py-8">
-          <Link href={`/customers/${customer.id}`}>
-            <Button 
-              type="button"
-              variant="outline"
-              className="min-w-[180px] h-14 border-slate-200 bg-white text-slate-600 rounded-2xl font-black text-lg hover:bg-slate-50 transition-all"
-            >
-              {isRTL ? <ArrowRight className="ml-2 w-5 h-5" /> : <ArrowLeft className="mr-2 w-5 h-5" />}
-              {t("cancelBtn")}
-            </Button>
-          </Link>
-          
-          <Button 
-            type="submit"
-            disabled={loading}
-            className="min-w-[180px] h-14 bg-gradient-to-r from-amber-500 to-amber-600 text-white rounded-2xl font-black text-lg shadow-xl shadow-amber-500/30 hover:shadow-amber-500/50 hover:-translate-y-1 transition-all disabled:opacity-50 disabled:translate-y-0"
-          >
-            {loading ? (
-              <Loader2 className="w-5 h-5 ml-2 animate-spin" />
-            ) : (
-              <Save className="w-5 h-5 ml-2" />
-            )}
-            {loading ? t("saving") : t("saveBtn")}
-          </Button>
+            {/* Contact Info */}
+            <Section title="معلومات الاتصال" icon={<Phone size={24} />} color="emerald">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <FormField 
+                  icon={<Mail size={18} />} 
+                  label="البريد الإلكتروني" 
+                  name="email"
+                  type="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  placeholder="example@domain.com"
+                />
+                <FormField 
+                  icon={<Phone size={18} />} 
+                  label="رقم الهاتف" 
+                  name="phone"
+                  value={formData.phone}
+                  onChange={handleChange}
+                  placeholder="05xxxxxxxx"
+                />
+              </div>
+            </Section>
+
+            {/* Address */}
+            <Section title="العنوان والمنطقة" icon={<MapPin size={24} />} color="purple">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <LuxurySearchableSelect
+                  label="الدولة"
+                  icon={<Globe size={18} />}
+                  value={formData.country}
+                  onChange={(val) => handleSelectChange("country", val as string)}
+                  options={locationLibrary.countries.map(c => ({ value: c.code, label: c.nativeName }))}
+                  placeholder="اختر الدولة"
+                />
+                <LuxurySearchableSelect
+                  label="المنطقة / الولاية"
+                  icon={<MapPinned size={18} />}
+                  value={formData.region}
+                  onChange={(val) => handleSelectChange("region", val as string)}
+                  options={regions.map(r => ({ value: r.code, label: r.name }))}
+                  placeholder="اختر المنطقة"
+                  disabled={!formData.country}
+                />
+                <LuxurySearchableSelect
+                  label="المدينة"
+                  icon={<Building size={18} />}
+                  value={formData.city}
+                  onChange={(val) => handleSelectChange("city", val as string)}
+                  options={cities.map(c => ({ value: c.name, label: c.name }))}
+                  placeholder="اختر المدينة"
+                  disabled={!formData.region}
+                />
+                <LuxurySearchableSelect
+                  label="الحي"
+                  icon={<MapPinned size={18} />}
+                  value={formData.district}
+                  onChange={(val) => handleSelectChange("district", val as string)}
+                  options={districts.map(d => ({ value: d, label: d }))}
+                  placeholder="اختر الحي"
+                  disabled={!formData.city}
+                />
+                <FormField 
+                  icon={<Route size={18} />} 
+                  label="اسم الشارع" 
+                  name="street_name"
+                  value={formData.street_name}
+                  onChange={handleChange}
+                  placeholder="اسم الشارع ورقم المبنى"
+                />
+                <FormField 
+                  icon={<Hash size={18} />} 
+                  label="الرمز البريدي" 
+                  name="postal_code"
+                  value={formData.postal_code}
+                  onChange={handleChange}
+                  placeholder="الرمز البريدي المكون من 5 أرقام"
+                />
+                <FormField 
+                  icon={<MapPin size={18} />} 
+                  label="العنوان المختصر" 
+                  name="short_address"
+                  value={formData.short_address}
+                  onChange={handleChange}
+                  placeholder="مثال: AB1234"
+                />
+              </div>
+            </Section>
+
+            {/* Financial Info */}
+            <Section title="المعلومات المالية" icon={<Wallet size={24} />} color="orange">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <LuxurySearchableSelect
+                  label="شجرة الحسابات"
+                  icon={<Wallet size={18} />}
+                  value={formData.account_id}
+                  onChange={(val) => handleSelectChange("account_id", val)}
+                  options={accounts.map(a => ({ 
+                    value: a.id, 
+                    label: a.account_name,
+                    subLabel: `رقم الحساب: ${a.account_code}`
+                  }))}
+                  placeholder="اختر الحساب المحاسبي"
+                />
+                <LuxurySearchableSelect
+                  label="مركز التكلفة"
+                  icon={<Calculator size={18} />}
+                  value={formData.cost_center_id}
+                  onChange={(val) => handleSelectChange("cost_center_id", val)}
+                  options={costCenters.map(c => ({ 
+                    value: c.id, 
+                    label: c.center_name,
+                    subLabel: `رقم المركز: ${c.center_code}`
+                  }))}
+                  placeholder="اختر مركز التكلفة"
+                />
+              </div>
+            </Section>
+
+            {/* Account Status */}
+            <div className="bg-white rounded-[2rem] border border-gray-100 shadow-xl overflow-hidden p-8">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                  <div className="h-14 w-14 rounded-2xl bg-gray-100 flex items-center justify-center text-gray-500">
+                    <Power size={28} />
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-black text-gray-900">حالة الحساب</h3>
+                    <p className="text-gray-500 font-medium">تفعيل أو تعطيل حساب العميل في النظام</p>
+                  </div>
+                </div>
+                <label className="relative inline-flex items-center cursor-pointer scale-125">
+                  <input
+                    type="checkbox"
+                    name="is_active"
+                    checked={formData.is_active}
+                    onChange={handleChange}
+                    className="sr-only peer"
+                  />
+                  <div className="w-14 h-8 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[4px] after:start-[4px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-emerald-500 shadow-inner"></div>
+                </label>
+              </div>
+            </div>
+
+            {/* Submit Actions */}
+            <div className="flex flex-col md:flex-row justify-center gap-6 pt-4 pb-12">
+              <Link href={`/customers/${customer.id}`} className="order-2 md:order-1">
+                <button type="button" className="w-full md:w-auto px-10 py-5 rounded-[1.5rem] bg-white text-gray-700 font-black text-lg hover:bg-gray-50 transition-all border-2 border-gray-100 shadow-lg active:scale-95">
+                  إلغاء التعديلات
+                </button>
+              </Link>
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full md:w-auto order-1 md:order-2 flex items-center justify-center gap-3 px-12 py-5 rounded-[1.5rem] bg-amber-500 text-white font-black text-lg hover:bg-amber-600 transition-all shadow-xl shadow-amber-500/20 active:scale-95 disabled:opacity-50"
+              >
+                {loading ? (
+                  <Loader2 size={24} className="animate-spin" />
+                ) : (
+                  <Save size={24} />
+                )}
+                <span>{loading ? "جاري التحديث..." : "حفظ التعديلات"}</span>
+              </button>
+            </div>
+          </form>
         </div>
-      </form>
+      </div>
     </div>
+  );
+}
+
+function Section({ title, icon, color, children }: { 
+  title: string; 
+  icon: React.ReactNode; 
+  color: "blue" | "emerald" | "purple" | "orange" | "gray";
+  children: React.ReactNode;
+}) {
+  const colors = {
+    blue: "bg-blue-500",
+    emerald: "bg-emerald-500",
+    purple: "bg-purple-500",
+    orange: "bg-orange-500",
+    gray: "bg-gray-600"
+  };
+
+  return (
+    <motion.div 
+      initial={{ opacity: 0, y: 20 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+      className="bg-white rounded-[2rem] border border-gray-100 shadow-xl overflow-hidden"
+    >
+      <div className={`${colors[color]} px-8 py-5 flex items-center gap-4 text-white shadow-lg`}>
+        <div className="p-2 bg-white/20 rounded-xl backdrop-blur-sm">
+          {icon}
+        </div>
+        <h3 className="text-xl font-black">{title}</h3>
+      </div>
+      <div className="p-8">
+        {children}
+      </div>
+    </motion.div>
   );
 }
 
@@ -559,8 +569,8 @@ function FormField({ icon, label, name, value, onChange, placeholder, required, 
 }) {
   return (
     <div className="space-y-2">
-      <label className="flex items-center gap-2 text-sm font-bold text-slate-600">
-        <span className="text-slate-400">{icon}</span>
+      <label className="flex items-center gap-2 text-sm font-black text-gray-700 mr-1">
+        <span className="text-gray-400">{icon}</span>
         {label}
         {required && <span className="text-red-500">*</span>}
       </label>
@@ -571,43 +581,8 @@ function FormField({ icon, label, name, value, onChange, placeholder, required, 
         onChange={onChange}
         placeholder={placeholder}
         required={required}
-        className="w-full px-4 py-3 rounded-xl border-2 border-slate-100 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 outline-none transition-all text-slate-800 font-medium bg-slate-50/50"
+        className="w-full px-5 py-4 rounded-2xl border-2 border-gray-50 bg-gray-50/30 focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/5 outline-none transition-all text-base font-bold placeholder:text-gray-300 shadow-sm"
       />
-    </div>
-  );
-}
-
-function SelectField({ icon, label, name, value, onChange, options, placeholder, disabled, required }: {
-  icon: React.ReactNode;
-  label: string;
-  name: string;
-  value: string;
-  onChange: (e: React.ChangeEvent<HTMLSelectElement>) => void;
-  options: { value: string; label: string }[];
-  placeholder?: string;
-  disabled?: boolean;
-  required?: boolean;
-}) {
-  return (
-    <div className="space-y-2">
-      <label className="flex items-center gap-2 text-sm font-bold text-slate-600">
-        <span className="text-slate-400">{icon}</span>
-        {label}
-        {required && <span className="text-red-500">*</span>}
-      </label>
-      <select
-        name={name}
-        value={value}
-        onChange={onChange}
-        disabled={disabled}
-        required={required}
-        className="w-full px-4 py-3 rounded-xl border-2 border-slate-100 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 outline-none transition-all text-slate-800 font-medium bg-slate-50/50 disabled:bg-slate-100 disabled:text-slate-400 disabled:cursor-not-allowed"
-      >
-        <option value="">{placeholder}</option>
-        {options.map(opt => (
-          <option key={opt.value} value={opt.value}>{opt.label}</option>
-        ))}
-      </select>
     </div>
   );
 }
