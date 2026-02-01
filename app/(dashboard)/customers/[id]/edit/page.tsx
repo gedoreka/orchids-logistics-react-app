@@ -68,7 +68,7 @@ export default async function EditCustomerPage({ params }: { params: Promise<{ i
   );
 
   const costCenters = await query<CostCenter>(
-    "SELECT id, center_code, center_name FROM cost_centers WHERE company_id = ? ORDER BY center_code",
+    "SELECT id, center_code, center_name, center_type, parent_id FROM cost_centers WHERE company_id = ? ORDER BY center_code",
     [companyId]
   );
 
