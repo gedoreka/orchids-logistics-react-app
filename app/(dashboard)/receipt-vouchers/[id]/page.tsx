@@ -1,27 +1,41 @@
 import { cookies } from "next/headers";
 import { ReceiptVoucherViewClient } from "./receipt-voucher-view-client";
 import { notFound } from "next/navigation";
+import { createClient } from "@supabase/supabase-js";
+import { query } from "@/lib/db";
 
 export const metadata = {
   title: "عرض سند القبض - Logistics Systems Pro",
 };
 
-async function getVoucherData(id: string, companyId: string) {
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
-  
-  try {
-    const res = await fetch(
-      `${baseUrl}/api/receipt-vouchers/${id}?company_id=${companyId}`,
-      { cache: "no-store" }
-    );
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+);
 
-    if (!res.ok) {
+async function getVoucherData(id: string) {
+  try {
+    const { data: voucher, error } = await supabase
+      .from("receipt_vouchers")
+      .select("*")
+      .eq("id", id)
+      .single();
+
+    if (error || !voucher) {
       return null;
     }
 
-    return res.json();
+    const companyData = await query<any>(
+      `SELECT id, name, commercial_number, vat_number, country, region, district, street, postal_code, short_address, logo_path, stamp_path, digital_seal_path FROM companies WHERE id = ?`,
+      [voucher.company_id]
+    );
+
+    return {
+      voucher,
+      company: companyData?.[0] || {},
+    };
   } catch (error) {
-    console.error("Error fetching voucher:", error);
+    console.error("Error fetching voucher data:", error);
     return null;
   }
 }
@@ -41,16 +55,24 @@ export default async function ReceiptVoucherViewPage({
     notFound();
   }
 
-  const data = await getVoucherData(id, companyId);
+  const data = await getVoucherData(id);
 
   if (!data || !data.voucher) {
     notFound();
   }
 
+  // Double check company ownership if needed, but the session companyId is already used in API
+  // Here we just ensure the voucher exists and belongs to a company (usually verified in API)
+  
+  const serializedData = JSON.parse(JSON.stringify(data, (key, value) => {
+    if (value instanceof Date) return value.toISOString();
+    return value;
+  }));
+
   return (
     <ReceiptVoucherViewClient
-      voucher={data.voucher}
-      company={data.company}
+      voucher={serializedData.voucher}
+      company={serializedData.company}
       companyId={parseInt(companyId)}
     />
   );

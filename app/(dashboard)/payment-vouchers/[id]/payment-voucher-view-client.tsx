@@ -21,9 +21,6 @@ import {
   Mail,
   Send,
   StickyNote,
-  CreditCard,
-  Banknote,
-  Calendar
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -103,7 +100,6 @@ const getPublicUrl = (path: string) => {
 
 export function PaymentVoucherViewClient({ voucher, company, companyId }: PaymentVoucherViewClientProps) {
   const router = useRouter();
-  const t = useTranslations("financialVouchersPage.paymentVouchersPage");
   const tCommon = useTranslations("common");
   const { locale } = useLocale();
   const isRtl = locale === "ar";
@@ -164,27 +160,46 @@ export function PaymentVoucherViewClient({ voucher, company, companyId }: Paymen
     if (!emailAddress) return;
     
     setEmailLoading(true);
-    showNotification("loading", isRtl ? "جاري الإرسال" : "Sending", isRtl ? "جاري إرسال السند عبر البريد..." : "Sending voucher via email...");
+    showNotification("loading", isRtl ? "جاري الإرسال" : "Sending", isRtl ? "جاري إعداد السند وإرساله..." : "Preparing and sending voucher...");
     
     try {
+      // Generate PDF base64
+      const element = printRef.current;
+      if (!element) throw new Error("Print element not found");
+      
+      const html2pdf = (await import('html2pdf.js')).default;
+      
+      const opt = {
+        margin: 0,
+        filename: `Payment-Voucher-${voucher.voucher_number}.pdf`,
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2, useCORS: true, letterRendering: true },
+        jsPDF: { unit: 'mm', format: 'a5', orientation: 'portrait' }
+      };
+
+      const pdfBase64 = await html2pdf().set(opt).from(element).outputPdf('datauristring');
+
       const res = await fetch(`/api/payment-vouchers/${voucher.id}/send-email`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           email: emailAddress,
-          company_id: companyId
+          company_id: companyId,
+          pdfBase64: pdfBase64,
+          fileName: `Payment-Voucher-${voucher.voucher_number}.pdf`
         })
       });
       
       if (res.ok) {
-        showNotification("success", isRtl ? "تم الإرسال" : "Sent Successfully", isRtl ? "تم إرسال السند بنجاح" : "Voucher sent successfully");
+        showNotification("success", isRtl ? "تم الإرسال" : "Sent Successfully", isRtl ? "تم إرسال السند بنجاح كملف PDF" : "Voucher sent successfully as PDF");
         setShowEmailModal(false);
       } else {
         const data = await res.json();
         showNotification("error", isRtl ? "فشل الإرسال" : "Send Failed", data.error || (isRtl ? "فشل إرسال البريد" : "Failed to send email"));
       }
-    } catch {
-      showNotification("error", isRtl ? "خطأ" : "Error", isRtl ? "حدث خطأ أثناء الإرسال" : "An error occurred during sending");
+    } catch (error) {
+      console.error("Email error:", error);
+      showNotification("error", isRtl ? "خطأ" : "Error", isRtl ? "حدث خطأ أثناء إعداد أو إرسال البريد" : "An error occurred during preparation or sending");
     } finally {
       setEmailLoading(false);
     }

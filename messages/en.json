@@ -2086,11 +2086,37 @@
       "noQuotations": "No Quotations",
       "noQuotationsDesc": "No quotations registered yet."
     },
-    "incomePage": {
-      "title": "Income Vouchers",
-      "subtitle": "Manage and track all diverse revenues",
-      "description": "Record all income sources and external revenues.",
-      "stats": {
+      "incomePage": {
+        "title": "Income Vouchers",
+        "subtitle": "Manage and track diverse revenues",
+        "description": "Recording all sources of income and external revenues.",
+        "addNew": "Add New Income Voucher",
+        "refreshData": "Refresh Data",
+        "searchPlaceholder": "Search by voucher no, statement or type...",
+        "exportData": "Export Data",
+        "form": {
+          "addTitle": "Create New Income Voucher",
+          "fillData": "Please fill all required data to issue the voucher",
+          "incomeType": "Income Type",
+          "selectIncomeType": "Select Income Type",
+          "incomeDate": "Transaction Date",
+          "paymentMethod": "Payment Method",
+          "selectPaymentMethod": "Select Payment Method",
+          "amount": "Amount",
+          "taxValue": "Tax Value",
+          "totalAmount": "Final Total",
+          "enableTax": "Enable Tax",
+          "account": "Accounts Tree",
+          "selectAccount": "Select Account",
+          "costCenter": "Cost Center",
+          "selectCostCenter": "Select Cost Center",
+          "description": "Statement / Description",
+          "descriptionPlaceholder": "Enter income details...",
+          "cancel": "Cancel",
+            "save": "Save Voucher",
+            "cancelForm": "Cancel Addition"
+          },
+        "stats": {
         "count": "Vouchers Count",
         "voucherLabel": "income vouchers",
         "nextNumber": "Next Number (INC00001)",
@@ -2253,31 +2279,42 @@
           "totalDeductions": "Total Deductions"
         },
         "cancel": "Cancel",
-        "saveChanges": "Save Changes"
-      },
-      "newPayroll": {
-        "title": "Create New Payroll",
-        "subtitle": "Prepare and set up new payroll based on selected package",
-        "welcomeTitle": "Welcome to Payrolls System",
-        "welcomeDesc": "Easily set up monthly employee payroll",
-        "payrollMonth": "Payroll Month",
-        "selectPackage": "Select Package",
-        "selectPackagePlaceholder": "Select package from list...",
-        "search": "Search and Fetch Employees",
-        "systemInfo": "System Information",
-        "workSystem": "Work System",
-        "monthlyTarget": "Monthly Target",
-        "orderUnit": "order",
-        "bonusValue": "Bonus Value",
-        "perOrder": "per order",
-        "targetTable": "Target and Commissions Table",
-        "salaryTable": "Salaries Table",
-        "deselectAll": "Deselect All",
-        "deleteUnselected": "Delete Unselected",
-        "reload": "Refresh Data",
-        "selected": "selected employees",
-        "loadingData": "Loading data...",
-        "columns": {
+          "saveChanges": "Save Changes",
+          "notifications": {
+            "saveSuccess": "Payroll updated successfully",
+            "saveSuccessMsg": "Changes have been saved and payroll data updated in the system.",
+            "ok": "OK"
+          }
+        },
+        "newPayroll": {
+          "title": "Create New Payroll",
+          "subtitle": "Prepare and set up new payroll based on selected package",
+          "welcomeTitle": "Welcome to Payrolls System",
+          "welcomeDesc": "Easily set up monthly employee payroll",
+          "payrollMonth": "Payroll Month",
+          "selectPackage": "Select Package",
+          "selectPackagePlaceholder": "Select package from list...",
+          "search": "Search and Fetch Employees",
+          "systemInfo": "System Information",
+          "workSystem": "Work System",
+          "monthlyTarget": "Monthly Target",
+          "orderUnit": "order",
+          "bonusValue": "Bonus Value",
+          "perOrder": "per order",
+          "targetTable": "Target and Commissions Table",
+          "salaryTable": "Salaries Table",
+          "deselectAll": "Deselect All",
+          "deleteUnselected": "Delete Unselected",
+          "reload": "Refresh Data",
+          "selected": "selected employees",
+          "loadingData": "Loading data...",
+          "notifications": {
+            "savedPayroll": "Payroll saved successfully",
+            "savedPayrollDesc": "Monthly payroll has been created and all financial details saved.",
+            "totalPayroll": "Total Payroll: {amount} SAR",
+            "ok": "OK"
+          },
+          "columns": {
           "no": "No",
           "employeeName": "Employee Name",
           "iqama": "Iqama Number",
@@ -2337,16 +2374,23 @@
           "noEmployees": "No employees in this package"
         }
       },
-      "notifications": {
-        "deleteConfirm": "Confirm Delete",
-        "deleteQuestion": "Are you sure you want to delete this payroll?",
-        "deleteWarning": "This action cannot be undone and all related data will be deleted.",
-        "deleteNote": "All financial records related to this payroll will be removed.",
-        "confirmBtn": "Yes, Delete"
+        "notifications": {
+          "deleteConfirm": "Confirm Delete",
+          "deleteQuestion": "Are you sure you want to delete this payroll?",
+          "deleteWarning": "This action cannot be undone and all related data will be deleted.",
+          "deleteNote": "All financial records related to this payroll will be removed.",
+          "confirmBtn": "Yes, Delete",
+          "deleteSuccess": "Payroll deleted successfully",
+          "deleteSuccessMsg": "All financial records associated with this payroll have been successfully removed.",
+          "ok": "OK"
+        },
+        "noPayrolls": {
+          "title": "No Payrolls Found",
+          "desc": "No registered payrolls were found in the system."
+        }
       }
-    }
-  },
-  "officialLettersPage": {
+    },
+    "officialLettersPage": {
     "title": "Ready-made Official Letters",
     "subtitle": "Create and manage official letters and declarations",
     "paperSettings": "Paper Settings",

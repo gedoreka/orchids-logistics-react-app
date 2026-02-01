@@ -2086,11 +2086,37 @@
       "noQuotations": "لا توجد عروض",
       "noQuotationsDesc": "لم يتم تسجيل أي عروض أسعار حتى الآن."
     },
-    "incomePage": {
-      "title": "سندات الدخل",
-      "subtitle": "إدارة وتتبع كافة الإيرادات المتنوعة",
-      "description": "تسجيل كافة مصادر الدخل والإيرادات الخارجية.",
-      "stats": {
+      "incomePage": {
+        "title": "سندات الدخل",
+        "subtitle": "إدارة وتتبع كافة الإيرادات المتنوعة",
+        "description": "تسجيل كافة مصادر الدخل والإيرادات الخارجية.",
+        "addNew": "إضافة سند دخل جديد",
+        "refreshData": "تحديث البيانات",
+        "searchPlaceholder": "البحث برقم السند، البيان أو النوع...",
+        "exportData": "تصدير البيانات",
+        "form": {
+          "addTitle": "إنشاء سند دخل جديد",
+          "fillData": "يرجى تعبئة كافة البيانات المطلوبة لإصدار السند",
+          "incomeType": "نوع الإيراد",
+          "selectIncomeType": "اختر نوع الإيراد",
+          "incomeDate": "تاريخ العملية",
+          "paymentMethod": "طريقة الدفع",
+          "selectPaymentMethod": "اختر طريقة الدفع",
+          "amount": "المبلغ",
+          "taxValue": "قيمة الضريبة",
+          "totalAmount": "الإجمالي النهائي",
+          "enableTax": "تفعيل الضريبة",
+          "account": "شجرة الحسابات",
+          "selectAccount": "اختر الحساب",
+          "costCenter": "مركز التكلفة",
+          "selectCostCenter": "اختر مركز التكلفة",
+          "description": "البيان / الوصف",
+          "descriptionPlaceholder": "اكتب تفاصيل سبب الإيراد...",
+          "cancel": "إلغاء",
+            "save": "حفظ السند",
+            "cancelForm": "إلغاء الإضافة"
+          },
+        "stats": {
         "count": "عدد السندات",
         "voucherLabel": "سند إيراد",
         "nextNumber": "الرقم التالي (INC00001)",
@@ -2253,31 +2279,42 @@
           "totalDeductions": "إجمالي الخصومات"
         },
         "cancel": "إلغاء",
-        "saveChanges": "حفظ التعديلات"
-      },
-      "newPayroll": {
-        "title": "إنشاء مسير رواتب جديد",
-        "subtitle": "إعداد وتجهيز مسير رواتب جديد بناءً على الباقة المختارة",
-        "welcomeTitle": "مرحباً بك في نظام مسيرات الرواتب",
-        "welcomeDesc": "قم بإعداد مسير الرواتب الشهري للموظفين بكل سهولة",
-        "payrollMonth": "شهر المسير",
-        "selectPackage": "اختيار الباقة",
-        "selectPackagePlaceholder": "اختر الباقة من القائمة...",
-        "search": "بحث وجلب الموظفين",
-        "systemInfo": "معلومات النظام",
-        "workSystem": "نظام العمل",
-        "monthlyTarget": "التارجت الشهري",
-        "orderUnit": "طلب",
-        "bonusValue": "قيمة البونص",
-        "perOrder": "لكل طلب",
-        "targetTable": "جدول التارجت والعمولات",
-        "salaryTable": "جدول الرواتب",
-        "deselectAll": "إلغاء تحديد الكل",
-        "deleteUnselected": "حذف غير المحدد",
-        "reload": "تحديث البيانات",
-        "selected": "موظف مختار",
-        "loadingData": "جاري تحميل البيانات...",
-        "columns": {
+          "saveChanges": "حفظ التعديلات",
+          "notifications": {
+            "saveSuccess": "تم تحديث المسير بنجاح",
+            "saveSuccessMsg": "تم حفظ التعديلات وتحديث بيانات الرواتب في النظام.",
+            "ok": "حسناً"
+          }
+        },
+        "newPayroll": {
+          "title": "إنشاء مسير رواتب جديد",
+          "subtitle": "إعداد وتجهيز مسير رواتب جديد بناءً على الباقة المختارة",
+          "welcomeTitle": "مرحباً بك في نظام مسيرات الرواتب",
+          "welcomeDesc": "قم بإعداد مسير الرواتب الشهري للموظفين بكل سهولة",
+          "payrollMonth": "شهر المسير",
+          "selectPackage": "اختيار الباقة",
+          "selectPackagePlaceholder": "اختر الباقة من القائمة...",
+          "search": "بحث وجلب الموظفين",
+          "systemInfo": "معلومات النظام",
+          "workSystem": "نظام العمل",
+          "monthlyTarget": "التارجت الشهري",
+          "orderUnit": "طلب",
+          "bonusValue": "قيمة البونص",
+          "perOrder": "لكل طلب",
+          "targetTable": "جدول التارجت والعمولات",
+          "salaryTable": "جدول الرواتب",
+          "deselectAll": "إلغاء تحديد الكل",
+          "deleteUnselected": "حذف غير المحدد",
+          "reload": "تحديث البيانات",
+          "selected": "موظف مختار",
+          "loadingData": "جاري تحميل البيانات...",
+          "notifications": {
+            "savedPayroll": "تم حفظ المسير بنجاح",
+            "savedPayrollDesc": "تم إنشاء مسير الرواتب وحفظ كافة التفاصيل المالية للموظفين.",
+            "totalPayroll": "إجمالي المسير: {amount} ريال",
+            "ok": "حسناً"
+          },
+          "columns": {
           "no": "م",
           "employeeName": "اسم الموظف",
           "iqama": "رقم الإقامة",
@@ -2337,16 +2374,23 @@
           "noEmployees": "لا يوجد موظفين في هذه الباقة"
         }
       },
-      "notifications": {
-        "deleteConfirm": "تأكيد الحذف",
-        "deleteQuestion": "هل أنت متأكد من حذف هذا المسير؟",
-        "deleteWarning": "هذا الإجراء لا يمكن التراجع عنه وسيتم حذف كافة البيانات المرتبطة.",
-        "deleteNote": "سيتم إزالة كافة السجلات المالية المرتبطة بهذا المسير.",
-        "confirmBtn": "نعم، حذف"
+        "notifications": {
+          "deleteConfirm": "تأكيد الحذف",
+          "deleteQuestion": "هل أنت متأكد من حذف هذا المسير؟",
+          "deleteWarning": "هذا الإجراء لا يمكن التراجع عنه وسيتم حذف كافة البيانات المرتبطة.",
+          "deleteNote": "سيتم إزالة كافة السجلات المالية المرتبطة بهذا المسير.",
+          "confirmBtn": "نعم، حذف",
+          "deleteSuccess": "تم حذف المسير بنجاح",
+          "deleteSuccessMsg": "تمت إزالة كافة السجلات المالية المرتبطة بهذا المسير بنجاح.",
+          "ok": "حسناً"
+        },
+        "noPayrolls": {
+          "title": "لا توجد مسيرات رواتب",
+          "desc": "لم يتم العثور على أي مسيرات رواتب مسجلة في النظام."
+        }
       }
-    }
-  },
-  "officialLettersPage": {
+    },
+    "officialLettersPage": {
     "title": "الخطابات الرسمية الجاهزة",
     "subtitle": "إنشاء وإدارة الخطابات والإقرارات الرسمية",
     "paperSettings": "إعدادات الورق",
