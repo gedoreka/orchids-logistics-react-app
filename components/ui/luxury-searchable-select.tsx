@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useLayoutEffect } from "react";
+import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { Search, ChevronDown, Check, X } from "lucide-react";
 
@@ -35,7 +36,53 @@ export function LuxurySearchableSelect({
 }: LuxurySearchableSelectProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [search, setSearch] = useState("");
+  const [activeIndex, setActiveIndex] = useState(-1);
   const containerRef = useRef<HTMLDivElement>(null);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const [coords, setCoords] = useState({ top: 0, left: 0, width: 0 });
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  const updateCoords = () => {
+    if (containerRef.current) {
+      const rect = containerRef.current.getBoundingClientRect();
+      const viewportHeight = window.innerHeight;
+      const dropdownHeight = 400; // estimated max height
+      
+      // Determine if dropdown should open upwards or downwards
+      const spaceBelow = viewportHeight - rect.bottom;
+      const shouldOpenUp = spaceBelow < dropdownHeight && rect.top > spaceBelow;
+
+      setCoords({
+        top: shouldOpenUp 
+          ? rect.top + window.scrollY - 5 
+          : rect.bottom + window.scrollY + 5,
+        left: rect.left + window.scrollX,
+        width: rect.width
+      });
+      return shouldOpenUp;
+    }
+    return false;
+  };
+
+  const [openUp, setOpenUp] = useState(false);
+
+  useLayoutEffect(() => {
+    if (isOpen) {
+      const up = updateCoords();
+      setOpenUp(up);
+      window.addEventListener("scroll", updateCoords, true);
+      window.addEventListener("resize", updateCoords);
+    }
+    return () => {
+      window.removeEventListener("scroll", updateCoords, true);
+      window.removeEventListener("resize", updateCoords);
+    };
+  }, [isOpen]);
 
   const selectedOption = options.find(opt => String(opt.value) === String(value));
 
@@ -46,7 +93,9 @@ export function LuxurySearchableSelect({
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (containerRef.current && !containerRef.ref.current?.contains(event.target as Node)) {
+      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+        const portal = document.getElementById("luxury-select-portal");
+        if (portal && portal.contains(event.target as Node)) return;
         setIsOpen(false);
       }
     };
@@ -54,21 +103,129 @@ export function LuxurySearchableSelect({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  useEffect(() => {
+    if (!isOpen) {
+      setSearch("");
+      setActiveIndex(-1);
+    }
+  }, [isOpen]);
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "ArrowDown") {
+      e.preventDefault();
+      setActiveIndex(prev => (prev < filteredOptions.length - 1 ? prev + 1 : prev));
+    } else if (e.key === "ArrowUp") {
+      e.preventDefault();
+      setActiveIndex(prev => (prev > 0 ? prev - 1 : prev));
+    } else if (e.key === "Enter" && activeIndex >= 0) {
+      e.preventDefault();
+      handleSelect(filteredOptions[activeIndex].value);
+    } else if (e.key === "Escape") {
+      setIsOpen(false);
+    }
+  };
+
   const toggleDropdown = () => {
-    if (!disabled) setIsOpen(!isOpen);
+    if (!disabled) {
+      setIsOpen(!isOpen);
+    }
   };
 
   const handleSelect = (val: string | number) => {
     onChange(val);
     setIsOpen(false);
-    setSearch("");
   };
+
+  const dropdownContent = (
+    <AnimatePresence>
+      {isOpen && (
+        <motion.div
+          ref={dropdownRef}
+          initial={{ opacity: 0, y: openUp ? -10 : 10, scale: 0.95 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          exit={{ opacity: 0, y: openUp ? -10 : 10, scale: 0.95 }}
+          transition={{ duration: 0.2, ease: "easeOut" }}
+          style={{
+            position: "absolute",
+            top: openUp ? undefined : coords.top,
+            bottom: openUp ? (window.innerHeight - (coords.top - window.scrollY) + 10) : undefined,
+            left: coords.left,
+            width: coords.width,
+            zIndex: 9999
+          }}
+          className="bg-white/95 backdrop-blur-xl rounded-[1.5rem] shadow-[0_25px_70px_rgba(0,0,0,0.3)] border border-white/40 overflow-hidden"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <div className="p-4 border-b border-gray-100 bg-gray-50/30">
+            <div className="relative group">
+              <Search className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-blue-500 transition-colors" size={18} />
+              <input
+                ref={inputRef}
+                autoFocus
+                type="text"
+                value={search}
+                onChange={(e) => {
+                  setSearch(e.target.value);
+                  setActiveIndex(-1);
+                }}
+                onKeyDown={handleKeyDown}
+                placeholder="ابحث بالاسم أو الرقم..."
+                className="w-full pr-12 pl-4 py-3 bg-white rounded-xl border border-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 outline-none transition-all text-sm font-black"
+              />
+              {search && (
+                <button 
+                  onClick={() => setSearch("")}
+                  className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-red-500 transition-colors"
+                >
+                  <X size={16} />
+                </button>
+              )}
+            </div>
+          </div>
+
+          <div className="max-h-[350px] overflow-auto custom-scrollbar p-2">
+            {filteredOptions.length > 0 ? (
+              filteredOptions.map((option, index) => (
+                <div
+                  key={option.value}
+                  onMouseEnter={() => setActiveIndex(index)}
+                  onClick={() => handleSelect(option.value)}
+                  className={`
+                    flex items-center justify-between px-4 py-3.5 rounded-[1rem] cursor-pointer transition-all mb-1
+                    ${String(option.value) === String(value) ? "bg-blue-600 text-white shadow-lg shadow-blue-600/20" : 
+                      index === activeIndex ? "bg-blue-50 text-blue-700" : "hover:bg-gray-50 text-gray-700"}
+                  `}
+                >
+                  <div className="flex flex-col">
+                    <span className="font-black text-[13px] leading-tight">{option.label}</span>
+                    {option.subLabel && (
+                      <span className={`text-[10px] font-bold mt-0.5 opacity-70 ${String(option.value) === String(value) ? "text-blue-100" : "text-gray-500"}`}>
+                        {option.subLabel}
+                      </span>
+                    )}
+                  </div>
+                  {String(option.value) === String(value) && (
+                    <Check size={18} className="text-white" />
+                  )}
+                </div>
+              ))
+            ) : (
+              <div className="px-4 py-12 text-center text-gray-400 flex flex-col items-center gap-3">
+                <Search size={32} className="opacity-20" />
+                <span className="text-sm font-black italic">لا توجد نتائج تطابق بحثك</span>
+              </div>
+            )}
+          </div>
+        </motion.div>
+      )}
+    </AnimatePresence>
+  );
 
   return (
     <div className={`relative ${className}`} ref={containerRef}>
       {label && (
-        <label className="flex items-center gap-1.5 text-xs font-bold text-gray-700 mb-1.5">
-          {icon && <span className="text-gray-400">{icon}</span>}
+        <label className="flex items-center gap-2 text-[13px] font-black text-slate-700 mb-2 mr-1">
+          {icon && <span className="text-blue-500/70">{icon}</span>}
           {label}
           {required && <span className="text-red-500">*</span>}
         </label>
@@ -77,83 +234,29 @@ export function LuxurySearchableSelect({
       <div
         onClick={toggleDropdown}
         className={`
-          relative w-full px-4 py-2.5 rounded-xl border transition-all cursor-pointer flex items-center justify-between
-          ${disabled ? "bg-gray-50 text-gray-400 border-gray-200 cursor-not-allowed" : "bg-white text-gray-900 border-gray-200 hover:border-blue-400 hover:shadow-md"}
-          ${isOpen ? "ring-2 ring-blue-500/20 border-blue-500 shadow-lg" : "shadow-sm"}
+          relative w-full px-5 py-4 rounded-[1.25rem] border-2 transition-all cursor-pointer flex items-center justify-between
+          ${disabled ? "bg-gray-50 text-gray-400 border-gray-100 cursor-not-allowed" : "bg-white text-slate-900 border-slate-50 hover:border-blue-200 hover:shadow-xl hover:shadow-blue-500/5"}
+          ${isOpen ? "ring-4 ring-blue-500/5 border-blue-500 shadow-2xl" : "shadow-sm shadow-slate-200/50"}
         `}
       >
-        <div className="flex items-center gap-2 overflow-hidden">
-          <span className={`block truncate ${!selectedOption ? "text-gray-400" : "font-semibold"}`}>
+        <div className="flex items-center gap-3 overflow-hidden">
+          <span className={`block truncate ${!selectedOption ? "text-slate-300 font-bold" : "font-black text-slate-800"}`}>
             {selectedOption ? selectedOption.label : placeholder}
           </span>
         </div>
-        <ChevronDown 
-          size={18} 
-          className={`text-gray-400 transition-transform duration-300 ${isOpen ? "rotate-180 text-blue-500" : ""}`} 
-        />
+        <div className={`flex items-center justify-center w-8 h-8 rounded-full transition-all duration-300 ${isOpen ? "bg-blue-50 text-blue-600 rotate-180" : "bg-slate-50 text-slate-400"}`}>
+          <ChevronDown size={18} strokeWidth={3} />
+        </div>
       </div>
 
-      <AnimatePresence>
-        {isOpen && (
-          <motion.div
-            initial={{ opacity: 0, y: 10, scale: 0.95 }}
-            animate={{ opacity: 1, y: 5, scale: 1 }}
-            exit={{ opacity: 0, y: 10, scale: 0.95 }}
-            transition={{ duration: 0.2, ease: "easeOut" }}
-            className="absolute z-[100] w-full mt-1 bg-white rounded-2xl shadow-2xl border border-gray-100 overflow-hidden"
-          >
-            <div className="p-3 border-b border-gray-50 bg-gray-50/50">
-              <div className="relative">
-                <Search className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
-                <input
-                  autoFocus
-                  type="text"
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                  placeholder="ابحث هنا..."
-                  className="w-full pr-10 pl-4 py-2 bg-white rounded-xl border border-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 outline-none transition-all text-sm"
-                  onClick={(e) => e.stopPropagation()}
-                />
-                {search && (
-                  <button 
-                    onClick={(e) => { e.stopPropagation(); setSearch(""); }}
-                    className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                  >
-                    <X size={14} />
-                  </button>
-                )}
-              </div>
-            </div>
-
-            <div className="max-h-[250px] overflow-auto custom-scrollbar p-1">
-              {filteredOptions.length > 0 ? (
-                filteredOptions.map((option) => (
-                  <div
-                    key={option.value}
-                    onClick={() => handleSelect(option.value)}
-                    className={`
-                      flex items-center justify-between px-4 py-3 rounded-xl cursor-pointer transition-all mb-1
-                      ${String(option.value) === String(value) ? "bg-blue-50 text-blue-700" : "hover:bg-gray-50 text-gray-700"}
-                    `}
-                  >
-                    <div className="flex flex-col">
-                      <span className="font-bold text-sm">{option.label}</span>
-                      {option.subLabel && <span className="text-[10px] opacity-60">{option.subLabel}</span>}
-                    </div>
-                    {String(option.value) === String(value) && (
-                      <Check size={16} className="text-blue-600" />
-                    )}
-                  </div>
-                ))
-              ) : (
-                <div className="px-4 py-8 text-center text-gray-400 text-sm italic">
-                  لا توجد نتائج مطابقة
-                </div>
-              )}
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {isMounted && createPortal(
+        <div id="luxury-select-portal" className="fixed inset-0 pointer-events-none z-[9999]">
+          <div className="pointer-events-auto">
+            {dropdownContent}
+          </div>
+        </div>,
+        document.body
+      )}
     </div>
   );
 }
