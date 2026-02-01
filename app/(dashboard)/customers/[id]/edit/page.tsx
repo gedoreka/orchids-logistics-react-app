@@ -28,6 +28,8 @@ interface Account {
   id: number;
   account_code: string;
   account_name: string;
+  account_type: string;
+  parent_id: number | null;
 }
 
 interface CostCenter {
@@ -58,7 +60,10 @@ export default async function EditCustomerPage({ params }: { params: Promise<{ i
   }
 
   const accounts = await query<Account>(
-    "SELECT id, account_code, account_name FROM accounts WHERE company_id = ? ORDER BY account_code",
+    `SELECT id, account_code, account_name, account_type, parent_id 
+     FROM accounts 
+     WHERE company_id = ? 
+     ORDER BY account_code ASC`,
     [companyId]
   );
 

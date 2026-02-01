@@ -17,7 +17,7 @@ interface LuxurySearchableSelectProps {
   onChange: (value: string | number) => void;
   placeholder: string;
   label?: string;
-  icon?: React.ReactNode;
+  icon?: React.Node;
   disabled?: boolean;
   required?: boolean;
   className?: string;
@@ -42,6 +42,7 @@ export function LuxurySearchableSelect({
   const inputRef = useRef<HTMLInputElement>(null);
   const [coords, setCoords] = useState({ top: 0, left: 0, width: 0 });
   const [isMounted, setIsMounted] = useState(false);
+  const [openUp, setOpenUp] = useState(false);
 
   useEffect(() => {
     setIsMounted(true);
@@ -53,35 +54,32 @@ export function LuxurySearchableSelect({
       const viewportHeight = window.innerHeight;
       const dropdownHeight = 400; // estimated max height
       
-      // Determine if dropdown should open upwards or downwards
       const spaceBelow = viewportHeight - rect.bottom;
       const shouldOpenUp = spaceBelow < dropdownHeight && rect.top > spaceBelow;
 
       setCoords({
-        top: shouldOpenUp 
-          ? rect.top + window.scrollY - 5 
-          : rect.bottom + window.scrollY + 5,
-        left: rect.left + window.scrollX,
+        top: shouldOpenUp ? rect.top - 5 : rect.bottom + 5,
+        left: rect.left,
         width: rect.width
       });
-      return shouldOpenUp;
+      setOpenUp(shouldOpenUp);
     }
-    return false;
   };
-
-  const [openUp, setOpenUp] = useState(false);
 
   useLayoutEffect(() => {
     if (isOpen) {
-      const up = updateCoords();
-      setOpenUp(up);
-      window.addEventListener("scroll", updateCoords, true);
-      window.addEventListener("resize", updateCoords);
+      updateCoords();
+      const handleScroll = () => updateCoords();
+      const handleResize = () => updateCoords();
+      
+      window.addEventListener("scroll", handleScroll, true);
+      window.addEventListener("resize", handleResize);
+      
+      return () => {
+        window.removeEventListener("scroll", handleScroll, true);
+        window.removeEventListener("resize", handleResize);
+      };
     }
-    return () => {
-      window.removeEventListener("scroll", updateCoords, true);
-      window.removeEventListener("resize", updateCoords);
-    };
   }, [isOpen]);
 
   const selectedOption = options.find(opt => String(opt.value) === String(value));
@@ -94,14 +92,16 @@ export function LuxurySearchableSelect({
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
-        const portal = document.getElementById("luxury-select-portal");
-        if (portal && portal.contains(event.target as Node)) return;
+        // Also check if clicking inside the portal
+        if (dropdownRef.current && dropdownRef.current.contains(event.target as Node)) return;
         setIsOpen(false);
       }
     };
-    document.addEventListener("mousedown", handleClickOutside);
+    if (isOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
     return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
+  }, [isOpen]);
 
   useEffect(() => {
     if (!isOpen) {
@@ -141,24 +141,25 @@ export function LuxurySearchableSelect({
       {isOpen && (
         <motion.div
           ref={dropdownRef}
-          initial={{ opacity: 0, y: openUp ? -10 : 10, scale: 0.95 }}
+          initial={{ opacity: 0, y: openUp ? 10 : -10, scale: 0.95 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
-          exit={{ opacity: 0, y: openUp ? -10 : 10, scale: 0.95 }}
-          transition={{ duration: 0.2, ease: "easeOut" }}
+          exit={{ opacity: 0, y: openUp ? 10 : -10, scale: 0.95 }}
+          transition={{ duration: 0.2, ease: "circOut" }}
           style={{
-            position: "absolute",
+            position: "fixed",
             top: openUp ? undefined : coords.top,
-            bottom: openUp ? (window.innerHeight - (coords.top - window.scrollY) + 10) : undefined,
+            bottom: openUp ? (window.innerHeight - coords.top) : undefined,
             left: coords.left,
             width: coords.width,
-            zIndex: 9999
+            zIndex: 99999,
+            pointerEvents: "auto"
           }}
-          className="bg-white/95 backdrop-blur-xl rounded-[1.5rem] shadow-[0_25px_70px_rgba(0,0,0,0.3)] border border-white/40 overflow-hidden"
+          className="bg-white/95 backdrop-blur-2xl rounded-[1.5rem] shadow-[0_20px_50px_rgba(0,0,0,0.2)] border border-white/40 overflow-hidden"
           onClick={(e) => e.stopPropagation()}
         >
-          <div className="p-4 border-b border-gray-100 bg-gray-50/30">
+          <div className="p-4 border-b border-gray-100 bg-gray-50/50">
             <div className="relative group">
-              <Search className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-blue-500 transition-colors" size={18} />
+              <Search className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-blue-600 transition-colors" size={18} />
               <input
                 ref={inputRef}
                 autoFocus
@@ -169,8 +170,8 @@ export function LuxurySearchableSelect({
                   setActiveIndex(-1);
                 }}
                 onKeyDown={handleKeyDown}
-                placeholder="ابحث بالاسم أو الرقم..."
-                className="w-full pr-12 pl-4 py-3 bg-white rounded-xl border border-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 outline-none transition-all text-sm font-black"
+                placeholder="ابحث هنا..."
+                className="w-full pr-12 pl-4 py-3 bg-white rounded-xl border border-gray-200 focus:border-blue-600 focus:ring-4 focus:ring-blue-600/5 outline-none transition-all text-sm font-bold"
               />
               {search && (
                 <button 
@@ -183,7 +184,7 @@ export function LuxurySearchableSelect({
             </div>
           </div>
 
-          <div className="max-h-[350px] overflow-auto custom-scrollbar p-2">
+          <div className="max-h-[350px] overflow-y-auto overflow-x-hidden custom-scrollbar p-2">
             {filteredOptions.length > 0 ? (
               filteredOptions.map((option, index) => (
                 <div
@@ -197,9 +198,9 @@ export function LuxurySearchableSelect({
                   `}
                 >
                   <div className="flex flex-col">
-                    <span className="font-black text-[13px] leading-tight">{option.label}</span>
+                    <span className="font-bold text-[14px] leading-tight">{option.label}</span>
                     {option.subLabel && (
-                      <span className={`text-[10px] font-bold mt-0.5 opacity-70 ${String(option.value) === String(value) ? "text-blue-100" : "text-gray-500"}`}>
+                      <span className={`text-[11px] font-medium mt-0.5 opacity-70 ${String(option.value) === String(value) ? "text-blue-100" : "text-gray-500"}`}>
                         {option.subLabel}
                       </span>
                     )}
@@ -212,7 +213,7 @@ export function LuxurySearchableSelect({
             ) : (
               <div className="px-4 py-12 text-center text-gray-400 flex flex-col items-center gap-3">
                 <Search size={32} className="opacity-20" />
-                <span className="text-sm font-black italic">لا توجد نتائج تطابق بحثك</span>
+                <span className="text-sm font-bold">لا توجد نتائج تطابق بحثك</span>
               </div>
             )}
           </div>
@@ -224,7 +225,7 @@ export function LuxurySearchableSelect({
   return (
     <div className={`relative ${className}`} ref={containerRef}>
       {label && (
-        <label className="flex items-center gap-2 text-[13px] font-black text-slate-700 mb-2 mr-1">
+        <label className="flex items-center gap-2 text-[14px] font-bold text-slate-700 mb-2 mr-1">
           {icon && <span className="text-blue-500/70">{icon}</span>}
           {label}
           {required && <span className="text-red-500">*</span>}
@@ -236,11 +237,11 @@ export function LuxurySearchableSelect({
         className={`
           relative w-full px-5 py-4 rounded-[1.25rem] border-2 transition-all cursor-pointer flex items-center justify-between
           ${disabled ? "bg-gray-50 text-gray-400 border-gray-100 cursor-not-allowed" : "bg-white text-slate-900 border-slate-50 hover:border-blue-200 hover:shadow-xl hover:shadow-blue-500/5"}
-          ${isOpen ? "ring-4 ring-blue-500/5 border-blue-500 shadow-2xl" : "shadow-sm shadow-slate-200/50"}
+          ${isOpen ? "ring-4 ring-blue-500/5 border-blue-600 shadow-2xl" : "shadow-sm shadow-slate-200/50"}
         `}
       >
         <div className="flex items-center gap-3 overflow-hidden">
-          <span className={`block truncate ${!selectedOption ? "text-slate-300 font-bold" : "font-black text-slate-800"}`}>
+          <span className={`block truncate ${!selectedOption ? "text-slate-300 font-bold" : "font-bold text-slate-800"}`}>
             {selectedOption ? selectedOption.label : placeholder}
           </span>
         </div>
@@ -250,10 +251,8 @@ export function LuxurySearchableSelect({
       </div>
 
       {isMounted && createPortal(
-        <div id="luxury-select-portal" className="fixed inset-0 pointer-events-none z-[9999]">
-          <div className="pointer-events-auto">
-            {dropdownContent}
-          </div>
+        <div className="fixed inset-0 pointer-events-none z-[99999]">
+          {dropdownContent}
         </div>,
         document.body
       )}

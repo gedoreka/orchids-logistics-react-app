@@ -34,6 +34,8 @@ interface Account {
   id: number;
   account_code: string;
   account_name: string;
+  account_type?: string;
+  parent_id?: number | null;
 }
 
 interface CostCenter {
@@ -97,7 +99,6 @@ export function NewCustomerClient({ accounts, costCenters, companyId }: NewCusto
   useEffect(() => {
     if (formData.country && formData.region) {
       setCities(locationLibrary.getCities(formData.country, formData.region));
-      // Reset city and district when region changes
       setFormData(prev => ({ ...prev, city: "", district: "" }));
     }
   }, [formData.country, formData.region]);
@@ -105,7 +106,6 @@ export function NewCustomerClient({ accounts, costCenters, companyId }: NewCusto
   useEffect(() => {
     if (formData.country && formData.city) {
       setDistricts(locationLibrary.getDistricts(formData.country, formData.city));
-      // Reset district when city changes
       setFormData(prev => ({ ...prev, district: "" }));
     }
   }, [formData.country, formData.city]);
@@ -171,8 +171,28 @@ export function NewCustomerClient({ accounts, costCenters, companyId }: NewCusto
     }
   };
 
+  // Format account options for hierarchical view
+  const accountOptions = accounts.map(a => {
+    const isMain = a.account_type === 'main';
+    return {
+      value: a.id,
+      label: isMain ? `📂 ${a.account_name}` : `└─ ${a.account_name}`,
+      subLabel: `${a.account_code}`
+    };
+  });
+
+  const costCenterOptions = costCenters.map(c => ({
+    value: c.id,
+    label: `📍 ${c.center_name}`,
+    subLabel: `${c.center_code}`
+  }));
+
   return (
-    <div className="min-h-screen flex flex-col bg-slate-50/50">
+    <div className="min-h-screen flex flex-col bg-[#0d1525] relative overflow-hidden">
+      {/* Dynamic Background Elements */}
+      <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-blue-600/5 rounded-full blur-[150px] -mr-96 -mt-96 pointer-events-none" />
+      <div className="absolute bottom-0 left-0 w-[800px] h-[800px] bg-purple-600/5 rounded-full blur-[150px] -ml-96 -mb-96 pointer-events-none" />
+      
       <AnimatePresence>
         {notification.show && (
           <>
@@ -180,7 +200,7 @@ export function NewCustomerClient({ accounts, costCenters, companyId }: NewCusto
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-slate-900/40 backdrop-blur-md z-[10000]"
+              className="fixed inset-0 bg-[#0d1525]/80 backdrop-blur-xl z-[10000]"
               onClick={() => notification.type !== "loading" && hideNotification()}
             />
             <motion.div
@@ -189,7 +209,7 @@ export function NewCustomerClient({ accounts, costCenters, companyId }: NewCusto
               exit={{ opacity: 0, scale: 0.9, y: 20 }}
               className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[10001] w-full max-w-md p-4"
             >
-              <div className={`bg-white rounded-[2.5rem] p-10 shadow-[0_30px_100px_rgba(0,0,0,0.2)] border-t-[12px] ${
+              <div className={`bg-white rounded-[2.5rem] p-10 shadow-[0_30px_100px_rgba(0,0,0,0.4)] border-t-[12px] ${
                 notification.type === "success" ? "border-emerald-500" :
                 notification.type === "error" ? "border-red-500" : "border-blue-500"
               }`}>
@@ -221,19 +241,24 @@ export function NewCustomerClient({ accounts, costCenters, companyId }: NewCusto
         )}
       </AnimatePresence>
 
-      <div className="flex-1 p-4 md:p-10">
+      <div className="relative z-10 flex-1 p-4 md:p-10">
         <div className="max-w-[1200px] mx-auto space-y-10">
           {/* Header Card */}
-          <div className="relative overflow-hidden bg-slate-900 rounded-[3rem] p-10 md:p-14 text-white shadow-[0_30px_80px_rgba(15,23,42,0.3)] border border-white/5">
+          <div className="relative overflow-hidden bg-white/5 backdrop-blur-2xl rounded-[3rem] p-10 md:p-14 text-white shadow-2xl border border-white/10">
             <div className="relative z-10">
               <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-10">
                 <div className="flex items-center gap-8">
-                  <div className="h-24 w-28 rounded-[2rem] bg-emerald-500 flex items-center justify-center shadow-[0_20px_50px_rgba(16,185,129,0.3)] rotate-3">
+                  <div className="h-24 w-28 rounded-[2rem] bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center shadow-lg shadow-emerald-500/20 rotate-3 border border-white/20">
                     <UserPlus size={48} strokeWidth={2.5} className="-rotate-3" />
                   </div>
                   <div>
                     <h1 className="text-4xl md:text-5xl font-black tracking-tight mb-3">إضافة عميل جديد</h1>
-                    <p className="text-slate-400 text-xl font-bold">نظام إدارة العملاء الذكي</p>
+                    <div className="flex items-center gap-3">
+                      <span className="px-4 py-1.5 rounded-full bg-emerald-500/10 text-emerald-400 text-sm font-black border border-emerald-500/20">
+                        إصدار 2026
+                      </span>
+                      <p className="text-slate-400 text-xl font-bold">نظام إدارة العملاء الذكي</p>
+                    </div>
                   </div>
                 </div>
                 <Link href="/customers">
@@ -244,8 +269,6 @@ export function NewCustomerClient({ accounts, costCenters, companyId }: NewCusto
                 </Link>
               </div>
             </div>
-            <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-emerald-500/10 rounded-full -mr-[250px] -mt-[250px] blur-[120px]" />
-            <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-blue-500/10 rounded-full -ml-[200px] -mb-[200px] blur-[100px]" />
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-10">
@@ -322,7 +345,7 @@ export function NewCustomerClient({ accounts, costCenters, companyId }: NewCusto
             </Section>
 
             {/* Address */}
-            <Section title="تفاصيل العنوان الوطني" icon={<MapPin size={28} />} color="purple">
+            <Section title="تفاصيل العنوان الوطني الشامل" icon={<MapPin size={28} />} color="purple">
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                 <LuxurySearchableSelect
                   label="الدولة"
@@ -379,45 +402,37 @@ export function NewCustomerClient({ accounts, costCenters, companyId }: NewCusto
             </Section>
 
             {/* Financial Info */}
-            <Section title="الإعدادات المالية والمحاسبية" icon={<Wallet size={28} />} color="orange">
+            <Section title="الإعدادات المالية (شجرة الحسابات)" icon={<Wallet size={28} />} color="orange">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <LuxurySearchableSelect
                   label="شجرة الحسابات"
                   icon={<Wallet size={20} />}
                   value={formData.account_id}
                   onChange={(val) => handleSelectChange("account_id", val)}
-                  options={accounts.map(a => ({ 
-                    value: a.id, 
-                    label: a.account_name,
-                    subLabel: `كود الحساب: ${a.account_code}`
-                  }))}
-                  placeholder="اربط العميل بحساب في الشجرة"
+                  options={accountOptions}
+                  placeholder="ابحث بالاسم أو رقم الحساب"
                 />
                 <LuxurySearchableSelect
                   label="مركز التكلفة"
                   icon={<Calculator size={20} />}
                   value={formData.cost_center_id}
                   onChange={(val) => handleSelectChange("cost_center_id", val)}
-                  options={costCenters.map(c => ({ 
-                    value: c.id, 
-                    label: c.center_name,
-                    subLabel: `كود المركز: ${c.center_code}`
-                  }))}
-                  placeholder="اربط العميل بمركز تكلفة"
+                  options={costCenterOptions}
+                  placeholder="ابحث بالاسم أو كود المركز"
                 />
               </div>
             </Section>
 
             {/* Status & Submit */}
-            <div className="flex flex-col lg:flex-row gap-10 items-stretch">
-              <div className="flex-1 bg-white rounded-[2.5rem] border-2 border-slate-100 shadow-xl p-10 flex items-center justify-between">
+            <div className="flex flex-col lg:flex-row gap-10 items-stretch pb-20">
+              <div className="flex-1 bg-white/5 backdrop-blur-xl rounded-[2.5rem] border border-white/10 shadow-2xl p-10 flex items-center justify-between">
                 <div className="flex items-center gap-6">
-                  <div className="h-16 w-16 rounded-[1.25rem] bg-slate-50 flex items-center justify-center text-slate-400 border border-slate-100">
+                  <div className="h-16 w-16 rounded-[1.25rem] bg-white/5 flex items-center justify-center text-slate-400 border border-white/10">
                     <Power size={32} />
                   </div>
                   <div>
-                    <h3 className="text-2xl font-black text-slate-900 mb-1">حالة الحساب</h3>
-                    <p className="text-slate-500 font-bold text-lg">تفعيل ظهور العميل في الفواتير</p>
+                    <h3 className="text-2xl font-black text-white mb-1">حالة الحساب</h3>
+                    <p className="text-slate-400 font-bold text-lg">تفعيل ظهور العميل في الفواتير</p>
                   </div>
                 </div>
                 <label className="relative inline-flex items-center cursor-pointer scale-[1.5]">
@@ -428,20 +443,20 @@ export function NewCustomerClient({ accounts, costCenters, companyId }: NewCusto
                     onChange={handleChange}
                     className="sr-only peer"
                   />
-                  <div className="w-14 h-8 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[4px] after:start-[4px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-emerald-500 shadow-inner"></div>
+                  <div className="w-14 h-8 bg-white/10 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[4px] after:start-[4px] after:bg-white after:border-white/20 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-emerald-500 shadow-inner"></div>
                 </label>
               </div>
 
               <div className="flex flex-col sm:flex-row gap-6 lg:min-w-[500px]">
                 <Link href="/customers" className="flex-1">
-                  <button type="button" className="w-full h-full px-10 py-6 rounded-[2rem] bg-white text-slate-600 font-black text-xl hover:bg-slate-50 transition-all border-2 border-slate-100 shadow-xl active:scale-95">
+                  <button type="button" className="w-full h-full px-10 py-6 rounded-[2rem] bg-white/5 text-white font-black text-xl hover:bg-white/10 transition-all border border-white/10 shadow-2xl active:scale-95">
                     إلغاء
                   </button>
                 </Link>
                 <button
                   type="submit"
                   disabled={loading}
-                  className="flex-[2] flex items-center justify-center gap-4 px-12 py-6 rounded-[2rem] bg-emerald-500 text-white font-black text-2xl hover:bg-emerald-600 transition-all shadow-[0_20px_50px_rgba(16,185,129,0.3)] active:scale-95 disabled:opacity-50"
+                  className="flex-[2] flex items-center justify-center gap-4 px-12 py-6 rounded-[2rem] bg-emerald-500 text-white font-black text-2xl hover:bg-emerald-600 transition-all shadow-[0_20px_50px_rgba(16,185,129,0.4)] active:scale-95 disabled:opacity-50"
                 >
                   {loading ? (
                     <Loader2 size={32} className="animate-spin" />
@@ -466,11 +481,11 @@ function Section({ title, icon, color, children }: {
   children: React.ReactNode;
 }) {
   const colors = {
-    blue: "from-blue-600 to-blue-500 shadow-blue-500/20",
-    emerald: "from-emerald-600 to-emerald-500 shadow-emerald-500/20",
-    purple: "from-purple-600 to-purple-500 shadow-purple-500/20",
-    orange: "from-orange-600 to-orange-500 shadow-orange-500/20",
-    gray: "from-slate-600 to-slate-500 shadow-slate-500/20"
+    blue: "from-blue-600 to-blue-400 shadow-blue-500/20",
+    emerald: "from-emerald-600 to-emerald-400 shadow-emerald-500/20",
+    purple: "from-purple-600 to-purple-400 shadow-purple-500/20",
+    orange: "from-orange-600 to-orange-400 shadow-orange-500/20",
+    gray: "from-slate-600 to-slate-400 shadow-slate-500/20"
   };
 
   return (
@@ -478,9 +493,9 @@ function Section({ title, icon, color, children }: {
       initial={{ opacity: 0, y: 30 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
-      className="bg-white rounded-[3rem] border border-slate-100 shadow-[0_20px_60px_rgba(0,0,0,0.05)] overflow-hidden"
+      className="bg-white/5 backdrop-blur-3xl rounded-[3rem] border border-white/10 shadow-2xl overflow-hidden"
     >
-      <div className={`bg-gradient-to-r ${colors[color]} px-10 py-7 flex items-center gap-6 text-white shadow-xl relative overflow-hidden`}>
+      <div className={`bg-gradient-to-r ${colors[color]} px-10 py-7 flex items-center gap-6 text-white shadow-xl relative overflow-hidden border-b border-white/10`}>
         <div className="p-3 bg-white/20 rounded-2xl backdrop-blur-xl border border-white/20 relative z-10">
           {icon}
         </div>
@@ -506,8 +521,8 @@ function FormField({ icon, label, name, value, onChange, placeholder, required, 
 }) {
   return (
     <div className="space-y-3">
-      <label className="flex items-center gap-2.5 text-[13px] font-black text-slate-700 mr-1.5">
-        <span className="text-blue-500/70">{icon}</span>
+      <label className="flex items-center gap-2.5 text-[14px] font-black text-white/70 mr-1.5">
+        <span className="text-emerald-400/70">{icon}</span>
         {label}
         {required && <span className="text-red-500">*</span>}
       </label>
@@ -518,7 +533,7 @@ function FormField({ icon, label, name, value, onChange, placeholder, required, 
         onChange={onChange}
         placeholder={placeholder}
         required={required}
-        className="w-full px-6 py-4.5 rounded-[1.25rem] border-2 border-slate-50 bg-slate-50/50 focus:bg-white focus:border-blue-500 focus:ring-[6px] focus:ring-blue-500/5 outline-none transition-all text-[15px] font-black placeholder:text-slate-300 placeholder:font-bold shadow-sm shadow-slate-100/50"
+        className="w-full px-6 py-4.5 rounded-[1.25rem] border-2 border-white/5 bg-white/5 focus:bg-white/10 focus:border-emerald-500 focus:ring-[6px] focus:ring-emerald-500/5 outline-none transition-all text-[16px] font-black text-white placeholder:text-white/20 placeholder:font-bold shadow-sm"
       />
     </div>
   );

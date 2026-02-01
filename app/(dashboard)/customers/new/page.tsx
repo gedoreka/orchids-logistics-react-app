@@ -7,6 +7,8 @@ interface Account {
   id: number;
   account_code: string;
   account_name: string;
+  account_type: string;
+  parent_id: number | null;
 }
 
 interface CostCenter {
@@ -24,14 +26,18 @@ export default async function NewCustomerPage() {
 
   if (!companyId) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <p className="text-gray-500">جاري التحميل...</p>
+      <div className="flex items-center justify-center min-h-screen bg-[#0d1525]">
+        <p className="text-white">جاري التحميل...</p>
       </div>
     );
   }
 
+  // Fetch accounts with hierarchy info
   const accounts = await query<Account>(
-    "SELECT id, account_code, account_name FROM accounts WHERE company_id = ? ORDER BY account_code",
+    `SELECT id, account_code, account_name, account_type, parent_id 
+     FROM accounts 
+     WHERE company_id = ? 
+     ORDER BY account_code ASC`,
     [companyId]
   );
 
