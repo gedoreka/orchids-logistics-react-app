@@ -521,8 +521,8 @@ function FormField({ icon, label, name, value, onChange, placeholder, required, 
 }) {
   return (
     <div className="space-y-3">
-      <label className="flex items-center gap-2.5 text-[14px] font-black text-white/70 mr-1.5">
-        <span className="text-emerald-400/70">{icon}</span>
+      <label className="flex items-center gap-2.5 text-[14px] font-black text-white mr-1.5">
+        <span className="text-emerald-400">{icon}</span>
         {label}
         {required && <span className="text-red-500">*</span>}
       </label>
@@ -533,7 +533,7 @@ function FormField({ icon, label, name, value, onChange, placeholder, required, 
         onChange={onChange}
         placeholder={placeholder}
         required={required}
-        className="w-full px-6 py-4.5 rounded-[1.25rem] border-2 border-white/5 bg-white/5 focus:bg-white/10 focus:border-emerald-500 focus:ring-[6px] focus:ring-emerald-500/5 outline-none transition-all text-[16px] font-black text-white placeholder:text-white/20 placeholder:font-bold shadow-sm"
+        className="w-full px-6 py-4.5 rounded-[1.25rem] border-2 border-white/10 bg-white/5 focus:bg-white/10 focus:border-emerald-500 focus:ring-[6px] focus:ring-emerald-500/5 outline-none transition-all text-[16px] font-black text-white placeholder:text-white/20 placeholder:font-bold shadow-sm"
       />
     </div>
   );

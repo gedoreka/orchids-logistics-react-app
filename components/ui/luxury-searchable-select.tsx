@@ -154,12 +154,12 @@ export function LuxurySearchableSelect({
             zIndex: 99999,
             pointerEvents: "auto"
           }}
-          className="bg-white/95 backdrop-blur-2xl rounded-[1.5rem] shadow-[0_20px_50px_rgba(0,0,0,0.2)] border border-white/40 overflow-hidden"
+          className="bg-[#1a2333]/95 backdrop-blur-2xl rounded-[1.5rem] shadow-[0_20px_50px_rgba(0,0,0,0.5)] border border-white/10 overflow-hidden"
           onClick={(e) => e.stopPropagation()}
         >
-          <div className="p-4 border-b border-gray-100 bg-gray-50/50">
+          <div className="p-4 border-b border-white/5 bg-white/5">
             <div className="relative group">
-              <Search className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-blue-600 transition-colors" size={18} />
+              <Search className="absolute right-4 top-1/2 -translate-y-1/2 text-white/40 group-focus-within:text-emerald-500 transition-colors" size={18} />
               <input
                 ref={inputRef}
                 autoFocus
@@ -171,12 +171,12 @@ export function LuxurySearchableSelect({
                 }}
                 onKeyDown={handleKeyDown}
                 placeholder="ابحث هنا..."
-                className="w-full pr-12 pl-4 py-3 bg-white rounded-xl border border-gray-200 focus:border-blue-600 focus:ring-4 focus:ring-blue-600/5 outline-none transition-all text-sm font-bold"
+                className="w-full pr-12 pl-4 py-3 bg-white/5 rounded-xl border border-white/10 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/5 outline-none transition-all text-sm font-bold text-white placeholder:text-white/20"
               />
               {search && (
                 <button 
                   onClick={() => setSearch("")}
-                  className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-red-500 transition-colors"
+                  className="absolute left-4 top-1/2 -translate-y-1/2 text-white/40 hover:text-red-500 transition-colors"
                 >
                   <X size={16} />
                 </button>
@@ -193,14 +193,14 @@ export function LuxurySearchableSelect({
                   onClick={() => handleSelect(option.value)}
                   className={`
                     flex items-center justify-between px-4 py-3.5 rounded-[1rem] cursor-pointer transition-all mb-1
-                    ${String(option.value) === String(value) ? "bg-blue-600 text-white shadow-lg shadow-blue-600/20" : 
-                      index === activeIndex ? "bg-blue-50 text-blue-700" : "hover:bg-gray-50 text-gray-700"}
+                    ${String(option.value) === String(value) ? "bg-emerald-600 text-white shadow-lg shadow-emerald-600/20" : 
+                      index === activeIndex ? "bg-white/10 text-white" : "hover:bg-white/5 text-white/70"}
                   `}
                 >
                   <div className="flex flex-col">
                     <span className="font-bold text-[14px] leading-tight">{option.label}</span>
                     {option.subLabel && (
-                      <span className={`text-[11px] font-medium mt-0.5 opacity-70 ${String(option.value) === String(value) ? "text-blue-100" : "text-gray-500"}`}>
+                      <span className={`text-[11px] font-medium mt-0.5 opacity-70 ${String(option.value) === String(value) ? "text-emerald-100" : "text-white/40"}`}>
                         {option.subLabel}
                       </span>
                     )}
@@ -211,7 +211,7 @@ export function LuxurySearchableSelect({
                 </div>
               ))
             ) : (
-              <div className="px-4 py-12 text-center text-gray-400 flex flex-col items-center gap-3">
+              <div className="px-4 py-12 text-center text-white/30 flex flex-col items-center gap-3">
                 <Search size={32} className="opacity-20" />
                 <span className="text-sm font-bold">لا توجد نتائج تطابق بحثك</span>
               </div>
@@ -225,8 +225,8 @@ export function LuxurySearchableSelect({
   return (
     <div className={`relative ${className}`} ref={containerRef}>
       {label && (
-        <label className="flex items-center gap-2 text-[14px] font-bold text-slate-700 mb-2 mr-1">
-          {icon && <span className="text-blue-500/70">{icon}</span>}
+        <label className="flex items-center gap-2 text-[14px] font-bold text-white mb-2 mr-1">
+          {icon && <span className="text-emerald-500/70">{icon}</span>}
           {label}
           {required && <span className="text-red-500">*</span>}
         </label>
@@ -236,16 +236,16 @@ export function LuxurySearchableSelect({
         onClick={toggleDropdown}
         className={`
           relative w-full px-5 py-4 rounded-[1.25rem] border-2 transition-all cursor-pointer flex items-center justify-between
-          ${disabled ? "bg-gray-50 text-gray-400 border-gray-100 cursor-not-allowed" : "bg-white text-slate-900 border-slate-50 hover:border-blue-200 hover:shadow-xl hover:shadow-blue-500/5"}
-          ${isOpen ? "ring-4 ring-blue-500/5 border-blue-600 shadow-2xl" : "shadow-sm shadow-slate-200/50"}
+          ${disabled ? "bg-white/5 text-white/20 border-white/5 cursor-not-allowed" : "bg-white/5 text-white border-white/5 hover:border-emerald-500/30 hover:shadow-xl hover:shadow-emerald-500/5"}
+          ${isOpen ? "ring-4 ring-emerald-500/5 border-emerald-500 shadow-2xl" : "shadow-sm shadow-black/20"}
         `}
       >
         <div className="flex items-center gap-3 overflow-hidden">
-          <span className={`block truncate ${!selectedOption ? "text-slate-300 font-bold" : "font-bold text-slate-800"}`}>
+          <span className={`block truncate ${!selectedOption ? "text-white/30 font-bold" : "font-bold text-white"}`}>
             {selectedOption ? selectedOption.label : placeholder}
           </span>
         </div>
-        <div className={`flex items-center justify-center w-8 h-8 rounded-full transition-all duration-300 ${isOpen ? "bg-blue-50 text-blue-600 rotate-180" : "bg-slate-50 text-slate-400"}`}>
+        <div className={`flex items-center justify-center w-8 h-8 rounded-full transition-all duration-300 ${isOpen ? "bg-emerald-500 text-white rotate-180" : "bg-white/10 text-white/40"}`}>
           <ChevronDown size={18} strokeWidth={3} />
         </div>
       </div>
