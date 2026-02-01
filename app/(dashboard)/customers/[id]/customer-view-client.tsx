@@ -30,15 +30,13 @@ import {
   Users,
   RefreshCw,
   Printer,
-  FileSpreadsheet
+  FileSpreadsheet,
+  Power
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { format } from "date-fns";
 import { useTranslations, useLocale } from "@/lib/locale-context";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 
 interface Customer {
   id: number;
@@ -100,7 +98,7 @@ export function CustomerViewClient({ customer, companyId }: CustomerViewClientPr
     if (!confirm(`${t("confirmDelete")} "${customer.customer_name || customer.company_name}"?`)) return;
     
     setDeleteLoading(true);
-    showNotification("loading", t("deleting"), t("deletingMessage"));
+    showNotification("loading", "جاري الحذف", "جاري حذف بيانات العميل...");
     
     try {
       const res = await fetch(`/api/customers/${customer.id}?company_id=${companyId}`, {
@@ -108,16 +106,16 @@ export function CustomerViewClient({ customer, companyId }: CustomerViewClientPr
       });
       
       if (res.ok) {
-        showNotification("success", t("deleteSuccess"), t("deleteSuccessMessage"));
+        showNotification("success", "تم الحذف بنجاح", "تم حذف العميل بنجاح من النظام");
         setTimeout(() => {
           router.push("/customers");
           router.refresh();
         }, 1500);
       } else {
-        showNotification("error", t("deleteFailed"), t("deleteFailedMessage"));
+        showNotification("error", "فشل الحذف", "حدث خطأ أثناء محاولة حذف العميل");
       }
     } catch {
-      showNotification("error", t("errorTitle"), t("errorMessage"));
+      showNotification("error", "خطأ", "حدث خطأ غير متوقع");
     } finally {
       setDeleteLoading(false);
     }
@@ -128,7 +126,11 @@ export function CustomerViewClient({ customer, companyId }: CustomerViewClientPr
   };
 
   return (
-    <div className="p-4 md:p-6 space-y-8" dir={isRTL ? "rtl" : "ltr"}>
+    <div className="min-h-screen flex flex-col bg-[#0d1525] relative overflow-hidden print:bg-white print:text-black" dir={isRTL ? "rtl" : "ltr"}>
+      {/* Dynamic Background Elements */}
+      <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-blue-600/5 rounded-full blur-[150px] -mr-96 -mt-96 pointer-events-none print:hidden" />
+      <div className="absolute bottom-0 left-0 w-[800px] h-[800px] bg-purple-600/5 rounded-full blur-[150px] -ml-96 -mb-96 pointer-events-none print:hidden" />
+
       <AnimatePresence>
         {notification.show && (
           <>
@@ -136,38 +138,38 @@ export function CustomerViewClient({ customer, companyId }: CustomerViewClientPr
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50"
+              className="fixed inset-0 bg-[#0d1525]/80 backdrop-blur-xl z-[10000] print:hidden"
               onClick={() => notification.type !== "loading" && hideNotification()}
             />
             <motion.div
               initial={{ opacity: 0, scale: 0.9, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.9, y: 20 }}
-              className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50 w-full max-w-md"
+              className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[10001] w-full max-w-md p-4 print:hidden"
             >
-              <div className={`bg-white rounded-3xl p-8 shadow-2xl border-t-4 ${
+              <div className={`bg-white rounded-[2.5rem] p-10 shadow-[0_30px_100px_rgba(0,0,0,0.4)] border-t-[12px] ${
                 notification.type === "success" ? "border-emerald-500" :
                 notification.type === "error" ? "border-red-500" : "border-blue-500"
               }`}>
                 <div className="text-center">
-                  <div className={`h-20 w-20 rounded-full mx-auto mb-6 flex items-center justify-center ${
-                    notification.type === "success" ? "bg-emerald-100 text-emerald-500" :
-                    notification.type === "error" ? "bg-red-100 text-red-500" : "bg-blue-100 text-blue-500"
+                  <div className={`h-28 w-28 rounded-full mx-auto mb-8 flex items-center justify-center ${
+                    notification.type === "success" ? "bg-emerald-50 text-emerald-500" :
+                    notification.type === "error" ? "bg-red-50 text-red-500" : "bg-blue-50 text-blue-500"
                   }`}>
-                    {notification.type === "success" && <CheckCircle size={40} />}
-                    {notification.type === "error" && <AlertCircle size={40} />}
-                    {notification.type === "loading" && <Loader2 size={40} className="animate-spin" />}
+                    {notification.type === "success" && <CheckCircle size={56} strokeWidth={2.5} />}
+                    {notification.type === "error" && <AlertCircle size={56} strokeWidth={2.5} />}
+                    {notification.type === "loading" && <Loader2 size={56} className="animate-spin" strokeWidth={2.5} />}
                   </div>
-                  <h3 className="text-2xl font-black text-gray-900 mb-2">{notification.title}</h3>
-                  <p className="text-gray-500 mb-6">{notification.message}</p>
+                  <h3 className="text-3xl font-black text-slate-900 mb-3">{notification.title}</h3>
+                  <p className="text-slate-500 mb-10 text-lg leading-relaxed font-bold">{notification.message}</p>
                   {notification.type !== "loading" && (
                     <button
                       onClick={hideNotification}
-                      className={`px-8 py-3 rounded-xl font-bold text-white transition-all ${
-                        notification.type === "success" ? "bg-emerald-500 hover:bg-emerald-600" : "bg-red-500 hover:bg-red-600"
+                      className={`w-full py-5 rounded-2xl font-black text-white text-xl shadow-2xl transition-all active:scale-95 ${
+                        notification.type === "success" ? "bg-emerald-500 hover:bg-emerald-600 shadow-emerald-500/30" : "bg-red-500 hover:bg-red-600 shadow-red-500/30"
                       }`}
                     >
-                      {t("okBtn")}
+                      موافق
                     </button>
                   )}
                 </div>
@@ -177,268 +179,221 @@ export function CustomerViewClient({ customer, companyId }: CustomerViewClientPr
         )}
       </AnimatePresence>
 
-      <Card className="border-none shadow-2xl rounded-[2rem] overflow-hidden bg-[#1a2234] print:hidden">
-        <div className="relative overflow-hidden bg-gradient-to-br from-[#0f172a] via-[#1e293b] to-[#0f172a] text-white p-8 md:p-12">
-          <div className="absolute inset-0 overflow-hidden">
-            <div className="absolute -top-40 -right-40 w-80 h-80 bg-blue-500/20 rounded-full blur-3xl" />
-            <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-emerald-500/20 rounded-full blur-3xl" />
-          </div>
-          
-          <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 via-emerald-500 to-amber-500" />
-          
-          <div className="relative z-10 space-y-8">
-            <div className="flex flex-col md:flex-row items-center justify-between gap-6">
-              <div className="flex items-center gap-6 text-center md:text-right">
-                <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-2xl rotate-3">
-                  <Building2 className="w-10 h-10 text-white" />
+      <div className="relative z-10 flex-1 p-4 md:p-8 lg:p-10">
+        <div className="max-w-[1400px] mx-auto space-y-10">
+          {/* Header Card */}
+          <div className="relative overflow-hidden bg-white/5 backdrop-blur-2xl rounded-[3rem] p-8 md:p-12 text-white shadow-2xl border border-white/10 print:bg-white print:text-black print:border-none print:shadow-none print:p-0">
+            <div className="relative z-10">
+              <div className="flex flex-col xl:flex-row xl:items-center xl:justify-between gap-10">
+                <div className="flex items-center gap-6 md:gap-8">
+                  <div className="h-24 w-28 rounded-[2rem] bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center shadow-lg shadow-blue-500/20 rotate-3 border border-white/20 print:hidden">
+                    <Building2 size={48} strokeWidth={2.5} className="-rotate-3" />
+                  </div>
+                  <div>
+                    <h1 className="text-3xl md:text-5xl font-black tracking-tight mb-3 print:text-black">{t('title')}</h1>
+                    <div className="flex flex-wrap items-center gap-3">
+                      <span className="px-4 py-1.5 rounded-full bg-blue-500/10 text-blue-400 text-sm font-black border border-blue-500/20 print:border-black print:text-black">
+                        بطاقة معلومات
+                      </span>
+                      <p className="text-slate-400 text-xl font-bold print:text-black/60">{t('subtitle')}</p>
+                    </div>
+                  </div>
                 </div>
-                <div>
-                  <h1 className="text-3xl md:text-5xl font-black tracking-tight bg-gradient-to-r from-white via-blue-200 to-white bg-clip-text text-transparent">
-                    {t("title")}
-                  </h1>
-                  <p className="text-white/60 font-medium mt-2 text-lg">
-                    {t("subtitle")}
-                  </p>
-                </div>
-              </div>
 
-              <div className="flex flex-wrap gap-3">
-                <Link href="/customers">
-                  <Button variant="outline" className="bg-white/10 border-white/20 text-white hover:bg-white/20 rounded-xl font-bold">
-                    {isRTL ? <ArrowRight className="ml-2 w-4 h-4" /> : <ArrowLeft className="mr-2 w-4 h-4" />}
-                    {t("backToList")}
-                  </Button>
-                </Link>
-                <Button
-                  onClick={handlePrint}
-                  variant="outline"
-                  className="bg-amber-500/20 border-amber-500/30 text-amber-300 hover:bg-amber-500/30 font-bold rounded-xl"
-                >
-                  <Printer className="w-4 h-4 ml-2" />
-                </Button>
+                <div className="flex flex-wrap gap-4 print:hidden">
+                  <Link href="/customers">
+                    <button className="flex items-center gap-3 px-8 py-5 rounded-2xl bg-white/5 text-white font-black text-lg hover:bg-white/10 transition-all border border-white/10 backdrop-blur-xl">
+                      {isRTL ? <ArrowRight size={24} /> : <ArrowLeft size={24} />}
+                      <span>{t('backToList')}</span>
+                    </button>
+                  </Link>
+                  <button
+                    onClick={handlePrint}
+                    className="p-5 rounded-2xl bg-white/5 text-amber-400 border border-white/10 hover:bg-white/10 transition-all active:scale-95"
+                  >
+                    <Printer size={28} />
+                  </button>
+                  <Link href={`/customers/${customer.id}/edit`}>
+                    <button className="flex items-center gap-3 px-10 py-5 rounded-2xl bg-amber-500 text-white font-black text-lg hover:bg-amber-600 transition-all shadow-xl shadow-amber-500/20 active:scale-95">
+                      <Edit size={24} />
+                      <span>{t('editBtn')}</span>
+                    </button>
+                  </Link>
+                </div>
               </div>
             </div>
+            <div className="absolute top-0 right-0 w-64 h-64 bg-blue-500/10 rounded-full blur-3xl -mr-32 -mt-32 print:hidden" />
+            <div className="absolute bottom-0 left-0 w-64 h-64 bg-purple-500/10 rounded-full blur-3xl -ml-32 -mb-32 print:hidden" />
+          </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-6 pt-4">
-              <div className="bg-white/5 backdrop-blur-xl border border-white/10 p-6 rounded-[1.5rem] group hover:bg-white/10 transition-all md:col-span-2">
-                <div className="flex items-center gap-4">
-                  <div className="p-3 bg-blue-500/20 rounded-xl">
-                    <User className="w-6 h-6 text-blue-400" />
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
+            {/* Main Info Columns */}
+            <div className="lg:col-span-8 space-y-10">
+              {/* Basic Info Section */}
+              <Section title={t('facilityInfo')} icon={<Building2 size={28} />} color="blue">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-y-10 gap-x-12">
+                  <InfoItem icon={<User size={22} />} label={t('customerNameLabel')} value={customer.customer_name} />
+                  <InfoItem icon={<Building2 size={22} />} label={t('facilityName')} value={customer.company_name} />
+                  <InfoItem icon={<FileText size={22} />} label={t('commercialNumber')} value={customer.commercial_number} />
+                  <InfoItem icon={<Receipt size={22} />} label={t('vatNumber')} value={customer.vat_number} />
+                  <InfoItem icon={<Hash size={22} />} label={t('unifiedNumber')} value={customer.unified_number} />
+                </div>
+              </Section>
+
+              {/* Address Section */}
+              <Section title={t('addressInfo')} icon={<MapPin size={28} />} color="purple">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                  <InfoItem icon={<Globe size={22} />} label={t('country')} value={customer.country} />
+                  <InfoItem icon={<Building size={22} />} label={t('city')} value={customer.city} />
+                  <InfoItem icon={<MapPinned size={22} />} label={t('district')} value={customer.district} />
+                  <InfoItem icon={<Route size={22} />} label={t('street')} value={customer.street_name} />
+                  <InfoItem icon={<Hash size={22} />} label={t('postalCode')} value={customer.postal_code} />
+                  <InfoItem icon={<MapPin size={22} />} label={t('shortAddress')} value={customer.short_address} />
+                </div>
+              </Section>
+            </div>
+
+            {/* Sidebar Columns */}
+            <div className="lg:col-span-4 space-y-10">
+              {/* Financial Info Card */}
+              <Section title={t('financialInfo')} icon={<Wallet size={28} />} color="orange">
+                <div className="space-y-8">
+                  <div className="bg-white/5 rounded-[2rem] p-6 border border-white/10">
+                    <p className="text-slate-500 text-xs font-black uppercase tracking-widest mb-3 flex items-center gap-2">
+                      <Wallet size={14} className="text-orange-400" />
+                      الحساب المالي المرتبط
+                    </p>
+                    <p className="text-xl font-black text-white">{customer.account_name || 'غير مربوط بحساب'}</p>
                   </div>
-                  <div>
-                    <p className="text-white/40 text-xs font-black uppercase tracking-widest">{t("customerNameLabel")}</p>
-                    <p className="text-xl font-black text-white">{customer.customer_name || t("notSpecified")}</p>
+                  <div className="bg-white/5 rounded-[2rem] p-6 border border-white/10">
+                    <p className="text-slate-500 text-xs font-black uppercase tracking-widest mb-3 flex items-center gap-2">
+                      <Calculator size={14} className="text-orange-400" />
+                      مركز التكلفة
+                    </p>
+                    <p className="text-xl font-black text-white">{customer.cost_center_name || 'غير محدد'}</p>
                   </div>
                 </div>
-              </div>
+              </Section>
 
-              <div className="bg-white/5 backdrop-blur-xl border border-white/10 p-6 rounded-[1.5rem] group hover:bg-white/10 transition-all">
-                <div className="flex items-center gap-4">
-                  <div className="p-3 bg-emerald-500/20 rounded-xl">
-                    <Building2 className="w-6 h-6 text-emerald-400" />
+              {/* Contact Info Card */}
+              <Section title={t('contactInfo')} icon={<Phone size={28} />} color="emerald">
+                <div className="space-y-6">
+                  <a href={customer.email ? `mailto:${customer.email}` : '#'} className="block group">
+                    <div className="flex items-center gap-4 p-4 rounded-2xl bg-white/5 border border-white/5 group-hover:bg-white/10 group-hover:border-emerald-500/30 transition-all">
+                      <div className="h-12 w-12 rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center border border-emerald-500/20">
+                        <Mail size={22} />
+                      </div>
+                      <div>
+                        <p className="text-slate-500 text-[10px] font-black uppercase">{t('email')}</p>
+                        <p className="text-white font-bold group-hover:text-emerald-400 transition-colors">{customer.email || '---'}</p>
+                      </div>
+                    </div>
+                  </a>
+                  <a href={customer.phone ? `tel:${customer.phone}` : '#'} className="block group">
+                    <div className="flex items-center gap-4 p-4 rounded-2xl bg-white/5 border border-white/5 group-hover:bg-white/10 group-hover:border-emerald-500/30 transition-all">
+                      <div className="h-12 w-12 rounded-xl bg-blue-500/10 text-blue-400 flex items-center justify-center border border-blue-500/20">
+                        <Phone size={22} />
+                      </div>
+                      <div>
+                        <p className="text-slate-500 text-[10px] font-black uppercase">{t('phone')}</p>
+                        <p className="text-white font-bold group-hover:text-blue-400 transition-colors">{customer.phone || '---'}</p>
+                      </div>
+                    </div>
+                  </a>
+                </div>
+              </Section>
+
+              {/* System Info Card */}
+              <div className="bg-white/5 backdrop-blur-xl rounded-[2.5rem] p-8 border border-white/10 space-y-6">
+                <div className="flex items-center justify-between">
+                   <div className="flex items-center gap-3">
+                     <div className={`w-3 h-3 rounded-full ${customer.is_active ? 'bg-emerald-500 animate-pulse' : 'bg-rose-500'}`} />
+                     <span className="text-white font-black">{customer.is_active ? t('activeStatus') : t('inactiveStatus')}</span>
+                   </div>
+                   <div className="text-slate-500 text-xs font-black bg-white/5 px-4 py-1.5 rounded-full border border-white/5">
+                     ID: #{customer.id}
+                   </div>
+                </div>
+                <div className="pt-4 border-t border-white/5 space-y-4">
+                  <div className="flex justify-between items-center text-sm">
+                    <span className="text-slate-500 font-bold">{t('createdAt')}</span>
+                    <span className="text-slate-200 font-black">
+                      {customer.created_at ? format(new Date(customer.created_at), 'yyyy-MM-dd') : '---'}
+                    </span>
                   </div>
-                  <div>
-                    <p className="text-white/40 text-xs font-black uppercase tracking-widest">{t("facilityName")}</p>
-                    <p className="text-lg font-black text-white truncate">{customer.company_name || t("notSpecified")}</p>
+                  <div className="flex justify-between items-center text-sm">
+                    <span className="text-slate-500 font-bold">{t('updatedAt')}</span>
+                    <span className="text-slate-200 font-black">
+                      {customer.updated_at && customer.updated_at !== '0000-00-00 00:00:00' 
+                        ? format(new Date(customer.updated_at), 'yyyy-MM-dd HH:mm') 
+                        : '---'}
+                    </span>
                   </div>
                 </div>
-              </div>
-
-              <div className="bg-white/5 backdrop-blur-xl border border-white/10 p-6 rounded-[1.5rem] group hover:bg-white/10 transition-all">
-                <div className="flex items-center gap-4">
-                  <div className={`p-3 rounded-xl ${customer.is_active ? "bg-emerald-500/20" : "bg-rose-500/20"}`}>
-                    {customer.is_active ? <CheckCircle className="w-6 h-6 text-emerald-400" /> : <XCircle className="w-6 h-6 text-rose-400" />}
-                  </div>
-                  <div>
-                    <p className="text-white/40 text-xs font-black uppercase tracking-widest">Status</p>
-                    <Badge className={`${customer.is_active ? "bg-emerald-500/20 text-emerald-300 border-emerald-500/30" : "bg-rose-500/20 text-rose-300 border-rose-500/30"} font-bold`}>
-                      {customer.is_active ? t("activeStatus") : t("inactiveStatus")}
-                    </Badge>
-                  </div>
-                </div>
+                
+                <button 
+                  onClick={handleDelete}
+                  disabled={deleteLoading}
+                  className="w-full mt-6 py-5 rounded-2xl bg-rose-500/10 text-rose-400 font-black text-lg border border-rose-500/20 hover:bg-rose-500 hover:text-white transition-all shadow-lg active:scale-95 flex items-center justify-center gap-3 disabled:opacity-50"
+                >
+                  {deleteLoading ? <Loader2 className="animate-spin" /> : <Trash2 size={24} />}
+                  <span>حذف ملف العميل</span>
+                </button>
               </div>
             </div>
           </div>
         </div>
-      </Card>
-
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Card className="border-none shadow-xl rounded-[2rem] overflow-hidden bg-white/90 backdrop-blur-xl">
-          <CardHeader className="border-b border-blue-100 bg-gradient-to-r from-blue-50 to-indigo-50">
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-blue-500 rounded-xl">
-                <Building2 className="w-5 h-5 text-white" />
-              </div>
-              <CardTitle className="text-lg font-bold text-blue-800">{t("facilityInfo")}</CardTitle>
-            </div>
-          </CardHeader>
-          <CardContent className="p-6 space-y-5">
-            <InfoRow icon={<User size={18} />} label={t("customerNameLabel")} value={customer.customer_name} />
-            <InfoRow icon={<Building2 size={18} />} label={t("facilityName")} value={customer.company_name} />
-            <InfoRow icon={<FileText size={18} />} label={t("commercialNumber")} value={customer.commercial_number} />
-            <InfoRow icon={<Receipt size={18} />} label={t("vatNumber")} value={customer.vat_number} />
-            <InfoRow icon={<Hash size={18} />} label={t("unifiedNumber")} value={customer.unified_number} notSpecifiedText={t("notSpecified")} />
-          </CardContent>
-        </Card>
-
-        <Card className="border-none shadow-xl rounded-[2rem] overflow-hidden bg-white/90 backdrop-blur-xl">
-          <CardHeader className="border-b border-emerald-100 bg-gradient-to-r from-emerald-50 to-teal-50">
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-emerald-500 rounded-xl">
-                <Phone className="w-5 h-5 text-white" />
-              </div>
-              <CardTitle className="text-lg font-bold text-emerald-800">{t("contactInfo")}</CardTitle>
-            </div>
-          </CardHeader>
-          <CardContent className="p-6 space-y-5">
-            <InfoRow 
-              icon={<Mail size={18} />} 
-              label={t("email")} 
-              value={customer.email}
-              isLink={customer.email ? `mailto:${customer.email}` : undefined}
-              notSpecifiedText={t("notSpecified")}
-            />
-            <InfoRow 
-              icon={<Phone size={18} />} 
-              label={t("phone")} 
-              value={customer.phone}
-              isLink={customer.phone ? `tel:${customer.phone}` : undefined}
-              notSpecifiedText={t("notSpecified")}
-            />
-          </CardContent>
-        </Card>
-
-        <Card className="border-none shadow-xl rounded-[2rem] overflow-hidden bg-white/90 backdrop-blur-xl">
-          <CardHeader className="border-b border-purple-100 bg-gradient-to-r from-purple-50 to-violet-50">
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-purple-500 rounded-xl">
-                <MapPin className="w-5 h-5 text-white" />
-              </div>
-              <CardTitle className="text-lg font-bold text-purple-800">{t("addressInfo")}</CardTitle>
-            </div>
-          </CardHeader>
-          <CardContent className="p-6 space-y-5">
-            <InfoRow icon={<Globe size={18} />} label={t("country")} value={customer.country} notSpecifiedText={t("notSpecified")} />
-            <InfoRow icon={<Building size={18} />} label={t("city")} value={customer.city} notSpecifiedText={t("notSpecified")} />
-            <InfoRow icon={<MapPinned size={18} />} label={t("district")} value={customer.district} notSpecifiedText={t("notSpecified")} />
-            <InfoRow icon={<Route size={18} />} label={t("street")} value={customer.street_name} notSpecifiedText={t("notSpecified")} />
-            <InfoRow icon={<Hash size={18} />} label={t("postalCode")} value={customer.postal_code} notSpecifiedText={t("notSpecified")} />
-            <InfoRow icon={<MapPin size={18} />} label={t("shortAddress")} value={customer.short_address} notSpecifiedText={t("notSpecified")} />
-          </CardContent>
-        </Card>
-
-        <Card className="border-none shadow-xl rounded-[2rem] overflow-hidden bg-white/90 backdrop-blur-xl">
-          <CardHeader className="border-b border-amber-100 bg-gradient-to-r from-amber-50 to-orange-50">
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-amber-500 rounded-xl">
-                <Wallet className="w-5 h-5 text-white" />
-              </div>
-              <CardTitle className="text-lg font-bold text-amber-800">{t("financialInfo")}</CardTitle>
-            </div>
-          </CardHeader>
-          <CardContent className="p-6 space-y-5">
-            <InfoRow icon={<Wallet size={18} />} label={t("accountCenter")} value={customer.account_name} notSpecifiedText={t("notSpecified")} />
-            <InfoRow icon={<Calculator size={18} />} label={t("costCenter")} value={customer.cost_center_name} notSpecifiedText={t("notSpecified")} />
-          </CardContent>
-        </Card>
-      </div>
-
-      <Card className="border-none shadow-xl rounded-[2rem] overflow-hidden bg-white/90 backdrop-blur-xl">
-        <CardHeader className="border-b border-slate-100 bg-gradient-to-r from-slate-50 to-gray-50">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-slate-500 rounded-xl">
-              <Clock className="w-5 h-5 text-white" />
-            </div>
-            <CardTitle className="text-lg font-bold text-slate-800">{t("systemInfo")}</CardTitle>
-          </div>
-        </CardHeader>
-        <CardContent className="p-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <InfoRow 
-              icon={<Calendar size={18} />} 
-              label={t("createdAt")} 
-              value={customer.created_at ? format(new Date(customer.created_at), 'yyyy-MM-dd HH:mm') : undefined}
-              notSpecifiedText={t("notSpecified")}
-            />
-            <InfoRow 
-              icon={<Clock size={18} />} 
-              label={t("updatedAt")} 
-              value={customer.updated_at && customer.updated_at !== '0000-00-00 00:00:00' 
-                ? format(new Date(customer.updated_at), 'yyyy-MM-dd HH:mm') 
-                : undefined
-              }
-              notSpecifiedText={t("notSpecified")}
-            />
-          </div>
-        </CardContent>
-      </Card>
-
-      <div className="flex flex-col md:flex-row items-center justify-center gap-4 py-8 print:hidden">
-        <Link href="/customers">
-          <Button 
-            variant="outline"
-            className="min-w-[180px] h-14 border-slate-200 bg-white text-slate-600 rounded-2xl font-black text-lg hover:bg-slate-50 transition-all"
-          >
-            {isRTL ? <ArrowRight className="ml-2 w-5 h-5" /> : <ArrowLeft className="mr-2 w-5 h-5" />}
-            {t("backBtn")}
-          </Button>
-        </Link>
-        
-        <Link href={`/customers/${customer.id}/edit`}>
-          <Button 
-            className="min-w-[180px] h-14 bg-gradient-to-r from-amber-500 to-amber-600 text-white rounded-2xl font-black text-lg shadow-xl shadow-amber-500/30 hover:shadow-amber-500/50 hover:-translate-y-1 transition-all"
-          >
-            <Edit className="w-5 h-5 ml-2" />
-            {t("editBtn")}
-          </Button>
-        </Link>
-        
-        <Button 
-          onClick={handleDelete}
-          disabled={deleteLoading}
-          className="min-w-[180px] h-14 bg-gradient-to-r from-rose-500 to-rose-600 text-white rounded-2xl font-black text-lg shadow-xl shadow-rose-500/30 hover:shadow-rose-500/50 hover:-translate-y-1 transition-all disabled:opacity-50 disabled:translate-y-0"
-        >
-          {deleteLoading ? (
-            <Loader2 className="w-5 h-5 ml-2 animate-spin" />
-          ) : (
-            <Trash2 className="w-5 h-5 ml-2" />
-          )}
-          {t("deleteBtn")}
-        </Button>
       </div>
     </div>
   );
 }
 
-function InfoRow({ 
-  icon, 
-  label, 
-  value, 
-  isLink,
-  notSpecifiedText = "غير محدد"
-}: { 
+function Section({ title, icon, color, children }: { 
+  title: string; 
   icon: React.ReactNode; 
-  label: string; 
-  value?: string | null; 
-  isLink?: string;
-  notSpecifiedText?: string;
+  color: "blue" | "emerald" | "purple" | "orange";
+  children: React.ReactNode;
+}) {
+  const colors = {
+    blue: "from-blue-600 to-blue-400",
+    emerald: "from-emerald-600 to-emerald-400",
+    purple: "from-purple-600 to-purple-400",
+    orange: "from-orange-600 to-orange-400"
+  };
+
+  return (
+    <motion.div 
+      initial={{ opacity: 0, y: 30 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+      className="bg-white/5 backdrop-blur-3xl rounded-[3rem] border border-white/10 shadow-2xl overflow-hidden group hover:border-white/20 transition-all"
+    >
+      <div className={`bg-gradient-to-r ${colors[color]} px-10 py-7 flex items-center gap-6 text-white border-b border-white/10`}>
+        <div className="p-3 bg-white/20 rounded-2xl backdrop-blur-xl border border-white/20 relative z-10 group-hover:scale-110 transition-transform">
+          {icon}
+        </div>
+        <h3 className="text-2xl font-black tracking-tight">{title}</h3>
+      </div>
+      <div className="p-10 md:p-12">
+        {children}
+      </div>
+    </motion.div>
+  );
+}
+
+function InfoItem({ icon, label, value }: {
+  icon: React.ReactNode;
+  label: string;
+  value?: string | null;
 }) {
   return (
-    <div className="flex items-start gap-4 py-3 border-b border-slate-100 last:border-0">
-      <div className="h-10 w-10 rounded-xl bg-slate-100 flex items-center justify-center text-slate-500 flex-shrink-0">
-        {icon}
+    <div className="space-y-2 group">
+      <div className="flex items-center gap-2 text-slate-500 text-xs font-black uppercase tracking-widest">
+        <span className="text-white/20 group-hover:text-white/40 transition-colors">{icon}</span>
+        {label}
       </div>
-      <div className="flex-1 min-w-0">
-        <p className="text-xs font-black text-slate-400 uppercase tracking-widest mb-1">{label}</p>
-        {value ? (
-          isLink ? (
-            <a href={isLink} className="text-base font-bold text-blue-600 hover:underline">{value}</a>
-          ) : (
-            <p className="text-base font-bold text-slate-800">{value}</p>
-          )
-        ) : (
-          <span className="inline-block text-sm text-slate-400 bg-slate-50 px-3 py-1 rounded-lg font-medium">{notSpecifiedText}</span>
-        )}
+      <div className="text-lg font-black text-white bg-white/5 px-6 py-4 rounded-2xl border border-white/5 group-hover:bg-white/10 group-hover:border-white/10 transition-all">
+        {value || '---'}
       </div>
     </div>
   );
