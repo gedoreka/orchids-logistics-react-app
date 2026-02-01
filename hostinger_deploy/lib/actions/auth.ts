@@ -75,10 +75,10 @@ export async function registerAction(formData: FormData): Promise<AuthResponse> 
     const companyId = companyResult.insertId;
 
     const hashedPassword = await bcrypt.hash(password, 10);
-    await execute(
-      "INSERT INTO users (name, email, password, role, company_id, is_activated, created_at) VALUES (?, ?, ?, 'admin', ?, 0, NOW())",
-      [name, user_email, hashedPassword, companyId]
-    );
+      await execute(
+        "INSERT INTO users (name, email, password, role, company_id, is_activated, created_at) VALUES (?, ?, ?, 'user', ?, 0, NOW())",
+        [name, user_email, hashedPassword, companyId]
+      );
 
     const features = ['dashboard', 'drivers', 'vehicles', 'tracking', 'reports', 'settings'];
     for (const feature of features) {

@@ -174,7 +174,7 @@ export function DashboardClient({
   };
 
   return (
-    <div dir={isRTL ? 'rtl' : 'ltr'} className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100/50 dark:from-slate-900 dark:via-slate-900 dark:to-slate-950 p-2 md:p-4 transition-colors duration-300">
+    <div dir={isRTL ? 'rtl' : 'ltr'} className="min-h-full bg-transparent p-2 md:p-4 transition-colors duration-300">
       <motion.div 
         variants={containerVariants}
         initial="hidden"

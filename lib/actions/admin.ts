@@ -36,7 +36,7 @@ export async function approveCompany(id: number) {
     );
     
     await execute(
-      "UPDATE users SET role = 'admin', is_active = 1, is_activated = 1, activation_date = NOW() WHERE company_id = ?",
+      "UPDATE users SET role = 'user', is_active = 1, is_activated = 1, activation_date = NOW() WHERE company_id = ?",
       [id]
     );
 
