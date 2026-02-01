@@ -28,6 +28,7 @@ import {
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { locationLibrary } from "@/lib/location-data";
+import { HierarchicalSearchableSelect } from "@/components/ui/hierarchical-searchable-select";
 import { LuxurySearchableSelect } from "@/components/ui/luxury-searchable-select";
 
 interface Account {
@@ -42,6 +43,8 @@ interface CostCenter {
   id: number;
   center_code: string;
   center_name: string;
+  center_type?: 'main' | 'sub';
+  parent_id?: number | null;
 }
 
 interface NewCustomerClientProps {
@@ -401,27 +404,39 @@ export function NewCustomerClient({ accounts, costCenters, companyId }: NewCusto
               </div>
             </Section>
 
-            {/* Financial Info */}
-            <Section title="الإعدادات المالية (شجرة الحسابات)" icon={<Wallet size={28} />} color="orange">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <LuxurySearchableSelect
-                  label="شجرة الحسابات"
-                  icon={<Wallet size={20} />}
-                  value={formData.account_id}
-                  onChange={(val) => handleSelectChange("account_id", val)}
-                  options={accountOptions}
-                  placeholder="ابحث بالاسم أو رقم الحساب"
-                />
-                <LuxurySearchableSelect
-                  label="مركز التكلفة"
-                  icon={<Calculator size={20} />}
-                  value={formData.cost_center_id}
-                  onChange={(val) => handleSelectChange("cost_center_id", val)}
-                  options={costCenterOptions}
-                  placeholder="ابحث بالاسم أو كود المركز"
-                />
-              </div>
-            </Section>
+              {/* Financial Info */}
+              <Section title="الإعدادات المالية (شجرة الحسابات)" icon={<Wallet size={28} />} color="orange">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                  <HierarchicalSearchableSelect
+                    label="شجرة الحسابات"
+                    icon={<Wallet size={20} />}
+                    value={formData.account_id}
+                    onSelect={(val) => handleSelectChange("account_id", val)}
+                    items={accounts.map(a => ({
+                      id: a.id,
+                      code: a.account_code,
+                      name: a.account_name,
+                      type: a.account_type as any,
+                      parent_id: a.parent_id
+                    }))}
+                    placeholder="ابحث بالاسم أو رقم الحساب"
+                  />
+                  <HierarchicalSearchableSelect
+                    label="مركز التكلفة"
+                    icon={<Calculator size={20} />}
+                    value={formData.cost_center_id}
+                    onSelect={(val) => handleSelectChange("cost_center_id", val)}
+                    items={costCenters.map(c => ({
+                      id: c.id,
+                      code: c.center_code,
+                      name: c.center_name,
+                      type: c.center_type as any,
+                      parent_id: c.parent_id
+                    }))}
+                    placeholder="ابحث بالاسم أو كود المركز"
+                  />
+                </div>
+              </Section>
 
             {/* Status & Submit */}
             <div className="flex flex-col lg:flex-row gap-10 items-stretch pb-20">

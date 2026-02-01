@@ -42,7 +42,7 @@ export default async function NewCustomerPage() {
   );
 
   const costCenters = await query<CostCenter>(
-    "SELECT id, center_code, center_name FROM cost_centers WHERE company_id = ? ORDER BY center_code",
+    "SELECT id, center_code, center_name, parent_id, center_type FROM cost_centers WHERE company_id = ? ORDER BY center_code",
     [companyId]
   );
 
