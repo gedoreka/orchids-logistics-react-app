@@ -149,65 +149,69 @@ export function ReceiptVoucherViewClient({ voucher, company, companyId }: Receip
     }
   };
 
-  const handleSendEmail = async () => {
-    if (!emailAddress) return;
-    
-    setEmailLoading(true);
-    showNotification("loading", isRtl ? "جاري الإرسال" : "Sending", isRtl ? "جاري إعداد السند وإرساله..." : "Preparing and sending voucher...");
-    
-    try {
-      // Generate PDF base64
-      const element = printRef.current;
-      if (!element) throw new Error("Print element not found");
+    const handleSendEmail = async () => {
+      if (!emailAddress) return;
       
-      const html2pdf = (await import('html2pdf.js')).default;
+      setEmailLoading(true);
+      showNotification("loading", isRtl ? "جاري الإرسال" : "Sending", isRtl ? "جاري إعداد السند وإرساله..." : "Preparing and sending voucher...");
       
-      // Hide stamps for a cleaner look if preferred, or keep them
-      // const stamps = element.querySelector('.print-stamps') as HTMLElement;
-      // if (stamps) stamps.style.display = 'none';
+      try {
+        // Generate PDF base64
+        const element = printRef.current;
+        if (!element) throw new Error("Print element not found");
+        
+        // Sanitize element to replace lab()/oklab()/color-mix() colors
+        const sanitizer = await import('@/lib/html2canvas-sanitizer');
+        const sanitizedElement = await sanitizer.sanitizeForHtml2Canvas(element);
+        
+        // Append sanitized clone to body temporarily for html2pdf
+        sanitizedElement.style.position = 'absolute';
+        sanitizedElement.style.left = '-9999px';
+        sanitizedElement.style.top = '0';
+        document.body.appendChild(sanitizedElement);
+        
+        const html2pdf = (await import('html2pdf.js')).default;
 
-      const opt = {
-        margin: 0,
-        filename: `Receipt-Voucher-${voucher.receipt_number}.pdf`,
-        image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: { scale: 2, useCORS: true, letterRendering: true, allowTaint: true, onclone: (doc: Document) => {
-          const style = doc.createElement('style');
-          style.textContent = `* { background-color: white !important; color: black !important; } svg { opacity: 1 !important; }`;
-          doc.head.appendChild(style);
-        }},
-        jsPDF: { unit: 'mm', format: 'a5', orientation: 'portrait' }
-      };
+        const opt = {
+          margin: 0,
+          filename: `Receipt-Voucher-${voucher.receipt_number}.pdf`,
+          image: { type: 'jpeg', quality: 0.98 },
+          html2canvas: { scale: 2, useCORS: true, letterRendering: true, allowTaint: true },
+          jsPDF: { unit: 'mm', format: 'a5', orientation: 'portrait' }
+        };
 
-      // Get PDF as base64
-      const pdfBase64 = await html2pdf().set(opt).from(element).outputPdf('datauristring');
-      
-      // if (stamps) stamps.style.display = 'grid';
+        // Get PDF as base64 from sanitized element
+        const pdfBase64 = await html2pdf().set(opt).from(sanitizedElement).outputPdf('datauristring');
+        
+        // Remove sanitized clone from DOM
+        document.body.removeChild(sanitizedElement);
 
-      const res = await fetch(`/api/receipt-vouchers/${voucher.id}/send-email`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          email: emailAddress,
-          company_id: companyId,
-          pdfBase64: pdfBase64,
-          fileName: `Receipt-Voucher-${voucher.receipt_number}.pdf`
-        })
-      });
-      
-      if (res.ok) {
-        showNotification("success", isRtl ? "تم الإرسال" : "Sent Successfully", isRtl ? "تم إرسال السند بنجاح كملف PDF" : "Voucher sent successfully as PDF");
-        setShowEmailModal(false);
-      } else {
-        const data = await res.json();
-        showNotification("error", isRtl ? "فشل الإرسال" : "Send Failed", data.error || (isRtl ? "فشل إرسال البريد" : "Failed to send email"));
+        const res = await fetch(`/api/receipt-vouchers/${voucher.id}/send-email`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            email: emailAddress,
+            company_id: companyId,
+            pdfBase64: pdfBase64,
+            fileName: `Receipt-Voucher-${voucher.receipt_number}.pdf`
+          })
+        });
+        
+        if (res.ok) {
+          showNotification("success", isRtl ? "تم الإرسال" : "Sent Successfully", isRtl ? "تم إرسال السند بنجاح كملف PDF" : "Voucher sent successfully as PDF");
+          setShowEmailModal(false);
+          setEmailAddress("");
+        } else {
+          const data = await res.json();
+          showNotification("error", isRtl ? "فشل الإرسال" : "Send Failed", data.error || (isRtl ? "فشل إرسال البريد" : "Failed to send email"));
+        }
+      } catch (error) {
+        console.error("Email error:", error);
+        showNotification("error", isRtl ? "خطأ" : "Error", isRtl ? "حدث خطأ أثناء إعداد أو إرسال البريد" : "An error occurred during preparation or sending");
+      } finally {
+        setEmailLoading(false);
       }
-    } catch (error) {
-      console.error("Email error:", error);
-      showNotification("error", isRtl ? "خطأ" : "Error", isRtl ? "حدث خطأ أثناء إعداد أو إرسال البريد" : "An error occurred during preparation or sending");
-    } finally {
-      setEmailLoading(false);
-    }
-  };
+    };
 
   const handlePrint = useReactToPrint({
     contentRef: printRef,
