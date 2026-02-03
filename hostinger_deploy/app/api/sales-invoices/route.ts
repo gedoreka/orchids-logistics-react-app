@@ -147,7 +147,7 @@ export async function POST(request: NextRequest) {
     const result = await execute(`
       INSERT INTO sales_invoices (
         invoice_number, invoice_month, client_id, client_name, client_vat, client_address,
-        issue_date, due_date, total_amount, vat_total, discount, status, company_id, created_by,
+        issue_date, due_date, total_amount, tax_amount, discount, status, company_id, created_by,
         adjustment_title, adjustment_type, adjustment_amount, adjustment_vat, adjustment_total_with_vat
       ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `, [
