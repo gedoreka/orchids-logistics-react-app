@@ -170,7 +170,11 @@ export function ReceiptVoucherViewClient({ voucher, company, companyId }: Receip
         margin: 0,
         filename: `Receipt-Voucher-${voucher.receipt_number}.pdf`,
         image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: { scale: 2, useCORS: true, letterRendering: true },
+        html2canvas: { scale: 2, useCORS: true, letterRendering: true, allowTaint: true, onclone: (doc: Document) => {
+          const style = doc.createElement('style');
+          style.textContent = `* { background-color: white !important; color: black !important; } svg { opacity: 1 !important; }`;
+          doc.head.appendChild(style);
+        }},
         jsPDF: { unit: 'mm', format: 'a5', orientation: 'portrait' }
       };
 
@@ -232,7 +236,7 @@ export function ReceiptVoucherViewClient({ voucher, company, companyId }: Receip
     <div className="h-full flex flex-col bg-transparent" dir={isRtl ? "rtl" : "ltr"}>
       <AnimatePresence>
         {notification.show && (
-          <>
+          <React.Fragment key="notification">
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -277,11 +281,11 @@ export function ReceiptVoucherViewClient({ voucher, company, companyId }: Receip
                 </div>
               </div>
             </motion.div>
-          </>
+          </React.Fragment>
         )}
 
         {showEmailModal && (
-          <>
+          <React.Fragment key="emailModal">
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -314,7 +318,7 @@ export function ReceiptVoucherViewClient({ voucher, company, companyId }: Receip
                       value={emailAddress}
                       onChange={(e) => setEmailAddress(e.target.value)}
                       placeholder="example@email.com"
-                      className="w-full px-6 py-4 rounded-2xl bg-gray-50 border border-gray-100 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 outline-none transition-all font-bold"
+                      className="w-full px-6 py-4 rounded-2xl bg-white text-black placeholder:text-gray-400 border border-gray-100 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 outline-none transition-all font-bold"
                     />
                   </div>
                   
@@ -338,7 +342,7 @@ export function ReceiptVoucherViewClient({ voucher, company, companyId }: Receip
                 </div>
               </div>
             </motion.div>
-          </>
+          </React.Fragment>
         )}
       </AnimatePresence>
 
@@ -382,21 +386,24 @@ export function ReceiptVoucherViewClient({ voucher, company, companyId }: Receip
             onClick={async () => {
               const element = printRef.current;
               if (!element) return;
-              
-              const html2pdf = (await import('html2pdf.js')).default;
-              
+
               const opt = {
                 margin: 0,
                 filename: `${isRtl ? "سند-قبض" : "receipt-voucher"}-${voucher.receipt_number}.pdf`,
                 image: { type: 'jpeg', quality: 0.98 },
-                html2canvas: { scale: 2, useCORS: true, letterRendering: true },
+                html2canvas: { scale: 2, useCORS: true, letterRendering: true, allowTaint: true },
                 jsPDF: { unit: 'mm', format: 'a5', orientation: 'portrait' }
               };
-              
+
               const stamps = element.querySelector('.print-stamps') as HTMLElement;
               if (stamps) stamps.style.display = 'none';
-              
-              html2pdf().set(opt).from(element).save().then(() => {
+
+              const sanitizer = await import('@/lib/html2canvas-sanitizer');
+              const clonedElement = await sanitizer.sanitizeForHtml2Canvas(element);
+
+              const html2pdf = (await import('html2pdf.js')).default;
+
+              html2pdf().set(opt).from(clonedElement).save().then(() => {
                 if (stamps) stamps.style.display = 'grid';
               });
             }}

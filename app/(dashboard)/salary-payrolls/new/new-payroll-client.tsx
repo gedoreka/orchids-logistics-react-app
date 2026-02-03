@@ -798,7 +798,7 @@ export function NewPayrollClient({ packages, debts, companyId, userName }: NewPa
                       type="month"
                       value={payrollMonth}
                       onChange={(e) => setPayrollMonth(e.target.value)}
-                      className="w-full px-3 py-2.5 rounded-xl border border-gray-200 focus:border-blue-500 focus:ring-1 focus:ring-blue-500/20 outline-none text-sm bg-white"
+                      className="w-full px-3 py-2.5 rounded-xl border border-gray-200 focus:border-blue-500 focus:ring-1 focus:ring-blue-500/20 outline-none text-sm bg-white text-gray-700"
                     />
                   </div>
                   <div>
@@ -809,7 +809,7 @@ export function NewPayrollClient({ packages, debts, companyId, userName }: NewPa
                     <select
                       value={selectedPackageId}
                       onChange={(e) => setSelectedPackageId(e.target.value)}
-                      className="w-full px-3 py-2.5 rounded-xl border border-gray-200 focus:border-blue-500 focus:ring-1 focus:ring-blue-500/20 outline-none text-sm bg-white"
+                      className="w-full px-3 py-2.5 rounded-xl border border-gray-200 focus:border-blue-500 focus:ring-1 focus:ring-blue-500/20 outline-none text-sm bg-white text-gray-700"
                     >
                       <option value="">{t("newPayroll.selectPackagePlaceholder")}</option>
                       {packages.map(pkg => (
@@ -1132,7 +1132,7 @@ export function NewPayrollClient({ packages, debts, companyId, userName }: NewPa
                                     <select
                                       value={row.payment_method}
                                       onChange={(e) => handleRowChange(realIndex, 'payment_method', e.target.value)}
-                                      className="w-full min-w-[100px] px-2 py-1 rounded-lg border border-gray-200 text-xs focus:border-blue-500 outline-none bg-white"
+                                      className="w-full min-w-[100px] px-2 py-1 rounded-lg border border-gray-200 text-xs focus:border-blue-500 outline-none bg-white text-gray-700"
                                     >
                                       <option value="غير محدد">{t("newPayroll.paymentMethods.notSpecified")}</option>
                                       <option value="مدد">{t("newPayroll.paymentMethods.mudad")}</option>

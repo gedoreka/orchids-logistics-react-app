@@ -25,7 +25,9 @@ import {
   Stamp,
   Signature,
   QrCode,
-  Info
+  Info,
+  Mail,
+  Send
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -157,6 +159,9 @@ export function QuotationViewClient({ quotation, company, companyId }: Quotation
   const currency = t("common.sar");
   const printRef = useRef<HTMLDivElement>(null);
   const [deleteLoading, setDeleteLoading] = useState(false);
+  const [emailLoading, setEmailLoading] = useState(false);
+  const [showEmailModal, setShowEmailModal] = useState(false);
+  const [emailAddress, setEmailAddress] = useState("");
   const [isMounted, setIsMounted] = useState(false);
   const [notification, setNotification] = useState<NotificationState>({
     show: false,
@@ -215,6 +220,37 @@ export function QuotationViewClient({ quotation, company, companyId }: Quotation
     }
   };
 
+  const handleSendEmail = async () => {
+    if (!emailAddress) return;
+    
+    setEmailLoading(true);
+    showNotification("loading", isRtl ? "جاري الإرسال" : "Sending", isRtl ? "جاري إرسال العرض عبر البريد..." : "Sending quotation via email...");
+    
+    try {
+      const res = await fetch(`/api/quotations/${quotation.id}/send-email`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: emailAddress,
+          company_id: companyId
+        })
+      });
+      
+      if (res.ok) {
+        showNotification("success", isRtl ? "تم الإرسال" : "Sent Successfully", isRtl ? "تم إرسال العرض بنجاح" : "Quotation sent successfully");
+        setShowEmailModal(false);
+        setEmailAddress("");
+      } else {
+        const data = await res.json();
+        showNotification("error", isRtl ? "فشل الإرسال" : "Send Failed", data.error || (isRtl ? "فشل إرسال البريد" : "Failed to send email"));
+      }
+    } catch {
+      showNotification("error", isRtl ? "خطأ" : "Error", isRtl ? "حدث خطأ أثناء الإرسال" : "An error occurred during sending");
+    } finally {
+      setEmailLoading(false);
+    }
+  };
+
   const handlePrint = useReactToPrint({
     contentRef: printRef,
     documentTitle: `${t("view.title", { number: quotation.quotation_number })}`,
@@ -231,6 +267,67 @@ export function QuotationViewClient({ quotation, company, companyId }: Quotation
   return (
     <div className="h-full flex flex-col bg-transparent" dir={isRtl ? "rtl" : "ltr"}>
       <AnimatePresence>
+        {showEmailModal && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 bg-black/60 backdrop-blur-md z-[100]"
+              onClick={() => !emailLoading && setShowEmailModal(false)}
+            />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 20 }}
+              className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[101] w-full max-w-lg p-6"
+            >
+              <div className="bg-white rounded-[2.5rem] p-10 shadow-2xl border border-gray-100">
+                <div className="flex items-center gap-4 mb-8">
+                  <div className="h-16 w-16 rounded-2xl bg-amber-500/10 text-amber-500 flex items-center justify-center">
+                    <Mail size={32} />
+                  </div>
+                  <div>
+                    <h3 className="text-2xl font-black text-gray-900">{isRtl ? "إرسال عبر البريد" : "Send via Email"}</h3>
+                    <p className="text-gray-500 text-sm">{isRtl ? "أدخل البريد الإلكتروني" : "Enter email address"}</p>
+                  </div>
+                </div>
+                
+                <div className="space-y-6">
+                  <div className="space-y-2">
+                    <label className="text-xs font-black text-gray-400 uppercase tracking-widest px-2">{isRtl ? "البريد الإلكتروني" : "Email Address"}</label>
+                    <input 
+                      type="email"
+                      value={emailAddress}
+                      onChange={(e) => setEmailAddress(e.target.value)}
+                      placeholder="example@email.com"
+                      className="w-full px-6 py-4 rounded-2xl bg-white text-black placeholder:text-gray-400 border border-gray-100 focus:border-amber-500 focus:ring-4 focus:ring-amber-500/10 outline-none transition-all font-bold"
+                    />
+                  </div>
+                  
+                  <div className="flex gap-4 pt-4">
+                    <button
+                      onClick={() => setShowEmailModal(false)}
+                      disabled={emailLoading}
+                      className="flex-1 py-4 rounded-2xl bg-gray-100 text-gray-500 font-black hover:bg-gray-200 transition-all disabled:opacity-50"
+                    >
+                      {tCommon("cancel")}
+                    </button>
+                    <button
+                      onClick={handleSendEmail}
+                      disabled={emailLoading || !emailAddress}
+                      className="flex-1 py-4 rounded-2xl bg-amber-600 text-white font-black hover:bg-amber-700 transition-all shadow-xl shadow-amber-200 disabled:opacity-50 flex items-center justify-center gap-2"
+                    >
+                      {emailLoading ? <Loader2 size={20} className="animate-spin" /> : <Send size={20} />}
+                      <span>{isRtl ? "إرسال الآن" : "Send Now"}</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          </>
+        )}
+
         {notification.show && (
           <>
             <motion.div
@@ -304,6 +401,13 @@ export function QuotationViewClient({ quotation, company, companyId }: Quotation
               <span>{t("table.edit")}</span>
             </button>
           </Link>
+          <button 
+            onClick={() => setShowEmailModal(true)}
+            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white text-amber-600 font-bold text-xs md:text-sm hover:bg-amber-50 transition-all border border-amber-100 shadow-sm"
+          >
+            <Mail size={16} />
+            <span>{isRtl ? "إرسال بريد" : "Email"}</span>
+          </button>
             <button 
               onClick={() => handlePrint()}
               className="flex items-center gap-2 px-4 py-2 rounded-xl bg-blue-500 text-white font-bold text-xs md:text-sm hover:bg-blue-600 transition-all shadow-md"
@@ -314,27 +418,29 @@ export function QuotationViewClient({ quotation, company, companyId }: Quotation
 
             <button 
               onClick={async () => {
-                const element = printRef.current;
-                if (!element) return;
-                
-                // Dynamically import html2pdf.js
-                const html2pdf = (await import('html2pdf.js')).default;
-                
-                const opt = {
-                  margin: 0,
-                  filename: `${isRtl ? "عرض-سعر" : "quotation"}-${quotation.quotation_number}.pdf`,
-                  image: { type: 'jpeg', quality: 0.98 },
-                  html2canvas: { scale: 2, useCORS: true, letterRendering: true },
-                  jsPDF: { unit: 'mm', format: 'a5', orientation: 'portrait' }
-                };
-                
-                const stamps = element.querySelector('.print-stamps') as HTMLElement;
-                if (stamps) stamps.style.display = 'none';
-                
-                html2pdf().set(opt).from(element).save().then(() => {
-                  if (stamps) stamps.style.display = 'grid';
-                });
-              }}
+                  const element = printRef.current;
+                  if (!element) return;
+
+                  const opt = {
+                    margin: 0,
+                    filename: `${isRtl ? "عرض-سعر" : "quotation"}-${quotation.quotation_number}.pdf`,
+                    image: { type: 'jpeg', quality: 0.98 },
+                    html2canvas: { scale: 2, useCORS: true, letterRendering: true },
+                    jsPDF: { unit: 'mm', format: 'a5', orientation: 'portrait' }
+                  };
+
+                  const stamps = element.querySelector('.print-stamps') as HTMLElement;
+                  if (stamps) stamps.style.display = 'none';
+
+                  const sanitizer = await import('@/lib/html2canvas-sanitizer');
+                  const clonedElement = await sanitizer.sanitizeForHtml2Canvas(element);
+
+                  const html2pdf = (await import('html2pdf.js')).default;
+
+                  html2pdf().set(opt).from(clonedElement).save().then(() => {
+                    if (stamps) stamps.style.display = 'grid';
+                  });
+                }}
               className="flex items-center gap-2 px-4 py-2 rounded-xl bg-emerald-500 text-white font-bold text-xs md:text-sm hover:bg-emerald-600 transition-all shadow-md"
             >
               <FileText size={16} />

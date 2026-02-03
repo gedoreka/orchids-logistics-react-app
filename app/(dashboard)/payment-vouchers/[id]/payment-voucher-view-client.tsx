@@ -314,7 +314,7 @@ export function PaymentVoucherViewClient({ voucher, company, companyId }: Paymen
                       value={emailAddress}
                       onChange={(e) => setEmailAddress(e.target.value)}
                       placeholder="example@email.com"
-                      className="w-full px-6 py-4 rounded-2xl bg-gray-50 border border-gray-100 focus:border-rose-500 focus:ring-4 focus:ring-rose-500/10 outline-none transition-all font-bold"
+                      className="w-full px-6 py-4 rounded-2xl bg-white text-black placeholder:text-gray-400 border border-gray-100 focus:border-rose-500 focus:ring-4 focus:ring-rose-500/10 outline-none transition-all font-bold"
                     />
                   </div>
                   
@@ -382,9 +382,7 @@ export function PaymentVoucherViewClient({ voucher, company, companyId }: Paymen
             onClick={async () => {
               const element = printRef.current;
               if (!element) return;
-              
-              const html2pdf = (await import('html2pdf.js')).default;
-              
+
               const opt = {
                 margin: 0,
                 filename: `${isRtl ? "سند-صرف" : "payment-voucher"}-${voucher.voucher_number}.pdf`,
@@ -392,11 +390,16 @@ export function PaymentVoucherViewClient({ voucher, company, companyId }: Paymen
                 html2canvas: { scale: 2, useCORS: true, letterRendering: true },
                 jsPDF: { unit: 'mm', format: 'a5', orientation: 'portrait' }
               };
-              
+
               const stamps = element.querySelector('.print-stamps') as HTMLElement;
               if (stamps) stamps.style.display = 'none';
-              
-              html2pdf().set(opt).from(element).save().then(() => {
+
+              const sanitizer = await import('@/lib/html2canvas-sanitizer');
+              const clonedElement = await sanitizer.sanitizeForHtml2Canvas(element);
+
+              const html2pdf = (await import('html2pdf.js')).default;
+
+              html2pdf().set(opt).from(clonedElement).save().then(() => {
                 if (stamps) stamps.style.display = 'grid';
               });
             }}

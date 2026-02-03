@@ -299,7 +299,7 @@ export function PaymentVoucherViewClient({ voucher, company, companyId }: Paymen
                       value={emailAddress}
                       onChange={(e) => setEmailAddress(e.target.value)}
                       placeholder="example@email.com"
-                      className="w-full px-6 py-4 rounded-2xl bg-gray-50 border border-gray-100 focus:border-rose-500 focus:ring-4 focus:ring-rose-500/10 outline-none transition-all font-bold"
+                      className="w-full px-6 py-4 rounded-2xl bg-white text-black placeholder:text-gray-400 border border-gray-100 focus:border-rose-500 focus:ring-4 focus:ring-rose-500/10 outline-none transition-all font-bold"
                     />
                   </div>
                   

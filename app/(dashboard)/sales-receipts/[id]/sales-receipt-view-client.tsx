@@ -210,7 +210,7 @@ export function SalesReceiptViewClient({ receipt, company, companyId }: SalesRec
     <div className="h-full flex flex-col bg-transparent" dir={isRtl ? "rtl" : "ltr"}>
       <AnimatePresence>
         {notification.show && (
-          <>
+          <React.Fragment key="notification">
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -255,11 +255,11 @@ export function SalesReceiptViewClient({ receipt, company, companyId }: SalesRec
                 </div>
               </div>
             </motion.div>
-          </>
+          </React.Fragment>
         )}
 
         {showEmailModal && (
-          <>
+          <React.Fragment key="emailModal">
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -292,7 +292,7 @@ export function SalesReceiptViewClient({ receipt, company, companyId }: SalesRec
                       value={emailAddress}
                       onChange={(e) => setEmailAddress(e.target.value)}
                       placeholder="customer@example.com"
-                      className="w-full px-6 py-4 rounded-2xl bg-gray-50 border border-gray-100 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 outline-none transition-all font-bold"
+                      className="w-full px-6 py-4 rounded-2xl bg-white text-black placeholder:text-gray-400 border border-gray-100 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 outline-none transition-all font-bold"
                     />
                   </div>
                   
@@ -316,7 +316,7 @@ export function SalesReceiptViewClient({ receipt, company, companyId }: SalesRec
                 </div>
               </div>
             </motion.div>
-          </>
+          </React.Fragment>
         )}
       </AnimatePresence>
 
@@ -358,29 +358,29 @@ export function SalesReceiptViewClient({ receipt, company, companyId }: SalesRec
 
             <button 
               onClick={async () => {
-                const element = printRef.current;
-                if (!element) return;
-                
-                // Dynamically import html2pdf.js
-                const html2pdf = (await import('html2pdf.js')).default;
-                
-                const opt = {
-                  margin: 0,
-                  filename: `${isRtl ? "إيصال-مبيعات" : "sales-receipt"}-${receipt.receipt_number}.pdf`,
-                  image: { type: 'jpeg', quality: 0.98 },
-                  html2canvas: { scale: 2, useCORS: true, letterRendering: true },
-                  jsPDF: { unit: 'mm', format: 'a5', orientation: 'portrait' }
-                };
-                
-                // Temporary remove stamps for PDF if needed, but user said "تظهر بالكيو ار الضريبي وكافة المعلومات"
-                // User also said "لا تظهر الختم الرسمي والتوقيع المعتمد لا مشكله" for printing, let's assume same for PDF
-                const stamps = element.querySelector('.print-stamps') as HTMLElement;
-                if (stamps) stamps.style.display = 'none';
-                
-                html2pdf().set(opt).from(element).save().then(() => {
-                  if (stamps) stamps.style.display = 'grid';
-                });
-              }}
+                  const element = printRef.current;
+                  if (!element) return;
+
+                  const opt = {
+                    margin: 0,
+                    filename: `${isRtl ? "إيصال-مبيعات" : "sales-receipt"}-${receipt.receipt_number}.pdf`,
+                    image: { type: 'jpeg', quality: 0.98 },
+                    html2canvas: { scale: 2, useCORS: true, letterRendering: true },
+                    jsPDF: { unit: 'mm', format: 'a5', orientation: 'portrait' }
+                  };
+
+                  const stamps = element.querySelector('.print-stamps') as HTMLElement;
+                  if (stamps) stamps.style.display = 'none';
+
+                  const sanitizer = await import('@/lib/html2canvas-sanitizer');
+                  const clonedElement = await sanitizer.sanitizeForHtml2Canvas(element);
+
+                  const html2pdf = (await import('html2pdf.js')).default;
+
+                  html2pdf().set(opt).from(clonedElement).save().then(() => {
+                    if (stamps) stamps.style.display = 'grid';
+                  });
+                }}
               className="flex items-center gap-2 px-4 py-2 rounded-xl bg-emerald-500 text-white font-bold text-xs md:text-sm hover:bg-emerald-600 transition-all shadow-md"
             >
               <FileText size={16} />

@@ -2094,6 +2094,7 @@
         "refreshData": "تحديث البيانات",
         "searchPlaceholder": "البحث برقم السند، البيان أو النوع...",
         "exportData": "تصدير البيانات",
+        "cancelForm": "إلغاء الإضافة",
         "form": {
           "addTitle": "إنشاء سند دخل جديد",
           "fillData": "يرجى تعبئة كافة البيانات المطلوبة لإصدار السند",
@@ -2198,6 +2199,10 @@
         "confirmed": "معتمد",
         "draft": "مسودة"
       },
+      "notifications": {
+        "deleting": "حذف المسير",
+        "deletingMsg": "جاري حذف المسير..."
+      },
       "actions": {
         "view": "عرض",
         "edit": "تعديل",
@@ -2283,6 +2288,8 @@
           "notifications": {
             "saveSuccess": "تم تحديث المسير بنجاح",
             "saveSuccessMsg": "تم حفظ التعديلات وتحديث بيانات الرواتب في النظام.",
+            "deleting": "حذف المسير",
+            "deletingMsg": "جاري حذف المسير...",
             "ok": "حسناً"
           }
         },
@@ -2309,6 +2316,8 @@
           "selected": "موظف مختار",
           "loadingData": "جاري تحميل البيانات...",
           "notifications": {
+            "saving": "حفظ المسير",
+            "savingPayroll": "جاري حفظ بيانات المسير...",
             "savedPayroll": "تم حفظ المسير بنجاح",
             "savedPayrollDesc": "تم إنشاء مسير الرواتب وحفظ كافة التفاصيل المالية للموظفين.",
             "totalPayroll": "إجمالي المسير: {amount} ريال",

@@ -14,6 +14,8 @@ import {
   Edit,
   Trash2,
   Printer,
+  Mail,
+  Send,
   CheckCircle,
   AlertCircle,
   Loader2,
@@ -157,6 +159,9 @@ export function QuotationViewClient({ quotation, company, companyId }: Quotation
   const currency = t("common.sar");
   const printRef = useRef<HTMLDivElement>(null);
   const [deleteLoading, setDeleteLoading] = useState(false);
+  const [emailLoading, setEmailLoading] = useState(false);
+  const [showEmailModal, setShowEmailModal] = useState(false);
+  const [emailAddress, setEmailAddress] = useState("");
   const [isMounted, setIsMounted] = useState(false);
   const [notification, setNotification] = useState<NotificationState>({
     show: false,
@@ -186,6 +191,30 @@ export function QuotationViewClient({ quotation, company, companyId }: Quotation
 
   const hideNotification = () => {
     setNotification(prev => ({ ...prev, show: false }));
+  };
+
+  const handleSendEmail = async () => {
+    if (!emailAddress) return;
+    setEmailLoading(true);
+    showNotification("loading", t("notifications.sending"), t("notifications.sendingMsg"));
+    try {
+      const res = await fetch(`/api/quotations/${quotation.id}/send-email`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: emailAddress, company_id: companyId })
+      });
+      if (res.ok) {
+        showNotification("success", t("notifications.sent"), t("notifications.sentMsg"));
+        setShowEmailModal(false);
+      } else {
+        const data = await res.json();
+        showNotification("error", t("notifications.sendFailed"), data.error || t("notifications.sendFailedMsg"));
+      }
+    } catch (e) {
+      showNotification("error", t("notifications.error"), t("notifications.errorMsg"));
+    } finally {
+      setEmailLoading(false);
+    }
   };
 
   const handleDelete = async () => {
@@ -281,6 +310,67 @@ export function QuotationViewClient({ quotation, company, companyId }: Quotation
         )}
       </AnimatePresence>
 
+      <AnimatePresence>
+        {showEmailModal && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 bg-black/60 backdrop-blur-md z-[100]"
+              onClick={() => !emailLoading && setShowEmailModal(false)}
+            />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 20 }}
+              className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[101] w-full max-w-lg p-6"
+            >
+              <div className="bg-white rounded-[2.5rem] p-10 shadow-2xl border border-gray-100">
+                <div className="flex items-center gap-4 mb-8">
+                  <div className="h-16 w-16 rounded-2xl bg-blue-500/10 text-blue-500 flex items-center justify-center">
+                    <Mail size={32} />
+                  </div>
+                  <div>
+                    <h3 className="text-2xl font-black text-gray-900">{isRtl ? "إرسال عبر البريد" : "Send via Email"}</h3>
+                    <p className="text-gray-500 text-sm">{isRtl ? "أدخل البريد الإلكتروني" : "Enter email address"}</p>
+                  </div>
+                </div>
+                <div className="space-y-6">
+                  <div className="space-y-2">
+                    <label className="text-xs font-black text-gray-400 uppercase tracking-widest px-2">{isRtl ? "البريد الإلكتروني" : "Email Address"}</label>
+                    <input 
+                      type="email"
+                      value={emailAddress}
+                      onChange={(e) => setEmailAddress(e.target.value)}
+                      placeholder="example@email.com"
+                      className="w-full px-6 py-4 rounded-2xl bg-gray-50 text-black border border-gray-100 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 outline-none transition-all font-bold"
+                    />
+                  </div>
+                  <div className="flex gap-4 pt-4">
+                    <button
+                      onClick={() => setShowEmailModal(false)}
+                      disabled={emailLoading}
+                      className="flex-1 py-4 rounded-2xl bg-gray-100 text-gray-500 font-black hover:bg-gray-200 transition-all disabled:opacity-50"
+                    >
+                      {tCommon("cancel")}
+                    </button>
+                    <button
+                      onClick={handleSendEmail}
+                      disabled={emailLoading || !emailAddress}
+                      className="flex-1 py-4 rounded-2xl bg-blue-600 text-white font-black hover:bg-blue-700 transition-all shadow-xl shadow-blue-200 disabled:opacity-50 flex items-center justify-center gap-2"
+                    >
+                      {emailLoading ? <Loader2 size={20} className="animate-spin" /> : <Send size={20} />}
+                      <span>{isRtl ? "إرسال الآن" : "Send Now"}</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
+
       <div className="no-print p-4 md:p-6 pb-0 flex flex-wrap gap-2 justify-between items-center max-w-[1200px] mx-auto w-full">
         <div className="flex items-center gap-3">
           <div className="h-10 w-10 rounded-xl bg-white shadow-sm flex items-center justify-center text-blue-500 border border-gray-100">
@@ -298,6 +388,14 @@ export function QuotationViewClient({ quotation, company, companyId }: Quotation
               <span>{t("table.back")}</span>
             </button>
           </Link>
+          <button 
+            onClick={() => setShowEmailModal(true)}
+            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white text-blue-600 font-bold text-xs md:text-sm hover:bg-blue-50 transition-all border border-blue-100 shadow-sm"
+          >
+            <Mail size={16} />
+            <span>{isRtl ? "إرسال بريد" : "Email"}</span>
+          </button>
+
           <Link href={`/quotations/${quotation.id}/edit`}>
             <button className="flex items-center gap-2 px-4 py-2 rounded-xl bg-amber-500 text-white font-bold text-xs md:text-sm hover:bg-amber-600 transition-all shadow-sm">
               <Edit size={16} />

@@ -2094,6 +2094,7 @@
         "refreshData": "Refresh Data",
         "searchPlaceholder": "Search by voucher no, statement or type...",
         "exportData": "Export Data",
+        "cancelForm": "Cancel Addition",
         "form": {
           "addTitle": "Create New Income Voucher",
           "fillData": "Please fill all required data to issue the voucher",
@@ -2198,6 +2199,10 @@
         "confirmed": "Confirmed",
         "draft": "Draft"
       },
+      "notifications": {
+        "deleting": "Deleting Payroll",
+        "deletingMsg": "Payroll is being deleted..."
+      },
       "actions": {
         "view": "View",
         "edit": "Edit",
@@ -2283,6 +2288,8 @@
           "notifications": {
             "saveSuccess": "Payroll updated successfully",
             "saveSuccessMsg": "Changes have been saved and payroll data updated in the system.",
+            "deleting": "Deleting Payroll",
+            "deletingMsg": "Payroll is being deleted...",
             "ok": "OK"
           }
         },
@@ -2309,6 +2316,8 @@
           "selected": "selected employees",
           "loadingData": "Loading data...",
           "notifications": {
+            "saving": "Saving Payroll",
+            "savingPayroll": "Payroll data is being saved...",
             "savedPayroll": "Payroll saved successfully",
             "savedPayrollDesc": "Monthly payroll has been created and all financial details saved.",
             "totalPayroll": "Total Payroll: {amount} SAR",

@@ -10,6 +10,7 @@ import {
   TrendingUp, TrendingDown, DollarSign, ScrollText, PlusCircle,
   Loader2, CheckCircle
 } from "lucide-react";
+import { Mail, Send } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { DeleteNotification, useDeleteNotification } from "@/components/ui/delete-notification";
 
@@ -137,6 +138,9 @@ export default function PromissoryNotesClient() {
   const [showPrintPreview, setShowPrintPreview] = useState(false);
   const [selectedNote, setSelectedNote] = useState<PromissoryNote | null>(null);
   const [deleteLoading, setDeleteLoading] = useState<number | null>(null);
+  const [showEmailModal, setShowEmailModal] = useState(false);
+  const [emailAddress, setEmailAddress] = useState("");
+  const [emailLoading, setEmailLoading] = useState(false);
   const { notification, showDeleteConfirm, showLoading, showSuccess: showSuccessNotif, showError, hideNotification } = useDeleteNotification("amber");
   const printRef = useRef<HTMLDivElement>(null);
 
@@ -455,6 +459,33 @@ export default function PromissoryNotesClient() {
     setTimeout(() => {
       printWindow.print();
     }, 500);
+  };
+
+  const handleSendEmail = async () => {
+    if (!selectedNote) return;
+    if (!emailAddress) return;
+    setEmailLoading(true);
+    showLoading(isRtl ? "جاري الإرسال" : "Sending", isRtl ? "جاري إرسال السند عبر البريد..." : "Sending note via email...");
+    try {
+      const res = await fetch(`/api/promissory-notes/${selectedNote.id}/send-email`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: emailAddress, company_id: (selectedNote as any)?.company_id })
+      });
+      if (res.ok) {
+        showSuccessNotif(isRtl ? "تم الإرسال" : "Sent", isRtl ? "تم إرسال السند بنجاح" : "Promissory note sent successfully");
+        setShowEmailModal(false);
+        setEmailAddress("");
+      } else {
+        const data = await res.json();
+        showError(isRtl ? "فشل الإرسال" : "Send Failed", data.error || (isRtl ? "فشل إرسال البريد" : "Failed to send email"));
+      }
+    } catch (e) {
+      console.error(e);
+      showError(isRtl ? "خطأ" : "Error", isRtl ? "حدث خطأ أثناء الإرسال" : "An error occurred during sending");
+    } finally {
+      setEmailLoading(false);
+    }
   };
 
   const handleDownloadPDF = async () => {
@@ -1025,6 +1056,10 @@ export default function PromissoryNotesClient() {
                     <button onClick={handlePrint} className="flex items-center gap-2 px-6 py-2.5 bg-teal-500 text-white font-black text-sm rounded-xl hover:bg-teal-600 transition-all">
                         {t("printNow")}
                     </button>
+                  <button onClick={() => setShowEmailModal(true)} className="flex items-center gap-2 px-5 py-2.5 bg-white text-blue-600 font-black text-sm rounded-xl hover:bg-white/10 transition-all">
+                    <Mail size={16} />
+                    <span>{isRtl ? 'إرسال بريد' : 'Email'}</span>
+                  </button>
                     <button onClick={() => setShowPrintPreview(false)} className="p-2.5 bg-white/10 text-white rounded-xl hover:bg-white/20 transition-all">
                         <X size={20} />
                     </button>
@@ -1120,6 +1155,39 @@ export default function PromissoryNotesClient() {
             </motion.div>
           </motion.div>
         )}
+      
+        </AnimatePresence>
+
+        <AnimatePresence>
+          {showEmailModal && selectedNote && (
+            <>
+              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 bg-black/60 backdrop-blur-md z-[120]" onClick={() => !emailLoading && setShowEmailModal(false)} />
+              <motion.div initial={{ opacity: 0, scale: 0.9, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.9, y: 20 }} className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[121] w-full max-w-lg p-6">
+                <div className="bg-white rounded-[2.5rem] p-10 shadow-2xl border border-gray-100">
+                  <div className="flex items-center gap-4 mb-8">
+                    <div className="h-16 w-16 rounded-2xl bg-blue-500/10 text-blue-500 flex items-center justify-center">
+                      <Mail size={32} />
+                    </div>
+                    <div>
+                      <h3 className="text-2xl font-black text-gray-900">{isRtl ? 'إرسال عبر البريد' : 'Send via Email'}</h3>
+                      <p className="text-gray-500 text-sm">{isRtl ? 'أدخل البريد الإلكتروني' : 'Enter email address'}</p>
+                    </div>
+                  </div>
+                  <div className="space-y-6">
+                    <div className="space-y-2">
+                      <label className="text-xs font-black text-gray-400 uppercase tracking-widest px-2">{isRtl ? 'البريد الإلكتروني' : 'Email Address'}</label>
+                      <input type="email" value={emailAddress} onChange={(e) => setEmailAddress(e.target.value)} placeholder="example@email.com" className="w-full px-6 py-4 rounded-2xl bg-gray-50 text-black border border-gray-100 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 outline-none transition-all font-bold" />
+                    </div>
+                    <div className="flex gap-4 pt-4">
+                      <button onClick={() => setShowEmailModal(false)} disabled={emailLoading} className="flex-1 py-4 rounded-2xl bg-gray-100 text-gray-500 font-black hover:bg-gray-200 transition-all disabled:opacity-50">{tCommon('cancel')}</button>
+                      <button onClick={handleSendEmail} disabled={emailLoading || !emailAddress} className="flex-1 py-4 rounded-2xl bg-blue-600 text-white font-black hover:bg-blue-700 transition-all shadow-xl shadow-blue-200 disabled:opacity-50 flex items-center justify-center gap-2">{emailLoading ? <Loader2 size={20} className="animate-spin" /> : <Send size={20} />}<span>{isRtl ? 'إرسال الآن' : 'Send Now'}</span></button>
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
+            </>
+          )}
+        </AnimatePresence>
       </AnimatePresence>
 
       {/* Footer */}

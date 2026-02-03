@@ -292,7 +292,7 @@ export function ReceiptVoucherViewClient({ voucher, company, companyId }: Receip
                       value={emailAddress}
                       onChange={(e) => setEmailAddress(e.target.value)}
                       placeholder="example@email.com"
-                      className="w-full px-6 py-4 rounded-2xl bg-gray-50 border border-gray-100 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 outline-none transition-all font-bold"
+                      className="w-full px-6 py-4 rounded-2xl bg-gray-50 text-black border border-gray-100 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 outline-none transition-all font-bold"
                     />
                   </div>
                   
@@ -361,20 +361,38 @@ export function ReceiptVoucherViewClient({ voucher, company, companyId }: Receip
               const element = printRef.current;
               if (!element) return;
               
+              // Clone element and remove modern color functions
+              const clonedElement = element.cloneNode(true) as HTMLElement;
+              const removeModernColors = (el: HTMLElement) => {
+                const allElements = el.querySelectorAll('*');
+                allElements.forEach((e: any) => {
+                  if (e.style) {
+                    e.style.color = window.getComputedStyle(e).color;
+                    e.style.backgroundColor = window.getComputedStyle(e).backgroundColor;
+                    e.style.borderColor = window.getComputedStyle(e).borderColor;
+                  }
+                  const style = e.getAttribute('style');
+                  if (style && (style.includes('lab') || style.includes('oklab') || style.includes('lch'))) {
+                    e.removeAttribute('style');
+                  }
+                });
+              };
+              removeModernColors(clonedElement);
+              
               const html2pdf = (await import('html2pdf.js')).default;
               
               const opt = {
                 margin: 0,
                 filename: `${isRtl ? "سند-قبض" : "receipt-voucher"}-${voucher.receipt_number}.pdf`,
                 image: { type: 'jpeg', quality: 0.98 },
-                html2canvas: { scale: 2, useCORS: true, letterRendering: true },
+                html2canvas: { scale: 2, useCORS: true, letterRendering: true, allowTaint: true },
                 jsPDF: { unit: 'mm', format: 'a5', orientation: 'portrait' }
               };
               
-              const stamps = element.querySelector('.print-stamps') as HTMLElement;
+              const stamps = clonedElement.querySelector('.print-stamps') as HTMLElement;
               if (stamps) stamps.style.display = 'none';
               
-              html2pdf().set(opt).from(element).save().then(() => {
+              html2pdf().set(opt).from(clonedElement).save().then(() => {
                 if (stamps) stamps.style.display = 'grid';
               });
             }}

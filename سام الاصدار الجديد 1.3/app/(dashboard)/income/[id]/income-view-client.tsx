@@ -278,7 +278,7 @@ export function IncomeViewClient({ income, company, companyId }: IncomeViewClien
                       value={emailAddress}
                       onChange={(e) => setEmailAddress(e.target.value)}
                       placeholder="example@email.com"
-                      className="w-full px-6 py-4 rounded-2xl bg-gray-50 border border-gray-100 focus:border-cyan-500 focus:ring-4 focus:ring-cyan-500/10 outline-none transition-all font-bold"
+                      className="w-full px-6 py-4 rounded-2xl bg-white text-black placeholder:text-gray-400 border border-gray-100 focus:border-cyan-500 focus:ring-4 focus:ring-cyan-500/10 outline-none transition-all font-bold"
                     />
                   </div>
                   

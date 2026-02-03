@@ -9,8 +9,9 @@ import {
   CheckCircle, AlertCircle, X, ArrowDown, ArrowUp, Building2,
   Banknote, StickyNote, Sparkles, RefreshCw, Download, Target,
   BadgeCheck, Clock, FileCheck, Send, Ban, Loader2, Plus, FileSpreadsheet,
-  TrendingDown, TrendingUp
+  Mail, TrendingDown, TrendingUp
 } from "lucide-react";
+  
 import Link from "next/link";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
@@ -105,6 +106,10 @@ function PaymentVouchersContent({ companyId }: { companyId: string }) {
   const [showSuccess, setShowSuccess] = useState(false);
   const [expandedId, setExpandedId] = useState<number | null>(null);
   const [printVoucher, setPrintVoucher] = useState<Voucher | null>(null);
+  const [showEmailModal, setShowEmailModal] = useState(false);
+  const [emailAddress, setEmailAddress] = useState("");
+  const [emailLoading, setEmailLoading] = useState(false);
+  const [selectedVoucher, setSelectedVoucher] = useState<Voucher | null>(null);
   const [deleteLoading, setDeleteLoading] = useState<number | null>(null);
   const { notification, showDeleteConfirm, showLoading, showSuccess: showSuccessNotif, showError, hideNotification } = useDeleteNotification("rose");
   const printRef = useRef<HTMLDivElement>(null);
@@ -691,6 +696,13 @@ function PaymentVouchersContent({ companyId }: { companyId: string }) {
                                                     >
                                                         <Printer size={16} />
                                                     </button>
+                                                    <button
+                                                      onClick={() => { setSelectedVoucher(voucher); setEmailAddress(""); setShowEmailModal(true); }}
+                                                      className="h-9 w-9 rounded-xl bg-blue-500/10 text-blue-400 flex items-center justify-center hover:bg-blue-500 hover:text-white transition-all shadow-lg active:scale-95"
+                                                      title={tCommon("email")}
+                                                    >
+                                                      <Mail size={16} />
+                                                    </button>
                                                     <button 
                                                         onClick={() => handleDelete(voucher.id, voucher.voucher_number)}
                                                         disabled={deleteLoading === voucher.id}
@@ -750,6 +762,91 @@ function PaymentVouchersContent({ companyId }: { companyId: string }) {
               <span>{t("notifications.saveSuccess")}</span>
             </motion.div>
           )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {showEmailModal && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 bg-black/60 backdrop-blur-md z-[100]"
+              onClick={() => !emailLoading && setShowEmailModal(false)}
+            />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 20 }}
+              className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[101] w-full max-w-lg p-6"
+            >
+              <div className="bg-white rounded-[2.5rem] p-8 shadow-2xl border border-gray-100">
+                <div className="flex items-center gap-4 mb-6">
+                  <div className="h-14 w-14 rounded-2xl bg-blue-500/10 text-blue-500 flex items-center justify-center">
+                    <Mail size={28} />
+                  </div>
+                  <div>
+                    <h3 className="text-2xl font-black text-gray-900">{isRtl ? "إرسال عبر البريد" : "Send via Email"}</h3>
+                    <p className="text-gray-500 text-sm">{isRtl ? "أدخل البريد الإلكتروني للعميل" : "Enter recipient email address"}</p>
+                  </div>
+                </div>
+
+                <div className="space-y-6">
+                  <div className="space-y-2">
+                    <label className="text-xs font-black text-gray-400 uppercase tracking-widest px-2">{isRtl ? "البريد الإلكتروني" : "Email Address"}</label>
+                    <input 
+                      type="email"
+                      value={emailAddress}
+                      onChange={(e) => setEmailAddress(e.target.value)}
+                      placeholder="customer@example.com"
+                      className="w-full px-6 py-4 rounded-2xl bg-gray-50 text-black border border-gray-100 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 outline-none transition-all font-bold"
+                    />
+                  </div>
+
+                  <div className="flex gap-4 pt-2">
+                    <button
+                      onClick={() => setShowEmailModal(false)}
+                      disabled={emailLoading}
+                      className="flex-1 py-3 rounded-2xl bg-gray-100 text-gray-500 font-black hover:bg-gray-200 transition-all disabled:opacity-50"
+                    >
+                      {tCommon("cancel")}
+                    </button>
+                    <button
+                      onClick={async () => {
+                        if (!selectedVoucher) return;
+                        if (!emailAddress) return toast.error(isRtl ? "الرجاء إدخال البريد الإلكتروني" : "Please enter an email");
+                        setEmailLoading(true);
+                        try {
+                          const res = await fetch(`/api/payment-vouchers/${selectedVoucher.id}/send-email`, {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({ email: emailAddress, company_id: companyId })
+                          });
+                          if (res.ok) {
+                            toast.success(isRtl ? "تم الإرسال" : "Sent successfully");
+                            setShowEmailModal(false);
+                          } else {
+                            const data = await res.json();
+                            toast.error(data.error || (isRtl ? "فشل الإرسال" : "Failed to send email"));
+                          }
+                        } catch (err) {
+                          toast.error(isRtl ? "خطأ أثناء الإرسال" : "Error while sending");
+                        } finally {
+                          setEmailLoading(false);
+                        }
+                      }}
+                      disabled={emailLoading}
+                      className="flex-1 py-3 rounded-2xl bg-blue-600 text-white font-black hover:bg-blue-700 transition-all shadow-xl disabled:opacity-50 flex items-center justify-center gap-2"
+                    >
+                      {emailLoading ? <Loader2 size={18} className="animate-spin" /> : <Send size={18} />}
+                      <span>{isRtl ? "إرسال الآن" : "Send Now"}</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          </>
+        )}
       </AnimatePresence>
 
       {/* Print Area Container (Hidden) */}

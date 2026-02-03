@@ -448,7 +448,7 @@ export function EditCustomerClient({ customer, accounts, costCenters, companyId 
 
               {/* Financial Info */}
               <Section title="الإعدادات المالية (شجرة الحسابات)" icon={<Wallet size={28} />} color="orange">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div className="space-y-8">
                   <HierarchicalSearchableSelect
                     label="شجرة الحسابات"
                     icon={<Wallet size={20} />}
