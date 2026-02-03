@@ -549,6 +549,19 @@ export function PackagesClient({ initialPackages, companyId }: PackagesClientPro
                         : 'bg-gradient-to-br from-amber-50 to-orange-50 border-orange-200 hover:border-orange-400'
                     )}
                   >
+                    {/* Package Counter Badge */}
+                    <div className={cn(
+                      "absolute top-4 z-10 h-7 w-7 rounded-full flex items-center justify-center text-[11px] font-black text-white shadow-md",
+                      pkg.work_type === 'target'
+                        ? 'bg-gradient-to-br from-blue-500 to-indigo-600'
+                        : pkg.work_type === 'salary'
+                        ? 'bg-gradient-to-br from-emerald-500 to-teal-600'
+                        : 'bg-gradient-to-br from-amber-500 to-orange-600',
+                      isRTL ? "right-4" : "left-4"
+                    )}>
+                      {index + 1}
+                    </div>
+                    
                     <div className={cn("absolute top-0 p-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity", isRTL ? "left-0" : "right-0")}>
                       <motion.button
                         whileHover={{ scale: 1.1 }}
