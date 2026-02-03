@@ -338,7 +338,7 @@ export function TasksClient({
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
-      <div className="max-w-[1800px] mx-auto p-6 space-y-6">
+      <div className="w-full px-2 py-6 space-y-6">
         
         {/* Header */}
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">

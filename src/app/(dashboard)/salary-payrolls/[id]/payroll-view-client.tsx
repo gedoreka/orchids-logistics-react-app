@@ -111,14 +111,6 @@ export function PayrollViewClient({ payroll, company }: PayrollViewClientProps) 
     if (!confirm(t("viewPayroll.notifications.deleteConfirm", { month: payroll.payroll_month }))) return;
     
     setDeleteLoading(true);
-    // debug: log translation values for viewPayroll delete
-    try {
-      // eslint-disable-next-line no-console
-      console.debug("i18n viewPayroll deleting ->", t("viewPayroll.notifications.deleting"), t("viewPayroll.notifications.deletingMsg"));
-    } catch (e) {
-      // eslint-disable-next-line no-console
-      console.debug("i18n viewPayroll translation error", e);
-    }
     showNotification("loading", t("viewPayroll.notifications.deleting"), t("viewPayroll.notifications.deletingMsg"));
     
     try {

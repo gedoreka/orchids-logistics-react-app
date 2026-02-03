@@ -87,7 +87,7 @@ export function IqamaReportClient({
 
     return (
       <div className="min-h-screen pb-20">
-        <div className="w-full px-2 pt-6 space-y-6 print:p-0 print:max-w-full print:space-y-4">
+        <div className="w-full px-2 pt-6 space-y-6 print:p-0 print:w-full print:space-y-4">
           
           {/* Breadcrumb & Actions Bar */}
           <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 print:hidden">

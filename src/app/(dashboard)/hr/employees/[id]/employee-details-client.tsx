@@ -173,7 +173,7 @@ export function EmployeeDetailsClient({
 
   if (!mounted) {
     return (
-      <div className="flex h-[calc(100vh-100px)] w-full animate-pulse gap-5">
+      <div className="flex h-[calc(100vh-100px)] w-full px-2 animate-pulse gap-5">
         <div className="w-80 bg-muted/50 rounded-3xl shrink-0 backdrop-blur-xl" />
         <div className="flex-1 bg-muted/50 rounded-3xl backdrop-blur-xl" />
       </div>
@@ -319,7 +319,7 @@ export function EmployeeDetailsClient({
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
-        className="flex h-[calc(100vh-100px)] w-full gap-5 overflow-hidden"
+        className="flex h-[calc(100vh-100px)] w-full px-2 gap-5 overflow-hidden"
       >
         <div className="w-[320px] shrink-0 flex flex-col gap-4">
           <motion.div 

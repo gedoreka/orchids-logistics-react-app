@@ -369,7 +369,7 @@ export function PackagesClient({ initialPackages, companyId }: PackagesClientPro
         variants={containerVariants}
         initial="hidden"
         animate="visible"
-        className="max-w-[95%] mx-auto px-4 pt-6"
+        className="w-full px-2 pt-6"
       >
         <motion.div 
           variants={itemVariants}
