@@ -105,6 +105,14 @@ export function PayrollsListClient({ payrolls: initialPayrolls, stats, companyId
   };
 
   const openDeleteConfirm = (payroll: Payroll) => {
+    // debug: log translation values to help investigate missing texts
+    try {
+      // eslint-disable-next-line no-console
+      console.debug("i18n: deleting ->", t("notifications.deleting"), t("notifications.deletingMsg", { month: payroll.payroll_month }));
+    } catch (e) {
+      // eslint-disable-next-line no-console
+      console.debug("i18n: delete translation error", e);
+    }
     setDeleteConfirm({
       show: true,
       payrollId: payroll.id,
@@ -131,6 +139,14 @@ export function PayrollsListClient({ payrolls: initialPayrolls, stats, companyId
     const payrollMonth = deleteConfirm.payrollMonth;
     setDeleteLoading(id);
     closeDeleteConfirm();
+    // debug: log before showing notification
+    try {
+      // eslint-disable-next-line no-console
+      console.debug("i18n before showNotification:", t("notifications.deleting"), t("notifications.deletingMsg", { month: payrollMonth }));
+    } catch (e) {
+      // eslint-disable-next-line no-console
+      console.debug("i18n: showNotification translation error", e);
+    }
     showNotification("loading", t("notifications.deleting"), t("notifications.deletingMsg", { month: payrollMonth }));
     
     try {

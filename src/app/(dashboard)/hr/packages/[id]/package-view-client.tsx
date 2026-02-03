@@ -143,7 +143,7 @@ export function PackageViewClient({
 
   if (!mounted) {
     return (
-      <div className="flex flex-col h-full space-y-4 max-w-[95%] mx-auto px-4 overflow-hidden animate-pulse">
+      <div className="flex flex-col h-full space-y-4 w-full px-2 overflow-hidden animate-pulse">
         <div className="h-48 bg-gray-100 rounded-[2rem]" />
         <div className="h-20 bg-gray-100 rounded-2xl" />
         <div className="flex-1 bg-gray-100 rounded-3xl" />
@@ -156,7 +156,7 @@ export function PackageViewClient({
         variants={containerVariants}
         initial="hidden"
         animate="visible"
-        className="min-h-screen pb-20 max-w-[95%] mx-auto px-4 pt-6"
+        className="min-h-screen pb-20 w-full px-2 pt-6"
         dir={isRTL ? 'rtl' : 'ltr'}
       >
         <motion.div 

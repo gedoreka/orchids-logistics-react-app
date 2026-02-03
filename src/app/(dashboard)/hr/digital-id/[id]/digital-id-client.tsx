@@ -63,7 +63,7 @@ export function DigitalIdClient({ employee, allEmployees }: DigitalIdClientProps
   const expiryDays = getExpiryDays(employee.iqama_expiry);
 
   return (
-    <div className="space-y-6 pb-20 max-w-[1800px] mx-auto px-4 print:p-0 print:max-w-full">
+    <div className="space-y-6 pb-20 w-full px-2 print:p-0 print:max-w-full">
       
       {/* Navigation - Hidden on print */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 print:hidden">
