@@ -540,7 +540,14 @@ export function PackagesClient({ initialPackages, companyId }: PackagesClientPro
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, scale: 0.9 }}
                     transition={{ delay: index * 0.05 }}
-                    className="group bg-white rounded-2xl border border-gray-100 p-6 hover:shadow-xl hover:border-purple-200 transition-all duration-500 relative overflow-hidden"
+                    className={cn(
+                      "group rounded-2xl border p-6 hover:shadow-xl transition-all duration-500 relative overflow-hidden",
+                      pkg.work_type === 'target'
+                        ? 'bg-gradient-to-br from-blue-50 to-indigo-50 border-blue-200 hover:border-blue-400'
+                        : pkg.work_type === 'salary'
+                        ? 'bg-gradient-to-br from-emerald-50 to-teal-50 border-emerald-200 hover:border-emerald-400'
+                        : 'bg-gradient-to-br from-amber-50 to-orange-50 border-orange-200 hover:border-orange-400'
+                    )}
                   >
                     <div className={cn("absolute top-0 p-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity", isRTL ? "left-0" : "right-0")}>
                       <motion.button
@@ -554,18 +561,29 @@ export function PackagesClient({ initialPackages, companyId }: PackagesClientPro
                     </div>
 
                     <div className="space-y-5">
-                      <div className="h-14 w-14 rounded-2xl bg-gradient-to-br from-purple-100 to-violet-100 flex items-center justify-center text-purple-600 group-hover:from-purple-500 group-hover:to-violet-600 group-hover:text-white transition-all shadow-sm group-hover:shadow-lg group-hover:shadow-purple-500/20">
-                        <Package size={26} />
+                      {/* Header - Centered */}
+                      <div className="flex flex-col items-center gap-3">
+                        <div className={cn(
+                          "h-16 w-16 rounded-2xl flex items-center justify-center text-white shadow-md transition-all",
+                          pkg.work_type === 'target'
+                            ? 'bg-gradient-to-br from-blue-500 to-indigo-600'
+                            : pkg.work_type === 'salary'
+                            ? 'bg-gradient-to-br from-emerald-500 to-teal-600'
+                            : 'bg-gradient-to-br from-amber-500 to-orange-600'
+                        )}>
+                          <Package size={28} />
+                        </div>
+                        <h3 className="text-lg font-black text-gray-900 text-center line-clamp-2">{pkg.group_name}</h3>
                       </div>
 
-                      <div>
-                        <h3 className="text-lg font-black text-gray-900 mb-2 line-clamp-1">{pkg.group_name}</h3>
+                      {/* Work Type Badge */}
+                      <div className="flex justify-center">
                         <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-wider ${
                           pkg.work_type === 'target' 
-                            ? 'bg-gradient-to-r from-blue-50 to-indigo-50 text-blue-700 border border-blue-200' 
+                            ? 'bg-blue-100 text-blue-700 border border-blue-300' 
                             : pkg.work_type === 'salary' 
-                            ? 'bg-gradient-to-r from-emerald-50 to-teal-50 text-emerald-700 border border-emerald-200' 
-                            : 'bg-gradient-to-r from-amber-50 to-orange-50 text-orange-700 border border-orange-200'
+                            ? 'bg-emerald-100 text-emerald-700 border border-emerald-300' 
+                            : 'bg-amber-100 text-orange-700 border border-amber-300'
                         }`}>
                           {pkg.work_type === 'target' && <Target size={12} />}
                           {pkg.work_type === 'salary' && <DollarSign size={12} />}
@@ -574,20 +592,49 @@ export function PackagesClient({ initialPackages, companyId }: PackagesClientPro
                         </span>
                       </div>
 
+                      {/* Stats Grid */}
                       <div className="grid grid-cols-2 gap-3">
-                        <div className="bg-gray-50 rounded-xl p-4 border border-gray-100 group-hover:border-purple-100 transition-colors">
-                          <div className="flex items-center gap-1.5 text-gray-400 mb-1">
+                        <div className={cn(
+                          "rounded-xl p-4 border transition-colors",
+                          pkg.work_type === 'target'
+                            ? 'bg-blue-100/50 border-blue-300'
+                            : pkg.work_type === 'salary'
+                            ? 'bg-emerald-100/50 border-emerald-300'
+                            : 'bg-amber-100/50 border-amber-300'
+                        )}>
+                          <div className="flex items-center gap-1.5 text-gray-600 mb-1">
                             <Target size={12} />
                             <span className="text-[9px] font-black uppercase tracking-wider">{t('target')}</span>
                           </div>
-                          <div className="text-xl font-black text-gray-900">{pkg.monthly_target}</div>
+                          <div className={cn(
+                            "text-xl font-black",
+                            pkg.work_type === 'target'
+                              ? 'text-blue-700'
+                              : pkg.work_type === 'salary'
+                              ? 'text-emerald-700'
+                              : 'text-orange-700'
+                          )}>{pkg.monthly_target}</div>
                         </div>
-                        <div className="bg-gray-50 rounded-xl p-4 border border-gray-100 group-hover:border-purple-100 transition-colors">
-                          <div className="flex items-center gap-1.5 text-gray-400 mb-1">
+                        <div className={cn(
+                          "rounded-xl p-4 border transition-colors",
+                          pkg.work_type === 'target'
+                            ? 'bg-blue-100/50 border-blue-300'
+                            : pkg.work_type === 'salary'
+                            ? 'bg-emerald-100/50 border-emerald-300'
+                            : 'bg-amber-100/50 border-amber-300'
+                        )}>
+                          <div className="flex items-center gap-1.5 text-gray-600 mb-1">
                             <Trophy size={12} />
                             <span className="text-[9px] font-black uppercase tracking-wider">{t('bonus')}</span>
                           </div>
-                          <div className="text-xl font-black text-gray-900">{pkg.bonus_after_target}</div>
+                          <div className={cn(
+                            "text-xl font-black",
+                            pkg.work_type === 'target'
+                              ? 'text-blue-700'
+                              : pkg.work_type === 'salary'
+                              ? 'text-emerald-700'
+                              : 'text-orange-700'
+                          )}>{pkg.bonus_after_target}</div>
                         </div>
                       </div>
 
