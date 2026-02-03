@@ -606,9 +606,10 @@ export function PackagesClient({ initialPackages, companyId }: PackagesClientPro
                         </motion.button>
                         <Link 
                           href={`/hr/packages/${pkg.id}`}
-                          className="h-[50px] w-[50px] rounded-xl bg-gray-50 border border-gray-200 flex items-center justify-center text-gray-500 hover:bg-purple-50 hover:border-purple-200 hover:text-purple-600 transition-all group-hover:shadow-lg"
+                          className="flex-1 flex items-center justify-center gap-2 bg-gradient-to-r from-blue-600 to-cyan-600 text-white py-3.5 rounded-xl text-xs font-black shadow-lg shadow-blue-500/20 hover:from-blue-700 hover:to-cyan-700 transition-all"
                         >
-                          <Eye size={20} />
+                          <Eye size={16} />
+                          <span>{t('viewPackage')}</span>
                         </Link>
                       </div>
                     </div>

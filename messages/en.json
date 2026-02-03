@@ -700,6 +700,7 @@
     "target": "Target",
     "bonus": "Bonus",
     "addEmployees": "Add Employees",
+    "viewPackage": "View Employee Package",
     "noMatchingPackages": "No matching packages found",
     "tryDifferentSearch": "Try different search words or create a new package",
     "totalPackagesFooter": "Total Packages",
