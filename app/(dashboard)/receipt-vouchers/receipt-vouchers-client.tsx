@@ -621,6 +621,22 @@ function ReceiptVouchersContent({ companyId }: { companyId: string }) {
                                                     >
                                                         <Edit3 size={16} />
                                                     </button>
+                                                    <Link href={`/receipt-vouchers/${voucher.id}?action=email`}>
+                                                      <button 
+                                                          className="h-9 w-9 rounded-xl bg-teal-500/10 text-teal-400 flex items-center justify-center hover:bg-teal-500 hover:text-white transition-all shadow-lg active:scale-95"
+                                                          title={isRtl ? "إرسال بريد" : "Send Email"}
+                                                      >
+                                                          <Mail size={16} />
+                                                      </button>
+                                                    </Link>
+                                                    <Link href={`/receipt-vouchers/${voucher.id}?action=print`}>
+                                                      <button 
+                                                          className="h-9 w-9 rounded-xl bg-purple-500/10 text-purple-400 flex items-center justify-center hover:bg-purple-500 hover:text-white transition-all shadow-lg active:scale-95"
+                                                          title={isRtl ? "طباعة" : "Print"}
+                                                      >
+                                                          <Printer size={16} />
+                                                      </button>
+                                                    </Link>
                                                     <button 
                                                         onClick={() => handleDelete(voucher.id, voucher.receipt_number)}
                                                         disabled={deleteLoading === voucher.id}

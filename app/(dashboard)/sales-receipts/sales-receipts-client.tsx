@@ -7,6 +7,7 @@ import {
   Plus, 
   Search, 
   Eye,
+  Edit,
   Trash2,
   Calendar,
   Link as LinkIcon,
@@ -18,7 +19,9 @@ import {
   Sparkles,
   RefreshCw,
   CheckCircle,
-  AlertCircle
+  AlertCircle,
+  Mail,
+  Printer
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -343,6 +346,21 @@ export function SalesReceiptsClient({ receipts: initialReceipts, stats, companyI
                             <Link href={`/sales-receipts/${receipt.id}`}>
                               <button className="h-9 w-9 rounded-xl bg-blue-500/10 text-blue-400 flex items-center justify-center hover:bg-blue-500 hover:text-white transition-all shadow-lg active:scale-95" title={t("viewDetails")}>
                                 <Eye size={16} />
+                              </button>
+                            </Link>
+                            <Link href={`/sales-receipts/${receipt.id}/edit`}>
+                              <button className="h-9 w-9 rounded-xl bg-amber-500/10 text-amber-400 flex items-center justify-center hover:bg-amber-500 hover:text-white transition-all shadow-lg active:scale-95" title={isRtl ? "تعديل" : "Edit"}>
+                                <Edit size={16} />
+                              </button>
+                            </Link>
+                            <Link href={`/sales-receipts/${receipt.id}?action=email`}>
+                              <button className="h-9 w-9 rounded-xl bg-teal-500/10 text-teal-400 flex items-center justify-center hover:bg-teal-500 hover:text-white transition-all shadow-lg active:scale-95" title={isRtl ? "إرسال بريد" : "Send Email"}>
+                                <Mail size={16} />
+                              </button>
+                            </Link>
+                            <Link href={`/sales-receipts/${receipt.id}?action=print`}>
+                              <button className="h-9 w-9 rounded-xl bg-purple-500/10 text-purple-400 flex items-center justify-center hover:bg-purple-500 hover:text-white transition-all shadow-lg active:scale-95" title={isRtl ? "طباعة" : "Print"}>
+                                <Printer size={16} />
                               </button>
                             </Link>
                             <button 
