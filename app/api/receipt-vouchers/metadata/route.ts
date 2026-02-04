@@ -1,11 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 import { query } from "@/lib/db";
-import { createClient } from "@supabase/supabase-js";
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
 
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams;
@@ -26,33 +20,29 @@ export async function GET(request: NextRequest) {
       [companyId]
     );
 
-    const { data: maxIdData } = await supabase
-      .from("receipt_vouchers")
-      .select("receipt_number")
-      .eq("company_id", companyId)
-      .order("id", { ascending: false })
-      .limit(1)
-      .maybeSingle();
+    const maxReceiptData = await query<any>(
+      `SELECT receipt_number FROM receipt_vouchers WHERE company_id = ? ORDER BY id DESC LIMIT 1`,
+      [companyId]
+    );
 
     let nextNumber = 1;
-    if (maxIdData?.receipt_number) {
-      const match = maxIdData.receipt_number.match(/\d+/);
+    if (maxReceiptData && maxReceiptData.length > 0 && maxReceiptData[0].receipt_number) {
+      const match = maxReceiptData[0].receipt_number.match(/\d+/);
       if (match) nextNumber = parseInt(match[0]) + 1;
     }
     const receiptNumber = "RCV" + String(nextNumber).padStart(5, "0");
 
-    const { data: vouchers, count } = await supabase
-      .from("receipt_vouchers")
-      .select("*", { count: "exact" })
-      .eq("company_id", companyId)
-      .order("created_at", { ascending: false });
+    const vouchers = await query<any>(
+      `SELECT * FROM receipt_vouchers WHERE company_id = ? ORDER BY created_at DESC`,
+      [companyId]
+    );
 
     return NextResponse.json({
       accounts: accounts || [],
       costCenters: costCenters || [],
       receiptNumber,
       vouchers: vouchers || [],
-      totalVouchers: count || 0,
+      totalVouchers: vouchers?.length || 0,
     });
   } catch (error) {
     console.error("Error fetching receipt vouchers metadata:", error);

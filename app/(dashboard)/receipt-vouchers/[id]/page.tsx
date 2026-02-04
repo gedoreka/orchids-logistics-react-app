@@ -1,29 +1,24 @@
 import { cookies } from "next/headers";
 import { ReceiptVoucherViewClient } from "./receipt-voucher-view-client";
 import { notFound } from "next/navigation";
-import { createClient } from "@supabase/supabase-js";
 import { query } from "@/lib/db";
 
 export const metadata = {
   title: "عرض سند القبض - Logistics Systems Pro",
 };
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
-
 async function getVoucherData(id: string) {
   try {
-    const { data: voucher, error } = await supabase
-      .from("receipt_vouchers")
-      .select("*")
-      .eq("id", id)
-      .single();
+    const vouchers = await query<any>(
+      `SELECT * FROM receipt_vouchers WHERE id = ?`,
+      [id]
+    );
 
-    if (error || !voucher) {
+    if (!vouchers || vouchers.length === 0) {
       return null;
     }
+
+    const voucher = vouchers[0];
 
     const companyData = await query<any>(
       `SELECT id, name, commercial_number, vat_number, country, region, district, street, postal_code, short_address, logo_path, stamp_path, digital_seal_path FROM companies WHERE id = ?`,

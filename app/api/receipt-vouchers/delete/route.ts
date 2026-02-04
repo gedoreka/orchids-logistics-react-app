@@ -1,10 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@supabase/supabase-js";
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
+import { query } from "@/lib/db";
 
 export async function DELETE(request: NextRequest) {
   try {
@@ -19,13 +14,10 @@ export async function DELETE(request: NextRequest) {
       );
     }
 
-    const { error } = await supabase
-      .from("receipt_vouchers")
-      .delete()
-      .eq("id", id)
-      .eq("company_id", company_id);
-
-    if (error) throw error;
+    await query(
+      `DELETE FROM receipt_vouchers WHERE id = ? AND company_id = ?`,
+      [id, company_id]
+    );
 
     return NextResponse.json({ success: true, message: "تم حذف السند بنجاح" });
   } catch (error) {
