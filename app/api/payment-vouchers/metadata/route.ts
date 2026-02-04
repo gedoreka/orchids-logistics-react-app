@@ -1,11 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 import { query } from "@/lib/db";
-import { createClient } from "@supabase/supabase-js";
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
 
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams;
@@ -26,33 +20,31 @@ export async function GET(request: NextRequest) {
       [companyId]
     );
 
-    const { data: maxIdData } = await supabase
-      .from("payment_vouchers")
-      .select("voucher_number")
-      .eq("company_id", companyId)
-      .order("id", { ascending: false })
-      .limit(1)
-      .maybeSingle();
+    // Get the max voucher number from MySQL
+    const maxVoucherData = await query<any>(
+      `SELECT voucher_number FROM payment_vouchers WHERE company_id = ? ORDER BY id DESC LIMIT 1`,
+      [companyId]
+    );
 
     let nextNumber = 1;
-    if (maxIdData?.voucher_number) {
-      const match = maxIdData.voucher_number.match(/\d+/);
+    if (maxVoucherData && maxVoucherData.length > 0 && maxVoucherData[0].voucher_number) {
+      const match = maxVoucherData[0].voucher_number.match(/\d+/);
       if (match) nextNumber = parseInt(match[0]) + 1;
     }
     const voucherNumber = "PV" + String(nextNumber).padStart(5, "0");
 
-    const { data: vouchers, count } = await supabase
-      .from("payment_vouchers")
-      .select("*", { count: "exact" })
-      .eq("company_id", companyId)
-      .order("created_at", { ascending: false });
+    // Get vouchers list from MySQL
+    const vouchers = await query<any>(
+      `SELECT * FROM payment_vouchers WHERE company_id = ? ORDER BY created_at DESC`,
+      [companyId]
+    );
 
     return NextResponse.json({
       accounts: accounts || [],
       costCenters: costCenters || [],
       voucherNumber,
       vouchers: vouchers || [],
-      totalVouchers: count || 0,
+      totalVouchers: vouchers?.length || 0,
     });
   } catch (error) {
     console.error("Error fetching payment vouchers metadata:", error);
