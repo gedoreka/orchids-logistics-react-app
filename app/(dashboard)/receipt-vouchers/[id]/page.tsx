@@ -10,7 +10,14 @@ export const metadata = {
 async function getVoucherData(id: string) {
   try {
     const vouchers = await query<any>(
-      `SELECT * FROM receipt_vouchers WHERE id = ?`,
+      `SELECT
+        receipt_vouchers.*,
+        account_code AS debit_account_code,
+        debit_cost_center_code AS debit_cost_center,
+        credit_cost_center_code AS credit_cost_center,
+        tax_percent AS tax_rate
+      FROM receipt_vouchers
+      WHERE id = ?`,
       [id]
     );
 
@@ -56,13 +63,12 @@ export default async function ReceiptVoucherViewPage({
     notFound();
   }
 
-  // Double check company ownership if needed, but the session companyId is already used in API
-  // Here we just ensure the voucher exists and belongs to a company (usually verified in API)
-  
-  const serializedData = JSON.parse(JSON.stringify(data, (key, value) => {
-    if (value instanceof Date) return value.toISOString();
-    return value;
-  }));
+  const serializedData = JSON.parse(
+    JSON.stringify(data, (key, value) => {
+      if (value instanceof Date) return value.toISOString();
+      return value;
+    })
+  );
 
   return (
     <ReceiptVoucherViewClient

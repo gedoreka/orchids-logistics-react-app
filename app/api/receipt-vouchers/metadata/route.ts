@@ -33,7 +33,32 @@ export async function GET(request: NextRequest) {
     const receiptNumber = "RCV" + String(nextNumber).padStart(5, "0");
 
     const vouchers = await query<any>(
-      `SELECT * FROM receipt_vouchers WHERE company_id = ? ORDER BY created_at DESC`,
+      `SELECT
+        id,
+        receipt_number,
+        receipt_date,
+        received_from,
+        branch_code,
+        branch_name,
+        payment_method,
+        account_name,
+        account_code AS debit_account_code,
+        debit_cost_center_code AS debit_cost_center,
+        credit_account_code,
+        credit_cost_center_code AS credit_cost_center,
+        amount,
+        tax_percent AS tax_rate,
+        tax_value,
+        total_amount,
+        document_number,
+        bank_name,
+        document_date,
+        description,
+        notes,
+        created_at
+      FROM receipt_vouchers
+      WHERE company_id = ?
+      ORDER BY created_at DESC`,
       [companyId]
     );
 

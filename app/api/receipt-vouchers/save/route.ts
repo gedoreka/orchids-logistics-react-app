@@ -19,7 +19,6 @@ export async function POST(request: NextRequest) {
       credit_account_code,
       credit_cost_center,
       amount,
-      tax_group,
       tax_rate,
       tax_value,
       total_amount,
@@ -28,7 +27,6 @@ export async function POST(request: NextRequest) {
       document_date,
       description,
       notes,
-      created_by
     } = body;
 
     if (!company_id || !receipt_number) {
@@ -47,13 +45,16 @@ export async function POST(request: NextRequest) {
           branch_name = ?,
           payment_method = ?,
           account_name = ?,
-          debit_account_code = ?,
-          debit_cost_center = ?,
+          account_code = ?,
+          debit_cost_center_name = ?,
+          debit_cost_center_code = ?,
+          credit_account_name = ?,
           credit_account_code = ?,
-          credit_cost_center = ?,
+          credit_cost_center_name = ?,
+          credit_cost_center_code = ?,
           amount = ?,
-          tax_group = ?,
-          tax_rate = ?,
+          tax_label = ?,
+          tax_percent = ?,
           tax_value = ?,
           total_amount = ?,
           document_number = ?,
@@ -64,7 +65,7 @@ export async function POST(request: NextRequest) {
         WHERE id = ? AND company_id = ?`,
         [
           receipt_number,
-          receipt_date || new Date().toISOString().split('T')[0],
+          receipt_date || new Date().toISOString().split("T")[0],
           received_from || "",
           branch_code || "",
           branch_name || "",
@@ -72,10 +73,13 @@ export async function POST(request: NextRequest) {
           account_name || "",
           debit_account_code || "",
           debit_cost_center || "",
+          debit_cost_center || "",
+          "",
           credit_account_code || "",
           credit_cost_center || "",
+          credit_cost_center || "",
           parseFloat(amount) || 0,
-          tax_group || "",
+          "",
           parseFloat(tax_rate) || 0,
           parseFloat(tax_value) || 0,
           parseFloat(total_amount) || 0,
@@ -85,7 +89,7 @@ export async function POST(request: NextRequest) {
           description || "",
           notes || "",
           id,
-          company_id
+          company_id,
         ]
       );
       result = { id };
@@ -100,26 +104,28 @@ export async function POST(request: NextRequest) {
           branch_name,
           payment_method,
           account_name,
-          debit_account_code,
-          debit_cost_center,
+          account_code,
+          debit_cost_center_name,
+          debit_cost_center_code,
+          credit_account_name,
           credit_account_code,
-          credit_cost_center,
+          credit_cost_center_name,
+          credit_cost_center_code,
           amount,
-          tax_group,
-          tax_rate,
+          tax_label,
+          tax_percent,
           tax_value,
           total_amount,
           document_number,
           bank_name,
           document_date,
           description,
-          notes,
-          created_by
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+          notes
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         [
           company_id,
           receipt_number,
-          receipt_date || new Date().toISOString().split('T')[0],
+          receipt_date || new Date().toISOString().split("T")[0],
           received_from || "",
           branch_code || "",
           branch_name || "",
@@ -127,10 +133,13 @@ export async function POST(request: NextRequest) {
           account_name || "",
           debit_account_code || "",
           debit_cost_center || "",
+          debit_cost_center || "",
+          "",
           credit_account_code || "",
           credit_cost_center || "",
+          credit_cost_center || "",
           parseFloat(amount) || 0,
-          tax_group || "",
+          "",
           parseFloat(tax_rate) || 0,
           parseFloat(tax_value) || 0,
           parseFloat(total_amount) || 0,
@@ -139,7 +148,6 @@ export async function POST(request: NextRequest) {
           document_date || null,
           description || "",
           notes || "",
-          created_by || "System"
         ]
       );
       result = { id: insertResult.insertId };
@@ -148,7 +156,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       success: true,
       data: result,
-      message: id ? "تم تحديث السند بنجاح" : "تم حفظ السند بنجاح"
+      message: id ? "تم تحديث السند بنجاح" : "تم حفظ السند بنجاح",
     });
   } catch (error) {
     console.error("Error saving receipt voucher:", error);
