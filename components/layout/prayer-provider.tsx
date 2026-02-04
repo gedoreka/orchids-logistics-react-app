@@ -3,8 +3,7 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
 import { getPrayerTimesLocal, getHijriDate, isFriday, getIslamicEvent, PrayerTimesData } from '@/lib/prayer-service';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Bell, Clock, MapPin, Volume2, X, Star, Moon, Sun } from 'lucide-react';
-import { toast } from 'sonner';
+import { Bell, Volume2, X } from 'lucide-react';
 
 interface PrayerContextType {
   times: PrayerTimesData | null;
@@ -37,14 +36,34 @@ const IQAMA_OFFSETS: Record<string, number> = {
   isha: 15
 };
 
+// Default placeholder value for SSR - will be replaced on client
+const DEFAULT_PRAYER_VALUE: PrayerContextType = {
+  times: null,
+  nextPrayer: null,
+  currentTime: new Date(0),
+  locationName: 'الرياض، السعودية',
+  isFriday: false,
+  islamicEvent: null,
+  hijriDate: '',
+  triggerTestAlert: () => {}
+};
+
 export function PrayerProvider({ children }: { children: React.ReactNode }) {
-  const [times, setTimes] = useState<PrayerTimesData | null>(getPrayerTimesLocal(24.7136, 46.6753));
-  const [currentTime, setCurrentTime] = useState(new Date());
+  const [mounted, setMounted] = useState(false);
+  const [times, setTimes] = useState<PrayerTimesData | null>(null);
+  const [currentTime, setCurrentTime] = useState<Date | null>(null);
   const [locationName, setLocationName] = useState('الرياض، السعودية');
   const [coords, setCoords] = useState<{ lat: number; lng: number }>({ lat: 24.7136, lng: 46.6753 });
   const [alert, setAlert] = useState<{ type: 'adhan' | 'iqama'; prayer: string } | null>(null);
   const [lastAlerted, setLastAlerted] = useState<{ prayer: string; type: string; date: string } | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  // Set mounted on client
+  useEffect(() => {
+    setMounted(true);
+    setCurrentTime(new Date());
+    setTimes(getPrayerTimesLocal(24.7136, 46.6753));
+  }, []);
 
   const stopAdhan = () => {
     if (audioRef.current) {
@@ -81,6 +100,8 @@ export function PrayerProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   useEffect(() => {
+    if (!mounted) return;
+    
     if ("geolocation" in navigator) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
@@ -96,9 +117,11 @@ export function PrayerProvider({ children }: { children: React.ReactNode }) {
     } else {
       setCoords({ lat: 24.7136, lng: 46.6753 });
     }
-  }, [fetchLocationName]);
+  }, [fetchLocationName, mounted]);
 
   useEffect(() => {
+    if (!mounted) return;
+    
     const timer = setInterval(() => {
       const now = new Date();
       setCurrentTime(now);
@@ -146,7 +169,7 @@ export function PrayerProvider({ children }: { children: React.ReactNode }) {
       }
     }, 1000);
     return () => clearInterval(timer);
-  }, [coords, alert]);
+  }, [coords, alert, mounted, lastAlerted]);
 
   const playAdhan = () => {
     if (audioRef.current) {
@@ -155,7 +178,7 @@ export function PrayerProvider({ children }: { children: React.ReactNode }) {
   };
 
   const nextPrayerData = useCallback(() => {
-    if (!times) return null;
+    if (!times || !currentTime) return null;
     const prayers = [
       { id: 'fajr', name: 'الفجر', time: times.fajr },
       { id: 'sunrise', name: 'الشروق', time: times.sunrise },
@@ -181,7 +204,7 @@ export function PrayerProvider({ children }: { children: React.ReactNode }) {
     return { name: 'الفجر', time: times.fajr, remaining: 'غداً' };
   }, [times, currentTime]);
 
-  const value = {
+  const value: PrayerContextType = mounted && currentTime ? {
     times,
     nextPrayer: nextPrayerData(),
     currentTime,
@@ -194,19 +217,24 @@ export function PrayerProvider({ children }: { children: React.ReactNode }) {
       playAdhan();
       setTimeout(() => {
         setAlert(prev => (prev?.type === 'adhan' ? { type: 'iqama', prayer: 'fajr' } : prev));
-      }, 5000); // After 5 seconds show iqama
+      }, 5000);
     }
-  };
+  } : DEFAULT_PRAYER_VALUE;
 
   return (
     <PrayerContext.Provider value={value}>
       {children}
-      <audio 
-        ref={audioRef} 
-        src="https://www.islamcan.com/audio/adhan/azan1.mp3" 
-        preload="auto"
-      />
-      <PrayerAlert alert={alert} onClose={handleCloseAlert} />
+      {/* Only render audio on client to avoid hydration mismatch */}
+      {mounted && (
+        <>
+          <audio 
+            ref={audioRef} 
+            src="https://www.islamcan.com/audio/adhan/azan1.mp3" 
+            preload="auto"
+          />
+          <PrayerAlert alert={alert} onClose={handleCloseAlert} />
+        </>
+      )}
     </PrayerContext.Provider>
   );
 }
