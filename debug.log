@@ -1,0 +1,19 @@
+2026-02-04T11:28:08.038Z [console][warn] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+2026-02-04T11:28:08.236Z [console][warn] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+2026-02-04T11:28:18.365Z [console][log] __ORCHIDS_NAVIGATE__ http://localhost:3001/login
+2026-02-04T11:28:20.903Z [console][warn] [Fast Refresh] rebuilding
+2026-02-04T11:28:23.380Z [console][warn] [Fast Refresh] done in 2573ms
+2026-02-04T11:28:23.494Z [console][warn] [Fast Refresh] rebuilding
+2026-02-04T11:28:24.157Z [console][warn] [Fast Refresh] done in 769ms
+2026-02-04T11:28:25.089Z [console][warn] [Fast Refresh] rebuilding
+2026-02-04T11:28:25.180Z [console][warn] [Fast Refresh] done in 197ms
+2026-02-04T11:28:26.267Z [console][log] __ORCHIDS_NAVIGATE__ http://localhost:3001/dashboard
+2026-02-04T11:28:26.412Z [console][warn] [Fast Refresh] rebuilding
+2026-02-04T11:28:26.534Z [console][warn] [Fast Refresh] done in 224ms
+2026-02-04T11:28:26.776Z [console][warn] [Fast Refresh] rebuilding
+2026-02-04T11:28:26.817Z [console][warn] [Fast Refresh] done in 149ms
+2026-02-04T11:28:28.098Z [console][warn] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+2026-02-04T11:28:29.415Z [console][error] You are trying to animate  from "0" to "3543569.96". "3543569.96" is not an animatable value.. For more information and steps for solving, visit https://motion.dev/troubleshooting/value-not-animatable
+2026-02-04T11:28:29.416Z [console][error] You are trying to animate  from "0" to "343752.23". "343752.23" is not an animatable value.. For more information and steps for solving, visit https://motion.dev/troubleshooting/value-not-animatable
+2026-02-04T11:28:29.415Z [console][warn] You are trying to animate  from "0" to "3543569.96". "3543569.96" is not an animatable value.. For more information and steps for solving, visit https://motion.dev/troubleshooting/value-not-animatable
+2026-02-04T11:28:29.416Z [console][warn] You are trying to animate  from "0" to "343752.23". "343752.23" is not an animatable value.. For more information and steps for solving, visit https://motion.dev/troubleshooting/value-not-animatable
