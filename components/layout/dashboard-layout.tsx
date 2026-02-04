@@ -31,7 +31,6 @@ interface DashboardLayoutProps {
 export function DashboardLayout({ children, user, permissions, userType, subscriptionData }: DashboardLayoutProps) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const { isRTL } = useLocale();
-  const [mounted, setMounted] = useState(false);
   const [unreadChatCount, setUnreadChatCount] = useState(0);
   const isFetchingRef = useRef(false);
   const pathname = usePathname();
@@ -75,22 +74,10 @@ export function DashboardLayout({ children, user, permissions, userType, subscri
   }, [pathname, user?.company_id, unreadChatCount]);
 
   useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  useEffect(() => {
     fetchUnreadCount();
     const interval = setInterval(fetchUnreadCount, 5000);
     return () => clearInterval(interval);
   }, [fetchUnreadCount]);
-
-  if (!mounted) {
-    return (
-      <div className="h-screen overflow-hidden bg-background text-foreground flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-4 border-blue-500 border-t-transparent" />
-      </div>
-    );
-  }
 
   return (
     <div 
