@@ -104,6 +104,7 @@ export default function LoginForm({ initialEmail = "" }: LoginFormProps) {
   const [showWelcome, setShowWelcome] = useState(false);
   const [userName, setUserName] = useState("");
   const [lastCompany, setLastCompany] = useState<string | null>(null);
+  const [mounted, setMounted] = useState(false);
   const router = useRouter();
 
   const toggleLocale = () => {
@@ -111,6 +112,7 @@ export default function LoginForm({ initialEmail = "" }: LoginFormProps) {
   };
 
   useEffect(() => {
+    setMounted(true);
     const savedCompany = localStorage.getItem("last_company_name");
     if (savedCompany) {
       setLastCompany(savedCompany);
@@ -148,6 +150,15 @@ export default function LoginForm({ initialEmail = "" }: LoginFormProps) {
       setIsLoading(false);
     }
   };
+
+  // Show a minimal loading state during hydration to prevent mismatch
+  if (!mounted) {
+    return (
+      <div className="min-h-screen w-full flex items-center justify-center bg-slate-50 dark:bg-slate-950">
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-blue-500/30 border-t-blue-500" />
+      </div>
+    );
+  }
 
   if (showWelcome) {
     return (
