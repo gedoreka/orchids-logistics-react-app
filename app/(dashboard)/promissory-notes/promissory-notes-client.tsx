@@ -8,7 +8,7 @@ import {
   Calendar, User, CreditCard, Building2, MapPin, X, Check,
   ChevronDown, AlertCircle, Sparkles, RefreshCw, FileSpreadsheet,
   TrendingUp, TrendingDown, DollarSign, ScrollText, PlusCircle,
-  Loader2, CheckCircle
+  Loader2, CheckCircle, Mail, Send
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { DeleteNotification, useDeleteNotification } from "@/components/ui/delete-notification";
@@ -133,10 +133,14 @@ export default function PromissoryNotesClient() {
   const [showForm, setShowForm] = useState(false);
   const [editingNote, setEditingNote] = useState<PromissoryNote | null>(null);
   const [companyInfo, setCompanyInfo] = useState<CompanyInfo | null>(null);
+  const [companyId, setCompanyId] = useState<number | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [showPrintPreview, setShowPrintPreview] = useState(false);
   const [selectedNote, setSelectedNote] = useState<PromissoryNote | null>(null);
   const [deleteLoading, setDeleteLoading] = useState<number | null>(null);
+  const [showEmailModal, setShowEmailModal] = useState(false);
+  const [emailTarget, setEmailTarget] = useState("");
+  const [emailLoading, setEmailLoading] = useState(false);
   const { notification, showDeleteConfirm, showLoading, showSuccess: showSuccessNotif, showError, hideNotification } = useDeleteNotification("amber");
   const printRef = useRef<HTMLDivElement>(null);
 
@@ -179,6 +183,7 @@ export default function PromissoryNotesClient() {
           name: data.company.name,
           commercial_number: data.company.commercial_number || ""
         });
+        setCompanyId(data.company.id);
       }
     } catch (error) {
       console.error("Error fetching company info:", error);
@@ -309,6 +314,49 @@ export default function PromissoryNotesClient() {
   const openPrintPreview = (note: PromissoryNote) => {
     setSelectedNote(note);
     setShowPrintPreview(true);
+  };
+
+  const openEmailModal = (note: PromissoryNote) => {
+    setSelectedNote(note);
+    setEmailTarget("");
+    setShowEmailModal(true);
+  };
+
+  const handleSendEmail = async () => {
+    if (!selectedNote || !emailTarget || !companyId) return;
+    
+    setEmailLoading(true);
+    try {
+      const res = await fetch(`/api/promissory-notes/${selectedNote.id}/send-email`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: emailTarget,
+          company_id: companyId,
+        }),
+      });
+
+      if (res.ok) {
+        setShowEmailModal(false);
+        showSuccessNotif(
+          isRtl ? "تم الإرسال بنجاح" : "Email Sent",
+          isRtl ? "تم إرسال السند لأمر بنجاح عبر البريد الإلكتروني" : "Promissory note sent successfully via email"
+        );
+      } else {
+        showError(
+          isRtl ? "فشل الإرسال" : "Failed to Send",
+          isRtl ? "حدث خطأ أثناء إرسال البريد الإلكتروني" : "An error occurred while sending the email"
+        );
+      }
+    } catch (error) {
+      console.error("Error sending email:", error);
+      showError(
+        isRtl ? "خطأ" : "Error",
+        isRtl ? "حدث خطأ أثناء إرسال البريد الإلكتروني" : "An error occurred while sending the email"
+      );
+    } finally {
+      setEmailLoading(false);
+    }
   };
 
   const printLabels = {
@@ -949,6 +997,13 @@ export default function PromissoryNotesClient() {
                                         <td className="px-6 py-5">
                                             <div className="flex items-center justify-center gap-2">
                                                 <button 
+                                                    onClick={() => openEmailModal(note)}
+                                                    className="h-9 w-9 rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center hover:bg-emerald-500 hover:text-white transition-all shadow-lg active:scale-95"
+                                                    title={isRtl ? "إرسال بريد" : "Send Email"}
+                                                >
+                                                    <Mail size={16} />
+                                                </button>
+                                                <button 
                                                     onClick={() => openPrintPreview(note)}
                                                     className="h-9 w-9 rounded-xl bg-blue-500/10 text-blue-400 flex items-center justify-center hover:bg-blue-500 hover:text-white transition-all shadow-lg active:scale-95"
                                                     title={t("print")}
@@ -1117,10 +1172,79 @@ export default function PromissoryNotesClient() {
                     </div>
                 </div>
               </div>
+              </motion.div>
             </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+          )}
+
+          {/* Email Modal */}
+          {showEmailModal && selectedNote && (
+            <>
+              <motion.div
+                key="email-backdrop"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="fixed inset-0 bg-black/60 backdrop-blur-md z-[100]"
+                onClick={() => !emailLoading && setShowEmailModal(false)}
+              />
+              <motion.div
+                key="email-content"
+                initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.9, y: 20 }}
+                className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[101] w-full max-w-lg p-6"
+              >
+                <div className="bg-white rounded-[2.5rem] p-10 shadow-2xl border border-gray-100">
+                  <div className="text-center mb-8">
+                    <div className="h-20 w-20 rounded-full mx-auto mb-6 flex items-center justify-center bg-amber-100 text-amber-500">
+                      <Mail size={40} />
+                    </div>
+                    <h3 className="text-2xl font-black text-gray-900 mb-2">
+                      {isRtl ? "إرسال السند عبر البريد" : "Send Note via Email"}
+                    </h3>
+                    <p className="text-gray-500 font-medium">
+                      {isRtl ? `سند لأمر رقم ${selectedNote.note_number}` : `Promissory Note #${selectedNote.note_number}`}
+                    </p>
+                  </div>
+                  
+                  <div className="space-y-4 mb-8">
+                    <label className="block">
+                      <span className="text-sm font-bold text-gray-700 mb-2 block">
+                        {isRtl ? "البريد الإلكتروني للمستلم" : "Recipient Email"}
+                      </span>
+                      <input
+                        type="email"
+                        value={emailTarget}
+                        onChange={(e) => setEmailTarget(e.target.value)}
+                        placeholder={isRtl ? "example@email.com" : "example@email.com"}
+                        className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-2xl text-gray-900 font-bold focus:bg-white focus:border-amber-500 outline-none transition-all"
+                        dir="ltr"
+                      />
+                    </label>
+                  </div>
+
+                  <div className="flex gap-3">
+                    <button
+                      onClick={() => setShowEmailModal(false)}
+                      disabled={emailLoading}
+                      className="flex-1 py-4 rounded-2xl bg-gray-100 text-gray-700 font-black hover:bg-gray-200 transition-all disabled:opacity-50"
+                    >
+                      {tCommon("cancel")}
+                    </button>
+                    <button
+                      onClick={handleSendEmail}
+                      disabled={emailLoading || !emailTarget}
+                      className="flex-1 py-4 rounded-2xl bg-amber-500 text-white font-black hover:bg-amber-600 transition-all shadow-xl shadow-amber-200 disabled:opacity-50 flex items-center justify-center gap-2"
+                    >
+                      {emailLoading ? <Loader2 size={20} className="animate-spin" /> : <Send size={20} />}
+                      <span>{isRtl ? "إرسال الآن" : "Send Now"}</span>
+                    </button>
+                  </div>
+                </div>
+              </motion.div>
+            </>
+          )}
+        </AnimatePresence>
 
       {/* Footer */}
       <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-[10px] font-black text-slate-500 uppercase tracking-widest pt-4 opacity-60">

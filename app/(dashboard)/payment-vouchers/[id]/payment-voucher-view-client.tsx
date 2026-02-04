@@ -246,8 +246,9 @@ export function PaymentVoucherViewClient({ voucher, company, companyId }: Paymen
     <div className="h-full flex flex-col bg-transparent" dir={isRtl ? "rtl" : "ltr"}>
       <AnimatePresence>
         {notification.show && (
-          <>
+          <React.Fragment key="notification-wrapper">
             <motion.div
+              key="notification-backdrop"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
@@ -255,6 +256,7 @@ export function PaymentVoucherViewClient({ voucher, company, companyId }: Paymen
               onClick={() => notification.type !== "loading" && hideNotification()}
             />
             <motion.div
+              key="notification-content"
               initial={{ opacity: 0, scale: 0.9, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.9, y: 20 }}
@@ -290,21 +292,23 @@ export function PaymentVoucherViewClient({ voucher, company, companyId }: Paymen
                   )}
                 </div>
               </div>
-            </motion.div>
-          </>
-        )}
+              </motion.div>
+            </React.Fragment>
+          )}
 
-        {showEmailModal && (
-          <>
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-black/60 backdrop-blur-md z-[100]"
-              onClick={() => !emailLoading && setShowEmailModal(false)}
-            />
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+          {showEmailModal && (
+            <React.Fragment key="email-modal-wrapper">
+              <motion.div
+                key="email-modal-backdrop"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="fixed inset-0 bg-black/60 backdrop-blur-md z-[100]"
+                onClick={() => !emailLoading && setShowEmailModal(false)}
+              />
+              <motion.div
+                key="email-modal-content"
+                initial={{ opacity: 0, scale: 0.9, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.9, y: 20 }}
               className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[101] w-full max-w-lg p-6"
@@ -351,10 +355,10 @@ export function PaymentVoucherViewClient({ voucher, company, companyId }: Paymen
                   </div>
                 </div>
               </div>
-            </motion.div>
-          </>
-        )}
-      </AnimatePresence>
+              </motion.div>
+            </React.Fragment>
+          )}
+        </AnimatePresence>
 
       <div className="no-print p-4 md:p-6 pb-0 flex flex-wrap gap-2 justify-between items-center max-w-[1200px] mx-auto w-full">
         <div className="flex items-center gap-3">
