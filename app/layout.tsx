@@ -38,10 +38,11 @@ export default async function RootLayout({
       style={{ fontFeatureSettings: '"tnum" on, "lnum" on' }}
       className={`${inter.variable} ${cairo.variable}`}
     >
-      <body
-        className="antialiased font-cairo bg-background text-foreground"
-        style={{ fontFeatureSettings: '"tnum" on, "lnum" on' }}
-      >
+        <body
+          className="antialiased font-cairo bg-background text-foreground"
+          style={{ fontFeatureSettings: '"tnum" on, "lnum" on' }}
+          suppressHydrationWarning
+        >
         <ThemeProvider
           attribute="class"
           defaultTheme="light"
