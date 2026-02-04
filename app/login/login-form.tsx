@@ -43,8 +43,10 @@ interface Particle {
 
 function ParticleBackground() {
   const [particles, setParticles] = useState<Particle[]>([]);
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    setMounted(true);
     const newParticles: Particle[] = Array.from({ length: 50 }, (_, i) => ({
       id: i,
       x: Math.random() * 100,
@@ -55,6 +57,10 @@ function ParticleBackground() {
     }));
     setParticles(newParticles);
   }, []);
+
+  if (!mounted) {
+    return <div className="absolute inset-0 overflow-hidden pointer-events-none" />;
+  }
 
   return (
     <div className="absolute inset-0 overflow-hidden pointer-events-none">
