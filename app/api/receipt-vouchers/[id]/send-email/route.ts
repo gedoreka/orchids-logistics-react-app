@@ -1,12 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import nodemailer from "nodemailer";
-import { createClient } from "@supabase/supabase-js";
 import { query } from "@/lib/db";
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
 
 export async function POST(
   request: NextRequest,
@@ -22,16 +16,17 @@ export async function POST(
       return NextResponse.json({ error: "Email is required" }, { status: 400 });
     }
 
-    const { data: voucher, error: voucherError } = await supabase
-      .from("receipt_vouchers")
-      .select("*")
-      .eq("id", id)
-      .eq("company_id", company_id)
-      .single();
+    // Use MySQL instead of Supabase
+    const vouchers = await query<any>(
+      `SELECT * FROM receipt_vouchers WHERE id = ? AND company_id = ?`,
+      [id, company_id]
+    );
 
-    if (voucherError || !voucher) {
+    if (!vouchers || vouchers.length === 0) {
       return NextResponse.json({ error: "Voucher not found" }, { status: 404 });
     }
+
+    const voucher = vouchers[0];
 
     const companyData = await query<any>(
       `SELECT name, vat_number, commercial_number, email as company_email, phone as company_phone FROM companies WHERE id = ?`,
