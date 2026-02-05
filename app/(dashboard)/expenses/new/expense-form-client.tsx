@@ -113,9 +113,9 @@ function EmployeeSelect({ row, type, metadata, updateRow, t }: {
       <div className="flex items-center space-x-2 space-x-reverse">
         <input 
           type="text" 
-          className="w-full bg-slate-100 border border-slate-200 rounded-lg px-2 py-1 text-sm"
+          className="w-full bg-slate-100 border border-slate-200 rounded-lg px-2 py-1 text-sm text-gray-900"
           placeholder={t("form.employeeName")}
-          value={row.employee_name}
+          value={row.employee_name || ""}
           onChange={(e) => updateRow(type, row.id, 'employee_name', e.target.value)}
         />
         <button 
@@ -138,7 +138,7 @@ function EmployeeSelect({ row, type, metadata, updateRow, t }: {
             <div 
               className="w-full bg-white/50 border border-slate-200 cursor-pointer text-sm font-medium py-1.5 px-3 flex items-center justify-between min-h-[36px] hover:bg-white hover:border-blue-300 rounded-lg transition-all shadow-sm"
             >
-              <span className={row.employee_name ? "text-slate-900 font-bold" : "text-slate-400"}>
+              <span className={row.employee_name ? "text-gray-900 font-bold" : "text-slate-400"}>
                 {row.employee_name || t("form.selectEmployee")}
               </span>
               <ChevronDown className={`w-4 h-4 text-slate-400 transition-transform duration-200 ${isOpen ? 'rotate-180 text-blue-500' : ''}`} />
@@ -357,7 +357,12 @@ export default function ExpenseFormClient({ user }: { user: User }) {
     let isValid = true;
     Object.values(sections).forEach(rows => {
       rows.forEach(row => {
-        if (!row.amount || !row.expense_date || !row.account_code || !row.cost_center_code) {
+        const amount = String(row.amount || "").trim();
+        const expenseDate = String(row.expense_date || "").trim();
+        const accountCode = String(row.account_code || "").trim();
+        const costCenterCode = String(row.cost_center_code || "").trim();
+        
+        if (!amount || !expenseDate || !accountCode || !costCenterCode) {
           isValid = false;
         }
       });
@@ -373,20 +378,24 @@ export default function ExpenseFormClient({ user }: { user: User }) {
     formData.append("company_id", user.company_id.toString());
     formData.append("user_id", user.id.toString());
     formData.append("month", new Date().toISOString().substring(0, 7));
+    
+    // Log data being sent for debugging
+    let rowCount = 0;
     Object.entries(sections).forEach(([mainType, rows]) => {
       rows.forEach(row => {
         formData.append("main_type[]", mainType);
-        formData.append("expense_date[]", row.expense_date);
-        formData.append("expense_type[]", row.expense_type);
-        formData.append("amount[]", row.amount);
-        formData.append("employee_iqama[]", row.employee_iqama);
-        formData.append("employee_name[]", row.employee_name);
-        formData.append("employee_id[]", row.employee_id);
-        formData.append("account_code[]", row.account_code);
-        formData.append("cost_center_code[]", row.cost_center_code);
-        formData.append("description[]", row.description);
-        formData.append("tax_value[]", row.tax_value);
-        formData.append("net_amount[]", row.net_amount);
+        formData.append("expense_date[]", row.expense_date || "");
+        formData.append("expense_type[]", row.expense_type || "");
+        formData.append("amount[]", row.amount || "");
+        formData.append("employee_iqama[]", row.employee_iqama || "");
+        formData.append("employee_name[]", row.employee_name || "");
+        formData.append("employee_id[]", row.employee_id || "");
+        formData.append("account_code[]", row.account_code || "");
+        formData.append("cost_center_code[]", row.cost_center_code || "");
+        formData.append("description[]", row.description || "");
+        formData.append("tax_value[]", row.tax_value || "0");
+        formData.append("net_amount[]", row.net_amount || "");
+        rowCount++;
         if (row.attachment) {
           formData.append("attachment[]", row.attachment);
         } else {
@@ -395,17 +404,32 @@ export default function ExpenseFormClient({ user }: { user: User }) {
       });
     });
     try {
+      console.log("Sending expenses data:", rowCount, "rows");
       const res = await fetch("/api/expenses/save", {
         method: "POST",
         body: formData,
       });
+      
+      console.log("Response status:", res.status);
+      
+      if (!res.ok) {
+        throw new Error(`HTTP Error: ${res.status} ${res.statusText}`);
+      }
+      
       const data = await res.json();
+      console.log("Response data:", data);
+      
       if (data.success) {
         setSavedCount(data.savedCount);
         setShowSuccess(true);
+      } else {
+        const errorMsg = data.message || data.error || "فشل حفظ المنصرفات";
+        toast.error(errorMsg);
       }
     } catch (error) {
-      console.error("Save failed", error);
+      console.error("Save failed:", error);
+      const errorMessage = error instanceof Error ? error.message : "حدث خطأ في الاتصال";
+      toast.error(`خطأ: ${errorMessage}`);
     } finally {
       setSubmitting(false);
     }
@@ -506,7 +530,7 @@ export default function ExpenseFormClient({ user }: { user: User }) {
             </div>
             <div className="flex flex-col md:flex-row gap-4">
               <select 
-                className="flex-1 bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all text-sm"
+                className="flex-1 bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all text-sm text-gray-900"
                 value={selectedTypeToAdd}
                 onChange={(e) => setSelectedTypeToAdd(e.target.value)}
               >
@@ -572,16 +596,16 @@ export default function ExpenseFormClient({ user }: { user: User }) {
 
                               <input 
                                 type="date" 
-                                className="w-full bg-transparent border-none focus:ring-0 text-xs font-bold"
-                                value={row.expense_date}
+                                className="w-full bg-transparent border-none focus:ring-0 text-xs font-bold text-gray-900"
+                                value={row.expense_date || ""}
                                 onChange={(e) => updateRow(type, row.id, 'expense_date', e.target.value)}
                                 required
                               />
                             </td>
                             <td className="px-2 py-4">
                               <select 
-                                className="w-full bg-transparent border-none focus:ring-0 text-xs font-bold"
-                                value={row.expense_type}
+                                className="w-full bg-transparent border-none focus:ring-0 text-xs font-bold text-gray-900"
+                                value={row.expense_type || ""}
                                 onChange={(e) => updateRow(type, row.id, 'expense_type', e.target.value)}
                               >
                                 <option value="">{t("form.selectType")}</option>
@@ -596,9 +620,9 @@ export default function ExpenseFormClient({ user }: { user: User }) {
                             <td className="px-2 py-4">
                               <input 
                                 type="number" 
-                                className="w-20 bg-transparent border-none focus:ring-0 text-xs font-black text-blue-700"
+                                className="w-20 bg-transparent border-none focus:ring-0 text-xs font-black text-gray-900"
                                 placeholder="0.00"
-                                value={row.amount}
+                                value={row.amount || ""}
                                 onChange={(e) => updateRow(type, row.id, 'amount', e.target.value)}
                                 required
                               />
@@ -623,8 +647,8 @@ export default function ExpenseFormClient({ user }: { user: User }) {
                                 <td className="px-2 py-4">
                                   <input 
                                     type="text" 
-                                    className="w-24 bg-transparent border-none focus:ring-0 text-xs font-bold text-slate-600"
-                                    value={row.employee_iqama}
+                                    className="w-24 bg-transparent border-none focus:ring-0 text-xs font-bold text-gray-900"
+                                    value={row.employee_iqama || ""}
                                     readOnly={!row.manualEmployee}
                                     onChange={(e) => updateRow(type, row.id, 'employee_iqama', e.target.value)}
                                     placeholder={t("form.iqamaNumber")}
@@ -643,8 +667,8 @@ export default function ExpenseFormClient({ user }: { user: User }) {
                                 <td className="px-2 py-4">
                                   <input 
                                     type="text" 
-                                    className="w-24 bg-transparent border-none focus:ring-0 text-xs font-bold text-slate-600"
-                                    value={row.employee_iqama}
+                                    className="w-24 bg-transparent border-none focus:ring-0 text-xs font-bold text-gray-900"
+                                    value={row.employee_iqama || ""}
                                     readOnly={!row.manualEmployee}
                                     onChange={(e) => updateRow(type, row.id, 'employee_iqama', e.target.value)}
                                     placeholder={t("form.iqamaNumber")}
@@ -662,7 +686,7 @@ export default function ExpenseFormClient({ user }: { user: User }) {
                                       level: acc.account_level,
                                       parent: acc.parent_account
                                     }))}
-                                    value={row.account_code}
+                                    value={row.account_code || ""}
                                     onSelect={(val) => updateRow(type, row.id, 'account_code', val)}
                                     placeholder={t("form.account")}
                                   />
@@ -678,7 +702,7 @@ export default function ExpenseFormClient({ user }: { user: User }) {
                                         level: cc.center_level,
                                         parent: cc.parent_center
                                       }))}
-                                      value={row.cost_center_code}
+                                      value={row.cost_center_code || ""}
                                       onSelect={(val) => updateRow(type, row.id, 'cost_center_code', val)}
                                       placeholder={t("form.costCenter")}
                                     />
@@ -687,9 +711,9 @@ export default function ExpenseFormClient({ user }: { user: User }) {
                           <td className="px-2 py-4">
                             <input 
                               type="text" 
-                              className="w-full bg-transparent border-none focus:ring-0 text-sm"
+                              className="w-full bg-transparent border-none focus:ring-0 text-sm text-gray-900"
                               placeholder={t("form.description")}
-                              value={row.description}
+                              value={row.description || ""}
                               onChange={(e) => updateRow(type, row.id, 'description', e.target.value)}
                             />
                           </td>
@@ -762,27 +786,53 @@ export default function ExpenseFormClient({ user }: { user: User }) {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100]"
-              onClick={() => router.push('/expenses')}
+              className="fixed inset-0 bg-black/70 backdrop-blur-md z-[9998]"
+              onClick={() => {
+                setShowSuccess(false);
+                setSections({});
+                setSelectedTypeToAdd("");
+              }}
             />
             <motion.div 
-              initial={{ opacity: 0, scale: 0.8, y: 100 }}
+              initial={{ opacity: 0, scale: 0.85, y: 50 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.8, y: 100 }}
-              className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[101] bg-gradient-to-br from-indigo-600 to-purple-700 text-white p-8 rounded-3xl shadow-2xl text-center min-w-[350px]"
+              exit={{ opacity: 0, scale: 0.85, y: 50 }}
+              transition={{ type: "spring", duration: 0.5 }}
+              className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[9999] bg-gradient-to-br from-green-500 via-emerald-600 to-teal-700 text-white p-10 rounded-3xl shadow-2xl text-center w-[90%] max-w-[550px]"
             >
-              <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-6 animate-bounce">
-                <CheckCircle className="w-10 h-10 text-white" />
+              <div className="w-24 h-24 bg-white/25 rounded-full flex items-center justify-center mx-auto mb-6 animate-bounce">
+                <CheckCircle className="w-16 h-16 text-white drop-shadow-lg" />
               </div>
-              <h2 className="text-2xl font-bold mb-3">{t("form.success")}</h2>
-              <p className="text-base opacity-90 mb-6">{t("form.successDesc", { count: savedCount })}</p>
-              <button 
-                onClick={() => router.push('/expenses')}
-                className="bg-white text-indigo-700 px-8 py-2.5 rounded-xl font-bold text-base hover:bg-indigo-50 transition-colors flex items-center mx-auto space-x-2 space-x-reverse"
-              >
-                <span>{t("form.backToCenter")}</span>
-                <ArrowRight className="w-4 h-4" />
-              </button>
+              <h2 className="text-4xl font-black mb-4 drop-shadow-md">✓ تم الحفظ بنجاح</h2>
+              <p className="text-xl opacity-95 mb-2 font-bold">
+                تم حفظ {savedCount} من السجلات بنجاح في النظام
+              </p>
+              <p className="text-base opacity-85 mb-10">
+                يمكنك الآن إدخال منصروفات جديدة أو العودة للقائمة الرئيسية
+              </p>
+              <div className="flex gap-4 justify-center">
+                <button 
+                  onClick={() => {
+                    setShowSuccess(false);
+                    setSections({});
+                    setSelectedTypeToAdd("");
+                  }}
+                  className="bg-white text-green-700 px-8 py-3.5 rounded-xl font-bold text-base hover:bg-green-50 transition-all flex items-center gap-2 shadow-lg hover:shadow-xl active:scale-95"
+                >
+                  <Plus className="w-5 h-5" />
+                  <span>إدخال جديد</span>
+                </button>
+                <button 
+                  onClick={() => {
+                    setShowSuccess(false);
+                    setTimeout(() => router.push('/expenses'), 200);
+                  }}
+                  className="bg-white/20 backdrop-blur-sm text-white border-2 border-white/40 px-8 py-3.5 rounded-xl font-bold text-base hover:bg-white/30 transition-all flex items-center gap-2 shadow-lg hover:shadow-xl active:scale-95"
+                >
+                  <span>العودة للمركز</span>
+                  <ArrowRight className="w-5 h-5" />
+                </button>
+              </div>
             </motion.div>
           </>
         )}

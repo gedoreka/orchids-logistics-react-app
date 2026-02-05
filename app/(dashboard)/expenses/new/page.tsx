@@ -25,7 +25,7 @@ export default async function NewExpensePage() {
   const user = users[0];
 
     return (
-      <div className="max-w-[96%] w-[96%] mx-auto py-6">
+      <div className="w-full py-6">
         <ExpenseFormClient user={user} />
       </div>
     );

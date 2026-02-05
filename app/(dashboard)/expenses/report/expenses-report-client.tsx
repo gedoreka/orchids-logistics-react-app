@@ -34,6 +34,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { getPublicUrl } from "@/lib/utils";
+import { HierarchicalSearchableSelect } from "@/components/ui/hierarchical-searchable-select";
 import {
   Select,
   SelectContent,
@@ -315,21 +316,102 @@ export function ExpensesReportClient({ companyId }: ExpensesReportClientProps) {
 
   const fetchMetadata = async () => {
     try {
-      const [accountsRes, centersRes] = await Promise.all([
+      const [accountsRes, metadataRes] = await Promise.all([
         fetch(`/api/accounts?company_id=${companyId}`),
         fetch(`/api/expenses/metadata?company_id=${companyId}`)
       ]);
-      const accountsData = await accountsRes.json();
-      const centersData = await centersRes.json();
       
-      if (accountsData.success) {
-        setAccounts(accountsData.accounts || []);
+      if (!accountsRes.ok) {
+        console.error('Accounts API error:', accountsRes.status, accountsRes.statusText);
+        throw new Error(`Accounts API failed: ${accountsRes.status}`);
       }
-      if (centersData.costCenters) {
-        setCostCenters(centersData.costCenters);
+      
+      if (!metadataRes.ok) {
+        console.error('Metadata API error:', metadataRes.status, metadataRes.statusText);
+        throw new Error(`Metadata API failed: ${metadataRes.status}`);
+      }
+      
+      const accountsData = await accountsRes.json();
+      const metadataData = await metadataRes.json();
+      
+      console.log('Raw Accounts Data:', accountsData);
+      console.log('Raw Metadata Data:', metadataData);
+      
+      // Create a map of id to account_code for parent lookup
+      const accountIdToCodeMap: Record<any, string> = {};
+      const centerIdToCodeMap: Record<any, string> = {};
+      
+      // Transform accounts data to match HierarchicalSearchableSelect format
+      // Use account_code as id for the selector to work with code-based values
+      if (accountsData.success && accountsData.accounts && Array.isArray(accountsData.accounts)) {
+        // First pass: build id->code mapping
+        accountsData.accounts.forEach((acc: any) => {
+          accountIdToCodeMap[acc.id] = acc.account_code;
+        });
+        
+        // Second pass: transform with proper parent lookup
+        const transformedAccounts = accountsData.accounts.map((acc: any) => {
+          const parentId = acc.parent_id;
+          let parent_code = null;
+          
+          // If parent_id is set, look it up in the id->code map
+          if (parentId && accountIdToCodeMap[parentId]) {
+            parent_code = accountIdToCodeMap[parentId];
+          }
+          
+          return {
+            id: acc.account_code, // Use code as id for selector
+            code: acc.account_code,
+            name: acc.account_name,
+            type: acc.account_type || 'sub',
+            parent_id: parent_code
+          };
+        });
+        
+        console.log('Transformed Accounts:', transformedAccounts);
+        setAccounts(transformedAccounts);
+      } else {
+        console.warn('Accounts data not in expected format:', accountsData);
+        setAccounts([]);
+      }
+      
+      // Transform cost centers data to match HierarchicalSearchableSelect format
+      // Use center_code as id for the selector to work with code-based values
+      if (metadataData.costCenters && Array.isArray(metadataData.costCenters)) {
+        // First pass: build id->code mapping for cost centers
+        metadataData.costCenters.forEach((center: any) => {
+          centerIdToCodeMap[center.id] = center.center_code;
+        });
+        
+        // Second pass: transform with proper parent lookup
+        const transformedCenters = metadataData.costCenters.map((center: any) => {
+          const parentId = center.parent_center;
+          let parent_code = null;
+          
+          // If parent_center is set, look it up in the id->code map
+          if (parentId && centerIdToCodeMap[parentId]) {
+            parent_code = centerIdToCodeMap[parentId];
+          }
+          
+          return {
+            id: center.center_code, // Use code as id for selector
+            code: center.center_code,
+            name: center.center_name,
+            type: 'sub',
+            parent_id: parent_code
+          };
+        });
+        
+        console.log('Transformed Cost Centers:', transformedCenters);
+        setCostCenters(transformedCenters);
+      } else {
+        console.warn('Cost centers data not in expected format:', metadataData);
+        setCostCenters([]);
       }
     } catch (error) {
       console.error('Error fetching metadata:', error);
+      setAccounts([]);
+      setCostCenters([]);
     }
   };
 
@@ -340,7 +422,10 @@ export function ExpensesReportClient({ companyId }: ExpensesReportClientProps) {
 
   const handleEditClick = async (item: ExpenseItem | DeductionItem) => {
     setSelectedItem(item);
+    
+    // Fetch metadata first
     await fetchMetadata();
+    
     setEditForm({
       id: item.id,
       expense_date: item.expense_date?.split('T')[0] || '',
@@ -349,8 +434,8 @@ export function ExpensesReportClient({ companyId }: ExpensesReportClientProps) {
       amount: item.amount || 0,
       tax_value: 'tax_value' in item ? item.tax_value || 0 : 0,
       net_amount: 'net_amount' in item ? item.net_amount || item.amount || 0 : item.amount || 0,
-      account_id: item.account_id || '',
-      cost_center_id: item.cost_center_id || '',
+      account_code: item.account_code || '',
+      cost_center_code: item.center_code || '',
       expense_type: 'expense_type' in item ? item.expense_type : (item as any).deduction_type,
       description: item.description || '',
       month_reference: item.month_reference || selectedMonth,
@@ -400,8 +485,8 @@ export function ExpensesReportClient({ companyId }: ExpensesReportClientProps) {
       formData.append('employee_name', editForm.employee_name);
       formData.append('employee_iqama', editForm.employee_iqama);
       formData.append('amount', editForm.amount.toString());
-      formData.append('account_id', editForm.account_id?.toString() || '');
-      formData.append('cost_center_id', editForm.cost_center_id?.toString() || '');
+      formData.append('account_code', editForm.account_code || '');
+      formData.append('cost_center_code', editForm.cost_center_code || '');
       formData.append('expense_type', editForm.expense_type);
       formData.append('description', editForm.description);
       if ('tax_value' in editForm) {
@@ -441,8 +526,8 @@ export function ExpensesReportClient({ companyId }: ExpensesReportClientProps) {
       formData.append('employee_name', deduction.employee_name || '');
       formData.append('employee_iqama', deduction.employee_iqama || '');
       formData.append('amount', (deduction.amount || 0).toString());
-      formData.append('account_id', (deduction.account_id || '').toString());
-      formData.append('cost_center_id', (deduction.cost_center_id || '').toString());
+      formData.append('account_code', deduction.account_code || '');
+      formData.append('cost_center_code', deduction.center_code || '');
       formData.append('expense_type', deduction.deduction_type || '');
       formData.append('description', deduction.description || '');
       formData.append('attachment', deduction.attachment || '');
@@ -965,36 +1050,40 @@ export function ExpensesReportClient({ companyId }: ExpensesReportClientProps) {
             </DialogHeader>
             <div className="grid grid-cols-2 gap-4 p-2 max-h-[70vh] overflow-y-auto">
               <div className="space-y-2">
-                <Label>{t("form.date")}</Label>
+                <Label className="text-gray-900 font-semibold">{t("form.date")}</Label>
                 <Input 
                   type="date" 
                   value={editForm.expense_date || ""} 
                   onChange={(e) => setEditForm({...editForm, expense_date: e.target.value})}
+                  className="text-gray-900"
                 />
               </div>
                 <div className="space-y-2">
-                  <Label>{t("common.type")}</Label>
+                  <Label className="text-gray-900 font-semibold">{t("common.type")}</Label>
                   <Input 
                     disabled 
                     value={translateType(editForm.expense_type)} 
+                    className="text-gray-900 bg-gray-50"
                   />
                 </div>
               <div className="space-y-2">
-                <Label>{t("form.employee")}</Label>
+                <Label className="text-gray-900 font-semibold">{t("form.employee")}</Label>
                 <Input 
                   value={editForm.employee_name || ""} 
                   onChange={(e) => setEditForm({...editForm, employee_name: e.target.value})}
+                  className="text-gray-900"
                 />
               </div>
               <div className="space-y-2">
-                <Label>{t("form.iqamaNumber")}</Label>
+                <Label className="text-gray-900 font-semibold">{t("form.iqamaNumber")}</Label>
                 <Input 
                   value={editForm.employee_iqama || ""} 
                   onChange={(e) => setEditForm({...editForm, employee_iqama: e.target.value})}
+                  className="text-gray-900"
                 />
               </div>
               <div className="space-y-2">
-                <Label>{t("form.amount")}</Label>
+                <Label className="text-gray-900 font-semibold">{t("form.amount")}</Label>
                 <Input 
                   type="number" 
                   value={editForm.amount || 0} 
@@ -1008,72 +1097,72 @@ export function ExpensesReportClient({ companyId }: ExpensesReportClientProps) {
                       net_amount: "tax_value" in editForm ? val - tax : val
                     });
                   }}
+                  className="text-gray-900"
                 />
               </div>
               {"tax_value" in editForm && (
                 <>
                   <div className="space-y-2">
-                    <Label>{t("form.tax")}</Label>
-                    <Input disabled value={formatNumber(editForm.tax_value || 0)} />
+                    <Label className="text-gray-900 font-semibold">{t("form.tax")}</Label>
+                    <Input disabled value={formatNumber(editForm.tax_value || 0)} className="text-gray-900 bg-gray-50" />
                   </div>
                   <div className="space-y-2">
-                    <Label>{t("form.net")}</Label>
-                    <Input disabled value={formatNumber(editForm.net_amount || 0)} />
+                    <Label className="text-gray-900 font-semibold">{t("form.net")}</Label>
+                    <Input disabled value={formatNumber(editForm.net_amount || 0)} className="text-gray-900 bg-gray-50" />
                   </div>
                 </>
               )}
               <div className="space-y-2">
-                <Label>{t("form.account")}</Label>
-                <Select 
-                  value={editForm.account_id?.toString()} 
-                  onValueChange={(val) => setEditForm({...editForm, account_id: val})}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder={t("form.account")} />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {accounts.map(acc => (
-                      <SelectItem key={acc.id} value={acc.id.toString()}>{acc.account_code} - {acc.account_name}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <Label className="text-gray-900 font-semibold">{t("form.account")}</Label>
+                <HierarchicalSearchableSelect 
+                  value={editForm.account_code || ""}
+                  onSelect={(value) => setEditForm({...editForm, account_code: value})}
+                  items={accounts}
+                  placeholder={t("form.account")}
+                />
               </div>
               <div className="space-y-2">
-                <Label>{t("form.costCenter")}</Label>
-                <Select 
-                  value={editForm.cost_center_id?.toString()} 
-                  onValueChange={(val) => setEditForm({...editForm, cost_center_id: val})}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder={t("form.costCenter")} />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {costCenters.map(center => (
-                      <SelectItem key={center.id} value={center.id.toString()}>{center.center_code} - {center.center_name}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="col-span-2 space-y-2">
-                <Label>{t("form.description")}</Label>
-                <Textarea 
-                  value={editForm.description || ""} 
-                  onChange={(e) => setEditForm({...editForm, description: e.target.value})}
+                <Label className="text-gray-900 font-semibold">{t("form.costCenter")}</Label>
+                <HierarchicalSearchableSelect 
+                  value={editForm.cost_center_code || ""}
+                  onSelect={(value) => setEditForm({...editForm, cost_center_code: value})}
+                  items={costCenters}
+                  placeholder={t("form.costCenter")}
                 />
               </div>
               <div className="col-span-2 space-y-2">
-                <Label>{t("form.document")}</Label>
-                <div className="flex items-center gap-4">
+                <Label className="text-gray-900 font-semibold">{t("form.description")}</Label>
+                <Textarea 
+                  value={editForm.description || ""} 
+                  onChange={(e) => setEditForm({...editForm, description: e.target.value})}
+                  className="text-gray-900 min-h-[80px]"
+                />
+              </div>
+              <div className="col-span-2 space-y-2">
+                <Label className="text-gray-900 font-semibold">{t("form.document")}</Label>
+                <div className="space-y-2">
                   {editForm.attachment && !editForm.newFile && (
-                    <div className="flex items-center gap-2 text-xs text-blue-600 bg-blue-50 px-3 py-1 rounded-lg">
-                      <Paperclip className="w-3 h-3" />
-                      <span>مرفق موجود</span>
+                    <div className="flex items-center gap-2 text-sm text-green-700 bg-green-50 px-4 py-2 rounded-lg border border-green-200">
+                      <Paperclip className="w-4 h-4" />
+                      <span className="font-semibold">مستند محفوظ مسبقاً</span>
                     </div>
                   )}
-                  <Input 
-                    type="file" 
-                    onChange={(e) => setEditForm({...editForm, newFile: e.target.files?.[0] || null})}
-                  />
+                  {editForm.newFile && (
+                    <div className="flex items-center gap-2 text-sm text-blue-700 bg-blue-50 px-4 py-2 rounded-lg border border-blue-200">
+                      <FileText className="w-4 h-4" />
+                      <span className="font-semibold">مستند جديد: {editForm.newFile.name}</span>
+                    </div>
+                  )}
+                  <div className="flex flex-col gap-2">
+                    <Input 
+                      type="file" 
+                      onChange={(e) => setEditForm({...editForm, newFile: e.target.files?.[0] || null})}
+                      className="text-gray-900"
+                    />
+                    <p className="text-xs text-gray-600 bg-gray-50 px-3 py-2 rounded border border-gray-200">
+                      <strong>ملاحظة:</strong> المستند المحفوظ سيبقى كما هو إلا إذا قمت باختيار مستند جديد من جهازك.
+                    </p>
+                  </div>
                 </div>
               </div>
             </div>

@@ -12,8 +12,10 @@ export async function POST(request: NextRequest) {
     const userId = formData.get("user_id") as string;
     const month = formData.get("month") as string;
 
+    console.log("API: Received expense data - companyId:", companyId, "month:", month);
+
     if (!companyId) {
-      return NextResponse.json({ error: "Company ID required" }, { status: 400 });
+      return NextResponse.json({ success: false, error: "Company ID required" }, { status: 400 });
     }
 
     const mainTypes = formData.getAll("main_type[]") as string[];
@@ -31,6 +33,12 @@ export async function POST(request: NextRequest) {
     const attachments = formData.getAll("attachment[]") as any[];
 
     const count = expenseDates.length;
+    console.log("API: Processing", count, "expense rows");
+    
+    if (count === 0) {
+      return NextResponse.json({ success: false, error: "No expenses to save" }, { status: 400 });
+    }
+
     let savedCount = 0;
 
     // Check if sub-user for logging
@@ -40,39 +48,56 @@ export async function POST(request: NextRequest) {
     const isSubUser = session?.user_type === "sub_user";
 
     // Fetch account and cost center IDs for mapping
-    const accounts = await query<{ id: number; account_code: string }>(
-      "SELECT id, account_code FROM accounts WHERE company_id = ?",
-      [companyId]
-    );
-    const costCenters = await query<{ id: number; center_code: string }>(
-      "SELECT id, center_code FROM cost_centers WHERE company_id = ?",
-      [companyId]
-    );
+    let accountMap = new Map();
+    let centerMap = new Map();
+    
+    try {
+      const accounts = await query<{ id: number; account_code: string }>(
+        "SELECT id, account_code FROM accounts WHERE company_id = ?",
+        [companyId]
+      );
+      accountMap = new Map(accounts.map(a => [a.account_code, a.id]));
+      console.log("API: Loaded", accounts.length, "accounts");
+    } catch (accError) {
+      console.warn("Warning: Could not load accounts", accError);
+    }
 
-    const accountMap = new Map(accounts.map(a => [a.account_code, a.id]));
-    const centerMap = new Map(costCenters.map(c => [c.center_code, c.id]));
+    try {
+      const costCenters = await query<{ id: number; center_code: string }>(
+        "SELECT id, center_code FROM cost_centers WHERE company_id = ?",
+        [companyId]
+      );
+      centerMap = new Map(costCenters.map(c => [c.center_code, c.id]));
+      console.log("API: Loaded", costCenters.length, "cost centers");
+    } catch (ccError) {
+      console.warn("Warning: Could not load cost centers", ccError);
+    }
 
     for (let i = 0; i < count; i++) {
-      const mainType = mainTypes[i];
-      const date = expenseDates[i];
-      const type = expenseTypes[i];
-      const amount = parseFloat(amounts[i] || "0");
-      
-      if (!date || !type || amount <= 0) continue;
+      try {
+        const mainType = mainTypes[i];
+        const date = expenseDates[i];
+        const type = expenseTypes[i];
+        const amount = parseFloat(amounts[i] || "0");
+        
+        if (!date || !type || amount <= 0) {
+          console.log("API: Skipping row", i, "- invalid data");
+          continue;
+        }
 
-      const iqama = employeeIqamas[i] || "";
-      const name = employeeNames[i] || "";
-      const empId = parseInt(employeeIds[i] || "0");
-      const accountCode = accountCodes[i] || "";
-      const centerCode = costCenterCodes[i] || "";
-      const desc = descriptions[i] || "";
-      const tax = parseFloat(taxValues[i] || "0");
-      const net = parseFloat(netAmounts[i] || amounts[i] || "0");
-      const attachment = attachments[i];
+        const iqama = employeeIqamas[i] || "";
+        const name = employeeNames[i] || "";
+        const empId = parseInt(employeeIds[i] || "0");
+        const accountCode = accountCodes[i] || "";
+        const centerCode = costCenterCodes[i] || "";
+        const desc = descriptions[i] || "";
+        const tax = parseFloat(taxValues[i] || "0");
+        const net = parseFloat(netAmounts[i] || amounts[i] || "0");
+        const attachment = attachments[i];
 
-      let attachmentPath = "";
+        let attachmentPath = "";
         if (attachment && attachment instanceof File && attachment.size > 0) {
-            // Sanitize filename strictly to ASCII to avoid Supabase/S3 storage errors
+          try {
             const ext = attachment.name.split('.').pop() || 'file';
             const sanitizedBase = attachment.name
               .normalize('NFD')
@@ -82,132 +107,78 @@ export async function POST(request: NextRequest) {
               .replace(/[^a-zA-Z0-9._-]/g, "")
               .replace(/_{2,}/g, "_")
               .replace(/^_+|_+$/g, "");
-          
-          const safeName = sanitizedBase || `file_${Date.now()}`;
-          const fileName = `${Date.now()}_${safeName}`;
-          // Make sure extension is preserved if not already in safeName
-          const finalFileName = fileName.endsWith(`.${ext}`) ? fileName : `${fileName}.${ext}`;
-          
-          const { data, error: uploadError } = await supabase.storage
-            .from("expenses")
-            .upload(`uploads/${finalFileName}`, attachment);
-        
-        if (uploadError) {
-          console.error("Supabase upload error:", uploadError);
+            
+            const safeName = sanitizedBase || `file_${Date.now()}`;
+            const fileName = `${Date.now()}_${safeName}`;
+            const finalFileName = fileName.endsWith(`.${ext}`) ? fileName : `${fileName}.${ext}`;
+            
+            const { data, error: uploadError } = await supabase.storage
+              .from("expenses")
+              .upload(`uploads/${finalFileName}`, attachment);
+            
+            if (uploadError) {
+              console.warn("Supabase upload warning:", uploadError);
+            } else if (data) {
+              attachmentPath = data.path;
+            }
+          } catch (uploadErr) {
+            console.warn("File upload error:", uploadErr);
+          }
         }
 
-        if (!uploadError && data) {
-          attachmentPath = data.path;
-        }
-      }
+        const accId = accountMap.get(accountCode) || null;
+        const centerId = centerMap.get(centerCode) || null;
+        const monthRef = date.substring(0, 7);
 
-      const accId = accountMap.get(accountCode) || null;
-      const centerId = centerMap.get(centerCode) || null;
-      const monthRef = date.substring(0, 7); // YYYY-MM
-
-      // 1. Insert into monthly_expenses
-      const result = await execute(
-        `INSERT INTO monthly_expenses (
-          company_id, expense_date, expense_type, amount, description,
-          employee_iqama, employee_name, account_code, cost_center_code,
-          tax_value, net_amount, month_reference, account_id, cost_center_id, attachment
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        [
-          companyId, date, type, amount, desc,
-          iqama, name, accountCode, centerCode,
-          tax, net, monthRef, accId, centerId, attachmentPath
-        ]
-      );
+        // Insert into monthly_expenses with attachment path
+        const result = await execute(
+          `INSERT INTO monthly_expenses (
+            company_id, expense_date, expense_type, amount, description,
+            employee_iqama, employee_name, account_code, cost_center_code,
+            tax_value, net_amount, month_reference, account_id, cost_center_id, attachment
+          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+          [
+            companyId, date, type, amount, desc,
+            iqama, name, accountCode, centerCode,
+            tax, net, monthRef, accId, centerId, attachmentPath
+          ]
+        );
 
         if (result.insertId) {
           savedCount++;
-
-          // --- INTEGRATED ACCOUNTING: Record Journal Entry in Supabase ---
-          if (accId) {
-            try {
-              const { recordJournalEntry } = await import("@/lib/accounting");
-              const journalLines = [
-                {
-                  account_id: accId,
-                  cost_center_id: centerId || undefined,
-                  description: desc || `Expense: ${type}`,
-                  debit: net,
-                  credit: 0
-                },
-                {
-                  account_id: 1, // الصندوق (Default Credit for Expenses)
-                  description: `سداد مصروف: ${type}`,
-                  debit: 0,
-                  credit: net
-                }
-              ];
-
-              await recordJournalEntry({
-                entry_date: date,
-                entry_number: `EXP-${result.insertId}`,
-                description: desc || `مصروف: ${type}`,
-                company_id: parseInt(companyId),
-                created_by: "System",
-                lines: journalLines
-              });
-            } catch (accError) {
-              console.error("Error recording accounting entry for expense:", accError);
-            }
-          }
-          // -----------------------------------------------------------
-
-          // 3. Business Logic based on mainType
-        
-        // A. Iqama Renewal Logic
-        if (mainType === 'iqama' && empId > 0) {
-          const renewalAmounts = [162, 163, 2425];
-          if (renewalAmounts.includes(Math.floor(amount))) {
-            // Renew for 3 months from current date
-            await execute(
-              `UPDATE employees 
-               SET iqama_expiry = CURRENT_DATE + INTERVAL '3 months' 
-               WHERE id = ?`,
-              [empId]
-            );
-          }
+          console.log("API: Saved expense row", i + 1, "with ID", result.insertId, attachmentPath ? "with attachment" : "no attachment");
         }
-
-        // B. Traffic Violation Logic
-        if ((mainType === 'traffic' || type === "مخالفات مرورية") && empId > 0) {
-          await execute(
-            `INSERT INTO employee_violations 
-             (employee_id, violation_type, violation_date, violation_amount, 
-              deducted_amount, remaining_amount, status, violation_description) 
-             VALUES (?, 'traffic', ?, ?, ?, 0, 'deducted', ?)`,
-            [empId, date, amount, amount, desc || `مخالفة مرورية - ${name}`]
-          );
-        }
-
-        // C. Loan (Advances) Logic
-        if (mainType === 'advances' && empId > 0) {
-          await execute(
-            `INSERT INTO monthly_deductions 
-             (company_id, amount, month_reference, employee_name, deduction_type, deduction_date) 
-             VALUES (?, ?, ?, ?, 'advance', ?)`,
-            [companyId, amount, monthRef, name, date]
-          );
-        }
+      } catch (rowError) {
+        console.error("API: Error processing row", i, ":", rowError);
+        // Continue processing other rows
       }
     }
 
     if (isSubUser && savedCount > 0) {
-      await logSubUserActivity({
-        subUserId: parseInt(userId),
-        companyId: parseInt(companyId),
-        actionType: "EXPENSES_CREATED",
-        actionDescription: `تم تسجيل عدد (${savedCount}) من المنصرفات/الاستقطاعات لشهر: ${month}`,
-        metadata: { count: savedCount, month }
-      });
+      try {
+        await logSubUserActivity({
+          subUserId: parseInt(userId),
+          companyId: parseInt(companyId),
+          actionType: "EXPENSES_CREATED",
+          actionDescription: `تم تسجيل عدد (${savedCount}) من المنصرفات/الاستقطاعات لشهر: ${month}`,
+          metadata: { count: savedCount, month }
+        });
+      } catch (activityError) {
+        console.warn("Warning: Could not log activity", activityError);
+      }
     }
 
-    return NextResponse.json({ success: true, savedCount });
+    console.log("API: Saved total of", savedCount, "expenses");
+    return NextResponse.json({ success: true, savedCount, message: `تم حفظ ${savedCount} منصروف بنجاح` });
   } catch (error) {
     console.error("Error saving expenses:", error);
-    return NextResponse.json({ error: "Failed to save expenses" }, { status: 500 });
+    const errorMessage = error instanceof Error ? error.message : "Unknown error";
+    console.error("Full error details:", JSON.stringify(error));
+    return NextResponse.json({ 
+      success: false,
+      error: "Failed to save expenses",
+      message: `خطأ: ${errorMessage}`,
+      details: errorMessage
+    }, { status: 500 });
   }
 }

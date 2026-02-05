@@ -386,8 +386,8 @@ export async function PUT(request: NextRequest) {
     const expenseDate = formData.get('expense_date') as string;
     const employeeName = formData.get('employee_name') as string;
     const employeeIqama = formData.get('employee_iqama') as string;
-    const accountId = formData.get('account_id') as string;
-    const costCenterId = formData.get('cost_center_id') as string;
+    const accountCode = formData.get('account_code') as string;
+    const costCenterCode = formData.get('cost_center_code') as string;
     const expenseType = formData.get('expense_type') as string;
     const description = formData.get('description') as string;
     const monthReference = formData.get('month_reference') as string;
@@ -404,8 +404,8 @@ export async function PUT(request: NextRequest) {
           amount = ?,
           tax_value = ?,
           net_amount = ?,
-          account_id = ?,
-          cost_center_id = ?,
+          account_code = ?,
+          cost_center_code = ?,
           expense_type = ?,
           description = ?,
           month_reference = ?,
@@ -418,8 +418,8 @@ export async function PUT(request: NextRequest) {
           amount,
           taxValue,
           netAmount,
-          accountId ? parseInt(accountId) : null,
-          costCenterId ? parseInt(costCenterId) : null,
+          accountCode || null,
+          costCenterCode || null,
           expenseType || null,
           description || null,
           monthReference || null,
@@ -436,8 +436,8 @@ export async function PUT(request: NextRequest) {
           employee_name = ?,
           employee_iqama = ?,
           amount = ?,
-          account_id = ?,
-          cost_center_id = ?,
+          account_code = ?,
+          cost_center_code = ?,
           deduction_type = ?,
           description = ?,
           month_reference = ?,
@@ -449,8 +449,8 @@ export async function PUT(request: NextRequest) {
           employeeName || null,
           employeeIqama || null,
           amount,
-          accountId ? parseInt(accountId) : null,
-          costCenterId ? parseInt(costCenterId) : null,
+          accountCode || null,
+          costCenterCode || null,
           expenseType || null,
           description || null,
           monthReference || null,

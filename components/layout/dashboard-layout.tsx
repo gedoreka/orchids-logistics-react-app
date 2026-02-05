@@ -44,13 +44,17 @@ export function DashboardLayout({ children, user, permissions, userType, subscri
     isFetchingRef.current = true;
     try {
       const response = await fetch(`/api/admin/chat?company_id=${user.company_id}&action=client_unread`);
-      if (!response.ok) throw new Error("Fetch failed");
+      if (!response.ok) {
+        console.warn(`Chat API returned status ${response.status}:`, response.statusText);
+        return; // Don't throw, just log and return
+      }
       const data = await response.json();
       if (data.unread_count !== undefined) {
         setUnreadChatCount(data.unread_count);
       }
       } catch (error: any) {
         if (error.name === 'TypeError' && error.message.includes('fetch')) {
+          console.warn('Network error fetching chat:', error.message);
           return;
         }
         console.error("Error fetching unread count:", error);

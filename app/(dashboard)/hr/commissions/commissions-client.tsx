@@ -484,7 +484,7 @@ export function CommissionsClient({ companyId, initialPackages }: CommissionsCli
   };
 
   return (
-    <div className="min-h-screen bg-[#f1f5f9] p-4 md:p-8" dir={isRtl ? "rtl" : "ltr"}>
+    <div className="min-h-screen bg-transparent p-4 md:p-8" dir={isRtl ? "rtl" : "ltr"}>
       {/* Header Section */}
       <div className="relative mb-8 rounded-[2rem] bg-gradient-to-r from-[#1e293b] to-[#334155] p-8 text-white shadow-2xl overflow-hidden">
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
@@ -674,7 +674,7 @@ export function CommissionsClient({ companyId, initialPackages }: CommissionsCli
                         value={emailDialog.email}
                         onChange={(e) => setEmailDialog({ ...emailDialog, email: e.target.value })}
                         placeholder="employee@example.com"
-                        className="w-full pl-4 pr-12 py-4 rounded-2xl border border-gray-100 bg-gray-50 focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/5 outline-none font-bold transition-all text-sm"
+                        className="w-full pl-4 pr-12 py-4 rounded-2xl border border-gray-100 bg-gray-50 focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/5 outline-none font-bold transition-all text-sm text-gray-900"
                         autoFocus
                       />
                     </div>
@@ -722,7 +722,7 @@ export function CommissionsClient({ companyId, initialPackages }: CommissionsCli
                         type="month" 
                         value={month}
                         onChange={(e) => setMonth(e.target.value)}
-                        className="w-full pl-4 pr-10 py-3 rounded-2xl border border-gray-100 bg-gray-50 focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/5 outline-none font-bold text-sm transition-all"
+                        className="w-full pl-4 pr-10 py-3 rounded-2xl border border-gray-100 bg-gray-50 text-gray-900 focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/5 outline-none font-bold text-sm transition-all"
                       />
                     </div>
                   </div>
@@ -734,7 +734,7 @@ export function CommissionsClient({ companyId, initialPackages }: CommissionsCli
                       <select 
                         value={selectedPackageId}
                         onChange={(e) => setSelectedPackageId(e.target.value)}
-                        className="w-full pl-4 pr-10 py-3 rounded-2xl border border-gray-100 bg-gray-50 focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/5 outline-none font-bold text-sm transition-all appearance-none"
+                        className="w-full pl-4 pr-10 py-3 rounded-2xl border border-gray-100 bg-gray-50 text-gray-900 focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/5 outline-none font-bold text-sm transition-all appearance-none"
                       >
                         <option value="">{t("package")}</option>
                         {packages.map(p => (
@@ -762,7 +762,7 @@ export function CommissionsClient({ companyId, initialPackages }: CommissionsCli
                       onClick={() => setMode("fixed_daily")}
                       className={cn(
                         "py-2.5 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-2",
-                        mode === "fixed_daily" ? "bg-white text-blue-600 shadow-md border border-gray-100" : "text-gray-400 hover:text-gray-600"
+                        mode === "fixed_daily" ? "bg-white text-blue-600 shadow-md border border-gray-100" : "text-gray-700 hover:text-gray-900"
                       )}
                     >
                       <Activity size={14} />
@@ -772,7 +772,7 @@ export function CommissionsClient({ companyId, initialPackages }: CommissionsCli
                       onClick={() => setMode("fixed_monthly")}
                       className={cn(
                         "py-2.5 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-2",
-                        mode === "fixed_monthly" ? "bg-white text-purple-600 shadow-md border border-gray-100" : "text-gray-400 hover:text-gray-600"
+                        mode === "fixed_monthly" ? "bg-white text-purple-600 shadow-md border border-gray-100" : "text-gray-700 hover:text-gray-900"
                       )}
                     >
                       <Calendar size={14} />
@@ -782,7 +782,7 @@ export function CommissionsClient({ companyId, initialPackages }: CommissionsCli
                       onClick={() => setMode("percentage")}
                       className={cn(
                         "py-2.5 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-2",
-                        mode === "percentage" ? "bg-white text-amber-600 shadow-md border border-gray-100" : "text-gray-400 hover:text-gray-600"
+                        mode === "percentage" ? "bg-white text-amber-600 shadow-md border border-gray-100" : "text-gray-700 hover:text-gray-900"
                       )}
                     >
                       <Percent size={14} />
@@ -964,7 +964,7 @@ export function CommissionsClient({ companyId, initialPackages }: CommissionsCli
                                 placeholder="بحث بالاسم أو الكود..."
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
-                                className="pl-10 pr-4 py-2.5 rounded-xl border border-gray-200 bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/5 outline-none font-bold text-xs transition-all w-64"
+                                className="pl-10 pr-4 py-2.5 rounded-xl border border-gray-200 bg-white text-gray-900 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/5 outline-none font-bold text-xs transition-all w-64"
                               />
                               {searchQuery && (
                                 <button 
@@ -1089,7 +1089,7 @@ export function CommissionsClient({ companyId, initialPackages }: CommissionsCli
                                       type="date" 
                                       value={comm.start_date}
                                       onChange={(e) => handleCommChange(realIdx, "start_date", e.target.value)}
-                                      className="w-32 px-3 py-2 rounded-xl border border-gray-100 bg-gray-50/50 focus:bg-white focus:border-blue-500 outline-none text-xs font-bold transition-all"
+                                      className="w-32 px-3 py-2 rounded-xl border border-gray-100 bg-gray-50/50 text-gray-900 focus:bg-white focus:border-blue-500 outline-none text-xs font-bold transition-all"
                                     />
                                   </td>
                                   {mode === "fixed_daily" && (
@@ -1099,7 +1099,7 @@ export function CommissionsClient({ companyId, initialPackages }: CommissionsCli
                                           type="number" 
                                           value={comm.daily_amount}
                                           onChange={(e) => handleCommChange(realIdx, "daily_amount", e.target.value)}
-                                          className="w-24 px-3 py-2 rounded-xl border border-gray-100 bg-gray-50/50 text-center focus:bg-white focus:border-blue-500 outline-none text-xs font-black transition-all"
+                                          className="w-24 px-3 py-2 rounded-xl border border-gray-100 bg-gray-50/50 text-gray-900 text-center focus:bg-white focus:border-blue-500 outline-none text-xs font-black transition-all"
                                         />
                                       </td>
                                       <td className="px-6 py-4 text-center">
@@ -1107,7 +1107,7 @@ export function CommissionsClient({ companyId, initialPackages }: CommissionsCli
                                           type="number" 
                                           value={comm.days}
                                           onChange={(e) => handleCommChange(realIdx, "days", e.target.value)}
-                                          className="w-20 px-3 py-2 rounded-xl border border-gray-100 bg-gray-50/50 text-center focus:bg-white focus:border-blue-500 outline-none text-xs font-black transition-all"
+                                          className="w-20 px-3 py-2 rounded-xl border border-gray-100 bg-gray-50/50 text-gray-900 text-center focus:bg-white focus:border-blue-500 outline-none text-xs font-black transition-all"
                                         />
                                       </td>
                                         <td className="px-6 py-4 text-center">
@@ -1121,7 +1121,7 @@ export function CommissionsClient({ companyId, initialPackages }: CommissionsCli
                                           type="number" 
                                           value={comm.daily_amount}
                                           onChange={(e) => handleCommChange(realIdx, "daily_amount", e.target.value)}
-                                          className="w-32 px-3 py-2 rounded-xl border border-gray-100 bg-gray-50/50 text-center focus:bg-white focus:border-blue-500 outline-none text-xs font-black transition-all"
+                                          className="w-32 px-3 py-2 rounded-xl border border-gray-100 bg-gray-50/50 text-gray-900 text-center focus:bg-white focus:border-blue-500 outline-none text-xs font-black transition-all"
                                         />
                                       </td>
                                     )}
@@ -1133,7 +1133,7 @@ export function CommissionsClient({ companyId, initialPackages }: CommissionsCli
                                               type="number" 
                                               value={comm.percentage}
                                               onChange={(e) => handleCommChange(realIdx, "percentage", e.target.value)}
-                                              className="w-24 px-3 py-2 rounded-xl border border-gray-100 bg-gray-50/50 text-center focus:bg-white focus:border-blue-500 outline-none text-xs font-black transition-all pr-6"
+                                              className="w-24 px-3 py-2 rounded-xl border border-gray-100 bg-gray-50/50 text-gray-900 text-center focus:bg-white focus:border-blue-500 outline-none text-xs font-black transition-all pr-6"
                                             />
                                             <span className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 text-[10px]">%</span>
                                           </div>
@@ -1143,7 +1143,7 @@ export function CommissionsClient({ companyId, initialPackages }: CommissionsCli
                                             type="number" 
                                             value={comm.revenue}
                                             onChange={(e) => handleCommChange(realIdx, "revenue", e.target.value)}
-                                            className="w-28 px-3 py-2 rounded-xl border border-gray-100 bg-gray-50/50 text-center focus:bg-white focus:border-blue-500 outline-none text-xs font-black transition-all"
+                                            className="w-28 px-3 py-2 rounded-xl border border-gray-100 bg-gray-50/50 text-gray-900 text-center focus:bg-white focus:border-blue-500 outline-none text-xs font-black transition-all"
                                           />
                                         </td>
                                         <td className="px-6 py-4 text-center">

@@ -7,13 +7,13 @@ const pool = mysql.createPool({
   database: process.env.DB_NAME,
   port: parseInt(process.env.DB_PORT || '3306'),
   waitForConnections: true,
-  connectionLimit: 10,
+  connectionLimit: 20, // Increased from 10
   queueLimit: 0,
   enableKeepAlive: true,
   keepAliveInitialDelay: 10000,
   idleTimeout: 60000,
   maxIdle: 10,
-  connectTimeout: 10000, // 10 seconds timeout
+  connectTimeout: 20000, // Increased from 10000 to 20 seconds for remote database
 });
 
 pool.on('error', (err) => {
