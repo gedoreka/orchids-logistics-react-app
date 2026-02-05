@@ -338,17 +338,28 @@ export function ExpensesReportClient({ companyId }: ExpensesReportClientProps) {
       console.log('Raw Metadata Data:', metadataData);
       
         // Transform accounts data to match HierarchicalSearchableSelect format
-        // The API returns parent_account as the parent's account_code (e.g., "1" for assets)
+        // Use database id for uniqueness but account_code for display/selection
         if (accountsData.success && accountsData.accounts && Array.isArray(accountsData.accounts)) {
-          const transformedAccounts = accountsData.accounts.map((acc: any) => ({
-            id: acc.account_code, // Use code as id for selector
+          // First, filter out duplicates by account_code (keep first occurrence)
+          const seenCodes = new Set<string>();
+          const uniqueAccounts = accountsData.accounts.filter((acc: any) => {
+            if (seenCodes.has(acc.account_code)) {
+              return false;
+            }
+            seenCodes.add(acc.account_code);
+            return true;
+          });
+          
+          const transformedAccounts = uniqueAccounts.map((acc: any, idx: number) => ({
+            id: acc.account_code, // Use code as id for selector (value sent to API)
             code: acc.account_code,
             name: acc.account_name,
             type: acc.account_type || (acc.account_level === 1 ? 'main' : 'sub'),
-            parent_id: acc.parent_account || null // parent_account is already the parent code
+            parent_id: acc.parent_account || null, // parent_account is already the parent code
+            _dbId: acc.id // Keep original DB id for uniqueness
           }));
           
-          console.log('Transformed Accounts:', transformedAccounts);
+          console.log('Transformed Accounts:', transformedAccounts.length, 'from', accountsData.accounts.length);
           setAccounts(transformedAccounts);
         } else {
           console.warn('Accounts data not in expected format:', accountsData);
@@ -364,15 +375,26 @@ export function ExpensesReportClient({ companyId }: ExpensesReportClientProps) {
             centerIdToCodeMap[center.id] = center.center_code;
           });
           
-          const transformedCenters = metadataData.costCenters.map((center: any) => ({
+          // Filter out duplicate center codes
+          const seenCenterCodes = new Set<string>();
+          const uniqueCenters = metadataData.costCenters.filter((center: any) => {
+            if (seenCenterCodes.has(center.center_code)) {
+              return false;
+            }
+            seenCenterCodes.add(center.center_code);
+            return true;
+          });
+          
+          const transformedCenters = uniqueCenters.map((center: any, idx: number) => ({
             id: center.center_code, // Use code as id for selector
             code: center.center_code,
             name: center.center_name,
             type: center.center_level === 1 ? 'main' : 'sub',
-            parent_id: center.parent_center ? centerIdToCodeMap[center.parent_center] || null : null
+            parent_id: center.parent_center ? centerIdToCodeMap[center.parent_center] || null : null,
+            _dbId: center.id
           }));
           
-          console.log('Transformed Cost Centers:', transformedCenters);
+          console.log('Transformed Cost Centers:', transformedCenters.length, 'from', metadataData.costCenters.length);
           setCostCenters(transformedCenters);
         } else {
           console.warn('Cost centers data not in expected format:', metadataData);
@@ -664,12 +686,12 @@ export function ExpensesReportClient({ companyId }: ExpensesReportClientProps) {
             <Card className="border-none shadow-lg rounded-3xl overflow-hidden">
               <CardContent className="p-4 space-y-4">
                 {Object.keys(expensesGrouped).length > 0 ? (
-                  Object.entries(expensesGrouped).map(([group, expenses]) => {
-                    const groupKey = `expense-${group}`;
-                    const isExpanded = expandedGroups[groupKey] !== false;
-                    const groupTotal = expenses.reduce((sum, e) => sum + parseFloat(String(e.amount || 0)), 0);
-                    return (
-                      <div key={group} className="border border-slate-200 rounded-3xl overflow-hidden">
+Object.entries(expensesGrouped).map(([group, expenses], groupIdx) => {
+                      const groupKey = `expense-${group}`;
+                      const isExpanded = expandedGroups[groupKey] !== false;
+                      const groupTotal = expenses.reduce((sum, e) => sum + parseFloat(String(e.amount || 0)), 0);
+                      return (
+                        <div key={`expense-group-${group}-${groupIdx}`} className="border border-slate-200 rounded-3xl overflow-hidden">
                         <button onClick={() => toggleGroup(groupKey)} className="w-full bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-white p-3 flex items-center justify-between hover:opacity-95 transition-all">
                           <div className="flex items-center gap-3">
                             <Folder className="w-5 h-5" />
@@ -701,8 +723,8 @@ export function ExpensesReportClient({ companyId }: ExpensesReportClientProps) {
                                           </tr>
                                         </thead>
                                         <tbody>
-                                          {expenses.map((expense, idx) => (
-                                            <tr key={expense.id} className="border-b border-slate-100 hover:bg-blue-50/30 transition-colors bg-white text-[11px]">
+{expenses.map((expense, idx) => (
+                                              <tr key={`expense-${expense.id}-${idx}`} className="border-b border-slate-100 hover:bg-blue-50/30 transition-colors bg-white text-[11px]">
                                               <td className="p-1 text-center border-l border-slate-50">{idx + 1}</td>
                                               <td className="p-1 text-center border-l border-slate-50">{formatDate(expense.expense_date)}</td>
                                               <td className="p-1 text-center font-bold border-l border-slate-50">{expense.employee_name || "-"}</td>
@@ -786,12 +808,12 @@ export function ExpensesReportClient({ companyId }: ExpensesReportClientProps) {
               </CardHeader>
               <CardContent className="p-4 space-y-4">
                 {Object.keys(deductionsGrouped).length > 0 ? (
-                  Object.entries(deductionsGrouped).map(([group, deductions]) => {
-                    const groupKey = `deduction-${group}`;
-                    const isExpanded = expandedGroups[groupKey] !== false;
-                    const groupTotal = deductions.reduce((sum, d) => sum + parseFloat(String(d.amount || 0)), 0);
-                    return (
-                      <div key={group} className="border border-slate-200 rounded-3xl overflow-hidden">
+Object.entries(deductionsGrouped).map(([group, deductions], groupIdx) => {
+                      const groupKey = `deduction-${group}`;
+                      const isExpanded = expandedGroups[groupKey] !== false;
+                      const groupTotal = deductions.reduce((sum, d) => sum + parseFloat(String(d.amount || 0)), 0);
+                      return (
+                        <div key={`deduction-group-${group}-${groupIdx}`} className="border border-slate-200 rounded-3xl overflow-hidden">
                         <button onClick={() => toggleGroup(groupKey)} className="w-full bg-gradient-to-r from-rose-500 via-red-500 to-orange-500 text-white p-3 flex items-center justify-between">
                           <div className="flex items-center gap-3">
                             <Folder className="w-5 h-5" />
@@ -822,8 +844,8 @@ export function ExpensesReportClient({ companyId }: ExpensesReportClientProps) {
                                           </tr>
                                         </thead>
                                         <tbody>
-                                          {deductions.map((deduction, idx) => (
-                                            <tr key={deduction.id} className="border-b border-slate-100 hover:bg-rose-50/30 transition-colors bg-white text-[11px]">
+{deductions.map((deduction, idx) => (
+                                              <tr key={`deduction-${deduction.id}-${idx}`} className="border-b border-slate-100 hover:bg-rose-50/30 transition-colors bg-white text-[11px]">
                                               <td className="p-1 text-center border-l border-slate-50">{idx + 1}</td>
                                               <td className="p-1 text-center border-l border-slate-50">{formatDate(deduction.expense_date)}</td>
                                               <td className="p-1 text-center font-bold border-l border-slate-50">{deduction.employee_name || "-"}</td>

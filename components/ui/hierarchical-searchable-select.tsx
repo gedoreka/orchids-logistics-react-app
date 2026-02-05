@@ -163,14 +163,14 @@ export function HierarchicalSearchableSelect({
           >
             <div className="p-1.5 space-y-0">
               {displayItems.length > 0 ? (
-                displayItems.map((item) => {
-                  const isSelected = String(item.id) === String(value);
-                  const hasChildren = item.children && item.children.length > 0;
-                  const isExpanded = expandedNodes[item.id];
-                  const isMain = item.type === 'main';
+                  displayItems.map((item, index) => {
+                    const isSelected = String(item.id) === String(value);
+                    const hasChildren = item.children && item.children.length > 0;
+                    const isExpanded = expandedNodes[item.id];
+                    const isMain = item.type === 'main';
 
-                  return (
-                    <div key={`${item.id}-${item.level}`}>
+                    return (
+                      <div key={`item-${item.id}-${index}`}>
                       <button
                         type="button"
                         onClick={() => {
