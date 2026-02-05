@@ -11,14 +11,13 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "Company ID required" }, { status: 400 });
     }
 
-    const subtypes = await query(
-      `SELECT id, main_type, subtype_name, is_custom, added_by
-       FROM deduction_subtypes 
-       WHERE (company_id = ? OR company_id = 1)
-       AND (is_custom = FALSE OR added_by = ? OR company_id = 1)
-       ORDER BY main_type, sort_order, subtype_name`,
-      [companyId, userId]
-    );
+      const subtypes = await query(
+        `SELECT id, main_type, subtype_name, is_custom, added_by
+         FROM deduction_subtypes 
+         WHERE company_id = ?
+         ORDER BY main_type, sort_order, subtype_name`,
+        [companyId]
+      );
 
     return NextResponse.json({ success: true, subtypes });
   } catch (error) {

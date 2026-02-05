@@ -23,15 +23,14 @@ export async function GET(request: NextRequest) {
       [companyId]
     );
 
-    // 3. Fetch Deduction Subtypes
-    const subtypes = await query(
-      `SELECT DISTINCT main_type, subtype_name, is_custom
-       FROM deduction_subtypes 
-       WHERE (company_id = ? OR company_id = 1)
-       AND (is_custom = FALSE OR added_by = ? OR company_id = 1)
-       ORDER BY main_type, subtype_name`,
-      [companyId, userId]
-    );
+      // 3. Fetch Deduction Subtypes
+      const subtypes = await query(
+        `SELECT DISTINCT main_type, subtype_name, is_custom
+         FROM deduction_subtypes 
+         WHERE company_id = ?
+         ORDER BY main_type, sort_order, subtype_name`,
+        [companyId]
+      );
 
     // 4. Fetch Employees
     const employees = await query(

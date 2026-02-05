@@ -168,32 +168,32 @@ export default function DeductionSubtypeManager({ companyId, userId, onClose, on
               <h3 className="text-base font-bold text-slate-900">{t("subtypeManager.addNew")}</h3>
             </div>
             
-            <form onSubmit={handleAdd} className="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
-              <div className="space-y-1.5">
-                <label className="text-xs font-bold text-slate-500 mr-1">{t("subtypeManager.mainType")}</label>
-                <select 
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-rose-500 focus:bg-white outline-none transition-all"
-                  value={newSubtype.main_type}
-                  onChange={(e) => setNewSubtype(prev => ({ ...prev, main_type: e.target.value }))}
-                  required
-                >
-                  {Object.entries(mainTypes).map(([key]) => (
-                    <option key={key} value={key}>{t(`types.${key}`)}</option>
-                  ))}
-                </select>
-              </div>
-              
-              <div className="space-y-1.5 md:col-span-2">
-                <label className="text-xs font-bold text-slate-500 mr-1">{t("subtypeManager.subtypeName")}</label>
-                <input 
-                  type="text"
-                  placeholder={t("subtypeManager.subtypePlaceholder")}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-rose-500 focus:bg-white outline-none transition-all"
-                  value={newSubtype.subtype_name}
-                  onChange={(e) => setNewSubtype(prev => ({ ...prev, subtype_name: e.target.value }))}
-                  required
-                />
-              </div>
+              <form onSubmit={handleAdd} className="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
+                <div className="space-y-1.5">
+                  <label className="block text-xs font-bold text-slate-700 mb-1">{t("subtypeManager.mainType")}</label>
+                  <select 
+                    className="w-full bg-slate-100 border-2 border-slate-300 rounded-xl px-4 py-2.5 text-sm text-slate-900 focus:ring-2 focus:ring-rose-500 focus:bg-white focus:border-rose-400 outline-none transition-all"
+                    value={newSubtype.main_type}
+                    onChange={(e) => setNewSubtype(prev => ({ ...prev, main_type: e.target.value }))}
+                    required
+                  >
+                    {Object.entries(mainTypes).map(([key]) => (
+                      <option key={key} value={key}>{t(`types.${key}`)}</option>
+                    ))}
+                  </select>
+                </div>
+                
+                <div className="space-y-1.5 md:col-span-2">
+                  <label className="block text-xs font-bold text-slate-700 mb-1">{t("subtypeManager.subtypeName")}</label>
+                  <input 
+                    type="text"
+                    placeholder={t("subtypeManager.subtypePlaceholder")}
+                    className="w-full bg-slate-100 border-2 border-slate-300 rounded-xl px-4 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 focus:ring-2 focus:ring-rose-500 focus:bg-white focus:border-rose-400 outline-none transition-all"
+                    value={newSubtype.subtype_name}
+                    onChange={(e) => setNewSubtype(prev => ({ ...prev, subtype_name: e.target.value }))}
+                    required
+                  />
+                </div>
 
               <button 
                 type="submit"
