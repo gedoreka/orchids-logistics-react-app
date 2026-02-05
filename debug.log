@@ -155,3 +155,116 @@ It can also happen if the client has a browser extension installed which messes 
                       <script>
                       <RootLayout>
                         <html lang="ar" dir="rtl" suppressHydrationWarning={true} sty...
+2026-02-05T21:12:51.168Z [console][warn] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+2026-02-05T21:12:52.217Z [console][warn] [Fast Refresh] rebuilding
+2026-02-05T21:12:52.230Z [console][warn] [Fast Refresh] done in 113ms
+2026-02-05T21:13:06.904Z [console][warn] [Fast Refresh] rebuilding
+2026-02-05T21:13:08.350Z [console][warn] [Fast Refresh] done in 1547ms
+2026-02-05T21:13:51.508Z [console][warn] [Fast Refresh] rebuilding
+2026-02-05T21:13:51.511Z [console][warn] [Fast Refresh] done in 105ms
+2026-02-05T21:12:52.217Z [console][log] [Fast Refresh] rebuilding
+2026-02-05T21:12:52.230Z [console][log] [Fast Refresh] done in 113ms
+2026-02-05T21:13:06.903Z [console][log] [Fast Refresh] rebuilding
+2026-02-05T21:13:08.350Z [console][log] [Fast Refresh] done in 1547ms
+2026-02-05T21:13:51.508Z [console][log] [Fast Refresh] rebuilding
+2026-02-05T21:13:51.511Z [console][log] [Fast Refresh] done in 105ms
+2026-02-05T21:12:57.866Z [network][GET 200] /api/expenses/report?month=2026-02&report_type=expenses
+  response: {"success":true,"data":{"companyInfo":{"id":22,"name":"شركة المستقبل للخدمات اللوجستية","logo_path":"https://xaexoopjqkrzhbochbef.supabase.co/storage/v1/object/public/establishments/logos/m6zkls1wbuf_1769900558364.png","currency":"SAR"},"month":"2026-02","reportType":"expenses","expensesGrouped":{"أدوات مكتبية":[{"id":2028,"company_id":22,"expense_date":"2026-02-03T21:00:00.000Z","expense_type":"أدوات مكتبية","amount":"1000.00","description":"شراء احتياجات مكتب الرياض","employee_iqama":null,"employee_name":null,"account_code":"112","cost_center_code":"2001","month_reference":"2026-02","created_at":"2026-02-05T16:44:30.000Z","tax_value":"0.00","net_amount":"1000.00","account_id":null,"cost_center_id":null,"attachment":"uploads/1770325183786_Screenshot_2026-01-28_at_12.35.49PM.png","driver_name":null,"driver_iqama":null,"plate_number":null,"attachment_path":null,"acc_code":null,"account_name":null,"center_code":"2001","center_name":null}],"إيجار سكن موظفين":[{"id":2026,"company_id":22,"expense_date":"2026-02-04T21:00:00.000Z","expense_type":"إيجار سكن موظفين","amount":"2500.00","description":"سكن العمال بالرياض ","employee_iqama":"","employee_name":"","account_code":"110","cost_center_code":"2001","month_reference":"2026-02","created_at":"2026-02-05T16:44:27.000Z","tax_value":"0.00","net_amount":"2500.00","account_id":null,"cost_center_id":null,"attachment":null,"driver_name":null,"driver_iqama":null,"plate_number":null,"attachment_path":null,"acc_code":null,"account_name":null,"center_code":"2001","center_name":null}],"بنزين 91":[{"id":2025,"company_id":22,"expense_date":"2026-02-04T21:00:00.000Z","expense_type":"بنزين 91","amount":"150.00","description":"وقود المشرف","employee_iqama":"","employee_name":"","account_code":"108","cost_center_code":"2003","month_reference":"2026-02","created_at":"2026-02-05T16:44:26.000Z","tax_value":"22.50","net_amount":"172.50","account_id":null,"cost_center_id":null,"attachment":null,"driver_name":null,"driver_iqama":null,"plate_numb... [truncated]
+2026-02-05T21:13:00.074Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-05T21:13:02.102Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-05T21:13:04.064Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-05T21:13:07.149Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-05T21:13:08.074Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-05T21:13:12.536Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-05T21:13:13.361Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-05T21:13:16.167Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-05T21:13:17.381Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-05T21:13:20.784Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-05T21:13:22.063Z [network][GET 200] /api/admin/notifications?limit=1&last_id=9
+  response: {"success":true,"notifications":[]}
+2026-02-05T21:13:23.777Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-05T21:13:24.452Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-05T21:13:27.001Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-05T21:13:27.987Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-05T21:13:32.035Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-05T21:13:32.634Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-05T21:13:35.949Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-05T21:13:37.221Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-05T21:13:39.866Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-05T21:13:41.851Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-05T21:13:43.805Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-05T21:13:46.873Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-05T21:13:47.918Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-05T21:13:51.898Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-05T21:13:52.056Z [network][GET 200] /api/email/accounts?company_id=22
+  response: {"accounts":[],"providers":{"hostinger":{"name":"Hostinger","imap_host":"imap.hostinger.com","imap_port":993,"smtp_host":"smtp.hostinger.com","smtp_port":465},"gmail":{"name":"Gmail","imap_host":"imap.gmail.com","imap_port":993,"smtp_host":"smtp.gmail.com","smtp_port":465},"outlook":{"name":"Outlook/Hotmail","imap_host":"outlook.office365.com","imap_port":993,"smtp_host":"smtp.office365.com","smtp_port":587},"custom":{"name":"Custom","imap_host":"","imap_port":993,"smtp_host":"","smtp_port":465}}}
+2026-02-05T21:13:52.348Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-05T21:13:52.675Z [network][GET 200] /api/admin/notifications?limit=5
+  response: {"success":true,"notifications":[{"id":9,"title":"✨ الثورة الجديدة تبدأ الآن! ✨","message":"انطلق نحو آفاق أوسع مع الإصدار الثوري الجديد لنظامنا، الذي صُمم من الصفر ليقدم لك تجربة فائقة السرعة والأداء!\n\nما الجديد في هذه النقلة النوعية؟\n\n🔄 تحديث شامل وكلي لكل أجزاء النظام\n⚡ تحول كامل في لغة البرمجة ليكون النظام أسرع، أخف، وأكثر استجابة من أي وقت مضى\n🗃️ تنظيم ذكي وكامل للبيانات يضمن لك سلاسة في العمل ودقة في الأداء\n🔗 دمج متكامل للعديد من الخدمات لإدارة موحدة وسهلة\n➕ إضافة مجموعة من الخدمات الجديدة التي تُوسع من قدراتك وتُبسط مهامك\n\nاستكشف عالمًا من الإمكانيات الجديدة!\nللتعرّف على كل الميزات والتحسينات التي تنتظرك، ندعوك لاكتشافها بنفسك.\n\nلديك استفسار أو تحتاج إلى مساعدة؟\nفريق دعمنا الفني جاهز دائمًا لمساعدتك. تواصل معنا بكل سهولة عبر أيقونة الدعم الفني داخل النظام، وسنكون سعداء بخدمتك.\n\nانطلق معنا نحو مستقبل أسرع، أذكى، وأكثر كفاءة! 🚀","image_url":null,"type":"info","is_read":0,"created_at":"2026-01-28T10:11:28.000Z","updated_at":"2026-01-28T10:11:28.000Z","sent_to_all":1,"sent_to_companies":null,"image_filename":null,"image_path":null},{"id":8,"title":"تصميم جديد قادم","message":"نفيدكم بتعطل بعد الخدمات بسبب الاصدار الجديد القادم خلال ايام","image_url":null,"type":"info","is_read":0,"created_at":"2026-01-15T20:27:41.000Z","updated_at":"2026-01-15T20:27:41.000Z","sent_to_all":1,"sent_to_companies":null,"image_filename":null,"image_path":null},{"id":7,"title":"🔔 ✨ التحديث الجديد كليًا! ✨","message":"اكتشف الآن النسخة الجديدة كليًا من Logistics Systems Pro 🚀\r\n\r\n👥 تحديث شامل لقسم شؤون الموظفين (HR)\r\n📦 تم إطلاق نظام سلاسل الباقات الذي يجمع الموظفين داخل باقات ذكية ومنظمة.\r\n🎯 عند إنشاء قسم جديد، حدد نوع الباقة أولًا لتجربة إدارة أكثر سلاسة ودقة.\r\n\r\n📂 إدارة الموظفين بتجربة متطورة كليًا\r\n\t•\t🧾 المعلومات العامة\r\n\t•\t💳 الحساب البنكي\r\n\t•\t📑 المستندات\r\n\t•\t⚠️ المخالفات\r\n\t•\t🕒 صلاحية الإقامة\r\n\t•\t📈 الإحصائيات\r\n\t•\t📨 خطابات السائق\r\n\r\n💡 كلها بتصميم حديث وتكامل ذكي\r\n\r\n📱 تطبيق السائق الجديد!\r\nالآن يمكن للمو... [truncated]
+2026-02-05T21:13:52.684Z [network][GET 200] /api/admin/notifications?limit=1&last_id=9
+  response: {"success":true,"notifications":[]}
+2026-02-05T21:13:55.945Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-05T21:13:56.981Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-05T21:13:59.869Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-05T21:14:01.817Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-05T21:14:03.925Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-05T21:14:13.069Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-05T21:14:13.832Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-05T21:14:16.018Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-05T21:14:16.917Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-05T21:14:20.275Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-05T21:14:21.928Z [network][GET 200] /api/admin/notifications?limit=1&last_id=9
+  response: {"success":true,"notifications":[]}
+2026-02-05T21:14:22.744Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-05T21:14:23.754Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-05T21:14:26.855Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-05T21:14:27.738Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-05T21:14:31.929Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-05T21:14:32.315Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-05T21:14:35.749Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-05T21:14:36.736Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-05T21:14:39.734Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}

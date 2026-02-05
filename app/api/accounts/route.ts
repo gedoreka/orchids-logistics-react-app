@@ -11,7 +11,7 @@ export async function GET(request: NextRequest) {
     }
 
     const accounts = await query(
-      `SELECT id, account_code, account_name, type, company_id, parent_id, account_type, created_at 
+      `SELECT id, account_code, account_name, type, company_id, parent_id, account_type, account_level, parent_account 
        FROM accounts 
        WHERE company_id = ? 
        ORDER BY account_code ASC`,
