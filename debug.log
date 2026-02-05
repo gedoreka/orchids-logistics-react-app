@@ -550,3 +550,5 @@ Module not found: Can't resolve './register-wrapper'
   4 |   title: "تسجيل منشأة جديدة - Logistics Systems Pro",
 
 https://nextjs.org/docs/messages/module-not-found
+2026-02-05T23:32:24.230Z [console][error] You are trying to animate  from "0" to "0.00". "0.00" is not an animatable value.. For more information and steps for solving, visit https://motion.dev/troubleshooting/value-not-animatable
+2026-02-05T23:32:24.230Z [console][error] You are trying to animate  from "0" to "14676.00". "14676.00" is not an animatable value.. For more information and steps for solving, visit https://motion.dev/troubleshooting/value-not-animatable

@@ -13,6 +13,7 @@ interface AdminNotification {
   image_path?: string;
   created_at: string;
   sent_to_all: boolean;
+  is_frozen?: boolean;
 }
 
   export function GlobalAdminNotifications() {
