@@ -97,10 +97,10 @@ function EmployeeSelect({ row, type, metadata, updateRow, t }: {
 
   if (row.manualEmployee) {
     return (
-      <div className="flex items-center space-x-2 space-x-reverse">
+      <div className="flex items-center space-x-1 space-x-reverse">
         <input 
           type="text" 
-          className="w-full bg-slate-100 border border-slate-200 rounded-lg px-2 py-1 text-sm"
+          className="w-full bg-slate-100 border border-slate-200 rounded px-2 py-1 text-[11px]"
           placeholder={t("form.employeeName")}
           value={row.employee_name}
           onChange={(e) => updateRow(type, row.id, 'employee_name', e.target.value)}
@@ -108,35 +108,35 @@ function EmployeeSelect({ row, type, metadata, updateRow, t }: {
         <button 
           type="button"
           onClick={() => updateRow(type, row.id, 'manualEmployee', false)}
-          className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-rose-600 to-pink-600 text-white rounded-xl hover:from-rose-700 hover:to-pink-700 transition-all text-xs font-black shrink-0 shadow-lg shadow-rose-200"
+          className="flex items-center gap-1 px-2 py-1 bg-rose-600 text-white rounded hover:bg-rose-700 transition-all text-[10px] font-bold shrink-0"
         >
-          <Search className="w-4 h-4" />
-          <span>البحث في قاعدة البيانات</span>
+          <Search className="w-3 h-3" />
+          <span>بحث</span>
         </button>
       </div>
     );
   }
 
   return (
-    <div className="flex items-center space-x-2 space-x-reverse">
+    <div className="flex items-center space-x-1 space-x-reverse">
       <div className="relative w-full">
         <Popover open={isOpen} onOpenChange={setIsOpen}>
           <PopoverTrigger asChild>
             <div 
-              className="w-full bg-white/50 border border-slate-200 cursor-pointer text-sm font-medium py-1.5 px-3 flex items-center justify-between min-h-[36px] hover:bg-white hover:border-rose-300 rounded-lg transition-all shadow-sm"
+              className="w-full bg-white/50 border border-slate-200 cursor-pointer text-[11px] font-medium py-1 px-2 flex items-center justify-between min-h-[28px] hover:bg-white hover:border-rose-300 rounded transition-all shadow-sm"
             >
               <span className={row.employee_name ? "text-slate-900 font-bold" : "text-slate-400"}>
                 {row.employee_name || t("form.selectEmployee")}
               </span>
-              <ChevronDown className={`w-4 h-4 text-slate-400 transition-transform duration-200 ${isOpen ? 'rotate-180 text-rose-500' : ''}`} />
+              <ChevronDown className={`w-3 h-3 text-slate-400 transition-transform duration-200 ${isOpen ? 'rotate-180 text-rose-500' : ''}`} />
             </div>
           </PopoverTrigger>
           <PopoverContent 
-            className="p-0 w-[400px] bg-white border border-slate-200 rounded-2xl shadow-[0_20px_70px_-10px_rgba(0,0,0,0.3)] overflow-hidden z-[9999]" 
+            className="p-0 w-[320px] bg-white border border-slate-200 rounded-xl shadow-lg overflow-hidden z-[9999]" 
             align="start"
-            sideOffset={8}
+            sideOffset={4}
           >
-            <div className="p-4 border-b border-slate-100 bg-slate-50/50">
+            <div className="p-2 border-b border-slate-100 bg-slate-50/50">
               <div className="relative">
                 <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                 <input
@@ -399,42 +399,42 @@ export default function DeductionFormClient({ user }: { user: User }) {
   }
 
     return (
-      <div className="w-full min-h-screen px-6 py-6 space-y-8">
-      <motion.div 
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-rose-900 to-rose-800 p-8 text-white shadow-xl border border-white/10"
-      >
-        <div className="relative z-10 flex flex-col items-center justify-center text-center space-y-4">
-          <div className="p-3 bg-white/10 rounded-full backdrop-blur-sm">
-            <HandCoins className="w-8 h-8 text-rose-400" />
-          </div>
-          <h1 className="text-2xl font-bold tracking-tight">{t("deductions.title")}</h1>
-          <p className="text-rose-300 max-w-2xl">{t("deductions.subtitle")}</p>
-        </div>
-        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-rose-500 via-pink-500 to-red-500"></div>
-      </motion.div>
-
-      <div className="bg-white rounded-[2.5rem] shadow-2xl border border-slate-100 p-6 md:p-10 space-y-10">
+        <div className="w-full min-h-screen px-4 py-4 space-y-4">
         <motion.div 
-          className="bg-slate-50 p-5 rounded-2xl border border-slate-200 flex flex-col md:flex-row items-center justify-between gap-4"
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="relative overflow-hidden rounded-xl bg-gradient-to-r from-rose-900 to-rose-800 p-4 text-white shadow-lg border border-white/10"
+        >
+          <div className="relative z-10 flex flex-col items-center justify-center text-center space-y-2">
+            <div className="p-2 bg-white/10 rounded-full backdrop-blur-sm">
+              <HandCoins className="w-5 h-5 text-rose-400" />
+            </div>
+            <h1 className="text-lg font-bold tracking-tight">{t("deductions.title")}</h1>
+            <p className="text-rose-300 max-w-2xl text-xs">{t("deductions.subtitle")}</p>
+          </div>
+          <div className="absolute top-0 left-0 w-full h-0.5 bg-gradient-to-r from-rose-500 via-pink-500 to-red-500"></div>
+        </motion.div>
+
+      <div className="bg-white rounded-2xl shadow-lg border border-slate-100 p-4 space-y-4">
+        <motion.div 
+          className="bg-slate-50 p-3 rounded-xl border border-slate-200 flex flex-col md:flex-row items-center justify-between gap-3"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
         >
-          <div className="flex items-center space-x-4 space-x-reverse">
-            <div className="p-2.5 bg-rose-100 rounded-xl text-rose-600">
-              <Tags className="w-5 h-5" />
+          <div className="flex items-center space-x-3 space-x-reverse">
+            <div className="p-1.5 bg-rose-100 rounded-lg text-rose-600">
+              <Tags className="w-4 h-4" />
             </div>
             <div>
-              <h3 className="text-base font-bold text-slate-900">{t("form.manageCustomTypes")}</h3>
-              <p className="text-xs text-slate-500">{t("form.manageCustomTypesDesc")}</p>
+              <h3 className="text-sm font-bold text-slate-900">{t("form.manageCustomTypes")}</h3>
+              <p className="text-[10px] text-slate-500">{t("form.manageCustomTypesDesc")}</p>
             </div>
           </div>
           <button 
             onClick={() => setShowSubtypeManager(true)}
-            className="bg-white hover:bg-rose-50 text-rose-700 px-6 py-2.5 rounded-xl font-bold transition-all flex items-center space-x-2 space-x-reverse border border-rose-200 shadow-sm text-sm"
+            className="bg-white hover:bg-rose-50 text-rose-700 px-4 py-1.5 rounded-lg font-bold transition-all flex items-center space-x-2 space-x-reverse border border-rose-200 shadow-sm text-xs"
           >
-            <Settings className="w-4 h-4" />
+            <Settings className="w-3 h-3" />
             <span>{t("form.manageBtn")}</span>
           </button>
         </motion.div>
@@ -442,38 +442,38 @@ export default function DeductionFormClient({ user }: { user: User }) {
         <motion.div 
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          className="grid grid-cols-1 md:grid-cols-3 gap-6"
+          className="grid grid-cols-1 md:grid-cols-3 gap-3"
         >
-          <div className="bg-rose-50/50 p-5 rounded-2xl border border-rose-100 flex items-center space-x-4 space-x-reverse">
-            <div className="p-3 bg-white rounded-xl text-rose-600 shadow-sm">
-              <History className="w-6 h-6" />
+          <div className="bg-rose-50/50 p-3 rounded-xl border border-rose-100 flex items-center space-x-3 space-x-reverse">
+            <div className="p-2 bg-white rounded-lg text-rose-600 shadow-sm">
+              <History className="w-4 h-4" />
             </div>
             <div className="flex-1">
-              <p className="text-[10px] uppercase tracking-wider font-bold text-rose-400 mb-1">{t("form.currentMonth")}</p>
+              <p className="text-[9px] uppercase tracking-wider font-bold text-rose-400 mb-0.5">{t("form.currentMonth")}</p>
               <input 
                 type="month" 
-                className="bg-transparent border-none p-0 focus:ring-0 font-black text-slate-900 text-lg w-full cursor-pointer"
+                className="bg-transparent border-none p-0 focus:ring-0 font-black text-slate-900 text-sm w-full cursor-pointer"
                 value={monthReference}
                 onChange={(e) => setMonthReference(e.target.value)}
               />
             </div>
           </div>
-          <div className="bg-emerald-50/50 p-5 rounded-2xl border border-emerald-100 flex items-center space-x-4 space-x-reverse">
-            <div className="p-3 bg-white rounded-xl text-emerald-600 shadow-sm">
-              <FileText className="w-6 h-6" />
+          <div className="bg-emerald-50/50 p-3 rounded-xl border border-emerald-100 flex items-center space-x-3 space-x-reverse">
+            <div className="p-2 bg-white rounded-lg text-emerald-600 shadow-sm">
+              <FileText className="w-4 h-4" />
             </div>
             <div>
-              <p className="text-[10px] uppercase tracking-wider font-bold text-emerald-400 mb-1">{t("form.nextVoucher")}</p>
-              <p className="text-xl font-black text-slate-900">{metadata?.voucherNumber}</p>
+              <p className="text-[9px] uppercase tracking-wider font-bold text-emerald-400 mb-0.5">{t("form.nextVoucher")}</p>
+              <p className="text-base font-black text-slate-900">{metadata?.voucherNumber}</p>
             </div>
           </div>
-          <div className="bg-purple-50/50 p-5 rounded-2xl border border-purple-100 flex items-center space-x-4 space-x-reverse">
-            <div className="p-3 bg-white rounded-xl text-purple-600 shadow-sm">
-              <Bolt className="w-6 h-6" />
+          <div className="bg-purple-50/50 p-3 rounded-xl border border-purple-100 flex items-center space-x-3 space-x-reverse">
+            <div className="p-2 bg-white rounded-lg text-purple-600 shadow-sm">
+              <Bolt className="w-4 h-4" />
             </div>
             <div>
-              <p className="text-[10px] uppercase tracking-wider font-bold text-purple-400 mb-1">{t("form.voucherStatus")}</p>
-              <p className="text-xl font-black text-slate-900">{t("form.new")}</p>
+              <p className="text-[9px] uppercase tracking-wider font-bold text-purple-400 mb-0.5">{t("form.voucherStatus")}</p>
+              <p className="text-base font-black text-slate-900">{t("form.new")}</p>
             </div>
           </div>
         </motion.div>
@@ -483,18 +483,18 @@ export default function DeductionFormClient({ user }: { user: User }) {
             <div className="w-full border-t border-slate-100"></div>
           </div>
           <div className="relative flex justify-center">
-            <span className="bg-white px-4 text-sm font-bold text-slate-400 uppercase tracking-[0.2em]">{t("form.chooseType")}</span>
+            <span className="bg-white px-3 text-xs font-bold text-slate-400 uppercase tracking-[0.15em]">{t("form.chooseType")}</span>
           </div>
         </div>
 
         <motion.div 
-          className="bg-slate-50 p-8 rounded-3xl border-2 border-dashed border-slate-200"
+          className="bg-slate-50 p-4 rounded-xl border-2 border-dashed border-slate-200"
         >
-          <div className="flex flex-col md:flex-row gap-6 items-end">
-            <div className="flex-1 space-y-2">
-              <label className="text-xs font-bold text-slate-500 mr-2">{t("form.selectType")}</label>
+          <div className="flex flex-col md:flex-row gap-3 items-end">
+            <div className="flex-1 space-y-1">
+              <label className="text-[10px] font-bold text-slate-500 mr-2">{t("form.selectType")}</label>
                 <select 
-                  className="w-full bg-white border border-slate-200 rounded-2xl px-5 py-4 focus:ring-4 focus:ring-rose-500/10 focus:border-rose-500 outline-none transition-all text-base font-bold shadow-sm text-slate-900"
+                  className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 focus:ring-2 focus:ring-rose-500/10 focus:border-rose-500 outline-none transition-all text-sm font-bold shadow-sm text-slate-900"
                   value={selectedTypeToAdd}
                   onChange={(e) => setSelectedTypeToAdd(e.target.value)}
                 >
@@ -506,15 +506,15 @@ export default function DeductionFormClient({ user }: { user: User }) {
             </div>
             <button 
               onClick={() => addSection(selectedTypeToAdd)}
-              className="bg-rose-600 hover:bg-rose-700 text-white px-10 py-4 rounded-2xl font-black transition-all flex items-center justify-center space-x-3 space-x-reverse shadow-xl shadow-rose-200 hover:shadow-rose-300 hover:-translate-y-1 active:translate-y-0"
+              className="bg-rose-600 hover:bg-rose-700 text-white px-6 py-2 rounded-xl font-bold transition-all flex items-center justify-center space-x-2 space-x-reverse shadow-lg shadow-rose-200 hover:shadow-rose-300 text-sm"
             >
-              <Plus className="w-6 h-6" />
+              <Plus className="w-4 h-4" />
               <span>{t("form.addTypeBtn")}</span>
             </button>
           </div>
         </motion.div>
 
-        <form onSubmit={handleSubmit} className="space-y-12">
+        <form onSubmit={handleSubmit} className="space-y-4">
           <AnimatePresence>
             {Object.entries(sections).map(([type, rows]) => (
               <motion.div 
@@ -522,59 +522,59 @@ export default function DeductionFormClient({ user }: { user: User }) {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.95 }}
-                className="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden"
+                className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden"
               >
-                <div className="bg-slate-900 p-5 flex items-center justify-between">
-                  <div className="flex items-center space-x-4 space-x-reverse">
-                    <div className="p-2.5 bg-white/10 rounded-xl text-rose-400 backdrop-blur-md">
-                      <Building2 className="w-5 h-5" />
+                <div className="bg-slate-900 p-3 flex items-center justify-between">
+                  <div className="flex items-center space-x-3 space-x-reverse">
+                    <div className="p-1.5 bg-white/10 rounded-lg text-rose-400 backdrop-blur-md">
+                      <Building2 className="w-4 h-4" />
                     </div>
                     <div>
-                      <h3 className="text-lg font-black text-white">{t(`types.${type}`)}</h3>
-                      <p className="text-xs text-white/50">{rows.length} {t("common.records")}</p>
+                      <h3 className="text-sm font-bold text-white">{t(`types.${type}`)}</h3>
+                      <p className="text-[10px] text-white/50">{rows.length} {t("common.records")}</p>
                     </div>
                   </div>
                   <button 
                     type="button"
                     onClick={() => removeSection(type)}
-                    className="text-white/30 hover:text-rose-400 hover:bg-white/10 p-2 rounded-xl transition-all"
+                    className="text-white/30 hover:text-rose-400 hover:bg-white/10 p-1.5 rounded-lg transition-all"
                   >
-                    <Trash2 className="w-5 h-5" />
+                    <Trash2 className="w-4 h-4" />
                   </button>
                 </div>
 
                 <div className="overflow-x-auto">
-                  <table className="w-full text-start border-collapse">
+                  <table className="w-full text-start border-collapse text-xs">
                     <thead>
                         <tr className="bg-slate-50 border-b border-slate-100">
-                          <th className="px-4 py-4 text-[10px] font-black text-slate-500 uppercase tracking-widest text-start w-[140px]">{t("form.date")}</th>
-                          <th className="px-4 py-4 text-[10px] font-black text-slate-500 uppercase tracking-widest text-start w-[160px]">{t("form.type")}</th>
-                          <th className="px-4 py-4 text-[10px] font-black text-slate-500 uppercase tracking-widest text-start w-[110px]">{t("form.amount")}</th>
-                          <th className="px-4 py-4 text-[10px] font-black text-slate-500 uppercase tracking-widest text-start min-w-[320px]">{t("form.employee")}</th>
-                          <th className="px-4 py-4 text-[10px] font-black text-slate-500 uppercase tracking-widest text-start w-[120px]">{t("form.iqamaNumber")}</th>
-                          <th className="px-4 py-4 text-[10px] font-black text-slate-500 uppercase tracking-widest text-start w-[150px]">{t("form.account")}</th>
-                          <th className="px-4 py-4 text-[10px] font-black text-slate-500 uppercase tracking-widest text-start w-[150px]">{t("form.costCenter")}</th>
-                          <th className="px-4 py-4 text-[10px] font-black text-slate-500 uppercase tracking-widest text-start">{t("form.description")}</th>
-                          <th className="px-4 py-4 text-[10px] font-black text-slate-500 uppercase tracking-widest text-center w-[120px]">{t("form.document")}</th>
-                          <th className="px-4 py-4 text-[10px] font-black text-slate-500 uppercase tracking-widest text-center w-[120px]">{t("common.status")}</th>
-                          <th className="px-4 py-4 text-[10px] font-black text-slate-500 uppercase tracking-widest text-center w-[60px]"></th>
+                          <th className="px-2 py-2 text-[9px] font-bold text-slate-500 uppercase tracking-wider text-start w-[100px]">{t("form.date")}</th>
+                          <th className="px-2 py-2 text-[9px] font-bold text-slate-500 uppercase tracking-wider text-start w-[120px]">{t("form.type")}</th>
+                          <th className="px-2 py-2 text-[9px] font-bold text-slate-500 uppercase tracking-wider text-start w-[80px]">{t("form.amount")}</th>
+                          <th className="px-2 py-2 text-[9px] font-bold text-slate-500 uppercase tracking-wider text-start min-w-[250px]">{t("form.employee")}</th>
+                          <th className="px-2 py-2 text-[9px] font-bold text-slate-500 uppercase tracking-wider text-start w-[90px]">{t("form.iqamaNumber")}</th>
+                          <th className="px-2 py-2 text-[9px] font-bold text-slate-500 uppercase tracking-wider text-start w-[120px]">{t("form.account")}</th>
+                          <th className="px-2 py-2 text-[9px] font-bold text-slate-500 uppercase tracking-wider text-start w-[120px]">{t("form.costCenter")}</th>
+                          <th className="px-2 py-2 text-[9px] font-bold text-slate-500 uppercase tracking-wider text-start">{t("form.description")}</th>
+                          <th className="px-2 py-2 text-[9px] font-bold text-slate-500 uppercase tracking-wider text-center w-[60px]">{t("form.document")}</th>
+                          <th className="px-2 py-2 text-[9px] font-bold text-slate-500 uppercase tracking-wider text-center w-[80px]">{t("common.status")}</th>
+                          <th className="px-2 py-2 text-[9px] font-bold text-slate-500 uppercase tracking-wider text-center w-[40px]"></th>
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-slate-50">
                         {rows.map((row) => (
                           <tr key={row.id} className="hover:bg-slate-50/50 transition-colors group">
-                            <td className="px-4 py-4">
+                            <td className="px-2 py-2">
                               <input 
                                 type="date" 
-                                className="w-full bg-transparent border-none focus:ring-0 text-xs font-bold text-slate-700"
+                                className="w-full bg-transparent border-none focus:ring-0 text-[11px] font-medium text-slate-700"
                                 value={row.expense_date}
                                 onChange={(e) => updateRow(type, row.id, 'expense_date', e.target.value)}
                                 required
                               />
                             </td>
-                            <td className="px-4 py-4">
+                            <td className="px-2 py-2">
                               <select 
-                                className="w-full bg-transparent border-none focus:ring-0 text-xs font-bold text-slate-700 appearance-none"
+                                className="w-full bg-transparent border-none focus:ring-0 text-[11px] font-medium text-slate-700 appearance-none"
                                 value={row.deduction_type}
                                 onChange={(e) => updateRow(type, row.id, 'deduction_type', e.target.value)}
                               >
@@ -589,12 +589,12 @@ export default function DeductionFormClient({ user }: { user: User }) {
                                 <option value="other">أخرى</option>
                               </select>
                             </td>
-                            <td className="px-4 py-4">
+                            <td className="px-2 py-2">
                               <div className="flex items-center">
-                                <span className="text-[10px] font-bold text-rose-300 ml-1">ر.س</span>
+                                <span className="text-[9px] font-bold text-rose-300 ml-1">ر.س</span>
                                 <input 
                                   type="number" 
-                                  className="w-full bg-transparent border-none focus:ring-0 text-sm font-black text-rose-600 p-0"
+                                  className="w-full bg-transparent border-none focus:ring-0 text-[11px] font-bold text-rose-600 p-0"
                                   placeholder="0.00"
                                   value={row.amount}
                                   onChange={(e) => updateRow(type, row.id, 'amount', e.target.value)}
@@ -602,20 +602,20 @@ export default function DeductionFormClient({ user }: { user: User }) {
                                 />
                               </div>
                             </td>
-                            <td className="px-4 py-4">
+                            <td className="px-2 py-2">
                               <EmployeeSelect row={row} type={type} metadata={metadata} updateRow={updateRow} t={t} />
                             </td>
-                            <td className="px-4 py-4">
+                            <td className="px-2 py-2">
                               <input 
                                 type="text" 
-                                className="w-full bg-transparent border-none focus:ring-0 text-xs font-bold text-slate-500"
+                                className="w-full bg-transparent border-none focus:ring-0 text-[11px] font-medium text-slate-500"
                                 value={row.employee_iqama}
                                 readOnly={!row.manualEmployee}
                                 onChange={(e) => updateRow(type, row.id, 'employee_iqama', e.target.value)}
                                 placeholder="رقم الإقامة"
                               />
                             </td>
-                                <td className="px-4 py-4">
+                                <td className="px-2 py-2">
                                   <HierarchicalSearchableSelect
                                     items={(metadata?.accounts || []).map(acc => ({
                                       id: acc.id,
@@ -628,10 +628,10 @@ export default function DeductionFormClient({ user }: { user: User }) {
                                     valueKey="id"
                                     onSelect={(val) => updateRow(type, row.id, 'account_id', val)}
                                     placeholder={t("form.account")}
-                                    className="w-40"
+                                    className="w-28 text-[11px]"
                                   />
                                 </td>
-                                <td className="px-4 py-4">
+                                <td className="px-2 py-2">
                                   <HierarchicalSearchableSelect
                                     items={(metadata?.costCenters || []).map(cc => ({
                                       id: cc.id,
@@ -644,22 +644,22 @@ export default function DeductionFormClient({ user }: { user: User }) {
                                     valueKey="id"
                                     onSelect={(val) => updateRow(type, row.id, 'cost_center_id', val)}
                                     placeholder={t("form.costCenter")}
-                                    className="w-40"
+                                    className="w-28 text-[11px]"
                                   />
                                 </td>
-                            <td className="px-4 py-4">
+                            <td className="px-2 py-2">
                               <input 
                                 type="text" 
-                                className="w-full bg-transparent border-none focus:ring-0 text-xs font-medium text-slate-600 placeholder:text-slate-300"
+                                className="w-full bg-transparent border-none focus:ring-0 text-[11px] font-medium text-slate-600 placeholder:text-slate-300"
                                 placeholder={t("form.description")}
                                 value={row.description}
                                 onChange={(e) => updateRow(type, row.id, 'description', e.target.value)}
                               />
                             </td>
-                            <td className="px-4 py-4">
-                              <div className="flex flex-col items-center gap-1">
-                                <label className={`cursor-pointer p-2 rounded-xl border-2 border-dashed transition-all ${row.attachment ? 'bg-rose-50 border-rose-300 text-rose-600' : 'bg-slate-50 border-slate-200 text-slate-400 hover:border-rose-200 hover:text-rose-400'}`}>
-                                  <Paperclip className="w-4 h-4" />
+                            <td className="px-2 py-2">
+                              <div className="flex flex-col items-center gap-0.5">
+                                <label className={`cursor-pointer p-1.5 rounded-lg border border-dashed transition-all ${row.attachment ? 'bg-rose-50 border-rose-300 text-rose-600' : 'bg-slate-50 border-slate-200 text-slate-400 hover:border-rose-200 hover:text-rose-400'}`}>
+                                  <Paperclip className="w-3 h-3" />
                                   <input 
                                     type="file" 
                                     className="hidden" 
@@ -667,34 +667,34 @@ export default function DeductionFormClient({ user }: { user: User }) {
                                   />
                                 </label>
                                 {row.attachment && (
-                                  <span className="text-[9px] font-bold text-emerald-600 truncate max-w-[80px]">تم الإرفاق</span>
+                                  <span className="text-[8px] font-bold text-emerald-600">تم</span>
                                 )}
                               </div>
                             </td>
-                            <td className="px-4 py-4">
+                            <td className="px-2 py-2">
                               <div className="flex justify-center">
                                 <div 
                                   onClick={() => updateRow(type, row.id, 'status', row.status === 'collected' ? 'pending' : 'collected')}
-                                  className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full cursor-pointer transition-all border text-[10px] ${
+                                  className={`inline-flex items-center gap-1 px-2 py-1 rounded-full cursor-pointer transition-all border text-[9px] ${
                                     row.status === 'collected' 
                                     ? 'bg-emerald-50 text-emerald-700 border-emerald-200 font-bold' 
                                     : 'bg-slate-50 text-slate-400 border-slate-200'
                                   }`}
                                 >
-                                  <span>{row.status === 'collected' ? 'تم الخصم' : 'لم يخصم'}</span>
-                                  <div className={`w-6 h-3 rounded-full relative transition-colors ${row.status === 'collected' ? 'bg-emerald-400' : 'bg-slate-300'}`}>
-                                    <div className={`absolute top-0.5 w-2 h-2 bg-white rounded-full transition-all ${row.status === 'collected' ? 'left-3.5' : 'left-0.5'}`} />
+                                  <span>{row.status === 'collected' ? 'تم' : 'لا'}</span>
+                                  <div className={`w-4 h-2 rounded-full relative transition-colors ${row.status === 'collected' ? 'bg-emerald-400' : 'bg-slate-300'}`}>
+                                    <div className={`absolute top-0.5 w-1 h-1 bg-white rounded-full transition-all ${row.status === 'collected' ? 'left-2.5' : 'left-0.5'}`} />
                                   </div>
                                 </div>
                               </div>
                             </td>
-                          <td className="px-4 py-4">
+                          <td className="px-2 py-2">
                             <button 
                               type="button"
                               onClick={() => removeRow(type, row.id)}
-                              className="text-slate-300 hover:text-red-500 transition-colors p-1"
+                              className="text-slate-300 hover:text-red-500 transition-colors p-0.5"
                             >
-                              <X className="w-4 h-4" />
+                              <X className="w-3 h-3" />
                             </button>
                           </td>
                         </tr>
@@ -703,16 +703,16 @@ export default function DeductionFormClient({ user }: { user: User }) {
                   </table>
                 </div>
                 
-                <div className="p-5 bg-slate-50/30 border-t border-slate-100 flex justify-between items-center">
+                <div className="p-3 bg-slate-50/30 border-t border-slate-100 flex justify-between items-center">
                   <button 
                     type="button"
                     onClick={() => addRow(type)}
-                    className="flex items-center space-x-2 space-x-reverse text-rose-600 hover:text-rose-700 font-black text-sm transition-all hover:translate-x-1"
+                    className="flex items-center space-x-1 space-x-reverse text-rose-600 hover:text-rose-700 font-bold text-xs transition-all"
                   >
-                    <Plus className="w-4 h-4" />
+                    <Plus className="w-3 h-3" />
                     <span>{t("form.addRow")}</span>
                   </button>
-                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                  <p className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">
                     {rows.length} {t("common.records")} {t(`types.${type}`)}
                   </p>
                 </div>
@@ -724,19 +724,19 @@ export default function DeductionFormClient({ user }: { user: User }) {
             <motion.div 
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              className="flex justify-center pt-10"
+              className="flex justify-center pt-4"
             >
               <button 
                 type="submit"
                 disabled={submitting}
-                className={`group bg-green-600 hover:bg-green-700 text-white px-12 py-5 rounded-2xl font-black transition-all flex items-center space-x-4 space-x-reverse shadow-2xl shadow-green-200 transform hover:-translate-y-1 active:scale-95 ${submitting ? 'opacity-50 cursor-not-allowed' : ''}`}
+                className={`group bg-green-600 hover:bg-green-700 text-white px-8 py-3 rounded-xl font-bold transition-all flex items-center space-x-2 space-x-reverse shadow-lg shadow-green-200 text-sm ${submitting ? 'opacity-50 cursor-not-allowed' : ''}`}
               >
                 {submitting ? (
-                  <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-white"></div>
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
                 ) : (
-                  <Save className="w-6 h-6 group-hover:scale-110 transition-transform" />
+                  <Save className="w-4 h-4 group-hover:scale-110 transition-transform" />
                 )}
-                <span className="text-xl">{t("deductions.saveAll")}</span>
+                <span>{t("deductions.saveAll")}</span>
               </button>
             </motion.div>
           )}
