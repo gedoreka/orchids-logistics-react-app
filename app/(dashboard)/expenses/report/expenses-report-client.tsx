@@ -337,77 +337,47 @@ export function ExpensesReportClient({ companyId }: ExpensesReportClientProps) {
       console.log('Raw Accounts Data:', accountsData);
       console.log('Raw Metadata Data:', metadataData);
       
-      // Create a map of id to account_code for parent lookup
-      const accountIdToCodeMap: Record<any, string> = {};
-      const centerIdToCodeMap: Record<any, string> = {};
-      
-      // Transform accounts data to match HierarchicalSearchableSelect format
-      // Use account_code as id for the selector to work with code-based values
-      if (accountsData.success && accountsData.accounts && Array.isArray(accountsData.accounts)) {
-        // First pass: build id->code mapping
-        accountsData.accounts.forEach((acc: any) => {
-          accountIdToCodeMap[acc.id] = acc.account_code;
-        });
-        
-        // Second pass: transform with proper parent lookup
-        const transformedAccounts = accountsData.accounts.map((acc: any) => {
-          const parentId = acc.parent_id;
-          let parent_code = null;
-          
-          // If parent_id is set, look it up in the id->code map
-          if (parentId && accountIdToCodeMap[parentId]) {
-            parent_code = accountIdToCodeMap[parentId];
-          }
-          
-          return {
+        // Transform accounts data to match HierarchicalSearchableSelect format
+        // The API returns parent_account as the parent's account_code (e.g., "1" for assets)
+        if (accountsData.success && accountsData.accounts && Array.isArray(accountsData.accounts)) {
+          const transformedAccounts = accountsData.accounts.map((acc: any) => ({
             id: acc.account_code, // Use code as id for selector
             code: acc.account_code,
             name: acc.account_name,
-            type: acc.account_type || 'sub',
-            parent_id: parent_code
-          };
-        });
-        
-        console.log('Transformed Accounts:', transformedAccounts);
-        setAccounts(transformedAccounts);
-      } else {
-        console.warn('Accounts data not in expected format:', accountsData);
-        setAccounts([]);
-      }
-      
-      // Transform cost centers data to match HierarchicalSearchableSelect format
-      // Use center_code as id for the selector to work with code-based values
-      if (metadataData.costCenters && Array.isArray(metadataData.costCenters)) {
-        // First pass: build id->code mapping for cost centers
-        metadataData.costCenters.forEach((center: any) => {
-          centerIdToCodeMap[center.id] = center.center_code;
-        });
-        
-        // Second pass: transform with proper parent lookup
-        const transformedCenters = metadataData.costCenters.map((center: any) => {
-          const parentId = center.parent_center;
-          let parent_code = null;
+            type: acc.account_type || (acc.account_level === 1 ? 'main' : 'sub'),
+            parent_id: acc.parent_account || null // parent_account is already the parent code
+          }));
           
-          // If parent_center is set, look it up in the id->code map
-          if (parentId && centerIdToCodeMap[parentId]) {
-            parent_code = centerIdToCodeMap[parentId];
-          }
+          console.log('Transformed Accounts:', transformedAccounts);
+          setAccounts(transformedAccounts);
+        } else {
+          console.warn('Accounts data not in expected format:', accountsData);
+          setAccounts([]);
+        }
+        
+        // Transform cost centers data to match HierarchicalSearchableSelect format
+        // The API returns parent_center as the parent's ID, we need to map it to code
+        if (metadataData.costCenters && Array.isArray(metadataData.costCenters)) {
+          // Build id->code map for cost centers
+          const centerIdToCodeMap: Record<any, string> = {};
+          metadataData.costCenters.forEach((center: any) => {
+            centerIdToCodeMap[center.id] = center.center_code;
+          });
           
-          return {
+          const transformedCenters = metadataData.costCenters.map((center: any) => ({
             id: center.center_code, // Use code as id for selector
             code: center.center_code,
             name: center.center_name,
-            type: 'sub',
-            parent_id: parent_code
-          };
-        });
-        
-        console.log('Transformed Cost Centers:', transformedCenters);
-        setCostCenters(transformedCenters);
-      } else {
-        console.warn('Cost centers data not in expected format:', metadataData);
-        setCostCenters([]);
-      }
+            type: center.center_level === 1 ? 'main' : 'sub',
+            parent_id: center.parent_center ? centerIdToCodeMap[center.parent_center] || null : null
+          }));
+          
+          console.log('Transformed Cost Centers:', transformedCenters);
+          setCostCenters(transformedCenters);
+        } else {
+          console.warn('Cost centers data not in expected format:', metadataData);
+          setCostCenters([]);
+        }
     } catch (error) {
       console.error('Error fetching metadata:', error);
       setAccounts([]);

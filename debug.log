@@ -268,3 +268,13 @@ It can also happen if the client has a browser extension installed which messes 
   response: {"unread_count":0}
 2026-02-05T21:14:39.734Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
   response: {"unread_count":0}
+2026-02-05T21:18:18.483Z [console][log] [Fast Refresh] rebuilding
+2026-02-05T21:18:18.493Z [console][log] [Fast Refresh] done in 110ms
+2026-02-05T21:18:40.193Z [console][log] [Fast Refresh] rebuilding
+2026-02-05T21:18:41.557Z [console][log] [Fast Refresh] done in 1448ms
+2026-02-05T21:19:10.378Z [console][log] [Fast Refresh] rebuilding
+2026-02-05T21:19:11.363Z [console][log] [Fast Refresh] done in 978ms
+2026-02-05T21:19:18.803Z [console][warn] Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.
+2026-02-05T21:19:18.805Z [console][warn] Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.
+2026-02-05T21:20:12.758Z [console][log] [Fast Refresh] rebuilding
+2026-02-05T21:20:13.988Z [console][log] [Fast Refresh] done in 1216ms
