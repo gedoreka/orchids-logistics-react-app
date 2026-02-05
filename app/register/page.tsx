@@ -1,4 +1,4 @@
-import RegisterForm from "./register-form";
+import RegisterWrapper from "./register-wrapper";
 
 export const metadata = {
   title: "تسجيل منشأة جديدة - Logistics Systems Pro",
@@ -6,5 +6,5 @@ export const metadata = {
 };
 
 export default function RegisterPage() {
-  return <RegisterForm />;
+  return <RegisterWrapper />;
 }

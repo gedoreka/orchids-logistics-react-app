@@ -182,7 +182,8 @@ const SelectField = ({
   placeholder = "اختر...",
   value,
   onChange,
-  isRTL
+  isRTL,
+  required = false
 }: {
   label: string;
   name: string;
@@ -193,6 +194,7 @@ const SelectField = ({
   value: string;
   onChange: (e: React.ChangeEvent<HTMLSelectElement>) => void;
   isRTL: boolean;
+  required?: boolean;
 }) => {
   const colorMap: Record<string, string> = {
     violet: "focus:border-violet-500 focus:ring-violet-500/20",
@@ -217,13 +219,14 @@ const SelectField = ({
     >
       <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2 flex items-center gap-2">
         <Icon size={16} className={iconColorMap[accentColor]} />
-        {label}
+        {label} {required && <span className="text-rose-500">*</span>}
       </label>
       <div className="relative">
         <select
           name={name}
           value={value}
           onChange={onChange}
+          required={required}
           className={cn(
             "w-full px-4 py-3.5 rounded-xl border-2 border-slate-200 dark:border-slate-700 transition-all duration-300 text-slate-800 dark:text-white bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm appearance-none cursor-pointer",
             "hover:border-slate-300 dark:hover:border-slate-600 hover:bg-white dark:hover:bg-slate-800",
@@ -339,9 +342,9 @@ export default function RegisterForm() {
     vat_number: "",
     phone: "",
     website: "",
-    currency: "SAR",
-    country: isRTL ? "السعودية" : "Saudi Arabia",
-    country_code: "SA",
+    currency: "",
+    country: "",
+    country_code: "",
     region: "",
     region_code: "",
     city: "",
@@ -423,19 +426,28 @@ export default function RegisterForm() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!formData.name) {
-      toast.error(isRTL ? "الرجاء إدخال اسم المنشأة" : "Please enter facility name");
-      return;
-    }
+    // Required fields validation
+    const requiredFields: { key: keyof FormDataState; labelAr: string; labelEn: string }[] = [
+      { key: 'user_email', labelAr: 'البريد الإلكتروني', labelEn: 'Email' },
+      { key: 'name', labelAr: 'اسم المنشأة / اسم المستخدم', labelEn: 'Name' },
+      { key: 'password', labelAr: 'كلمة المرور', labelEn: 'Password' },
+      { key: 'confirm_password', labelAr: 'تأكيد كلمة المرور', labelEn: 'Confirm Password' },
+      { key: 'commercial_number', labelAr: 'رقم السجل التجاري', labelEn: 'CR Number' },
+      { key: 'vat_number', labelAr: 'الرقم الضريبي', labelEn: 'VAT Number' },
+      { key: 'currency', labelAr: 'العملة', labelEn: 'Currency' },
+      { key: 'country_code', labelAr: 'الدولة', labelEn: 'Country' },
+      { key: 'region_code', labelAr: 'المنطقة', labelEn: 'Region' },
+      { key: 'city', labelAr: 'المدينة', labelEn: 'City' },
+      { key: 'district', labelAr: 'الحي', labelEn: 'District' },
+      { key: 'street', labelAr: 'الشارع', labelEn: 'Street' },
+      { key: 'postal_code', labelAr: 'الرمز البريدي', labelEn: 'Postal Code' },
+    ];
 
-    if (!formData.user_email) {
-      toast.error(isRTL ? "الرجاء إدخال البريد الإلكتروني" : "Please enter email");
-      return;
-    }
-
-    if (!formData.password) {
-      toast.error(isRTL ? "الرجاء إدخال كلمة المرور" : "Please enter password");
-      return;
+    for (const field of requiredFields) {
+      if (!formData[field.key] || formData[field.key].trim() === '') {
+        toast.error(isRTL ? `الرجاء إدخال ${field.labelAr}` : `Please enter ${field.labelEn}`);
+        return;
+      }
     }
 
     if (formData.password !== formData.confirm_password) {
@@ -655,11 +667,11 @@ export default function RegisterForm() {
                   <SectionHeader icon={Building2} title={isRTL ? "بيانات المنشأة" : "Facility Info"} subtitle={isRTL ? "المعلومات التجارية والضريبية" : "Commercial & tax details"} color="indigo" />
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     <InputField label={isRTL ? "اسم المنشأة" : "Company Name"} name="name" placeholder={isRTL ? "اسم المنشأة كما في السجل" : "Facility name"} icon={Building2} required accentColor="indigo" value={formData.name} onChange={handleInputChange} isRTL={isRTL} />
-                    <InputField label={isRTL ? "رقم السجل التجاري" : "CR Number"} name="commercial_number" placeholder="1234567890" icon={IdCard} accentColor="indigo" value={formData.commercial_number} onChange={handleInputChange} isRTL={isRTL} />
-                    <InputField label={isRTL ? "الرقم الضريبي" : "VAT Number"} name="vat_number" placeholder="300000000000003" icon={Receipt} accentColor="indigo" value={formData.vat_number} onChange={handleInputChange} isRTL={isRTL} />
+                    <InputField label={isRTL ? "رقم السجل التجاري" : "CR Number"} name="commercial_number" placeholder="1234567890" icon={IdCard} required accentColor="indigo" value={formData.commercial_number} onChange={handleInputChange} isRTL={isRTL} />
+                    <InputField label={isRTL ? "الرقم الضريبي" : "VAT Number"} name="vat_number" placeholder="300000000000003" icon={Receipt} required accentColor="indigo" value={formData.vat_number} onChange={handleInputChange} isRTL={isRTL} />
                     <InputField label={isRTL ? "رقم الهاتف" : "Phone"} name="phone" placeholder="+966 5X XXX XXXX" icon={Phone} accentColor="indigo" value={formData.phone} onChange={handleInputChange} isRTL={isRTL} />
                     <InputField label={isRTL ? "الموقع الإلكتروني" : "Website"} name="website" type="url" placeholder="https://example.com" icon={Globe} accentColor="indigo" value={formData.website} onChange={handleInputChange} isRTL={isRTL} />
-                    <SelectField label={isRTL ? "العملة" : "Currency"} name="currency" icon={DollarSign} accentColor="indigo" value={formData.currency} onChange={handleInputChange} options={currencies.map(c => ({ value: c.code, label: isRTL ? `${c.name} (${c.code})` : `${c.en} (${c.code})` }))} isRTL={isRTL} />
+                    <SelectField label={isRTL ? "العملة" : "Currency"} name="currency" icon={DollarSign} accentColor="indigo" required value={formData.currency} onChange={handleInputChange} options={currencies.map(c => ({ value: c.code, label: isRTL ? `${c.name} (${c.code})` : `${c.en} (${c.code})` }))} isRTL={isRTL} />
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
                     <FileUploadBox label={isRTL ? "شعار المنشأة" : "Logo"} icon={ImageIcon} fileKey="logo_path" gradient="indigo" hasFile={!!files.logo_path} fileName={files.logo_path?.name} onChange={(e) => handleFileChange(e, "logo_path")} isRTL={isRTL} />
@@ -673,12 +685,15 @@ export default function RegisterForm() {
                 <motion.div key="location" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} className="bg-white/50 dark:bg-slate-800/50 backdrop-blur-xl rounded-3xl border border-slate-200 dark:border-slate-700 p-8 shadow-xl">
                   <SectionHeader icon={MapPin} title={isRTL ? "الموقع الجغرافي" : "Location"} subtitle={isRTL ? "عنوان المنشأة الرسمي" : "Official address"} color="emerald" />
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    <SelectField label={isRTL ? "الدولة" : "Country"} name="country_code" icon={Flag} accentColor="emerald" placeholder={isRTL ? "اختر الدولة" : "Select Country"} value={formData.country_code} onChange={handleInputChange} options={locationLibrary.countries.map(c => ({ value: c.code, label: isRTL ? c.nativeName : c.name }))} isRTL={isRTL} />
-                    <SelectField label={isRTL ? "المنطقة" : "Region"} name="region_code" icon={Map} accentColor="emerald" placeholder={isRTL ? "اختر المنطقة" : "Select Region"} value={formData.region_code} onChange={handleInputChange} options={locationLibrary.getRegions(formData.country_code).map(r => ({ value: r.code, label: isRTL ? r.name : r.name }))} isRTL={isRTL} />
-                    <SelectField label={isRTL ? "المدينة" : "City"} name="city" icon={Navigation} accentColor="emerald" placeholder={isRTL ? "اختر المدينة" : "Select City"} value={formData.city} onChange={handleInputChange} options={locationLibrary.getCities(formData.country_code, formData.region_code).map(c => ({ value: c.name, label: isRTL ? c.name : c.name }))} isRTL={isRTL} />
-                    <InputField label={isRTL ? "الحي" : "District"} name="district" placeholder={isRTL ? "اسم الحي" : "District"} icon={Home} accentColor="emerald" value={formData.district} onChange={handleInputChange} isRTL={isRTL} />
-                    <InputField label={isRTL ? "الشارع" : "Street"} name="street" placeholder={isRTL ? "اسم الشارع" : "Street"} icon={Navigation} accentColor="emerald" value={formData.street} onChange={handleInputChange} isRTL={isRTL} />
-                    <InputField label={isRTL ? "الرمز البريدي" : "Postal Code"} name="postal_code" placeholder="12345" icon={Hash} accentColor="emerald" value={formData.postal_code} onChange={handleInputChange} isRTL={isRTL} />
+                    <SelectField label={isRTL ? "الدولة" : "Country"} name="country_code" icon={Flag} accentColor="emerald" required placeholder={isRTL ? "اختر الدولة" : "Select Country"} value={formData.country_code} onChange={handleInputChange} options={locationLibrary.countries.map(c => ({ value: c.code, label: isRTL ? c.nativeName : c.name }))} isRTL={isRTL} />
+                    <SelectField label={isRTL ? "المنطقة" : "Region"} name="region_code" icon={Map} accentColor="emerald" required placeholder={isRTL ? "اختر المنطقة" : "Select Region"} value={formData.region_code} onChange={handleInputChange} options={locationLibrary.getRegions(formData.country_code).map(r => ({ value: r.code, label: isRTL ? r.name : r.name }))} isRTL={isRTL} />
+                    <SelectField label={isRTL ? "المدينة" : "City"} name="city" icon={Navigation} accentColor="emerald" required placeholder={isRTL ? "اختر المدينة" : "Select City"} value={formData.city} onChange={handleInputChange} options={locationLibrary.getCities(formData.country_code, formData.region_code).map(c => ({ value: c.name, label: isRTL ? c.name : c.name }))} isRTL={isRTL} />
+                    <InputField label={isRTL ? "الحي" : "District"} name="district" placeholder={isRTL ? "اسم الحي" : "District"} icon={Home} required accentColor="emerald" value={formData.district} onChange={handleInputChange} isRTL={isRTL} />
+                    <InputField label={isRTL ? "الشارع" : "Street"} name="street" placeholder={isRTL ? "اسم الشارع" : "Street"} icon={Navigation} required accentColor="emerald" value={formData.street} onChange={handleInputChange} isRTL={isRTL} />
+                    <InputField label={isRTL ? "الرمز البريدي" : "Postal Code"} name="postal_code" placeholder="12345" icon={Hash} required accentColor="emerald" value={formData.postal_code} onChange={handleInputChange} isRTL={isRTL} />
+                    <div className="md:col-span-2 lg:col-span-3">
+                      <InputField label={isRTL ? "العنوان الوطني (Short Address)" : "National Address"} name="short_address" placeholder={isRTL ? "مثال: RRRD2929 - الرياض 12345" : "Ex: RRRD2929 - Riyadh 12345"} icon={MapPin} accentColor="emerald" value={formData.short_address} onChange={handleInputChange} isRTL={isRTL} />
+                    </div>
                   </div>
                 </motion.div>
               )}
