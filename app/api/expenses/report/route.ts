@@ -118,37 +118,32 @@ export async function GET(request: NextRequest) {
     let totalDeductions = 0;
     let totalPayrolls = 0;
 
-    if (reportType === 'expenses' || reportType === 'all') {
-      const expenses = await query<ExpenseRow>(
-        `SELECT 
-          e.*,
-          a.account_code as acc_code,
-          a.account_name,
-          c.center_code,
-          c.center_name
-        FROM monthly_expenses e
-        LEFT JOIN accounts a ON e.account_id = a.id
-        LEFT JOIN cost_centers c ON e.cost_center_id = c.id
-        WHERE e.company_id = ? AND e.month_reference = ?
-        ORDER BY e.expense_type, e.expense_date ASC`,
-        [companyId, month]
-      );
+      if (reportType === 'expenses' || reportType === 'all') {
+        // JOIN by code (account_code/cost_center_code) since that's what's stored
+        const expenses = await query<ExpenseRow>(
+          `SELECT 
+            e.*,
+            a.account_name,
+            c.center_name
+          FROM monthly_expenses e
+          LEFT JOIN accounts a ON e.account_code = a.account_code AND a.company_id = ?
+          LEFT JOIN cost_centers c ON e.cost_center_code = c.center_code AND c.company_id = ?
+          WHERE e.company_id = ? AND e.month_reference = ?
+          ORDER BY e.expense_type, e.expense_date ASC`,
+          [companyId, companyId, companyId, month]
+        );
 
-      if (expenses && expenses.length > 0) {
-        expenses.forEach((expense) => {
-          const group = expense.expense_type || 'مصروفات أخرى';
-          if (!expensesGrouped[group]) {
-            expensesGrouped[group] = [];
-          }
-          expensesGrouped[group].push({
-            ...expense,
-            account_code: (expense as any).acc_code || expense.account_code,
-            center_code: expense.center_code || expense.cost_center_code,
+        if (expenses && expenses.length > 0) {
+          expenses.forEach((expense) => {
+            const group = expense.expense_type || 'مصروفات أخرى';
+            if (!expensesGrouped[group]) {
+              expensesGrouped[group] = [];
+            }
+            expensesGrouped[group].push(expense);
+            totalExpenses += parseFloat(expense.amount || '0');
           });
-          totalExpenses += parseFloat(expense.amount || '0');
-        });
+        }
       }
-    }
 
     if (reportType === 'deductions' || reportType === 'all') {
       const deductions = await query<DeductionRow>(

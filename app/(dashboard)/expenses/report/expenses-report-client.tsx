@@ -745,17 +745,11 @@ Object.entries(expensesGrouped).map(([group, expenses], groupIdx) => {
                                               <td className="p-1 text-center font-bold text-red-500 border-l border-slate-50">{formatNumber(expense.tax_value || 0)}</td>
                                               <td className="p-1 text-center font-black text-red-700 border-l border-slate-50">{formatNumber(expense.net_amount || expense.amount || 0)}</td>
                                               <td className="p-1 text-center border-l border-slate-50">
-                                                <div className="flex flex-col">
-                                                  <span className="font-bold text-slate-700">{expense.account_code || "-"}</span>
-                                                  <span className="text-[8px] text-slate-400 truncate max-w-[80px]">{expense.account_name}</span>
-                                                </div>
-                                              </td>
-                                              <td className="p-1 text-center border-l border-slate-50">
-                                                <div className="flex flex-col">
-                                                  <span className="font-bold text-slate-700">{expense.center_code || "-"}</span>
-                                                  <span className="text-[8px] text-slate-400 truncate max-w-[80px]">{expense.center_name}</span>
-                                                </div>
-                                              </td>
+                                                  <span className="font-bold text-slate-700">{expense.account_name || "-"}</span>
+                                                </td>
+                                                <td className="p-1 text-center border-l border-slate-50">
+                                                  <span className="font-bold text-slate-700">{expense.center_name || "-"}</span>
+                                                </td>
                                                 <td className="p-1 text-center print:hidden">
                                                   <div className="flex items-center justify-center -space-x-px">
                                                     <Button 
@@ -864,17 +858,11 @@ Object.entries(deductionsGrouped).map(([group, deductions], groupIdx) => {
                                               <td className="p-1 text-center border-l border-slate-50">{deduction.employee_iqama || "-"}</td>
                                               <td className="p-1 text-center font-black text-red-600 border-l border-slate-50">{formatNumber(deduction.amount || 0)}</td>
                                               <td className="p-1 text-center border-l border-slate-50">
-                                                <div className="flex flex-col">
-                                                  <span className="font-bold text-slate-700">{deduction.account_code || "-"}</span>
-                                                  <span className="text-[8px] text-slate-400 truncate max-w-[80px]">{deduction.account_name}</span>
-                                                </div>
-                                              </td>
-                                              <td className="p-1 text-center border-l border-slate-50">
-                                                <div className="flex flex-col">
-                                                  <span className="font-bold text-slate-700">{deduction.center_code || "-"}</span>
-                                                  <span className="text-[8px] text-slate-400 truncate max-w-[80px]">{deduction.center_name}</span>
-                                                </div>
-                                              </td>
+                                                  <span className="font-bold text-slate-700">{deduction.account_name || "-"}</span>
+                                                </td>
+                                                <td className="p-1 text-center border-l border-slate-50">
+                                                  <span className="font-bold text-slate-700">{deduction.center_name || "-"}</span>
+                                                </td>
                                               <td className="p-1 text-center border-l border-slate-50">
                                                 <div 
                                                   onClick={() => !statusUpdating && handleToggleDeductionStatus(deduction)} 
