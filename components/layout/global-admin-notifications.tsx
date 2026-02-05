@@ -26,7 +26,15 @@ interface AdminNotification {
         // Get the last seen notification ID from localStorage to avoid showing the same one multiple times
         const lastSeenId = parseInt(localStorage.getItem("last_admin_notification_id") || "0");
         
-        const response = await fetch(`/api/admin/notifications?limit=1&last_id=${lastSeenId}`);
+        const response = await fetch(`/api/admin/notifications?limit=1&last_id=${lastSeenId}`, {
+          credentials: 'include'
+        });
+        
+        if (!response.ok) {
+          // Silently ignore auth errors
+          return;
+        }
+        
         const data = await response.json();
         
         if (data.success && data.notifications && data.notifications.length > 0) {
@@ -65,17 +73,21 @@ interface AdminNotification {
           setShowCenterAlert(true);
         } else if (activeNotification) {
           setShowCenterAlert(true);
-        } else {
-          // If no active notification in state, fetch the latest one
-          fetch(`/api/admin/notifications?limit=1`)
-            .then(res => res.json())
-            .then(data => {
-              if (data.success && data.notifications && data.notifications.length > 0) {
-                setActiveNotification(data.notifications[0]);
-                setShowCenterAlert(true);
-              }
-            });
-        }
+      } else {
+        // If no active notification in state, fetch the latest one
+        fetch(`/api/admin/notifications?limit=1`, { credentials: 'include' })
+          .then(res => {
+            if (!res.ok) return null;
+            return res.json();
+          })
+          .then(data => {
+            if (data && data.success && data.notifications && data.notifications.length > 0) {
+              setActiveNotification(data.notifications[0]);
+              setShowCenterAlert(true);
+            }
+          })
+          .catch(() => {});
+      }
       };
 
       window.addEventListener("open-admin-notification", handleTrigger);
