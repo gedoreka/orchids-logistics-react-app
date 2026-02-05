@@ -138,9 +138,11 @@ export function HierarchicalSearchableSelect({
           </button>
         </PopoverTrigger>
         <PopoverContent 
-          className="p-0 w-[var(--radix-popover-trigger-width)] min-w-[300px] bg-white backdrop-blur-2xl rounded-lg shadow-[0_10px_30px_rgba(0,0,0,0.15)] border border-gray-200 overflow-hidden z-[9999]" 
+          className="p-0 w-[var(--radix-popover-trigger-width)] min-w-[300px] bg-white backdrop-blur-2xl rounded-lg shadow-[0_10px_30px_rgba(0,0,0,0.15)] border border-gray-200 z-[9999]" 
           align="start"
           sideOffset={5}
+          onOpenAutoFocus={(e) => e.preventDefault()}
+          style={{ overflow: 'visible' }}
         >
           <div className="p-2.5 border-b border-gray-100 bg-gray-50 sticky top-0 z-10">
             <div className="relative group">
@@ -158,8 +160,19 @@ export function HierarchicalSearchableSelect({
           
           <div 
             ref={scrollRef}
-            className="max-h-[350px] overflow-y-auto overscroll-contain"
-            style={{ scrollbarWidth: 'thin', scrollbarColor: '#d1d5db transparent' }}
+            className="overflow-y-auto"
+            style={{ 
+              maxHeight: '350px',
+              overflowY: 'auto',
+              overscrollBehavior: 'contain',
+              WebkitOverflowScrolling: 'touch',
+              scrollbarWidth: 'thin',
+              scrollbarColor: '#94a3b8 transparent'
+            }}
+            onWheel={(e) => {
+              // Enable mouse wheel scrolling
+              e.stopPropagation();
+            }}
           >
             <div className="p-1.5 space-y-0">
               {displayItems.length > 0 ? (

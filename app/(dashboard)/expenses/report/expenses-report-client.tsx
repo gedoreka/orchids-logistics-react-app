@@ -264,8 +264,20 @@ export function ExpensesReportClient({ companyId }: ExpensesReportClientProps) {
     setLoading(true);
     try {
       const res = await fetch(
-        `/api/expenses/report?month=${selectedMonth}&report_type=${reportType}`
+        `/api/expenses/report?month=${selectedMonth}&report_type=${reportType}`,
+        { credentials: 'include' }
       );
+      
+      if (!res.ok) {
+        console.error('Report API error:', res.status, res.statusText);
+        if (res.status === 401) {
+          // Redirect to login if unauthorized
+          window.location.href = '/login';
+          return;
+        }
+        return;
+      }
+      
       const json = await res.json();
       if (json.success) {
         setData(json.data);
