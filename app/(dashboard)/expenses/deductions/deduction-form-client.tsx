@@ -223,7 +223,14 @@ export default function DeductionFormClient({ user }: { user: User }) {
 
   const fetchMetadata = async () => {
     try {
-      const res = await fetch(`/api/expenses/deductions/metadata?company_id=${user.company_id}&user_id=${user.id}`);
+      const res = await fetch(`/api/expenses/deductions/metadata?company_id=${user.company_id}&user_id=${user.id}`, {
+        credentials: 'include'
+      });
+      if (!res.ok) {
+        console.error("Failed to fetch metadata:", res.status);
+        setLoading(false);
+        return;
+      }
       const data = await res.json();
       setMetadata(data);
     } catch (error) {
@@ -391,8 +398,8 @@ export default function DeductionFormClient({ user }: { user: User }) {
     );
   }
 
-  return (
-    <div className="max-w-[96%] w-[96%] mx-auto px-4 py-8 space-y-8">
+    return (
+      <div className="w-full min-h-screen px-6 py-6 space-y-8">
       <motion.div 
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -486,12 +493,12 @@ export default function DeductionFormClient({ user }: { user: User }) {
           <div className="flex flex-col md:flex-row gap-6 items-end">
             <div className="flex-1 space-y-2">
               <label className="text-xs font-bold text-slate-500 mr-2">{t("form.selectType")}</label>
-              <select 
-                className="w-full bg-white border border-slate-200 rounded-2xl px-5 py-4 focus:ring-4 focus:ring-rose-500/10 focus:border-rose-500 outline-none transition-all text-base font-bold shadow-sm"
-                value={selectedTypeToAdd}
-                onChange={(e) => setSelectedTypeToAdd(e.target.value)}
-              >
-                <option value="">{t("form.selectType")}</option>
+                <select 
+                  className="w-full bg-white border border-slate-200 rounded-2xl px-5 py-4 focus:ring-4 focus:ring-rose-500/10 focus:border-rose-500 outline-none transition-all text-base font-bold shadow-sm text-slate-900"
+                  value={selectedTypeToAdd}
+                  onChange={(e) => setSelectedTypeToAdd(e.target.value)}
+                >
+                  <option value="" className="text-slate-900">{t("form.selectType")}</option>
                 {Object.entries(mainTypes).map(([key]) => (
                   <option key={key} value={key}>{t(`types.${key}`)}</option>
                 ))}
