@@ -213,10 +213,10 @@ export async function deleteEmployee(id: number) {
 
 export async function updateEmployeeDocument(id: number, field: string, path: string) {
   try {
-    const allowedFields = [
-      'personal_photo', 'iqama_file', 'license_file', 'vehicle_file', 
-      'agir_permit_file', 'work_contract_file', 'vehicle_operation_card'
-    ];
+      const allowedFields = [
+        'personal_photo', 'iqama_file', 'license_file', 'vehicle_file', 
+        'agir_permit_file', 'work_contract_file', 'vehicle_operation_card', 'driver_card'
+      ];
     if (!allowedFields.includes(field)) throw new Error("Field not allowed");
 
     await query(`UPDATE employees SET ${field} = ? WHERE id = ?`, [path, id]);
@@ -466,6 +466,95 @@ export async function setPrimaryBankAccount(id: number, employeeId: number) {
       "UPDATE employee_bank_accounts SET is_primary = true WHERE id = ?",
       [id]
     );
+    revalidatePath(`/hr/employees/${employeeId}`);
+    return { success: true };
+  } catch (error: any) {
+    return { success: false, error: error.message };
+  }
+}
+
+// ===== Custom Document Types =====
+
+export async function getCustomDocumentTypes() {
+  try {
+    const rows = await query("SELECT * FROM custom_document_types ORDER BY created_at ASC");
+    return { success: true, data: rows };
+  } catch (error: any) {
+    return { success: false, error: error.message, data: [] };
+  }
+}
+
+export async function addCustomDocumentType(name: string) {
+  try {
+    const result: any = await query("INSERT INTO custom_document_types (name) VALUES (?)", [name]);
+    revalidatePath("/hr");
+    return { success: true, id: result.insertId };
+  } catch (error: any) {
+    return { success: false, error: error.message };
+  }
+}
+
+export async function deleteCustomDocumentType(id: number) {
+  try {
+    await query("DELETE FROM employee_custom_documents WHERE document_name = (SELECT name FROM custom_document_types WHERE id = ?)", [id]);
+    await query("DELETE FROM custom_document_types WHERE id = ?", [id]);
+    revalidatePath("/hr");
+    return { success: true };
+  } catch (error: any) {
+    return { success: false, error: error.message };
+  }
+}
+
+// ===== Employee Custom Documents =====
+
+export async function getEmployeeCustomDocuments(employeeId: number) {
+  try {
+    const rows = await query(
+      "SELECT * FROM employee_custom_documents WHERE employee_id = ? ORDER BY created_at ASC",
+      [employeeId]
+    );
+    return { success: true, data: rows };
+  } catch (error: any) {
+    return { success: false, error: error.message, data: [] };
+  }
+}
+
+export async function upsertEmployeeCustomDocument(data: {
+  employee_id: number;
+  document_name: string;
+  file_path?: string;
+  expiry_date?: string;
+}) {
+  try {
+    const existing: any = await query(
+      "SELECT id FROM employee_custom_documents WHERE employee_id = ? AND document_name = ?",
+      [data.employee_id, data.document_name]
+    );
+    if (existing && existing.length > 0) {
+      const updates: string[] = [];
+      const values: any[] = [];
+      if (data.file_path !== undefined) { updates.push("file_path = ?"); values.push(data.file_path); }
+      if (data.expiry_date !== undefined) { updates.push("expiry_date = ?"); values.push(data.expiry_date || null); }
+      if (updates.length > 0) {
+        values.push(existing[0].id);
+        await query(`UPDATE employee_custom_documents SET ${updates.join(", ")} WHERE id = ?`, values);
+      }
+    } else {
+      await query(
+        "INSERT INTO employee_custom_documents (employee_id, document_name, file_path, expiry_date) VALUES (?, ?, ?, ?)",
+        [data.employee_id, data.document_name, data.file_path || null, data.expiry_date || null]
+      );
+    }
+    revalidatePath(`/hr/employees/${data.employee_id}`);
+    return { success: true };
+  } catch (error: any) {
+    return { success: false, error: error.message };
+  }
+}
+
+export async function deleteEmployeeCustomDocument(id: number, employeeId: number) {
+  try {
+    await query("DELETE FROM employee_custom_documents WHERE id = ?", [id]);
     revalidatePath(`/hr/employees/${employeeId}`);
     return { success: true };
   } catch (error: any) {

@@ -122,6 +122,17 @@ export default async function EmployeeDetailsPage({
     [employeeId]
   );
 
+  // 8. Fetch Custom Document Types (system-level)
+  const customDocTypes = await query(
+    "SELECT * FROM custom_document_types ORDER BY created_at ASC"
+  );
+
+  // 9. Fetch Employee Custom Documents
+  const customDocuments = await query(
+    "SELECT * FROM employee_custom_documents WHERE employee_id = ? ORDER BY created_at ASC",
+    [employeeId]
+  );
+
   // Helper function to format dates to strings
     const formatDate = (obj: any) => {
       if (!obj) return obj;
@@ -148,6 +159,8 @@ export default async function EmployeeDetailsPage({
       stats={stats}
       monthlyData={monthlyData}
       bankAccounts={bankAccounts.map(b => formatDate(b))}
+      customDocTypes={customDocTypes.map((d: any) => formatDate(d))}
+      customDocuments={customDocuments.map((d: any) => formatDate(d))}
     />
   );
 }
