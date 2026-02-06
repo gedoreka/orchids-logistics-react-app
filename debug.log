@@ -642,3 +642,153 @@ https://nextjs.org/docs/messages/module-not-found
   response: {"success":true,"notifications":[{"id":9,"title":"✨ الثورة الجديدة تبدأ الآن! ✨","message":"انطلق نحو آفاق أوسع مع الإصدار الثوري الجديد لنظامنا، الذي صُمم من الصفر ليقدم لك تجربة فائقة السرعة والأداء!\n\nما الجديد في هذه النقلة النوعية؟\n\n🔄 تحديث شامل وكلي لكل أجزاء النظام\n⚡ تحول كامل في لغة البرمجة ليكون النظام أسرع، أخف، وأكثر استجابة من أي وقت مضى\n🗃️ تنظيم ذكي وكامل للبيانات يضمن لك سلاسة في العمل ودقة في الأداء\n🔗 دمج متكامل للعديد من الخدمات لإدارة موحدة وسهلة\n➕ إضافة مجموعة من الخدمات الجديدة التي تُوسع من قدراتك وتُبسط مهامك\n\nاستكشف عالمًا من الإمكانيات الجديدة!\nللتعرّف على كل الميزات والتحسينات التي تنتظرك، ندعوك لاكتشافها بنفسك.\n\nلديك استفسار أو تحتاج إلى مساعدة؟\nفريق دعمنا الفني جاهز دائمًا لمساعدتك. تواصل معنا بكل سهولة عبر أيقونة الدعم الفني داخل النظام، وسنكون سعداء بخدمتك.\n\nانطلق معنا نحو مستقبل أسرع، أذكى، وأكثر كفاءة! 🚀","image_url":null,"type":"info","is_read":0,"created_at":"2026-01-28T10:11:28.000Z","updated_at":"2026-01-28T10:11:28.000Z","sent_to_all":1,"sent_to_companies":null,"image_filename":null,"image_path":null,"is_frozen":0}]}
 2026-02-06T00:01:27.513Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
   response: {"unread_count":0}
+2026-02-05T23:40:44.952Z [console][warn] [Fast Refresh] rebuilding
+2026-02-05T23:40:47.126Z [console][warn] [Fast Refresh] done in 2282ms
+2026-02-05T23:40:56.428Z [console][warn] [Fast Refresh] rebuilding
+2026-02-05T23:40:58.233Z [console][warn] [Fast Refresh] done in 1878ms
+2026-02-05T23:41:54.130Z [console][warn] [Fast Refresh] rebuilding
+2026-02-05T23:41:55.589Z [console][warn] [Fast Refresh] done in 1550ms
+2026-02-05T23:42:15.644Z [console][warn] [Fast Refresh] rebuilding
+2026-02-05T23:42:16.900Z [console][warn] [Fast Refresh] done in 1342ms
+2026-02-05T23:42:18.066Z [console][warn] [Fast Refresh] rebuilding
+2026-02-05T23:42:19.334Z [console][warn] [Fast Refresh] done in 1368ms
+2026-02-05T23:42:28.098Z [console][warn] [Fast Refresh] rebuilding
+2026-02-05T23:42:30.572Z [console][warn] [Fast Refresh] done in 2723ms
+2026-02-05T23:44:13.572Z [console][warn] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+2026-02-05T23:44:14.078Z [console][warn] [Fast Refresh] rebuilding
+2026-02-05T23:44:14.274Z [console][warn] [Fast Refresh] done in 398ms
+2026-02-05T23:44:15.072Z [console][warn] [Fast Refresh] rebuilding
+2026-02-05T23:44:17.345Z [console][warn] [Fast Refresh] done in 2520ms
+2026-02-05T23:44:18.045Z [console][warn] [Fast Refresh] rebuilding
+2026-02-05T23:44:18.050Z [console][warn] [Fast Refresh] done in 566ms
+2026-02-05T23:44:21.348Z [console][error] You are trying to animate  from "0" to "0.00". "0.00" is not an animatable value.. For more information and steps for solving, visit https://motion.dev/troubleshooting/value-not-animatable
+2026-02-05T23:44:21.348Z [console][error] You are trying to animate  from "0" to "14676.00". "14676.00" is not an animatable value.. For more information and steps for solving, visit https://motion.dev/troubleshooting/value-not-animatable
+2026-02-05T23:51:21.566Z [console][warn] [Fast Refresh] rebuilding
+2026-02-05T23:51:21.581Z [console][warn] [Fast Refresh] done in 126ms
+2026-02-05T23:55:21.556Z [console][warn] [Fast Refresh] rebuilding
+2026-02-05T23:55:21.558Z [console][warn] [Fast Refresh] done in 103ms
+2026-02-06T00:01:56.195Z [console][warn] [Fast Refresh] rebuilding
+2026-02-06T00:01:56.220Z [console][warn] [Fast Refresh] done in 127ms
+2026-02-06T00:01:59.211Z [console][warn] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+2026-02-06T00:01:59.481Z [console][warn] [Fast Refresh] rebuilding
+2026-02-06T00:01:59.662Z [console][warn] [Fast Refresh] done in 288ms
+2026-02-06T00:02:01.512Z [console][error] You are trying to animate  from "0" to "0.00". "0.00" is not an animatable value.. For more information and steps for solving, visit https://motion.dev/troubleshooting/value-not-animatable
+2026-02-06T00:02:01.512Z [console][error] You are trying to animate  from "0" to "14676.00". "14676.00" is not an animatable value.. For more information and steps for solving, visit https://motion.dev/troubleshooting/value-not-animatable
+2026-02-06T00:02:02.484Z [console][warn] [Fast Refresh] rebuilding
+2026-02-06T00:02:06.613Z [console][warn] [Fast Refresh] done in 4230ms
+2026-02-06T00:02:06.751Z [console][warn] [Fast Refresh] rebuilding
+2026-02-06T00:02:06.753Z [console][warn] [Fast Refresh] done in 103ms
+2026-02-06T00:02:09.130Z [console][warn] [Fast Refresh] rebuilding
+2026-02-06T00:02:11.269Z [console][warn] [Fast Refresh] done in 2220ms
+2026-02-06T00:02:31.684Z [console][warn] [Fast Refresh] rebuilding
+2026-02-06T00:02:31.738Z [console][warn] [Fast Refresh] done in 176ms
+2026-02-06T00:02:01.510Z [console][warn] You are trying to animate  from "0" to "0.00". "0.00" is not an animatable value.. For more information and steps for solving, visit https://motion.dev/troubleshooting/value-not-animatable
+2026-02-06T00:02:01.511Z [console][warn] You are trying to animate  from "0" to "14676.00". "14676.00" is not an animatable value.. For more information and steps for solving, visit https://motion.dev/troubleshooting/value-not-animatable
+2026-02-06T00:02:02.484Z [console][log] [Fast Refresh] rebuilding
+2026-02-06T00:02:06.611Z [console][log] [Fast Refresh] done in 4230ms
+2026-02-06T00:02:06.751Z [console][log] [Fast Refresh] rebuilding
+2026-02-06T00:02:06.753Z [console][log] [Fast Refresh] done in 103ms
+2026-02-06T00:02:09.130Z [console][log] [Fast Refresh] rebuilding
+2026-02-06T00:02:11.267Z [console][log] [Fast Refresh] done in 2220ms
+2026-02-06T00:02:31.663Z [console][log] [Fast Refresh] rebuilding
+2026-02-06T00:02:31.738Z [console][log] [Fast Refresh] done in 176ms
+2026-02-06T00:03:47.688Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-06T00:03:50.971Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-06T00:03:52.611Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-06T00:03:54.479Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-06T00:03:57.385Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-06T00:03:58.689Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-06T00:04:02.358Z [network][GET 200] /api/email/accounts?company_id=22
+  response: {"accounts":[],"providers":{"hostinger":{"name":"Hostinger","imap_host":"imap.hostinger.com","imap_port":993,"smtp_host":"smtp.hostinger.com","smtp_port":465},"gmail":{"name":"Gmail","imap_host":"imap.gmail.com","imap_port":993,"smtp_host":"smtp.gmail.com","smtp_port":465},"outlook":{"name":"Outlook/Hotmail","imap_host":"outlook.office365.com","imap_port":993,"smtp_host":"smtp.office365.com","smtp_port":587},"custom":{"name":"Custom","imap_host":"","imap_port":993,"smtp_host":"","smtp_port":465}}}
+2026-02-06T00:04:04.106Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-06T00:04:07.511Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-06T00:04:08.399Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-06T00:04:09.857Z [network][GET 200] /api/admin/notifications?limit=1&last_id=9
+  response: {"success":true,"notifications":[{"id":9,"title":"✨ الثورة الجديدة تبدأ الآن! ✨","message":"انطلق نحو آفاق أوسع مع الإصدار الثوري الجديد لنظامنا، الذي صُمم من الصفر ليقدم لك تجربة فائقة السرعة والأداء!\n\nما الجديد في هذه النقلة النوعية؟\n\n🔄 تحديث شامل وكلي لكل أجزاء النظام\n⚡ تحول كامل في لغة البرمجة ليكون النظام أسرع، أخف، وأكثر استجابة من أي وقت مضى\n🗃️ تنظيم ذكي وكامل للبيانات يضمن لك سلاسة في العمل ودقة في الأداء\n🔗 دمج متكامل للعديد من الخدمات لإدارة موحدة وسهلة\n➕ إضافة مجموعة من الخدمات الجديدة التي تُوسع من قدراتك وتُبسط مهامك\n\nاستكشف عالمًا من الإمكانيات الجديدة!\nللتعرّف على كل الميزات والتحسينات التي تنتظرك، ندعوك لاكتشافها بنفسك.\n\nلديك استفسار أو تحتاج إلى مساعدة؟\nفريق دعمنا الفني جاهز دائمًا لمساعدتك. تواصل معنا بكل سهولة عبر أيقونة الدعم الفني داخل النظام، وسنكون سعداء بخدمتك.\n\nانطلق معنا نحو مستقبل أسرع، أذكى، وأكثر كفاءة! 🚀","image_url":null,"type":"info","is_read":0,"created_at":"2026-01-28T10:11:28.000Z","updated_at":"2026-01-28T10:11:28.000Z","sent_to_all":1,"sent_to_companies":null,"image_filename":null,"image_path":null,"is_frozen":0}]}
+2026-02-06T00:04:09.859Z [network][GET 200] /api/admin/notifications?limit=5
+  response: {"success":true,"notifications":[{"id":9,"title":"✨ الثورة الجديدة تبدأ الآن! ✨","message":"انطلق نحو آفاق أوسع مع الإصدار الثوري الجديد لنظامنا، الذي صُمم من الصفر ليقدم لك تجربة فائقة السرعة والأداء!\n\nما الجديد في هذه النقلة النوعية؟\n\n🔄 تحديث شامل وكلي لكل أجزاء النظام\n⚡ تحول كامل في لغة البرمجة ليكون النظام أسرع، أخف، وأكثر استجابة من أي وقت مضى\n🗃️ تنظيم ذكي وكامل للبيانات يضمن لك سلاسة في العمل ودقة في الأداء\n🔗 دمج متكامل للعديد من الخدمات لإدارة موحدة وسهلة\n➕ إضافة مجموعة من الخدمات الجديدة التي تُوسع من قدراتك وتُبسط مهامك\n\nاستكشف عالمًا من الإمكانيات الجديدة!\nللتعرّف على كل الميزات والتحسينات التي تنتظرك، ندعوك لاكتشافها بنفسك.\n\nلديك استفسار أو تحتاج إلى مساعدة؟\nفريق دعمنا الفني جاهز دائمًا لمساعدتك. تواصل معنا بكل سهولة عبر أيقونة الدعم الفني داخل النظام، وسنكون سعداء بخدمتك.\n\nانطلق معنا نحو مستقبل أسرع، أذكى، وأكثر كفاءة! 🚀","image_url":null,"type":"info","is_read":0,"created_at":"2026-01-28T10:11:28.000Z","updated_at":"2026-01-28T10:11:28.000Z","sent_to_all":1,"sent_to_companies":null,"image_filename":null,"image_path":null,"is_frozen":0},{"id":8,"title":"تصميم جديد قادم","message":"نفيدكم بتعطل بعد الخدمات بسبب الاصدار الجديد القادم خلال ايام","image_url":null,"type":"info","is_read":0,"created_at":"2026-01-15T20:27:41.000Z","updated_at":"2026-01-15T20:27:41.000Z","sent_to_all":1,"sent_to_companies":null,"image_filename":null,"image_path":null,"is_frozen":0},{"id":7,"title":"🔔 ✨ التحديث الجديد كليًا! ✨","message":"اكتشف الآن النسخة الجديدة كليًا من Logistics Systems Pro 🚀\r\n\r\n👥 تحديث شامل لقسم شؤون الموظفين (HR)\r\n📦 تم إطلاق نظام سلاسل الباقات الذي يجمع الموظفين داخل باقات ذكية ومنظمة.\r\n🎯 عند إنشاء قسم جديد، حدد نوع الباقة أولًا لتجربة إدارة أكثر سلاسة ودقة.\r\n\r\n📂 إدارة الموظفين بتجربة متطورة كليًا\r\n\t•\t🧾 المعلومات العامة\r\n\t•\t💳 الحساب البنكي\r\n\t•\t📑 المستندات\r\n\t•\t⚠️ المخالفات\r\n\t•\t🕒 صلاحية الإقامة\r\n\t•\t📈 الإحصائيات\r\n\t•\t📨 خطابات السائق\r\n\r\n💡 كلها بتصميم حديث وتكامل ذكي\r\n\r\n📱 تطبيق السا... [truncated]
+2026-02-06T00:04:10.955Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-06T00:04:11.915Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-06T00:04:13.943Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-06T00:04:16.944Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-06T00:04:17.886Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-06T00:04:21.947Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-06T00:04:22.280Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-06T00:04:25.857Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-06T00:04:26.867Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-06T00:04:29.893Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-06T00:04:32.031Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-06T00:04:32.363Z [network][GET 200] /api/admin/notifications?limit=1&last_id=9
+  response: {"success":true,"notifications":[{"id":9,"title":"✨ الثورة الجديدة تبدأ الآن! ✨","message":"انطلق نحو آفاق أوسع مع الإصدار الثوري الجديد لنظامنا، الذي صُمم من الصفر ليقدم لك تجربة فائقة السرعة والأداء!\n\nما الجديد في هذه النقلة النوعية؟\n\n🔄 تحديث شامل وكلي لكل أجزاء النظام\n⚡ تحول كامل في لغة البرمجة ليكون النظام أسرع، أخف، وأكثر استجابة من أي وقت مضى\n🗃️ تنظيم ذكي وكامل للبيانات يضمن لك سلاسة في العمل ودقة في الأداء\n🔗 دمج متكامل للعديد من الخدمات لإدارة موحدة وسهلة\n➕ إضافة مجموعة من الخدمات الجديدة التي تُوسع من قدراتك وتُبسط مهامك\n\nاستكشف عالمًا من الإمكانيات الجديدة!\nللتعرّف على كل الميزات والتحسينات التي تنتظرك، ندعوك لاكتشافها بنفسك.\n\nلديك استفسار أو تحتاج إلى مساعدة؟\nفريق دعمنا الفني جاهز دائمًا لمساعدتك. تواصل معنا بكل سهولة عبر أيقونة الدعم الفني داخل النظام، وسنكون سعداء بخدمتك.\n\nانطلق معنا نحو مستقبل أسرع، أذكى، وأكثر كفاءة! 🚀","image_url":null,"type":"info","is_read":0,"created_at":"2026-01-28T10:11:28.000Z","updated_at":"2026-01-28T10:11:28.000Z","sent_to_all":1,"sent_to_companies":null,"image_filename":null,"image_path":null,"is_frozen":0}]}
+2026-02-06T00:04:33.877Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-06T00:04:36.900Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-06T00:04:37.868Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-06T00:04:41.869Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-06T00:04:42.278Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-06T00:04:45.867Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-06T00:04:46.874Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-06T00:04:49.864Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-06T00:04:51.877Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-06T00:04:53.881Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-06T00:04:56.866Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-06T00:04:57.891Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-06T00:05:01.979Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-06T00:05:02.227Z [network][GET 200] /api/email/accounts?company_id=22
+  response: {"accounts":[],"providers":{"hostinger":{"name":"Hostinger","imap_host":"imap.hostinger.com","imap_port":993,"smtp_host":"smtp.hostinger.com","smtp_port":465},"gmail":{"name":"Gmail","imap_host":"imap.gmail.com","imap_port":993,"smtp_host":"smtp.gmail.com","smtp_port":465},"outlook":{"name":"Outlook/Hotmail","imap_host":"outlook.office365.com","imap_port":993,"smtp_host":"smtp.office365.com","smtp_port":587},"custom":{"name":"Custom","imap_host":"","imap_port":993,"smtp_host":"","smtp_port":465}}}
+2026-02-06T00:05:02.331Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-06T00:05:02.333Z [network][GET 200] /api/admin/notifications?limit=1&last_id=9
+  response: {"success":true,"notifications":[{"id":9,"title":"✨ الثورة الجديدة تبدأ الآن! ✨","message":"انطلق نحو آفاق أوسع مع الإصدار الثوري الجديد لنظامنا، الذي صُمم من الصفر ليقدم لك تجربة فائقة السرعة والأداء!\n\nما الجديد في هذه النقلة النوعية؟\n\n🔄 تحديث شامل وكلي لكل أجزاء النظام\n⚡ تحول كامل في لغة البرمجة ليكون النظام أسرع، أخف، وأكثر استجابة من أي وقت مضى\n🗃️ تنظيم ذكي وكامل للبيانات يضمن لك سلاسة في العمل ودقة في الأداء\n🔗 دمج متكامل للعديد من الخدمات لإدارة موحدة وسهلة\n➕ إضافة مجموعة من الخدمات الجديدة التي تُوسع من قدراتك وتُبسط مهامك\n\nاستكشف عالمًا من الإمكانيات الجديدة!\nللتعرّف على كل الميزات والتحسينات التي تنتظرك، ندعوك لاكتشافها بنفسك.\n\nلديك استفسار أو تحتاج إلى مساعدة؟\nفريق دعمنا الفني جاهز دائمًا لمساعدتك. تواصل معنا بكل سهولة عبر أيقونة الدعم الفني داخل النظام، وسنكون سعداء بخدمتك.\n\nانطلق معنا نحو مستقبل أسرع، أذكى، وأكثر كفاءة! 🚀","image_url":null,"type":"info","is_read":0,"created_at":"2026-01-28T10:11:28.000Z","updated_at":"2026-01-28T10:11:28.000Z","sent_to_all":1,"sent_to_companies":null,"image_filename":null,"image_path":null,"is_frozen":0}]}
+2026-02-06T00:05:02.348Z [network][GET 200] /api/admin/notifications?limit=5
+  response: {"success":true,"notifications":[{"id":9,"title":"✨ الثورة الجديدة تبدأ الآن! ✨","message":"انطلق نحو آفاق أوسع مع الإصدار الثوري الجديد لنظامنا، الذي صُمم من الصفر ليقدم لك تجربة فائقة السرعة والأداء!\n\nما الجديد في هذه النقلة النوعية؟\n\n🔄 تحديث شامل وكلي لكل أجزاء النظام\n⚡ تحول كامل في لغة البرمجة ليكون النظام أسرع، أخف، وأكثر استجابة من أي وقت مضى\n🗃️ تنظيم ذكي وكامل للبيانات يضمن لك سلاسة في العمل ودقة في الأداء\n🔗 دمج متكامل للعديد من الخدمات لإدارة موحدة وسهلة\n➕ إضافة مجموعة من الخدمات الجديدة التي تُوسع من قدراتك وتُبسط مهامك\n\nاستكشف عالمًا من الإمكانيات الجديدة!\nللتعرّف على كل الميزات والتحسينات التي تنتظرك، ندعوك لاكتشافها بنفسك.\n\nلديك استفسار أو تحتاج إلى مساعدة؟\nفريق دعمنا الفني جاهز دائمًا لمساعدتك. تواصل معنا بكل سهولة عبر أيقونة الدعم الفني داخل النظام، وسنكون سعداء بخدمتك.\n\nانطلق معنا نحو مستقبل أسرع، أذكى، وأكثر كفاءة! 🚀","image_url":null,"type":"info","is_read":0,"created_at":"2026-01-28T10:11:28.000Z","updated_at":"2026-01-28T10:11:28.000Z","sent_to_all":1,"sent_to_companies":null,"image_filename":null,"image_path":null,"is_frozen":0},{"id":8,"title":"تصميم جديد قادم","message":"نفيدكم بتعطل بعد الخدمات بسبب الاصدار الجديد القادم خلال ايام","image_url":null,"type":"info","is_read":0,"created_at":"2026-01-15T20:27:41.000Z","updated_at":"2026-01-15T20:27:41.000Z","sent_to_all":1,"sent_to_companies":null,"image_filename":null,"image_path":null,"is_frozen":0},{"id":7,"title":"🔔 ✨ التحديث الجديد كليًا! ✨","message":"اكتشف الآن النسخة الجديدة كليًا من Logistics Systems Pro 🚀\r\n\r\n👥 تحديث شامل لقسم شؤون الموظفين (HR)\r\n📦 تم إطلاق نظام سلاسل الباقات الذي يجمع الموظفين داخل باقات ذكية ومنظمة.\r\n🎯 عند إنشاء قسم جديد، حدد نوع الباقة أولًا لتجربة إدارة أكثر سلاسة ودقة.\r\n\r\n📂 إدارة الموظفين بتجربة متطورة كليًا\r\n\t•\t🧾 المعلومات العامة\r\n\t•\t💳 الحساب البنكي\r\n\t•\t📑 المستندات\r\n\t•\t⚠️ المخالفات\r\n\t•\t🕒 صلاحية الإقامة\r\n\t•\t📈 الإحصائيات\r\n\t•\t📨 خطابات السائق\r\n\r\n💡 كلها بتصميم حديث وتكامل ذكي\r\n\r\n📱 تطبيق السا... [truncated]
+2026-02-06T00:05:05.911Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-06T00:05:06.881Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-06T00:05:10.945Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-06T00:05:11.973Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-06T00:05:14.728Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-06T00:05:17.394Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-06T00:05:18.723Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-06T00:05:23.949Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-06T00:05:25.149Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
