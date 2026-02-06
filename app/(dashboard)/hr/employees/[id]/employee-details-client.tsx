@@ -40,7 +40,8 @@ import {
   Sparkles,
   AlertTriangle,
   Upload,
-  Plus
+  Plus,
+  FilePlus
 } from "lucide-react";
 import { format, differenceInDays, parseISO } from "date-fns";
 import { toast } from "sonner";
@@ -495,18 +496,31 @@ export function EmployeeDetailsClient({
             </div>
             <div className="flex gap-2">
 {(activeTab === "general" || activeTab === "documents") && (
-                  <motion.button 
-                    whileHover={{ scale: 1.05, y: -2 }}
-                    whileTap={{ scale: 0.95 }}
-                    onClick={() => setIsEditing(!isEditing)}
-                    className="relative bg-white/95 hover:bg-white text-slate-900 px-6 py-3 rounded-xl text-xs font-black flex items-center gap-2 transition-all shadow-xl shadow-black/10 group overflow-visible"
-                  >
-                    <span className="absolute inset-0 rounded-xl bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 opacity-0 group-hover:opacity-100 blur-md transition-opacity duration-500 -z-10 animate-pulse" />
-                    <span className="absolute -inset-1 rounded-xl bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 opacity-75 blur-sm -z-10 animate-[spin_3s_linear_infinite]" style={{ background: 'conic-gradient(from var(--angle, 0deg), #3b82f6, #8b5cf6, #ec4899, #3b82f6)' }} />
-                    <Edit3 size={15} className="relative z-10" />
-                    <span className="relative z-10">{isEditing ? 'إلغاء التعديل' : 'تعديل البيانات'}</span>
-                  </motion.button>
-                )}
+                    <motion.button 
+                      whileHover={{ scale: 1.05, y: -1 }}
+                      whileTap={{ scale: 0.95 }}
+                      onClick={() => setIsEditing(!isEditing)}
+                      className={`px-5 py-2.5 rounded-xl text-xs font-black flex items-center gap-2 transition-all ${
+                        isEditing 
+                          ? 'bg-red-500 hover:bg-red-600 text-white' 
+                          : 'bg-gradient-to-l from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white'
+                      }`}
+                    >
+                      {isEditing ? <X size={15} /> : <Edit3 size={15} />}
+                      <span>{isEditing ? 'إلغاء التعديل' : 'تعديل البيانات'}</span>
+                    </motion.button>
+                  )}
+                  {activeTab === "documents" && (
+                    <motion.button 
+                      whileHover={{ scale: 1.05, y: -1 }}
+                      whileTap={{ scale: 0.95 }}
+                      onClick={() => setShowAddDocType(true)}
+                      className="bg-gradient-to-l from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white px-5 py-2.5 rounded-xl text-xs font-black flex items-center gap-2 transition-all"
+                    >
+                      <FilePlus size={15} />
+                      <span>إضافة نوع مستند جديد</span>
+                    </motion.button>
+                  )}
 
             {activeTab === "violations" && (
               <motion.button 
