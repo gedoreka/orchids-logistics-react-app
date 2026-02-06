@@ -6,14 +6,15 @@ const pool = mysql.createPool({
   password: process.env.DB_PASSWORD,
   database: process.env.DB_NAME,
   port: parseInt(process.env.DB_PORT || '3306'),
+  charset: 'utf8mb4',
   waitForConnections: true,
-  connectionLimit: 20, // Increased from 10
+  connectionLimit: 20,
   queueLimit: 0,
   enableKeepAlive: true,
   keepAliveInitialDelay: 10000,
   idleTimeout: 60000,
   maxIdle: 10,
-  connectTimeout: 20000, // Increased from 10000 to 20 seconds for remote database
+  connectTimeout: 20000,
 });
 
 pool.on('error', (err) => {

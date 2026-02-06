@@ -1054,3 +1054,397 @@ It can also happen if the client has a browser extension installed which messes 
   response: {"unread_count":0}
 2026-02-06T14:30:41.230Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
   response: {"unread_count":0}
+2026-02-06T15:17:11.980Z [console][error] You are trying to animate  from "0" to "166568.00". "166568.00" is not an animatable value.. For more information and steps for solving, visit https://motion.dev/troubleshooting/value-not-animatable
+2026-02-06T15:17:11.980Z [console][error] You are trying to animate  from "0" to "14676.00". "14676.00" is not an animatable value.. For more information and steps for solving, visit https://motion.dev/troubleshooting/value-not-animatable
+2026-02-06T15:19:27.404Z [console][error] Network error fetching chat: Failed to fetch
+2026-02-06T15:48:58.825Z [console][error] ./app/(dashboard)/hr/packages/packages-client.tsx:552:5
+Parsing ecmascript source code failed
+  550 |         toast.error(t('excelParseError'));
+  551 |       }
+> 552 |     };
+      |     ^
+  553 |     reader.readAsArrayBuffer(file);
+  554 |   };
+  555 |
+
+Expression expected
+
+Import trace:
+  Server Component:
+    ./app/(dashboard)/hr/packages/packages-client.tsx
+    ./app/(dashboard)/hr/packages/page.tsx
+2026-02-06T15:48:59.008Z [console][error] ./app/(dashboard)/hr/packages/packages-client.tsx:552:5
+Parsing ecmascript source code failed
+  550 |         toast.error(t('excelParseError'));
+  551 |       }
+> 552 |     };
+      |     ^
+  553 |     reader.readAsArrayBuffer(file);
+  554 |   };
+  555 |
+
+Expression expected
+
+Import trace:
+  Server Component:
+    ./app/(dashboard)/hr/packages/packages-client.tsx
+    ./app/(dashboard)/hr/packages/page.tsx
+2026-02-06T15:48:59.538Z [console][error] [Fast Refresh] performing full reload because your application had an unrecoverable error
+2026-02-06T15:48:58.824Z [console][error] ./app/(dashboard)/hr/packages/packages-client.tsx:552:5
+Parsing ecmascript source code failed
+  550 |         toast.error(t('excelParseError'));
+  551 |       }
+> 552 |     };
+      |     ^
+  553 |     reader.readAsArrayBuffer(file);
+  554 |   };
+  555 |
+
+Expression expected
+
+Import trace:
+  Server Component:
+    ./app/(dashboard)/hr/packages/packages-client.tsx
+    ./app/(dashboard)/hr/packages/page.tsx
+2026-02-06T15:48:59.007Z [console][error] ./app/(dashboard)/hr/packages/packages-client.tsx:552:5
+Parsing ecmascript source code failed
+  550 |         toast.error(t('excelParseError'));
+  551 |       }
+> 552 |     };
+      |     ^
+  553 |     reader.readAsArrayBuffer(file);
+  554 |   };
+  555 |
+
+Expression expected
+
+Import trace:
+  Server Component:
+    ./app/(dashboard)/hr/packages/packages-client.tsx
+    ./app/(dashboard)/hr/packages/page.tsx
+2026-02-06T15:48:59.538Z [console][error] [Fast Refresh] performing full reload because your application had an unrecoverable error
+2026-02-06T15:48:58.824Z [console][error] ./app/(dashboard)/hr/packages/packages-client.tsx:552:5
+Parsing ecmascript source code failed
+  550 |         toast.error(t('excelParseError'));
+  551 |       }
+> 552 |     };
+      |     ^
+  553 |     reader.readAsArrayBuffer(file);
+  554 |   };
+  555 |
+
+Expression expected
+
+Import trace:
+  Server Component:
+    ./app/(dashboard)/hr/packages/packages-client.tsx
+    ./app/(dashboard)/hr/packages/page.tsx
+2026-02-06T15:48:59.007Z [console][error] ./app/(dashboard)/hr/packages/packages-client.tsx:552:5
+Parsing ecmascript source code failed
+  550 |         toast.error(t('excelParseError'));
+  551 |       }
+> 552 |     };
+      |     ^
+  553 |     reader.readAsArrayBuffer(file);
+  554 |   };
+  555 |
+
+Expression expected
+
+Import trace:
+  Server Component:
+    ./app/(dashboard)/hr/packages/packages-client.tsx
+    ./app/(dashboard)/hr/packages/page.tsx
+2026-02-06T15:48:41.974Z [console][error] ./app/(dashboard)/hr/packages/packages-client.tsx:552:5
+Parsing ecmascript source code failed
+  550 |         toast.error(t('excelParseError'));
+  551 |       }
+> 552 |     };
+      |     ^
+  553 |     reader.readAsArrayBuffer(file);
+  554 |   };
+  555 |
+
+Expression expected
+
+Import trace:
+  Server Component:
+    ./app/(dashboard)/hr/packages/packages-client.tsx
+    ./app/(dashboard)/hr/packages/page.tsx
+2026-02-06T15:48:43.068Z [console][error] ./app/(dashboard)/hr/packages/packages-client.tsx:552:5
+Parsing ecmascript source code failed
+  550 |         toast.error(t('excelParseError'));
+  551 |       }
+> 552 |     };
+      |     ^
+  553 |     reader.readAsArrayBuffer(file);
+  554 |   };
+  555 |
+
+Expression expected
+
+Import trace:
+  Server Component:
+    ./app/(dashboard)/hr/packages/packages-client.tsx
+    ./app/(dashboard)/hr/packages/page.tsx
+2026-02-06T15:48:43.297Z [console][error] ./app/(dashboard)/hr/packages/packages-client.tsx:552:5
+Parsing ecmascript source code failed
+  550 |         toast.error(t('excelParseError'));
+  551 |       }
+> 552 |     };
+      |     ^
+  553 |     reader.readAsArrayBuffer(file);
+  554 |   };
+  555 |
+
+Expression expected
+
+Import trace:
+  Server Component:
+    ./app/(dashboard)/hr/packages/packages-client.tsx
+    ./app/(dashboard)/hr/packages/page.tsx
+2026-02-06T15:48:43.481Z [console][error] ./app/(dashboard)/hr/packages/packages-client.tsx:552:5
+Parsing ecmascript source code failed
+  550 |         toast.error(t('excelParseError'));
+  551 |       }
+> 552 |     };
+      |     ^
+  553 |     reader.readAsArrayBuffer(file);
+  554 |   };
+  555 |
+
+Expression expected
+
+Import trace:
+  Server Component:
+    ./app/(dashboard)/hr/packages/packages-client.tsx
+    ./app/(dashboard)/hr/packages/page.tsx
+2026-02-06T15:48:43.581Z [console][error] Network error fetching chat: Failed to fetch
+2026-02-06T15:48:43.688Z [console][error] Uncaught Error: ./app/(dashboard)/hr/packages/packages-client.tsx:552:5
+Parsing ecmascript source code failed
+  550 |         toast.error(t('excelParseError'));
+  551 |       }
+> 552 |     };
+      |     ^
+  553 |     reader.readAsArrayBuffer(file);
+  554 |   };
+  555 |
+
+Expression expected
+
+Import trace:
+  Server Component:
+    ./app/(dashboard)/hr/packages/packages-client.tsx
+    ./app/(dashboard)/hr/packages/page.tsx
+
+
+2026-02-06T15:48:43.720Z [console][error] ./app/(dashboard)/hr/packages/packages-client.tsx:552:5
+Parsing ecmascript source code failed
+  550 |         toast.error(t('excelParseError'));
+  551 |       }
+> 552 |     };
+      |     ^
+  553 |     reader.readAsArrayBuffer(file);
+  554 |   };
+  555 |
+
+Expression expected
+
+Import trace:
+  Server Component:
+    ./app/(dashboard)/hr/packages/packages-client.tsx
+    ./app/(dashboard)/hr/packages/page.tsx
+2026-02-06T15:48:43.789Z [console][error] ./app/(dashboard)/hr/packages/packages-client.tsx:552:5
+Parsing ecmascript source code failed
+  550 |         toast.error(t('excelParseError'));
+  551 |       }
+> 552 |     };
+      |     ^
+  553 |     reader.readAsArrayBuffer(file);
+  554 |   };
+  555 |
+
+Expression expected
+
+Import trace:
+  Server Component:
+    ./app/(dashboard)/hr/packages/packages-client.tsx
+    ./app/(dashboard)/hr/packages/page.tsx
+2026-02-06T15:48:46.844Z [console][error] ./app/(dashboard)/hr/packages/packages-client.tsx:552:5
+Parsing ecmascript source code failed
+  550 |         toast.error(t('excelParseError'));
+  551 |       }
+> 552 |     };
+      |     ^
+  553 |     reader.readAsArrayBuffer(file);
+  554 |   };
+  555 |
+
+Expression expected
+
+Import trace:
+  Server Component:
+    ./app/(dashboard)/hr/packages/packages-client.tsx
+    ./app/(dashboard)/hr/packages/page.tsx
+2026-02-06T15:48:48.850Z [console][error] ./app/(dashboard)/hr/packages/packages-client.tsx:552:5
+Parsing ecmascript source code failed
+  550 |         toast.error(t('excelParseError'));
+  551 |       }
+> 552 |     };
+      |     ^
+  553 |     reader.readAsArrayBuffer(file);
+  554 |   };
+  555 |
+
+Expression expected
+
+Import trace:
+  Server Component:
+    ./app/(dashboard)/hr/packages/packages-client.tsx
+    ./app/(dashboard)/hr/packages/page.tsx
+2026-02-06T15:48:50.851Z [console][error] ./app/(dashboard)/hr/packages/packages-client.tsx:552:5
+Parsing ecmascript source code failed
+  550 |         toast.error(t('excelParseError'));
+  551 |       }
+> 552 |     };
+      |     ^
+  553 |     reader.readAsArrayBuffer(file);
+  554 |   };
+  555 |
+
+Expression expected
+
+Import trace:
+  Server Component:
+    ./app/(dashboard)/hr/packages/packages-client.tsx
+    ./app/(dashboard)/hr/packages/page.tsx
+2026-02-06T15:48:53.797Z [console][error] ./app/(dashboard)/hr/packages/packages-client.tsx:552:5
+Parsing ecmascript source code failed
+  550 |         toast.error(t('excelParseError'));
+  551 |       }
+> 552 |     };
+      |     ^
+  553 |     reader.readAsArrayBuffer(file);
+  554 |   };
+  555 |
+
+Expression expected
+
+Import trace:
+  Server Component:
+    ./app/(dashboard)/hr/packages/packages-client.tsx
+    ./app/(dashboard)/hr/packages/page.tsx
+2026-02-06T15:48:54.845Z [console][error] ./app/(dashboard)/hr/packages/packages-client.tsx:552:5
+Parsing ecmascript source code failed
+  550 |         toast.error(t('excelParseError'));
+  551 |       }
+> 552 |     };
+      |     ^
+  553 |     reader.readAsArrayBuffer(file);
+  554 |   };
+  555 |
+
+Expression expected
+
+Import trace:
+  Server Component:
+    ./app/(dashboard)/hr/packages/packages-client.tsx
+    ./app/(dashboard)/hr/packages/page.tsx
+2026-02-06T15:48:58.825Z [console][error] ./app/(dashboard)/hr/packages/packages-client.tsx:552:5
+Parsing ecmascript source code failed
+  550 |         toast.error(t('excelParseError'));
+  551 |       }
+> 552 |     };
+      |     ^
+  553 |     reader.readAsArrayBuffer(file);
+  554 |   };
+  555 |
+
+Expression expected
+
+Import trace:
+  Server Component:
+    ./app/(dashboard)/hr/packages/packages-client.tsx
+    ./app/(dashboard)/hr/packages/page.tsx
+2026-02-06T15:48:59.008Z [console][error] ./app/(dashboard)/hr/packages/packages-client.tsx:552:5
+Parsing ecmascript source code failed
+  550 |         toast.error(t('excelParseError'));
+  551 |       }
+> 552 |     };
+      |     ^
+  553 |     reader.readAsArrayBuffer(file);
+  554 |   };
+  555 |
+
+Expression expected
+
+Import trace:
+  Server Component:
+    ./app/(dashboard)/hr/packages/packages-client.tsx
+    ./app/(dashboard)/hr/packages/page.tsx
+2026-02-06T15:48:59.538Z [console][error] [Fast Refresh] performing full reload because your application had an unrecoverable error
+2026-02-06T15:48:53.797Z [console][error] ./app/(dashboard)/hr/packages/packages-client.tsx:552:5
+Parsing ecmascript source code failed
+  550 |         toast.error(t('excelParseError'));
+  551 |       }
+> 552 |     };
+      |     ^
+  553 |     reader.readAsArrayBuffer(file);
+  554 |   };
+  555 |
+
+Expression expected
+
+Import trace:
+  Server Component:
+    ./app/(dashboard)/hr/packages/packages-client.tsx
+    ./app/(dashboard)/hr/packages/page.tsx
+2026-02-06T15:48:54.845Z [console][error] ./app/(dashboard)/hr/packages/packages-client.tsx:552:5
+Parsing ecmascript source code failed
+  550 |         toast.error(t('excelParseError'));
+  551 |       }
+> 552 |     };
+      |     ^
+  553 |     reader.readAsArrayBuffer(file);
+  554 |   };
+  555 |
+
+Expression expected
+
+Import trace:
+  Server Component:
+    ./app/(dashboard)/hr/packages/packages-client.tsx
+    ./app/(dashboard)/hr/packages/page.tsx
+2026-02-06T15:48:58.825Z [console][error] ./app/(dashboard)/hr/packages/packages-client.tsx:552:5
+Parsing ecmascript source code failed
+  550 |         toast.error(t('excelParseError'));
+  551 |       }
+> 552 |     };
+      |     ^
+  553 |     reader.readAsArrayBuffer(file);
+  554 |   };
+  555 |
+
+Expression expected
+
+Import trace:
+  Server Component:
+    ./app/(dashboard)/hr/packages/packages-client.tsx
+    ./app/(dashboard)/hr/packages/page.tsx
+2026-02-06T15:48:59.008Z [console][error] ./app/(dashboard)/hr/packages/packages-client.tsx:552:5
+Parsing ecmascript source code failed
+  550 |         toast.error(t('excelParseError'));
+  551 |       }
+> 552 |     };
+      |     ^
+  553 |     reader.readAsArrayBuffer(file);
+  554 |   };
+  555 |
+
+Expression expected
+
+Import trace:
+  Server Component:
+    ./app/(dashboard)/hr/packages/packages-client.tsx
+    ./app/(dashboard)/hr/packages/page.tsx
+2026-02-06T15:48:59.538Z [console][error] [Fast Refresh] performing full reload because your application had an unrecoverable error

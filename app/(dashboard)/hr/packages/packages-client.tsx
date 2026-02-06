@@ -301,115 +301,232 @@ export function PackagesClient({ initialPackages, companyId }: PackagesClientPro
       }
     };
 
+  // Column header mappings: Arabic + English aliases -> field key
+  const columnAliases: Record<string, string[]> = {
+    employee_name: ['اسم الموظف', 'Employee Name', 'الاسم', 'Name', 'اسم', 'employee name', 'employee_name'],
+    iqama_number: ['رقم الإقامة', 'Iqama Number', 'رقم الاقامة', 'الإقامة', 'الاقامة', 'Iqama', 'iqama_number', 'iqama number', 'Iqama No'],
+    identity_number: ['رقم الهوية', 'Identity Number', 'الهوية', 'Identity', 'identity_number', 'identity number', 'ID Number', 'رقم الهويه'],
+    user_code: ['رقم المستخدم', 'User Code', 'كود المستخدم', 'Employee Code', 'user_code', 'user code', 'Code', 'الكود'],
+    job_title: ['المسمى الوظيفي', 'Job Title', 'الوظيفة', 'المسمي الوظيفي', 'job_title', 'job title', 'Title', 'الوظيفه'],
+    nationality: ['الجنسية', 'Nationality', 'الجنسيه', 'nationality'],
+    phone: ['رقم الهاتف', 'Phone Number', 'الهاتف', 'الجوال', 'رقم الجوال', 'Phone', 'phone', 'phone_number', 'Mobile'],
+    email: ['البريد الإلكتروني', 'Email', 'البريد', 'الايميل', 'الإيميل', 'email', 'Email Address', 'البريد الالكتروني'],
+    basic_salary: ['الراتب الأساسي', 'Basic Salary', 'الراتب', 'الراتب الاساسي', 'Salary', 'basic_salary', 'basic salary'],
+    housing_allowance: ['بدل السكن', 'Housing Allowance', 'السكن', 'بدل سكن', 'Housing', 'housing_allowance', 'housing allowance'],
+    vehicle_plate: ['لوحة المركبة', 'Vehicle Plate', 'المركبة', 'لوحة السيارة', 'رقم اللوحة', 'Plate', 'vehicle_plate', 'vehicle plate', 'Car Plate'],
+    iban: ['الآيبان', 'IBAN', 'آيبان', 'iban', 'الايبان', 'Bank IBAN'],
+  };
+
+  const resolveColumnField = (header: string): string | null => {
+    const normalized = header.trim().toLowerCase();
+    for (const [field, aliases] of Object.entries(columnAliases)) {
+      if (aliases.some(alias => alias.toLowerCase() === normalized)) return field;
+    }
+    return null;
+  };
+
   const downloadTemplate = (isAddModal = false) => {
     const workType = isAddModal ? selectedPackage?.work_type : formData.work_type;
     const isSalary = workType === 'salary';
 
+    // Bilingual headers: Arabic | English
     let headers: string[];
-    let sampleRow: (string | number)[];
+    let sampleRowAr: (string | number)[];
+    let sampleRowEn: (string | number)[];
     if (isSalary) {
-      headers = [t('employeeName'), t('identityNumber'), t('jobTitle'), t('nationality'), t('phoneNumber'), t('email'), t('basicSalary'), t('housingAllowance'), t('iban')];
-      sampleRow = ["Ahmed Mohammed", "1234567890", "Accountant", "Saudi", "0555555555", "ahmed@example.com", 5000, 1000, "SA0000000000000000000000"];
+      headers = ['اسم الموظف\nEmployee Name', 'رقم الهوية\nIdentity Number', 'المسمى الوظيفي\nJob Title', 'الجنسية\nNationality', 'رقم الهاتف\nPhone Number', 'البريد الإلكتروني\nEmail', 'الراتب الأساسي\nBasic Salary', 'بدل السكن\nHousing Allowance', 'الآيبان\nIBAN'];
+      sampleRowAr = ["أحمد محمد", "1234567890", "محاسب", "سعودي", "0555555555", "ahmed@example.com", 5000, 1000, "SA0000000000000000000000"];
+      sampleRowEn = ["Ahmed Mohammed", "1234567890", "Accountant", "Saudi", "0555555555", "ahmed@example.com", 5000, 1000, "SA0000000000000000000000"];
     } else {
-      headers = [t('employeeName'), t('iqamaNumber'), t('nationality'), t('userCode'), t('phoneNumber'), t('email'), t('basicSalary'), t('housingAllowance'), t('vehiclePlate'), t('iban')];
-      sampleRow = ["Ahmed Mohammed", "1234567890", "Saudi", "EMP001", "0555555555", "ahmed@example.com", 3000, 1000, "ABC 1234", "SA0000000000000000000000"];
+      headers = ['اسم الموظف\nEmployee Name', 'رقم الإقامة\nIqama Number', 'الجنسية\nNationality', 'رقم المستخدم\nUser Code', 'رقم الهاتف\nPhone Number', 'البريد الإلكتروني\nEmail', 'الراتب الأساسي\nBasic Salary', 'بدل السكن\nHousing Allowance', 'لوحة المركبة\nVehicle Plate', 'الآيبان\nIBAN'];
+      sampleRowAr = ["أحمد محمد", "1234567890", "سعودي", "EMP001", "0555555555", "ahmed@example.com", 3000, 1000, "أ ب ج 1234", "SA0000000000000000000000"];
+      sampleRowEn = ["Ahmed Mohammed", "1234567890", "Saudi", "EMP001", "0555555555", "ahmed@example.com", 3000, 1000, "ABC 1234", "SA0000000000000000000000"];
     }
 
-    const wsData = [headers, sampleRow];
+    const wsData = [headers, sampleRowAr, sampleRowEn];
     const ws = XLSX.utils.aoa_to_sheet(wsData);
     
-    // Set column widths
-    ws['!cols'] = headers.map(() => ({ wch: 22 }));
+    // Set column widths and header row height for bilingual text
+    ws['!cols'] = headers.map(() => ({ wch: 26 }));
+    ws['!rows'] = [{ hpt: 40 }];
 
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, "Employees");
     XLSX.writeFile(wb, `employee_template_${workType}.xlsx`);
   };
 
+  const parseWorkbook = (file: File, isAddModal: boolean) => {
+    const workType = isAddModal ? selectedPackage?.work_type : formData.work_type;
+    const isSalary = workType === 'salary';
+    const isCSV = file.name.toLowerCase().endsWith('.csv');
+
+    const processData = (workbook: XLSX.WorkBook) => {
+      const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+      const rawRows: any[][] = XLSX.utils.sheet_to_json(firstSheet, { header: 1, raw: false, defval: '' });
+
+      if (rawRows.length < 2) {
+        setExcelScanModal({ isOpen: false, phase: 'scanning', count: 0, isAddModal: false });
+        toast.error(t('excelParseError'));
+        return;
+      }
+
+      const headerRow = rawRows[0].map((h: any) => String(h || ''));
+      const columnFieldMap: (string | null)[] = headerRow.map((header: string) => {
+        const parts = header.split(/[\n\r]+/).map((p: string) => p.trim());
+        for (const part of parts) {
+          const field = resolveColumnField(part);
+          if (field) return field;
+        }
+        return resolveColumnField(header);
+      });
+
+      const newEmployees = rawRows.slice(1).map(values => {
+        if (!values || values.every((v: any) => !v || String(v).trim() === '')) return null;
+
+        const getValue = (fieldName: string): string => {
+          const idx = columnFieldMap.indexOf(fieldName);
+          if (idx === -1) return '';
+          const v = values[idx];
+          return v != null ? String(v).trim() : '';
+        };
+        const getNum = (fieldName: string): number => {
+          const v = getValue(fieldName);
+          return parseFloat(v) || 0;
+        };
+
+        const emp = {
+          name: getValue('employee_name'),
+          iqama_number: isSalary ? '' : getValue('iqama_number'),
+          identity_number: isSalary ? getValue('identity_number') : '',
+          job_title: isSalary ? getValue('job_title') : '',
+          nationality: getValue('nationality'),
+          user_code: isSalary ? '' : getValue('user_code'),
+          phone: getValue('phone'),
+          email: getValue('email'),
+          basic_salary: getNum('basic_salary'),
+          housing_allowance: getNum('housing_allowance'),
+          vehicle_plate: isSalary ? '' : getValue('vehicle_plate'),
+          iban: getValue('iban'),
+        };
+
+        return emp.name ? emp : null;
+      }).filter(Boolean) as any[];
+
+      setTimeout(() => {
+        setExcelScanModal(prev => ({ ...prev, phase: 'found', count: newEmployees.length }));
+        setTimeout(() => {
+          if (newEmployees.length > 0) {
+            if (isAddModal) {
+              setAddEmployeesData(newEmployees);
+            } else {
+              setEmployees(newEmployees);
+            }
+          }
+          setExcelScanModal(prev => ({ ...prev, phase: 'done' }));
+          setTimeout(() => {
+            setExcelScanModal({ isOpen: false, phase: 'scanning', count: 0, isAddModal: false });
+          }, 2000);
+        }, 1200);
+      }, 1500);
+    };
+
+    if (isCSV) {
+      // Read CSV as binary first to detect encoding, then re-read with correct encoding
+      const binaryReader = new FileReader();
+      binaryReader.onload = (event) => {
+        try {
+          const buffer = event.target?.result as ArrayBuffer;
+          const bytes = new Uint8Array(buffer);
+          
+          // Detect BOM: UTF-8 (EF BB BF), UTF-16 LE (FF FE), UTF-16 BE (FE FF)
+          const hasUtf8Bom = bytes[0] === 0xEF && bytes[1] === 0xBB && bytes[2] === 0xBF;
+          const hasUtf16LeBom = bytes[0] === 0xFF && bytes[1] === 0xFE;
+          const hasUtf16BeBom = bytes[0] === 0xFE && bytes[1] === 0xFF;
+          
+          // Determine initial encoding to try
+          let initialEncoding = 'UTF-8';
+          if (hasUtf16LeBom) initialEncoding = 'UTF-16LE';
+          else if (hasUtf16BeBom) initialEncoding = 'UTF-16BE';
+          else if (hasUtf8Bom) initialEncoding = 'UTF-8';
+          
+          const tryReadCSV = (encoding: string) => {
+            const textReader = new FileReader();
+            textReader.onload = (e) => {
+              try {
+                let csvText = e.target?.result as string;
+                // Check if Arabic characters are present (not showing as ?)
+                const hasArabic = /[\u0600-\u06FF]/.test(csvText);
+                const hasBrokenChars = /\?{2,}/.test(csvText) && !hasArabic;
+                
+                if (hasBrokenChars && encoding === 'UTF-8') {
+                  // UTF-8 failed, try windows-1256 (Arabic Windows encoding)
+                  tryReadCSV('windows-1256');
+                  return;
+                }
+                
+                // Detect field separator: semicolons are common in Arabic/European Excel exports
+                const firstLine = csvText.split(/\r?\n/)[0] || '';
+                const semicolonCount = (firstLine.match(/;/g) || []).length;
+                const commaCount = (firstLine.match(/,/g) || []).length;
+                
+                // If semicolons are more common than commas, replace them
+                if (semicolonCount > commaCount) {
+                  // Replace semicolons with commas, but preserve semicolons inside quotes
+                  csvText = csvText.split('\n').map(line => {
+                    let result = '';
+                    let inQuotes = false;
+                    for (let i = 0; i < line.length; i++) {
+                      const ch = line[i];
+                      if (ch === '"') inQuotes = !inQuotes;
+                      else if (ch === ';' && !inQuotes) { result += ','; continue; }
+                      result += ch;
+                    }
+                    return result;
+                  }).join('\n');
+                }
+                
+                const workbook = XLSX.read(csvText, { type: 'string' });
+                processData(workbook);
+              } catch {
+                setExcelScanModal({ isOpen: false, phase: 'scanning', count: 0, isAddModal: false });
+                toast.error(t('excelParseError'));
+              }
+            };
+            textReader.readAsText(file, encoding);
+          };
+          
+          tryReadCSV(initialEncoding);
+        } catch {
+          setExcelScanModal({ isOpen: false, phase: 'scanning', count: 0, isAddModal: false });
+          toast.error(t('excelParseError'));
+        }
+      };
+      binaryReader.readAsArrayBuffer(file);
+    } else {
+      // Read XLSX/XLS as binary
+      const binaryReader = new FileReader();
+      binaryReader.onload = (event) => {
+        try {
+          const data = new Uint8Array(event.target?.result as ArrayBuffer);
+          const workbook = XLSX.read(data, { type: 'array', codepage: 65001 });
+          processData(workbook);
+        } catch {
+          setExcelScanModal({ isOpen: false, phase: 'scanning', count: 0, isAddModal: false });
+          toast.error(t('excelParseError'));
+        }
+      };
+      binaryReader.readAsArrayBuffer(file);
+    }
+  };
+
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>, isAddModal = false) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    // Reset file input so same file can be re-uploaded
     e.target.value = '';
-
-    const workType = isAddModal ? selectedPackage?.work_type : formData.work_type;
-    const isSalary = workType === 'salary';
 
     // Show scanning modal
     setExcelScanModal({ isOpen: true, phase: 'scanning', count: 0, isAddModal });
-
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      try {
-        const data = new Uint8Array(event.target?.result as ArrayBuffer);
-        const workbook = XLSX.read(data, { type: 'array' });
-        const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
-        const rows: any[][] = XLSX.utils.sheet_to_json(firstSheet, { header: 1 });
-
-        // Skip header row, parse data rows
-        const newEmployees = rows.slice(1).map(values => {
-          if (!values || values.length < 3) return null;
-          const str = (v: any) => (v != null ? String(v).trim() : '');
-          const num = (v: any) => parseFloat(v) || 0;
-
-          if (isSalary) {
-            return {
-              name: str(values[0]),
-              identity_number: str(values[1]),
-              job_title: str(values[2]),
-              nationality: str(values[3]),
-              phone: str(values[4]),
-              email: str(values[5]),
-              basic_salary: num(values[6]),
-              housing_allowance: num(values[7]),
-              iban: str(values[8]),
-              iqama_number: "", user_code: "", vehicle_plate: ""
-            };
-          } else {
-            return {
-              name: str(values[0]),
-              iqama_number: str(values[1]),
-              nationality: str(values[2]),
-              user_code: str(values[3]),
-              phone: str(values[4]),
-              email: str(values[5]),
-              basic_salary: num(values[6]),
-              housing_allowance: num(values[7]),
-              vehicle_plate: str(values[8]),
-              iban: str(values[9]),
-              identity_number: "", job_title: ""
-            };
-          }
-        }).filter(emp => emp !== null && emp.name !== '') as any[];
-
-        // Phase: found employees
-        setTimeout(() => {
-          setExcelScanModal(prev => ({ ...prev, phase: 'found', count: newEmployees.length }));
-
-          // Phase: done - populate table
-          setTimeout(() => {
-            if (newEmployees.length > 0) {
-              if (isAddModal) {
-                setAddEmployeesData(newEmployees);
-              } else {
-                setEmployees(newEmployees);
-              }
-            }
-            setExcelScanModal(prev => ({ ...prev, phase: 'done' }));
-
-            // Auto close after showing success
-            setTimeout(() => {
-              setExcelScanModal({ isOpen: false, phase: 'scanning', count: 0, isAddModal: false });
-            }, 2000);
-          }, 1200);
-        }, 1500);
-
-      } catch {
-        setExcelScanModal({ isOpen: false, phase: 'scanning', count: 0, isAddModal: false });
-        toast.error(t('excelParseError'));
-      }
-    };
-    reader.readAsArrayBuffer(file);
+    parseWorkbook(file, isAddModal);
   };
 
   const containerVariants = {
