@@ -792,3 +792,192 @@ https://nextjs.org/docs/messages/module-not-found
   response: {"unread_count":0}
 2026-02-06T00:05:25.149Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
   response: {"unread_count":0}
+2026-02-06T01:49:05.563Z [console][error] ./app/(dashboard)/admin/companies/page.tsx:27:9
+Ecmascript file had an error
+  25 |
+  26 |   let sql = "SELECT * FROM companies WHERE 1=1";
+> 27 |   const params: any[] = [];
+     |         ^^^^^^
+  28 |
+  29 |   if (search) {
+  30 |     sql += " AND (name LIKE ? OR commercial_number LIKE ? OR vat_number LIKE ?)";
+
+the name `params` is defined multiple times
+2026-02-06T01:49:08.633Z [console][error] ./app/(dashboard)/admin/companies/page.tsx:27:9
+Ecmascript file had an error
+  25 |
+  26 |   let sql = "SELECT * FROM companies WHERE 1=1";
+> 27 |   const params: any[] = [];
+     |         ^^^^^^
+  28 |
+  29 |   if (search) {
+  30 |     sql += " AND (name LIKE ? OR commercial_number LIKE ? OR vat_number LIKE ?)";
+
+the name `params` is defined multiple times
+2026-02-06T01:49:08.744Z [console][error] ./app/(dashboard)/admin/companies/page.tsx:27:9
+Ecmascript file had an error
+  25 |
+  26 |   let sql = "SELECT * FROM companies WHERE 1=1";
+> 27 |   const params: any[] = [];
+     |         ^^^^^^
+  28 |
+  29 |   if (search) {
+  30 |     sql += " AND (name LIKE ? OR commercial_number LIKE ? OR vat_number LIKE ?)";
+
+the name `params` is defined multiple times
+2026-02-06T01:49:09.091Z [console][error] ./app/(dashboard)/admin/companies/page.tsx:27:9
+Ecmascript file had an error
+  25 |
+  26 |   let sql = "SELECT * FROM companies WHERE 1=1";
+> 27 |   const params: any[] = [];
+     |         ^^^^^^
+  28 |
+  29 |   if (search) {
+  30 |     sql += " AND (name LIKE ? OR commercial_number LIKE ? OR vat_number LIKE ?)";
+
+the name `params` is defined multiple times
+2026-02-06T01:49:09.310Z [console][error] ./app/(dashboard)/admin/companies/page.tsx:27:9
+Ecmascript file had an error
+  25 |
+  26 |   let sql = "SELECT * FROM companies WHERE 1=1";
+> 27 |   const params: any[] = [];
+     |         ^^^^^^
+  28 |
+  29 |   if (search) {
+  30 |     sql += " AND (name LIKE ? OR commercial_number LIKE ? OR vat_number LIKE ?)";
+
+the name `params` is defined multiple times
+2026-02-06T01:49:09.360Z [console][error] ./app/(dashboard)/admin/companies/page.tsx:27:9
+Ecmascript file had an error
+  25 |
+  26 |   let sql = "SELECT * FROM companies WHERE 1=1";
+> 27 |   const params: any[] = [];
+     |         ^^^^^^
+  28 |
+  29 |   if (search) {
+  30 |     sql += " AND (name LIKE ? OR commercial_number LIKE ? OR vat_number LIKE ?)";
+
+the name `params` is defined multiple times
+2026-02-06T01:49:09.429Z [console][error] ./app/(dashboard)/admin/companies/page.tsx:27:9
+Ecmascript file had an error
+  25 |
+  26 |   let sql = "SELECT * FROM companies WHERE 1=1";
+> 27 |   const params: any[] = [];
+     |         ^^^^^^
+  28 |
+  29 |   if (search) {
+  30 |     sql += " AND (name LIKE ? OR commercial_number LIKE ? OR vat_number LIKE ?)";
+
+the name `params` is defined multiple times
+2026-02-06T01:49:08.632Z [console][error] ./app/(dashboard)/admin/companies/page.tsx:27:9
+Ecmascript file had an error
+  25 |
+  26 |   let sql = "SELECT * FROM companies WHERE 1=1";
+> 27 |   const params: any[] = [];
+     |         ^^^^^^
+  28 |
+  29 |   if (search) {
+  30 |     sql += " AND (name LIKE ? OR commercial_number LIKE ? OR vat_number LIKE ?)";
+
+the name `params` is defined multiple times
+2026-02-06T01:49:09.090Z [console][error] ./app/(dashboard)/admin/companies/page.tsx:27:9
+Ecmascript file had an error
+  25 |
+  26 |   let sql = "SELECT * FROM companies WHERE 1=1";
+> 27 |   const params: any[] = [];
+     |         ^^^^^^
+  28 |
+  29 |   if (search) {
+  30 |     sql += " AND (name LIKE ? OR commercial_number LIKE ? OR vat_number LIKE ?)";
+
+the name `params` is defined multiple times
+2026-02-06T01:49:09.428Z [console][error] ./app/(dashboard)/admin/companies/page.tsx:27:9
+Ecmascript file had an error
+  25 |
+  26 |   let sql = "SELECT * FROM companies WHERE 1=1";
+> 27 |   const params: any[] = [];
+     |         ^^^^^^
+  28 |
+  29 |   if (search) {
+  30 |     sql += " AND (name LIKE ? OR commercial_number LIKE ? OR vat_number LIKE ?)";
+
+the name `params` is defined multiple times
+2026-02-06T01:54:02.630Z [console][error] Network error fetching chat: Failed to fetch
+2026-02-06T01:54:03.594Z [console][error] You are trying to animate  from "0" to "0.00". "0.00" is not an animatable value.. For more information and steps for solving, visit https://motion.dev/troubleshooting/value-not-animatable
+2026-02-06T01:54:03.594Z [console][error] You are trying to animate  from "0" to "14676.00". "14676.00" is not an animatable value.. For more information and steps for solving, visit https://motion.dev/troubleshooting/value-not-animatable
+2026-02-06T02:12:23.108Z [console][error] You are trying to animate  from "0" to "0.00". "0.00" is not an animatable value.. For more information and steps for solving, visit https://motion.dev/troubleshooting/value-not-animatable
+2026-02-06T02:12:23.108Z [console][error] You are trying to animate  from "0" to "14676.00". "14676.00" is not an animatable value.. For more information and steps for solving, visit https://motion.dev/troubleshooting/value-not-animatable
+2026-02-06T02:25:25.637Z [console][warn] [Fast Refresh] rebuilding
+2026-02-06T02:25:30.234Z [console][warn] [Fast Refresh] done in 4465ms
+2026-02-06T02:25:31.245Z [console][warn] [Fast Refresh] rebuilding
+2026-02-06T02:25:31.343Z [console][warn] [Fast Refresh] done in 200ms
+2026-02-06T02:25:34.082Z [console][error] Network error fetching chat: Failed to fetch
+2026-02-06T02:25:34.603Z [console][warn] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+2026-02-06T02:25:35.282Z [console][warn] [Fast Refresh] rebuilding
+2026-02-06T02:25:35.771Z [console][warn] [Fast Refresh] done in 596ms
+2026-02-06T02:25:36.861Z [console][warn] [Fast Refresh] rebuilding
+2026-02-06T02:25:36.908Z [console][warn] [Fast Refresh] done in 818ms
+2026-02-06T02:25:37.601Z [console][warn] [Fast Refresh] rebuilding
+2026-02-06T02:25:38.406Z [console][warn] [Fast Refresh] done in 827ms
+2026-02-06T02:25:46.513Z [console][warn] [Fast Refresh] rebuilding
+2026-02-06T02:25:50.433Z [console][warn] [Fast Refresh] done in 3684ms
+2026-02-06T02:26:04.270Z [console][warn] [Fast Refresh] rebuilding
+2026-02-06T02:26:08.714Z [console][warn] [Fast Refresh] done in 3683ms
+2026-02-06T02:26:10.625Z [console][warn] [Fast Refresh] rebuilding
+2026-02-06T02:26:10.706Z [console][warn] [Fast Refresh] done in 183ms
+2026-02-06T02:25:35.282Z [console][log] [Fast Refresh] rebuilding
+2026-02-06T02:25:35.771Z [console][log] [Fast Refresh] done in 596ms
+2026-02-06T02:25:36.191Z [console][log] [Fast Refresh] rebuilding
+2026-02-06T02:25:36.908Z [console][log] [Fast Refresh] done in 818ms
+2026-02-06T02:25:37.600Z [console][log] [Fast Refresh] rebuilding
+2026-02-06T02:25:38.404Z [console][log] [Fast Refresh] done in 827ms
+2026-02-06T02:25:46.511Z [console][log] [Fast Refresh] rebuilding
+2026-02-06T02:25:50.429Z [console][log] [Fast Refresh] done in 3684ms
+2026-02-06T02:26:04.268Z [console][log] [Fast Refresh] rebuilding
+2026-02-06T02:26:08.706Z [console][log] [Fast Refresh] done in 3683ms
+2026-02-06T02:26:10.623Z [console][log] [Fast Refresh] rebuilding
+2026-02-06T02:26:10.706Z [console][log] [Fast Refresh] done in 183ms
+2026-02-06T02:25:36.888Z [network][GET 200] https://nominatim.openstreetmap.org/reverse?format=json&lat=24.755826318580063&lon=46.803397923993955&accept-language=ar
+  response: {"place_id":42490188,"licence":"Data © OpenStreetMap contributors, ODbL 1.0. http://osm.org/copyright","osm_type":"way","osm_id":227672882,"lat":"24.7560103","lon":"46.8036424","class":"highway","type":"residential","place_rank":26,"importance":0.05340394827191573,"addresstype":"road","name":"أوس الطائي","display_name":"أوس الطائي, النهضة, بلدية الروضة, محافظة الرياض, منطقة الرياض, 10011, السعودية","address":{"road":"أوس الطائي","suburb":"النهضة","city_district":"بلدية الروضة","province":"محافظة الرياض","state":"منطقة الرياض","ISO3166-2-lvl4":"SA-01","postcode":"10011","country":"السعودية","country_code":"sa"},"boundingbox":["24.7549267","24.7580023","46.8021596","46.8044896"]}
+2026-02-06T02:25:38.124Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-06T02:25:38.131Z [network][GET 200] /api/admin/notifications?limit=1&last_id=9
+  response: {"success":true,"notifications":[]}
+2026-02-06T02:25:38.171Z [network][GET 200] /api/admin/notifications?limit=5
+  response: {"success":true,"notifications":[]}
+2026-02-06T02:25:38.700Z [network][GET 200] /api/email/accounts?company_id=22
+  response: {"accounts":[],"providers":{"hostinger":{"name":"Hostinger","imap_host":"imap.hostinger.com","imap_port":993,"smtp_host":"smtp.hostinger.com","smtp_port":465},"gmail":{"name":"Gmail","imap_host":"imap.gmail.com","imap_port":993,"smtp_host":"smtp.gmail.com","smtp_port":465},"outlook":{"name":"Outlook/Hotmail","imap_host":"outlook.office365.com","imap_port":993,"smtp_host":"smtp.office365.com","smtp_port":587},"custom":{"name":"Custom","imap_host":"","imap_port":993,"smtp_host":"","smtp_port":465}}}
+2026-02-06T02:25:38.930Z [network][GET 200] /api/admin/notifications?limit=5
+  response: {"success":true,"notifications":[]}
+2026-02-06T02:25:38.976Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-06T02:25:38.976Z [network][GET 200] /api/admin/notifications?limit=1&last_id=9
+  response: {"success":true,"notifications":[]}
+2026-02-06T02:25:39.366Z [network][GET 200] /api/email/accounts?company_id=22
+  response: {"accounts":[],"providers":{"hostinger":{"name":"Hostinger","imap_host":"imap.hostinger.com","imap_port":993,"smtp_host":"smtp.hostinger.com","smtp_port":465},"gmail":{"name":"Gmail","imap_host":"imap.gmail.com","imap_port":993,"smtp_host":"smtp.gmail.com","smtp_port":465},"outlook":{"name":"Outlook/Hotmail","imap_host":"outlook.office365.com","imap_port":993,"smtp_host":"smtp.office365.com","smtp_port":587},"custom":{"name":"Custom","imap_host":"","imap_port":993,"smtp_host":"","smtp_port":465}}}
+2026-02-06T02:25:40.240Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-06T02:25:41.289Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-06T02:25:44.226Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-06T02:25:46.361Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-06T02:25:51.322Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-06T02:25:51.841Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-06T02:25:52.338Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-06T02:25:56.223Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-06T02:25:56.602Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-06T02:26:00.233Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-06T02:26:01.428Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-06T02:26:09.771Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-06T02:26:10.509Z [network][GET 200] /api/admin/notifications?limit=1&last_id=9
+  response: {"success":true,"notifications":[]}

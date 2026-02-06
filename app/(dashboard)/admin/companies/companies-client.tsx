@@ -45,14 +45,26 @@ interface Plan {
   duration_unit: string;
 }
 
+interface CompanySubscription {
+  id: number;
+  company_id: number;
+  plan_id: number;
+  plan_name: string;
+  plan_price: number;
+  start_date: string;
+  end_date: string;
+  status: string;
+}
+
 interface CompaniesClientProps {
   initialCompanies: Company[];
   statusFilter: string;
   search: string;
   plans?: Plan[];
+  subscriptions?: Record<number, CompanySubscription>;
 }
 
-export function CompaniesClient({ initialCompanies, statusFilter, search, plans = [] }: CompaniesClientProps) {
+export function CompaniesClient({ initialCompanies, statusFilter, search, plans = [], subscriptions = {} }: CompaniesClientProps) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -61,6 +73,24 @@ export function CompaniesClient({ initialCompanies, statusFilter, search, plans 
   const [deleteConfirm, setDeleteConfirm] = useState<{ id: number; name: string } | null>(null);
   const [assignPlanModal, setAssignPlanModal] = useState<{ companyId: number; companyName: string } | null>(null);
   const [assigningPlan, setAssigningPlan] = useState(false);
+
+  // دالة لحساب حالة الاشتراك
+  const getSubscriptionStatus = (sub: CompanySubscription | undefined) => {
+    if (!sub) return { status: 'none', label: 'بدون باقة', color: 'slate' };
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const endDate = new Date(sub.end_date);
+    endDate.setHours(0, 0, 0, 0);
+    const daysRemaining = Math.ceil((endDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+    
+    if (daysRemaining < 0) {
+      return { status: 'expired', label: 'منتهية', color: 'red', daysRemaining };
+    } else if (daysRemaining <= 7) {
+      return { status: 'expiring', label: 'تنتهي قريباً', color: 'amber', daysRemaining };
+    } else {
+      return { status: 'active', label: 'سارية', color: 'emerald', daysRemaining };
+    }
+  };
 
   const updateQueryParams = (key: string, value: string) => {
     const params = new URLSearchParams(searchParams.toString());
@@ -299,23 +329,58 @@ export function CompaniesClient({ initialCompanies, statusFilter, search, plans 
                   </div>
 
                     <div className="flex flex-wrap gap-2">
-                      <div className={cn(
-                        "flex items-center gap-2 px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-widest shadow-sm border",
-                        (company.status === 'approved' || company.status === 'active') ? "bg-emerald-50 text-emerald-600 border-emerald-100" :
-                        company.status === 'rejected' ? "bg-rose-50 text-rose-600 border-rose-100" :
-                        "bg-amber-50 text-amber-600 border-amber-100"
-                      )}>
-                        {(company.status === 'approved' || company.status === 'active') ? <CheckCircle size={12}/> : company.status === 'rejected' ? <XCircle size={12}/> : <RefreshCw size={12} className="animate-spin-slow"/>}
-                        {(company.status === 'approved' || company.status === 'active') ? 'مقبول' : company.status === 'rejected' ? 'مرفوض' : 'قيد المراجعة'}
+                        <div className={cn(
+                          "flex items-center gap-2 px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-widest shadow-sm border",
+                          (company.status === 'approved' || company.status === 'active') ? "bg-emerald-50 text-emerald-600 border-emerald-100" :
+                          company.status === 'rejected' ? "bg-rose-50 text-rose-600 border-rose-100" :
+                          "bg-amber-50 text-amber-600 border-amber-100"
+                        )}>
+                          {(company.status === 'approved' || company.status === 'active') ? <CheckCircle size={12}/> : company.status === 'rejected' ? <XCircle size={12}/> : <RefreshCw size={12} className="animate-spin-slow"/>}
+                          {(company.status === 'approved' || company.status === 'active') ? 'مقبول' : company.status === 'rejected' ? 'مرفوض' : 'قيد المراجعة'}
+                        </div>
+                        <div className={cn(
+                          "flex items-center gap-2 px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-widest shadow-sm border",
+                          company.is_active ? "bg-blue-50 text-blue-600 border-blue-100" : "bg-slate-50 text-slate-400 border-slate-100"
+                        )}>
+                          {company.is_active ? <PlayCircle size={12}/> : <PauseCircle size={12}/>}
+                          {company.is_active ? 'نشط' : 'موقوف'}
+                        </div>
+                        
+                        {/* شارة الباقة */}
+                        {(() => {
+                          const sub = subscriptions[company.id];
+                          const subStatus = getSubscriptionStatus(sub);
+                          return (
+                            <div className={cn(
+                              "flex items-center gap-2 px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-widest shadow-sm border",
+                              subStatus.status === 'none' ? "bg-slate-50 text-slate-400 border-slate-200" :
+                              subStatus.status === 'expired' ? "bg-red-50 text-red-600 border-red-200" :
+                              subStatus.status === 'expiring' ? "bg-amber-50 text-amber-600 border-amber-200" :
+                              "bg-violet-50 text-violet-600 border-violet-200"
+                            )}>
+                              <Crown size={12} />
+                              {sub ? (
+                                <span className="flex items-center gap-1.5">
+                                  {sub.plan_name}
+                                  <span className="mx-1">|</span>
+                                  {subStatus.label}
+                                  {subStatus.status !== 'none' && subStatus.daysRemaining !== undefined && (
+                                    <span className={cn(
+                                      "px-1.5 py-0.5 rounded text-[8px]",
+                                      subStatus.status === 'expired' ? "bg-red-100" :
+                                      subStatus.status === 'expiring' ? "bg-amber-100" : "bg-violet-100"
+                                    )}>
+                                      {subStatus.daysRemaining < 0 
+                                        ? `منذ ${Math.abs(subStatus.daysRemaining)} يوم` 
+                                        : `${subStatus.daysRemaining} يوم`}
+                                    </span>
+                                  )}
+                                </span>
+                              ) : 'بدون باقة'}
+                            </div>
+                          );
+                        })()}
                       </div>
-                      <div className={cn(
-                        "flex items-center gap-2 px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-widest shadow-sm border",
-                        company.is_active ? "bg-blue-50 text-blue-600 border-blue-100" : "bg-slate-50 text-slate-400 border-slate-100"
-                      )}>
-                        {company.is_active ? <PlayCircle size={12}/> : <PauseCircle size={12}/>}
-                        {company.is_active ? 'نشط' : 'موقوف'}
-                      </div>
-                    </div>
                 </div>
 
                 {/* Company Info Grid */}
@@ -607,91 +672,132 @@ export function CompaniesClient({ initialCompanies, statusFilter, search, plans 
           </AnimatePresence>
 
           {/* Assign Plan Modal */}
-          <AnimatePresence>
-            {assignPlanModal && (
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
-                onClick={() => setAssignPlanModal(null)}
-              >
+            <AnimatePresence>
+              {assignPlanModal && (
                 <motion.div
-                  initial={{ scale: 0.9, opacity: 0 }}
-                  animate={{ scale: 1, opacity: 1 }}
-                  exit={{ scale: 0.9, opacity: 0 }}
-                  onClick={(e) => e.stopPropagation()}
-                  className="bg-white rounded-3xl p-8 max-w-lg w-full shadow-2xl border border-slate-100"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
+                  onClick={() => setAssignPlanModal(null)}
                 >
-                  <div className="flex flex-col items-center text-center gap-6">
-                    <div className="w-20 h-20 rounded-full bg-purple-100 flex items-center justify-center">
-                      <Crown size={40} className="text-purple-600" />
-                    </div>
-                    
-                    <div className="space-y-2">
-                      <h3 className="text-2xl font-black text-slate-900">تعيين باقة اشتراك</h3>
-                      <p className="text-slate-500 font-bold">
-                        لشركة <span className="text-purple-600 font-black">{assignPlanModal.companyName}</span>
-                      </p>
-                    </div>
+                  <motion.div
+                    initial={{ scale: 0.9, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    exit={{ scale: 0.9, opacity: 0 }}
+                    onClick={(e) => e.stopPropagation()}
+                    className="bg-white rounded-3xl p-8 max-w-lg w-full shadow-2xl border border-slate-100"
+                  >
+                    {(() => {
+                      const currentSub = subscriptions[assignPlanModal.companyId];
+                      const subStatus = currentSub ? getSubscriptionStatus(currentSub) : null;
+                      return (
+                        <div className="flex flex-col items-center text-center gap-6">
+                          <div className="w-20 h-20 rounded-full bg-purple-100 flex items-center justify-center">
+                            <Crown size={40} className="text-purple-600" />
+                          </div>
+                          
+                          <div className="space-y-2">
+                            <h3 className="text-2xl font-black text-slate-900">
+                              {currentSub ? 'تعديل باقة الاشتراك' : 'تعيين باقة اشتراك'}
+                            </h3>
+                            <p className="text-slate-500 font-bold">
+                              لشركة <span className="text-purple-600 font-black">{assignPlanModal.companyName}</span>
+                            </p>
+                            
+                            {/* عرض الباقة الحالية إذا موجودة */}
+                            {currentSub && (
+                              <div className={cn(
+                                "mt-3 p-3 rounded-xl border-2",
+                                subStatus?.status === 'expired' ? "bg-red-50 border-red-200" :
+                                subStatus?.status === 'expiring' ? "bg-amber-50 border-amber-200" :
+                                "bg-violet-50 border-violet-200"
+                              )}>
+                                <div className="text-xs font-bold text-slate-600 mb-1">الباقة الحالية:</div>
+                                <div className="font-black text-slate-900">{currentSub.plan_name}</div>
+                                <div className="flex justify-center gap-4 mt-2 text-xs">
+                                  <span>من: <strong>{new Date(currentSub.start_date).toLocaleDateString('en-GB')}</strong></span>
+                                  <span>إلى: <strong>{new Date(currentSub.end_date).toLocaleDateString('en-GB')}</strong></span>
+                                </div>
+                                <div className={cn(
+                                  "mt-2 text-xs font-bold",
+                                  subStatus?.status === 'expired' ? "text-red-600" :
+                                  subStatus?.status === 'expiring' ? "text-amber-600" : "text-emerald-600"
+                                )}>
+                                  {subStatus?.label} {subStatus?.daysRemaining !== undefined && (
+                                    subStatus.daysRemaining < 0 
+                                      ? `(منتهية منذ ${Math.abs(subStatus.daysRemaining)} يوم)` 
+                                      : `(متبقي ${subStatus.daysRemaining} يوم)`
+                                  )}
+                                </div>
+                              </div>
+                            )}
+                          </div>
 
-                    <form onSubmit={handleAssignPlan} className="w-full space-y-4 text-right" dir="rtl">
-                      <div>
-                        <label className="block text-sm font-bold text-slate-700 mb-2">اختر الباقة</label>
-                        <select name="plan_id" required className="w-full px-4 py-3 bg-slate-100 rounded-xl font-bold">
-                          <option value="">-- اختر الباقة --</option>
-                          {plans.map(plan => (
-                            <option key={plan.id} value={plan.id}>
-                              {plan.name} - {plan.price} ر.س / {plan.duration_value} {plan.duration_unit === 'days' ? 'يوم' : plan.duration_unit === 'months' ? 'شهر' : 'سنة'}
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-                      <div className="grid grid-cols-2 gap-4">
-                        <div>
-                          <label className="block text-sm font-bold text-slate-700 mb-2">تاريخ البداية</label>
-                          <input 
-                            type="date" 
-                            name="start_date" 
-                            required 
-                            defaultValue={new Date().toISOString().split('T')[0]}
-                            className="w-full px-4 py-3 bg-slate-100 rounded-xl font-bold" 
-                          />
+                          <form onSubmit={handleAssignPlan} className="w-full space-y-4 text-right" dir="rtl">
+                            <div>
+                              <label className="block text-sm font-bold text-slate-700 mb-2">اختر الباقة</label>
+                              <select 
+                                name="plan_id" 
+                                required 
+                                defaultValue={currentSub?.plan_id || ''}
+                                className="w-full px-4 py-3 bg-slate-100 rounded-xl font-black text-slate-900"
+                              >
+                                <option value="">-- اختر الباقة --</option>
+                                {plans.map(plan => (
+                                  <option key={plan.id} value={plan.id}>
+                                    {plan.name} - {plan.price} ر.س / {plan.duration_value} {plan.duration_unit === 'days' ? 'يوم' : plan.duration_unit === 'months' ? 'شهر' : 'سنة'}
+                                  </option>
+                                ))}
+                              </select>
+                            </div>
+                            <div className="grid grid-cols-2 gap-4">
+                              <div>
+                                <label className="block text-sm font-bold text-slate-700 mb-2">تاريخ البداية</label>
+                                <input 
+                                  type="date" 
+                                  name="start_date" 
+                                  required 
+                                  defaultValue={currentSub?.start_date ? new Date(currentSub.start_date).toISOString().split('T')[0] : new Date().toISOString().split('T')[0]}
+                                  className="w-full px-4 py-3 bg-slate-100 rounded-xl font-black text-slate-900" 
+                                />
+                              </div>
+                              <div>
+                                <label className="block text-sm font-bold text-slate-700 mb-2">تاريخ النهاية</label>
+                                <input 
+                                  type="date" 
+                                  name="end_date" 
+                                  required 
+                                  defaultValue={currentSub?.end_date ? new Date(currentSub.end_date).toISOString().split('T')[0] : new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]}
+                                  className="w-full px-4 py-3 bg-slate-100 rounded-xl font-black text-slate-900" 
+                                />
+                              </div>
+                            </div>
+                            <div>
+                              <label className="block text-sm font-bold text-slate-700 mb-2">ملاحظات (اختياري)</label>
+                              <textarea name="notes" rows={2} className="w-full px-4 py-3 bg-slate-100 rounded-xl font-black text-slate-900 placeholder:text-slate-400" placeholder="أي ملاحظات إضافية..." />
+                            </div>
+                            <div className="flex gap-3 pt-4">
+                              <button
+                                type="button"
+                                onClick={() => setAssignPlanModal(null)}
+                                className="flex-1 px-6 py-4 rounded-2xl bg-slate-100 text-slate-700 font-black hover:bg-slate-200 transition-all"
+                              >
+                                إلغاء
+                              </button>
+                              <button
+                                type="submit"
+                                disabled={assigningPlan}
+                                className="flex-1 px-6 py-4 rounded-2xl bg-gradient-to-br from-purple-600 to-purple-700 text-white font-black shadow-lg shadow-purple-500/30 hover:shadow-purple-500/50 transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+                              >
+                                {assigningPlan ? <RefreshCw size={18} className="animate-spin" /> : <Crown size={18} />}
+                                {currentSub ? 'تحديث الباقة' : 'تعيين الباقة'}
+                              </button>
+                            </div>
+                          </form>
                         </div>
-                        <div>
-                          <label className="block text-sm font-bold text-slate-700 mb-2">تاريخ النهاية</label>
-                          <input 
-                            type="date" 
-                            name="end_date" 
-                            required 
-                            defaultValue={new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]}
-                            className="w-full px-4 py-3 bg-slate-100 rounded-xl font-bold" 
-                          />
-                        </div>
-                      </div>
-                      <div>
-                        <label className="block text-sm font-bold text-slate-700 mb-2">ملاحظات (اختياري)</label>
-                        <textarea name="notes" rows={2} className="w-full px-4 py-3 bg-slate-100 rounded-xl font-bold" placeholder="أي ملاحظات إضافية..." />
-                      </div>
-                      <div className="flex gap-3 pt-4">
-                        <button
-                          type="button"
-                          onClick={() => setAssignPlanModal(null)}
-                          className="flex-1 px-6 py-4 rounded-2xl bg-slate-100 text-slate-700 font-black hover:bg-slate-200 transition-all"
-                        >
-                          إلغاء
-                        </button>
-                        <button
-                          type="submit"
-                          disabled={assigningPlan}
-                          className="flex-1 px-6 py-4 rounded-2xl bg-gradient-to-br from-purple-600 to-purple-700 text-white font-black shadow-lg shadow-purple-500/30 hover:shadow-purple-500/50 transition-all disabled:opacity-50 flex items-center justify-center gap-2"
-                        >
-                          {assigningPlan ? <RefreshCw size={18} className="animate-spin" /> : <Crown size={18} />}
-                          تعيين الباقة
-                        </button>
-                      </div>
-                    </form>
-                  </div>
+                      );
+                    })()}
                 </motion.div>
               </motion.div>
             )}

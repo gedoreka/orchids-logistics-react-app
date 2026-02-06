@@ -108,7 +108,7 @@ export default function KnowledgeBasePage() {
   );
 
   return (
-    <div className="min-h-screen bg-[#fcfcfd] p-4 lg:p-8">
+    <div className="min-h-screen bg-slate-900 p-4 lg:p-8">
       <motion.div 
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}

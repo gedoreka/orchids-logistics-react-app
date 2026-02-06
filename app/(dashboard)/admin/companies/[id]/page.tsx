@@ -25,7 +25,7 @@ export default async function CompanyDetailsPage({
   const company = companies[0];
 
   return (
-    <div className="p-6 md:p-10 bg-slate-50 min-h-screen">
+    <div className="p-6 md:p-10 bg-slate-900 min-h-screen">
       <CompanyDetailsClient company={company} />
     </div>
   );

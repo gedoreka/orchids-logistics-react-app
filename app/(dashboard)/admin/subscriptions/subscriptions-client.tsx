@@ -531,7 +531,7 @@ export default function SubscriptionsClient({ initialPlans, initialBankAccounts,
 
   if (!setupDone) {
     return (
-      <div className="min-h-screen bg-slate-50 dark:bg-slate-950 p-6 flex items-center justify-center" dir="rtl">
+      <div className="min-h-screen bg-slate-900 p-6 flex items-center justify-center" dir="rtl">
         <motion.div 
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -556,7 +556,7 @@ export default function SubscriptionsClient({ initialPlans, initialBankAccounts,
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 p-6" dir="rtl">
+    <div className="min-h-screen bg-slate-900 p-6" dir="rtl">
       <div className="max-w-7xl mx-auto space-y-6">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>

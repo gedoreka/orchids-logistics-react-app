@@ -11,7 +11,9 @@ import {
   Plus,
   Trash2,
   CheckCircle,
+  CheckCircle2,
   AlertCircle,
+  AlertTriangle,
   Loader2,
   Calculator,
   Percent,
@@ -30,7 +32,8 @@ import {
   CircleDollarSign,
   ShoppingCart,
   ChevronRight,
-  ShieldCheck
+  ShieldCheck,
+  X
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -86,12 +89,19 @@ export function NewInvoiceClient({ customers, invoiceNumber, companyId, userName
   const tc = useTranslations("common");
   const router = useRouter();
   const [loading, setLoading] = useState(false);
-  const [notification, setNotification] = useState<{
-    show: boolean;
-    type: "success" | "error" | "loading";
-    title: string;
-    message: string;
-  }>({ show: false, type: "success", title: "", message: "" });
+  
+  // Professional Modal States
+  const [confirmModal, setConfirmModal] = useState<{
+    isOpen: boolean;
+    status: 'due' | 'draft' | null;
+  }>({ isOpen: false, status: null });
+  
+  const [savingModal, setSavingModal] = useState<{
+    isOpen: boolean;
+    status: 'saving' | 'success' | 'error';
+    invoiceId?: number;
+    message?: string;
+  }>({ isOpen: false, status: 'saving' });
 
   const today = new Date().toISOString().split('T')[0];
   const defaultDueDate = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
@@ -516,11 +526,11 @@ export function NewInvoiceClient({ customers, invoiceNumber, companyId, userName
                   <div className="space-y-6">
                     <div className="relative">
                       <Users className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
-                      <select
-                        value={clientId}
-                        onChange={(e) => setClientId(parseInt(e.target.value))}
-                        className="w-full h-14 pr-12 pl-4 rounded-xl bg-white border border-gray-200 text-sm font-bold focus:border-blue-500/30 outline-none transition-all appearance-none cursor-pointer"
-                      >
+                    <select
+                          value={clientId}
+                          onChange={(e) => setClientId(parseInt(e.target.value))}
+                          className="w-full h-14 pr-12 pl-4 rounded-xl bg-white border border-gray-200 text-sm font-bold text-slate-900 focus:border-blue-500/30 outline-none transition-all appearance-none cursor-pointer"
+                        >
                         <option value={0}>{t("selectCustomerPlaceholder")}</option>
                         {customers.map((c) => (
                           <option key={c.id} value={c.id}>
@@ -598,11 +608,11 @@ export function NewInvoiceClient({ customers, invoiceNumber, companyId, userName
                       <div className="relative">
                         <Calendar className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
                         <input
-                          type="date"
-                          value={issueDate}
-                          onChange={(e) => setIssueDate(e.target.value)}
-                          className="w-full h-12 pr-12 pl-4 rounded-xl bg-white border border-gray-200 text-sm font-bold focus:border-teal-500/30 outline-none transition-all"
-                        />
+                            type="date"
+                            value={issueDate}
+                            onChange={(e) => setIssueDate(e.target.value)}
+                            className="w-full h-12 pr-12 pl-4 rounded-xl bg-white border border-gray-200 text-sm font-bold text-slate-900 focus:border-teal-500/30 outline-none transition-all"
+                          />
                       </div>
                     </div>
                     <div>
@@ -610,11 +620,11 @@ export function NewInvoiceClient({ customers, invoiceNumber, companyId, userName
                       <div className="relative">
                         <Clock className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
                         <input
-                          type="date"
-                          value={dueDate}
-                          onChange={(e) => setDueDate(e.target.value)}
-                          className="w-full h-12 pr-12 pl-4 rounded-xl bg-white border border-gray-200 text-sm font-bold focus:border-teal-500/30 outline-none transition-all"
-                        />
+                            type="date"
+                            value={dueDate}
+                            onChange={(e) => setDueDate(e.target.value)}
+                            className="w-full h-12 pr-12 pl-4 rounded-xl bg-white border border-gray-200 text-sm font-bold text-slate-900 focus:border-teal-500/30 outline-none transition-all"
+                          />
                       </div>
                     </div>
                   <div className="p-3 bg-teal-50 rounded-xl border border-teal-100 flex items-center gap-2">
@@ -701,17 +711,17 @@ export function NewInvoiceClient({ customers, invoiceNumber, companyId, userName
                             value={item.product_name}
                             onChange={(e) => handleItemChange(index, 'product_name', e.target.value)}
                             placeholder={t("serviceNamePlaceholder")}
-                            className="w-full px-3 py-2 rounded-xl bg-white border border-gray-200 text-sm font-bold focus:border-emerald-500/30 outline-none transition-all"
+                              className="w-full px-3 py-2 rounded-xl bg-white border border-gray-200 text-sm font-bold text-slate-900 focus:border-emerald-500/30 outline-none transition-all"
                           />
                         </td>
                           <td className="px-4 py-4">
                             <div className="space-y-2">
                               <input
-                                type="number"
-                                value={item.quantity || ''}
-                                onChange={(e) => handleItemChange(index, 'quantity', parseFloat(e.target.value) || 0)}
-                                className="w-full px-2 py-2 rounded-xl bg-white border border-gray-200 text-sm font-black text-center focus:border-emerald-500/30 outline-none"
-                              />
+                                  type="number"
+                                  value={item.quantity || ''}
+                                  onChange={(e) => handleItemChange(index, 'quantity', parseFloat(e.target.value) || 0)}
+                                  className="w-full px-2 py-2 rounded-xl bg-white border border-gray-200 text-sm font-black text-center text-slate-900 focus:border-emerald-500/30 outline-none"
+                                />
                               {calculationMode === 'quantity' && (
                                   <div className="flex flex-col items-center gap-1">
                                     <span className="text-[8px] font-black text-gray-400 uppercase leading-none whitespace-nowrap">
@@ -763,21 +773,21 @@ export function NewInvoiceClient({ customers, invoiceNumber, companyId, userName
                             )}
                           </td>
                         <td className="px-4 py-4">
-                          <input
-                            type="date"
-                            value={item.period_from}
-                            onChange={(e) => handleItemChange(index, 'period_from', e.target.value)}
-                            className="w-full px-2 py-2 rounded-xl bg-white border border-gray-200 text-[10px] font-bold focus:border-emerald-500/30 outline-none"
-                          />
+                            <input
+                              type="date"
+                              value={item.period_from}
+                              onChange={(e) => handleItemChange(index, 'period_from', e.target.value)}
+                              className="w-full px-2 py-2 rounded-xl bg-white border border-gray-200 text-[10px] font-bold text-slate-900 focus:border-emerald-500/30 outline-none"
+                            />
                         </td>
-                        <td className="px-4 py-4">
-                          <input
-                            type="date"
-                            value={item.period_to}
-                            onChange={(e) => handleItemChange(index, 'period_to', e.target.value)}
-                            className="w-full px-2 py-2 rounded-xl bg-white border border-gray-200 text-[10px] font-bold focus:border-emerald-500/30 outline-none"
-                          />
-                        </td>
+                          <td className="px-4 py-4">
+                            <input
+                              type="date"
+                              value={item.period_to}
+                              onChange={(e) => handleItemChange(index, 'period_to', e.target.value)}
+                              className="w-full px-2 py-2 rounded-xl bg-white border border-gray-200 text-[10px] font-bold text-slate-900 focus:border-emerald-500/30 outline-none"
+                            />
+                          </td>
                         <td className="px-4 py-4">
                           <div className="w-full py-2 rounded-xl bg-amber-50/50 border border-amber-100 text-center">
                             <span className="text-[11px] font-black text-amber-600">{item.vat_amount.toFixed(2)}</span>
@@ -848,19 +858,19 @@ export function NewInvoiceClient({ customers, invoiceNumber, companyId, userName
                             <div className="flex-1 space-y-2">
                               <label className="text-[10px] font-black text-black uppercase tracking-wider block mr-2">{t("adjustmentPlaceholder")}</label>
                               <input
-                                type="text"
-                                value={adj.title}
-                                onChange={(e) => handleAdjustmentChange(index, 'title', e.target.value)}
-                                placeholder={t("adjustmentPlaceholder")}
-                                className="w-full h-12 px-4 rounded-xl bg-gray-50 border border-gray-100 text-sm font-bold focus:bg-white focus:border-amber-300 outline-none transition-all"
-                              />
+                                  type="text"
+                                  value={adj.title}
+                                  onChange={(e) => handleAdjustmentChange(index, 'title', e.target.value)}
+                                  placeholder={t("adjustmentPlaceholder")}
+                                  className="w-full h-12 px-4 rounded-xl bg-gray-50 border border-gray-100 text-sm font-bold text-slate-900 focus:bg-white focus:border-amber-300 outline-none transition-all"
+                                />
                             </div>
                             <div className="w-full sm:w-32 space-y-2">
                               <label className="text-[10px] font-black text-black uppercase tracking-wider block mr-2">{t("type")}</label>
                               <select
                                 value={adj.type}
                                 onChange={(e) => handleAdjustmentChange(index, 'type', e.target.value)}
-                                className="w-full h-12 px-3 rounded-xl bg-gray-50 border border-gray-100 text-sm font-black focus:bg-white focus:border-amber-300 outline-none transition-all appearance-none cursor-pointer"
+                                className="w-full h-12 px-3 rounded-xl bg-gray-50 border border-gray-100 text-sm font-black text-slate-900 focus:bg-white focus:border-amber-300 outline-none transition-all appearance-none cursor-pointer"
                               >
                                 <option value="discount">{t("discount")}</option>
                                 <option value="addition">{t("addition")}</option>

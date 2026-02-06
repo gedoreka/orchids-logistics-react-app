@@ -470,3 +470,121 @@ export async function sendSubUserDeletionEmail(email: string, name: string, comp
 export async function sendWelcomeEmail(email: string, name: string, password: string, companyName?: string) {
   return sendWelcomeSubUserEmail(email, name, password, companyName || "Logistics Systems Pro");
 }
+
+// إشعار الإدارة عند تسجيل شركة جديدة
+export async function sendNewCompanyRegistrationAlert(companyData: {
+  name: string;
+  email: string;
+  phone?: string;
+  commercial_number?: string;
+  country?: string;
+  region?: string;
+}) {
+  const adminEmail = "gedorrka@gmail.com";
+  const now = new Date();
+  const arabicDate = now.toLocaleDateString('ar-SA', { 
+    weekday: 'long', 
+    year: 'numeric', 
+    month: 'long', 
+    day: 'numeric' 
+  });
+  const arabicTime = now.toLocaleTimeString('ar-SA', { 
+    hour: '2-digit', 
+    minute: '2-digit',
+    hour12: true
+  });
+
+  const subject = `🔔 طلب تسجيل شركة جديدة - ${companyData.name}`;
+  
+  const html = `
+    <!DOCTYPE html>
+    <html dir="rtl" lang="ar">
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    </head>
+    <body style="margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f0f9ff; min-height: 100vh;">
+      <div style="max-width: 650px; margin: 0 auto; padding: 40px 20px;">
+        <div style="background: #ffffff; border-radius: 32px; overflow: hidden; border: 1px solid #e0f2fe; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.1);">
+          
+          <div style="background: linear-gradient(135deg, #0369a1 0%, #0284c7 50%, #0ea5e9 100%); padding: 50px 40px; text-align: center; position: relative;">
+            <div style="width: 90px; height: 90px; background: rgba(255,255,255,0.15); border-radius: 28px; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 24px; border: 2px solid rgba(255,255,255,0.2); backdrop-filter: blur(10px);">
+              <span style="font-size: 45px;">🏢</span>
+            </div>
+            <h1 style="color: #ffffff; font-size: 28px; font-weight: 900; margin: 0 0 12px 0; letter-spacing: -0.5px;">طلب تسجيل جديد!</h1>
+            <p style="color: rgba(255,255,255,0.85); font-size: 15px; margin: 0; font-weight: 500;">تم استلام طلب تسجيل شركة جديدة في النظام</p>
+          </div>
+          
+          <div style="padding: 45px 40px; background: #ffffff;">
+            <div style="background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%); border-radius: 24px; padding: 30px; margin-bottom: 30px; border: 1px solid #bae6fd;">
+              <h3 style="color: #0369a1; font-size: 16px; font-weight: 800; margin: 0 0 20px 0; display: flex; align-items: center; gap: 10px;">
+                <span style="font-size: 22px;">📋</span> بيانات الشركة
+              </h3>
+              
+              <div style="background: white; border-radius: 16px; border: 1px solid #e0f2fe; overflow: hidden;">
+                <div style="padding: 16px 20px; border-bottom: 1px solid #f0f9ff; display: flex; justify-content: space-between; align-items: center;">
+                  <span style="color: #64748b; font-size: 13px; font-weight: 600;">اسم الشركة:</span>
+                  <strong style="color: #0369a1; font-size: 15px;">${companyData.name}</strong>
+                </div>
+                <div style="padding: 16px 20px; border-bottom: 1px solid #f0f9ff; display: flex; justify-content: space-between; align-items: center;">
+                  <span style="color: #64748b; font-size: 13px; font-weight: 600;">البريد الإلكتروني:</span>
+                  <strong style="color: #1e293b; font-size: 14px;">${companyData.email}</strong>
+                </div>
+                ${companyData.phone ? `
+                <div style="padding: 16px 20px; border-bottom: 1px solid #f0f9ff; display: flex; justify-content: space-between; align-items: center;">
+                  <span style="color: #64748b; font-size: 13px; font-weight: 600;">رقم الهاتف:</span>
+                  <strong style="color: #1e293b; font-size: 14px;" dir="ltr">${companyData.phone}</strong>
+                </div>
+                ` : ''}
+                ${companyData.commercial_number ? `
+                <div style="padding: 16px 20px; border-bottom: 1px solid #f0f9ff; display: flex; justify-content: space-between; align-items: center;">
+                  <span style="color: #64748b; font-size: 13px; font-weight: 600;">السجل التجاري:</span>
+                  <strong style="color: #1e293b; font-size: 14px;">${companyData.commercial_number}</strong>
+                </div>
+                ` : ''}
+                ${companyData.country || companyData.region ? `
+                <div style="padding: 16px 20px; display: flex; justify-content: space-between; align-items: center;">
+                  <span style="color: #64748b; font-size: 13px; font-weight: 600;">الموقع:</span>
+                  <strong style="color: #1e293b; font-size: 14px;">${[companyData.country, companyData.region].filter(Boolean).join(' - ')}</strong>
+                </div>
+                ` : ''}
+              </div>
+            </div>
+            
+            <div style="background: #fef3c7; border-radius: 16px; padding: 20px; margin-bottom: 30px; border: 1px solid #fde68a;">
+              <p style="color: #92400e; font-size: 14px; margin: 0; line-height: 1.7; display: flex; align-items: flex-start; gap: 10px;">
+                <span style="font-size: 18px;">⏰</span>
+                <span><strong>وقت الطلب:</strong> ${arabicDate} - ${arabicTime}</span>
+              </p>
+            </div>
+
+            <div style="text-align: center; margin: 35px 0;">
+              <a href="${process.env.NEXT_PUBLIC_APP_URL}/admin/companies?filter=pending" style="display: inline-block; background: linear-gradient(135deg, #0369a1 0%, #0284c7 100%); color: #ffffff; text-decoration: none; padding: 18px 40px; border-radius: 16px; font-size: 16px; font-weight: 800; box-shadow: 0 10px 25px rgba(3, 105, 161, 0.3);">
+                <span style="vertical-align: middle; margin-left: 8px;">👀</span> مراجعة الطلب الآن
+              </a>
+            </div>
+
+            <div style="background: #f1f5f9; border-radius: 16px; padding: 20px; text-align: center;">
+              <p style="color: #64748b; font-size: 13px; margin: 0; line-height: 1.6;">
+                يمكنك قبول أو رفض الطلب من لوحة تحكم الإدارة
+              </p>
+            </div>
+          </div>
+          
+          <div style="background: #f8fafc; padding: 25px; text-align: center; border-top: 1px solid #f1f5f9;">
+            <p style="color: #1e293b; font-size: 14px; font-weight: 700; margin: 0;">Logistics Systems Pro</p>
+            <p style="color: #94a3b8; font-size: 11px; margin: 5px 0 0 0;">إشعارات الإدارة التلقائية</p>
+          </div>
+          
+        </div>
+      </div>
+    </body>
+    </html>
+  `;
+
+  try {
+    return await sendEmail({ to: adminEmail, subject, html, fromName: "Logistics Systems Pro" });
+  } catch (error) {
+    console.error("Failed to send new company registration alert:", error);
+  }
+}

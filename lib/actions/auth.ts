@@ -3,7 +3,7 @@
 import { AuthResponse, User, Company, ResetToken, SubUser, UserType } from "@/lib/types";
 import { cookies } from "next/headers";
 import bcrypt from "bcryptjs";
-import { sendResetCode, sendLoginNotification, sendWelcomeEmail } from "@/lib/mail";
+import { sendResetCode, sendLoginNotification, sendWelcomeEmail, sendNewCompanyRegistrationAlert } from "@/lib/mail";
 import { supabase } from "@/lib/supabase-client";
 import { query, execute } from "@/lib/db";
 import { v4 as uuidv4 } from "uuid";
@@ -87,6 +87,16 @@ export async function registerAction(formData: FormData): Promise<AuthResponse> 
         [companyId, feature]
       );
     }
+
+    // إرسال إشعار للإدارة عن طلب التسجيل الجديد
+    sendNewCompanyRegistrationAlert({
+      name,
+      email: user_email,
+      phone: phone || undefined,
+      commercial_number: commercial_number || undefined,
+      country: country || undefined,
+      region: region || undefined
+    }).catch(console.error);
 
     return { success: true };
   } catch (error) {

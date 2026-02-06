@@ -439,7 +439,7 @@ export default function AdminChatPage() {
   const pendingCount = companies.filter(c => c.unread_count > 0).length;
 
   return (
-    <div className="flex justify-center items-center p-4 md:p-6">
+    <div className="flex justify-center items-center p-4 md:p-6 bg-slate-900 min-h-screen">
       <div className="w-full md:w-[90%] max-w-[1800px]">
         <div className="h-[calc(100vh-8rem)] flex bg-white rounded-3xl overflow-hidden shadow-2xl border-4" style={{ borderImage: 'linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%) 1' }}>
           

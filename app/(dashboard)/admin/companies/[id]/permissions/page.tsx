@@ -37,7 +37,7 @@ export default async function CompanyPermissionsPage({
   const enabledFeatures = permissions.map(p => p.feature_key);
 
   return (
-    <div className="p-6 md:p-10 bg-slate-50 min-h-screen">
+    <div className="p-6 md:p-10 bg-slate-900 min-h-screen">
       <PermissionsClient company={company} enabledFeatures={enabledFeatures} />
     </div>
   );

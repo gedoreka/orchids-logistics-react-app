@@ -2199,10 +2199,21 @@
         "confirmed": "معتمد",
         "draft": "مسودة"
       },
-      "notifications": {
-        "deleting": "حذف المسير",
-        "deletingMsg": "جاري حذف المسير..."
-      },
+        "notifications": {
+          "deleting": "جاري الحذف",
+          "deletingMsg": "جاري حذف المسير {month}...",
+          "deleteSuccess": "تم الحذف بنجاح",
+          "deleteSuccessMsg": "تم حذف المسير {month} بنجاح",
+          "deleteFailed": "فشل الحذف",
+          "deleteFailedMsg": "فشل حذف المسير، حاول مرة أخرى",
+          "error": "خطأ",
+          "errorMsg": "حدث خطأ غير متوقع",
+          "deleteConfirm": "تأكيد الحذف",
+          "deleteQuestion": "هل أنت متأكد من هذا الإجراء؟",
+          "deleteWarning": "سيتم حذف المسير نهائياً:",
+          "deleteNote": "هذا الإجراء لا يمكن التراجع عنه وسيتم حذف جميع البيانات المرتبطة",
+          "confirmBtn": "نعم، حذف"
+        },
       "actions": {
         "view": "عرض",
         "edit": "تعديل",

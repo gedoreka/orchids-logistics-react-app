@@ -217,7 +217,7 @@ export default function SearchTokenPage() {
   const subscriptionStatus = getSubscriptionStatus();
 
   return (
-    <div className="p-6 md:p-8 bg-slate-50 min-h-screen">
+    <div className="p-6 md:p-8 bg-slate-900 min-h-screen">
       <div className="max-w-6xl mx-auto space-y-6">
         {/* Header */}
         <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl p-6 text-white shadow-xl">

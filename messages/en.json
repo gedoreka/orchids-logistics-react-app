@@ -2199,10 +2199,21 @@
         "confirmed": "Confirmed",
         "draft": "Draft"
       },
-      "notifications": {
-        "deleting": "Deleting Payroll",
-        "deletingMsg": "Payroll is being deleted..."
-      },
+        "notifications": {
+          "deleting": "Deleting",
+          "deletingMsg": "Deleting payroll {month}...",
+          "deleteSuccess": "Deleted Successfully",
+          "deleteSuccessMsg": "Payroll {month} has been deleted successfully",
+          "deleteFailed": "Delete Failed",
+          "deleteFailedMsg": "Failed to delete payroll, please try again",
+          "error": "Error",
+          "errorMsg": "An unexpected error occurred",
+          "deleteConfirm": "Confirm Delete",
+          "deleteQuestion": "Are you sure about this action?",
+          "deleteWarning": "This payroll will be permanently deleted:",
+          "deleteNote": "This action cannot be undone and all related data will be deleted",
+          "confirmBtn": "Yes, Delete"
+        },
       "actions": {
         "view": "View",
         "edit": "Edit",
