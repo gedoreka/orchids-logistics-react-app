@@ -503,24 +503,24 @@ export function EmployeeDetailsClient({
                       className={`px-5 py-2.5 rounded-xl text-xs font-black flex items-center gap-2 transition-all ${
                         isEditing 
                           ? 'bg-red-500 hover:bg-red-600 text-white' 
-                          : 'bg-gradient-to-l from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white'
+                            : 'bg-gradient-to-l from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white'
                       }`}
                     >
                       {isEditing ? <X size={15} /> : <Edit3 size={15} />}
                       <span>{isEditing ? 'إلغاء التعديل' : 'تعديل البيانات'}</span>
                     </motion.button>
                   )}
-                  {activeTab === "documents" && (
-                    <motion.button 
-                      whileHover={{ scale: 1.05, y: -1 }}
-                      whileTap={{ scale: 0.95 }}
-                      onClick={() => setShowAddDocType(true)}
-                      className="bg-gradient-to-l from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white px-5 py-2.5 rounded-xl text-xs font-black flex items-center gap-2 transition-all"
-                    >
-                      <FilePlus size={15} />
-                      <span>إضافة نوع مستند جديد</span>
-                    </motion.button>
-                  )}
+                    {activeTab === "documents" && (
+                      <motion.button 
+                        whileHover={{ scale: 1.05, y: -1 }}
+                        whileTap={{ scale: 0.95 }}
+                        onClick={() => setShowAddDocType(!showAddDocType)}
+                        className="bg-gradient-to-l from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white px-5 py-2.5 rounded-xl text-xs font-black flex items-center gap-2 transition-all"
+                      >
+                        <FilePlus size={15} />
+                        <span>إضافة نوع مستند جديد</span>
+                      </motion.button>
+                    )}
 
             {activeTab === "violations" && (
               <motion.button 
@@ -764,17 +764,16 @@ className="bg-slate-100 backdrop-blur-xl p-5 rounded-2xl border border-slate-200
                       </div>
                     )}
 
-                    {/* Add new document type */}
-                    {isEditing && (
-                      <div className="border-2 border-dashed border-indigo-300 rounded-2xl p-5">
-                        {showAddDocType ? (
+                      {/* Add new document type */}
+                      {showAddDocType && (
+                        <div className="border-2 border-dashed border-emerald-300 bg-emerald-50/50 rounded-2xl p-5">
                           <div className="flex items-center gap-3">
                             <input
                               type="text"
                               value={newDocTypeName}
                               onChange={(e) => setNewDocTypeName(e.target.value)}
                               placeholder="اسم نوع المستند الجديد..."
-                              className="flex-1 bg-white border border-slate-200 rounded-xl px-4 py-3 text-sm font-bold text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                              className="flex-1 bg-white border border-slate-200 rounded-xl px-4 py-3 text-sm font-bold text-slate-700 focus:outline-none focus:ring-2 focus:ring-emerald-500"
                             />
                             <motion.button
                               whileHover={{ scale: 1.05 }}
@@ -792,7 +791,7 @@ className="bg-slate-100 backdrop-blur-xl p-5 rounded-2xl border border-slate-200
                                   toast.error("فشل إضافة نوع المستند");
                                 }
                               }}
-                              className="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-3 rounded-xl text-xs font-black flex items-center gap-2"
+                              className="bg-emerald-600 hover:bg-emerald-700 text-white px-5 py-3 rounded-xl text-xs font-black flex items-center gap-2"
                             >
                               <Check size={14} />
                               حفظ
@@ -806,19 +805,8 @@ className="bg-slate-100 backdrop-blur-xl p-5 rounded-2xl border border-slate-200
                               إلغاء
                             </motion.button>
                           </div>
-                        ) : (
-                          <motion.button
-                            whileHover={{ scale: 1.02 }}
-                            whileTap={{ scale: 0.98 }}
-                            onClick={() => setShowAddDocType(true)}
-                            className="w-full flex items-center justify-center gap-3 py-4 text-indigo-600 hover:text-indigo-700 font-black text-sm"
-                          >
-                            <Plus size={20} />
-                            إضافة نوع مستند جديد
-                          </motion.button>
-                        )}
-                      </div>
-                    )}
+                        </div>
+                      )}
                   </div>
                 )}
 
