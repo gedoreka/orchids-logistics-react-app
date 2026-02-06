@@ -33,9 +33,9 @@ export default async function PackagesPage() {
   return (
     <Suspense fallback={<div className="p-8 text-center font-black">جاري التحميل...</div>}>
       <PackagesClient 
-        initialPackages={packages} 
-        companyId={companyId}
-      />
+          initialPackages={packagesWithCounts} 
+          companyId={companyId}
+        />
     </Suspense>
   );
 }

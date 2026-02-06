@@ -124,7 +124,7 @@ export function EmployeeDetailsClient({
 
   const [personalInfo, setPersonalInfo] = useState({
     iqama_number: employee.iqama_number || "",
-    identity_number: employee.identity_number || "",
+    name_en: employee.name_en || "",
     job_title: employee.job_title || "",
     user_code: employee.user_code || "",
     nationality: employee.nationality || "",
@@ -370,7 +370,7 @@ export function EmployeeDetailsClient({
                   <span className="text-white font-bold truncate max-w-[140px]">{employee.group_name}</span>
                 </div>
                 <div className="flex items-center justify-between bg-white/10 backdrop-blur-sm rounded-xl px-4 py-3 border border-white/10 hover:border-white/20 transition-all">
-                  <span className="text-white/60 flex items-center gap-2"><IdCard size={14} className="text-white/80" /> الإقامة</span>
+                  <span className="text-white/60 flex items-center gap-2"><IdCard size={14} className="text-white/80" /> الهوية</span>
                   <span className="text-white font-bold font-mono">{employee.iqama_number || '---'}</span>
                 </div>
                 <div className="flex items-center justify-between bg-white/10 backdrop-blur-sm rounded-xl px-4 py-3 border border-white/10 hover:border-white/20 transition-all">
@@ -544,8 +544,8 @@ export function EmployeeDetailsClient({
               {activeTab === "general" && (
                 <form onSubmit={handleUpdatePersonal}>
                   <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                    <GlassField label="رقم الإقامة" value={personalInfo.iqama_number} onChange={(v: string) => setPersonalInfo({...personalInfo, iqama_number: v})} editable={isEditing} icon={<IdCard size={14} />} />
-                    <GlassField label="رقم الهوية" value={personalInfo.identity_number} onChange={(v: string) => setPersonalInfo({...personalInfo, identity_number: v})} editable={isEditing} icon={<IdCard size={14} />} />
+                    <GlassField label="رقم الهوية" value={personalInfo.iqama_number} onChange={(v: string) => setPersonalInfo({...personalInfo, iqama_number: v})} editable={isEditing} icon={<IdCard size={14} />} />
+                    <GlassField label="الاسم بالإنجليزية" value={personalInfo.name_en} onChange={(v: string) => setPersonalInfo({...personalInfo, name_en: v})} editable={isEditing} icon={<User size={14} />} />
                     <GlassField label="رقم المستخدم" value={personalInfo.user_code} onChange={(v: string) => setPersonalInfo({...personalInfo, user_code: v})} editable={isEditing} icon={<Hash size={14} />} />
                     <GlassField label="المسمى الوظيفي" value={personalInfo.job_title} onChange={(v: string) => setPersonalInfo({...personalInfo, job_title: v})} editable={isEditing} icon={<Briefcase size={14} />} />
                     <GlassField label="الجنسية" value={personalInfo.nationality} onChange={(v: string) => setPersonalInfo({...personalInfo, nationality: v})} editable={isEditing} icon={<Globe size={14} />} />
@@ -1065,7 +1065,7 @@ className="bg-slate-100 backdrop-blur-xl p-5 rounded-2xl border border-slate-200
               <div className="p-4 border-b border-white/10">
                 <div className="relative">
                   <Search className="absolute right-4 top-1/2 -translate-y-1/2 text-white/40" size={16} />
-                  <input type="text" placeholder="بحث بالاسم أو رقم الإقامة..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-full bg-white/5 border border-white/10 rounded-xl py-3 pr-11 pl-4 text-sm font-bold text-white placeholder-white/30 focus:border-blue-400 outline-none" />
+                  <input type="text" placeholder="بحث بالاسم أو رقم الهوية..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-full bg-white/5 border border-white/10 rounded-xl py-3 pr-11 pl-4 text-sm font-bold text-white placeholder-white/30 focus:border-blue-400 outline-none" />
                 </div>
               </div>
               <div className="flex-1 overflow-auto p-3 space-y-2">

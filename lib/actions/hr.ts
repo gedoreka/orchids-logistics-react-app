@@ -29,17 +29,17 @@ export async function createPackageWithEmployees(data: {
     if (data.employees && data.employees.length > 0) {
       for (const emp of data.employees) {
         if (!emp.name) continue;
-        await query(
-          `INSERT INTO employees (
-            name, iqama_number, identity_number, nationality, user_code, 
-            phone, email, job_title, basic_salary, housing_allowance, 
-            vehicle_plate, iban, package_id, company_id, is_active
-          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1)`,
-          [
-            emp.name, emp.iqama_number || null, emp.identity_number || null, emp.nationality || null, emp.user_code || null,
-            emp.phone || null, emp.email || null, emp.job_title || null, emp.basic_salary || 0, emp.housing_allowance || 0,
-            emp.vehicle_plate || null, emp.iban || null, packageId, data.company_id
-          ]
+          await query(
+            `INSERT INTO employees (
+              name, name_en, iqama_number, nationality, user_code, 
+              phone, email, job_title, basic_salary, housing_allowance, 
+              vehicle_plate, iban, package_id, company_id, is_active
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1)`,
+            [
+              emp.name, emp.name_en || null, emp.iqama_number || null, emp.nationality || null, emp.user_code || null,
+              emp.phone || null, emp.email || null, emp.job_title || null, emp.basic_salary || 0, emp.housing_allowance || 0,
+              emp.vehicle_plate || null, emp.iban || null, packageId, data.company_id
+            ]
         );
       }
     }
@@ -118,16 +118,18 @@ export async function saveEmployees(packageId: number, employees: any[]) {
   try {
     for (const emp of employees) {
       await query(
-        `INSERT INTO employees (
-          name, iqama_number, identity_number, nationality, user_code, 
-          phone, email, job_title, basic_salary, housing_allowance, 
-          vehicle_plate, iban, package_id, company_id, is_active
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1)`,
-        [
-          emp.name, emp.iqama_number || null, emp.identity_number || null, emp.nationality, emp.user_code || null,
-          emp.phone || null, emp.email || null, emp.job_title || null, emp.basic_salary, emp.housing_allowance || 0,
-          emp.vehicle_plate || null, emp.iban || null, packageId, emp.company_id
-        ]
+          `INSERT INTO employees (
+            name, name_en, iqama_number, nationality, user_code, 
+            phone, email, job_title, basic_salary, housing_allowance, 
+            vehicle_plate, iban, package_id, company_id, is_active,
+            birth_date, passport_number, operation_card_number, iqama_expiry
+          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, ?, ?, ?, ?)`,
+          [
+            emp.name, emp.name_en || null, emp.iqama_number || null, emp.nationality, emp.user_code || null,
+            emp.phone || null, emp.email || null, emp.job_title || null, emp.basic_salary, emp.housing_allowance || 0,
+            emp.vehicle_plate || null, emp.iban || null, packageId, emp.company_id,
+            emp.birth_date || null, emp.passport_number || null, emp.operation_card_number || null, emp.iqama_expiry || null
+          ]
       );
     }
     revalidatePath(`/hr/packages/${packageId}`);
@@ -141,19 +143,19 @@ export async function saveEmployees(packageId: number, employees: any[]) {
 export async function updateEmployeePersonalInfo(id: number, data: any) {
   try {
     await query(
-      `UPDATE employees SET 
-        iqama_number = ?, identity_number = ?, job_title = ?, user_code = ?, nationality = ?, 
-        phone = ?, email = ?, vehicle_plate = ?, 
-        birth_date = ?, passport_number = ?, operation_card_number = ?,
-        basic_salary = ?, housing_allowance = ?
-      WHERE id = ?`,
-      [
-        data.iqama_number, data.identity_number, data.job_title, data.user_code, data.nationality,
-        data.phone, data.email, data.vehicle_plate,
-        data.birth_date || null, data.passport_number, data.operation_card_number,
-        data.basic_salary, data.housing_allowance,
-        id
-      ]
+        `UPDATE employees SET 
+          name_en = ?, iqama_number = ?, job_title = ?, user_code = ?, nationality = ?, 
+          phone = ?, email = ?, vehicle_plate = ?, 
+          birth_date = ?, passport_number = ?, operation_card_number = ?,
+          basic_salary = ?, housing_allowance = ?
+        WHERE id = ?`,
+        [
+          data.name_en, data.iqama_number, data.job_title, data.user_code, data.nationality,
+          data.phone, data.email, data.vehicle_plate,
+          data.birth_date || null, data.passport_number, data.operation_card_number,
+          data.basic_salary, data.housing_allowance,
+          id
+        ]
     );
     revalidatePath(`/hr/employees/${id}`);
     return { success: true };

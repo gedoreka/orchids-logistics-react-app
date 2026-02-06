@@ -839,7 +839,7 @@ export function PackagesClient({ initialPackages, companyId }: PackagesClientPro
                       {index + 1}
                     </div>
                     
-                    <div className="space-y-5">
+                    <div className="space-y-5 flex flex-col h-full">
                         {/* Header - Centered */}
                         <div className="flex flex-col items-center gap-3">
                           <div className={cn(
@@ -872,110 +872,113 @@ export function PackagesClient({ initialPackages, companyId }: PackagesClientPro
                       </div>
 
                       {/* Stats Grid */}
-                      <div className={cn("grid gap-3", pkg.work_type === 'target' ? "grid-cols-3" : "grid-cols-1")}>
-                          {/* Employees count - always shown */}
-                          <div className={cn(
-                            "rounded-xl p-4 border transition-colors",
-                            pkg.work_type === 'target'
-                              ? 'bg-blue-100/50 border-blue-300'
-                              : pkg.work_type === 'salary'
-                              ? 'bg-emerald-100/50 border-emerald-300'
-                              : 'bg-amber-100/50 border-amber-300'
-                          )}>
-                            <div className="flex items-center gap-1.5 text-gray-600 mb-1">
-                              <Users size={12} />
-                              <span className="text-[9px] font-black uppercase tracking-wider">{t('employeesCountInPackage')}</span>
-                            </div>
+                        <div className={cn("grid gap-3", pkg.work_type === 'target' ? "grid-cols-3" : "grid-cols-1")}>
+                            {/* Employees count - always shown */}
                             <div className={cn(
-                              "text-xl font-black",
+                              "rounded-xl p-4 border transition-colors",
                               pkg.work_type === 'target'
-                                ? 'text-blue-700'
+                                ? 'bg-blue-100/50 border-blue-300'
                                 : pkg.work_type === 'salary'
-                                ? 'text-emerald-700'
-                                : 'text-orange-700'
-                            )}>{pkg.employees?.length || 0}</div>
+                                ? 'bg-emerald-100/50 border-emerald-300'
+                                : 'bg-amber-100/50 border-amber-300'
+                            )}>
+                              <div className="flex items-center gap-1.5 text-gray-600 mb-1">
+                                <Users size={12} />
+                                <span className="text-[9px] font-black uppercase tracking-wider">{t('employeesCountInPackage')}</span>
+                              </div>
+                              <div className={cn(
+                                "text-xl font-black",
+                                pkg.work_type === 'target'
+                                  ? 'text-blue-700'
+                                  : pkg.work_type === 'salary'
+                                  ? 'text-emerald-700'
+                                  : 'text-orange-700'
+                              )}>{pkg.employees_count ?? 0}</div>
+                            </div>
+
+                            {/* Target & Bonus - only for target type */}
+                            {pkg.work_type === 'target' && (
+                              <>
+                                <div className="rounded-xl p-4 border transition-colors bg-blue-100/50 border-blue-300">
+                                  <div className="flex items-center gap-1.5 text-gray-600 mb-1">
+                                    <Target size={12} />
+                                    <span className="text-[9px] font-black uppercase tracking-wider">{t('target')}</span>
+                                  </div>
+                                  <div className="text-xl font-black text-blue-700">{pkg.monthly_target}</div>
+                                </div>
+                                <div className="rounded-xl p-4 border transition-colors bg-blue-100/50 border-blue-300">
+                                  <div className="flex items-center gap-1.5 text-gray-600 mb-1">
+                                    <Trophy size={12} />
+                                    <span className="text-[9px] font-black uppercase tracking-wider">{t('bonus')}</span>
+                                  </div>
+                                  <div className="text-xl font-black text-blue-700">{pkg.bonus_after_target}</div>
+                                </div>
+                              </>
+                            )}
+
+                            {/* Info note for salary/commission */}
+                            {pkg.work_type !== 'target' && (
+                              <div className={cn(
+                                "rounded-xl p-3 border transition-colors flex items-center gap-2",
+                                pkg.work_type === 'salary'
+                                  ? 'bg-emerald-50 border-emerald-200'
+                                  : 'bg-amber-50 border-amber-200'
+                              )}>
+                                <Info size={14} className={pkg.work_type === 'salary' ? 'text-emerald-500' : 'text-amber-500'} />
+                                <span className={cn(
+                                  "text-[10px] font-bold",
+                                  pkg.work_type === 'salary' ? 'text-emerald-700' : 'text-amber-700'
+                                )}>
+                                  {pkg.work_type === 'salary' ? t('salaryPackageInfo') : t('commissionPackageInfo')}
+                                </span>
+                              </div>
+                            )}
                           </div>
 
-                          {/* Target & Bonus - only for target type */}
-                          {pkg.work_type === 'target' && (
-                            <>
-                              <div className="rounded-xl p-4 border transition-colors bg-blue-100/50 border-blue-300">
-                                <div className="flex items-center gap-1.5 text-gray-600 mb-1">
-                                  <Target size={12} />
-                                  <span className="text-[9px] font-black uppercase tracking-wider">{t('target')}</span>
-                                </div>
-                                <div className="text-xl font-black text-blue-700">{pkg.monthly_target}</div>
-                              </div>
-                              <div className="rounded-xl p-4 border transition-colors bg-blue-100/50 border-blue-300">
-                                <div className="flex items-center gap-1.5 text-gray-600 mb-1">
-                                  <Trophy size={12} />
-                                  <span className="text-[9px] font-black uppercase tracking-wider">{t('bonus')}</span>
-                                </div>
-                                <div className="text-xl font-black text-blue-700">{pkg.bonus_after_target}</div>
-                              </div>
-                            </>
-                          )}
-
-                          {/* Info note for salary/commission */}
-                          {pkg.work_type !== 'target' && (
-                            <div className={cn(
-                              "rounded-xl p-3 border transition-colors flex items-center gap-2",
-                              pkg.work_type === 'salary'
-                                ? 'bg-emerald-50 border-emerald-200'
-                                : 'bg-amber-50 border-amber-200'
-                            )}>
-                              <Info size={14} className={pkg.work_type === 'salary' ? 'text-emerald-500' : 'text-amber-500'} />
-                              <span className={cn(
-                                "text-[10px] font-bold",
-                                pkg.work_type === 'salary' ? 'text-emerald-700' : 'text-amber-700'
-                              )}>
-                                {pkg.work_type === 'salary' ? t('salaryPackageInfo') : t('commissionPackageInfo')}
-                              </span>
+                          {/* Action Buttons - Always 2x2 grid */}
+                          <div className="pt-2 mt-auto space-y-2">
+                            <div className="grid grid-cols-2 gap-2">
+                              <motion.button 
+                                whileHover={{ scale: 1.02 }}
+                                whileTap={{ scale: 0.98 }}
+                                onClick={() => {
+                                  setSelectedPackage(pkg);
+                                  setIsAddEmployeesModalOpen(true);
+                                }}
+                                className="flex items-center justify-center gap-2 bg-gradient-to-r from-purple-600 to-violet-600 text-white py-3 rounded-xl text-xs font-black shadow-lg shadow-purple-500/20 hover:from-purple-700 hover:to-violet-700 transition-all"
+                              >
+                                <UserPlus size={14} />
+                                <span>{t('addEmployees')}</span>
+                              </motion.button>
+                              <Link 
+                                href={`/hr/packages/${pkg.id}`}
+                                className="flex items-center justify-center gap-2 bg-gradient-to-r from-blue-600 to-cyan-600 text-white py-3 rounded-xl text-xs font-black shadow-lg shadow-blue-500/20 hover:from-blue-700 hover:to-cyan-700 transition-all"
+                              >
+                                <Eye size={14} />
+                                <span>{t('viewPackage')}</span>
+                              </Link>
                             </div>
-                          )}
-                        </div>
-
-                        <div className="pt-2 flex gap-2">
-                          <motion.button 
-                            whileHover={{ scale: 1.02 }}
-                            whileTap={{ scale: 0.98 }}
-                            onClick={() => {
-                              setSelectedPackage(pkg);
-                              setIsAddEmployeesModalOpen(true);
-                            }}
-                            className="flex-1 flex items-center justify-center gap-2 bg-gradient-to-r from-purple-600 to-violet-600 text-white py-3.5 rounded-xl text-xs font-black shadow-lg shadow-purple-500/20 hover:from-purple-700 hover:to-violet-700 transition-all"
-                          >
-                            <UserPlus size={16} />
-                            <span>{t('addEmployees')}</span>
-                          </motion.button>
-                          <Link 
-                            href={`/hr/packages/${pkg.id}`}
-                            className="flex-1 flex items-center justify-center gap-2 bg-gradient-to-r from-blue-600 to-cyan-600 text-white py-3.5 rounded-xl text-xs font-black shadow-lg shadow-blue-500/20 hover:from-blue-700 hover:to-cyan-700 transition-all"
-                          >
-                            <Eye size={16} />
-                            <span>{t('viewPackage')}</span>
-                          </Link>
-                        </div>
-                        <div className="flex gap-2">
-                          <motion.button
-                            whileHover={{ scale: 1.02, boxShadow: "0 10px 25px rgba(99, 102, 241, 0.3)" }}
-                            whileTap={{ scale: 0.98 }}
-                            onClick={() => openEditModal(pkg)}
-                            className="flex-1 flex items-center justify-center gap-2 bg-gradient-to-r from-indigo-500 to-purple-600 text-white py-3 rounded-xl text-xs font-black shadow-lg shadow-indigo-500/20 hover:from-indigo-600 hover:to-purple-700 transition-all border-b-2 border-indigo-700/30"
-                          >
-                            <Pencil size={14} />
-                            <span>{t('editPackage')}</span>
-                          </motion.button>
-                          <motion.button
-                            whileHover={{ scale: 1.02, boxShadow: "0 10px 25px rgba(239, 68, 68, 0.3)" }}
-                            whileTap={{ scale: 0.98 }}
-                            onClick={() => handleDelete(pkg)}
-                            className="flex-1 flex items-center justify-center gap-2 bg-gradient-to-r from-red-500 to-rose-600 text-white py-3 rounded-xl text-xs font-black shadow-lg shadow-red-500/20 hover:from-red-600 hover:to-rose-700 transition-all border-b-2 border-red-700/30"
-                          >
-                            <Trash2 size={14} />
-                            <span>{t('deletePackage')}</span>
-                          </motion.button>
-                        </div>
+                            <div className="grid grid-cols-2 gap-2">
+                              <motion.button
+                                whileHover={{ scale: 1.02, boxShadow: "0 10px 25px rgba(99, 102, 241, 0.3)" }}
+                                whileTap={{ scale: 0.98 }}
+                                onClick={() => openEditModal(pkg)}
+                                className="flex items-center justify-center gap-2 bg-gradient-to-r from-indigo-500 to-purple-600 text-white py-3 rounded-xl text-xs font-black shadow-lg shadow-indigo-500/20 hover:from-indigo-600 hover:to-purple-700 transition-all"
+                              >
+                                <Pencil size={14} />
+                                <span>{t('editPackage')}</span>
+                              </motion.button>
+                              <motion.button
+                                whileHover={{ scale: 1.02, boxShadow: "0 10px 25px rgba(239, 68, 68, 0.3)" }}
+                                whileTap={{ scale: 0.98 }}
+                                onClick={() => handleDelete(pkg)}
+                                className="flex items-center justify-center gap-2 bg-gradient-to-r from-red-500 to-rose-600 text-white py-3 rounded-xl text-xs font-black shadow-lg shadow-red-500/20 hover:from-red-600 hover:to-rose-700 transition-all"
+                              >
+                                <Trash2 size={14} />
+                                <span>{t('deletePackage')}</span>
+                              </motion.button>
+                            </div>
+                          </div>
                     </div>
                   </motion.div>
                 ))}
