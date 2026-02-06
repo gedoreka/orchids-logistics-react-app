@@ -1024,3 +1024,33 @@ It can also happen if the client has a browser extension installed which messes 
   response: {"success":true,"templates":[{"id":1,"template_key":"salary_receipt","template_name":"Salary Receipt Acknowledgment","template_name_ar":"إقرار استلام راتب","template_content":"<div class=\"letter-content\" dir=\"rtl\">\n<div style=\"text-align: center; margin-bottom: 20px;\">\n<p style=\"font-weight: bold; margin: 0;\">بسم الله الرحمن الرحيم</p>\n<p style=\"font-weight: bold; margin: 0;\">وزارة الموارد البشرية والتنمية الاجتماعية</p>\n<p style=\"font-weight: bold; margin: 0;\">نظام العمل السعودي - اللائحة التنفيذية لنظام العمل</p>\n</div>\n\n<h2 style=\"text-align: center; font-size: 22px; font-weight: bold; margin-bottom: 25px; border-bottom: 2px solid #000; padding-bottom: 10px;\">إقرار استلام راتب رسمي ومعتمد</h2>\n\n<div style=\"margin-bottom: 20px;\">\n<h3 style=\"font-size: 18px; font-weight: bold; border-right: 4px solid #000; padding-right: 10px; margin-bottom: 10px;\">بيانات المنشأة / الشركة:</h3>\n<p>اسم المنشأة: <span class=\"field\">{company_name}</span></p>\n<p>السجل التجاري: <span class=\"field\">{commercial_number}</span></p>\n</div>\n\n<div style=\"margin-bottom: 20px;\">\n<h3 style=\"font-size: 18px; font-weight: bold; border-right: 4px solid #000; padding-right: 10px; margin-bottom: 10px;\">بيانات الموظف:</h3>\n<p>اسم الموظف: <span class=\"field\">{employee_name}</span></p>\n<p>رقم الهوية / الإقامة: <span class=\"field\">{id_number}</span></p>\n<p>المسمى الوظيفي: <span class=\"field\">{job_title}</span></p>\n<p>المهنة: <span class=\"field\">{profession}</span></p>\n</div>\n\n<p>فترة الراتب: <span class=\"field\">{payroll_period}</span> (شهرية / نصف شهرية / أسبوعية)</p>\n<p>للفترة من: <span class=\"field\">{period_from}</span> إلى <span class=\"field\">{period_to}</span></p>\n\n<div style=\"margin: 20px 0; border: 1px solid #000; padding: 15px;\">\n<h3 style=\"font-size: 16px; font-weight: bold; margin-bottom: 10px;\">تفاصيل الراتب الشهري:</h3>\n<table style=\"width: 100%; border-collapse: collapse;\">\n<tr><td style=\"padding: 5px; border-bottom: 1... [truncated]
 2026-02-06T13:51:07.150Z [network][GET 200] /api/letters
   response: {"success":true,"templates":[{"id":1,"template_key":"salary_receipt","template_name":"Salary Receipt Acknowledgment","template_name_ar":"إقرار استلام راتب","template_content":"<div class=\"letter-content\" dir=\"rtl\">\n<div style=\"text-align: center; margin-bottom: 20px;\">\n<p style=\"font-weight: bold; margin: 0;\">بسم الله الرحمن الرحيم</p>\n<p style=\"font-weight: bold; margin: 0;\">وزارة الموارد البشرية والتنمية الاجتماعية</p>\n<p style=\"font-weight: bold; margin: 0;\">نظام العمل السعودي - اللائحة التنفيذية لنظام العمل</p>\n</div>\n\n<h2 style=\"text-align: center; font-size: 22px; font-weight: bold; margin-bottom: 25px; border-bottom: 2px solid #000; padding-bottom: 10px;\">إقرار استلام راتب رسمي ومعتمد</h2>\n\n<div style=\"margin-bottom: 20px;\">\n<h3 style=\"font-size: 18px; font-weight: bold; border-right: 4px solid #000; padding-right: 10px; margin-bottom: 10px;\">بيانات المنشأة / الشركة:</h3>\n<p>اسم المنشأة: <span class=\"field\">{company_name}</span></p>\n<p>السجل التجاري: <span class=\"field\">{commercial_number}</span></p>\n</div>\n\n<div style=\"margin-bottom: 20px;\">\n<h3 style=\"font-size: 18px; font-weight: bold; border-right: 4px solid #000; padding-right: 10px; margin-bottom: 10px;\">بيانات الموظف:</h3>\n<p>اسم الموظف: <span class=\"field\">{employee_name}</span></p>\n<p>رقم الهوية / الإقامة: <span class=\"field\">{id_number}</span></p>\n<p>المسمى الوظيفي: <span class=\"field\">{job_title}</span></p>\n<p>المهنة: <span class=\"field\">{profession}</span></p>\n</div>\n\n<p>فترة الراتب: <span class=\"field\">{payroll_period}</span> (شهرية / نصف شهرية / أسبوعية)</p>\n<p>للفترة من: <span class=\"field\">{period_from}</span> إلى <span class=\"field\">{period_to}</span></p>\n\n<div style=\"margin: 20px 0; border: 1px solid #000; padding: 15px;\">\n<h3 style=\"font-size: 16px; font-weight: bold; margin-bottom: 10px;\">تفاصيل الراتب الشهري:</h3>\n<table style=\"width: 100%; border-collapse: collapse;\">\n<tr><td style=\"padding: 5px; border-bottom: 1... [truncated]
+2026-02-06T14:29:03.223Z [console][log] [Fast Refresh] rebuilding
+2026-02-06T14:29:03.569Z [console][log] [Fast Refresh] done in 424ms
+2026-02-06T14:29:14.241Z [console][log] [Fast Refresh] rebuilding
+2026-02-06T14:29:14.583Z [console][log] [Fast Refresh] done in 422ms
+2026-02-06T14:29:26.286Z [console][log] [Fast Refresh] rebuilding
+2026-02-06T14:29:26.651Z [console][log] [Fast Refresh] done in 445ms
+2026-02-06T14:29:42.804Z [console][log] [Fast Refresh] rebuilding
+2026-02-06T14:29:43.340Z [console][log] [Fast Refresh] done in 565ms
+2026-02-06T14:30:27.424Z [console][log] [Fast Refresh] rebuilding
+2026-02-06T14:30:27.851Z [console][log] [Fast Refresh] done in 507ms
+2026-02-06T14:30:26.468Z [network][GET 200] /api/email/accounts?company_id=22
+  response: {"accounts":[],"providers":{"hostinger":{"name":"Hostinger","imap_host":"imap.hostinger.com","imap_port":993,"smtp_host":"smtp.hostinger.com","smtp_port":465},"gmail":{"name":"Gmail","imap_host":"imap.gmail.com","imap_port":993,"smtp_host":"smtp.gmail.com","smtp_port":465},"outlook":{"name":"Outlook/Hotmail","imap_host":"outlook.office365.com","imap_port":993,"smtp_host":"smtp.office365.com","smtp_port":587},"custom":{"name":"Custom","imap_host":"","imap_port":993,"smtp_host":"","smtp_port":465}}}
+2026-02-06T14:30:26.561Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-06T14:30:26.642Z [network][GET 200] /api/admin/notifications?limit=1&last_id=0
+  response: {"success":true,"notifications":[]}
+2026-02-06T14:30:26.644Z [network][GET 200] /api/admin/notifications?limit=5
+  response: {"success":true,"notifications":[]}
+2026-02-06T14:30:30.301Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-06T14:30:31.187Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-06T14:30:34.075Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-06T14:30:36.089Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-06T14:30:38.081Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-06T14:30:41.230Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
