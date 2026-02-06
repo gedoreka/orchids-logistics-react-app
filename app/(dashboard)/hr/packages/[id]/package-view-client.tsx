@@ -272,8 +272,8 @@ export function PackageViewClient({
   // ======= Excel Logic =======
   const columnAliases: Record<string, string[]> = {
     employee_name: ['اسم الموظف', 'Employee Name', 'الاسم', 'Name', 'اسم', 'employee name', 'employee_name'],
-    iqama_number: ['رقم الإقامة', 'Iqama Number', 'رقم الاقامة', 'الإقامة', 'الاقامة', 'Iqama', 'iqama_number', 'iqama number'],
-    identity_number: ['رقم الهوية', 'Identity Number', 'الهوية', 'Identity', 'identity_number', 'identity number', 'ID Number'],
+    name_en: ['اسم الموظف بالإنجليزية', 'Employee Name EN', 'Name EN', 'الاسم بالإنجليزية', 'name_en', 'English Name'],
+    iqama_number: ['رقم الهوية', 'رقم الإقامة', 'Iqama Number', 'Identity Number', 'رقم الاقامة', 'الإقامة', 'الاقامة', 'الهوية', 'Iqama', 'ID Number', 'iqama_number', 'iqama number', 'identity_number', 'identity number'],
     user_code: ['رقم المستخدم', 'User Code', 'كود المستخدم', 'Employee Code', 'user_code', 'user code'],
     job_title: ['المسمى الوظيفي', 'Job Title', 'الوظيفة', 'المسمي الوظيفي', 'job_title', 'job title'],
     nationality: ['الجنسية', 'Nationality', 'الجنسيه', 'nationality'],
@@ -300,8 +300,8 @@ export function PackageViewClient({
   const downloadTemplate = () => {
     const headers = [
       'اسم الموظف\nEmployee Name',
-      'رقم الإقامة\nIqama Number',
-      'رقم الهوية\nIdentity Number',
+      'اسم الموظف بالإنجليزية\nName EN',
+      'رقم الهوية\nID Number',
       'رقم المستخدم\nUser Code',
       'المسمى الوظيفي\nJob Title',
       'الجنسية\nNationality',
@@ -315,7 +315,7 @@ export function PackageViewClient({
       'بدل السكن\nHousing Allowance',
       'انتهاء الإقامة\nIqama Expiry',
     ];
-    const sampleRow = ["أحمد محمد", "2000000000", "1600000000", "EMP001", "سائق", "سعودي", "0555555555", "ahmed@example.com", "أ ب ج 1234", "1990-01-15", "A12345678", "OP-001", 3000, 1000, "2027-06-30"];
+    const sampleRow = ["أحمد محمد", "Ahmed Mohammed", "2000000000", "EMP001", "سائق", "سعودي", "0555555555", "ahmed@example.com", "أ ب ج 1234", "1990-01-15", "A12345678", "OP-001", 3000, 1000, "2027-06-30"];
 
     const wsData = [headers, sampleRow];
     const ws = XLSX.utils.aoa_to_sheet(wsData);
@@ -369,10 +369,10 @@ export function PackageViewClient({
           const getNum = (fieldName: string): number => parseFloat(getValue(fieldName)) || 0;
 
           const emp = {
-            name: getValue('employee_name'),
-            iqama_number: getValue('iqama_number'),
-            identity_number: getValue('identity_number'),
-            user_code: getValue('user_code'),
+              name: getValue('employee_name'),
+              name_en: getValue('name_en'),
+              iqama_number: getValue('iqama_number'),
+              user_code: getValue('user_code'),
             job_title: getValue('job_title'),
             nationality: getValue('nationality'),
             phone: getValue('phone'),
@@ -410,8 +410,8 @@ export function PackageViewClient({
   // ======= Table field definitions for the 14 fields =======
   const fieldDefs = [
     { key: 'name', label: 'اسم الموظف', labelEn: 'Name', required: true, type: 'text', icon: <UserPlus size={12} /> },
-    { key: 'iqama_number', label: 'رقم الإقامة', labelEn: 'Iqama', required: false, type: 'text', icon: <IdCard size={12} /> },
-    { key: 'identity_number', label: 'رقم الهوية', labelEn: 'ID', required: false, type: 'text', icon: <IdCard size={12} /> },
+    { key: 'name_en', label: 'الاسم بالإنجليزية', labelEn: 'Name EN', required: false, type: 'text', icon: <Globe size={12} /> },
+    { key: 'iqama_number', label: 'رقم الهوية', labelEn: 'ID', required: false, type: 'text', icon: <IdCard size={12} /> },
     { key: 'user_code', label: 'رقم المستخدم', labelEn: 'Code', required: false, type: 'text', icon: <Hash size={12} /> },
     { key: 'job_title', label: 'المسمى الوظيفي', labelEn: 'Job', required: false, type: 'text', icon: <Briefcase size={12} /> },
     { key: 'nationality', label: 'الجنسية', labelEn: 'Nationality', required: true, type: 'text', icon: <Globe size={12} /> },
@@ -1161,7 +1161,7 @@ export function PackageViewClient({
                       <div>
                         <p className="text-xs font-black text-blue-700 mb-1">ملاحظة: الحقول الإضافية بعد حفظ الباقة</p>
                         <p className="text-[11px] font-bold text-blue-600 leading-relaxed">
-                          هذا الجدول يحتوي على جميع بيانات الموظف المتاحة بعد حفظ الباقة: رقم الإقامة، رقم الهوية، رقم المستخدم، المسمى الوظيفي، الجنسية، رقم الهاتف، البريد الإلكتروني، لوحة المركبة، تاريخ الميلاد، رقم الجواز، كرت التشغيل، الراتب الأساسي، بدل السكن، انتهاء الإقامة.
+                            هذا الجدول يحتوي على جميع بيانات الموظف المتاحة بعد حفظ الباقة: الاسم بالإنجليزية، رقم الهوية، رقم المستخدم، المسمى الوظيفي، الجنسية، رقم الهاتف، البريد الإلكتروني، لوحة المركبة، تاريخ الميلاد، رقم الجواز، كرت التشغيل، الراتب الأساسي، بدل السكن، انتهاء الإقامة.
                         </p>
                       </div>
                     </div>

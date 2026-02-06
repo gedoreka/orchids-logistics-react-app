@@ -48,8 +48,8 @@ export function AddEmployeesClient({ package: pkg, companyId }: AddEmployeesClie
   const [employees, setEmployees] = useState([
     {
       name: "",
+      name_en: "",
       iqama_number: "",
-      identity_number: "",
       nationality: "",
       user_code: "",
       phone: "",
@@ -68,8 +68,8 @@ export function AddEmployeesClient({ package: pkg, companyId }: AddEmployeesClie
       ...employees,
       {
         name: "",
+        name_en: "",
         iqama_number: "",
-        identity_number: "",
         nationality: "",
         user_code: "",
         phone: "",
@@ -255,34 +255,49 @@ export function AddEmployeesClient({ package: pkg, companyId }: AddEmployeesClie
                   
                   <CardContent className="p-8">
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-                      {/* Personal Info Group */}
-                      <div className="space-y-4">
-                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
-                          <User className="w-3 h-3" /> {t("employeeName")}
-                        </label>
-                        <div className="relative group/input">
-                          <User className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within/input:text-blue-500 transition-colors" size={18} />
-                          <Input
-                            required
-                            placeholder={t("employeeName")}
-                            value={emp.name}
-                            onChange={(e) => handleChange(index, 'name', e.target.value)}
-                            className="h-14 rounded-2xl pr-12 bg-white/50 border-slate-200 focus:border-blue-400 focus:ring-4 focus:ring-blue-500/10 font-bold transition-all"
-                          />
+                        {/* Personal Info Group */}
+                        <div className="space-y-4">
+                          <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
+                            <User className="w-3 h-3" /> {t("employeeName")}
+                          </label>
+                          <div className="relative group/input">
+                            <User className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within/input:text-blue-500 transition-colors" size={18} />
+                            <Input
+                              required
+                              placeholder={t("employeeName")}
+                              value={emp.name}
+                              onChange={(e) => handleChange(index, 'name', e.target.value)}
+                              className="h-14 rounded-2xl pr-12 bg-white/50 border-slate-200 focus:border-blue-400 focus:ring-4 focus:ring-blue-500/10 font-bold transition-all"
+                            />
+                          </div>
                         </div>
-                      </div>
+
+                        <div className="space-y-4">
+                          <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
+                            <Globe className="w-3 h-3" /> {t("nameEn") || "الاسم بالإنجليزية"}
+                          </label>
+                          <div className="relative group/input">
+                            <Globe className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within/input:text-blue-500 transition-colors" size={18} />
+                            <Input
+                              placeholder={t("nameEn") || "English Name"}
+                              value={emp.name_en}
+                              onChange={(e) => handleChange(index, 'name_en', e.target.value)}
+                              className="h-14 rounded-2xl pr-12 bg-white/50 border-slate-200 focus:border-blue-400 focus:ring-4 focus:ring-blue-500/10 font-bold transition-all"
+                            />
+                          </div>
+                        </div>
 
                       <div className="space-y-4">
                         <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
-                          <Hash className="w-3 h-3" /> {isTargetSystem ? t("iqamaNumber") : t("identityNumber")}
+                          <Hash className="w-3 h-3" /> {t("identityNumber") || "رقم الهوية"}
                         </label>
                         <div className="relative group/input">
                           <Hash className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within/input:text-blue-500 transition-colors" size={18} />
                           <Input
                             required
-                            placeholder={isTargetSystem ? t("iqamaNumber") : t("identityNumber")}
-                            value={isTargetSystem ? emp.iqama_number : emp.identity_number}
-                            onChange={(e) => handleChange(index, isTargetSystem ? 'iqama_number' : 'identity_number', e.target.value)}
+                            placeholder={t("identityNumber") || "رقم الهوية"}
+                            value={emp.iqama_number}
+                            onChange={(e) => handleChange(index, 'iqama_number', e.target.value)}
                             className="h-14 rounded-2xl pr-12 bg-white/50 border-slate-200 focus:border-blue-400 focus:ring-4 focus:ring-blue-500/10 font-bold transition-all"
                           />
                         </div>

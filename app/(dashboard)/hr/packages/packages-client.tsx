@@ -82,8 +82,8 @@ export function PackagesClient({ initialPackages, companyId }: PackagesClientPro
   const [employees, setEmployees] = useState([
     {
       name: "",
+      name_en: "",
       iqama_number: "",
-      identity_number: "",
       job_title: "",
       nationality: "",
       user_code: "",
@@ -99,8 +99,8 @@ export function PackagesClient({ initialPackages, companyId }: PackagesClientPro
   const [addEmployeesData, setAddEmployeesData] = useState([
     {
       name: "",
+      name_en: "",
       iqama_number: "",
-      identity_number: "",
       job_title: "",
       nationality: "",
       user_code: "",
@@ -127,8 +127,8 @@ export function PackagesClient({ initialPackages, companyId }: PackagesClientPro
   const addEmployeeRow = (isAddModal = false) => {
     const newRow = {
       name: "",
+      name_en: "",
       iqama_number: "",
-      identity_number: "",
       job_title: "",
       nationality: "",
       user_code: "",
@@ -214,11 +214,7 @@ export function PackagesClient({ initialPackages, companyId }: PackagesClientPro
         const missingFields: string[] = [];
         
         if (!emp.name.trim()) missingFields.push(t('validationEmployeeName'));
-        if (formData.work_type === 'salary') {
-          if (!emp.identity_number.trim()) missingFields.push(t('validationIdentityNumber'));
-        } else {
-          if (!emp.iqama_number.trim()) missingFields.push(t('validationIqamaNumber'));
-        }
+        if (!emp.iqama_number.trim()) missingFields.push(t('validationIqamaNumber'));
         if (!emp.nationality.trim()) missingFields.push(t('validationNationality'));
         if (!emp.basic_salary || emp.basic_salary <= 0) missingFields.push(t('validationBasicSalary'));
 
@@ -259,11 +255,11 @@ export function PackagesClient({ initialPackages, companyId }: PackagesClientPro
             bonus_after_target: 10,
           });
           setEmployees([{
-            name: "", iqama_number: "", identity_number: "", job_title: "",
-            nationality: "", user_code: "", phone: "", email: "",
-            basic_salary: 0, housing_allowance: 0, vehicle_plate: "", iban: ""
-          }]);
-          setSuccessModal({ isOpen: true, type: 'create', title: createdName });
+              name: "", name_en: "", iqama_number: "", job_title: "",
+              nationality: "", user_code: "", phone: "", email: "",
+              basic_salary: 0, housing_allowance: 0, vehicle_plate: "", iban: ""
+            }]);
+            setSuccessModal({ isOpen: true, type: 'create', title: createdName });
       } else {
         toast.error(result.error || t('errorOccurred'));
       }
@@ -290,11 +286,10 @@ export function PackagesClient({ initialPackages, companyId }: PackagesClientPro
 
       const invalidAddEmployees = validAddEmployees.filter(emp => {
         const missingName = !emp.name.trim();
-        const missingIqama = selectedPackage.work_type !== 'salary' && !emp.iqama_number.trim();
-        const missingIdentity = selectedPackage.work_type === 'salary' && !emp.identity_number.trim();
+        const missingIqama = !emp.iqama_number.trim();
         const missingNationality = !emp.nationality.trim();
         const missingSalary = !emp.basic_salary || emp.basic_salary <= 0;
-        return missingName || missingIqama || missingIdentity || missingNationality || missingSalary;
+        return missingName || missingIqama || missingNationality || missingSalary;
       });
 
       if (invalidAddEmployees.length > 0) {
@@ -319,7 +314,7 @@ export function PackagesClient({ initialPackages, companyId }: PackagesClientPro
           }
           setIsAddEmployeesModalOpen(false);
         setAddEmployeesData([{
-          name: "", iqama_number: "", identity_number: "", job_title: "",
+          name: "", name_en: "", iqama_number: "", job_title: "",
           nationality: "", user_code: "", phone: "", email: "",
           basic_salary: 0, housing_allowance: 0, vehicle_plate: "", iban: ""
         }]);
@@ -402,8 +397,8 @@ export function PackagesClient({ initialPackages, companyId }: PackagesClientPro
   // Column header mappings: Arabic + English aliases -> field key
   const columnAliases: Record<string, string[]> = {
     employee_name: ['اسم الموظف', 'Employee Name', 'الاسم', 'Name', 'اسم', 'employee name', 'employee_name'],
-    iqama_number: ['رقم الإقامة', 'Iqama Number', 'رقم الاقامة', 'الإقامة', 'الاقامة', 'Iqama', 'iqama_number', 'iqama number', 'Iqama No'],
-    identity_number: ['رقم الهوية', 'Identity Number', 'الهوية', 'Identity', 'identity_number', 'identity number', 'ID Number', 'رقم الهويه'],
+    name_en: ['اسم الموظف بالإنجليزية', 'Employee Name EN', 'Name EN', 'الاسم بالإنجليزية', 'name_en', 'English Name'],
+    iqama_number: ['رقم الهوية', 'رقم الإقامة', 'Iqama Number', 'Identity Number', 'رقم الاقامة', 'الإقامة', 'الاقامة', 'الهوية', 'Iqama', 'ID Number', 'iqama_number', 'iqama number', 'identity_number', 'identity number', 'Iqama No', 'رقم الهويه'],
     user_code: ['رقم المستخدم', 'User Code', 'كود المستخدم', 'Employee Code', 'user_code', 'user code', 'Code', 'الكود'],
     job_title: ['المسمى الوظيفي', 'Job Title', 'الوظيفة', 'المسمي الوظيفي', 'job_title', 'job title', 'Title', 'الوظيفه'],
     nationality: ['الجنسية', 'Nationality', 'الجنسيه', 'nationality'],
@@ -432,13 +427,13 @@ export function PackagesClient({ initialPackages, companyId }: PackagesClientPro
     let sampleRowAr: (string | number)[];
     let sampleRowEn: (string | number)[];
     if (isSalary) {
-      headers = ['اسم الموظف\nEmployee Name', 'رقم الهوية\nIdentity Number', 'المسمى الوظيفي\nJob Title', 'الجنسية\nNationality', 'رقم الهاتف\nPhone Number', 'البريد الإلكتروني\nEmail', 'الراتب الأساسي\nBasic Salary', 'بدل السكن\nHousing Allowance', 'الآيبان\nIBAN'];
-      sampleRowAr = ["أحمد محمد", "1234567890", "محاسب", "سعودي", "0555555555", "ahmed@example.com", 5000, 1000, "SA0000000000000000000000"];
-      sampleRowEn = ["Ahmed Mohammed", "1234567890", "Accountant", "Saudi", "0555555555", "ahmed@example.com", 5000, 1000, "SA0000000000000000000000"];
+      headers = ['اسم الموظف\nEmployee Name', 'اسم الموظف بالإنجليزية\nName EN', 'رقم الهوية\nID Number', 'المسمى الوظيفي\nJob Title', 'الجنسية\nNationality', 'رقم الهاتف\nPhone Number', 'البريد الإلكتروني\nEmail', 'الراتب الأساسي\nBasic Salary', 'بدل السكن\nHousing Allowance', 'الآيبان\nIBAN'];
+      sampleRowAr = ["أحمد محمد", "Ahmed Mohammed", "1234567890", "محاسب", "سعودي", "0555555555", "ahmed@example.com", 5000, 1000, "SA0000000000000000000000"];
+      sampleRowEn = ["Ahmed Mohammed", "Ahmed Mohammed", "1234567890", "Accountant", "Saudi", "0555555555", "ahmed@example.com", 5000, 1000, "SA0000000000000000000000"];
     } else {
-      headers = ['اسم الموظف\nEmployee Name', 'رقم الإقامة\nIqama Number', 'الجنسية\nNationality', 'رقم المستخدم\nUser Code', 'رقم الهاتف\nPhone Number', 'البريد الإلكتروني\nEmail', 'الراتب الأساسي\nBasic Salary', 'بدل السكن\nHousing Allowance', 'لوحة المركبة\nVehicle Plate', 'الآيبان\nIBAN'];
-      sampleRowAr = ["أحمد محمد", "1234567890", "سعودي", "EMP001", "0555555555", "ahmed@example.com", 3000, 1000, "أ ب ج 1234", "SA0000000000000000000000"];
-      sampleRowEn = ["Ahmed Mohammed", "1234567890", "Saudi", "EMP001", "0555555555", "ahmed@example.com", 3000, 1000, "ABC 1234", "SA0000000000000000000000"];
+      headers = ['اسم الموظف\nEmployee Name', 'اسم الموظف بالإنجليزية\nName EN', 'رقم الهوية\nID Number', 'الجنسية\nNationality', 'رقم المستخدم\nUser Code', 'رقم الهاتف\nPhone Number', 'البريد الإلكتروني\nEmail', 'الراتب الأساسي\nBasic Salary', 'بدل السكن\nHousing Allowance', 'لوحة المركبة\nVehicle Plate', 'الآيبان\nIBAN'];
+      sampleRowAr = ["أحمد محمد", "Ahmed Mohammed", "1234567890", "سعودي", "EMP001", "0555555555", "ahmed@example.com", 3000, 1000, "أ ب ج 1234", "SA0000000000000000000000"];
+      sampleRowEn = ["Ahmed Mohammed", "Ahmed Mohammed", "1234567890", "Saudi", "EMP001", "0555555555", "ahmed@example.com", 3000, 1000, "ABC 1234", "SA0000000000000000000000"];
     }
 
     const wsData = [headers, sampleRowAr, sampleRowEn];
@@ -494,16 +489,16 @@ export function PackagesClient({ initialPackages, companyId }: PackagesClientPro
 
         const emp = {
           name: getValue('employee_name'),
-          iqama_number: isSalary ? '' : getValue('iqama_number'),
-          identity_number: isSalary ? getValue('identity_number') : '',
-          job_title: isSalary ? getValue('job_title') : '',
+          name_en: getValue('name_en'),
+          iqama_number: getValue('iqama_number'),
+          job_title: getValue('job_title'),
           nationality: getValue('nationality'),
-          user_code: isSalary ? '' : getValue('user_code'),
+          user_code: getValue('user_code'),
           phone: getValue('phone'),
           email: getValue('email'),
           basic_salary: getNum('basic_salary'),
           housing_allowance: getNum('housing_allowance'),
-          vehicle_plate: isSalary ? '' : getValue('vehicle_plate'),
+          vehicle_plate: getValue('vehicle_plate'),
           iban: getValue('iban'),
         };
 
@@ -1222,16 +1217,12 @@ export function PackagesClient({ initialPackages, companyId }: PackagesClientPro
                           <thead className="bg-gradient-to-r from-purple-600 to-violet-600 text-white">
                             <tr>
                               <th className="p-4 text-xs font-black whitespace-nowrap">{t('employeeName')} <span className="text-red-300">*</span></th>
+                              <th className="p-4 text-xs font-black whitespace-nowrap">{t('nameEn')}</th>
+                              <th className="p-4 text-xs font-black whitespace-nowrap">{t('identityNumber')} <span className="text-red-300">*</span></th>
                               {formData.work_type === 'salary' ? (
-                                <>
-                                  <th className="p-4 text-xs font-black whitespace-nowrap">{t('identityNumber')} <span className="text-red-300">*</span></th>
-                                  <th className="p-4 text-xs font-black whitespace-nowrap">{t('jobTitle')}</th>
-                                </>
+                                <th className="p-4 text-xs font-black whitespace-nowrap">{t('jobTitle')}</th>
                               ) : (
-                                <>
-                                  <th className="p-4 text-xs font-black whitespace-nowrap">{t('iqamaNumber')} <span className="text-red-300">*</span></th>
-                                  <th className="p-4 text-xs font-black whitespace-nowrap">{t('userCode')}</th>
-                                </>
+                                <th className="p-4 text-xs font-black whitespace-nowrap">{t('userCode')}</th>
                               )}
                               <th className="p-4 text-xs font-black whitespace-nowrap">{t('nationality')} <span className="text-red-300">*</span></th>
                               <th className="p-4 text-xs font-black whitespace-nowrap">{t('phoneNumber')}</th>
@@ -1257,48 +1248,44 @@ export function PackagesClient({ initialPackages, companyId }: PackagesClientPro
                                   className="w-full bg-gray-50/80 border border-gray-200 focus:ring-2 focus:ring-purple-300 text-sm font-black text-gray-900 px-3 py-2 rounded-lg hover:bg-gray-100 focus:bg-white placeholder:text-gray-400 placeholder:font-medium transition-all"
                                 />
                               </td>
+                              <td className="p-2">
+                                <input
+                                  type="text"
+                                  placeholder={t('nameEn')}
+                                  value={emp.name_en}
+                                  onChange={(e) => updateEmployee(idx, "name_en", e.target.value, false)}
+                                  className="w-full bg-gray-50/80 border border-gray-200 focus:ring-2 focus:ring-purple-300 text-sm font-black text-gray-900 px-3 py-2 rounded-lg hover:bg-gray-100 focus:bg-white placeholder:text-gray-400 placeholder:font-medium transition-all"
+                                />
+                              </td>
+                              <td className="p-2">
+                                <input
+                                  type="text"
+                                  placeholder={t('identityNumber')}
+                                  value={emp.iqama_number}
+                                  onChange={(e) => updateEmployee(idx, "iqama_number", e.target.value, false)}
+                                  className="w-full bg-gray-50/80 border border-gray-200 focus:ring-2 focus:ring-purple-300 text-sm font-black text-gray-900 px-3 py-2 rounded-lg hover:bg-gray-100 focus:bg-white placeholder:text-gray-400 placeholder:font-medium transition-all"
+                                />
+                              </td>
                               {formData.work_type === 'salary' ? (
-                                <>
-                                  <td className="p-2">
-                                    <input
-                                      type="text"
-                                      placeholder={t('identityNumber')}
-                                      value={emp.identity_number}
-                                      onChange={(e) => updateEmployee(idx, "identity_number", e.target.value, false)}
-                                      className="w-full bg-gray-50/80 border border-gray-200 focus:ring-2 focus:ring-purple-300 text-sm font-black text-gray-900 px-3 py-2 rounded-lg hover:bg-gray-100 focus:bg-white placeholder:text-gray-400 placeholder:font-medium transition-all"
-                                    />
-                                  </td>
-                                  <td className="p-2">
-                                    <input
-                                      type="text"
-                                      placeholder={t('jobTitle')}
-                                      value={emp.job_title}
-                                      onChange={(e) => updateEmployee(idx, "job_title", e.target.value, false)}
-                                      className="w-full bg-gray-50/80 border border-gray-200 focus:ring-2 focus:ring-purple-300 text-sm font-black text-gray-900 px-3 py-2 rounded-lg hover:bg-gray-100 focus:bg-white placeholder:text-gray-400 placeholder:font-medium transition-all"
-                                    />
-                                  </td>
-                                </>
+                                <td className="p-2">
+                                  <input
+                                    type="text"
+                                    placeholder={t('jobTitle')}
+                                    value={emp.job_title}
+                                    onChange={(e) => updateEmployee(idx, "job_title", e.target.value, false)}
+                                    className="w-full bg-gray-50/80 border border-gray-200 focus:ring-2 focus:ring-purple-300 text-sm font-black text-gray-900 px-3 py-2 rounded-lg hover:bg-gray-100 focus:bg-white placeholder:text-gray-400 placeholder:font-medium transition-all"
+                                  />
+                                </td>
                               ) : (
-                                <>
-                                  <td className="p-2">
-                                    <input
-                                      type="text"
-                                      placeholder={t('iqamaNumber')}
-                                      value={emp.iqama_number}
-                                      onChange={(e) => updateEmployee(idx, "iqama_number", e.target.value, false)}
-                                      className="w-full bg-gray-50/80 border border-gray-200 focus:ring-2 focus:ring-purple-300 text-sm font-black text-gray-900 px-3 py-2 rounded-lg hover:bg-gray-100 focus:bg-white placeholder:text-gray-400 placeholder:font-medium transition-all"
-                                    />
-                                  </td>
-                                  <td className="p-2">
-                                    <input
-                                      type="text"
-                                      placeholder={t('userCode')}
-                                      value={emp.user_code}
-                                      onChange={(e) => updateEmployee(idx, "user_code", e.target.value, false)}
-                                      className="w-full bg-gray-50/80 border border-gray-200 focus:ring-2 focus:ring-purple-300 text-sm font-black text-gray-900 px-3 py-2 rounded-lg hover:bg-gray-100 focus:bg-white placeholder:text-gray-400 placeholder:font-medium transition-all"
-                                    />
-                                  </td>
-                                </>
+                                <td className="p-2">
+                                  <input
+                                    type="text"
+                                    placeholder={t('userCode')}
+                                    value={emp.user_code}
+                                    onChange={(e) => updateEmployee(idx, "user_code", e.target.value, false)}
+                                    className="w-full bg-gray-50/80 border border-gray-200 focus:ring-2 focus:ring-purple-300 text-sm font-black text-gray-900 px-3 py-2 rounded-lg hover:bg-gray-100 focus:bg-white placeholder:text-gray-400 placeholder:font-medium transition-all"
+                                  />
+                                </td>
                               )}
                               <td className="p-2">
                                 <input
@@ -1547,16 +1534,12 @@ export function PackagesClient({ initialPackages, companyId }: PackagesClientPro
                           <thead className="bg-gradient-to-r from-purple-600 to-violet-600 text-white">
                             <tr>
                               <th className="p-4 text-xs font-black whitespace-nowrap">{t('employeeName')} <span className="text-red-300">*</span></th>
+                              <th className="p-4 text-xs font-black whitespace-nowrap">{t('nameEn')}</th>
+                              <th className="p-4 text-xs font-black whitespace-nowrap">{t('identityNumber')} <span className="text-red-300">*</span></th>
                               {selectedPackage.work_type === 'salary' ? (
-                                <>
-                                  <th className="p-4 text-xs font-black whitespace-nowrap">{t('identityNumber')} <span className="text-red-300">*</span></th>
-                                  <th className="p-4 text-xs font-black whitespace-nowrap">{t('jobTitle')}</th>
-                                </>
+                                <th className="p-4 text-xs font-black whitespace-nowrap">{t('jobTitle')}</th>
                               ) : (
-                                <>
-                                  <th className="p-4 text-xs font-black whitespace-nowrap">{t('iqamaNumber')} <span className="text-red-300">*</span></th>
-                                  <th className="p-4 text-xs font-black whitespace-nowrap">{t('userCode')}</th>
-                                </>
+                                <th className="p-4 text-xs font-black whitespace-nowrap">{t('userCode')}</th>
                               )}
                               <th className="p-4 text-xs font-black whitespace-nowrap">{t('nationality')} <span className="text-red-300">*</span></th>
                               <th className="p-4 text-xs font-black whitespace-nowrap">{t('phoneNumber')}</th>
@@ -1582,48 +1565,44 @@ export function PackagesClient({ initialPackages, companyId }: PackagesClientPro
                                   className="w-full bg-gray-50/80 border border-gray-200 focus:ring-2 focus:ring-purple-300 text-sm font-black text-gray-900 px-3 py-2 rounded-lg hover:bg-gray-100 focus:bg-white placeholder:text-gray-400 placeholder:font-medium transition-all"
                                 />
                               </td>
+                              <td className="p-2">
+                                <input
+                                  type="text"
+                                  placeholder={t('nameEn')}
+                                  value={emp.name_en}
+                                  onChange={(e) => updateEmployee(idx, "name_en", e.target.value, true)}
+                                  className="w-full bg-gray-50/80 border border-gray-200 focus:ring-2 focus:ring-purple-300 text-sm font-black text-gray-900 px-3 py-2 rounded-lg hover:bg-gray-100 focus:bg-white placeholder:text-gray-400 placeholder:font-medium transition-all"
+                                />
+                              </td>
+                              <td className="p-2">
+                                <input
+                                  type="text"
+                                  placeholder={t('identityNumber')}
+                                  value={emp.iqama_number}
+                                  onChange={(e) => updateEmployee(idx, "iqama_number", e.target.value, true)}
+                                  className="w-full bg-gray-50/80 border border-gray-200 focus:ring-2 focus:ring-purple-300 text-sm font-black text-gray-900 px-3 py-2 rounded-lg hover:bg-gray-100 focus:bg-white placeholder:text-gray-400 placeholder:font-medium transition-all"
+                                />
+                              </td>
                               {selectedPackage.work_type === 'salary' ? (
-                                <>
-                                  <td className="p-2">
-                                    <input
-                                      type="text"
-                                      placeholder={t('identityNumber')}
-                                      value={emp.identity_number}
-                                      onChange={(e) => updateEmployee(idx, "identity_number", e.target.value, true)}
-                                      className="w-full bg-gray-50/80 border border-gray-200 focus:ring-2 focus:ring-purple-300 text-sm font-black text-gray-900 px-3 py-2 rounded-lg hover:bg-gray-100 focus:bg-white placeholder:text-gray-400 placeholder:font-medium transition-all"
-                                    />
-                                  </td>
-                                  <td className="p-2">
-                                    <input
-                                      type="text"
-                                      placeholder={t('jobTitle')}
-                                      value={emp.job_title}
-                                      onChange={(e) => updateEmployee(idx, "job_title", e.target.value, true)}
-                                      className="w-full bg-gray-50/80 border border-gray-200 focus:ring-2 focus:ring-purple-300 text-sm font-black text-gray-900 px-3 py-2 rounded-lg hover:bg-gray-100 focus:bg-white placeholder:text-gray-400 placeholder:font-medium transition-all"
-                                    />
-                                  </td>
-                                </>
+                                <td className="p-2">
+                                  <input
+                                    type="text"
+                                    placeholder={t('jobTitle')}
+                                    value={emp.job_title}
+                                    onChange={(e) => updateEmployee(idx, "job_title", e.target.value, true)}
+                                    className="w-full bg-gray-50/80 border border-gray-200 focus:ring-2 focus:ring-purple-300 text-sm font-black text-gray-900 px-3 py-2 rounded-lg hover:bg-gray-100 focus:bg-white placeholder:text-gray-400 placeholder:font-medium transition-all"
+                                  />
+                                </td>
                               ) : (
-                                <>
-                                  <td className="p-2">
-                                    <input
-                                      type="text"
-                                      placeholder={t('iqamaNumber')}
-                                      value={emp.iqama_number}
-                                      onChange={(e) => updateEmployee(idx, "iqama_number", e.target.value, true)}
-                                      className="w-full bg-gray-50/80 border border-gray-200 focus:ring-2 focus:ring-purple-300 text-sm font-black text-gray-900 px-3 py-2 rounded-lg hover:bg-gray-100 focus:bg-white placeholder:text-gray-400 placeholder:font-medium transition-all"
-                                    />
-                                  </td>
-                                  <td className="p-2">
-                                    <input
-                                      type="text"
-                                      placeholder={t('userCode')}
-                                      value={emp.user_code}
-                                      onChange={(e) => updateEmployee(idx, "user_code", e.target.value, true)}
-                                      className="w-full bg-gray-50/80 border border-gray-200 focus:ring-2 focus:ring-purple-300 text-sm font-black text-gray-900 px-3 py-2 rounded-lg hover:bg-gray-100 focus:bg-white placeholder:text-gray-400 placeholder:font-medium transition-all"
-                                    />
-                                  </td>
-                                </>
+                                <td className="p-2">
+                                  <input
+                                    type="text"
+                                    placeholder={t('userCode')}
+                                    value={emp.user_code}
+                                    onChange={(e) => updateEmployee(idx, "user_code", e.target.value, true)}
+                                    className="w-full bg-gray-50/80 border border-gray-200 focus:ring-2 focus:ring-purple-300 text-sm font-black text-gray-900 px-3 py-2 rounded-lg hover:bg-gray-100 focus:bg-white placeholder:text-gray-400 placeholder:font-medium transition-all"
+                                  />
+                                </td>
                               )}
                               <td className="p-2">
                                 <input
