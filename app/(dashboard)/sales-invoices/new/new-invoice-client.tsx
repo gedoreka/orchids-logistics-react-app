@@ -129,8 +129,86 @@ export function NewInvoiceClient({ customers, invoiceNumber, companyId, userName
 
   const [adjustments, setAdjustments] = useState<Adjustment[]>([]);
 
-  const showNotification = (type: "success" | "error" | "loading", title: string, message: string) => {
-    setNotification({ show: true, type, title, message });
+  // Open confirm modal
+  const handleSaveClick = (status: 'due' | 'draft') => {
+    if (!validateForm()) return;
+    setConfirmModal({ isOpen: true, status });
+  };
+
+  // Execute save after confirmation
+  const confirmSave = async () => {
+    const status = confirmModal.status;
+    if (!status) return;
+    
+    setConfirmModal({ isOpen: false, status: null });
+    setSavingModal({ isOpen: true, status: 'saving' });
+    setLoading(true);
+
+    try {
+      const validItems = items.filter(i => i.product_name.trim()).map(item => ({
+        product_name: item.product_name,
+        quantity: item.quantity,
+        total_with_vat: item.total_with_vat,
+        period_from: item.period_from || null,
+        period_to: item.period_to || null
+      }));
+
+      const validAdjustments = adjustments.filter(a => a.title.trim()).map(adj => ({
+        title: adj.title,
+        type: adj.type,
+        amount: adj.amount,
+        is_taxable: adj.is_taxable,
+        is_inclusive: adj.is_inclusive
+      }));
+
+      const res = await fetch('/api/sales-invoices', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          invoice_number: invoiceNumber,
+          invoice_month: invoiceMonth,
+          client_id: clientId,
+          issue_date: issueDate,
+          due_date: dueDate,
+          status,
+          items: validItems,
+          adjustments: validAdjustments
+        })
+      });
+
+      const data = await res.json();
+
+      if (data.success) {
+        setSavingModal({ 
+          isOpen: true, 
+          status: 'success', 
+          invoiceId: data.invoice_id,
+          message: data.message
+        });
+      } else {
+        setSavingModal({ 
+          isOpen: true, 
+          status: 'error',
+          message: data.error || "حدث خطأ أثناء حفظ الفاتورة"
+        });
+      }
+    } catch {
+      setSavingModal({ 
+        isOpen: true, 
+        status: 'error',
+        message: "حدث خطأ في الاتصال بالخادم"
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Go to invoice view
+  const goToInvoice = () => {
+    if (savingModal.invoiceId) {
+      router.push(`/sales-invoices/${savingModal.invoiceId}`);
+    }
+    setSavingModal({ isOpen: false, status: 'saving' });
   };
 
   const calculateItem = useCallback((item: InvoiceItem, source: 'total' | 'unit_price' | 'quantity' = 'total', currentMode: 'total' | 'quantity' = 'total'): InvoiceItem => {
@@ -293,74 +371,25 @@ export function NewInvoiceClient({ customers, invoiceNumber, companyId, userName
     return { totalBeforeVat, totalVat, totalWithVat };
   }, [items, adjustments]);
 
+  // Validation error state for inline display
+  const [validationError, setValidationError] = useState<string | null>(null);
+  
   const validateForm = () => {
     if (!clientId) {
-      showNotification("error", t("error"), t("selectCustomerError"));
+      setValidationError(t("selectCustomerError"));
+      setTimeout(() => setValidationError(null), 3000);
       return false;
     }
 
     const validItems = items.filter(i => i.product_name.trim());
     if (validItems.length === 0) {
-      showNotification("error", t("error"), t("addItemError"));
+      setValidationError(t("addItemError"));
+      setTimeout(() => setValidationError(null), 3000);
       return false;
     }
 
+    setValidationError(null);
     return true;
-  };
-
-  const handleSave = async (status: 'due' | 'draft') => {
-    if (!validateForm()) return;
-
-    setLoading(true);
-    showNotification("loading", t("saving"), t("savingDesc"));
-
-    try {
-      const validItems = items.filter(i => i.product_name.trim()).map(item => ({
-        product_name: item.product_name,
-        quantity: item.quantity,
-        total_with_vat: item.total_with_vat,
-        period_from: item.period_from || null,
-        period_to: item.period_to || null
-      }));
-
-      const validAdjustments = adjustments.filter(a => a.title.trim()).map(adj => ({
-        title: adj.title,
-        type: adj.type,
-        amount: adj.amount,
-        is_taxable: adj.is_taxable,
-        is_inclusive: adj.is_inclusive
-      }));
-
-      const res = await fetch('/api/sales-invoices', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          invoice_number: invoiceNumber,
-          invoice_month: invoiceMonth,
-          client_id: clientId,
-          issue_date: issueDate,
-          due_date: dueDate,
-          status,
-          items: validItems,
-          adjustments: validAdjustments
-        })
-      });
-
-      const data = await res.json();
-
-      if (data.success) {
-        showNotification("success", t("savedSuccess"), data.message);
-        setTimeout(() => {
-          router.push(`/sales-invoices/${data.invoice_id}`);
-        }, 1500);
-      } else {
-        showNotification("error", t("error"), data.error || "حدث خطأ");
-      }
-    } catch {
-      showNotification("error", t("error"), t("connectionError"));
-    } finally {
-      setLoading(false);
-    }
   };
 
   const selectedCustomer = customers.find(c => c.id === clientId);
@@ -379,31 +408,331 @@ export function NewInvoiceClient({ customers, invoiceNumber, companyId, userName
   };
 
   return (
-    <div className="min-h-screen pb-20">
-      <AnimatePresence>
-        {notification.show && (
-          <motion.div
-            initial={{ opacity: 0, y: -50, x: "-50%" }}
-            animate={{ opacity: 1, y: 0, x: "-50%" }}
-            exit={{ opacity: 0, y: -50, x: "-50%" }}
-            className={`fixed top-6 left-1/2 z-50 px-6 py-3 rounded-2xl shadow-2xl ${
-              notification.type === "success" 
-                ? "bg-emerald-600" 
-                : notification.type === "error" 
-                ? "bg-rose-600" 
-                : "bg-blue-600"
-            } text-white font-bold flex items-center gap-3 border border-white/20 backdrop-blur-md`}
-          >
-            {notification.type === "success" && <CheckCircle size={18} />}
-            {notification.type === "error" && <AlertCircle size={18} />}
-            {notification.type === "loading" && <Loader2 size={18} className="animate-spin" />}
-            <div>
-              <p className="font-black text-sm">{notification.title}</p>
-              <p className="text-xs opacity-90">{notification.message}</p>
+      <div className="min-h-screen pb-20">
+        {/* Validation Error Toast */}
+        <AnimatePresence>
+          {validationError && (
+            <motion.div
+              initial={{ opacity: 0, y: -50, x: "-50%" }}
+              animate={{ opacity: 1, y: 0, x: "-50%" }}
+              exit={{ opacity: 0, y: -50, x: "-50%" }}
+              className="fixed top-6 left-1/2 z-50 px-6 py-3 rounded-2xl shadow-2xl bg-rose-600 text-white font-bold flex items-center gap-3 border border-white/20 backdrop-blur-md"
+            >
+              <AlertCircle size={18} />
+              <div>
+                <p className="font-black text-sm">{t("error")}</p>
+                <p className="text-xs opacity-90">{validationError}</p>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Confirm Save Modal */}
+        <AnimatePresence>
+          {confirmModal.isOpen && (
+            <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                onClick={() => setConfirmModal({ isOpen: false, status: null })}
+                className="absolute inset-0 bg-slate-950/90 backdrop-blur-2xl"
+              />
+              <motion.div
+                initial={{ opacity: 0, scale: 0.8, y: 50 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.8, y: 50 }}
+                transition={{ type: "spring", damping: 25, stiffness: 300 }}
+                className="relative w-full max-w-lg bg-white dark:bg-slate-900 rounded-[3rem] shadow-[0_0_100px_rgba(16,185,129,0.3)] overflow-hidden border-4 border-emerald-500/20"
+              >
+                {/* Header */}
+                <div className="relative bg-gradient-to-br from-emerald-500 via-teal-600 to-emerald-700 p-10 text-white text-center overflow-hidden">
+                  <div className="absolute inset-0 opacity-10">
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
+                  </div>
+                  
+                  <motion.div
+                    initial={{ scale: 0, rotate: -180 }}
+                    animate={{ scale: 1, rotate: 0 }}
+                    transition={{ delay: 0.2, type: "spring", damping: 15 }}
+                    className="relative z-10 mx-auto w-24 h-24 bg-white/20 backdrop-blur-xl rounded-full flex items-center justify-center mb-6 shadow-2xl border-4 border-white/30"
+                  >
+                    <motion.div
+                      animate={{ scale: [1, 1.1, 1] }}
+                      transition={{ repeat: Infinity, duration: 2 }}
+                    >
+                      <FileCheck size={48} className="text-white drop-shadow-lg" />
+                    </motion.div>
+                  </motion.div>
+                  
+                  <motion.h3
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.3 }}
+                    className="text-3xl font-black tracking-tight relative z-10"
+                  >
+                    تأكيد حفظ الفاتورة
+                  </motion.h3>
+                  <motion.p
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.4 }}
+                    className="text-white/80 font-bold mt-2 relative z-10"
+                  >
+                    {confirmModal.status === 'due' ? 'سيتم إصدار الفاتورة رسمياً' : 'سيتم حفظها كمسودة'}
+                  </motion.p>
+                </div>
+
+                {/* Content */}
+                <div className="p-8 text-center space-y-6">
+                  <div className="bg-emerald-50 dark:bg-emerald-950/30 rounded-2xl p-6 border-2 border-emerald-100 dark:border-emerald-900/50">
+                    <p className="text-slate-700 dark:text-slate-300 font-bold text-lg leading-relaxed">
+                      هل أنت متأكد من حفظ الفاتورة رقم
+                    </p>
+                    <p className="text-emerald-600 dark:text-emerald-400 font-black text-xl mt-2">
+                      "{invoiceNumber}"
+                    </p>
+                    <div className="mt-4 pt-4 border-t border-emerald-200 dark:border-emerald-800 flex justify-center gap-6">
+                      <div className="text-center">
+                        <p className="text-xs text-slate-400 font-bold">المبلغ الإجمالي</p>
+                        <p className="text-lg font-black text-emerald-600">{totals.totalWithVat.toLocaleString('en-US', { minimumFractionDigits: 2 })} {tc("sar")}</p>
+                      </div>
+                      <div className="text-center">
+                        <p className="text-xs text-slate-400 font-bold">عدد البنود</p>
+                        <p className="text-lg font-black text-slate-700">{items.filter(i => i.product_name.trim()).length}</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <p className="text-slate-500 font-bold text-sm">
+                    {confirmModal.status === 'due' ? 'ستصبح الفاتورة سارية المفعول فور الحفظ' : 'يمكنك تعديل المسودة لاحقاً قبل إصدارها'}
+                  </p>
+
+                  {/* Buttons */}
+                  <div className="flex gap-4 pt-4">
+                    <motion.button
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      onClick={() => setConfirmModal({ isOpen: false, status: null })}
+                      className="flex-1 flex items-center justify-center gap-3 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 py-4 rounded-2xl font-black text-lg hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
+                    >
+                      <X size={20} />
+                      إلغاء
+                    </motion.button>
+                    <motion.button
+                      whileHover={{ scale: 1.02, boxShadow: "0 20px 40px rgba(16, 185, 129, 0.4)" }}
+                      whileTap={{ scale: 0.98 }}
+                      onClick={confirmSave}
+                      disabled={loading}
+                      className="flex-1 flex items-center justify-center gap-3 bg-gradient-to-r from-emerald-500 via-teal-600 to-emerald-600 text-white py-4 rounded-2xl font-black text-lg shadow-xl shadow-emerald-500/30 disabled:opacity-50 border-b-4 border-emerald-700/50"
+                    >
+                      {loading ? (
+                        <div className="h-6 w-6 border-3 border-white/30 border-t-white rounded-full animate-spin" />
+                      ) : (
+                        <>
+                          <Save size={20} />
+                          نعم، احفظ
+                        </>
+                      )}
+                    </motion.button>
+                  </div>
+                </div>
+              </motion.div>
             </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+          )}
+        </AnimatePresence>
+
+        {/* Saving/Success/Error Modal */}
+        <AnimatePresence>
+          {savingModal.isOpen && (
+            <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="absolute inset-0 bg-slate-950/90 backdrop-blur-2xl"
+              />
+              <motion.div
+                initial={{ opacity: 0, scale: 0.5 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.5 }}
+                transition={{ type: "spring", damping: 20, stiffness: 300 }}
+                className={cn(
+                  "relative w-full max-w-lg bg-white dark:bg-slate-900 rounded-[3rem] shadow-2xl overflow-hidden border-4",
+                  savingModal.status === 'saving' 
+                    ? "border-blue-500/20 shadow-[0_0_100px_rgba(59,130,246,0.3)]"
+                    : savingModal.status === 'success'
+                    ? "border-emerald-500/20 shadow-[0_0_100px_rgba(16,185,129,0.3)]"
+                    : "border-red-500/20 shadow-[0_0_100px_rgba(239,68,68,0.3)]"
+                )}
+              >
+                {/* Header */}
+                <div className={cn(
+                  "relative p-10 text-white text-center overflow-hidden",
+                  savingModal.status === 'saving'
+                    ? "bg-gradient-to-br from-blue-500 via-indigo-600 to-blue-700"
+                    : savingModal.status === 'success'
+                    ? "bg-gradient-to-br from-emerald-500 via-teal-600 to-emerald-700"
+                    : "bg-gradient-to-br from-red-500 via-rose-600 to-red-700"
+                )}>
+                  {/* Animated particles for success */}
+                  {savingModal.status === 'success' && (
+                    <div className="absolute inset-0 overflow-hidden">
+                      {[...Array(6)].map((_, i) => (
+                        <motion.div
+                          key={i}
+                          initial={{ y: 100, opacity: 0 }}
+                          animate={{ 
+                            y: -100, 
+                            opacity: [0, 1, 0],
+                            x: Math.random() * 100 - 50
+                          }}
+                          transition={{ 
+                            delay: i * 0.2, 
+                            duration: 2,
+                            repeat: Infinity,
+                            repeatDelay: 1
+                          }}
+                          className="absolute"
+                          style={{ left: `${15 + i * 15}%` }}
+                        >
+                          <Sparkles size={20} className="text-white/40" />
+                        </motion.div>
+                      ))}
+                    </div>
+                  )}
+
+                  <motion.div
+                    initial={{ scale: 0, rotate: -180 }}
+                    animate={{ scale: 1, rotate: 0 }}
+                    transition={{ delay: 0.1, type: "spring", damping: 12 }}
+                    className="relative z-10 mx-auto w-28 h-28 bg-white/20 backdrop-blur-xl rounded-full flex items-center justify-center mb-6 shadow-2xl border-4 border-white/30"
+                  >
+                    {savingModal.status === 'saving' ? (
+                      <motion.div
+                        animate={{ rotate: 360 }}
+                        transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                      >
+                        <Loader2 size={56} className="text-white drop-shadow-lg" />
+                      </motion.div>
+                    ) : savingModal.status === 'success' ? (
+                      <motion.div
+                        initial={{ scale: 0 }}
+                        animate={{ scale: [0, 1.2, 1] }}
+                        transition={{ delay: 0.3, duration: 0.5 }}
+                      >
+                        <CheckCircle2 size={56} className="text-white drop-shadow-lg" />
+                      </motion.div>
+                    ) : (
+                      <motion.div
+                        animate={{ scale: [1, 1.1, 1] }}
+                        transition={{ repeat: Infinity, duration: 2 }}
+                      >
+                        <AlertTriangle size={56} className="text-white drop-shadow-lg" />
+                      </motion.div>
+                    )}
+                  </motion.div>
+                  
+                  <motion.h3
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.4 }}
+                    className="text-3xl font-black tracking-tight relative z-10"
+                  >
+                    {savingModal.status === 'saving' 
+                      ? 'جاري حفظ الفاتورة...'
+                      : savingModal.status === 'success'
+                      ? 'تم حفظ الفاتورة بنجاح!'
+                      : 'حدث خطأ'}
+                  </motion.h3>
+                  <motion.p
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.5 }}
+                    className="text-white/80 font-bold mt-2 relative z-10"
+                  >
+                    {savingModal.status === 'saving' 
+                      ? 'يرجى الانتظار...'
+                      : savingModal.status === 'success'
+                      ? 'تم إضافة الفاتورة إلى النظام'
+                      : 'تعذر إكمال العملية'}
+                  </motion.p>
+                </div>
+
+                {/* Content */}
+                <div className="p-8 text-center space-y-6">
+                  {savingModal.status === 'saving' ? (
+                    <div className="bg-blue-50 dark:bg-blue-950/30 rounded-2xl p-6 border-2 border-blue-100 dark:border-blue-900/50">
+                      <div className="flex items-center justify-center gap-3">
+                        <div className="h-3 w-3 bg-blue-500 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+                        <div className="h-3 w-3 bg-blue-500 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+                        <div className="h-3 w-3 bg-blue-500 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+                      </div>
+                      <p className="text-slate-500 font-bold text-sm mt-4">جاري معالجة البيانات وحفظها في قاعدة البيانات</p>
+                    </div>
+                  ) : savingModal.status === 'success' ? (
+                    <motion.div
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.6 }}
+                      className="bg-emerald-50 dark:bg-emerald-950/30 rounded-2xl p-6 border-2 border-emerald-100 dark:border-emerald-900/50"
+                    >
+                      <p className="text-slate-500 font-bold text-sm mb-2">رقم الفاتورة:</p>
+                      <p className="text-emerald-600 dark:text-emerald-400 font-black text-xl">
+                        "{invoiceNumber}"
+                      </p>
+                      <div className="mt-4 pt-4 border-t border-emerald-200 dark:border-emerald-800">
+                        <p className="text-emerald-600 font-black text-2xl">
+                          {totals.totalWithVat.toLocaleString('en-US', { minimumFractionDigits: 2 })} {tc("sar")}
+                        </p>
+                      </div>
+                    </motion.div>
+                  ) : (
+                    <motion.div
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.6 }}
+                      className="bg-red-50 dark:bg-red-950/30 rounded-2xl p-6 border-2 border-red-100 dark:border-red-900/50"
+                    >
+                      <p className="text-red-600 dark:text-red-400 font-black text-lg">
+                        {savingModal.message}
+                      </p>
+                    </motion.div>
+                  )}
+
+                  {savingModal.status !== 'saving' && (
+                    <motion.button
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.7 }}
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      onClick={savingModal.status === 'success' ? goToInvoice : () => setSavingModal({ isOpen: false, status: 'saving' })}
+                      className={cn(
+                        "w-full flex items-center justify-center gap-3 text-white py-5 rounded-2xl font-black text-xl shadow-xl border-b-4",
+                        savingModal.status === 'success'
+                          ? "bg-gradient-to-r from-emerald-500 via-teal-600 to-emerald-600 shadow-emerald-500/30 border-emerald-700/50"
+                          : "bg-gradient-to-r from-slate-600 via-slate-700 to-slate-600 shadow-slate-500/30 border-slate-800/50"
+                      )}
+                    >
+                      {savingModal.status === 'success' ? (
+                        <>
+                          <ArrowRight size={24} className="rtl:rotate-180" />
+                          عرض الفاتورة
+                        </>
+                      ) : (
+                        <>
+                          <X size={24} />
+                          إغلاق
+                        </>
+                      )}
+                    </motion.button>
+                  )}
+                </div>
+              </motion.div>
+            </div>
+          )}
+        </AnimatePresence>
 
       <motion.div 
         variants={containerVariants}
@@ -1016,44 +1345,44 @@ export function NewInvoiceClient({ customers, invoiceNumber, companyId, userName
               </div>
             </div>
 
-            {/* Final Actions Section */}
-            <div className="pt-10 mt-10 border-t border-gray-100">
-              <div className="flex flex-col sm:flex-row items-center justify-between gap-8">
-                <Link href="/sales-invoices">
-                  <motion.button 
-                    whileHover={{ x: -5 }}
-                    whileTap={{ scale: 0.98 }}
-                    className="flex items-center gap-2 text-black hover:opacity-70 transition-all font-black text-sm uppercase tracking-widest"
-                  >
-                    <ArrowRight size={20} className="rtl:rotate-180" />
-                    {t("cancelAndReturn")}
-                  </motion.button>
-                </Link>
+              {/* Final Actions Section */}
+              <div className="pt-10 mt-10 border-t border-gray-100">
+                <div className="flex flex-col sm:flex-row items-center justify-between gap-8">
+                  <Link href="/sales-invoices">
+                    <motion.button 
+                      whileHover={{ x: -5 }}
+                      whileTap={{ scale: 0.98 }}
+                      className="flex items-center gap-2 text-black hover:opacity-70 transition-all font-black text-sm uppercase tracking-widest"
+                    >
+                      <ArrowRight size={20} className="rtl:rotate-180" />
+                      {t("cancelAndReturn")}
+                    </motion.button>
+                  </Link>
 
-                <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
-                  <motion.button
-                    whileHover={{ y: -2 }}
-                    whileTap={{ scale: 0.98 }}
-                    onClick={() => handleSave('draft')}
-                    disabled={loading}
-                    className="flex-1 sm:flex-none flex items-center justify-center gap-3 px-10 py-4 rounded-2xl bg-slate-800 text-white hover:bg-slate-900 font-black transition-all disabled:opacity-50 text-sm shadow-xl shadow-slate-200"
-                  >
-                    {loading ? <Loader2 size={18} className="animate-spin" /> : <Clock size={18} />}
-                    {t("saveAsDraft")}
-                  </motion.button>
-                  <motion.button
-                    whileHover={{ y: -3, scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                    onClick={() => handleSave('due')}
-                    disabled={loading}
-                    className="flex-1 sm:flex-none flex items-center justify-center gap-3 px-12 py-4 rounded-2xl bg-emerald-500 hover:bg-emerald-600 text-white font-black transition-all disabled:opacity-50 text-sm shadow-xl shadow-emerald-500/20"
-                  >
-                    {loading ? <Loader2 size={18} className="animate-spin" /> : <FileCheck size={18} />}
-                    {t("saveAndIssue")}
-                  </motion.button>
+                  <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
+                    <motion.button
+                      whileHover={{ y: -2 }}
+                      whileTap={{ scale: 0.98 }}
+                      onClick={() => handleSaveClick('draft')}
+                      disabled={loading}
+                      className="flex-1 sm:flex-none flex items-center justify-center gap-3 px-10 py-4 rounded-2xl bg-slate-800 text-white hover:bg-slate-900 font-black transition-all disabled:opacity-50 text-sm shadow-xl shadow-slate-200"
+                    >
+                      {loading ? <Loader2 size={18} className="animate-spin" /> : <Clock size={18} />}
+                      {t("saveAsDraft")}
+                    </motion.button>
+                    <motion.button
+                      whileHover={{ y: -3, scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      onClick={() => handleSaveClick('due')}
+                      disabled={loading}
+                      className="flex-1 sm:flex-none flex items-center justify-center gap-3 px-12 py-4 rounded-2xl bg-emerald-500 hover:bg-emerald-600 text-white font-black transition-all disabled:opacity-50 text-sm shadow-xl shadow-emerald-500/20"
+                    >
+                      {loading ? <Loader2 size={18} className="animate-spin" /> : <FileCheck size={18} />}
+                      {t("saveAndIssue")}
+                    </motion.button>
+                  </div>
                 </div>
               </div>
-            </div>
           </div>
 
           {/* Footer Branding */}

@@ -6,7 +6,7 @@ import {
   FileText, Plus, Search, Edit2, Trash2, Printer, Download,
   Calendar, User, Building2, X, Check, Mail, FileSignature,
   ClipboardList, Receipt, ChevronLeft, Eye, Settings, Upload, MoveVertical,
-  Send, AtSign, Loader2
+  Send, AtSign, Loader2, AlertTriangle, Sparkles, Shield, CheckCircle
 } from "lucide-react";
 import { toast } from "sonner";
 import * as pdfjsLib from "pdfjs-dist";
@@ -211,6 +211,16 @@ export default function LettersClient() {
   const [emailLetter, setEmailLetter] = useState<GeneratedLetter | null>(null);
   const [customEmail, setCustomEmail] = useState("");
   const [isSendingEmail, setIsSendingEmail] = useState(false);
+
+  // Luxury modal states
+  const [saveConfirmModal, setSaveConfirmModal] = useState(false);
+  const [savingModal, setSavingModal] = useState(false);
+  const [saveSuccessModal, setSaveSuccessModal] = useState<{ isOpen: boolean; letterNumber: string }>({ isOpen: false, letterNumber: '' });
+  const [saveErrorModal, setSaveErrorModal] = useState<{ isOpen: boolean; message: string }>({ isOpen: false, message: '' });
+  
+  const [deleteConfirmModal, setDeleteConfirmModal] = useState<{ isOpen: boolean; item: GeneratedLetter | null }>({ isOpen: false, item: null });
+  const [deletingModal, setDeletingModal] = useState(false);
+  const [deleteSuccessModal, setDeleteSuccessModal] = useState<{ isOpen: boolean; title: string }>({ isOpen: false, title: '' });
 
   const placeholderLabels = useMemo(() => ({
     employee_name: t("placeholders.employee_name"),
@@ -429,6 +439,13 @@ export default function LettersClient() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedTemplate) return;
+    setSaveConfirmModal(true);
+  };
+
+  const confirmSave = async () => {
+    if (!selectedTemplate) return;
+    setSaveConfirmModal(false);
+    setSavingModal(true);
     try {
       const payload = editingLetter 
         ? { id: editingLetter.id, letter_data: formData, status: "active" }
@@ -439,32 +456,43 @@ export default function LettersClient() {
         body: JSON.stringify(payload)
       });
       const data = await res.json();
+      setSavingModal(false);
       if (data.success) {
-        toast.success(editingLetter ? t("messages.updateSuccess") : t("messages.saveSuccess", { number: data.letter_number }));
+        setSaveSuccessModal({ isOpen: true, letterNumber: data.letter_number || editingLetter?.letter_number || '' });
         fetchData();
         resetForm();
       } else {
-        toast.error(data.error || t("common.error"));
+        setSaveErrorModal({ isOpen: true, message: data.error || t("common.error") });
       }
     } catch (error) {
       console.error("Error saving letter:", error);
-      toast.error(t("common.error"));
+      setSavingModal(false);
+      setSaveErrorModal({ isOpen: true, message: t("common.error") });
     }
   };
 
-  const handleDelete = async (id: number) => {
-    if (!confirm(t("messages.deleteConfirm"))) return;
+  const handleDeleteClick = (letter: GeneratedLetter) => {
+    setDeleteConfirmModal({ isOpen: true, item: letter });
+  };
+
+  const confirmDelete = async () => {
+    const item = deleteConfirmModal.item;
+    if (!item) return;
+    setDeleteConfirmModal({ isOpen: false, item: null });
+    setDeletingModal(true);
     try {
-      const res = await fetch(`/api/letters?id=${id}`, { method: "DELETE" });
+      const res = await fetch(`/api/letters?id=${item.id}`, { method: "DELETE" });
       const data = await res.json();
+      setDeletingModal(false);
       if (data.success) {
-        toast.success(t("messages.deleteSuccess"));
+        setDeleteSuccessModal({ isOpen: true, title: item.letter_number });
         fetchData();
       } else {
         toast.error(data.error || t("common.error"));
       }
     } catch (error) {
       console.error("Error deleting letter:", error);
+      setDeletingModal(false);
       toast.error(t("common.error"));
     }
   };
@@ -886,7 +914,7 @@ export default function LettersClient() {
                           <button onClick={() => openPreview(letter)} className="p-2 bg-blue-500/20 text-blue-400 rounded-lg hover:bg-blue-500/30 transition-all" title={t("actions.preview")}><Eye className="w-5 h-5" /></button>
                           <button onClick={() => openEmailModal(letter)} className="p-2 bg-emerald-500/20 text-emerald-400 rounded-lg hover:bg-emerald-500/30 transition-all" title={t("actions.sendEmail")}><Send className="w-5 h-5" /></button>
                           <button onClick={() => openEditForm(letter)} className="p-2 bg-yellow-500/20 text-yellow-400 rounded-lg hover:bg-yellow-500/30 transition-all" title={t("actions.edit")}><Edit2 className="w-5 h-5" /></button>
-                          <button onClick={() => handleDelete(letter.id)} className="p-2 bg-red-500/20 text-red-400 rounded-lg hover:bg-red-500/30 transition-all" title={t("actions.delete")}><Trash2 className="w-5 h-5" /></button>
+                          <button onClick={() => handleDeleteClick(letter)} className="p-2 bg-red-500/20 text-red-400 rounded-lg hover:bg-red-500/30 transition-all" title={t("actions.delete")}><Trash2 className="w-5 h-5" /></button>
                         </div>
                     </div>
                   </motion.div>
@@ -1316,7 +1344,455 @@ export default function LettersClient() {
                 </motion.div>
               </motion.div>
             )}
+            </AnimatePresence>
+
+          {/* Save Confirm Modal */}
+          <AnimatePresence>
+            {saveConfirmModal && (
+              <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  onClick={() => setSaveConfirmModal(false)}
+                  className="absolute inset-0 bg-slate-950/90 backdrop-blur-2xl"
+                />
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.8, y: 50 }}
+                  animate={{ opacity: 1, scale: 1, y: 0 }}
+                  exit={{ opacity: 0, scale: 0.8, y: 50 }}
+                  transition={{ type: "spring", damping: 25, stiffness: 300 }}
+                  className="relative w-full max-w-lg bg-white dark:bg-slate-900 rounded-[3rem] shadow-[0_0_100px_rgba(59,130,246,0.3)] overflow-hidden border-4 border-blue-500/20"
+                >
+                  <div className="relative bg-gradient-to-br from-blue-500 via-indigo-600 to-blue-700 p-10 text-white text-center overflow-hidden">
+                    <div className="absolute inset-0 opacity-10">
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
+                    </div>
+                    <motion.div
+                      initial={{ scale: 0, rotate: -180 }}
+                      animate={{ scale: 1, rotate: 0 }}
+                      transition={{ delay: 0.2, type: "spring", damping: 15 }}
+                      className="relative z-10 mx-auto w-24 h-24 bg-white/20 backdrop-blur-xl rounded-full flex items-center justify-center mb-6 shadow-2xl border-4 border-white/30"
+                    >
+                      <motion.div animate={{ scale: [1, 1.1, 1] }} transition={{ repeat: Infinity, duration: 2 }}>
+                        <Shield size={48} className="text-white drop-shadow-lg" />
+                      </motion.div>
+                    </motion.div>
+                    <motion.h3 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="text-3xl font-black tracking-tight relative z-10">
+                      تأكيد {editingLetter ? 'تعديل' : 'حفظ'} الخطاب
+                    </motion.h3>
+                    <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }} className="text-white/80 font-bold mt-2 relative z-10">
+                      يرجى التأكد من صحة البيانات قبل المتابعة
+                    </motion.p>
+                  </div>
+                  <div className="p-8 text-center space-y-6">
+                    <div className="bg-blue-50 dark:bg-blue-950/30 rounded-2xl p-6 border-2 border-blue-100 dark:border-blue-900/50">
+                      <p className="text-slate-700 dark:text-slate-300 font-bold text-lg leading-relaxed">
+                        {editingLetter ? 'هل تريد حفظ التعديلات على الخطاب؟' : 'هل تريد إنشاء هذا الخطاب الرسمي؟'}
+                      </p>
+                      <p className="text-blue-600 dark:text-blue-400 font-black text-xl mt-2">
+                        {selectedTemplate ? t(`templates.${selectedTemplate.template_key}`) : ''}
+                      </p>
+                      {formData.employee_name && (
+                        <p className="text-slate-500 dark:text-slate-400 font-bold text-sm mt-2">
+                          الموظف: {formData.employee_name}
+                        </p>
+                      )}
+                    </div>
+                    <p className="text-slate-500 font-bold text-sm">
+                      سيتم حفظ الخطاب وإضافته إلى السجلات الرسمية
+                    </p>
+                    <div className="flex gap-4 pt-4">
+                      <motion.button
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                        onClick={() => setSaveConfirmModal(false)}
+                        className="flex-1 flex items-center justify-center gap-3 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 py-4 rounded-2xl font-black text-lg hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
+                      >
+                        <X size={20} />
+                        إلغاء
+                      </motion.button>
+                      <motion.button
+                        whileHover={{ scale: 1.02, boxShadow: "0 20px 40px rgba(59, 130, 246, 0.4)" }}
+                        whileTap={{ scale: 0.98 }}
+                        onClick={confirmSave}
+                        className="flex-1 flex items-center justify-center gap-3 bg-gradient-to-r from-blue-500 via-indigo-600 to-blue-600 text-white py-4 rounded-2xl font-black text-lg shadow-xl shadow-blue-500/30 border-b-4 border-blue-700/50"
+                      >
+                        <Check size={20} />
+                        نعم، احفظ
+                      </motion.button>
+                    </div>
+                  </div>
+                </motion.div>
+              </div>
+            )}
           </AnimatePresence>
+
+          {/* Saving Modal */}
+          <AnimatePresence>
+            {savingModal && (
+              <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  className="absolute inset-0 bg-slate-950/90 backdrop-blur-2xl"
+                />
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.8 }}
+                  transition={{ type: "spring", damping: 25, stiffness: 300 }}
+                  className="relative w-full max-w-md bg-white dark:bg-slate-900 rounded-[3rem] shadow-[0_0_100px_rgba(59,130,246,0.3)] overflow-hidden border-4 border-blue-500/20"
+                >
+                  <div className="relative bg-gradient-to-br from-blue-500 via-indigo-600 to-blue-700 p-12 text-white text-center overflow-hidden">
+                    <motion.div
+                      animate={{ rotate: 360 }}
+                      transition={{ repeat: Infinity, duration: 2, ease: "linear" }}
+                      className="mx-auto w-24 h-24 bg-white/20 backdrop-blur-xl rounded-full flex items-center justify-center mb-6 shadow-2xl border-4 border-white/30"
+                    >
+                      <Loader2 size={48} className="text-white" />
+                    </motion.div>
+                    <h3 className="text-3xl font-black tracking-tight">جارٍ الحفظ</h3>
+                    <div className="flex items-center justify-center gap-1 mt-3">
+                      {[0, 1, 2].map((i) => (
+                        <motion.div
+                          key={i}
+                          animate={{ opacity: [0.3, 1, 0.3], scale: [0.8, 1.2, 0.8] }}
+                          transition={{ repeat: Infinity, duration: 1.5, delay: i * 0.3 }}
+                          className="w-3 h-3 bg-white rounded-full"
+                        />
+                      ))}
+                    </div>
+                    <p className="text-white/80 font-bold mt-4">يتم حفظ الخطاب الرسمي في النظام...</p>
+                  </div>
+                </motion.div>
+              </div>
+            )}
+          </AnimatePresence>
+
+          {/* Save Success Modal */}
+          <AnimatePresence>
+            {saveSuccessModal.isOpen && (
+              <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  onClick={() => setSaveSuccessModal({ isOpen: false, letterNumber: '' })}
+                  className="absolute inset-0 bg-slate-950/90 backdrop-blur-2xl"
+                />
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.5 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.5 }}
+                  transition={{ type: "spring", damping: 20, stiffness: 300 }}
+                  className="relative w-full max-w-lg bg-white dark:bg-slate-900 rounded-[3rem] shadow-[0_0_100px_rgba(16,185,129,0.3)] overflow-hidden border-4 border-emerald-500/20"
+                >
+                  <div className="relative bg-gradient-to-br from-emerald-500 via-green-600 to-teal-600 p-10 text-white text-center overflow-hidden">
+                    <div className="absolute inset-0 overflow-hidden">
+                      {[...Array(6)].map((_, i) => (
+                        <motion.div
+                          key={i}
+                          initial={{ opacity: 0, y: 100, x: Math.random() * 400 - 200 }}
+                          animate={{ opacity: [0, 1, 0], y: -100, rotate: Math.random() * 360 }}
+                          transition={{ duration: 2, delay: i * 0.3, repeat: Infinity }}
+                          className="absolute"
+                        >
+                          <Sparkles size={20} className="text-yellow-300" />
+                        </motion.div>
+                      ))}
+                    </div>
+                    <motion.div
+                      initial={{ scale: 0, rotate: -180 }}
+                      animate={{ scale: 1, rotate: 0 }}
+                      transition={{ delay: 0.2, type: "spring", damping: 15 }}
+                      className="relative z-10 mx-auto w-24 h-24 bg-white/20 backdrop-blur-xl rounded-full flex items-center justify-center mb-6 shadow-2xl border-4 border-white/30"
+                    >
+                      <motion.div
+                        initial={{ scale: 0 }}
+                        animate={{ scale: [0, 1.3, 1] }}
+                        transition={{ delay: 0.5, duration: 0.5 }}
+                      >
+                        <CheckCircle size={48} className="text-white drop-shadow-lg" />
+                      </motion.div>
+                    </motion.div>
+                    <motion.h3 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="text-3xl font-black tracking-tight relative z-10">
+                      تم الحفظ بنجاح!
+                    </motion.h3>
+                    <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }} className="text-white/80 font-bold mt-2 relative z-10">
+                      تم إنشاء الخطاب الرسمي وإضافته للسجلات
+                    </motion.p>
+                  </div>
+                  <div className="p-8 text-center space-y-6">
+                    <div className="bg-emerald-50 dark:bg-emerald-950/30 rounded-2xl p-6 border-2 border-emerald-100 dark:border-emerald-900/50">
+                      <p className="text-slate-700 dark:text-slate-300 font-bold text-lg">
+                        رقم الخطاب
+                      </p>
+                      <p className="text-emerald-600 dark:text-emerald-400 font-black text-2xl mt-2">
+                        {saveSuccessModal.letterNumber}
+                      </p>
+                    </div>
+                    <motion.button
+                      whileHover={{ scale: 1.02, boxShadow: "0 20px 40px rgba(16, 185, 129, 0.4)" }}
+                      whileTap={{ scale: 0.98 }}
+                      onClick={() => setSaveSuccessModal({ isOpen: false, letterNumber: '' })}
+                      className="w-full flex items-center justify-center gap-3 bg-gradient-to-r from-emerald-500 via-green-600 to-teal-600 text-white py-4 rounded-2xl font-black text-lg shadow-xl shadow-emerald-500/30 border-b-4 border-emerald-700/50"
+                    >
+                      <Check size={20} />
+                      تم، إغلاق
+                    </motion.button>
+                  </div>
+                </motion.div>
+              </div>
+            )}
+          </AnimatePresence>
+
+          {/* Save Error Modal */}
+          <AnimatePresence>
+            {saveErrorModal.isOpen && (
+              <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  onClick={() => setSaveErrorModal({ isOpen: false, message: '' })}
+                  className="absolute inset-0 bg-slate-950/90 backdrop-blur-2xl"
+                />
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.8, y: 50 }}
+                  animate={{ opacity: 1, scale: 1, y: 0 }}
+                  exit={{ opacity: 0, scale: 0.8, y: 50 }}
+                  transition={{ type: "spring", damping: 25, stiffness: 300 }}
+                  className="relative w-full max-w-lg bg-white dark:bg-slate-900 rounded-[3rem] shadow-[0_0_100px_rgba(239,68,68,0.3)] overflow-hidden border-4 border-red-500/20"
+                >
+                  <div className="relative bg-gradient-to-br from-red-500 via-rose-600 to-red-700 p-10 text-white text-center">
+                    <motion.div
+                      initial={{ scale: 0 }}
+                      animate={{ scale: 1 }}
+                      transition={{ delay: 0.2, type: "spring", damping: 15 }}
+                      className="mx-auto w-24 h-24 bg-white/20 backdrop-blur-xl rounded-full flex items-center justify-center mb-6 shadow-2xl border-4 border-white/30"
+                    >
+                      <X size={48} className="text-white drop-shadow-lg" />
+                    </motion.div>
+                    <h3 className="text-3xl font-black tracking-tight">فشل في الحفظ</h3>
+                    <p className="text-white/80 font-bold mt-2">حدث خطأ أثناء حفظ الخطاب</p>
+                  </div>
+                  <div className="p-8 text-center space-y-6">
+                    <div className="bg-red-50 dark:bg-red-950/30 rounded-2xl p-6 border-2 border-red-100 dark:border-red-900/50">
+                      <p className="text-red-600 dark:text-red-400 font-bold text-lg">{saveErrorModal.message}</p>
+                    </div>
+                    <motion.button
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      onClick={() => setSaveErrorModal({ isOpen: false, message: '' })}
+                      className="w-full flex items-center justify-center gap-3 bg-gradient-to-r from-red-500 via-rose-600 to-red-600 text-white py-4 rounded-2xl font-black text-lg shadow-xl shadow-red-500/30 border-b-4 border-red-700/50"
+                    >
+                      <X size={20} />
+                      إغلاق
+                    </motion.button>
+                  </div>
+                </motion.div>
+              </div>
+            )}
+          </AnimatePresence>
+
+          {/* Delete Confirm Modal */}
+          <AnimatePresence>
+            {deleteConfirmModal.isOpen && (
+              <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  onClick={() => setDeleteConfirmModal({ isOpen: false, item: null })}
+                  className="absolute inset-0 bg-slate-950/90 backdrop-blur-2xl"
+                />
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.8, y: 50 }}
+                  animate={{ opacity: 1, scale: 1, y: 0 }}
+                  exit={{ opacity: 0, scale: 0.8, y: 50 }}
+                  transition={{ type: "spring", damping: 25, stiffness: 300 }}
+                  className="relative w-full max-w-lg bg-white dark:bg-slate-900 rounded-[3rem] shadow-[0_0_100px_rgba(239,68,68,0.3)] overflow-hidden border-4 border-red-500/20"
+                >
+                  <div className="relative bg-gradient-to-br from-red-500 via-rose-600 to-red-700 p-10 text-white text-center overflow-hidden">
+                    <div className="absolute inset-0 opacity-10">
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
+                    </div>
+                    <motion.div
+                      initial={{ scale: 0, rotate: -180 }}
+                      animate={{ scale: 1, rotate: 0 }}
+                      transition={{ delay: 0.2, type: "spring", damping: 15 }}
+                      className="relative z-10 mx-auto w-24 h-24 bg-white/20 backdrop-blur-xl rounded-full flex items-center justify-center mb-6 shadow-2xl border-4 border-white/30"
+                    >
+                      <motion.div animate={{ scale: [1, 1.1, 1] }} transition={{ repeat: Infinity, duration: 2 }}>
+                        <AlertTriangle size={48} className="text-white drop-shadow-lg" />
+                      </motion.div>
+                    </motion.div>
+                    <motion.h3 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="text-3xl font-black tracking-tight relative z-10">
+                      تأكيد الحذف
+                    </motion.h3>
+                    <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }} className="text-white/80 font-bold mt-2 relative z-10">
+                      هذا الإجراء لا يمكن التراجع عنه
+                    </motion.p>
+                  </div>
+                  <div className="p-8 text-center space-y-6">
+                    <div className="bg-red-50 dark:bg-red-950/30 rounded-2xl p-6 border-2 border-red-100 dark:border-red-900/50">
+                      <p className="text-slate-700 dark:text-slate-300 font-bold text-lg leading-relaxed">
+                        هل أنت متأكد من حذف الخطاب الرسمي
+                      </p>
+                      <p className="text-red-600 dark:text-red-400 font-black text-xl mt-2">
+                        "{deleteConfirmModal.item?.letter_number}"
+                      </p>
+                      <p className="text-slate-500 dark:text-slate-400 font-bold text-sm mt-2">
+                        {deleteConfirmModal.item ? t(`templates.${deleteConfirmModal.item.template_key}`) : ''}
+                      </p>
+                    </div>
+                    <p className="text-slate-500 font-bold text-sm">
+                      سيتم حذف الخطاب نهائياً من السجلات ولا يمكن التراجع عنه
+                    </p>
+                    <div className="flex gap-4 pt-4">
+                      <motion.button
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                        onClick={() => setDeleteConfirmModal({ isOpen: false, item: null })}
+                        className="flex-1 flex items-center justify-center gap-3 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 py-4 rounded-2xl font-black text-lg hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
+                      >
+                        <X size={20} />
+                        إلغاء
+                      </motion.button>
+                      <motion.button
+                        whileHover={{ scale: 1.02, boxShadow: "0 20px 40px rgba(239, 68, 68, 0.4)" }}
+                        whileTap={{ scale: 0.98 }}
+                        onClick={confirmDelete}
+                        className="flex-1 flex items-center justify-center gap-3 bg-gradient-to-r from-red-500 via-rose-600 to-red-600 text-white py-4 rounded-2xl font-black text-lg shadow-xl shadow-red-500/30 border-b-4 border-red-700/50"
+                      >
+                        <Trash2 size={20} />
+                        نعم، احذف
+                      </motion.button>
+                    </div>
+                  </div>
+                </motion.div>
+              </div>
+            )}
+          </AnimatePresence>
+
+          {/* Deleting Modal */}
+          <AnimatePresence>
+            {deletingModal && (
+              <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  className="absolute inset-0 bg-slate-950/90 backdrop-blur-2xl"
+                />
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.8 }}
+                  transition={{ type: "spring", damping: 25, stiffness: 300 }}
+                  className="relative w-full max-w-md bg-white dark:bg-slate-900 rounded-[3rem] shadow-[0_0_100px_rgba(239,68,68,0.3)] overflow-hidden border-4 border-red-500/20"
+                >
+                  <div className="relative bg-gradient-to-br from-red-500 via-rose-600 to-red-700 p-12 text-white text-center overflow-hidden">
+                    <motion.div
+                      animate={{ rotate: 360 }}
+                      transition={{ repeat: Infinity, duration: 2, ease: "linear" }}
+                      className="mx-auto w-24 h-24 bg-white/20 backdrop-blur-xl rounded-full flex items-center justify-center mb-6 shadow-2xl border-4 border-white/30"
+                    >
+                      <Loader2 size={48} className="text-white" />
+                    </motion.div>
+                    <h3 className="text-3xl font-black tracking-tight">جارٍ الحذف</h3>
+                    <div className="flex items-center justify-center gap-1 mt-3">
+                      {[0, 1, 2].map((i) => (
+                        <motion.div
+                          key={i}
+                          animate={{ opacity: [0.3, 1, 0.3], scale: [0.8, 1.2, 0.8] }}
+                          transition={{ repeat: Infinity, duration: 1.5, delay: i * 0.3 }}
+                          className="w-3 h-3 bg-white rounded-full"
+                        />
+                      ))}
+                    </div>
+                    <p className="text-white/80 font-bold mt-4">يتم حذف الخطاب من السجلات...</p>
+                  </div>
+                </motion.div>
+              </div>
+            )}
+          </AnimatePresence>
+
+          {/* Delete Success Modal */}
+          <AnimatePresence>
+            {deleteSuccessModal.isOpen && (
+              <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  onClick={() => setDeleteSuccessModal({ isOpen: false, title: '' })}
+                  className="absolute inset-0 bg-slate-950/90 backdrop-blur-2xl"
+                />
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.5 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.5 }}
+                  transition={{ type: "spring", damping: 20, stiffness: 300 }}
+                  className="relative w-full max-w-lg bg-white dark:bg-slate-900 rounded-[3rem] shadow-[0_0_100px_rgba(16,185,129,0.3)] overflow-hidden border-4 border-emerald-500/20"
+                >
+                  <div className="relative bg-gradient-to-br from-emerald-500 via-green-600 to-teal-600 p-10 text-white text-center overflow-hidden">
+                    <div className="absolute inset-0 overflow-hidden">
+                      {[...Array(6)].map((_, i) => (
+                        <motion.div
+                          key={i}
+                          initial={{ opacity: 0, y: 100, x: Math.random() * 400 - 200 }}
+                          animate={{ opacity: [0, 1, 0], y: -100, rotate: Math.random() * 360 }}
+                          transition={{ duration: 2, delay: i * 0.3, repeat: Infinity }}
+                          className="absolute"
+                        >
+                          <Sparkles size={20} className="text-yellow-300" />
+                        </motion.div>
+                      ))}
+                    </div>
+                    <motion.div
+                      initial={{ scale: 0, rotate: -180 }}
+                      animate={{ scale: 1, rotate: 0 }}
+                      transition={{ delay: 0.2, type: "spring", damping: 15 }}
+                      className="relative z-10 mx-auto w-24 h-24 bg-white/20 backdrop-blur-xl rounded-full flex items-center justify-center mb-6 shadow-2xl border-4 border-white/30"
+                    >
+                      <motion.div initial={{ scale: 0 }} animate={{ scale: [0, 1.3, 1] }} transition={{ delay: 0.5, duration: 0.5 }}>
+                        <CheckCircle size={48} className="text-white drop-shadow-lg" />
+                      </motion.div>
+                    </motion.div>
+                    <motion.h3 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="text-3xl font-black tracking-tight relative z-10">
+                      تم الحذف بنجاح!
+                    </motion.h3>
+                    <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }} className="text-white/80 font-bold mt-2 relative z-10">
+                      تم حذف الخطاب من السجلات الرسمية
+                    </motion.p>
+                  </div>
+                  <div className="p-8 text-center space-y-6">
+                    <div className="bg-emerald-50 dark:bg-emerald-950/30 rounded-2xl p-6 border-2 border-emerald-100 dark:border-emerald-900/50">
+                      <p className="text-slate-700 dark:text-slate-300 font-bold text-lg">
+                        تم حذف الخطاب
+                      </p>
+                      <p className="text-emerald-600 dark:text-emerald-400 font-black text-xl mt-2">
+                        "{deleteSuccessModal.title}"
+                      </p>
+                    </div>
+                    <motion.button
+                      whileHover={{ scale: 1.02, boxShadow: "0 20px 40px rgba(16, 185, 129, 0.4)" }}
+                      whileTap={{ scale: 0.98 }}
+                      onClick={() => setDeleteSuccessModal({ isOpen: false, title: '' })}
+                      className="w-full flex items-center justify-center gap-3 bg-gradient-to-r from-emerald-500 via-green-600 to-teal-600 text-white py-4 rounded-2xl font-black text-lg shadow-xl shadow-emerald-500/30 border-b-4 border-emerald-700/50"
+                    >
+                      <Check size={20} />
+                      تم، إغلاق
+                    </motion.button>
+                  </div>
+                </motion.div>
+              </div>
+            )}
+          </AnimatePresence>
+
         </div>
       </div>
     );
