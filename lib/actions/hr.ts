@@ -73,6 +73,26 @@ export async function createEmployeePackage(data: {
   }
 }
 
+export async function updateEmployeePackage(id: number, data: {
+  group_name: string;
+  work_type: string;
+  monthly_target: number;
+  bonus_after_target: number;
+}) {
+  try {
+    await query(
+      "UPDATE employee_packages SET group_name = ?, work_type = ?, monthly_target = ?, bonus_after_target = ? WHERE id = ?",
+      [data.group_name, data.work_type, data.monthly_target, data.bonus_after_target, id]
+    );
+    revalidatePath("/hr");
+    revalidatePath("/hr/packages");
+    return { success: true };
+  } catch (error: any) {
+    console.error("Error updating package:", error);
+    return { success: false, error: error.message };
+  }
+}
+
 export async function deleteEmployeePackage(id: number) {
   try {
     // Check if employees are assigned to this package

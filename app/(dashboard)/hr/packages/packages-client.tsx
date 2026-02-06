@@ -27,10 +27,12 @@ import {
   AlertTriangle,
   CheckCircle2,
   FileSpreadsheet,
-  ScanLine
+  ScanLine,
+  Pencil,
+  Info
 } from "lucide-react";
 import { toast } from "sonner";
-import { createPackageWithEmployees, deleteEmployeePackage } from "@/lib/actions/hr";
+import { createPackageWithEmployees, deleteEmployeePackage, updateEmployeePackage } from "@/lib/actions/hr";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useLocale, useTranslations } from "@/lib/locale-context";
@@ -55,6 +57,8 @@ export function PackagesClient({ initialPackages, companyId }: PackagesClientPro
     const [deleteConfirmModal, setDeleteConfirmModal] = useState<{ isOpen: boolean; item: any | null }>({ isOpen: false, item: null });
     const [successModal, setSuccessModal] = useState<{ isOpen: boolean; type: 'delete' | 'create' | null; title: string }>({ isOpen: false, type: null, title: '' });
     const [excelScanModal, setExcelScanModal] = useState<{ isOpen: boolean; phase: 'scanning' | 'found' | 'done'; count: number; isAddModal: boolean }>({ isOpen: false, phase: 'scanning', count: 0, isAddModal: false });
+    const [editModal, setEditModal] = useState<{ isOpen: boolean; pkg: any | null }>({ isOpen: false, pkg: null });
+    const [editFormData, setEditFormData] = useState({ group_name: '', work_type: 'target', monthly_target: 0, bonus_after_target: 10 });
     const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -197,10 +201,17 @@ export function PackagesClient({ initialPackages, companyId }: PackagesClientPro
       });
 
       if (result.success) {
-          toast.success(t('packageCreatedSuccess'));
-          router.refresh();
-          setIsModalOpen(false);
-          const createdName = formData.group_name;
+            toast.success(t('packageCreatedSuccess'));
+            // Fetch fresh data
+            const res = await fetch(`/api/hr/packages?company_id=${companyId}`);
+            if (res.ok) {
+              const data = await res.json();
+              setPackages(data);
+            } else {
+              router.refresh();
+            }
+            setIsModalOpen(false);
+            const createdName = formData.group_name;
           setFormData({
             group_name: "",
             work_type: "target",
@@ -258,9 +269,15 @@ export function PackagesClient({ initialPackages, companyId }: PackagesClientPro
       const result = await saveEmployees(selectedPackage.id, employeesToSave);
 
       if (result.success) {
-        toast.success(t('employeesAddedSuccess'));
-        router.refresh();
-        setIsAddEmployeesModalOpen(false);
+          toast.success(t('employeesAddedSuccess'));
+          const res = await fetch(`/api/hr/packages?company_id=${companyId}`);
+          if (res.ok) {
+            const data = await res.json();
+            setPackages(data);
+          } else {
+            router.refresh();
+          }
+          setIsAddEmployeesModalOpen(false);
         setAddEmployeesData([{
           name: "", iqama_number: "", identity_number: "", job_title: "",
           nationality: "", user_code: "", phone: "", email: "",
@@ -431,78 +448,60 @@ export function PackagesClient({ initialPackages, companyId }: PackagesClientPro
     };
 
     if (isCSV) {
-      // Read CSV as binary first to detect encoding, then re-read with correct encoding
-      const binaryReader = new FileReader();
-      binaryReader.onload = (event) => {
-        try {
-          const buffer = event.target?.result as ArrayBuffer;
-          const bytes = new Uint8Array(buffer);
-          
-          // Detect BOM: UTF-8 (EF BB BF), UTF-16 LE (FF FE), UTF-16 BE (FE FF)
-          const hasUtf8Bom = bytes[0] === 0xEF && bytes[1] === 0xBB && bytes[2] === 0xBF;
-          const hasUtf16LeBom = bytes[0] === 0xFF && bytes[1] === 0xFE;
-          const hasUtf16BeBom = bytes[0] === 0xFE && bytes[1] === 0xFF;
-          
-          // Determine initial encoding to try
-          let initialEncoding = 'UTF-8';
-          if (hasUtf16LeBom) initialEncoding = 'UTF-16LE';
-          else if (hasUtf16BeBom) initialEncoding = 'UTF-16BE';
-          else if (hasUtf8Bom) initialEncoding = 'UTF-8';
-          
-          const tryReadCSV = (encoding: string) => {
-            const textReader = new FileReader();
-            textReader.onload = (e) => {
-              try {
-                let csvText = e.target?.result as string;
-                // Check if Arabic characters are present (not showing as ?)
-                const hasArabic = /[\u0600-\u06FF]/.test(csvText);
-                const hasBrokenChars = /\?{2,}/.test(csvText) && !hasArabic;
-                
-                if (hasBrokenChars && encoding === 'UTF-8') {
-                  // UTF-8 failed, try windows-1256 (Arabic Windows encoding)
-                  tryReadCSV('windows-1256');
-                  return;
-                }
-                
-                // Detect field separator: semicolons are common in Arabic/European Excel exports
-                const firstLine = csvText.split(/\r?\n/)[0] || '';
-                const semicolonCount = (firstLine.match(/;/g) || []).length;
-                const commaCount = (firstLine.match(/,/g) || []).length;
-                
-                // If semicolons are more common than commas, replace them
-                if (semicolonCount > commaCount) {
-                  // Replace semicolons with commas, but preserve semicolons inside quotes
-                  csvText = csvText.split('\n').map(line => {
-                    let result = '';
-                    let inQuotes = false;
-                    for (let i = 0; i < line.length; i++) {
-                      const ch = line[i];
-                      if (ch === '"') inQuotes = !inQuotes;
-                      else if (ch === ';' && !inQuotes) { result += ','; continue; }
-                      result += ch;
-                    }
-                    return result;
-                  }).join('\n');
-                }
-                
-                const workbook = XLSX.read(csvText, { type: 'string' });
-                processData(workbook);
-              } catch {
-                setExcelScanModal({ isOpen: false, phase: 'scanning', count: 0, isAddModal: false });
-                toast.error(t('excelParseError'));
+        // Read CSV as ArrayBuffer for encoding detection + XLSX parsing
+        const binaryReader = new FileReader();
+        binaryReader.onload = (event) => {
+          try {
+            const buffer = event.target?.result as ArrayBuffer;
+            const bytes = new Uint8Array(buffer);
+
+            // Detect encoding from raw bytes
+            let codepage = 65001; // UTF-8 default
+            const hasUtf8Bom = bytes[0] === 0xEF && bytes[1] === 0xBB && bytes[2] === 0xBF;
+            if (!hasUtf8Bom) {
+              // Check if bytes are valid UTF-8
+              let isValidUtf8 = true;
+              let hasHighBytes = false;
+              for (let i = 0; i < Math.min(bytes.length, 4096); i++) {
+                const b = bytes[i];
+                if (b < 0x80) continue;
+                hasHighBytes = true;
+                if (b >= 0xC2 && b <= 0xDF) {
+                  if (i + 1 >= bytes.length || (bytes[++i] & 0xC0) !== 0x80) { isValidUtf8 = false; break; }
+                } else if (b >= 0xE0 && b <= 0xEF) {
+                  if (i + 2 >= bytes.length || (bytes[++i] & 0xC0) !== 0x80 || (bytes[++i] & 0xC0) !== 0x80) { isValidUtf8 = false; break; }
+                } else if (b >= 0xF0 && b <= 0xF4) {
+                  if (i + 3 >= bytes.length || (bytes[++i] & 0xC0) !== 0x80 || (bytes[++i] & 0xC0) !== 0x80 || (bytes[++i] & 0xC0) !== 0x80) { isValidUtf8 = false; break; }
+                } else { isValidUtf8 = false; break; }
               }
-            };
-            textReader.readAsText(file, encoding);
-          };
-          
-          tryReadCSV(initialEncoding);
-        } catch {
-          setExcelScanModal({ isOpen: false, phase: 'scanning', count: 0, isAddModal: false });
-          toast.error(t('excelParseError'));
-        }
-      };
-      binaryReader.readAsArrayBuffer(file);
-    } else {
+              if (hasHighBytes && !isValidUtf8) codepage = 1256; // windows-1256
+            }
+
+            // Decode text using detected encoding
+            const decoder = new TextDecoder(codepage === 1256 ? 'windows-1256' : 'utf-8');
+            let csvText = decoder.decode(bytes);
+            // Remove BOM if present
+            if (csvText.charCodeAt(0) === 0xFEFF) csvText = csvText.slice(1);
+
+            // Detect separator: count ; vs , outside quotes in full text
+            let semiCount = 0, commaCount = 0, inQ = false;
+            for (let i = 0; i < Math.min(csvText.length, 2000); i++) {
+              const c = csvText[i];
+              if (c === '"') inQ = !inQ;
+              else if (!inQ) { if (c === ';') semiCount++; else if (c === ',') commaCount++; }
+            }
+            const sep = semiCount > commaCount ? ';' : ',';
+
+            // Parse using XLSX with detected separator
+            const workbook = XLSX.read(csvText, { type: 'string', FS: sep });
+            processData(workbook);
+          } catch {
+            setExcelScanModal({ isOpen: false, phase: 'scanning', count: 0, isAddModal: false });
+            toast.error(t('excelParseError'));
+          }
+        };
+        binaryReader.readAsArrayBuffer(file);
+      } else {
       // Read XLSX/XLS as binary
       const binaryReader = new FileReader();
       binaryReader.onload = (event) => {
@@ -1022,30 +1021,61 @@ export function PackagesClient({ initialPackages, companyId }: PackagesClientPro
                     </div>
                   </div>
 
-                  <div className="flex justify-center gap-4">
-                    <motion.button
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
-                      type="button"
-                      onClick={() => downloadTemplate(false)}
-                      className="flex items-center gap-2 px-6 py-3 bg-blue-50 text-blue-600 rounded-xl text-sm font-black hover:bg-blue-100 transition-all border border-blue-100"
+                    {/* Premium Excel Import Card */}
+                    <motion.div
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="relative overflow-hidden rounded-2xl border border-indigo-100 bg-white shadow-[0_8px_40px_rgba(99,102,241,0.12)] p-6"
                     >
-                      <Download size={18} />
-                      {t('downloadExcelTemplate')}
-                    </motion.button>
-                    <label className="flex items-center gap-2 px-6 py-3 bg-emerald-50 text-emerald-600 rounded-xl text-sm font-black hover:bg-emerald-100 transition-all border border-emerald-100 cursor-pointer">
-                      <Upload size={18} />
-                      {t('uploadExcelFile')}
-                      <input type="file" className="hidden" accept=".xlsx,.xls,.csv" onChange={(e) => handleFileUpload(e, false)} />
-                    </label>
-                  </div>
+                      <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-indigo-500 via-purple-500 to-violet-500"></div>
+                      <div className="flex items-start gap-4 mb-5">
+                        <div className="shrink-0 h-14 w-14 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg shadow-indigo-500/20">
+                          <FileSpreadsheet size={26} className="text-white" />
+                        </div>
+                        <div className="flex-1 space-y-1">
+                          <h4 className="text-base font-black text-gray-900">{t('excelImportTitle')}</h4>
+                          <p className="text-xs font-bold text-gray-500 leading-relaxed">{t('excelImportDesc')}</p>
+                        </div>
+                      </div>
 
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between">
-                      <h4 className="text-lg font-black text-gray-900 flex items-center gap-2">
-                        <Users size={20} className="text-purple-500" />
-                        {t('employeesData')} ({formData.work_type === 'target' ? t('targetSystemLabel') : formData.work_type === 'salary' ? t('salarySystemLabel') : t('commissionSystemLabel')})
-                      </h4>
+                      <div className="bg-gradient-to-r from-indigo-50 to-purple-50 rounded-xl p-4 mb-5 border border-indigo-100">
+                        <p className="text-xs font-black text-indigo-600 text-center tracking-wide">{t('excelImportSteps')}</p>
+                      </div>
+
+                      <div className="flex flex-col sm:flex-row items-stretch gap-3 mb-4">
+                        <motion.button
+                          whileHover={{ scale: 1.02 }}
+                          whileTap={{ scale: 0.98 }}
+                          type="button"
+                          onClick={() => downloadTemplate(false)}
+                          className="flex-1 flex items-center justify-center gap-2 px-6 py-3.5 bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-xl text-sm font-black hover:from-blue-600 hover:to-indigo-700 transition-all shadow-lg shadow-blue-500/20"
+                        >
+                          <Download size={18} />
+                          {t('downloadExcelTemplate')}
+                        </motion.button>
+                        <label className="flex-1 flex items-center justify-center gap-2 px-6 py-3.5 bg-gradient-to-r from-emerald-500 to-teal-600 text-white rounded-xl text-sm font-black hover:from-emerald-600 hover:to-teal-700 transition-all shadow-lg shadow-emerald-500/20 cursor-pointer">
+                          <Upload size={18} />
+                          {t('uploadExcelFile')}
+                          <input type="file" className="hidden" accept=".xlsx,.xls" onChange={(e) => handleFileUpload(e, false)} />
+                        </label>
+                      </div>
+
+                      <div className="flex items-start gap-2.5 bg-amber-50 rounded-xl p-3 border border-amber-200">
+                        <AlertTriangle size={16} className="text-amber-500 shrink-0 mt-0.5" />
+                        <p className="text-[11px] font-bold text-amber-700 leading-relaxed">{t('excelImportWarning')}</p>
+                      </div>
+                    </motion.div>
+
+                    <div className="space-y-4">
+                      <div className="flex items-center justify-between">
+                        <h4 className="text-lg font-black text-gray-900 flex items-center gap-2">
+                          <Users size={20} className="text-purple-500" />
+                          {t('employeesData')} ({formData.work_type === 'target' ? t('targetSystemLabel') : formData.work_type === 'salary' ? t('salarySystemLabel') : t('commissionSystemLabel')})
+                          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black bg-purple-100 text-purple-700 border border-purple-200">
+                            <Users size={14} />
+                            {employees.filter(e => e.name.trim()).length || employees.length} {t('employeesCount')}
+                          </span>
+                        </h4>
                       <motion.button
                         whileHover={{ scale: 1.02 }}
                         whileTap={{ scale: 0.98 }}
@@ -1314,32 +1344,63 @@ export function PackagesClient({ initialPackages, companyId }: PackagesClientPro
                 </button>
               </div>
 
-              <div className="flex-1 overflow-auto p-6 scrollbar-hide">
-                <form id="addEmployeesForm" onSubmit={handleAddEmployeesSubmit} className="space-y-8">
-                  <div className="flex justify-center gap-4">
-                    <motion.button
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
-                      type="button"
-                      onClick={() => downloadTemplate(true)}
-                      className="flex items-center gap-2 px-6 py-3 bg-blue-50 text-blue-600 rounded-xl text-sm font-black hover:bg-blue-100 transition-all border border-blue-100"
+                <div className="flex-1 overflow-auto p-6 scrollbar-hide">
+                  <form id="addEmployeesForm" onSubmit={handleAddEmployeesSubmit} className="space-y-8">
+                    {/* Premium Excel Import Card */}
+                    <motion.div
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="relative overflow-hidden rounded-2xl border border-indigo-100 bg-white shadow-[0_8px_40px_rgba(99,102,241,0.12)] p-6"
                     >
-                      <Download size={18} />
-                      {t('downloadExcelTemplate')}
-                    </motion.button>
-                    <label className="flex items-center gap-2 px-6 py-3 bg-emerald-50 text-emerald-600 rounded-xl text-sm font-black hover:bg-emerald-100 transition-all border border-emerald-100 cursor-pointer">
-                      <Upload size={18} />
-                      {t('uploadExcelFile')}
-                      <input type="file" className="hidden" accept=".xlsx,.xls,.csv" onChange={(e) => handleFileUpload(e, true)} />
-                    </label>
-                  </div>
+                      <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-indigo-500 via-purple-500 to-violet-500"></div>
+                      <div className="flex items-start gap-4 mb-5">
+                        <div className="shrink-0 h-14 w-14 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg shadow-indigo-500/20">
+                          <FileSpreadsheet size={26} className="text-white" />
+                        </div>
+                        <div className="flex-1 space-y-1">
+                          <h4 className="text-base font-black text-gray-900">{t('excelImportTitle')}</h4>
+                          <p className="text-xs font-bold text-gray-500 leading-relaxed">{t('excelImportDesc')}</p>
+                        </div>
+                      </div>
 
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between">
-                      <h4 className="text-lg font-black text-gray-900 flex items-center gap-2">
-                        <Users size={20} className="text-purple-500" />
-                        {t('addedEmployeesData')}
-                      </h4>
+                      <div className="bg-gradient-to-r from-indigo-50 to-purple-50 rounded-xl p-4 mb-5 border border-indigo-100">
+                        <p className="text-xs font-black text-indigo-600 text-center tracking-wide">{t('excelImportSteps')}</p>
+                      </div>
+
+                      <div className="flex flex-col sm:flex-row items-stretch gap-3 mb-4">
+                        <motion.button
+                          whileHover={{ scale: 1.02 }}
+                          whileTap={{ scale: 0.98 }}
+                          type="button"
+                          onClick={() => downloadTemplate(true)}
+                          className="flex-1 flex items-center justify-center gap-2 px-6 py-3.5 bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-xl text-sm font-black hover:from-blue-600 hover:to-indigo-700 transition-all shadow-lg shadow-blue-500/20"
+                        >
+                          <Download size={18} />
+                          {t('downloadExcelTemplate')}
+                        </motion.button>
+                        <label className="flex-1 flex items-center justify-center gap-2 px-6 py-3.5 bg-gradient-to-r from-emerald-500 to-teal-600 text-white rounded-xl text-sm font-black hover:from-emerald-600 hover:to-teal-700 transition-all shadow-lg shadow-emerald-500/20 cursor-pointer">
+                          <Upload size={18} />
+                          {t('uploadExcelFile')}
+                          <input type="file" className="hidden" accept=".xlsx,.xls" onChange={(e) => handleFileUpload(e, true)} />
+                        </label>
+                      </div>
+
+                      <div className="flex items-start gap-2.5 bg-amber-50 rounded-xl p-3 border border-amber-200">
+                        <AlertTriangle size={16} className="text-amber-500 shrink-0 mt-0.5" />
+                        <p className="text-[11px] font-bold text-amber-700 leading-relaxed">{t('excelImportWarning')}</p>
+                      </div>
+                    </motion.div>
+
+                    <div className="space-y-4">
+                      <div className="flex items-center justify-between">
+                        <h4 className="text-lg font-black text-gray-900 flex items-center gap-2">
+                          <Users size={20} className="text-purple-500" />
+                          {t('addedEmployeesData')}
+                          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black bg-purple-100 text-purple-700 border border-purple-200">
+                            <Users size={14} />
+                            {addEmployeesData.filter(e => e.name.trim()).length || addEmployeesData.length} {t('employeesCount')}
+                          </span>
+                        </h4>
                       <motion.button
                         whileHover={{ scale: 1.02 }}
                         whileTap={{ scale: 0.98 }}
