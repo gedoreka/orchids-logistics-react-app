@@ -260,7 +260,7 @@ export function PayrollEditClient({ payroll, companyId }: PayrollEditClientProps
                 <thead className="bg-gray-100">
                   <tr>
                     <th className="text-right px-3 py-3 text-xs font-bold text-gray-700 border border-gray-200">الاسم</th>
-                    <th className="text-right px-3 py-3 text-xs font-bold text-gray-700 border border-gray-200">الإقامة</th>
+                    <th className="text-right px-3 py-3 text-xs font-bold text-gray-700 border border-gray-200">الهوية</th>
                     <th className="text-right px-3 py-3 text-xs font-bold text-gray-700 border border-gray-200">الكود</th>
                     <th className="text-right px-3 py-3 text-xs font-bold text-gray-700 border border-gray-200">الراتب</th>
                     <th className="text-right px-3 py-3 text-xs font-bold text-gray-700 border border-gray-200">التارقت</th>

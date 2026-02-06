@@ -31,12 +31,12 @@ export default function LivePage({ params }: { params: Promise<{ id: string }> }
           <div><h1 className="text-4xl font-bold text-white mb-2">{e.name}</h1><p className="text-white/70 text-xl">{e.job_title || 'غير محدد'}</p><span className={`mt-4 inline-block px-4 py-1.5 rounded-full text-sm font-bold ${st === 'green' ? 'bg-green-500/20 text-green-300' : st === 'orange' ? 'bg-orange-500/20 text-orange-300' : 'bg-red-500/20 text-red-300'}`}>{stT} ({Math.abs(days)} يوم)</span></div>
         </div>
         <div className="p-8 grid grid-cols-2 gap-4 text-white">
-          <div className="bg-white/5 rounded-xl p-4"><span className="text-white/60 text-sm">رقم الإقامة</span><p className="font-bold">{e.iqama_number || '-'}</p></div>
+          <div className="bg-white/5 rounded-xl p-4"><span className="text-white/60 text-sm">رقم الهوية</span><p className="font-bold">{e.iqama_number || '-'}</p></div>
           <div className="bg-white/5 rounded-xl p-4"><span className="text-white/60 text-sm">الجنسية</span><p className="font-bold">{e.nationality || '-'}</p></div>
           <div className="bg-white/5 rounded-xl p-4"><span className="text-white/60 text-sm">الهاتف</span><p className="font-bold">{e.phone || '-'}</p></div>
           <div className="bg-white/5 rounded-xl p-4"><span className="text-white/60 text-sm">البريد</span><p className="font-bold truncate">{e.email || '-'}</p></div>
           <div className="bg-white/5 rounded-xl p-4"><span className="text-white/60 text-sm">لوحة المركبة</span><p className="font-bold">{e.vehicle_plate || '-'}</p></div>
-          <div className="bg-white/5 rounded-xl p-4"><span className="text-white/60 text-sm">انتهاء الإقامة</span><p className="font-bold">{e.iqama_expiry || '-'}</p></div>
+          <div className="bg-white/5 rounded-xl p-4"><span className="text-white/60 text-sm">انتهاء الهوية</span><p className="font-bold">{e.iqama_expiry || '-'}</p></div>
         </div>
       </div>
     </div>

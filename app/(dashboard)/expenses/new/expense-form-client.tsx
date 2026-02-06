@@ -76,7 +76,7 @@ const mainTypes = {
 };
 
 const defaultExpenseValues: Record<string, string> = {
-  iqama: 'تجديد إقامة',
+  iqama: 'تجديد هوية',
   fuel: 'منصرفات وقود',
   housing: 'إيجار سكن',
   maintenance: 'صيانة المركبات',
@@ -86,10 +86,10 @@ const defaultExpenseValues: Record<string, string> = {
 };
 
 const headersMap: Record<string, string[]> = {
-  iqama: ['التاريخ', 'نوع المصروف', 'المبلغ', 'رقم الإقامة', 'الموظف', 'الحساب', 'مركز التكلفة', 'الوصف', 'المستند', 'حذف'],
+  iqama: ['التاريخ', 'نوع المصروف', 'المبلغ', 'رقم الهوية', 'الموظف', 'الحساب', 'مركز التكلفة', 'الوصف', 'المستند', 'حذف'],
   fuel: ['التاريخ', 'نوع المصروف', 'المبلغ', 'ضريبة 15%', 'الصافي', 'الحساب', 'مركز التكلفة', 'الوصف', 'المستند', 'حذف'],
-  traffic: ['التاريخ', 'نوع المصروف', 'المبلغ', 'السائق', 'رقم الإقامة', 'مركز التكلفة', 'الحساب', 'الوصف', 'المستند', 'حذف'],
-  advances: ['التاريخ', 'نوع المصروف', 'المبلغ', 'الموظف', 'رقم الإقامة', 'الحساب', 'مركز التكلفة', 'الوصف', 'المستند*', 'حذف'],
+  traffic: ['التاريخ', 'نوع المصروف', 'المبلغ', 'السائق', 'رقم الهوية', 'مركز التكلفة', 'الحساب', 'الوصف', 'المستند', 'حذف'],
+  advances: ['التاريخ', 'نوع المصروف', 'المبلغ', 'الموظف', 'رقم الهوية', 'الحساب', 'مركز التكلفة', 'الوصف', 'المستند*', 'حذف'],
   default: ['التاريخ', 'نوع المصروف', 'المبلغ', 'الحساب', 'مركز التكلفة', 'الوصف', 'المستند', 'حذف']
 };
 
@@ -179,7 +179,7 @@ function EmployeeSelect({ row, type, metadata, updateRow, t }: {
                     <div className="font-bold text-slate-900 text-[15px] group-hover/item:text-blue-700">{emp.name}</div>
                     <div className="flex items-center gap-3 mt-1.5">
                       <span className="bg-slate-100 text-slate-700 px-2.5 py-1 rounded-md text-[11px] font-mono border border-slate-200">
-                        {emp.iqama_number || "بدون إقامة"}
+                        {emp.iqama_number || "بدون هوية"}
                       </span>
                       {emp.phone && (
                         <span className="text-xs text-slate-400 flex items-center gap-1">
@@ -582,7 +582,7 @@ export default function ExpenseFormClient({ user }: { user: User }) {
                           <tr className="bg-blue-600 border-b border-blue-700 text-white text-[10px] uppercase tracking-wider">
                             {headersMap[type] ? headersMap[type].map((h, i) => (
                               <th key={i} className="px-4 py-4 font-black text-start whitespace-nowrap">
-                                {t(`form.${h === 'التاريخ' ? 'date' : h === 'نوع المصروف' ? 'type' : h === 'المبلغ' ? 'amount' : h === 'ضريبة 15%' ? 'tax' : h === 'الصافي' ? 'net' : h === 'الحساب' ? 'account' : h === 'مركز التكلفة' ? 'costCenter' : h === 'الوصف' ? 'description' : h === 'المستند' || h === 'المستند*' ? 'document' : h === 'رقم الإقامة' ? 'iqamaNumber' : h === 'الموظف' ? 'employee' : h === 'السائق' ? 'driver' : 'delete'}`)}
+                                {t(`form.${h === 'التاريخ' ? 'date' : h === 'نوع المصروف' ? 'type' : h === 'المبلغ' ? 'amount' : h === 'ضريبة 15%' ? 'tax' : h === 'الصافي' ? 'net' : h === 'الحساب' ? 'account' : h === 'مركز التكلفة' ? 'costCenter' : h === 'الوصف' ? 'description' : h === 'المستند' || h === 'المستند*' ? 'document' : h === 'رقم الهوية' ? 'iqamaNumber' : h === 'الموظف' ? 'employee' : h === 'السائق' ? 'driver' : 'delete'}`)}
                               </th>
                             )) : headersMap.default.map((h, i) => (
                               <th key={i} className="px-4 py-4 font-black text-start whitespace-nowrap">{t(`form.${h === 'التاريخ' ? 'date' : h === 'نوع المصروف' ? 'type' : h === 'المبلغ' ? 'amount' : h === 'الحساب' ? 'account' : h === 'مركز التكلفة' ? 'costCenter' : h === 'الوصف' ? 'description' : h === 'المستند' ? 'document' : 'delete'}`)}</th>

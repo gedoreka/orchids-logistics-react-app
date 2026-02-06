@@ -107,7 +107,7 @@ function AutoFitContent({ content, maxHeight }: { content: string; maxHeight: nu
 
 const placeholderLabels: Record<string, string> = {
   employee_name: "اسم الموظف",
-  id_number: "رقم الهوية / الإقامة",
+  id_number: "رقم الهوية",
   company_name: "اسم الشركة",
   commercial_number: "رقم السجل التجاري",
   start_date: "تاريخ البداية",

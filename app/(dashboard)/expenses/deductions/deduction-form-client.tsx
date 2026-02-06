@@ -165,7 +165,7 @@ function EmployeeSelect({ row, type, metadata, updateRow, t }: {
                   <div className="font-bold text-slate-900 text-[11px] group-hover/item:text-rose-700">{emp.name}</div>
                   <div className="flex items-center gap-2 mt-0.5">
                     <span className="bg-slate-100 text-slate-700 px-1.5 py-0.5 rounded text-[9px] font-mono border border-slate-200">
-                      {emp.iqama_number || "بدون إقامة"}
+                      {emp.iqama_number || "بدون هوية"}
                     </span>
                     {emp.phone && (
                       <span className="text-[9px] text-slate-400 flex items-center gap-0.5">
@@ -608,7 +608,7 @@ export default function DeductionFormClient({ user }: { user: User }) {
                                   value={row.employee_iqama}
                                   readOnly={!row.manualEmployee}
                                   onChange={(e) => updateRow(type, row.id, 'employee_iqama', e.target.value)}
-                                  placeholder="رقم الإقامة"
+                                  placeholder="رقم الهوية"
                                 />
                               </td>
                               <td className="px-2 py-2">

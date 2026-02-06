@@ -648,7 +648,7 @@ export function NewPayrollClient({ packages, debts, companyId, userName }: NewPa
                       <thead className="bg-gray-100 sticky top-0">
                         <tr>
                           <th className="text-right px-3 py-3 text-xs font-bold text-gray-700 whitespace-nowrap border border-gray-200">اسم الموظف</th>
-                          <th className="text-right px-3 py-3 text-xs font-bold text-gray-700 whitespace-nowrap border border-gray-200">الإقامة</th>
+                          <th className="text-right px-3 py-3 text-xs font-bold text-gray-700 whitespace-nowrap border border-gray-200">الهوية</th>
                           {selectedPackage.work_type !== 'salary' && (
                             <th className="text-right px-3 py-3 text-xs font-bold text-gray-700 whitespace-nowrap border border-gray-200">الكود</th>
                           )}

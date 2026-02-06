@@ -149,7 +149,7 @@ export function HRDashboardClient({ stats, activePackages, recentEmployees, comp
                   icon: <IdCard size={24} />, 
                   label: t('expiredIqama'), 
                   value: stats.expiredIqama, 
-                  subLabel: isRTL ? 'إقامة منتهية' : 'Expired Iqama',
+                  subLabel: isRTL ? 'هوية منتهية' : 'Expired Iqama',
                   alert: stats.expiredIqama > 0
                 }
               ].map((stat, idx) => (

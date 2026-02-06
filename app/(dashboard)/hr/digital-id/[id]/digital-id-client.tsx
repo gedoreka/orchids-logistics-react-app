@@ -166,7 +166,7 @@ export function DigitalIdClient({ employee, allEmployees }: DigitalIdClientProps
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <IDDetail icon={<IdCard size={14} />} label="رقم الإقامة" value={employee.iqama_number} />
+                  <IDDetail icon={<IdCard size={14} />} label="رقم الهوية" value={employee.iqama_number} />
                   <IDDetail icon={<Hash size={14} />} label="الرقم الوظيفي" value={employee.user_code} />
                   <IDDetail icon={<Globe size={14} />} label="الجنسية" value={employee.nationality} />
                   <IDDetail icon={<Package size={14} />} label="الباقة" value={employee.group_name} />
@@ -188,7 +188,7 @@ export function DigitalIdClient({ employee, allEmployees }: DigitalIdClientProps
               }`}>
                 <AlertTriangle size={24} />
                 <div className="text-right">
-                  <p className="text-xs font-black uppercase tracking-tight">تنبيه صلاحية الإقامة</p>
+                  <p className="text-xs font-black uppercase tracking-tight">تنبيه صلاحية الهوية</p>
                   <p className="text-sm font-bold">
                     {expiryDays <= 0 
                       ? `منتهية منذ ${Math.abs(expiryDays)} يوم` 

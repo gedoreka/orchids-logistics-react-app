@@ -685,7 +685,7 @@ export function Header({ user, onToggleSidebar, unreadChatCount = 0, subscriptio
     const notifications = [
     { id: 1, title: isRTL ? "طلب شحن جديد" : "New shipping request", time: isRTL ? "منذ 5 دقائق" : "5 minutes ago", type: "info" },
     { id: 2, title: isRTL ? "تم تسليم الشحنة #1234" : "Shipment #1234 delivered", time: isRTL ? "منذ ساعة" : "1 hour ago", type: "success" },
-    { id: 3, title: isRTL ? "تنبيه: إقامة منتهية" : "Alert: Expired Iqama", time: isRTL ? "منذ ساعتين" : "2 hours ago", type: "warning" },
+    { id: 3, title: isRTL ? "تنبيه: هوية منتهية" : "Alert: Expired ID", time: isRTL ? "منذ ساعتين" : "2 hours ago", type: "warning" },
   ];
 
   const BackIcon = isRTL ? ArrowRight : ArrowLeft;
