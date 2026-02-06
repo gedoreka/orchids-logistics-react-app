@@ -1466,3 +1466,145 @@ Import trace:
 2026-02-06T18:23:37.406Z [console][error] You are trying to animate  from "0" to "14676.00". "14676.00" is not an animatable value.. For more information and steps for solving, visit https://motion.dev/troubleshooting/value-not-animatable
 2026-02-06T22:41:34.144Z [console][error] You are trying to animate  from "0" to "166568.00". "166568.00" is not an animatable value.. For more information and steps for solving, visit https://motion.dev/troubleshooting/value-not-animatable
 2026-02-06T22:41:34.144Z [console][error] You are trying to animate  from "0" to "14676.00". "14676.00" is not an animatable value.. For more information and steps for solving, visit https://motion.dev/troubleshooting/value-not-animatable
+2026-02-06T22:53:59.534Z [console][error] Uncaught Error: ./components/layout/header.tsx:2474:1
+Parsing ecmascript source code failed
+  2472 |   );
+  2473 | }
+> 2474 |
+       | ^
+
+Unexpected eof
+
+Import trace:
+  Client Component Browser:
+    ./components/layout/header.tsx [Client Component Browser]
+    ./components/layout/dashboard-layout.tsx [Client Component Browser]
+    ./components/layout/dashboard-layout-wrapper.tsx [Client Component Browser]
+    ./components/layout/dashboard-layout-wrapper.tsx [Server Component]
+    ./app/(dashboard)/layout.tsx [Server Component]
+
+
+2026-02-06T22:53:59.560Z [console][error] ./components/layout/header.tsx:2474:1
+Parsing ecmascript source code failed
+  2472 |   );
+  2473 | }
+> 2474 |
+       | ^
+
+Unexpected eof
+
+Import trace:
+  Client Component Browser:
+    ./components/layout/header.tsx [Client Component Browser]
+    ./components/layout/dashboard-layout.tsx [Client Component Browser]
+    ./components/layout/dashboard-layout-wrapper.tsx [Client Component Browser]
+    ./components/layout/dashboard-layout-wrapper.tsx [Server Component]
+    ./app/(dashboard)/layout.tsx [Server Component]
+2026-02-06T22:53:59.616Z [console][error] ./components/layout/header.tsx:2474:1
+Parsing ecmascript source code failed
+  2472 |   );
+  2473 | }
+> 2474 |
+       | ^
+
+Unexpected eof
+
+Import trace:
+  Client Component Browser:
+    ./components/layout/header.tsx [Client Component Browser]
+    ./components/layout/dashboard-layout.tsx [Client Component Browser]
+    ./components/layout/dashboard-layout-wrapper.tsx [Client Component Browser]
+    ./components/layout/dashboard-layout-wrapper.tsx [Server Component]
+    ./app/(dashboard)/layout.tsx [Server Component]
+2026-02-06T22:54:01.689Z [console][error] ./components/layout/header.tsx:2474:1
+Parsing ecmascript source code failed
+  2472 |   );
+  2473 | }
+> 2474 |
+       | ^
+
+Unexpected eof
+
+Import trace:
+  Client Component Browser:
+    ./components/layout/header.tsx [Client Component Browser]
+    ./components/layout/dashboard-layout.tsx [Client Component Browser]
+    ./components/layout/dashboard-layout-wrapper.tsx [Client Component Browser]
+    ./components/layout/dashboard-layout-wrapper.tsx [Server Component]
+    ./app/(dashboard)/layout.tsx [Server Component]
+2026-02-06T22:54:03.786Z [console][error] ./components/layout/header.tsx:2474:1
+Parsing ecmascript source code failed
+  2472 |   );
+  2473 | }
+> 2474 |
+       | ^
+
+Unexpected eof
+
+Import trace:
+  Client Component Browser:
+    ./components/layout/header.tsx [Client Component Browser]
+    ./components/layout/dashboard-layout.tsx [Client Component Browser]
+    ./components/layout/dashboard-layout-wrapper.tsx [Client Component Browser]
+    ./components/layout/dashboard-layout-wrapper.tsx [Server Component]
+    ./app/(dashboard)/layout.tsx [Server Component]
+2026-02-06T22:54:05.694Z [console][error] ./components/layout/header.tsx:2474:1
+Parsing ecmascript source code failed
+  2472 |   );
+  2473 | }
+> 2474 |
+       | ^
+
+Unexpected eof
+
+Import trace:
+  Client Component Browser:
+    ./components/layout/header.tsx [Client Component Browser]
+    ./components/layout/dashboard-layout.tsx [Client Component Browser]
+    ./components/layout/dashboard-layout-wrapper.tsx [Client Component Browser]
+    ./components/layout/dashboard-layout-wrapper.tsx [Server Component]
+    ./app/(dashboard)/layout.tsx [Server Component]
+2026-02-06T22:54:08.650Z [console][error] ./components/layout/header.tsx:2474:1
+Parsing ecmascript source code failed
+  2472 |   );
+  2473 | }
+> 2474 |
+       | ^
+
+Unexpected eof
+
+Import trace:
+  Client Component Browser:
+    ./components/layout/header.tsx [Client Component Browser]
+    ./components/layout/dashboard-layout.tsx [Client Component Browser]
+    ./components/layout/dashboard-layout-wrapper.tsx [Client Component Browser]
+    ./components/layout/dashboard-layout-wrapper.tsx [Server Component]
+    ./app/(dashboard)/layout.tsx [Server Component]
+2026-02-06T22:54:09.701Z [console][error] ./components/layout/header.tsx:2474:1
+Parsing ecmascript source code failed
+  2472 |   );
+  2473 | }
+> 2474 |
+       | ^
+
+Unexpected eof
+
+Import trace:
+  Client Component Browser:
+    ./components/layout/header.tsx [Client Component Browser]
+    ./components/layout/dashboard-layout.tsx [Client Component Browser]
+    ./components/layout/dashboard-layout-wrapper.tsx [Client Component Browser]
+    ./components/layout/dashboard-layout-wrapper.tsx [Server Component]
+    ./app/(dashboard)/layout.tsx [Server Component]
+2026-02-06T22:54:59.131Z [console][error] You are trying to animate  from "0" to "166568.00". "166568.00" is not an animatable value.. For more information and steps for solving, visit https://motion.dev/troubleshooting/value-not-animatable
+2026-02-06T22:54:59.131Z [console][error] You are trying to animate  from "0" to "14676.00". "14676.00" is not an animatable value.. For more information and steps for solving, visit https://motion.dev/troubleshooting/value-not-animatable
+2026-02-06T22:55:00.119Z [network][GET 500] /api/hr/notifications?company_id=22
+  response: {"success":false,"error":"Unknown column 'p.name' in 'SELECT'"}
+2026-02-06T22:55:00.531Z [network][GET 500] /api/hr/notifications?company_id=22
+  response: {"success":false,"error":"Unknown column 'p.name' in 'SELECT'"}
+2026-02-06T22:55:52.006Z [network][GET 500] /api/hr/notifications?company_id=22
+  response: {"success":false,"error":"Unknown column 'p.name' in 'SELECT'"}
+2026-02-06T22:56:52.186Z [network][GET 500] /api/hr/notifications?company_id=22
+  response: {"success":false,"error":"Unknown column 'p.name' in 'SELECT'"}
+2026-02-06T22:57:51.981Z [network][GET 200] /api/hr/notifications?company_id=22
+  response: {"success":true,"identity":{"expired":[{"id":508,"name":"مصطفي مبارك","name_en":"Mostafa Mubarak","iqama_expiry":"2026-01-18T21:00:00.000Z","iqama_number":"1234567814","package_id":67,"package_name":"كباتن توصيل الرياض","days_remaining":-19,"status":"expired"}],"expiring_soon":[{"id":506,"name":"عبدالله عبدون","name_en":"Abdullah Abdoon","iqama_expiry":"2026-02-21T21:00:00.000Z","iqama_number":"1234567812","package_id":67,"package_name":"كباتن توصيل الرياض","days_remaining":15,"status":"expiring_soon"},{"id":592,"name":"عبدالله علي أحمد","name_en":null,"iqama_expiry":"2026-02-24T21:00:00.000Z","iqama_number":"3456789016","package_id":66,"package_name":"موظفين الشركة","days_remaining":18,"status":"expiring_soon"},{"id":511,"name":"مآذن محمد احمد","name_en":"Maazen Mohammed Ahmed","iqama_expiry":"2026-02-25T21:00:00.000Z","iqama_number":"1234567817","package_id":67,"package_name":"كباتن توصيل الرياض","days_remaining":19,"status":"expiring_soon"},{"id":507,"name":"محمد معاذ","name_en":"Mohammed Moaz","iqama_expiry":"2026-03-22T21:00:00.000Z","iqama_number":"1234567813","package_id":67,"package_name":"كباتن توصيل الرياض","days_remaining":44,"status":"expiring_soon"},{"id":509,"name":"اشرف عثمان","name_en":"Ashraf Othman","iqama_expiry":"2026-03-28T21:00:00.000Z","iqama_number":"1234567815","package_id":67,"package_name":"كباتن توصيل الرياض","days_remaining":50,"status":"expiring_soon"},{"id":510,"name":"طه محمد","name_en":"Taha Mohammed","iqama_expiry":"2026-03-28T21:00:00.000Z","iqama_number":"1234567816","package_id":67,"package_name":"كباتن توصيل الرياض","days_remaining":50,"status":"expiring_soon"},{"id":593,"name":"إخلاص محمد يوسف","name_en":null,"iqama_expiry":"2026-04-01T21:00:00.000Z","iqama_number":"4567890127","package_id":66,"package_name":"موظفين الشركة","days_remaining":54,"status":"expiring_soon"},{"id":505,"name":"عبد المجيد احمد","name_en":"Abdul Majid Ahmed","iqama_expiry":"2026-04-12T21:00:00.000Z","iqama_number":"1234567811","package_id":67,"package_n... [truncated]

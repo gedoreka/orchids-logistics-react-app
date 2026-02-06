@@ -44,6 +44,9 @@ import {
     Landmark,
     Star,
     Shield,
+    ShieldAlert,
+    ShieldX,
+    ShieldCheck,
     CheckCircle2,
     Mail,
     Send,
@@ -58,7 +61,10 @@ import {
       Plus,
     PlusCircle,
     Moon,
-    Sun
+    Sun,
+    Users,
+    FileWarning,
+    ChevronRight
     } from "lucide-react";
 
 import { toast } from "sonner";
@@ -264,6 +270,37 @@ const ISLAMIC_EVENTS: IslamicEvent[] = [
   { name: "عيد الأضحى", nameEn: "Eid al-Adha", hijriMonth: 12, hijriDay: 10, icon: "🐑" },
 ];
 
+interface HrIdentityEmployee {
+  id: number;
+  name: string;
+  name_en?: string;
+  iqama_expiry: string;
+  iqama_number?: string;
+  package_id: number;
+  package_name?: string;
+  days_remaining: number;
+  status: 'expired' | 'expiring_soon';
+}
+
+interface HrIncompletePackage {
+  package_id: number;
+  package_name: string;
+  employees: { id: number; name: string; missing_fields: string[]; missing_count: number }[];
+}
+
+interface HrNotificationData {
+  identity: {
+    expired: HrIdentityEmployee[];
+    expiring_soon: HrIdentityEmployee[];
+    total_expired: number;
+    total_expiring_soon: number;
+  };
+  incomplete: {
+    packages: HrIncompletePackage[];
+    total_incomplete: number;
+  };
+}
+
 export function Header({ user, onToggleSidebar, unreadChatCount = 0, subscriptionData }: { user?: { name: string; role: string; email: string; company_id?: number }, onToggleSidebar?: () => void, unreadChatCount?: number, subscriptionData?: { isActive: boolean; endDate: string | null; daysRemaining: number } }) {
   const t = useTranslations('header');
   const tCommon = useTranslations('common');
@@ -312,6 +349,14 @@ export function Header({ user, onToggleSidebar, unreadChatCount = 0, subscriptio
     const [unreadEmailCount, setUnreadEmailCount] = useState(0);
     const [fetchingUnread, setFetchingUnread] = useState(false);
     const [isAddingAccount, setIsAddingAccount] = useState(false);
+
+    // HR notification states
+    const [hrNotifications, setHrNotifications] = useState<HrNotificationData | null>(null);
+    const [hrNotifLoading, setHrNotifLoading] = useState(false);
+    const [showIdentityExpiryDetail, setShowIdentityExpiryDetail] = useState(false);
+    const [showIncompleteDetail, setShowIncompleteDetail] = useState(false);
+    const [showLoginSplash, setShowLoginSplash] = useState(false);
+    const [activeNotifTab, setActiveNotifTab] = useState<'system' | 'identity' | 'incomplete'>('system');
 
     
     const audioRef = useRef<HTMLAudioElement | null>(null);
@@ -404,10 +449,35 @@ export function Header({ user, onToggleSidebar, unreadChatCount = 0, subscriptio
 
       fetchAdminNotifications();
       fetchEmailData();
+
+      // Fetch HR notifications
+      const fetchHrNotifications = async () => {
+        if (!user?.company_id) return;
+        try {
+          const res = await fetch(`/api/hr/notifications?company_id=${user.company_id}`);
+          if (!res.ok) return;
+          const data = await res.json();
+          if (data.success) {
+            setHrNotifications(data);
+            // Show login splash if there are expired/expiring IDs and hasn't been shown this session
+            const splashKey = `hr_splash_shown_${new Date().toDateString()}`;
+            if (!sessionStorage.getItem(splashKey) && (data.identity.total_expired > 0 || data.identity.total_expiring_soon > 0)) {
+              setTimeout(() => {
+                setShowLoginSplash(true);
+                sessionStorage.setItem(splashKey, 'true');
+              }, 1500);
+            }
+          }
+        } catch (error: any) {
+          // Silently fail
+        }
+      };
+      fetchHrNotifications();
       
       const interval = setInterval(() => {
         fetchAdminNotifications();
         fetchEmailData();
+        fetchHrNotifications();
       }, 60000); 
       return () => clearInterval(interval);
     }, [user?.company_id]);
@@ -876,16 +946,19 @@ export function Header({ user, onToggleSidebar, unreadChatCount = 0, subscriptio
                         onClick={() => setShowNotifications(!showNotifications)}
                         className="relative hidden sm:flex items-center gap-2 px-3 py-2.5 bg-white/5 hover:bg-white/10 rounded-xl transition-all border border-white/10"
                       >
-                        <Bell size={18} className="text-white/60" />
-                        <span className="text-[11px] font-bold text-white/60">{isRTL ? 'الإشعارات' : 'Notifications'}</span>
-                        {unreadAdminCount > 0 && (
-                          <motion.span 
-                            animate={{ scale: [1, 1.2, 1] }}
-                            transition={{ duration: 2, repeat: Infinity }}
-                            className="min-w-[18px] h-[18px] bg-gradient-to-r from-rose-500 to-red-500 text-white text-[9px] font-bold rounded-full flex items-center justify-center shadow-lg shadow-rose-500/50"
-                          >
-                            {unreadAdminCount > 9 ? '9+' : unreadAdminCount}
-                          </motion.span>
+                      <Bell size={18} className="text-white/60" />
+                          <span className="text-[11px] font-bold text-white/60">{isRTL ? 'الإشعارات' : 'Notifications'}</span>
+                          {(unreadAdminCount + (hrNotifications?.identity.total_expired || 0) + (hrNotifications?.identity.total_expiring_soon || 0) + (hrNotifications?.incomplete.total_incomplete || 0)) > 0 && (
+                            <motion.span 
+                              animate={{ scale: [1, 1.2, 1] }}
+                              transition={{ duration: 2, repeat: Infinity }}
+                              className="min-w-[18px] h-[18px] bg-gradient-to-r from-rose-500 to-red-500 text-white text-[9px] font-bold rounded-full flex items-center justify-center shadow-lg shadow-rose-500/50"
+                            >
+                              {(() => {
+                                const total = unreadAdminCount + (hrNotifications?.identity.total_expired || 0) + (hrNotifications?.identity.total_expiring_soon || 0) + (hrNotifications?.incomplete.total_incomplete || 0);
+                                return total > 99 ? '99+' : total;
+                              })()}
+                            </motion.span>
                           )}
                         </motion.button>
 
@@ -1305,95 +1378,380 @@ export function Header({ user, onToggleSidebar, unreadChatCount = 0, subscriptio
           )}
         </AnimatePresence>
 
-        {/* Notifications Modal */}
-        <AnimatePresence>
-          {showNotifications && (
-            <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
-              <motion.div 
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                onClick={() => setShowNotifications(false)}
-                className="absolute inset-0 bg-black/70 backdrop-blur-md"
-              />
-              <motion.div 
-                initial={{ scale: 0.9, opacity: 0, y: 20 }}
-                animate={{ scale: 1, opacity: 1, y: 0 }}
-                exit={{ scale: 0.9, opacity: 0, y: 20 }}
-                className="relative w-full max-w-md bg-gradient-to-b from-slate-900 to-slate-950 rounded-3xl shadow-2xl overflow-hidden border border-white/10"
-              >
-                <button 
-                  onClick={() => setShowNotifications(false)}
-                  className="absolute top-4 left-4 p-2 text-white/30 hover:text-white hover:bg-white/10 rounded-xl transition-all z-10"
+          {/* Notifications Modal - Premium Tabbed */}
+          <AnimatePresence>
+            {showNotifications && (
+              <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
+                <motion.div 
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  onClick={() => { setShowNotifications(false); setActiveNotifTab('system'); }}
+                  className="absolute inset-0 bg-black/70 backdrop-blur-md"
+                />
+                <motion.div 
+                  initial={{ scale: 0.9, opacity: 0, y: 20 }}
+                  animate={{ scale: 1, opacity: 1, y: 0 }}
+                  exit={{ scale: 0.9, opacity: 0, y: 20 }}
+                  className="relative w-full max-w-lg bg-gradient-to-b from-slate-900 to-slate-950 rounded-3xl shadow-2xl overflow-hidden border border-white/10 max-h-[85vh] flex flex-col"
                 >
-                  <X size={20} />
-                </button>
-                
-                <div className="p-6 border-b border-white/10">
-                  <div className="flex items-center gap-4">
-                    <div className="p-3 rounded-2xl bg-blue-500/30">
-                      <Bell size={28} className="text-blue-400" />
-                    </div>
-                    <div>
-                      <h3 className="font-bold text-white text-xl">{isRTL ? 'تنبيهات النظام' : 'System Alerts'}</h3>
-                      <p className="text-sm text-white/40">{isRTL ? `لديك ${unreadAdminCount} تنبيهات جديدة` : `You have ${unreadAdminCount} new alerts`}</p>
-                    </div>
-                  </div>
-                </div>
-                <div className="max-h-80 overflow-y-auto">
-                  {adminNotifications.length > 0 ? adminNotifications.map((notif) => (
-                      <motion.div
-                        key={notif.id}
-                        whileHover={{ backgroundColor: "rgba(255,255,255,0.05)" }}
-                        className="p-4 border-b border-white/5 cursor-pointer"
-                        onClick={() => {
-                          const currentLastSeen = parseInt(localStorage.getItem("last_admin_notification_id") || "0");
-                          if (notif.id > currentLastSeen) {
-                            localStorage.setItem("last_admin_notification_id", notif.id.toString());
-                            setUnreadAdminCount(prev => Math.max(0, prev - 1));
-                          }
-                          
-                          // Trigger the detailed notification view
-                          window.dispatchEvent(new CustomEvent("open-admin-notification", { 
-                            detail: { notification: notif } 
-                          }));
-                          
-                          setShowNotifications(false);
-                        }}
-                      >
-
-                      <div className="flex items-start gap-3">
-                        <div className="p-2 rounded-xl bg-blue-500/20">
-                          <Bell size={16} className="text-blue-400" />
-                        </div>
-                        <div className="flex-1">
-                          <p className="text-sm font-bold text-white/90">{notif.title}</p>
-                            <p className="text-xs text-white/40">{new Date(notif.created_at).toLocaleDateString('en-US')}</p>
+                  <button 
+                    onClick={() => { setShowNotifications(false); setActiveNotifTab('system'); }}
+                    className="absolute top-4 left-4 p-2 text-white/30 hover:text-white hover:bg-white/10 rounded-xl transition-all z-10"
+                  >
+                    <X size={20} />
+                  </button>
+                  
+                  {/* Header */}
+                  <div className="p-6 border-b border-white/10">
+                    <div className="flex items-center gap-4 mb-5">
+                      <div className="relative">
+                        <motion.div
+                          animate={{ scale: [1, 1.15, 1], opacity: [0.3, 0.6, 0.3] }}
+                          transition={{ duration: 3, repeat: Infinity }}
+                          className="absolute inset-0 bg-blue-500 rounded-2xl blur-xl"
+                        />
+                        <div className="relative p-3 rounded-2xl bg-gradient-to-br from-blue-500/30 to-indigo-500/30 border border-blue-500/20">
+                          <Bell size={28} className="text-blue-400" />
                         </div>
                       </div>
-                    </motion.div>
-                  )) : (
-                    <div className="p-16 text-center">
-                      <Bell size={48} className="mx-auto mb-3 text-white/20" />
-                      <p className="text-sm font-bold text-white/30">{isRTL ? 'لا توجد تنبيهات' : 'No alerts'}</p>
+                      <div>
+                        <h3 className="font-black text-white text-xl">{isRTL ? 'مركز الإشعارات' : 'Notification Center'}</h3>
+                        <p className="text-sm text-white/40">{isRTL ? 'جميع التنبيهات والتحديثات' : 'All alerts and updates'}</p>
+                      </div>
                     </div>
-                  )}
-                </div>
-                <div className="p-4 border-t border-white/10">
-                  <button 
-                    onClick={() => {
-                      if (user?.role === 'admin') router.push('/admin/notifications');
-                      setShowNotifications(false);
-                    }}
-                    className="w-full py-3 text-center text-sm font-bold text-blue-400 hover:text-blue-300 transition-colors bg-blue-500/10 rounded-xl hover:bg-blue-500/20"
-                  >
-                    {isRTL ? 'عرض جميع التنبيهات' : 'View All Alerts'}
-                  </button>
-                </div>
-              </motion.div>
-            </div>
-          )}
-        </AnimatePresence>
+                    
+                    {/* Tabs */}
+                    <div className="flex items-center gap-1 bg-white/5 p-1 rounded-xl">
+                      <button
+                        onClick={() => setActiveNotifTab('system')}
+                        className={cn(
+                          "flex-1 flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-lg text-[11px] font-black transition-all",
+                          activeNotifTab === 'system' 
+                            ? "bg-blue-500 text-white shadow-lg shadow-blue-500/30" 
+                            : "text-white/40 hover:text-white/70"
+                        )}
+                      >
+                        <Bell size={13} />
+                        <span>{isRTL ? 'النظام' : 'System'}</span>
+                        {unreadAdminCount > 0 && <span className="min-w-[16px] h-[16px] bg-white/20 rounded-full text-[9px] flex items-center justify-center">{unreadAdminCount}</span>}
+                      </button>
+                      <button
+                        onClick={() => setActiveNotifTab('identity')}
+                        className={cn(
+                          "flex-1 flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-lg text-[11px] font-black transition-all",
+                          activeNotifTab === 'identity' 
+                            ? "bg-gradient-to-r from-red-500 to-rose-500 text-white shadow-lg shadow-red-500/30" 
+                            : "text-white/40 hover:text-white/70"
+                        )}
+                      >
+                        <ShieldAlert size={13} />
+                        <span>{isRTL ? 'الهويات' : 'IDs'}</span>
+                        {((hrNotifications?.identity.total_expired || 0) + (hrNotifications?.identity.total_expiring_soon || 0)) > 0 && (
+                          <span className="min-w-[16px] h-[16px] bg-white/20 rounded-full text-[9px] flex items-center justify-center">
+                            {(hrNotifications?.identity.total_expired || 0) + (hrNotifications?.identity.total_expiring_soon || 0)}
+                          </span>
+                        )}
+                      </button>
+                      <button
+                        onClick={() => setActiveNotifTab('incomplete')}
+                        className={cn(
+                          "flex-1 flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-lg text-[11px] font-black transition-all",
+                          activeNotifTab === 'incomplete' 
+                            ? "bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-lg shadow-amber-500/30" 
+                            : "text-white/40 hover:text-white/70"
+                        )}
+                      >
+                        <FileWarning size={13} />
+                        <span>{isRTL ? 'بيانات ناقصة' : 'Incomplete'}</span>
+                        {(hrNotifications?.incomplete.total_incomplete || 0) > 0 && (
+                          <span className="min-w-[16px] h-[16px] bg-white/20 rounded-full text-[9px] flex items-center justify-center">
+                            {hrNotifications?.incomplete.total_incomplete}
+                          </span>
+                        )}
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Tab Content */}
+                  <div className="flex-1 overflow-y-auto">
+                    {/* System Tab */}
+                    {activeNotifTab === 'system' && (
+                      <div>
+                        {adminNotifications.length > 0 ? adminNotifications.map((notif) => (
+                          <motion.div
+                            key={notif.id}
+                            whileHover={{ backgroundColor: "rgba(255,255,255,0.05)" }}
+                            className="p-4 border-b border-white/5 cursor-pointer"
+                            onClick={() => {
+                              const currentLastSeen = parseInt(localStorage.getItem("last_admin_notification_id") || "0");
+                              if (notif.id > currentLastSeen) {
+                                localStorage.setItem("last_admin_notification_id", notif.id.toString());
+                                setUnreadAdminCount(prev => Math.max(0, prev - 1));
+                              }
+                              window.dispatchEvent(new CustomEvent("open-admin-notification", { detail: { notification: notif } }));
+                              setShowNotifications(false);
+                            }}
+                          >
+                            <div className="flex items-start gap-3">
+                              <div className="p-2 rounded-xl bg-blue-500/20">
+                                <Bell size={16} className="text-blue-400" />
+                              </div>
+                              <div className="flex-1">
+                                <p className="text-sm font-bold text-white/90">{notif.title}</p>
+                                <p className="text-xs text-white/40">{new Date(notif.created_at).toLocaleDateString('en-US')}</p>
+                              </div>
+                            </div>
+                          </motion.div>
+                        )) : (
+                          <div className="p-16 text-center">
+                            <Bell size={48} className="mx-auto mb-3 text-white/10" />
+                            <p className="text-sm font-bold text-white/30">{isRTL ? 'لا توجد تنبيهات' : 'No alerts'}</p>
+                          </div>
+                        )}
+                      </div>
+                    )}
+
+                    {/* Identity Tab */}
+                    {activeNotifTab === 'identity' && (
+                      <div className="p-4 space-y-3">
+                        {/* Summary Cards */}
+                        <div className="grid grid-cols-2 gap-3">
+                          <div className="p-4 rounded-2xl bg-gradient-to-br from-red-500/10 to-rose-500/10 border border-red-500/20">
+                            <div className="flex items-center gap-2 mb-2">
+                              <ShieldX size={18} className="text-red-400" />
+                              <span className="text-[10px] font-black text-red-400 uppercase">{isRTL ? 'منتهية' : 'Expired'}</span>
+                            </div>
+                            <p className="text-3xl font-black text-red-400">{hrNotifications?.identity.total_expired || 0}</p>
+                          </div>
+                          <div className="p-4 rounded-2xl bg-gradient-to-br from-amber-500/10 to-orange-500/10 border border-amber-500/20">
+                            <div className="flex items-center gap-2 mb-2">
+                              <ShieldAlert size={18} className="text-amber-400" />
+                              <span className="text-[10px] font-black text-amber-400 uppercase">{isRTL ? 'تنتهي قريبا' : 'Expiring'}</span>
+                            </div>
+                            <p className="text-3xl font-black text-amber-400">{hrNotifications?.identity.total_expiring_soon || 0}</p>
+                          </div>
+                        </div>
+
+                        {/* Expired List */}
+                        {(hrNotifications?.identity.expired || []).length > 0 && (
+                          <div>
+                            <div className="flex items-center gap-2 mb-2 px-1">
+                              <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
+                              <span className="text-[11px] font-black text-red-400">{isRTL ? 'هويات منتهية الصلاحية' : 'Expired IDs'}</span>
+                            </div>
+                            <div className="space-y-2">
+                              {hrNotifications?.identity.expired.slice(0, 10).map((emp) => (
+                                <motion.div
+                                  key={emp.id}
+                                  whileHover={{ x: isRTL ? -4 : 4 }}
+                                  className="flex items-center gap-3 p-3 rounded-xl bg-red-500/5 border border-red-500/10 hover:border-red-500/30 transition-all cursor-pointer"
+                                  onClick={() => {
+                                    router.push(`/hr/employees/${emp.id}`);
+                                    setShowNotifications(false);
+                                  }}
+                                >
+                                  <div className="p-2 rounded-lg bg-red-500/20">
+                                    <ShieldX size={14} className="text-red-400" />
+                                  </div>
+                                  <div className="flex-1 min-w-0">
+                                    <p className="text-xs font-black text-white/90 truncate">{emp.name}</p>
+                                    <p className="text-[10px] text-white/40">{emp.package_name}</p>
+                                  </div>
+                                  <div className="text-left shrink-0">
+                                    <span className="px-2 py-1 rounded-lg bg-red-500/20 text-red-400 text-[10px] font-black">
+                                      {isRTL ? `منتهية منذ ${Math.abs(emp.days_remaining)} يوم` : `${Math.abs(emp.days_remaining)}d ago`}
+                                    </span>
+                                  </div>
+                                </motion.div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Expiring Soon List */}
+                        {(hrNotifications?.identity.expiring_soon || []).length > 0 && (
+                          <div>
+                            <div className="flex items-center gap-2 mb-2 px-1">
+                              <div className="w-2 h-2 rounded-full bg-amber-500" />
+                              <span className="text-[11px] font-black text-amber-400">{isRTL ? 'هويات تنتهي قريبا' : 'Expiring Soon'}</span>
+                            </div>
+                            <div className="space-y-2">
+                              {hrNotifications?.identity.expiring_soon.slice(0, 10).map((emp) => (
+                                <motion.div
+                                  key={emp.id}
+                                  whileHover={{ x: isRTL ? -4 : 4 }}
+                                  className="flex items-center gap-3 p-3 rounded-xl bg-amber-500/5 border border-amber-500/10 hover:border-amber-500/30 transition-all cursor-pointer"
+                                  onClick={() => {
+                                    router.push(`/hr/employees/${emp.id}`);
+                                    setShowNotifications(false);
+                                  }}
+                                >
+                                  <div className="p-2 rounded-lg bg-amber-500/20">
+                                    <ShieldAlert size={14} className="text-amber-400" />
+                                  </div>
+                                  <div className="flex-1 min-w-0">
+                                    <p className="text-xs font-black text-white/90 truncate">{emp.name}</p>
+                                    <p className="text-[10px] text-white/40">{emp.package_name}</p>
+                                  </div>
+                                  <div className="text-left shrink-0">
+                                    <span className={cn(
+                                      "px-2 py-1 rounded-lg text-[10px] font-black",
+                                      emp.days_remaining <= 7 ? "bg-red-500/20 text-red-400" :
+                                      emp.days_remaining <= 30 ? "bg-amber-500/20 text-amber-400" :
+                                      "bg-yellow-500/20 text-yellow-400"
+                                    )}>
+                                      {emp.days_remaining === 0 ? (isRTL ? 'اليوم' : 'Today') : 
+                                       isRTL ? `${emp.days_remaining} يوم` : `${emp.days_remaining}d`}
+                                    </span>
+                                  </div>
+                                </motion.div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+
+                        {(hrNotifications?.identity.total_expired === 0 && hrNotifications?.identity.total_expiring_soon === 0) && (
+                          <div className="p-12 text-center">
+                            <ShieldCheck size={48} className="mx-auto mb-3 text-emerald-500/30" />
+                            <p className="text-sm font-bold text-emerald-400">{isRTL ? 'جميع الهويات سارية المفعول' : 'All IDs are valid'}</p>
+                          </div>
+                        )}
+                      </div>
+                    )}
+
+                    {/* Incomplete Data Tab */}
+                    {activeNotifTab === 'incomplete' && (
+                      <div className="p-4 space-y-3">
+                        {/* Summary */}
+                        <div className="p-4 rounded-2xl bg-gradient-to-br from-amber-500/10 to-orange-500/10 border border-amber-500/20">
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-3">
+                              <div className="p-2.5 rounded-xl bg-amber-500/20">
+                                <FileWarning size={20} className="text-amber-400" />
+                              </div>
+                              <div>
+                                <p className="text-sm font-black text-white">{isRTL ? 'بيانات غير مكتملة' : 'Incomplete Data'}</p>
+                                <p className="text-[10px] text-white/40">{isRTL ? 'موظفون يحتاجون استكمال بياناتهم' : 'Employees need data completion'}</p>
+                              </div>
+                            </div>
+                            <p className="text-2xl font-black text-amber-400">{hrNotifications?.incomplete.total_incomplete || 0}</p>
+                          </div>
+                        </div>
+
+                        {/* Packages */}
+                        {(hrNotifications?.incomplete.packages || []).map((pkg) => (
+                          <div key={pkg.package_id} className="rounded-2xl border border-white/10 overflow-hidden">
+                            <motion.button
+                              whileHover={{ backgroundColor: "rgba(255,255,255,0.03)" }}
+                              onClick={() => {
+                                router.push(`/hr/employees?package=${pkg.package_id}`);
+                                setShowNotifications(false);
+                              }}
+                              className="w-full flex items-center justify-between p-4 transition-all"
+                            >
+                              <div className="flex items-center gap-3">
+                                <div className="p-2 rounded-xl bg-purple-500/20">
+                                  <Package size={16} className="text-purple-400" />
+                                </div>
+                                <div className="text-right">
+                                  <p className="text-sm font-black text-white">{pkg.package_name}</p>
+                                  <p className="text-[10px] text-white/40">{pkg.employees.length} {isRTL ? 'موظف' : 'employees'}</p>
+                                </div>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <span className="px-2.5 py-1 rounded-lg bg-amber-500/20 text-amber-400 text-[10px] font-black">
+                                  {pkg.employees.length} {isRTL ? 'ناقص' : 'incomplete'}
+                                </span>
+                                <ChevronRight size={16} className={cn("text-white/30", isRTL && "rotate-180")} />
+                              </div>
+                            </motion.button>
+                            
+                            {/* Employee list preview */}
+                            <div className="border-t border-white/5 px-4 py-2 space-y-1 max-h-32 overflow-y-auto">
+                              {pkg.employees.slice(0, 5).map((emp) => {
+                                const fieldLabels: Record<string, string> = isRTL ? {
+                                  name: 'الاسم', iqama_number: 'رقم الهوية', phone: 'الهاتف',
+                                  basic_salary: 'الراتب', iqama_expiry: 'انتهاء الهوية', nationality: 'الجنسية'
+                                } : {
+                                  name: 'Name', iqama_number: 'ID No.', phone: 'Phone',
+                                  basic_salary: 'Salary', iqama_expiry: 'ID Expiry', nationality: 'Nationality'
+                                };
+                                return (
+                                  <div key={emp.id} className="flex items-center justify-between py-1.5">
+                                    <span className="text-[11px] font-bold text-white/60">{emp.name}</span>
+                                    <div className="flex items-center gap-1">
+                                      {emp.missing_fields.slice(0, 3).map(f => (
+                                        <span key={f} className="px-1.5 py-0.5 rounded bg-red-500/10 text-red-400/80 text-[9px] font-bold">
+                                          {fieldLabels[f] || f}
+                                        </span>
+                                      ))}
+                                      {emp.missing_fields.length > 3 && (
+                                        <span className="text-[9px] text-white/30">+{emp.missing_fields.length - 3}</span>
+                                      )}
+                                    </div>
+                                  </div>
+                                );
+                              })}
+                              {pkg.employees.length > 5 && (
+                                <p className="text-[10px] text-white/30 text-center py-1">+{pkg.employees.length - 5} {isRTL ? 'موظف آخر' : 'more'}</p>
+                              )}
+                            </div>
+                          </div>
+                        ))}
+
+                        {(hrNotifications?.incomplete.total_incomplete === 0) && (
+                          <div className="p-12 text-center">
+                            <CheckCircle2 size={48} className="mx-auto mb-3 text-emerald-500/30" />
+                            <p className="text-sm font-bold text-emerald-400">{isRTL ? 'جميع بيانات الموظفين مكتملة' : 'All employee data is complete'}</p>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Footer */}
+                  <div className="p-4 border-t border-white/10 shrink-0">
+                    {activeNotifTab === 'system' && (
+                      <button 
+                        onClick={() => {
+                          if (user?.role === 'admin') router.push('/admin/notifications');
+                          setShowNotifications(false);
+                        }}
+                        className="w-full py-3 text-center text-sm font-bold text-blue-400 hover:text-blue-300 transition-colors bg-blue-500/10 rounded-xl hover:bg-blue-500/20"
+                      >
+                        {isRTL ? 'عرض جميع التنبيهات' : 'View All Alerts'}
+                      </button>
+                    )}
+                    {activeNotifTab === 'identity' && (
+                      <button 
+                        onClick={() => {
+                          router.push('/hr/reports/iqama?filter=expired');
+                          setShowNotifications(false);
+                        }}
+                        className="w-full py-3 text-center text-sm font-bold text-red-400 hover:text-red-300 transition-colors bg-red-500/10 rounded-xl hover:bg-red-500/20 flex items-center justify-center gap-2"
+                      >
+                        <Shield size={16} />
+                        {isRTL ? 'فتح تقرير سريان الهويات' : 'Open ID Validity Report'}
+                      </button>
+                    )}
+                    {activeNotifTab === 'incomplete' && (
+                      <button 
+                        onClick={() => {
+                          router.push('/hr');
+                          setShowNotifications(false);
+                        }}
+                        className="w-full py-3 text-center text-sm font-bold text-amber-400 hover:text-amber-300 transition-colors bg-amber-500/10 rounded-xl hover:bg-amber-500/20 flex items-center justify-center gap-2"
+                      >
+                        <Users size={16} />
+                        {isRTL ? 'فتح إدارة الموارد البشرية' : 'Open HR Management'}
+                      </button>
+                    )}
+                  </div>
+                </motion.div>
+              </div>
+            )}
+          </AnimatePresence>
 
         {/* User Dropdown Modal */}
         <AnimatePresence>
@@ -2279,9 +2637,179 @@ export function Header({ user, onToggleSidebar, unreadChatCount = 0, subscriptio
               )}
             </AnimatePresence>
 
-  
+          {/* Login Splash - Identity Expiry Alert */}
           <AnimatePresence>
-            {isDriverModalOpen && (
+            {showLoginSplash && hrNotifications && (hrNotifications.identity.total_expired > 0 || hrNotifications.identity.total_expiring_soon > 0) && (
+              <div className="fixed inset-0 z-[10000] flex items-center justify-center p-4">
+                <motion.div 
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  className="absolute inset-0 bg-black/80 backdrop-blur-lg"
+                />
+                <motion.div 
+                  initial={{ scale: 0.8, opacity: 0, y: 30 }}
+                  animate={{ scale: 1, opacity: 1, y: 0 }}
+                  exit={{ scale: 0.8, opacity: 0, y: 30 }}
+                  transition={{ type: "spring", damping: 20, stiffness: 300 }}
+                  className="relative w-full max-w-md bg-gradient-to-b from-slate-900 via-slate-900 to-slate-950 rounded-[2.5rem] shadow-2xl overflow-hidden border border-red-500/20 max-h-[85vh] flex flex-col"
+                >
+                  {/* Animated background effects */}
+                  <div className="absolute inset-0 overflow-hidden pointer-events-none">
+                    <motion.div
+                      animate={{ x: [0, 50, 0], y: [0, -30, 0], scale: [1, 1.2, 1] }}
+                      transition={{ duration: 8, repeat: Infinity }}
+                      className="absolute -top-20 -right-20 w-60 h-60 bg-red-500/10 rounded-full blur-3xl"
+                    />
+                    <motion.div
+                      animate={{ x: [0, -30, 0], y: [0, 40, 0], scale: [1.1, 0.9, 1.1] }}
+                      transition={{ duration: 10, repeat: Infinity }}
+                      className="absolute -bottom-20 -left-20 w-60 h-60 bg-amber-500/10 rounded-full blur-3xl"
+                    />
+                  </div>
+
+                  {/* Close */}
+                  <button 
+                    onClick={() => setShowLoginSplash(false)}
+                    className="absolute top-5 left-5 p-2 text-white/20 hover:text-white hover:bg-white/10 rounded-xl transition-all z-10"
+                  >
+                    <X size={20} />
+                  </button>
+
+                  {/* Header with animated shield */}
+                  <div className="relative p-8 pb-4 text-center">
+                    <div className="relative inline-block mb-5">
+                      <motion.div
+                        animate={{ scale: [1, 1.2, 1], opacity: [0.2, 0.5, 0.2] }}
+                        transition={{ duration: 2, repeat: Infinity }}
+                        className="absolute inset-0 bg-red-500 rounded-full blur-2xl"
+                      />
+                      <motion.div
+                        animate={{ rotate: [0, -5, 5, 0] }}
+                        transition={{ duration: 4, repeat: Infinity }}
+                        className="relative"
+                      >
+                        <div className="p-5 rounded-3xl bg-gradient-to-br from-red-500/30 to-rose-500/30 border border-red-500/30 shadow-2xl shadow-red-500/20">
+                          <ShieldAlert size={40} className="text-red-400" />
+                        </div>
+                      </motion.div>
+                    </div>
+                    <h2 className="text-2xl font-black text-white mb-2">
+                      {isRTL ? 'تنبيه سريان الهويات' : 'ID Validity Alert'}
+                    </h2>
+                    <p className="text-sm text-white/50 max-w-xs mx-auto">
+                      {isRTL ? 'يوجد موظفون تحتاج هوياتهم إلى تجديد أو مراجعة فورية' : 'Some employees need immediate ID renewal or review'}
+                    </p>
+                  </div>
+
+                  {/* Stats */}
+                  <div className="px-6 pb-4">
+                    <div className="grid grid-cols-2 gap-3">
+                      {hrNotifications.identity.total_expired > 0 && (
+                        <motion.div
+                          initial={{ opacity: 0, y: 20 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ delay: 0.2 }}
+                          className="p-4 rounded-2xl bg-gradient-to-br from-red-500/15 to-rose-500/15 border border-red-500/30"
+                        >
+                          <ShieldX size={22} className="text-red-400 mb-2" />
+                          <p className="text-3xl font-black text-red-400">{hrNotifications.identity.total_expired}</p>
+                          <p className="text-[10px] font-black text-red-400/60 uppercase mt-1">{isRTL ? 'هوية منتهية' : 'Expired'}</p>
+                        </motion.div>
+                      )}
+                      {hrNotifications.identity.total_expiring_soon > 0 && (
+                        <motion.div
+                          initial={{ opacity: 0, y: 20 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ delay: 0.3 }}
+                          className="p-4 rounded-2xl bg-gradient-to-br from-amber-500/15 to-orange-500/15 border border-amber-500/30"
+                        >
+                          <ShieldAlert size={22} className="text-amber-400 mb-2" />
+                          <p className="text-3xl font-black text-amber-400">{hrNotifications.identity.total_expiring_soon}</p>
+                          <p className="text-[10px] font-black text-amber-400/60 uppercase mt-1">{isRTL ? 'تنتهي قريبا' : 'Expiring'}</p>
+                        </motion.div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Employee list */}
+                  <div className="flex-1 overflow-y-auto px-6 pb-4 space-y-2 max-h-48">
+                    {[...(hrNotifications.identity.expired || []), ...(hrNotifications.identity.expiring_soon || [])].slice(0, 8).map((emp, i) => (
+                      <motion.div
+                        key={emp.id}
+                        initial={{ opacity: 0, x: isRTL ? 20 : -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: 0.4 + i * 0.05 }}
+                        className={cn(
+                          "flex items-center gap-3 p-3 rounded-xl border transition-all",
+                          emp.status === 'expired' 
+                            ? "bg-red-500/5 border-red-500/15" 
+                            : "bg-amber-500/5 border-amber-500/15"
+                        )}
+                      >
+                        <div className={cn(
+                          "p-1.5 rounded-lg",
+                          emp.status === 'expired' ? "bg-red-500/20" : "bg-amber-500/20"
+                        )}>
+                          {emp.status === 'expired' 
+                            ? <ShieldX size={14} className="text-red-400" />
+                            : <ShieldAlert size={14} className="text-amber-400" />
+                          }
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-xs font-black text-white/90 truncate">{emp.name}</p>
+                          <p className="text-[10px] text-white/30">{emp.package_name}</p>
+                        </div>
+                        <span className={cn(
+                          "px-2 py-0.5 rounded-lg text-[9px] font-black shrink-0",
+                          emp.status === 'expired' ? "bg-red-500/20 text-red-400" : 
+                          emp.days_remaining <= 7 ? "bg-red-500/20 text-red-400" :
+                          "bg-amber-500/20 text-amber-400"
+                        )}>
+                          {emp.status === 'expired' 
+                            ? (isRTL ? `منتهية ${Math.abs(emp.days_remaining)}ي` : `${Math.abs(emp.days_remaining)}d ago`)
+                            : emp.days_remaining === 0 ? (isRTL ? 'اليوم' : 'Today')
+                            : (isRTL ? `${emp.days_remaining} يوم` : `${emp.days_remaining}d`)
+                          }
+                        </span>
+                      </motion.div>
+                    ))}
+                    {(hrNotifications.identity.total_expired + hrNotifications.identity.total_expiring_soon) > 8 && (
+                      <p className="text-[10px] text-white/30 text-center py-2">
+                        +{(hrNotifications.identity.total_expired + hrNotifications.identity.total_expiring_soon) - 8} {isRTL ? 'موظف آخر' : 'more employees'}
+                      </p>
+                    )}
+                  </div>
+
+                  {/* Actions */}
+                  <div className="p-6 pt-3 space-y-2.5 shrink-0">
+                    <motion.button
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      onClick={() => {
+                        router.push('/hr/reports/iqama?filter=expired');
+                        setShowLoginSplash(false);
+                      }}
+                      className="w-full py-4 bg-gradient-to-r from-red-500 to-rose-500 hover:from-red-600 hover:to-rose-600 rounded-2xl text-white font-black text-sm shadow-xl shadow-red-500/30 transition-all flex items-center justify-center gap-2"
+                    >
+                      <Shield size={18} />
+                      {isRTL ? 'فتح تقرير سريان الهويات' : 'Open ID Validity Report'}
+                    </motion.button>
+                    <button
+                      onClick={() => setShowLoginSplash(false)}
+                      className="w-full py-3 text-center text-sm font-bold text-white/30 hover:text-white/60 transition-colors"
+                    >
+                      {isRTL ? 'تذكيري لاحقا' : 'Remind me later'}
+                    </button>
+                  </div>
+                </motion.div>
+              </div>
+            )}
+          </AnimatePresence>
+
+    
+            <AnimatePresence>
+              {isDriverModalOpen && (
           <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
             <motion.div 
               initial={{ opacity: 0 }}
