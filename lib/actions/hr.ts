@@ -561,3 +561,51 @@ export async function deleteEmployeeCustomDocument(id: number, employeeId: numbe
     return { success: false, error: error.message };
   }
 }
+
+export async function updateEmployeesBulk(
+  packageId: number,
+  updates: Array<{
+    id: number;
+    changes: Record<string, any>;
+  }>
+) {
+  try {
+    const allowedFields = [
+        'name', 'name_en', 'iqama_number', 'user_code', 'job_title',
+        'nationality', 'phone', 'email', 'vehicle_plate', 'birth_date',
+        'passport_number', 'operation_card_number', 'basic_salary',
+        'housing_allowance', 'iqama_expiry', 'iban'
+      ];
+
+    let updatedCount = 0;
+
+    for (const update of updates) {
+      const setClauses: string[] = [];
+      const values: any[] = [];
+
+      for (const [field, value] of Object.entries(update.changes)) {
+        if (!allowedFields.includes(field)) continue;
+        setClauses.push(`${field} = ?`);
+        values.push(value === '' ? null : value);
+      }
+
+      if (setClauses.length === 0) continue;
+
+      values.push(update.id);
+      values.push(packageId);
+
+      await query(
+        `UPDATE employees SET ${setClauses.join(', ')} WHERE id = ? AND package_id = ?`,
+        values
+      );
+      updatedCount++;
+    }
+
+    revalidatePath(`/hr/packages/${packageId}`);
+    revalidatePath("/hr");
+    return { success: true, updatedCount };
+  } catch (error: any) {
+    console.error("Error in bulk update:", error);
+    return { success: false, error: error.message };
+  }
+}

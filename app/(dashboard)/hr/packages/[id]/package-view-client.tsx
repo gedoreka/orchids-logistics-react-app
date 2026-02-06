@@ -51,7 +51,7 @@ import Link from "next/link";
 import { format } from "date-fns";
 import { ar, enUS } from "date-fns/locale";
 import { toast } from "sonner";
-import { deleteEmployee, updateIqamaExpiry, toggleEmployeeStatus, saveEmployees } from "@/lib/actions/hr";
+import { deleteEmployee, updateIqamaExpiry, toggleEmployeeStatus, saveEmployees, updateEmployeesBulk } from "@/lib/actions/hr";
 import { useRouter } from "next/navigation";
 import { useLocale, useTranslations } from "@/lib/locale-context";
 import { cn } from "@/lib/utils";
@@ -127,6 +127,25 @@ export function PackageViewClient({
   const [newEmployees, setNewEmployees] = useState([emptyEmployee()]);
   const [excelScanModal, setExcelScanModal] = useState<{ isOpen: boolean; phase: 'scanning' | 'found' | 'done'; count: number }>({ isOpen: false, phase: 'scanning', count: 0 });
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const updateFileInputRef = useRef<HTMLInputElement>(null);
+
+  // Export confirmation modal state
+    const [exportModal, setExportModal] = useState(false);
+
+    // Update from Excel modal state
+    const [updateModal, setUpdateModal] = useState<{
+    isOpen: boolean;
+    phase: 'verifying' | 'preview' | 'updating' | 'success' | 'no_changes';
+    changes: Array<{
+      employeeId: number;
+      employeeName: string;
+      field: string;
+      fieldLabel: string;
+      oldValue: string;
+      newValue: string;
+    }>;
+    updates: Array<{ id: number; changes: Record<string, any> }>;
+  }>({ isOpen: false, phase: 'verifying', changes: [], updates: [] });
 
   useEffect(() => {
     setEmployees(initialEmployees);
@@ -286,7 +305,7 @@ export function PackageViewClient({
     birth_date: ['تاريخ الميلاد', 'Birth Date', 'الميلاد', 'birth_date', 'birth date', 'Date of Birth'],
     passport_number: ['رقم الجواز', 'Passport Number', 'الجواز', 'passport_number', 'passport number', 'Passport'],
     operation_card_number: ['كرت التشغيل', 'Operation Card', 'كرت تشغيل', 'operation_card_number', 'operation card'],
-    iqama_expiry: ['انتهاء الإقامة', 'Iqama Expiry', 'تاريخ انتهاء الإقامة', 'iqama_expiry', 'Expiry Date'],
+    iqama_expiry: ['تاريخ انتهاء الهوية', 'انتهاء الهوية', 'ID Expiry', 'Iqama Expiry', 'تاريخ انتهاء الإقامة', 'انتهاء الإقامة', 'iqama_expiry', 'Expiry Date'],
   };
 
   const resolveColumnField = (header: string): string | null => {
@@ -313,7 +332,7 @@ export function PackageViewClient({
       'كرت التشغيل\nOperation Card',
       'الراتب الأساسي\nBasic Salary',
       'بدل السكن\nHousing Allowance',
-      'انتهاء الإقامة\nIqama Expiry',
+      'تاريخ انتهاء الهوية\nID Expiry',
     ];
     const sampleRow = ["أحمد محمد", "Ahmed Mohammed", "2000000000", "EMP001", "سائق", "سعودي", "0555555555", "ahmed@example.com", "أ ب ج 1234", "1990-01-15", "A12345678", "OP-001", 3000, 1000, "2027-06-30"];
 
@@ -407,7 +426,240 @@ export function PackageViewClient({
     reader.readAsArrayBuffer(file);
   };
 
-  // ======= Table field definitions for the 14 fields =======
+    // ======= Export Employees =======
+    const handleExportEmployees = () => {
+      if (employees.length === 0) {
+        toast.error(t('noMatchingEmployees'));
+        return;
+      }
+
+      const headers = [
+        'اسم الموظف\nEmployee Name',
+        'اسم الموظف بالإنجليزية\nName EN',
+        'رقم الهوية\nID Number',
+        'رقم المستخدم\nUser Code',
+        'المسمى الوظيفي\nJob Title',
+        'الجنسية\nNationality',
+        'رقم الهاتف\nPhone Number',
+        'البريد الإلكتروني\nEmail',
+        'لوحة المركبة\nVehicle Plate',
+        'تاريخ الميلاد\nBirth Date',
+        'رقم الجواز\nPassport Number',
+        'كرت التشغيل\nOperation Card',
+        'الراتب الأساسي\nBasic Salary',
+        'بدل السكن\nHousing Allowance',
+        'تاريخ انتهاء الهوية\nID Expiry',
+        'الآيبان\nIBAN',
+      ];
+
+      const rows = employees.map((emp: any) => [
+        emp.name || '',
+        emp.name_en || '',
+        emp.iqama_number || '',
+        emp.user_code || '',
+        emp.job_title || '',
+        emp.nationality || '',
+        emp.phone || '',
+        emp.email || '',
+        emp.vehicle_plate || '',
+        emp.birth_date ? new Date(emp.birth_date).toISOString().split('T')[0] : '',
+        emp.passport_number || '',
+        emp.operation_card_number || '',
+        emp.basic_salary || 0,
+        emp.housing_allowance || 0,
+        emp.iqama_expiry ? new Date(emp.iqama_expiry).toISOString().split('T')[0] : '',
+        emp.iban || '',
+      ]);
+
+      const wsData = [headers, ...rows];
+      const ws = XLSX.utils.aoa_to_sheet(wsData);
+      ws['!cols'] = headers.map(() => ({ wch: 24 }));
+      ws['!rows'] = [{ hpt: 40 }];
+
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, "Employees");
+      XLSX.writeFile(wb, `employees_${packageData.group_name}.xlsx`);
+      toast.success(t('exportSuccessful'));
+    };
+
+    // ======= Update from Excel =======
+    const handleUpdateFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+      const file = e.target.files?.[0];
+      if (!file) return;
+      e.target.value = '';
+
+      setUpdateModal({ isOpen: true, phase: 'verifying', changes: [], updates: [] });
+
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        try {
+          const data = new Uint8Array(event.target?.result as ArrayBuffer);
+          const workbook = XLSX.read(data, { type: 'array', codepage: 65001 });
+          const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+          const rawRows: any[][] = XLSX.utils.sheet_to_json(firstSheet, { header: 1, raw: false, defval: '' });
+
+          if (rawRows.length < 2) {
+            setUpdateModal(prev => ({ ...prev, isOpen: false }));
+            toast.error(tp('excelParseError'));
+            return;
+          }
+
+          const headerRow = rawRows[0].map((h: any) => String(h || ''));
+          const columnFieldMap: (string | null)[] = headerRow.map((header: string) => {
+            const parts = header.split(/[\n\r]+/).map((p: string) => p.trim());
+            for (const part of parts) {
+              const field = resolveColumnField(part);
+              if (field) return field;
+            }
+            return resolveColumnField(header);
+          });
+
+          const fieldLabels: Record<string, string> = {};
+          for (const f of fieldDefs) {
+            fieldLabels[f.key] = isRTL ? f.label : f.labelEn;
+          }
+          fieldLabels['iban'] = isRTL ? 'الآيبان' : 'IBAN';
+
+          const changes: typeof updateModal.changes = [];
+          const updates: typeof updateModal.updates = [];
+
+          const dataRows = rawRows.slice(1);
+
+          for (const values of dataRows) {
+            if (!values || values.every((v: any) => !v || String(v).trim() === '')) continue;
+
+            const getValue = (fieldName: string): string => {
+              const idx = columnFieldMap.indexOf(fieldName);
+              if (idx === -1) return '';
+              const v = values[idx];
+              return v != null ? String(v).trim() : '';
+            };
+
+            const excelName = getValue('employee_name');
+            const excelIqama = getValue('iqama_number');
+            const excelCode = getValue('user_code');
+
+            // Match employee by iqama_number, user_code, or name
+            const matched = employees.find((emp: any) => {
+              if (excelIqama && emp.iqama_number && String(emp.iqama_number).trim() === excelIqama) return true;
+              if (excelCode && emp.user_code && String(emp.user_code).trim() === excelCode) return true;
+              if (excelName && emp.name && emp.name.trim() === excelName) return true;
+              return false;
+            });
+
+            if (!matched) continue;
+
+            const empChanges: Record<string, any> = {};
+              const comparableFields = [
+                'name', 'name_en', 'iqama_number', 'user_code', 'job_title',
+                'nationality', 'phone', 'email', 'vehicle_plate', 'birth_date',
+                'passport_number', 'operation_card_number', 'basic_salary',
+                'housing_allowance', 'iqama_expiry', 'iban'
+              ];
+
+            for (const field of comparableFields) {
+              const excelFieldName = field === 'name' ? 'employee_name' : field;
+              const idx = columnFieldMap.indexOf(excelFieldName);
+              if (idx === -1) continue;
+
+              let excelVal = values[idx] != null ? String(values[idx]).trim() : '';
+                let dbVal = matched[field] != null ? String(matched[field]).trim() : '';
+
+                // Normalize dates - handle multiple formats: YYYY-MM-DD, DD/MM/YYYY, DD-MM-YYYY, MM/DD/YYYY, Excel serial numbers
+                if (field === 'birth_date' || field === 'iqama_expiry') {
+                  const parseFlexDate = (val: string): string => {
+                    if (!val) return '';
+                    // Excel serial number (e.g. 45678)
+                    const num = Number(val);
+                    if (!isNaN(num) && num > 30000 && num < 100000) {
+                      const d = new Date((num - 25569) * 86400000);
+                      if (!isNaN(d.getTime())) return d.toISOString().split('T')[0];
+                    }
+                    // Try YYYY-MM-DD or YYYY/MM/DD
+                    const isoMatch = val.match(/^(\d{4})[\/\-](\d{1,2})[\/\-](\d{1,2})/);
+                    if (isoMatch) {
+                      const [, y, m, d] = isoMatch;
+                      return `${y}-${m.padStart(2, '0')}-${d.padStart(2, '0')}`;
+                    }
+                    // Try DD/MM/YYYY or DD-MM-YYYY
+                    const dmyMatch = val.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})/);
+                    if (dmyMatch) {
+                      const [, d, m, y] = dmyMatch;
+                      return `${y}-${m.padStart(2, '0')}-${d.padStart(2, '0')}`;
+                    }
+                    // Fallback: try native Date parsing
+                    const d = new Date(val);
+                    if (!isNaN(d.getTime())) return d.toISOString().split('T')[0];
+                    return val;
+                  };
+                  excelVal = parseFlexDate(excelVal);
+                  dbVal = parseFlexDate(dbVal);
+                }
+
+                // Normalize numbers
+                if (field === 'basic_salary' || field === 'housing_allowance') {
+                  excelVal = String(parseFloat(excelVal) || 0);
+                  dbVal = String(parseFloat(dbVal) || 0);
+                }
+
+                if (excelVal !== dbVal && !(excelVal === '' && dbVal === '')) {
+                  empChanges[field] = field === 'basic_salary' || field === 'housing_allowance'
+                    ? parseFloat(excelVal) || 0
+                    : excelVal;
+
+                changes.push({
+                  employeeId: matched.id,
+                  employeeName: matched.name,
+                  field,
+                  fieldLabel: fieldLabels[field] || field,
+                  oldValue: dbVal || (isRTL ? t('empty') : 'Empty'),
+                  newValue: excelVal || (isRTL ? t('empty') : 'Empty'),
+                });
+              }
+            }
+
+            if (Object.keys(empChanges).length > 0) {
+              updates.push({ id: matched.id, changes: empChanges });
+            }
+          }
+
+          setTimeout(() => {
+            if (changes.length === 0) {
+              setUpdateModal({ isOpen: true, phase: 'no_changes', changes: [], updates: [] });
+            } else {
+              setUpdateModal({ isOpen: true, phase: 'preview', changes, updates });
+            }
+          }, 1500);
+
+        } catch {
+          setUpdateModal(prev => ({ ...prev, isOpen: false }));
+          toast.error(tp('excelParseError'));
+        }
+      };
+      reader.readAsArrayBuffer(file);
+    };
+
+    const confirmBulkUpdate = async () => {
+      setUpdateModal(prev => ({ ...prev, phase: 'updating' }));
+      try {
+        const result = await updateEmployeesBulk(packageData.id, updateModal.updates);
+        if (result.success) {
+          setUpdateModal(prev => ({ ...prev, phase: 'success' }));
+          setTimeout(() => {
+            setUpdateModal({ isOpen: false, phase: 'verifying', changes: [], updates: [] });
+            router.refresh();
+          }, 2500);
+        } else {
+          toast.error(result.error || t('updateError'));
+          setUpdateModal({ isOpen: false, phase: 'verifying', changes: [], updates: [] });
+        }
+      } catch {
+        toast.error(t('updateError'));
+        setUpdateModal({ isOpen: false, phase: 'verifying', changes: [], updates: [] });
+      }
+    };
+
+    // ======= Table field definitions for the 14 fields =======
   const fieldDefs = [
     { key: 'name', label: 'اسم الموظف', labelEn: 'Name', required: true, type: 'text', icon: <UserPlus size={12} /> },
     { key: 'name_en', label: 'الاسم بالإنجليزية', labelEn: 'Name EN', required: false, type: 'text', icon: <Globe size={12} /> },
@@ -423,7 +675,7 @@ export function PackageViewClient({
     { key: 'operation_card_number', label: 'كرت التشغيل', labelEn: 'Op Card', required: false, type: 'text', icon: <IdCard size={12} /> },
     { key: 'basic_salary', label: 'الراتب الأساسي', labelEn: 'Salary', required: true, type: 'number', icon: <CreditCard size={12} /> },
     { key: 'housing_allowance', label: 'بدل السكن', labelEn: 'Housing', required: false, type: 'number', icon: <Building size={12} /> },
-    { key: 'iqama_expiry', label: 'انتهاء الإقامة', labelEn: 'Expiry', required: false, type: 'date', icon: <Calendar size={12} /> },
+    { key: 'iqama_expiry', label: 'تاريخ انتهاء الهوية', labelEn: 'ID Expiry', required: false, type: 'date', icon: <Calendar size={12} /> },
   ];
 
   const containerVariants = {
@@ -659,16 +911,40 @@ export function PackageViewClient({
                   <p className="text-slate-400 text-xs font-bold">{employees.length} {t('employeesInList')}</p>
                 </div>
               </div>
-              <div className="flex items-center gap-2">
-                <motion.button
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  className="h-9 px-4 rounded-lg bg-white/10 text-white text-xs font-bold hover:bg-white/20 transition-all flex items-center gap-2"
-                >
-                  <Download size={14} />
-                  {t('export')}
-                </motion.button>
-              </div>
+                <div className="flex items-center gap-2">
+                  <motion.button
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      onClick={() => {
+                        if (employees.length === 0) {
+                          toast.error(t('noMatchingEmployees'));
+                          return;
+                        }
+                        setExportModal(true);
+                      }}
+                      className="h-9 px-4 rounded-lg bg-white/10 text-white text-xs font-bold hover:bg-white/20 transition-all flex items-center gap-2"
+                    >
+                      <Download size={14} />
+                      {t('exportExcel')}
+                    </motion.button>
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() => updateFileInputRef.current?.click()}
+                    className="h-9 px-4 rounded-lg bg-emerald-500/20 text-emerald-300 text-xs font-bold hover:bg-emerald-500/30 transition-all flex items-center gap-2 border border-emerald-500/20"
+                    title={t('updateFormatNote')}
+                  >
+                    <Upload size={14} />
+                    {t('updateFromExcel')}
+                  </motion.button>
+                  <input
+                    ref={updateFileInputRef}
+                    type="file"
+                    className="hidden"
+                    accept=".xlsx,.xls"
+                    onChange={handleUpdateFileUpload}
+                  />
+                </div>
             </div>
           </div>
 
@@ -806,9 +1082,150 @@ export function PackageViewClient({
           <span>{t('allRightsReserved')} © {new Date().getFullYear()}</span>
         </div>
 
-        {/* ========== DELETE EMPLOYEE PREMIUM MODAL ========== */}
+        {/* ========== EXPORT CONFIRMATION PREMIUM MODAL ========== */}
         <AnimatePresence>
-          {deleteModal.isOpen && (
+          {exportModal && (
+            <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                onClick={() => setExportModal(false)}
+                className="absolute inset-0 bg-slate-950/90 backdrop-blur-2xl"
+              />
+
+              <motion.div
+                initial={{ opacity: 0, scale: 0.8, y: 50 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.8, y: 50 }}
+                transition={{ type: "spring", damping: 25, stiffness: 300 }}
+                className="relative w-full max-w-xl bg-white rounded-[3rem] shadow-[0_0_100px_rgba(99,102,241,0.3)] overflow-hidden border-4 border-indigo-500/20"
+                dir={isRTL ? 'rtl' : 'ltr'}
+              >
+                {/* Header */}
+                <div className="relative bg-gradient-to-br from-indigo-500 via-purple-600 to-indigo-700 p-10 text-white text-center overflow-hidden">
+                  <div className="absolute inset-0 overflow-hidden">
+                    {[...Array(6)].map((_, i) => (
+                      <motion.div
+                        key={i}
+                        animate={{ y: [0, -15, 0], opacity: [0.2, 0.6, 0.2] }}
+                        transition={{ delay: i * 0.2, duration: 2, repeat: Infinity }}
+                        className="absolute"
+                        style={{ left: `${10 + i * 16}%`, top: '25%' }}
+                      >
+                        <FileSpreadsheet size={18} className="text-white/20" />
+                      </motion.div>
+                    ))}
+                  </div>
+
+                  <motion.div
+                    initial={{ scale: 0, rotate: -180 }}
+                    animate={{ scale: 1, rotate: 0 }}
+                    transition={{ delay: 0.2, type: "spring", damping: 15 }}
+                    className="relative z-10 mx-auto w-24 h-24 bg-white/20 backdrop-blur-xl rounded-full flex items-center justify-center mb-6 shadow-2xl border-4 border-white/30"
+                  >
+                    <motion.div
+                      animate={{ scale: [1, 1.1, 1] }}
+                      transition={{ repeat: Infinity, duration: 2 }}
+                    >
+                      <Download size={44} className="text-white drop-shadow-lg" />
+                    </motion.div>
+                  </motion.div>
+
+                  <motion.h3
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.3 }}
+                    className="text-2xl font-black tracking-tight relative z-10"
+                  >
+                    {t('exportConfirmTitle')}
+                  </motion.h3>
+                  <motion.p
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.4 }}
+                    className="text-white/80 font-bold mt-2 relative z-10 text-sm"
+                  >
+                    {t('exportConfirmDesc')}
+                  </motion.p>
+                </div>
+
+                {/* Body */}
+                <div className="p-8 space-y-4">
+                  {/* Stats */}
+                  <div className="flex gap-3">
+                    <div className="flex-1 bg-indigo-50 rounded-2xl p-4 border-2 border-indigo-100 text-center">
+                      <p className="text-indigo-400 text-[10px] font-black uppercase tracking-wider">{t('exportConfirmEmployeeCount')}</p>
+                      <p className="text-indigo-700 font-black text-3xl mt-1">{employees.length}</p>
+                    </div>
+                    <div className="flex-1 bg-purple-50 rounded-2xl p-4 border-2 border-purple-100 text-center">
+                      <p className="text-purple-400 text-[10px] font-black uppercase tracking-wider">{t('exportConfirmPackage')}</p>
+                      <p className="text-purple-700 font-black text-lg mt-1 truncate">{packageData.group_name}</p>
+                    </div>
+                  </div>
+
+                  {/* Warning - update only */}
+                  <motion.div
+                    initial={{ opacity: 0, x: isRTL ? 20 : -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.5 }}
+                    className="bg-amber-50 rounded-2xl p-4 border-2 border-amber-200 flex items-start gap-3"
+                  >
+                    <div className="h-9 w-9 rounded-xl bg-amber-100 flex items-center justify-center shrink-0 mt-0.5">
+                      <AlertTriangle size={18} className="text-amber-600" />
+                    </div>
+                    <div>
+                      <p className="text-amber-800 font-black text-sm">{t('exportConfirmWarning')}</p>
+                      <p className="text-amber-600/80 font-bold text-xs mt-1 leading-relaxed">{t('exportConfirmNewEmpNote')}</p>
+                    </div>
+                  </motion.div>
+
+                  {/* Format note */}
+                  <motion.div
+                    initial={{ opacity: 0, x: isRTL ? 20 : -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.6 }}
+                    className="bg-blue-50 rounded-2xl p-4 border-2 border-blue-200 flex items-start gap-3"
+                  >
+                    <div className="h-9 w-9 rounded-xl bg-blue-100 flex items-center justify-center shrink-0 mt-0.5">
+                      <Info size={18} className="text-blue-600" />
+                    </div>
+                    <p className="text-blue-700 font-bold text-xs leading-relaxed">{t('exportConfirmFormatNote')}</p>
+                  </motion.div>
+
+                  {/* Buttons */}
+                  <div className="flex gap-4 pt-2">
+                    <motion.button
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      onClick={() => setExportModal(false)}
+                      className="flex-1 flex items-center justify-center gap-3 bg-slate-100 text-slate-700 py-4 rounded-2xl font-black text-sm hover:bg-slate-200 transition-colors"
+                    >
+                      <X size={18} />
+                      {t('cancelUpdate')}
+                    </motion.button>
+                    <motion.button
+                      whileHover={{ scale: 1.02, boxShadow: "0 20px 40px rgba(99, 102, 241, 0.4)" }}
+                      whileTap={{ scale: 0.98 }}
+                      onClick={() => {
+                        setExportModal(false);
+                        handleExportEmployees();
+                      }}
+                      className="flex-[1.5] flex items-center justify-center gap-3 bg-gradient-to-r from-indigo-500 via-purple-500 to-indigo-600 text-white py-4 rounded-2xl font-black text-sm shadow-xl shadow-indigo-500/30 border-b-4 border-indigo-700/50"
+                    >
+                      <Download size={20} />
+                      {t('startDownload')}
+                    </motion.button>
+                  </div>
+                </div>
+              </motion.div>
+            </div>
+          )}
+        </AnimatePresence>
+
+          {/* ========== DELETE EMPLOYEE PREMIUM MODAL ========== */}
+          <AnimatePresence>
+            {deleteModal.isOpen && (
             <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
               <motion.div
                 initial={{ opacity: 0 }}
@@ -1161,7 +1578,7 @@ export function PackageViewClient({
                       <div>
                         <p className="text-xs font-black text-blue-700 mb-1">ملاحظة: الحقول الإضافية بعد حفظ الباقة</p>
                         <p className="text-[11px] font-bold text-blue-600 leading-relaxed">
-                            هذا الجدول يحتوي على جميع بيانات الموظف المتاحة بعد حفظ الباقة: الاسم بالإنجليزية، رقم الهوية، رقم المستخدم، المسمى الوظيفي، الجنسية، رقم الهاتف، البريد الإلكتروني، لوحة المركبة، تاريخ الميلاد، رقم الجواز، كرت التشغيل، الراتب الأساسي، بدل السكن، انتهاء الإقامة.
+                            هذا الجدول يحتوي على جميع بيانات الموظف المتاحة بعد حفظ الباقة: الاسم بالإنجليزية، رقم الهوية، رقم المستخدم، المسمى الوظيفي، الجنسية، رقم الهاتف، البريد الإلكتروني، لوحة المركبة، تاريخ الميلاد، رقم الجواز، كرت التشغيل، الراتب الأساسي، بدل السكن، تاريخ انتهاء الهوية.
                         </p>
                       </div>
                     </div>
@@ -1333,8 +1750,287 @@ export function PackageViewClient({
               </motion.div>
             </div>
           )}
-        </AnimatePresence>
-      </motion.div>
+          </AnimatePresence>
+
+          {/* ========== UPDATE FROM EXCEL MODAL ========== */}
+          <AnimatePresence>
+            {updateModal.isOpen && (
+              <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  onClick={() => updateModal.phase === 'preview' || updateModal.phase === 'no_changes' ? setUpdateModal(prev => ({ ...prev, isOpen: false })) : undefined}
+                  className="absolute inset-0 bg-slate-950/90 backdrop-blur-2xl"
+                />
+
+                {/* Phase: Verifying */}
+                {updateModal.phase === 'verifying' && (
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.8 }}
+                    className="relative w-full max-w-lg bg-white rounded-[3rem] shadow-2xl overflow-hidden"
+                    dir={isRTL ? 'rtl' : 'ltr'}
+                  >
+                    <div className="relative bg-gradient-to-br from-indigo-500 via-purple-600 to-violet-700 p-10 text-white text-center overflow-hidden">
+                      <div className="absolute inset-0 overflow-hidden">
+                        {[...Array(6)].map((_, i) => (
+                          <motion.div
+                            key={i}
+                            animate={{ y: [0, -15, 0], opacity: [0.3, 0.7, 0.3] }}
+                            transition={{ delay: i * 0.2, duration: 1.5, repeat: Infinity }}
+                            className="absolute"
+                            style={{ left: `${10 + i * 15}%`, top: '40%' }}
+                          >
+                            <Sparkles size={14} className="text-white/30" />
+                          </motion.div>
+                        ))}
+                      </div>
+                      <motion.div className="relative z-10 mx-auto w-24 h-24 bg-white/20 backdrop-blur-xl rounded-full flex items-center justify-center mb-6 shadow-2xl border-4 border-white/30">
+                        <motion.div
+                          animate={{ rotate: 360 }}
+                          transition={{ repeat: Infinity, duration: 1.5, ease: "linear" }}
+                          className="h-14 w-14 border-4 border-white/30 border-t-white rounded-full"
+                        />
+                      </motion.div>
+                      <h3 className="text-2xl font-black tracking-tight relative z-10">{t('verifyingData')}</h3>
+                      <div className="flex justify-center gap-4 mt-4 relative z-10">
+                        <span className="text-xs font-bold text-white/60 animate-pulse">{t('readingFile')}</span>
+                        <span className="text-xs font-bold text-white/60 animate-pulse delay-100">{t('analyzingData')}</span>
+                        <span className="text-xs font-bold text-white/60 animate-pulse delay-200">{t('comparingData')}</span>
+                      </div>
+                    </div>
+                    <div className="p-8 text-center">
+                      <div className="bg-indigo-50 rounded-2xl p-5 border-2 border-indigo-100">
+                        <div className="h-2 bg-indigo-100 rounded-full overflow-hidden">
+                          <motion.div
+                            initial={{ width: "0%" }}
+                            animate={{ width: "100%" }}
+                            transition={{ duration: 1.5, ease: "easeInOut" }}
+                            className="h-full bg-gradient-to-r from-indigo-400 to-purple-500 rounded-full"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
+
+                {/* Phase: No Changes */}
+                {updateModal.phase === 'no_changes' && (
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.8 }}
+                    className="relative w-full max-w-lg bg-white rounded-[3rem] shadow-2xl overflow-hidden"
+                    dir={isRTL ? 'rtl' : 'ltr'}
+                  >
+                    <div className="relative bg-gradient-to-br from-slate-500 to-slate-700 p-10 text-white text-center">
+                      <div className="mx-auto w-24 h-24 bg-white/20 backdrop-blur-xl rounded-full flex items-center justify-center mb-6 border-4 border-white/30">
+                        <CheckCircle2 size={48} className="text-white" />
+                      </div>
+                      <h3 className="text-2xl font-black">{t('noChangesFound')}</h3>
+                      <p className="text-white/70 font-bold mt-2">{t('noChangesFoundDesc')}</p>
+                    </div>
+                    <div className="p-8 text-center">
+                      <motion.button
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                        onClick={() => setUpdateModal({ isOpen: false, phase: 'verifying', changes: [], updates: [] })}
+                        className="px-10 py-3 rounded-2xl bg-slate-100 text-slate-700 font-black text-sm hover:bg-slate-200 transition-all"
+                      >
+                        {t('cancelUpdate')}
+                      </motion.button>
+                    </div>
+                  </motion.div>
+                )}
+
+                {/* Phase: Preview */}
+                {updateModal.phase === 'preview' && (
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                    exit={{ opacity: 0, scale: 0.9, y: 20 }}
+                    className="relative w-full max-w-4xl max-h-[85vh] bg-white rounded-[2rem] shadow-2xl overflow-hidden flex flex-col"
+                    dir={isRTL ? 'rtl' : 'ltr'}
+                  >
+                    <div className="bg-gradient-to-r from-amber-500 via-orange-500 to-red-500 p-6 text-white shrink-0">
+                      <div className="flex items-center gap-3">
+                        <div className="h-12 w-12 rounded-xl bg-white/20 flex items-center justify-center">
+                          <FileSpreadsheet size={24} className="text-white" />
+                        </div>
+                        <div>
+                          <h3 className="text-xl font-black">{t('previewChanges')}</h3>
+                          <p className="text-white/80 text-xs font-bold mt-0.5">
+                            {updateModal.updates.length} {t('employeesToUpdate')} &bull; {updateModal.changes.length} {t('fieldsToUpdate')}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex-1 overflow-auto p-6 scrollbar-hide">
+                      <div className="overflow-x-auto rounded-2xl border border-gray-200">
+                        <table className={cn("w-full border-collapse", isRTL ? "text-right" : "text-left")}>
+                          <thead className="bg-gray-100 sticky top-0 z-10">
+                            <tr>
+                              <th className="px-4 py-3 text-[10px] font-black text-gray-500 uppercase">{t('employeeName')}</th>
+                              <th className="px-4 py-3 text-[10px] font-black text-gray-500 uppercase">{t('fieldName')}</th>
+                              <th className="px-4 py-3 text-[10px] font-black text-gray-500 uppercase">{t('oldValue')}</th>
+                              <th className="px-4 py-3 text-[10px] font-black text-gray-500 uppercase">{t('newValue')}</th>
+                            </tr>
+                          </thead>
+                          <tbody className="divide-y divide-gray-100">
+                            {updateModal.changes.map((change, idx) => (
+                              <tr key={idx} className="hover:bg-amber-50/30 transition-colors">
+                                <td className="px-4 py-3 text-sm font-black text-gray-900">{change.employeeName}</td>
+                                <td className="px-4 py-3">
+                                  <span className="text-xs font-bold text-purple-600 bg-purple-50 px-2 py-1 rounded-lg">{change.fieldLabel}</span>
+                                </td>
+                                <td className="px-4 py-3">
+                                  <span className="text-xs font-bold text-red-600 bg-red-50 px-2 py-1 rounded-lg line-through">{change.oldValue}</span>
+                                </td>
+                                <td className="px-4 py-3">
+                                  <span className="text-xs font-bold text-emerald-600 bg-emerald-50 px-2 py-1 rounded-lg">{change.newValue}</span>
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+
+                    <div className="border-t border-gray-200 bg-gray-50 p-6 flex items-center justify-between shrink-0">
+                      <motion.button
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                        onClick={() => setUpdateModal({ isOpen: false, phase: 'verifying', changes: [], updates: [] })}
+                        className="px-8 py-3 rounded-xl bg-gray-200 text-gray-600 font-black text-sm hover:bg-gray-300 transition-all"
+                      >
+                        {t('cancelUpdate')}
+                      </motion.button>
+                      <motion.button
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                        onClick={confirmBulkUpdate}
+                        className="px-10 py-3 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 text-white font-black text-sm shadow-lg shadow-amber-500/30 hover:from-amber-600 hover:to-orange-600 transition-all flex items-center gap-2"
+                      >
+                        <Save size={18} />
+                        {t('confirmUpdate')} ({updateModal.updates.length})
+                      </motion.button>
+                    </div>
+                  </motion.div>
+                )}
+
+                {/* Phase: Updating */}
+                {updateModal.phase === 'updating' && (
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    className="relative w-full max-w-lg bg-white rounded-[3rem] shadow-2xl overflow-hidden"
+                    dir={isRTL ? 'rtl' : 'ltr'}
+                  >
+                    <div className="relative bg-gradient-to-br from-orange-500 via-amber-600 to-orange-700 p-10 text-white text-center overflow-hidden">
+                      <div className="absolute inset-0 overflow-hidden">
+                        {[...Array(8)].map((_, i) => (
+                          <motion.div
+                            key={i}
+                            animate={{ y: [0, -20, 0], opacity: [0.3, 0.8, 0.3] }}
+                            transition={{ delay: i * 0.15, duration: 1.5, repeat: Infinity }}
+                            className="absolute"
+                            style={{ left: `${10 + i * 12}%`, top: '30%' }}
+                          >
+                            <Sparkles size={16} className="text-white/30" />
+                          </motion.div>
+                        ))}
+                      </div>
+                      <motion.div className="relative z-10 mx-auto w-24 h-24 bg-white/20 backdrop-blur-xl rounded-full flex items-center justify-center mb-6 shadow-2xl border-4 border-white/30">
+                        <motion.div
+                          animate={{ rotate: 360 }}
+                          transition={{ repeat: Infinity, duration: 1.5, ease: "linear" }}
+                          className="h-14 w-14 border-4 border-white/30 border-t-white rounded-full"
+                        />
+                      </motion.div>
+                      <h3 className="text-2xl font-black tracking-tight relative z-10">{t('updatingData')}</h3>
+                      <p className="text-white/80 font-bold mt-2 relative z-10">{t('willBeUpdated')} {updateModal.updates.length}</p>
+                    </div>
+                    <div className="p-8 text-center">
+                      <div className="bg-orange-50 rounded-2xl p-5 border-2 border-orange-100">
+                        <div className="h-2 bg-orange-100 rounded-full overflow-hidden">
+                          <motion.div
+                            initial={{ width: "0%" }}
+                            animate={{ width: "100%" }}
+                            transition={{ duration: 2, ease: "easeInOut" }}
+                            className="h-full bg-gradient-to-r from-orange-400 to-amber-500 rounded-full"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
+
+                {/* Phase: Success */}
+                {updateModal.phase === 'success' && (
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.5 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ type: "spring", damping: 20, stiffness: 300 }}
+                    className="relative w-full max-w-lg bg-white rounded-[3rem] shadow-[0_0_100px_rgba(16,185,129,0.3)] overflow-hidden border-4 border-emerald-500/20"
+                    dir={isRTL ? 'rtl' : 'ltr'}
+                  >
+                    <div className="relative bg-gradient-to-br from-emerald-500 via-teal-600 to-emerald-700 p-10 text-white text-center overflow-hidden">
+                      <div className="absolute inset-0 overflow-hidden">
+                        {[...Array(6)].map((_, i) => (
+                          <motion.div
+                            key={i}
+                            initial={{ y: 100, opacity: 0 }}
+                            animate={{ y: -100, opacity: [0, 1, 0], x: Math.random() * 100 - 50 }}
+                            transition={{ delay: i * 0.2, duration: 2, repeat: Infinity, repeatDelay: 1 }}
+                            className="absolute"
+                            style={{ left: `${15 + i * 15}%` }}
+                          >
+                            <Sparkles size={20} className="text-white/40" />
+                          </motion.div>
+                        ))}
+                      </div>
+                      <motion.div
+                        initial={{ scale: 0, rotate: -180 }}
+                        animate={{ scale: 1, rotate: 0 }}
+                        transition={{ delay: 0.1, type: "spring", damping: 12 }}
+                        className="relative z-10 mx-auto w-28 h-28 bg-white/20 backdrop-blur-xl rounded-full flex items-center justify-center mb-6 shadow-2xl border-4 border-white/30"
+                      >
+                        <motion.div initial={{ scale: 0 }} animate={{ scale: [0, 1.2, 1] }} transition={{ delay: 0.3, duration: 0.5 }}>
+                          <CheckCircle2 size={56} className="text-white drop-shadow-lg" />
+                        </motion.div>
+                      </motion.div>
+                      <motion.h3
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.4 }}
+                        className="text-3xl font-black tracking-tight relative z-10"
+                      >
+                        {t('updateComplete')}
+                      </motion.h3>
+                      <motion.p
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.5 }}
+                        className="text-white/80 font-bold mt-2 relative z-10"
+                      >
+                        {t('updateCompleteDesc')}
+                      </motion.p>
+                    </div>
+                    <div className="p-8 text-center">
+                      <div className="bg-emerald-50 rounded-2xl p-6 border-2 border-emerald-100">
+                        <p className="text-emerald-700 font-black text-xl">{updateModal.updates.length} {t('employeesToUpdate')}</p>
+                        <p className="text-emerald-600/70 font-bold text-sm mt-1">{updateModal.changes.length} {t('fieldsToUpdate')}</p>
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
+              </div>
+            )}
+          </AnimatePresence>
+        </motion.div>
     );
 }
 

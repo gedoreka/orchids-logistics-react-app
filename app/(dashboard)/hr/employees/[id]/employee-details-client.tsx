@@ -107,7 +107,7 @@ export function EmployeeDetailsClient({
   const tabConfig: Record<string, any> = {
     general: { icon: User, label: "البيانات الشخصية", bg: "from-blue-600 to-indigo-600", color: "blue", light: "bg-blue-500/10", text: "text-blue-400", glow: "shadow-blue-500/20" },
     bank: { icon: University, label: "البيانات البنكية", bg: "from-emerald-600 to-teal-600", color: "emerald", light: "bg-emerald-500/10", text: "text-emerald-400", glow: "shadow-emerald-500/20" },
-    status: { icon: ShieldCheck, label: "حالة الإقامة", bg: "from-purple-600 to-violet-600", color: "purple", light: "bg-purple-500/10", text: "text-purple-400", glow: "shadow-purple-500/20" },
+    status: { icon: ShieldCheck, label: "حالة الهوية", bg: "from-purple-600 to-violet-600", color: "purple", light: "bg-purple-500/10", text: "text-purple-400", glow: "shadow-purple-500/20" },
     documents: { icon: FileText, label: "المستندات والملفات", bg: "from-indigo-600 to-blue-600", color: "indigo", light: "bg-indigo-500/10", text: "text-indigo-400", glow: "shadow-indigo-500/20" },
     violations: { icon: AlertOctagon, label: "المخالفات المرورية", bg: "from-red-600 to-rose-600", color: "red", light: "bg-red-500/10", text: "text-red-400", glow: "shadow-red-500/20" },
     stats: { icon: BarChart3, label: "الإحصائيات والأداء", bg: "from-slate-700 to-slate-800", color: "slate", light: "bg-slate-500/10", text: "text-slate-400", glow: "shadow-slate-500/20" },
@@ -292,7 +292,7 @@ export function EmployeeDetailsClient({
   const handleUpdateExpiry = async (e: React.FormEvent) => {
     e.preventDefault();
     const result = await updateIqamaExpiry(employee.id, newExpiryDate);
-    if (result.success) { toast.success("تم تحديث تاريخ انتهاء الإقامة"); router.refresh(); } else { toast.error(result.error); }
+    if (result.success) { toast.success("تم تحديث تاريخ انتهاء الهوية"); router.refresh(); } else { toast.error(result.error); }
   };
 
   const handleAddBankAccount = async (e: React.FormEvent) => {
@@ -725,7 +725,7 @@ className="bg-slate-100 backdrop-blur-xl p-5 rounded-2xl border border-slate-200
                     {/* Built-in Documents */}
                     <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
                       <GlassDocCard label="الصورة الشخصية" path={employee.personal_photo} field="personal_photo" editable={isEditing} employeeId={employee.id} router={router} setCustomDocuments={setCustomDocuments} setCustomDocTypes={setCustomDocTypes} />
-                      <GlassDocCard label="صورة الإقامة" path={employee.iqama_file} field="iqama_file" editable={isEditing} employeeId={employee.id} router={router} setCustomDocuments={setCustomDocuments} setCustomDocTypes={setCustomDocTypes} />
+                      <GlassDocCard label="صورة الهوية" path={employee.iqama_file} field="iqama_file" editable={isEditing} employeeId={employee.id} router={router} setCustomDocuments={setCustomDocuments} setCustomDocTypes={setCustomDocTypes} />
                       <GlassDocCard label="رخصة القيادة" path={employee.license_file} field="license_file" editable={isEditing} employeeId={employee.id} router={router} setCustomDocuments={setCustomDocuments} setCustomDocTypes={setCustomDocTypes} />
                       <GlassDocCard label="استمارة المركبة" path={employee.vehicle_file} field="vehicle_file" editable={isEditing} employeeId={employee.id} router={router} setCustomDocuments={setCustomDocuments} setCustomDocTypes={setCustomDocTypes} />
                       <GlassDocCard label="تصريح أجير" path={employee.agir_permit_file} field="agir_permit_file" editable={isEditing} employeeId={employee.id} router={router} setCustomDocuments={setCustomDocuments} setCustomDocTypes={setCustomDocTypes} />
@@ -891,7 +891,7 @@ className="bg-slate-100 backdrop-blur-xl p-5 rounded-2xl border border-slate-200
                   >
                     <div className="bg-yellow-500/20 p-4 rounded-xl text-yellow-400"><Info size={28} /></div>
                     <div className="flex-1">
-                      <h4 className="text-base font-black mb-1">نظام مراقبة الإقامة الذكي</h4>
+                      <h4 className="text-base font-black mb-1">نظام مراقبة الهوية الذكي</h4>
                       <p className="text-sm text-white/50">يتم إرسال تنبيهات قبل 30 يوماً من انتهاء الصلاحية عبر البريد والتطبيق</p>
                     </div>
                     <div className="bg-white/5 px-5 py-3 rounded-xl text-center border border-white/10">
