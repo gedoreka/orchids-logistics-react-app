@@ -64,7 +64,8 @@ import {
     Sun,
     Users,
     FileWarning,
-    ChevronRight
+    ChevronRight,
+    ChevronLeft
     } from "lucide-react";
 
 import { toast } from "sonner";
@@ -349,6 +350,8 @@ export function Header({ user, onToggleSidebar, unreadChatCount = 0, subscriptio
     const [unreadEmailCount, setUnreadEmailCount] = useState(0);
     const [fetchingUnread, setFetchingUnread] = useState(false);
     const [isAddingAccount, setIsAddingAccount] = useState(false);
+    const [viewingEmail, setViewingEmail] = useState<EmailMessage | null>(null);
+    const [loadingEmailBody, setLoadingEmailBody] = useState(false);
 
     // HR notification states
     const [hrNotifications, setHrNotifications] = useState<HrNotificationData | null>(null);
@@ -529,10 +532,31 @@ export function Header({ user, onToggleSidebar, unreadChatCount = 0, subscriptio
       } finally {
         setLoadingEmails(false);
       }
+      };
+
+    const handleViewEmail = async (email: EmailMessage) => {
+      setViewingEmail(email);
+      if (email.body) return; // Already loaded
+      if (!selectedEmailAccount || !user?.company_id) return;
+      setLoadingEmailBody(true);
+      try {
+        const res = await fetch(
+          `/api/email/fetch?accountId=${selectedEmailAccount.id}&company_id=${user.company_id}&action=body&uid=${email.uid}&folder=${email.folder}`
+        );
+        const data = await res.json();
+        if (data.body) {
+          const updated = { ...email, body: data.body, snippet: data.snippet || "" };
+          setViewingEmail(updated);
+          setEmails((prev) => prev.map((e) => (e.uid === email.uid ? updated : e)));
+        }
+      } catch (error) {
+        console.error("Error fetching email body:", error);
+      } finally {
+        setLoadingEmailBody(false);
+      }
     };
 
-
-    const handleSelectAccount = (account: EmailAccount) => {
+      const handleSelectAccount = (account: EmailAccount) => {
       setSelectedEmailAccount(account);
       fetchEmails(account.id, "INBOX");
     };
@@ -2559,76 +2583,104 @@ export function Header({ user, onToggleSidebar, unreadChatCount = 0, subscriptio
                               </section>
                             </div>
                           </div>
-                        ) : (
-                          /* Messages List View */
-                          <div className="flex-1 flex flex-col min-w-0">
-                            {loadingEmails ? (
-                              <div className="flex-1 flex flex-col items-center justify-center gap-4">
-                                <Loader2 size={40} className="text-blue-500 animate-spin" />
-                                <p className="text-sm text-white/40">{isRTL ? 'جاري جلب الرسائل...' : 'Fetching emails...'}</p>
-                              </div>
-                            ) : emails.length > 0 ? (
-                              <div className="flex-1 overflow-y-auto p-4 space-y-3">
-                                <div className="flex items-center justify-between mb-4 px-2">
-                                  <h4 className="text-sm font-bold text-white/60">
-                                    {activeEmailFolder === "INBOX" ? (isRTL ? 'صندوق الوارد' : 'Inbox') : 
-                                     activeEmailFolder === "Sent" ? (isRTL ? 'المرسل' : 'Sent') :
-                                     activeEmailFolder === "Trash" ? (isRTL ? 'المحذوفات' : 'Trash') : (isRTL ? 'الرسائل المزعجة' : 'Spam')}
-                                  </h4>
-                                  <span className="text-[10px] bg-blue-500/20 text-blue-400 px-2 py-1 rounded-lg font-bold">
-                                    {emails.length} {isRTL ? 'رسالة' : 'messages'}
-                                  </span>
-                                </div>
-                                {emails.map((email) => (
-                                  <motion.div
-                                    key={email.uid}
-                                    initial={{ opacity: 0, y: 10 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    className={cn(
-                                      "group relative p-4 rounded-2xl border transition-all cursor-pointer",
-                                      !email.isRead 
-                                        ? "bg-white/5 border-blue-500/30 shadow-lg shadow-blue-500/5" 
-                                        : "bg-transparent border-white/5 hover:bg-white/5"
-                                    )}
-                                  >
-                                    <div className="flex justify-between items-start gap-4 mb-1">
-                                      <div className="flex items-center gap-3 min-w-0">
-                                        {!email.isRead && <div className="w-2 h-2 rounded-full bg-blue-500" />}
-                                        <span className="font-bold text-sm text-white/90 truncate">{email.from}</span>
+                          ) : (
+                            /* Messages List View */
+                            <div className="flex-1 flex flex-col min-w-0">
+                              {viewingEmail ? (
+                                /* Single Email Detail View */
+                                <div className="flex-1 flex flex-col overflow-hidden">
+                                  <div className="flex items-center gap-3 p-4 border-b border-white/5">
+                                    <button
+                                      onClick={() => setViewingEmail(null)}
+                                      className="p-2 hover:bg-white/10 rounded-xl transition-all text-white/60 hover:text-white"
+                                    >
+                                      <ChevronLeft size={18} className={isRTL ? "rotate-180" : ""} />
+                                    </button>
+                                    <div className="min-w-0 flex-1">
+                                      <h4 className="text-sm font-bold text-white truncate">{viewingEmail.subject}</h4>
+                                      <p className="text-[11px] text-white/40">{viewingEmail.from} &lt;{viewingEmail.fromEmail}&gt;</p>
+                                    </div>
+                                    <span className="text-[10px] text-white/30">{new Date(viewingEmail.date).toLocaleString('en-US')}</span>
+                                  </div>
+                                  <div className="flex-1 overflow-y-auto p-4">
+                                    {loadingEmailBody ? (
+                                      <div className="flex flex-col items-center justify-center py-12 gap-3">
+                                        <Loader2 size={28} className="text-blue-500 animate-spin" />
+                                        <p className="text-xs text-white/40">{isRTL ? 'جاري تحميل الرسالة...' : 'Loading message...'}</p>
                                       </div>
-                                      <span className="text-[10px] text-white/30 whitespace-nowrap">
-                                        {new Date(email.date).toLocaleDateString( 'en-US' )}
-                                      </span>
-                                    </div>
-                                    <h4 className="text-xs font-bold text-blue-400 mb-1 truncate">{email.subject}</h4>
-                                    <p className="text-[11px] text-white/40 line-clamp-2 leading-relaxed">{email.snippet}</p>
-                                    
-                                    <div className="absolute left-4 bottom-4 opacity-0 group-hover:opacity-100 transition-opacity">
-                                      <button className="p-1.5 bg-white/10 hover:bg-white/20 rounded-lg text-white/60">
-                                        <Eye size={14} />
-                                      </button>
-                                    </div>
-                                  </motion.div>
-                                ))}
-                              </div>
-                            ) : (
-                              <div className="flex-1 flex flex-col items-center justify-center p-12 text-center">
-                                <div className="w-20 h-20 rounded-full bg-white/5 flex items-center justify-center mb-6">
-                                  <Mail size={40} className="text-white/10" />
+                                    ) : viewingEmail.body ? (
+                                      <div
+                                        className="prose prose-invert prose-sm max-w-none text-white/80 [&_a]:text-blue-400 [&_img]:max-w-full [&_img]:rounded-lg"
+                                        style={{ fontSize: '13px', lineHeight: '1.6' }}
+                                        dangerouslySetInnerHTML={{ __html: viewingEmail.body }}
+                                      />
+                                    ) : (
+                                      <p className="text-sm text-white/40 text-center py-8">{isRTL ? 'لا يوجد محتوى للرسالة' : 'No message content'}</p>
+                                    )}
+                                  </div>
                                 </div>
-                                <h4 className="text-lg font-bold text-white mb-2">{isRTL ? 'لا توجد رسائل' : 'No messages'}</h4>
-                                <p className="text-sm text-white/30 max-w-xs">{isRTL ? 'هذا المجلد فارغ حالياً أو لم يتم جلب الرسائل بعد.' : 'This folder is currently empty or messages haven\'t been fetched yet.'}</p>
-                                {!selectedEmailAccount && (
-                                  <button 
-                                    onClick={() => setShowEmailSettings(true)}
-                                    className="mt-6 px-6 py-2 bg-blue-600 text-white rounded-xl text-sm font-bold hover:bg-blue-500 transition-all"
-                                  >
-                                    {isRTL ? 'أضف حساب بريد الآن' : 'Add Email Account Now'}
-                                  </button>
-                                )}
-                              </div>
-                            )}
-                          </div>
+                              ) : loadingEmails ? (
+                                <div className="flex-1 flex flex-col items-center justify-center gap-4">
+                                  <Loader2 size={40} className="text-blue-500 animate-spin" />
+                                  <p className="text-sm text-white/40">{isRTL ? 'جاري جلب الرسائل...' : 'Fetching emails...'}</p>
+                                </div>
+                              ) : emails.length > 0 ? (
+                                <div className="flex-1 overflow-y-auto p-4 space-y-3">
+                                  <div className="flex items-center justify-between mb-4 px-2">
+                                    <h4 className="text-sm font-bold text-white/60">
+                                      {activeEmailFolder === "INBOX" ? (isRTL ? 'صندوق الوارد' : 'Inbox') : 
+                                       activeEmailFolder === "Sent" ? (isRTL ? 'المرسل' : 'Sent') :
+                                       activeEmailFolder === "Trash" ? (isRTL ? 'المحذوفات' : 'Trash') : (isRTL ? 'الرسائل المزعجة' : 'Spam')}
+                                    </h4>
+                                    <span className="text-[10px] bg-blue-500/20 text-blue-400 px-2 py-1 rounded-lg font-bold">
+                                      {emails.length} {isRTL ? 'رسالة' : 'messages'}
+                                    </span>
+                                  </div>
+                                  {emails.map((email) => (
+                                    <motion.div
+                                      key={email.uid}
+                                      initial={{ opacity: 0, y: 10 }}
+                                      animate={{ opacity: 1, y: 0 }}
+                                      onClick={() => handleViewEmail(email)}
+                                      className={cn(
+                                        "group relative p-4 rounded-2xl border transition-all cursor-pointer",
+                                        !email.isRead 
+                                          ? "bg-white/5 border-blue-500/30 shadow-lg shadow-blue-500/5" 
+                                          : "bg-transparent border-white/5 hover:bg-white/5"
+                                      )}
+                                    >
+                                      <div className="flex justify-between items-start gap-4 mb-1">
+                                        <div className="flex items-center gap-3 min-w-0">
+                                          {!email.isRead && <div className="w-2 h-2 rounded-full bg-blue-500" />}
+                                          <span className="font-bold text-sm text-white/90 truncate">{email.from}</span>
+                                        </div>
+                                        <span className="text-[10px] text-white/30 whitespace-nowrap">
+                                          {new Date(email.date).toLocaleDateString( 'en-US' )}
+                                        </span>
+                                      </div>
+                                      <h4 className="text-xs font-bold text-blue-400 mb-1 truncate">{email.subject}</h4>
+                                      {email.snippet && <p className="text-[11px] text-white/40 line-clamp-2 leading-relaxed">{email.snippet}</p>}
+                                    </motion.div>
+                                  ))}
+                                </div>
+                              ) : (
+                                <div className="flex-1 flex flex-col items-center justify-center p-12 text-center">
+                                  <div className="w-20 h-20 rounded-full bg-white/5 flex items-center justify-center mb-6">
+                                    <Mail size={40} className="text-white/10" />
+                                  </div>
+                                  <h4 className="text-lg font-bold text-white mb-2">{isRTL ? 'لا توجد رسائل' : 'No messages'}</h4>
+                                  <p className="text-sm text-white/30 max-w-xs">{isRTL ? 'هذا المجلد فارغ حالياً أو لم يتم جلب الرسائل بعد.' : 'This folder is currently empty or messages haven\'t been fetched yet.'}</p>
+                                  {!selectedEmailAccount && (
+                                    <button 
+                                      onClick={() => setShowEmailSettings(true)}
+                                      className="mt-6 px-6 py-2 bg-blue-600 text-white rounded-xl text-sm font-bold hover:bg-blue-500 transition-all"
+                                    >
+                                      {isRTL ? 'أضف حساب بريد الآن' : 'Add Email Account Now'}
+                                    </button>
+                                  )}
+                                </div>
+                              )}
+                            </div>
                         )}
                       </div>
                     </div>

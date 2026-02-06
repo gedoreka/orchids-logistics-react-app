@@ -23,171 +23,167 @@ interface EmailMessage {
   folder: string;
 }
 
-async function fetchEmails(
-  config: {
-    user: string;
-    password: string;
-    host: string;
-    port: number;
-  },
-  folder: string = "INBOX",
-    limit: number = 10
-  ): Promise<EmailMessage[]> {
-    return new Promise((resolve, reject) => {
-      const imap = new Imap({
-        user: config.user,
-        password: config.password,
-        host: config.host,
-        port: config.port,
-        tls: true,
-        tlsOptions: { rejectUnauthorized: false },
-        connTimeout: 30000,
-        authTimeout: 20000,
-        keepalive: true,
-      });
+const FOLDER_CANDIDATES: Record<string, string[]> = {
+  Spam: ["Spam", "INBOX.Spam", "Junk", "INBOX.Junk", "INBOX.spam"],
+  Sent: ["Sent", "INBOX.Sent", "Sent Messages", "INBOX.Sent Messages"],
+  Drafts: ["Drafts", "INBOX.Drafts", "Draft", "INBOX.Draft"],
+  Trash: ["Trash", "INBOX.Trash", "Deleted", "INBOX.Deleted"],
+};
 
-      const timeout = setTimeout(() => {
-        try {
-          imap.end();
-        } catch (e) {}
-        reject(new Error("Connection timeout"));
-      }, 90000); // Increased to 90 seconds
+function getFolderCandidates(folder: string): string[] {
+  if (FOLDER_CANDIDATES[folder]) return FOLDER_CANDIDATES[folder];
+  if (folder === "INBOX") return ["INBOX"];
+  if (folder.startsWith("INBOX.")) return [folder];
+  return [folder, `INBOX.${folder}`];
+}
+
+function isFolderError(errMsg: string): boolean {
+  const lower = errMsg.toLowerCase();
+  return (
+    lower.includes("nonexistent") ||
+    lower.includes("namespace") ||
+    lower.includes("exist") ||
+    lower.includes("mailbox") ||
+    lower.includes("no such")
+  );
+}
+
+function createImapConnection(config: { user: string; password: string; host: string; port: number }, opts?: { connTimeout?: number; authTimeout?: number }) {
+  return new Imap({
+    user: config.user,
+    password: config.password,
+    host: config.host,
+    port: config.port,
+    tls: true,
+    tlsOptions: { rejectUnauthorized: false },
+    connTimeout: opts?.connTimeout ?? 15000,
+    authTimeout: opts?.authTimeout ?? 10000,
+  });
+}
+
+// Fetch email list - HEADERS ONLY (fast)
+async function fetchEmails(
+  config: { user: string; password: string; host: string; port: number },
+  folder: string = "INBOX",
+  limit: number = 10
+): Promise<EmailMessage[]> {
+  return new Promise((resolve, reject) => {
+    const imap = createImapConnection(config);
+    const timeout = setTimeout(() => {
+      try { imap.end(); } catch (e) {}
+      reject(new Error("Connection timeout"));
+    }, 30000);
 
     const emails: EmailMessage[] = [];
-    const parsePromises: Promise<void>[] = [];
     let isFinished = false;
 
-    imap.once("ready", () => {
-      // Determine folder candidates to try
-      const folderCandidates = [folder];
-      if (folder === "Spam") {
-        folderCandidates.push("INBOX.Spam", "Junk", "INBOX.Junk");
-      } else if (folder !== "INBOX" && !folder.startsWith("INBOX.")) {
-        folderCandidates.push(`INBOX.${folder}`);
-      }
+    const finish = (result: EmailMessage[] | Error) => {
+      if (isFinished) return;
+      isFinished = true;
+      clearTimeout(timeout);
+      try { imap.end(); } catch (e) {}
+      if (result instanceof Error) reject(result);
+      else resolve(result);
+    };
 
-      const tryOpenBox = (candidates: string[]) => {
-        if (candidates.length === 0) {
-          isFinished = true;
-          clearTimeout(timeout);
-          try { imap.end(); } catch (e) {}
-          reject(new Error(`المجلد غير موجود: ${folder}`));
+    imap.once("ready", () => {
+      const candidates = getFolderCandidates(folder);
+
+      const tryOpen = (remaining: string[]) => {
+        if (remaining.length === 0) {
+          finish([]);
           return;
         }
-
-        const currentFolder = candidates[0];
-        imap.openBox(currentFolder, true, (err, box) => {
+        const current = remaining[0];
+        imap.openBox(current, true, (err, box) => {
           if (err) {
-            // If it's a namespace error or nonexistent mailbox, try next candidate
-            const errMsg = err.message.toLowerCase();
-            if (errMsg.includes("nonexistent") || errMsg.includes("namespace") || errMsg.includes("not exist")) {
-              tryOpenBox(candidates.slice(1));
+            if (isFolderError(err.message)) {
+              tryOpen(remaining.slice(1));
               return;
             }
-            
-            isFinished = true;
-            clearTimeout(timeout);
-            try { imap.end(); } catch (e) {}
-            reject(err);
+            finish(err);
             return;
           }
 
-            const totalMessages = box.messages.total;
-            if (totalMessages === 0) {
-              isFinished = true;
-              clearTimeout(timeout);
-              try { imap.end(); } catch (e) {}
-              resolve([]);
-              return;
-            }
+          const total = box.messages.total;
+          if (total === 0) {
+            finish([]);
+            return;
+          }
 
-            // Use UIDs for more reliable fetching
-            const start = Math.max(1, totalMessages - limit + 1);
-            const fetchRange = `${start}:${totalMessages}`;
+          const start = Math.max(1, total - limit + 1);
+          const fetchRange = `${start}:${total}`;
 
-            const f = imap.seq.fetch(fetchRange, {
-              bodies: "", // Fetch full message for reliable parsing
-              struct: true,
-            });
-
-            f.on("message", (msg, seqno) => {
-              let uid = 0;
-              const flags: string[] = [];
-              let fullBody = "";
-
-              msg.on("attributes", (attrs) => {
-                uid = attrs.uid;
-                flags.push(...(attrs.flags || []));
-              });
-
-              msg.on("body", (stream, info) => {
-                stream.on("data", (chunk) => {
-                  fullBody += chunk.toString("utf8");
-                });
-              });
-
-              msg.once("end", () => {
-                const parsePromise = (async () => {
-                  try {
-                    const parsed = await simpleParser(fullBody);
-                    const fromAddr = parsed.from?.value?.[0];
-                    emails.push({
-                      id: seqno,
-                      uid,
-                      subject: parsed.subject || "(بدون موضوع)",
-                      from: fromAddr?.name || fromAddr?.address || "غير معروف",
-                      fromEmail: fromAddr?.address || "",
-                      to: parsed.to?.text || "",
-                      date: parsed.date?.toISOString() || new Date().toISOString(),
-                      snippet: (parsed.text || "").substring(0, 200),
-                      body: parsed.html || parsed.text || "",
-                      isRead: flags.includes("\\Seen"),
-                      hasAttachments: (parsed.attachments?.length || 0) > 0,
-                      folder: currentFolder,
-                    });
-                  } catch (parseErr) {
-                    console.error("Error parsing email:", parseErr);
-                  }
-                })();
-                parsePromises.push(parsePromise);
-              });
-            });
-
-          f.once("error", (fetchErr) => {
-            if (!isFinished) {
-              isFinished = true;
-              clearTimeout(timeout);
-              try { imap.end(); } catch (e) {}
-              reject(fetchErr);
-            }
+          // Fetch ONLY headers - much faster than full body
+          const f = imap.seq.fetch(fetchRange, {
+            bodies: ["HEADER.FIELDS (FROM TO SUBJECT DATE CONTENT-TYPE)"],
+            struct: true,
           });
 
+          f.on("message", (msg, seqno) => {
+            let uid = 0;
+            const flags: string[] = [];
+            let headerData = "";
+
+            msg.on("attributes", (attrs) => {
+              uid = attrs.uid;
+              flags.push(...(attrs.flags || []));
+            });
+
+            msg.on("body", (stream) => {
+              stream.on("data", (chunk: Buffer) => {
+                headerData += chunk.toString("utf8");
+              });
+            });
+
+            msg.once("end", () => {
+              try {
+                const headers = Imap.parseHeader(headerData);
+                const fromRaw = (headers.from || [""])[0];
+                const match = fromRaw.match(/^"?([^"<]*)"?\s*<?([^>]*)>?$/);
+                const fromName = match?.[1]?.trim() || fromRaw;
+                const fromEmail = match?.[2]?.trim() || fromRaw;
+                const hasAttachments = (headers["content-type"] || []).some(
+                  (ct: string) => ct.toLowerCase().includes("multipart/mixed")
+                );
+
+                emails.push({
+                  id: seqno,
+                  uid,
+                  subject: (headers.subject || ["(بدون موضوع)"])[0],
+                  from: fromName,
+                  fromEmail,
+                  to: (headers.to || [""])[0],
+                  date: headers.date?.[0]
+                    ? new Date(headers.date[0]).toISOString()
+                    : new Date().toISOString(),
+                  snippet: "",
+                  body: "",
+                  isRead: flags.includes("\\Seen"),
+                  hasAttachments,
+                  folder: current,
+                });
+              } catch (e) {
+                // skip unparseable message
+              }
+            });
+          });
+
+          f.once("error", (err) => finish(err));
           f.once("end", () => {
             try { imap.end(); } catch (e) {}
           });
         });
       };
 
-      tryOpenBox(folderCandidates);
+      tryOpen(candidates);
     });
 
-    imap.on("error", (err: Error) => {
-      console.error("IMAP Connection Error:", err);
+    imap.on("error", (err: Error) => finish(err));
+    imap.once("end", () => {
       if (!isFinished) {
-        isFinished = true;
-        clearTimeout(timeout);
-        try { imap.end(); } catch (e) {}
-        reject(err);
-      }
-    });
-
-    imap.once("end", async () => {
-      if (!isFinished) {
-        isFinished = true;
-        clearTimeout(timeout);
-        await Promise.all(parsePromises);
         emails.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-        resolve(emails);
+        finish(emails);
       }
     });
 
@@ -195,16 +191,93 @@ async function fetchEmails(
   });
 }
 
+// Fetch single email body by UID
+async function fetchEmailBody(
+  config: { user: string; password: string; host: string; port: number },
+  folder: string,
+  uid: number
+): Promise<{ body: string; snippet: string }> {
+  return new Promise((resolve, reject) => {
+    const imap = createImapConnection(config);
+    const timeout = setTimeout(() => {
+      try { imap.end(); } catch (e) {}
+      reject(new Error("Connection timeout"));
+    }, 30000);
+
+    let isFinished = false;
+    const finish = (result: { body: string; snippet: string } | Error) => {
+      if (isFinished) return;
+      isFinished = true;
+      clearTimeout(timeout);
+      try { imap.end(); } catch (e) {}
+      if (result instanceof Error) reject(result);
+      else resolve(result);
+    };
+
+    imap.once("ready", () => {
+      const candidates = getFolderCandidates(folder);
+
+      const tryOpen = (remaining: string[]) => {
+        if (remaining.length === 0) {
+          finish({ body: "", snippet: "" });
+          return;
+        }
+        const current = remaining[0];
+        imap.openBox(current, true, (err) => {
+          if (err) {
+            if (isFolderError(err.message)) {
+              tryOpen(remaining.slice(1));
+              return;
+            }
+            finish(err);
+            return;
+          }
+
+          const f = imap.fetch([uid], { bodies: "", struct: true });
+          let fullBody = "";
+
+          f.on("message", (msg) => {
+            msg.on("body", (stream) => {
+              stream.on("data", (chunk: Buffer) => {
+                fullBody += chunk.toString("utf8");
+              });
+            });
+          });
+
+          f.once("error", (err) => finish(err));
+          f.once("end", async () => {
+            try {
+              const parsed = await simpleParser(fullBody);
+              finish({
+                body: parsed.html || parsed.text || "",
+                snippet: (parsed.text || "").substring(0, 200),
+              });
+            } catch (e) {
+              finish({ body: fullBody, snippet: fullBody.substring(0, 200) });
+            }
+            try { imap.end(); } catch (e) {}
+          });
+        });
+      };
+
+      tryOpen(candidates);
+    });
+
+    imap.on("error", (err: Error) => finish(err));
+    imap.once("end", () => {
+      if (!isFinished) finish({ body: "", snippet: "" });
+    });
+
+    imap.connect();
+  });
+}
+
 async function getUnreadCount(
-  config: {
-    user: string;
-    password: string;
-    host: string;
-    port: number;
-  },
+  config: { user: string; password: string; host: string; port: number },
   folder: string = "INBOX"
 ): Promise<number> {
-  return new Promise((resolve, reject) => {
+  return new Promise((resolve) => {
+    const imap = createImapConnection(config, { connTimeout: 10000, authTimeout: 5000 });
     let isFinished = false;
     const timeout = setTimeout(() => {
       if (!isFinished) {
@@ -214,81 +287,41 @@ async function getUnreadCount(
       }
     }, 15000);
 
-    const imap = new Imap({
-      user: config.user,
-      password: config.password,
-      host: config.host,
-      port: config.port,
-      tls: true,
-      tlsOptions: { rejectUnauthorized: false },
-      connTimeout: 10000,
-      authTimeout: 5000,
-    });
+    const finish = (count: number) => {
+      if (isFinished) return;
+      isFinished = true;
+      clearTimeout(timeout);
+      try { imap.end(); } catch (e) {}
+      resolve(count);
+    };
 
     imap.once("ready", () => {
-      const folderCandidates = [folder];
-      if (folder === "Spam") {
-        folderCandidates.push("INBOX.Spam", "Junk", "INBOX.Junk");
-      } else if (folder !== "INBOX" && !folder.startsWith("INBOX.")) {
-        folderCandidates.push(`INBOX.${folder}`);
-      }
+      const candidates = getFolderCandidates(folder);
 
-      const tryOpenBox = (candidates: string[]) => {
-        if (candidates.length === 0) {
-          if (!isFinished) {
-            isFinished = true;
-            clearTimeout(timeout);
-            try { imap.end(); } catch (e) {}
-            resolve(0); // If folder doesn't exist, assume 0 unread
-          }
+      const tryOpen = (remaining: string[]) => {
+        if (remaining.length === 0) {
+          finish(0);
           return;
         }
-
-        const currentFolder = candidates[0];
-        imap.openBox(currentFolder, true, (err, box) => {
+        imap.openBox(remaining[0], true, (err, box) => {
           if (err) {
-            const errMsg = err.message.toLowerCase();
-            if (errMsg.includes("nonexistent") || errMsg.includes("namespace") || errMsg.includes("not exist")) {
-              tryOpenBox(candidates.slice(1));
+            if (isFolderError(err.message)) {
+              tryOpen(remaining.slice(1));
               return;
             }
-
-            if (!isFinished) {
-              isFinished = true;
-              clearTimeout(timeout);
-              try { imap.end(); } catch (e) {}
-              reject(err);
-            }
+            finish(0);
             return;
           }
           imap.search(["UNSEEN"], (searchErr, results) => {
-            if (!isFinished) {
-              isFinished = true;
-              clearTimeout(timeout);
-              try { imap.end(); } catch (e) {}
-              if (searchErr) {
-                reject(searchErr);
-                return;
-              }
-              resolve(results.length);
-            }
+            finish(searchErr ? 0 : results.length);
           });
         });
       };
 
-      tryOpenBox(folderCandidates);
+      tryOpen(candidates);
     });
 
-    imap.on("error", (err: Error) => {
-      console.error("IMAP Connection Error:", err);
-      if (!isFinished) {
-        isFinished = true;
-        clearTimeout(timeout);
-        try { imap.end(); } catch (e) {}
-        reject(err);
-      }
-    });
-
+    imap.on("error", () => finish(0));
     imap.connect();
   });
 }
@@ -301,6 +334,7 @@ export async function GET(request: NextRequest) {
     const folder = searchParams.get("folder") || "INBOX";
     const action = searchParams.get("action") || "fetch";
     const limit = parseInt(searchParams.get("limit") || "20");
+    const uid = searchParams.get("uid");
 
     if (!accountId) {
       return NextResponse.json({ error: "معرف الحساب مطلوب" }, { status: 400 });
@@ -331,11 +365,19 @@ export async function GET(request: NextRequest) {
       port: account.imap_port,
     };
 
+    // Get unread count
     if (action === "unread") {
       const unreadCount = await getUnreadCount(config, folder);
       return NextResponse.json({ unreadCount });
     }
 
+    // Get single email body by UID
+    if (action === "body" && uid) {
+      const result = await fetchEmailBody(config, folder, parseInt(uid));
+      return NextResponse.json(result);
+    }
+
+    // Get email list (headers only - fast)
     const emails = await fetchEmails(config, folder, limit);
 
     await supabase
@@ -347,19 +389,19 @@ export async function GET(request: NextRequest) {
   } catch (error) {
     console.error("Error fetching emails:", error);
     const errorMessage = error instanceof Error ? error.message : "حدث خطأ";
-    const isAuthError = 
-      errorMessage.toLowerCase().includes("authentication failed") || 
-      errorMessage.toLowerCase().includes("invalid credentials") || 
+    const isAuthError =
+      errorMessage.toLowerCase().includes("authentication failed") ||
+      errorMessage.toLowerCase().includes("invalid credentials") ||
       errorMessage.includes("AUTHENTICATIONFAILED") ||
       (error as any).textCode === "AUTHENTICATIONFAILED";
-    
+
     if (isAuthError) {
       return NextResponse.json(
         { error: "بيانات الدخول غير صحيحة. يرجى التأكد من البريد وكلمة المرور.", requiresAuth: true },
         { status: 401 }
       );
     }
-    
+
     return NextResponse.json(
       { error: `حدث خطأ في جلب الرسائل: ${errorMessage}` },
       { status: 500 }
