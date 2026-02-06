@@ -15,6 +15,21 @@ export default async function PackagesPage() {
     [companyId]
   );
 
+  // Load employee counts for each package
+  const packageIds = packages.map((p: any) => p.id);
+  let employeeCounts: any[] = [];
+  if (packageIds.length > 0) {
+    employeeCounts = await query(
+      `SELECT package_id, COUNT(*) as count FROM employees WHERE package_id IN (${packageIds.map(() => '?').join(',')}) GROUP BY package_id`,
+      packageIds
+    );
+  }
+  const countMap = new Map(employeeCounts.map((r: any) => [r.package_id, Number(r.count)]));
+  const packagesWithCounts = packages.map((p: any) => ({
+    ...p,
+    employees_count: countMap.get(p.id) || 0,
+  }));
+
   return (
     <Suspense fallback={<div className="p-8 text-center font-black">جاري التحميل...</div>}>
       <PackagesClient 

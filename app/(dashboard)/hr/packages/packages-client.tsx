@@ -174,22 +174,62 @@ export function PackagesClient({ initialPackages, companyId }: PackagesClientPro
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const validEmployees = employees.filter(emp => emp.name.trim() !== "");
-    const invalidEmployees = validEmployees.filter(emp => {
-      const missingName = !emp.name.trim();
-      const missingIqama = formData.work_type !== 'salary' && !emp.iqama_number.trim();
-      const missingIdentity = formData.work_type === 'salary' && !emp.identity_number.trim();
-      const missingNationality = !emp.nationality.trim();
-      const missingSalary = !emp.basic_salary || emp.basic_salary <= 0;
-      return missingName || missingIqama || missingIdentity || missingNationality || missingSalary;
-    });
+    const handleSubmit = async (e: React.FormEvent) => {
+      e.preventDefault();
 
-    if (validEmployees.length > 0 && invalidEmployees.length > 0) {
-      toast.error(t('requiredFieldsMissing'));
-      return;
-    }
+      // Validation: package name required
+      if (!formData.group_name.trim()) {
+        toast.error(t('validationPackageNameRequired'), { duration: 5000 });
+        return;
+      }
+
+      // Validation: work type required
+      if (!formData.work_type) {
+        toast.error(t('validationWorkTypeRequired'), { duration: 5000 });
+        return;
+      }
+
+      // Validation: if target system, target and bonus are required
+      if (formData.work_type === 'target') {
+        if (!formData.monthly_target || formData.monthly_target <= 0) {
+          toast.error(t('validationTargetRequired'), { duration: 5000 });
+          return;
+        }
+        if (!formData.bonus_after_target || formData.bonus_after_target <= 0) {
+          toast.error(t('validationBonusRequired'), { duration: 5000 });
+          return;
+        }
+      }
+
+      // Validation: at least one employee with name filled
+      const validEmployees = employees.filter(emp => emp.name.trim() !== "");
+      if (validEmployees.length === 0) {
+        toast.error(t('validationNoEmployees'), { duration: 5000 });
+        return;
+      }
+
+      // Validation: check each employee's mandatory fields
+      for (let i = 0; i < validEmployees.length; i++) {
+        const emp = validEmployees[i];
+        const missingFields: string[] = [];
+        
+        if (!emp.name.trim()) missingFields.push(t('validationEmployeeName'));
+        if (formData.work_type === 'salary') {
+          if (!emp.identity_number.trim()) missingFields.push(t('validationIdentityNumber'));
+        } else {
+          if (!emp.iqama_number.trim()) missingFields.push(t('validationIqamaNumber'));
+        }
+        if (!emp.nationality.trim()) missingFields.push(t('validationNationality'));
+        if (!emp.basic_salary || emp.basic_salary <= 0) missingFields.push(t('validationBasicSalary'));
+
+        if (missingFields.length > 0) {
+          toast.error(
+            `${t('validationEmployeeIncomplete')} #${i + 1} (${emp.name || '---'})\n${t('validationMissingFields')} ${missingFields.join('، ')}`,
+            { duration: 7000 }
+          );
+          return;
+        }
+      }
 
     setIsLoading(true);
 
@@ -317,6 +357,47 @@ export function PackagesClient({ initialPackages, companyId }: PackagesClientPro
         setIsLoading(false);
       }
     };
+
+  const openEditModal = (pkg: any) => {
+    setEditFormData({
+      group_name: pkg.group_name || '',
+      work_type: pkg.work_type || 'target',
+      monthly_target: pkg.monthly_target || 0,
+      bonus_after_target: pkg.bonus_after_target || 10,
+    });
+    setEditModal({ isOpen: true, pkg });
+  };
+
+  const handleEditSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editModal.pkg) return;
+    setIsLoading(true);
+
+    try {
+      const result = await updateEmployeePackage(editModal.pkg.id, {
+        group_name: editFormData.group_name,
+        work_type: editFormData.work_type,
+        monthly_target: editFormData.monthly_target,
+        bonus_after_target: editFormData.bonus_after_target,
+      });
+
+      if (result.success) {
+        setPackages(prev => prev.map(p => 
+          p.id === editModal.pkg.id 
+            ? { ...p, ...editFormData }
+            : p
+        ));
+        setEditModal({ isOpen: false, pkg: null });
+        toast.success(t('packageUpdatedSuccess'));
+      } else {
+        toast.error(result.error || t('errorOccurred'));
+      }
+    } catch {
+      toast.error(t('unexpectedError'));
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   // Column header mappings: Arabic + English aliases -> field key
   const columnAliases: Record<string, string[]> = {
@@ -791,50 +872,68 @@ export function PackagesClient({ initialPackages, companyId }: PackagesClientPro
                       </div>
 
                       {/* Stats Grid */}
-                      <div className="grid grid-cols-2 gap-3">
-                        <div className={cn(
-                          "rounded-xl p-4 border transition-colors",
-                          pkg.work_type === 'target'
-                            ? 'bg-blue-100/50 border-blue-300'
-                            : pkg.work_type === 'salary'
-                            ? 'bg-emerald-100/50 border-emerald-300'
-                            : 'bg-amber-100/50 border-amber-300'
-                        )}>
-                          <div className="flex items-center gap-1.5 text-gray-600 mb-1">
-                            <Target size={12} />
-                            <span className="text-[9px] font-black uppercase tracking-wider">{t('target')}</span>
-                          </div>
+                      <div className={cn("grid gap-3", pkg.work_type === 'target' ? "grid-cols-3" : "grid-cols-1")}>
+                          {/* Employees count - always shown */}
                           <div className={cn(
-                            "text-xl font-black",
+                            "rounded-xl p-4 border transition-colors",
                             pkg.work_type === 'target'
-                              ? 'text-blue-700'
+                              ? 'bg-blue-100/50 border-blue-300'
                               : pkg.work_type === 'salary'
-                              ? 'text-emerald-700'
-                              : 'text-orange-700'
-                          )}>{pkg.monthly_target}</div>
-                        </div>
-                        <div className={cn(
-                          "rounded-xl p-4 border transition-colors",
-                          pkg.work_type === 'target'
-                            ? 'bg-blue-100/50 border-blue-300'
-                            : pkg.work_type === 'salary'
-                            ? 'bg-emerald-100/50 border-emerald-300'
-                            : 'bg-amber-100/50 border-amber-300'
-                        )}>
-                          <div className="flex items-center gap-1.5 text-gray-600 mb-1">
-                            <Trophy size={12} />
-                            <span className="text-[9px] font-black uppercase tracking-wider">{t('bonus')}</span>
+                              ? 'bg-emerald-100/50 border-emerald-300'
+                              : 'bg-amber-100/50 border-amber-300'
+                          )}>
+                            <div className="flex items-center gap-1.5 text-gray-600 mb-1">
+                              <Users size={12} />
+                              <span className="text-[9px] font-black uppercase tracking-wider">{t('employeesCountInPackage')}</span>
+                            </div>
+                            <div className={cn(
+                              "text-xl font-black",
+                              pkg.work_type === 'target'
+                                ? 'text-blue-700'
+                                : pkg.work_type === 'salary'
+                                ? 'text-emerald-700'
+                                : 'text-orange-700'
+                            )}>{pkg.employees?.length || 0}</div>
                           </div>
-                          <div className={cn(
-                            "text-xl font-black",
-                            pkg.work_type === 'target'
-                              ? 'text-blue-700'
-                              : pkg.work_type === 'salary'
-                              ? 'text-emerald-700'
-                              : 'text-orange-700'
-                          )}>{pkg.bonus_after_target}</div>
+
+                          {/* Target & Bonus - only for target type */}
+                          {pkg.work_type === 'target' && (
+                            <>
+                              <div className="rounded-xl p-4 border transition-colors bg-blue-100/50 border-blue-300">
+                                <div className="flex items-center gap-1.5 text-gray-600 mb-1">
+                                  <Target size={12} />
+                                  <span className="text-[9px] font-black uppercase tracking-wider">{t('target')}</span>
+                                </div>
+                                <div className="text-xl font-black text-blue-700">{pkg.monthly_target}</div>
+                              </div>
+                              <div className="rounded-xl p-4 border transition-colors bg-blue-100/50 border-blue-300">
+                                <div className="flex items-center gap-1.5 text-gray-600 mb-1">
+                                  <Trophy size={12} />
+                                  <span className="text-[9px] font-black uppercase tracking-wider">{t('bonus')}</span>
+                                </div>
+                                <div className="text-xl font-black text-blue-700">{pkg.bonus_after_target}</div>
+                              </div>
+                            </>
+                          )}
+
+                          {/* Info note for salary/commission */}
+                          {pkg.work_type !== 'target' && (
+                            <div className={cn(
+                              "rounded-xl p-3 border transition-colors flex items-center gap-2",
+                              pkg.work_type === 'salary'
+                                ? 'bg-emerald-50 border-emerald-200'
+                                : 'bg-amber-50 border-amber-200'
+                            )}>
+                              <Info size={14} className={pkg.work_type === 'salary' ? 'text-emerald-500' : 'text-amber-500'} />
+                              <span className={cn(
+                                "text-[10px] font-bold",
+                                pkg.work_type === 'salary' ? 'text-emerald-700' : 'text-amber-700'
+                              )}>
+                                {pkg.work_type === 'salary' ? t('salaryPackageInfo') : t('commissionPackageInfo')}
+                              </span>
+                            </div>
+                          )}
                         </div>
-                      </div>
 
                         <div className="pt-2 flex gap-2">
                           <motion.button 
@@ -857,15 +956,26 @@ export function PackagesClient({ initialPackages, companyId }: PackagesClientPro
                             <span>{t('viewPackage')}</span>
                           </Link>
                         </div>
-                        <motion.button
-                          whileHover={{ scale: 1.02, boxShadow: "0 10px 25px rgba(239, 68, 68, 0.3)" }}
-                          whileTap={{ scale: 0.98 }}
-                          onClick={() => handleDelete(pkg)}
-                          className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-red-500 to-rose-600 text-white py-3 rounded-xl text-xs font-black shadow-lg shadow-red-500/20 hover:from-red-600 hover:to-rose-700 transition-all border-b-2 border-red-700/30"
-                        >
-                          <Trash2 size={14} />
-                          <span>{t('deletePackage')}</span>
-                        </motion.button>
+                        <div className="flex gap-2">
+                          <motion.button
+                            whileHover={{ scale: 1.02, boxShadow: "0 10px 25px rgba(99, 102, 241, 0.3)" }}
+                            whileTap={{ scale: 0.98 }}
+                            onClick={() => openEditModal(pkg)}
+                            className="flex-1 flex items-center justify-center gap-2 bg-gradient-to-r from-indigo-500 to-purple-600 text-white py-3 rounded-xl text-xs font-black shadow-lg shadow-indigo-500/20 hover:from-indigo-600 hover:to-purple-700 transition-all border-b-2 border-indigo-700/30"
+                          >
+                            <Pencil size={14} />
+                            <span>{t('editPackage')}</span>
+                          </motion.button>
+                          <motion.button
+                            whileHover={{ scale: 1.02, boxShadow: "0 10px 25px rgba(239, 68, 68, 0.3)" }}
+                            whileTap={{ scale: 0.98 }}
+                            onClick={() => handleDelete(pkg)}
+                            className="flex-1 flex items-center justify-center gap-2 bg-gradient-to-r from-red-500 to-rose-600 text-white py-3 rounded-xl text-xs font-black shadow-lg shadow-red-500/20 hover:from-red-600 hover:to-rose-700 transition-all border-b-2 border-red-700/30"
+                          >
+                            <Trash2 size={14} />
+                            <span>{t('deletePackage')}</span>
+                          </motion.button>
+                        </div>
                     </div>
                   </motion.div>
                 ))}
@@ -959,67 +1069,83 @@ export function PackagesClient({ initialPackages, companyId }: PackagesClientPro
 
               <div className="flex-1 overflow-auto p-6 scrollbar-hide">
                 <form id="packageForm" onSubmit={handleSubmit} className="space-y-8">
-                  <div className="grid grid-cols-1 md:grid-cols-4 gap-4 bg-gradient-to-br from-purple-50 to-violet-50 p-6 rounded-2xl border border-purple-100">
-                    <div className="space-y-1.5">
-                      <label className="text-xs font-black text-gray-500 flex items-center gap-1.5 uppercase tracking-wider">
-                        <Package size={12} className="text-purple-500" />
-                        {t('packageName')}
-                      </label>
-                      <input
-                        type="text"
-                        required
-                        value={formData.group_name}
-                        onChange={(e) => setFormData({ ...formData, group_name: e.target.value })}
-                        placeholder={t('enterPackageName')}
-                        className="w-full bg-white border-2 border-purple-100 rounded-xl py-3 px-4 text-sm font-bold text-gray-700 focus:border-purple-400 outline-none transition-all"
-                      />
-                    </div>
+                    <div className={cn(
+                      "grid gap-4 bg-gradient-to-br from-purple-50 to-violet-50 p-6 rounded-2xl border border-purple-100",
+                      formData.work_type === 'target' ? "grid-cols-1 md:grid-cols-4" : "grid-cols-1 md:grid-cols-2"
+                    )}>
+                      <div className="space-y-1.5">
+                        <label className="text-xs font-black text-gray-500 flex items-center gap-1.5 uppercase tracking-wider">
+                          <Package size={12} className="text-purple-500" />
+                          {t('packageName')} <span className="text-red-500">*</span>
+                        </label>
+                        <input
+                          type="text"
+                          value={formData.group_name}
+                          onChange={(e) => setFormData({ ...formData, group_name: e.target.value })}
+                          placeholder={t('enterPackageName')}
+                          className="w-full bg-white border-2 border-purple-100 rounded-xl py-3 px-4 text-sm font-bold text-gray-700 focus:border-purple-400 outline-none transition-all"
+                        />
+                      </div>
 
-                    <div className="space-y-1.5">
-                      <label className="text-xs font-black text-gray-500 flex items-center gap-1.5 uppercase tracking-wider">
-                        <Target size={12} className="text-purple-500" />
-                        {t('monthlyTarget')}
-                      </label>
-                      <input
-                        type="number"
-                        disabled={formData.work_type === 'salary' || formData.work_type === 'commission'}
-                        value={formData.monthly_target}
-                        onChange={(e) => setFormData({ ...formData, monthly_target: parseInt(e.target.value) })}
-                        placeholder={t('enterMonthlyTarget')}
-                        className="w-full bg-white border-2 border-purple-100 rounded-xl py-3 px-4 text-sm font-bold text-gray-700 focus:border-purple-400 outline-none transition-all disabled:opacity-50 disabled:bg-gray-50"
-                      />
-                    </div>
+                      <div className="space-y-1.5">
+                        <label className="text-xs font-black text-gray-500 flex items-center gap-1.5 uppercase tracking-wider">
+                          <Settings size={12} className="text-purple-500" />
+                          {t('workSystem')} <span className="text-red-500">*</span>
+                        </label>
+                        <select
+                          value={formData.work_type}
+                          onChange={(e) => {
+                            const wt = e.target.value;
+                            setFormData({ ...formData, work_type: wt, monthly_target: wt === 'target' ? formData.monthly_target : 0, bonus_after_target: wt === 'target' ? formData.bonus_after_target : 0 });
+                          }}
+                          className="w-full bg-white border-2 border-purple-100 rounded-xl py-3 px-4 text-sm font-bold text-gray-700 focus:border-purple-400 outline-none transition-all"
+                        >
+                          <option value="target">{t('targetSystemOption')}</option>
+                          <option value="salary">{t('salarySystemOption')}</option>
+                          <option value="commission">{t('commissionSystemOption')}</option>
+                        </select>
+                      </div>
 
-                    <div className="space-y-1.5">
-                      <label className="text-xs font-black text-gray-500 flex items-center gap-1.5 uppercase tracking-wider">
-                        <Trophy size={12} className="text-purple-500" />
-                        {t('bonusAfterTarget')}
-                      </label>
-                      <input
-                        type="number"
-                        disabled={formData.work_type === 'salary' || formData.work_type === 'commission'}
-                        value={formData.bonus_after_target}
-                        onChange={(e) => setFormData({ ...formData, bonus_after_target: parseFloat(e.target.value) })}
-                        className="w-full bg-white border-2 border-purple-100 rounded-xl py-3 px-4 text-sm font-bold text-gray-700 focus:border-purple-400 outline-none transition-all disabled:opacity-50 disabled:bg-gray-50"
-                      />
-                    </div>
+                      {formData.work_type === 'target' && (
+                        <>
+                          <div className="space-y-1.5">
+                            <label className="text-xs font-black text-gray-500 flex items-center gap-1.5 uppercase tracking-wider">
+                              <Target size={12} className="text-purple-500" />
+                              {t('monthlyTarget')} <span className="text-red-500">*</span>
+                            </label>
+                            <input
+                              type="number"
+                              value={formData.monthly_target}
+                              onChange={(e) => setFormData({ ...formData, monthly_target: parseInt(e.target.value) || 0 })}
+                              placeholder={t('enterMonthlyTarget')}
+                              className="w-full bg-white border-2 border-purple-100 rounded-xl py-3 px-4 text-sm font-bold text-gray-700 focus:border-purple-400 outline-none transition-all"
+                            />
+                          </div>
 
-                    <div className="space-y-1.5">
-                      <label className="text-xs font-black text-gray-500 flex items-center gap-1.5 uppercase tracking-wider">
-                        <Settings size={12} className="text-purple-500" />
-                        {t('workSystem')}
-                      </label>
-                      <select
-                        value={formData.work_type}
-                        onChange={(e) => setFormData({ ...formData, work_type: e.target.value })}
-                        className="w-full bg-white border-2 border-purple-100 rounded-xl py-3 px-4 text-sm font-bold text-gray-700 focus:border-purple-400 outline-none transition-all"
-                      >
-                        <option value="target">{t('targetSystemOption')}</option>
-                        <option value="salary">{t('salarySystemOption')}</option>
-                        <option value="commission">{t('commissionSystemOption')}</option>
-                      </select>
+                          <div className="space-y-1.5">
+                            <label className="text-xs font-black text-gray-500 flex items-center gap-1.5 uppercase tracking-wider">
+                              <Trophy size={12} className="text-purple-500" />
+                              {t('bonusAfterTarget')} <span className="text-red-500">*</span>
+                            </label>
+                            <input
+                              type="number"
+                              value={formData.bonus_after_target}
+                              onChange={(e) => setFormData({ ...formData, bonus_after_target: parseFloat(e.target.value) || 0 })}
+                              className="w-full bg-white border-2 border-purple-100 rounded-xl py-3 px-4 text-sm font-bold text-gray-700 focus:border-purple-400 outline-none transition-all"
+                            />
+                          </div>
+                        </>
+                      )}
+
+                      {formData.work_type !== 'target' && (
+                        <div className="md:col-span-2 flex items-center gap-3 bg-blue-50 rounded-xl p-4 border border-blue-200">
+                          <Info size={18} className="text-blue-500 shrink-0" />
+                          <p className="text-xs font-bold text-blue-700">
+                            {formData.work_type === 'salary' ? t('salaryPackageInfo') : t('commissionPackageInfo')}
+                          </p>
+                        </div>
+                      )}
                     </div>
-                  </div>
 
                     {/* Premium Excel Import Card */}
                     <motion.div
@@ -1871,6 +1997,164 @@ export function PackagesClient({ initialPackages, companyId }: PackagesClientPro
             </div>
           )}
         </AnimatePresence>
+          {/* Edit Package Modal */}
+          <AnimatePresence>
+            {editModal.isOpen && editModal.pkg && (
+              <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  onClick={() => setEditModal({ isOpen: false, pkg: null })}
+                  className="absolute inset-0 bg-slate-950/90 backdrop-blur-2xl"
+                />
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.8, y: 50 }}
+                  animate={{ opacity: 1, scale: 1, y: 0 }}
+                  exit={{ opacity: 0, scale: 0.8, y: 50 }}
+                  transition={{ type: "spring", damping: 25, stiffness: 300 }}
+                  className="relative w-full max-w-lg bg-white dark:bg-slate-900 rounded-[2rem] shadow-[0_0_100px_rgba(99,102,241,0.3)] overflow-hidden border-4 border-indigo-500/20"
+                  dir={isRTL ? 'rtl' : 'ltr'}
+                >
+                  <div className="relative bg-gradient-to-br from-indigo-500 via-purple-600 to-violet-700 p-8 text-white text-center overflow-hidden">
+                    <div className="absolute inset-0 overflow-hidden">
+                      {[...Array(4)].map((_, i) => (
+                        <motion.div
+                          key={i}
+                          initial={{ y: 80, opacity: 0 }}
+                          animate={{ y: -80, opacity: [0, 0.5, 0], x: Math.random() * 60 - 30 }}
+                          transition={{ delay: i * 0.3, duration: 2.5, repeat: Infinity, repeatDelay: 1 }}
+                          className="absolute"
+                          style={{ left: `${20 + i * 20}%` }}
+                        >
+                          <Sparkles size={16} className="text-white/30" />
+                        </motion.div>
+                      ))}
+                    </div>
+                    <motion.div
+                      initial={{ scale: 0, rotate: -180 }}
+                      animate={{ scale: 1, rotate: 0 }}
+                      transition={{ delay: 0.2, type: "spring", damping: 15 }}
+                      className="relative z-10 mx-auto w-20 h-20 bg-white/20 backdrop-blur-xl rounded-full flex items-center justify-center mb-4 shadow-2xl border-4 border-white/30"
+                    >
+                      <Pencil size={36} className="text-white drop-shadow-lg" />
+                    </motion.div>
+                    <h3 className="text-2xl font-black relative z-10">{t('editPackageTitle')}</h3>
+                    <p className="text-white/70 font-bold text-sm mt-1 relative z-10">{t('editPackageDesc')}</p>
+                  </div>
+
+                  <form onSubmit={handleEditSubmit} className="p-8 space-y-5">
+                    {/* Package number info */}
+                    <div className="flex items-center gap-3 bg-indigo-50 rounded-xl p-4 border border-indigo-100">
+                      <Info size={18} className="text-indigo-500 shrink-0" />
+                      <p className="text-xs font-bold text-indigo-700">{t('editPackageNote')} <span className="font-black">#{editModal.pkg.id}</span></p>
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-black text-gray-500 flex items-center gap-1.5 uppercase tracking-wider">
+                        <Package size={12} className="text-indigo-500" />
+                        {t('packageName')}
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        value={editFormData.group_name}
+                        onChange={(e) => setEditFormData({ ...editFormData, group_name: e.target.value })}
+                        className="w-full bg-gray-50 border-2 border-gray-200 rounded-xl py-3 px-4 text-sm font-bold text-gray-700 focus:border-indigo-400 outline-none transition-all"
+                      />
+                    </div>
+
+                    <div className="space-y-1.5">
+                        <label className="text-xs font-black text-gray-500 flex items-center gap-1.5 uppercase tracking-wider">
+                          <Settings size={12} className="text-indigo-500" />
+                          {t('workSystem')}
+                        </label>
+                        <select
+                          value={editFormData.work_type}
+                          onChange={(e) => {
+                            const wt = e.target.value;
+                            setEditFormData({ ...editFormData, work_type: wt, monthly_target: wt === 'target' ? editFormData.monthly_target : 0, bonus_after_target: wt === 'target' ? editFormData.bonus_after_target : 0 });
+                          }}
+                          className="w-full bg-gray-50 border-2 border-gray-200 rounded-xl py-3 px-4 text-sm font-bold text-gray-700 focus:border-indigo-400 outline-none transition-all"
+                        >
+                          <option value="target">{t('targetSystemOption')}</option>
+                          <option value="salary">{t('salarySystemOption')}</option>
+                          <option value="commission">{t('commissionSystemOption')}</option>
+                        </select>
+                      </div>
+
+                      {editFormData.work_type === 'target' && (
+                        <div className="grid grid-cols-2 gap-4">
+                          <div className="space-y-1.5">
+                            <label className="text-xs font-black text-gray-500 flex items-center gap-1.5 uppercase tracking-wider">
+                              <Target size={12} className="text-indigo-500" />
+                              {t('monthlyTarget')} <span className="text-red-500">*</span>
+                            </label>
+                            <input
+                              type="number"
+                              value={editFormData.monthly_target}
+                              onChange={(e) => setEditFormData({ ...editFormData, monthly_target: parseInt(e.target.value) || 0 })}
+                              className="w-full bg-gray-50 border-2 border-gray-200 rounded-xl py-3 px-4 text-sm font-bold text-gray-700 focus:border-indigo-400 outline-none transition-all"
+                            />
+                          </div>
+                          <div className="space-y-1.5">
+                            <label className="text-xs font-black text-gray-500 flex items-center gap-1.5 uppercase tracking-wider">
+                              <Trophy size={12} className="text-indigo-500" />
+                              {t('bonusAfterTarget')} <span className="text-red-500">*</span>
+                            </label>
+                            <input
+                              type="number"
+                              value={editFormData.bonus_after_target}
+                              onChange={(e) => setEditFormData({ ...editFormData, bonus_after_target: parseFloat(e.target.value) || 0 })}
+                              className="w-full bg-gray-50 border-2 border-gray-200 rounded-xl py-3 px-4 text-sm font-bold text-gray-700 focus:border-indigo-400 outline-none transition-all"
+                            />
+                          </div>
+                        </div>
+                      )}
+
+                      {editFormData.work_type !== 'target' && (
+                        <div className="flex items-center gap-3 bg-blue-50 rounded-xl p-4 border border-blue-200">
+                          <Info size={18} className="text-blue-500 shrink-0" />
+                          <p className="text-xs font-bold text-blue-700">
+                            {editFormData.work_type === 'salary' ? t('salaryPackageInfo') : t('commissionPackageInfo')}
+                          </p>
+                        </div>
+                      )}
+
+                    <div className="flex gap-4 pt-4">
+                      <motion.button
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                        type="button"
+                        onClick={() => setEditModal({ isOpen: false, pkg: null })}
+                        className="flex-1 flex items-center justify-center gap-2 bg-gray-100 text-gray-600 py-4 rounded-2xl font-black text-base hover:bg-gray-200 transition-all"
+                      >
+                        <X size={18} />
+                        {t('cancel')}
+                      </motion.button>
+                      <motion.button
+                        whileHover={{ scale: 1.02, boxShadow: "0 20px 40px rgba(99, 102, 241, 0.3)" }}
+                        whileTap={{ scale: 0.98 }}
+                        type="submit"
+                        disabled={isLoading}
+                        className="flex-1 flex items-center justify-center gap-2 bg-gradient-to-r from-indigo-500 via-purple-600 to-violet-600 text-white py-4 rounded-2xl font-black text-base shadow-xl shadow-indigo-500/30 disabled:opacity-50 border-b-4 border-indigo-700/50"
+                      >
+                        {isLoading ? (
+                          <div className="h-5 w-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                        ) : (
+                          <>
+                            <Save size={18} />
+                            {t('saveChanges')}
+                          </>
+                        )}
+                      </motion.button>
+                    </div>
+                  </form>
+                </motion.div>
+              </div>
+            )}
+          </AnimatePresence>
+
           {/* Excel Scan Modal */}
           <AnimatePresence>
             {excelScanModal.isOpen && (
