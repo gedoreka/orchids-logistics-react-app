@@ -28,6 +28,8 @@ import Link from "next/link";
 import { QRCodeCanvas } from "qrcode.react";
 import { useReactToPrint } from "react-to-print";
 import { useTranslations } from "@/lib/locale-context";
+import { motion, AnimatePresence } from "framer-motion";
+import { FileText, MailCheck, XCircle } from "lucide-react";
 
 interface InvoiceItem {
   id: number;
@@ -192,11 +194,17 @@ export function InvoiceViewClient({
     const [emailTo, setEmailTo] = useState('');
     const [emailSubject, setEmailSubject] = useState('');
     const [emailBody, setEmailBody] = useState('');
-    const [pdfGenerating, setPdfGenerating] = useState(false);
+      const [pdfGenerating, setPdfGenerating] = useState(false);
+      const [emailOverlay, setEmailOverlay] = useState<{
+        show: boolean;
+        type: 'loading' | 'success' | 'error';
+        title: string;
+        message: string;
+      }>({ show: false, type: 'loading', title: '', message: '' });
 
-    useEffect(() => {
-      setIsMounted(true);
-    }, []);
+      useEffect(() => {
+        setIsMounted(true);
+      }, []);
 
     // Close bank selector on outside click
     useEffect(() => {
@@ -409,66 +417,63 @@ export function InvoiceViewClient({
 
     // Handle send email after compose
     const handleSendInvoiceEmail = async () => {
-      if (!emailTo || !selectedAccountId) {
-        toast.error('يرجى إدخال بريد المستلم');
-        return;
-      }
-
-      setEmailSending(true);
-      setPdfGenerating(true);
-
-      try {
-        toast.loading('جاري تجهيز الفاتورة...', { id: 'email-send' });
-
-        const pdfBase64 = await generatePDFBase64();
-        setPdfGenerating(false);
-
-        if (!pdfBase64) {
-          toast.error('فشل في إنشاء ملف PDF', { id: 'email-send' });
+        if (!emailTo || !selectedAccountId) {
+          toast.error('يرجى إدخال بريد المستلم');
           return;
         }
 
-        toast.loading('جاري إرسال البريد الإلكتروني...', { id: 'email-send' });
+        setEmailSending(true);
+        setPdfGenerating(true);
+        setShowEmailDialog(null);
+        setEmailOverlay({ show: true, type: 'loading', title: 'جاري تجهيز الفاتورة', message: `يتم الآن إنشاء ملف PDF للفاتورة رقم ${invoice.invoice_number}` });
 
-        const res = await fetch('/api/email/send', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            accountId: selectedAccountId,
-            company_id: company?.id,
-            to: emailTo,
-            subject: emailSubject,
-            body: emailBody,
-            attachments: [{
-              filename: `Invoice-${invoice.invoice_number}.pdf`,
-              content: pdfBase64,
-              contentType: 'application/pdf',
-            }]
-          })
-        });
+        try {
+          const pdfBase64 = await generatePDFBase64();
+          setPdfGenerating(false);
 
-        const data = await res.json();
+          if (!pdfBase64) {
+            setEmailOverlay({ show: true, type: 'error', title: 'فشل إنشاء الملف', message: 'تعذر إنشاء ملف PDF للفاتورة. يرجى المحاولة مرة أخرى.' });
+            return;
+          }
 
-        if (data.success) {
-          toast.success('تم إرسال الفاتورة بنجاح عبر البريد الإلكتروني', {
-            id: 'email-send',
-            duration: 5000,
+          setEmailOverlay({ show: true, type: 'loading', title: 'جاري إرسال البريد الإلكتروني', message: `يتم الآن إرسال الفاتورة إلى ${emailTo}` });
+
+          const res = await fetch('/api/email/send', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              accountId: selectedAccountId,
+              company_id: company?.id,
+              to: emailTo,
+              subject: emailSubject,
+              body: emailBody,
+              attachments: [{
+                filename: `Invoice-${invoice.invoice_number}.pdf`,
+                content: pdfBase64,
+                contentType: 'application/pdf',
+              }]
+            })
           });
-          setShowEmailDialog(null);
-          setEmailTo('');
-          setEmailSubject('');
-          setEmailBody('');
-        } else {
-          toast.error(data.error || 'فشل في إرسال البريد', { id: 'email-send' });
+
+          const data = await res.json();
+
+          if (data.success) {
+            setEmailOverlay({ show: true, type: 'success', title: 'تم الإرسال بنجاح', message: `تم إرسال الفاتورة رقم ${invoice.invoice_number} بنجاح إلى\n${emailTo}` });
+            setTimeout(() => setEmailOverlay(prev => ({ ...prev, show: false })), 3500);
+            setEmailTo('');
+            setEmailSubject('');
+            setEmailBody('');
+          } else {
+            setEmailOverlay({ show: true, type: 'error', title: 'فشل الإرسال', message: data.error || 'تعذر إرسال البريد الإلكتروني. يرجى المحاولة مرة أخرى.' });
+          }
+        } catch (error) {
+          console.error('Email send error:', error);
+          setEmailOverlay({ show: true, type: 'error', title: 'خطأ في الإرسال', message: 'حدث خطأ غير متوقع أثناء إرسال البريد الإلكتروني.' });
+        } finally {
+          setEmailSending(false);
+          setPdfGenerating(false);
         }
-      } catch (error) {
-        console.error('Email send error:', error);
-        toast.error('حدث خطأ في إرسال البريد الإلكتروني', { id: 'email-send' });
-      } finally {
-        setEmailSending(false);
-        setPdfGenerating(false);
-      }
-    };
+      };
 
     const getPublicUrl = (path: string) => {
     if (!path) return null;
@@ -1072,7 +1077,70 @@ export function InvoiceViewClient({
                 )}
               </div>
             </div>
-          )}
+            )}
+          </div>
+
+          {/* Premium Email Notification Overlay */}
+          <AnimatePresence>
+            {emailOverlay.show && (
+              <>
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  className="fixed inset-0 bg-black/60 backdrop-blur-md z-[100]"
+                  onClick={() => emailOverlay.type !== 'loading' && setEmailOverlay(prev => ({ ...prev, show: false }))}
+                />
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                  animate={{ opacity: 1, scale: 1, y: 0 }}
+                  exit={{ opacity: 0, scale: 0.9, y: 20 }}
+                  className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[101] w-full max-w-md p-4"
+                  dir="rtl"
+                >
+                  <div className={`bg-white rounded-[2rem] p-8 shadow-2xl border-t-4 ${
+                    emailOverlay.type === 'success' ? 'border-emerald-500' :
+                    emailOverlay.type === 'error' ? 'border-red-500' : 'border-blue-500'
+                  }`}>
+                    <div className="text-center">
+                      <div className={`h-20 w-20 rounded-full mx-auto mb-6 flex items-center justify-center ${
+                        emailOverlay.type === 'success' ? 'bg-emerald-100 text-emerald-500' :
+                        emailOverlay.type === 'error' ? 'bg-red-100 text-red-500' : 'bg-blue-100 text-blue-500'
+                      }`}>
+                        {emailOverlay.type === 'loading' && <Loader2 size={40} className="animate-spin" />}
+                        {emailOverlay.type === 'success' && <MailCheck size={40} />}
+                        {emailOverlay.type === 'error' && <XCircle size={40} />}
+                      </div>
+                      <h3 className="text-2xl font-black text-gray-900 mb-2">{emailOverlay.title}</h3>
+                      <p className="text-gray-500 mb-6 font-medium whitespace-pre-line">{emailOverlay.message}</p>
+
+                      {emailOverlay.type === 'loading' && (
+                        <div className="w-full bg-gray-100 rounded-full h-1.5 overflow-hidden">
+                          <motion.div
+                            className="h-full bg-blue-500 rounded-full"
+                            initial={{ width: '0%' }}
+                            animate={{ width: '100%' }}
+                            transition={{ duration: 8, ease: 'linear' }}
+                          />
+                        </div>
+                      )}
+
+                      {emailOverlay.type !== 'loading' && (
+                        <button
+                          onClick={() => setEmailOverlay(prev => ({ ...prev, show: false }))}
+                          className={`w-full py-4 rounded-2xl font-black text-white transition-all shadow-lg active:scale-95 ${
+                            emailOverlay.type === 'success' ? 'bg-emerald-500 hover:bg-emerald-600' : 'bg-red-500 hover:bg-red-600'
+                          }`}
+                        >
+                          حسناً
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                </motion.div>
+              </>
+            )}
+          </AnimatePresence>
         </div>
       );
   }
