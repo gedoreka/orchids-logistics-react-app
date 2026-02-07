@@ -123,11 +123,12 @@ export async function GET(request: NextRequest) {
         const expenses = await query<ExpenseRow>(
           `SELECT 
             e.*,
-            a.account_name,
-            c.center_name
+            COALESCE(a1.account_name, (SELECT a2.account_name FROM accounts a2 WHERE a2.account_code = e.account_code AND a2.company_id = ? LIMIT 1)) AS account_name,
+            COALESCE(c1.center_name, (SELECT c2.center_name FROM cost_centers c2 WHERE c2.center_code = e.cost_center_code AND c2.company_id = ? LIMIT 1)) AS center_name,
+            COALESCE(c1.center_code, e.cost_center_code) AS center_code
           FROM monthly_expenses e
-          LEFT JOIN accounts a ON e.account_code = a.account_code AND a.company_id = ?
-          LEFT JOIN cost_centers c ON e.cost_center_code = c.center_code AND c.company_id = ?
+          LEFT JOIN accounts a1 ON e.account_id = a1.id
+          LEFT JOIN cost_centers c1 ON e.cost_center_id = c1.id
           WHERE e.company_id = ? AND e.month_reference = ?
           ORDER BY e.expense_type, e.expense_date ASC`,
           [companyId, companyId, companyId, month]
@@ -377,85 +378,123 @@ export async function PUT(request: NextRequest) {
       attachmentToSave = attachmentFile;
     }
 
-    const amount = parseFloat(formData.get('amount') as string || '0');
-    const expenseDate = formData.get('expense_date') as string;
-    const employeeName = formData.get('employee_name') as string;
-    const employeeIqama = formData.get('employee_iqama') as string;
-    const accountCode = formData.get('account_code') as string;
-    const costCenterCode = formData.get('cost_center_code') as string;
-    const expenseType = formData.get('expense_type') as string;
-    const description = formData.get('description') as string;
-    const monthReference = formData.get('month_reference') as string;
+      const amount = parseFloat(formData.get('amount') as string || '0');
+      const expenseDate = formData.get('expense_date') as string;
+      const employeeName = formData.get('employee_name') as string;
+      const employeeIqama = formData.get('employee_iqama') as string;
+      const rawAccountVal = formData.get('account_code') as string || '';
+      const rawCenterVal = formData.get('cost_center_code') as string || '';
+      const expenseType = formData.get('expense_type') as string;
+      const description = formData.get('description') as string;
+      const monthReference = formData.get('month_reference') as string;
 
-    if (type === 'expense') {
-      const taxValue = parseFloat(formData.get('tax_value') as string || '0');
-      const netAmount = parseFloat(formData.get('net_amount') as string || (amount - taxValue).toString());
+      // Resolve account: form may send DB ID or actual code
+      let accountByIdMap = new Map<string, { id: number; account_code: string }>();
+      let accountByCodeMap = new Map<string, { id: number; account_code: string }>();
+      let centerByIdMap = new Map<string, { id: number; center_code: string }>();
+      let centerByCodeMap = new Map<string, { id: number; center_code: string }>();
 
-      await query(
-        `UPDATE monthly_expenses SET
-          expense_date = ?,
-          employee_name = ?,
-          employee_iqama = ?,
-          amount = ?,
-          tax_value = ?,
-          net_amount = ?,
-          account_code = ?,
-          cost_center_code = ?,
-          expense_type = ?,
-          description = ?,
-          month_reference = ?,
-          attachment = ?
-        WHERE id = ? AND company_id = ?`,
-        [
-          expenseDate,
-          employeeName || null,
-          employeeIqama || null,
-          amount,
-          taxValue,
-          netAmount,
-          accountCode || null,
-          costCenterCode || null,
-          expenseType || null,
-          description || null,
-          monthReference || null,
-          attachmentToSave,
-          parseInt(id),
-          companyId
-        ]
-      );
-    } else {
-      const status = formData.get('status') as string || 'pending';
-      await query(
-        `UPDATE monthly_deductions SET
-          expense_date = ?,
-          employee_name = ?,
-          employee_iqama = ?,
-          amount = ?,
-          account_code = ?,
-          cost_center_code = ?,
-          deduction_type = ?,
-          description = ?,
-          month_reference = ?,
-          attachment = ?,
-          status = ?
-        WHERE id = ? AND company_id = ?`,
-        [
-          expenseDate,
-          employeeName || null,
-          employeeIqama || null,
-          amount,
-          accountCode || null,
-          costCenterCode || null,
-          expenseType || null,
-          description || null,
-          monthReference || null,
-          attachmentToSave,
-          status,
-          parseInt(id),
-          companyId
-        ]
-      );
-    }
+      try {
+        const accounts = await query<{ id: number; account_code: string }>(
+          'SELECT id, account_code FROM accounts WHERE company_id = ?', [companyId]
+        );
+        accounts.forEach(a => {
+          accountByIdMap.set(String(a.id), a);
+          accountByCodeMap.set(a.account_code, a);
+        });
+      } catch (e) { /* ignore */ }
+
+      try {
+        const centers = await query<{ id: number; center_code: string }>(
+          'SELECT id, center_code FROM cost_centers WHERE company_id = ?', [companyId]
+        );
+        centers.forEach(c => {
+          centerByIdMap.set(String(c.id), c);
+          centerByCodeMap.set(c.center_code, c);
+        });
+      } catch (e) { /* ignore */ }
+
+      const resolvedAccount = accountByIdMap.get(rawAccountVal) || accountByCodeMap.get(rawAccountVal);
+      const accountCode = resolvedAccount?.account_code || rawAccountVal;
+      const accountId = resolvedAccount?.id || null;
+
+      const resolvedCenter = centerByIdMap.get(rawCenterVal) || centerByCodeMap.get(rawCenterVal);
+      const costCenterCode = resolvedCenter?.center_code || rawCenterVal;
+      const costCenterId = resolvedCenter?.id || null;
+
+      if (type === 'expense') {
+        const taxValue = parseFloat(formData.get('tax_value') as string || '0');
+        const netAmount = parseFloat(formData.get('net_amount') as string || (amount - taxValue).toString());
+
+        await query(
+          `UPDATE monthly_expenses SET
+            expense_date = ?,
+            employee_name = ?,
+            employee_iqama = ?,
+            amount = ?,
+            tax_value = ?,
+            net_amount = ?,
+            account_code = ?,
+            cost_center_code = ?,
+            account_id = ?,
+            cost_center_id = ?,
+            expense_type = ?,
+            description = ?,
+            month_reference = ?,
+            attachment = ?
+          WHERE id = ? AND company_id = ?`,
+          [
+            expenseDate,
+            employeeName || null,
+            employeeIqama || null,
+            amount,
+            taxValue,
+            netAmount,
+            accountCode || null,
+            costCenterCode || null,
+            accountId,
+            costCenterId,
+            expenseType || null,
+            description || null,
+            monthReference || null,
+            attachmentToSave,
+            parseInt(id),
+            companyId
+          ]
+        );
+      } else {
+        const status = formData.get('status') as string || 'pending';
+        await query(
+          `UPDATE monthly_deductions SET
+            expense_date = ?,
+            employee_name = ?,
+            employee_iqama = ?,
+            amount = ?,
+            account_id = ?,
+            cost_center_id = ?,
+            deduction_type = ?,
+            description = ?,
+            month_reference = ?,
+            attachment = ?,
+            status = ?
+          WHERE id = ? AND company_id = ?`,
+          [
+            expenseDate,
+            employeeName || null,
+            employeeIqama || null,
+            amount,
+            accountId,
+            costCenterId,
+            expenseType || null,
+            description || null,
+            monthReference || null,
+            attachmentToSave,
+            status,
+            parseInt(id),
+            companyId
+          ]
+        );
+      }
 
     return NextResponse.json({ success: true, message: 'Updated successfully' });
 
