@@ -1913,3 +1913,8 @@ Import trace:
 2026-02-07T15:02:07.304Z [console][error] You are trying to animate  from "0" to "17221.00". "17221.00" is not an animatable value.. For more information and steps for solving, visit https://motion.dev/troubleshooting/value-not-animatable
 2026-02-07T16:10:00.549Z [console][error] Network error fetching chat: Failed to fetch
 2026-02-07T16:10:10.548Z [console][error] Network error fetching chat: Failed to fetch
+2026-02-07T16:16:02.744Z [console][error] Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.
+2026-02-07T16:16:14.120Z [console][error] Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.
+2026-02-07T16:16:14.121Z [console][error] Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.
+2026-02-07T16:16:17.711Z [console][error] Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.
+2026-02-07T16:16:17.712Z [console][error] Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.

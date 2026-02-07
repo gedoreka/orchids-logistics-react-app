@@ -223,6 +223,7 @@ export function ExpensesReportClient({ companyId }: ExpensesReportClientProps) {
   const [costCenters, setCostCenters] = useState<CostCenterOption[]>([]);
   const [statusUpdating, setStatusUpdating] = useState<number | null>(null);
   const [paymentConfirm, setPaymentConfirm] = useState<{show: boolean; deduction: DeductionItem | null; newStatus: 'completed' | 'pending'}>({show: false, deduction: null, newStatus: 'completed'});
+    const [paymentSuccess, setPaymentSuccess] = useState<{show: boolean; status: 'completed' | 'pending'; deduction: DeductionItem | null}>({show: false, status: 'completed', deduction: null});
 
   const monthOptions = generateMonthOptions();
 
@@ -554,9 +555,10 @@ export function ExpensesReportClient({ companyId }: ExpensesReportClientProps) {
         const res = await fetch('/api/expenses/report', { method: 'PUT', body: formData });
         const data = await res.json();
         if (data.success) {
-          showNotification('success', newStatus === 'completed' ? 'تم تحديث الحالة إلى: مدفوع' : 'تم تحديث الحالة إلى: غير مدفوع');
-          fetchReportData();
-        } else {
+            setPaymentSuccess({ show: true, status: newStatus, deduction });
+            setTimeout(() => setPaymentSuccess(prev => ({ ...prev, show: false })), 3000);
+            fetchReportData();
+          } else {
           showNotification('error', data.message || 'حدث خطأ أثناء تغيير الحالة');
         }
       } catch (error) {
@@ -1391,16 +1393,126 @@ Object.entries(deductionsGrouped).map(([group, deductions], groupIdx) => {
       )}
     </AnimatePresence>
 
+      {/* Luxury Payment Success Modal */}
       <AnimatePresence>
-        {notification.show && (
-          <motion.div initial={{ opacity: 0, y: -50 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -50 }} className="fixed top-10 left-1/2 -translate-x-1/2 z-[100]">
-            <div className={`px-6 py-3 rounded-2xl shadow-2xl flex items-center gap-3 text-white ${notification.type === 'success' ? 'bg-emerald-600' : 'bg-rose-600'}`}>
-              {notification.type === 'success' ? <CheckCircle2 /> : <X />}
-              <span className="font-bold">{notification.message}</span>
-            </div>
-          </motion.div>
+        {paymentSuccess.show && paymentSuccess.deduction && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 bg-black/60 backdrop-blur-md z-[9998]"
+              onClick={() => setPaymentSuccess(prev => ({ ...prev, show: false }))}
+            />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.8, y: 50 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.8, y: 50 }}
+              transition={{ type: "spring", duration: 0.5 }}
+              className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[9999] w-[90%] max-w-[420px]"
+              dir="rtl"
+            >
+              <div className="bg-white rounded-3xl shadow-2xl overflow-hidden border border-slate-100">
+                <div className={`p-8 text-center ${paymentSuccess.status === 'completed' ? 'bg-gradient-to-r from-emerald-600 to-teal-600' : 'bg-gradient-to-r from-orange-500 to-amber-500'}`}>
+                  <motion.div
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    transition={{ type: "spring", delay: 0.2, stiffness: 200 }}
+                    className="w-24 h-24 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4"
+                  >
+                    <motion.div
+                      initial={{ scale: 0 }}
+                      animate={{ scale: 1 }}
+                      transition={{ type: "spring", delay: 0.4, stiffness: 300 }}
+                    >
+                      {paymentSuccess.status === 'completed' ? (
+                        <CheckCircle2 className="w-14 h-14 text-white" />
+                      ) : (
+                        <Ban className="w-14 h-14 text-white" />
+                      )}
+                    </motion.div>
+                  </motion.div>
+                  <motion.h2
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.3 }}
+                    className="text-2xl font-black text-white"
+                  >
+                    {paymentSuccess.status === 'completed' ? 'تم تأكيد الدفع بنجاح' : 'تم إلغاء الدفع'}
+                  </motion.h2>
+                  <motion.p
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.4 }}
+                    className={`mt-2 text-sm ${paymentSuccess.status === 'completed' ? 'text-emerald-200' : 'text-amber-200'}`}
+                  >
+                    {paymentSuccess.status === 'completed' ? 'تم تحديث حالة الاستقطاع إلى مدفوع' : 'تم تحديث حالة الاستقطاع إلى غير مدفوع'}
+                  </motion.p>
+                </div>
+                
+                <div className="p-5">
+                  <div className={`border rounded-2xl p-4 space-y-3 ${paymentSuccess.status === 'completed' ? 'bg-emerald-50 border-emerald-100' : 'bg-amber-50 border-amber-100'}`}>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <ArrowRightLeft className="w-3.5 h-3.5 text-slate-400" />
+                        <span className="text-xs text-slate-500 font-bold">العملية</span>
+                      </div>
+                      <span className="text-sm font-black text-slate-800">{paymentSuccess.deduction.deduction_type || '-'}</span>
+                    </div>
+                    {paymentSuccess.deduction.employee_name && (
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <User className="w-3.5 h-3.5 text-slate-400" />
+                          <span className="text-xs text-slate-500 font-bold">الموظف</span>
+                        </div>
+                        <span className="text-sm font-bold text-slate-700">{paymentSuccess.deduction.employee_name}</span>
+                      </div>
+                    )}
+                    <div className={`flex items-center justify-between border-t pt-3 ${paymentSuccess.status === 'completed' ? 'border-emerald-200' : 'border-amber-200'}`}>
+                      <div className="flex items-center gap-2">
+                        <CreditCard className="w-3.5 h-3.5 text-slate-400" />
+                        <span className="text-xs text-slate-500 font-bold">المبلغ</span>
+                      </div>
+                      <span className={`text-lg font-black ${paymentSuccess.status === 'completed' ? 'text-emerald-700' : 'text-amber-700'}`}>
+                        {formatNumber(paymentSuccess.deduction.amount || 0)} SAR
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-center pt-2">
+                      <div className={`px-5 py-2 rounded-xl text-sm font-black ${paymentSuccess.status === 'completed' ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700'}`}>
+                        {paymentSuccess.status === 'completed' ? 'مدفوع' : 'غير مدفوع'}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="p-4 bg-slate-50 border-t border-slate-100 flex justify-center">
+                  <button
+                    onClick={() => setPaymentSuccess(prev => ({ ...prev, show: false }))}
+                    className={`text-white px-10 py-3 rounded-xl font-bold transition-all shadow-lg active:scale-95 ${
+                      paymentSuccess.status === 'completed'
+                        ? 'bg-gradient-to-r from-emerald-600 to-teal-600 shadow-emerald-200'
+                        : 'bg-gradient-to-r from-orange-500 to-amber-500 shadow-amber-200'
+                    }`}
+                  >
+                    حسناً
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          </>
         )}
       </AnimatePresence>
+
+        <AnimatePresence>
+          {notification.show && (
+            <motion.div initial={{ opacity: 0, y: -50 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -50 }} className="fixed top-10 left-1/2 -translate-x-1/2 z-[100]">
+              <div className={`px-6 py-3 rounded-2xl shadow-2xl flex items-center gap-3 text-white ${notification.type === 'success' ? 'bg-emerald-600' : 'bg-rose-600'}`}>
+                {notification.type === 'success' ? <CheckCircle2 /> : <X />}
+                <span className="font-bold">{notification.message}</span>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
     </div>
 
     <style jsx global>{`
