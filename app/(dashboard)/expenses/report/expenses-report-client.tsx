@@ -216,6 +216,7 @@ export function ExpensesReportClient({ companyId }: ExpensesReportClientProps) {
   const [accounts, setAccounts] = useState<AccountOption[]>([]);
   const [costCenters, setCostCenters] = useState<CostCenterOption[]>([]);
   const [statusUpdating, setStatusUpdating] = useState<number | null>(null);
+  const [paymentConfirm, setPaymentConfirm] = useState<{show: boolean; deduction: DeductionItem | null; newStatus: 'completed' | 'pending'}>({show: false, deduction: null, newStatus: 'completed'});
 
   const monthOptions = generateMonthOptions();
 
@@ -518,40 +519,47 @@ export function ExpensesReportClient({ companyId }: ExpensesReportClientProps) {
     }
   };
 
-  const handleToggleDeductionStatus = async (deduction: DeductionItem) => {
-    setStatusUpdating(deduction.id);
-    try {
+    const handleToggleDeductionStatus = (deduction: DeductionItem) => {
       const newStatus = deduction.status === 'completed' ? 'pending' : 'completed';
-      const formData = new FormData();
-      formData.append('id', deduction.id.toString());
-      formData.append('type', 'deduction');
-      formData.append('expense_date', deduction.expense_date?.split('T')[0] || '');
-      formData.append('month_reference', deduction.month_reference || selectedMonth);
-      formData.append('employee_name', deduction.employee_name || '');
-      formData.append('employee_iqama', deduction.employee_iqama || '');
-      formData.append('amount', (deduction.amount || 0).toString());
-      formData.append('account_code', deduction.account_code || '');
-      formData.append('cost_center_code', deduction.center_code || '');
-      formData.append('expense_type', deduction.deduction_type || '');
-      formData.append('description', deduction.description || '');
-      formData.append('attachment', deduction.attachment || '');
-      formData.append('status', newStatus);
+      setPaymentConfirm({ show: true, deduction, newStatus });
+    };
 
-      const res = await fetch('/api/expenses/report', { method: 'PUT', body: formData });
-      const data = await res.json();
-      if (data.success) {
-        showNotification('success', newStatus === 'completed' ? 'تم تحديث الحالة إلى: مدفوع' : 'تم تحديث الحالة إلى: غير مدفوع');
-        fetchReportData();
-      } else {
-        showNotification('error', data.message || 'حدث خطأ أثناء تغيير الحالة');
+    const executePaymentStatusChange = async () => {
+      const { deduction, newStatus } = paymentConfirm;
+      if (!deduction) return;
+      setPaymentConfirm(prev => ({ ...prev, show: false }));
+      setStatusUpdating(deduction.id);
+      try {
+        const formData = new FormData();
+        formData.append('id', deduction.id.toString());
+        formData.append('type', 'deduction');
+        formData.append('expense_date', deduction.expense_date?.split('T')[0] || '');
+        formData.append('month_reference', deduction.month_reference || selectedMonth);
+        formData.append('employee_name', deduction.employee_name || '');
+        formData.append('employee_iqama', deduction.employee_iqama || '');
+        formData.append('amount', (deduction.amount || 0).toString());
+        formData.append('account_code', deduction.account_code || '');
+        formData.append('cost_center_code', deduction.center_code || '');
+        formData.append('expense_type', deduction.deduction_type || '');
+        formData.append('description', deduction.description || '');
+        formData.append('attachment', deduction.attachment || '');
+        formData.append('status', newStatus);
+
+        const res = await fetch('/api/expenses/report', { method: 'PUT', body: formData });
+        const data = await res.json();
+        if (data.success) {
+          showNotification('success', newStatus === 'completed' ? 'تم تحديث الحالة إلى: مدفوع' : 'تم تحديث الحالة إلى: غير مدفوع');
+          fetchReportData();
+        } else {
+          showNotification('error', data.message || 'حدث خطأ أثناء تغيير الحالة');
+        }
+      } catch (error) {
+        console.error('Status update error:', error);
+        showNotification('error', 'حدث خطأ أثناء تغيير الحالة');
+      } finally {
+        setStatusUpdating(null);
       }
-    } catch (error) {
-      console.error('Status update error:', error);
-      showNotification('error', 'حدث خطأ أثناء تغيير الحالة');
-    } finally {
-      setStatusUpdating(null);
-    }
-  };
+    };
 
   if (loading) {
     return (
