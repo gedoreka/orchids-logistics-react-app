@@ -1664,3 +1664,97 @@ Import trace:
 2026-02-07T01:12:32.528Z [console][error] Error generating PDF base64: Error: Attempting to parse an unsupported color function "oklab"
 2026-02-07T01:12:35.681Z [console][error] The resource http://localhost:3006/_next/static/chunks/%5Broot-of-the-server%5D__12f5bd5e._.css was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.
 2026-02-07T01:12:35.681Z [console][error] The resource http://localhost:3006/_next/static/chunks/%5Bturbopack%5D_browser_dev_hmr-client_hmr-client_ts_57d40746._.js was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.
+2026-02-07T02:02:09.353Z [console][error] ./app/(dashboard)/sales-invoices/[id]/invoice-view-client.tsx:1083:13
+Parsing ecmascript source code failed
+  1081 |           </div>
+  1082 |
+> 1083 |             {/* Premium Email Notification Overlay */}
+       |             ^
+  1084 |           <AnimatePresence>
+  1085 |             {emailOverlay.show && (
+  1086 |               <>
+
+Expected ',', got '{'
+
+Import trace:
+  Server Component:
+    ./app/(dashboard)/sales-invoices/[id]/invoice-view-client.tsx
+    ./app/(dashboard)/sales-invoices/[id]/page.tsx
+2026-02-07T02:02:09.478Z [console][error] Uncaught Error: ./app/(dashboard)/sales-invoices/[id]/invoice-view-client.tsx:1083:13
+Parsing ecmascript source code failed
+  1081 |           </div>
+  1082 |
+> 1083 |             {/* Premium Email Notification Overlay */}
+       |             ^
+  1084 |           <AnimatePresence>
+  1085 |             {emailOverlay.show && (
+  1086 |               <>
+
+Expected ',', got '{'
+
+Import trace:
+  Server Component:
+    ./app/(dashboard)/sales-invoices/[id]/invoice-view-client.tsx
+    ./app/(dashboard)/sales-invoices/[id]/page.tsx
+
+
+2026-02-07T02:02:09.488Z [console][error] ./app/(dashboard)/sales-invoices/[id]/invoice-view-client.tsx:1083:13
+Parsing ecmascript source code failed
+  1081 |           </div>
+  1082 |
+> 1083 |             {/* Premium Email Notification Overlay */}
+       |             ^
+  1084 |           <AnimatePresence>
+  1085 |             {emailOverlay.show && (
+  1086 |               <>
+
+Expected ',', got '{'
+
+Import trace:
+  Server Component:
+    ./app/(dashboard)/sales-invoices/[id]/invoice-view-client.tsx
+    ./app/(dashboard)/sales-invoices/[id]/page.tsx
+2026-02-07T02:02:09.529Z [console][error] ./app/(dashboard)/sales-invoices/[id]/invoice-view-client.tsx:1083:13
+Parsing ecmascript source code failed
+  1081 |           </div>
+  1082 |
+> 1083 |             {/* Premium Email Notification Overlay */}
+       |             ^
+  1084 |           <AnimatePresence>
+  1085 |             {emailOverlay.show && (
+  1086 |               <>
+
+Expected ',', got '{'
+
+Import trace:
+  Server Component:
+    ./app/(dashboard)/sales-invoices/[id]/invoice-view-client.tsx
+    ./app/(dashboard)/sales-invoices/[id]/page.tsx
+2026-02-07T02:05:21.879Z [console][error] ./app/(dashboard)/sales-invoices/[id]/invoice-view-client.tsx:1146:3
+Parsing ecmascript source code failed
+  1144 |         </div>
+  1145 |       );
+> 1146 |   }
+       |   ^
+  1147 |
+
+Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+
+Import trace:
+  Server Component:
+    ./app/(dashboard)/sales-invoices/[id]/invoice-view-client.tsx
+    ./app/(dashboard)/sales-invoices/[id]/page.tsx
+2026-02-07T02:05:21.911Z [console][error] ./app/(dashboard)/sales-invoices/[id]/invoice-view-client.tsx:1146:3
+Parsing ecmascript source code failed
+  1144 |         </div>
+  1145 |       );
+> 1146 |   }
+       |   ^
+  1147 |
+
+Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+
+Import trace:
+  Server Component:
+    ./app/(dashboard)/sales-invoices/[id]/invoice-view-client.tsx
+    ./app/(dashboard)/sales-invoices/[id]/page.tsx

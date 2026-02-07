@@ -159,6 +159,39 @@ export async function POST(request: NextRequest) {
       userId
     ]);
 
+    // --- Auto Journal Entry for Credit Note ---
+    // Credit note reverses the invoice: debit sales/vat, credit customers
+    try {
+      const { recordJournalEntry, getDefaultAccounts } = await import("@/lib/accounting");
+      const defaults = await getDefaultAccounts(parseInt(companyId));
+
+      const customersAccId = defaults.customers || 3;
+      const salesAccId = defaults.sales_revenue || 6;
+      const vatAccId = defaults.vat || 25;
+
+      const lines: any[] = [
+        { account_id: salesAccId, debit: totalBeforeVat, credit: 0, description: `إشعار دائن ${creditNoteNumber} - إلغاء جزئي فاتورة ${invoice.invoice_number}` },
+        { account_id: customersAccId, debit: 0, credit: total_with_vat, description: `إشعار دائن ${creditNoteNumber} - تخفيض ذمة عميل` }
+      ];
+
+      if (vatAmount > 0) {
+        lines.push({ account_id: vatAccId, debit: vatAmount, credit: 0, description: `إلغاء ضريبة إشعار دائن ${creditNoteNumber}` });
+      }
+
+      await recordJournalEntry({
+        entry_date: new Date().toISOString().split('T')[0],
+        entry_number: `CRN-${creditNoteNumber}`,
+        description: `إشعار دائن ${creditNoteNumber} للفاتورة ${invoice.invoice_number}`,
+        company_id: parseInt(companyId),
+        created_by: "System",
+        source_type: "credit_note",
+        source_id: String(result.insertId),
+        lines
+      });
+    } catch (accError) {
+      console.error("Error creating auto journal entry for credit note:", accError);
+    }
+
     return NextResponse.json({ 
       success: true, 
       message: "تم إنشاء إشعار الدائن بنجاح",

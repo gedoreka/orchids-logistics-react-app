@@ -176,46 +176,52 @@ export async function POST(request: NextRequest) {
     const invoiceId = result.insertId;
 
     // --- INTEGRATED ACCOUNTING: Record Journal Entry ---
-    try {
-      const { recordJournalEntry } = await import("@/lib/accounting");
-      
-      const journalLines = [
-        {
-          account_id: 3, // العملاء
-          description: `فاتورة مبيعات رقم ${invoice_number} - ${client.company_name || client.customer_name}`,
-          debit: totalWithVat,
-          credit: 0
-        },
-        {
-          account_id: 6, // المبيعات
-          description: `إيراد مبيعات فاتورة ${invoice_number}`,
-          debit: 0,
-          credit: totalWithVat - totalVat
+      try {
+        const { recordJournalEntry, getDefaultAccounts } = await import("@/lib/accounting");
+        const defaults = await getDefaultAccounts(parseInt(companyId));
+
+        const customersAccId = defaults.customers || 3;
+        const salesAccId = defaults.sales_revenue || 6;
+        const vatAccId = defaults.vat || 25;
+        
+        const journalLines = [
+          {
+            account_id: customersAccId,
+            description: `فاتورة مبيعات رقم ${invoice_number} - ${client.company_name || client.customer_name}`,
+            debit: totalWithVat,
+            credit: 0
+          },
+          {
+            account_id: salesAccId,
+            description: `إيراد مبيعات فاتورة ${invoice_number}`,
+            debit: 0,
+            credit: totalWithVat - totalVat
+          }
+        ];
+
+        if (totalVat > 0) {
+          journalLines.push({
+            account_id: vatAccId,
+            description: `ضريبة مخرجات فاتورة ${invoice_number}`,
+            debit: 0,
+            credit: totalVat
+          });
         }
-      ];
 
-      if (totalVat > 0) {
-        journalLines.push({
-          account_id: 25, // ضريبة القيمة المضافة
-          description: `ضريبة مخرجات فاتورة ${invoice_number}`,
-          debit: 0,
-          credit: totalVat
+        await recordJournalEntry({
+          entry_date: issue_date,
+          entry_number: `INV-${invoice_number}`,
+          description: `فاتورة مبيعات رقم ${invoice_number}`,
+          company_id: parseInt(companyId),
+          created_by: "System",
+          source_type: "sales_invoice",
+          source_id: String(invoiceId),
+          lines: journalLines
         });
+      } catch (accError) {
+        console.error("Error recording accounting entry for invoice:", accError);
       }
-
-      await recordJournalEntry({
-        entry_date: issue_date,
-        entry_number: `INV-${invoice_number}`,
-        description: `فاتورة مبيعات رقم ${invoice_number}`,
-        company_id: parseInt(companyId),
-        created_by: "System",
-        lines: journalLines
-      });
-    } catch (accError) {
-      console.error("Error recording accounting entry for invoice:", accError);
-      // We don't fail the invoice creation if accounting fails, but we log it
-    }
-    // --------------------------------------------------
+      // --------------------------------------------------
 
     // Log activity if sub-user
     if (session.user_type === "sub_user") {

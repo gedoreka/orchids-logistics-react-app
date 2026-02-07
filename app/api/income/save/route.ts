@@ -83,6 +83,39 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ success: false, error: error.message }, { status: 500 });
     }
 
+    // --- Auto Journal Entry for Income ---
+    try {
+      const { recordJournalEntry, generateNextEntryNumber, getDefaultAccounts, resolvePaymentAccount } = await import("@/lib/accounting");
+      const defaults = await getDefaultAccounts(companyId);
+      const revenueAccountId = insertData.account_id ? Number(insertData.account_id) : defaults.other_revenue;
+      const cashAccountId = resolvePaymentAccount(defaults, paymentMethod);
+
+      if (revenueAccountId && cashAccountId && total > 0) {
+        const entryNumber = await generateNextEntryNumber(companyId, "INC");
+        const lines: { account_id: number; debit: number; credit: number; description: string; cost_center_id?: number }[] = [
+          { account_id: cashAccountId, debit: total, credit: 0, description: `إيراد: ${incomeType} - ${description}` },
+          { account_id: revenueAccountId, debit: 0, credit: amount, description: `إيراد: ${incomeType} - ${description}`, cost_center_id: insertData.cost_center_id ? Number(insertData.cost_center_id) : undefined }
+        ];
+
+        if (vat > 0 && defaults.vat) {
+          lines.push({ account_id: defaults.vat, debit: 0, credit: vat, description: `ضريبة مخرجات - ${incomeType}` });
+        }
+
+        await recordJournalEntry({
+          entry_date: incomeDate,
+          entry_number: entryNumber,
+          description: `إيراد: ${incomeType} - ${description}`,
+          company_id: companyId,
+          created_by: userName || "System",
+          source_type: "manual_income",
+          source_id: operationNumber,
+          lines
+        });
+      }
+    } catch (accError) {
+      console.error("Error creating auto journal entry for income:", accError);
+    }
+
     return NextResponse.json({
       success: true,
       operationNumber: operationNumber,

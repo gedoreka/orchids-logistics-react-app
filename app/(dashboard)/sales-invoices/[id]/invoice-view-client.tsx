@@ -346,24 +346,32 @@ export function InvoiceViewClient({
     }
     };
 
-    // Generate PDF as base64 for email attachment
-    const generatePDFBase64 = async (): Promise<string | null> => {
-      try {
-        const html2canvas = (await import('html2canvas-pro')).default;
-        const { jsPDF } = await import('jspdf');
-        const element = printRef.current;
-        if (!element) return null;
+    // Generate PDF as base64 for email attachment (optimized for smaller file size)
+      const generatePDFBase64 = async (): Promise<string | null> => {
+        try {
+          const html2canvas = (await import('html2canvas-pro')).default;
+          const { jsPDF } = await import('jspdf');
+          const element = printRef.current;
+          if (!element) return null;
 
-          const canvas = await html2canvas(element, {
-            scale: 3,
-            useCORS: true,
-            logging: false,
-            backgroundColor: '#ffffff',
-            width: 794,
-            windowWidth: 794,
-          });
+            // Wait for all fonts to be loaded
+            await document.fonts.ready;
 
-        const imgData = canvas.toDataURL('image/png');
+            // Convert images to data URLs for foreignObjectRendering
+            await convertImagesToDataURLs(element);
+
+            const canvas = await html2canvas(element, {
+              scale: 2,
+              useCORS: true,
+              logging: false,
+              backgroundColor: '#ffffff',
+              width: 794,
+              windowWidth: 794,
+              foreignObjectRendering: true,
+            });
+
+        // Use JPEG with compression for much smaller file size
+        const imgData = canvas.toDataURL('image/jpeg', 0.75);
         const pdf = new jsPDF('p', 'mm', 'a4');
         const pdfWidth = pdf.internal.pageSize.getWidth();
         const pdfHeight = pdf.internal.pageSize.getHeight();
@@ -381,7 +389,7 @@ export function InvoiceViewClient({
         }
         
         const xOffset = (pdfWidth - finalImgWidth) / 2;
-        pdf.addImage(imgData, 'PNG', xOffset, 0, finalImgWidth, finalImgHeight);
+        pdf.addImage(imgData, 'JPEG', xOffset, 0, finalImgWidth, finalImgHeight, undefined, 'MEDIUM');
 
         // Get base64 without the data:... prefix
         const pdfOutput = pdf.output('datauristring');
@@ -482,6 +490,7 @@ export function InvoiceViewClient({
   };
 
     return (
+      <>
       <div className="min-h-screen bg-transparent overflow-y-auto">
         <div className="w-full max-w-[210mm] mx-auto py-6 space-y-4">
         {/* Action Buttons */}
@@ -1077,10 +1086,9 @@ export function InvoiceViewClient({
                 )}
               </div>
             </div>
-            )}
-          </div>
+              )}
 
-          {/* Premium Email Notification Overlay */}
+            {/* Premium Email Notification Overlay */}
           <AnimatePresence>
             {emailOverlay.show && (
               <>
@@ -1142,5 +1150,6 @@ export function InvoiceViewClient({
             )}
           </AnimatePresence>
         </div>
+      </>
       );
   }

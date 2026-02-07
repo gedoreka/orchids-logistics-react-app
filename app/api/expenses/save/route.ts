@@ -144,15 +144,49 @@ export async function POST(request: NextRequest) {
           ]
         );
 
-        if (result.insertId) {
-          savedCount++;
-          console.log("API: Saved expense row", i + 1, "with ID", result.insertId, attachmentPath ? "with attachment" : "no attachment");
+      if (result.insertId) {
+            savedCount++;
+            console.log("API: Saved expense row", i + 1, "with ID", result.insertId, attachmentPath ? "with attachment" : "no attachment");
+
+            // --- Auto Journal Entry ---
+            try {
+              const { recordJournalEntry, generateNextEntryNumber, getDefaultAccounts, resolvePaymentAccount } = await import("@/lib/accounting");
+              const defaults = await getDefaultAccounts(parseInt(companyId));
+              const expenseAccountId = accId || defaults.admin_expenses;
+              const cashAccountId = resolvePaymentAccount(defaults);
+
+              if (expenseAccountId && cashAccountId) {
+                const entryNumber = await generateNextEntryNumber(parseInt(companyId), "EXP");
+                const lines = [
+                  { account_id: expenseAccountId, debit: net, credit: 0, description: `مصروف: ${type} - ${desc}`, cost_center_id: centerId || undefined },
+                  { account_id: cashAccountId, debit: 0, credit: net, description: `مصروف: ${type} - ${desc}` }
+                ];
+
+                if (tax > 0 && defaults.vat) {
+                  lines[1].credit = amount;
+                  lines.push({ account_id: defaults.vat, debit: tax, credit: 0, description: `ضريبة مدخلات - ${type}`, cost_center_id: undefined });
+                }
+
+                await recordJournalEntry({
+                  entry_date: date,
+                  entry_number: entryNumber,
+                  description: `مصروف: ${type} - ${desc}`,
+                  company_id: parseInt(companyId),
+                  created_by: userId || "System",
+                  source_type: "monthly_expense",
+                  source_id: String(result.insertId),
+                  lines
+                });
+              }
+            } catch (accError) {
+              console.error("Error creating auto journal entry for expense:", accError);
+            }
+          }
+        } catch (rowError) {
+          console.error("API: Error processing row", i, ":", rowError);
+          // Continue processing other rows
         }
-      } catch (rowError) {
-        console.error("API: Error processing row", i, ":", rowError);
-        // Continue processing other rows
       }
-    }
 
     if (isSubUser && savedCount > 0) {
       try {
