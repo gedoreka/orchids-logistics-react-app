@@ -19,6 +19,22 @@ export async function DELETE(request: NextRequest) {
       );
     }
 
+    // Check source_type - prevent deleting auto entries
+    const { data: existing } = await supabase
+      .from("journal_entries")
+      .select("source_type")
+      .eq("entry_number", entry_number)
+      .eq("company_id", company_id)
+      .limit(1)
+      .maybeSingle();
+
+    if (existing && existing.source_type && existing.source_type !== "manual") {
+      return NextResponse.json(
+        { error: "Cannot delete automatic entries" },
+        { status: 403 }
+      );
+    }
+
     const { error } = await supabase
       .from("journal_entries")
       .delete()

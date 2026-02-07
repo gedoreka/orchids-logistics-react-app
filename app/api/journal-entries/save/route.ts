@@ -9,7 +9,7 @@ const supabase = createClient(
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { entry_number, entry_date, lines, company_id, created_by, is_edit } = body;
+    const { entry_number, entry_date, lines, company_id, created_by, is_edit, status } = body;
 
     if (!entry_number || !entry_date || !lines || !company_id) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
@@ -24,11 +24,23 @@ export async function POST(request: NextRequest) {
     }
 
     if (Math.abs(totalDebit - totalCredit) > 0.01) {
-      return NextResponse.json({ error: "Debit and Credit must be equal" }, { status:400 });
+      return NextResponse.json({ error: "Debit and Credit must be equal" }, { status: 400 });
     }
 
-    // If edit, delete old lines first
+    // If edit, check source_type - prevent editing auto entries
     if (is_edit) {
+      const { data: existing } = await supabase
+        .from("journal_entries")
+        .select("source_type")
+        .eq("entry_number", entry_number)
+        .eq("company_id", company_id)
+        .limit(1)
+        .maybeSingle();
+
+      if (existing && existing.source_type && existing.source_type !== "manual") {
+        return NextResponse.json({ error: "Cannot edit automatic entries" }, { status: 403 });
+      }
+
       const { error: deleteError } = await supabase
         .from("journal_entries")
         .delete()
@@ -37,6 +49,9 @@ export async function POST(request: NextRequest) {
 
       if (deleteError) throw deleteError;
     }
+
+    const entryStatus = status || "draft";
+    const now = new Date().toISOString();
 
     // Insert new lines
     const insertData = lines
@@ -51,19 +66,23 @@ export async function POST(request: NextRequest) {
         debit: parseFloat(line.debit) || 0,
         credit: parseFloat(line.credit) || 0,
         created_by: created_by || "System",
+        source_type: "manual",
+        status: entryStatus,
+        updated_at: now,
       }));
 
     if (insertData.length === 0) {
       return NextResponse.json({ error: "No valid lines to save" }, { status: 400 });
     }
 
-    const { error: insertError } = await supabase
+    const { data: inserted, error: insertError } = await supabase
       .from("journal_entries")
-      .insert(insertData);
+      .insert(insertData)
+      .select();
 
     if (insertError) throw insertError;
 
-    return NextResponse.json({ success: true, entry_number });
+    return NextResponse.json({ success: true, entry_number, entries: inserted });
   } catch (error) {
     console.error("Error saving journal entry:", error);
     return NextResponse.json(
