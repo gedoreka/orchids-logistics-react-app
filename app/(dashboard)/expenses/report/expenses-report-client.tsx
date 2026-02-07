@@ -805,7 +805,7 @@ Object.entries(expensesGrouped).map(([group, expenses], groupIdx) => {
                 <div className="flex items-center justify-between">
                   <CardTitle className="flex items-center gap-2 text-base font-extrabold">
                     <HandCoins className="w-5 h-5 text-rose-600" />
-                    {t("expenses.totalDeductions")}
+                      {t("dashboard.totalDeductions")}
                   </CardTitle>
                     <Badge className="bg-rose-600 text-white text-sm px-3 py-1">
                       {t("common.operationCount", { count: stats.deductionsCount })} - {formatNumber(stats.totalDeductions)} SAR

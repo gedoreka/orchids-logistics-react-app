@@ -106,11 +106,14 @@ export function DashboardClient({
   const t = useTranslations('dashboard');
   const tCommon = useTranslations('common');
 
-  useEffect(() => {
+    useEffect(() => {
+    const controller = new AbortController();
     async function fetchYearlyStats() {
       setLoadingStats(true);
       try {
-        const res = await fetch(`/api/dashboard/yearly-stats?year=${selectedYear}`);
+        const res = await fetch(`/api/dashboard/yearly-stats?year=${selectedYear}`, {
+          signal: controller.signal
+        });
         if (res.ok) {
           const data = await res.json();
           setYearlyStats({
@@ -118,13 +121,14 @@ export function DashboardClient({
             yearly_expenses: data.yearly_expenses || 0
           });
         }
-      } catch (error) {
-        console.error("Error fetching yearly stats:", error);
+      } catch (error: unknown) {
+        if (error instanceof DOMException && error.name === 'AbortError') return;
       } finally {
         setLoadingStats(false);
       }
     }
     fetchYearlyStats();
+    return () => controller.abort();
   }, [selectedYear]);
 
   const copyToken = () => {
