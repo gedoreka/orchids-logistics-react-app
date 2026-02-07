@@ -1918,3 +1918,241 @@ Import trace:
 2026-02-07T16:16:14.121Z [console][error] Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.
 2026-02-07T16:16:17.711Z [console][error] Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.
 2026-02-07T16:16:17.712Z [console][error] Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.
+2026-02-07T17:55:04.877Z [console][error] You are trying to animate  from "0" to "172118.00". "172118.00" is not an animatable value.. For more information and steps for solving, visit https://motion.dev/troubleshooting/value-not-animatable
+2026-02-07T17:55:04.877Z [console][error] You are trying to animate  from "0" to "20484.00". "20484.00" is not an animatable value.. For more information and steps for solving, visit https://motion.dev/troubleshooting/value-not-animatable
+2026-02-07T17:55:07.530Z [console][error] You are trying to animate  from "172118.00" to "0". "172118.00" is not an animatable value.. For more information and steps for solving, visit https://motion.dev/troubleshooting/value-not-animatable
+2026-02-07T17:55:07.530Z [console][error] You are trying to animate  from "20484.00" to "0". "20484.00" is not an animatable value.. For more information and steps for solving, visit https://motion.dev/troubleshooting/value-not-animatable
+2026-02-07T17:55:18.895Z [console][error] Error fetching ledger data: TypeError: Failed to fetch
+2026-02-07T18:01:25.661Z [console][warn] [Fast Refresh] done in 212ms
+2026-02-07T18:03:32.866Z [console][error] Network error fetching chat: Failed to fetch
+2026-02-07T21:21:37.783Z [console][error] Error checking for new messages: Error: Fetch failed
+2026-02-07T21:21:38.794Z [console][error] Chat API returned status 500: Internal Server Error
+2026-02-07T21:22:58.275Z [console][warn] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+2026-02-07T21:22:58.645Z [console][warn] [Fast Refresh] rebuilding
+2026-02-07T21:22:59.177Z [console][warn] [Fast Refresh] done in 655ms
+2026-02-07T21:23:00.309Z [console][warn] [Fast Refresh] rebuilding
+2026-02-07T21:23:00.381Z [console][warn] [Fast Refresh] done in 174ms
+2026-02-07T21:23:14.690Z [console][warn] [Fast Refresh] rebuilding
+2026-02-07T21:23:14.820Z [console][warn] [Fast Refresh] done in 243ms
+2026-02-07T21:23:39.531Z [console][warn] [Fast Refresh] rebuilding
+2026-02-07T21:23:39.533Z [console][warn] [Fast Refresh] done in 114ms
+2026-02-07T21:23:59.128Z [console][warn] [Fast Refresh] rebuilding
+2026-02-07T21:23:59.204Z [console][warn] [Fast Refresh] done in 184ms
+2026-02-07T21:22:58.645Z [console][log] [Fast Refresh] rebuilding
+2026-02-07T21:22:59.177Z [console][log] [Fast Refresh] done in 655ms
+2026-02-07T21:23:00.309Z [console][log] [Fast Refresh] rebuilding
+2026-02-07T21:23:00.381Z [console][log] [Fast Refresh] done in 174ms
+2026-02-07T21:23:14.684Z [console][log] [Fast Refresh] rebuilding
+2026-02-07T21:23:14.820Z [console][log] [Fast Refresh] done in 243ms
+2026-02-07T21:23:39.527Z [console][log] [Fast Refresh] rebuilding
+2026-02-07T21:23:39.530Z [console][log] [Fast Refresh] done in 114ms
+2026-02-07T21:23:59.123Z [console][log] [Fast Refresh] rebuilding
+2026-02-07T21:23:59.203Z [console][log] [Fast Refresh] done in 184ms
+2026-02-07T21:23:30.216Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-07T21:23:30.557Z [network][GET 200] /api/admin/notifications?limit=1&last_id=9
+  response: {"success":true,"notifications":[]}
+2026-02-07T21:23:31.232Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-07T21:23:31.719Z [network][GET 200] /api/general-ledger?
+  response: {"entries":[{"id":"exp-2032","date":"2026-02-06","document_number":"EXP-2032","description":"تجديد اقامة الموظف 3 اشهر","account_code":"522","account_name":"رواتب الموظفين الإداريين","account_type":"expense","cost_center_code":"CC-03","cost_center_name":"العمليات اللوجستية","debit":2425,"credit":0,"source":"expense","source_type":"مصروفات","account_id":217,"cost_center_id":2003,"created_at":"2026-02-07T10:38:53.000Z"},{"id":"exp-2033","date":"2026-02-06","document_number":"EXP-2033","description":"شراء ادوات مكتبيه لمكتب الرياض","account_code":"1232","account_name":"مكاتب إدارية","account_type":"expense","cost_center_code":"CC-01","cost_center_name":"الإدارة العامة","debit":120,"credit":0,"source":"expense","source_type":"مصروفات","account_id":239,"cost_center_id":2001,"created_at":"2026-02-07T10:38:56.000Z"},{"id":"exp-2035","date":"2026-02-06","document_number":"EXP-2035","description":"نقل كفالة","account_code":"522","account_name":"رواتب الموظفين الإداريين","account_type":"expense","cost_center_code":"CC-03","cost_center_name":"العمليات اللوجستية","debit":2000,"credit":0,"source":"expense","source_type":"مصروفات","account_id":217,"cost_center_id":2003,"created_at":"2026-02-07T12:18:14.000Z"},{"id":"exp-2036","date":"2026-02-06","document_number":"EXP-2036","description":"وقود سيارت الترحيل","account_code":"114","account_name":"مخزون الوقود","account_type":"expense","cost_center_code":"CC-03","cost_center_name":"العمليات اللوجستية","debit":100,"credit":0,"source":"expense","source_type":"مصروفات","account_id":193,"cost_center_id":2003,"created_at":"2026-02-07T12:18:15.000Z"},{"id":"exp-2037","date":"2026-02-06","document_number":"EXP-2037","description":"سداد كهرباء سكن العمال","account_code":"523","account_name":"كهرباء ومياه","account_type":"expense","cost_center_code":"CTS-03","cost_center_name":"مركز تكلفة الإدارة العامة","debit":600,"credit":0,"source":"expense","source_type":"مصروفات","account_id":218,"cost_center_id":2019,"created_at":"2026-02-07T12:18:17.... [truncated]
+2026-02-07T21:23:34.294Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-07T21:23:35.206Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-07T21:23:39.382Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-07T21:23:39.881Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-07T21:23:43.135Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-07T21:23:44.152Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-07T21:23:47.336Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-07T21:23:49.147Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-07T21:23:51.128Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-07T21:23:54.230Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-07T21:23:55.178Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-07T21:24:02.156Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-07T21:24:02.476Z [network][GET 200] /api/admin/notifications?limit=5
+  response: {"success":true,"notifications":[]}
+2026-02-07T21:24:02.476Z [network][GET 200] /api/admin/notifications?limit=1&last_id=9
+  response: {"success":true,"notifications":[]}
+2026-02-07T21:24:02.587Z [network][GET 200] /api/email/accounts?company_id=22
+  response: {"accounts":[{"id":"1212d430-c11a-4d82-a602-abdf7d7ab251","company_id":22,"email":"demo@zoolspeed.com","password":"********","provider":"hostinger","imap_host":"imap.hostinger.com","imap_port":993,"smtp_host":"smtp.hostinger.com","smtp_port":465,"use_ssl":true,"is_active":true,"last_sync_at":"2026-02-07T16:41:22.038+00:00","created_at":"2026-02-06T22:25:37.433111+00:00","updated_at":"2026-02-06T22:25:37.433111+00:00"}],"providers":{"hostinger":{"name":"Hostinger","imap_host":"imap.hostinger.com","imap_port":993,"smtp_host":"smtp.hostinger.com","smtp_port":465},"gmail":{"name":"Gmail","imap_host":"imap.gmail.com","imap_port":993,"smtp_host":"smtp.gmail.com","smtp_port":465},"outlook":{"name":"Outlook/Hotmail","imap_host":"outlook.office365.com","imap_port":993,"smtp_host":"smtp.office365.com","smtp_port":587},"custom":{"name":"Custom","imap_host":"","imap_port":993,"smtp_host":"","smtp_port":465}}}
+2026-02-07T21:24:02.642Z [network][GET 200] /api/hr/notifications?company_id=22
+  response: {"success":true,"identity":{"expired":[{"id":552,"name":"ناصر عبدالله","name_en":"Nasser Abdullah","iqama_expiry":"2025-12-30T21:00:00.000Z","iqama_number":"9201837465","package_id":69,"package_name":"مناديب ذا شيفز فري لانس","days_remaining":-39,"status":"expired"},{"id":515,"name":"سارة أحمد","name_en":"Sara Ahmed","iqama_expiry":"2025-12-30T21:00:00.000Z","iqama_number":"4928573016","package_id":69,"package_name":"مناديب ذا شيفز فري لانس","days_remaining":-39,"status":"expired"},{"id":542,"name":"عمرو بكر","name_en":"Amr Bakr","iqama_expiry":"2025-12-30T21:00:00.000Z","iqama_number":"9201836475","package_id":69,"package_name":"مناديب ذا شيفز فري لانس","days_remaining":-39,"status":"expired"},{"id":551,"name":"ليلى حسن","name_en":"Layla Hassan","iqama_expiry":"2025-12-30T21:00:00.000Z","iqama_number":"3847592016","package_id":69,"package_name":"مناديب ذا شيفز فري لانس","days_remaining":-39,"status":"expired"},{"id":548,"name":"علي القاضي","name_en":"Ali Al-Qadi","iqama_expiry":"2025-12-30T21:00:00.000Z","iqama_number":"7483920165","package_id":69,"package_name":"مناديب ذا شيفز فري لانس","days_remaining":-39,"status":"expired"},{"id":527,"name":"رنا علي","name_en":"Rana Ali","iqama_expiry":"2025-12-30T21:00:00.000Z","iqama_number":"5647382910","package_id":69,"package_name":"مناديب ذا شيفز فري لانس","days_remaining":-39,"status":"expired"},{"id":530,"name":"طلال محمد","name_en":"Talal Mohamed","iqama_expiry":"2025-12-30T21:00:00.000Z","iqama_number":"7564839201","package_id":69,"package_name":"مناديب ذا شيفز فري لانس","days_remaining":-39,"status":"expired"},{"id":529,"name":"خالد سعيد","name_en":"Khaled Saeed","iqama_expiry":"2025-12-30T21:00:00.000Z","iqama_number":"1029384756","package_id":69,"package_name":"مناديب ذا شيفز فري لانس","days_remaining":-39,"status":"expired"},{"id":514,"name":"عمر خالد","name_en":"Omar Khaled","iqama_expiry":"2025-12-30T21:00:00.000Z","iqama_number":"5837429160","package_id":69,"package_name":"مناديب ذا شيفز فري لانس","days_remaini... [truncated]
+2026-02-07T21:24:02.776Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-07T21:24:03.209Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-07T21:24:03.588Z [network][GET 200] /api/general-ledger?
+  response: {"entries":[{"id":"exp-2032","date":"2026-02-06","document_number":"EXP-2032","description":"تجديد اقامة الموظف 3 اشهر","account_code":"522","account_name":"رواتب الموظفين الإداريين","account_type":"expense","cost_center_code":"CC-03","cost_center_name":"العمليات اللوجستية","debit":2425,"credit":0,"source":"expense","source_type":"مصروفات","account_id":217,"cost_center_id":2003,"created_at":"2026-02-07T10:38:53.000Z"},{"id":"exp-2033","date":"2026-02-06","document_number":"EXP-2033","description":"شراء ادوات مكتبيه لمكتب الرياض","account_code":"1232","account_name":"مكاتب إدارية","account_type":"expense","cost_center_code":"CC-01","cost_center_name":"الإدارة العامة","debit":120,"credit":0,"source":"expense","source_type":"مصروفات","account_id":239,"cost_center_id":2001,"created_at":"2026-02-07T10:38:56.000Z"},{"id":"exp-2035","date":"2026-02-06","document_number":"EXP-2035","description":"نقل كفالة","account_code":"522","account_name":"رواتب الموظفين الإداريين","account_type":"expense","cost_center_code":"CC-03","cost_center_name":"العمليات اللوجستية","debit":2000,"credit":0,"source":"expense","source_type":"مصروفات","account_id":217,"cost_center_id":2003,"created_at":"2026-02-07T12:18:14.000Z"},{"id":"exp-2036","date":"2026-02-06","document_number":"EXP-2036","description":"وقود سيارت الترحيل","account_code":"114","account_name":"مخزون الوقود","account_type":"expense","cost_center_code":"CC-03","cost_center_name":"العمليات اللوجستية","debit":100,"credit":0,"source":"expense","source_type":"مصروفات","account_id":193,"cost_center_id":2003,"created_at":"2026-02-07T12:18:15.000Z"},{"id":"exp-2037","date":"2026-02-06","document_number":"EXP-2037","description":"سداد كهرباء سكن العمال","account_code":"523","account_name":"كهرباء ومياه","account_type":"expense","cost_center_code":"CTS-03","cost_center_name":"مركز تكلفة الإدارة العامة","debit":600,"credit":0,"source":"expense","source_type":"مصروفات","account_id":218,"cost_center_id":2019,"created_at":"2026-02-07T12:18:17.... [truncated]
+2026-02-07T21:24:04.093Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-07T21:24:04.243Z [network][GET 200] /api/email/fetch?accountId=1212d430-c11a-4d82-a602-abdf7d7ab251&company_id=22&action=unread
+  response: {"unreadCount":54}
+2026-02-07T17:55:04.877Z [console][error] You are trying to animate  from "0" to "172118.00". "172118.00" is not an animatable value.. For more information and steps for solving, visit https://motion.dev/troubleshooting/value-not-animatable
+2026-02-07T17:55:04.877Z [console][error] You are trying to animate  from "0" to "20484.00". "20484.00" is not an animatable value.. For more information and steps for solving, visit https://motion.dev/troubleshooting/value-not-animatable
+2026-02-07T17:55:07.530Z [console][error] You are trying to animate  from "172118.00" to "0". "172118.00" is not an animatable value.. For more information and steps for solving, visit https://motion.dev/troubleshooting/value-not-animatable
+2026-02-07T17:55:07.530Z [console][error] You are trying to animate  from "20484.00" to "0". "20484.00" is not an animatable value.. For more information and steps for solving, visit https://motion.dev/troubleshooting/value-not-animatable
+2026-02-07T17:55:18.895Z [console][error] Error fetching ledger data: TypeError: Failed to fetch
+2026-02-07T18:03:32.866Z [console][error] Network error fetching chat: Failed to fetch
+2026-02-07T21:21:37.783Z [console][error] Error checking for new messages: Error: Fetch failed
+2026-02-07T21:21:38.794Z [console][error] Chat API returned status 500: Internal Server Error
+2026-02-07T21:23:03.718Z [network][GET 200] /api/general-ledger?
+  response: {"entries":[{"id":"exp-2032","date":"2026-02-06","document_number":"EXP-2032","description":"تجديد اقامة الموظف 3 اشهر","account_code":"522","account_name":"رواتب الموظفين الإداريين","account_type":"expense","cost_center_code":"CC-03","cost_center_name":"العمليات اللوجستية","debit":2425,"credit":0,"source":"expense","source_type":"مصروفات","account_id":217,"cost_center_id":2003,"created_at":"2026-02-07T10:38:53.000Z"},{"id":"exp-2033","date":"2026-02-06","document_number":"EXP-2033","description":"شراء ادوات مكتبيه لمكتب الرياض","account_code":"1232","account_name":"مكاتب إدارية","account_type":"expense","cost_center_code":"CC-01","cost_center_name":"الإدارة العامة","debit":120,"credit":0,"source":"expense","source_type":"مصروفات","account_id":239,"cost_center_id":2001,"created_at":"2026-02-07T10:38:56.000Z"},{"id":"exp-2035","date":"2026-02-06","document_number":"EXP-2035","description":"نقل كفالة","account_code":"522","account_name":"رواتب الموظفين الإداريين","account_type":"expense","cost_center_code":"CC-03","cost_center_name":"العمليات اللوجستية","debit":2000,"credit":0,"source":"expense","source_type":"مصروفات","account_id":217,"cost_center_id":2003,"created_at":"2026-02-07T12:18:14.000Z"},{"id":"exp-2036","date":"2026-02-06","document_number":"EXP-2036","description":"وقود سيارت الترحيل","account_code":"114","account_name":"مخزون الوقود","account_type":"expense","cost_center_code":"CC-03","cost_center_name":"العمليات اللوجستية","debit":100,"credit":0,"source":"expense","source_type":"مصروفات","account_id":193,"cost_center_id":2003,"created_at":"2026-02-07T12:18:15.000Z"},{"id":"exp-2037","date":"2026-02-06","document_number":"EXP-2037","description":"سداد كهرباء سكن العمال","account_code":"523","account_name":"كهرباء ومياه","account_type":"expense","cost_center_code":"CTS-03","cost_center_name":"مركز تكلفة الإدارة العامة","debit":600,"credit":0,"source":"expense","source_type":"مصروفات","account_id":218,"cost_center_id":2019,"created_at":"2026-02-07T12:18:17.... [truncated]
+2026-02-07T21:23:05.926Z [network][GET 200] /api/general-ledger?
+  response: {"entries":[{"id":"exp-2032","date":"2026-02-06","document_number":"EXP-2032","description":"تجديد اقامة الموظف 3 اشهر","account_code":"522","account_name":"رواتب الموظفين الإداريين","account_type":"expense","cost_center_code":"CC-03","cost_center_name":"العمليات اللوجستية","debit":2425,"credit":0,"source":"expense","source_type":"مصروفات","account_id":217,"cost_center_id":2003,"created_at":"2026-02-07T10:38:53.000Z"},{"id":"exp-2033","date":"2026-02-06","document_number":"EXP-2033","description":"شراء ادوات مكتبيه لمكتب الرياض","account_code":"1232","account_name":"مكاتب إدارية","account_type":"expense","cost_center_code":"CC-01","cost_center_name":"الإدارة العامة","debit":120,"credit":0,"source":"expense","source_type":"مصروفات","account_id":239,"cost_center_id":2001,"created_at":"2026-02-07T10:38:56.000Z"},{"id":"exp-2035","date":"2026-02-06","document_number":"EXP-2035","description":"نقل كفالة","account_code":"522","account_name":"رواتب الموظفين الإداريين","account_type":"expense","cost_center_code":"CC-03","cost_center_name":"العمليات اللوجستية","debit":2000,"credit":0,"source":"expense","source_type":"مصروفات","account_id":217,"cost_center_id":2003,"created_at":"2026-02-07T12:18:14.000Z"},{"id":"exp-2036","date":"2026-02-06","document_number":"EXP-2036","description":"وقود سيارت الترحيل","account_code":"114","account_name":"مخزون الوقود","account_type":"expense","cost_center_code":"CC-03","cost_center_name":"العمليات اللوجستية","debit":100,"credit":0,"source":"expense","source_type":"مصروفات","account_id":193,"cost_center_id":2003,"created_at":"2026-02-07T12:18:15.000Z"},{"id":"exp-2037","date":"2026-02-06","document_number":"EXP-2037","description":"سداد كهرباء سكن العمال","account_code":"523","account_name":"كهرباء ومياه","account_type":"expense","cost_center_code":"CTS-03","cost_center_name":"مركز تكلفة الإدارة العامة","debit":600,"credit":0,"source":"expense","source_type":"مصروفات","account_id":218,"cost_center_id":2019,"created_at":"2026-02-07T12:18:17.... [truncated]
+2026-02-07T21:23:31.719Z [network][GET 200] /api/general-ledger?
+  response: {"entries":[{"id":"exp-2032","date":"2026-02-06","document_number":"EXP-2032","description":"تجديد اقامة الموظف 3 اشهر","account_code":"522","account_name":"رواتب الموظفين الإداريين","account_type":"expense","cost_center_code":"CC-03","cost_center_name":"العمليات اللوجستية","debit":2425,"credit":0,"source":"expense","source_type":"مصروفات","account_id":217,"cost_center_id":2003,"created_at":"2026-02-07T10:38:53.000Z"},{"id":"exp-2033","date":"2026-02-06","document_number":"EXP-2033","description":"شراء ادوات مكتبيه لمكتب الرياض","account_code":"1232","account_name":"مكاتب إدارية","account_type":"expense","cost_center_code":"CC-01","cost_center_name":"الإدارة العامة","debit":120,"credit":0,"source":"expense","source_type":"مصروفات","account_id":239,"cost_center_id":2001,"created_at":"2026-02-07T10:38:56.000Z"},{"id":"exp-2035","date":"2026-02-06","document_number":"EXP-2035","description":"نقل كفالة","account_code":"522","account_name":"رواتب الموظفين الإداريين","account_type":"expense","cost_center_code":"CC-03","cost_center_name":"العمليات اللوجستية","debit":2000,"credit":0,"source":"expense","source_type":"مصروفات","account_id":217,"cost_center_id":2003,"created_at":"2026-02-07T12:18:14.000Z"},{"id":"exp-2036","date":"2026-02-06","document_number":"EXP-2036","description":"وقود سيارت الترحيل","account_code":"114","account_name":"مخزون الوقود","account_type":"expense","cost_center_code":"CC-03","cost_center_name":"العمليات اللوجستية","debit":100,"credit":0,"source":"expense","source_type":"مصروفات","account_id":193,"cost_center_id":2003,"created_at":"2026-02-07T12:18:15.000Z"},{"id":"exp-2037","date":"2026-02-06","document_number":"EXP-2037","description":"سداد كهرباء سكن العمال","account_code":"523","account_name":"كهرباء ومياه","account_type":"expense","cost_center_code":"CTS-03","cost_center_name":"مركز تكلفة الإدارة العامة","debit":600,"credit":0,"source":"expense","source_type":"مصروفات","account_id":218,"cost_center_id":2019,"created_at":"2026-02-07T12:18:17.... [truncated]
+2026-02-07T21:24:03.588Z [network][GET 200] /api/general-ledger?
+  response: {"entries":[{"id":"exp-2032","date":"2026-02-06","document_number":"EXP-2032","description":"تجديد اقامة الموظف 3 اشهر","account_code":"522","account_name":"رواتب الموظفين الإداريين","account_type":"expense","cost_center_code":"CC-03","cost_center_name":"العمليات اللوجستية","debit":2425,"credit":0,"source":"expense","source_type":"مصروفات","account_id":217,"cost_center_id":2003,"created_at":"2026-02-07T10:38:53.000Z"},{"id":"exp-2033","date":"2026-02-06","document_number":"EXP-2033","description":"شراء ادوات مكتبيه لمكتب الرياض","account_code":"1232","account_name":"مكاتب إدارية","account_type":"expense","cost_center_code":"CC-01","cost_center_name":"الإدارة العامة","debit":120,"credit":0,"source":"expense","source_type":"مصروفات","account_id":239,"cost_center_id":2001,"created_at":"2026-02-07T10:38:56.000Z"},{"id":"exp-2035","date":"2026-02-06","document_number":"EXP-2035","description":"نقل كفالة","account_code":"522","account_name":"رواتب الموظفين الإداريين","account_type":"expense","cost_center_code":"CC-03","cost_center_name":"العمليات اللوجستية","debit":2000,"credit":0,"source":"expense","source_type":"مصروفات","account_id":217,"cost_center_id":2003,"created_at":"2026-02-07T12:18:14.000Z"},{"id":"exp-2036","date":"2026-02-06","document_number":"EXP-2036","description":"وقود سيارت الترحيل","account_code":"114","account_name":"مخزون الوقود","account_type":"expense","cost_center_code":"CC-03","cost_center_name":"العمليات اللوجستية","debit":100,"credit":0,"source":"expense","source_type":"مصروفات","account_id":193,"cost_center_id":2003,"created_at":"2026-02-07T12:18:15.000Z"},{"id":"exp-2037","date":"2026-02-06","document_number":"EXP-2037","description":"سداد كهرباء سكن العمال","account_code":"523","account_name":"كهرباء ومياه","account_type":"expense","cost_center_code":"CTS-03","cost_center_name":"مركز تكلفة الإدارة العامة","debit":600,"credit":0,"source":"expense","source_type":"مصروفات","account_id":218,"cost_center_id":2019,"created_at":"2026-02-07T12:18:17.... [truncated]
+2026-02-07T21:24:31.323Z [network][GET 200] /api/general-ledger?
+  response: {"entries":[{"id":"exp-2032","date":"2026-02-06","document_number":"EXP-2032","description":"تجديد اقامة الموظف 3 اشهر","account_code":"522","account_name":"رواتب الموظفين الإداريين","account_type":"expense","cost_center_code":"CC-03","cost_center_name":"العمليات اللوجستية","debit":2425,"credit":0,"source":"expense","source_type":"مصروفات","account_id":217,"cost_center_id":2003,"created_at":"2026-02-07T10:38:53.000Z"},{"id":"exp-2033","date":"2026-02-06","document_number":"EXP-2033","description":"شراء ادوات مكتبيه لمكتب الرياض","account_code":"1232","account_name":"مكاتب إدارية","account_type":"expense","cost_center_code":"CC-01","cost_center_name":"الإدارة العامة","debit":120,"credit":0,"source":"expense","source_type":"مصروفات","account_id":239,"cost_center_id":2001,"created_at":"2026-02-07T10:38:56.000Z"},{"id":"exp-2035","date":"2026-02-06","document_number":"EXP-2035","description":"نقل كفالة","account_code":"522","account_name":"رواتب الموظفين الإداريين","account_type":"expense","cost_center_code":"CC-03","cost_center_name":"العمليات اللوجستية","debit":2000,"credit":0,"source":"expense","source_type":"مصروفات","account_id":217,"cost_center_id":2003,"created_at":"2026-02-07T12:18:14.000Z"},{"id":"exp-2036","date":"2026-02-06","document_number":"EXP-2036","description":"وقود سيارت الترحيل","account_code":"114","account_name":"مخزون الوقود","account_type":"expense","cost_center_code":"CC-03","cost_center_name":"العمليات اللوجستية","debit":100,"credit":0,"source":"expense","source_type":"مصروفات","account_id":193,"cost_center_id":2003,"created_at":"2026-02-07T12:18:15.000Z"},{"id":"exp-2037","date":"2026-02-06","document_number":"EXP-2037","description":"سداد كهرباء سكن العمال","account_code":"523","account_name":"كهرباء ومياه","account_type":"expense","cost_center_code":"CTS-03","cost_center_name":"مركز تكلفة الإدارة العامة","debit":600,"credit":0,"source":"expense","source_type":"مصروفات","account_id":218,"cost_center_id":2019,"created_at":"2026-02-07T12:18:17.... [truncated]
+2026-02-07T21:25:00.927Z [network][GET 200] /api/general-ledger?
+  response: {"entries":[{"id":"exp-2032","date":"2026-02-06","document_number":"EXP-2032","description":"تجديد اقامة الموظف 3 اشهر","account_code":"522","account_name":"رواتب الموظفين الإداريين","account_type":"expense","cost_center_code":"CC-03","cost_center_name":"العمليات اللوجستية","debit":2425,"credit":0,"source":"expense","source_type":"مصروفات","account_id":217,"cost_center_id":2003,"created_at":"2026-02-07T10:38:53.000Z"},{"id":"exp-2033","date":"2026-02-06","document_number":"EXP-2033","description":"شراء ادوات مكتبيه لمكتب الرياض","account_code":"1232","account_name":"مكاتب إدارية","account_type":"expense","cost_center_code":"CC-01","cost_center_name":"الإدارة العامة","debit":120,"credit":0,"source":"expense","source_type":"مصروفات","account_id":239,"cost_center_id":2001,"created_at":"2026-02-07T10:38:56.000Z"},{"id":"exp-2035","date":"2026-02-06","document_number":"EXP-2035","description":"نقل كفالة","account_code":"522","account_name":"رواتب الموظفين الإداريين","account_type":"expense","cost_center_code":"CC-03","cost_center_name":"العمليات اللوجستية","debit":2000,"credit":0,"source":"expense","source_type":"مصروفات","account_id":217,"cost_center_id":2003,"created_at":"2026-02-07T12:18:14.000Z"},{"id":"exp-2036","date":"2026-02-06","document_number":"EXP-2036","description":"وقود سيارت الترحيل","account_code":"114","account_name":"مخزون الوقود","account_type":"expense","cost_center_code":"CC-03","cost_center_name":"العمليات اللوجستية","debit":100,"credit":0,"source":"expense","source_type":"مصروفات","account_id":193,"cost_center_id":2003,"created_at":"2026-02-07T12:18:15.000Z"},{"id":"exp-2037","date":"2026-02-06","document_number":"EXP-2037","description":"سداد كهرباء سكن العمال","account_code":"523","account_name":"كهرباء ومياه","account_type":"expense","cost_center_code":"CTS-03","cost_center_name":"مركز تكلفة الإدارة العامة","debit":600,"credit":0,"source":"expense","source_type":"مصروفات","account_id":218,"cost_center_id":2019,"created_at":"2026-02-07T12:18:17.... [truncated]
+2026-02-07T21:25:30.506Z [network][GET 200] /api/general-ledger?
+  response: {"entries":[{"id":"exp-2032","date":"2026-02-06","document_number":"EXP-2032","description":"تجديد اقامة الموظف 3 اشهر","account_code":"522","account_name":"رواتب الموظفين الإداريين","account_type":"expense","cost_center_code":"CC-03","cost_center_name":"العمليات اللوجستية","debit":2425,"credit":0,"source":"expense","source_type":"مصروفات","account_id":217,"cost_center_id":2003,"created_at":"2026-02-07T10:38:53.000Z"},{"id":"exp-2033","date":"2026-02-06","document_number":"EXP-2033","description":"شراء ادوات مكتبيه لمكتب الرياض","account_code":"1232","account_name":"مكاتب إدارية","account_type":"expense","cost_center_code":"CC-01","cost_center_name":"الإدارة العامة","debit":120,"credit":0,"source":"expense","source_type":"مصروفات","account_id":239,"cost_center_id":2001,"created_at":"2026-02-07T10:38:56.000Z"},{"id":"exp-2035","date":"2026-02-06","document_number":"EXP-2035","description":"نقل كفالة","account_code":"522","account_name":"رواتب الموظفين الإداريين","account_type":"expense","cost_center_code":"CC-03","cost_center_name":"العمليات اللوجستية","debit":2000,"credit":0,"source":"expense","source_type":"مصروفات","account_id":217,"cost_center_id":2003,"created_at":"2026-02-07T12:18:14.000Z"},{"id":"exp-2036","date":"2026-02-06","document_number":"EXP-2036","description":"وقود سيارت الترحيل","account_code":"114","account_name":"مخزون الوقود","account_type":"expense","cost_center_code":"CC-03","cost_center_name":"العمليات اللوجستية","debit":100,"credit":0,"source":"expense","source_type":"مصروفات","account_id":193,"cost_center_id":2003,"created_at":"2026-02-07T12:18:15.000Z"},{"id":"exp-2037","date":"2026-02-06","document_number":"EXP-2037","description":"سداد كهرباء سكن العمال","account_code":"523","account_name":"كهرباء ومياه","account_type":"expense","cost_center_code":"CTS-03","cost_center_name":"مركز تكلفة الإدارة العامة","debit":600,"credit":0,"source":"expense","source_type":"مصروفات","account_id":218,"cost_center_id":2019,"created_at":"2026-02-07T12:18:17.... [truncated]
+2026-02-07T21:26:00.802Z [network][GET 200] /api/general-ledger?
+  response: {"entries":[{"id":"exp-2032","date":"2026-02-06","document_number":"EXP-2032","description":"تجديد اقامة الموظف 3 اشهر","account_code":"522","account_name":"رواتب الموظفين الإداريين","account_type":"expense","cost_center_code":"CC-03","cost_center_name":"العمليات اللوجستية","debit":2425,"credit":0,"source":"expense","source_type":"مصروفات","account_id":217,"cost_center_id":2003,"created_at":"2026-02-07T10:38:53.000Z"},{"id":"exp-2033","date":"2026-02-06","document_number":"EXP-2033","description":"شراء ادوات مكتبيه لمكتب الرياض","account_code":"1232","account_name":"مكاتب إدارية","account_type":"expense","cost_center_code":"CC-01","cost_center_name":"الإدارة العامة","debit":120,"credit":0,"source":"expense","source_type":"مصروفات","account_id":239,"cost_center_id":2001,"created_at":"2026-02-07T10:38:56.000Z"},{"id":"exp-2035","date":"2026-02-06","document_number":"EXP-2035","description":"نقل كفالة","account_code":"522","account_name":"رواتب الموظفين الإداريين","account_type":"expense","cost_center_code":"CC-03","cost_center_name":"العمليات اللوجستية","debit":2000,"credit":0,"source":"expense","source_type":"مصروفات","account_id":217,"cost_center_id":2003,"created_at":"2026-02-07T12:18:14.000Z"},{"id":"exp-2036","date":"2026-02-06","document_number":"EXP-2036","description":"وقود سيارت الترحيل","account_code":"114","account_name":"مخزون الوقود","account_type":"expense","cost_center_code":"CC-03","cost_center_name":"العمليات اللوجستية","debit":100,"credit":0,"source":"expense","source_type":"مصروفات","account_id":193,"cost_center_id":2003,"created_at":"2026-02-07T12:18:15.000Z"},{"id":"exp-2037","date":"2026-02-06","document_number":"EXP-2037","description":"سداد كهرباء سكن العمال","account_code":"523","account_name":"كهرباء ومياه","account_type":"expense","cost_center_code":"CTS-03","cost_center_name":"مركز تكلفة الإدارة العامة","debit":600,"credit":0,"source":"expense","source_type":"مصروفات","account_id":218,"cost_center_id":2019,"created_at":"2026-02-07T12:18:17.... [truncated]
+2026-02-07T21:34:02.089Z [console][error] ./app/(dashboard)/general-ledger/general-ledger-client.tsx:895:9
+Parsing ecmascript source code failed
+  893 |         </Card>
+  894 |       </Card>
+> 895 |       </Card>
+      |         ^^^^
+  896 |
+  897 |       {/* Entry Detail Modal */}
+  898 |       <Dialog open={!!selectedEntry} onOpenChange={(open) => !open && setSelectedEntry(null)}>
+
+Expected corresponding JSX closing tag for <div>
+
+Import trace:
+  Server Component:
+    ./app/(dashboard)/general-ledger/general-ledger-client.tsx
+    ./app/(dashboard)/general-ledger/page.tsx
+2026-02-07T21:34:02.307Z [console][error] ./app/(dashboard)/general-ledger/general-ledger-client.tsx:895:9
+Parsing ecmascript source code failed
+  893 |         </Card>
+  894 |       </Card>
+> 895 |       </Card>
+      |         ^^^^
+  896 |
+  897 |       {/* Entry Detail Modal */}
+  898 |       <Dialog open={!!selectedEntry} onOpenChange={(open) => !open && setSelectedEntry(null)}>
+
+Expected corresponding JSX closing tag for <div>
+
+Import trace:
+  Server Component:
+    ./app/(dashboard)/general-ledger/general-ledger-client.tsx
+    ./app/(dashboard)/general-ledger/page.tsx
+2026-02-07T21:34:02.338Z [console][error] ./app/(dashboard)/general-ledger/general-ledger-client.tsx:895:9
+Parsing ecmascript source code failed
+  893 |         </Card>
+  894 |       </Card>
+> 895 |       </Card>
+      |         ^^^^
+  896 |
+  897 |       {/* Entry Detail Modal */}
+  898 |       <Dialog open={!!selectedEntry} onOpenChange={(open) => !open && setSelectedEntry(null)}>
+
+Expected corresponding JSX closing tag for <div>
+
+Import trace:
+  Server Component:
+    ./app/(dashboard)/general-ledger/general-ledger-client.tsx
+    ./app/(dashboard)/general-ledger/page.tsx
+2026-02-07T21:34:02.471Z [console][error] ./app/(dashboard)/general-ledger/general-ledger-client.tsx:895:9
+Parsing ecmascript source code failed
+  893 |         </Card>
+  894 |       </Card>
+> 895 |       </Card>
+      |         ^^^^
+  896 |
+  897 |       {/* Entry Detail Modal */}
+  898 |       <Dialog open={!!selectedEntry} onOpenChange={(open) => !open && setSelectedEntry(null)}>
+
+Expected corresponding JSX closing tag for <div>
+
+Import trace:
+  Server Component:
+    ./app/(dashboard)/general-ledger/general-ledger-client.tsx
+    ./app/(dashboard)/general-ledger/page.tsx
+2026-02-07T21:34:02.626Z [console][error] ./app/(dashboard)/general-ledger/general-ledger-client.tsx:895:9
+Parsing ecmascript source code failed
+  893 |         </Card>
+  894 |       </Card>
+> 895 |       </Card>
+      |         ^^^^
+  896 |
+  897 |       {/* Entry Detail Modal */}
+  898 |       <Dialog open={!!selectedEntry} onOpenChange={(open) => !open && setSelectedEntry(null)}>
+
+Expected corresponding JSX closing tag for <div>
+
+Import trace:
+  Server Component:
+    ./app/(dashboard)/general-ledger/general-ledger-client.tsx
+    ./app/(dashboard)/general-ledger/page.tsx
+2026-02-07T21:34:02.338Z [console][error] ./app/(dashboard)/general-ledger/general-ledger-client.tsx:895:9
+Parsing ecmascript source code failed
+  893 |         </Card>
+  894 |       </Card>
+> 895 |       </Card>
+      |         ^^^^
+  896 |
+  897 |       {/* Entry Detail Modal */}
+  898 |       <Dialog open={!!selectedEntry} onOpenChange={(open) => !open && setSelectedEntry(null)}>
+
+Expected corresponding JSX closing tag for <div>
+
+Import trace:
+  Server Component:
+    ./app/(dashboard)/general-ledger/general-ledger-client.tsx
+    ./app/(dashboard)/general-ledger/page.tsx
+2026-02-07T21:34:02.471Z [console][error] ./app/(dashboard)/general-ledger/general-ledger-client.tsx:895:9
+Parsing ecmascript source code failed
+  893 |         </Card>
+  894 |       </Card>
+> 895 |       </Card>
+      |         ^^^^
+  896 |
+  897 |       {/* Entry Detail Modal */}
+  898 |       <Dialog open={!!selectedEntry} onOpenChange={(open) => !open && setSelectedEntry(null)}>
+
+Expected corresponding JSX closing tag for <div>
+
+Import trace:
+  Server Component:
+    ./app/(dashboard)/general-ledger/general-ledger-client.tsx
+    ./app/(dashboard)/general-ledger/page.tsx
+2026-02-07T21:34:02.626Z [console][error] ./app/(dashboard)/general-ledger/general-ledger-client.tsx:895:9
+Parsing ecmascript source code failed
+  893 |         </Card>
+  894 |       </Card>
+> 895 |       </Card>
+      |         ^^^^
+  896 |
+  897 |       {/* Entry Detail Modal */}
+  898 |       <Dialog open={!!selectedEntry} onOpenChange={(open) => !open && setSelectedEntry(null)}>
+
+Expected corresponding JSX closing tag for <div>
+
+Import trace:
+  Server Component:
+    ./app/(dashboard)/general-ledger/general-ledger-client.tsx
+    ./app/(dashboard)/general-ledger/page.tsx
+2026-02-07T21:38:56.436Z [console][error] Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.
+2026-02-07T21:38:56.437Z [console][error] Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.
+2026-02-07T21:46:25.884Z [network][GET 200] /api/trial-balance?
+  response: {"balances":[{"account_id":107,"account_code":"1","account_name":"الأصول","account_type":"expense","total_debit":150,"total_credit":0,"closing_debit":150,"closing_credit":0,"entries_count":1,"source_types":["expense"]},{"account_id":112,"account_code":"1101","account_name":"الصندوق","account_type":"expense","total_debit":8513,"total_credit":0,"closing_debit":8513,"closing_credit":0,"entries_count":5,"source_types":["expense"]},{"account_id":193,"account_code":"114","account_name":"مخزون الوقود","account_type":"expense","total_debit":100,"total_credit":0,"closing_debit":100,"closing_credit":0,"entries_count":1,"source_types":["expense"]},{"account_id":195,"account_code":"116","account_name":"مصروفات مقدمة","account_type":"revenue","total_debit":0,"total_credit":5550,"closing_debit":0,"closing_credit":5550,"entries_count":1,"source_types":["invoice"]},{"account_id":239,"account_code":"1232","account_name":"مكاتب إدارية","account_type":"expense","total_debit":270,"total_credit":0,"closing_debit":270,"closing_credit":0,"entries_count":2,"source_types":["expense"]},{"account_id":108,"account_code":"2","account_name":"الالتزامات","account_type":"expense","total_debit":3325,"total_credit":0,"closing_debit":3325,"closing_credit":0,"entries_count":2,"source_types":["expense"]},{"account_id":111,"account_code":"5","account_name":"المصروفات","account_type":"expense","total_debit":113,"total_credit":0,"closing_debit":113,"closing_credit":0,"entries_count":1,"source_types":["expense"]},{"account_id":115,"account_code":"5101","account_name":"الرواتب والأجور","account_type":"expense","total_debit":14200,"total_credit":200,"closing_debit":14000,"closing_credit":0,"entries_count":3,"source_types":["expense","deduction","payroll"]},{"account_id":211,"account_code":"511","account_name":"وقود وسائل النقل","account_type":"expense","total_debit":150,"total_credit":0,"closing_debit":150,"closing_credit":0,"entries_count":1,"source_types":["expense"]},{"account_id":212,"account_code":"512"... [truncated]
+2026-02-07T21:46:27.148Z [network][GET 200] /api/trial-balance?
+  response: {"balances":[{"account_id":107,"account_code":"1","account_name":"الأصول","account_type":"expense","total_debit":150,"total_credit":0,"closing_debit":150,"closing_credit":0,"entries_count":1,"source_types":["expense"]},{"account_id":112,"account_code":"1101","account_name":"الصندوق","account_type":"expense","total_debit":8513,"total_credit":0,"closing_debit":8513,"closing_credit":0,"entries_count":5,"source_types":["expense"]},{"account_id":193,"account_code":"114","account_name":"مخزون الوقود","account_type":"expense","total_debit":100,"total_credit":0,"closing_debit":100,"closing_credit":0,"entries_count":1,"source_types":["expense"]},{"account_id":195,"account_code":"116","account_name":"مصروفات مقدمة","account_type":"revenue","total_debit":0,"total_credit":5550,"closing_debit":0,"closing_credit":5550,"entries_count":1,"source_types":["invoice"]},{"account_id":239,"account_code":"1232","account_name":"مكاتب إدارية","account_type":"expense","total_debit":270,"total_credit":0,"closing_debit":270,"closing_credit":0,"entries_count":2,"source_types":["expense"]},{"account_id":108,"account_code":"2","account_name":"الالتزامات","account_type":"expense","total_debit":3325,"total_credit":0,"closing_debit":3325,"closing_credit":0,"entries_count":2,"source_types":["expense"]},{"account_id":111,"account_code":"5","account_name":"المصروفات","account_type":"expense","total_debit":113,"total_credit":0,"closing_debit":113,"closing_credit":0,"entries_count":1,"source_types":["expense"]},{"account_id":115,"account_code":"5101","account_name":"الرواتب والأجور","account_type":"expense","total_debit":14200,"total_credit":200,"closing_debit":14000,"closing_credit":0,"entries_count":3,"source_types":["expense","deduction","payroll"]},{"account_id":211,"account_code":"511","account_name":"وقود وسائل النقل","account_type":"expense","total_debit":150,"total_credit":0,"closing_debit":150,"closing_credit":0,"entries_count":1,"source_types":["expense"]},{"account_id":212,"account_code":"512"... [truncated]

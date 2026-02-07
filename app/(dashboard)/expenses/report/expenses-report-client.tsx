@@ -314,7 +314,62 @@ export function ExpensesReportClient({ companyId }: ExpensesReportClientProps) {
   };
 
   const handleExportExcel = () => {
-    alert("جاري تصدير التقرير إلى Excel...");
+    if (!data) return;
+    const { expensesGrouped, deductionsGrouped, payrolls } = data;
+    const headers = [
+      "النوع", "التصنيف", "التاريخ", "الموظف", "رقم الإقامة",
+      "المبلغ", "الضريبة", "الصافي",
+      "رمز الحساب", "اسم الحساب", "رمز مركز التكلفة", "اسم مركز التكلفة",
+      "البيان", "الحالة"
+    ];
+    const rows: string[][] = [];
+
+    // Expenses
+    Object.entries(expensesGrouped).forEach(([group, items]) => {
+      items.forEach((e: any) => {
+        rows.push([
+          "مصروف", group, formatDate(e.expense_date), e.employee_name || "-", e.employee_iqama || "-",
+          String(e.amount || 0), String(e.tax_value || 0), String(e.net_amount || e.amount || 0),
+          e.account_code || "-", e.account_name || "-", e.center_code || e.cost_center_code || "-", e.center_name || "-",
+          e.description || "-", "-"
+        ]);
+      });
+    });
+
+    // Deductions
+    Object.entries(deductionsGrouped).forEach(([group, items]) => {
+      items.forEach((d: any) => {
+        rows.push([
+          "استقطاع", group, formatDate(d.expense_date), d.employee_name || "-", d.employee_iqama || "-",
+          String(d.amount || 0), "0", String(d.amount || 0),
+          d.account_code || "-", d.account_name || "-", d.center_code || "-", d.center_name || "-",
+          d.description || "-", d.status === "completed" ? "مدفوع" : "غير مدفوع"
+        ]);
+      });
+    });
+
+    // Payrolls
+    (payrolls || []).forEach((p: any) => {
+      rows.push([
+        "رواتب", `مسير ${p.payroll_month}`, p.payroll_month + "-01", "-", "-",
+        String(p.total_amount || 0), "0", String(p.total_amount || 0),
+        "-", "-", "-", "-",
+        `مسير رواتب - ${p.employee_count} موظف`, p.is_paid ? "مدفوع" : "غير مدفوع"
+      ]);
+    });
+
+    const csvContent = [
+      headers.join(","),
+      ...rows.map(r => r.map(c => `"${c}"`).join(","))
+    ].join("\n");
+
+    const blob = new Blob(["\ufeff" + csvContent], { type: "text/csv;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `expenses_report_${selectedMonth}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
   };
 
   const toggleGroup = (groupKey: string) => {
@@ -760,37 +815,43 @@ Object.entries(expensesGrouped).map(([group, expenses], groupIdx) => {
                                               <td className="p-1 text-center font-black text-red-600 border-l border-slate-50">{formatNumber(expense.amount || 0)}</td>
                                               <td className="p-1 text-center font-bold text-red-500 border-l border-slate-50">{formatNumber(expense.tax_value || 0)}</td>
                                               <td className="p-1 text-center font-black text-red-700 border-l border-slate-50">{formatNumber(expense.net_amount || expense.amount || 0)}</td>
-                                              <td className="p-1 text-center border-l border-slate-50">
-                                                  <span className="font-bold text-slate-700">{expense.account_name || "-"}</span>
-                                                </td>
                                                 <td className="p-1 text-center border-l border-slate-50">
-                                                  <span className="font-bold text-slate-700">{expense.center_name || "-"}</span>
-                                                </td>
-                                                <td className="p-1 text-center print:hidden">
-                                                  <div className="flex items-center justify-center -space-x-px">
-                                                    <Button 
-                                                      variant="outline" 
-                                                      onClick={() => showItemDetails(expense)} 
-                                                      className="h-9 px-3 text-xs font-bold text-blue-600 border-slate-200 rounded-none rounded-r-md hover:bg-blue-50 hover:border-blue-200 z-10"
-                                                    >
-                                                      {t("actions.view")}
-                                                    </Button>
-                                                    <Button 
-                                                      variant="outline" 
-                                                      onClick={() => handleEditClick(expense)} 
-                                                      className="h-9 px-3 text-xs font-bold text-amber-600 border-slate-200 rounded-none border-r-0 hover:bg-amber-50 hover:border-amber-200 z-20"
-                                                    >
-                                                      {t("actions.edit")}
-                                                    </Button>
-                                                    <Button 
-                                                      variant="outline" 
-                                                      onClick={() => handleDeleteClick(expense)} 
-                                                      className="h-9 px-3 text-xs font-bold text-rose-600 border-slate-200 rounded-none rounded-l-md border-r-0 hover:bg-rose-50 hover:border-rose-200 z-30"
-                                                    >
-                                                      {t("actions.delete")}
-                                                    </Button>
-                                                  </div>
-                                                </td>
+                                                    <div className="flex flex-col">
+                                                      <span className="font-black text-blue-700 text-[10px]">{expense.account_code || "-"}</span>
+                                                      <span className="font-bold text-slate-600 text-[10px]">{expense.account_name || "-"}</span>
+                                                    </div>
+                                                  </td>
+                                                  <td className="p-1 text-center border-l border-slate-50">
+                                                    <div className="flex flex-col">
+                                                      <span className="font-black text-purple-700 text-[10px]">{expense.center_code || expense.cost_center_code || "-"}</span>
+                                                      <span className="font-bold text-slate-600 text-[10px]">{expense.center_name || "-"}</span>
+                                                    </div>
+                                                  </td>
+                                                  <td className="p-1 text-center print:hidden">
+                                                    <div className="flex items-center justify-center -space-x-px">
+                                                      <Button 
+                                                        variant="outline" 
+                                                        onClick={() => showItemDetails(expense)} 
+                                                        className="h-9 px-3 text-xs font-bold text-blue-600 border-slate-200 rounded-none rounded-r-md hover:bg-blue-50 hover:border-blue-200 z-10"
+                                                      >
+                                                        {t("actions.view")}
+                                                      </Button>
+                                                      <Button 
+                                                        variant="outline" 
+                                                        onClick={() => handleEditClick(expense)} 
+                                                        className="h-9 px-3 text-xs font-bold text-amber-600 border-slate-200 rounded-none border-r-0 hover:bg-amber-50 hover:border-amber-200 z-20"
+                                                      >
+                                                        {t("actions.edit")}
+                                                      </Button>
+                                                      <Button 
+                                                        variant="outline" 
+                                                        onClick={() => handleDeleteClick(expense)} 
+                                                        className="h-9 px-3 text-xs font-bold text-rose-600 border-slate-200 rounded-none rounded-l-md border-r-0 hover:bg-rose-50 hover:border-rose-200 z-30"
+                                                      >
+                                                        {t("actions.delete")}
+                                                      </Button>
+                                                    </div>
+                                                  </td>
                                             </tr>
                                           ))}
                                         </tbody>
@@ -873,12 +934,18 @@ Object.entries(deductionsGrouped).map(([group, deductions], groupIdx) => {
                                               <td className="p-1 text-center font-bold border-l border-slate-50">{deduction.employee_name || "-"}</td>
                                               <td className="p-1 text-center border-l border-slate-50">{deduction.employee_iqama || "-"}</td>
                                               <td className="p-1 text-center font-black text-red-600 border-l border-slate-50">{formatNumber(deduction.amount || 0)}</td>
-                                              <td className="p-1 text-center border-l border-slate-50">
-                                                  <span className="font-bold text-slate-700">{deduction.account_name || "-"}</span>
-                                                </td>
                                                 <td className="p-1 text-center border-l border-slate-50">
-                                                  <span className="font-bold text-slate-700">{deduction.center_name || "-"}</span>
-                                                </td>
+                                                    <div className="flex flex-col">
+                                                      <span className="font-black text-blue-700 text-[10px]">{deduction.account_code || "-"}</span>
+                                                      <span className="font-bold text-slate-600 text-[10px]">{deduction.account_name || "-"}</span>
+                                                    </div>
+                                                  </td>
+                                                  <td className="p-1 text-center border-l border-slate-50">
+                                                    <div className="flex flex-col">
+                                                      <span className="font-black text-purple-700 text-[10px]">{deduction.center_code || "-"}</span>
+                                                      <span className="font-bold text-slate-600 text-[10px]">{deduction.center_name || "-"}</span>
+                                                    </div>
+                                                  </td>
                                               <td className="p-1 text-center border-l border-slate-50">
                                                 <div 
                                                   onClick={() => !statusUpdating && handleToggleDeductionStatus(deduction)} 
@@ -980,8 +1047,17 @@ Object.entries(deductionsGrouped).map(([group, deductions], groupIdx) => {
                     <div className="p-3 bg-white border rounded-xl shadow-sm"><p className="text-[10px] text-slate-500 font-bold mb-1 uppercase tracking-wider">{t("form.date")}</p><p className="font-bold text-slate-800">{formatDate(selectedItem.expense_date)}</p></div>
                   <div className="p-3 bg-white border rounded-xl shadow-sm"><p className="text-[10px] text-slate-500 font-bold mb-1 uppercase tracking-wider">{t("form.employee")}</p><p className="font-bold text-slate-800">{selectedItem.employee_name || "-"}</p></div>
                   <div className="p-3 bg-white border rounded-xl shadow-sm"><p className="text-[10px] text-slate-500 font-bold mb-1 uppercase tracking-wider">{t("form.iqamaNumber")}</p><p className="font-bold text-slate-800">{selectedItem.employee_iqama || "-"}</p></div>
-                  <div className="p-3 bg-white border rounded-xl shadow-sm"><p className="text-[10px] text-slate-500 font-bold mb-1 uppercase tracking-wider">{t("form.account")}</p><p className="font-bold text-slate-800">{selectedItem.account_code || "-"}</p></div>
-                  <div className="p-3 bg-blue-50 border border-blue-100 rounded-xl shadow-sm"><p className="text-[10px] text-blue-600 font-bold mb-1 uppercase tracking-wider">{t("form.amount")}</p><p className="font-bold text-lg text-blue-700">{formatNumber(selectedItem.amount || 0)} SAR</p></div>
+                    <div className="p-3 bg-white border rounded-xl shadow-sm">
+                      <p className="text-[10px] text-slate-500 font-bold mb-1 uppercase tracking-wider">{t("form.account")}</p>
+                      <p className="font-black text-blue-700 text-sm">{selectedItem.account_code || "-"}</p>
+                      <p className="font-bold text-slate-600 text-xs">{selectedItem.account_name || "-"}</p>
+                    </div>
+                    <div className="p-3 bg-white border rounded-xl shadow-sm">
+                      <p className="text-[10px] text-slate-500 font-bold mb-1 uppercase tracking-wider">{t("form.costCenter")}</p>
+                      <p className="font-black text-purple-700 text-sm">{selectedItem.center_code || "-"}</p>
+                      <p className="font-bold text-slate-600 text-xs">{selectedItem.center_name || "-"}</p>
+                    </div>
+                    <div className="p-3 bg-blue-50 border border-blue-100 rounded-xl shadow-sm"><p className="text-[10px] text-blue-600 font-bold mb-1 uppercase tracking-wider">{t("form.amount")}</p><p className="font-bold text-lg text-blue-700">{formatNumber(selectedItem.amount || 0)} SAR</p></div>
                 </div>
                 
                 {selectedItem.description && (

@@ -75,6 +75,7 @@ function JournalEntriesContent() {
   const [loading, setLoading] = useState(true);
   const [isEdit, setIsEdit] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
+  const [sourceFilter, setSourceFilter] = useState("all");
   const [expandedEntries, setExpandedEntries] = useState<Record<string, boolean>>({});
   const [showModal, setShowModal] = useState(false);
 
@@ -136,17 +137,38 @@ function JournalEntriesContent() {
   }, [entries]);
 
   const filteredGroups = useMemo(() => {
-    if (!searchTerm) return groupedEntries;
+    let base = groupedEntries;
+    
+    // Filter by source
+    if (sourceFilter !== "all") {
+      const filtered: Record<string, Entry[]> = {};
+      Object.entries(base).forEach(([num, lines]) => {
+        const match = lines.some(l => (l as any).source_type === sourceFilter);
+        if (match) filtered[num] = lines;
+      });
+      base = filtered;
+    }
+    
+    if (!searchTerm) return base;
     const lowerSearch = searchTerm.toLowerCase();
     const filtered: Record<string, Entry[]> = {};
-    Object.entries(groupedEntries).forEach(([num, lines]) => {
+    Object.entries(base).forEach(([num, lines]) => {
       const match = num.toLowerCase().includes(lowerSearch) || 
                    lines.some(l => l.description.toLowerCase().includes(lowerSearch) || 
                                   l.accounts?.account_name?.toLowerCase().includes(lowerSearch));
       if (match) filtered[num] = lines;
     });
     return filtered;
-  }, [groupedEntries, searchTerm]);
+  }, [groupedEntries, searchTerm, sourceFilter]);
+
+  const sourceTypeCounts = useMemo(() => {
+    const counts: Record<string, number> = {};
+    Object.values(groupedEntries).forEach(lines => {
+      const src = (lines[0] as any)?.source_type || "manual";
+      counts[src] = (counts[src] || 0) + 1;
+    });
+    return counts;
+  }, [groupedEntries]);
 
   const addRow = () => {
     setLines([...lines, { account_id: "", cost_center_id: "", description: "", debit: "0", credit: "0" }]);
@@ -289,28 +311,58 @@ function JournalEntriesContent() {
           </div>
         </div>
 
-        <div className="bg-white/90 backdrop-blur-xl rounded-[25px] shadow-xl border border-white/20 overflow-hidden">
-          <div className="bg-gradient-to-r from-[#2c3e50] to-[#2ecc71] p-8 text-white flex flex-col md:flex-row justify-between items-center gap-6">
-            <div className="flex items-center gap-4">
-              <div className="p-3 bg-white/20 rounded-2xl">
-                <List className="w-8 h-8" />
+          <div className="bg-white/90 backdrop-blur-xl rounded-[25px] shadow-xl border border-white/20 overflow-hidden">
+            <div className="bg-gradient-to-r from-[#2c3e50] to-[#2ecc71] p-8 text-white flex flex-col md:flex-row justify-between items-center gap-6">
+              <div className="flex items-center gap-4">
+                <div className="p-3 bg-white/20 rounded-2xl">
+                  <List className="w-8 h-8" />
+                </div>
+                <div>
+                  <h3 className="text-2xl font-extrabold">{t("journalLog")}</h3>
+                  <p className="text-white/70 font-medium">{t("subtitle")}</p>
+                </div>
               </div>
-              <div>
-                <h3 className="text-2xl font-extrabold">{t("journalLog")}</h3>
-                <p className="text-white/70 font-medium">{t("subtitle")}</p>
+              <div className="relative w-full md:w-96 group">
+                <Search className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 group-focus-within:text-blue-400 transition-colors" />
+                <input 
+                  type="text" 
+                  placeholder={t("searchPlaceholder")}
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-full p-4 pr-12 bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl text-white placeholder-white/50 focus:bg-white focus:text-gray-800 outline-none transition-all shadow-inner"
+                />
               </div>
             </div>
-            <div className="relative w-full md:w-96 group">
-              <Search className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 group-focus-within:text-blue-400 transition-colors" />
-              <input 
-                type="text" 
-                placeholder={t("searchPlaceholder")}
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full p-4 pr-12 bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl text-white placeholder-white/50 focus:bg-white focus:text-gray-800 outline-none transition-all shadow-inner"
-              />
+
+            {/* Source Filter Tabs */}
+            <div className="flex flex-wrap items-center gap-2 p-4 bg-gradient-to-r from-slate-50 to-blue-50 border-b border-slate-100">
+              {[
+                { key: "all", label: "الكل", color: "bg-slate-600", count: Object.keys(groupedEntries).length },
+                { key: "manual", label: "قيود يدوية", color: "bg-blue-600", count: sourceTypeCounts["manual"] || (sourceTypeCounts["undefined"] || 0) + (Object.keys(groupedEntries).length - Object.values(sourceTypeCounts).reduce((s,v) => s+v, 0)) },
+                { key: "payroll", label: "رواتب", color: "bg-purple-600", count: sourceTypeCounts["payroll"] || 0 },
+                { key: "sales_invoice", label: "فواتير مبيعات", color: "bg-emerald-600", count: sourceTypeCounts["sales_invoice"] || 0 },
+                { key: "expense", label: "مصروفات", color: "bg-amber-600", count: sourceTypeCounts["expense"] || 0 },
+              ].map((tab) => (
+                <button
+                  key={tab.key}
+                  onClick={() => setSourceFilter(tab.key)}
+                  className={`flex items-center gap-2 px-4 py-2 rounded-xl font-bold text-sm transition-all ${
+                    sourceFilter === tab.key
+                      ? `${tab.color} text-white shadow-lg scale-105`
+                      : "bg-white text-slate-600 hover:bg-slate-100 border border-slate-200"
+                  }`}
+                >
+                  <span>{tab.label}</span>
+                  {tab.count > 0 && (
+                    <span className={`px-2 py-0.5 rounded-full text-xs font-black ${
+                      sourceFilter === tab.key ? "bg-white/20" : "bg-slate-100"
+                    }`}>
+                      {tab.count}
+                    </span>
+                  )}
+                </button>
+              ))}
             </div>
-          </div>
 
           <div className="p-8">
             <div className="space-y-4">
@@ -332,6 +384,16 @@ function JournalEntriesContent() {
                           </span>
                           <span className="text-gray-700 font-bold line-clamp-1">{lines[0].description}</span>
                         </div>
+                        {(() => {
+                          const src = (lines[0] as any).source_type;
+                          const srcLabel = src === "payroll" ? "رواتب" : src === "sales_invoice" ? "فاتورة" : src === "expense" ? "مصروفات" : "يدوي";
+                          const srcColor = src === "payroll" ? "bg-purple-100 text-purple-700" : src === "sales_invoice" ? "bg-emerald-100 text-emerald-700" : src === "expense" ? "bg-amber-100 text-amber-700" : "bg-blue-100 text-blue-700";
+                          return (
+                            <span className={`px-3 py-1 rounded-lg text-xs font-black ${srcColor}`}>
+                              {srcLabel}
+                            </span>
+                          );
+                        })()}
                       </div>
                       <div className="flex items-center gap-6">
                         <div className="flex flex-col items-end">
@@ -341,18 +403,22 @@ function JournalEntriesContent() {
                           </span>
                         </div>
                         <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                          <button 
-                            onClick={(e) => { e.stopPropagation(); handleEdit(num, lines); }}
-                            className="p-2 bg-amber-100 text-amber-600 rounded-lg hover:bg-amber-200 transition-colors"
-                          >
-                            <Edit className="w-5 h-5" />
-                          </button>
-                          <button 
-                            onClick={(e) => { e.stopPropagation(); handleDelete(num); }}
-                            className="p-2 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 transition-colors"
-                          >
-                            <Trash2 className="w-5 h-5" />
-                          </button>
+                          {(!(lines[0] as any).source_type || (lines[0] as any).source_type === "manual") && (
+                            <>
+                            <button 
+                              onClick={(e) => { e.stopPropagation(); handleEdit(num, lines); }}
+                              className="p-2 bg-amber-100 text-amber-600 rounded-lg hover:bg-amber-200 transition-colors"
+                            >
+                              <Edit className="w-5 h-5" />
+                            </button>
+                            <button 
+                              onClick={(e) => { e.stopPropagation(); handleDelete(num); }}
+                              className="p-2 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 transition-colors"
+                            >
+                              <Trash2 className="w-5 h-5" />
+                            </button>
+                            </>
+                          )}
                         </div>
                         {expandedEntries[num] ? <ChevronUp className="text-gray-400" /> : <ChevronDown className="text-gray-400" />}
                       </div>

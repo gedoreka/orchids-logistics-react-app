@@ -577,7 +577,7 @@ export function GeneralLedgerClient({ companyId, companyInfo }: GeneralLedgerCli
                   placeholder={t("generalLedger.searchPlaceholder")}
                   value={filters.search}
                   onChange={(e) => setFilters(prev => ({ ...prev, search: e.target.value }))}
-                  className={`${locale === "ar" ? "pr-12 text-right" : "pl-12 text-left"} h-12 rounded-xl border-slate-200 focus:border-blue-500 font-medium`}
+                  className={`${locale === "ar" ? "pr-12 text-right" : "pl-12 text-left"} h-12 rounded-xl border-slate-200 focus:border-blue-500 font-medium text-slate-900 placeholder:text-slate-400`}
                 />
               </div>
 
@@ -892,6 +892,106 @@ export function GeneralLedgerClient({ companyId, companyInfo }: GeneralLedgerCli
           </CardContent>
         </Card>
       </Card>
+
+      {/* Entry Detail Modal */}
+      <Dialog open={!!selectedEntry} onOpenChange={(open) => !open && setSelectedEntry(null)}>
+        <DialogContent className="max-w-lg p-0 border-none rounded-[2rem] overflow-hidden shadow-2xl bg-white">
+          {selectedEntry && (() => {
+            const DetailIcon = ({ icon: Icon, color }: { icon: any; color: string }) => (
+              <div className="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center shrink-0 mt-0.5">
+                <Icon className={`w-4 h-4 ${color}`} />
+              </div>
+            );
+
+            const detailRows = [
+              { label: t("generalLedger.description"), value: selectedEntry.description, icon: FileText, color: "text-slate-600" },
+              { label: t("generalLedger.account"), value: selectedEntry.account_code ? `${selectedEntry.account_code} - ${selectedEntry.account_name}` : selectedEntry.account_name || "-", icon: Layers, color: "text-blue-600" },
+              { label: t("generalLedger.costCenter"), value: selectedEntry.cost_center_code ? `${selectedEntry.cost_center_code} - ${selectedEntry.cost_center_name}` : "-", icon: Building, color: "text-purple-600" },
+...(selectedEntry.employee_name ? [{ label: t("generalLedger.employee"), value: selectedEntry.employee_name + (selectedEntry.employee_iqama ? ` (${selectedEntry.employee_iqama})` : ""), icon: Building2, color: "text-indigo-600" }] : []),
+                ...(selectedEntry.month_reference ? [{ label: t("generalLedger.monthReference"), value: selectedEntry.month_reference, icon: Calendar, color: "text-teal-600" }] : []),
+            ];
+
+            return (
+              <>
+                {/* Header with gradient */}
+                <div className="relative bg-gradient-to-br from-[#0f172a] via-[#1e293b] to-[#0f172a] p-6 pb-8">
+                  <div className="absolute inset-0 overflow-hidden">
+                    <div className="absolute -top-20 -right-20 w-40 h-40 bg-blue-500/20 rounded-full blur-3xl" />
+                    <div className="absolute -bottom-20 -left-20 w-40 h-40 bg-emerald-500/20 rounded-full blur-3xl" />
+                  </div>
+                  <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 via-emerald-500 to-purple-500" />
+                  <div className="relative z-10">
+                    <DialogTitle className="text-xl font-black text-white mb-1">
+                      {t("generalLedger.entryDetails")}
+                    </DialogTitle>
+                    <p className="text-white/50 text-sm font-medium">{selectedEntry.document_number}</p>
+                    <div className="flex items-center gap-2 mt-3">
+                      <Badge className={`font-bold text-xs ${
+                        selectedEntry.source === "expense" ? "bg-amber-500/20 text-amber-300 border-amber-500/30" :
+                        selectedEntry.source === "deduction" ? "bg-red-500/20 text-red-300 border-red-500/30" :
+                        selectedEntry.source === "payroll" ? "bg-purple-500/20 text-purple-300 border-purple-500/30" :
+                        selectedEntry.source === "invoice" ? "bg-emerald-500/20 text-emerald-300 border-emerald-500/30" :
+                        "bg-blue-500/20 text-blue-300 border-blue-500/30"
+                      }`}>
+                        {selectedEntry.source_type}
+                      </Badge>
+                      <Badge className="bg-white/10 text-white/70 border-white/20 text-xs font-bold">
+                        {formatDate(selectedEntry.date)}
+                      </Badge>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Debit / Credit cards */}
+                <div className="px-6 -mt-4 relative z-10">
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="bg-gradient-to-br from-rose-50 to-red-50 border border-rose-200 rounded-2xl p-4 text-center">
+                      <div className="w-10 h-10 bg-rose-100 rounded-xl flex items-center justify-center mx-auto mb-2">
+                        <ArrowUpRight className="w-5 h-5 text-rose-600" />
+                      </div>
+                      <p className="text-[11px] font-bold text-rose-400 uppercase tracking-wider">{t("generalLedger.debit")}</p>
+                      <p className="text-xl font-black text-rose-600 tabular-nums mt-1">{formatNumber(selectedEntry.debit)}</p>
+                    </div>
+                    <div className="bg-gradient-to-br from-emerald-50 to-green-50 border border-emerald-200 rounded-2xl p-4 text-center">
+                      <div className="w-10 h-10 bg-emerald-100 rounded-xl flex items-center justify-center mx-auto mb-2">
+                        <ArrowDownRight className="w-5 h-5 text-emerald-600" />
+                      </div>
+                      <p className="text-[11px] font-bold text-emerald-400 uppercase tracking-wider">{t("generalLedger.credit")}</p>
+                      <p className="text-xl font-black text-emerald-600 tabular-nums mt-1">{formatNumber(selectedEntry.credit)}</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Detail rows */}
+                <div className="px-6 py-5 space-y-0">
+                  {detailRows.map((row, i) => (
+                    <div key={i} className="flex items-start gap-3 py-3 border-b border-slate-100 last:border-0">
+                      <DetailIcon icon={row.icon} color={row.color} />
+                      <div className="flex-1 min-w-0">
+                        <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">{row.label}</p>
+                        <p className="text-sm font-bold text-slate-800 mt-0.5 break-words">{row.value}</p>
+                      </div>
+                    </div>
+                  ))}
+
+                  {/* Balance bar */}
+                  <div className="mt-4 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-2xl p-4 flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center">
+                        <Scale className="w-5 h-5 text-blue-600" />
+                      </div>
+                      <span className="text-sm font-bold text-blue-700">{t("generalLedger.balance")}</span>
+                    </div>
+                    <span className={`text-xl font-black tabular-nums ${selectedEntry.balance >= 0 ? "text-blue-600" : "text-rose-600"}`}>
+                      {formatNumber(selectedEntry.balance)} <span className="text-xs font-bold text-slate-400">{t("common.sar")}</span>
+                    </span>
+                  </div>
+                </div>
+              </>
+            );
+          })()}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
