@@ -172,7 +172,7 @@ export function NewInvoiceClient({ customers, invoiceNumber, companyId, userName
       .catch(() => {});
     fetch(`/api/cost-centers?company_id=${companyId}`)
       .then(res => res.json())
-      .then(data => { if (data.cost_centers) setCostCenters(data.cost_centers); })
+      .then(data => { if (data.costCenters) setCostCenters(data.costCenters); })
       .catch(() => {});
   }, [companyId]);
 
@@ -1561,9 +1561,243 @@ export function NewInvoiceClient({ customers, invoiceNumber, companyId, userName
                   </div>
                 </div>
               </div>
-            </div>
+              </div>
 
-              {/* Final Actions Section */}
+              {/* Accounting Classification Section */}
+              <div className="space-y-6">
+                <div className="flex items-center gap-3 pb-4 border-b-2 border-indigo-100">
+                  <div className="h-12 w-12 rounded-2xl bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center shadow-lg shadow-indigo-200">
+                    <BookOpen className="text-white" size={24} />
+                  </div>
+                  <div>
+                    <h3 className="text-gray-900 font-black text-lg">التصنيف المحاسبي</h3>
+                    <p className="text-gray-400 text-xs font-bold">اختر الحساب ومركز التكلفة للفاتورة</p>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {/* Account Selector */}
+                  <div className="space-y-2" ref={accountDropdownRef}>
+                    <label className="flex items-center gap-1 text-[10px] font-black text-gray-500 uppercase tracking-wider">
+                      <FolderTree size={12} className="text-indigo-500" />
+                      الحساب المحاسبي
+                      <span className="text-red-500">*</span>
+                    </label>
+                    <div className="relative">
+                      <button
+                        type="button"
+                        onClick={() => { setAccountDropdownOpen(!accountDropdownOpen); setCostCenterDropdownOpen(false); }}
+                        className={cn(
+                          "w-full h-14 px-4 rounded-xl border-2 text-sm font-bold text-right flex items-center justify-between gap-2 transition-all",
+                          selectedAccount
+                            ? "bg-indigo-50 border-indigo-200 text-indigo-700"
+                            : "bg-white border-gray-200 text-gray-400 hover:border-indigo-300"
+                        )}
+                      >
+                        <div className="flex items-center gap-3 flex-1 min-w-0">
+                          <div className={cn(
+                            "h-8 w-8 rounded-lg flex items-center justify-center flex-shrink-0",
+                            selectedAccount ? "bg-indigo-500/10" : "bg-gray-100"
+                          )}>
+                            <BookOpen size={16} className={selectedAccount ? "text-indigo-500" : "text-gray-400"} />
+                          </div>
+                          <span className="truncate">
+                            {selectedAccount ? `${selectedAccount.account_code} - ${selectedAccount.account_name}` : 'اختر الحساب المحاسبي...'}
+                          </span>
+                        </div>
+                        {accountDropdownOpen ? <ChevronUp size={18} className="text-indigo-400 flex-shrink-0" /> : <ChevronDown size={18} className="text-gray-400 flex-shrink-0" />}
+                      </button>
+
+                      <AnimatePresence>
+                        {accountDropdownOpen && (
+                          <motion.div
+                            initial={{ opacity: 0, y: -10, scale: 0.98 }}
+                            animate={{ opacity: 1, y: 0, scale: 1 }}
+                            exit={{ opacity: 0, y: -10, scale: 0.98 }}
+                            transition={{ duration: 0.2 }}
+                            className="absolute z-50 w-full mt-2 bg-white rounded-2xl border border-gray-200 shadow-2xl shadow-indigo-500/10 overflow-hidden max-h-80"
+                          >
+                            <div className="p-3 border-b border-gray-100 sticky top-0 bg-white z-10">
+                              <div className="relative">
+                                <Search size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                                <input
+                                  type="text"
+                                  value={accountSearch}
+                                  onChange={(e) => setAccountSearch(e.target.value)}
+                                  placeholder="ابحث بالاسم أو الرمز..."
+                                  className="w-full h-10 pr-10 pl-3 rounded-xl bg-gray-50 border border-gray-100 text-sm font-bold text-gray-700 focus:bg-white focus:border-indigo-300 outline-none"
+                                  autoFocus
+                                />
+                              </div>
+                            </div>
+                            <div className="overflow-y-auto max-h-60 p-2">
+                              {groupedAccounts.length === 0 ? (
+                                <div className="text-center py-6 text-gray-400 text-sm font-bold">لا توجد حسابات</div>
+                              ) : (
+                                groupedAccounts.map((group, gi) => (
+                                  <div key={gi} className="mb-1">
+                                    {group.parent && (
+                                      <button
+                                        type="button"
+                                        onClick={() => { setSelectedAccountId(group.parent!.id); setAccountDropdownOpen(false); setAccountSearch(''); }}
+                                        className={cn(
+                                          "w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-right transition-all",
+                                          selectedAccountId === group.parent.id ? "bg-indigo-100 text-indigo-700" : "hover:bg-gray-50 text-gray-800"
+                                        )}
+                                      >
+                                        <div className="h-7 w-7 rounded-lg bg-indigo-500/10 flex items-center justify-center flex-shrink-0">
+                                          <FolderTree size={14} className="text-indigo-500" />
+                                        </div>
+                                        <div className="flex-1 min-w-0">
+                                          <span className="text-xs font-black block truncate">{group.parent.account_code} - {group.parent.account_name}</span>
+                                          <span className="text-[9px] font-bold text-gray-400">{group.parent.account_type}</span>
+                                        </div>
+                                        {selectedAccountId === group.parent.id && <CheckCircle size={16} className="text-indigo-500 flex-shrink-0" />}
+                                      </button>
+                                    )}
+                                    {group.items.map((acc) => (
+                                      <button
+                                        key={acc.id}
+                                        type="button"
+                                        onClick={() => { setSelectedAccountId(acc.id); setAccountDropdownOpen(false); setAccountSearch(''); }}
+                                        className={cn(
+                                          "w-full flex items-center gap-3 px-3 py-2 rounded-xl text-right transition-all",
+                                          group.parent ? "mr-6" : "",
+                                          selectedAccountId === acc.id ? "bg-indigo-100 text-indigo-700" : "hover:bg-gray-50 text-gray-600"
+                                        )}
+                                      >
+                                        <div className="h-6 w-6 rounded-md bg-gray-100 flex items-center justify-center flex-shrink-0">
+                                          <BookOpen size={12} className="text-gray-400" />
+                                        </div>
+                                        <div className="flex-1 min-w-0">
+                                          <span className="text-[11px] font-bold block truncate">{acc.account_code} - {acc.account_name}</span>
+                                        </div>
+                                        {selectedAccountId === acc.id && <CheckCircle size={14} className="text-indigo-500 flex-shrink-0" />}
+                                      </button>
+                                    ))}
+                                  </div>
+                                ))
+                              )}
+                            </div>
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+                    </div>
+                  </div>
+
+                  {/* Cost Center Selector */}
+                  <div className="space-y-2" ref={costCenterDropdownRef}>
+                    <label className="flex items-center gap-1 text-[10px] font-black text-gray-500 uppercase tracking-wider">
+                      <Target size={12} className="text-violet-500" />
+                      مركز التكلفة
+                      <span className="text-red-500">*</span>
+                    </label>
+                    <div className="relative">
+                      <button
+                        type="button"
+                        onClick={() => { setCostCenterDropdownOpen(!costCenterDropdownOpen); setAccountDropdownOpen(false); }}
+                        className={cn(
+                          "w-full h-14 px-4 rounded-xl border-2 text-sm font-bold text-right flex items-center justify-between gap-2 transition-all",
+                          selectedCostCenter
+                            ? "bg-violet-50 border-violet-200 text-violet-700"
+                            : "bg-white border-gray-200 text-gray-400 hover:border-violet-300"
+                        )}
+                      >
+                        <div className="flex items-center gap-3 flex-1 min-w-0">
+                          <div className={cn(
+                            "h-8 w-8 rounded-lg flex items-center justify-center flex-shrink-0",
+                            selectedCostCenter ? "bg-violet-500/10" : "bg-gray-100"
+                          )}>
+                            <Target size={16} className={selectedCostCenter ? "text-violet-500" : "text-gray-400"} />
+                          </div>
+                          <span className="truncate">
+                            {selectedCostCenter ? `${selectedCostCenter.center_code} - ${selectedCostCenter.center_name}` : 'اختر مركز التكلفة...'}
+                          </span>
+                        </div>
+                        {costCenterDropdownOpen ? <ChevronUp size={18} className="text-violet-400 flex-shrink-0" /> : <ChevronDown size={18} className="text-gray-400 flex-shrink-0" />}
+                      </button>
+
+                      <AnimatePresence>
+                        {costCenterDropdownOpen && (
+                          <motion.div
+                            initial={{ opacity: 0, y: -10, scale: 0.98 }}
+                            animate={{ opacity: 1, y: 0, scale: 1 }}
+                            exit={{ opacity: 0, y: -10, scale: 0.98 }}
+                            transition={{ duration: 0.2 }}
+                            className="absolute z-50 w-full mt-2 bg-white rounded-2xl border border-gray-200 shadow-2xl shadow-violet-500/10 overflow-hidden max-h-80"
+                          >
+                            <div className="p-3 border-b border-gray-100 sticky top-0 bg-white z-10">
+                              <div className="relative">
+                                <Search size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                                <input
+                                  type="text"
+                                  value={costCenterSearch}
+                                  onChange={(e) => setCostCenterSearch(e.target.value)}
+                                  placeholder="ابحث بالاسم أو الرمز..."
+                                  className="w-full h-10 pr-10 pl-3 rounded-xl bg-gray-50 border border-gray-100 text-sm font-bold text-gray-700 focus:bg-white focus:border-violet-300 outline-none"
+                                  autoFocus
+                                />
+                              </div>
+                            </div>
+                            <div className="overflow-y-auto max-h-60 p-2">
+                              {groupedCostCenters.length === 0 ? (
+                                <div className="text-center py-6 text-gray-400 text-sm font-bold">لا توجد مراكز تكلفة</div>
+                              ) : (
+                                groupedCostCenters.map((group, gi) => (
+                                  <div key={gi} className="mb-1">
+                                    {group.parent && (
+                                      <button
+                                        type="button"
+                                        onClick={() => { setSelectedCostCenterId(group.parent!.id); setCostCenterDropdownOpen(false); setCostCenterSearch(''); }}
+                                        className={cn(
+                                          "w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-right transition-all",
+                                          selectedCostCenterId === group.parent.id ? "bg-violet-100 text-violet-700" : "hover:bg-gray-50 text-gray-800"
+                                        )}
+                                      >
+                                        <div className="h-7 w-7 rounded-lg bg-violet-500/10 flex items-center justify-center flex-shrink-0">
+                                          <FolderTree size={14} className="text-violet-500" />
+                                        </div>
+                                        <div className="flex-1 min-w-0">
+                                          <span className="text-xs font-black block truncate">{group.parent.center_code} - {group.parent.center_name}</span>
+                                          <span className="text-[9px] font-bold text-gray-400">{group.parent.center_type === 'main' ? 'رئيسي' : 'فرعي'}</span>
+                                        </div>
+                                        {selectedCostCenterId === group.parent.id && <CheckCircle size={16} className="text-violet-500 flex-shrink-0" />}
+                                      </button>
+                                    )}
+                                    {group.items.map((cc) => (
+                                      <button
+                                        key={cc.id}
+                                        type="button"
+                                        onClick={() => { setSelectedCostCenterId(cc.id); setCostCenterDropdownOpen(false); setCostCenterSearch(''); }}
+                                        className={cn(
+                                          "w-full flex items-center gap-3 px-3 py-2 rounded-xl text-right transition-all",
+                                          group.parent ? "mr-6" : "",
+                                          selectedCostCenterId === cc.id ? "bg-violet-100 text-violet-700" : "hover:bg-gray-50 text-gray-600"
+                                        )}
+                                      >
+                                        <div className="h-6 w-6 rounded-md bg-gray-100 flex items-center justify-center flex-shrink-0">
+                                          <Target size={12} className="text-gray-400" />
+                                        </div>
+                                        <div className="flex-1 min-w-0">
+                                          <span className="text-[11px] font-bold block truncate">{cc.center_code} - {cc.center_name}</span>
+                                          <span className="text-[9px] text-gray-400">{cc.center_type === 'main' ? 'رئيسي' : 'فرعي'}</span>
+                                        </div>
+                                        {selectedCostCenterId === cc.id && <CheckCircle size={14} className="text-violet-500 flex-shrink-0" />}
+                                      </button>
+                                    ))}
+                                  </div>
+                                ))
+                              )}
+                            </div>
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+                {/* Final Actions Section */}
               <div className="pt-10 mt-10 border-t border-gray-100">
                 <div className="flex flex-col sm:flex-row items-center justify-between gap-8">
                   <Link href="/sales-invoices">

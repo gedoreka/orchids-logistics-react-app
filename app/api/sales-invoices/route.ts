@@ -76,7 +76,9 @@ export async function POST(request: NextRequest) {
       due_date,
       status = 'due',
       items = [],
-      adjustments = []
+      adjustments = [],
+      account_id = null,
+      cost_center_id = null
     } = body;
 
     const customers = await query<any>(
@@ -149,8 +151,9 @@ export async function POST(request: NextRequest) {
       INSERT INTO sales_invoices (
         invoice_number, invoice_month, client_id, client_name, client_vat, client_address,
         issue_date, due_date, total_amount, tax_amount, discount, status, company_id, created_by,
-        adjustment_title, adjustment_type, adjustment_amount, adjustment_vat, adjustment_total_with_vat
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        adjustment_title, adjustment_type, adjustment_amount, adjustment_vat, adjustment_total_with_vat,
+        account_id, cost_center_id
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `, [
       invoice_number,
       invoice_month,
@@ -170,7 +173,9 @@ export async function POST(request: NextRequest) {
       adjustmentType,
       adjustmentAmount,
       adjustmentVat,
-      adjustmentTotalWithVat
+      adjustmentTotalWithVat,
+      account_id || null,
+      cost_center_id || null
     ]);
 
     const invoiceId = result.insertId;
@@ -187,12 +192,14 @@ export async function POST(request: NextRequest) {
         const journalLines = [
           {
             account_id: customersAccId,
+            cost_center_id: cost_center_id || undefined,
             description: `فاتورة مبيعات رقم ${invoice_number} - ${client.company_name || client.customer_name}`,
             debit: totalWithVat,
             credit: 0
           },
           {
             account_id: salesAccId,
+            cost_center_id: cost_center_id || undefined,
             description: `إيراد مبيعات فاتورة ${invoice_number}`,
             debit: 0,
             credit: totalWithVat - totalVat
@@ -202,6 +209,7 @@ export async function POST(request: NextRequest) {
         if (totalVat > 0) {
           journalLines.push({
             account_id: vatAccId,
+            cost_center_id: cost_center_id || undefined,
             description: `ضريبة مخرجات فاتورة ${invoice_number}`,
             debit: 0,
             credit: totalVat
