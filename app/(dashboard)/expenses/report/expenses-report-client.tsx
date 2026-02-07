@@ -24,12 +24,18 @@ import {
   ExternalLink,
   Trash2,
   Pencil,
-  AlertTriangle,
-  CheckCircle2,
-  X,
-  Save,
-  Loader2,
-} from "lucide-react";
+    AlertTriangle,
+    CheckCircle2,
+    X,
+    Save,
+    Loader2,
+    DollarSign,
+    Ban,
+    ArrowRightLeft,
+    Hash,
+    User,
+    CreditCard,
+  } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -1254,6 +1260,129 @@ Object.entries(deductionsGrouped).map(([group, deductions], groupIdx) => {
                   className="bg-slate-200 text-slate-700 px-8 py-3 rounded-xl font-bold hover:bg-slate-300 transition-all active:scale-95 disabled:opacity-50"
                 >
                   إلغاء
+                </button>
+              </div>
+            </div>
+          </motion.div>
+        </>
+      )}
+    </AnimatePresence>
+
+    {/* Luxury Payment Confirmation Modal */}
+    <AnimatePresence>
+      {paymentConfirm.show && paymentConfirm.deduction && (
+        <>
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/60 backdrop-blur-md z-[9998]"
+            onClick={() => setPaymentConfirm(prev => ({ ...prev, show: false }))}
+          />
+          <motion.div
+            initial={{ opacity: 0, scale: 0.8, y: 50 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.8, y: 50 }}
+            transition={{ type: "spring", duration: 0.5 }}
+            className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[9999] w-[90%] max-w-[480px]"
+            dir="rtl"
+          >
+            <div className="bg-white rounded-3xl shadow-2xl overflow-hidden border border-slate-100">
+              {/* Header */}
+              <div className={`p-6 text-center ${paymentConfirm.newStatus === 'completed' ? 'bg-gradient-to-r from-emerald-600 to-teal-600' : 'bg-gradient-to-r from-orange-500 to-amber-500'}`}>
+                <motion.div
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  transition={{ type: "spring", delay: 0.2 }}
+                  className="w-20 h-20 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4"
+                >
+                  {paymentConfirm.newStatus === 'completed' ? (
+                    <DollarSign className="w-10 h-10 text-white" />
+                  ) : (
+                    <Ban className="w-10 h-10 text-white" />
+                  )}
+                </motion.div>
+                <h2 className="text-2xl font-black text-white">
+                  {paymentConfirm.newStatus === 'completed' ? 'تأكيد الدفع' : 'إلغاء الدفع'}
+                </h2>
+                <p className={`mt-2 text-sm ${paymentConfirm.newStatus === 'completed' ? 'text-emerald-200' : 'text-amber-200'}`}>
+                  {paymentConfirm.newStatus === 'completed' 
+                    ? 'هل تريد تأكيد دفع هذا الاستقطاع؟' 
+                    : 'هل تريد إلغاء حالة الدفع وإعادتها لغير مدفوع؟'}
+                </p>
+              </div>
+              
+              {/* Details */}
+              <div className="p-6">
+                <div className={`border rounded-2xl p-4 space-y-3 ${paymentConfirm.newStatus === 'completed' ? 'bg-emerald-50 border-emerald-100' : 'bg-amber-50 border-amber-100'}`}>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Hash className="w-3.5 h-3.5 text-slate-400" />
+                      <span className="text-xs text-slate-500 font-bold">الترتيب</span>
+                    </div>
+                    <span className="text-sm font-black text-slate-800">#{paymentConfirm.deduction.id}</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <ArrowRightLeft className="w-3.5 h-3.5 text-slate-400" />
+                      <span className="text-xs text-slate-500 font-bold">العملية</span>
+                    </div>
+                    <span className="text-sm font-black text-slate-800">{paymentConfirm.deduction.deduction_type || '-'}</span>
+                  </div>
+                  {paymentConfirm.deduction.employee_name && (
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <User className="w-3.5 h-3.5 text-slate-400" />
+                        <span className="text-xs text-slate-500 font-bold">الموظف</span>
+                      </div>
+                      <span className="text-sm font-bold text-slate-700">{paymentConfirm.deduction.employee_name}</span>
+                    </div>
+                  )}
+                  <div className={`flex items-center justify-between border-t pt-3 ${paymentConfirm.newStatus === 'completed' ? 'border-emerald-200' : 'border-amber-200'}`}>
+                    <div className="flex items-center gap-2">
+                      <CreditCard className="w-3.5 h-3.5 text-slate-400" />
+                      <span className="text-xs text-slate-500 font-bold">المبلغ</span>
+                    </div>
+                    <span className={`text-lg font-black ${paymentConfirm.newStatus === 'completed' ? 'text-emerald-700' : 'text-amber-700'}`}>
+                      {formatNumber(paymentConfirm.deduction.amount || 0)} SAR
+                    </span>
+                  </div>
+                </div>
+                
+                {/* Status Change Indicator */}
+                <div className="mt-4 flex items-center justify-center gap-3">
+                  <div className={`px-4 py-2 rounded-xl text-xs font-black ${paymentConfirm.deduction.status === 'completed' ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700'}`}>
+                    {paymentConfirm.deduction.status === 'completed' ? 'مدفوع' : 'غير مدفوع'}
+                  </div>
+                  <ArrowRightLeft className="w-5 h-5 text-slate-400" />
+                  <div className={`px-4 py-2 rounded-xl text-xs font-black ${paymentConfirm.newStatus === 'completed' ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700'}`}>
+                    {paymentConfirm.newStatus === 'completed' ? 'مدفوع' : 'غير مدفوع'}
+                  </div>
+                </div>
+              </div>
+              
+              {/* Actions */}
+              <div className="p-4 bg-slate-50 border-t border-slate-100 flex gap-3 justify-center">
+                <button
+                  onClick={executePaymentStatusChange}
+                  className={`text-white px-8 py-3 rounded-xl font-bold transition-all shadow-lg active:scale-95 flex items-center gap-2 ${
+                    paymentConfirm.newStatus === 'completed'
+                      ? 'bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 shadow-emerald-200'
+                      : 'bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 shadow-amber-200'
+                  }`}
+                >
+                  {paymentConfirm.newStatus === 'completed' ? (
+                    <CheckCircle2 className="w-5 h-5" />
+                  ) : (
+                    <Ban className="w-5 h-5" />
+                  )}
+                  {paymentConfirm.newStatus === 'completed' ? 'تأكيد الدفع' : 'إلغاء الدفع'}
+                </button>
+                <button
+                  onClick={() => setPaymentConfirm(prev => ({ ...prev, show: false }))}
+                  className="bg-slate-200 text-slate-700 px-8 py-3 rounded-xl font-bold hover:bg-slate-300 transition-all active:scale-95"
+                >
+                  تراجع
                 </button>
               </div>
             </div>
