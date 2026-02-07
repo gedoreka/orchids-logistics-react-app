@@ -19,11 +19,13 @@ import {
   Download,
   ReceiptText,
   CheckCircle2,
-  Ban
+  Ban,
+  ShieldAlert,
+  X,
+  CheckCircle
 } from "lucide-react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
-import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { ar, enUS } from "date-fns/locale";
@@ -51,6 +53,11 @@ export function CreditNotesListClient({ creditNotes: initialNotes }: CreditNotes
   const { locale } = useLocale();
   const [creditNotes, setCreditNotes] = useState(initialNotes);
   const [searchTerm, setSearchTerm] = useState("");
+  const [premiumModal, setPremiumModal] = useState<{
+    show: boolean;
+    noteNumber?: string;
+    invoiceNumber?: string;
+  }>({ show: false });
 
   const filteredNotes = creditNotes.filter(note => 
     note.credit_note_number.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -62,22 +69,8 @@ export function CreditNotesListClient({ creditNotes: initialNotes }: CreditNotes
   const totalAmount = activeNotes.reduce((sum, n) => sum + parseFloat(String(n.total_amount)), 0);
   const totalVat = activeNotes.reduce((sum, n) => sum + parseFloat(String(n.vat_amount)), 0);
 
-  const handleCancel = async (id: number) => {
-    if (!confirm(t('new.confirmCancel'))) return;
-
-    try {
-      const res = await fetch(`/api/credit-notes/${id}`, { method: 'DELETE' });
-      const data = await res.json();
-      
-      if (data.success) {
-        toast.success(t('new.cancelSuccess'));
-        setCreditNotes(prev => prev.map(n => n.id === id ? { ...n, status: 'cancelled' } : n));
-      } else {
-        toast.error(data.error || t('new.cancelError'));
-      }
-    } catch (err) {
-      toast.error(t('new.connectionError'));
-    }
+  const handleCancel = (id: number, noteNumber: string, invoiceNumber: string) => {
+    setPremiumModal({ show: true, noteNumber, invoiceNumber });
   };
 
   const containerVariants = {
@@ -95,9 +88,96 @@ export function CreditNotesListClient({ creditNotes: initialNotes }: CreditNotes
 
   const dateLocale = locale === 'ar' ? ar : enUS;
 
-  return (
+    return (
     <div className="min-h-screen pb-20 bg-transparent">
-      <motion.div 
+      {/* Premium Modal - Cannot Delete Credit Note */}
+      <AnimatePresence>
+        {premiumModal.show && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[200] flex items-center justify-center p-4"
+          >
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="absolute inset-0 bg-black/70 backdrop-blur-sm"
+              onClick={() => setPremiumModal({ show: false })}
+            />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.8, y: 30 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.8, y: 30 }}
+              transition={{ type: "spring", damping: 25, stiffness: 300 }}
+              className="relative w-full max-w-md"
+            >
+              <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-amber-950 via-amber-900 to-orange-950 border border-amber-500/30 shadow-2xl shadow-amber-500/20">
+                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-amber-500 via-orange-500 to-amber-500" />
+                <div className="absolute -top-20 -right-20 w-48 h-48 bg-amber-500/10 rounded-full blur-3xl" />
+                <div className="absolute -bottom-20 -left-20 w-48 h-48 bg-orange-500/10 rounded-full blur-3xl" />
+                
+                <div className="relative p-8 text-center space-y-5">
+                  <button
+                    onClick={() => setPremiumModal({ show: false })}
+                    className="absolute top-4 left-4 p-2 rounded-xl bg-white/10 text-white/60 hover:bg-white/20 hover:text-white transition-all"
+                  >
+                    <X size={16} />
+                  </button>
+
+                  <motion.div
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    transition={{ type: "spring", damping: 15, stiffness: 200, delay: 0.2 }}
+                    className="mx-auto h-20 w-20 rounded-2xl bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center shadow-xl shadow-amber-500/30 border border-white/10"
+                  >
+                    <ShieldAlert size={40} className="text-white" />
+                  </motion.div>
+
+                  <div className="space-y-2">
+                    <h3 className="text-xl font-black text-white">لا يمكن حذف إشعار الدائن</h3>
+                    <div className="flex flex-wrap justify-center gap-2">
+                      {premiumModal.noteNumber && (
+                        <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-white/10 rounded-full border border-white/10">
+                          <ReceiptText size={14} className="text-amber-400" />
+                          <span className="text-sm font-bold text-amber-300">{premiumModal.noteNumber}</span>
+                        </div>
+                      )}
+                      {premiumModal.invoiceNumber && (
+                        <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-white/10 rounded-full border border-white/10">
+                          <FileText size={14} className="text-rose-400" />
+                          <span className="text-sm font-bold text-rose-300">{premiumModal.invoiceNumber}</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="bg-white/5 rounded-2xl p-4 border border-white/10 space-y-3 text-right">
+                    <p className="text-sm text-amber-200 font-bold leading-relaxed">
+                      إشعار الدائن مرتبط بفاتورة ضريبية ولا يمكن حذفه أو إلغاؤه لأنه مسجل في النظام المحاسبي.
+                    </p>
+                    <div className="h-px bg-white/10" />
+                    <p className="text-sm text-emerald-300 font-bold leading-relaxed flex items-start gap-2">
+                      <CheckCircle size={16} className="mt-0.5 shrink-0 text-emerald-400" />
+                      <span>يمكنك استرداد المبلغ عبر إصدار <strong className="text-white">فاتورة مرتجع جديدة</strong> إذا لزم الأمر.</span>
+                    </p>
+                  </div>
+
+                  <button
+                    onClick={() => setPremiumModal({ show: false })}
+                    className="w-full px-5 py-3 rounded-2xl bg-white/10 text-white font-black text-sm border border-white/10 hover:bg-white/20 transition-all active:scale-95"
+                  >
+                    فهمت
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <motion.div
         variants={containerVariants}
         initial="hidden"
         animate="visible"
@@ -352,13 +432,13 @@ export function CreditNotesListClient({ creditNotes: initialNotes }: CreditNotes
                                 <FileDown size={18} />
                               </motion.button>
                               {note.status === 'active' && (
-                                <motion.button 
-                                  whileHover={{ scale: 1.15, rotate: 10 }}
-                                  whileTap={{ scale: 0.9 }}
-                                  onClick={() => handleCancel(note.id)}
-                                  className="p-2.5 text-rose-400 hover:bg-rose-500/10 rounded-xl transition-all border border-transparent hover:border-rose-500/20" 
-                                  title={t('cancelNote')}
-                                >
+                                  <motion.button 
+                                    whileHover={{ scale: 1.15, rotate: 10 }}
+                                    whileTap={{ scale: 0.9 }}
+                                    onClick={() => handleCancel(note.id, note.credit_note_number, note.invoice_number)}
+                                    className="p-2.5 text-rose-400 hover:bg-rose-500/10 rounded-xl transition-all border border-transparent hover:border-rose-500/20" 
+                                    title={t('cancelNote')}
+                                  >
                                   <XCircle size={18} />
                                 </motion.button>
                               )}

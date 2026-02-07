@@ -1758,3 +1758,18 @@ Import trace:
   Server Component:
     ./app/(dashboard)/sales-invoices/[id]/invoice-view-client.tsx
     ./app/(dashboard)/sales-invoices/[id]/page.tsx
+2026-02-07T02:54:56.221Z [console][error] You are trying to animate  from "0" to "166568.00". "166568.00" is not an animatable value.. For more information and steps for solving, visit https://motion.dev/troubleshooting/value-not-animatable
+2026-02-07T02:54:56.222Z [console][error] You are trying to animate  from "0" to "14676.00". "14676.00" is not an animatable value.. For more information and steps for solving, visit https://motion.dev/troubleshooting/value-not-animatable
+2026-02-07T02:55:41.236Z [console][error] Network error fetching chat: Failed to fetch
+2026-02-07T02:56:07.442Z [console][error] You are trying to animate  from "0" to "166568.00". "166568.00" is not an animatable value.. For more information and steps for solving, visit https://motion.dev/troubleshooting/value-not-animatable
+2026-02-07T02:56:07.442Z [console][error] You are trying to animate  from "0" to "14676.00". "14676.00" is not an animatable value.. For more information and steps for solving, visit https://motion.dev/troubleshooting/value-not-animatable
+2026-02-07T03:02:48.493Z [console][error] Network error fetching chat: Failed to fetch
+2026-02-07T03:02:51.092Z [console][error] 'oklab(0.999994 0.0000455678 0.0000200868 / 0.05)' is not an animatable color. Use the equivalent color code instead.. For more information and steps for solving, visit https://motion.dev/troubleshooting/color-not-animatable
+2026-02-07T02:54:56.221Z [console][error] You are trying to animate  from "0" to "166568.00". "166568.00" is not an animatable value.. For more information and steps for solving, visit https://motion.dev/troubleshooting/value-not-animatable
+2026-02-07T02:54:56.222Z [console][error] You are trying to animate  from "0" to "14676.00". "14676.00" is not an animatable value.. For more information and steps for solving, visit https://motion.dev/troubleshooting/value-not-animatable
+2026-02-07T02:55:41.236Z [console][error] Network error fetching chat: Failed to fetch
+2026-02-07T02:56:07.442Z [console][error] You are trying to animate  from "0" to "166568.00". "166568.00" is not an animatable value.. For more information and steps for solving, visit https://motion.dev/troubleshooting/value-not-animatable
+2026-02-07T02:56:07.442Z [console][error] You are trying to animate  from "0" to "14676.00". "14676.00" is not an animatable value.. For more information and steps for solving, visit https://motion.dev/troubleshooting/value-not-animatable
+2026-02-07T03:02:48.493Z [console][error] Network error fetching chat: Failed to fetch
+2026-02-07T03:02:51.092Z [console][error] 'oklab(0.999994 0.0000455678 0.0000200868 / 0.05)' is not an animatable color. Use the equivalent color code instead.. For more information and steps for solving, visit https://motion.dev/troubleshooting/color-not-animatable
+2026-02-07T03:10:46.045Z [console][error] 'oklab(0.999994 0.0000455678 0.0000200868 / 0.05)' is not an animatable color. Use the equivalent color code instead.. For more information and steps for solving, visit https://motion.dev/troubleshooting/color-not-animatable

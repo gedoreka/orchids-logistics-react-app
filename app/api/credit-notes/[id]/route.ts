@@ -89,10 +89,10 @@ export async function DELETE(
       return NextResponse.json({ error: "غير مصرح" }, { status: 401 });
     }
 
-    // Cancel credit note: update status and set cancelled_at
+    // Cancel credit note: update status
     const result = await execute(`
       UPDATE credit_notes 
-      SET status = 'cancelled', cancelled_at = NOW() 
+      SET status = 'cancelled'
       WHERE id = ? AND company_id = ? AND status = 'active'
     `, [id, companyId]);
 

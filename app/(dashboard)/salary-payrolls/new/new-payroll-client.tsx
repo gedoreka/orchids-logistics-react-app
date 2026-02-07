@@ -26,7 +26,15 @@ import {
   Square,
   Trash2,
   RefreshCw,
-  CreditCard
+  CreditCard,
+  ChevronLeft,
+  ChevronDown,
+  BookOpen,
+  Building2,
+  Folder,
+  FolderOpen,
+  Hash,
+  CircleDot
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -99,6 +107,29 @@ interface EmployeeRow {
   selected: boolean;
   has_debt: boolean;
   debt_amount: number;
+}
+
+interface Account {
+  id: number;
+  account_code: string;
+  account_name: string;
+  type: string;
+  parent_id: number | null;
+  account_type: 'main' | 'sub';
+  account_level: number;
+  parent_account: string | null;
+  children?: Account[];
+}
+
+interface CostCenterItem {
+  id: number;
+  center_code: string;
+  center_name: string;
+  parent_id: number | null;
+  center_type: 'main' | 'sub';
+  center_level: number;
+  parent_center: string | null;
+  children?: CostCenterItem[];
 }
 
 interface NewPayrollClientProps {

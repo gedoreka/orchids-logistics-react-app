@@ -19,7 +19,10 @@ import {
   Calendar,
   AlertCircle,
   Loader2,
-  Banknote
+  Banknote,
+  ShieldAlert,
+  ReceiptText,
+  X
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -59,6 +62,10 @@ export function InvoicesListClient({ invoices }: InvoicesListClientProps) {
     type: "success" | "error";
     message: string;
   }>({ show: false, type: "success", message: "" });
+  const [premiumModal, setPremiumModal] = useState<{
+    show: boolean;
+    invoiceNumber?: string;
+  }>({ show: false });
 
   const stats = useMemo(() => {
     let totalSubtotal = 0;
@@ -137,10 +144,9 @@ export function InvoicesListClient({ invoices }: InvoicesListClientProps) {
     }
   };
 
-  const handleDelete = async (invoiceId: number, status: string) => {
+  const handleDelete = async (invoiceId: number, status: string, invoiceNumber?: string) => {
     if (status !== 'draft') {
-      setNotification({ show: true, type: "error", message: t("deleteDraftOnly") });
-      setTimeout(() => setNotification({ show: false, type: "success", message: "" }), 3000);
+      setPremiumModal({ show: true, invoiceNumber: invoiceNumber || '' });
       return;
     }
 
@@ -190,8 +196,94 @@ export function InvoicesListClient({ invoices }: InvoicesListClientProps) {
     }
   };
 
-  return (
+    return (
     <div className="w-full h-full min-h-screen px-3 py-4 md:px-6 md:py-6 space-y-6">
+      {/* Premium Modal - Cannot Delete Tax Invoice */}
+      <AnimatePresence>
+        {premiumModal.show && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[200] flex items-center justify-center p-4"
+          >
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="absolute inset-0 bg-black/70 backdrop-blur-sm"
+              onClick={() => setPremiumModal({ show: false })}
+            />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.8, y: 30 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.8, y: 30 }}
+              transition={{ type: "spring", damping: 25, stiffness: 300 }}
+              className="relative w-full max-w-md"
+            >
+              <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-rose-950 via-rose-900 to-pink-950 border border-rose-500/30 shadow-2xl shadow-rose-500/20">
+                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-rose-500 via-pink-500 to-rose-500" />
+                <div className="absolute -top-20 -right-20 w-48 h-48 bg-rose-500/10 rounded-full blur-3xl" />
+                <div className="absolute -bottom-20 -left-20 w-48 h-48 bg-pink-500/10 rounded-full blur-3xl" />
+                
+                <div className="relative p-8 text-center space-y-5">
+                  <button
+                    onClick={() => setPremiumModal({ show: false })}
+                    className="absolute top-4 left-4 p-2 rounded-xl bg-white/10 text-white/60 hover:bg-white/20 hover:text-white transition-all"
+                  >
+                    <X size={16} />
+                  </button>
+
+                  <motion.div
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    transition={{ type: "spring", damping: 15, stiffness: 200, delay: 0.2 }}
+                    className="mx-auto h-20 w-20 rounded-2xl bg-gradient-to-br from-rose-500 to-pink-600 flex items-center justify-center shadow-xl shadow-rose-500/30 border border-white/10"
+                  >
+                    <ShieldAlert size={40} className="text-white" />
+                  </motion.div>
+
+                  <div className="space-y-2">
+                    <h3 className="text-xl font-black text-white">لا يمكن حذف الفاتورة الضريبية</h3>
+                    {premiumModal.invoiceNumber && (
+                      <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-white/10 rounded-full border border-white/10">
+                        <ReceiptText size={14} className="text-rose-400" />
+                        <span className="text-sm font-bold text-rose-300">{premiumModal.invoiceNumber}</span>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="bg-white/5 rounded-2xl p-4 border border-white/10 space-y-3 text-right">
+                    <p className="text-sm text-rose-200 font-bold leading-relaxed">
+                      الفواتير الضريبية المستحقة أو المدفوعة لا يمكن حذفها وفقاً لنظام هيئة الزكاة والضريبة والجمارك (ZATCA).
+                    </p>
+                    <div className="h-px bg-white/10" />
+                    <p className="text-sm text-emerald-300 font-bold leading-relaxed flex items-start gap-2">
+                      <CheckCircle size={16} className="mt-0.5 shrink-0 text-emerald-400" />
+                      <span>يمكنك استرداد المبلغ عبر إنشاء <strong className="text-white">إشعار دائن (مرتجع)</strong> من صفحة تفاصيل الفاتورة.</span>
+                    </p>
+                  </div>
+
+                  <div className="flex gap-3 pt-2">
+                    <button
+                      onClick={() => setPremiumModal({ show: false })}
+                      className="flex-1 px-5 py-3 rounded-2xl bg-white/10 text-white font-black text-sm border border-white/10 hover:bg-white/20 transition-all active:scale-95"
+                    >
+                      فهمت
+                    </button>
+                    <Link href="/credit-notes/new" className="flex-1">
+                      <button className="w-full px-5 py-3 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-500 text-white font-black text-sm shadow-lg shadow-emerald-500/20 hover:shadow-emerald-500/40 transition-all active:scale-95">
+                        إنشاء مرتجع
+                      </button>
+                    </Link>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       <AnimatePresence>
         {notification.show && (
           <motion.div
@@ -461,7 +553,7 @@ export function InvoicesListClient({ invoices }: InvoicesListClientProps) {
                               )}
 
                               <button 
-                                onClick={() => handleDelete(inv.id, status)}
+                                onClick={() => handleDelete(inv.id, status, inv.invoice_number)}
                                 disabled={loading === inv.id}
                                 className="h-8 w-8 rounded-lg bg-rose-500/10 text-rose-400 flex items-center justify-center hover:bg-rose-500 hover:text-white transition-all shadow-lg active:scale-95 disabled:opacity-50"
                                 title={tc("delete")}

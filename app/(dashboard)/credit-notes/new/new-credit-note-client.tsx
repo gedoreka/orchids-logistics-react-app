@@ -22,10 +22,13 @@ import {
   ChevronDown,
   Loader2,
   CheckCircle,
+  CheckCircle2,
   AlertCircle,
   Receipt,
   TrendingDown,
-  ChevronLeft
+  ChevronLeft,
+  FileCheck,
+  X
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -56,72 +59,92 @@ export function NewCreditNoteClient({ invoices }: NewCreditNoteClientProps) {
   const [selectedInvoiceId, setSelectedInvoiceId] = useState<string>("");
   const [reason, setReason] = useState("");
   const [amount, setAmount] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [notification, setNotification] = useState<{
-    show: boolean;
-    type: "success" | "error" | "loading";
-    title: string;
-    message: string;
-  }>({ show: false, type: "success", title: "", message: "" });
+    const [loading, setLoading] = useState(false);
+    
+    // Premium Modal States
+    const [confirmModal, setConfirmModal] = useState(false);
+    const [savingModal, setSavingModal] = useState<{
+      isOpen: boolean;
+      status: 'saving' | 'success' | 'error';
+      creditNoteId?: number;
+      message?: string;
+    }>({ isOpen: false, status: 'saving' });
 
-  const selectedInvoice = invoices.find(inv => inv.id === parseInt(selectedInvoiceId));
-  const availableAmount = selectedInvoice 
-    ? parseFloat(String(selectedInvoice.total_amount)) - parseFloat(String(selectedInvoice.total_issued))
-    : 0;
+    const selectedInvoice = invoices.find(inv => inv.id === parseInt(selectedInvoiceId));
+    const availableAmount = selectedInvoice 
+      ? parseFloat(String(selectedInvoice.total_amount)) - parseFloat(String(selectedInvoice.total_issued))
+      : 0;
 
-  const calculations = useMemo(() => {
-    const total = parseFloat(amount) || 0;
-    const vatAmount = total * 0.15 / 1.15;
-    const beforeVat = total - vatAmount;
-    return { vatAmount, beforeVat, total };
-  }, [amount]);
+    const calculations = useMemo(() => {
+      const total = parseFloat(amount) || 0;
+      const vatAmount = total * 0.15 / 1.15;
+      const beforeVat = total - vatAmount;
+      return { vatAmount, beforeVat, total };
+    }, [amount]);
 
-  const showNotification = (type: "success" | "error" | "loading", title: string, message: string) => {
-    setNotification({ show: true, type, title, message });
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!selectedInvoiceId || !reason || !amount) {
-      toast.error(t('new.fillingRequired'));
-      return;
-    }
-
-    if (parseFloat(amount) > availableAmount) {
-      toast.error(`${t('new.amountExceedsLimit')} (${availableAmount.toFixed(2)} ${locale === 'ar' ? 'ريال' : 'SAR'})`);
-      return;
-    }
-
-    setLoading(true);
-    showNotification("loading", t('new.saving'), t('new.creatingNote'));
-
-    try {
-      const res = await fetch("/api/credit-notes", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          invoice_id: parseInt(selectedInvoiceId),
-          reason,
-          total_with_vat: parseFloat(amount)
-        })
-      });
-
-      const data = await res.json();
-      if (data.success) {
-        showNotification("success", t('new.save'), t('new.saveSuccess'));
-        setTimeout(() => {
-          router.push("/credit-notes");
-          router.refresh();
-        }, 1500);
-      } else {
-        showNotification("error", t('errors.error') || 'Error', data.error || t('new.saveError'));
+    // Open confirm modal
+    const handleSaveClick = (e: React.FormEvent) => {
+      e.preventDefault();
+      if (!selectedInvoiceId || !reason || !amount) {
+        toast.error(t('new.fillingRequired'));
+        return;
       }
-    } catch (err) {
-      showNotification("error", t('errors.error') || 'Error', t('new.connectionError'));
-    } finally {
-      setLoading(false);
-    }
-  };
+      if (parseFloat(amount) > availableAmount) {
+        toast.error(`${t('new.amountExceedsLimit')} (${availableAmount.toFixed(2)} ${locale === 'ar' ? 'ريال' : 'SAR'})`);
+        return;
+      }
+      setConfirmModal(true);
+    };
+
+    // Execute save after confirmation
+    const confirmSave = async () => {
+      setConfirmModal(false);
+      setSavingModal({ isOpen: true, status: 'saving' });
+      setLoading(true);
+
+      try {
+        const res = await fetch("/api/credit-notes", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            invoice_id: parseInt(selectedInvoiceId),
+            reason,
+            total_with_vat: parseFloat(amount)
+          })
+        });
+
+        const data = await res.json();
+        if (data.success) {
+          setSavingModal({ 
+            isOpen: true, 
+            status: 'success',
+            creditNoteId: data.credit_note_id || data.id,
+            message: data.message || t('new.saveSuccess')
+          });
+        } else {
+          setSavingModal({ 
+            isOpen: true, 
+            status: 'error',
+            message: data.error || t('new.saveError')
+          });
+        }
+      } catch (err) {
+        setSavingModal({ 
+          isOpen: true, 
+          status: 'error',
+          message: t('new.connectionError')
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    // Go to credit notes list
+    const goToCreditNotes = () => {
+      router.push("/credit-notes");
+      router.refresh();
+      setSavingModal({ isOpen: false, status: 'saving' });
+    };
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -136,32 +159,314 @@ export function NewCreditNoteClient({ invoices }: NewCreditNoteClientProps) {
     visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: "easeOut" } }
   };
 
-  return (
-    <div className="min-h-screen pb-20 bg-transparent">
-      <AnimatePresence>
-        {notification.show && (
-          <motion.div
-            initial={{ opacity: 0, y: -50, x: "-50%" }}
-            animate={{ opacity: 1, y: 0, x: "-50%" }}
-            exit={{ opacity: 0, y: -50, x: "-50%" }}
-            className={`fixed top-6 left-1/2 z-50 px-6 py-3 rounded-2xl shadow-2xl ${
-              notification.type === "success" 
-                ? "bg-gradient-to-r from-emerald-600 to-green-600" 
-                : notification.type === "error" 
-                ? "bg-gradient-to-r from-rose-600 to-red-600" 
-                : "bg-gradient-to-r from-blue-600 to-indigo-600"
-            } text-white font-bold flex items-center gap-3 border border-white/20 backdrop-blur-md`}
-          >
-            {notification.type === "success" && <CheckCircle size={18} />}
-            {notification.type === "error" && <AlertCircle size={18} />}
-            {notification.type === "loading" && <Loader2 size={18} className="animate-spin" />}
-            <div>
-              <p className="font-black text-sm">{notification.title}</p>
-              <p className="text-xs opacity-90">{notification.message}</p>
+    return (
+      <div className="min-h-screen pb-20 bg-transparent">
+        {/* Confirm Save Modal */}
+        <AnimatePresence>
+          {confirmModal && (
+            <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                onClick={() => setConfirmModal(false)}
+                className="absolute inset-0 bg-slate-950/90 backdrop-blur-2xl"
+              />
+              <motion.div
+                initial={{ opacity: 0, scale: 0.8, y: 50 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.8, y: 50 }}
+                transition={{ type: "spring", damping: 25, stiffness: 300 }}
+                className="relative w-full max-w-lg bg-white dark:bg-slate-900 rounded-[3rem] shadow-[0_0_100px_rgba(244,63,94,0.3)] overflow-hidden border-4 border-rose-500/20"
+              >
+                {/* Header */}
+                <div className="relative bg-gradient-to-br from-rose-500 via-pink-600 to-rose-700 p-10 text-white text-center overflow-hidden">
+                  <div className="absolute inset-0 opacity-10">
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
+                  </div>
+                  
+                  <motion.div
+                    initial={{ scale: 0, rotate: -180 }}
+                    animate={{ scale: 1, rotate: 0 }}
+                    transition={{ delay: 0.2, type: "spring", damping: 15 }}
+                    className="relative z-10 mx-auto w-24 h-24 bg-white/20 backdrop-blur-xl rounded-full flex items-center justify-center mb-6 shadow-2xl border-4 border-white/30"
+                  >
+                    <motion.div
+                      animate={{ scale: [1, 1.1, 1] }}
+                      transition={{ repeat: Infinity, duration: 2 }}
+                    >
+                      <FileCheck size={48} className="text-white drop-shadow-lg" />
+                    </motion.div>
+                  </motion.div>
+                  
+                  <motion.h3
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.3 }}
+                    className="text-3xl font-black tracking-tight relative z-10"
+                  >
+                    تأكيد حفظ الإشعار
+                  </motion.h3>
+                  <motion.p
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.4 }}
+                    className="text-white/80 font-bold mt-2 relative z-10"
+                  >
+                    سيتم إصدار إشعار دائن ضريبي رسمياً
+                  </motion.p>
+                </div>
+
+                {/* Content */}
+                <div className="p-8 text-center space-y-6">
+                  <div className="bg-rose-50 dark:bg-rose-950/30 rounded-2xl p-6 border-2 border-rose-100 dark:border-rose-900/50">
+                    <p className="text-slate-700 dark:text-slate-300 font-bold text-lg leading-relaxed">
+                      هل أنت متأكد من حفظ الإشعار؟
+                    </p>
+                    <p className="text-rose-600 dark:text-rose-400 font-black text-xl mt-2">
+                      مرجع الفاتورة: {selectedInvoice?.invoice_number || '---'}
+                    </p>
+                    <div className="mt-4 pt-4 border-t border-rose-200 dark:border-rose-800 flex justify-center gap-6">
+                      <div className="text-center">
+                        <p className="text-xs text-slate-400 font-bold">المبلغ الإجمالي</p>
+                        <p className="text-lg font-black text-rose-600">{calculations.total.toLocaleString('en-US', { minimumFractionDigits: 2 })} {locale === 'ar' ? 'ريال' : 'SAR'}</p>
+                      </div>
+                      <div className="text-center">
+                        <p className="text-xs text-slate-400 font-bold">الضريبة</p>
+                        <p className="text-lg font-black text-amber-600">{calculations.vatAmount.toLocaleString('en-US', { minimumFractionDigits: 2 })} {locale === 'ar' ? 'ريال' : 'SAR'}</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <p className="text-slate-500 font-bold text-sm">
+                    سيتم إصدار الإشعار وخصمه من الفاتورة المرتبطة
+                  </p>
+
+                  {/* Buttons */}
+                  <div className="flex gap-4 pt-4">
+                    <motion.button
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      onClick={() => setConfirmModal(false)}
+                      className="flex-1 flex items-center justify-center gap-3 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 py-4 rounded-2xl font-black text-lg hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
+                    >
+                      <X size={20} />
+                      إلغاء
+                    </motion.button>
+                    <motion.button
+                      whileHover={{ scale: 1.02, boxShadow: "0 20px 40px rgba(244, 63, 94, 0.4)" }}
+                      whileTap={{ scale: 0.98 }}
+                      onClick={confirmSave}
+                      disabled={loading}
+                      className="flex-1 flex items-center justify-center gap-3 bg-gradient-to-r from-rose-500 via-pink-600 to-rose-600 text-white py-4 rounded-2xl font-black text-lg shadow-xl shadow-rose-500/30 disabled:opacity-50 border-b-4 border-rose-700/50"
+                    >
+                      {loading ? (
+                        <div className="h-6 w-6 border-3 border-white/30 border-t-white rounded-full animate-spin" />
+                      ) : (
+                        <>
+                          <Save size={20} />
+                          نعم، احفظ
+                        </>
+                      )}
+                    </motion.button>
+                  </div>
+                </div>
+              </motion.div>
             </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+          )}
+        </AnimatePresence>
+
+        {/* Saving/Success/Error Modal */}
+        <AnimatePresence>
+          {savingModal.isOpen && (
+            <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="absolute inset-0 bg-slate-950/90 backdrop-blur-2xl"
+              />
+              <motion.div
+                initial={{ opacity: 0, scale: 0.5 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.5 }}
+                transition={{ type: "spring", damping: 20, stiffness: 300 }}
+                className={cn(
+                  "relative w-full max-w-lg bg-white dark:bg-slate-900 rounded-[3rem] shadow-2xl overflow-hidden border-4",
+                  savingModal.status === 'saving' 
+                    ? "border-blue-500/20 shadow-[0_0_100px_rgba(59,130,246,0.3)]"
+                    : savingModal.status === 'success'
+                    ? "border-emerald-500/20 shadow-[0_0_100px_rgba(16,185,129,0.3)]"
+                    : "border-red-500/20 shadow-[0_0_100px_rgba(239,68,68,0.3)]"
+                )}
+              >
+                {/* Header */}
+                <div className={cn(
+                  "relative p-10 text-white text-center overflow-hidden",
+                  savingModal.status === 'saving'
+                    ? "bg-gradient-to-br from-blue-500 via-indigo-600 to-blue-700"
+                    : savingModal.status === 'success'
+                    ? "bg-gradient-to-br from-emerald-500 via-teal-600 to-emerald-700"
+                    : "bg-gradient-to-br from-red-500 via-rose-600 to-red-700"
+                )}>
+                  {/* Animated particles for success */}
+                  {savingModal.status === 'success' && (
+                    <div className="absolute inset-0 overflow-hidden">
+                      {[...Array(6)].map((_, i) => (
+                        <motion.div
+                          key={i}
+                          initial={{ y: 100, opacity: 0 }}
+                          animate={{ 
+                            y: -100, 
+                            opacity: [0, 1, 0],
+                            x: Math.random() * 100 - 50
+                          }}
+                          transition={{ 
+                            delay: i * 0.2, 
+                            duration: 2,
+                            repeat: Infinity,
+                            repeatDelay: 1
+                          }}
+                          className="absolute"
+                          style={{ left: `${15 + i * 15}%` }}
+                        >
+                          <Sparkles size={20} className="text-white/40" />
+                        </motion.div>
+                      ))}
+                    </div>
+                  )}
+
+                  <motion.div
+                    initial={{ scale: 0, rotate: -180 }}
+                    animate={{ scale: 1, rotate: 0 }}
+                    transition={{ delay: 0.1, type: "spring", damping: 12 }}
+                    className="relative z-10 mx-auto w-28 h-28 bg-white/20 backdrop-blur-xl rounded-full flex items-center justify-center mb-6 shadow-2xl border-4 border-white/30"
+                  >
+                    {savingModal.status === 'saving' ? (
+                      <motion.div
+                        animate={{ rotate: 360 }}
+                        transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                      >
+                        <Loader2 size={56} className="text-white drop-shadow-lg" />
+                      </motion.div>
+                    ) : savingModal.status === 'success' ? (
+                      <motion.div
+                        initial={{ scale: 0 }}
+                        animate={{ scale: [0, 1.2, 1] }}
+                        transition={{ delay: 0.3, duration: 0.5 }}
+                      >
+                        <CheckCircle2 size={56} className="text-white drop-shadow-lg" />
+                      </motion.div>
+                    ) : (
+                      <motion.div
+                        animate={{ scale: [1, 1.1, 1] }}
+                        transition={{ repeat: Infinity, duration: 2 }}
+                      >
+                        <AlertTriangle size={56} className="text-white drop-shadow-lg" />
+                      </motion.div>
+                    )}
+                  </motion.div>
+                  
+                  <motion.h3
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.4 }}
+                    className="text-3xl font-black tracking-tight relative z-10"
+                  >
+                    {savingModal.status === 'saving' 
+                      ? 'جاري حفظ الإشعار...'
+                      : savingModal.status === 'success'
+                      ? 'تم حفظ الإشعار بنجاح!'
+                      : 'حدث خطأ'}
+                  </motion.h3>
+                  <motion.p
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.5 }}
+                    className="text-white/80 font-bold mt-2 relative z-10"
+                  >
+                    {savingModal.status === 'saving' 
+                      ? 'يرجى الانتظار...'
+                      : savingModal.status === 'success'
+                      ? 'تم إضافة الإشعار إلى النظام'
+                      : 'تعذر إكمال العملية'}
+                  </motion.p>
+                </div>
+
+                {/* Content */}
+                <div className="p-8 text-center space-y-6">
+                  {savingModal.status === 'saving' ? (
+                    <div className="bg-blue-50 dark:bg-blue-950/30 rounded-2xl p-6 border-2 border-blue-100 dark:border-blue-900/50">
+                      <div className="flex items-center justify-center gap-3">
+                        <div className="h-3 w-3 bg-blue-500 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+                        <div className="h-3 w-3 bg-blue-500 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+                        <div className="h-3 w-3 bg-blue-500 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+                      </div>
+                      <p className="text-slate-500 font-bold text-sm mt-4">جاري معالجة البيانات وحفظها في قاعدة البيانات</p>
+                    </div>
+                  ) : savingModal.status === 'success' ? (
+                    <motion.div
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.6 }}
+                      className="bg-emerald-50 dark:bg-emerald-950/30 rounded-2xl p-6 border-2 border-emerald-100 dark:border-emerald-900/50"
+                    >
+                      <p className="text-slate-500 font-bold text-sm mb-2">مرجع الفاتورة:</p>
+                      <p className="text-emerald-600 dark:text-emerald-400 font-black text-xl">
+                        {selectedInvoice?.invoice_number || '---'}
+                      </p>
+                      <div className="mt-4 pt-4 border-t border-emerald-200 dark:border-emerald-800">
+                        <p className="text-rose-600 font-black text-2xl">
+                          {calculations.total.toLocaleString('en-US', { minimumFractionDigits: 2 })} {locale === 'ar' ? 'ريال' : 'SAR'}
+                        </p>
+                      </div>
+                    </motion.div>
+                  ) : (
+                    <motion.div
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.6 }}
+                      className="bg-red-50 dark:bg-red-950/30 rounded-2xl p-6 border-2 border-red-100 dark:border-red-900/50"
+                    >
+                      <p className="text-red-600 dark:text-red-400 font-black text-lg">
+                        {savingModal.message}
+                      </p>
+                    </motion.div>
+                  )}
+
+                  {savingModal.status !== 'saving' && (
+                    <motion.button
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.7 }}
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      onClick={savingModal.status === 'success' ? goToCreditNotes : () => setSavingModal({ isOpen: false, status: 'saving' })}
+                      className={cn(
+                        "w-full flex items-center justify-center gap-3 text-white py-5 rounded-2xl font-black text-xl shadow-xl border-b-4",
+                        savingModal.status === 'success'
+                          ? "bg-gradient-to-r from-emerald-500 via-teal-600 to-emerald-600 shadow-emerald-500/30 border-emerald-700/50"
+                          : "bg-gradient-to-r from-slate-600 via-slate-700 to-slate-600 shadow-slate-500/30 border-slate-800/50"
+                      )}
+                    >
+                      {savingModal.status === 'success' ? (
+                        <>
+                          <ArrowRight size={24} className="rtl:rotate-180" />
+                          عرض الإشعارات
+                        </>
+                      ) : (
+                        <>
+                          <X size={24} />
+                          إغلاق
+                        </>
+                      )}
+                    </motion.button>
+                  )}
+                </div>
+              </motion.div>
+            </div>
+          )}
+        </AnimatePresence>
 
       <motion.div 
         variants={containerVariants}
@@ -297,7 +602,7 @@ export function NewCreditNoteClient({ invoices }: NewCreditNoteClientProps) {
 
           {/* Form Area Integrated into the Card */}
           <div className="p-8 bg-slate-900/50">
-            <form onSubmit={handleSubmit} className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+              <form onSubmit={handleSaveClick} className="grid grid-cols-1 lg:grid-cols-3 gap-8">
               <div className="lg:col-span-2 space-y-8">
                 <motion.div
                   variants={itemVariants}

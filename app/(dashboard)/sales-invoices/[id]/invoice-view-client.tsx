@@ -367,11 +367,11 @@ export function InvoiceViewClient({
               backgroundColor: '#ffffff',
               width: 794,
               windowWidth: 794,
-              foreignObjectRendering: true,
+              foreignObjectRendering: false,
             });
 
-        // Use JPEG with compression for much smaller file size
-        const imgData = canvas.toDataURL('image/jpeg', 0.75);
+        // Use PNG to avoid black page issues with transparency
+        const imgData = canvas.toDataURL('image/png');
         const pdf = new jsPDF('p', 'mm', 'a4');
         const pdfWidth = pdf.internal.pageSize.getWidth();
         const pdfHeight = pdf.internal.pageSize.getHeight();
@@ -389,7 +389,7 @@ export function InvoiceViewClient({
         }
         
         const xOffset = (pdfWidth - finalImgWidth) / 2;
-        pdf.addImage(imgData, 'JPEG', xOffset, 0, finalImgWidth, finalImgHeight, undefined, 'MEDIUM');
+        pdf.addImage(imgData, 'PNG', xOffset, 0, finalImgWidth, finalImgHeight);
 
         // Get base64 without the data:... prefix
         const pdfOutput = pdf.output('datauristring');
