@@ -14,8 +14,16 @@ import {
   ShieldCheck,
   Signature,
   Stamp,
-  QrCode
+  QrCode,
+  Mail,
+  Send,
+  X,
+  Loader2,
+  AlertCircle,
+  RefreshCw,
+  ChevronDown
 } from "lucide-react";
+import { toast } from "sonner";
 import Link from "next/link";
 import { QRCodeCanvas } from "qrcode.react";
 import { useReactToPrint } from "react-to-print";
@@ -173,11 +181,45 @@ export function InvoiceViewClient({
   const printRef = useRef<HTMLDivElement>(null);
   const [pdfLoading, setPdfLoading] = useState(false);
   const [selectedBankId, setSelectedBankId] = useState(bankAccounts[0]?.id);
+  const [showBankSelector, setShowBankSelector] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
 
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
+    // Email sending states
+    const [showEmailDialog, setShowEmailDialog] = useState<'confirm' | 'compose' | null>(null);
+    const [emailSending, setEmailSending] = useState(false);
+    const [emailAccounts, setEmailAccounts] = useState<any[]>([]);
+    const [selectedAccountId, setSelectedAccountId] = useState<number | null>(null);
+    const [emailTo, setEmailTo] = useState('');
+    const [emailSubject, setEmailSubject] = useState('');
+    const [emailBody, setEmailBody] = useState('');
+    const [pdfGenerating, setPdfGenerating] = useState(false);
+
+    useEffect(() => {
+      setIsMounted(true);
+    }, []);
+
+    // Close bank selector on outside click
+    useEffect(() => {
+      if (!showBankSelector) return;
+      const handler = () => setShowBankSelector(false);
+      document.addEventListener('click', handler);
+      return () => document.removeEventListener('click', handler);
+    }, [showBankSelector]);
+
+    // Fetch company email accounts
+    useEffect(() => {
+      if (company?.id) {
+        fetch(`/api/email/accounts?company_id=${company.id}`)
+          .then(r => r.json())
+          .then(data => {
+            if (data.accounts?.length > 0) {
+              setEmailAccounts(data.accounts);
+              setSelectedAccountId(data.accounts[0].id);
+            }
+          })
+          .catch(() => {});
+      }
+    }, [company?.id]);
 
   const selectedBank = bankAccounts.find(b => b.id === selectedBankId) || bankAccounts[0];
 
@@ -213,62 +255,80 @@ export function InvoiceViewClient({
     company?.postal_code
   ].filter(Boolean).join(' - ');
 
-  const handlePrint = useReactToPrint({
+    const handlePrint = useReactToPrint({
     contentRef: printRef,
     documentTitle: `${t("vatInvoice")} - ${invoice.invoice_number}`,
   });
 
+    // Convert cross-origin images to data URLs for foreignObjectRendering
+    const convertImagesToDataURLs = async (container: HTMLElement) => {
+      const images = container.querySelectorAll('img');
+      await Promise.all(Array.from(images).map(async (img) => {
+        if (!img.src || img.src.startsWith('data:')) return;
+        try {
+          const response = await fetch(img.src, { mode: 'cors' });
+          const blob = await response.blob();
+          const dataUrl = await new Promise<string>((resolve) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result as string);
+            reader.readAsDataURL(blob);
+          });
+          img.src = dataUrl;
+          img.removeAttribute('crossorigin');
+        } catch (e) {
+          console.warn('Could not convert image:', img.src, e);
+        }
+      }));
+    };
+
     const handleDownloadPDF = async () => {
       setPdfLoading(true);
       try {
-        const html2canvas = (await import('html2canvas')).default;
+        const html2canvas = (await import('html2canvas-pro')).default;
         const { jsPDF } = await import('jspdf');
         
         const element = printRef.current;
         if (!element) return;
         
+        // Wait for all fonts to be loaded
+        await document.fonts.ready;
+        
+        // Convert images to data URLs for foreignObjectRendering
+        await convertImagesToDataURLs(element);
+        
         const canvas = await html2canvas(element, {
-          scale: 4,
+          scale: 3,
           useCORS: true,
           logging: false,
           backgroundColor: '#ffffff',
-          width: 794, // 210mm in pixels at 96dpi
-          height: 1123, // 297mm in pixels at 96dpi
+          width: 794,
           windowWidth: 794,
-          windowHeight: 1123,
-          onclone: (clonedDoc) => {
-            const el = clonedDoc.querySelector('.invoice-container') as HTMLElement;
-            if (el) {
-              el.style.width = '210mm';
-              el.style.height = '297mm';
-              el.style.margin = '0';
-              el.style.padding = '0';
-            }
+          foreignObjectRendering: true,
+          });
+          
+          const imgData = canvas.toDataURL('image/png');
+          const pdf = new jsPDF('p', 'mm', 'a4');
+          const pdfWidth = pdf.internal.pageSize.getWidth();
+          const pdfHeight = pdf.internal.pageSize.getHeight();
+          
+          // Scale image to fit exactly on one A4 page
+          const imgAspect = canvas.width / canvas.height;
+          const pageAspect = pdfWidth / pdfHeight;
+          
+          let finalImgWidth: number, finalImgHeight: number;
+          if (imgAspect > pageAspect) {
+            finalImgWidth = pdfWidth;
+            finalImgHeight = pdfWidth / imgAspect;
+          } else {
+            finalImgHeight = pdfHeight;
+            finalImgWidth = pdfHeight * imgAspect;
           }
-        });
-        
-        const imgData = canvas.toDataURL('image/png');
-        const pdf = new jsPDF('p', 'mm', 'a4');
-        const pdfWidth = pdf.internal.pageSize.getWidth();
-        const pdfHeight = pdf.internal.pageSize.getHeight();
-        
-        const imgWidth = pdfWidth;
-        const imgHeight = (canvas.height * imgWidth) / canvas.width;
-        
-        // Use full height if it fits, otherwise scale
-        let finalImgHeight = imgHeight;
-        let finalImgWidth = imgWidth;
-        
-        if (imgHeight > pdfHeight) {
-          const ratio = pdfHeight / imgHeight;
-          finalImgHeight = pdfHeight;
-          finalImgWidth = imgWidth * ratio;
-        }
-        
-        const xOffset = (pdfWidth - finalImgWidth) / 2;
-        
-        pdf.addImage(imgData, 'PNG', xOffset, 0, finalImgWidth, finalImgHeight);
-        pdf.save(`${t("vatInvoice")}-${invoice.invoice_number}.pdf`);
+          
+          const xOffset = (pdfWidth - finalImgWidth) / 2;
+          const yOffset = 0;
+          
+          pdf.addImage(imgData, 'PNG', xOffset, yOffset, finalImgWidth, finalImgHeight);
+          pdf.save(`${t("vatInvoice")}-${invoice.invoice_number}.pdf`);
 
 
     } catch (error) {
@@ -276,9 +336,141 @@ export function InvoiceViewClient({
     } finally {
       setPdfLoading(false);
     }
-  };
+    };
 
-  const getPublicUrl = (path: string) => {
+    // Generate PDF as base64 for email attachment
+    const generatePDFBase64 = async (): Promise<string | null> => {
+      try {
+        const html2canvas = (await import('html2canvas-pro')).default;
+        const { jsPDF } = await import('jspdf');
+        const element = printRef.current;
+        if (!element) return null;
+
+          const canvas = await html2canvas(element, {
+            scale: 3,
+            useCORS: true,
+            logging: false,
+            backgroundColor: '#ffffff',
+            width: 794,
+            windowWidth: 794,
+          });
+
+        const imgData = canvas.toDataURL('image/png');
+        const pdf = new jsPDF('p', 'mm', 'a4');
+        const pdfWidth = pdf.internal.pageSize.getWidth();
+        const pdfHeight = pdf.internal.pageSize.getHeight();
+        
+        const imgAspect = canvas.width / canvas.height;
+        const pageAspect = pdfWidth / pdfHeight;
+        
+        let finalImgWidth: number, finalImgHeight: number;
+        if (imgAspect > pageAspect) {
+          finalImgWidth = pdfWidth;
+          finalImgHeight = pdfWidth / imgAspect;
+        } else {
+          finalImgHeight = pdfHeight;
+          finalImgWidth = pdfHeight * imgAspect;
+        }
+        
+        const xOffset = (pdfWidth - finalImgWidth) / 2;
+        pdf.addImage(imgData, 'PNG', xOffset, 0, finalImgWidth, finalImgHeight);
+
+        // Get base64 without the data:... prefix
+        const pdfOutput = pdf.output('datauristring');
+        const base64 = pdfOutput.split(',')[1];
+        return base64;
+      } catch (error) {
+        console.error('Error generating PDF base64:', error);
+        return null;
+      }
+    };
+
+    // Handle "Send Invoice via Email" button click
+    const handleEmailInvoiceClick = () => {
+      if (emailAccounts.length === 0) {
+        toast.error('لا يوجد حساب بريد مسجل للشركة. يرجى إضافة حساب بريد أولاً', {
+          duration: 5000,
+        });
+        return;
+      }
+      setEmailTo(customer?.email || '');
+      setEmailSubject(`فاتورة ضريبية رقم ${invoice.invoice_number} - ${company?.name || ''}`);
+      setEmailBody(
+        `<p style="direction:rtl;text-align:right;font-family:Arial,sans-serif;">` +
+        `السلام عليكم ورحمة الله وبركاته،<br/><br/>` +
+        `نرفق لكم الفاتورة الضريبية رقم <strong>${invoice.invoice_number}</strong> بمبلغ إجمالي <strong>${grandTotal.toFixed(2)} ${company?.currency || 'SAR'}</strong>.<br/><br/>` +
+        `تاريخ الإصدار: ${formatDate(invoice.issue_date)}<br/>` +
+        `تاريخ الاستحقاق: ${formatDate(invoice.due_date)}<br/><br/>` +
+        `مع خالص التحية،<br/>` +
+        `${company?.name || ''}</p>`
+      );
+      setShowEmailDialog('confirm');
+    };
+
+    // Handle send email after compose
+    const handleSendInvoiceEmail = async () => {
+      if (!emailTo || !selectedAccountId) {
+        toast.error('يرجى إدخال بريد المستلم');
+        return;
+      }
+
+      setEmailSending(true);
+      setPdfGenerating(true);
+
+      try {
+        toast.loading('جاري تجهيز الفاتورة...', { id: 'email-send' });
+
+        const pdfBase64 = await generatePDFBase64();
+        setPdfGenerating(false);
+
+        if (!pdfBase64) {
+          toast.error('فشل في إنشاء ملف PDF', { id: 'email-send' });
+          return;
+        }
+
+        toast.loading('جاري إرسال البريد الإلكتروني...', { id: 'email-send' });
+
+        const res = await fetch('/api/email/send', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            accountId: selectedAccountId,
+            company_id: company?.id,
+            to: emailTo,
+            subject: emailSubject,
+            body: emailBody,
+            attachments: [{
+              filename: `Invoice-${invoice.invoice_number}.pdf`,
+              content: pdfBase64,
+              contentType: 'application/pdf',
+            }]
+          })
+        });
+
+        const data = await res.json();
+
+        if (data.success) {
+          toast.success('تم إرسال الفاتورة بنجاح عبر البريد الإلكتروني', {
+            id: 'email-send',
+            duration: 5000,
+          });
+          setShowEmailDialog(null);
+          setEmailTo('');
+          setEmailSubject('');
+          setEmailBody('');
+        } else {
+          toast.error(data.error || 'فشل في إرسال البريد', { id: 'email-send' });
+        }
+      } catch (error) {
+        console.error('Email send error:', error);
+        toast.error('حدث خطأ في إرسال البريد الإلكتروني', { id: 'email-send' });
+      } finally {
+        setEmailSending(false);
+        setPdfGenerating(false);
+      }
+    };
+
+    const getPublicUrl = (path: string) => {
     if (!path) return null;
     if (path.startsWith('http')) return path;
     return `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/project-uploads/${path}`;
@@ -302,15 +494,22 @@ export function InvoiceViewClient({
             <Printer size={18} />
             {tc("print")}
           </button>
-          <button
-            onClick={handleDownloadPDF}
-            disabled={pdfLoading}
-            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-[#2563eb] text-white hover:bg-[#1d4ed8] font-bold text-sm transition-all shadow-md disabled:opacity-50"
-          >
-            <Download size={18} />
-            {pdfLoading ? tc("loading") : tc("export") + " PDF"}
-          </button>
-        </div>
+            <button
+              onClick={handleDownloadPDF}
+              disabled={pdfLoading}
+              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-[#2563eb] text-white hover:bg-[#1d4ed8] font-bold text-sm transition-all shadow-md disabled:opacity-50"
+            >
+              <Download size={18} />
+              {pdfLoading ? tc("loading") : tc("export") + " PDF"}
+            </button>
+            <button
+              onClick={handleEmailInvoiceClick}
+              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-[#059669] text-white hover:bg-[#047857] font-bold text-sm transition-all shadow-md"
+            >
+              <Mail size={18} />
+              إرسال عبر البريد
+            </button>
+          </div>
 
             {/* Invoice Layout */}
               <div 
@@ -318,7 +517,6 @@ export function InvoiceViewClient({
                 className="invoice-container bg-white shadow-xl overflow-hidden border border-[#f1f5f9] mx-auto"
                 style={{ 
                   width: '210mm', 
-                  height: '297mm', 
                   backgroundColor: '#ffffff',
                   color: '#0f172a',
                   display: 'flex',
@@ -340,44 +538,21 @@ export function InvoiceViewClient({
                     .invoice-container { 
                       box-shadow: none !important; 
                       margin: 0 !important; 
-                      width: 210mm !important; 
-                      height: 297mm !important;
+                      width: 100% !important; 
                       max-width: 210mm !important; 
-                      max-height: 297mm !important;
                       border: none !important;
                       padding: 0 !important;
-                      overflow: hidden !important;
                       display: flex !important;
                       flex-direction: column !important;
                       background: white !important;
                       position: relative !important;
                       box-sizing: border-box !important;
+                      page-break-inside: avoid !important;
+                      break-inside: avoid !important;
                     }
                     @page {
                       size: A4 portrait;
                       margin: 0;
-                    }
-                    .invoice-content {
-                      padding: 1.25rem !important;
-                      gap: 1.25rem !important;
-                    }
-                    .info-card {
-                      padding: 1rem !important;
-                      border-radius: 1rem !important;
-                    }
-                    .items-table th, .items-table td {
-                      padding: 0.4rem 0.6rem !important;
-                    }
-                    .summary-section {
-                      gap: 1rem !important;
-                    }
-                    .bank-info-box {
-                      padding: 0.75rem !important;
-                      margin-top: 0.5rem !important;
-                    }
-                    .stamp-sig-section {
-                      margin-top: auto !important;
-                      padding-top: 1rem !important;
                     }
                     * {
                       -webkit-print-color-adjust: exact !important;
@@ -389,13 +564,13 @@ export function InvoiceViewClient({
 
             {/* Header */}
             <div 
-              className="text-white p-6 relative overflow-hidden flex-shrink-0"
+              className="text-white p-8 relative overflow-hidden flex-shrink-0"
               style={{ background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)' }}
             >
               <div className="flex flex-row justify-between items-center gap-4 relative z-10">
                 {/* Company Logo */}
                 <div 
-                  className="w-20 h-20 rounded-xl flex items-center justify-center p-3 border border-[#ffffff33]"
+                  className="w-24 h-24 rounded-xl flex items-center justify-center p-3 border border-[#ffffff33]"
                   style={{ backgroundColor: 'rgba(255,255,255,0.1)' }}
                 >
                   {company.logo_path ? (
@@ -406,53 +581,53 @@ export function InvoiceViewClient({
                       crossOrigin="anonymous"
                     />
                   ) : (
-                    <Building2 size={36} className="text-white/60" />
+                    <Building2 size={40} className="text-white/60" />
                   )}
                 </div>
 
                 {/* Title Center */}
                 <div className="text-center flex-1">
-                  <h1 className="text-2xl font-black mb-0 tracking-wider">{t("vatInvoice")}</h1>
-                  <p className="text-white/60 text-[12px] uppercase font-light">{t("vatInvoiceEn")}</p>
-                  <div className="mt-2 inline-flex items-center gap-2 px-4 py-1 rounded-lg border border-[#ffffff1a]" style={{ backgroundColor: 'rgba(255,255,255,0.05)' }}>
-                    <span className="font-bold text-[10px]">{t("electronicInvoicingSystem")}</span>
+                  <h1 className="text-3xl font-black mb-0 tracking-wider">{t("vatInvoice")}</h1>
+                  <p className="text-white/60 text-sm uppercase font-light">{t("vatInvoiceEn")}</p>
+                  <div className="mt-2 inline-flex items-center gap-2 px-5 py-1.5 rounded-lg border border-[#ffffff1a]" style={{ backgroundColor: 'rgba(255,255,255,0.05)' }}>
+                    <span className="font-bold text-xs">{t("electronicInvoicingSystem")}</span>
                   </div>
                 </div>
 
                 {/* System Logo */}
-                <div className="flex flex-col items-center gap-1 p-3 rounded-xl border border-[#ffffff1a] min-w-[120px]" style={{ backgroundColor: 'rgba(255,255,255,0.05)' }}>
-                  <Truck size={24} className="text-[#3b82f6]" />
-                  <h2 className="text-[10px] font-black text-white uppercase">Logistics Systems</h2>
+                <div className="flex flex-col items-center gap-1.5 p-4 rounded-xl border border-[#ffffff1a] min-w-[130px]" style={{ backgroundColor: 'rgba(255,255,255,0.05)' }}>
+                  <Truck size={28} className="text-[#3b82f6]" />
+                  <h2 className="text-xs font-black text-white uppercase">Logistics Systems</h2>
                 </div>
               </div>
 
               {/* Header Meta */}
               <div className="grid grid-cols-3 gap-4 mt-6 pt-4 border-t border-[#ffffff1a] relative z-10">
                 <div className="text-center">
-                  <span className="text-[#ffffff66] text-[10px] block">{t("claimMonth")}</span>
-                  <p className="font-bold text-[13px]">{invoice.invoice_month || getClaimMonth(invoice.issue_date)}</p>
+                  <span className="text-[#ffffff66] text-xs block">{t("claimMonth")}</span>
+                  <p className="font-bold text-base">{invoice.invoice_month || getClaimMonth(invoice.issue_date)}</p>
                 </div>
                 <div className="text-center">
-                  <span className="text-[#ffffff66] text-[10px] block">{t("invoiceNumber")}:</span>
-                  <p className="font-bold text-[13px] tracking-widest">{invoice.invoice_number}</p>
+                  <span className="text-[#ffffff66] text-xs block">{t("invoiceNumber")}:</span>
+                  <p className="font-bold text-base tracking-widest">{invoice.invoice_number}</p>
                 </div>
                 <div className="text-center">
-                  <span className="text-[#ffffff66] text-[10px] block">{t("issueDateLabel")}</span>
-                  <p className="font-bold text-[13px]">{formatDate(invoice.issue_date)}</p>
+                  <span className="text-[#ffffff66] text-xs block">{t("issueDateLabel")}</span>
+                  <p className="font-bold text-base">{formatDate(invoice.issue_date)}</p>
                 </div>
               </div>
             </div>
 
-            <div className="invoice-content p-6 space-y-4 flex-grow flex flex-col">
+            <div className="invoice-content p-8 space-y-6 flex flex-col">
               {/* Info Cards */}
-              <div className="grid grid-cols-2 gap-4 flex-shrink-0">
+              <div className="grid grid-cols-2 gap-5 flex-shrink-0">
                 {/* Company Info */}
-                <div className="info-card rounded-2xl p-4 border border-[#f1f5f9]" style={{ backgroundColor: '#f8fafc' }}>
-                  <h3 className="font-black text-[#0f172a] mb-2 pb-1 border-b border-[#e2e8f0] flex items-center gap-2 text-[12px]">
-                    <div className="w-1.5 h-4 bg-[#2563eb] rounded-full"></div>
+                <div className="info-card rounded-2xl p-5 border border-[#f1f5f9]" style={{ backgroundColor: '#f8fafc' }}>
+                  <h3 className="font-black text-[#0f172a] mb-3 pb-2 border-b border-[#e2e8f0] flex items-center gap-2 text-sm">
+                    <div className="w-1.5 h-5 bg-[#2563eb] rounded-full"></div>
                     {t("facilityData")}
                   </h3>
-                  <div className="space-y-1.5 text-[10px]">
+                  <div className="space-y-2.5 text-[13px]">
                     <div className="flex justify-between items-start gap-4">
                       <span className="text-[#64748b]">{tc("name")}:</span>
                       <span className="font-bold text-[#0f172a] text-right">{company?.name}</span>
@@ -473,12 +648,12 @@ export function InvoiceViewClient({
                 </div>
 
                 {/* Customer Info */}
-                <div className="info-card rounded-2xl p-4 border border-[#f1f5f9]" style={{ backgroundColor: '#f8fafc' }}>
-                  <h3 className="font-black text-[#0f172a] mb-2 pb-1 border-b border-[#e2e8f0] flex items-center gap-2 text-[12px]">
-                    <div className="w-1.5 h-4 bg-[#059669] rounded-full"></div>
+                <div className="info-card rounded-2xl p-5 border border-[#f1f5f9]" style={{ backgroundColor: '#f8fafc' }}>
+                  <h3 className="font-black text-[#0f172a] mb-3 pb-2 border-b border-[#e2e8f0] flex items-center gap-2 text-sm">
+                    <div className="w-1.5 h-5 bg-[#059669] rounded-full"></div>
                     {t("customerData")}
                   </h3>
-                  <div className="space-y-1.5 text-[10px]">
+                  <div className="space-y-2.5 text-[13px]">
                     <div className="flex justify-between items-start gap-4">
                       <span className="text-[#64748b]">{tc("name")}:</span>
                       <span className="font-bold text-[#0f172a] text-right">{customer?.company_name || customer?.name || invoice.client_name}</span>
@@ -501,41 +676,41 @@ export function InvoiceViewClient({
 
               {/* Items Table */}
               <div className="rounded-xl border border-[#f1f5f9] overflow-hidden shadow-sm flex-shrink-0">
-                <table className="items-table w-full text-[10px] border-collapse">
+                <table className="items-table w-full text-[13px] border-collapse">
                   <thead style={{ background: '#1e293b', color: '#ffffff' }}>
                     <tr>
-                      <th className="px-3 py-2 text-right font-bold">{t("itemNameHeader")}</th>
-                      <th className="px-3 py-2 text-center font-bold">{t("quantity")}</th>
-                      <th className="px-3 py-2 text-center font-bold">{t("unitPrice")}</th>
-                      <th className="px-3 py-2 text-center font-bold">{t("beforeTax")}</th>
-                      <th className="px-3 py-2 text-center font-bold">{t("taxRateHeader")}</th>
-                      <th className="px-3 py-2 text-center font-bold">{tc("total")}</th>
+                      <th className="px-4 py-3 text-right font-bold">{t("itemNameHeader")}</th>
+                      <th className="px-4 py-3 text-center font-bold">{t("quantity")}</th>
+                      <th className="px-4 py-3 text-center font-bold">{t("unitPrice")}</th>
+                      <th className="px-4 py-3 text-center font-bold">{t("beforeTax")}</th>
+                      <th className="px-4 py-3 text-center font-bold">{t("taxRateHeader")}</th>
+                      <th className="px-4 py-3 text-center font-bold">{tc("total")}</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-[#f1f5f9] bg-white">
                     {items.map((item) => (
                       <tr key={item.id} className="hover:bg-[#f8fafc]">
-                        <td className="px-3 py-1.5 text-[#0f172a] font-medium">{item.product_name}</td>
-                        <td className="px-3 py-1.5 text-center">{item.quantity}</td>
-                        <td className="px-3 py-1.5 text-center">{parseFloat(String(item.unit_price)).toFixed(2)}</td>
-                        <td className="px-3 py-1.5 text-center">{parseFloat(String(item.total_before_vat)).toLocaleString('en-US', { minimumFractionDigits: 2 })}</td>
-                        <td className="px-3 py-1.5 text-center text-[#2563eb] font-bold">{parseFloat(String(item.vat_amount)).toLocaleString('en-US', { minimumFractionDigits: 2 })}</td>
-                        <td className="px-3 py-1.5 text-center font-black text-[#0f172a]">{parseFloat(String(item.total_with_vat)).toLocaleString('en-US', { minimumFractionDigits: 2 })}</td>
+                        <td className="px-4 py-2.5 text-[#0f172a] font-medium">{item.product_name}</td>
+                        <td className="px-4 py-2.5 text-center">{item.quantity}</td>
+                        <td className="px-4 py-2.5 text-center">{parseFloat(String(item.unit_price)).toFixed(2)}</td>
+                        <td className="px-4 py-2.5 text-center">{parseFloat(String(item.total_before_vat)).toLocaleString('en-US', { minimumFractionDigits: 2 })}</td>
+                        <td className="px-4 py-2.5 text-center text-[#2563eb] font-bold">{parseFloat(String(item.vat_amount)).toLocaleString('en-US', { minimumFractionDigits: 2 })}</td>
+                        <td className="px-4 py-2.5 text-center font-black text-[#0f172a]">{parseFloat(String(item.total_with_vat)).toLocaleString('en-US', { minimumFractionDigits: 2 })}</td>
                       </tr>
                     ))}
                     
                     {adjustments.map((adj) => (
                       <tr key={adj.id} style={{ backgroundColor: adj.type === 'discount' ? '#fff1f2' : '#f0fdf4' }}>
-                        <td className="px-3 py-1.5 font-bold text-[#1e293b]">
-                          {adj.title} <span className="text-[9px] opacity-60">({adj.type === 'discount' ? t("adjustmentDiscount") : t("adjustmentAddition")})</span>
+                        <td className="px-4 py-2.5 font-bold text-[#1e293b]">
+                          {adj.title} <span className="text-[11px] opacity-60">({adj.type === 'discount' ? t("adjustmentDiscount") : t("adjustmentAddition")})</span>
                         </td>
-                        <td className="px-3 py-1.5 text-center opacity-40">-</td>
-                        <td className="px-3 py-1.5 text-center opacity-40">-</td>
-                        <td className={`px-3 py-1.5 text-center font-bold ${adj.type === 'discount' ? 'text-[#e11d48]' : 'text-[#059669]'}`}>
+                        <td className="px-4 py-2.5 text-center opacity-40">-</td>
+                        <td className="px-4 py-2.5 text-center opacity-40">-</td>
+                        <td className={`px-4 py-2.5 text-center font-bold ${adj.type === 'discount' ? 'text-[#e11d48]' : 'text-[#059669]'}`}>
                           {adj.type === 'discount' ? '-' : ''}{parseFloat(String(adj.amount)).toLocaleString('en-US', { minimumFractionDigits: 2 })}
                         </td>
-                        <td className="px-3 py-1.5 text-center opacity-40">-</td>
-                        <td className={`px-3 py-1.5 text-center font-black ${adj.type === 'discount' ? 'text-[#be123c]' : 'text-[#047857]'}`}>
+                        <td className="px-4 py-2.5 text-center opacity-40">-</td>
+                        <td className={`px-4 py-2.5 text-center font-black ${adj.type === 'discount' ? 'text-[#be123c]' : 'text-[#047857]'}`}>
                           {adj.type === 'discount' ? '-' : ''}{parseFloat(String(adj.total_with_vat)).toLocaleString('en-US', { minimumFractionDigits: 2 })}
                         </td>
                       </tr>
@@ -545,30 +720,30 @@ export function InvoiceViewClient({
               </div>
 
               {/* Summary and QR Section */}
-              <div className="summary-section grid grid-cols-2 gap-4 items-stretch flex-shrink-0">
+              <div className="summary-section grid grid-cols-2 gap-5 items-stretch flex-shrink-0">
                 {/* Summary Box */}
                 <div 
-                  className="rounded-2xl p-4 border border-[#f1f5f9] flex flex-col justify-between"
+                  className="rounded-2xl p-5 border border-[#f1f5f9] flex flex-col justify-between"
                   style={{ background: '#f8fafc' }}
                 >
                   <div>
-                    <h3 className="font-black text-[#0f172a] mb-2 flex items-center gap-2 text-[11px]">
-                      <CreditCard size={14} className="text-[#2563eb]" />
+                    <h3 className="font-black text-[#0f172a] mb-3 flex items-center gap-2 text-sm">
+                      <CreditCard size={16} className="text-[#2563eb]" />
                       {t("summary")}
                     </h3>
-                    <div className="space-y-1.5">
-                      <div className="flex justify-between items-center py-1 border-b border-dashed border-[#e2e8f0]">
-                        <span className="text-[#64748b] text-[9px]">{t("beforeTax")}:</span>
-                        <span className="font-bold text-[#0f172a] text-[9px]">{totalBeforeVat.toLocaleString('en-US', { minimumFractionDigits: 2 })} {tc("sar")}</span>
+                    <div className="space-y-2.5">
+                      <div className="flex justify-between items-center py-1.5 border-b border-dashed border-[#e2e8f0]">
+                        <span className="text-[#64748b] text-[13px]">{t("beforeTax")}:</span>
+                        <span className="font-bold text-[#0f172a] text-[13px]">{totalBeforeVat.toLocaleString('en-US', { minimumFractionDigits: 2 })} {tc("sar")}</span>
                       </div>
-                      <div className="flex justify-between items-center py-1 border-b border-dashed border-[#e2e8f0]">
-                        <span className="text-[#64748b] text-[9px]">{t("taxRateHeader")}:</span>
-                        <span className="font-bold text-[#2563eb] text-[9px]">{totalVat.toLocaleString('en-US', { minimumFractionDigits: 2 })} {tc("sar")}</span>
+                      <div className="flex justify-between items-center py-1.5 border-b border-dashed border-[#e2e8f0]">
+                        <span className="text-[#64748b] text-[13px]">{t("taxRateHeader")}:</span>
+                        <span className="font-bold text-[#2563eb] text-[13px]">{totalVat.toLocaleString('en-US', { minimumFractionDigits: 2 })} {tc("sar")}</span>
                       </div>
                       {(discountTotal > 0 || additionTotal > 0) && (
-                        <div className="flex justify-between items-center py-1 border-b border-dashed border-[#e2e8f0]">
-                          <span className="text-[#64748b] text-[9px]">{tc("discount")}/{tc("add")}:</span>
-                          <span className={`font-bold text-[9px] ${additionTotal - discountTotal < 0 ? 'text-[#e11d48]' : 'text-[#059669]'}`}>
+                        <div className="flex justify-between items-center py-1.5 border-b border-dashed border-[#e2e8f0]">
+                          <span className="text-[#64748b] text-[13px]">{tc("discount")}/{tc("add")}:</span>
+                          <span className={`font-bold text-[13px] ${additionTotal - discountTotal < 0 ? 'text-[#e11d48]' : 'text-[#059669]'}`}>
                             {(additionTotal - discountTotal).toLocaleString('en-US', { minimumFractionDigits: 2 })} {tc("sar")}
                           </span>
                         </div>
@@ -577,39 +752,39 @@ export function InvoiceViewClient({
                   </div>
                   
                   <div 
-                    className="flex justify-between items-center py-2 px-4 rounded-xl mt-2 shadow-md"
+                    className="flex justify-between items-center py-3 px-5 rounded-xl mt-3 shadow-md"
                     style={{ background: '#059669' }}
                   >
-                    <span className="font-black text-white text-[10px]">{t("amountDue")}</span>
-                    <span className="font-black text-[12px] text-white">
+                    <span className="font-black text-white text-sm">{t("amountDue")}</span>
+                    <span className="font-black text-base text-white">
                       {grandTotal.toLocaleString('en-US', { minimumFractionDigits: 2 })} {tc("sar")}
                     </span>
                   </div>
                 </div>
 
                 {/* QR and Period */}
-                <div className="rounded-2xl p-4 border border-[#f1f5f9] bg-white text-center flex flex-col justify-between shadow-sm">
+                <div className="rounded-2xl p-5 border border-[#f1f5f9] bg-white text-center flex flex-col justify-between shadow-sm">
                   <div>
-                    <h3 className="font-black text-[#0f172a] mb-2 flex items-center justify-center gap-2 text-[11px]">
-                      <QrCode size={14} className="text-[#2563eb]" />
+                    <h3 className="font-black text-[#0f172a] mb-3 flex items-center justify-center gap-2 text-sm">
+                      <QrCode size={16} className="text-[#2563eb]" />
                       {t("zatcaBarcode")}
                     </h3>
-                    <div className="flex justify-center mb-1">
-                      <div className="p-1.5 bg-white rounded-xl shadow-sm border border-[#f8fafc]">
+                    <div className="flex justify-center mb-2">
+                      <div className="p-2 bg-white rounded-xl shadow-sm border border-[#f8fafc]">
                         {isMounted && (
                           <QRCodeCanvas
-                            value={qrData}
-                            size={90}
-                            level="H"
-                            includeMargin={false}
-                          />
+                              value={qrData}
+                              size={140}
+                              level="H"
+                              includeMargin={false}
+                            />
                         )}
                       </div>
                     </div>
                   </div>
                   
-                  <div className="pt-1 border-t border-[#f1f5f9]">
-                    <p className="font-bold text-[#2563eb] text-[8px]">
+                  <div className="pt-2 border-t border-[#f1f5f9]">
+                    <p className="font-bold text-[#2563eb] text-xs">
                       {t("period")} {formatDate(items[0]?.period_from)} - {formatDate(items[0]?.period_to)}
                     </p>
                   </div>
@@ -619,43 +794,79 @@ export function InvoiceViewClient({
               {/* Bank Info */}
               {selectedBank && (
                 <div 
-                  className="bank-info-box rounded-2xl p-3 border border-[#ccfbf1] flex-shrink-0"
+                  className="bank-info-box rounded-2xl p-5 border border-[#ccfbf1] flex-shrink-0"
                   style={{ background: '#f0fdfa' }}
                 >
-                  <div className="flex justify-between items-center mb-1.5">
+                  <div className="flex justify-between items-center mb-4">
                     <div className="flex items-center gap-2">
-                      <University size={14} className="text-[#059669]" />
-                      <h3 className="font-black text-[#0f172a] text-[11px]">{t("bankInfo")}</h3>
+                      <University size={16} className="text-[#059669]" />
+                      <h3 className="font-black text-[#0f172a] text-sm">{t("bankInfo")}</h3>
                     </div>
+                    {/* Bank Selector - hidden in print */}
+                    {bankAccounts.length > 1 && (
+                      <div className="relative no-print">
+                        <button
+                          onClick={(e) => { e.stopPropagation(); setShowBankSelector(!showBankSelector); }}
+                          className="flex items-center gap-2 px-3 py-1.5 bg-white border border-[#059669] text-[#059669] rounded-lg text-xs font-bold hover:bg-[#059669] hover:text-white transition-all"
+                        >
+                          <RefreshCw size={12} />
+                          تبديل الحساب
+                          <ChevronDown size={12} className={`transition-transform ${showBankSelector ? 'rotate-180' : ''}`} />
+                        </button>
+                        {showBankSelector && (
+                          <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-[#e2e8f0] rounded-xl shadow-lg z-20 overflow-hidden min-w-[220px]">
+                            {bankAccounts.map((bank) => (
+                              <button
+                                key={bank.id}
+                                onClick={() => {
+                                  setSelectedBankId(bank.id);
+                                  setShowBankSelector(false);
+                                }}
+                                className={`w-full text-right px-3 py-2.5 text-xs hover:bg-[#f0fdfa] transition-colors border-b border-[#f1f5f9] last:border-0 ${
+                                  bank.id === selectedBankId ? 'bg-[#f0fdfa] font-bold text-[#059669]' : 'text-[#0f172a]'
+                                }`}
+                              >
+                                <div className="font-bold">{bank.bank_name}</div>
+                                <div className="text-[10px] text-[#94a3b8]">{bank.bank_beneficiary}</div>
+                              </button>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    )}
                   </div>
                   
-                  <div className="grid grid-cols-4 gap-2">
-                    <div className="bg-white rounded-xl p-1.5 border border-[#f1f5f9] shadow-sm text-center">
-                      <p className="text-[7px] text-[#94a3b8] mb-0.5">{tc("bank") || "Bank"}</p>
-                      <p className="font-bold text-[#0f172a] text-[8px] truncate">{selectedBank.bank_name}</p>
+                  {/* Row 1: Bank Name & Beneficiary */}
+                  <div className="grid grid-cols-2 gap-3 mb-3">
+                    <div className="bg-white rounded-xl p-3 border border-[#f1f5f9] shadow-sm text-center">
+                      <p className="text-[11px] text-[#94a3b8] mb-1">البنك</p>
+                      <p className="font-bold text-[#0f172a] text-sm">{selectedBank.bank_name}</p>
                     </div>
-                    <div className="bg-white rounded-xl p-1.5 border border-[#f1f5f9] shadow-sm text-center">
-                      <p className="text-[7px] text-[#94a3b8] mb-0.5">{tc("beneficiary") || "Beneficiary"}</p>
-                      <p className="font-bold text-[#0f172a] text-[8px] truncate">{selectedBank.bank_beneficiary}</p>
+                    <div className="bg-white rounded-xl p-3 border border-[#f1f5f9] shadow-sm text-center">
+                      <p className="text-[11px] text-[#94a3b8] mb-1">المستفيد</p>
+                      <p className="font-bold text-[#0f172a] text-sm">{selectedBank.bank_beneficiary}</p>
                     </div>
-                    <div className="bg-white rounded-xl p-1.5 border border-[#f1f5f9] shadow-sm text-center">
-                      <p className="text-[7px] text-[#94a3b8] mb-0.5">{tc("account") || "Account"}</p>
-                      <p className="font-bold text-[#2563eb] text-[9px]">{selectedBank.bank_account}</p>
+                  </div>
+                  {/* Row 2: Account Number & IBAN */}
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="bg-white rounded-xl p-3 border border-[#f1f5f9] shadow-sm text-center">
+                      <p className="text-[11px] text-[#94a3b8] mb-1">رقم الحساب</p>
+                      <p className="font-bold text-[#2563eb] text-sm tracking-wide">{selectedBank.bank_account}</p>
                     </div>
-                    <div className="bg-white rounded-xl p-1.5 border border-[#f1f5f9] shadow-sm text-center">
-                      <p className="text-[7px] text-[#94a3b8] mb-0.5">{tc("iban") || "IBAN"}</p>
-                      <p className="font-bold text-[#0f172a] text-[7px] break-all leading-tight">{selectedBank.bank_iban}</p>
+                    <div className="bg-white rounded-xl p-3 border border-[#f1f5f9] shadow-sm text-center">
+                      <p className="text-[11px] text-[#94a3b8] mb-1">الآيبان</p>
+                      <p className="font-bold text-[#0f172a] text-xs break-all leading-relaxed tracking-wide">{selectedBank.bank_iban}</p>
                     </div>
                   </div>
                 </div>
               )}
 
               {/* Stamp and Signature Section */}
-              <div className="stamp-sig-section grid grid-cols-2 gap-12 pt-4 mt-auto border-t border-[#f1f5f9] flex-shrink-0">
+              <div className="stamp-sig-section grid grid-cols-2 gap-8 pt-4 border-t border-[#f1f5f9] flex-shrink-0">
                 {/* Stamp */}
                 <div className="text-center">
-                  <h4 className="text-[#64748b] font-bold text-[9px] mb-2 uppercase tracking-tight">{t("companyStamp")}</h4>
-                  <div className="w-24 h-24 mx-auto bg-white rounded-2xl border border-dashed border-[#e2e8f0] flex items-center justify-center p-3 shadow-sm transition-all">
+                  <h4 className="text-[#64748b] font-bold text-xs mb-3 uppercase tracking-tight">{t("companyStamp")}</h4>
+                  <div className="w-32 h-32 mx-auto bg-white rounded-2xl border border-dashed border-[#e2e8f0] flex items-center justify-center p-3 shadow-sm transition-all">
                     {company.stamp_path ? (
                       <img 
                         src={getPublicUrl(company.stamp_path) || ''} 
@@ -664,15 +875,15 @@ export function InvoiceViewClient({
                         crossOrigin="anonymous"
                       />
                     ) : (
-                      <Stamp size={36} className="text-[#e2e8f0]" />
+                      <Stamp size={44} className="text-[#e2e8f0]" />
                     )}
                   </div>
                 </div>
 
                 {/* Signature */}
                 <div className="text-center">
-                  <h4 className="text-[#64748b] font-bold text-[9px] mb-2 uppercase tracking-tight">{t("digitalSignature")}</h4>
-                  <div className="w-24 h-24 mx-auto bg-white rounded-2xl border border-dashed border-[#e2e8f0] flex items-center justify-center p-3 shadow-sm transition-all">
+                  <h4 className="text-[#64748b] font-bold text-xs mb-3 uppercase tracking-tight">{t("digitalSignature")}</h4>
+                  <div className="w-32 h-32 mx-auto bg-white rounded-2xl border border-dashed border-[#e2e8f0] flex items-center justify-center p-3 shadow-sm transition-all">
                     {company.digital_seal_path ? (
                       <img 
                         src={getPublicUrl(company.digital_seal_path) || ''} 
@@ -681,7 +892,7 @@ export function InvoiceViewClient({
                         crossOrigin="anonymous"
                       />
                     ) : (
-                      <Signature size={36} className="text-[#e2e8f0]" />
+                      <Signature size={44} className="text-[#e2e8f0]" />
                     )}
                   </div>
                 </div>
@@ -689,7 +900,179 @@ export function InvoiceViewClient({
             </div>
           </div>
 
+          </div>
+
+          {/* Email Dialog */}
+          {showEmailDialog && (
+            <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 no-print" onClick={() => !emailSending && setShowEmailDialog(null)}>
+              <div 
+                className="bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden"
+                onClick={e => e.stopPropagation()}
+                dir="rtl"
+              >
+                {/* Header */}
+                <div className="bg-gradient-to-l from-[#059669] to-[#047857] px-6 py-4 flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center">
+                      <Mail size={20} className="text-white" />
+                    </div>
+                    <div>
+                      <h3 className="text-white font-bold text-base">إرسال الفاتورة عبر البريد</h3>
+                      <p className="text-white/80 text-xs">فاتورة رقم {invoice.invoice_number}</p>
+                    </div>
+                  </div>
+                  {!emailSending && (
+                    <button onClick={() => setShowEmailDialog(null)} className="text-white/70 hover:text-white transition-colors">
+                      <X size={20} />
+                    </button>
+                  )}
+                </div>
+
+                {showEmailDialog === 'confirm' ? (
+                  /* Confirmation Step */
+                  <div className="p-6 space-y-4">
+                    <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-4 flex gap-3">
+                      <AlertCircle size={20} className="text-emerald-600 mt-0.5 flex-shrink-0" />
+                      <div>
+                        <p className="text-emerald-800 font-semibold text-sm">سيتم إرسال الفاتورة الضريبية كملف PDF</p>
+                        <p className="text-emerald-600 text-xs mt-1">
+                          سيتم إنشاء ملف PDF للفاتورة وإرساله كمرفق من بريد الشركة المسجل
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="bg-gray-50 rounded-xl p-4 space-y-2 text-sm">
+                      <div className="flex justify-between">
+                        <span className="text-gray-500">رقم الفاتورة</span>
+                        <span className="font-bold text-gray-900">{invoice.invoice_number}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-500">المبلغ الإجمالي</span>
+                        <span className="font-bold text-gray-900">{grandTotal.toFixed(2)} {company?.currency || 'SAR'}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-500">البريد المرسل منه</span>
+                        <span className="font-bold text-blue-600 text-xs">{emailAccounts.find(a => a.id === selectedAccountId)?.email || '-'}</span>
+                      </div>
+                    </div>
+
+                    <div className="flex gap-3 pt-2">
+                      <button
+                        onClick={() => setShowEmailDialog(null)}
+                        className="flex-1 px-4 py-3 rounded-xl bg-gray-100 text-gray-700 font-bold text-sm hover:bg-gray-200 transition-all"
+                      >
+                        إلغاء
+                      </button>
+                      <button
+                        onClick={() => setShowEmailDialog('compose')}
+                        className="flex-1 px-4 py-3 rounded-xl bg-[#059669] text-white font-bold text-sm hover:bg-[#047857] transition-all flex items-center justify-center gap-2"
+                      >
+                        <Mail size={16} />
+                        موافق، تكملة الإرسال
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  /* Compose Step */
+                  <div className="p-6 space-y-4">
+                    {/* Email Account Selector */}
+                    {emailAccounts.length > 1 && (
+                      <div>
+                        <label className="block text-xs font-bold text-gray-600 mb-1.5">الحساب المرسل</label>
+                        <select
+                          value={selectedAccountId || ''}
+                          onChange={e => setSelectedAccountId(Number(e.target.value))}
+                          className="w-full px-3 py-2.5 rounded-xl border border-gray-200 bg-gray-50 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                          disabled={emailSending}
+                        >
+                          {emailAccounts.map(acc => (
+                            <option key={acc.id} value={acc.id}>{acc.email}</option>
+                          ))}
+                        </select>
+                      </div>
+                    )}
+
+                    {/* To Field */}
+                    <div>
+                      <label className="block text-xs font-bold text-gray-600 mb-1.5">إلى (البريد الإلكتروني) *</label>
+                      <input
+                        type="email"
+                        value={emailTo}
+                        onChange={e => setEmailTo(e.target.value)}
+                        placeholder="example@company.com"
+                        className="w-full px-3 py-2.5 rounded-xl border border-gray-200 bg-gray-50 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                        disabled={emailSending}
+                        dir="ltr"
+                      />
+                    </div>
+
+                    {/* Subject */}
+                    <div>
+                      <label className="block text-xs font-bold text-gray-600 mb-1.5">الموضوع</label>
+                      <input
+                        type="text"
+                        value={emailSubject}
+                        onChange={e => setEmailSubject(e.target.value)}
+                        className="w-full px-3 py-2.5 rounded-xl border border-gray-200 bg-gray-50 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                        disabled={emailSending}
+                      />
+                    </div>
+
+                    {/* Body */}
+                    <div>
+                      <label className="block text-xs font-bold text-gray-600 mb-1.5">نص الرسالة</label>
+                      <textarea
+                        value={emailBody.replace(/<[^>]*>/g, '').replace(/&nbsp;/g, ' ')}
+                        onChange={e => setEmailBody(`<p style="direction:rtl;text-align:right;font-family:Arial,sans-serif;">${e.target.value.replace(/\n/g, '<br/>')}</p>`)}
+                        rows={5}
+                        className="w-full px-3 py-2.5 rounded-xl border border-gray-200 bg-gray-50 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent resize-none"
+                        disabled={emailSending}
+                      />
+                    </div>
+
+                    {/* Attachment info */}
+                    <div className="bg-blue-50 border border-blue-200 rounded-xl px-4 py-3 flex items-center gap-3">
+                      <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                        <Download size={16} className="text-blue-600" />
+                      </div>
+                      <div>
+                        <p className="text-blue-800 font-semibold text-xs">مرفق: Invoice-{invoice.invoice_number}.pdf</p>
+                        <p className="text-blue-500 text-[10px]">سيتم إنشاء الملف وإرفاقه تلقائياً</p>
+                      </div>
+                    </div>
+
+                    {/* Actions */}
+                    <div className="flex gap-3 pt-2">
+                      <button
+                        onClick={() => !emailSending && setShowEmailDialog('confirm')}
+                        disabled={emailSending}
+                        className="px-4 py-3 rounded-xl bg-gray-100 text-gray-700 font-bold text-sm hover:bg-gray-200 transition-all disabled:opacity-50"
+                      >
+                        رجوع
+                      </button>
+                      <button
+                        onClick={handleSendInvoiceEmail}
+                        disabled={emailSending || !emailTo}
+                        className="flex-1 px-4 py-3 rounded-xl bg-[#059669] text-white font-bold text-sm hover:bg-[#047857] transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+                      >
+                        {emailSending ? (
+                          <>
+                            <Loader2 size={16} className="animate-spin" />
+                            {pdfGenerating ? 'جاري تجهيز PDF...' : 'جاري الإرسال...'}
+                          </>
+                        ) : (
+                          <>
+                            <Send size={16} />
+                            إرسال الفاتورة
+                          </>
+                        )}
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
         </div>
-      </div>
-    );
-}
+      );
+  }

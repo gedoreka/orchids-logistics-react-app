@@ -95,84 +95,88 @@ async function fetchEmails(
           return;
         }
         const current = remaining[0];
-        imap.openBox(current, true, (err, box) => {
-          if (err) {
-            if (isFolderError(err.message)) {
-              tryOpen(remaining.slice(1));
+          imap.openBox(current, true, (err, box) => {
+            if (err) {
+              if (isFolderError(err.message)) {
+                tryOpen(remaining.slice(1));
+                return;
+              }
+              finish(err);
               return;
             }
-            finish(err);
-            return;
-          }
 
-          const total = box.messages.total;
-          if (total === 0) {
-            finish([]);
-            return;
-          }
+            const total = box.messages.total;
 
-          const start = Math.max(1, total - limit + 1);
-          const fetchRange = `${start}:${total}`;
+            if (total === 0) {
+              finish([]);
+              return;
+            }
 
-          // Fetch ONLY headers - much faster than full body
-          const f = imap.seq.fetch(fetchRange, {
-            bodies: ["HEADER.FIELDS (FROM TO SUBJECT DATE CONTENT-TYPE)"],
-            struct: true,
-          });
-
-          f.on("message", (msg, seqno) => {
-            let uid = 0;
-            const flags: string[] = [];
-            let headerData = "";
-
-            msg.on("attributes", (attrs) => {
-              uid = attrs.uid;
-              flags.push(...(attrs.flags || []));
+            const start = Math.max(1, total - limit + 1);
+            const fetchRange = `${start}:${total}`;
+            // Fetch ONLY headers - much faster than full body
+            const f = imap.seq.fetch(fetchRange, {
+              bodies: ["HEADER.FIELDS (FROM TO SUBJECT DATE CONTENT-TYPE)"],
+              struct: false,
             });
 
-            msg.on("body", (stream) => {
-              stream.on("data", (chunk: Buffer) => {
-                headerData += chunk.toString("utf8");
+            let msgCount = 0;
+
+            f.on("message", (msg, seqno) => {
+              let uid = 0;
+              const flags: string[] = [];
+              let headerData = "";
+
+              msg.on("attributes", (attrs) => {
+                uid = attrs.uid;
+                flags.push(...(attrs.flags || []));
+              });
+
+              msg.on("body", (stream) => {
+                stream.on("data", (chunk: Buffer) => {
+                  headerData += chunk.toString("utf8");
+                });
+              });
+
+              msg.once("end", () => {
+                msgCount++;
+                try {
+                  const headers = Imap.parseHeader(headerData);
+                  const fromRaw = (headers.from || [""])[0];
+                  const match = fromRaw.match(/^"?([^"<]*)"?\s*<?([^>]*)>?$/);
+                  const fromName = match?.[1]?.trim() || fromRaw;
+                  const fromEmail = match?.[2]?.trim() || fromRaw;
+                  const hasAttachments = (headers["content-type"] || []).some(
+                    (ct: string) => ct.toLowerCase().includes("multipart/mixed")
+                  );
+
+                  emails.push({
+                    id: seqno,
+                    uid,
+                    subject: (headers.subject || ["(بدون موضوع)"])[0],
+                    from: fromName,
+                    fromEmail,
+                    to: (headers.to || [""])[0],
+                    date: headers.date?.[0]
+                      ? new Date(headers.date[0]).toISOString()
+                      : new Date().toISOString(),
+                    snippet: "",
+                    body: "",
+                    isRead: flags.includes("\\Seen"),
+                    hasAttachments,
+                    folder: current,
+                  });
+                } catch (e) {
+                  // skip unparseable message
+                }
               });
             });
 
-            msg.once("end", () => {
-              try {
-                const headers = Imap.parseHeader(headerData);
-                const fromRaw = (headers.from || [""])[0];
-                const match = fromRaw.match(/^"?([^"<]*)"?\s*<?([^>]*)>?$/);
-                const fromName = match?.[1]?.trim() || fromRaw;
-                const fromEmail = match?.[2]?.trim() || fromRaw;
-                const hasAttachments = (headers["content-type"] || []).some(
-                  (ct: string) => ct.toLowerCase().includes("multipart/mixed")
-                );
-
-                emails.push({
-                  id: seqno,
-                  uid,
-                  subject: (headers.subject || ["(بدون موضوع)"])[0],
-                  from: fromName,
-                  fromEmail,
-                  to: (headers.to || [""])[0],
-                  date: headers.date?.[0]
-                    ? new Date(headers.date[0]).toISOString()
-                    : new Date().toISOString(),
-                  snippet: "",
-                  body: "",
-                  isRead: flags.includes("\\Seen"),
-                  hasAttachments,
-                  folder: current,
-                });
-              } catch (e) {
-                // skip unparseable message
-              }
+            f.once("error", (err) => finish(err));
+            f.once("end", () => {
+              emails.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+              finish(emails);
             });
-          });
-
-          f.once("error", (err) => finish(err));
-          f.once("end", () => {
-            try { imap.end(); } catch (e) {}
-          });
         });
       };
 
@@ -272,6 +276,63 @@ async function fetchEmailBody(
   });
 }
 
+// Mark email as read by UID
+async function markAsRead(
+  config: { user: string; password: string; host: string; port: number },
+  folder: string,
+  uid: number
+): Promise<boolean> {
+  return new Promise((resolve) => {
+    const imap = createImapConnection(config, { connTimeout: 10000, authTimeout: 5000 });
+    let isFinished = false;
+    const timeout = setTimeout(() => {
+      if (!isFinished) {
+        isFinished = true;
+        try { imap.end(); } catch (e) {}
+        resolve(false);
+      }
+    }, 15000);
+
+    const finish = (success: boolean) => {
+      if (isFinished) return;
+      isFinished = true;
+      clearTimeout(timeout);
+      try { imap.end(); } catch (e) {}
+      resolve(success);
+    };
+
+    imap.once("ready", () => {
+      const candidates = getFolderCandidates(folder);
+
+      const tryOpen = (remaining: string[]) => {
+        if (remaining.length === 0) {
+          finish(false);
+          return;
+        }
+        // Open box as read-write (false = not read-only)
+        imap.openBox(remaining[0], false, (err) => {
+          if (err) {
+            if (isFolderError(err.message)) {
+              tryOpen(remaining.slice(1));
+              return;
+            }
+            finish(false);
+            return;
+          }
+          imap.addFlags([uid], ["\\Seen"], (flagErr) => {
+            finish(!flagErr);
+          });
+        });
+      };
+
+      tryOpen(candidates);
+    });
+
+    imap.on("error", () => finish(false));
+    imap.connect();
+  });
+}
+
 async function getUnreadCount(
   config: { user: string; password: string; host: string; port: number },
   folder: string = "INBOX"
@@ -365,8 +426,14 @@ export async function GET(request: NextRequest) {
       port: account.imap_port,
     };
 
-    // Get unread count
-    if (action === "unread") {
+      // Mark email as read
+      if (action === "markread" && uid) {
+        const success = await markAsRead(config, folder, parseInt(uid));
+        return NextResponse.json({ success });
+      }
+
+      // Get unread count
+      if (action === "unread") {
       const unreadCount = await getUnreadCount(config, folder);
       return NextResponse.json({ unreadCount });
     }
