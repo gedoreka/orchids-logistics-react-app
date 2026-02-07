@@ -1,13 +1,6 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  experimental: {
-    turbo: {
-      rules: {
-        '*.json': ['json'],
-      },
-    },
-  },
   images: {
     remotePatterns: [
       {
