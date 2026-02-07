@@ -36,13 +36,16 @@ import {
   FolderOpen,
   Hash,
   CircleDot,
-  Sparkles,
-  CheckCircle2,
-  Package as PackageIcon,
-  Crown,
-  Briefcase,
-  TrendingUp
-} from "lucide-react";
+    Sparkles,
+    CheckCircle2,
+    Package as PackageIcon,
+    Crown,
+    Briefcase,
+    TrendingUp,
+    Banknote,
+    ArrowLeftRight,
+    Building
+  } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "@/lib/locale-context";
@@ -2253,62 +2256,62 @@ export function NewPayrollClient({ packages, debts, companyId, userName }: NewPa
                         </div>
                       </div>
 
-                      <div className="flex-1 overflow-auto">
-                        <table className="w-full text-sm">
-                          <thead className="bg-gray-100 sticky top-0 z-10">
-                            <tr className="border-b border-gray-200">
-                              <th className="text-center px-2 py-2.5 text-xs font-bold text-gray-700 whitespace-nowrap border-l border-gray-200">
-                                <input
-                                  type="checkbox"
-                                  checked={employeeRows.every(row => row.selected)}
-                                  onChange={toggleSelectAll}
-                                  className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                                />
-                              </th>
-                              <th className="text-right px-3 py-2.5 text-xs font-bold text-gray-700 whitespace-nowrap border-l border-gray-200">{t("newPayroll.columns.no")}</th>
-                              <th className="text-right px-3 py-2.5 text-xs font-bold text-gray-700 whitespace-nowrap border-l border-gray-200">{t("newPayroll.columns.employeeName")}</th>
-                              <th className="text-right px-3 py-2.5 text-xs font-bold text-gray-700 whitespace-nowrap border-l border-gray-200">{t("newPayroll.columns.iqama")}</th>
-                              {!isSalaryType && (
-                                <th className="text-right px-3 py-2.5 text-xs font-bold text-gray-700 whitespace-nowrap border-l border-gray-200">{t("newPayroll.columns.code")}</th>
-                              )}
-                              <th className="text-right px-3 py-2.5 text-xs font-bold text-gray-700 whitespace-nowrap border-l border-gray-200">{t("newPayroll.columns.salary")}</th>
-                              {isSalaryType ? (
-                                <>
-                                  <th className="text-right px-3 py-2.5 text-xs font-bold text-gray-700 whitespace-nowrap border-l border-gray-200">{t("newPayroll.columns.housing")}</th>
-                                  <th className="text-right px-3 py-2.5 text-xs font-bold text-gray-700 whitespace-nowrap border-l border-gray-200">{t("newPayroll.columns.nationality")}</th>
-                                  <th className="text-right px-3 py-2.5 text-xs font-bold text-gray-700 whitespace-nowrap border-l border-gray-200">{t("newPayroll.columns.internalDeduction")}</th>
-                                  <th className="text-right px-3 py-2.5 text-xs font-bold text-gray-700 whitespace-nowrap border-l border-gray-200">{t("newPayroll.columns.reward")}</th>
-                                </>
-                              ) : (
-                                <>
-                                  <th className="text-right px-3 py-2.5 text-xs font-bold text-gray-700 whitespace-nowrap border-l border-gray-200">{t("newPayroll.columns.target")}</th>
-                                  <th className="text-right px-3 py-2.5 text-xs font-bold text-gray-700 whitespace-nowrap border-l border-gray-200">{t("newPayroll.columns.bonus")}</th>
-                                  <th className="text-right px-3 py-2.5 text-xs font-bold text-gray-700 whitespace-nowrap border-l border-gray-200">{t("newPayroll.columns.orders")}</th>
-                                  <th className="text-right px-3 py-2.5 text-xs font-bold text-gray-700 whitespace-nowrap border-l border-gray-200">{t("newPayroll.columns.targetDeduction")}</th>
-                                  <th className="text-right px-3 py-2.5 text-xs font-bold text-gray-700 whitespace-nowrap border-l border-gray-200">{t("newPayroll.columns.monthlyBonus")}</th>
-                                  <th className="text-right px-3 py-2.5 text-xs font-bold text-gray-700 whitespace-nowrap border-l border-gray-200">{t("newPayroll.columns.operatorDeduction")}</th>
-                                  <th className="text-right px-3 py-2.5 text-xs font-bold text-gray-700 whitespace-nowrap border-l border-gray-200">{t("newPayroll.columns.internal")}</th>
-                                  <th className="text-right px-3 py-2.5 text-xs font-bold text-gray-700 whitespace-nowrap border-l border-gray-200">{t("newPayroll.columns.wallet")}</th>
-                                  <th className="text-right px-3 py-2.5 text-xs font-bold text-gray-700 whitespace-nowrap border-l border-gray-200">{t("newPayroll.columns.reward")}</th>
-                                </>
-                              )}
-                              <th className="text-right px-3 py-2.5 text-xs font-bold text-gray-700 whitespace-nowrap border-l border-gray-200">{t("newPayroll.columns.netSalary")}</th>
-                              <th className="text-right px-3 py-2.5 text-xs font-bold text-gray-700 whitespace-nowrap">{t("newPayroll.columns.paymentMethod")}</th>
-                            </tr>
-                          </thead>
+                        <div className="flex-1 overflow-auto">
+                          <table className="w-full text-sm">
+                            <thead className="bg-gradient-to-l from-slate-800 via-slate-700 to-slate-800 sticky top-0 z-10 shadow-lg">
+                              <tr>
+                                <th className="text-center px-2 py-3 text-xs font-bold text-white/90 whitespace-nowrap border-l border-white/10">
+                                  <input
+                                    type="checkbox"
+                                    checked={employeeRows.every(row => row.selected)}
+                                    onChange={toggleSelectAll}
+                                    className="w-4 h-4 rounded border-white/30 text-blue-500 focus:ring-blue-400 bg-white/10"
+                                  />
+                                </th>
+                                <th className="text-right px-3 py-3 text-xs font-bold text-white/90 whitespace-nowrap border-l border-white/10">{t("newPayroll.columns.no")}</th>
+                                <th className="text-right px-3 py-3 text-xs font-bold text-white/90 whitespace-nowrap border-l border-white/10">{t("newPayroll.columns.employeeName")}</th>
+                                <th className="text-right px-3 py-3 text-xs font-bold text-white/90 whitespace-nowrap border-l border-white/10">{t("newPayroll.columns.iqama")}</th>
+                                {!isSalaryType && (
+                                  <th className="text-right px-3 py-3 text-xs font-bold text-white/90 whitespace-nowrap border-l border-white/10">{t("newPayroll.columns.code")}</th>
+                                )}
+                                <th className="text-right px-3 py-3 text-xs font-bold text-white/90 whitespace-nowrap border-l border-white/10">{t("newPayroll.columns.salary")}</th>
+                                {isSalaryType ? (
+                                  <>
+                                    <th className="text-right px-3 py-3 text-xs font-bold text-white/90 whitespace-nowrap border-l border-white/10">{t("newPayroll.columns.housing")}</th>
+                                    <th className="text-right px-3 py-3 text-xs font-bold text-white/90 whitespace-nowrap border-l border-white/10">{t("newPayroll.columns.nationality")}</th>
+                                    <th className="text-right px-3 py-3 text-xs font-bold text-white/90 whitespace-nowrap border-l border-white/10">{t("newPayroll.columns.internalDeduction")}</th>
+                                    <th className="text-right px-3 py-3 text-xs font-bold text-white/90 whitespace-nowrap border-l border-white/10">{t("newPayroll.columns.reward")}</th>
+                                  </>
+                                ) : (
+                                  <>
+                                    <th className="text-right px-3 py-3 text-xs font-bold text-white/90 whitespace-nowrap border-l border-white/10">{t("newPayroll.columns.target")}</th>
+                                    <th className="text-right px-3 py-3 text-xs font-bold text-white/90 whitespace-nowrap border-l border-white/10">{t("newPayroll.columns.bonus")}</th>
+                                    <th className="text-right px-3 py-3 text-xs font-bold text-white/90 whitespace-nowrap border-l border-white/10">{t("newPayroll.columns.orders")}</th>
+                                    <th className="text-right px-3 py-3 text-xs font-bold text-white/90 whitespace-nowrap border-l border-white/10">{t("newPayroll.columns.targetDeduction")}</th>
+                                    <th className="text-right px-3 py-3 text-xs font-bold text-white/90 whitespace-nowrap border-l border-white/10">{t("newPayroll.columns.monthlyBonus")}</th>
+                                    <th className="text-right px-3 py-3 text-xs font-bold text-white/90 whitespace-nowrap border-l border-white/10">{t("newPayroll.columns.operatorDeduction")}</th>
+                                    <th className="text-right px-3 py-3 text-xs font-bold text-white/90 whitespace-nowrap border-l border-white/10">{t("newPayroll.columns.internal")}</th>
+                                    <th className="text-right px-3 py-3 text-xs font-bold text-white/90 whitespace-nowrap border-l border-white/10">{t("newPayroll.columns.wallet")}</th>
+                                    <th className="text-right px-3 py-3 text-xs font-bold text-white/90 whitespace-nowrap border-l border-white/10">{t("newPayroll.columns.reward")}</th>
+                                  </>
+                                )}
+                                <th className="text-right px-3 py-3 text-xs font-bold text-white/90 whitespace-nowrap border-l border-white/10">{t("newPayroll.columns.netSalary")}</th>
+                                <th className="text-right px-3 py-3 text-xs font-bold text-white/90 whitespace-nowrap">{t("newPayroll.columns.paymentMethod")}</th>
+                              </tr>
+                            </thead>
                           <tbody>
                             {filteredEmployeeRows.map((row, filteredIdx) => {
                               const realIndex = getFilteredIndex(filteredIdx);
                               return (
-                                <tr 
-                                  key={realIndex} 
-                                  className={`border-b border-gray-100 transition-colors duration-100 ${
-                                    !row.selected ? 'bg-gray-100 opacity-60' :
-                                    row.has_debt ? 'bg-amber-50 hover:bg-amber-100/60' :
-                                    row.net_salary < 0 ? 'bg-red-50 hover:bg-red-100/60' : 
-                                    'hover:bg-blue-50/60'
-                                  }`}
-                                >
+                                  <tr 
+                                    key={realIndex} 
+                                    className={`border-b border-gray-100/80 transition-all duration-150 ${
+                                      !row.selected ? 'bg-gray-100 opacity-60' :
+                                      row.has_debt ? 'bg-amber-50/80 hover:bg-amber-100/60' :
+                                      row.net_salary < 0 ? 'bg-red-50/80 hover:bg-red-100/60' : 
+                                      filteredIdx % 2 === 0 ? 'bg-white hover:bg-blue-50/50' : 'bg-slate-50/70 hover:bg-blue-50/50'
+                                    }`}
+                                  >
                                   <td className="px-2 py-2 text-center border-l border-gray-100">
                                     <input
                                       type="checkbox"
@@ -2339,118 +2342,135 @@ export function NewPayrollClient({ packages, debts, companyId, userName }: NewPa
                                     <>
                                       <td className="px-3 py-2 text-gray-600 border-l border-gray-100 text-xs">{row.housing_allowance.toLocaleString('en-US')}</td>
                                       <td className="px-3 py-2 text-gray-500 border-l border-gray-100 text-xs">{row.nationality}</td>
-                                      <td className="px-3 py-2 border-l border-gray-100">
-                                        <input
-                                          type="number"
-                                          value={row.internal_deduction}
-                                          onChange={(e) => handleRowChange(realIndex, 'internal_deduction', parseFloat(e.target.value) || 0)}
-                                          className={`w-20 px-2 py-1 rounded-lg border text-center text-sm focus:border-blue-500 outline-none ${
-                                            row.has_debt ? 'border-red-300 bg-red-50' : 'border-gray-200'
-                                          }`}
-                                          min="0"
-                                        />
-                                      </td>
-                                      <td className="px-3 py-2 border-l border-gray-100">
-                                        <input
-                                          type="number"
-                                          value={row.internal_bonus}
-                                          onChange={(e) => handleRowChange(realIndex, 'internal_bonus', parseFloat(e.target.value) || 0)}
-                                          className="w-20 px-2 py-1 rounded-lg border border-gray-200 text-center text-sm focus:border-blue-500 outline-none"
-                                          min="0"
-                                        />
-                                      </td>
+                                        <td className="px-3 py-2 border-l border-gray-100">
+                                          <input
+                                            type="number"
+                                            value={row.internal_deduction}
+                                            onChange={(e) => handleRowChange(realIndex, 'internal_deduction', parseFloat(e.target.value) || 0)}
+className={`w-20 bg-transparent border-0 border-b-2 px-2 py-1.5 text-center text-sm font-semibold text-gray-900 focus:border-blue-500 focus:outline-none transition-all duration-300 ${
+                                                row.has_debt ? 'border-red-300' : 'border-gray-200 hover:border-gray-400'
+                                              }`}
+                                              min="0"
+                                            />
+                                          </td>
+                                          <td className="px-3 py-2 border-l border-gray-100">
+                                            <input
+                                              type="number"
+                                              value={row.internal_bonus}
+                                              onChange={(e) => handleRowChange(realIndex, 'internal_bonus', parseFloat(e.target.value) || 0)}
+                                              className="w-20 bg-transparent border-0 border-b-2 border-gray-200 px-2 py-1.5 text-center text-sm font-semibold text-gray-900 focus:border-blue-500 focus:outline-none transition-all duration-300 hover:border-gray-400"
+                                            min="0"
+                                          />
+                                        </td>
                                     </>
                                   ) : (
                                     <>
                                       <td className="px-3 py-2 text-gray-500 border-l border-gray-100 text-xs">{row.target}</td>
                                       <td className="px-3 py-2 text-gray-500 border-l border-gray-100 text-xs">{row.bonus_per_order}</td>
                                       <td className="px-3 py-2 border-l border-gray-100">
-                                        <input
-                                          type="number"
-                                          value={row.successful_orders}
-                                          onChange={(e) => handleRowChange(realIndex, 'successful_orders', parseFloat(e.target.value) || 0)}
-                                          className="w-16 px-2 py-1 rounded-lg border border-gray-200 text-center text-sm focus:border-blue-500 outline-none"
-                                          min="0"
-                                        />
-                                      </td>
+                                          <input
+                                            type="number"
+                                            value={row.successful_orders}
+                                            onChange={(e) => handleRowChange(realIndex, 'successful_orders', parseFloat(e.target.value) || 0)}
+className="w-16 bg-transparent border-0 border-b-2 border-gray-200 px-2 py-1.5 text-center text-sm font-semibold text-gray-900 focus:border-blue-500 focus:outline-none transition-all duration-300 hover:border-gray-400"
+                                              min="0"
+                                            />
+                                          </td>
+                                            <td className="px-3 py-2 border-l border-gray-100">
+                                              <input
+                                                type="text"
+                                                value={(Number(row.target_deduction) || 0).toFixed(2)}
+                                                readOnly
+                                                className="w-16 bg-transparent border-0 border-b-2 border-red-200 px-2 py-1.5 text-center text-sm text-red-600 font-bold cursor-default"
+                                            />
+                                          </td>
+                                          <td className="px-3 py-2 border-l border-gray-100">
+                                            <input
+                                              type="text"
+                                              value={(Number(row.monthly_bonus) || 0).toFixed(2)}
+                                              readOnly
+                                              className="w-16 bg-transparent border-0 border-b-2 border-emerald-200 px-2 py-1.5 text-center text-sm text-emerald-600 font-bold cursor-default"
+                                            />
+                                          </td>
                                         <td className="px-3 py-2 border-l border-gray-100">
                                           <input
-                                            type="text"
-                                            value={(Number(row.target_deduction) || 0).toFixed(2)}
-                                            readOnly
-                                            className="w-16 px-2 py-1 rounded-lg border border-gray-100 bg-gray-50 text-center text-sm text-red-600 font-bold"
+                                            type="number"
+                                            value={row.operator_deduction}
+                                            onChange={(e) => handleRowChange(realIndex, 'operator_deduction', parseFloat(e.target.value) || 0)}
+                                              className="w-16 bg-transparent border-0 border-b-2 border-gray-200 px-2 py-1.5 text-center text-sm font-semibold text-gray-900 focus:border-blue-500 focus:outline-none transition-all duration-300 hover:border-gray-400"
+                                              min="0"
+                                            />
+                                          </td>
+                                          <td className="px-3 py-2 border-l border-gray-100">
+                                            <input
+                                              type="number"
+                                              value={row.internal_deduction}
+                                              onChange={(e) => handleRowChange(realIndex, 'internal_deduction', parseFloat(e.target.value) || 0)}
+                                              className={`w-16 bg-transparent border-0 border-b-2 px-2 py-1.5 text-center text-sm font-semibold text-gray-900 focus:border-blue-500 focus:outline-none transition-all duration-300 ${
+                                                row.has_debt ? 'border-red-300' : 'border-gray-200 hover:border-gray-400'
+                                              }`}
+                                              min="0"
+                                            />
+                                          </td>
+                                          <td className="px-3 py-2 border-l border-gray-100">
+                                            <input
+                                              type="number"
+                                              value={row.wallet_deduction}
+                                              onChange={(e) => handleRowChange(realIndex, 'wallet_deduction', parseFloat(e.target.value) || 0)}
+                                              className="w-16 bg-transparent border-0 border-b-2 border-gray-200 px-2 py-1.5 text-center text-sm font-semibold text-gray-900 focus:border-blue-500 focus:outline-none transition-all duration-300 hover:border-gray-400"
+                                              min="0"
+                                            />
+                                          </td>
+                                          <td className="px-3 py-2 border-l border-gray-100">
+                                            <input
+                                              type="number"
+                                              value={row.internal_bonus}
+                                              onChange={(e) => handleRowChange(realIndex, 'internal_bonus', parseFloat(e.target.value) || 0)}
+                                              className="w-16 bg-transparent border-0 border-b-2 border-gray-200 px-2 py-1.5 text-center text-sm font-semibold text-gray-900 focus:border-blue-500 focus:outline-none transition-all duration-300 hover:border-gray-400"
+                                            min="0"
                                           />
                                         </td>
-                                        <td className="px-3 py-2 border-l border-gray-100">
-                                          <input
-                                            type="text"
-                                            value={(Number(row.monthly_bonus) || 0).toFixed(2)}
-                                            readOnly
-                                            className="w-16 px-2 py-1 rounded-lg border border-gray-100 bg-gray-50 text-center text-sm text-emerald-600 font-bold"
-                                          />
-                                        </td>
-                                      <td className="px-3 py-2 border-l border-gray-100">
-                                        <input
-                                          type="number"
-                                          value={row.operator_deduction}
-                                          onChange={(e) => handleRowChange(realIndex, 'operator_deduction', parseFloat(e.target.value) || 0)}
-                                          className="w-16 px-2 py-1 rounded-lg border border-gray-200 text-center text-sm focus:border-blue-500 outline-none"
-                                          min="0"
-                                        />
-                                      </td>
-                                      <td className="px-3 py-2 border-l border-gray-100">
-                                        <input
-                                          type="number"
-                                          value={row.internal_deduction}
-                                          onChange={(e) => handleRowChange(realIndex, 'internal_deduction', parseFloat(e.target.value) || 0)}
-                                          className={`w-16 px-2 py-1 rounded-lg border text-center text-sm focus:border-blue-500 outline-none ${
-                                            row.has_debt ? 'border-red-300 bg-red-50' : 'border-gray-200'
-                                          }`}
-                                          min="0"
-                                        />
-                                      </td>
-                                      <td className="px-3 py-2 border-l border-gray-100">
-                                        <input
-                                          type="number"
-                                          value={row.wallet_deduction}
-                                          onChange={(e) => handleRowChange(realIndex, 'wallet_deduction', parseFloat(e.target.value) || 0)}
-                                          className="w-16 px-2 py-1 rounded-lg border border-gray-200 text-center text-sm focus:border-blue-500 outline-none"
-                                          min="0"
-                                        />
-                                      </td>
-                                      <td className="px-3 py-2 border-l border-gray-100">
-                                        <input
-                                          type="number"
-                                          value={row.internal_bonus}
-                                          onChange={(e) => handleRowChange(realIndex, 'internal_bonus', parseFloat(e.target.value) || 0)}
-                                          className="w-16 px-2 py-1 rounded-lg border border-gray-200 text-center text-sm focus:border-blue-500 outline-none"
-                                          min="0"
-                                        />
-                                      </td>
                                     </>
                                   )}
                                   <td className="px-3 py-2 border-l border-gray-100">
-                                    <input
-                                      type="text"
-                                      value={(Number(row.net_salary) || 0).toFixed(2)}
-                                      readOnly
-                                      className={`w-24 px-2 py-1 rounded-lg border text-center text-sm font-bold ${
-                                        row.net_salary < 0 ? 'bg-red-100 border-red-200 text-red-600' : 'bg-emerald-50 border-emerald-200 text-emerald-600'
-                                      }`}
-                                    />
-                                  </td>
+                                      <input
+                                        type="text"
+                                        value={(Number(row.net_salary) || 0).toFixed(2)}
+                                        readOnly
+                                        className={`w-24 bg-transparent border-0 border-b-2 px-2 py-1.5 text-center text-sm font-black cursor-default ${
+                                          row.net_salary < 0 ? 'border-red-300 text-red-600' : 'border-emerald-300 text-emerald-600'
+                                        }`}
+                                      />
+                                    </td>
                                   <td className="px-3 py-2">
-                                    <select
-                                      value={row.payment_method}
-                                      onChange={(e) => handleRowChange(realIndex, 'payment_method', e.target.value)}
-                                      className="w-full min-w-[100px] px-2 py-1 rounded-lg border border-gray-200 text-xs focus:border-blue-500 outline-none bg-white text-gray-700"
-                                    >
-                                      <option value="غير محدد">{t("newPayroll.paymentMethods.notSpecified")}</option>
-                                      <option value="مدد">{t("newPayroll.paymentMethods.mudad")}</option>
-                                      <option value="كاش">{t("newPayroll.paymentMethods.cash")}</option>
-                                      <option value="تحويل بنكي">{t("newPayroll.paymentMethods.transfer")}</option>
-                                    </select>
-                                  </td>
+                                      {(() => {
+                                        const paymentConfig: Record<string, { icon: React.ElementType; color: string; bg: string }> = {
+                                          'غير محدد': { icon: CircleDot, color: 'text-gray-500', bg: 'bg-gray-100' },
+                                          'مدد': { icon: Building, color: 'text-blue-600', bg: 'bg-blue-50' },
+                                          'كاش': { icon: Banknote, color: 'text-emerald-600', bg: 'bg-emerald-50' },
+                                          'تحويل بنكي': { icon: ArrowLeftRight, color: 'text-violet-600', bg: 'bg-violet-50' },
+                                        };
+                                        const current = paymentConfig[row.payment_method] || paymentConfig['غير محدد'];
+                                        const CurrentIcon = current.icon;
+                                        return (
+                                          <div className="relative">
+                                            <div className={`absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none ${current.color}`}>
+                                              <CurrentIcon size={14} />
+                                            </div>
+                                            <select
+                                              value={row.payment_method}
+                                              onChange={(e) => handleRowChange(realIndex, 'payment_method', e.target.value)}
+                                              className={`w-full min-w-[120px] pr-8 pl-2 py-1.5 rounded-xl border text-xs font-bold focus:ring-2 focus:ring-blue-200 focus:border-blue-400 outline-none transition-all duration-200 ${current.bg} ${current.color} border-transparent`}
+                                            >
+                                              <option value="غير محدد">{t("newPayroll.paymentMethods.notSpecified")}</option>
+                                              <option value="مدد">{t("newPayroll.paymentMethods.mudad")}</option>
+                                              <option value="كاش">{t("newPayroll.paymentMethods.cash")}</option>
+                                              <option value="تحويل بنكي">{t("newPayroll.paymentMethods.transfer")}</option>
+                                            </select>
+                                          </div>
+                                        );
+                                      })()}
+                                    </td>
                                 </tr>
                               );
                             })}
@@ -2458,31 +2478,49 @@ export function NewPayrollClient({ packages, debts, companyId, userName }: NewPa
                         </table>
                       </div>
 
-                      <div className="bg-gray-50 border-t border-gray-100 p-4 flex-shrink-0">
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                          <div className="bg-white rounded-xl p-3 border border-gray-200 shadow-sm">
-                            <div className="flex items-center gap-2 text-gray-500 mb-1">
-                              <DollarSign size={14} />
-                              <span className="text-xs font-bold">{t("newPayroll.totals.totalSalaries")}</span>
+                        <div className="border-t border-gray-100 p-4 flex-shrink-0">
+                          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div className="relative overflow-hidden rounded-2xl p-5 bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-xl shadow-emerald-500/25">
+                              <div className="absolute -top-4 -left-4 opacity-15">
+                                <DollarSign size={100} />
+                              </div>
+                              <div className="relative z-10">
+                                <div className="flex items-center gap-2 text-white/80 mb-2">
+                                  <DollarSign size={16} />
+                                  <span className="text-xs font-bold">{t("newPayroll.totals.totalSalaries")}</span>
+                                </div>
+                                <p className="text-2xl font-black">{totals.totalSalary.toLocaleString('en-US', { minimumFractionDigits: 2 })}</p>
+                                <p className="text-white/60 text-xs mt-1">{t("stats.sar")}</p>
+                              </div>
                             </div>
-                            <p className="text-xl font-black text-blue-600">{totals.totalSalary.toLocaleString('en-US', { minimumFractionDigits: 2 })} <span className="text-xs">{t("stats.sar")}</span></p>
-                          </div>
-                          <div className="bg-white rounded-xl p-3 border border-gray-200 shadow-sm">
-                            <div className="flex items-center gap-2 text-gray-500 mb-1">
-                              <Target size={14} />
-                              <span className="text-xs font-bold">{t("newPayroll.totals.totalOrders")}</span>
+                            <div className="relative overflow-hidden rounded-2xl p-5 bg-gradient-to-br from-blue-500 to-indigo-600 text-white shadow-xl shadow-blue-500/25">
+                              <div className="absolute -top-4 -left-4 opacity-15">
+                                <Target size={100} />
+                              </div>
+                              <div className="relative z-10">
+                                <div className="flex items-center gap-2 text-white/80 mb-2">
+                                  <Target size={16} />
+                                  <span className="text-xs font-bold">{t("newPayroll.totals.totalOrders")}</span>
+                                </div>
+                                <p className="text-2xl font-black">{totals.totalOrders.toLocaleString('en-US')}</p>
+                                <p className="text-white/60 text-xs mt-1">{t("newPayroll.columns.orders")}</p>
+                              </div>
                             </div>
-                            <p className="text-xl font-black text-gray-900">{totals.totalOrders.toLocaleString('en-US')}</p>
-                          </div>
-                          <div className="bg-white rounded-xl p-3 border border-gray-200 shadow-sm">
-                            <div className="flex items-center gap-2 text-gray-500 mb-1">
-                              <AlertTriangle size={14} />
-                              <span className="text-xs font-bold">{t("newPayroll.totals.totalDeductions")}</span>
+                            <div className="relative overflow-hidden rounded-2xl p-5 bg-gradient-to-br from-rose-500 to-pink-600 text-white shadow-xl shadow-rose-500/25">
+                              <div className="absolute -top-4 -left-4 opacity-15">
+                                <AlertTriangle size={100} />
+                              </div>
+                              <div className="relative z-10">
+                                <div className="flex items-center gap-2 text-white/80 mb-2">
+                                  <AlertTriangle size={16} />
+                                  <span className="text-xs font-bold">{t("newPayroll.totals.totalDeductions")}</span>
+                                </div>
+                                <p className="text-2xl font-black">{totals.totalDeductions.toLocaleString('en-US', { minimumFractionDigits: 2 })}</p>
+                                <p className="text-white/60 text-xs mt-1">{t("stats.sar")}</p>
+                              </div>
                             </div>
-                            <p className="text-xl font-black text-red-600">{totals.totalDeductions.toLocaleString('en-US', { minimumFractionDigits: 2 })} <span className="text-xs">{t("stats.sar")}</span></p>
                           </div>
                         </div>
-                      </div>
                     </div>
                   )}
 
