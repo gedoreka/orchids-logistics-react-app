@@ -236,33 +236,33 @@ interface AccountsClientProps {
 
   return (
     <div className="w-full max-w-[98%] mx-auto px-6 py-6" dir={isRtl ? "rtl" : "ltr"}>
-      <div className="bg-[#1a2234] rounded-[30px] p-8 shadow-2xl border border-white/5 space-y-8">
-        {/* Header */}
-        <motion.div 
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="relative overflow-hidden rounded-[2.5rem] bg-gradient-to-br from-[#1e293b] via-[#334155] to-[#1e293b] p-10 text-white shadow-2xl border border-white/10"
-        >
-          <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 via-emerald-500 via-rose-500 via-amber-500 via-purple-500 to-blue-500 animate-gradient-x"></div>
-          
-          <div className="relative z-10 flex flex-col items-center justify-center text-center space-y-6">
-            <div className="p-4 bg-white/10 rounded-[2rem] backdrop-blur-md border border-white/10 shadow-2xl">
-              <BookOpen className="w-10 h-10 text-blue-400" />
+        <div className="bg-gradient-to-b from-[#0f172a] to-[#1a2234] rounded-[30px] p-8 shadow-[0_32px_64px_-12px_rgba(0,0,0,0.6),0_0_0_1px_rgba(255,255,255,0.05)] border border-white/[0.07] space-y-8">
+          {/* Header */}
+          <motion.div 
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="relative overflow-hidden rounded-[2.5rem] bg-gradient-to-br from-[#0f172a] via-[#1e293b] to-[#0f172a] p-10 text-white shadow-[0_20px_60px_-15px_rgba(59,130,246,0.15),inset_0_1px_0_rgba(255,255,255,0.1)] border border-white/[0.08]"
+          >
+            <div className="absolute top-0 left-0 w-full h-[2px] bg-gradient-to-r from-blue-500 via-cyan-400 to-blue-500"></div>
+            
+            <div className="relative z-10 flex flex-col items-center justify-center text-center space-y-6">
+              <div className="p-5 bg-gradient-to-br from-blue-500/20 to-indigo-500/10 rounded-[2rem] backdrop-blur-md border border-blue-400/20 shadow-[0_8px_32px_rgba(59,130,246,0.2)]">
+                <BookOpen className="w-10 h-10 text-blue-400 drop-shadow-[0_0_8px_rgba(96,165,250,0.5)]" />
+              </div>
+              <div className="space-y-3">
+                <h1 className="text-3xl font-black tracking-tight bg-gradient-to-r from-white via-blue-200 to-white bg-clip-text text-transparent drop-shadow-sm">
+                  {t("title") || "شجرة الحسابات"}
+                </h1>
+                <p className="text-slate-400 max-w-2xl font-medium text-sm">
+                  {t("subtitle") || "إدارة وتنظيم كافة الحسابات المالية للمنشأة بشكل شجري"}
+                </p>
+              </div>
             </div>
-            <div className="space-y-2">
-              <h1 className="text-3xl font-black tracking-tight bg-gradient-to-r from-white via-blue-100 to-white bg-clip-text text-transparent">
-                {t("title") || "شجرة الحسابات"}
-              </h1>
-              <p className="text-slate-300 max-w-2xl font-medium">
-                {t("subtitle") || "إدارة وتنظيم كافة الحسابات المالية للمنشأة بشكل شجري"}
-              </p>
-            </div>
-          </div>
 
-          {/* Decorative elements */}
-          <div className="absolute -bottom-12 -right-12 w-48 h-48 bg-blue-500/10 rounded-full blur-3xl" />
-          <div className="absolute -top-12 -left-12 w-48 h-48 bg-purple-500/10 rounded-full blur-3xl" />
-        </motion.div>
+            {/* Decorative elements */}
+            <div className="absolute -bottom-20 -right-20 w-64 h-64 bg-blue-600/8 rounded-full blur-[80px]" />
+            <div className="absolute -top-20 -left-20 w-64 h-64 bg-indigo-600/8 rounded-full blur-[80px]" />
+          </motion.div>
 
           {/* Stats Cards */}
           <motion.div 
@@ -270,48 +270,31 @@ interface AccountsClientProps {
             animate={{ opacity: 1 }}
             className="grid grid-cols-1 md:grid-cols-4 gap-6"
           >
-            <div className={cn("bg-slate-800/80 backdrop-blur-xl p-6 rounded-[2rem] border border-white/10 shadow-xl flex items-center space-x-4 group hover:border-blue-500/50 transition-all hover:shadow-2xl hover:-translate-y-1", isRtl ? "space-x-reverse" : "space-x")}>
-              <div className="p-4 bg-gradient-to-br from-blue-500 to-blue-700 rounded-2xl text-white shadow-lg">
-                <Wallet className="w-6 h-6" />
-              </div>
-              <div>
-                <p className="text-xs text-slate-400 font-black mb-1">{t("totalAccounts")}</p>
-                <p className="text-3xl font-black text-white tracking-tight">{stats.total}</p>
-              </div>
-            </div>
-            <div className={cn("bg-slate-800/80 backdrop-blur-xl p-6 rounded-[2rem] border border-white/10 shadow-xl flex items-center space-x-4 group hover:border-rose-500/50 transition-all hover:shadow-2xl hover:-translate-y-1", isRtl ? "space-x-reverse" : "space-x")}>
-              <div className="p-4 bg-gradient-to-br from-rose-500 to-rose-700 rounded-2xl text-white shadow-lg">
-                <TrendingDown className="w-6 h-6" />
-              </div>
-              <div>
-                <p className="text-xs text-slate-400 font-black mb-1">{t("expenseAccounts")}</p>
-                <p className="text-3xl font-black text-white tracking-tight">{stats.expenses}</p>
-              </div>
-            </div>
-            <div className={cn("bg-slate-800/80 backdrop-blur-xl p-6 rounded-[2rem] border border-white/10 shadow-xl flex items-center space-x-4 group hover:border-emerald-500/50 transition-all hover:shadow-2xl hover:-translate-y-1", isRtl ? "space-x-reverse" : "space-x")}>
-              <div className="p-4 bg-gradient-to-br from-emerald-500 to-emerald-700 rounded-2xl text-white shadow-lg">
-                <TrendingUp className="w-6 h-6" />
-              </div>
-              <div>
-                <p className="text-xs text-slate-400 font-black mb-1">{t("incomeAccounts")}</p>
-                <p className="text-3xl font-black text-white tracking-tight">{stats.income}</p>
-              </div>
-            </div>
-            <div className={cn("bg-slate-800/80 backdrop-blur-xl p-6 rounded-[2rem] border border-white/10 shadow-xl flex items-center space-x-4 group hover:border-purple-500/50 transition-all hover:shadow-2xl hover:-translate-y-1", isRtl ? "space-x-reverse" : "space-x")}>
-              <div className="p-4 bg-gradient-to-br from-purple-500 to-purple-700 rounded-2xl text-white shadow-lg">
-                <BarChart3 className="w-6 h-6" />
-              </div>
-              <div>
-                <p className="text-xs text-slate-400 font-black mb-1">{t("others")}</p>
-                <p className="text-3xl font-black text-white tracking-tight">{stats.total - stats.expenses - stats.income}</p>
-              </div>
-            </div>
+              {[
+                { label: t("totalAccounts"), value: stats.total, icon: Wallet, gradient: "from-blue-500 to-blue-600", glow: "rgba(59,130,246,0.3)", hoverBorder: "hover:border-blue-500/40" },
+                { label: t("expenseAccounts"), value: stats.expenses, icon: TrendingDown, gradient: "from-rose-500 to-rose-600", glow: "rgba(244,63,94,0.3)", hoverBorder: "hover:border-rose-500/40" },
+                { label: t("incomeAccounts"), value: stats.income, icon: TrendingUp, gradient: "from-emerald-500 to-emerald-600", glow: "rgba(16,185,129,0.3)", hoverBorder: "hover:border-emerald-500/40" },
+                { label: t("others"), value: stats.total - stats.expenses - stats.income, icon: BarChart3, gradient: "from-purple-500 to-purple-600", glow: "rgba(168,85,247,0.3)", hoverBorder: "hover:border-purple-500/40" },
+              ].map((stat, i) => {
+                const StatIcon = stat.icon;
+                return (
+                  <div key={i} className={cn("bg-[#0f172a]/80 backdrop-blur-xl p-6 rounded-[1.5rem] border border-white/[0.06] shadow-[0_8px_32px_-8px_rgba(0,0,0,0.5)] flex items-center space-x-4 group transition-all duration-300 hover:-translate-y-1", stat.hoverBorder, isRtl ? "space-x-reverse" : "space-x")} style={{ boxShadow: `0 8px 32px -8px rgba(0,0,0,0.5)` }}>
+                    <div className={cn("p-4 bg-gradient-to-br rounded-xl text-white shadow-lg", stat.gradient)} style={{ boxShadow: `0 8px 24px -4px ${stat.glow}` }}>
+                      <StatIcon className="w-6 h-6" />
+                    </div>
+                    <div>
+                      <p className="text-[11px] text-slate-500 font-bold mb-1 uppercase tracking-wider">{stat.label}</p>
+                      <p className="text-3xl font-black text-white tracking-tight">{stat.value}</p>
+                    </div>
+                  </div>
+                );
+              })}
           </motion.div>
 
           {/* Search and Filter Bar */}
-          <motion.div 
-            className="bg-slate-800/80 backdrop-blur-xl p-6 rounded-[2rem] shadow-xl border border-white/10 flex flex-col md:flex-row gap-4 items-center justify-between"
-          >
+            <motion.div 
+              className="bg-[#0f172a]/80 backdrop-blur-xl p-5 rounded-[1.5rem] shadow-[0_4px_24px_-4px_rgba(0,0,0,0.4)] border border-white/[0.06] flex flex-col md:flex-row gap-4 items-center justify-between"
+            >
             <div className="flex-1 relative w-full md:w-auto">
               <Search className={cn("absolute top-1/2 -translate-y-1/2 text-slate-400 w-5 h-5", isRtl ? "right-5" : "left-5")} />
               <input
@@ -352,17 +335,17 @@ interface AccountsClientProps {
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="bg-slate-800/80 backdrop-blur-xl rounded-[2.5rem] shadow-2xl border border-white/10 overflow-hidden"
-          >
-            <div className="overflow-x-auto">
-              <table className={cn("w-full border-collapse min-w-[800px]", isRtl ? "text-right" : "text-left")}>
-                <thead>
-                  <tr className="bg-slate-900/50 border-b border-slate-700">
-                    <th className="px-8 py-6 text-xs font-black text-slate-400 uppercase tracking-widest">{t("accountCode")}</th>
-                    <th className="px-8 py-6 text-xs font-black text-slate-400 uppercase tracking-widest">{t("accountName")}</th>
-                    <th className="px-8 py-6 text-xs font-black text-slate-400 uppercase tracking-widest">{t("type")}</th>
-                    <th className="px-8 py-6 text-xs font-black text-slate-400 uppercase tracking-widest">المستوى</th>
-                    <th className="px-8 py-6 text-xs font-black text-slate-400 uppercase tracking-widest text-center">{t("actions")}</th>
+              className="bg-[#0f172a]/80 backdrop-blur-xl rounded-[2rem] shadow-[0_16px_48px_-12px_rgba(0,0,0,0.5)] border border-white/[0.06] overflow-hidden"
+            >
+              <div className="overflow-x-auto">
+                <table className={cn("w-full border-collapse min-w-[800px]", isRtl ? "text-right" : "text-left")}>
+                  <thead>
+                    <tr className="bg-gradient-to-r from-[#0c1222] via-[#111827] to-[#0c1222] border-b border-white/[0.06]">
+                      <th className="px-8 py-5 text-[10px] font-bold text-slate-500 uppercase tracking-[0.15em]">{t("accountCode")}</th>
+                      <th className="px-8 py-5 text-[10px] font-bold text-slate-500 uppercase tracking-[0.15em]">{t("accountName")}</th>
+                      <th className="px-8 py-5 text-[10px] font-bold text-slate-500 uppercase tracking-[0.15em]">{t("type")}</th>
+                      <th className="px-8 py-5 text-[10px] font-bold text-slate-500 uppercase tracking-[0.15em]">المستوى</th>
+                      <th className="px-8 py-5 text-[10px] font-bold text-slate-500 uppercase tracking-[0.15em] text-center">{t("actions")}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -379,10 +362,10 @@ interface AccountsClientProps {
                             initial={{ opacity: 0, y: 10 }}
                             animate={{ opacity: 1, y: 0 }}
                             exit={{ opacity: 0, x: -20 }}
-                            className={cn(
-                              "border-b border-white/5 hover:bg-white/5 transition-colors group",
-                              account.account_type === 'main' ? "bg-white/5 font-bold" : ""
-                            )}
+                              className={cn(
+                                "border-b border-white/[0.04] hover:bg-white/[0.03] transition-all duration-200 group",
+                                account.account_type === 'main' ? "bg-white/[0.02] font-bold" : ""
+                              )}
                           >
                             <td className="px-8 py-5">
                               <div className={cn("flex items-center space-x-2", isRtl && "space-x-reverse")}>
@@ -481,7 +464,7 @@ interface AccountsClientProps {
             </div>
             
             {/* Table Footer */}
-            <div className="bg-slate-900/50 px-8 py-6 border-t border-slate-700 flex items-center justify-between">
+              <div className="bg-[#0c1222]/80 px-8 py-5 border-t border-white/[0.06] flex items-center justify-between">
               <p className="text-sm text-slate-400 font-bold">
                 {t("view")} <span className="text-white font-black px-1">{displayAccounts.length}</span> {t("outOf")} <span className="text-white font-black px-1">{accounts.length}</span> {t("accountsCount")}
               </p>

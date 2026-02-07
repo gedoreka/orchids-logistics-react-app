@@ -645,43 +645,45 @@ export function NewPayrollClient({ packages, debts, companyId, userName }: NewPa
 
                   <div className="overflow-x-auto">
                     <table className="w-full text-sm border-collapse">
-                      <thead className="bg-gray-100 sticky top-0">
-                        <tr>
-                          <th className="text-right px-3 py-3 text-xs font-bold text-gray-700 whitespace-nowrap border border-gray-200">اسم الموظف</th>
-                          <th className="text-right px-3 py-3 text-xs font-bold text-gray-700 whitespace-nowrap border border-gray-200">الهوية</th>
-                          {selectedPackage.work_type !== 'salary' && (
-                            <th className="text-right px-3 py-3 text-xs font-bold text-gray-700 whitespace-nowrap border border-gray-200">الكود</th>
-                          )}
-                          <th className="text-right px-3 py-3 text-xs font-bold text-gray-700 whitespace-nowrap border border-gray-200">الراتب</th>
-                          {selectedPackage.work_type === 'salary' && (
-                            <>
-                              <th className="text-right px-3 py-3 text-xs font-bold text-gray-700 whitespace-nowrap border border-gray-200">السكن</th>
-                              <th className="text-right px-3 py-3 text-xs font-bold text-gray-700 whitespace-nowrap border border-gray-200">الجنسية</th>
-                            </>
-                          )}
-                          {selectedPackage.work_type !== 'salary' && (
-                            <>
-                              <th className="text-right px-3 py-3 text-xs font-bold text-gray-700 whitespace-nowrap border border-gray-200">التارقت</th>
-                              <th className="text-right px-3 py-3 text-xs font-bold text-gray-700 whitespace-nowrap border border-gray-200">البونص</th>
-                              <th className="text-right px-3 py-3 text-xs font-bold text-gray-700 whitespace-nowrap border border-gray-200">الطلبات</th>
-                              <th className="text-right px-3 py-3 text-xs font-bold text-gray-700 whitespace-nowrap border border-gray-200">خصم</th>
-                              <th className="text-right px-3 py-3 text-xs font-bold text-gray-700 whitespace-nowrap border border-gray-200">بونص</th>
-                            </>
-                          )}
-                          <th className="text-right px-3 py-3 text-xs font-bold text-gray-700 whitespace-nowrap border border-gray-200">مشغل</th>
-                          <th className="text-right px-3 py-3 text-xs font-bold text-gray-700 whitespace-nowrap border border-gray-200">داخلي</th>
-                          <th className="text-right px-3 py-3 text-xs font-bold text-gray-700 whitespace-nowrap border border-gray-200">محفظة</th>
-                          <th className="text-right px-3 py-3 text-xs font-bold text-gray-700 whitespace-nowrap border border-gray-200">مكافأة</th>
-                          <th className="text-right px-3 py-3 text-xs font-bold text-gray-700 whitespace-nowrap border border-gray-200">صافي</th>
-                          <th className="text-right px-3 py-3 text-xs font-bold text-gray-700 whitespace-nowrap border border-gray-200">التحويل</th>
-                        </tr>
-                      </thead>
+                    <thead className="sticky top-0 z-10">
+                          <tr className="bg-gradient-to-l from-[#1a237e] to-[#283593]">
+                            <th className="text-center px-2 py-3.5 text-xs font-bold text-white/70 whitespace-nowrap border-l border-white/10 w-8">م</th>
+                            <th className="text-right px-3 py-3.5 text-xs font-bold text-white whitespace-nowrap border-l border-white/10">اسم الموظف</th>
+                            <th className="text-right px-3 py-3.5 text-xs font-bold text-white whitespace-nowrap border-l border-white/10">الهوية</th>
+                            {selectedPackage.work_type !== 'salary' && (
+                              <th className="text-right px-3 py-3.5 text-xs font-bold text-white whitespace-nowrap border-l border-white/10">الكود</th>
+                            )}
+                            <th className="text-right px-3 py-3.5 text-xs font-bold text-white whitespace-nowrap border-l border-white/10">الراتب</th>
+                            {selectedPackage.work_type === 'salary' && (
+                              <>
+                                <th className="text-right px-3 py-3.5 text-xs font-bold text-white whitespace-nowrap border-l border-white/10">السكن</th>
+                                <th className="text-right px-3 py-3.5 text-xs font-bold text-white whitespace-nowrap border-l border-white/10">الجنسية</th>
+                              </>
+                            )}
+                            {selectedPackage.work_type !== 'salary' && (
+                              <>
+                                <th className="text-right px-3 py-3.5 text-xs font-bold text-white whitespace-nowrap border-l border-white/10">التارقت</th>
+                                <th className="text-right px-3 py-3.5 text-xs font-bold text-white whitespace-nowrap border-l border-white/10">البونص</th>
+                                <th className="text-right px-3 py-3.5 text-xs font-bold text-amber-300 whitespace-nowrap border-l border-white/10">الطلبات</th>
+                                <th className="text-right px-3 py-3.5 text-xs font-bold text-red-300 whitespace-nowrap border-l border-white/10">خصم</th>
+                                <th className="text-right px-3 py-3.5 text-xs font-bold text-emerald-300 whitespace-nowrap border-l border-white/10">بونص</th>
+                              </>
+                            )}
+                            <th className="text-right px-3 py-3.5 text-xs font-bold text-red-300 whitespace-nowrap border-l border-white/10">مشغل</th>
+                            <th className="text-right px-3 py-3.5 text-xs font-bold text-red-300 whitespace-nowrap border-l border-white/10">داخلي</th>
+                            <th className="text-right px-3 py-3.5 text-xs font-bold text-red-300 whitespace-nowrap border-l border-white/10">محفظة</th>
+                            <th className="text-right px-3 py-3.5 text-xs font-bold text-emerald-300 whitespace-nowrap border-l border-white/10">مكافأة</th>
+                            <th className="text-right px-3 py-3.5 text-xs font-bold text-amber-300 whitespace-nowrap border-l border-white/10">صافي</th>
+                            <th className="text-right px-3 py-3.5 text-xs font-bold text-white whitespace-nowrap">التحويل</th>
+                          </tr>
+                        </thead>
                       <tbody>
                         {employeeRows.map((row, index) => (
                           <tr 
                             key={index} 
-                            className={`transition-colors duration-150 hover:bg-blue-50/50 ${row.net_salary < 0 ? 'bg-red-50 hover:bg-red-100/50' : ''}`}
+                              className={`transition-colors duration-150 hover:bg-blue-50/50 ${row.net_salary < 0 ? 'bg-red-50 hover:bg-red-100/50' : index % 2 === 0 ? 'bg-white' : 'bg-gray-50/50'}`}
                           >
+                            <td className="px-2 py-2.5 text-center text-xs text-gray-400 font-bold border border-gray-200 w-8">{index + 1}</td>
                             <td className="px-3 py-2.5 font-bold text-gray-900 whitespace-nowrap border border-gray-200">{row.employee_name}</td>
                             <td className="px-3 py-2.5 text-gray-600 whitespace-nowrap border border-gray-200">{row.iqama_number}</td>
                             {selectedPackage.work_type !== 'salary' && (
@@ -698,15 +700,15 @@ export function NewPayrollClient({ packages, debts, companyId, userName }: NewPa
                               <>
                                 <td className="px-3 py-2.5 text-gray-600 border border-gray-200">{row.target}</td>
                                 <td className="px-3 py-2.5 text-gray-600 border border-gray-200">{row.bonus_per_order}</td>
-                                  <td className="px-3 py-2.5 border border-gray-200">
-                                    <input
-                                      type="number"
-                                      value={row.successful_orders}
-                                      onChange={(e) => handleRowChange(index, 'successful_orders', parseFloat(e.target.value) || 0)}
-                                      className="w-16 px-2 py-1 rounded-lg border border-gray-200 text-center text-sm focus:border-blue-400 focus:ring-1 focus:ring-blue-200 transition-all"
-                                      min="0"
-                                    />
-                                  </td>
+                                    <td className="px-3 py-2.5 border border-gray-200">
+                                      <input
+                                        type="number"
+                                        value={row.successful_orders}
+                                        onChange={(e) => handleRowChange(index, 'successful_orders', parseFloat(e.target.value) || 0)}
+                                        className="w-16 px-2 py-1 rounded-lg border border-gray-200 bg-amber-50 text-gray-900 text-center text-sm font-semibold focus:border-blue-400 focus:ring-1 focus:ring-blue-200 transition-all"
+                                        min="0"
+                                      />
+                                    </td>
                                   <td className="px-3 py-2.5 border border-gray-200">
                                     <input
                                       type="text"
@@ -725,42 +727,42 @@ export function NewPayrollClient({ packages, debts, companyId, userName }: NewPa
                                   </td>
                                 </>
                               )}
-                              <td className="px-3 py-2.5 border border-gray-200">
-                                <input
-                                  type="number"
-                                  value={row.operator_deduction}
-                                  onChange={(e) => handleRowChange(index, 'operator_deduction', parseFloat(e.target.value) || 0)}
-                                  className="w-16 px-2 py-1 rounded-lg border border-gray-200 text-center text-sm focus:border-blue-400 focus:ring-1 focus:ring-blue-200 transition-all"
-                                  min="0"
-                                />
-                              </td>
-                              <td className="px-3 py-2.5 border border-gray-200">
-                                <input
-                                  type="number"
-                                  value={row.internal_deduction}
-                                  onChange={(e) => handleRowChange(index, 'internal_deduction', parseFloat(e.target.value) || 0)}
-                                  className="w-16 px-2 py-1 rounded-lg border border-gray-200 text-center text-sm focus:border-blue-400 focus:ring-1 focus:ring-blue-200 transition-all"
-                                  min="0"
-                                />
-                              </td>
-                              <td className="px-3 py-2.5 border border-gray-200">
-                                <input
-                                  type="number"
-                                  value={row.wallet_deduction}
-                                  onChange={(e) => handleRowChange(index, 'wallet_deduction', parseFloat(e.target.value) || 0)}
-                                  className="w-16 px-2 py-1 rounded-lg border border-gray-200 text-center text-sm focus:border-blue-400 focus:ring-1 focus:ring-blue-200 transition-all"
-                                  min="0"
-                                />
-                              </td>
-                              <td className="px-3 py-2.5 border border-gray-200">
-                                <input
-                                  type="number"
-                                  value={row.internal_bonus}
-                                  onChange={(e) => handleRowChange(index, 'internal_bonus', parseFloat(e.target.value) || 0)}
-                                  className="w-16 px-2 py-1 rounded-lg border border-gray-200 text-center text-sm focus:border-blue-400 focus:ring-1 focus:ring-blue-200 transition-all"
-                                  min="0"
-                                />
-                              </td>
+                                <td className="px-3 py-2.5 border border-gray-200">
+                                  <input
+                                    type="number"
+                                    value={row.operator_deduction}
+                                    onChange={(e) => handleRowChange(index, 'operator_deduction', parseFloat(e.target.value) || 0)}
+                                    className="w-16 px-2 py-1 rounded-lg border border-red-200 bg-red-50 text-gray-900 text-center text-sm font-semibold focus:border-red-400 focus:ring-1 focus:ring-red-200 transition-all"
+                                    min="0"
+                                  />
+                                </td>
+                                <td className="px-3 py-2.5 border border-gray-200">
+                                  <input
+                                    type="number"
+                                    value={row.internal_deduction}
+                                    onChange={(e) => handleRowChange(index, 'internal_deduction', parseFloat(e.target.value) || 0)}
+                                    className="w-16 px-2 py-1 rounded-lg border border-red-200 bg-red-50 text-gray-900 text-center text-sm font-semibold focus:border-red-400 focus:ring-1 focus:ring-red-200 transition-all"
+                                    min="0"
+                                  />
+                                </td>
+                                <td className="px-3 py-2.5 border border-gray-200">
+                                  <input
+                                    type="number"
+                                    value={row.wallet_deduction}
+                                    onChange={(e) => handleRowChange(index, 'wallet_deduction', parseFloat(e.target.value) || 0)}
+                                    className="w-16 px-2 py-1 rounded-lg border border-red-200 bg-red-50 text-gray-900 text-center text-sm font-semibold focus:border-red-400 focus:ring-1 focus:ring-red-200 transition-all"
+                                    min="0"
+                                  />
+                                </td>
+                                <td className="px-3 py-2.5 border border-gray-200">
+                                  <input
+                                    type="number"
+                                    value={row.internal_bonus}
+                                    onChange={(e) => handleRowChange(index, 'internal_bonus', parseFloat(e.target.value) || 0)}
+                                    className="w-16 px-2 py-1 rounded-lg border border-emerald-200 bg-emerald-50 text-gray-900 text-center text-sm font-semibold focus:border-emerald-400 focus:ring-1 focus:ring-emerald-200 transition-all"
+                                    min="0"
+                                  />
+                                </td>
                               <td className="px-3 py-2.5 border border-gray-200">
                                 <input
                                   type="text"
@@ -772,11 +774,11 @@ export function NewPayrollClient({ packages, debts, companyId, userName }: NewPa
                                 />
                               </td>
                             <td className="px-3 py-2.5 border border-gray-200">
-                              <select
-                                value={row.payment_method}
-                                onChange={(e) => handleRowChange(index, 'payment_method', e.target.value)}
-                                className="w-20 px-2 py-1 rounded-lg border border-gray-200 text-sm focus:border-blue-400 focus:ring-1 focus:ring-blue-200 transition-all"
-                              >
+                                <select
+                                  value={row.payment_method}
+                                  onChange={(e) => handleRowChange(index, 'payment_method', e.target.value)}
+                                  className="w-20 px-2 py-1 rounded-lg border border-gray-200 bg-white text-gray-900 text-sm font-semibold focus:border-blue-400 focus:ring-1 focus:ring-blue-200 transition-all"
+                                >
                                 <option value="غير محدد">غير محدد</option>
                                 <option value="مدد">مدد</option>
                                 <option value="كاش">كاش</option>
