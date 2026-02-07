@@ -2258,46 +2258,46 @@ export function NewPayrollClient({ packages, debts, companyId, userName }: NewPa
 
                         <div className="flex-1 overflow-auto">
                           <table className="w-full text-sm">
-                            <thead className="bg-gradient-to-l from-slate-800 via-slate-700 to-slate-800 sticky top-0 z-10 shadow-lg">
-                              <tr>
-                                <th className="text-center px-2 py-3 text-xs font-bold text-white/90 whitespace-nowrap border-l border-white/10">
-                                  <input
-                                    type="checkbox"
-                                    checked={employeeRows.every(row => row.selected)}
-                                    onChange={toggleSelectAll}
-                                    className="w-4 h-4 rounded border-white/30 text-blue-500 focus:ring-blue-400 bg-white/10"
-                                  />
-                                </th>
-                                <th className="text-right px-3 py-3 text-xs font-bold text-white/90 whitespace-nowrap border-l border-white/10">{t("newPayroll.columns.no")}</th>
-                                <th className="text-right px-3 py-3 text-xs font-bold text-white/90 whitespace-nowrap border-l border-white/10">{t("newPayroll.columns.employeeName")}</th>
-                                <th className="text-right px-3 py-3 text-xs font-bold text-white/90 whitespace-nowrap border-l border-white/10">{t("newPayroll.columns.iqama")}</th>
-                                {!isSalaryType && (
-                                  <th className="text-right px-3 py-3 text-xs font-bold text-white/90 whitespace-nowrap border-l border-white/10">{t("newPayroll.columns.code")}</th>
-                                )}
-                                <th className="text-right px-3 py-3 text-xs font-bold text-white/90 whitespace-nowrap border-l border-white/10">{t("newPayroll.columns.salary")}</th>
-                                {isSalaryType ? (
-                                  <>
-                                    <th className="text-right px-3 py-3 text-xs font-bold text-white/90 whitespace-nowrap border-l border-white/10">{t("newPayroll.columns.housing")}</th>
-                                    <th className="text-right px-3 py-3 text-xs font-bold text-white/90 whitespace-nowrap border-l border-white/10">{t("newPayroll.columns.nationality")}</th>
-                                    <th className="text-right px-3 py-3 text-xs font-bold text-white/90 whitespace-nowrap border-l border-white/10">{t("newPayroll.columns.internalDeduction")}</th>
-                                    <th className="text-right px-3 py-3 text-xs font-bold text-white/90 whitespace-nowrap border-l border-white/10">{t("newPayroll.columns.reward")}</th>
-                                  </>
-                                ) : (
-                                  <>
-                                    <th className="text-right px-3 py-3 text-xs font-bold text-white/90 whitespace-nowrap border-l border-white/10">{t("newPayroll.columns.target")}</th>
-                                    <th className="text-right px-3 py-3 text-xs font-bold text-white/90 whitespace-nowrap border-l border-white/10">{t("newPayroll.columns.bonus")}</th>
-                                    <th className="text-right px-3 py-3 text-xs font-bold text-white/90 whitespace-nowrap border-l border-white/10">{t("newPayroll.columns.orders")}</th>
-                                    <th className="text-right px-3 py-3 text-xs font-bold text-white/90 whitespace-nowrap border-l border-white/10">{t("newPayroll.columns.targetDeduction")}</th>
-                                    <th className="text-right px-3 py-3 text-xs font-bold text-white/90 whitespace-nowrap border-l border-white/10">{t("newPayroll.columns.monthlyBonus")}</th>
-                                    <th className="text-right px-3 py-3 text-xs font-bold text-white/90 whitespace-nowrap border-l border-white/10">{t("newPayroll.columns.operatorDeduction")}</th>
-                                    <th className="text-right px-3 py-3 text-xs font-bold text-white/90 whitespace-nowrap border-l border-white/10">{t("newPayroll.columns.internal")}</th>
-                                    <th className="text-right px-3 py-3 text-xs font-bold text-white/90 whitespace-nowrap border-l border-white/10">{t("newPayroll.columns.wallet")}</th>
-                                    <th className="text-right px-3 py-3 text-xs font-bold text-white/90 whitespace-nowrap border-l border-white/10">{t("newPayroll.columns.reward")}</th>
-                                  </>
-                                )}
-                                <th className="text-right px-3 py-3 text-xs font-bold text-white/90 whitespace-nowrap border-l border-white/10">{t("newPayroll.columns.netSalary")}</th>
-                                <th className="text-right px-3 py-3 text-xs font-bold text-white/90 whitespace-nowrap">{t("newPayroll.columns.paymentMethod")}</th>
-                              </tr>
+                            <thead className="bg-gradient-to-l from-[#1a237e] via-[#1e2a8a] to-[#283593] sticky top-0 z-10 shadow-lg">
+                                <tr>
+                                  <th className="text-center px-2 py-3 text-xs font-bold text-white/90 whitespace-nowrap border-l border-white/10">
+                                    <input
+                                      type="checkbox"
+                                      checked={employeeRows.every(row => row.selected)}
+                                      onChange={toggleSelectAll}
+                                      className="w-4 h-4 rounded border-white/30 text-blue-500 focus:ring-blue-400 bg-white/10"
+                                    />
+                                  </th>
+                                  <th className="text-right px-3 py-3 text-xs font-bold text-white/70 whitespace-nowrap border-l border-white/10">{t("newPayroll.columns.no")}</th>
+                                  <th className="text-right px-3 py-3 text-xs font-bold text-white whitespace-nowrap border-l border-white/10">{t("newPayroll.columns.employeeName")}</th>
+                                  <th className="text-right px-3 py-3 text-xs font-bold text-white whitespace-nowrap border-l border-white/10">{t("newPayroll.columns.iqama")}</th>
+                                  {!isSalaryType && (
+                                    <th className="text-right px-3 py-3 text-xs font-bold text-white whitespace-nowrap border-l border-white/10">{t("newPayroll.columns.code")}</th>
+                                  )}
+                                  <th className="text-right px-3 py-3 text-xs font-bold text-white whitespace-nowrap border-l border-white/10">{t("newPayroll.columns.salary")}</th>
+                                  {isSalaryType ? (
+                                    <>
+                                      <th className="text-right px-3 py-3 text-xs font-bold text-white whitespace-nowrap border-l border-white/10">{t("newPayroll.columns.housing")}</th>
+                                      <th className="text-right px-3 py-3 text-xs font-bold text-white whitespace-nowrap border-l border-white/10">{t("newPayroll.columns.nationality")}</th>
+                                      <th className="text-right px-3 py-3 text-xs font-bold text-red-300 whitespace-nowrap border-l border-white/10">{t("newPayroll.columns.internalDeduction")}</th>
+                                      <th className="text-right px-3 py-3 text-xs font-bold text-emerald-300 whitespace-nowrap border-l border-white/10">{t("newPayroll.columns.reward")}</th>
+                                    </>
+                                  ) : (
+                                    <>
+                                      <th className="text-right px-3 py-3 text-xs font-bold text-white whitespace-nowrap border-l border-white/10">{t("newPayroll.columns.target")}</th>
+                                      <th className="text-right px-3 py-3 text-xs font-bold text-white whitespace-nowrap border-l border-white/10">{t("newPayroll.columns.bonus")}</th>
+                                      <th className="text-right px-3 py-3 text-xs font-bold text-amber-300 whitespace-nowrap border-l border-white/10">{t("newPayroll.columns.orders")}</th>
+                                      <th className="text-right px-3 py-3 text-xs font-bold text-red-300 whitespace-nowrap border-l border-white/10">{t("newPayroll.columns.targetDeduction")}</th>
+                                      <th className="text-right px-3 py-3 text-xs font-bold text-emerald-300 whitespace-nowrap border-l border-white/10">{t("newPayroll.columns.monthlyBonus")}</th>
+                                      <th className="text-right px-3 py-3 text-xs font-bold text-red-300 whitespace-nowrap border-l border-white/10">{t("newPayroll.columns.operatorDeduction")}</th>
+                                      <th className="text-right px-3 py-3 text-xs font-bold text-red-300 whitespace-nowrap border-l border-white/10">{t("newPayroll.columns.internal")}</th>
+                                      <th className="text-right px-3 py-3 text-xs font-bold text-red-300 whitespace-nowrap border-l border-white/10">{t("newPayroll.columns.wallet")}</th>
+                                      <th className="text-right px-3 py-3 text-xs font-bold text-emerald-300 whitespace-nowrap border-l border-white/10">{t("newPayroll.columns.reward")}</th>
+                                    </>
+                                  )}
+                                  <th className="text-right px-3 py-3 text-xs font-bold text-amber-300 whitespace-nowrap border-l border-white/10">{t("newPayroll.columns.netSalary")}</th>
+                                  <th className="text-right px-3 py-3 text-xs font-bold text-white whitespace-nowrap">{t("newPayroll.columns.paymentMethod")}</th>
+                                </tr>
                             </thead>
                           <tbody>
                             {filteredEmployeeRows.map((row, filteredIdx) => {

@@ -390,32 +390,32 @@ export function PayrollViewClient({ payroll, company, companyId }: PayrollViewCl
               </div>
 
               <div className="overflow-x-auto">
-                <table className="w-full text-sm border-collapse">
-                  <thead className="bg-gray-100">
-                    <tr>
-                      <th className="text-right px-3 py-3 text-xs font-bold text-gray-700 border border-gray-200">#</th>
-                      <th className="text-right px-3 py-3 text-xs font-bold text-gray-700 border border-gray-200">الاسم</th>
-                      <th className="text-right px-3 py-3 text-xs font-bold text-gray-700 border border-gray-200">الهوية</th>
-                      <th className="text-right px-3 py-3 text-xs font-bold text-gray-700 border border-gray-200">الكود</th>
-                      <th className="text-right px-3 py-3 text-xs font-bold text-gray-700 border border-gray-200">الراتب</th>
-                      <th className="text-right px-3 py-3 text-xs font-bold text-gray-700 border border-gray-200">التارقت</th>
-                      <th className="text-right px-3 py-3 text-xs font-bold text-gray-700 border border-gray-200">الطلبات</th>
-                      <th className="text-right px-3 py-3 text-xs font-bold text-gray-700 border border-gray-200">خصم</th>
-                      <th className="text-right px-3 py-3 text-xs font-bold text-gray-700 border border-gray-200">بونص</th>
-                      <th className="text-right px-3 py-3 text-xs font-bold text-gray-700 border border-gray-200">خ.مشغل</th>
-                      <th className="text-right px-3 py-3 text-xs font-bold text-gray-700 border border-gray-200">خ.داخلي</th>
-                      <th className="text-right px-3 py-3 text-xs font-bold text-gray-700 border border-gray-200">خ.محفظة</th>
-                      <th className="text-right px-3 py-3 text-xs font-bold text-gray-700 border border-gray-200">مكافأة</th>
-                      <th className="text-right px-3 py-3 text-xs font-bold text-gray-700 border border-gray-200">صافي</th>
-                      <th className="text-right px-3 py-3 text-xs font-bold text-gray-700 border border-gray-200">الدفع</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {payroll.items?.map((item, index) => (
-                      <tr 
-                        key={item.id} 
-                        className={`transition-colors duration-150 hover:bg-blue-50/50 ${item.net_salary < 0 ? 'bg-red-50 hover:bg-red-100/50' : ''}`}
-                      >
+                  <table className="w-full text-sm border-collapse">
+                    <thead className="sticky top-0 z-10">
+                      <tr className="bg-gradient-to-l from-[#1a237e] to-[#283593]">
+                        <th className="text-center px-3 py-3.5 text-xs font-bold text-white/70 whitespace-nowrap border-l border-white/10">م</th>
+                        <th className="text-right px-3 py-3.5 text-xs font-bold text-white whitespace-nowrap border-l border-white/10">اسم الموظف</th>
+                        <th className="text-right px-3 py-3.5 text-xs font-bold text-white whitespace-nowrap border-l border-white/10">رقم الهوية</th>
+                        <th className="text-right px-3 py-3.5 text-xs font-bold text-white whitespace-nowrap border-l border-white/10">الكود</th>
+                        <th className="text-right px-3 py-3.5 text-xs font-bold text-white whitespace-nowrap border-l border-white/10">الراتب</th>
+                        <th className="text-right px-3 py-3.5 text-xs font-bold text-white whitespace-nowrap border-l border-white/10">التارقت</th>
+                        <th className="text-right px-3 py-3.5 text-xs font-bold text-amber-300 whitespace-nowrap border-l border-white/10">الطلبات</th>
+                        <th className="text-right px-3 py-3.5 text-xs font-bold text-red-300 whitespace-nowrap border-l border-white/10">خصم التارجت</th>
+                        <th className="text-right px-3 py-3.5 text-xs font-bold text-emerald-300 whitespace-nowrap border-l border-white/10">مكافأة شهرية</th>
+                        <th className="text-right px-3 py-3.5 text-xs font-bold text-red-300 whitespace-nowrap border-l border-white/10">خصم المشغل</th>
+                        <th className="text-right px-3 py-3.5 text-xs font-bold text-red-300 whitespace-nowrap border-l border-white/10">داخلي</th>
+                        <th className="text-right px-3 py-3.5 text-xs font-bold text-red-300 whitespace-nowrap border-l border-white/10">المحفظة</th>
+                        <th className="text-right px-3 py-3.5 text-xs font-bold text-emerald-300 whitespace-nowrap border-l border-white/10">مكافأة</th>
+                        <th className="text-right px-3 py-3.5 text-xs font-bold text-amber-300 whitespace-nowrap border-l border-white/10">صافي الراتب</th>
+                        <th className="text-right px-3 py-3.5 text-xs font-bold text-white whitespace-nowrap">طريقة الدفع</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {payroll.items?.map((item, index) => (
+                        <tr 
+                          key={item.id} 
+                          className={`transition-colors duration-150 hover:bg-blue-50/50 ${item.net_salary < 0 ? 'bg-red-50 hover:bg-red-100/50' : index % 2 === 0 ? 'bg-white' : 'bg-gray-50/50'}`}
+                        >
                         <td className="px-3 py-2.5 text-gray-500 border border-gray-200 text-center">{index + 1}</td>
                         <td className="px-3 py-2.5 font-bold text-gray-900 whitespace-nowrap border border-gray-200">{item.employee_name}</td>
                         <td className="px-3 py-2.5 text-gray-600 whitespace-nowrap border border-gray-200">{item.iqama_number}</td>

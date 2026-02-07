@@ -376,6 +376,16 @@ export function NewPayrollClient({ packages, debts, companyId, userName }: NewPa
       return;
     }
 
+    // For target/tiers/commission types, check if orders are entered
+    const currentWorkType = selectedPackage?.work_type || 'salary';
+    if (currentWorkType !== 'salary') {
+      const hasNoOrders = employeeRows.some(row => Number(row.successful_orders) <= 0);
+      if (hasNoOrders) {
+        showNotification("error", "حقل مطلوب", "يجب إدخال عدد الطلبات لجميع الموظفين قبل الحفظ");
+        return;
+      }
+    }
+
     setLoading(true);
     showNotification("loading", "جاري الحفظ", isDraft ? "جاري حفظ المسودة..." : "جاري حفظ المسير...");
 

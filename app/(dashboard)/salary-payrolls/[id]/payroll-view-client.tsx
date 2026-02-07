@@ -610,38 +610,38 @@ export function PayrollViewClient({ payroll, company }: PayrollViewClientProps) 
                   </div>
 
                   <div className="overflow-x-auto">
-                    <table className={cn("w-full text-sm", isRtl ? "text-right" : "text-left")}>
-                      <thead className="bg-white/5 print:bg-gray-50">
-                        <tr className="border-b border-white/10 print:border-gray-200">
-                          <th className="px-3 py-3 text-xs font-bold text-slate-400 print:text-gray-600">{t("viewPayroll.columns.no")}</th>
-                          <th className="px-3 py-3 text-xs font-bold text-slate-400 print:text-gray-600">{t("viewPayroll.columns.name")}</th>
-                          <th className="px-3 py-3 text-xs font-bold text-slate-400 print:text-gray-600">{t("viewPayroll.columns.iqama")}</th>
-                          {!isSalaryType && (
-                            <th className="px-3 py-3 text-xs font-bold text-slate-400 print:text-gray-600">{t("viewPayroll.columns.code")}</th>
-                          )}
-                          <th className="px-3 py-3 text-xs font-bold text-slate-400 print:text-gray-600">{t("viewPayroll.columns.salary")}</th>
-                          {isSalaryType ? (
-                            <>
-                              <th className="px-3 py-3 text-xs font-bold text-slate-400 print:text-gray-600">{t("viewPayroll.columns.housing")}</th>
-                              <th className="px-3 py-3 text-xs font-bold text-slate-400 print:text-gray-600">{t("viewPayroll.columns.internalDeduction")}</th>
-                              <th className="px-3 py-3 text-xs font-bold text-slate-400 print:text-gray-600">{t("viewPayroll.columns.reward")}</th>
-                            </>
-                          ) : (
-                            <>
-                              <th className="px-3 py-3 text-xs font-bold text-slate-400 print:text-gray-600">{t("viewPayroll.columns.target")}</th>
-                              <th className="px-3 py-3 text-xs font-bold text-slate-400 print:text-gray-600">{t("viewPayroll.columns.orders")}</th>
-                              <th className="px-3 py-3 text-xs font-bold text-slate-400 print:text-gray-600">{t("viewPayroll.columns.targetDeduction")}</th>
-                              <th className="px-3 py-3 text-xs font-bold text-slate-400 print:text-gray-600">{t("viewPayroll.columns.bonus")}</th>
-                              <th className="px-3 py-3 text-xs font-bold text-slate-400 print:text-gray-600">{t("viewPayroll.columns.operatorDeduction")}</th>
-                              <th className="px-3 py-3 text-xs font-bold text-slate-400 print:text-gray-600">{t("viewPayroll.columns.internal")}</th>
-                              <th className="px-3 py-3 text-xs font-bold text-slate-400 print:text-gray-600">{t("viewPayroll.columns.wallet")}</th>
-                              <th className="px-3 py-3 text-xs font-bold text-slate-400 print:text-gray-600">{t("viewPayroll.columns.reward")}</th>
-                            </>
-                          )}
-                          <th className="px-3 py-3 text-xs font-bold text-slate-400 print:text-gray-600">{t("viewPayroll.columns.netSalary")}</th>
-                          <th className="px-3 py-3 text-xs font-bold text-slate-400 print:text-gray-600">{t("viewPayroll.columns.paymentMethod")}</th>
-                        </tr>
-                      </thead>
+                      <table className={cn("w-full text-sm", isRtl ? "text-right" : "text-left")}>
+                        <thead className="bg-gradient-to-l from-[#1a237e]/80 via-[#1e2a8a]/60 to-[#283593]/80 print:bg-gray-50">
+                          <tr className="border-b border-white/10 print:border-gray-200">
+                            <th className="px-3 py-3 text-xs font-bold text-white/70 print:text-gray-600">{t("viewPayroll.columns.no")}</th>
+                            <th className="px-3 py-3 text-xs font-bold text-white print:text-gray-600">{t("viewPayroll.columns.name")}</th>
+                            <th className="px-3 py-3 text-xs font-bold text-white print:text-gray-600">{t("viewPayroll.columns.iqama")}</th>
+                            {!isSalaryType && (
+                              <th className="px-3 py-3 text-xs font-bold text-white print:text-gray-600">{t("viewPayroll.columns.code")}</th>
+                            )}
+                            <th className="px-3 py-3 text-xs font-bold text-white print:text-gray-600">{t("viewPayroll.columns.salary")}</th>
+                            {isSalaryType ? (
+                              <>
+                                <th className="px-3 py-3 text-xs font-bold text-white print:text-gray-600">{t("viewPayroll.columns.housing")}</th>
+                                <th className="px-3 py-3 text-xs font-bold text-red-300 print:text-gray-600">{t("viewPayroll.columns.internalDeduction")}</th>
+                                <th className="px-3 py-3 text-xs font-bold text-emerald-300 print:text-gray-600">{t("viewPayroll.columns.reward")}</th>
+                              </>
+                            ) : (
+                              <>
+                                <th className="px-3 py-3 text-xs font-bold text-white print:text-gray-600">{t("viewPayroll.columns.target")}</th>
+                                <th className="px-3 py-3 text-xs font-bold text-amber-300 print:text-gray-600">{t("viewPayroll.columns.orders")}</th>
+                                <th className="px-3 py-3 text-xs font-bold text-red-300 print:text-gray-600">{t("viewPayroll.columns.targetDeduction")}</th>
+                                <th className="px-3 py-3 text-xs font-bold text-emerald-300 print:text-gray-600">{t("viewPayroll.columns.bonus")}</th>
+                                <th className="px-3 py-3 text-xs font-bold text-red-300 print:text-gray-600">{t("viewPayroll.columns.operatorDeduction")}</th>
+                                <th className="px-3 py-3 text-xs font-bold text-red-300 print:text-gray-600">{t("viewPayroll.columns.internal")}</th>
+                                <th className="px-3 py-3 text-xs font-bold text-red-300 print:text-gray-600">{t("viewPayroll.columns.wallet")}</th>
+                                <th className="px-3 py-3 text-xs font-bold text-emerald-300 print:text-gray-600">{t("viewPayroll.columns.reward")}</th>
+                              </>
+                            )}
+                            <th className="px-3 py-3 text-xs font-bold text-amber-300 print:text-gray-600">{t("viewPayroll.columns.netSalary")}</th>
+                            <th className="px-3 py-3 text-xs font-bold text-white print:text-gray-600">{t("viewPayroll.columns.paymentMethod")}</th>
+                          </tr>
+                        </thead>
                       <tbody className="divide-y divide-white/5 print:divide-gray-100">
                         {payroll.items?.map((item, index) => (
                           <tr key={item.id} className={`hover:bg-white/5 transition-colors ${Number(item.net_salary) < 0 ? 'bg-red-500/10 print:bg-red-50' : ''}`}>
