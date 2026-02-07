@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useCallback, useMemo } from "react";
+import React, { useState, useCallback, useMemo, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
   FileText,
@@ -33,7 +33,12 @@ import {
   ShoppingCart,
   ChevronRight,
   ShieldCheck,
-  X
+  X,
+  BookOpen,
+  Search,
+  ChevronUp,
+  FolderTree,
+  Target
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -75,6 +80,23 @@ interface Customer {
   is_inclusive: boolean;
   vat_amount: number;
   total_with_vat: number;
+}
+
+interface Account {
+  id: number;
+  account_code: string;
+  account_name: string;
+  type: string;
+  parent_id: number | null;
+  account_type: string;
+}
+
+interface CostCenter {
+  id: number;
+  center_code: string;
+  center_name: string;
+  parent_id: number | null;
+  center_type: string;
 }
 
 interface NewInvoiceClientProps {
@@ -129,6 +151,108 @@ export function NewInvoiceClient({ customers, invoiceNumber, companyId, userName
 
   const [adjustments, setAdjustments] = useState<Adjustment[]>([]);
 
+  // Accounting fields
+  const [accounts, setAccounts] = useState<Account[]>([]);
+  const [costCenters, setCostCenters] = useState<CostCenter[]>([]);
+  const [selectedAccountId, setSelectedAccountId] = useState<number>(0);
+  const [selectedCostCenterId, setSelectedCostCenterId] = useState<number>(0);
+  const [accountDropdownOpen, setAccountDropdownOpen] = useState(false);
+  const [costCenterDropdownOpen, setCostCenterDropdownOpen] = useState(false);
+  const [accountSearch, setAccountSearch] = useState('');
+  const [costCenterSearch, setCostCenterSearch] = useState('');
+  const accountDropdownRef = useRef<HTMLDivElement>(null);
+  const costCenterDropdownRef = useRef<HTMLDivElement>(null);
+
+  // Fetch accounts and cost centers
+  useEffect(() => {
+    if (!companyId) return;
+    fetch(`/api/accounts?company_id=${companyId}`)
+      .then(res => res.json())
+      .then(data => { if (data.accounts) setAccounts(data.accounts); })
+      .catch(() => {});
+    fetch(`/api/cost-centers?company_id=${companyId}`)
+      .then(res => res.json())
+      .then(data => { if (data.cost_centers) setCostCenters(data.cost_centers); })
+      .catch(() => {});
+  }, [companyId]);
+
+  // Close dropdowns on outside click
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (accountDropdownRef.current && !accountDropdownRef.current.contains(e.target as Node)) {
+        setAccountDropdownOpen(false);
+      }
+      if (costCenterDropdownRef.current && !costCenterDropdownRef.current.contains(e.target as Node)) {
+        setCostCenterDropdownOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const selectedAccount = accounts.find(a => a.id === selectedAccountId);
+  const selectedCostCenter = costCenters.find(c => c.id === selectedCostCenterId);
+
+  // Build tree structure for accounts
+  const filteredAccounts = useMemo(() => {
+    const search = accountSearch.trim().toLowerCase();
+    if (!search) return accounts;
+    return accounts.filter(a => 
+      a.account_name.toLowerCase().includes(search) || 
+      a.account_code.toLowerCase().includes(search)
+    );
+  }, [accounts, accountSearch]);
+
+  const filteredCostCenters = useMemo(() => {
+    const search = costCenterSearch.trim().toLowerCase();
+    if (!search) return costCenters;
+    return costCenters.filter(c => 
+      c.center_name.toLowerCase().includes(search) || 
+      c.center_code.toLowerCase().includes(search)
+    );
+  }, [costCenters, costCenterSearch]);
+
+  // Group accounts by parent
+  const groupedAccounts = useMemo(() => {
+    const parents = filteredAccounts.filter(a => !a.parent_id);
+    const children = filteredAccounts.filter(a => a.parent_id);
+    const groups: { parent: Account | null; items: Account[] }[] = [];
+    
+    parents.forEach(p => {
+      const kids = children.filter(c => c.parent_id === p.id);
+      groups.push({ parent: p, items: kids });
+    });
+    
+    // Orphan children (parent not in list)
+    const parentIds = new Set(parents.map(p => p.id));
+    const orphans = children.filter(c => !parentIds.has(c.parent_id!));
+    if (orphans.length > 0) {
+      groups.push({ parent: null, items: orphans });
+    }
+    
+    return groups;
+  }, [filteredAccounts]);
+
+  // Group cost centers by parent
+  const groupedCostCenters = useMemo(() => {
+    const parents = filteredCostCenters.filter(c => !c.parent_id);
+    const children = filteredCostCenters.filter(c => c.parent_id);
+    const groups: { parent: CostCenter | null; items: CostCenter[] }[] = [];
+    
+    parents.forEach(p => {
+      const kids = children.filter(c => c.parent_id === p.id);
+      groups.push({ parent: p, items: kids });
+    });
+    
+    const parentIds = new Set(parents.map(p => p.id));
+    const orphans = children.filter(c => !parentIds.has(c.parent_id!));
+    if (orphans.length > 0) {
+      groups.push({ parent: null, items: orphans });
+    }
+    
+    return groups;
+  }, [filteredCostCenters]);
+
   // Open confirm modal
   const handleSaveClick = (status: 'due' | 'draft') => {
     if (!validateForm()) return;
@@ -164,16 +288,18 @@ export function NewInvoiceClient({ customers, invoiceNumber, companyId, userName
       const res = await fetch('/api/sales-invoices', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          invoice_number: invoiceNumber,
-          invoice_month: invoiceMonth,
-          client_id: clientId,
-          issue_date: issueDate,
-          due_date: dueDate,
-          status,
-          items: validItems,
-          adjustments: validAdjustments
-        })
+          body: JSON.stringify({
+            invoice_number: invoiceNumber,
+            invoice_month: invoiceMonth,
+            client_id: clientId,
+            issue_date: issueDate,
+            due_date: dueDate,
+            status,
+            items: validItems,
+            adjustments: validAdjustments,
+            account_id: selectedAccountId || null,
+            cost_center_id: selectedCostCenterId || null
+          })
       });
 
       const data = await res.json();
@@ -373,18 +499,24 @@ export function NewInvoiceClient({ customers, invoiceNumber, companyId, userName
 
   // Validation error state for inline display
   const [validationError, setValidationError] = useState<string | null>(null);
-  
+  const [validationModal, setValidationModal] = useState<{
+    isOpen: boolean;
+    missingFields: string[];
+  }>({ isOpen: false, missingFields: [] });
+    
   const validateForm = () => {
-    if (!clientId) {
-      setValidationError(t("selectCustomerError"));
-      setTimeout(() => setValidationError(null), 3000);
-      return false;
-    }
-
+    const missing: string[] = [];
+    
+    if (!clientId) missing.push('العميل');
+    
     const validItems = items.filter(i => i.product_name.trim());
-    if (validItems.length === 0) {
-      setValidationError(t("addItemError"));
-      setTimeout(() => setValidationError(null), 3000);
+    if (validItems.length === 0) missing.push('بنود الفاتورة');
+    
+    if (!selectedAccountId) missing.push('الحساب المحاسبي');
+    if (!selectedCostCenterId) missing.push('مركز التكلفة');
+
+    if (missing.length > 0) {
+      setValidationModal({ isOpen: true, missingFields: missing });
       return false;
     }
 
@@ -732,9 +864,95 @@ export function NewInvoiceClient({ customers, invoiceNumber, companyId, userName
               </motion.div>
             </div>
           )}
+          </AnimatePresence>
+
+        {/* Validation Missing Fields Modal */}
+        <AnimatePresence>
+          {validationModal.isOpen && (
+            <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                onClick={() => setValidationModal({ isOpen: false, missingFields: [] })}
+                className="absolute inset-0 bg-slate-950/90 backdrop-blur-2xl"
+              />
+              <motion.div
+                initial={{ opacity: 0, scale: 0.8, y: 50 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.8, y: 50 }}
+                transition={{ type: "spring", damping: 25, stiffness: 300 }}
+                className="relative w-full max-w-md bg-white dark:bg-slate-900 rounded-[3rem] shadow-[0_0_100px_rgba(239,68,68,0.3)] overflow-hidden border-4 border-red-500/20"
+              >
+                <div className="relative bg-gradient-to-br from-red-500 via-rose-600 to-red-700 p-8 text-white text-center overflow-hidden">
+                  <motion.div
+                    initial={{ scale: 0, rotate: -180 }}
+                    animate={{ scale: 1, rotate: 0 }}
+                    transition={{ delay: 0.2, type: "spring", damping: 15 }}
+                    className="relative z-10 mx-auto w-20 h-20 bg-white/20 backdrop-blur-xl rounded-full flex items-center justify-center mb-4 shadow-2xl border-4 border-white/30"
+                  >
+                    <motion.div
+                      animate={{ scale: [1, 1.15, 1] }}
+                      transition={{ repeat: Infinity, duration: 1.5 }}
+                    >
+                      <AlertTriangle size={40} className="text-white drop-shadow-lg" />
+                    </motion.div>
+                  </motion.div>
+                  <motion.h3
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.3 }}
+                    className="text-2xl font-black tracking-tight relative z-10"
+                  >
+                    حقول مطلوبة مفقودة
+                  </motion.h3>
+                  <motion.p
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.4 }}
+                    className="text-white/80 font-bold mt-2 relative z-10 text-sm"
+                  >
+                    يرجى استكمال الحقول التالية قبل الحفظ
+                  </motion.p>
+                </div>
+
+                <div className="p-6 space-y-4">
+                  <div className="space-y-2">
+                    {validationModal.missingFields.map((field, i) => (
+                      <motion.div
+                        key={i}
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: 0.4 + i * 0.1 }}
+                        className="flex items-center gap-3 p-3 bg-red-50 dark:bg-red-950/30 rounded-xl border border-red-100 dark:border-red-900/50"
+                      >
+                        <div className="h-8 w-8 rounded-lg bg-red-500/10 flex items-center justify-center flex-shrink-0">
+                          <AlertCircle size={16} className="text-red-500" />
+                        </div>
+                        <span className="text-sm font-black text-red-700 dark:text-red-400">{field}</span>
+                      </motion.div>
+                    ))}
+                  </div>
+
+                  <motion.button
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.6 }}
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={() => setValidationModal({ isOpen: false, missingFields: [] })}
+                    className="w-full flex items-center justify-center gap-3 bg-gradient-to-r from-red-500 via-rose-600 to-red-600 text-white py-4 rounded-2xl font-black text-lg shadow-xl shadow-red-500/30 border-b-4 border-red-700/50"
+                  >
+                    <CheckCircle size={20} />
+                    فهمت
+                  </motion.button>
+                </div>
+              </motion.div>
+            </div>
+          )}
         </AnimatePresence>
 
-      <motion.div 
+        <motion.div 
         variants={containerVariants}
         initial="hidden"
         animate="visible"
