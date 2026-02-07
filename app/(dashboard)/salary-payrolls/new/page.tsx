@@ -5,7 +5,7 @@ import { NewPayrollClient } from "./new-payroll-client";
 async function getPackages(companyId: number) {
   try {
     const packages = await query<any>(
-      `SELECT * FROM employee_packages WHERE company_id = ? ORDER BY id DESC`,
+      `SELECT * FROM employee_packages WHERE company_id = ? AND (work_type IS NULL OR work_type != 'commission') ORDER BY id DESC`,
       [companyId]
     );
     return packages;

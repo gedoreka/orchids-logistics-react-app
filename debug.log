@@ -1773,3 +1773,119 @@ Import trace:
 2026-02-07T03:02:48.493Z [console][error] Network error fetching chat: Failed to fetch
 2026-02-07T03:02:51.092Z [console][error] 'oklab(0.999994 0.0000455678 0.0000200868 / 0.05)' is not an animatable color. Use the equivalent color code instead.. For more information and steps for solving, visit https://motion.dev/troubleshooting/color-not-animatable
 2026-02-07T03:10:46.045Z [console][error] 'oklab(0.999994 0.0000455678 0.0000200868 / 0.05)' is not an animatable color. Use the equivalent color code instead.. For more information and steps for solving, visit https://motion.dev/troubleshooting/color-not-animatable
+2026-02-07T03:55:00.676Z [console][warn] [Fast Refresh] done in 1008ms
+2026-02-07T03:55:01.944Z [console][log] __ORCHIDS_NAVIGATE__ http://localhost:3006/salary-payrolls
+2026-02-07T03:55:02.615Z [console][warn] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+2026-02-07T03:55:03.107Z [console][warn] [Fast Refresh] rebuilding
+2026-02-07T03:55:03.130Z [console][warn] [Fast Refresh] done in 126ms
+2026-02-07T03:55:03.304Z [console][warn] [Fast Refresh] rebuilding
+2026-02-07T03:55:03.353Z [console][warn] [Fast Refresh] done in 149ms
+2026-02-07T04:00:03.031Z [console][warn] [Fast Refresh] rebuilding
+2026-02-07T04:00:03.038Z [console][warn] [Fast Refresh] done in 113ms
+2026-02-07T04:02:09.779Z [console][warn] [Fast Refresh] rebuilding
+2026-02-07T04:02:10.853Z [console][warn] [Fast Refresh] done in 1084ms
+2026-02-07T04:03:41.508Z [console][warn] [Fast Refresh] rebuilding
+2026-02-07T04:03:41.571Z [console][warn] [Fast Refresh] done in 164ms
+2026-02-07T04:03:43.201Z [console][error] Network error fetching chat: Failed to fetch
+2026-02-07T04:03:43.312Z [console][warn] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+2026-02-07T04:03:43.587Z [console][warn] [Fast Refresh] rebuilding
+2026-02-07T04:03:43.715Z [console][warn] [Fast Refresh] done in 234ms
+2026-02-07T04:03:46.416Z [console][warn] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+2026-02-07T04:04:21.696Z [console][warn] [Fast Refresh] rebuilding
+2026-02-07T04:04:24.012Z [console][warn] [Fast Refresh] done in 2458ms
+2026-02-07T04:06:03.739Z [console][log] __ORCHIDS_NAVIGATE__ http://localhost:3006/salary-payrolls/new
+2026-02-07T04:06:03.815Z [console][warn] [Fast Refresh] rebuilding
+2026-02-07T04:06:03.895Z [console][warn] [Fast Refresh] done in 181ms
+2026-02-07T04:06:04.750Z [console][error] Error fetching tree data: TypeError: Failed to fetch
+2026-02-07T04:06:04.846Z [console][warn] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+2026-02-07T04:06:57.777Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-07T04:07:00.490Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-07T04:07:01.505Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-07T04:07:05.715Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-07T04:07:06.107Z [network][GET 200] /api/email/accounts?company_id=22
+  response: {"accounts":[{"id":"1212d430-c11a-4d82-a602-abdf7d7ab251","company_id":22,"email":"demo@zoolspeed.com","password":"********","provider":"hostinger","imap_host":"imap.hostinger.com","imap_port":993,"smtp_host":"smtp.hostinger.com","smtp_port":465,"use_ssl":true,"is_active":true,"last_sync_at":"2026-02-07T00:37:05.083+00:00","created_at":"2026-02-06T22:25:37.433111+00:00","updated_at":"2026-02-06T22:25:37.433111+00:00"}],"providers":{"hostinger":{"name":"Hostinger","imap_host":"imap.hostinger.com","imap_port":993,"smtp_host":"smtp.hostinger.com","smtp_port":465},"gmail":{"name":"Gmail","imap_host":"imap.gmail.com","imap_port":993,"smtp_host":"smtp.gmail.com","smtp_port":465},"outlook":{"name":"Outlook/Hotmail","imap_host":"outlook.office365.com","imap_port":993,"smtp_host":"smtp.office365.com","smtp_port":587},"custom":{"name":"Custom","imap_host":"","imap_port":993,"smtp_host":"","smtp_port":465}}}
+2026-02-07T04:07:06.122Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-07T04:07:06.780Z [network][GET 200] /api/admin/notifications?limit=1&last_id=9
+  response: {"success":true,"notifications":[]}
+2026-02-07T04:07:06.802Z [network][GET 200] /api/admin/notifications?limit=5
+  response: {"success":true,"notifications":[]}
+2026-02-07T04:07:07.518Z [network][GET 200] /api/hr/notifications?company_id=22
+  response: {"success":true,"identity":{"expired":[{"id":552,"name":"ناصر عبدالله","name_en":"Nasser Abdullah","iqama_expiry":"2025-12-30T21:00:00.000Z","iqama_number":"9201837465","package_id":69,"package_name":"مناديب ذا شيفز فري لانس","days_remaining":-38,"status":"expired"},{"id":515,"name":"سارة أحمد","name_en":"Sara Ahmed","iqama_expiry":"2025-12-30T21:00:00.000Z","iqama_number":"4928573016","package_id":69,"package_name":"مناديب ذا شيفز فري لانس","days_remaining":-38,"status":"expired"},{"id":542,"name":"عمرو بكر","name_en":"Amr Bakr","iqama_expiry":"2025-12-30T21:00:00.000Z","iqama_number":"9201836475","package_id":69,"package_name":"مناديب ذا شيفز فري لانس","days_remaining":-38,"status":"expired"},{"id":551,"name":"ليلى حسن","name_en":"Layla Hassan","iqama_expiry":"2025-12-30T21:00:00.000Z","iqama_number":"3847592016","package_id":69,"package_name":"مناديب ذا شيفز فري لانس","days_remaining":-38,"status":"expired"},{"id":548,"name":"علي القاضي","name_en":"Ali Al-Qadi","iqama_expiry":"2025-12-30T21:00:00.000Z","iqama_number":"7483920165","package_id":69,"package_name":"مناديب ذا شيفز فري لانس","days_remaining":-38,"status":"expired"},{"id":527,"name":"رنا علي","name_en":"Rana Ali","iqama_expiry":"2025-12-30T21:00:00.000Z","iqama_number":"5647382910","package_id":69,"package_name":"مناديب ذا شيفز فري لانس","days_remaining":-38,"status":"expired"},{"id":530,"name":"طلال محمد","name_en":"Talal Mohamed","iqama_expiry":"2025-12-30T21:00:00.000Z","iqama_number":"7564839201","package_id":69,"package_name":"مناديب ذا شيفز فري لانس","days_remaining":-38,"status":"expired"},{"id":529,"name":"خالد سعيد","name_en":"Khaled Saeed","iqama_expiry":"2025-12-30T21:00:00.000Z","iqama_number":"1029384756","package_id":69,"package_name":"مناديب ذا شيفز فري لانس","days_remaining":-38,"status":"expired"},{"id":514,"name":"عمر خالد","name_en":"Omar Khaled","iqama_expiry":"2025-12-30T21:00:00.000Z","iqama_number":"5837429160","package_id":69,"package_name":"مناديب ذا شيفز فري لانس","days_remaini... [truncated]
+2026-02-07T04:07:08.110Z [network][GET 200] /api/email/fetch?accountId=1212d430-c11a-4d82-a602-abdf7d7ab251&company_id=22&action=unread
+  response: {"unreadCount":45}
+2026-02-07T04:07:09.822Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-07T04:07:10.489Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-07T04:07:13.781Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-07T04:07:15.504Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-07T04:07:17.641Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-07T04:07:20.611Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-07T04:07:21.717Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-07T04:07:25.548Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-07T04:07:25.990Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-07T04:07:29.594Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-07T04:07:30.602Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-07T04:07:33.473Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-07T04:07:35.500Z [network][GET 200] /api/admin/notifications?limit=1&last_id=9
+  response: {"success":true,"notifications":[]}
+2026-02-07T04:07:35.778Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-07T04:07:37.434Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-07T04:15:57.386Z [console][warn] [Fast Refresh] rebuilding
+2026-02-07T04:15:57.462Z [console][warn] [Fast Refresh] done in 177ms
+2026-02-07T04:15:03.910Z [console][log] [Fast Refresh] rebuilding
+2026-02-07T04:15:05.625Z [console][log] [Fast Refresh] done in 1752ms
+2026-02-07T04:15:18.861Z [console][log] [Fast Refresh] rebuilding
+2026-02-07T04:15:19.513Z [console][log] [Fast Refresh] done in 716ms
+2026-02-07T04:15:38.690Z [console][log] [Fast Refresh] rebuilding
+2026-02-07T04:15:39.137Z [console][log] [Fast Refresh] done in 548ms
+2026-02-07T04:15:57.386Z [console][log] [Fast Refresh] rebuilding
+2026-02-07T04:15:57.462Z [console][log] [Fast Refresh] done in 177ms
+2026-02-07T04:15:58.885Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-07T04:16:00.875Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-07T04:16:03.891Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-07T04:16:04.937Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-07T04:16:09.043Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-07T04:16:09.392Z [network][GET 200] /api/admin/notifications?limit=1&last_id=9
+  response: {"success":true,"notifications":[]}
+2026-02-07T04:16:09.405Z [network][GET 200] /api/admin/notifications?limit=5
+  response: {"success":true,"notifications":[]}
+2026-02-07T04:16:09.418Z [network][GET 200] /api/email/accounts?company_id=22
+  response: {"accounts":[{"id":"1212d430-c11a-4d82-a602-abdf7d7ab251","company_id":22,"email":"demo@zoolspeed.com","password":"********","provider":"hostinger","imap_host":"imap.hostinger.com","imap_port":993,"smtp_host":"smtp.hostinger.com","smtp_port":465,"use_ssl":true,"is_active":true,"last_sync_at":"2026-02-07T00:37:05.083+00:00","created_at":"2026-02-06T22:25:37.433111+00:00","updated_at":"2026-02-06T22:25:37.433111+00:00"}],"providers":{"hostinger":{"name":"Hostinger","imap_host":"imap.hostinger.com","imap_port":993,"smtp_host":"smtp.hostinger.com","smtp_port":465},"gmail":{"name":"Gmail","imap_host":"imap.gmail.com","imap_port":993,"smtp_host":"smtp.gmail.com","smtp_port":465},"outlook":{"name":"Outlook/Hotmail","imap_host":"outlook.office365.com","imap_port":993,"smtp_host":"smtp.office365.com","smtp_port":587},"custom":{"name":"Custom","imap_host":"","imap_port":993,"smtp_host":"","smtp_port":465}}}
+2026-02-07T04:16:09.418Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-07T04:16:09.680Z [network][GET 200] /api/hr/notifications?company_id=22
+  response: {"success":true,"identity":{"expired":[{"id":552,"name":"ناصر عبدالله","name_en":"Nasser Abdullah","iqama_expiry":"2025-12-30T21:00:00.000Z","iqama_number":"9201837465","package_id":69,"package_name":"مناديب ذا شيفز فري لانس","days_remaining":-38,"status":"expired"},{"id":515,"name":"سارة أحمد","name_en":"Sara Ahmed","iqama_expiry":"2025-12-30T21:00:00.000Z","iqama_number":"4928573016","package_id":69,"package_name":"مناديب ذا شيفز فري لانس","days_remaining":-38,"status":"expired"},{"id":542,"name":"عمرو بكر","name_en":"Amr Bakr","iqama_expiry":"2025-12-30T21:00:00.000Z","iqama_number":"9201836475","package_id":69,"package_name":"مناديب ذا شيفز فري لانس","days_remaining":-38,"status":"expired"},{"id":551,"name":"ليلى حسن","name_en":"Layla Hassan","iqama_expiry":"2025-12-30T21:00:00.000Z","iqama_number":"3847592016","package_id":69,"package_name":"مناديب ذا شيفز فري لانس","days_remaining":-38,"status":"expired"},{"id":548,"name":"علي القاضي","name_en":"Ali Al-Qadi","iqama_expiry":"2025-12-30T21:00:00.000Z","iqama_number":"7483920165","package_id":69,"package_name":"مناديب ذا شيفز فري لانس","days_remaining":-38,"status":"expired"},{"id":527,"name":"رنا علي","name_en":"Rana Ali","iqama_expiry":"2025-12-30T21:00:00.000Z","iqama_number":"5647382910","package_id":69,"package_name":"مناديب ذا شيفز فري لانس","days_remaining":-38,"status":"expired"},{"id":530,"name":"طلال محمد","name_en":"Talal Mohamed","iqama_expiry":"2025-12-30T21:00:00.000Z","iqama_number":"7564839201","package_id":69,"package_name":"مناديب ذا شيفز فري لانس","days_remaining":-38,"status":"expired"},{"id":529,"name":"خالد سعيد","name_en":"Khaled Saeed","iqama_expiry":"2025-12-30T21:00:00.000Z","iqama_number":"1029384756","package_id":69,"package_name":"مناديب ذا شيفز فري لانس","days_remaining":-38,"status":"expired"},{"id":514,"name":"عمر خالد","name_en":"Omar Khaled","iqama_expiry":"2025-12-30T21:00:00.000Z","iqama_number":"5837429160","package_id":69,"package_name":"مناديب ذا شيفز فري لانس","days_remaini... [truncated]
+2026-02-07T04:20:07.044Z [console][error] Uncaught ReferenceError: PackageDropdown is not defined
+2026-02-07T04:20:11.899Z [console][error] [Fast Refresh] performing full reload because your application had an unrecoverable error
+2026-02-07T04:21:01.575Z [console][error] [Fast Refresh] performing full reload because your application had an unrecoverable error
+2026-02-07T04:21:01.585Z [console][error] [Fast Refresh] performing full reload because your application had an unrecoverable error
+2026-02-07T04:20:07.044Z [console][error] Uncaught ReferenceError: PackageDropdown is not defined
+2026-02-07T04:20:11.899Z [console][error] [Fast Refresh] performing full reload because your application had an unrecoverable error
+2026-02-07T04:21:01.575Z [console][error] [Fast Refresh] performing full reload because your application had an unrecoverable error
+2026-02-07T04:21:01.585Z [console][error] [Fast Refresh] performing full reload because your application had an unrecoverable error
+2026-02-07T04:20:11.899Z [console][error] [Fast Refresh] performing full reload because your application had an unrecoverable error
+2026-02-07T04:21:01.575Z [console][error] [Fast Refresh] performing full reload because your application had an unrecoverable error
+2026-02-07T04:21:01.585Z [console][error] [Fast Refresh] performing full reload because your application had an unrecoverable error

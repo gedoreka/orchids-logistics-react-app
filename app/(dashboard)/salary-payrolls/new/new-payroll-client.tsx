@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useCallback, useMemo } from "react";
+import React, { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
   FileText,
@@ -29,12 +29,19 @@ import {
   CreditCard,
   ChevronLeft,
   ChevronDown,
+  ChevronRight,
   BookOpen,
   Building2,
   Folder,
   FolderOpen,
   Hash,
-  CircleDot
+  CircleDot,
+  Sparkles,
+  CheckCircle2,
+  Package as PackageIcon,
+  Crown,
+  Briefcase,
+  TrendingUp
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -141,15 +148,839 @@ interface NewPayrollClientProps {
 
 interface NotificationState {
   show: boolean;
-  type: "success" | "error" | "loading";
+  type: "success" | "error" | "loading" | "confirm" | "warning";
   title: string;
   message: string;
   details?: {
     month?: string;
     employeeCount?: number;
     totalAmount?: number;
+    totalDeductions?: number;
     packageName?: string;
+    accountName?: string;
+    costCenterName?: string;
+    workType?: string;
+    isDraft?: boolean;
   };
+  missingFields?: string[];
+  onConfirm?: () => void;
+}
+
+// Build tree from flat list
+function buildTree<T extends { id: number; parent_id: number | null; children?: T[] }>(items: T[]): T[] {
+  const map = new Map<number, T>();
+  const roots: T[] = [];
+  items.forEach(item => map.set(item.id, { ...item, children: [] }));
+  items.forEach(item => {
+    const node = map.get(item.id)!;
+    if (item.parent_id && map.has(item.parent_id)) {
+      map.get(item.parent_id)!.children!.push(node);
+    } else {
+      roots.push(node);
+    }
+  });
+  return roots;
+}
+
+// Hierarchical Tree Dropdown Component
+function TreeDropdown<T extends { id: number; children?: T[] }>({
+  label,
+  icon,
+  items,
+  selectedId,
+  onSelect,
+  getCode,
+  getName,
+  getType,
+  placeholder,
+  required,
+  error,
+  gradient,
+}: {
+  label: string;
+  icon: React.ReactNode;
+  items: T[];
+  selectedId: number | null;
+  onSelect: (id: number | null, name: string) => void;
+  getCode: (item: T) => string;
+  getName: (item: T) => string;
+  getType: (item: T) => string;
+  placeholder: string;
+  required?: boolean;
+  error?: boolean;
+  gradient: string;
+}) {
+  const [open, setOpen] = useState(false);
+  const [search, setSearch] = useState("");
+  const [expandedIds, setExpandedIds] = useState<Set<number>>(new Set());
+  const [hoveredId, setHoveredId] = useState<number | null>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  // Close on outside click
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+        setOpen(false);
+      }
+    };
+    if (open) document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, [open]);
+
+  const toggleExpand = (id: number, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setExpandedIds(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+
+  // Find selected item name
+  const findItem = (items: T[], id: number): T | null => {
+    for (const item of items) {
+      if (item.id === id) return item;
+      if (item.children) {
+        const found = findItem(item.children, id);
+        if (found) return found;
+      }
+    }
+    return null;
+  };
+
+  const selectedItem = selectedId ? findItem(items, selectedId) : null;
+
+  // Filter items by search
+  const matchesSearch = (item: T): boolean => {
+    if (!search.trim()) return true;
+    const q = search.toLowerCase();
+    if (getName(item).toLowerCase().includes(q) || getCode(item).toLowerCase().includes(q)) return true;
+    if (item.children) return item.children.some(child => matchesSearch(child));
+    return false;
+  };
+
+  // Auto-expand parents when searching
+  useEffect(() => {
+    if (search.trim()) {
+      const collectExpandIds = (items: T[]): number[] => {
+        let ids: number[] = [];
+        items.forEach(item => {
+          if (item.children && item.children.some(child => matchesSearch(child))) {
+            ids.push(item.id);
+            ids = ids.concat(collectExpandIds(item.children));
+          }
+        });
+        return ids;
+      };
+      setExpandedIds(new Set(collectExpandIds(items)));
+    }
+  }, [search]);
+
+  const renderNode = (item: T, depth: number = 0) => {
+    if (!matchesSearch(item)) return null;
+    const hasChildren = item.children && item.children.length > 0;
+    const isExpanded = expandedIds.has(item.id);
+    const isSelected = selectedId === item.id;
+    const isHovered = hoveredId === item.id;
+    const isMain = getType(item) === 'main';
+
+    return (
+      <div key={item.id}>
+        <motion.div
+          initial={false}
+          animate={{ 
+            backgroundColor: isSelected ? 'rgb(239, 246, 255)' : isHovered ? 'rgb(249, 250, 251)' : 'transparent',
+            x: isHovered && !isSelected ? 4 : 0
+          }}
+          transition={{ duration: 0.15 }}
+          className={`flex items-center gap-2 px-3 py-2.5 cursor-pointer rounded-xl mx-1 my-0.5 transition-all ${
+            isSelected ? 'ring-2 ring-blue-200 bg-blue-50' : ''
+          }`}
+          style={{ paddingRight: `${depth * 20 + 12}px` }}
+          onClick={() => {
+            onSelect(item.id, `${getCode(item)} - ${getName(item)}`);
+            setOpen(false);
+            setSearch("");
+          }}
+          onMouseEnter={() => setHoveredId(item.id)}
+          onMouseLeave={() => setHoveredId(null)}
+        >
+          {hasChildren ? (
+            <motion.button
+              onClick={(e) => toggleExpand(item.id, e)}
+              className="p-0.5 rounded-md hover:bg-gray-200 transition-colors flex-shrink-0"
+              animate={{ rotate: isExpanded ? 90 : 0 }}
+              transition={{ duration: 0.2 }}
+            >
+              <ChevronRight size={14} className="text-gray-400" />
+            </motion.button>
+          ) : (
+            <span className="w-5 flex-shrink-0" />
+          )}
+
+          <div className={`w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0 ${
+            isMain 
+              ? 'bg-gradient-to-br from-amber-100 to-orange-100 text-amber-600' 
+              : 'bg-gradient-to-br from-blue-100 to-indigo-100 text-blue-600'
+          }`}>
+            {isMain ? (hasChildren && isExpanded ? <FolderOpen size={14} /> : <Folder size={14} />) : <CircleDot size={12} />}
+          </div>
+
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2">
+              <span className={`text-[10px] font-mono px-1.5 py-0.5 rounded ${
+                isMain ? 'bg-amber-100 text-amber-700' : 'bg-blue-100 text-blue-700'
+              }`}>
+                {getCode(item)}
+              </span>
+              <span className={`text-sm truncate ${isMain ? 'font-bold text-gray-900' : 'text-gray-700'}`}>
+                {getName(item)}
+              </span>
+            </div>
+          </div>
+
+          {isSelected && (
+            <motion.div
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              className="flex-shrink-0"
+            >
+              <CheckCircle size={16} className="text-blue-500" />
+            </motion.div>
+          )}
+        </motion.div>
+
+        <AnimatePresence initial={false}>
+          {hasChildren && isExpanded && (
+            <motion.div
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: "auto", opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              className="overflow-hidden"
+            >
+              <div className="relative" style={{ marginRight: `${depth * 20 + 28}px` }}>
+                <div className="absolute right-0 top-0 bottom-0 w-px bg-gray-200" />
+                {item.children!.map(child => renderNode(child, depth + 1))}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+    );
+  };
+
+  return (
+    <div ref={containerRef} className="relative">
+      <label className="flex items-center gap-1.5 text-xs font-bold text-gray-700 mb-1.5">
+        {icon}
+        {label}
+        {required && <span className="text-red-500">*</span>}
+      </label>
+      <button
+        type="button"
+        onClick={() => setOpen(!open)}
+        className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl border text-sm bg-white text-right transition-all ${
+          error ? 'border-red-400 ring-2 ring-red-100' :
+          open ? 'border-blue-500 ring-2 ring-blue-100' :
+          selectedItem ? 'border-emerald-300 bg-emerald-50/50' : 'border-gray-200 hover:border-gray-300'
+        }`}
+      >
+        <div className="flex items-center gap-2 flex-1 min-w-0">
+          {selectedItem ? (
+            <>
+              <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-blue-100 text-blue-700">
+                {getCode(selectedItem)}
+              </span>
+              <span className="text-gray-900 font-medium truncate">{getName(selectedItem)}</span>
+            </>
+          ) : (
+            <span className="text-gray-400">{placeholder}</span>
+          )}
+        </div>
+        <motion.div animate={{ rotate: open ? 180 : 0 }} transition={{ duration: 0.2 }}>
+          <ChevronDown size={16} className="text-gray-400" />
+        </motion.div>
+      </button>
+
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            initial={{ opacity: 0, y: -8, scale: 0.96 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -8, scale: 0.96 }}
+            transition={{ duration: 0.15 }}
+            className="absolute z-50 top-full mt-2 w-full bg-white rounded-2xl shadow-2xl border border-gray-200 overflow-hidden"
+            style={{ maxHeight: '380px' }}
+          >
+            {/* Header */}
+            <div className={`p-3 ${gradient} text-white`}>
+              <div className="relative">
+                <Search size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-white/60" />
+                <input
+                  type="text"
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  placeholder="بحث بالاسم أو الرمز..."
+                  className="w-full pr-9 pl-3 py-2 rounded-xl bg-white/15 border border-white/20 text-white placeholder-white/50 text-sm focus:bg-white/25 focus:border-white/40 outline-none transition-all"
+                  autoFocus
+                />
+              </div>
+            </div>
+
+            {/* Tree */}
+            <div className="overflow-auto" style={{ maxHeight: '300px' }} dir="rtl">
+              {items.length === 0 ? (
+                <div className="p-8 text-center">
+                  <Folder size={32} className="mx-auto text-gray-300 mb-2" />
+                  <p className="text-gray-400 text-sm">لا توجد بيانات</p>
+                </div>
+              ) : (
+                <div className="py-1">
+                  {items.map(item => renderNode(item))}
+                </div>
+              )}
+            </div>
+
+            {/* Footer - clear selection */}
+            {selectedId && (
+              <div className="border-t border-gray-100 p-2">
+                <button
+                  onClick={() => {
+                    onSelect(null, "");
+                    setOpen(false);
+                  }}
+                  className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-xl text-red-500 hover:bg-red-50 text-sm font-bold transition-colors"
+                >
+                  <X size={14} />
+                  إلغاء الاختيار
+                </button>
+              </div>
+            )}
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
+
+// Premium Package Dropdown Component
+const MONTHS_AR = [
+  { value: '01', label: 'يناير', short: 'ينا' },
+  { value: '02', label: 'فبراير', short: 'فبر' },
+  { value: '03', label: 'مارس', short: 'مار' },
+  { value: '04', label: 'أبريل', short: 'أبر' },
+  { value: '05', label: 'مايو', short: 'ماي' },
+  { value: '06', label: 'يونيو', short: 'يون' },
+  { value: '07', label: 'يوليو', short: 'يول' },
+  { value: '08', label: 'أغسطس', short: 'أغس' },
+  { value: '09', label: 'سبتمبر', short: 'سبت' },
+  { value: '10', label: 'أكتوبر', short: 'أكت' },
+  { value: '11', label: 'نوفمبر', short: 'نوف' },
+  { value: '12', label: 'ديسمبر', short: 'ديس' },
+];
+
+const MONTH_SEASONS: Record<string, { gradient: string; icon: string }> = {
+  '01': { gradient: 'from-sky-400 to-blue-500', icon: '❄️' },
+  '02': { gradient: 'from-sky-400 to-blue-500', icon: '❄️' },
+  '03': { gradient: 'from-emerald-400 to-green-500', icon: '🌿' },
+  '04': { gradient: 'from-emerald-400 to-green-500', icon: '🌸' },
+  '05': { gradient: 'from-emerald-400 to-green-500', icon: '🌷' },
+  '06': { gradient: 'from-amber-400 to-orange-500', icon: '☀️' },
+  '07': { gradient: 'from-amber-400 to-orange-500', icon: '🌞' },
+  '08': { gradient: 'from-amber-400 to-orange-500', icon: '🔥' },
+  '09': { gradient: 'from-orange-400 to-red-500', icon: '🍂' },
+  '10': { gradient: 'from-orange-400 to-red-500', icon: '🍁' },
+  '11': { gradient: 'from-violet-400 to-purple-500', icon: '🌧️' },
+  '12': { gradient: 'from-violet-400 to-purple-500', icon: '🎄' },
+};
+
+function MonthPickerDropdown({
+  value,
+  onChange,
+}: {
+  value: string; // "2026-02"
+  onChange: (val: string) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const [search, setSearch] = useState('');
+  const containerRef = useRef<HTMLDivElement>(null);
+  const searchInputRef = useRef<HTMLInputElement>(null);
+
+  const currentYear = new Date().getFullYear();
+  const [viewYear, setViewYear] = useState(() => {
+    const y = parseInt(value?.split('-')[0] || '');
+    return isNaN(y) ? currentYear : y;
+  });
+
+  const selectedMonth = value?.split('-')[1] || '';
+  const selectedYear = parseInt(value?.split('-')[0] || '0');
+
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+        setOpen(false);
+      }
+    };
+    if (open) document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, [open]);
+
+  useEffect(() => {
+    if (open && searchInputRef.current) {
+      setTimeout(() => searchInputRef.current?.focus(), 100);
+    }
+  }, [open]);
+
+  const filteredMonths = MONTHS_AR.filter(m => {
+    if (!search.trim()) return true;
+    const q = search.toLowerCase();
+    return m.label.includes(q) || m.short.includes(q) || m.value.includes(q) || String(viewYear).includes(q);
+  });
+
+  const selectedLabel = MONTHS_AR.find(m => m.value === selectedMonth)?.label || '';
+  const seasonConfig = MONTH_SEASONS[selectedMonth] || { gradient: 'from-gray-400 to-gray-500', icon: '📅' };
+
+  const yearRange = Array.from({ length: 7 }, (_, i) => currentYear - 3 + i);
+
+  return (
+    <div ref={containerRef} className="relative">
+      {/* Trigger */}
+      <motion.button
+        type="button"
+        whileTap={{ scale: 0.98 }}
+        onClick={() => setOpen(!open)}
+        className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl border-2 transition-all text-sm text-right ${
+          open
+            ? 'border-blue-400 ring-4 ring-blue-500/10 bg-blue-50/50 shadow-lg shadow-blue-500/10'
+            : value
+              ? 'border-blue-200 bg-gradient-to-l from-blue-50/50 to-white hover:border-blue-300 hover:shadow-md'
+              : 'border-gray-200 bg-white hover:border-gray-300 hover:shadow-sm'
+        }`}
+      >
+        {value ? (
+          <div className="flex items-center gap-2.5 flex-1 min-w-0">
+            <div className={`h-8 w-8 rounded-lg bg-gradient-to-br ${seasonConfig.gradient} flex items-center justify-center flex-shrink-0 shadow-sm`}>
+              <span className="text-base">{seasonConfig.icon}</span>
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="font-bold text-gray-900 text-sm truncate">{selectedLabel} {selectedYear}</p>
+              <p className="text-[10px] text-gray-500">{value}</p>
+            </div>
+            <ChevronDown size={16} className={`text-gray-400 transition-transform flex-shrink-0 ${open ? 'rotate-180' : ''}`} />
+          </div>
+        ) : (
+          <div className="flex items-center gap-2.5 flex-1">
+            <div className="h-8 w-8 rounded-lg bg-gray-100 flex items-center justify-center flex-shrink-0">
+              <Calendar size={16} className="text-gray-400" />
+            </div>
+            <span className="text-gray-400 font-medium flex-1">اختر شهر المسير...</span>
+            <ChevronDown size={16} className={`text-gray-400 transition-transform flex-shrink-0 ${open ? 'rotate-180' : ''}`} />
+          </div>
+        )}
+      </motion.button>
+
+      {/* Dropdown */}
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            initial={{ opacity: 0, y: -8, scale: 0.96 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -8, scale: 0.96 }}
+            transition={{ type: 'spring', damping: 25, stiffness: 400 }}
+            className="absolute z-[100] top-full mt-2 w-full min-w-[340px] bg-white dark:bg-slate-900 rounded-2xl shadow-[0_20px_60px_rgba(0,0,0,0.15)] border-2 border-gray-100 dark:border-slate-800 overflow-hidden"
+          >
+            {/* Search Header */}
+            <div className="p-3 border-b border-gray-100 dark:border-slate-800 bg-gradient-to-l from-indigo-50/80 via-blue-50/50 to-sky-50/80 dark:from-slate-800/50 dark:to-slate-800/50">
+              <div className="relative">
+                <Search size={15} className="absolute right-3 top-1/2 -translate-y-1/2 text-blue-400" />
+                <input
+                  ref={searchInputRef}
+                  type="text"
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  placeholder="ابحث عن الشهر..."
+                  className="w-full pr-10 pl-4 py-2.5 rounded-xl bg-white dark:bg-slate-800 border border-blue-200/80 dark:border-slate-700 text-sm font-medium text-gray-700 dark:text-gray-300 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 transition-all"
+                />
+              </div>
+            </div>
+
+            {/* Year Selector */}
+            <div className="flex items-center justify-between px-4 py-2.5 bg-gray-50/80 dark:bg-slate-800/50 border-b border-gray-100 dark:border-slate-700">
+              <motion.button
+                type="button"
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.9 }}
+                onClick={() => setViewYear(prev => prev + 1)}
+                className="h-8 w-8 rounded-lg bg-white dark:bg-slate-700 border border-gray-200 dark:border-slate-600 flex items-center justify-center hover:bg-blue-50 hover:border-blue-300 transition-colors shadow-sm"
+              >
+                <ChevronRight size={16} className="text-gray-600 dark:text-gray-300" />
+              </motion.button>
+
+              {/* Year pills */}
+              <div className="flex items-center gap-1 overflow-x-auto no-scrollbar px-2">
+                {yearRange.map(year => (
+                  <motion.button
+                    key={year}
+                    type="button"
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() => setViewYear(year)}
+                    className={`px-3 py-1 rounded-lg text-xs font-bold whitespace-nowrap transition-all ${
+                      viewYear === year
+                        ? 'bg-gradient-to-br from-blue-500 to-indigo-600 text-white shadow-md shadow-blue-500/30'
+                        : year === currentYear
+                          ? 'bg-blue-50 text-blue-600 border border-blue-200 hover:bg-blue-100'
+                          : 'text-gray-500 hover:bg-gray-100 dark:hover:bg-slate-700'
+                    }`}
+                  >
+                    {year}
+                  </motion.button>
+                ))}
+              </div>
+
+              <motion.button
+                type="button"
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.9 }}
+                onClick={() => setViewYear(prev => prev - 1)}
+                className="h-8 w-8 rounded-lg bg-white dark:bg-slate-700 border border-gray-200 dark:border-slate-600 flex items-center justify-center hover:bg-blue-50 hover:border-blue-300 transition-colors shadow-sm"
+              >
+                <ChevronLeft size={16} className="text-gray-600 dark:text-gray-300" />
+              </motion.button>
+            </div>
+
+            {/* Months Grid */}
+            <div className="p-3">
+              {filteredMonths.length === 0 ? (
+                <div className="text-center py-8">
+                  <Calendar size={32} className="mx-auto text-gray-300 mb-2" />
+                  <p className="text-sm text-gray-400 font-bold">لا توجد نتائج مطابقة</p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-3 gap-2">
+                  {filteredMonths.map((month, index) => {
+                    const isSelected = selectedMonth === month.value && selectedYear === viewYear;
+                    const isCurrentMonth = month.value === String(new Date().getMonth() + 1).padStart(2, '0') && viewYear === currentYear;
+                    const season = MONTH_SEASONS[month.value];
+
+                    return (
+                      <motion.button
+                        key={month.value}
+                        type="button"
+                        initial={{ opacity: 0, scale: 0.8 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        transition={{ delay: index * 0.02 }}
+                        whileHover={{ scale: 1.05, y: -2 }}
+                        whileTap={{ scale: 0.95 }}
+                        onClick={() => {
+                          onChange(`${viewYear}-${month.value}`);
+                          setOpen(false);
+                          setSearch('');
+                        }}
+                        className={`relative flex flex-col items-center gap-1 p-3 rounded-xl transition-all ${
+                          isSelected
+                            ? `bg-gradient-to-br ${season.gradient} text-white shadow-lg shadow-blue-500/20 ring-2 ring-white/50`
+                            : isCurrentMonth
+                              ? 'bg-blue-50 dark:bg-blue-950/30 border-2 border-blue-300 dark:border-blue-700 text-blue-700 dark:text-blue-300 hover:shadow-md'
+                              : 'bg-gray-50/80 dark:bg-slate-800/50 border border-gray-100 dark:border-slate-700 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-700 hover:shadow-sm'
+                        }`}
+                      >
+                        <span className="text-lg">{season.icon}</span>
+                        <span className={`text-xs font-bold ${isSelected ? 'text-white' : ''}`}>
+                          {month.label}
+                        </span>
+                        {isSelected && (
+                          <motion.div
+                            initial={{ scale: 0 }}
+                            animate={{ scale: 1 }}
+                            className="absolute -top-1 -left-1"
+                          >
+                            <div className="h-5 w-5 rounded-full bg-white shadow-md flex items-center justify-center">
+                              <CheckCircle2 size={12} className="text-blue-600" />
+                            </div>
+                          </motion.div>
+                        )}
+                        {isCurrentMonth && !isSelected && (
+                          <span className="absolute -top-1 -left-1 h-2.5 w-2.5 rounded-full bg-blue-500 ring-2 ring-white shadow-sm" />
+                        )}
+                      </motion.button>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+
+            {/* Footer: Quick select current month */}
+            <div className="p-2 border-t border-gray-100 dark:border-slate-800 bg-gray-50/50 dark:bg-slate-800/30">
+              <button
+                type="button"
+                onClick={() => {
+                  const now = new Date();
+                  const val = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+                  onChange(val);
+                  setViewYear(now.getFullYear());
+                  setOpen(false);
+                  setSearch('');
+                }}
+                className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-xl text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-950/30 text-xs font-bold transition-colors"
+              >
+                <Clock size={14} />
+                الشهر الحالي
+              </button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
+
+function PackageDropdown({
+  packages: pkgList,
+  selectedPackageId,
+  onSelect,
+  getWorkTypeLabel,
+  placeholder,
+}: {
+  packages: Package[];
+  selectedPackageId: string;
+  onSelect: (id: string) => void;
+  getWorkTypeLabel: (type: string) => string;
+  placeholder: string;
+}) {
+  const [open, setOpen] = useState(false);
+  const [search, setSearch] = useState("");
+  const [hoveredId, setHoveredId] = useState<number | null>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const searchInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+        setOpen(false);
+      }
+    };
+    if (open) document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, [open]);
+
+  useEffect(() => {
+    if (open && searchInputRef.current) {
+      setTimeout(() => searchInputRef.current?.focus(), 100);
+    }
+  }, [open]);
+
+  const selectedPkg = pkgList.find(p => String(p.id) === selectedPackageId) || null;
+
+  const filteredPkgs = pkgList.filter(pkg => {
+    if (!search.trim()) return true;
+    const q = search.toLowerCase();
+    return pkg.group_name.toLowerCase().includes(q) || 
+           getWorkTypeLabel(pkg.work_type).toLowerCase().includes(q);
+  });
+
+  const getWorkTypeConfig = (type: string) => {
+    switch (type) {
+      case 'salary': return { 
+        icon: <Briefcase size={14} />, 
+        gradient: 'from-emerald-500 to-green-600', 
+        bg: 'bg-emerald-50 dark:bg-emerald-950/30', 
+        text: 'text-emerald-700 dark:text-emerald-400',
+        border: 'border-emerald-200 dark:border-emerald-800',
+        ring: 'ring-emerald-500/20'
+      };
+      case 'target': return { 
+        icon: <Target size={14} />, 
+        gradient: 'from-blue-500 to-indigo-600', 
+        bg: 'bg-blue-50 dark:bg-blue-950/30', 
+        text: 'text-blue-700 dark:text-blue-400',
+        border: 'border-blue-200 dark:border-blue-800',
+        ring: 'ring-blue-500/20'
+      };
+      case 'tiers': return { 
+        icon: <TrendingUp size={14} />, 
+        gradient: 'from-violet-500 to-purple-600', 
+        bg: 'bg-violet-50 dark:bg-violet-950/30', 
+        text: 'text-violet-700 dark:text-violet-400',
+        border: 'border-violet-200 dark:border-violet-800',
+        ring: 'ring-violet-500/20'
+      };
+      default: return { 
+        icon: <Layers size={14} />, 
+        gradient: 'from-gray-500 to-gray-600', 
+        bg: 'bg-gray-50', 
+        text: 'text-gray-700',
+        border: 'border-gray-200',
+        ring: 'ring-gray-500/20'
+      };
+    }
+  };
+
+  return (
+    <div ref={containerRef} className="relative">
+      {/* Trigger Button */}
+      <motion.button
+        type="button"
+        whileTap={{ scale: 0.98 }}
+        onClick={() => setOpen(!open)}
+        className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl border-2 transition-all text-sm text-right ${
+          open 
+            ? 'border-blue-400 ring-4 ring-blue-500/10 bg-blue-50/50 shadow-lg shadow-blue-500/10' 
+            : selectedPkg 
+              ? 'border-blue-200 bg-gradient-to-l from-blue-50/50 to-white hover:border-blue-300 hover:shadow-md' 
+              : 'border-gray-200 bg-white hover:border-gray-300 hover:shadow-sm'
+        }`}
+      >
+        {selectedPkg ? (
+          <div className="flex items-center gap-2.5 flex-1 min-w-0">
+            <div className={`h-8 w-8 rounded-lg bg-gradient-to-br ${getWorkTypeConfig(selectedPkg.work_type).gradient} flex items-center justify-center flex-shrink-0 shadow-sm`}>
+              <span className="text-white">{getWorkTypeConfig(selectedPkg.work_type).icon}</span>
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="font-bold text-gray-900 text-sm truncate">{selectedPkg.group_name}</p>
+              <p className="text-[10px] text-gray-500">{getWorkTypeLabel(selectedPkg.work_type)}</p>
+            </div>
+            <ChevronDown size={16} className={`text-gray-400 transition-transform flex-shrink-0 ${open ? 'rotate-180' : ''}`} />
+          </div>
+        ) : (
+          <div className="flex items-center gap-2.5 flex-1">
+            <div className="h-8 w-8 rounded-lg bg-gray-100 flex items-center justify-center flex-shrink-0">
+              <PackageIcon size={16} className="text-gray-400" />
+            </div>
+            <span className="text-gray-400 font-medium flex-1">{placeholder}</span>
+            <ChevronDown size={16} className={`text-gray-400 transition-transform flex-shrink-0 ${open ? 'rotate-180' : ''}`} />
+          </div>
+        )}
+      </motion.button>
+
+      {/* Dropdown Panel */}
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            initial={{ opacity: 0, y: -8, scale: 0.96 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -8, scale: 0.96 }}
+            transition={{ type: "spring", damping: 25, stiffness: 400 }}
+            className="absolute z-[100] top-full mt-2 w-full min-w-[340px] bg-white dark:bg-slate-900 rounded-2xl shadow-[0_20px_60px_rgba(0,0,0,0.15)] border-2 border-gray-100 dark:border-slate-800 overflow-hidden"
+          >
+            {/* Search Header */}
+            <div className="p-3 border-b border-gray-100 dark:border-slate-800 bg-gradient-to-l from-blue-50/80 via-indigo-50/50 to-violet-50/80 dark:from-slate-800/50 dark:to-slate-800/50">
+              <div className="relative">
+                <Search size={15} className="absolute right-3 top-1/2 -translate-y-1/2 text-blue-400" />
+                <input
+                  ref={searchInputRef}
+                  type="text"
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  placeholder="ابحث عن الباقة..."
+                  className="w-full pr-10 pl-4 py-2.5 rounded-xl bg-white dark:bg-slate-800 border border-blue-200/80 dark:border-slate-700 text-sm font-medium text-gray-700 dark:text-gray-300 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 transition-all"
+                />
+              </div>
+              <div className="flex items-center gap-2 mt-2">
+                <Crown size={12} className="text-amber-500" />
+                <span className="text-[10px] font-bold text-gray-500">{filteredPkgs.length} باقة متاحة</span>
+              </div>
+            </div>
+
+            {/* Package List */}
+            <div className="max-h-[300px] overflow-y-auto p-2 custom-scrollbar">
+              {filteredPkgs.length === 0 ? (
+                <div className="text-center py-8">
+                  <PackageIcon size={32} className="mx-auto text-gray-300 mb-2" />
+                  <p className="text-sm text-gray-400 font-bold">لا توجد باقات مطابقة</p>
+                </div>
+              ) : (
+                filteredPkgs.map((pkg, index) => {
+                  const config = getWorkTypeConfig(pkg.work_type);
+                  const isSelected = String(pkg.id) === selectedPackageId;
+                  const isHovered = hoveredId === pkg.id;
+
+                  return (
+                    <motion.div
+                      key={pkg.id}
+                      initial={{ opacity: 0, x: -10 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: index * 0.03 }}
+                      onMouseEnter={() => setHoveredId(pkg.id)}
+                      onMouseLeave={() => setHoveredId(null)}
+                      onClick={() => {
+                        onSelect(String(pkg.id));
+                        setOpen(false);
+                        setSearch("");
+                      }}
+                      className={`relative flex items-center gap-3 p-3 rounded-xl cursor-pointer transition-all mb-1 ${
+                        isSelected 
+                          ? `${config.bg} ring-2 ${config.ring} ${config.border} border` 
+                          : isHovered 
+                            ? 'bg-gray-50 dark:bg-slate-800/50' 
+                            : 'hover:bg-gray-50/50'
+                      }`}
+                    >
+                      {/* Icon */}
+                      <div className={`h-10 w-10 rounded-xl bg-gradient-to-br ${config.gradient} flex items-center justify-center shadow-lg flex-shrink-0`}>
+                        <span className="text-white">{config.icon}</span>
+                      </div>
+
+                      {/* Info */}
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2">
+                          <p className="font-bold text-gray-900 dark:text-gray-100 text-sm truncate">{pkg.group_name}</p>
+                          {isSelected && (
+                            <motion.div
+                              initial={{ scale: 0 }}
+                              animate={{ scale: 1 }}
+                              className="flex-shrink-0"
+                            >
+                              <CheckCircle2 size={16} className="text-blue-500" />
+                            </motion.div>
+                          )}
+                        </div>
+                        <div className="flex items-center gap-2 mt-1">
+                          <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-bold ${config.bg} ${config.text}`}>
+                            {config.icon}
+                            {getWorkTypeLabel(pkg.work_type)}
+                          </span>
+                          {pkg.work_type === 'target' && (
+                            <span className="text-[10px] text-gray-400 font-medium">
+                              هدف: {pkg.monthly_target} | بونص: {pkg.bonus_after_target}
+                            </span>
+                          )}
+                          {pkg.work_type === 'salary' && (
+                            <span className="text-[10px] text-gray-400 font-medium">
+                              نظام رواتب ثابت
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    </motion.div>
+                  );
+                })
+              )}
+            </div>
+
+            {/* Clear Selection */}
+            {selectedPackageId && (
+              <div className="p-2 border-t border-gray-100 dark:border-slate-800">
+                <button
+                  onClick={() => {
+                    onSelect("");
+                    setOpen(false);
+                    setSearch("");
+                  }}
+                  className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-xl text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 text-xs font-bold transition-colors"
+                >
+                  <X size={14} />
+                  إلغاء الاختيار
+                </button>
+              </div>
+            )}
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
 }
 
 export function NewPayrollClient({ packages, debts, companyId, userName }: NewPayrollClientProps) {
@@ -163,7 +994,9 @@ export function NewPayrollClient({ packages, debts, companyId, userName }: NewPa
     type: "success",
     title: "",
     message: "",
-    details: undefined
+    details: undefined,
+    missingFields: undefined,
+    onConfirm: undefined
   });
   const [showDebtsPanel, setShowDebtsPanel] = useState(false);
 
@@ -176,18 +1009,56 @@ export function NewPayrollClient({ packages, debts, companyId, userName }: NewPa
   const [employeeRows, setEmployeeRows] = useState<EmployeeRow[]>([]);
   const [tierSystemActive, setTierSystemActive] = useState(false);
 
+  // Chart of Accounts & Cost Centers
+  const [accounts, setAccounts] = useState<Account[]>([]);
+  const [costCenters, setCostCenters] = useState<CostCenterItem[]>([]);
+  const [selectedAccountId, setSelectedAccountId] = useState<number | null>(null);
+  const [selectedAccountName, setSelectedAccountName] = useState("");
+  const [selectedCostCenterId, setSelectedCostCenterId] = useState<number | null>(null);
+  const [selectedCostCenterName, setSelectedCostCenterName] = useState("");
+  const [accountError, setAccountError] = useState(false);
+  const [costCenterError, setCostCenterError] = useState(false);
+
+  const accountTree = useMemo(() => buildTree(accounts), [accounts]);
+  const costCenterTree = useMemo(() => buildTree(costCenters), [costCenters]);
+
+  // Fetch accounts & cost centers on mount
+  useEffect(() => {
+    const fetchTreeData = async () => {
+      try {
+        const [accRes, ccRes] = await Promise.all([
+          fetch(`/api/accounts?company_id=${companyId}`),
+          fetch(`/api/cost-centers?company_id=${companyId}`)
+        ]);
+        if (accRes.ok) {
+          const accData = await accRes.json();
+          setAccounts(accData.accounts || []);
+        }
+        if (ccRes.ok) {
+          const ccData = await ccRes.json();
+          setCostCenters(ccData.costCenters || []);
+        }
+      } catch (err) {
+        console.error("Error fetching tree data:", err);
+      }
+    };
+    if (companyId) fetchTreeData();
+  }, [companyId]);
+
   const workType = selectedPackage?.work_type || 'salary';
   const isSalaryType = workType === 'salary';
 
   const showNotification = (
-    type: "success" | "error" | "loading", 
+    type: NotificationState['type'], 
     title: string, 
     message: string,
-    details?: NotificationState['details']
+    details?: NotificationState['details'],
+    missingFields?: string[],
+    onConfirm?: () => void
   ) => {
-    setNotification({ show: true, type, title, message, details });
-    if (type !== "loading") {
-      setTimeout(() => setNotification(prev => ({ ...prev, show: false })), 5000);
+    setNotification({ show: true, type, title, message, details, missingFields, onConfirm });
+    if (type !== "loading" && type !== "confirm" && type !== "warning") {
+      setTimeout(() => setNotification(prev => ({ ...prev, show: false })), 6000);
     }
   };
 
@@ -470,14 +1341,77 @@ export function NewPayrollClient({ packages, debts, companyId, userName }: NewPa
       return;
     }
 
+    // Collect missing required fields
+    const missingFields: string[] = [];
+    if (!selectedAccountId) {
+      setAccountError(true);
+      missingFields.push(t("newPayroll.notifications.requiredAccount"));
+    }
+    if (!selectedCostCenterId) {
+      setCostCenterError(true);
+      missingFields.push(t("newPayroll.notifications.requiredCostCenter"));
+    }
+
+    // For target/tiers/commission types, check if orders are entered
+    const currentWorkType = selectedPackage?.work_type || 'salary';
+    if (currentWorkType !== 'salary') {
+      const selectedRows = employeeRows.filter(row => row.selected);
+      const hasNoOrders = selectedRows.some(row => Number(row.successful_orders) <= 0);
+      if (hasNoOrders) {
+        missingFields.push(t("newPayroll.notifications.requiredOrders"));
+      }
+    }
+
+    if (missingFields.length > 0) {
+      showNotification(
+        "warning",
+        t("newPayroll.notifications.requiredFields"),
+        t("newPayroll.notifications.requiredFieldsDesc"),
+        undefined,
+        missingFields
+      );
+      return;
+    }
+
     const selectedRows = employeeRows.filter(row => row.selected);
     if (selectedRows.length === 0) {
       showNotification("error", t("newPayroll.notifications.error"), t("newPayroll.notifications.selectEmployee"));
       return;
     }
 
+    const totalAmount = selectedRows.reduce((sum, row) => sum + (Number(row.net_salary) || 0), 0);
+    const totalDeductions = selectedRows.reduce((sum, row) => {
+      return sum + (Number(row.target_deduction) || 0) + (Number(row.operator_deduction) || 0) + (Number(row.internal_deduction) || 0) + (Number(row.wallet_deduction) || 0);
+    }, 0);
+
+    // Show confirmation modal
+    showNotification(
+      "confirm",
+      isDraft ? t("newPayroll.notifications.confirmSaveTitle") : t("newPayroll.notifications.confirmSaveTitle"),
+      isDraft ? t("newPayroll.notifications.confirmSaveDraftDesc") : t("newPayroll.notifications.confirmSaveDesc"),
+      {
+        month: payrollMonth,
+        employeeCount: selectedRows.length,
+        totalAmount,
+        totalDeductions,
+        packageName: selectedPackage?.group_name,
+        accountName: selectedAccountName,
+        costCenterName: selectedCostCenterName,
+        workType: getWorkTypeLabel(currentWorkType),
+        isDraft,
+      },
+      undefined,
+      () => executeSave(isDraft, selectedRows, totalAmount)
+    );
+  };
+
+  const executeSave = async (isDraft: boolean, selectedRows: EmployeeRow[], totalAmount: number) => {
     setLoading(true);
-    showNotification("loading", t("newPayroll.notifications.saving"), isDraft ? t("newPayroll.notifications.savingDraft") : t("newPayroll.notifications.savingPayroll"));
+    showNotification(
+      "loading",
+      t("newPayroll.notifications.preparingSave"),
+      t("newPayroll.notifications.preparingSaveDesc")
+    );
 
     try {
       const items = selectedRows.map(row => ({
@@ -510,12 +1444,16 @@ export function NewPayrollClient({ packages, debts, companyId, userName }: NewPa
           package_id: selectedPackageId,
           saved_by: userName,
           is_draft: isDraft ? 1 : 0,
+          account_id: selectedAccountId,
+          cost_center_id: selectedCostCenterId,
           items
         })
       });
 
       if (res.ok) {
-        const totalAmount = selectedRows.reduce((sum, row) => sum + (Number(row.net_salary) || 0), 0);
+        const totalDeductions = selectedRows.reduce((sum, row) => {
+          return sum + (Number(row.target_deduction) || 0) + (Number(row.operator_deduction) || 0) + (Number(row.internal_deduction) || 0) + (Number(row.wallet_deduction) || 0);
+        }, 0);
         showNotification(
           "success", 
           isDraft ? t("newPayroll.notifications.savedDraft") : t("newPayroll.notifications.savedPayroll"), 
@@ -523,14 +1461,19 @@ export function NewPayrollClient({ packages, debts, companyId, userName }: NewPa
           {
             month: payrollMonth,
             employeeCount: selectedRows.length,
-            totalAmount: totalAmount,
-            packageName: selectedPackage?.group_name
+            totalAmount,
+            totalDeductions,
+            packageName: selectedPackage?.group_name,
+            accountName: selectedAccountName,
+            costCenterName: selectedCostCenterName,
+            workType: getWorkTypeLabel(selectedPackage?.work_type || 'salary'),
+            isDraft,
           }
         );
         setTimeout(() => {
           router.push("/salary-payrolls");
           router.refresh();
-        }, 2500);
+        }, 3000);
       } else {
         const data = await res.json();
         showNotification("error", t("newPayroll.notifications.saveFailed"), data.error || t("newPayroll.notifications.errorSaving"));
@@ -574,44 +1517,115 @@ export function NewPayrollClient({ packages, debts, companyId, userName }: NewPa
 
   return (
     <div className="h-full flex flex-col">
+      {/* Premium Notification Modals */}
       <AnimatePresence>
-        {notification.show && (
-          <>
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50"
-              onClick={() => notification.type !== "loading" && setNotification(prev => ({ ...prev, show: false }))}
-            />
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.9, y: 20 }}
-              className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50 w-full max-w-md"
-            >
-              <div className={`bg-white rounded-3xl p-8 shadow-2xl border-t-4 ${
-                notification.type === "success" ? "border-emerald-500" :
-                notification.type === "error" ? "border-red-500" : "border-blue-500"
-              }`}>
-                <div className="text-center">
-                  <div className={`h-20 w-20 rounded-full mx-auto mb-6 flex items-center justify-center ${
-                    notification.type === "success" ? "bg-emerald-100 text-emerald-500" :
-                    notification.type === "error" ? "bg-red-100 text-red-500" : "bg-blue-100 text-blue-500"
-                  }`}>
-                    {notification.type === "success" && <CheckCircle size={40} />}
-                    {notification.type === "error" && <AlertCircle size={40} />}
-                    {notification.type === "loading" && <Loader2 size={40} className="animate-spin" />}
+          {notification.show && (
+            <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                onClick={() => !["loading"].includes(notification.type) && setNotification(prev => ({ ...prev, show: false }))}
+                className="absolute inset-0 bg-slate-950/90 backdrop-blur-2xl"
+              />
+
+              {/* Warning: Missing fields */}
+              {notification.type === "warning" && (
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.8, y: 50 }}
+                  animate={{ opacity: 1, scale: 1, y: 0 }}
+                  exit={{ opacity: 0, scale: 0.8, y: 50 }}
+                  transition={{ type: "spring", damping: 25, stiffness: 300 }}
+                  className="relative w-full max-w-lg bg-white dark:bg-slate-900 rounded-[3rem] shadow-[0_0_100px_rgba(245,158,11,0.3)] overflow-hidden border-4 border-amber-500/20"
+                >
+                  <div className="relative bg-gradient-to-br from-amber-500 via-orange-600 to-amber-700 p-10 text-white text-center overflow-hidden">
+                    <div className="absolute inset-0 opacity-10">
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
+                    </div>
+                    <motion.div
+                      initial={{ scale: 0, rotate: -180 }}
+                      animate={{ scale: 1, rotate: 0 }}
+                      transition={{ delay: 0.2, type: "spring", damping: 15 }}
+                      className="relative z-10 mx-auto w-24 h-24 bg-white/20 backdrop-blur-xl rounded-full flex items-center justify-center mb-6 shadow-2xl border-4 border-white/30"
+                    >
+                      <motion.div animate={{ scale: [1, 1.1, 1] }} transition={{ repeat: Infinity, duration: 2 }}>
+                        <AlertTriangle size={48} className="text-white drop-shadow-lg" />
+                      </motion.div>
+                    </motion.div>
+                    <motion.h3 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="text-3xl font-black tracking-tight relative z-10">
+                      {notification.title}
+                    </motion.h3>
+                    <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }} className="text-white/80 font-bold mt-2 relative z-10">
+                      {notification.message}
+                    </motion.p>
                   </div>
-                  <h3 className="text-2xl font-black text-gray-900 mb-2">{notification.title}</h3>
-                  <p className="text-gray-500 mb-4">{notification.message}</p>
-                  
-                  {notification.type === "success" && notification.details && (
-                    <div className="bg-gradient-to-r from-emerald-50 to-teal-50 rounded-2xl p-4 mb-6 border border-emerald-100">
-                      <div className="grid grid-cols-2 gap-3 text-right" dir="rtl">
+                  <div className="p-8 text-center space-y-6" dir="rtl">
+                    {notification.missingFields && (
+                      <div className="space-y-2">
+                        {notification.missingFields.map((field, i) => (
+                          <motion.div
+                            key={i}
+                            initial={{ opacity: 0, x: 20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ delay: i * 0.1 }}
+                            className="flex items-center gap-3 bg-amber-50 rounded-xl p-3 border border-amber-100"
+                          >
+                            <div className="h-8 w-8 rounded-lg bg-amber-100 flex items-center justify-center flex-shrink-0">
+                              <AlertTriangle size={16} className="text-amber-600" />
+                            </div>
+                            <span className="text-sm font-bold text-gray-800">{field}</span>
+                          </motion.div>
+                        ))}
+                      </div>
+                    )}
+                    <motion.button
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      onClick={() => setNotification(prev => ({ ...prev, show: false }))}
+                      className="w-full flex items-center justify-center gap-3 bg-gradient-to-r from-amber-500 via-orange-600 to-amber-600 text-white py-4 rounded-2xl font-black text-lg shadow-xl shadow-amber-500/30 border-b-4 border-amber-700/50"
+                    >
+                      {t("newPayroll.notifications.ok")}
+                    </motion.button>
+                  </div>
+                </motion.div>
+              )}
+
+              {/* Confirm Save */}
+              {notification.type === "confirm" && notification.details && (
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.8, y: 50 }}
+                  animate={{ opacity: 1, scale: 1, y: 0 }}
+                  exit={{ opacity: 0, scale: 0.8, y: 50 }}
+                  transition={{ type: "spring", damping: 25, stiffness: 300 }}
+                  className="relative w-full max-w-lg bg-white dark:bg-slate-900 rounded-[3rem] shadow-[0_0_100px_rgba(139,92,246,0.3)] overflow-hidden border-4 border-violet-500/20"
+                >
+                  <div className="relative bg-gradient-to-br from-violet-500 via-purple-600 to-violet-700 p-10 text-white text-center overflow-hidden">
+                    <div className="absolute inset-0 opacity-10">
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
+                    </div>
+                    <motion.div
+                      initial={{ scale: 0, rotate: -180 }}
+                      animate={{ scale: 1, rotate: 0 }}
+                      transition={{ delay: 0.2, type: "spring", damping: 15 }}
+                      className="relative z-10 mx-auto w-24 h-24 bg-white/20 backdrop-blur-xl rounded-full flex items-center justify-center mb-6 shadow-2xl border-4 border-white/30"
+                    >
+                      <motion.div animate={{ scale: [1, 1.1, 1] }} transition={{ repeat: Infinity, duration: 2 }}>
+                        <FileCheck size={48} className="text-white drop-shadow-lg" />
+                      </motion.div>
+                    </motion.div>
+                    <motion.h3 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="text-3xl font-black tracking-tight relative z-10">
+                      {notification.title}
+                    </motion.h3>
+                    <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }} className="text-white/80 font-bold mt-2 relative z-10">
+                      {notification.message}
+                    </motion.p>
+                  </div>
+                  <div className="p-8 text-center space-y-6" dir="rtl">
+                    <div className="bg-violet-50 rounded-2xl p-6 border-2 border-violet-100">
+                      <div className="grid grid-cols-2 gap-3">
                         {notification.details.month && (
-                          <div className="bg-white rounded-xl p-3 border border-emerald-100">
-                            <div className="flex items-center gap-1.5 text-emerald-600 mb-1">
+                          <div className="bg-white rounded-xl p-3 border border-violet-100">
+                            <div className="flex items-center justify-center gap-1.5 text-violet-600 mb-1">
                               <Calendar size={12} />
                               <span className="text-[10px] font-bold">شهر المسير</span>
                             </div>
@@ -619,17 +1633,26 @@ export function NewPayrollClient({ packages, debts, companyId, userName }: NewPa
                           </div>
                         )}
                         {notification.details.packageName && (
-                          <div className="bg-white rounded-xl p-3 border border-emerald-100">
-                            <div className="flex items-center gap-1.5 text-emerald-600 mb-1">
-                              <Users size={12} />
+                          <div className="bg-white rounded-xl p-3 border border-violet-100">
+                            <div className="flex items-center justify-center gap-1.5 text-violet-600 mb-1">
+                              <Layers size={12} />
                               <span className="text-[10px] font-bold">الباقة</span>
                             </div>
                             <p className="font-black text-gray-900 text-sm truncate">{notification.details.packageName}</p>
                           </div>
                         )}
+                        {notification.details.workType && (
+                          <div className="bg-white rounded-xl p-3 border border-violet-100">
+                            <div className="flex items-center justify-center gap-1.5 text-violet-600 mb-1">
+                              <Target size={12} />
+                              <span className="text-[10px] font-bold">نظام العمل</span>
+                            </div>
+                            <p className="font-black text-gray-900 text-sm">{notification.details.workType}</p>
+                          </div>
+                        )}
                         {notification.details.employeeCount !== undefined && (
-                          <div className="bg-white rounded-xl p-3 border border-emerald-100">
-                            <div className="flex items-center gap-1.5 text-blue-600 mb-1">
+                          <div className="bg-white rounded-xl p-3 border border-violet-100">
+                            <div className="flex items-center justify-center gap-1.5 text-blue-600 mb-1">
                               <Users size={12} />
                               <span className="text-[10px] font-bold">عدد الموظفين</span>
                             </div>
@@ -637,32 +1660,239 @@ export function NewPayrollClient({ packages, debts, companyId, userName }: NewPa
                           </div>
                         )}
                         {notification.details.totalAmount !== undefined && (
-                          <div className="bg-white rounded-xl p-3 border border-emerald-100">
-                            <div className="flex items-center gap-1.5 text-amber-600 mb-1">
+                          <div className="bg-white rounded-xl p-3 border border-violet-100">
+                            <div className="flex items-center justify-center gap-1.5 text-emerald-600 mb-1">
                               <DollarSign size={12} />
+                              <span className="text-[10px] font-bold">إجمالي المسير</span>
+                            </div>
+                            <p className="font-black text-emerald-600 text-sm">{notification.details.totalAmount.toLocaleString('en-US', { minimumFractionDigits: 2 })} {t("stats.sar")}</p>
+                          </div>
+                        )}
+                        {notification.details.totalDeductions !== undefined && notification.details.totalDeductions > 0 && (
+                          <div className="bg-white rounded-xl p-3 border border-violet-100">
+                            <div className="flex items-center justify-center gap-1.5 text-red-600 mb-1">
+                              <AlertTriangle size={12} />
+                              <span className="text-[10px] font-bold">إجمالي الخصومات</span>
+                            </div>
+                            <p className="font-black text-red-600 text-sm">{notification.details.totalDeductions.toLocaleString('en-US', { minimumFractionDigits: 2 })} {t("stats.sar")}</p>
+                          </div>
+                        )}
+                        {notification.details.accountName && (
+                          <div className="bg-white rounded-xl p-3 border border-violet-100 col-span-2">
+                            <div className="flex items-center justify-center gap-1.5 text-indigo-600 mb-1">
+                              <BookOpen size={12} />
+                              <span className="text-[10px] font-bold">الحساب ومركز التكلفة</span>
+                            </div>
+                            <p className="font-bold text-gray-900 text-xs truncate">{notification.details.accountName}</p>
+                            {notification.details.costCenterName && (
+                              <p className="font-bold text-gray-600 text-xs truncate mt-1">{notification.details.costCenterName}</p>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                      {notification.details.isDraft && (
+                        <div className="mt-3 bg-amber-50 rounded-xl p-2 border border-amber-200">
+                          <p className="text-amber-700 text-xs font-bold text-center">سيتم حفظه كمسودة - يمكنك تعديله لاحقاً</p>
+                        </div>
+                      )}
+                    </div>
+                    <div className="flex gap-4 pt-4">
+                      <motion.button
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                        onClick={() => setNotification(prev => ({ ...prev, show: false }))}
+                        className="flex-1 flex items-center justify-center gap-3 bg-slate-100 text-slate-700 py-4 rounded-2xl font-black text-lg hover:bg-slate-200 transition-colors"
+                      >
+                        <X size={20} />
+                        {t("newPayroll.notifications.cancelBtn")}
+                      </motion.button>
+                      <motion.button
+                        whileHover={{ scale: 1.02, boxShadow: "0 20px 40px rgba(139, 92, 246, 0.4)" }}
+                        whileTap={{ scale: 0.98 }}
+                        onClick={() => notification.onConfirm?.()}
+                        className="flex-1 flex items-center justify-center gap-3 bg-gradient-to-r from-violet-500 via-purple-600 to-violet-600 text-white py-4 rounded-2xl font-black text-lg shadow-xl shadow-violet-500/30 border-b-4 border-violet-700/50"
+                      >
+                        <Save size={20} />
+                        {t("newPayroll.notifications.confirmBtn")}
+                      </motion.button>
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+
+              {/* Loading */}
+              {notification.type === "loading" && (
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.8 }}
+                  transition={{ type: "spring", damping: 25, stiffness: 300 }}
+                  className="relative w-full max-w-md bg-white dark:bg-slate-900 rounded-[3rem] shadow-[0_0_100px_rgba(59,130,246,0.3)] overflow-hidden border-4 border-blue-500/20"
+                >
+                  <div className="relative bg-gradient-to-br from-blue-500 via-indigo-600 to-blue-700 p-10 text-white text-center overflow-hidden">
+                    <motion.div className="relative z-10 mx-auto w-24 h-24 bg-white/20 backdrop-blur-xl rounded-full flex items-center justify-center mb-6 shadow-2xl border-4 border-white/30">
+                      <Loader2 size={48} className="text-white animate-spin" />
+                    </motion.div>
+                    <h3 className="text-2xl font-black relative z-10">{notification.title}</h3>
+                    <p className="text-white/80 font-bold mt-2 relative z-10">{notification.message}</p>
+                  </div>
+                  <div className="p-8">
+                    <div className="bg-blue-50 rounded-2xl p-5 border-2 border-blue-100">
+                      <div className="flex items-center justify-center gap-3">
+                        <div className="h-3 w-3 rounded-full bg-blue-500 animate-bounce" style={{ animationDelay: '0ms' }} />
+                        <div className="h-3 w-3 rounded-full bg-blue-500 animate-bounce" style={{ animationDelay: '150ms' }} />
+                        <div className="h-3 w-3 rounded-full bg-blue-500 animate-bounce" style={{ animationDelay: '300ms' }} />
+                      </div>
+                      <p className="text-blue-700 font-bold text-center mt-3 text-sm">
+                        جاري حفظ بيانات الموظفين والرواتب...
+                      </p>
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+
+              {/* Success */}
+              {notification.type === "success" && (
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.5 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.5 }}
+                  transition={{ type: "spring", damping: 20, stiffness: 300 }}
+                  className="relative w-full max-w-lg bg-white dark:bg-slate-900 rounded-[3rem] shadow-[0_0_100px_rgba(16,185,129,0.3)] overflow-hidden border-4 border-emerald-500/20"
+                >
+                  <div className="relative bg-gradient-to-br from-emerald-500 via-teal-600 to-emerald-700 p-10 text-white text-center overflow-hidden">
+                    <div className="absolute inset-0 overflow-hidden">
+                      {[...Array(6)].map((_, i) => (
+                        <motion.div
+                          key={i}
+                          initial={{ y: 100, opacity: 0 }}
+                          animate={{ y: -100, opacity: [0, 1, 0], x: Math.random() * 100 - 50 }}
+                          transition={{ delay: i * 0.2, duration: 2, repeat: Infinity, repeatDelay: 1 }}
+                          className="absolute"
+                          style={{ left: `${15 + i * 15}%` }}
+                        >
+                          <Sparkles size={20} className="text-white/40" />
+                        </motion.div>
+                      ))}
+                    </div>
+                    <motion.div
+                      initial={{ scale: 0, rotate: -180 }}
+                      animate={{ scale: 1, rotate: 0 }}
+                      transition={{ delay: 0.1, type: "spring", damping: 12 }}
+                      className="relative z-10 mx-auto w-28 h-28 bg-white/20 backdrop-blur-xl rounded-full flex items-center justify-center mb-6 shadow-2xl border-4 border-white/30"
+                    >
+                      <motion.div initial={{ scale: 0 }} animate={{ scale: [0, 1.2, 1] }} transition={{ delay: 0.3, duration: 0.5 }}>
+                        <CheckCircle2 size={56} className="text-white drop-shadow-lg" />
+                      </motion.div>
+                    </motion.div>
+                    <motion.h3 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }} className="text-3xl font-black tracking-tight relative z-10">
+                      {notification.title}
+                    </motion.h3>
+                    <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }} className="text-white/80 font-bold mt-2 relative z-10">
+                      {notification.message}
+                    </motion.p>
+                  </div>
+                  <div className="p-8 text-center space-y-6" dir="rtl">
+                    {notification.details && (
+                      <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.6 }}
+                        className="bg-emerald-50 rounded-2xl p-6 border-2 border-emerald-100"
+                      >
+                        <div className="grid grid-cols-2 gap-3">
+                          {notification.details.month && (
+                            <div className="bg-white rounded-xl p-3 border border-emerald-100">
+                              <div className="flex items-center justify-center gap-1.5 text-emerald-600 mb-1">
+                                <Calendar size={12} />
+                                <span className="text-[10px] font-bold">شهر المسير</span>
+                              </div>
+                              <p className="font-black text-gray-900 text-sm">{notification.details.month}</p>
+                            </div>
+                          )}
+                          {notification.details.packageName && (
+                            <div className="bg-white rounded-xl p-3 border border-emerald-100">
+                              <div className="flex items-center justify-center gap-1.5 text-emerald-600 mb-1">
+                                <Layers size={12} />
+                                <span className="text-[10px] font-bold">الباقة</span>
+                              </div>
+                              <p className="font-black text-gray-900 text-sm truncate">{notification.details.packageName}</p>
+                            </div>
+                          )}
+                          {notification.details.employeeCount !== undefined && (
+                            <div className="bg-white rounded-xl p-3 border border-emerald-100">
+                              <div className="flex items-center justify-center gap-1.5 text-blue-600 mb-1">
+                                <Users size={12} />
+                                <span className="text-[10px] font-bold">عدد الموظفين</span>
+                              </div>
+                              <p className="font-black text-gray-900 text-sm">{notification.details.employeeCount} موظف</p>
+                            </div>
+                          )}
+                          {notification.details.totalAmount !== undefined && (
+                            <div className="bg-white rounded-xl p-3 border border-emerald-100">
+                              <div className="flex items-center justify-center gap-1.5 text-amber-600 mb-1">
+                                <DollarSign size={12} />
                                 <span className="text-[10px] font-bold">{t("newPayroll.notifications.totalPayroll")}</span>
                               </div>
                               <p className="font-black text-gray-900 text-sm">{notification.details.totalAmount.toLocaleString('en-US', { minimumFractionDigits: 2 })} {t("stats.sar")}</p>
                             </div>
                           )}
                         </div>
-                      </div>
+                        <div className="mt-3 bg-emerald-100 rounded-xl p-2">
+                          <p className="text-emerald-700 text-xs font-bold text-center">{t("newPayroll.notifications.redirecting")}</p>
+                        </div>
+                      </motion.div>
                     )}
-                    
-                    {notification.type !== "loading" && (
-                      <button
-                        onClick={() => setNotification(prev => ({ ...prev, show: false }))}
-                        className={`px-8 py-3 rounded-xl font-bold text-white transition-all ${
-                          notification.type === "success" ? "bg-emerald-500 hover:bg-emerald-600" : "bg-red-500 hover:bg-red-600"
-                        }`}
-                      >
-                        {t("newPayroll.notifications.ok")}
-                      </button>
-                    )}
+                    <motion.button
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.7 }}
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      onClick={() => { router.push("/salary-payrolls"); router.refresh(); }}
+                      className="w-full flex items-center justify-center gap-3 bg-gradient-to-r from-emerald-500 via-teal-600 to-emerald-600 text-white py-5 rounded-2xl font-black text-xl shadow-xl shadow-emerald-500/30 border-b-4 border-emerald-700/50"
+                    >
+                      <CheckCircle2 size={24} />
+                      {t("newPayroll.notifications.ok")}
+                    </motion.button>
                   </div>
-                </div>
-              </motion.div>
-            </>
+                </motion.div>
+              )}
+
+              {/* Error */}
+              {notification.type === "error" && (
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.8, y: 50 }}
+                  animate={{ opacity: 1, scale: 1, y: 0 }}
+                  exit={{ opacity: 0, scale: 0.8, y: 50 }}
+                  transition={{ type: "spring", damping: 25, stiffness: 300 }}
+                  className="relative w-full max-w-md bg-white dark:bg-slate-900 rounded-[3rem] shadow-[0_0_100px_rgba(239,68,68,0.3)] overflow-hidden border-4 border-red-500/20"
+                >
+                  <div className="relative bg-gradient-to-br from-red-500 via-rose-600 to-red-700 p-10 text-white text-center overflow-hidden">
+                    <motion.div
+                      initial={{ scale: 0 }}
+                      animate={{ scale: 1 }}
+                      transition={{ type: "spring", damping: 12 }}
+                      className="relative z-10 mx-auto w-24 h-24 bg-white/20 backdrop-blur-xl rounded-full flex items-center justify-center mb-6 shadow-2xl border-4 border-white/30"
+                    >
+                      <AlertCircle size={48} className="text-white" />
+                    </motion.div>
+                    <h3 className="text-2xl font-black relative z-10">{notification.title}</h3>
+                    <p className="text-white/80 font-bold mt-2 relative z-10">{notification.message}</p>
+                  </div>
+                  <div className="p-8">
+                    <motion.button
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      onClick={() => setNotification(prev => ({ ...prev, show: false }))}
+                      className="w-full flex items-center justify-center gap-3 bg-gradient-to-r from-red-500 via-rose-600 to-red-600 text-white py-4 rounded-2xl font-black text-lg shadow-xl shadow-red-500/30 border-b-4 border-red-700/50"
+                    >
+                      {t("newPayroll.notifications.ok")}
+                    </motion.button>
+                  </div>
+                </motion.div>
+              )}
+            </div>
           )}
       </AnimatePresence>
 
@@ -825,28 +2055,23 @@ export function NewPayrollClient({ packages, debts, companyId, userName }: NewPa
                       <Calendar size={14} className="text-gray-400" />
                       {t("newPayroll.payrollMonth")}
                     </label>
-                    <input
-                      type="month"
-                      value={payrollMonth}
-                      onChange={(e) => setPayrollMonth(e.target.value)}
-                      className="w-full px-3 py-2.5 rounded-xl border border-gray-200 focus:border-blue-500 focus:ring-1 focus:ring-blue-500/20 outline-none text-sm bg-white text-gray-700"
-                    />
+                      <MonthPickerDropdown
+                        value={payrollMonth}
+                        onChange={(val) => setPayrollMonth(val)}
+                      />
                   </div>
-                  <div>
-                    <label className="flex items-center gap-1.5 text-xs font-bold text-gray-700 mb-1.5">
-                      <Users size={14} className="text-gray-400" />
-                      {t("newPayroll.selectPackage")}
-                    </label>
-                    <select
-                      value={selectedPackageId}
-                      onChange={(e) => setSelectedPackageId(e.target.value)}
-                      className="w-full px-3 py-2.5 rounded-xl border border-gray-200 focus:border-blue-500 focus:ring-1 focus:ring-blue-500/20 outline-none text-sm bg-white text-gray-700"
-                    >
-                      <option value="">{t("newPayroll.selectPackagePlaceholder")}</option>
-                      {packages.map(pkg => (
-                        <option key={pkg.id} value={pkg.id}>{pkg.group_name}</option>
-                      ))}
-                    </select>
+                    <div>
+                      <label className="flex items-center gap-1.5 text-xs font-bold text-gray-700 mb-1.5">
+                        <PackageIcon size={14} className="text-blue-500" />
+                        {t("newPayroll.selectPackage")}
+                      </label>
+                      <PackageDropdown
+                        packages={packages.filter(pkg => pkg.work_type !== 'commission')}
+                        selectedPackageId={selectedPackageId}
+                        onSelect={(id) => setSelectedPackageId(id)}
+                        getWorkTypeLabel={getWorkTypeLabel}
+                        placeholder={t("newPayroll.selectPackagePlaceholder")}
+                      />
                   </div>
                   <div className="flex items-end">
                     <button 
@@ -860,6 +2085,61 @@ export function NewPayrollClient({ packages, debts, companyId, userName }: NewPa
                   </div>
                 </div>
               </div>
+
+              {/* Chart of Accounts & Cost Center Selection */}
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="bg-gradient-to-r from-violet-50/80 via-purple-50/50 to-indigo-50/80 rounded-2xl border-2 border-violet-200/60 p-5 shadow-sm"
+              >
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center shadow-lg shadow-violet-500/25">
+                    <BookOpen size={20} className="text-white" />
+                  </div>
+                  <div>
+                    <h3 className="font-black text-gray-900 text-sm">شجرة الحسابات ومركز التكلفة</h3>
+                    <p className="text-gray-500 text-xs">اختر الحساب ومركز التكلفة لربطهم بالمسير (إجباري)</p>
+                  </div>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <TreeDropdown<Account>
+                    label="شجرة الحسابات"
+                    icon={<BookOpen size={14} className="text-violet-500" />}
+                    items={accountTree}
+                    selectedId={selectedAccountId}
+                    onSelect={(id, name) => {
+                      setSelectedAccountId(id);
+                      setSelectedAccountName(name);
+                      setAccountError(false);
+                    }}
+                    getCode={(a) => a.account_code}
+                    getName={(a) => a.account_name}
+                    getType={(a) => a.account_type}
+                    placeholder="اختر الحساب من الشجرة..."
+                    required
+                    error={accountError}
+                    gradient="bg-gradient-to-r from-violet-500 to-purple-600"
+                  />
+                  <TreeDropdown<CostCenterItem>
+                    label="مركز التكلفة"
+                    icon={<Building2 size={14} className="text-indigo-500" />}
+                    items={costCenterTree}
+                    selectedId={selectedCostCenterId}
+                    onSelect={(id, name) => {
+                      setSelectedCostCenterId(id);
+                      setSelectedCostCenterName(name);
+                      setCostCenterError(false);
+                    }}
+                    getCode={(c) => c.center_code}
+                    getName={(c) => c.center_name}
+                    getType={(c) => c.center_type}
+                    placeholder="اختر مركز التكلفة..."
+                    required
+                    error={costCenterError}
+                    gradient="bg-gradient-to-r from-indigo-500 to-blue-600"
+                  />
+                </div>
+              </motion.div>
 
               {selectedPackage && (
                 <>

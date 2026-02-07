@@ -2301,7 +2301,9 @@
       },
       "workTypes": {
         "target": "تارجت",
-        "salary": "راتب"
+        "salary": "راتب",
+        "tiers": "شرائح",
+        "commission": "عمولة"
       },
       "statuses": {
         "confirmed": "معتمد",
@@ -2430,12 +2432,33 @@
         "selected": "موظف مختار",
         "loadingData": "جاري تحميل البيانات...",
         "notifications": {
-          "saving": "حفظ المسير",
+          "saving": "جاري الحفظ",
           "savingPayroll": "جاري حفظ بيانات المسير...",
+          "savingDraft": "جاري حفظ المسودة...",
           "savedPayroll": "تم حفظ المسير بنجاح",
           "savedPayrollDesc": "تم إنشاء مسير الرواتب وحفظ كافة التفاصيل المالية للموظفين.",
-          "totalPayroll": "إجمالي المسير: {amount} ريال",
-          "ok": "حسناً"
+          "savedDraft": "تم حفظ المسودة بنجاح",
+          "savedDraftDesc": "تم حفظ المسير كمسودة ويمكنك تعديله لاحقاً.",
+          "totalPayroll": "إجمالي المسير",
+          "saveFailed": "فشل في حفظ المسير",
+          "error": "خطأ",
+          "errorSaving": "حدث خطأ أثناء حفظ المسير. حاول مرة أخرى.",
+          "selectMonthAndPackage": "يرجى اختيار شهر المسير والباقة أولاً",
+          "selectEmployee": "يرجى تحديد موظف واحد على الأقل",
+          "ok": "حسناً",
+          "confirmSaveTitle": "تأكيد حفظ المسير",
+          "confirmSaveDesc": "يرجى مراجعة التفاصيل قبل الحفظ النهائي",
+          "confirmSaveDraftDesc": "يرجى مراجعة التفاصيل قبل حفظ المسودة",
+          "preparingSave": "جاري تجهيز الحفظ",
+          "preparingSaveDesc": "يتم الآن معالجة بيانات المسير وحفظها في النظام...",
+          "confirmBtn": "تأكيد الحفظ",
+          "cancelBtn": "إلغاء",
+          "requiredFields": "حقول إجبارية مطلوبة",
+          "requiredFieldsDesc": "يرجى إكمال جميع الحقول المطلوبة قبل الحفظ",
+          "requiredAccount": "شجرة الحسابات",
+          "requiredCostCenter": "مركز التكلفة",
+          "requiredOrders": "عدد الطلبات",
+          "redirecting": "جاري التوجيه لصفحة المسيرات..."
         },
         "columns": {
           "no": "م",

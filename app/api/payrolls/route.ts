@@ -39,6 +39,8 @@ export async function POST(request: NextRequest) {
       package_id,
       saved_by,
       is_draft = 0,
+      account_id = null,
+      cost_center_id = null,
       items = []
     } = body;
 
@@ -49,9 +51,9 @@ export async function POST(request: NextRequest) {
     }
 
     const result = await execute(
-      `INSERT INTO salary_payrolls (company_id, payroll_month, package_id, saved_by, is_draft, created_at) 
-       VALUES (?, ?, ?, ?, ?, NOW())`,
-      [company_id, payroll_month, package_id, saved_by, is_draft]
+      `INSERT INTO salary_payrolls (company_id, payroll_month, package_id, saved_by, is_draft, account_id, cost_center_id, created_at) 
+       VALUES (?, ?, ?, ?, ?, ?, ?, NOW())`,
+      [company_id, payroll_month, package_id, saved_by, is_draft, account_id, cost_center_id]
     );
 
     const payrollId = result.insertId;

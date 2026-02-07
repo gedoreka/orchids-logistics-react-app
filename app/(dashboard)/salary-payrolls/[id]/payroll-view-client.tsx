@@ -17,7 +17,12 @@ import {
   Building2,
   Clock,
   User,
-  Layers
+  Layers,
+  DollarSign,
+  AlertTriangle,
+  X,
+  Sparkles,
+  CheckCircle2
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -67,11 +72,11 @@ interface Company {
   short_address: string;
 }
 
-interface NotificationState {
-  show: boolean;
-  type: "success" | "error" | "loading";
-  title: string;
-  message: string;
+type ModalType = 'idle' | 'delete-confirm' | 'deleting' | 'delete-success' | 'delete-error';
+
+interface ModalState {
+  type: ModalType;
+  errorMessage?: string;
 }
 
 interface PayrollViewClientProps {
@@ -89,44 +94,36 @@ export function PayrollViewClient({ payroll, company }: PayrollViewClientProps) 
 
   const router = useRouter();
   const [deleteLoading, setDeleteLoading] = useState(false);
-  const [notification, setNotification] = useState<NotificationState>({
-    show: false,
-    type: "success",
-    title: "",
-    message: ""
-  });
+  const [modal, setModal] = useState<ModalState>({ type: 'idle' });
 
   const workType = payroll.work_type || 'salary';
   const isSalaryType = workType === 'salary';
 
-  const showNotification = (type: "success" | "error" | "loading", title: string, message: string) => {
-    setNotification({ show: true, type, title, message });
-  };
+  const closeModal = () => setModal({ type: 'idle' });
 
-  const hideNotification = () => {
-    setNotification(prev => ({ ...prev, show: false }));
+  const openDeleteConfirm = () => {
+    setModal({ type: 'delete-confirm' });
   };
 
   const handleDelete = async () => {
-    if (!confirm(t("viewPayroll.notifications.deleteConfirm", { month: payroll.payroll_month }))) return;
-    
     setDeleteLoading(true);
-    showNotification("loading", t("viewPayroll.notifications.deleting"), t("viewPayroll.notifications.deletingMsg"));
+    setModal({ type: 'deleting' });
     
     try {
       const res = await fetch(`/api/payrolls/${payroll.id}`, { method: "DELETE" });
       
       if (res.ok) {
-        showNotification("success", t("viewPayroll.notifications.deleteSuccess"), t("viewPayroll.notifications.deleteSuccessMsg"));
+        setModal({ type: 'delete-success' });
         setTimeout(() => {
           router.push("/salary-payrolls");
           router.refresh();
-        }, 1500);
+        }, 3000);
       } else {
-        showNotification("error", t("viewPayroll.notifications.deleteFailed"), t("viewPayroll.notifications.deleteFailedMsg"));
+        const data = await res.json().catch(() => ({}));
+        setModal({ type: 'delete-error', errorMessage: data.error || t("viewPayroll.notifications.deleteFailedMsg") });
       }
     } catch {
-      showNotification("error", t("viewPayroll.notifications.error"), t("viewPayroll.notifications.errorMsg"));
+      setModal({ type: 'delete-error', errorMessage: t("viewPayroll.notifications.errorMsg") });
     } finally {
       setDeleteLoading(false);
     }
@@ -162,51 +159,310 @@ export function PayrollViewClient({ payroll, company }: PayrollViewClientProps) 
 
   return (
     <div className="h-full flex flex-col" dir={isRtl ? "rtl" : "ltr"}>
+      {/* Premium Delete Modals */}
       <AnimatePresence>
-        {notification.show && (
-          <>
+        {modal.type !== 'idle' && (
+          <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 print:hidden">
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 print:hidden"
-              onClick={() => notification.type !== "loading" && hideNotification()}
+              onClick={() => !['deleting'].includes(modal.type) && closeModal()}
+              className="absolute inset-0 bg-slate-950/90 backdrop-blur-2xl"
             />
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.9, y: 20 }}
-              className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50 w-full max-w-md print:hidden"
-            >
-              <div className={`bg-white rounded-3xl p-8 shadow-2xl border-t-4 ${
-                notification.type === "success" ? "border-emerald-500" :
-                notification.type === "error" ? "border-red-500" : "border-blue-500"
-              }`}>
-                <div className="text-center">
-                  <div className={`h-20 w-20 rounded-full mx-auto mb-6 flex items-center justify-center ${
-                    notification.type === "success" ? "bg-emerald-100 text-emerald-500" :
-                    notification.type === "error" ? "bg-red-100 text-red-500" : "bg-blue-100 text-blue-500"
-                  }`}>
-                    {notification.type === "success" && <CheckCircle size={40} />}
-                    {notification.type === "error" && <AlertCircle size={40} />}
-                    {notification.type === "loading" && <Loader2 size={40} className="animate-spin" />}
+
+            {/* Delete Confirmation */}
+            {modal.type === 'delete-confirm' && (
+              <motion.div
+                initial={{ opacity: 0, scale: 0.8, y: 50 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.8, y: 50 }}
+                transition={{ type: "spring", damping: 25, stiffness: 300 }}
+                className="relative w-full max-w-lg bg-white dark:bg-slate-900 rounded-[3rem] shadow-[0_0_100px_rgba(239,68,68,0.3)] overflow-hidden border-4 border-red-500/20"
+              >
+                <div className="relative bg-gradient-to-br from-red-500 via-rose-600 to-red-700 p-10 text-white text-center overflow-hidden">
+                  <div className="absolute inset-0 opacity-10">
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
                   </div>
-                  <h3 className="text-2xl font-black text-gray-900 mb-2">{notification.title}</h3>
-                  <p className="text-gray-500 mb-6">{notification.message}</p>
-                  {notification.type !== "loading" && (
-                    <button
-                      onClick={hideNotification}
-                      className={`px-8 py-3 rounded-xl font-bold text-white transition-all ${
-                        notification.type === "success" ? "bg-emerald-500 hover:bg-emerald-600" : "bg-red-500 hover:bg-red-600"
-                      }`}
+                  
+                  <motion.div
+                    initial={{ scale: 0, rotate: -180 }}
+                    animate={{ scale: 1, rotate: 0 }}
+                    transition={{ delay: 0.2, type: "spring", damping: 15 }}
+                    className="relative z-10 mx-auto w-24 h-24 bg-white/20 backdrop-blur-xl rounded-full flex items-center justify-center mb-6 shadow-2xl border-4 border-white/30"
+                  >
+                    <motion.div
+                      animate={{ scale: [1, 1.1, 1] }}
+                      transition={{ repeat: Infinity, duration: 2 }}
                     >
-                      {t("viewPayroll.notifications.ok")}
-                    </button>
-                  )}
+                      <AlertTriangle size={48} className="text-white drop-shadow-lg" />
+                    </motion.div>
+                  </motion.div>
+                  
+                  <motion.h3
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.3 }}
+                    className="text-3xl font-black tracking-tight relative z-10"
+                  >
+                    {t("notifications.deleteConfirm")}
+                  </motion.h3>
+                  <motion.p
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.4 }}
+                    className="text-white/80 font-bold mt-2 relative z-10"
+                  >
+                    {t("notifications.deleteQuestion")}
+                  </motion.p>
                 </div>
-              </div>
-            </motion.div>
-          </>
+
+                <div className="p-8 text-center space-y-6" dir="rtl">
+                  <div className="bg-red-50 dark:bg-red-950/30 rounded-2xl p-6 border-2 border-red-100 dark:border-red-900/50">
+                    <p className="text-slate-700 dark:text-slate-300 font-bold text-lg leading-relaxed">
+                      {t("notifications.deleteWarning")}
+                    </p>
+                    <p className="text-red-600 dark:text-red-400 font-black text-xl mt-2 truncate">
+                      &quot;{payroll.payroll_month}&quot;
+                    </p>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="bg-gray-50 rounded-xl p-3 border border-gray-100 text-center">
+                      <div className="flex items-center justify-center gap-1.5 text-blue-600 mb-1">
+                        <Users size={14} />
+                        <span className="text-xs font-bold">{t("table.employeesCount")}</span>
+                      </div>
+                      <p className="text-lg font-black text-gray-900">{payroll.items?.length || 0}</p>
+                    </div>
+                    <div className="bg-gray-50 rounded-xl p-3 border border-gray-100 text-center">
+                      <div className="flex items-center justify-center gap-1.5 text-emerald-600 mb-1">
+                        <DollarSign size={14} />
+                        <span className="text-xs font-bold">{t("table.totalSalaries")}</span>
+                      </div>
+                      <p className="text-lg font-black text-gray-900">{Number(payroll.total_net || 0).toLocaleString(locale)}</p>
+                    </div>
+                    <div className="bg-gray-50 rounded-xl p-3 border border-gray-100 text-center">
+                      <div className="flex items-center justify-center gap-1.5 text-violet-600 mb-1">
+                        <Layers size={14} />
+                        <span className="text-xs font-bold">{t("table.package")}</span>
+                      </div>
+                      <p className="text-sm font-black text-gray-900 truncate">{payroll.package_name}</p>
+                    </div>
+                    <div className="bg-gray-50 rounded-xl p-3 border border-gray-100 text-center">
+                      <div className="flex items-center justify-center gap-1.5 text-amber-600 mb-1">
+                        <Calendar size={14} />
+                        <span className="text-xs font-bold">{t("table.payrollMonth")}</span>
+                      </div>
+                      <p className="text-sm font-black text-gray-900">{payroll.payroll_month}</p>
+                    </div>
+                  </div>
+
+                  <div className="bg-amber-50 border border-amber-200 rounded-xl p-3">
+                    <p className="text-amber-800 text-xs font-bold text-center">
+                      {t("notifications.deleteNote")}
+                    </p>
+                  </div>
+
+                  <div className="flex gap-4 pt-4">
+                    <motion.button
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      onClick={closeModal}
+                      className="flex-1 flex items-center justify-center gap-3 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 py-4 rounded-2xl font-black text-lg hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
+                    >
+                      <X size={20} />
+                      {tCommon("cancel")}
+                    </motion.button>
+                    <motion.button
+                      whileHover={{ scale: 1.02, boxShadow: "0 20px 40px rgba(239, 68, 68, 0.4)" }}
+                      whileTap={{ scale: 0.98 }}
+                      onClick={handleDelete}
+                      className="flex-1 flex items-center justify-center gap-3 bg-gradient-to-r from-red-500 via-rose-600 to-red-600 text-white py-4 rounded-2xl font-black text-lg shadow-xl shadow-red-500/30 border-b-4 border-red-700/50"
+                    >
+                      <Trash2 size={20} />
+                      {t("notifications.confirmBtn")}
+                    </motion.button>
+                  </div>
+                </div>
+              </motion.div>
+            )}
+
+            {/* Deleting - Loading */}
+            {modal.type === 'deleting' && (
+              <motion.div
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.8 }}
+                transition={{ type: "spring", damping: 25, stiffness: 300 }}
+                className="relative w-full max-w-md bg-white dark:bg-slate-900 rounded-[3rem] shadow-[0_0_100px_rgba(59,130,246,0.3)] overflow-hidden border-4 border-blue-500/20"
+              >
+                <div className="relative bg-gradient-to-br from-blue-500 via-indigo-600 to-blue-700 p-10 text-white text-center overflow-hidden">
+                  <motion.div className="relative z-10 mx-auto w-24 h-24 bg-white/20 backdrop-blur-xl rounded-full flex items-center justify-center mb-6 shadow-2xl border-4 border-white/30">
+                    <Loader2 size={48} className="text-white animate-spin" />
+                  </motion.div>
+                  <h3 className="text-2xl font-black relative z-10">{t("viewPayroll.notifications.deleting")}</h3>
+                  <p className="text-white/80 font-bold mt-2 relative z-10">{t("viewPayroll.notifications.deletingMsg")}</p>
+                </div>
+                <div className="p-8">
+                  <div className="bg-blue-50 rounded-2xl p-5 border-2 border-blue-100">
+                    <div className="flex items-center justify-center gap-3">
+                      <div className="h-3 w-3 rounded-full bg-blue-500 animate-bounce" style={{ animationDelay: '0ms' }} />
+                      <div className="h-3 w-3 rounded-full bg-blue-500 animate-bounce" style={{ animationDelay: '150ms' }} />
+                      <div className="h-3 w-3 rounded-full bg-blue-500 animate-bounce" style={{ animationDelay: '300ms' }} />
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
+            )}
+
+            {/* Delete Success */}
+            {modal.type === 'delete-success' && (
+              <motion.div
+                initial={{ opacity: 0, scale: 0.5 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.5 }}
+                transition={{ type: "spring", damping: 20, stiffness: 300 }}
+                className="relative w-full max-w-lg bg-white dark:bg-slate-900 rounded-[3rem] shadow-[0_0_100px_rgba(16,185,129,0.3)] overflow-hidden border-4 border-emerald-500/20"
+              >
+                <div className="relative bg-gradient-to-br from-emerald-500 via-teal-600 to-emerald-700 p-10 text-white text-center overflow-hidden">
+                  <div className="absolute inset-0 overflow-hidden">
+                    {[...Array(6)].map((_, i) => (
+                      <motion.div
+                        key={i}
+                        initial={{ y: 100, opacity: 0 }}
+                        animate={{ y: -100, opacity: [0, 1, 0], x: Math.random() * 100 - 50 }}
+                        transition={{ delay: i * 0.2, duration: 2, repeat: Infinity, repeatDelay: 1 }}
+                        className="absolute"
+                        style={{ left: `${15 + i * 15}%` }}
+                      >
+                        <Sparkles size={20} className="text-white/40" />
+                      </motion.div>
+                    ))}
+                  </div>
+
+                  <motion.div
+                    initial={{ scale: 0, rotate: -180 }}
+                    animate={{ scale: 1, rotate: 0 }}
+                    transition={{ delay: 0.1, type: "spring", damping: 12 }}
+                    className="relative z-10 mx-auto w-28 h-28 bg-white/20 backdrop-blur-xl rounded-full flex items-center justify-center mb-6 shadow-2xl border-4 border-white/30"
+                  >
+                    <motion.div
+                      initial={{ scale: 0 }}
+                      animate={{ scale: [0, 1.2, 1] }}
+                      transition={{ delay: 0.3, duration: 0.5 }}
+                    >
+                      <CheckCircle2 size={56} className="text-white drop-shadow-lg" />
+                    </motion.div>
+                  </motion.div>
+                  
+                  <motion.h3
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.4 }}
+                    className="text-3xl font-black tracking-tight relative z-10"
+                  >
+                    {t("notifications.deleteSuccess")}
+                  </motion.h3>
+                  <motion.p
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.5 }}
+                    className="text-white/80 font-bold mt-2 relative z-10"
+                  >
+                    {t("notifications.deleteSuccessMsg")}
+                  </motion.p>
+                </div>
+
+                <div className="p-8 text-center space-y-6" dir="rtl">
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.6 }}
+                    className="bg-emerald-50 dark:bg-emerald-950/30 rounded-2xl p-6 border-2 border-emerald-100 dark:border-emerald-900/50"
+                  >
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="bg-white rounded-xl p-3 border border-emerald-100">
+                        <div className="flex items-center justify-center gap-1.5 text-emerald-600 mb-1">
+                          <Calendar size={12} />
+                          <span className="text-[10px] font-bold">{t("table.payrollMonth")}</span>
+                        </div>
+                        <p className="font-black text-gray-900 text-sm">{payroll.payroll_month}</p>
+                      </div>
+                      <div className="bg-white rounded-xl p-3 border border-emerald-100">
+                        <div className="flex items-center justify-center gap-1.5 text-emerald-600 mb-1">
+                          <Layers size={12} />
+                          <span className="text-[10px] font-bold">{t("table.package")}</span>
+                        </div>
+                        <p className="font-black text-gray-900 text-sm truncate">{payroll.package_name}</p>
+                      </div>
+                      <div className="bg-white rounded-xl p-3 border border-emerald-100">
+                        <div className="flex items-center justify-center gap-1.5 text-blue-600 mb-1">
+                          <Users size={12} />
+                          <span className="text-[10px] font-bold">{t("table.employeesCount")}</span>
+                        </div>
+                        <p className="font-black text-gray-900 text-sm">{payroll.items?.length || 0} {t("table.employee")}</p>
+                      </div>
+                      <div className="bg-white rounded-xl p-3 border border-emerald-100">
+                        <div className="flex items-center justify-center gap-1.5 text-amber-600 mb-1">
+                          <DollarSign size={12} />
+                          <span className="text-[10px] font-bold">{t("table.totalSalaries")}</span>
+                        </div>
+                        <p className="font-black text-gray-900 text-sm">{Number(payroll.total_net || 0).toLocaleString(locale)} {t("stats.sar")}</p>
+                      </div>
+                    </div>
+                  </motion.div>
+
+                  <motion.button
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.7 }}
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={() => { router.push("/salary-payrolls"); router.refresh(); }}
+                    className="w-full flex items-center justify-center gap-3 bg-gradient-to-r from-emerald-500 via-teal-600 to-emerald-600 text-white py-5 rounded-2xl font-black text-xl shadow-xl shadow-emerald-500/30 border-b-4 border-emerald-700/50"
+                  >
+                    <CheckCircle2 size={24} />
+                    {t("notifications.ok")}
+                  </motion.button>
+                </div>
+              </motion.div>
+            )}
+
+            {/* Delete Error */}
+            {modal.type === 'delete-error' && (
+              <motion.div
+                initial={{ opacity: 0, scale: 0.8, y: 50 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.8, y: 50 }}
+                transition={{ type: "spring", damping: 25, stiffness: 300 }}
+                className="relative w-full max-w-md bg-white dark:bg-slate-900 rounded-[3rem] shadow-[0_0_100px_rgba(239,68,68,0.3)] overflow-hidden border-4 border-red-500/20"
+              >
+                <div className="relative bg-gradient-to-br from-red-500 via-rose-600 to-red-700 p-10 text-white text-center overflow-hidden">
+                  <motion.div
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    transition={{ type: "spring", damping: 12 }}
+                    className="relative z-10 mx-auto w-24 h-24 bg-white/20 backdrop-blur-xl rounded-full flex items-center justify-center mb-6 shadow-2xl border-4 border-white/30"
+                  >
+                    <AlertCircle size={48} className="text-white" />
+                  </motion.div>
+                  <h3 className="text-2xl font-black relative z-10">{t("viewPayroll.notifications.deleteFailed")}</h3>
+                  <p className="text-white/80 font-bold mt-2 relative z-10">{modal.errorMessage}</p>
+                </div>
+                <div className="p-8">
+                  <motion.button
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={closeModal}
+                    className="w-full flex items-center justify-center gap-3 bg-gradient-to-r from-red-500 via-rose-600 to-red-600 text-white py-4 rounded-2xl font-black text-lg shadow-xl shadow-red-500/30 border-b-4 border-red-700/50"
+                  >
+                    {t("notifications.ok")}
+                  </motion.button>
+                </div>
+              </motion.div>
+            )}
+          </div>
         )}
       </AnimatePresence>
 
@@ -250,14 +506,14 @@ export function PayrollViewClient({ payroll, company }: PayrollViewClientProps) 
                         <Printer size={14} />
                         <span>{t("viewPayroll.printPayroll")}</span>
                       </button>
-                      <button 
-                        onClick={handleDelete}
-                        disabled={deleteLoading}
-                        className="h-8 px-3 rounded-xl bg-red-500/20 text-red-400 font-black text-xs hover:bg-red-500 hover:text-white transition-all border border-red-500/30 disabled:opacity-50 flex items-center gap-2"
-                      >
-                        {deleteLoading ? <Loader2 size={14} className="animate-spin" /> : <Trash2 size={14} />}
-                        <span>{t("viewPayroll.deletePayroll")}</span>
-                      </button>
+                    <button 
+                      onClick={openDeleteConfirm}
+                      disabled={deleteLoading}
+                      className="h-8 px-3 rounded-xl bg-red-500/20 text-red-400 font-black text-xs hover:bg-red-500 hover:text-white transition-all border border-red-500/30 disabled:opacity-50 flex items-center gap-2"
+                    >
+                      {deleteLoading ? <Loader2 size={14} className="animate-spin" /> : <Trash2 size={14} />}
+                      <span>{t("viewPayroll.deletePayroll")}</span>
+                    </button>
                     </div>
                 </div>
 

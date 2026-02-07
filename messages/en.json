@@ -2301,7 +2301,9 @@
       },
       "workTypes": {
         "target": "Target",
-        "salary": "Salary"
+        "salary": "Salary",
+        "tiers": "Tiers",
+        "commission": "Commission"
       },
       "statuses": {
         "confirmed": "Confirmed",
@@ -2430,12 +2432,33 @@
         "selected": "selected employees",
         "loadingData": "Loading data...",
         "notifications": {
-          "saving": "Saving Payroll",
+          "saving": "Saving",
           "savingPayroll": "Payroll data is being saved...",
+          "savingDraft": "Saving draft...",
           "savedPayroll": "Payroll saved successfully",
           "savedPayrollDesc": "Monthly payroll has been created and all financial details saved.",
-          "totalPayroll": "Total Payroll: {amount} SAR",
-          "ok": "OK"
+          "savedDraft": "Draft saved successfully",
+          "savedDraftDesc": "Payroll saved as draft. You can edit it later.",
+          "totalPayroll": "Total Payroll",
+          "saveFailed": "Failed to save payroll",
+          "error": "Error",
+          "errorSaving": "An error occurred while saving. Please try again.",
+          "selectMonthAndPackage": "Please select payroll month and package first",
+          "selectEmployee": "Please select at least one employee",
+          "ok": "OK",
+          "confirmSaveTitle": "Confirm Save Payroll",
+          "confirmSaveDesc": "Please review the details before final save",
+          "confirmSaveDraftDesc": "Please review the details before saving as draft",
+          "preparingSave": "Preparing to save",
+          "preparingSaveDesc": "Processing payroll data and saving to the system...",
+          "confirmBtn": "Confirm Save",
+          "cancelBtn": "Cancel",
+          "requiredFields": "Required Fields Missing",
+          "requiredFieldsDesc": "Please complete all required fields before saving",
+          "requiredAccount": "Chart of Accounts",
+          "requiredCostCenter": "Cost Center",
+          "requiredOrders": "Number of Orders",
+          "redirecting": "Redirecting to payrolls page..."
         },
         "columns": {
           "no": "No",
