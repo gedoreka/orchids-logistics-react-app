@@ -117,27 +117,29 @@ export async function POST(request: NextRequest) {
     // --- Auto Journal Entry for Payroll ---
     if (totalAmount > 0 && !is_draft) {
       try {
-        const { recordJournalEntry, generateNextEntryNumber, getDefaultAccounts, resolvePaymentAccount } = await import("@/lib/accounting");
-        const defaults = await getDefaultAccounts(company_id);
-        const salaryAccountId = defaults.salaries;
-        const cashAccountId = resolvePaymentAccount(defaults);
+      const { recordJournalEntry, generateNextEntryNumber, getDefaultAccounts, resolvePaymentAccount } = await import("@/lib/accounting");
+          const defaults = await getDefaultAccounts(company_id);
+          // Use user-selected account or fall back to default
+          const salaryAccountId = account_id || defaults.salaries;
+          const cashAccountId = resolvePaymentAccount(defaults);
+          const selectedCostCenter = cost_center_id || undefined;
 
-        if (salaryAccountId && cashAccountId) {
-          const entryNumber = await generateNextEntryNumber(company_id, "PAY");
-          await recordJournalEntry({
-            entry_date: `${payroll_month}-01`,
-            entry_number: entryNumber,
-            description: `رواتب شهر ${payroll_month}`,
-            company_id,
-            created_by: saved_by || "System",
-            source_type: "payroll",
-            source_id: String(payrollId),
-            lines: [
-              { account_id: salaryAccountId, debit: totalAmount, credit: 0, description: `رواتب شهر ${payroll_month}` },
-              { account_id: cashAccountId, debit: 0, credit: totalAmount, description: `صرف رواتب شهر ${payroll_month}` }
-            ]
-          });
-        }
+          if (salaryAccountId && cashAccountId) {
+            const entryNumber = await generateNextEntryNumber(company_id, "PAY");
+            await recordJournalEntry({
+              entry_date: `${payroll_month}-01`,
+              entry_number: entryNumber,
+              description: `رواتب شهر ${payroll_month}`,
+              company_id,
+              created_by: saved_by || "System",
+              source_type: "payroll",
+              source_id: String(payrollId),
+              lines: [
+                { account_id: salaryAccountId, cost_center_id: selectedCostCenter, debit: totalAmount, credit: 0, description: `رواتب شهر ${payroll_month}` },
+                { account_id: cashAccountId, cost_center_id: selectedCostCenter, debit: 0, credit: totalAmount, description: `صرف رواتب شهر ${payroll_month}` }
+              ]
+            });
+          }
       } catch (accError) {
         console.error("Error creating auto journal entry for payroll:", accError);
       }

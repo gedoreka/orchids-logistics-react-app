@@ -122,6 +122,8 @@ export function GeneralLedgerClient({ companyId, companyInfo }: GeneralLedgerCli
     costCenters: [],
   });
 
+  const [sourceFilter, setSourceFilter] = useState("all");
+  const [sourceTypeCounts, setSourceTypeCounts] = useState<Record<string, number>>({});
   const [filters, setFilters] = useState({
     fromDate: "",
     toDate: "",
@@ -142,53 +144,55 @@ export function GeneralLedgerClient({ companyId, companyInfo }: GeneralLedgerCli
 
     const [error, setError] = useState<string | null>(null);
 
-    const fetchData = useCallback(async (isRefresh = false) => {
-      try {
-        if (isRefresh) setRefreshing(true);
-        else setLoading(true);
-        setError(null);
+      const fetchData = useCallback(async (isRefresh = false) => {
+        try {
+          if (isRefresh) setRefreshing(true);
+          else setLoading(true);
+          setError(null);
 
-        const params = new URLSearchParams();
-        if (filters.fromDate) params.set("from_date", filters.fromDate);
-        if (filters.toDate) params.set("to_date", filters.toDate);
-        if (filters.accountId) params.set("account_id", filters.accountId);
-        if (filters.costCenterId) params.set("cost_center_id", filters.costCenterId);
-        if (filters.search) params.set("search", filters.search);
-        if (filters.entryType !== "all") params.set("entry_type", filters.entryType);
+          const params = new URLSearchParams();
+          if (filters.fromDate) params.set("from_date", filters.fromDate);
+          if (filters.toDate) params.set("to_date", filters.toDate);
+          if (filters.accountId) params.set("account_id", filters.accountId);
+          if (filters.costCenterId) params.set("cost_center_id", filters.costCenterId);
+          if (filters.search) params.set("search", filters.search);
+          if (filters.entryType !== "all") params.set("entry_type", filters.entryType);
+          if (sourceFilter !== "all") params.set("source", sourceFilter);
 
-        const response = await fetch(`/api/general-ledger?${params.toString()}`);
-        if (!response.ok) {
-          throw new Error(`Failed to fetch: ${response.statusText}`);
+          const response = await fetch(`/api/general-ledger?${params.toString()}`);
+          if (!response.ok) {
+            throw new Error(`Failed to fetch: ${response.statusText}`);
+          }
+          const data = await response.json();
+
+          if (data.error) {
+            setError(data.error);
+            return;
+          }
+
+          setEntries(data.entries || []);
+          setStats(data.stats || {
+            totalDebit: 0,
+            totalCredit: 0,
+            finalBalance: 0,
+            entriesCount: 0,
+            activeAccounts: 0,
+          });
+          setChartData(data.chartData || {
+            monthlyTrend: [],
+            topAccounts: [],
+            costCenterDistribution: [],
+          });
+          setMetadata(data.metadata || { accounts: [], costCenters: [] });
+          setSourceTypeCounts(data.sourceTypeCounts || {});
+        } catch (error) {
+          console.error("Error fetching ledger data:", error);
+          setError(t("generalLedger.errorLoading"));
+        } finally {
+          setLoading(false);
+          setRefreshing(false);
         }
-        const data = await response.json();
-
-        if (data.error) {
-          setError(data.error);
-          return;
-        }
-
-        setEntries(data.entries || []);
-        setStats(data.stats || {
-          totalDebit: 0,
-          totalCredit: 0,
-          finalBalance: 0,
-          entriesCount: 0,
-          activeAccounts: 0,
-        });
-        setChartData(data.chartData || {
-          monthlyTrend: [],
-          topAccounts: [],
-          costCenterDistribution: [],
-        });
-        setMetadata(data.metadata || { accounts: [], costCenters: [] });
-      } catch (error) {
-        console.error("Error fetching ledger data:", error);
-        setError(t("generalLedger.errorLoading"));
-      } finally {
-        setLoading(false);
-        setRefreshing(false);
-      }
-    }, [filters, t]);
+      }, [filters, sourceFilter, t]);
 
   useEffect(() => {
     fetchData();
@@ -201,23 +205,29 @@ export function GeneralLedgerClient({ companyId, companyInfo }: GeneralLedgerCli
     return () => clearInterval(interval);
   }, [fetchData]);
 
-  const sortedEntries = useMemo(() => {
-    const sorted = [...entries].sort((a, b) => {
-      const aValue = a[sortConfig.key as keyof LedgerEntry];
-      const bValue = b[sortConfig.key as keyof LedgerEntry];
-      
-      if (typeof aValue === "number" && typeof bValue === "number") {
-        return sortConfig.direction === "asc" ? aValue - bValue : bValue - aValue;
-      }
-      
-      const aStr = String(aValue || "");
-      const bStr = String(bValue || "");
-      return sortConfig.direction === "asc" 
-        ? aStr.localeCompare(bStr) 
-        : bStr.localeCompare(aStr);
-    });
-    return sorted;
-  }, [entries, sortConfig]);
+    const sortedEntries = useMemo(() => {
+      const sorted = [...entries].sort((a, b) => {
+        const aValue = a[sortConfig.key as keyof LedgerEntry];
+        const bValue = b[sortConfig.key as keyof LedgerEntry];
+        
+        if (typeof aValue === "number" && typeof bValue === "number") {
+          return sortConfig.direction === "asc" ? aValue - bValue : bValue - aValue;
+        }
+        
+        const aStr = String(aValue || "");
+        const bStr = String(bValue || "");
+        return sortConfig.direction === "asc" 
+          ? aStr.localeCompare(bStr) 
+          : bStr.localeCompare(aStr);
+      });
+      // Compute running balance
+      let runningBalance = 0;
+      const withBalance = sorted.map(e => {
+        runningBalance += e.debit - e.credit;
+        return { ...e, balance: runningBalance };
+      });
+      return withBalance;
+    }, [entries, sortConfig]);
 
   const paginatedEntries = useMemo(() => {
     const start = (currentPage - 1) * pageSize;
@@ -247,7 +257,7 @@ export function GeneralLedgerClient({ companyId, companyInfo }: GeneralLedgerCli
     ];
     const csvContent = [
       headers.join(","),
-      ...entries.map(e => [
+      ...sortedEntries.map(e => [
         e.date,
         e.document_number,
         `"${e.description}"`,
@@ -526,10 +536,39 @@ export function GeneralLedgerClient({ companyId, companyInfo }: GeneralLedgerCli
                 )}
               </CardContent>
             </Card>
-          </div>
-        )}
+        </div>
+          )}
 
-        <Card className="border-none shadow-xl rounded-[2rem] overflow-hidden bg-white/80 backdrop-blur-xl print:hidden">
+          {/* Source Filter Tabs */}
+          <div className="flex flex-wrap items-center gap-2 print:hidden">
+            {[
+              { key: "all", label: "الكل", color: "bg-slate-600", count: Object.values(sourceTypeCounts).reduce((s, v) => s + v, 0) || entries.length },
+              { key: "journal", label: "قيود يومية", color: "bg-blue-600", count: sourceTypeCounts.journal || 0 },
+              { key: "expense", label: "مصروفات", color: "bg-amber-600", count: sourceTypeCounts.expense || 0 },
+              { key: "deduction", label: "استقطاعات", color: "bg-red-600", count: sourceTypeCounts.deduction || 0 },
+              { key: "payroll", label: "رواتب", color: "bg-purple-600", count: sourceTypeCounts.payroll || 0 },
+              { key: "invoice", label: "فواتير", color: "bg-emerald-600", count: sourceTypeCounts.invoice || 0 },
+            ].map((tab) => (
+              <button
+                key={tab.key}
+                onClick={() => { setSourceFilter(tab.key); setCurrentPage(1); }}
+                className={`flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-sm transition-all ${
+                  sourceFilter === tab.key
+                    ? `${tab.color} text-white shadow-lg scale-105`
+                    : "bg-white/10 text-white/70 hover:bg-white/20 hover:text-white"
+                }`}
+              >
+                <span>{tab.label}</span>
+                <span className={`px-2 py-0.5 rounded-full text-xs font-black ${
+                  sourceFilter === tab.key ? "bg-white/20" : "bg-white/10"
+                }`}>
+                  {tab.count}
+                </span>
+              </button>
+            ))}
+          </div>
+
+          <Card className="border-none shadow-xl rounded-[2rem] overflow-hidden bg-white/80 backdrop-blur-xl print:hidden">
           <CardContent className="p-4 md:p-6">
             <div className="flex flex-col lg:flex-row items-center gap-4">
               <div className="relative flex-1 w-full">
@@ -743,10 +782,16 @@ export function GeneralLedgerClient({ companyId, companyInfo }: GeneralLedgerCli
                           </span>
                         </td>
                         <td className="px-3 md:px-4 py-3 text-xs md:text-sm">
-                          <Badge className={`font-bold text-xs ${entry.source === "expense" ? "bg-amber-100 text-amber-700" : "bg-blue-100 text-blue-700"}`}>
-                            {entry.source_type}
-                          </Badge>
-                        </td>
+                            <Badge className={`font-bold text-xs ${
+                              entry.source === "expense" ? "bg-amber-100 text-amber-700" :
+                              entry.source === "deduction" ? "bg-red-100 text-red-700" :
+                              entry.source === "payroll" ? "bg-purple-100 text-purple-700" :
+                              entry.source === "invoice" ? "bg-emerald-100 text-emerald-700" :
+                              "bg-blue-100 text-blue-700"
+                            }`}>
+                              {entry.source_type}
+                            </Badge>
+                          </td>
                         <td className="px-3 md:px-4 py-3 text-center print:hidden">
                           <Button
                             variant="ghost"

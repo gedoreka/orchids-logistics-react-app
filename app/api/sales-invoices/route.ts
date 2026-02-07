@@ -186,8 +186,9 @@ export async function POST(request: NextRequest) {
         const defaults = await getDefaultAccounts(parseInt(companyId));
 
         const customersAccId = defaults.customers || 3;
-        const salesAccId = defaults.sales_revenue || 6;
-        const vatAccId = defaults.vat || 25;
+          // Use user-selected account for revenue, or fall back to default
+          const salesAccId = account_id || defaults.sales_revenue || 6;
+          const vatAccId = defaults.vat || 25;
         
         const journalLines = [
           {
