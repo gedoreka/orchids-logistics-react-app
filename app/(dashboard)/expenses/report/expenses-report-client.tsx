@@ -1168,25 +1168,91 @@ Object.entries(deductionsGrouped).map(([group, deductions], groupIdx) => {
           </DialogContent>
         </Dialog>
 
-  <Dialog open={showDeleteModal} onOpenChange={setShowDeleteModal}>
-    <DialogContent className="max-w-md rtl text-center" dir="rtl">
-      <DialogHeader>
-        <DialogTitle className="text-xl font-bold flex flex-col items-center gap-4">
-          <AlertTriangle className="w-16 h-16 text-red-500" />
-          {t("accounts.confirmDelete")}
-        </DialogTitle>
-      </DialogHeader>
-      <div className="py-4">
-        <p className="text-slate-500">{t("accounts.confirmDeleteMessage")}</p>
-      </div>
-      <DialogFooter className="flex gap-3 justify-center sm:justify-center">
-        <Button onClick={handleDelete} disabled={deleteLoading} className="bg-red-600 hover:bg-red-700 text-white">
-          {deleteLoading ? <Loader2 className="animate-spin" /> : t("accounts.yesDelete")}
-        </Button>
-        <Button onClick={() => setShowDeleteModal(false)} variant="outline">{t("common.cancel")}</Button>
-      </DialogFooter>
-    </DialogContent>
-  </Dialog>
+    {/* Luxury Delete Modal */}
+    <AnimatePresence>
+      {showDeleteModal && selectedItem && (
+        <>
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/60 backdrop-blur-md z-[9998]"
+            onClick={() => !deleteLoading && setShowDeleteModal(false)}
+          />
+          <motion.div
+            initial={{ opacity: 0, scale: 0.8, y: 50 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.8, y: 50 }}
+            transition={{ type: "spring", duration: 0.5 }}
+            className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[9999] w-[90%] max-w-[480px]"
+            dir="rtl"
+          >
+            <div className="bg-white rounded-3xl shadow-2xl overflow-hidden border border-red-100">
+              <div className="bg-gradient-to-r from-red-600 to-rose-600 p-6 text-center">
+                <motion.div
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  transition={{ type: "spring", delay: 0.2 }}
+                  className="w-20 h-20 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4"
+                >
+                  <AlertTriangle className="w-10 h-10 text-white" />
+                </motion.div>
+                <h2 className="text-2xl font-black text-white">تأكيد الحذف</h2>
+                <p className="text-red-200 mt-2 text-sm">هل أنت متأكد من حذف هذه العملية؟</p>
+              </div>
+              
+              <div className="p-6">
+                <div className="bg-red-50 border border-red-100 rounded-2xl p-4 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs text-red-400 font-bold">النوع</span>
+                    <span className="text-sm font-black text-red-800">
+                      {"expense_type" in selectedItem ? selectedItem.expense_type : (selectedItem as DeductionItem).deduction_type}
+                    </span>
+                  </div>
+                  {selectedItem.employee_name && (
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs text-red-400 font-bold">الموظف</span>
+                      <span className="text-sm font-bold text-red-700">{selectedItem.employee_name}</span>
+                    </div>
+                  )}
+                  <div className="flex items-center justify-between border-t border-red-200 pt-3">
+                    <span className="text-xs text-red-400 font-bold">المبلغ</span>
+                    <span className="text-lg font-black text-red-700">{formatNumber(selectedItem.amount || 0)} SAR</span>
+                  </div>
+                </div>
+                
+                <div className="mt-4 bg-amber-50 border border-amber-200 rounded-xl p-3 flex items-start gap-2">
+                  <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+                  <p className="text-xs font-bold text-amber-800">تحذير: لا يمكن التراجع عن هذا الإجراء بعد تأكيد الحذف</p>
+                </div>
+              </div>
+              
+              <div className="p-4 bg-slate-50 border-t border-slate-100 flex gap-3 justify-center">
+                <button
+                  onClick={handleDelete}
+                  disabled={deleteLoading}
+                  className="bg-gradient-to-r from-red-600 to-rose-600 text-white px-8 py-3 rounded-xl font-bold hover:from-red-700 hover:to-rose-700 transition-all shadow-lg shadow-red-200 active:scale-95 flex items-center gap-2 disabled:opacity-50"
+                >
+                  {deleteLoading ? (
+                    <Loader2 className="w-5 h-5 animate-spin" />
+                  ) : (
+                    <Trash2 className="w-5 h-5" />
+                  )}
+                  {deleteLoading ? 'جاري الحذف...' : 'نعم، احذف'}
+                </button>
+                <button
+                  onClick={() => setShowDeleteModal(false)}
+                  disabled={deleteLoading}
+                  className="bg-slate-200 text-slate-700 px-8 py-3 rounded-xl font-bold hover:bg-slate-300 transition-all active:scale-95 disabled:opacity-50"
+                >
+                  إلغاء
+                </button>
+              </div>
+            </div>
+          </motion.div>
+        </>
+      )}
+    </AnimatePresence>
 
       <AnimatePresence>
         {notification.show && (

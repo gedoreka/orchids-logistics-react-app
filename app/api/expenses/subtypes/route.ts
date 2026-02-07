@@ -13,7 +13,8 @@ export async function GET(request: NextRequest) {
 
     const subtypes = await query(
       `SELECT * FROM expense_subtypes 
-       WHERE company_id = ? AND (is_custom = FALSE OR added_by = ?)
+       WHERE (company_id = ? OR (is_custom = FALSE AND company_id = 1))
+       AND (is_custom = FALSE OR added_by = ? OR company_id = 1)
        ORDER BY main_type, sort_order, subtype_name`,
       [companyId, userId]
     );

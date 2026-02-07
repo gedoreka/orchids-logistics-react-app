@@ -47,16 +47,23 @@ export async function POST(request: NextRequest) {
     const session = authSession ? JSON.parse(authSession) : null;
     const isSubUser = session?.user_type === "sub_user";
 
-    // Fetch account and cost center IDs for mapping
-    let accountMap = new Map();
-    let centerMap = new Map();
+    // Fetch account and cost center data for mapping
+    // NOTE: The form's HierarchicalSearchableSelect sends item.id (database ID),
+    // so we build maps from ID → record to resolve the actual codes
+    let accountByIdMap = new Map<string, { id: number; account_code: string }>();
+    let accountByCodeMap = new Map<string, { id: number; account_code: string }>();
+    let centerByIdMap = new Map<string, { id: number; center_code: string }>();
+    let centerByCodeMap = new Map<string, { id: number; center_code: string }>();
     
     try {
       const accounts = await query<{ id: number; account_code: string }>(
         "SELECT id, account_code FROM accounts WHERE company_id = ?",
         [companyId]
       );
-      accountMap = new Map(accounts.map(a => [a.account_code, a.id]));
+      accounts.forEach(a => {
+        accountByIdMap.set(String(a.id), a);
+        accountByCodeMap.set(a.account_code, a);
+      });
       console.log("API: Loaded", accounts.length, "accounts");
     } catch (accError) {
       console.warn("Warning: Could not load accounts", accError);
@@ -67,7 +74,10 @@ export async function POST(request: NextRequest) {
         "SELECT id, center_code FROM cost_centers WHERE company_id = ?",
         [companyId]
       );
-      centerMap = new Map(costCenters.map(c => [c.center_code, c.id]));
+      costCenters.forEach(c => {
+        centerByIdMap.set(String(c.id), c);
+        centerByCodeMap.set(c.center_code, c);
+      });
       console.log("API: Loaded", costCenters.length, "cost centers");
     } catch (ccError) {
       console.warn("Warning: Could not load cost centers", ccError);
@@ -88,12 +98,20 @@ export async function POST(request: NextRequest) {
         const iqama = employeeIqamas[i] || "";
         const name = employeeNames[i] || "";
         const empId = parseInt(employeeIds[i] || "0");
-        const accountCode = accountCodes[i] || "";
-        const centerCode = costCenterCodes[i] || "";
+        const rawAccountVal = accountCodes[i] || "";
+        const rawCenterVal = costCenterCodes[i] || "";
         const desc = descriptions[i] || "";
         const tax = parseFloat(taxValues[i] || "0");
         const net = parseFloat(netAmounts[i] || amounts[i] || "0");
         const attachment = attachments[i];
+
+        // Resolve account: the form sends database ID, we need to find the actual code
+        let resolvedAccount = accountByIdMap.get(rawAccountVal) || accountByCodeMap.get(rawAccountVal);
+        const accountCode = resolvedAccount?.account_code || rawAccountVal;
+        
+        // Resolve cost center: the form sends database ID, we need to find the actual code
+        let resolvedCenter = centerByIdMap.get(rawCenterVal) || centerByCodeMap.get(rawCenterVal);
+        const centerCode = resolvedCenter?.center_code || rawCenterVal;
 
         let attachmentPath = "";
         if (attachment && attachment instanceof File && attachment.size > 0) {
@@ -126,8 +144,8 @@ export async function POST(request: NextRequest) {
           }
         }
 
-        const accId = accountMap.get(accountCode) || null;
-        const centerId = centerMap.get(centerCode) || null;
+        const accId = resolvedAccount?.id || null;
+        const centerId = resolvedCenter?.id || null;
         const monthRef = date.substring(0, 7);
 
         // Insert into monthly_expenses with attachment path

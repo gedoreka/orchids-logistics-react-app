@@ -5,7 +5,7 @@ import {
   Plus, Trash2, Save, Tags, Info, CheckCircle, 
   ChevronDown, X, Paperclip, Search, 
   ArrowRight, FileText, History, Bolt, Building2,
-  Settings, HandCoins
+  Settings, HandCoins, AlertTriangle, CheckCircle2, Loader2, FileCheck, Calendar
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
@@ -15,7 +15,20 @@ import { useTranslations } from "@/lib/locale-context";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { HierarchicalSearchableSelect } from "@/components/ui/hierarchical-searchable-select";
 
-import { toast } from "sonner";
+interface NotificationState {
+  show: boolean;
+  type: 'warning' | 'confirm' | 'loading' | 'success' | 'error';
+  title: string;
+  message: string;
+  details?: {
+    count: number;
+    totalAmount: number;
+    types?: string[];
+    month?: string;
+  };
+  missingFields?: string[];
+  onConfirm?: () => void;
+}
 
 interface Employee {
   id: number;
@@ -217,6 +230,24 @@ export default function DeductionFormClient({ user }: { user: User }) {
   const [showSubtypeManager, setShowSubtypeManager] = useState(false);
   const [monthReference, setMonthReference] = useState(new Date().toISOString().substring(0, 7));
 
+  const [notification, setNotification] = useState<NotificationState>({
+    show: false,
+    type: 'warning',
+    title: '',
+    message: '',
+  });
+
+  const showNotification = (
+    type: NotificationState['type'],
+    title: string,
+    message: string,
+    details?: NotificationState['details'],
+    missingFields?: string[],
+    onConfirm?: () => void
+  ) => {
+    setNotification({ show: true, type, title, message, details, missingFields, onConfirm });
+  };
+
   const fetchMetadata = async () => {
     try {
       const res = await fetch(`/api/expenses/deductions/metadata?company_id=${user.company_id}&user_id=${user.id}`, {
@@ -332,20 +363,59 @@ export default function DeductionFormClient({ user }: { user: User }) {
     e.preventDefault();
     if (Object.keys(sections).length === 0) return;
 
-    // Validation
-    let isValid = true;
-    Object.values(sections).forEach(rows => {
-      rows.forEach(row => {
-        if (!row.amount || !row.expense_date || !row.account_id || !row.cost_center_id) {
-          isValid = false;
+    // Collect missing fields
+    const rowsWithMissingFields: string[] = [];
+    
+    Object.entries(sections).forEach(([type, rows]) => {
+      rows.forEach((row, index) => {
+        const rowNumber = index + 1;
+        const missing: string[] = [];
+        
+        if (!String(row.account_id || "").trim()) missing.push('شجرة الحسابات');
+        if (!String(row.cost_center_id || "").trim()) missing.push('مركز التكلفة');
+        if (!String(row.amount || "").trim() || parseFloat(row.amount) <= 0) missing.push('المبلغ');
+        if (!String(row.expense_date || "").trim()) missing.push('التاريخ');
+        
+        if (missing.length > 0) {
+          rowsWithMissingFields.push(`صف ${rowNumber} (${t(`types.${type}`)}) - ${missing.join('، ')}`);
         }
       });
     });
 
-    if (!isValid) {
-      toast.error("يرجى التأكد من إدخال المبلغ، التاريخ، شجرة الحسابات، ومركز التكلفة لجميع الصفوف.");
+    if (rowsWithMissingFields.length > 0) {
+      showNotification(
+        'warning',
+        'حقول إجبارية مفقودة',
+        'يرجى إكمال الحقول التالية قبل الحفظ:',
+        undefined,
+        rowsWithMissingFields
+      );
       return;
     }
+
+    // Calculate totals for confirm modal
+    const allRows = Object.values(sections).flat();
+    const totalCount = allRows.length;
+    const totalAmount = allRows.reduce((sum, row) => sum + (parseFloat(row.amount) || 0), 0);
+    const types = Object.keys(sections).map(type => t(`types.${type}`));
+
+    showNotification(
+      'confirm',
+      'تأكيد حفظ الاستقطاعات',
+      'هل تريد حفظ الاستقطاعات التالية؟',
+      {
+        count: totalCount,
+        totalAmount,
+        types,
+        month: new Date(monthReference + '-01').toLocaleDateString('ar-SA', { month: 'long', year: 'numeric' })
+      },
+      undefined,
+      () => executeSave()
+    );
+  };
+
+  const executeSave = async () => {
+    showNotification('loading', 'جاري الحفظ...', 'يتم حفظ الاستقطاعات في النظام');
 
     setSubmitting(true);
     const allDeductions = Object.values(sections).flat();
@@ -356,14 +426,12 @@ export default function DeductionFormClient({ user }: { user: User }) {
         formData.append("month_reference", monthReference);
         formData.append("voucher_number", metadata?.voucherNumber?.toString() || "");
         
-        // Prepare rows data without the File objects
         const deductionsData = allDeductions.map(row => {
           const { attachment, ...rest } = row;
           return rest;
         });
         formData.append("deductions_json", JSON.stringify(deductionsData));
   
-        // Append files separately with their corresponding row IDs
         allDeductions.forEach(row => {
           if (row.attachment) {
             formData.append(`file_${row.id}`, row.attachment);
@@ -376,11 +444,26 @@ export default function DeductionFormClient({ user }: { user: User }) {
         });
         const data = await res.json();
         if (data.success) {
+          const totalAmount = allDeductions.reduce((sum, row) => sum + (parseFloat(row.amount) || 0), 0);
           setSavedCount(data.saved_count);
-          setShowSuccess(true);
+          showNotification(
+            'success',
+            'تم الحفظ بنجاح',
+            `تم حفظ ${data.saved_count} استقطاع بنجاح`,
+            {
+              count: data.saved_count,
+              totalAmount,
+              types: Object.keys(sections).map(type => t(`types.${type}`)),
+              month: new Date(monthReference + '-01').toLocaleDateString('ar-SA', { month: 'long', year: 'numeric' })
+            }
+          );
+        } else {
+          const errorMsg = data.message || data.error || "فشل حفظ الاستقطاعات";
+          showNotification('error', 'خطأ في الحفظ', errorMsg);
         }
       } catch (error) {
-        console.error("Save failed", error);
+        const errorMessage = error instanceof Error ? error.message : "حدث خطأ في الاتصال";
+        showNotification('error', 'خطأ في الحفظ', errorMessage);
       } finally {
         setSubmitting(false);
       }
@@ -543,13 +626,13 @@ export default function DeductionFormClient({ user }: { user: User }) {
                     <table className="w-full text-start border-collapse text-[11px]">
                       <thead>
                           <tr className="bg-slate-50 border-b border-slate-100">
-                            <th className="px-2 py-2 text-[9px] font-bold text-slate-500 uppercase tracking-wider text-start w-[95px]">{t("form.date")}</th>
+                            <th className="px-2 py-2 text-[9px] font-bold text-slate-500 uppercase tracking-wider text-start w-[95px]">{t("form.date")} <span className="text-red-500 text-sm">*</span></th>
                             <th className="px-2 py-2 text-[9px] font-bold text-slate-500 uppercase tracking-wider text-start w-[110px]">{t("form.type")}</th>
-                            <th className="px-2 py-2 text-[9px] font-bold text-slate-500 uppercase tracking-wider text-start w-[90px]">{t("form.amount")}</th>
+                            <th className="px-2 py-2 text-[9px] font-bold text-slate-500 uppercase tracking-wider text-start w-[90px]">{t("form.amount")} <span className="text-red-500 text-sm">*</span></th>
                             <th className="px-2 py-2 text-[9px] font-bold text-slate-500 uppercase tracking-wider text-start w-[180px]">{t("form.employee")}</th>
                             <th className="px-2 py-2 text-[9px] font-bold text-slate-500 uppercase tracking-wider text-start w-[100px]">{t("form.iqamaNumber")}</th>
-                            <th className="px-2 py-2 text-[9px] font-bold text-slate-500 uppercase tracking-wider text-start w-[90px]">{t("form.account")}</th>
-                            <th className="px-2 py-2 text-[9px] font-bold text-slate-500 uppercase tracking-wider text-start w-[90px]">{t("form.costCenter")}</th>
+                            <th className="px-2 py-2 text-[9px] font-bold text-slate-500 uppercase tracking-wider text-start w-[90px]">{t("form.account")} <span className="text-red-500 text-sm">*</span></th>
+                            <th className="px-2 py-2 text-[9px] font-bold text-slate-500 uppercase tracking-wider text-start w-[90px]">{t("form.costCenter")} <span className="text-red-500 text-sm">*</span></th>
                             <th className="px-2 py-2 text-[9px] font-bold text-slate-500 uppercase tracking-wider text-start w-[100px]">{t("form.description")}</th>
                             <th className="px-2 py-2 text-[9px] font-bold text-slate-500 uppercase tracking-wider text-center w-[45px]">{t("form.document")}</th>
                             <th className="px-2 py-2 text-[9px] font-bold text-slate-500 uppercase tracking-wider text-center w-[75px]">{t("common.status")}</th>
@@ -738,34 +821,214 @@ export default function DeductionFormClient({ user }: { user: User }) {
         </div>
 
       <AnimatePresence>
-        {showSuccess && (
+        {/* Luxury Notification Modal */}
+        {notification.show && (
           <>
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100]"
-              onClick={() => router.push('/expenses')}
+              className="fixed inset-0 bg-black/60 backdrop-blur-md z-[9998]"
+              onClick={() => {
+                if (notification.type !== 'loading') {
+                  if (notification.type === 'success') {
+                    setNotification(prev => ({ ...prev, show: false }));
+                    setSections({});
+                    setSelectedTypeToAdd("");
+                    fetchMetadata();
+                  } else {
+                    setNotification(prev => ({ ...prev, show: false }));
+                  }
+                }
+              }}
             />
-              <motion.div 
-                initial={{ opacity: 0, scale: 0.8, y: 100 }}
-                animate={{ opacity: 1, scale: 1, y: 0 }}
-                exit={{ opacity: 0, scale: 0.8, y: 100 }}
-                className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[101] bg-gradient-to-br from-rose-600 to-pink-700 text-white p-6 rounded-2xl shadow-2xl text-center min-w-[280px]"
-              >
-                <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4 animate-bounce">
-                  <CheckCircle className="w-7 h-7 text-white" />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.8, y: 50 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.8, y: 50 }}
+              transition={{ type: "spring", duration: 0.5 }}
+              className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[9999] w-[90%] max-w-[520px]"
+            >
+              {/* Warning Modal */}
+              {notification.type === 'warning' && (
+                <div className="bg-white rounded-3xl shadow-2xl overflow-hidden border border-amber-100">
+                  <div className="bg-gradient-to-r from-amber-500 to-orange-500 p-6 text-center">
+                    <div className="w-20 h-20 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                      <AlertTriangle className="w-10 h-10 text-white" />
+                    </div>
+                    <h2 className="text-2xl font-black text-white">{notification.title}</h2>
+                    <p className="text-amber-100 mt-2 text-sm">{notification.message}</p>
+                  </div>
+                  {notification.missingFields && notification.missingFields.length > 0 && (
+                    <div className="p-6 max-h-[300px] overflow-y-auto">
+                      <div className="space-y-2">
+                        {notification.missingFields.map((field, idx) => (
+                          <div key={idx} className="flex items-start gap-3 p-3 bg-red-50 border border-red-100 rounded-xl">
+                            <div className="w-6 h-6 bg-red-100 rounded-full flex items-center justify-center shrink-0 mt-0.5">
+                              <X className="w-3 h-3 text-red-600" />
+                            </div>
+                            <span className="text-sm font-bold text-red-800">{field}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  <div className="p-4 bg-slate-50 border-t border-slate-100 flex justify-center">
+                    <button
+                      onClick={() => setNotification(prev => ({ ...prev, show: false }))}
+                      className="bg-gradient-to-r from-amber-500 to-orange-500 text-white px-8 py-3 rounded-xl font-bold hover:from-amber-600 hover:to-orange-600 transition-all shadow-lg shadow-amber-200 active:scale-95"
+                    >
+                      فهمت، سأكمل البيانات
+                    </button>
+                  </div>
                 </div>
-                <h2 className="text-lg font-bold mb-2">{t("form.success")}</h2>
-                <p className="text-sm opacity-90 mb-4">{t("deductions.successDesc", { count: savedCount })}</p>
-                <button 
-                  onClick={() => router.push('/expenses')}
-                  className="bg-white text-rose-700 px-6 py-2 rounded-lg font-bold text-sm hover:bg-rose-50 transition-colors flex items-center mx-auto space-x-2 space-x-reverse"
-                >
-                  <span>{t("form.backToCenter")}</span>
-                  <ArrowRight className="w-3 h-3" />
-                </button>
-              </motion.div>
+              )}
+
+              {/* Confirm Modal */}
+              {notification.type === 'confirm' && (
+                <div className="bg-white rounded-3xl shadow-2xl overflow-hidden border border-rose-100">
+                  <div className="bg-gradient-to-r from-rose-600 to-pink-600 p-6 text-center">
+                    <div className="w-20 h-20 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                      <FileCheck className="w-10 h-10 text-white" />
+                    </div>
+                    <h2 className="text-2xl font-black text-white">{notification.title}</h2>
+                    <p className="text-rose-200 mt-2 text-sm">{notification.message}</p>
+                  </div>
+                  {notification.details && (
+                    <div className="p-6">
+                      <div className="grid grid-cols-2 gap-3">
+                        <div className="bg-rose-50 border border-rose-100 rounded-xl p-4 text-center">
+                          <p className="text-xs text-rose-500 font-bold mb-1">عدد العمليات</p>
+                          <p className="text-2xl font-black text-rose-700">{notification.details.count}</p>
+                        </div>
+                        <div className="bg-green-50 border border-green-100 rounded-xl p-4 text-center">
+                          <p className="text-xs text-green-500 font-bold mb-1">إجمالي المبلغ</p>
+                          <p className="text-2xl font-black text-green-700">{notification.details.totalAmount?.toFixed(2)}</p>
+                        </div>
+                      </div>
+                      {notification.details.types && notification.details.types.length > 0 && (
+                        <div className="mt-3 flex flex-wrap gap-2 justify-center">
+                          {notification.details.types.map((type, idx) => (
+                            <span key={idx} className="bg-rose-100 text-rose-700 px-3 py-1 rounded-full text-xs font-bold">{type}</span>
+                          ))}
+                        </div>
+                      )}
+                      {notification.details.month && (
+                        <p className="text-center text-sm text-slate-500 mt-3 flex items-center justify-center gap-2">
+                          <Calendar className="w-4 h-4" />
+                          {notification.details.month}
+                        </p>
+                      )}
+                    </div>
+                  )}
+                  <div className="p-4 bg-slate-50 border-t border-slate-100 flex gap-3 justify-center">
+                    <button
+                      onClick={() => {
+                        setNotification(prev => ({ ...prev, show: false }));
+                        notification.onConfirm?.();
+                      }}
+                      className="bg-gradient-to-r from-green-500 to-emerald-600 text-white px-8 py-3 rounded-xl font-bold hover:from-green-600 hover:to-emerald-700 transition-all shadow-lg shadow-green-200 active:scale-95 flex items-center gap-2"
+                    >
+                      <CheckCircle2 className="w-5 h-5" />
+                      تأكيد الحفظ
+                    </button>
+                    <button
+                      onClick={() => setNotification(prev => ({ ...prev, show: false }))}
+                      className="bg-slate-200 text-slate-700 px-8 py-3 rounded-xl font-bold hover:bg-slate-300 transition-all active:scale-95"
+                    >
+                      إلغاء
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* Loading Modal */}
+              {notification.type === 'loading' && (
+                <div className="bg-white rounded-3xl shadow-2xl overflow-hidden border border-rose-100 p-10 text-center">
+                  <div className="w-20 h-20 mx-auto mb-6 relative">
+                    <div className="absolute inset-0 rounded-full border-4 border-rose-100"></div>
+                    <div className="absolute inset-0 rounded-full border-4 border-rose-600 border-t-transparent animate-spin"></div>
+                    <div className="absolute inset-3 rounded-full border-4 border-pink-100"></div>
+                    <div className="absolute inset-3 rounded-full border-4 border-pink-500 border-b-transparent animate-spin" style={{ animationDirection: 'reverse', animationDuration: '0.8s' }}></div>
+                  </div>
+                  <h2 className="text-xl font-black text-slate-800 mb-2">{notification.title}</h2>
+                  <p className="text-slate-500 text-sm">{notification.message}</p>
+                  <div className="mt-6 flex justify-center gap-1.5">
+                    {[0, 1, 2].map(i => (
+                      <div key={i} className="w-2.5 h-2.5 rounded-full bg-rose-500 animate-bounce" style={{ animationDelay: `${i * 0.15}s` }} />
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Success Modal */}
+              {notification.type === 'success' && (
+                <div className="bg-gradient-to-br from-rose-500 via-pink-600 to-rose-700 rounded-3xl shadow-2xl overflow-hidden text-white p-8 text-center">
+                  <div className="w-24 h-24 bg-white/25 rounded-full flex items-center justify-center mx-auto mb-6 animate-bounce">
+                    <CheckCircle className="w-16 h-16 text-white drop-shadow-lg" />
+                  </div>
+                  <h2 className="text-3xl font-black mb-3 drop-shadow-md">{notification.title}</h2>
+                  <p className="text-lg opacity-95 font-bold mb-2">{notification.message}</p>
+                  {notification.details && (
+                    <div className="mt-4 grid grid-cols-2 gap-3">
+                      <div className="bg-white/15 backdrop-blur-sm rounded-xl p-3">
+                        <p className="text-xs text-rose-200">عدد العمليات</p>
+                        <p className="text-2xl font-black">{notification.details.count}</p>
+                      </div>
+                      <div className="bg-white/15 backdrop-blur-sm rounded-xl p-3">
+                        <p className="text-xs text-rose-200">إجمالي المبلغ</p>
+                        <p className="text-2xl font-black">{notification.details.totalAmount?.toFixed(2)}</p>
+                      </div>
+                    </div>
+                  )}
+                  <div className="flex gap-4 justify-center mt-8">
+                    <button
+                      onClick={() => {
+                        setNotification(prev => ({ ...prev, show: false }));
+                        setSections({});
+                        setSelectedTypeToAdd("");
+                        fetchMetadata();
+                      }}
+                      className="bg-white text-rose-700 px-8 py-3.5 rounded-xl font-bold text-base hover:bg-rose-50 transition-all flex items-center gap-2 shadow-lg active:scale-95"
+                    >
+                      <Plus className="w-5 h-5" />
+                      إدخال جديد
+                    </button>
+                    <button
+                      onClick={() => {
+                        setNotification(prev => ({ ...prev, show: false }));
+                        setTimeout(() => router.push('/expenses'), 200);
+                      }}
+                      className="bg-white/20 backdrop-blur-sm text-white border-2 border-white/40 px-8 py-3.5 rounded-xl font-bold text-base hover:bg-white/30 transition-all flex items-center gap-2 shadow-lg active:scale-95"
+                    >
+                      العودة للمركز
+                      <ArrowRight className="w-5 h-5" />
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* Error Modal */}
+              {notification.type === 'error' && (
+                <div className="bg-white rounded-3xl shadow-2xl overflow-hidden border border-red-100">
+                  <div className="bg-gradient-to-r from-red-600 to-rose-600 p-6 text-center">
+                    <div className="w-20 h-20 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                      <X className="w-10 h-10 text-white" />
+                    </div>
+                    <h2 className="text-2xl font-black text-white">{notification.title}</h2>
+                    <p className="text-red-200 mt-2 text-sm">{notification.message}</p>
+                  </div>
+                  <div className="p-4 bg-slate-50 border-t border-slate-100 flex justify-center">
+                    <button
+                      onClick={() => setNotification(prev => ({ ...prev, show: false }))}
+                      className="bg-gradient-to-r from-red-500 to-rose-600 text-white px-8 py-3 rounded-xl font-bold hover:from-red-600 hover:to-rose-700 transition-all shadow-lg shadow-red-200 active:scale-95"
+                    >
+                      حسناً
+                    </button>
+                  </div>
+                </div>
+              )}
+            </motion.div>
           </>
         )}
       </AnimatePresence>

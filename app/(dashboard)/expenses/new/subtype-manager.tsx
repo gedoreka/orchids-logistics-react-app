@@ -145,40 +145,40 @@ export default function SubtypeManager({ companyId, userId, onClose, onRefresh }
             <form onSubmit={handleAdd} className="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
               <div className="space-y-1.5">
                 <label className="text-xs font-bold text-slate-500 mr-1">{t("subtypeManager.mainType")}</label>
-                <select 
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:bg-white outline-none transition-all"
-                  value={newSubtype.main_type}
-                  onChange={(e) => setNewSubtype(prev => ({ ...prev, main_type: e.target.value }))}
-                  required
-                >
-                  <option value="">-- {t("form.selectType")} --</option>
-                  {Object.entries(mainTypes).map(([key]) => (
-                    <option key={key} value={key}>{t(`types.${key}`)}</option>
-                  ))}
-                </select>
+                  <select 
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-900 focus:ring-2 focus:ring-blue-500 focus:bg-white outline-none transition-all"
+                    value={newSubtype.main_type}
+                    onChange={(e) => setNewSubtype(prev => ({ ...prev, main_type: e.target.value }))}
+                    required
+                  >
+                    <option value="" className="text-slate-400">-- {t("form.selectType")} --</option>
+                    {Object.entries(mainTypes).map(([key]) => (
+                      <option key={key} value={key} className="text-slate-900">{t(`types.${key}`)}</option>
+                    ))}
+                  </select>
               </div>
               
               <div className="space-y-1.5 md:col-span-1">
                 <label className="text-xs font-bold text-slate-500 mr-1">{t("subtypeManager.subtypeName")}</label>
                 <input 
-                  type="text"
-                  placeholder={t("subtypeManager.subtypePlaceholder")}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:bg-white outline-none transition-all"
-                  value={newSubtype.subtype_name}
-                  onChange={(e) => setNewSubtype(prev => ({ ...prev, subtype_name: e.target.value }))}
-                  required
-                />
+                    type="text"
+                    placeholder={t("subtypeManager.subtypePlaceholder")}
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500 focus:bg-white outline-none transition-all"
+                    value={newSubtype.subtype_name}
+                    onChange={(e) => setNewSubtype(prev => ({ ...prev, subtype_name: e.target.value }))}
+                    required
+                  />
               </div>
 
               <div className="space-y-1.5">
                 <label className="text-xs font-bold text-slate-500 mr-1">{t("subtypeManager.sortOrder")}</label>
                 <input 
-                  type="number"
-                  placeholder="0"
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:bg-white outline-none transition-all"
-                  value={newSubtype.sort_order}
-                  onChange={(e) => setNewSubtype(prev => ({ ...prev, sort_order: parseInt(e.target.value) || 0 }))}
-                />
+                    type="number"
+                    placeholder="0"
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500 focus:bg-white outline-none transition-all"
+                    value={newSubtype.sort_order}
+                    onChange={(e) => setNewSubtype(prev => ({ ...prev, sort_order: parseInt(e.target.value) || 0 }))}
+                  />
               </div>
 
               <button 
