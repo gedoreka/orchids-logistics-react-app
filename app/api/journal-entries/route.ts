@@ -19,19 +19,19 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    // Fetch accounts
+    // Fetch accounts (full hierarchy fields)
     const { data: accounts, error: accountsError } = await supabase
       .from("accounts")
-      .select("id, account_code, account_name, account_level, parent_account")
+      .select("id, account_code, account_name, account_level, parent_account, account_type, parent_id, type, is_active")
       .eq("company_id", companyId)
       .order("account_code", { ascending: true });
 
     if (accountsError) throw accountsError;
 
-    // Fetch cost centers
+    // Fetch cost centers (full hierarchy fields)
     const { data: costCenters, error: costCentersError } = await supabase
       .from("cost_centers")
-      .select("id, center_code, center_name")
+      .select("id, center_code, center_name, center_type, parent_id")
       .eq("company_id", companyId)
       .order("center_code", { ascending: true });
 

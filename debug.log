@@ -2285,3 +2285,48 @@ Import trace:
   response: {"unread_count":0}
 2026-02-07T22:40:20.066Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
   response: {"unread_count":0}
+2026-02-07T23:38:40.300Z [console][warn] [Fast Refresh] rebuilding
+2026-02-07T23:38:40.359Z [console][warn] [Fast Refresh] done in 159ms
+2026-02-07T23:38:41.297Z [console][warn] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+2026-02-07T23:38:42.473Z [console][warn] [Fast Refresh] rebuilding
+2026-02-07T23:38:42.492Z [console][warn] [Fast Refresh] done in 120ms
+2026-02-07T23:41:41.229Z [console][warn] [Fast Refresh] rebuilding
+2026-02-07T23:41:41.973Z [console][warn] [Fast Refresh] done in 869ms
+2026-02-07T23:42:05.363Z [console][warn] [Fast Refresh] rebuilding
+2026-02-07T23:42:05.709Z [console][warn] [Fast Refresh] done in 447ms
+2026-02-07T23:38:42.473Z [console][log] [Fast Refresh] rebuilding
+2026-02-07T23:38:42.492Z [console][log] [Fast Refresh] done in 120ms
+2026-02-07T23:41:41.186Z [console][log] [Fast Refresh] rebuilding
+2026-02-07T23:41:41.973Z [console][log] [Fast Refresh] done in 869ms
+2026-02-07T23:42:05.363Z [console][log] [Fast Refresh] rebuilding
+2026-02-07T23:42:05.709Z [console][log] [Fast Refresh] done in 447ms
+2026-02-07T23:41:49.921Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-07T23:41:51.933Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-07T23:41:53.929Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-07T23:41:56.921Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-07T23:41:57.921Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-07T23:42:01.924Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-07T23:42:02.270Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-07T23:42:05.921Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-07T23:42:06.924Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-07T23:42:09.964Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-07T23:42:12.036Z [network][GET 200] /api/admin/notifications?limit=1&last_id=9
+  response: {"success":true,"notifications":[]}
+2026-02-07T23:42:12.283Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-07T23:42:13.915Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-07T23:42:16.916Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-07T23:42:17.918Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
