@@ -706,7 +706,7 @@ export function CommissionsClient({ companyId, initialPackages }: CommissionsCli
 
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
           {/* Sidebar / Filters */}
-          <div className="lg:col-span-1 space-y-6">
+          <div className="lg:col-span-1 space-y-6 lg:sticky lg:top-8 lg:self-start">
             <div className="bg-white rounded-3xl p-6 shadow-sm border border-gray-100">
               <div className="flex items-center gap-2 mb-6 text-gray-900">
                 <Filter size={20} className="text-blue-500" />
@@ -899,7 +899,7 @@ export function CommissionsClient({ companyId, initialPackages }: CommissionsCli
             </div>
           </div>
 
-          {/* Main Content Area */}
+          {/* Main Content Area - Stats Only */}
           <div className="lg:col-span-3 space-y-8">
             {/* Stats Summary */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -928,9 +928,12 @@ export function CommissionsClient({ companyId, initialPackages }: CommissionsCli
                 suffix="موظف"
               />
             </div>
+          </div>
+        </div>
 
-            {/* Tab Content */}
-            <div className="bg-white rounded-[2.5rem] shadow-sm border border-gray-100 overflow-hidden min-h-[600px] flex flex-col">
+        {/* Employee Details Table - Full Width Below Grid */}
+        <div className="mt-8">
+          <div className="bg-white rounded-[2.5rem] shadow-sm border border-gray-100 overflow-hidden flex flex-col">
               {activeTab === "manage" ? (
                 <>
                     {/* Manage Header */}
@@ -1017,44 +1020,44 @@ export function CommissionsClient({ companyId, initialPackages }: CommissionsCli
                       </div>
                     </div>
 
-                    <div className="flex-1 overflow-x-auto">
-                      {commissions.length > 0 ? (
-                        <table className="w-full border-collapse">
-                          <thead>
-                            <tr className="bg-gray-50/50">
-                              <th className="px-6 py-5 text-center text-xs font-black text-gray-400 border-b border-gray-50 w-10">
-                                <input 
-                                  type="checkbox"
-                                  checked={filteredCommissions.length > 0 && filteredCommissions.every(c => c.selected)}
-                                  onChange={toggleSelectAll}
-                                  className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
-                                />
-                              </th>
-                              <th className="px-6 py-5 text-right text-xs font-black text-gray-400 uppercase tracking-widest border-b border-gray-50">الموظف</th>
-                              <th className="px-6 py-5 text-center text-xs font-black text-gray-400 uppercase tracking-widest border-b border-gray-50">تاريخ البداية</th>
-                              {mode === "fixed_daily" && (
-                                <>
-                                  <th className="px-6 py-5 text-center text-xs font-black text-gray-400 uppercase tracking-widest border-b border-gray-50">{t("dailyAmount")}</th>
-                                  <th className="px-6 py-5 text-center text-xs font-black text-gray-400 uppercase tracking-widest border-b border-gray-50">{t("days")}</th>
-                                  <th className="px-6 py-5 text-center text-xs font-black text-gray-400 uppercase tracking-widest border-b border-gray-50">{t("total")}</th>
-                                </>
-                              )}
-                              {mode === "fixed_monthly" && (
-                                <th className="px-6 py-5 text-center text-xs font-black text-gray-400 uppercase tracking-widest border-b border-gray-50">المبلغ الشهري</th>
-                              )}
-                              {mode === "percentage" && (
-                                <>
-                                  <th className="px-6 py-5 text-center text-xs font-black text-gray-400 uppercase tracking-widest border-b border-gray-50">{t("commissionPercent")}</th>
-                                  <th className="px-6 py-5 text-center text-xs font-black text-gray-400 uppercase tracking-widest border-b border-gray-50">{t("revenue")}</th>
-                                  <th className="px-6 py-5 text-center text-xs font-black text-gray-400 uppercase tracking-widest border-b border-gray-50">{t("commission")}</th>
-                                </>
-                              )}
-                              <th className="px-6 py-5 text-center text-xs font-black text-gray-400 uppercase tracking-widest border-b border-gray-50">{t("deductions")}</th>
-                              <th className="px-6 py-5 text-center text-xs font-black text-gray-400 uppercase tracking-widest border-b border-gray-50">{t("bonuses")}</th>
-                              <th className="px-6 py-5 text-center text-xs font-black text-gray-400 uppercase tracking-widest border-b border-gray-50">الإجمالي</th>
-                              <th className="px-6 py-5 text-center text-xs font-black text-gray-400 uppercase tracking-widest border-b border-gray-50">{t("paymentStatus")}</th>
-                            </tr>
-                          </thead>
+                    <div className="flex-1 overflow-auto" style={{ maxHeight: '515px' }}>
+                        {commissions.length > 0 ? (
+                          <table className="w-full border-collapse">
+                            <thead className="sticky top-0 z-10">
+                              <tr className="bg-gray-50 shadow-[0_1px_3px_rgba(0,0,0,0.08)]">
+                                <th className="px-6 py-5 text-center text-xs font-black text-gray-400 border-b border-gray-100 w-10 bg-gray-50">
+                                  <input 
+                                    type="checkbox"
+                                    checked={filteredCommissions.length > 0 && filteredCommissions.every(c => c.selected)}
+                                    onChange={toggleSelectAll}
+                                    className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
+                                  />
+                                </th>
+                                <th className="px-6 py-5 text-right text-xs font-black text-gray-400 uppercase tracking-widest border-b border-gray-100 bg-gray-50">الموظف</th>
+                                <th className="px-6 py-5 text-center text-xs font-black text-gray-400 uppercase tracking-widest border-b border-gray-100 bg-gray-50">تاريخ البداية</th>
+                                {mode === "fixed_daily" && (
+                                  <>
+                                    <th className="px-6 py-5 text-center text-xs font-black text-gray-400 uppercase tracking-widest border-b border-gray-100 bg-gray-50">{t("dailyAmount")}</th>
+                                    <th className="px-6 py-5 text-center text-xs font-black text-gray-400 uppercase tracking-widest border-b border-gray-100 bg-gray-50">{t("days")}</th>
+                                    <th className="px-6 py-5 text-center text-xs font-black text-gray-400 uppercase tracking-widest border-b border-gray-100 bg-gray-50">{t("total")}</th>
+                                  </>
+                                )}
+                                {mode === "fixed_monthly" && (
+                                  <th className="px-6 py-5 text-center text-xs font-black text-gray-400 uppercase tracking-widest border-b border-gray-100 bg-gray-50">المبلغ الشهري</th>
+                                )}
+                                {mode === "percentage" && (
+                                  <>
+                                    <th className="px-6 py-5 text-center text-xs font-black text-gray-400 uppercase tracking-widest border-b border-gray-100 bg-gray-50">{t("commissionPercent")}</th>
+                                    <th className="px-6 py-5 text-center text-xs font-black text-gray-400 uppercase tracking-widest border-b border-gray-100 bg-gray-50">{t("revenue")}</th>
+                                    <th className="px-6 py-5 text-center text-xs font-black text-gray-400 uppercase tracking-widest border-b border-gray-100 bg-gray-50">{t("commission")}</th>
+                                  </>
+                                )}
+                                <th className="px-6 py-5 text-center text-xs font-black text-gray-400 uppercase tracking-widest border-b border-gray-100 bg-gray-50">{t("deductions")}</th>
+                                <th className="px-6 py-5 text-center text-xs font-black text-gray-400 uppercase tracking-widest border-b border-gray-100 bg-gray-50">{t("bonuses")}</th>
+                                <th className="px-6 py-5 text-center text-xs font-black text-gray-400 uppercase tracking-widest border-b border-gray-100 bg-gray-50">الإجمالي</th>
+                                <th className="px-6 py-5 text-center text-xs font-black text-gray-400 uppercase tracking-widest border-b border-gray-100 bg-gray-50">{t("paymentStatus")}</th>
+                              </tr>
+                            </thead>
                           <tbody className="divide-y divide-gray-50">
                             {filteredCommissions.map((comm, fIdx) => {
                               const realIdx = getRealIndex(fIdx);
@@ -1368,7 +1371,6 @@ export function CommissionsClient({ companyId, initialPackages }: CommissionsCli
             </div>
           </div>
         </div>
-      </div>
     );
   }
 
