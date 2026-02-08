@@ -37,12 +37,16 @@ import {
   Search,
   Check,
   Trash,
+  Trash2,
   Sparkles,
   AlertTriangle,
   Upload,
   Plus,
-  FilePlus
+  FilePlus,
+  XCircle,
+  Loader2
 } from "lucide-react";
+import { cn } from "@/lib/utils";
 import { format, differenceInDays, parseISO } from "date-fns";
 import { toast } from "sonner";
 import { 
@@ -126,7 +130,17 @@ export function EmployeeDetailsClient({
   const [newDocTypeName, setNewDocTypeName] = useState("");
   const [showAddDocType, setShowAddDocType] = useState(false);
   const [uploadingDoc, setUploadingDoc] = useState<string | null>(null);
-  const router = useRouter();
+    const router = useRouter();
+
+    // Premium Modal System
+    type ModalState = 
+      | { type: 'idle' }
+      | { type: 'delete-confirm'; title: string; description?: string; onConfirm: () => Promise<void> }
+      | { type: 'processing'; title: string; description?: string }
+      | { type: 'success'; variant: 'delete' | 'update' | 'create' | 'upload' | 'download' | 'vacation' | 'iqama'; title: string; details?: string[] }
+      | { type: 'error'; title: string; message: string };
+    const [modal, setModal] = useState<ModalState>({ type: 'idle' });
+    const [modalLoading, setModalLoading] = useState(false);
 
   const currentIndex = allEmployees.findIndex(emp => emp.id === employee.id);
   const prevEmployee = currentIndex > 0 ? allEmployees[currentIndex - 1] : null;
@@ -205,129 +219,270 @@ export function EmployeeDetailsClient({
     );
   }
 
-  const handleUpdatePersonal = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const result = await updateEmployeePersonalInfo(employee.id, personalInfo);
-    if (result.success) {
-      toast.success("تم تحديث المعلومات الشخصية");
-      setIsEditing(false);
-      router.refresh();
-    } else {
-      toast.error(result.error);
-    }
-  };
+    const handleUpdatePersonal = async (e: React.FormEvent) => {
+      e.preventDefault();
+      setModal({ type: 'processing', title: 'جاري حفظ البيانات الشخصية...', description: 'يرجى الانتظار' });
+      const result = await updateEmployeePersonalInfo(employee.id, personalInfo);
+      if (result.success) {
+        setModal({ type: 'success', variant: 'update', title: 'تم تحديث البيانات الشخصية', details: [
+          `الموظف: ${employee.name}`,
+          `رقم الهوية: ${personalInfo.iqama_number}`,
+          `المسمى الوظيفي: ${personalInfo.job_title}`
+        ]});
+        setIsEditing(false);
+        router.refresh();
+      } else {
+        setModal({ type: 'error', title: 'فشل تحديث البيانات', message: result.error || 'حدث خطأ غير متوقع' });
+      }
+    };
 
-  const handleUpdateBank = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const result = await updateEmployeeBankInfo(employee.id, bankInfo);
-    if (result.success) {
-      toast.success("تم تحديث معلومات البنك");
-      setIsEditing(false);
-      router.refresh();
-    } else {
-      toast.error(result.error);
-    }
-  };
+    const handleUpdateBank = async (e: React.FormEvent) => {
+      e.preventDefault();
+      setModal({ type: 'processing', title: 'جاري حفظ البيانات البنكية...', description: 'يرجى الانتظار' });
+      const result = await updateEmployeeBankInfo(employee.id, bankInfo);
+      if (result.success) {
+        setModal({ type: 'success', variant: 'update', title: 'تم تحديث البيانات البنكية', details: [
+          `الموظف: ${employee.name}`,
+          `البنك: ${bankInfo.bank_name}`,
+          `الآيبان: ${bankInfo.iban}`
+        ]});
+        setIsEditing(false);
+        router.refresh();
+      } else {
+        setModal({ type: 'error', title: 'فشل تحديث البيانات البنكية', message: result.error || 'حدث خطأ غير متوقع' });
+      }
+    };
 
-  const handleToggleStatus = async () => {
-    const result = await toggleEmployeeStatus(employee.id, employee.is_active);
-    if (result.success) {
-      toast.success(employee.is_active === 1 ? "تم تعيين الموظف في إجازة" : "تم تفعيل الموظف");
-      router.refresh();
-    }
-  };
+    const handleToggleStatus = async () => {
+      const isActive = employee.is_active === 1;
+      setModal({ type: 'processing', title: isActive ? 'جاري تعيين الإجازة...' : 'جاري تفعيل الموظف...', description: employee.name });
+      const result = await toggleEmployeeStatus(employee.id, employee.is_active);
+      if (result.success) {
+        setModal({ type: 'success', variant: 'vacation', title: isActive ? 'تم تعيين الموظف في إجازة' : 'تم تفعيل الموظف', details: [
+          `الموظف: ${employee.name}`,
+          `الحالة الجديدة: ${isActive ? 'في إجازة' : 'نشط'}`,
+          `رقم الهوية: ${employee.iqama_number || '---'}`
+        ]});
+        router.refresh();
+      } else {
+        setModal({ type: 'error', title: 'فشل تغيير الحالة', message: 'حدث خطأ أثناء تغيير حالة الموظف' });
+      }
+    };
 
-  const handleAddViolation = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const result = await addViolation({ employee_id: employee.id, ...newViolation });
-    if (result.success) {
-      toast.success("تم إضافة المخالفة بنجاح");
-      setNewViolation({ violation_type: "traffic", violation_date: format(new Date(), "yyyy-MM-dd"), violation_amount: 0, deducted_amount: 0, status: "pending", violation_description: "" });
-      setShowViolationForm(false);
-      router.refresh();
-    } else {
-      toast.error(result.error);
-    }
-  };
+    const handleAddViolation = async (e: React.FormEvent) => {
+      e.preventDefault();
+      setModal({ type: 'processing', title: 'جاري إضافة المخالفة...', description: 'يرجى الانتظار' });
+      const result = await addViolation({ employee_id: employee.id, ...newViolation });
+      if (result.success) {
+        setModal({ type: 'success', variant: 'create', title: 'تم إضافة المخالفة بنجاح', details: [
+          `الموظف: ${employee.name}`,
+          `النوع: ${newViolation.violation_type === 'traffic' ? 'مرورية' : 'عامة'}`,
+          `المبلغ: ${newViolation.violation_amount} ر.س`,
+          `المخصوم: ${newViolation.deducted_amount} ر.س`,
+          newViolation.violation_description ? `الوصف: ${newViolation.violation_description}` : ''
+        ].filter(Boolean)});
+        setNewViolation({ violation_type: "traffic", violation_date: format(new Date(), "yyyy-MM-dd"), violation_amount: 0, deducted_amount: 0, status: "pending", violation_description: "" });
+        setShowViolationForm(false);
+        router.refresh();
+      } else {
+        setModal({ type: 'error', title: 'فشل إضافة المخالفة', message: result.error || 'حدث خطأ غير متوقع' });
+      }
+    };
 
-  const handleDeleteViolation = async (id: number) => {
-    if (confirm("هل أنت متأكد من حذف هذه المخالفة؟")) {
-      const result = await deleteViolation(id, employee.id);
-      if (result.success) { toast.success("تم حذف المخالفة"); router.refresh(); } else { toast.error(result.error); }
-    }
-  };
+    const handleDeleteViolation = async (id: number) => {
+      const violation = violations.find(v => v.id === id);
+      setModal({
+        type: 'delete-confirm',
+        title: `المخالفة - ${violation?.violation_type === 'traffic' ? 'مرورية' : 'عامة'}`,
+        description: `المبلغ: ${Number(violation?.violation_amount).toLocaleString()} ر.س`,
+        onConfirm: async () => {
+          setModal({ type: 'processing', title: 'جاري حذف المخالفة...' });
+          const result = await deleteViolation(id, employee.id);
+          if (result.success) {
+            setModal({ type: 'success', variant: 'delete', title: 'تم حذف المخالفة بنجاح', details: [
+              `الموظف: ${employee.name}`,
+              `المبلغ: ${Number(violation?.violation_amount).toLocaleString()} ر.س`
+            ]});
+            router.refresh();
+          } else {
+            setModal({ type: 'error', title: 'فشل حذف المخالفة', message: result.error || 'حدث خطأ غير متوقع' });
+          }
+        }
+      });
+    };
 
-  const handleUpdateViolation = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!editingViolation) return;
-    const result = await updateViolation(editingViolation.id, employee.id, editingViolation);
-    if (result.success) { toast.success("تم تحديث المخالفة"); setEditingViolation(null); router.refresh(); } else { toast.error(result.error); }
-  };
+    const handleUpdateViolation = async (e: React.FormEvent) => {
+      e.preventDefault();
+      if (!editingViolation) return;
+      setModal({ type: 'processing', title: 'جاري تحديث المخالفة...' });
+      const result = await updateViolation(editingViolation.id, employee.id, editingViolation);
+      if (result.success) {
+        setModal({ type: 'success', variant: 'update', title: 'تم تحديث المخالفة بنجاح', details: [
+          `الموظف: ${employee.name}`,
+          `المبلغ: ${editingViolation.violation_amount} ر.س`,
+          `المخصوم: ${editingViolation.deducted_amount} ر.س`
+        ]});
+        setEditingViolation(null);
+        router.refresh();
+      } else {
+        setModal({ type: 'error', title: 'فشل تحديث المخالفة', message: result.error || 'حدث خطأ غير متوقع' });
+      }
+    };
 
-  const handleAddLetter = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const result = await addLetter({ employee_id: employee.id, ...newLetter });
-    if (result.success) {
-      toast.success("تم إضافة الخطاب بنجاح");
-      setNewLetter({ letter_type: "annual_leave", start_date: format(new Date(), "yyyy-MM-dd"), end_date: format(new Date(), "yyyy-MM-dd"), duration_days: 0, violation_amount: 0, letter_details: "" });
-      setShowLetterForm(false);
-      router.refresh();
-    } else { toast.error(result.error); }
-  };
+    const letterTypeLabels: Record<string, string> = {
+      annual_leave: 'إجازة سنوية', sick_leave: 'إجازة مرضية', personal_leave: 'إجازة شخصية', absence: 'غياب', other: 'أخرى'
+    };
 
-  const handleDeleteLetter = async (id: number) => {
-    if (confirm("هل أنت متأكد من حذف هذا الخطاب؟")) {
-      const result = await deleteLetter(id, employee.id);
-      if (result.success) { toast.success("تم حذف الخطاب"); router.refresh(); } else { toast.error(result.error); }
-    }
-  };
+    const handleAddLetter = async (e: React.FormEvent) => {
+      e.preventDefault();
+      setModal({ type: 'processing', title: 'جاري إضافة الخطاب...', description: 'يرجى الانتظار' });
+      const result = await addLetter({ employee_id: employee.id, ...newLetter });
+      if (result.success) {
+        setModal({ type: 'success', variant: 'create', title: 'تم إضافة الخطاب بنجاح', details: [
+          `الموظف: ${employee.name}`,
+          `النوع: ${letterTypeLabels[newLetter.letter_type] || newLetter.letter_type}`,
+          `المدة: ${newLetter.duration_days} أيام`,
+          `من ${newLetter.start_date} إلى ${newLetter.end_date}`,
+          newLetter.violation_amount > 0 ? `الخصم: ${newLetter.violation_amount} ر.س` : ''
+        ].filter(Boolean)});
+        setNewLetter({ letter_type: "annual_leave", start_date: format(new Date(), "yyyy-MM-dd"), end_date: format(new Date(), "yyyy-MM-dd"), duration_days: 0, violation_amount: 0, letter_details: "" });
+        setShowLetterForm(false);
+        router.refresh();
+      } else {
+        setModal({ type: 'error', title: 'فشل إضافة الخطاب', message: result.error || 'حدث خطأ غير متوقع' });
+      }
+    };
 
-  const handleUpdateLetter = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!editingLetter) return;
-    const result = await updateLetter(editingLetter.id, employee.id, editingLetter);
-    if (result.success) { toast.success("تم تحديث الخطاب"); setEditingLetter(null); router.refresh(); } else { toast.error(result.error); }
-  };
+    const handleDeleteLetter = async (id: number) => {
+      const letter = letters.find(l => l.id === id);
+      const lType = letterTypeLabels[letter?.letter_type] || letter?.letter_type || 'خطاب';
+      setModal({
+        type: 'delete-confirm',
+        title: lType,
+        description: `${letter?.start_date} - ${letter?.end_date} (${letter?.duration_days} أيام)`,
+        onConfirm: async () => {
+          setModal({ type: 'processing', title: 'جاري حذف الخطاب...' });
+          const result = await deleteLetter(id, employee.id);
+          if (result.success) {
+            setModal({ type: 'success', variant: 'delete', title: 'تم حذف الخطاب بنجاح', details: [
+              `الموظف: ${employee.name}`,
+              `النوع: ${lType}`
+            ]});
+            router.refresh();
+          } else {
+            setModal({ type: 'error', title: 'فشل حذف الخطاب', message: result.error || 'حدث خطأ غير متوقع' });
+          }
+        }
+      });
+    };
 
-  const handleUpdateExpiry = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const result = await updateIqamaExpiry(employee.id, newExpiryDate);
-    if (result.success) { toast.success("تم تحديث تاريخ انتهاء الهوية"); router.refresh(); } else { toast.error(result.error); }
-  };
+    const handleUpdateLetter = async (e: React.FormEvent) => {
+      e.preventDefault();
+      if (!editingLetter) return;
+      setModal({ type: 'processing', title: 'جاري تحديث الخطاب...' });
+      const result = await updateLetter(editingLetter.id, employee.id, editingLetter);
+      if (result.success) {
+        setModal({ type: 'success', variant: 'update', title: 'تم تحديث الخطاب بنجاح', details: [
+          `الموظف: ${employee.name}`,
+          `النوع: ${letterTypeLabels[editingLetter.letter_type] || editingLetter.letter_type}`,
+          `المدة: ${editingLetter.duration_days} أيام`
+        ]});
+        setEditingLetter(null);
+        router.refresh();
+      } else {
+        setModal({ type: 'error', title: 'فشل تحديث الخطاب', message: result.error || 'حدث خطأ غير متوقع' });
+      }
+    };
 
-  const handleAddBankAccount = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const result = await addBankAccount({ employee_id: employee.id, ...newBankAccount });
-    if (result.success) {
-      toast.success("تم إضافة الحساب البنكي");
-      setNewBankAccount({ bank_name: "", account_number: "", iban: "", is_primary: false });
-      setShowBankForm(false);
-      router.refresh();
-    } else { toast.error(result.error); }
-  };
+    const handleUpdateExpiry = async (e: React.FormEvent) => {
+      e.preventDefault();
+      setModal({ type: 'processing', title: 'جاري تحديث تاريخ الإقامة...' });
+      const result = await updateIqamaExpiry(employee.id, newExpiryDate);
+      if (result.success) {
+        setModal({ type: 'success', variant: 'iqama', title: 'تم تحديث تاريخ انتهاء الهوية', details: [
+          `الموظف: ${employee.name}`,
+          `التاريخ الجديد: ${newExpiryDate}`,
+          `رقم الهوية: ${employee.iqama_number || '---'}`
+        ]});
+        router.refresh();
+      } else {
+        setModal({ type: 'error', title: 'فشل تحديث التاريخ', message: result.error || 'حدث خطأ غير متوقع' });
+      }
+    };
 
-  const handleUpdateBankAccount = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!editingBank) return;
-    const result = await updateBankAccount(editingBank.id, employee.id, editingBank);
-    if (result.success) {
-      toast.success("تم تحديث الحساب البنكي");
-      setEditingBank(null);
-      router.refresh();
-    } else { toast.error(result.error); }
-  };
+    const handleAddBankAccount = async (e: React.FormEvent) => {
+      e.preventDefault();
+      setModal({ type: 'processing', title: 'جاري إضافة الحساب البنكي...', description: 'يرجى الانتظار' });
+      const result = await addBankAccount({ employee_id: employee.id, ...newBankAccount });
+      if (result.success) {
+        setModal({ type: 'success', variant: 'create', title: 'تم إضافة الحساب البنكي', details: [
+          `الموظف: ${employee.name}`,
+          `البنك: ${newBankAccount.bank_name}`,
+          `الآيبان: ${newBankAccount.iban}`,
+          newBankAccount.is_primary ? 'تم تعيينه كحساب أساسي' : ''
+        ].filter(Boolean)});
+        setNewBankAccount({ bank_name: "", account_number: "", iban: "", is_primary: false });
+        setShowBankForm(false);
+        router.refresh();
+      } else {
+        setModal({ type: 'error', title: 'فشل إضافة الحساب البنكي', message: result.error || 'حدث خطأ غير متوقع' });
+      }
+    };
 
-  const handleDeleteBankAccount = async (id: number) => {
-    if (confirm("هل أنت متأكد من حذف هذا الحساب البنكي؟")) {
-      const result = await deleteBankAccount(id, employee.id);
-      if (result.success) { toast.success("تم حذف الحساب البنكي"); router.refresh(); } else { toast.error(result.error); }
-    }
-  };
+    const handleUpdateBankAccount = async (e: React.FormEvent) => {
+      e.preventDefault();
+      if (!editingBank) return;
+      setModal({ type: 'processing', title: 'جاري تحديث الحساب البنكي...' });
+      const result = await updateBankAccount(editingBank.id, employee.id, editingBank);
+      if (result.success) {
+        setModal({ type: 'success', variant: 'update', title: 'تم تحديث الحساب البنكي', details: [
+          `الموظف: ${employee.name}`,
+          `البنك: ${editingBank.bank_name}`,
+          `الآيبان: ${editingBank.iban}`
+        ]});
+        setEditingBank(null);
+        router.refresh();
+      } else {
+        setModal({ type: 'error', title: 'فشل تحديث الحساب البنكي', message: result.error || 'حدث خطأ غير متوقع' });
+      }
+    };
 
-  const handleSetPrimaryBank = async (id: number) => {
-    const result = await setPrimaryBankAccount(id, employee.id);
-    if (result.success) { toast.success("تم تعيين الحساب كأساسي"); router.refresh(); } else { toast.error(result.error); }
-  };
+    const handleDeleteBankAccount = async (id: number) => {
+      const account = bankAccounts.find((a: any) => a.id === id);
+      setModal({
+        type: 'delete-confirm',
+        title: `الحساب البنكي - ${account?.bank_name || 'بدون اسم'}`,
+        description: `الآيبان: ${account?.iban || '---'}`,
+        onConfirm: async () => {
+          setModal({ type: 'processing', title: 'جاري حذف الحساب البنكي...' });
+          const result = await deleteBankAccount(id, employee.id);
+          if (result.success) {
+            setModal({ type: 'success', variant: 'delete', title: 'تم حذف الحساب البنكي', details: [
+              `الموظف: ${employee.name}`,
+              `البنك: ${account?.bank_name || '---'}`
+            ]});
+            router.refresh();
+          } else {
+            setModal({ type: 'error', title: 'فشل حذف الحساب البنكي', message: result.error || 'حدث خطأ غير متوقع' });
+          }
+        }
+      });
+    };
+
+    const handleSetPrimaryBank = async (id: number) => {
+      const account = bankAccounts.find((a: any) => a.id === id);
+      setModal({ type: 'processing', title: 'جاري تعيين الحساب الأساسي...' });
+      const result = await setPrimaryBankAccount(id, employee.id);
+      if (result.success) {
+        setModal({ type: 'success', variant: 'update', title: 'تم تعيين الحساب كأساسي', details: [
+          `الموظف: ${employee.name}`,
+          `البنك: ${account?.bank_name || '---'}`
+        ]});
+        router.refresh();
+      } else {
+        setModal({ type: 'error', title: 'فشل تعيين الحساب', message: result.error || 'حدث خطأ غير متوقع' });
+      }
+    };
 
   const activeConfig = tabConfig[activeTab] || tabConfig.general;
 
@@ -1199,6 +1354,153 @@ className="bg-slate-100 backdrop-blur-xl p-5 rounded-2xl border border-slate-200
               </div>
             </motion.div>
           </div>
+        )}
+        </AnimatePresence>
+
+      {/* Premium Modal System */}
+      <AnimatePresence>
+        {modal.type !== 'idle' && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 backdrop-blur-md"
+            onClick={() => { if (modal.type === 'success' || modal.type === 'error') setModal({ type: 'idle' }); }}
+          >
+            <motion.div
+              initial={{ scale: 0.8, opacity: 0, y: 30 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.8, opacity: 0, y: 30 }}
+              transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+              className="bg-white dark:bg-slate-900 rounded-3xl shadow-2xl border border-slate-200 dark:border-white/10 w-[90%] max-w-md overflow-hidden"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Delete Confirm */}
+              {modal.type === 'delete-confirm' && (
+                <div className="p-8 text-center">
+                  <motion.div
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    transition={{ type: 'spring', damping: 15 }}
+                    className="mx-auto w-20 h-20 rounded-full bg-red-100 dark:bg-red-500/20 flex items-center justify-center mb-5"
+                  >
+                    <Trash2 size={36} className="text-red-500" />
+                  </motion.div>
+                  <h3 className="text-xl font-black text-slate-800 dark:text-white mb-2">تأكيد الحذف</h3>
+                  <p className="text-sm font-bold text-slate-500 dark:text-white/60 mb-1">{modal.title}</p>
+                  {modal.description && <p className="text-xs text-slate-400 dark:text-white/40 mb-6">{modal.description}</p>}
+                  <div className="flex gap-3 mt-6">
+                    <motion.button
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      onClick={() => setModal({ type: 'idle' })}
+                      className="flex-1 bg-slate-100 dark:bg-white/10 hover:bg-slate-200 dark:hover:bg-white/15 text-slate-700 dark:text-white/70 py-3.5 rounded-xl text-sm font-black transition-all"
+                    >
+                      إلغاء
+                    </motion.button>
+                    <motion.button
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      onClick={async () => {
+                        if (modal.type === 'delete-confirm') {
+                          await modal.onConfirm();
+                        }
+                      }}
+                      className="flex-1 bg-gradient-to-r from-red-500 to-rose-500 hover:from-red-600 hover:to-rose-600 text-white py-3.5 rounded-xl text-sm font-black shadow-lg shadow-red-500/20 transition-all"
+                    >
+                      حذف نهائي
+                    </motion.button>
+                  </div>
+                </div>
+              )}
+
+              {/* Processing */}
+              {modal.type === 'processing' && (
+                <div className="p-10 text-center">
+                  <motion.div
+                    animate={{ rotate: 360 }}
+                    transition={{ duration: 1.5, repeat: Infinity, ease: 'linear' }}
+                    className="mx-auto w-16 h-16 rounded-full border-4 border-slate-200 dark:border-white/10 border-t-blue-500 mb-5"
+                  />
+                  <h3 className="text-lg font-black text-slate-800 dark:text-white mb-1">{modal.title}</h3>
+                  {modal.description && <p className="text-xs text-slate-400 dark:text-white/50">{modal.description}</p>}
+                </div>
+              )}
+
+              {/* Success */}
+              {modal.type === 'success' && (() => {
+                const variantConfig: Record<string, { icon: any; color: string; bg: string; glow: string }> = {
+                  delete: { icon: Trash2, color: 'text-red-500', bg: 'bg-red-100 dark:bg-red-500/20', glow: 'shadow-red-500/20' },
+                  update: { icon: Save, color: 'text-blue-500', bg: 'bg-blue-100 dark:bg-blue-500/20', glow: 'shadow-blue-500/20' },
+                  create: { icon: PlusCircle, color: 'text-emerald-500', bg: 'bg-emerald-100 dark:bg-emerald-500/20', glow: 'shadow-emerald-500/20' },
+                  upload: { icon: Upload, color: 'text-indigo-500', bg: 'bg-indigo-100 dark:bg-indigo-500/20', glow: 'shadow-indigo-500/20' },
+                  download: { icon: Download, color: 'text-cyan-500', bg: 'bg-cyan-100 dark:bg-cyan-500/20', glow: 'shadow-cyan-500/20' },
+                  vacation: { icon: Umbrella, color: 'text-orange-500', bg: 'bg-orange-100 dark:bg-orange-500/20', glow: 'shadow-orange-500/20' },
+                  iqama: { icon: IdCard, color: 'text-purple-500', bg: 'bg-purple-100 dark:bg-purple-500/20', glow: 'shadow-purple-500/20' },
+                };
+                const vc = variantConfig[modal.variant] || variantConfig.update;
+                const Icon = vc.icon;
+                return (
+                  <div className="p-8 text-center">
+                    <motion.div
+                      initial={{ scale: 0 }}
+                      animate={{ scale: 1 }}
+                      transition={{ type: 'spring', damping: 12 }}
+                      className={`mx-auto w-20 h-20 rounded-full ${vc.bg} flex items-center justify-center mb-5 shadow-lg ${vc.glow}`}
+                    >
+                      <Icon size={36} className={vc.color} />
+                    </motion.div>
+                    <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ delay: 0.15 }}>
+                      <CheckCircle2 size={28} className="text-emerald-500 mx-auto mb-3" />
+                    </motion.div>
+                    <h3 className="text-xl font-black text-slate-800 dark:text-white mb-3">{modal.title}</h3>
+                    {modal.details && modal.details.length > 0 && (
+                      <div className="bg-slate-50 dark:bg-white/5 rounded-xl p-4 mb-5 space-y-1.5 border border-slate-100 dark:border-white/10">
+                        {modal.details.map((d, i) => (
+                          <p key={i} className="text-xs font-bold text-slate-500 dark:text-white/50 flex items-center gap-2">
+                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 shrink-0" />
+                            {d}
+                          </p>
+                        ))}
+                      </div>
+                    )}
+                    <motion.button
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      onClick={() => setModal({ type: 'idle' })}
+                      className="w-full bg-gradient-to-r from-emerald-500 to-teal-500 text-white py-3.5 rounded-xl text-sm font-black shadow-lg shadow-emerald-500/20 transition-all"
+                    >
+                      تم
+                    </motion.button>
+                  </div>
+                );
+              })()}
+
+              {/* Error */}
+              {modal.type === 'error' && (
+                <div className="p-8 text-center">
+                  <motion.div
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    transition={{ type: 'spring', damping: 15 }}
+                    className="mx-auto w-20 h-20 rounded-full bg-red-100 dark:bg-red-500/20 flex items-center justify-center mb-5"
+                  >
+                    <XCircle size={36} className="text-red-500" />
+                  </motion.div>
+                  <h3 className="text-xl font-black text-slate-800 dark:text-white mb-2">{modal.title}</h3>
+                  <p className="text-sm text-red-400 font-bold mb-6">{modal.message}</p>
+                  <motion.button
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={() => setModal({ type: 'idle' })}
+                    className="w-full bg-slate-100 dark:bg-white/10 hover:bg-slate-200 dark:hover:bg-white/15 text-slate-700 dark:text-white py-3.5 rounded-xl text-sm font-black transition-all"
+                  >
+                    إغلاق
+                  </motion.button>
+                </div>
+              )}
+            </motion.div>
+          </motion.div>
         )}
       </AnimatePresence>
     </motion.div>

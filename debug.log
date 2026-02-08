@@ -2771,3 +2771,33 @@ It can also happen if the client has a browser extension installed which messes 
 2026-02-08T16:11:22.199Z [console][error] Network error fetching chat: Failed to fetch
 2026-02-08T16:11:27.261Z [console][error] Network error fetching chat: Failed to fetch
 2026-02-08T16:28:20.499Z [console][error] Network error fetching chat: Failed to fetch
+2026-02-08T16:49:59.726Z [console][log] __ORCHIDS_NAVIGATE__ http://localhost:3006/hr/employees/553
+2026-02-08T16:51:59.963Z [console][warn] [Fast Refresh] rebuilding
+2026-02-08T16:52:00.627Z [console][warn] [Fast Refresh] done in 749ms
+2026-02-08T16:52:11.865Z [console][warn] [Fast Refresh] rebuilding
+2026-02-08T16:52:12.338Z [console][warn] [Fast Refresh] done in 557ms
+2026-02-08T16:49:59.726Z [console][debug] __ORCHIDS_NAVIGATE__ http://localhost:3006/hr/employees/553
+2026-02-08T16:51:59.963Z [console][log] [Fast Refresh] rebuilding
+2026-02-08T16:52:00.627Z [console][log] [Fast Refresh] done in 749ms
+2026-02-08T16:52:11.865Z [console][log] [Fast Refresh] rebuilding
+2026-02-08T16:52:12.338Z [console][log] [Fast Refresh] done in 557ms
+2026-02-08T16:52:11.382Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-08T16:52:12.362Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-08T16:52:16.430Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-08T16:52:16.771Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-08T16:52:20.372Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-08T16:52:21.371Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-08T16:52:24.388Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-08T16:52:26.579Z [network][GET 200] /api/admin/notifications?limit=1&last_id=9
+  response: {"success":true,"notifications":[]}
+2026-02-08T16:52:26.848Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-08T16:52:28.364Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}

@@ -156,29 +156,28 @@ export function CommissionsClient({ companyId, initialPackages }: CommissionsCli
     documentTitle: `تقرير العمولات - ${month}`,
   });
 
-  const showNotify = (type: "success" | "error" | "loading" | "confirm", message: string, detail?: string, onConfirm?: () => void) => {
-    if (type === "loading") {
-      setNotification({ show: true, type, message, detail, onConfirm });
-      return;
-    }
-    if (type === "success" || type === "error") {
-      setModal({
-        type: "notification",
-        notificationType: type,
-        notificationTitle: message,
-        notificationMessage: detail || "",
-      });
-      if (type === "success") {
-        setTimeout(() => setModal(prev => prev.type === "notification" ? { type: "idle" } : prev), 2500);
+    const showNotify = (type: "success" | "error" | "loading" | "confirm", message: string, detail?: string, onConfirm?: () => void) => {
+      if (type === "loading") {
+        setNotification({ show: true, type, message, detail, onConfirm });
+        return;
       }
-      return;
-    }
-    // confirm type is now handled by premium modals directly
-    setNotification({ show: true, type, message, detail, onConfirm });
-    if (type !== "loading" && type !== "confirm") {
-      setTimeout(() => setNotification(null), 4000);
-    }
-  };
+      // Always clear the loading notification first
+      setNotification(null);
+      if (type === "success" || type === "error") {
+        setModal({
+          type: "notification",
+          notificationType: type,
+          notificationTitle: message,
+          notificationMessage: detail || "",
+        });
+        if (type === "success") {
+          setTimeout(() => setModal(prev => prev.type === "notification" ? { type: "idle" } : prev), 2500);
+        }
+        return;
+      }
+      // confirm type is now handled by premium modals directly
+      setNotification({ show: true, type, message, detail, onConfirm });
+    };
 
   useEffect(() => {
     fetchSavedGroups();
@@ -396,6 +395,7 @@ export function CommissionsClient({ companyId, initialPackages }: CommissionsCli
       showNotify("error", t("notifications.error"));
     } finally {
       setSaving(false);
+      setNotification(null);
     }
   };
 
@@ -505,11 +505,12 @@ export function CommissionsClient({ companyId, initialPackages }: CommissionsCli
         showNotify("error", data.error || "فشل إرسال البريد");
       }
     } catch (error) {
-      showNotify("error", "حدث خطأ أثناء الإرسال");
-    } finally {
-      setSendingEmail(null);
-    }
-  };
+        showNotify("error", "حدث خطأ أثناء الإرسال");
+      } finally {
+        setSendingEmail(null);
+        setNotification(null);
+      }
+    };
 
   const totalDue = commissions.reduce((sum, c) => sum + (mode.startsWith("fixed") ? (Number(c.total) || 0) : (Number(c.commission) || 0)) + (Number(c.bonus) || 0) - (Number(c.deduction) || 0), 0);
   const totalPaid = commissions.filter(c => c.status === "paid").length;
