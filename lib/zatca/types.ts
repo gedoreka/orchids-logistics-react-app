@@ -150,8 +150,10 @@ export interface ZatcaCSRConfig {
   serialNumber: string;      // 1-TST|2-TST|3-xxxx
   organizationIdentifier: string; // e.g. 300xxxxx900003
   organizationName: string;
+  organizationUnit?: string; // OU - Branch name
   countryName: string;       // SA
   invoiceType: string;       // 1100 or 0100
   location: string;          // Address
   industry: string;          // Industry
+  environment?: string;      // sandbox | simulation | production
 }

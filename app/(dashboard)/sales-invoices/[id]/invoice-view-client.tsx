@@ -105,6 +105,12 @@ interface Invoice {
   status: string;
 }
 
+interface CreatedByUser {
+  id: number;
+  name: string;
+  company_logo: string | null;
+}
+
 interface InvoiceViewClientProps {
   invoice: Invoice;
   items: InvoiceItem[];
@@ -112,6 +118,7 @@ interface InvoiceViewClientProps {
   company: Company;
   bankAccounts: BankAccount[];
   customer: Customer | null;
+  createdByUser: CreatedByUser | null;
 }
 
 function generateQRCodeTLV(
@@ -123,11 +130,26 @@ function generateQRCodeTLV(
 ): string {
   try {
     const encoder = new TextEncoder();
-    const safeDate = invoiceDate && invoiceDate !== 'Invalid Date' ? invoiceDate : new Date().toISOString().split('T')[0];
+    
+    // Parse date properly - handle both "2024-01-15" and "2024-01-15T00:00:00.000Z" formats
+    let formattedDate: string;
+    if (invoiceDate && invoiceDate !== 'Invalid Date') {
+      const d = new Date(invoiceDate);
+      if (!isNaN(d.getTime())) {
+        formattedDate = d.toISOString(); // e.g. "2024-01-15T00:00:00.000Z"
+      } else {
+        formattedDate = new Date().toISOString();
+      }
+    } else {
+      formattedDate = new Date().toISOString();
+    }
+    
+    // ZATCA Phase 1 TLV: 5 mandatory tags
+    // Tag 1: Seller Name, Tag 2: VAT Number, Tag 3: Timestamp, Tag 4: Total, Tag 5: VAT
     const values = [
       sellerName || '',
       vatNumber || '',
-      safeDate + 'T00:00:00Z',
+      formattedDate,
       totalWithVAT || '0.00',
       vatAmount || '0.00'
     ];
@@ -135,9 +157,9 @@ function generateQRCodeTLV(
     const tlvParts: number[] = [];
     values.forEach((value, index) => {
       const encoded = encoder.encode(String(value));
-      tlvParts.push(index + 1);
-      tlvParts.push(encoded.length);
-      tlvParts.push(...encoded);
+      tlvParts.push(index + 1); // Tag number
+      tlvParts.push(encoded.length); // Length
+      tlvParts.push(...encoded); // Value
     });
     
     const bytes = new Uint8Array(tlvParts);
@@ -176,7 +198,8 @@ export function InvoiceViewClient({
   adjustments,
   company,
   bankAccounts,
-  customer
+  customer,
+  createdByUser
 }: InvoiceViewClientProps) {
   const t = useTranslations("invoices");
   const tc = useTranslations("common");
@@ -693,6 +716,28 @@ export function InvoiceViewClient({
                   <div className="mt-2 inline-flex items-center gap-2 px-5 py-1.5 rounded-lg border border-[#ffffff1a]" style={{ backgroundColor: 'rgba(255,255,255,0.05)' }}>
                     <span className="font-bold text-xs">{t("electronicInvoicingSystem")}</span>
                   </div>
+                </div>
+
+                {/* Representative Photo Circle */}
+                <div className="flex flex-col items-center gap-1.5">
+                  <div 
+                    className="w-20 h-20 rounded-full flex items-center justify-center border-2 border-[#ffffff44] overflow-hidden"
+                    style={{ backgroundColor: 'rgba(255,255,255,0.1)' }}
+                  >
+                    {createdByUser?.company_logo ? (
+                      <img 
+                        src={getPublicUrl(createdByUser.company_logo) || ''} 
+                        alt="المندوب" 
+                        className="w-full h-full object-cover"
+                        crossOrigin="anonymous"
+                      />
+                    ) : (
+                      <svg viewBox="0 0 24 24" fill="none" className="w-10 h-10 text-white/40">
+                        <path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z" fill="currentColor"/>
+                      </svg>
+                    )}
+                  </div>
+                  <span className="text-white/50 text-[10px] font-medium">المندوب</span>
                 </div>
 
                 {/* System Logo */}

@@ -37,21 +37,25 @@ export class ZatcaApiClient {
       },
     });
 
-    const text = await response.text();
-    let data: any;
-    try {
-      data = JSON.parse(text);
-    } catch {
-      data = { rawResponse: text };
-    }
+      const text = await response.text();
+      let data: any;
+      try {
+        data = JSON.parse(text);
+      } catch {
+        data = { rawResponse: text };
+      }
 
-    if (!response.ok) {
-      throw new ZatcaApiError(
-        data?.message || data?.dispositionMessage || `HTTP ${response.status}`,
-        response.status,
-        data,
-      );
-    }
+      if (!response.ok) {
+        console.error("[ZATCA API] Error status:", response.status, response.statusText);
+        console.error("[ZATCA API] Error URL:", url);
+        console.error("[ZATCA API] Error raw text:", text.substring(0, 500));
+        const errorMsg = data?.message || data?.dispositionMessage || data?.errors?.[0]?.message || `HTTP ${response.status}`;
+        throw new ZatcaApiError(
+          errorMsg,
+          response.status,
+          data,
+        );
+      }
 
     return data;
   }

@@ -36,6 +36,9 @@ export async function POST(request: NextRequest) {
 
     // Call ZATCA API
     const client = new ZatcaApiClient(creds.environment as ZatcaEnvironment);
+    console.log("[ZATCA Onboarding] Sending CSR (first 100 chars):", creds.csr_content.substring(0, 100));
+    console.log("[ZATCA Onboarding] OTP:", otp);
+    console.log("[ZATCA Onboarding] Environment:", creds.environment);
     const result = await client.getComplianceCSID(creds.csr_content, otp);
 
     // Save CCSID
@@ -60,6 +63,7 @@ export async function POST(request: NextRequest) {
     });
   } catch (error: any) {
     console.error("ZATCA onboarding error:", error);
+    console.error("ZATCA onboarding error data:", JSON.stringify(error.data, null, 2));
     return NextResponse.json({
       error: error.message || "Onboarding failed",
       details: error.data,

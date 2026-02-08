@@ -71,13 +71,24 @@ export async function GET(
       customer = customers[0];
     }
 
+    // Fetch representative (created_by user) info
+    let createdByUser = null;
+    if (invoice.created_by) {
+      const users = await query<any>(
+        "SELECT id, name, company_logo FROM users WHERE id = ?",
+        [invoice.created_by]
+      );
+      createdByUser = users[0] || null;
+    }
+
     return NextResponse.json({
       invoice,
       items,
       adjustments,
       company: companies[0],
       bankAccounts,
-      customer
+      customer,
+      createdByUser
     });
   } catch (error: any) {
     console.error("Error fetching invoice:", error);

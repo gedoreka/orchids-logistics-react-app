@@ -1,22 +1,58 @@
 /**
  * ZATCA Phase 2 - Cryptographic Operations
- * ECDSA secp256k1 key generation, CSR generation, signing, hashing
+ * Uses OpenSSL CLI for ZATCA-compliant key generation and CSR creation
+ * ECDSA secp256k1 signing via elliptic library
  */
 import crypto from "crypto";
 import { ec as EC } from "elliptic";
+import { execSync } from "child_process";
+import fs from "fs";
+import os from "os";
+import path from "path";
 import type { ZatcaCSRConfig } from "./types";
 
 const ec = new EC("secp256k1");
 
-// ─── Key Generation ───────────────────────────────────────────
-export function generateKeyPair(): { privateKey: string; publicKey: string } {
-  const keyPair = ec.genKeyPair();
-  const privateKey = keyPair.getPrivate("hex");
-  const publicKeyUncompressed = keyPair.getPublic(false, "hex"); // 04 + x + y (65 bytes)
-  return {
-    privateKey,
-    publicKey: publicKeyUncompressed,
-  };
+// ─── Key Generation (OpenSSL) ─────────────────────────────────
+export function generateKeyPair(): { privateKey: string; publicKey: string; privateKeyPEM: string } {
+  const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "zatca-"));
+  const keyFile = path.join(tmpDir, "private.pem");
+
+  try {
+    // Generate secp256k1 private key using OpenSSL
+    execSync(`openssl ecparam -name secp256k1 -genkey -noout -out "${keyFile}"`, { stdio: "pipe" });
+    const privateKeyPEM = fs.readFileSync(keyFile, "utf8");
+
+    // Extract hex private key for elliptic library compatibility
+    const pubOut = execSync(`openssl ec -in "${keyFile}" -text -noout 2>/dev/null`, { encoding: "utf8" });
+
+    // Parse private key hex from OpenSSL text output
+    const privMatch = pubOut.match(/priv:\s*([\s\S]*?)pub:/);
+    let privateKeyHex = "";
+    if (privMatch) {
+      privateKeyHex = privMatch[1].replace(/[\s:]/g, "").replace(/^00/, "");
+    }
+
+    // Parse public key hex
+    const pubMatch = pubOut.match(/pub:\s*([\s\S]*?)ASN1/);
+    let publicKeyHex = "";
+    if (pubMatch) {
+      publicKeyHex = pubMatch[1].replace(/[\s:]/g, "");
+    } else {
+      // Fallback: derive from private key
+      const keyPair = ec.keyFromPrivate(privateKeyHex, "hex");
+      publicKeyHex = keyPair.getPublic(false, "hex");
+    }
+
+    return {
+      privateKey: privateKeyHex,
+      publicKey: publicKeyHex,
+      privateKeyPEM,
+    };
+  } finally {
+    // Clean up temp files
+    try { fs.rmSync(tmpDir, { recursive: true }); } catch { /* ignore */ }
+  }
 }
 
 export function getPublicKeyFromPrivate(privateKeyHex: string): string {
@@ -42,7 +78,6 @@ export function signData(privateKeyHex: string, data: string): string {
   const hash = sha256HashBuffer(data);
   const keyPair = ec.keyFromPrivate(privateKeyHex, "hex");
   const signature = keyPair.sign(hash);
-  // DER encoded signature
   return Buffer.from(signature.toDER()).toString("base64");
 }
 
@@ -66,40 +101,93 @@ export function verifySignature(publicKeyHex: string, data: string, signatureBas
 
 // ─── Public Key Raw Bytes (for QR Tag 8) ──────────────────────
 export function getPublicKeyRawBytes(publicKeyHex: string): Buffer {
-  // Remove 04 prefix to get raw 64 bytes (x + y coordinates)
   const raw = publicKeyHex.startsWith("04") ? publicKeyHex.slice(2) : publicKeyHex;
   return Buffer.from(raw, "hex");
 }
 
-// ─── CSR Generation ───────────────────────────────────────────
-export function generateCSR(privateKeyHex: string, config: ZatcaCSRConfig): string {
-  // Build CSR using Node.js crypto
-  // ZATCA requires specific OIDs for invoice type, location, industry
-  
-  const keyPair = ec.keyFromPrivate(privateKeyHex, "hex");
-  const publicKeyDER = buildECPublicKeyDER(keyPair);
-  
-  // Build the subject for ZATCA CSR
-  const subject = buildCSRSubject(config);
-  
-  // Build extensions  
-  const extensions = buildCSRExtensions(config);
-  
-  // Build CertificationRequestInfo
-  const certReqInfo = buildCertificationRequestInfo(subject, publicKeyDER, extensions);
-  
-  // Sign the CertificationRequestInfo
-  const hash = crypto.createHash("sha256").update(certReqInfo).digest();
-  const signature = keyPair.sign(hash);
-  const sigDER = Buffer.from(signature.toDER());
-  
-  // Build final CSR
-  const csr = buildCSRStructure(certReqInfo, sigDER);
-  
-  // PEM encode
-  const base64 = csr.toString("base64");
-  const lines = base64.match(/.{1,64}/g) || [];
-  return `-----BEGIN CERTIFICATE REQUEST-----\n${lines.join("\n")}\n-----END CERTIFICATE REQUEST-----`;
+// ─── CSR Generation (OpenSSL CLI - ZATCA compliant) ───────────
+export function generateCSR(privateKeyPEMOrHex: string, config: ZatcaCSRConfig): string {
+  const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "zatca-csr-"));
+  const keyFile = path.join(tmpDir, "private.pem");
+  const csrFile = path.join(tmpDir, "csr.pem");
+  const configFile = path.join(tmpDir, "csr.cnf");
+
+  try {
+    // If it's a PEM key, write directly; otherwise convert hex to PEM
+    if (privateKeyPEMOrHex.includes("-----BEGIN")) {
+      fs.writeFileSync(keyFile, privateKeyPEMOrHex);
+    } else {
+      // Convert hex private key to PEM using elliptic + OpenSSL
+      const keyPair = ec.keyFromPrivate(privateKeyPEMOrHex, "hex");
+      const privHex = keyPair.getPrivate("hex").padStart(64, "0");
+      const pubHex = keyPair.getPublic(false, "hex");
+
+      // Build raw EC key DER manually: SEQUENCE { INTEGER(1), OCTET STRING(privKey), [0] OID(secp256k1), [1] BIT STRING(pubKey) }
+      const privBytes = Buffer.from(privHex, "hex");
+      const pubBytes = Buffer.from(pubHex, "hex");
+
+      // Use OpenSSL asn1parse to construct the key, or build DER directly
+      const ecPrivKeyDER = buildECPrivateKeyDER(privBytes, pubBytes);
+      const derFile = path.join(tmpDir, "private.der");
+      fs.writeFileSync(derFile, ecPrivKeyDER);
+
+      // Convert DER to PEM
+      execSync(`openssl ec -inform DER -in "${derFile}" -out "${keyFile}" 2>/dev/null`, { stdio: "pipe" });
+    }
+
+    // Determine template name based on environment
+    const templateName = config.environment === "production"
+      ? "ZATCA-Code-Signing"
+      : "PREZATCA-Code-Signing";
+
+    // Build OpenSSL config file matching ZATCA requirements
+    const opensslConfig = `
+oid_section = OIDs
+
+[ OIDs ]
+certificateTemplateName = 1.3.6.1.4.1.311.20.2
+
+[ req ]
+default_bits = 2048
+req_extensions = v3_req
+x509_extensions = v3_ca
+prompt = no
+default_md = sha256
+distinguished_name = dn
+
+[ dn ]
+C = ${config.countryName}
+O = ${config.organizationName}
+OU = ${config.organizationUnit || config.organizationName}
+CN = ${config.commonName}
+
+[ v3_req ]
+basicConstraints = CA:FALSE
+keyUsage = digitalSignature, nonRepudiation, keyEncipherment
+certificateTemplateName = ASN1:PRINTABLESTRING:${templateName}
+subjectAltName = dirName:alt_dn
+
+[ alt_dn ]
+SN = ${config.serialNumber}
+UID = ${config.organizationIdentifier}
+title = ${config.invoiceType}
+registeredAddress = ${config.location}
+businessCategory = ${config.industry}
+`;
+
+    fs.writeFileSync(configFile, opensslConfig);
+
+    // Generate CSR using OpenSSL
+    execSync(
+      `openssl req -new -sha256 -key "${keyFile}" -extensions v3_req -config "${configFile}" -out "${csrFile}" 2>/dev/null`,
+      { stdio: "pipe" }
+    );
+
+    const csrPEM = fs.readFileSync(csrFile, "utf8").trim();
+    return csrPEM;
+  } finally {
+    try { fs.rmSync(tmpDir, { recursive: true }); } catch { /* ignore */ }
+  }
 }
 
 export function getCSRBase64(csrPEM: string): string {
@@ -110,12 +198,44 @@ export function getCSRBase64(csrPEM: string): string {
     .trim();
 }
 
+// ─── Build EC Private Key DER ─────────────────────────────────
+function buildECPrivateKeyDER(privBytes: Buffer, pubBytes: Buffer): Buffer {
+  // ECPrivateKey ::= SEQUENCE {
+  //   version        INTEGER { ecPrivkeyVer1(1) },
+  //   privateKey     OCTET STRING,
+  //   parameters [0] ECParameters OPTIONAL,
+  //   publicKey  [1] BIT STRING OPTIONAL
+  // }
+  const version = Buffer.from([0x02, 0x01, 0x01]); // INTEGER 1
+  const privOctet = Buffer.concat([Buffer.from([0x04, privBytes.length]), privBytes]);
+  
+  // secp256k1 OID: 1.3.132.0.10
+  const secp256k1OID = Buffer.from([0x06, 0x05, 0x2b, 0x81, 0x04, 0x00, 0x0a]);
+  const params = Buffer.concat([Buffer.from([0xa0, secp256k1OID.length]), secp256k1OID]);
+  
+  // Public key as BIT STRING
+  const pubBitString = Buffer.concat([Buffer.from([0x03, pubBytes.length + 1, 0x00]), pubBytes]);
+  const pubContext = Buffer.concat([Buffer.from([0xa1, pubBitString.length]), pubBitString]);
+  
+  const content = Buffer.concat([version, privOctet, params, pubContext]);
+  const totalLen = derLengthBuf(content.length);
+  return Buffer.concat([Buffer.from([0x30]), totalLen, content]);
+}
+
+function derLengthBuf(length: number): Buffer {
+  if (length < 0x80) {
+    return Buffer.from([length]);
+  } else if (length < 0x100) {
+    return Buffer.from([0x81, length]);
+  } else {
+    return Buffer.from([0x82, (length >> 8) & 0xff, length & 0xff]);
+  }
+}
+
 // ─── Certificate Parsing ──────────────────────────────────────
 export function extractPublicKeyFromCertificate(certBase64: string): string {
   try {
     const certDER = Buffer.from(certBase64, "base64");
-    // Simple extraction: find the EC public key in the cert
-    // EC secp256k1 public key is 65 bytes starting with 0x04
     for (let i = 0; i < certDER.length - 65; i++) {
       if (certDER[i] === 0x04) {
         const candidate = certDER.subarray(i, i + 65);
@@ -136,8 +256,6 @@ export function extractPublicKeyFromCertificate(certBase64: string): string {
 export function extractCertificateSignature(certBase64: string): Buffer {
   try {
     const certDER = Buffer.from(certBase64, "base64");
-    // The signature is typically the last BIT STRING in the certificate
-    // Find the last BIT STRING (tag 0x03)
     let lastBitStringOffset = -1;
     for (let i = certDER.length - 1; i >= 0; i--) {
       if (certDER[i] === 0x03 && i > 10) {
@@ -148,7 +266,6 @@ export function extractCertificateSignature(certBase64: string): Buffer {
     if (lastBitStringOffset === -1) {
       return Buffer.alloc(0);
     }
-    // Parse length
     let offset = lastBitStringOffset + 1;
     let length = certDER[offset];
     offset++;
@@ -160,148 +277,10 @@ export function extractCertificateSignature(certBase64: string): Buffer {
       }
       offset += numBytes;
     }
-    // Skip unused bits byte
     offset++;
     length--;
     return certDER.subarray(offset, offset + length);
   } catch {
     return Buffer.alloc(0);
   }
-}
-
-// ─── ASN.1 DER Helpers ────────────────────────────────────────
-function derLength(length: number): Buffer {
-  if (length < 0x80) {
-    return Buffer.from([length]);
-  } else if (length < 0x100) {
-    return Buffer.from([0x81, length]);
-  } else {
-    return Buffer.from([0x82, (length >> 8) & 0xff, length & 0xff]);
-  }
-}
-
-function derSequence(...items: Buffer[]): Buffer {
-  const content = Buffer.concat(items);
-  return Buffer.concat([Buffer.from([0x30]), derLength(content.length), content]);
-}
-
-function derSet(...items: Buffer[]): Buffer {
-  const content = Buffer.concat(items);
-  return Buffer.concat([Buffer.from([0x31]), derLength(content.length), content]);
-}
-
-function derOID(oid: string): Buffer {
-  const parts = oid.split(".").map(Number);
-  const encoded: number[] = [];
-  encoded.push(parts[0] * 40 + parts[1]);
-  for (let i = 2; i < parts.length; i++) {
-    let val = parts[i];
-    if (val < 128) {
-      encoded.push(val);
-    } else {
-      const bytes: number[] = [];
-      while (val > 0) {
-        bytes.unshift(val & 0x7f);
-        val >>= 7;
-      }
-      for (let j = 0; j < bytes.length - 1; j++) {
-        bytes[j] |= 0x80;
-      }
-      encoded.push(...bytes);
-    }
-  }
-  return Buffer.concat([Buffer.from([0x06]), derLength(encoded.length), Buffer.from(encoded)]);
-}
-
-function derUTF8String(str: string): Buffer {
-  const buf = Buffer.from(str, "utf8");
-  return Buffer.concat([Buffer.from([0x0c]), derLength(buf.length), buf]);
-}
-
-function derPrintableString(str: string): Buffer {
-  const buf = Buffer.from(str, "ascii");
-  return Buffer.concat([Buffer.from([0x13]), derLength(buf.length), buf]);
-}
-
-function derBitString(data: Buffer): Buffer {
-  const content = Buffer.concat([Buffer.from([0x00]), data]); // 0 unused bits
-  return Buffer.concat([Buffer.from([0x03]), derLength(content.length), content]);
-}
-
-function derInteger(value: number): Buffer {
-  const buf = Buffer.from([value]);
-  return Buffer.concat([Buffer.from([0x02, buf.length]), buf]);
-}
-
-function derContextTag(tagNum: number, data: Buffer, constructed: boolean = true): Buffer {
-  const tag = (constructed ? 0xa0 : 0x80) | tagNum;
-  return Buffer.concat([Buffer.from([tag]), derLength(data.length), data]);
-}
-
-function buildRDN(oid: string, value: string, useUTF8: boolean = false): Buffer {
-  const attrValue = useUTF8 ? derUTF8String(value) : derPrintableString(value);
-  return derSet(derSequence(derOID(oid), attrValue));
-}
-
-function buildCSRSubject(config: ZatcaCSRConfig): Buffer {
-  const rdns: Buffer[] = [
-    buildRDN("2.5.4.6", config.countryName),           // C
-    buildRDN("2.5.4.10", config.organizationName, true), // O
-    buildRDN("2.5.4.97", config.organizationIdentifier), // organizationIdentifier
-    buildRDN("2.5.4.3", config.commonName, true),        // CN
-    buildRDN("2.5.4.5", config.serialNumber),            // serialNumber
-  ];
-  return derSequence(...rdns);
-}
-
-function buildCSRExtensions(config: ZatcaCSRConfig): Buffer {
-  // SAN extension with custom OIDs
-  const dirName = derSequence(
-    buildRDN("2.5.4.100", config.invoiceType, true),
-    buildRDN("2.5.4.101", config.location, true),
-    buildRDN("2.5.4.102", config.industry, true),
-  );
-  
-  // SubjectAltName with directoryName
-  const sanContent = derContextTag(4, dirName);
-  const sanExtension = derSequence(
-    derOID("2.5.29.17"), // subjectAltName
-    Buffer.concat([
-      Buffer.from([0x04]),
-      derLength(derSequence(sanContent).length),
-      derSequence(sanContent),
-    ])
-  );
-  
-  return derContextTag(0, derSequence(
-    derSequence(
-      derOID("1.2.840.113549.1.9.14"), // extensionRequest
-      derSet(derSequence(sanExtension))
-    )
-  ));
-}
-
-function buildECPublicKeyDER(keyPair: EC.KeyPair): Buffer {
-  const publicKeyBytes = Buffer.from(keyPair.getPublic(false, "hex"), "hex"); // 65 bytes: 04 + x + y
-  const algorithmIdentifier = derSequence(
-    derOID("1.2.840.10045.2.1"),   // ecPublicKey
-    derOID("1.3.132.0.10"),         // secp256k1
-  );
-  return derSequence(algorithmIdentifier, derBitString(publicKeyBytes));
-}
-
-function buildCertificationRequestInfo(subject: Buffer, publicKeyDER: Buffer, extensions: Buffer): Buffer {
-  return derSequence(
-    derInteger(0), // version
-    subject,
-    publicKeyDER,
-    extensions,
-  );
-}
-
-function buildCSRStructure(certReqInfo: Buffer, signatureDER: Buffer): Buffer {
-  const signatureAlgorithm = derSequence(
-    derOID("1.2.840.10045.4.3.2"), // ecdsa-with-SHA256
-  );
-  return derSequence(certReqInfo, signatureAlgorithm, derBitString(signatureDER));
 }

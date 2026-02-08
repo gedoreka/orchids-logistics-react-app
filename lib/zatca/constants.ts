@@ -5,7 +5,7 @@
 // ─── ZATCA API Endpoints ──────────────────────────────────────
 export const ZATCA_ENDPOINTS = {
   sandbox: {
-    base: "https://gw-fatoora.zatca.gov.sa/e-invoicing/developer-portal",
+    base: "https://gw-fatoora.zatca.gov.sa/e-invoicing/simulation",
     compliance: "/compliance",
     complianceInvoice: "/compliance/invoices",
     productionCSID: "/production/csids",

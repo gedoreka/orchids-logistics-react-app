@@ -63,7 +63,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Generate key pair
-    const { privateKey, publicKey } = generateKeyPair();
+    const { privateKey, publicKey, privateKeyPEM } = generateKeyPair();
 
     // Build CSR config
     const csrConfig: ZatcaCSRConfig = {
@@ -75,18 +75,20 @@ export async function POST(request: NextRequest) {
       invoiceType: invoice_type,
       location,
       industry,
+      environment,
     };
 
-    // Generate CSR
-    const csrPEM = generateCSR(privateKey, csrConfig);
+    // Generate CSR using OpenSSL (ZATCA-compliant)
+    const csrPEM = generateCSR(privateKeyPEM, csrConfig);
     const csrBase64 = getCSRBase64(csrPEM);
 
-    // Save to DB
+    // Save to DB (store both hex and PEM private key)
     const { data, error } = await supabase
       .from("zatca_credentials")
       .upsert({
         company_id: parseInt(company_id),
         private_key: privateKey,
+        private_key_pem: privateKeyPEM,
         public_key: publicKey,
         csr_content: csrBase64,
         environment,
