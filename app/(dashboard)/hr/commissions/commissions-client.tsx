@@ -40,7 +40,10 @@ import {
   Mail,
   PieChart,
   ShieldCheck,
-  Zap
+  Zap,
+  AlertTriangle,
+  CheckCircle2,
+  Sparkles
 } from "lucide-react";
 import { useTranslations, useLocale } from "@/lib/locale-context";
 import { cn } from "@/lib/utils";
@@ -129,7 +132,22 @@ export function CommissionsClient({ companyId, initialPackages }: CommissionsCli
   const [employees, setEmployees] = useState<any[]>([]);
   const [commissions, setCommissions] = useState<any[]>([]);
   
-  // Notification
+  // Premium Modal State Machine (matching journal-entries/tax-settings pattern)
+  type ModalType = "idle" | "delete-confirm" | "deleting" | "delete-success" | "delete-error" | "notification";
+  interface ModalState {
+    type: ModalType;
+    itemId?: string | null;
+    itemTitle?: string;
+    itemMode?: string;
+    errorMessage?: string;
+    notificationType?: "success" | "error" | "warning" | "info";
+    notificationTitle?: string;
+    notificationMessage?: string;
+  }
+  const [modal, setModal] = useState<ModalState>({ type: "idle" });
+  const closeModal = () => setModal({ type: "idle" });
+
+  // Legacy notification compat (for loading states)
   const [notification, setNotification] = useState<{show: boolean, type: "success" | "error" | "loading" | "confirm", message: string, detail?: string, onConfirm?: () => void} | null>(null);
 
   const printRef = useRef<HTMLDivElement>(null);
@@ -139,6 +157,23 @@ export function CommissionsClient({ companyId, initialPackages }: CommissionsCli
   });
 
   const showNotify = (type: "success" | "error" | "loading" | "confirm", message: string, detail?: string, onConfirm?: () => void) => {
+    if (type === "loading") {
+      setNotification({ show: true, type, message, detail, onConfirm });
+      return;
+    }
+    if (type === "success" || type === "error") {
+      setModal({
+        type: "notification",
+        notificationType: type,
+        notificationTitle: message,
+        notificationMessage: detail || "",
+      });
+      if (type === "success") {
+        setTimeout(() => setModal(prev => prev.type === "notification" ? { type: "idle" } : prev), 2500);
+      }
+      return;
+    }
+    // confirm type is now handled by premium modals directly
     setNotification({ show: true, type, message, detail, onConfirm });
     if (type !== "loading" && type !== "confirm") {
       setTimeout(() => setNotification(null), 4000);
@@ -365,27 +400,42 @@ export function CommissionsClient({ companyId, initialPackages }: CommissionsCli
   };
 
   const handleDeleteClick = (pkgId: string, groupMode: string, pkgName: string) => {
-    showNotify("confirm", "هل أنت متأكد من حذف التقرير؟", `سيتم حذف تقرير ${pkgName} بشكل نهائي ولن يمكن استعادته.`, () => {
-      deleteGroup(pkgId, groupMode);
+    setModal({
+      type: "delete-confirm",
+      itemId: pkgId,
+      itemTitle: pkgName,
+      itemMode: groupMode,
     });
   };
 
   const deleteGroup = async (pkgId: string, groupMode: string) => {
+    setModal({ type: "deleting", itemId: pkgId });
     try {
       const res = await fetch(`/api/hr/commissions?company_id=${companyId}&month=${month}&package_id=${pkgId}&mode=${groupMode}`, {
         method: "DELETE"
       });
       if (res.ok) {
-        showNotify("success", "تم حذف التقرير بنجاح", "تمت إزالة جميع بيانات التقرير من النظام.");
+        setModal({
+          type: "delete-success",
+          itemTitle: modal.itemTitle || "",
+        });
         fetchSavedGroups();
         if (selectedPackageId === pkgId && mode === groupMode) {
           setEmployees([]);
           setCommissions([]);
           setSelectedPackageId("");
         }
+      } else {
+        setModal({
+          type: "delete-error",
+          errorMessage: "فشل في حذف التقرير. حاول مرة أخرى.",
+        });
       }
     } catch (error) {
-      showNotify("error", t("notifications.error"));
+      setModal({
+        type: "delete-error",
+        errorMessage: "حدث خطأ أثناء الحذف",
+      });
     }
   };
 
@@ -538,69 +588,253 @@ export function CommissionsClient({ companyId, initialPackages }: CommissionsCli
         <div className="absolute -bottom-24 -left-24 w-64 h-64 bg-purple-500/10 rounded-full blur-3xl" />
       </div>
 
-      {/* Notifications */}
+      {/* ═══════════ Premium Modal System ═══════════ */}
       <AnimatePresence>
-        {notification && (
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9, y: 20 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.9, y: 20 }}
-            className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm"
-          >
-            <div className="bg-white rounded-[2.5rem] shadow-2xl border border-gray-100 max-w-md w-full p-8 text-center overflow-hidden relative">
-              <div className={cn(
-                "absolute top-0 left-0 w-full h-2",
-                notification.type === "success" ? "bg-emerald-500" :
-                notification.type === "error" ? "bg-red-500" :
-                notification.type === "confirm" ? "bg-amber-500" : "bg-blue-500"
-              )} />
-              
-              <div className={cn(
-                "mx-auto h-20 w-20 rounded-3xl flex items-center justify-center mb-6 shadow-lg",
-                notification.type === "success" ? "bg-emerald-50 text-emerald-500" :
-                notification.type === "error" ? "bg-red-50 text-red-500" :
-                notification.type === "confirm" ? "bg-amber-50 text-amber-500" : "bg-blue-50 text-blue-500"
-              )}>
-                {notification.type === "success" && <CheckCircle size={40} />}
-                {notification.type === "error" && <AlertCircle size={40} />}
-                {notification.type === "confirm" && <Trash2 size={40} />}
-                {notification.type === "loading" && <Loader2 size={40} className="animate-spin" />}
-              </div>
+        {modal.type !== "idle" && (
+          <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
+            <motion.div
+              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+              onClick={() => !["deleting"].includes(modal.type) && closeModal()}
+              className="absolute inset-0 bg-slate-950/90 backdrop-blur-2xl"
+            />
 
-              <h3 className="text-xl font-black text-gray-900 mb-2">{notification.message}</h3>
-              {notification.detail && <p className="text-gray-500 text-sm font-medium mb-8 leading-relaxed">{notification.detail}</p>}
+            {/* Delete Confirmation */}
+            {modal.type === "delete-confirm" && (
+              <motion.div
+                initial={{ opacity: 0, scale: 0.8, y: 50 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.8, y: 50 }}
+                transition={{ type: "spring", damping: 25, stiffness: 300 }}
+                className="relative w-full max-w-lg bg-white dark:bg-slate-900 rounded-[3rem] shadow-[0_0_100px_rgba(239,68,68,0.3)] overflow-hidden border-4 border-red-500/20"
+              >
+                <div className="relative bg-gradient-to-br from-red-500 via-rose-600 to-red-700 p-10 text-white text-center overflow-hidden">
+                  <div className="absolute inset-0 opacity-10">
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
+                  </div>
+                  <motion.div
+                    initial={{ scale: 0, rotate: -180 }} animate={{ scale: 1, rotate: 0 }}
+                    transition={{ delay: 0.2, type: "spring", damping: 15 }}
+                    className="relative z-10 mx-auto w-24 h-24 bg-white/20 backdrop-blur-xl rounded-full flex items-center justify-center mb-6 shadow-2xl border-4 border-white/30"
+                  >
+                    <motion.div animate={{ scale: [1, 1.1, 1] }} transition={{ repeat: Infinity, duration: 2 }}>
+                      <AlertTriangle size={48} className="text-white drop-shadow-lg" />
+                    </motion.div>
+                  </motion.div>
+                  <motion.h3 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}
+                    className="text-3xl font-black tracking-tight relative z-10">تأكيد الحذف</motion.h3>
+                  <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}
+                    className="text-white/80 font-bold mt-2 relative z-10">هذا الإجراء لا يمكن التراجع عنه</motion.p>
+                </div>
+                <div className="p-8 text-center space-y-6" dir="rtl">
+                  <div className="bg-red-50 dark:bg-red-950/30 rounded-2xl p-6 border-2 border-red-100 dark:border-red-900/50">
+                    <p className="text-slate-700 dark:text-slate-300 font-bold text-lg leading-relaxed">هل أنت متأكد من حذف</p>
+                    <p className="text-red-600 dark:text-red-400 font-black text-xl mt-2 truncate">&quot;{modal.itemTitle}&quot;</p>
+                  </div>
+                  <p className="text-slate-500 font-bold text-sm">سيتم الحذف نهائياً ولا يمكن التراجع عنه</p>
+                  <div className="flex gap-4 pt-4">
+                    <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={closeModal}
+                      className="flex-1 flex items-center justify-center gap-3 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 py-4 rounded-2xl font-black text-lg hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors">
+                      <X size={20} />إلغاء
+                    </motion.button>
+                    <motion.button
+                      whileHover={{ scale: 1.02, boxShadow: "0 20px 40px rgba(239, 68, 68, 0.4)" }}
+                      whileTap={{ scale: 0.98 }}
+                      onClick={() => deleteGroup(modal.itemId || "", modal.itemMode || "")}
+                      className="flex-1 flex items-center justify-center gap-3 bg-gradient-to-r from-red-500 via-rose-600 to-red-600 text-white py-4 rounded-2xl font-black text-lg shadow-xl shadow-red-500/30 border-b-4 border-red-700/50">
+                      <Trash2 size={20} />نعم، احذف
+                    </motion.button>
+                  </div>
+                </div>
+              </motion.div>
+            )}
 
-              <div className="flex items-center gap-3">
-                {notification.type === "confirm" ? (
-                  <>
-                    <button 
-                      onClick={() => setNotification(null)}
-                      className="flex-1 py-4 rounded-2xl bg-gray-100 text-gray-700 font-black text-sm hover:bg-gray-200 transition-all"
+            {/* Deleting */}
+            {modal.type === "deleting" && (
+              <motion.div initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.8 }}
+                className="relative w-full max-w-md bg-white dark:bg-slate-900 rounded-[3rem] shadow-[0_0_100px_rgba(59,130,246,0.3)] overflow-hidden border-4 border-blue-500/20">
+                <div className="relative bg-gradient-to-br from-blue-500 via-indigo-600 to-blue-700 p-10 text-white text-center">
+                  <div className="relative z-10 mx-auto w-24 h-24 bg-white/20 backdrop-blur-xl rounded-full flex items-center justify-center mb-6 shadow-2xl border-4 border-white/30">
+                    <Loader2 size={48} className="text-white animate-spin" />
+                  </div>
+                  <h3 className="text-2xl font-black relative z-10">جاري الحذف...</h3>
+                  <p className="text-white/80 font-bold mt-2 relative z-10">يرجى الانتظار</p>
+                </div>
+                <div className="p-8">
+                  <div className="bg-blue-50 dark:bg-blue-950/30 rounded-2xl p-5 border-2 border-blue-100 dark:border-blue-900/50">
+                    <div className="flex items-center justify-center gap-3">
+                      <div className="h-3 w-3 rounded-full bg-blue-500 animate-bounce" style={{ animationDelay: "0ms" }} />
+                      <div className="h-3 w-3 rounded-full bg-blue-500 animate-bounce" style={{ animationDelay: "150ms" }} />
+                      <div className="h-3 w-3 rounded-full bg-blue-500 animate-bounce" style={{ animationDelay: "300ms" }} />
+                    </div>
+                    <p className="text-blue-600 dark:text-blue-400 font-bold text-center mt-3 text-sm">جاري حذف السجلات...</p>
+                  </div>
+                </div>
+              </motion.div>
+            )}
+
+            {/* Delete Success */}
+            {modal.type === "delete-success" && (
+              <motion.div initial={{ opacity: 0, scale: 0.5 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.5 }}
+                transition={{ type: "spring", damping: 20, stiffness: 300 }}
+                className="relative w-full max-w-lg bg-white dark:bg-slate-900 rounded-[3rem] shadow-[0_0_100px_rgba(16,185,129,0.3)] overflow-hidden border-4 border-emerald-500/20">
+                <div className="relative bg-gradient-to-br from-emerald-500 via-teal-600 to-emerald-700 p-10 text-white text-center overflow-hidden">
+                  <div className="absolute inset-0 overflow-hidden">
+                    {[...Array(6)].map((_, i) => (
+                      <motion.div
+                        key={i}
+                        initial={{ y: 100, opacity: 0 }}
+                        animate={{ y: -100, opacity: [0, 1, 0], x: Math.random() * 100 - 50 }}
+                        transition={{ delay: i * 0.2, duration: 2, repeat: Infinity, repeatDelay: 1 }}
+                        className="absolute"
+                        style={{ left: `${15 + i * 15}%` }}
+                      >
+                        <Sparkles size={20} className="text-white/40" />
+                      </motion.div>
+                    ))}
+                  </div>
+                  <motion.div initial={{ scale: 0, rotate: -180 }} animate={{ scale: 1, rotate: 0 }} transition={{ delay: 0.1, type: "spring", damping: 12 }}
+                    className="relative z-10 mx-auto w-28 h-28 bg-white/20 backdrop-blur-xl rounded-full flex items-center justify-center mb-6 shadow-2xl border-4 border-white/30">
+                    <motion.div initial={{ scale: 0 }} animate={{ scale: [0, 1.2, 1] }} transition={{ delay: 0.3, duration: 0.5 }}>
+                      <CheckCircle2 size={56} className="text-white drop-shadow-lg" />
+                    </motion.div>
+                  </motion.div>
+                  <motion.h3 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}
+                    className="text-3xl font-black tracking-tight relative z-10">تم الحذف بنجاح!</motion.h3>
+                  <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }}
+                    className="text-white/80 font-bold mt-2 relative z-10">تمت الإزالة من النظام</motion.p>
+                </div>
+                <div className="p-8 text-center space-y-6" dir="rtl">
+                  <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.6 }}
+                    className="bg-emerald-50 dark:bg-emerald-950/30 rounded-2xl p-6 border-2 border-emerald-100 dark:border-emerald-900/50">
+                    <p className="text-slate-500 font-bold text-sm mb-2">العنصر المحذوف:</p>
+                    <p className="font-black text-xl truncate text-emerald-600 dark:text-emerald-400">&quot;{modal.itemTitle}&quot;</p>
+                  </motion.div>
+                  <motion.button initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.7 }}
+                    whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={closeModal}
+                    className="w-full flex items-center justify-center gap-3 text-white py-5 rounded-2xl font-black text-xl shadow-xl border-b-4 bg-gradient-to-r from-emerald-500 via-teal-600 to-emerald-600 shadow-emerald-500/30 border-emerald-700/50">
+                    <CheckCircle2 size={24} />حسناً
+                  </motion.button>
+                </div>
+              </motion.div>
+            )}
+
+            {/* Delete Error */}
+            {modal.type === "delete-error" && (
+              <motion.div initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.8 }}
+                className="relative w-full max-w-md bg-white dark:bg-slate-900 rounded-[3rem] shadow-[0_0_100px_rgba(239,68,68,0.2)] overflow-hidden border-4 border-red-500/20">
+                <div className="relative bg-gradient-to-br from-red-500 via-rose-600 to-red-700 p-10 text-white text-center">
+                  <div className="relative z-10 mx-auto w-24 h-24 bg-white/20 backdrop-blur-xl rounded-full flex items-center justify-center mb-6 shadow-2xl border-4 border-white/30">
+                    <AlertCircle size={48} className="text-white" />
+                  </div>
+                  <h3 className="text-2xl font-black relative z-10">فشل الحذف</h3>
+                </div>
+                <div className="p-8 text-center space-y-4" dir="rtl">
+                  <div className="bg-red-50 dark:bg-red-950/30 rounded-2xl p-4 border border-red-100 dark:border-red-900/50">
+                    <p className="text-red-600 dark:text-red-400 font-bold text-sm">{modal.errorMessage}</p>
+                  </div>
+                  <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={closeModal}
+                    className="w-full px-6 py-4 rounded-2xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-white font-black text-lg hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors">
+                    حسناً
+                  </motion.button>
+                </div>
+              </motion.div>
+            )}
+
+            {/* ═══════════ Premium Notification Modal ═══════════ */}
+            {modal.type === "notification" && (() => {
+              const nType = modal.notificationType || "info";
+              const gradients: Record<string, string> = {
+                success: "from-emerald-500 via-teal-600 to-emerald-700",
+                error: "from-red-500 via-rose-600 to-red-700",
+                warning: "from-amber-500 via-orange-600 to-amber-700",
+                info: "from-blue-500 via-indigo-600 to-blue-700",
+              };
+              const shadows: Record<string, string> = {
+                success: "shadow-[0_0_80px_rgba(16,185,129,0.3)] border-emerald-500/20",
+                error: "shadow-[0_0_80px_rgba(239,68,68,0.3)] border-red-500/20",
+                warning: "shadow-[0_0_80px_rgba(245,158,11,0.3)] border-amber-500/20",
+                info: "shadow-[0_0_80px_rgba(59,130,246,0.3)] border-blue-500/20",
+              };
+              const icons: Record<string, React.ReactNode> = {
+                success: <CheckCircle2 size={40} className="text-white drop-shadow-lg" />,
+                error: <AlertCircle size={40} className="text-white drop-shadow-lg" />,
+                warning: <AlertTriangle size={40} className="text-white drop-shadow-lg" />,
+                info: <Sparkles size={40} className="text-white drop-shadow-lg" />,
+              };
+              const btnGradients: Record<string, string> = {
+                success: "from-emerald-500 to-teal-600 shadow-emerald-500/30",
+                error: "from-red-500 to-rose-600 shadow-red-500/30",
+                warning: "from-amber-500 to-orange-600 shadow-amber-500/30",
+                info: "from-blue-500 to-indigo-600 shadow-blue-500/30",
+              };
+              const bgAccents: Record<string, string> = {
+                success: "bg-emerald-50 dark:bg-emerald-950/30 border-emerald-100 dark:border-emerald-900/50",
+                error: "bg-red-50 dark:bg-red-950/30 border-red-100 dark:border-red-900/50",
+                warning: "bg-amber-50 dark:bg-amber-950/30 border-amber-100 dark:border-amber-900/50",
+                info: "bg-blue-50 dark:bg-blue-950/30 border-blue-100 dark:border-blue-900/50",
+              };
+              return (
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.5, y: 30 }}
+                  animate={{ opacity: 1, scale: 1, y: 0 }}
+                  exit={{ opacity: 0, scale: 0.5, y: 30 }}
+                  transition={{ type: "spring", damping: 22, stiffness: 300 }}
+                  className={`relative w-full max-w-md bg-white dark:bg-slate-900 rounded-[3rem] ${shadows[nType]} overflow-hidden border-4`}
+                >
+                  <div className={`relative bg-gradient-to-br ${gradients[nType]} p-8 text-white text-center overflow-hidden`}>
+                    <div className="absolute inset-0 opacity-10">
+                      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-96 h-96 rounded-full bg-white/20 blur-3xl" />
+                    </div>
+                    <motion.div
+                      initial={{ scale: 0, rotate: -180 }}
+                      animate={{ scale: 1, rotate: 0 }}
+                      transition={{ delay: 0.15, type: "spring", damping: 15 }}
+                      className="relative z-10 mx-auto w-20 h-20 bg-white/20 backdrop-blur-xl rounded-full flex items-center justify-center mb-5 shadow-2xl border-4 border-white/30"
                     >
-                      إلغاء
-                    </button>
-                    <button 
-                      onClick={() => {
-                        notification.onConfirm?.();
-                        setNotification(null);
-                      }}
-                      className="flex-1 py-4 rounded-2xl bg-red-500 text-white font-black text-sm hover:bg-red-600 shadow-xl shadow-red-100 transition-all"
-                    >
-                      تأكيد الحذف
-                    </button>
-                  </>
-                ) : (
-                  notification.type !== "loading" && (
-                    <button 
-                      onClick={() => setNotification(null)}
-                      className="w-full py-4 rounded-2xl bg-gray-900 text-white font-black text-sm hover:bg-gray-800 shadow-xl transition-all"
-                    >
+                      {icons[nType]}
+                    </motion.div>
+                    <motion.h3 initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }}
+                      className="text-2xl font-black tracking-tight relative z-10">{modal.notificationTitle}</motion.h3>
+                  </div>
+                  <div className="p-7 text-center space-y-5" dir="rtl">
+                    {modal.notificationMessage && (
+                      <div className={`${bgAccents[nType]} rounded-2xl p-5 border-2`}>
+                        <p className="text-slate-700 dark:text-slate-300 font-bold text-base leading-relaxed">{modal.notificationMessage}</p>
+                      </div>
+                    )}
+                    <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={closeModal}
+                      className={`w-full px-6 py-4 rounded-2xl bg-gradient-to-r ${btnGradients[nType]} text-white font-black text-lg shadow-xl transition-all`}>
                       حسناً
-                    </button>
-                  )
-                )}
+                    </motion.button>
+                  </div>
+                </motion.div>
+              );
+            })()}
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* Loading Notification (minimal overlay for save/loading states) */}
+      <AnimatePresence>
+        {notification && notification.type === "loading" && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[150] flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-xl"
+          >
+            <motion.div
+              initial={{ scale: 0.9, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.9, y: 20 }}
+              className="bg-white dark:bg-slate-900 rounded-[3rem] shadow-[0_0_80px_rgba(59,130,246,0.3)] w-full max-w-sm p-8 text-center border-4 border-blue-500/20"
+            >
+              <div className="mx-auto w-20 h-20 bg-blue-50 dark:bg-blue-950/30 rounded-full flex items-center justify-center mb-6 border-4 border-blue-100 dark:border-blue-900/50">
+                <Loader2 size={40} className="text-blue-500 animate-spin" />
               </div>
-            </div>
+              <h3 className="text-xl font-black text-slate-900 dark:text-white mb-2">{notification.message}</h3>
+              {notification.detail && <p className="text-slate-500 text-sm font-medium">{notification.detail}</p>}
+            </motion.div>
           </motion.div>
         )}
       </AnimatePresence>
