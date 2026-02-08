@@ -66,6 +66,23 @@ interface Payroll {
   is_draft: number;
 }
 
+  interface JournalEntry {
+    id: number;
+    entry_number: string;
+    entry_date: string;
+    description: string;
+    debit: number;
+    credit: number;
+    status: string;
+    source_type: string;
+    account_code: string;
+    account_name: string;
+    account_type: string;
+    cost_center_name: string;
+    cost_center_code: string;
+    net_amount: number;
+  }
+
   interface ProfitLossData {
     companyInfo: {
       name: string;
@@ -81,6 +98,8 @@ interface Payroll {
       creditNotesTotal: number;
       manualIncomeTotal: number;
       receiptVouchersTotal: number;
+      journalRevenueTotal: number;
+      journalExpenseTotal: number;
       totalIncome: number;
       expensesTotal: number;
       paymentVouchersTotal: number;
@@ -97,6 +116,8 @@ interface Payroll {
       expenses: Expense[];
       paymentVouchers: any[];
       payrolls: Payroll[];
+      journalRevenueEntries: JournalEntry[];
+      journalExpenseEntries: JournalEntry[];
     };
     counts: {
       invoices: number;
@@ -106,6 +127,8 @@ interface Payroll {
       expenses: number;
       paymentVouchers: number;
       payrolls: number;
+      journalRevenue: number;
+      journalExpense: number;
     };
   }
   
@@ -126,9 +149,11 @@ interface Payroll {
       creditNotes: false,
       manualIncome: true,
       receiptVouchers: false,
+      journalRevenue: true,
       expenses: true,
       paymentVouchers: false,
-      payrolls: true
+      payrolls: true,
+      journalExpense: true,
     });
   const printRef = useRef<HTMLDivElement>(null);
 
@@ -399,10 +424,16 @@ interface Payroll {
               <span className="font-bold">{formatNumber(summary.manualIncomeTotal)}</span>
             </p>
             <p className="flex justify-between">
-              <span>{t("receiptVouchers")}:</span>
-              <span className="font-bold">{formatNumber(summary.receiptVouchersTotal)}</span>
-            </p>
-          </div>
+                <span>{t("receiptVouchers")}:</span>
+                <span className="font-bold">{formatNumber(summary.receiptVouchersTotal)}</span>
+              </p>
+              {(summary.journalRevenueTotal || 0) > 0 && (
+                <p className="flex justify-between">
+                  <span>{t("journalRevenue")}:</span>
+                  <span className="font-bold">{formatNumber(summary.journalRevenueTotal)}</span>
+                </p>
+              )}
+            </div>
         </motion.div>
 
         <motion.div
@@ -430,10 +461,16 @@ interface Payroll {
               <span className="font-bold">{formatNumber(summary.paymentVouchersTotal)}</span>
             </p>
             <p className="flex justify-between">
-              <span>{t("salaries")}:</span>
-              <span className="font-bold">{formatNumber(summary.payrollsTotal)}</span>
-            </p>
-          </div>
+                <span>{t("salaries")}:</span>
+                <span className="font-bold">{formatNumber(summary.payrollsTotal)}</span>
+              </p>
+              {(summary.journalExpenseTotal || 0) > 0 && (
+                <p className="flex justify-between">
+                  <span>{t("journalExpense")}:</span>
+                  <span className="font-bold">{formatNumber(summary.journalExpenseTotal)}</span>
+                </p>
+              )}
+            </div>
         </motion.div>
 
         <motion.div

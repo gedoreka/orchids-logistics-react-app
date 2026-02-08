@@ -40,7 +40,6 @@ export async function GET(request: NextRequest) {
     
       const [year, monthNum] = month.split("-").map(Number);
       const monthStart = `${year}-${String(monthNum).padStart(2, '0')}-01`;
-      // Safely calculate the last day of the month without timezone shifts
       const lastDay = new Date(year, monthNum, 0).getDate();
       const monthEnd = `${year}-${String(monthNum).padStart(2, '0')}-${String(lastDay).padStart(2, '0')}`;
 
@@ -50,7 +49,7 @@ export async function GET(request: NextRequest) {
     );
     const companyInfo = companies[0] || { name: "اسم الشركة", logo_path: null };
 
-      // 1. Sales Invoices (MySQL) - Linked by issue_date
+      // 1. Sales Invoices (MySQL)
       const invoicesResult = await query<any>(`
         SELECT 
           si.id,
@@ -74,8 +73,8 @@ export async function GET(request: NextRequest) {
         invoiceTotalWithoutTax += total / 1.15;
       }
   
-      // 2. Credit Notes (Supabase) - Reduction from income
-      const { data: creditNotesData, error: cnError } = await supabase
+      // 2. Credit Notes (Supabase)
+      const { data: creditNotesData } = await supabase
         .from("credit_notes")
         .select("*")
         .eq("company_id", companyId)
@@ -89,7 +88,7 @@ export async function GET(request: NextRequest) {
       }
 
       // 3. Manual Income (Supabase)
-      const { data: manualIncomeData, error: manualIncomeError } = await supabase
+      const { data: manualIncomeData } = await supabase
         .from("manual_income")
         .select("*")
         .eq("company_id", companyId)
@@ -175,12 +174,78 @@ export async function GET(request: NextRequest) {
       for (const pr of payrollsResult) {
         payrollsTotal += parseFloat(pr.total_amount) || 0;
       }
+
+      // 9. Journal Entries (Supabase) - Revenue & Expense entries
+      const { data: journalEntriesData } = await supabase
+        .from("journal_entries")
+        .select(`
+          id, entry_number, entry_date, description, debit, credit, status, source_type,
+          accounts:account_id(id, account_code, account_name, type),
+          cost_centers:cost_center_id(id, center_code, center_name)
+        `)
+        .eq("company_id", companyId)
+        .gte("entry_date", monthStart)
+        .lte("entry_date", monthEnd)
+        .order("entry_date", { ascending: false });
+
+      const journalEntries = journalEntriesData || [];
+      
+      // Separate journal entries into revenue and expense
+      let journalRevenueTotal = 0;
+      let journalExpenseTotal = 0;
+      const journalRevenueEntries: any[] = [];
+      const journalExpenseEntries: any[] = [];
+
+      for (const je of journalEntries) {
+        const acc = je.accounts as any;
+        const accType = (acc?.type || "").toLowerCase();
+        const debit = parseFloat(je.debit) || 0;
+        const credit = parseFloat(je.credit) || 0;
+        
+        const entry = {
+          id: je.id,
+          entry_number: je.entry_number,
+          entry_date: je.entry_date,
+          description: je.description,
+          debit,
+          credit,
+          status: je.status,
+          source_type: je.source_type || "manual",
+          account_code: acc?.account_code || "",
+          account_name: acc?.account_name || "",
+          account_type: acc?.type || "",
+          cost_center_name: (je.cost_centers as any)?.center_name || "",
+          cost_center_code: (je.cost_centers as any)?.center_code || "",
+          net_amount: credit - debit,
+        };
+
+        // Revenue accounts: credit > debit = income
+        if (accType === "ايراد" || accType === "إيراد" || accType === "revenue") {
+          const net = credit - debit;
+          if (net > 0) {
+            journalRevenueTotal += net;
+            journalRevenueEntries.push({ ...entry, net_amount: net });
+          } else if (net < 0) {
+            journalExpenseTotal += Math.abs(net);
+            journalExpenseEntries.push({ ...entry, net_amount: Math.abs(net) });
+          }
+        }
+        // Expense accounts: debit > credit = expense
+        else if (accType === "مصروف" || accType === "expense") {
+          const net = debit - credit;
+          if (net > 0) {
+            journalExpenseTotal += net;
+            journalExpenseEntries.push({ ...entry, net_amount: net });
+          } else if (net < 0) {
+            journalRevenueTotal += Math.abs(net);
+            journalRevenueEntries.push({ ...entry, net_amount: Math.abs(net) });
+          }
+        }
+      }
   
       const invoiceIncomeValue = includeTax ? invoiceTotal : invoiceTotalWithoutTax;
-      // Net Income = Invoices (filtered by issue_date) - Credit Notes + Manual Income + Receipt Vouchers
-      const totalIncome = (invoiceIncomeValue - creditNotesTotal) + manualIncomeTotal + receiptVouchersTotal;
-      // Net Expenses = Monthly (MySQL) + General (Supabase) + Payment Vouchers (Supabase) + Payrolls (MySQL)
-      const totalExpenses = monthlyExpensesTotal + generalExpensesTotal + paymentVouchersTotal + payrollsTotal;
+      const totalIncome = (invoiceIncomeValue - creditNotesTotal) + manualIncomeTotal + receiptVouchersTotal + journalRevenueTotal;
+      const totalExpenses = monthlyExpensesTotal + generalExpensesTotal + paymentVouchersTotal + payrollsTotal + journalExpenseTotal;
       const netProfit = totalIncome - totalExpenses;
       const profitMargin = totalIncome > 0 ? (netProfit / totalIncome) * 100 : 0;
   
@@ -196,6 +261,8 @@ export async function GET(request: NextRequest) {
           creditNotesTotal,
           manualIncomeTotal,
           receiptVouchersTotal,
+          journalRevenueTotal,
+          journalExpenseTotal,
           totalIncome,
           expensesTotal: monthlyExpensesTotal + generalExpensesTotal,
           paymentVouchersTotal,
@@ -214,7 +281,9 @@ export async function GET(request: NextRequest) {
             ...generalExpenses.map((e: any) => ({ ...e, source: 'general' }))
           ],
           paymentVouchers: paymentVouchers,
-          payrolls: payrollsResult
+          payrolls: payrollsResult,
+          journalRevenueEntries,
+          journalExpenseEntries,
         },
         counts: {
           invoices: invoicesResult.length,
@@ -223,7 +292,9 @@ export async function GET(request: NextRequest) {
           receiptVouchers: receiptVouchersResult.length,
           expenses: monthlyExpensesResult.length + generalExpenses.length,
           paymentVouchers: paymentVouchers.length,
-          payrolls: payrollsResult.length
+          payrolls: payrollsResult.length,
+          journalRevenue: journalRevenueEntries.length,
+          journalExpense: journalExpenseEntries.length,
         }
       });
   } catch (error: any) {
