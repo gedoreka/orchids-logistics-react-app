@@ -1395,11 +1395,12 @@ function ZatcaTab({
       });
       const data = await res.json();
       if (data.success) {
-        showNotification("success", "تم إنشاء شهادة موقته بنجاح", data.message || "تم الحصول على CCSID بنجاح");
-        fetchCredentials();
-      } else {
-        showNotification("error", "خطأ", data.error);
-      }
+          showNotification("success", "تم إنشاء شهادة موقته بنجاح", data.message || "تم الحصول على CCSID بنجاح");
+          fetchCredentials();
+        } else {
+          const msg = data.hint ? `${data.error}\n${data.hint}` : data.error;
+          showNotification("error", "خطأ", msg);
+        }
     } catch {
       showNotification("error", "خطأ", "فشل التسجيل");
     } finally { setStepLoading(""); }

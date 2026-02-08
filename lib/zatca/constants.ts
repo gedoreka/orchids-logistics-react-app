@@ -30,6 +30,10 @@ export const ZATCA_ENDPOINTS = {
   },
 } as const;
 
+// Note: sandbox and simulation both use the same ZATCA simulation gateway.
+// The Fatoora portal OTPs work with the simulation endpoint.
+// Production uses the core endpoint.
+
 export type ZatcaEnvironment = keyof typeof ZATCA_ENDPOINTS;
 
 // ─── UBL 2.1 Namespaces ──────────────────────────────────────

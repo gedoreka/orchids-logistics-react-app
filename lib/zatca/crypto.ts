@@ -19,12 +19,12 @@ export function generateKeyPair(): { privateKey: string; publicKey: string; priv
   const keyFile = path.join(tmpDir, "private.pem");
 
   try {
-    // Generate secp256k1 private key using OpenSSL
-    execSync(`openssl ecparam -name secp256k1 -genkey -noout -out "${keyFile}"`, { stdio: "pipe" });
+        // Generate secp256k1 private key using OpenSSL - required by ZATCA
+        execSync(`openssl ecparam -name secp256k1 -genkey -noout -out "${keyFile}"`, { stdio: "pipe" });
     const privateKeyPEM = fs.readFileSync(keyFile, "utf8");
 
     // Extract hex private key for elliptic library compatibility
-    const pubOut = execSync(`openssl ec -in "${keyFile}" -text -noout 2>/dev/null`, { encoding: "utf8" });
+    const pubOut = execSync(`openssl ec -in "${keyFile}" -text -noout 2>&1`, { encoding: "utf8" });
 
     // Parse private key hex from OpenSSL text output
     const privMatch = pubOut.match(/priv:\s*([\s\S]*?)pub:/);
@@ -122,7 +122,7 @@ export function generateCSR(privateKeyPEMOrHex: string, config: ZatcaCSRConfig):
       const privHex = keyPair.getPrivate("hex").padStart(64, "0");
       const pubHex = keyPair.getPublic(false, "hex");
 
-      // Build raw EC key DER manually: SEQUENCE { INTEGER(1), OCTET STRING(privKey), [0] OID(secp256k1), [1] BIT STRING(pubKey) }
+        // Build raw EC key DER manually: SEQUENCE { INTEGER(1), OCTET STRING(privKey), [0] OID(prime256v1), [1] BIT STRING(pubKey) }
       const privBytes = Buffer.from(privHex, "hex");
       const pubBytes = Buffer.from(pubHex, "hex");
 
@@ -131,8 +131,8 @@ export function generateCSR(privateKeyPEMOrHex: string, config: ZatcaCSRConfig):
       const derFile = path.join(tmpDir, "private.der");
       fs.writeFileSync(derFile, ecPrivKeyDER);
 
-      // Convert DER to PEM
-      execSync(`openssl ec -inform DER -in "${derFile}" -out "${keyFile}" 2>/dev/null`, { stdio: "pipe" });
+        // Convert DER to PEM
+        execSync(`openssl ec -inform DER -in "${derFile}" -out "${keyFile}"`, { stdio: "pipe" });
     }
 
     // Determine template name based on environment
@@ -140,8 +140,8 @@ export function generateCSR(privateKeyPEMOrHex: string, config: ZatcaCSRConfig):
       ? "ZATCA-Code-Signing"
       : "PREZATCA-Code-Signing";
 
-    // Build OpenSSL config file matching ZATCA requirements
-    const opensslConfig = `
+      // Build OpenSSL config file matching ZATCA requirements
+      const opensslConfig = `
 oid_section = OIDs
 
 [ OIDs ]
@@ -150,20 +150,20 @@ certificateTemplateName = 1.3.6.1.4.1.311.20.2
 [ req ]
 default_bits = 2048
 req_extensions = v3_req
-x509_extensions = v3_ca
 prompt = no
 default_md = sha256
+utf8 = yes
 distinguished_name = dn
 
 [ dn ]
 C = ${config.countryName}
-O = ${config.organizationName}
 OU = ${config.organizationUnit || config.organizationName}
+O = ${config.organizationName}
 CN = ${config.commonName}
 
 [ v3_req ]
 basicConstraints = CA:FALSE
-keyUsage = digitalSignature, nonRepudiation, keyEncipherment
+keyUsage = digitalSignature, nonRepudiation
 certificateTemplateName = ASN1:PRINTABLESTRING:${templateName}
 subjectAltName = dirName:alt_dn
 
@@ -178,10 +178,21 @@ businessCategory = ${config.industry}
     fs.writeFileSync(configFile, opensslConfig);
 
     // Generate CSR using OpenSSL
-    execSync(
-      `openssl req -new -sha256 -key "${keyFile}" -extensions v3_req -config "${configFile}" -out "${csrFile}" 2>/dev/null`,
-      { stdio: "pipe" }
-    );
+      const csrOutput = execSync(
+          `openssl req -new -sha256 -key "${keyFile}" -extensions v3_req -config "${configFile}" -out "${csrFile}" -utf8 2>&1`,
+        { encoding: "utf8" }
+      );
+      if (csrOutput && csrOutput.includes("error")) {
+        throw new Error(`OpenSSL CSR generation failed: ${csrOutput}`);
+      }
+
+      // Verify CSR is valid
+      try {
+        execSync(`openssl req -in "${csrFile}" -verify -noout 2>&1`, { encoding: "utf8" });
+      } catch (verifyErr: any) {
+        console.error("[ZATCA CSR] Verification failed:", verifyErr.message);
+        throw new Error(`Generated CSR failed verification: ${verifyErr.message}`);
+      }
 
     const csrPEM = fs.readFileSync(csrFile, "utf8").trim();
     return csrPEM;
@@ -209,9 +220,9 @@ function buildECPrivateKeyDER(privBytes: Buffer, pubBytes: Buffer): Buffer {
   const version = Buffer.from([0x02, 0x01, 0x01]); // INTEGER 1
   const privOctet = Buffer.concat([Buffer.from([0x04, privBytes.length]), privBytes]);
   
-  // secp256k1 OID: 1.3.132.0.10
-  const secp256k1OID = Buffer.from([0x06, 0x05, 0x2b, 0x81, 0x04, 0x00, 0x0a]);
-  const params = Buffer.concat([Buffer.from([0xa0, secp256k1OID.length]), secp256k1OID]);
+    // prime256v1 (P-256/secp256r1) OID: 1.2.840.10045.3.1.7
+    const curveOID = Buffer.from([0x06, 0x08, 0x2a, 0x86, 0x48, 0xce, 0x3d, 0x03, 0x01, 0x07]);
+  const params = Buffer.concat([Buffer.from([0xa0, curveOID.length]), curveOID]);
   
   // Public key as BIT STRING
   const pubBitString = Buffer.concat([Buffer.from([0x03, pubBytes.length + 1, 0x00]), pubBytes]);

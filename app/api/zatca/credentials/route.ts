@@ -6,6 +6,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { generateKeyPair, generateCSR, getCSRBase64 } from "@/lib/zatca/crypto";
+import { randomUUID } from "crypto";
 import type { ZatcaCSRConfig } from "@/lib/zatca/types";
 
 const supabase = createClient(
@@ -68,7 +69,7 @@ export async function POST(request: NextRequest) {
     // Build CSR config
     const csrConfig: ZatcaCSRConfig = {
       commonName: common_name || `EGS${company_id}-${Date.now()}`,
-      serialNumber: serial_number || `1-TST|2-TST|3-${Date.now().toString(36)}`,
+        serialNumber: serial_number || `1-ZoolSpeed|2-LogisticsPro|3-${randomUUID()}`,
       organizationIdentifier: organization_identifier,
       organizationName: organization_name,
       countryName: country_name,
@@ -81,6 +82,9 @@ export async function POST(request: NextRequest) {
     // Generate CSR using OpenSSL (ZATCA-compliant)
     const csrPEM = generateCSR(privateKeyPEM, csrConfig);
     const csrBase64 = getCSRBase64(csrPEM);
+
+    console.log("[ZATCA Credentials] CSR generated successfully, length:", csrBase64.length);
+    console.log("[ZATCA Credentials] CSR base64 (first 100):", csrBase64.substring(0, 100));
 
     // Save to DB (store both hex and PEM private key)
     const { data, error } = await supabase

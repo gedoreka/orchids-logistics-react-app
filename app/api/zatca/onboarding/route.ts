@@ -64,9 +64,26 @@ export async function POST(request: NextRequest) {
   } catch (error: any) {
     console.error("ZATCA onboarding error:", error);
     console.error("ZATCA onboarding error data:", JSON.stringify(error.data, null, 2));
+    
+    // Build a more descriptive error message
+      let errorMsg = error.message || "Onboarding failed";
+      if (error.data) {
+        const details = error.data;
+        if (details.errorMessage) {
+          errorMsg = details.errorMessage;
+        } else if (details.errors && Array.isArray(details.errors)) {
+          errorMsg = details.errors.map((e: any) => e.message || e.code).join(", ");
+        } else if (details.message) {
+          errorMsg = details.message;
+        } else if (details.dispositionMessage) {
+          errorMsg = details.dispositionMessage;
+        }
+      }
+    
     return NextResponse.json({
-      error: error.message || "Onboarding failed",
+      error: errorMsg,
       details: error.data,
+      hint: error.status === 400 ? "CSR قد يكون غير صالح - حاول إعادة إنشاء المفاتيح أولاً" : undefined,
     }, { status: error.status || 500 });
   }
 }
