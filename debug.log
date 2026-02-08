@@ -2462,3 +2462,99 @@ Import trace:
   response: {"unread_count":0}
 2026-02-08T00:59:17.176Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
   response: {"unread_count":0}
+2026-02-08T01:01:53.644Z [console][warn] [Fast Refresh] rebuilding
+2026-02-08T01:01:54.230Z [console][warn] [Fast Refresh] done in 687ms
+2026-02-08T01:01:55.406Z [console][log] __ORCHIDS_NAVIGATE__ http://localhost:3006/dashboard
+2026-02-08T01:01:55.554Z [console][warn] [Fast Refresh] rebuilding
+2026-02-08T01:01:55.659Z [console][warn] [Fast Refresh] done in 206ms
+2026-02-08T01:01:56.150Z [console][warn] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+2026-02-08T01:01:57.240Z [console][error] You are trying to animate  from "0" to "172118.00". "172118.00" is not an animatable value.. For more information and steps for solving, visit https://motion.dev/troubleshooting/value-not-animatable
+2026-02-08T01:01:57.240Z [console][error] You are trying to animate  from "0" to "20484.00". "20484.00" is not an animatable value.. For more information and steps for solving, visit https://motion.dev/troubleshooting/value-not-animatable
+2026-02-08T01:01:57.386Z [console][warn] [Fast Refresh] rebuilding
+2026-02-08T01:01:58.071Z [console][warn] [Fast Refresh] done in 787ms
+2026-02-08T01:01:59.375Z [console][warn] [Fast Refresh] rebuilding
+2026-02-08T01:01:59.585Z [console][warn] [Fast Refresh] done in 311ms
+2026-02-08T01:01:59.692Z [console][error] You are trying to animate  from "172118.00" to "0". "172118.00" is not an animatable value.. For more information and steps for solving, visit https://motion.dev/troubleshooting/value-not-animatable
+2026-02-08T01:01:59.692Z [console][error] You are trying to animate  from "20484.00" to "0". "20484.00" is not an animatable value.. For more information and steps for solving, visit https://motion.dev/troubleshooting/value-not-animatable
+2026-02-08T01:02:11.210Z [console][warn] [Fast Refresh] rebuilding
+2026-02-08T01:02:12.323Z [console][warn] [Fast Refresh] done in 1215ms
+2026-02-08T01:02:12.438Z [console][log] __ORCHIDS_NAVIGATE__ http://localhost:3006/tax-declarations
+2026-02-08T01:02:12.505Z [console][warn] [Fast Refresh] rebuilding
+2026-02-08T01:02:12.508Z [console][warn] [Fast Refresh] done in 105ms
+2026-02-08T01:02:12.749Z [console][error] TypeError: Failed to fetch
+2026-02-08T01:02:12.751Z [console][error] TypeError: Failed to fetch
+2026-02-08T01:02:12.852Z [console][warn] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+2026-02-08T01:02:13.796Z [console][warn] [Fast Refresh] rebuilding
+2026-02-08T01:02:13.823Z [console][warn] [Fast Refresh] done in 129ms
+2026-02-08T01:02:45.902Z [console][warn] [Fast Refresh] rebuilding
+2026-02-08T01:03:15.613Z [console][warn] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+2026-02-08T01:03:15.851Z [console][warn] [Fast Refresh] rebuilding
+2026-02-08T01:03:16.179Z [console][warn] [Fast Refresh] done in 438ms
+2026-02-08T01:03:15.851Z [console][log] [Fast Refresh] rebuilding
+2026-02-08T01:03:16.179Z [console][log] [Fast Refresh] done in 438ms
+2026-02-08T01:03:36.359Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-08T01:03:36.797Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-08T01:03:40.341Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-08T01:03:41.278Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-08T01:03:44.308Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-08T01:03:46.307Z [network][GET 200] /api/admin/notifications?limit=1&last_id=9
+  response: {"success":true,"notifications":[]}
+2026-02-08T01:03:46.687Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-08T01:03:48.267Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-08T01:03:51.360Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-08T01:03:52.299Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-08T01:03:56.296Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-08T01:03:56.645Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-08T01:04:00.299Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-08T01:04:01.267Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-08T01:04:04.276Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-08T01:04:06.272Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-08T01:04:08.290Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-08T01:04:11.263Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-08T01:04:12.273Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-08T01:04:16.404Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-08T01:04:16.740Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-08T01:04:16.763Z [network][GET 200] /api/admin/notifications?limit=1&last_id=9
+  response: {"success":true,"notifications":[]}
+2026-02-08T01:04:16.765Z [network][GET 200] /api/admin/notifications?limit=5
+  response: {"success":true,"notifications":[]}
+2026-02-08T01:04:16.780Z [network][GET 200] /api/email/accounts?company_id=22
+  response: {"accounts":[{"id":"1212d430-c11a-4d82-a602-abdf7d7ab251","company_id":22,"email":"demo@zoolspeed.com","password":"********","provider":"hostinger","imap_host":"imap.hostinger.com","imap_port":993,"smtp_host":"smtp.hostinger.com","smtp_port":465,"use_ssl":true,"is_active":true,"last_sync_at":"2026-02-07T16:41:22.038+00:00","created_at":"2026-02-06T22:25:37.433111+00:00","updated_at":"2026-02-06T22:25:37.433111+00:00"}],"providers":{"hostinger":{"name":"Hostinger","imap_host":"imap.hostinger.com","imap_port":993,"smtp_host":"smtp.hostinger.com","smtp_port":465},"gmail":{"name":"Gmail","imap_host":"imap.gmail.com","imap_port":993,"smtp_host":"smtp.gmail.com","smtp_port":465},"outlook":{"name":"Outlook/Hotmail","imap_host":"outlook.office365.com","imap_port":993,"smtp_host":"smtp.office365.com","smtp_port":587},"custom":{"name":"Custom","imap_host":"","imap_port":993,"smtp_host":"","smtp_port":465}}}
+2026-02-08T01:04:16.959Z [network][GET 200] /api/hr/notifications?company_id=22
+  response: {"success":true,"identity":{"expired":[{"id":552,"name":"ناصر عبدالله","name_en":"Nasser Abdullah","iqama_expiry":"2025-12-30T21:00:00.000Z","iqama_number":"9201837465","package_id":69,"package_name":"مناديب ذا شيفز فري لانس","days_remaining":-39,"status":"expired"},{"id":515,"name":"سارة أحمد","name_en":"Sara Ahmed","iqama_expiry":"2025-12-30T21:00:00.000Z","iqama_number":"4928573016","package_id":69,"package_name":"مناديب ذا شيفز فري لانس","days_remaining":-39,"status":"expired"},{"id":542,"name":"عمرو بكر","name_en":"Amr Bakr","iqama_expiry":"2025-12-30T21:00:00.000Z","iqama_number":"9201836475","package_id":69,"package_name":"مناديب ذا شيفز فري لانس","days_remaining":-39,"status":"expired"},{"id":551,"name":"ليلى حسن","name_en":"Layla Hassan","iqama_expiry":"2025-12-30T21:00:00.000Z","iqama_number":"3847592016","package_id":69,"package_name":"مناديب ذا شيفز فري لانس","days_remaining":-39,"status":"expired"},{"id":548,"name":"علي القاضي","name_en":"Ali Al-Qadi","iqama_expiry":"2025-12-30T21:00:00.000Z","iqama_number":"7483920165","package_id":69,"package_name":"مناديب ذا شيفز فري لانس","days_remaining":-39,"status":"expired"},{"id":527,"name":"رنا علي","name_en":"Rana Ali","iqama_expiry":"2025-12-30T21:00:00.000Z","iqama_number":"5647382910","package_id":69,"package_name":"مناديب ذا شيفز فري لانس","days_remaining":-39,"status":"expired"},{"id":530,"name":"طلال محمد","name_en":"Talal Mohamed","iqama_expiry":"2025-12-30T21:00:00.000Z","iqama_number":"7564839201","package_id":69,"package_name":"مناديب ذا شيفز فري لانس","days_remaining":-39,"status":"expired"},{"id":529,"name":"خالد سعيد","name_en":"Khaled Saeed","iqama_expiry":"2025-12-30T21:00:00.000Z","iqama_number":"1029384756","package_id":69,"package_name":"مناديب ذا شيفز فري لانس","days_remaining":-39,"status":"expired"},{"id":514,"name":"عمر خالد","name_en":"Omar Khaled","iqama_expiry":"2025-12-30T21:00:00.000Z","iqama_number":"5837429160","package_id":69,"package_name":"مناديب ذا شيفز فري لانس","days_remaini... [truncated]
+2026-02-08T01:04:18.356Z [network][GET 200] /api/email/fetch?accountId=1212d430-c11a-4d82-a602-abdf7d7ab251&company_id=22&action=unread
+  response: {"unreadCount":59}
+2026-02-08T01:04:20.351Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-08T01:04:21.289Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-08T01:04:24.309Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-08T01:04:26.284Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-08T01:01:57.240Z [console][error] You are trying to animate  from "0" to "172118.00". "172118.00" is not an animatable value.. For more information and steps for solving, visit https://motion.dev/troubleshooting/value-not-animatable
+2026-02-08T01:01:57.240Z [console][error] You are trying to animate  from "0" to "20484.00". "20484.00" is not an animatable value.. For more information and steps for solving, visit https://motion.dev/troubleshooting/value-not-animatable
+2026-02-08T01:01:59.692Z [console][error] You are trying to animate  from "172118.00" to "0". "172118.00" is not an animatable value.. For more information and steps for solving, visit https://motion.dev/troubleshooting/value-not-animatable
+2026-02-08T01:01:59.692Z [console][error] You are trying to animate  from "20484.00" to "0". "20484.00" is not an animatable value.. For more information and steps for solving, visit https://motion.dev/troubleshooting/value-not-animatable
+2026-02-08T01:02:12.749Z [console][error] TypeError: Failed to fetch
+2026-02-08T01:02:12.751Z [console][error] TypeError: Failed to fetch

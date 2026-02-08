@@ -24,19 +24,19 @@ export async function PATCH(
       status 
     } = body;
 
+    const updateData: Record<string, unknown> = { updated_at: new Date().toISOString() };
+    if (tax_code !== undefined) updateData.tax_code = tax_code;
+    if (name_ar !== undefined) updateData.name_ar = name_ar;
+    if (name_en !== undefined) updateData.name_en = name_en;
+    if (description !== undefined) updateData.description = description;
+    if (tax_rate !== undefined) updateData.tax_rate = parseFloat(tax_rate);
+    if (is_default !== undefined) updateData.is_default = is_default;
+    if (apply_to !== undefined) updateData.apply_to = apply_to;
+    if (status !== undefined) updateData.status = status;
+
     const { data, error } = await supabase
       .from("tax_types")
-      .update({
-        tax_code,
-        name_ar,
-        name_en,
-        description,
-        tax_rate: tax_rate !== undefined ? parseFloat(tax_rate) : undefined,
-        is_default,
-        apply_to,
-        status,
-        updated_at: new Date().toISOString()
-      })
+      .update(updateData)
       .eq("id", id)
       .select()
       .single();
@@ -52,10 +52,10 @@ export async function PATCH(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = params;
+    const { id } = await params;
 
     const { error } = await supabase
       .from("tax_types")

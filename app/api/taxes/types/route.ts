@@ -15,15 +15,44 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "Company ID required" }, { status: 400 });
     }
 
-    const { data, error } = await supabase
-      .from("tax_types")
-      .select("*")
-      .eq("company_id", parseInt(companyId))
-      .order("created_at", { ascending: false });
+    const cid = parseInt(companyId);
 
-    if (error) throw error;
+    // Fetch tax types and settings in parallel
+    const [typesRes, settingsRes] = await Promise.all([
+      supabase.from("tax_types").select("*").eq("company_id", cid).order("created_at", { ascending: false }),
+      supabase.from("tax_settings").select("*").eq("company_id", cid).single()
+    ]);
 
-    return NextResponse.json({ success: true, tax_types: data });
+    if (typesRes.error) throw typesRes.error;
+
+    const taxTypes = typesRes.data || [];
+    const settings = settingsRes.data || {
+      tax_calculation_status: true,
+      tax_included: false,
+      tax_on_packaging: false,
+      order_module_tax: false,
+      parcel_module_tax: false,
+      vendor_tax: false
+    };
+
+    // Compute stats
+    const activeCount = taxTypes.filter((t: any) => t.status === "active").length;
+    const inactiveCount = taxTypes.filter((t: any) => t.status !== "active").length;
+    const defaultTax = taxTypes.find((t: any) => t.is_default);
+    const avgRate = taxTypes.length > 0 ? taxTypes.reduce((sum: number, t: any) => sum + (parseFloat(t.tax_rate) || 0), 0) / taxTypes.length : 0;
+
+    return NextResponse.json({
+      success: true,
+      tax_types: taxTypes,
+      settings,
+      stats: {
+        totalTypes: taxTypes.length,
+        activeCount,
+        inactiveCount,
+        defaultRate: defaultTax ? parseFloat(defaultTax.tax_rate) : 15,
+        avgRate: Math.round(avgRate * 100) / 100
+      }
+    });
   } catch (error) {
     console.error("Error fetching tax types:", error);
     return NextResponse.json({ error: "Failed to fetch tax types" }, { status: 500 });
