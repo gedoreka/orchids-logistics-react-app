@@ -1,10 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@supabase/supabase-js";
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
+import { execute } from "@/lib/db";
 
 export async function POST(request: NextRequest) {
   try {
@@ -18,13 +13,12 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { error } = await supabase
-      .from("journal_entries")
-      .update({ status: "approved", updated_at: new Date().toISOString() })
-      .eq("entry_number", entry_number)
-      .eq("company_id", company_id);
+    const now = new Date().toISOString().slice(0, 19).replace("T", " ");
 
-    if (error) throw error;
+    await execute(
+      `UPDATE journal_entries SET status = 'approved', updated_at = ? WHERE entry_number = ? AND company_id = ?`,
+      [now, entry_number, company_id]
+    );
 
     return NextResponse.json({ success: true });
   } catch (error) {

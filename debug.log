@@ -2330,3 +2330,135 @@ Import trace:
   response: {"unread_count":0}
 2026-02-07T23:42:17.918Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
   response: {"unread_count":0}
+2026-02-07T23:55:12.211Z [console][error] You are trying to animate  from "0" to "172118.00". "172118.00" is not an animatable value.. For more information and steps for solving, visit https://motion.dev/troubleshooting/value-not-animatable
+2026-02-07T23:55:12.211Z [console][error] You are trying to animate  from "0" to "20484.00". "20484.00" is not an animatable value.. For more information and steps for solving, visit https://motion.dev/troubleshooting/value-not-animatable
+2026-02-07T23:55:14.532Z [console][error] You are trying to animate  from "172118.00" to "0". "172118.00" is not an animatable value.. For more information and steps for solving, visit https://motion.dev/troubleshooting/value-not-animatable
+2026-02-07T23:55:14.532Z [console][error] You are trying to animate  from "20484.00" to "0". "20484.00" is not an animatable value.. For more information and steps for solving, visit https://motion.dev/troubleshooting/value-not-animatable
+2026-02-07T23:55:16.916Z [console][error] TypeError: Failed to fetch
+2026-02-07T23:55:16.917Z [console][error] TypeError: Failed to fetch
+2026-02-08T00:04:11.410Z [console][log] [Fast Refresh] rebuilding
+2026-02-08T00:04:11.781Z [console][log] [Fast Refresh] done in 471ms
+2026-02-08T00:04:21.301Z [console][log] [Fast Refresh] rebuilding
+2026-02-08T00:04:21.657Z [console][log] [Fast Refresh] done in 457ms
+2026-02-08T00:04:30.548Z [console][log] [Fast Refresh] rebuilding
+2026-02-08T00:04:30.890Z [console][log] [Fast Refresh] done in 444ms
+2026-02-08T00:05:13.021Z [console][log] [Fast Refresh] rebuilding
+2026-02-08T00:05:13.353Z [console][log] [Fast Refresh] done in 434ms
+2026-02-08T00:05:23.766Z [console][log] [Fast Refresh] rebuilding
+2026-02-08T00:05:24.078Z [console][log] [Fast Refresh] done in 413ms
+2026-02-08T00:06:07.925Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-08T00:06:09.978Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-08T00:06:11.910Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-08T00:06:14.928Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-08T00:06:15.930Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-08T00:06:19.916Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-08T00:06:20.265Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-08T00:06:23.921Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-08T00:06:24.924Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-08T00:06:27.920Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-08T00:40:52.544Z [console][error] Error fetching declarations: TypeError: Failed to fetch
+2026-02-08T00:40:52.545Z [console][error] Error fetching declarations: TypeError: Failed to fetch
+2026-02-08T00:44:13.845Z [console][error] Error fetching declarations: TypeError: Failed to fetch
+2026-02-08T00:45:39.856Z [console][error] Error fetching tax types: TypeError: Failed to fetch
+2026-02-08T00:45:39.856Z [console][error] Error fetching settings: TypeError: Failed to fetch
+2026-02-08T00:45:42.956Z [console][error] Error fetching declarations: TypeError: Failed to fetch
+2026-02-08T00:45:39.984Z [console][warn] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+2026-02-08T00:45:41.746Z [console][warn] [Fast Refresh] rebuilding
+2026-02-08T00:45:41.752Z [console][warn] [Fast Refresh] done in 108ms
+2026-02-08T00:45:42.569Z [console][log] __ORCHIDS_NAVIGATE__ http://localhost:3006/tax-declarations
+2026-02-08T00:45:42.956Z [console][error] Error fetching declarations: TypeError: Failed to fetch
+2026-02-08T00:45:43.063Z [console][warn] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+2026-02-08T00:47:04.042Z [console][warn] [Fast Refresh] rebuilding
+2026-02-08T00:47:04.828Z [console][warn] [Fast Refresh] done in 917ms
+2026-02-08T00:47:04.930Z [console][warn] [Fast Refresh] rebuilding
+2026-02-08T00:47:04.971Z [console][warn] [Fast Refresh] done in 142ms
+2026-02-08T00:47:05.690Z [console][log] __ORCHIDS_NAVIGATE__ http://localhost:3006/tax-declarations
+2026-02-08T00:47:20.590Z [console][warn] [Fast Refresh] rebuilding
+2026-02-08T00:47:20.974Z [console][warn] [Fast Refresh] done in 527ms
+2026-02-08T00:50:56.827Z [console][warn] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+2026-02-08T00:50:57.056Z [console][warn] [Fast Refresh] rebuilding
+2026-02-08T00:50:57.193Z [console][warn] [Fast Refresh] done in 251ms
+2026-02-08T00:50:58.006Z [console][warn] [Fast Refresh] rebuilding
+2026-02-08T00:50:58.061Z [console][warn] [Fast Refresh] done in 157ms
+2026-02-08T00:51:49.019Z [console][warn] [Fast Refresh] rebuilding
+2026-02-08T00:51:50.014Z [console][warn] [Fast Refresh] done in 1075ms
+2026-02-08T00:52:23.261Z [console][warn] [Fast Refresh] rebuilding
+2026-02-08T00:52:23.303Z [console][warn] [Fast Refresh] done in 144ms
+2026-02-08T00:52:47.370Z [console][warn] [Fast Refresh] rebuilding
+2026-02-08T00:52:47.823Z [console][warn] [Fast Refresh] done in 598ms
+2026-02-08T00:52:55.270Z [console][warn] [Fast Refresh] rebuilding
+2026-02-08T00:52:55.576Z [console][warn] [Fast Refresh] done in 408ms
+2026-02-08T00:53:41.419Z [console][warn] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+2026-02-08T00:53:41.676Z [console][warn] [Fast Refresh] rebuilding
+2026-02-08T00:53:41.676Z [console][warn] [Fast Refresh] done in 159ms
+2026-02-08T00:55:26.657Z [console][warn] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+2026-02-08T00:58:27.275Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-08T00:58:27.528Z [network][GET 200] /api/email/accounts?company_id=22
+  response: {"accounts":[{"id":"1212d430-c11a-4d82-a602-abdf7d7ab251","company_id":22,"email":"demo@zoolspeed.com","password":"********","provider":"hostinger","imap_host":"imap.hostinger.com","imap_port":993,"smtp_host":"smtp.hostinger.com","smtp_port":465,"use_ssl":true,"is_active":true,"last_sync_at":"2026-02-07T16:41:22.038+00:00","created_at":"2026-02-06T22:25:37.433111+00:00","updated_at":"2026-02-06T22:25:37.433111+00:00"}],"providers":{"hostinger":{"name":"Hostinger","imap_host":"imap.hostinger.com","imap_port":993,"smtp_host":"smtp.hostinger.com","smtp_port":465},"gmail":{"name":"Gmail","imap_host":"imap.gmail.com","imap_port":993,"smtp_host":"smtp.gmail.com","smtp_port":465},"outlook":{"name":"Outlook/Hotmail","imap_host":"outlook.office365.com","imap_port":993,"smtp_host":"smtp.office365.com","smtp_port":587},"custom":{"name":"Custom","imap_host":"","imap_port":993,"smtp_host":"","smtp_port":465}}}
+2026-02-08T00:58:27.615Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-08T00:58:27.637Z [network][GET 200] /api/admin/notifications?limit=1&last_id=9
+  response: {"success":true,"notifications":[]}
+2026-02-08T00:58:27.645Z [network][GET 200] /api/admin/notifications?limit=5
+  response: {"success":true,"notifications":[]}
+2026-02-08T00:58:27.844Z [network][GET 200] /api/hr/notifications?company_id=22
+  response: {"success":true,"identity":{"expired":[{"id":552,"name":"ناصر عبدالله","name_en":"Nasser Abdullah","iqama_expiry":"2025-12-30T21:00:00.000Z","iqama_number":"9201837465","package_id":69,"package_name":"مناديب ذا شيفز فري لانس","days_remaining":-39,"status":"expired"},{"id":515,"name":"سارة أحمد","name_en":"Sara Ahmed","iqama_expiry":"2025-12-30T21:00:00.000Z","iqama_number":"4928573016","package_id":69,"package_name":"مناديب ذا شيفز فري لانس","days_remaining":-39,"status":"expired"},{"id":542,"name":"عمرو بكر","name_en":"Amr Bakr","iqama_expiry":"2025-12-30T21:00:00.000Z","iqama_number":"9201836475","package_id":69,"package_name":"مناديب ذا شيفز فري لانس","days_remaining":-39,"status":"expired"},{"id":551,"name":"ليلى حسن","name_en":"Layla Hassan","iqama_expiry":"2025-12-30T21:00:00.000Z","iqama_number":"3847592016","package_id":69,"package_name":"مناديب ذا شيفز فري لانس","days_remaining":-39,"status":"expired"},{"id":548,"name":"علي القاضي","name_en":"Ali Al-Qadi","iqama_expiry":"2025-12-30T21:00:00.000Z","iqama_number":"7483920165","package_id":69,"package_name":"مناديب ذا شيفز فري لانس","days_remaining":-39,"status":"expired"},{"id":527,"name":"رنا علي","name_en":"Rana Ali","iqama_expiry":"2025-12-30T21:00:00.000Z","iqama_number":"5647382910","package_id":69,"package_name":"مناديب ذا شيفز فري لانس","days_remaining":-39,"status":"expired"},{"id":530,"name":"طلال محمد","name_en":"Talal Mohamed","iqama_expiry":"2025-12-30T21:00:00.000Z","iqama_number":"7564839201","package_id":69,"package_name":"مناديب ذا شيفز فري لانس","days_remaining":-39,"status":"expired"},{"id":529,"name":"خالد سعيد","name_en":"Khaled Saeed","iqama_expiry":"2025-12-30T21:00:00.000Z","iqama_number":"1029384756","package_id":69,"package_name":"مناديب ذا شيفز فري لانس","days_remaining":-39,"status":"expired"},{"id":514,"name":"عمر خالد","name_en":"Omar Khaled","iqama_expiry":"2025-12-30T21:00:00.000Z","iqama_number":"5837429160","package_id":69,"package_name":"مناديب ذا شيفز فري لانس","days_remaini... [truncated]
+2026-02-08T00:58:29.000Z [network][GET 200] /api/email/fetch?accountId=1212d430-c11a-4d82-a602-abdf7d7ab251&company_id=22&action=unread
+  response: {"unreadCount":58}
+2026-02-08T00:58:31.279Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-08T00:58:32.190Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-08T00:58:35.188Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-08T00:58:37.189Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-08T00:58:39.178Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-08T00:58:42.188Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-08T00:58:43.179Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-08T00:58:47.189Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-08T00:58:47.538Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-08T00:58:51.191Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-08T00:58:52.187Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-08T00:58:55.171Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-08T00:58:57.305Z [network][GET 200] /api/admin/notifications?limit=1&last_id=9
+  response: {"success":true,"notifications":[]}
+2026-02-08T00:58:57.571Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-08T00:58:59.182Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-08T00:59:02.187Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-08T00:59:03.173Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-08T00:59:07.301Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-08T00:59:07.642Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-08T00:59:11.229Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-08T00:59:12.173Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-08T00:59:15.176Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-08T00:59:17.176Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}

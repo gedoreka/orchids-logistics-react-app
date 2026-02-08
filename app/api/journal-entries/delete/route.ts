@@ -1,10 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@supabase/supabase-js";
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
+import { query, execute } from "@/lib/db";
 
 export async function DELETE(request: NextRequest) {
   try {
@@ -20,28 +15,22 @@ export async function DELETE(request: NextRequest) {
     }
 
     // Check source_type - prevent deleting auto entries
-    const { data: existing } = await supabase
-      .from("journal_entries")
-      .select("source_type")
-      .eq("entry_number", entry_number)
-      .eq("company_id", company_id)
-      .limit(1)
-      .maybeSingle();
+    const existing = await query<any>(
+      `SELECT source_type FROM journal_entries WHERE entry_number = ? AND company_id = ? LIMIT 1`,
+      [entry_number, company_id]
+    );
 
-    if (existing && existing.source_type && existing.source_type !== "manual") {
+    if (existing.length > 0 && existing[0].source_type && existing[0].source_type !== "manual") {
       return NextResponse.json(
         { error: "Cannot delete automatic entries" },
         { status: 403 }
       );
     }
 
-    const { error } = await supabase
-      .from("journal_entries")
-      .delete()
-      .eq("entry_number", entry_number)
-      .eq("company_id", company_id);
-
-    if (error) throw error;
+    await execute(
+      `DELETE FROM journal_entries WHERE entry_number = ? AND company_id = ?`,
+      [entry_number, company_id]
+    );
 
     return NextResponse.json({ success: true });
   } catch (error) {

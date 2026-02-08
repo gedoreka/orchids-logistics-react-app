@@ -1,10 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@supabase/supabase-js";
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
+import { query } from "@/lib/db";
 
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams;
@@ -19,73 +14,95 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    // Fetch accounts (full hierarchy fields)
-    const { data: accounts, error: accountsError } = await supabase
-      .from("accounts")
-      .select("id, account_code, account_name, account_level, parent_account, account_type, parent_id, type, is_active")
-      .eq("company_id", companyId)
-      .order("account_code", { ascending: true });
+    // Fetch accounts from MySQL (full hierarchy)
+    const accounts = await query<any>(
+      `SELECT id, account_code, account_name, type, parent_id, account_type, account_level, parent_account
+       FROM accounts WHERE company_id = ? ORDER BY account_code`,
+      [companyId]
+    );
 
-    if (accountsError) throw accountsError;
+    // Fetch cost centers from MySQL (full hierarchy)
+    const costCenters = await query<any>(
+      `SELECT id, center_code, center_name, center_type, parent_id, center_level, parent_center
+       FROM cost_centers WHERE company_id = ? ORDER BY center_code`,
+      [companyId]
+    );
 
-    // Fetch cost centers (full hierarchy fields)
-    const { data: costCenters, error: costCentersError } = await supabase
-      .from("cost_centers")
-      .select("id, center_code, center_name, center_type, parent_id")
-      .eq("company_id", companyId)
-      .order("center_code", { ascending: true });
-
-    if (costCentersError) throw costCentersError;
-
-    // Get next entry number
-    const { data: latestEntry } = await supabase
-      .from("journal_entries")
-      .select("entry_number")
-      .eq("company_id", companyId)
-      .order("entry_number", { ascending: false })
-      .limit(1)
-      .maybeSingle();
+    // Get next entry number from MySQL
+    const latestEntryRows = await query<any>(
+      `SELECT entry_number FROM journal_entries WHERE company_id = ? ORDER BY id DESC LIMIT 1`,
+      [companyId]
+    );
 
     let nextNumber = 1;
-    if (latestEntry?.entry_number) {
-      const match = latestEntry.entry_number.match(/\d+/);
+    if (latestEntryRows.length > 0 && latestEntryRows[0].entry_number) {
+      const match = latestEntryRows[0].entry_number.match(/\d+/);
       if (match) {
         nextNumber = parseInt(match[0]) + 1;
       }
     }
     const entryNumber = "JE" + String(nextNumber).padStart(5, "0");
 
-    // Fetch entries with filters
-    let entriesQuery = supabase
-      .from("journal_entries")
-      .select("*, accounts(account_name, account_code), cost_centers(center_name, center_code)")
-      .eq("company_id", companyId);
+    // Build entries query with filters
+    let entriesSql = `
+      SELECT je.*, 
+        a.account_name, a.account_code,
+        cc.center_name, cc.center_code
+      FROM journal_entries je
+      LEFT JOIN accounts a ON je.account_id = a.id
+      LEFT JOIN cost_centers cc ON je.cost_center_id = cc.id
+      WHERE je.company_id = ?
+    `;
+    const params: any[] = [companyId];
 
     if (fromDate) {
-      entriesQuery = entriesQuery.gte("entry_date", fromDate);
+      entriesSql += ` AND je.entry_date >= ?`;
+      params.push(fromDate);
     }
     if (toDate) {
-      entriesQuery = entriesQuery.lte("entry_date", toDate);
+      entriesSql += ` AND je.entry_date <= ?`;
+      params.push(toDate);
     }
     if (sourceType && sourceType !== "all") {
       if (sourceType === "manual") {
-        entriesQuery = entriesQuery.or("source_type.is.null,source_type.eq.manual");
+        entriesSql += ` AND (je.source_type IS NULL OR je.source_type = 'manual')`;
       } else {
-        entriesQuery = entriesQuery.eq("source_type", sourceType);
+        entriesSql += ` AND je.source_type = ?`;
+        params.push(sourceType);
       }
     }
     if (status && status !== "all") {
-      entriesQuery = entriesQuery.eq("status", status);
+      entriesSql += ` AND je.status = ?`;
+      params.push(status);
     }
 
-    const { data: entries, error: entriesError } = await entriesQuery
-      .order("entry_date", { ascending: false })
-      .order("entry_number", { ascending: false });
+    entriesSql += ` ORDER BY je.entry_date DESC, je.entry_number DESC`;
 
-    if (entriesError) throw entriesError;
+    const rawEntries = await query<any>(entriesSql, params);
+
+    // Transform entries to match expected shape
+    const allEntries = rawEntries.map((e: any) => {
+      let entryDate = e.entry_date;
+      try {
+        if (entryDate instanceof Date && !isNaN(entryDate.getTime())) {
+          entryDate = entryDate.toISOString().split("T")[0];
+        } else if (entryDate) {
+          entryDate = String(entryDate).split("T")[0];
+        } else {
+          entryDate = "";
+        }
+      } catch {
+        entryDate = String(entryDate || "");
+      }
+      return {
+        ...e,
+        entry_date: entryDate,
+        accounts: e.account_name ? { account_name: e.account_name, account_code: e.account_code } : null,
+        cost_centers: e.center_name ? { center_name: e.center_name, center_code: e.center_code } : null,
+      };
+    });
 
     // Calculate stats
-    const allEntries = entries || [];
     let totalDebit = 0;
     let totalCredit = 0;
     const entryNumbers = new Set<string>();
@@ -112,12 +129,20 @@ export async function GET(request: NextRequest) {
 
     // Monthly trend for charts
     const monthlyMap: Record<string, { debit: number; credit: number }> = {};
-    allEntries.forEach((e: any) => {
-      const month = e.entry_date?.substring(0, 7); // YYYY-MM
-      if (month) {
-        if (!monthlyMap[month]) monthlyMap[month] = { debit: 0, credit: 0 };
-        monthlyMap[month].debit += parseFloat(e.debit) || 0;
-        monthlyMap[month].credit += parseFloat(e.credit) || 0;
+      allEntries.forEach((e: any) => {
+      let dateStr = "";
+      try {
+        const d = e.entry_date;
+        if (d && typeof d === "string" && d.length >= 7) {
+          dateStr = d.substring(0, 7);
+        }
+      } catch {
+        dateStr = "";
+      }
+      if (dateStr) {
+        if (!monthlyMap[dateStr]) monthlyMap[dateStr] = { debit: 0, credit: 0 };
+        monthlyMap[dateStr].debit += parseFloat(e.debit) || 0;
+        monthlyMap[dateStr].credit += parseFloat(e.credit) || 0;
       }
     });
 

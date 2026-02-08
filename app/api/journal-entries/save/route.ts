@@ -1,10 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@supabase/supabase-js";
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
+import { query, execute } from "@/lib/db";
 
 export async function POST(request: NextRequest) {
   try {
@@ -29,60 +24,54 @@ export async function POST(request: NextRequest) {
 
     // If edit, check source_type - prevent editing auto entries
     if (is_edit) {
-      const { data: existing } = await supabase
-        .from("journal_entries")
-        .select("source_type")
-        .eq("entry_number", entry_number)
-        .eq("company_id", company_id)
-        .limit(1)
-        .maybeSingle();
+      const existing = await query<any>(
+        `SELECT source_type FROM journal_entries WHERE entry_number = ? AND company_id = ? LIMIT 1`,
+        [entry_number, company_id]
+      );
 
-      if (existing && existing.source_type && existing.source_type !== "manual") {
+      if (existing.length > 0 && existing[0].source_type && existing[0].source_type !== "manual") {
         return NextResponse.json({ error: "Cannot edit automatic entries" }, { status: 403 });
       }
 
-      const { error: deleteError } = await supabase
-        .from("journal_entries")
-        .delete()
-        .eq("entry_number", entry_number)
-        .eq("company_id", company_id);
-
-      if (deleteError) throw deleteError;
+      await execute(
+        `DELETE FROM journal_entries WHERE entry_number = ? AND company_id = ?`,
+        [entry_number, company_id]
+      );
     }
 
     const entryStatus = status || "draft";
-    const now = new Date().toISOString();
+    const now = new Date().toISOString().slice(0, 19).replace("T", " ");
 
     // Insert new lines
-    const insertData = lines
-      .filter((line: any) => (parseFloat(line.debit) > 0 || parseFloat(line.credit) > 0) && line.account_id)
-      .map((line: any) => ({
-        company_id: parseInt(company_id),
-        entry_number,
-        entry_date,
-        account_id: parseInt(line.account_id),
-        cost_center_id: line.cost_center_id ? parseInt(line.cost_center_id) : null,
-        description: line.description || "",
-        debit: parseFloat(line.debit) || 0,
-        credit: parseFloat(line.credit) || 0,
-        created_by: created_by || "System",
-        source_type: "manual",
-        status: entryStatus,
-        updated_at: now,
-      }));
+    const validLines = lines.filter((line: any) =>
+      (parseFloat(line.debit) > 0 || parseFloat(line.credit) > 0) && line.account_id
+    );
 
-    if (insertData.length === 0) {
+    if (validLines.length === 0) {
       return NextResponse.json({ error: "No valid lines to save" }, { status: 400 });
     }
 
-    const { data: inserted, error: insertError } = await supabase
-      .from("journal_entries")
-      .insert(insertData)
-      .select();
+    for (const line of validLines) {
+      await execute(
+        `INSERT INTO journal_entries (entry_number, entry_date, account_id, cost_center_id, description, debit, credit, company_id, created_by, source_type, status, updated_at, created_at)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'manual', ?, ?, NOW())`,
+        [
+          entry_number,
+          entry_date,
+          parseInt(line.account_id),
+          line.cost_center_id ? parseInt(line.cost_center_id) : null,
+          line.description || "",
+          parseFloat(line.debit) || 0,
+          parseFloat(line.credit) || 0,
+          parseInt(company_id),
+          created_by || "System",
+          entryStatus,
+          now,
+        ]
+      );
+    }
 
-    if (insertError) throw insertError;
-
-    return NextResponse.json({ success: true, entry_number, entries: inserted });
+    return NextResponse.json({ success: true, entry_number });
   } catch (error) {
     console.error("Error saving journal entry:", error);
     return NextResponse.json(

@@ -11,7 +11,6 @@ import {
   TrendingUp, TrendingDown, BarChart3
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { toast } from "sonner";
 import { Suspense } from "react";
 import { useTranslations, useLocale } from "@/lib/locale-context";
 import { HierarchicalSearchableSelect } from "@/components/ui/hierarchical-searchable-select";
@@ -25,12 +24,18 @@ interface Account {
   account_name: string;
   account_level?: number;
   parent_account?: string | null;
+  account_type?: string;
+  parent_id?: number | null;
+  type?: string;
+  is_active?: boolean;
 }
 
 interface CostCenter {
   id: number;
   center_code: string;
   center_name: string;
+  center_type?: string;
+  parent_id?: number | null;
 }
 
 interface JournalLine {
@@ -70,13 +75,16 @@ interface JournalEntriesProps {
   companyId: string | number;
 }
 
-type ModalType = "idle" | "delete-confirm" | "deleting" | "delete-success" | "delete-error";
+type ModalType = "idle" | "delete-confirm" | "deleting" | "delete-success" | "delete-error" | "notification";
 
 interface ModalState {
   type: ModalType;
   entryNumber: string | null;
   entryDesc?: string;
   errorMessage?: string;
+  notificationType?: "success" | "error" | "warning" | "info";
+  notificationTitle?: string;
+  notificationMessage?: string;
 }
 
 // ─── Main Content ────────────────────────────────────────────────
@@ -111,6 +119,7 @@ function JournalEntriesContent({ companyId }: JournalEntriesProps) {
   const [expandedEntries, setExpandedEntries] = useState<Record<string, boolean>>({});
   const [showModal, setShowModal] = useState(false);
   const [modal, setModal] = useState<ModalState>({ type: "idle", entryNumber: null });
+  const [validationErrors, setValidationErrors] = useState<Record<string, boolean>>({});
 
   const formatDateGregorian = (dateString: string) => {
     const date = new Date(dateString);
@@ -137,7 +146,7 @@ function JournalEntriesContent({ companyId }: JournalEntriesProps) {
       if (!isEdit) setEntryNumber(data.entryNumber || "");
     } catch (error) {
       console.error(error);
-      toast.error(t("fetchError"));
+      showNotification("error", isAr ? "خطأ" : "Error", t("fetchError"));
     } finally {
       setLoading(false);
     }
@@ -188,7 +197,7 @@ function JournalEntriesContent({ companyId }: JournalEntriesProps) {
   };
 
   const removeRow = (index: number) => {
-    if (lines.length <= 2) return toast.error(t("minLinesError"));
+    if (lines.length <= 2) return showNotification("warning", isAr ? "تنبيه" : "Warning", t("minLinesError"));
     setLines(lines.filter((_, i) => i !== index));
   };
 
@@ -200,9 +209,32 @@ function JournalEntriesContent({ companyId }: JournalEntriesProps) {
 
   const handleSave = async (e: React.FormEvent, saveStatus: "draft" | "approved" = "draft") => {
     e.preventDefault();
-    if (totals.diff > 0.01) return toast.error(t("balanceError"));
+    if (totals.diff > 0.01) return showNotification("error", isAr ? "خطأ في الميزان" : "Balance Error", t("balanceError"));
+
+    // Validate all lines have account and cost center
+    const errors: Record<string, boolean> = {};
+    let hasError = false;
+    lines.forEach((l, i) => {
+      const hasAmount = (parseFloat(l.debit) > 0 || parseFloat(l.credit) > 0);
+      if (hasAmount || lines.length <= 2) {
+        if (!l.account_id) {
+          errors[`account_${i}`] = true;
+          hasError = true;
+        }
+        if (!l.cost_center_id) {
+          errors[`cost_center_${i}`] = true;
+          hasError = true;
+        }
+      }
+    });
+    setValidationErrors(errors);
+    if (hasError) {
+      showNotification("error", isAr ? "بيانات ناقصة" : "Missing Data", isAr ? "يجب اختيار شجرة الحسابات ومركز التكلفة لجميع البنود" : "Account and cost center are required for all lines");
+      return;
+    }
+
     const validLines = lines.filter(l => (parseFloat(l.debit) > 0 || parseFloat(l.credit) > 0) && l.account_id);
-    if (validLines.length < 2) return toast.error(t("minLinesError"));
+    if (validLines.length < 2) return showNotification("warning", isAr ? "تنبيه" : "Warning", t("minLinesError"));
 
     try {
       const res = await fetch("/api/journal-entries/save", {
@@ -220,12 +252,12 @@ function JournalEntriesContent({ companyId }: JournalEntriesProps) {
       });
       const data = await res.json();
       if (data.error) throw new Error(data.error);
-      toast.success(isEdit ? t("updateSuccess") : t("saveSuccess"));
+      showNotification("success", isAr ? "تم بنجاح" : "Success", isEdit ? t("updateSuccess") : t("saveSuccess"));
       resetForm();
       setShowModal(false);
       fetchData();
     } catch (error: any) {
-      toast.error(error.message);
+      showNotification("error", isAr ? "خطأ" : "Error", error.message);
     }
   };
 
@@ -236,6 +268,7 @@ function JournalEntriesContent({ companyId }: JournalEntriesProps) {
     ]);
     setEntryDate(new Date().toISOString().split("T")[0]);
     setIsEdit(false);
+    setValidationErrors({});
   };
 
   const handleEdit = (num: string, entryLines: Entry[]) => {
@@ -257,6 +290,13 @@ function JournalEntriesContent({ companyId }: JournalEntriesProps) {
   };
 
   const closeModal = () => setModal({ type: "idle", entryNumber: null });
+
+  const showNotification = (type: "success" | "error" | "warning" | "info", title: string, message: string) => {
+    setModal({ type: "notification", entryNumber: null, notificationType: type, notificationTitle: title, notificationMessage: message });
+    if (type === "success" || type === "info") {
+      setTimeout(() => setModal(prev => prev.type === "notification" ? { type: "idle", entryNumber: null } : prev), 2500);
+    }
+  };
 
   const handleDelete = async () => {
     if (!modal.entryNumber) return;
@@ -284,11 +324,11 @@ function JournalEntriesContent({ companyId }: JournalEntriesProps) {
         body: JSON.stringify({ entry_number: num, company_id: companyId }),
       });
       if (res.ok) {
-        toast.success(t("approveSuccess"));
-        fetchData();
-      }
-    } catch {
-      toast.error(t("fetchError"));
+          showNotification("success", isAr ? "تم بنجاح" : "Success", t("approveSuccess"));
+          fetchData();
+        }
+      } catch {
+        showNotification("error", isAr ? "خطأ" : "Error", t("fetchError"));
     }
   };
 
@@ -510,6 +550,75 @@ function JournalEntriesContent({ companyId }: JournalEntriesProps) {
                 </div>
               </motion.div>
             )}
+
+            {/* ═══════════ Premium Notification Modal ═══════════ */}
+            {modal.type === "notification" && (() => {
+              const nType = modal.notificationType || "info";
+              const gradients: Record<string, string> = {
+                success: "from-emerald-500 via-teal-600 to-emerald-700",
+                error: "from-red-500 via-rose-600 to-red-700",
+                warning: "from-amber-500 via-orange-600 to-amber-700",
+                info: "from-blue-500 via-indigo-600 to-blue-700",
+              };
+              const shadows: Record<string, string> = {
+                success: "shadow-[0_0_80px_rgba(16,185,129,0.3)] border-emerald-500/20",
+                error: "shadow-[0_0_80px_rgba(239,68,68,0.3)] border-red-500/20",
+                warning: "shadow-[0_0_80px_rgba(245,158,11,0.3)] border-amber-500/20",
+                info: "shadow-[0_0_80px_rgba(59,130,246,0.3)] border-blue-500/20",
+              };
+              const icons: Record<string, React.ReactNode> = {
+                success: <CheckCircle2 size={40} className="text-white drop-shadow-lg" />,
+                error: <AlertCircle size={40} className="text-white drop-shadow-lg" />,
+                warning: <AlertTriangle size={40} className="text-white drop-shadow-lg" />,
+                info: <Sparkles size={40} className="text-white drop-shadow-lg" />,
+              };
+              const btnGradients: Record<string, string> = {
+                success: "from-emerald-500 to-teal-600 shadow-emerald-500/30",
+                error: "from-red-500 to-rose-600 shadow-red-500/30",
+                warning: "from-amber-500 to-orange-600 shadow-amber-500/30",
+                info: "from-blue-500 to-indigo-600 shadow-blue-500/30",
+              };
+              const bgAccents: Record<string, string> = {
+                success: "bg-emerald-950/30 border-emerald-900/50",
+                error: "bg-red-950/30 border-red-900/50",
+                warning: "bg-amber-950/30 border-amber-900/50",
+                info: "bg-blue-950/30 border-blue-900/50",
+              };
+              return (
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.5, y: 30 }}
+                  animate={{ opacity: 1, scale: 1, y: 0 }}
+                  exit={{ opacity: 0, scale: 0.5, y: 30 }}
+                  transition={{ type: "spring", damping: 22, stiffness: 300 }}
+                  className={`relative w-full max-w-md bg-slate-900 rounded-[3rem] ${shadows[nType]} overflow-hidden border-4`}
+                >
+                  <div className={`relative bg-gradient-to-br ${gradients[nType]} p-8 text-white text-center overflow-hidden`}>
+                    <div className="absolute inset-0 opacity-10">
+                      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-96 h-96 rounded-full bg-white/20 blur-3xl" />
+                    </div>
+                    <motion.div
+                      initial={{ scale: 0, rotate: -180 }}
+                      animate={{ scale: 1, rotate: 0 }}
+                      transition={{ delay: 0.15, type: "spring", damping: 15 }}
+                      className="relative z-10 mx-auto w-20 h-20 bg-white/20 backdrop-blur-xl rounded-full flex items-center justify-center mb-5 shadow-2xl border-4 border-white/30"
+                    >
+                      {icons[nType]}
+                    </motion.div>
+                    <motion.h3 initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }}
+                      className="text-2xl font-black tracking-tight relative z-10">{modal.notificationTitle}</motion.h3>
+                  </div>
+                  <div className="p-7 text-center space-y-5" dir="rtl">
+                    <div className={`${bgAccents[nType]} rounded-2xl p-5 border-2`}>
+                      <p className="text-slate-300 font-bold text-base leading-relaxed">{modal.notificationMessage}</p>
+                    </div>
+                    <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={closeModal}
+                      className={`w-full px-6 py-4 rounded-2xl bg-gradient-to-r ${btnGradients[nType]} text-white font-black text-lg shadow-xl transition-all`}>
+                      {isAr ? "حسناً" : "OK"}
+                    </motion.button>
+                  </div>
+                </motion.div>
+              );
+            })()}
           </div>
         )}
       </AnimatePresence>
@@ -705,7 +814,7 @@ function JournalEntriesContent({ companyId }: JournalEntriesProps) {
                           </div>
 
                           {/* Actions */}
-                          <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                          <div className="flex gap-2">
                             {isManual && isDraft && (
                               <motion.button whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}
                                 onClick={e => { e.stopPropagation(); handleApprove(num); }}
@@ -746,8 +855,8 @@ function JournalEntriesContent({ companyId }: JournalEntriesProps) {
                               <div className="bg-slate-900/50 rounded-2xl border border-white/5 overflow-hidden">
                                 <table className="w-full">
                                   <thead>
-                                    <tr className="text-slate-500 text-[11px] font-black uppercase border-b border-white/5">
-                                      <th className="pb-3 pt-4 px-4 text-right">{t("account")}</th>
+                                      <tr className="text-slate-500 text-[11px] font-black uppercase border-b border-white/5">
+                                        <th className="pb-3 pt-4 px-4 text-right">{isAr ? "شجرة الحسابات" : "Chart of Accounts"}</th>
                                       <th className="pb-3 pt-4 px-4 text-right">{t("costCenter")}</th>
                                       <th className="pb-3 pt-4 px-4 text-right">{t("description")}</th>
                                       <th className="pb-3 pt-4 px-4 text-center">{t("debit")}</th>
@@ -875,37 +984,35 @@ function JournalEntriesContent({ companyId }: JournalEntriesProps) {
                   {/* Lines Table */}
                   <div className="rounded-2xl overflow-hidden border border-white/10">
                     <table className="w-full border-collapse">
-                      <thead className="bg-white/5 text-slate-400 font-black text-[11px] uppercase border-b border-white/10">
-                        <tr>
-                          <th className="p-3 text-right w-[22%]">{t("account")}</th>
-                          <th className="p-3 text-right w-[18%]">{t("costCenter")}</th>
-                          <th className="p-3 text-right w-[20%]">{t("description")}</th>
-                          <th className="p-3 text-center w-[15%]">{t("debit")}</th>
-                          <th className="p-3 text-center w-[15%]">{t("credit")}</th>
-                          <th className="p-3 text-center w-10"></th>
-                        </tr>
-                      </thead>
+                    <thead className="bg-white/5 text-slate-400 font-black text-[11px] uppercase border-b border-white/10">
+                      <tr>
+                        <th className="p-3 text-right w-[22%]">{isAr ? "شجرة الحسابات" : "Chart of Accounts"} <span className="text-red-500">*</span></th>
+                        <th className="p-3 text-right w-[18%]">{t("costCenter")} <span className="text-red-500">*</span></th>
+                        <th className="p-3 text-right w-[20%]">{t("description")}</th>
+                        <th className="p-3 text-center w-[15%]">{t("debit")}</th>
+                        <th className="p-3 text-center w-[15%]">{t("credit")}</th>
+                        <th className="p-3 text-center w-10"></th>
+                      </tr>
+                    </thead>
                       <tbody className="divide-y divide-white/5">
                         {lines.map((line, index) => (
                           <tr key={index} className="hover:bg-white/5 transition-colors">
                             <td className="p-2">
                               <HierarchicalSearchableSelect
-                                items={accounts.map(acc => ({ id: acc.id, code: acc.account_code, name: acc.account_name, level: acc.account_level, parent: acc.parent_account }))}
+                                items={accounts.map(acc => ({ id: acc.id, code: acc.account_code, name: acc.account_name, type: (acc.account_type as 'main' | 'sub') || 'main', parent_id: acc.parent_id }))}
                                 value={line.account_id}
-                                valueKey="id"
-                                onSelect={val => handleLineChange(index, "account_id", val)}
-                                placeholder={t("selectAccount")}
-                                className="border-white/10 h-11 bg-white/5 text-white"
+                                onSelect={val => { handleLineChange(index, "account_id", String(val)); setValidationErrors(prev => ({ ...prev, [`account_${index}`]: false })); }}
+                                placeholder={isAr ? "-- اختر شجرة الحسابات --" : "-- Select Account --"}
+                                error={!!validationErrors[`account_${index}`]}
                               />
                             </td>
                             <td className="p-2">
                               <HierarchicalSearchableSelect
-                                items={costCenters.map(cc => ({ id: cc.id, code: cc.center_code, name: cc.center_name }))}
+                                items={costCenters.map(cc => ({ id: cc.id, code: cc.center_code, name: cc.center_name, type: (cc.center_type as 'main' | 'sub') || 'main', parent_id: cc.parent_id }))}
                                 value={line.cost_center_id || ""}
-                                valueKey="id"
-                                onSelect={val => handleLineChange(index, "cost_center_id", val)}
-                                placeholder={t("selectCostCenter")}
-                                className="border-white/10 h-11 bg-white/5 text-white"
+                                onSelect={val => { handleLineChange(index, "cost_center_id", String(val)); setValidationErrors(prev => ({ ...prev, [`cost_center_${index}`]: false })); }}
+                                placeholder={isAr ? "-- اختر مركز التكلفة --" : "-- Select Cost Center --"}
+                                error={!!validationErrors[`cost_center_${index}`]}
                               />
                             </td>
                             <td className="p-2">
