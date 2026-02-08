@@ -48,7 +48,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { format, differenceInDays, parseISO } from "date-fns";
-import { toast } from "sonner";
+// toast removed - using premium modal system
 import { 
   updateEmployeePersonalInfo, 
   updateEmployeeBankInfo, 
@@ -879,14 +879,14 @@ className="bg-slate-100 backdrop-blur-xl p-5 rounded-2xl border border-slate-200
                   <div className="space-y-6">
                     {/* Built-in Documents */}
                     <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
-                      <GlassDocCard label="الصورة الشخصية" path={employee.personal_photo} field="personal_photo" editable={isEditing} employeeId={employee.id} router={router} setCustomDocuments={setCustomDocuments} setCustomDocTypes={setCustomDocTypes} />
-                      <GlassDocCard label="صورة الهوية" path={employee.iqama_file} field="iqama_file" editable={isEditing} employeeId={employee.id} router={router} setCustomDocuments={setCustomDocuments} setCustomDocTypes={setCustomDocTypes} />
-                      <GlassDocCard label="رخصة القيادة" path={employee.license_file} field="license_file" editable={isEditing} employeeId={employee.id} router={router} setCustomDocuments={setCustomDocuments} setCustomDocTypes={setCustomDocTypes} />
-                      <GlassDocCard label="استمارة المركبة" path={employee.vehicle_file} field="vehicle_file" editable={isEditing} employeeId={employee.id} router={router} setCustomDocuments={setCustomDocuments} setCustomDocTypes={setCustomDocTypes} />
-                      <GlassDocCard label="تصريح أجير" path={employee.agir_permit_file} field="agir_permit_file" editable={isEditing} employeeId={employee.id} router={router} setCustomDocuments={setCustomDocuments} setCustomDocTypes={setCustomDocTypes} />
-                      <GlassDocCard label="عقد العمل" path={employee.work_contract_file} field="work_contract_file" editable={isEditing} employeeId={employee.id} router={router} setCustomDocuments={setCustomDocuments} setCustomDocTypes={setCustomDocTypes} />
-                      <GlassDocCard label="بطاقة التشغيل" path={employee.vehicle_operation_card} field="vehicle_operation_card" editable={isEditing} employeeId={employee.id} router={router} setCustomDocuments={setCustomDocuments} setCustomDocTypes={setCustomDocTypes} />
-                      <GlassDocCard label="بطاقة السائق" path={employee.driver_card} field="driver_card" editable={isEditing} employeeId={employee.id} router={router} setCustomDocuments={setCustomDocuments} setCustomDocTypes={setCustomDocTypes} />
+                      <GlassDocCard label="الصورة الشخصية" path={employee.personal_photo} field="personal_photo" editable={isEditing} employeeId={employee.id} router={router} setCustomDocuments={setCustomDocuments} setCustomDocTypes={setCustomDocTypes} setModal={setModal} />
+                      <GlassDocCard label="صورة الهوية" path={employee.iqama_file} field="iqama_file" editable={isEditing} employeeId={employee.id} router={router} setCustomDocuments={setCustomDocuments} setCustomDocTypes={setCustomDocTypes} setModal={setModal} />
+                      <GlassDocCard label="رخصة القيادة" path={employee.license_file} field="license_file" editable={isEditing} employeeId={employee.id} router={router} setCustomDocuments={setCustomDocuments} setCustomDocTypes={setCustomDocTypes} setModal={setModal} />
+                      <GlassDocCard label="استمارة المركبة" path={employee.vehicle_file} field="vehicle_file" editable={isEditing} employeeId={employee.id} router={router} setCustomDocuments={setCustomDocuments} setCustomDocTypes={setCustomDocTypes} setModal={setModal} />
+                      <GlassDocCard label="تصريح أجير" path={employee.agir_permit_file} field="agir_permit_file" editable={isEditing} employeeId={employee.id} router={router} setCustomDocuments={setCustomDocuments} setCustomDocTypes={setCustomDocTypes} setModal={setModal} />
+                      <GlassDocCard label="عقد العمل" path={employee.work_contract_file} field="work_contract_file" editable={isEditing} employeeId={employee.id} router={router} setCustomDocuments={setCustomDocuments} setCustomDocTypes={setCustomDocTypes} setModal={setModal} />
+                      <GlassDocCard label="بطاقة التشغيل" path={employee.vehicle_operation_card} field="vehicle_operation_card" editable={isEditing} employeeId={employee.id} router={router} setCustomDocuments={setCustomDocuments} setCustomDocTypes={setCustomDocTypes} setModal={setModal} />
+                      <GlassDocCard label="بطاقة السائق" path={employee.driver_card} field="driver_card" editable={isEditing} employeeId={employee.id} router={router} setCustomDocuments={setCustomDocuments} setCustomDocTypes={setCustomDocTypes} setModal={setModal} />
                     </div>
 
                     {/* Custom Documents */}
@@ -912,6 +912,7 @@ className="bg-slate-100 backdrop-blur-xl p-5 rounded-2xl border border-slate-200
                                   router={router}
                                   setCustomDocuments={setCustomDocuments}
                                   setCustomDocTypes={setCustomDocTypes}
+                                  setModal={setModal}
                                 />
                             );
                           })}
@@ -940,10 +941,10 @@ className="bg-slate-100 backdrop-blur-xl p-5 rounded-2xl border border-slate-200
                                   setCustomDocTypes([...customDocTypes, { id: res.id, name: newDocTypeName.trim() }]);
                                   setNewDocTypeName("");
                                   setShowAddDocType(false);
-                                  toast.success("تم إضافة نوع المستند بنجاح");
-                                  router.refresh();
-                                } else {
-                                  toast.error("فشل إضافة نوع المستند");
+                                    setModal({ type: 'success', variant: 'create', title: 'تم إضافة نوع المستند بنجاح', details: [`النوع: ${newDocTypeName.trim()}`] });
+                                    router.refresh();
+                                  } else {
+                                    setModal({ type: 'error', title: 'فشل إضافة نوع المستند', message: 'حدث خطأ غير متوقع' });
                                 }
                               }}
                               className="bg-emerald-600 hover:bg-emerald-700 text-white px-5 py-3 rounded-xl text-xs font-black flex items-center gap-2"
@@ -1364,140 +1365,218 @@ className="bg-slate-100 backdrop-blur-xl p-5 rounded-2xl border border-slate-200
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 backdrop-blur-md"
+            className="fixed inset-0 z-[9999] flex items-center justify-center p-4"
             onClick={() => { if (modal.type === 'success' || modal.type === 'error') setModal({ type: 'idle' }); }}
           >
+            {/* Backdrop */}
+            <div className="absolute inset-0 bg-slate-950/90 backdrop-blur-2xl" />
+
             <motion.div
-              initial={{ scale: 0.8, opacity: 0, y: 30 }}
-              animate={{ scale: 1, opacity: 1, y: 0 }}
-              exit={{ scale: 0.8, opacity: 0, y: 30 }}
-              transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-              className="bg-white dark:bg-slate-900 rounded-3xl shadow-2xl border border-slate-200 dark:border-white/10 w-[90%] max-w-md overflow-hidden"
+              initial={{ opacity: 0, scale: 0.8, y: 50 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.8, y: 50 }}
+              transition={{ type: "spring", damping: 25, stiffness: 300 }}
+              className={cn(
+                "relative w-full max-w-lg bg-white dark:bg-slate-900 rounded-[2.5rem] shadow-2xl overflow-hidden border-4",
+                modal.type === 'delete-confirm' ? "border-red-500/20 shadow-[0_0_80px_rgba(239,68,68,0.2)]" :
+                modal.type === 'error' ? "border-red-500/20 shadow-[0_0_80px_rgba(239,68,68,0.2)]" :
+                modal.type === 'success' ? (() => {
+                  const glows: Record<string, string> = {
+                    delete: "border-emerald-500/20 shadow-[0_0_80px_rgba(16,185,129,0.2)]",
+                    update: "border-blue-500/20 shadow-[0_0_80px_rgba(59,130,246,0.2)]",
+                    create: "border-emerald-500/20 shadow-[0_0_80px_rgba(16,185,129,0.2)]",
+                    upload: "border-indigo-500/20 shadow-[0_0_80px_rgba(99,102,241,0.2)]",
+                    download: "border-cyan-500/20 shadow-[0_0_80px_rgba(6,182,212,0.2)]",
+                    vacation: "border-orange-500/20 shadow-[0_0_80px_rgba(249,115,22,0.2)]",
+                    iqama: "border-purple-500/20 shadow-[0_0_80px_rgba(168,85,247,0.2)]",
+                  };
+                  return glows[modal.variant] || glows.update;
+                })() :
+                "border-blue-500/20 shadow-[0_0_80px_rgba(59,130,246,0.2)]"
+              )}
               onClick={(e) => e.stopPropagation()}
             >
               {/* Delete Confirm */}
               {modal.type === 'delete-confirm' && (
-                <div className="p-8 text-center">
-                  <motion.div
-                    initial={{ scale: 0 }}
-                    animate={{ scale: 1 }}
-                    transition={{ type: 'spring', damping: 15 }}
-                    className="mx-auto w-20 h-20 rounded-full bg-red-100 dark:bg-red-500/20 flex items-center justify-center mb-5"
-                  >
-                    <Trash2 size={36} className="text-red-500" />
-                  </motion.div>
-                  <h3 className="text-xl font-black text-slate-800 dark:text-white mb-2">تأكيد الحذف</h3>
-                  <p className="text-sm font-bold text-slate-500 dark:text-white/60 mb-1">{modal.title}</p>
-                  {modal.description && <p className="text-xs text-slate-400 dark:text-white/40 mb-6">{modal.description}</p>}
-                  <div className="flex gap-3 mt-6">
-                    <motion.button
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
-                      onClick={() => setModal({ type: 'idle' })}
-                      className="flex-1 bg-slate-100 dark:bg-white/10 hover:bg-slate-200 dark:hover:bg-white/15 text-slate-700 dark:text-white/70 py-3.5 rounded-xl text-sm font-black transition-all"
+                <>
+                  <div className="relative bg-gradient-to-br from-red-500 via-rose-600 to-red-700 p-8 text-white text-center overflow-hidden">
+                    <div className="absolute inset-0 opacity-10">
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
+                    </div>
+                    <motion.div
+                      initial={{ scale: 0, rotate: -180 }}
+                      animate={{ scale: 1, rotate: 0 }}
+                      transition={{ delay: 0.2, type: "spring", damping: 15 }}
+                      className="relative z-10 mx-auto w-20 h-20 bg-white/20 backdrop-blur-xl rounded-full flex items-center justify-center mb-5 shadow-2xl border-4 border-white/30"
                     >
-                      إلغاء
-                    </motion.button>
-                    <motion.button
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
-                      onClick={async () => {
-                        if (modal.type === 'delete-confirm') {
-                          await modal.onConfirm();
-                        }
-                      }}
-                      className="flex-1 bg-gradient-to-r from-red-500 to-rose-500 hover:from-red-600 hover:to-rose-600 text-white py-3.5 rounded-xl text-sm font-black shadow-lg shadow-red-500/20 transition-all"
-                    >
-                      حذف نهائي
-                    </motion.button>
+                      <motion.div animate={{ scale: [1, 1.1, 1] }} transition={{ repeat: Infinity, duration: 2 }}>
+                        <AlertTriangle size={40} className="text-white drop-shadow-lg" />
+                      </motion.div>
+                    </motion.div>
+                    <motion.h3 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="text-2xl font-black tracking-tight relative z-10">
+                      تأكيد الحذف
+                    </motion.h3>
+                    <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }} className="text-white/80 font-bold mt-2 relative z-10 text-sm">
+                      هذا الإجراء لا يمكن التراجع عنه
+                    </motion.p>
                   </div>
-                </div>
+                  <div className="p-7 text-center space-y-5">
+                    <div className="bg-red-50 dark:bg-red-950/30 rounded-2xl p-5 border-2 border-red-100 dark:border-red-900/50">
+                      <p className="text-slate-700 dark:text-slate-300 font-bold text-base leading-relaxed">هل أنت متأكد من حذف</p>
+                      <p className="text-red-600 dark:text-red-400 font-black text-lg mt-2 truncate">&quot;{modal.title}&quot;</p>
+                      {modal.description && <p className="text-slate-400 text-xs mt-2 font-bold">{modal.description}</p>}
+                    </div>
+                    <p className="text-slate-500 font-bold text-xs">سيتم الحذف نهائياً ولا يمكن التراجع عنه</p>
+                    <div className="flex gap-3 pt-2">
+                      <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={() => setModal({ type: 'idle' })}
+                        className="flex-1 flex items-center justify-center gap-2 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 py-3.5 rounded-2xl font-black text-sm hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors">
+                        <X size={18} /> إلغاء
+                      </motion.button>
+                      <motion.button
+                        whileHover={{ scale: 1.02, boxShadow: "0 20px 40px rgba(239, 68, 68, 0.4)" }}
+                        whileTap={{ scale: 0.98 }}
+                        onClick={async () => { if (modal.type === 'delete-confirm') await modal.onConfirm(); }}
+                        className="flex-1 flex items-center justify-center gap-2 bg-gradient-to-r from-red-500 via-rose-600 to-red-600 text-white py-3.5 rounded-2xl font-black text-sm shadow-xl shadow-red-500/30 border-b-4 border-red-700/50">
+                        <Trash2 size={18} /> نعم، احذف
+                      </motion.button>
+                    </div>
+                  </div>
+                </>
               )}
 
               {/* Processing */}
               {modal.type === 'processing' && (
-                <div className="p-10 text-center">
-                  <motion.div
-                    animate={{ rotate: 360 }}
-                    transition={{ duration: 1.5, repeat: Infinity, ease: 'linear' }}
-                    className="mx-auto w-16 h-16 rounded-full border-4 border-slate-200 dark:border-white/10 border-t-blue-500 mb-5"
-                  />
-                  <h3 className="text-lg font-black text-slate-800 dark:text-white mb-1">{modal.title}</h3>
-                  {modal.description && <p className="text-xs text-slate-400 dark:text-white/50">{modal.description}</p>}
+                <div className="relative p-10 text-center overflow-hidden">
+                  <div className="absolute inset-0 bg-gradient-to-br from-blue-50 via-indigo-50 to-violet-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900" />
+                  <div className="relative z-10">
+                    <div className="relative mx-auto w-24 h-24 mb-6">
+                      <motion.div
+                        animate={{ rotate: 360 }}
+                        transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
+                        className="absolute inset-0 rounded-full border-4 border-transparent border-t-blue-500 border-r-indigo-400"
+                      />
+                      <motion.div
+                        animate={{ rotate: -360 }}
+                        transition={{ duration: 3, repeat: Infinity, ease: 'linear' }}
+                        className="absolute inset-2 rounded-full border-4 border-transparent border-b-violet-500 border-l-blue-400"
+                      />
+                      <div className="absolute inset-4 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-blue-500/30">
+                        <Loader2 size={24} className="text-white animate-spin" />
+                      </div>
+                    </div>
+                    <motion.h3 initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-xl font-black text-slate-800 dark:text-white mb-2">{modal.title}</motion.h3>
+                    {modal.description && <p className="text-sm text-slate-400 dark:text-white/50 font-bold">{modal.description}</p>}
+                    <div className="mt-5 flex justify-center gap-1">
+                      {[0, 1, 2].map(i => (
+                        <motion.div key={i} animate={{ scale: [1, 1.5, 1], opacity: [0.3, 1, 0.3] }} transition={{ duration: 1, repeat: Infinity, delay: i * 0.2 }}
+                          className="w-2 h-2 rounded-full bg-blue-500" />
+                      ))}
+                    </div>
+                  </div>
                 </div>
               )}
 
               {/* Success */}
               {modal.type === 'success' && (() => {
-                const variantConfig: Record<string, { icon: any; color: string; bg: string; glow: string }> = {
-                  delete: { icon: Trash2, color: 'text-red-500', bg: 'bg-red-100 dark:bg-red-500/20', glow: 'shadow-red-500/20' },
-                  update: { icon: Save, color: 'text-blue-500', bg: 'bg-blue-100 dark:bg-blue-500/20', glow: 'shadow-blue-500/20' },
-                  create: { icon: PlusCircle, color: 'text-emerald-500', bg: 'bg-emerald-100 dark:bg-emerald-500/20', glow: 'shadow-emerald-500/20' },
-                  upload: { icon: Upload, color: 'text-indigo-500', bg: 'bg-indigo-100 dark:bg-indigo-500/20', glow: 'shadow-indigo-500/20' },
-                  download: { icon: Download, color: 'text-cyan-500', bg: 'bg-cyan-100 dark:bg-cyan-500/20', glow: 'shadow-cyan-500/20' },
-                  vacation: { icon: Umbrella, color: 'text-orange-500', bg: 'bg-orange-100 dark:bg-orange-500/20', glow: 'shadow-orange-500/20' },
-                  iqama: { icon: IdCard, color: 'text-purple-500', bg: 'bg-purple-100 dark:bg-purple-500/20', glow: 'shadow-purple-500/20' },
+                const variantConfig: Record<string, { icon: any; gradient: string; iconBg: string; color: string; btnGradient: string; btnShadow: string; particleColor: string }> = {
+                  delete: { icon: Trash2, gradient: 'from-emerald-500 via-teal-600 to-emerald-700', iconBg: 'bg-white/20', color: 'text-white', btnGradient: 'from-emerald-500 to-teal-500', btnShadow: 'shadow-emerald-500/30', particleColor: 'bg-emerald-300' },
+                  update: { icon: Save, gradient: 'from-blue-500 via-indigo-600 to-blue-700', iconBg: 'bg-white/20', color: 'text-white', btnGradient: 'from-blue-500 to-indigo-500', btnShadow: 'shadow-blue-500/30', particleColor: 'bg-blue-300' },
+                  create: { icon: PlusCircle, gradient: 'from-emerald-500 via-green-600 to-emerald-700', iconBg: 'bg-white/20', color: 'text-white', btnGradient: 'from-emerald-500 to-green-500', btnShadow: 'shadow-emerald-500/30', particleColor: 'bg-green-300' },
+                  upload: { icon: Upload, gradient: 'from-indigo-500 via-violet-600 to-indigo-700', iconBg: 'bg-white/20', color: 'text-white', btnGradient: 'from-indigo-500 to-violet-500', btnShadow: 'shadow-indigo-500/30', particleColor: 'bg-indigo-300' },
+                  download: { icon: Download, gradient: 'from-cyan-500 via-teal-600 to-cyan-700', iconBg: 'bg-white/20', color: 'text-white', btnGradient: 'from-cyan-500 to-teal-500', btnShadow: 'shadow-cyan-500/30', particleColor: 'bg-cyan-300' },
+                  vacation: { icon: Umbrella, gradient: 'from-orange-500 via-amber-600 to-orange-700', iconBg: 'bg-white/20', color: 'text-white', btnGradient: 'from-orange-500 to-amber-500', btnShadow: 'shadow-orange-500/30', particleColor: 'bg-orange-300' },
+                  iqama: { icon: IdCard, gradient: 'from-purple-500 via-violet-600 to-purple-700', iconBg: 'bg-white/20', color: 'text-white', btnGradient: 'from-purple-500 to-violet-500', btnShadow: 'shadow-purple-500/30', particleColor: 'bg-purple-300' },
                 };
                 const vc = variantConfig[modal.variant] || variantConfig.update;
                 const Icon = vc.icon;
                 return (
-                  <div className="p-8 text-center">
-                    <motion.div
-                      initial={{ scale: 0 }}
-                      animate={{ scale: 1 }}
-                      transition={{ type: 'spring', damping: 12 }}
-                      className={`mx-auto w-20 h-20 rounded-full ${vc.bg} flex items-center justify-center mb-5 shadow-lg ${vc.glow}`}
-                    >
-                      <Icon size={36} className={vc.color} />
-                    </motion.div>
-                    <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ delay: 0.15 }}>
-                      <CheckCircle2 size={28} className="text-emerald-500 mx-auto mb-3" />
-                    </motion.div>
-                    <h3 className="text-xl font-black text-slate-800 dark:text-white mb-3">{modal.title}</h3>
-                    {modal.details && modal.details.length > 0 && (
-                      <div className="bg-slate-50 dark:bg-white/5 rounded-xl p-4 mb-5 space-y-1.5 border border-slate-100 dark:border-white/10">
-                        {modal.details.map((d, i) => (
-                          <p key={i} className="text-xs font-bold text-slate-500 dark:text-white/50 flex items-center gap-2">
-                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 shrink-0" />
-                            {d}
-                          </p>
+                  <>
+                    <div className={`relative bg-gradient-to-br ${vc.gradient} p-8 text-white text-center overflow-hidden`}>
+                      <div className="absolute inset-0 overflow-hidden">
+                        {[...Array(8)].map((_, i) => (
+                          <motion.div
+                            key={i}
+                            initial={{ y: 100, opacity: 0 }}
+                            animate={{ y: -100, opacity: [0, 1, 0], x: Math.random() * 200 - 100 }}
+                            transition={{ delay: i * 0.15, duration: 2.5, repeat: Infinity, repeatDelay: 0.5 }}
+                            className={`absolute ${vc.particleColor} rounded-full`}
+                            style={{ width: 4 + Math.random() * 6, height: 4 + Math.random() * 6, left: `${10 + Math.random() * 80}%`, bottom: 0 }}
+                          />
                         ))}
                       </div>
-                    )}
-                    <motion.button
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
-                      onClick={() => setModal({ type: 'idle' })}
-                      className="w-full bg-gradient-to-r from-emerald-500 to-teal-500 text-white py-3.5 rounded-xl text-sm font-black shadow-lg shadow-emerald-500/20 transition-all"
-                    >
-                      تم
-                    </motion.button>
-                  </div>
+                      <motion.div
+                        initial={{ scale: 0, rotate: -180 }}
+                        animate={{ scale: 1, rotate: 0 }}
+                        transition={{ delay: 0.2, type: "spring", damping: 15 }}
+                        className={`relative z-10 mx-auto w-20 h-20 ${vc.iconBg} backdrop-blur-xl rounded-full flex items-center justify-center mb-4 shadow-2xl border-4 border-white/30`}
+                      >
+                        <Icon size={36} className="text-white drop-shadow-lg" />
+                      </motion.div>
+                      <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ delay: 0.3, type: 'spring' }}
+                        className="absolute top-3 left-1/2 -translate-x-1/2">
+                        <CheckCircle2 size={22} className="text-white/80" />
+                      </motion.div>
+                      <motion.h3 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}
+                        className="text-2xl font-black tracking-tight relative z-10">{modal.title}</motion.h3>
+                      <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.4 }}
+                        className="text-white/70 font-bold mt-1 text-sm relative z-10">تمت العملية بنجاح</motion.p>
+                    </div>
+                    <div className="p-7 text-center space-y-5">
+                      {modal.details && modal.details.length > 0 && (
+                        <div className="bg-slate-50 dark:bg-white/5 rounded-2xl p-5 space-y-2.5 border border-slate-100 dark:border-white/10">
+                          {modal.details.map((d, i) => (
+                            <motion.p key={i} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.4 + i * 0.1 }}
+                              className="text-xs font-bold text-slate-600 dark:text-white/60 flex items-center gap-2">
+                              <span className="w-2 h-2 rounded-full bg-emerald-400 shrink-0 shadow-sm shadow-emerald-400/50" />
+                              {d}
+                            </motion.p>
+                          ))}
+                        </div>
+                      )}
+                      <motion.button
+                        whileHover={{ scale: 1.02, boxShadow: "0 20px 40px rgba(0,0,0,0.15)" }}
+                        whileTap={{ scale: 0.98 }}
+                        onClick={() => setModal({ type: 'idle' })}
+                        className={`w-full bg-gradient-to-r ${vc.btnGradient} text-white py-4 rounded-2xl font-black text-sm shadow-xl ${vc.btnShadow} border-b-4 border-black/10 transition-all`}
+                      >
+                        تم بنجاح
+                      </motion.button>
+                    </div>
+                  </>
                 );
               })()}
 
               {/* Error */}
               {modal.type === 'error' && (
-                <div className="p-8 text-center">
-                  <motion.div
-                    initial={{ scale: 0 }}
-                    animate={{ scale: 1 }}
-                    transition={{ type: 'spring', damping: 15 }}
-                    className="mx-auto w-20 h-20 rounded-full bg-red-100 dark:bg-red-500/20 flex items-center justify-center mb-5"
-                  >
-                    <XCircle size={36} className="text-red-500" />
-                  </motion.div>
-                  <h3 className="text-xl font-black text-slate-800 dark:text-white mb-2">{modal.title}</h3>
-                  <p className="text-sm text-red-400 font-bold mb-6">{modal.message}</p>
-                  <motion.button
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                    onClick={() => setModal({ type: 'idle' })}
-                    className="w-full bg-slate-100 dark:bg-white/10 hover:bg-slate-200 dark:hover:bg-white/15 text-slate-700 dark:text-white py-3.5 rounded-xl text-sm font-black transition-all"
-                  >
-                    إغلاق
-                  </motion.button>
-                </div>
+                <>
+                  <div className="relative bg-gradient-to-br from-red-500 via-rose-600 to-red-700 p-8 text-white text-center overflow-hidden">
+                    <motion.div
+                      initial={{ scale: 0, rotate: -180 }}
+                      animate={{ scale: 1, rotate: 0 }}
+                      transition={{ delay: 0.2, type: "spring", damping: 15 }}
+                      className="relative z-10 mx-auto w-20 h-20 bg-white/20 backdrop-blur-xl rounded-full flex items-center justify-center mb-4 shadow-2xl border-4 border-white/30"
+                    >
+                      <motion.div animate={{ scale: [1, 1.1, 1] }} transition={{ repeat: Infinity, duration: 2 }}>
+                        <XCircle size={40} className="text-white drop-shadow-lg" />
+                      </motion.div>
+                    </motion.div>
+                    <motion.h3 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}
+                      className="text-2xl font-black tracking-tight relative z-10">{modal.title}</motion.h3>
+                  </div>
+                  <div className="p-7 text-center space-y-5">
+                    <div className="bg-red-50 dark:bg-red-950/30 rounded-2xl p-5 border-2 border-red-100 dark:border-red-900/50">
+                      <p className="text-red-600 dark:text-red-400 font-bold text-sm">{modal.message}</p>
+                    </div>
+                    <motion.button
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      onClick={() => setModal({ type: 'idle' })}
+                      className="w-full bg-slate-100 dark:bg-white/10 hover:bg-slate-200 dark:hover:bg-white/15 text-slate-700 dark:text-white py-4 rounded-2xl text-sm font-black transition-all"
+                    >
+                      إغلاق
+                    </motion.button>
+                  </div>
+                </>
               )}
             </motion.div>
           </motion.div>
@@ -1531,7 +1610,7 @@ function GlassField({ label, value, onChange, editable, type = "text", icon }: a
   );
 }
 
-  function GlassDocCard({ label, path, field, editable, employeeId, isCustom, customDocTypeId, expiryDate, router, setCustomDocuments, setCustomDocTypes }: any) {
+  function GlassDocCard({ label, path, field, editable, employeeId, isCustom, customDocTypeId, expiryDate, router, setCustomDocuments, setCustomDocTypes, setModal }: any) {
     const imageUrl = getPublicUrl(path);
     const fileInputRef = React.useRef<HTMLInputElement>(null);
     const [isUploading, setIsUploading] = useState(false);
@@ -1568,10 +1647,14 @@ function GlassField({ label, value, onChange, editable, type = "text", icon }: a
           await updateEmployeeDocument(employeeId, field, data.url);
         }
         
-        toast.success(`تم رفع ${label} بنجاح`);
+        if (setModal) {
+          setModal({ type: 'success', variant: 'upload', title: `تم رفع ${label} بنجاح`, details: [`المستند: ${label}`, `الموظف: #${employeeId}`] });
+        }
         router.refresh();
       } catch (error: any) {
-        toast.error("فشل رفع الملف: " + error.message);
+        if (setModal) {
+          setModal({ type: 'error', title: 'فشل رفع الملف', message: error.message });
+        }
       } finally {
         setIsUploading(false);
       }
@@ -1584,23 +1667,37 @@ function GlassField({ label, value, onChange, editable, type = "text", icon }: a
         expiry_date: localExpiry || undefined,
       });
       if (res.success) {
-        toast.success("تم حفظ تاريخ الانتهاء");
+        if (setModal) {
+          setModal({ type: 'success', variant: 'update', title: 'تم حفظ تاريخ الانتهاء', details: [`المستند: ${label}`, `التاريخ: ${localExpiry}`] });
+        }
         router.refresh();
       } else {
-        toast.error("فشل الحفظ");
+        if (setModal) {
+          setModal({ type: 'error', title: 'فشل الحفظ', message: 'حدث خطأ أثناء حفظ تاريخ الانتهاء' });
+        }
       }
     };
 
     const handleDeleteType = async () => {
-      if (!confirm(`هل أنت متأكد من حذف نوع المستند "${label}"؟ سيتم حذف جميع الملفات المرتبطة.`)) return;
-      const res = await deleteCustomDocumentType(customDocTypeId);
-      if (res.success) {
-        setCustomDocTypes((prev: any[]) => prev.filter((t: any) => t.id !== customDocTypeId));
-        setCustomDocuments((prev: any[]) => prev.filter((d: any) => d.document_name !== label));
-        toast.success("تم حذف نوع المستند");
-        router.refresh();
-      } else {
-        toast.error("فشل حذف نوع المستند");
+      if (setModal) {
+        setModal({
+          type: 'delete-confirm',
+          title: `نوع المستند "${label}"`,
+          description: 'سيتم حذف جميع الملفات المرتبطة بهذا النوع',
+          onConfirm: async () => {
+            setModal({ type: 'processing', title: 'جاري حذف نوع المستند...' });
+            const res = await deleteCustomDocumentType(customDocTypeId);
+            if (res.success) {
+              setCustomDocTypes((prev: any[]) => prev.filter((t: any) => t.id !== customDocTypeId));
+              setCustomDocuments((prev: any[]) => prev.filter((d: any) => d.document_name !== label));
+              setModal({ type: 'success', variant: 'delete', title: 'تم حذف نوع المستند', details: [`المستند: ${label}`] });
+              router.refresh();
+            } else {
+              setModal({ type: 'error', title: 'فشل حذف نوع المستند', message: 'حدث خطأ أثناء الحذف' });
+            }
+          }
+        });
+        return;
       }
     };
 
@@ -1617,9 +1714,13 @@ function GlassField({ label, value, onChange, editable, type = "text", icon }: a
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
-        toast.success("تم بدء التحميل");
+        if (setModal) {
+          setModal({ type: 'success', variant: 'download', title: `تم بدء تحميل ${label}`, details: [`المستند: ${label}`] });
+        }
       } catch (error) {
-        toast.error("فشل تحميل الملف");
+        if (setModal) {
+          setModal({ type: 'error', title: 'فشل تحميل الملف', message: 'حدث خطأ أثناء التحميل' });
+        }
       }
     };
 

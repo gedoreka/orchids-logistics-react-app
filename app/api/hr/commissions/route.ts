@@ -15,7 +15,7 @@ export async function GET(req: NextRequest) {
   try {
     // 1. Fetch Packages
     const packages = await query(
-      "SELECT id, group_name, work_type FROM employee_packages WHERE company_id = ? AND work_type IN ('commission', 'target')",
+      "SELECT id, group_name, work_type FROM employee_packages WHERE company_id = ? AND work_type = 'commission'",
       [company_id]
     );
 
