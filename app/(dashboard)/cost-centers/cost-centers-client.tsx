@@ -526,14 +526,14 @@ export function CostCentersClient({ initialCostCenters, companyId }: CostCenters
                     <label className="text-xs font-black text-slate-500 uppercase tracking-wider">{t("parentCenter")}</label>
                     <div className="relative">
                       <Layers className={cn("absolute top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4", isRtl ? "right-4" : "left-4")} />
-                        <select
-                          value={formData.parent_id || ""}
-                          onChange={(e) => setFormData({ ...formData, parent_id: e.target.value ? Number(e.target.value) : null })}
-                          className={cn(
-                            "w-full bg-slate-50 border border-slate-200 rounded-xl py-3 focus:ring-2 focus:ring-amber-500 focus:border-transparent outline-none transition-all text-sm font-bold appearance-none",
-                            isRtl ? "pr-11 pl-4" : "pl-11 pr-4"
-                          )}
-                        >
+                          <select
+                            value={formData.parent_id || ""}
+                            onChange={(e) => setFormData({ ...formData, parent_id: e.target.value ? Number(e.target.value) : null })}
+                            className={cn(
+                              "w-full bg-slate-50 border border-slate-200 rounded-xl py-3 focus:ring-2 focus:ring-amber-500 focus:border-transparent outline-none transition-all text-sm font-bold appearance-none text-slate-900",
+                              isRtl ? "pr-11 pl-4" : "pl-11 pr-4"
+                            )}
+                          >
                           <option value="">{t("noParent")}</option>
                           {costCenters
                             .filter(c => c.center_type === 'main' && c.id !== editingCenter?.id)
@@ -557,30 +557,30 @@ export function CostCentersClient({ initialCostCenters, companyId }: CostCenters
                           required
                           value={formData.center_code}
                           onChange={(e) => setFormData({ ...formData, center_code: e.target.value })}
-                          placeholder={t("codePlaceholder")}
-                          className={cn(
-                            "w-full bg-slate-50 border border-slate-200 rounded-xl py-3 focus:ring-2 focus:ring-amber-500 outline-none transition-all text-sm font-bold",
-                            isRtl ? "pr-11 pl-4" : "pl-11 pr-4"
-                          )}
-                        />
+                            placeholder={t("codePlaceholder")}
+                            className={cn(
+                              "w-full bg-slate-50 border border-slate-200 rounded-xl py-3 focus:ring-2 focus:ring-amber-500 outline-none transition-all text-sm font-bold text-slate-900",
+                              isRtl ? "pr-11 pl-4" : "pl-11 pr-4"
+                            )}
+                          />
+                        </div>
                       </div>
-                    </div>
-  
-                    <div className="space-y-2">
-                      <label className="text-xs font-black text-slate-500 uppercase tracking-wider">{t("centerName")}</label>
-                      <div className="relative">
-                        <Building className={cn("absolute top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4", isRtl ? "right-4" : "left-4")} />
-                        <input
-                          type="text"
-                          required
-                          value={formData.center_name}
-                          onChange={(e) => setFormData({ ...formData, center_name: e.target.value })}
-                          placeholder={t("namePlaceholder")}
-                          className={cn(
-                            "w-full bg-slate-50 border border-slate-200 rounded-xl py-3 focus:ring-2 focus:ring-amber-500 outline-none transition-all text-sm font-bold",
-                            isRtl ? "pr-11 pl-4" : "pl-11 pr-4"
-                          )}
-                        />
+    
+                      <div className="space-y-2">
+                        <label className="text-xs font-black text-slate-500 uppercase tracking-wider">{t("centerName")}</label>
+                        <div className="relative">
+                          <Building className={cn("absolute top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4", isRtl ? "right-4" : "left-4")} />
+                          <input
+                            type="text"
+                            required
+                            value={formData.center_name}
+                            onChange={(e) => setFormData({ ...formData, center_name: e.target.value })}
+                            placeholder={t("namePlaceholder")}
+                            className={cn(
+                              "w-full bg-slate-50 border border-slate-200 rounded-xl py-3 focus:ring-2 focus:ring-amber-500 outline-none transition-all text-sm font-bold text-slate-900",
+                              isRtl ? "pr-11 pl-4" : "pl-11 pr-4"
+                            )}
+                          />
 
                     </div>
                   </div>
@@ -593,12 +593,12 @@ export function CostCentersClient({ initialCostCenters, companyId }: CostCenters
                     <textarea
                       value={formData.description}
                       onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                      placeholder={t("descriptionPlaceholder")}
-                      rows={3}
-                      className={cn(
-                        "w-full bg-slate-50 border border-slate-200 rounded-xl py-3 focus:ring-2 focus:ring-amber-500 outline-none transition-all text-sm font-bold resize-none",
-                        isRtl ? "pr-11 pl-4" : "pl-11 pr-4"
-                      )}
+                        placeholder={t("descriptionPlaceholder")}
+                        rows={3}
+                        className={cn(
+                          "w-full bg-slate-50 border border-slate-200 rounded-xl py-3 focus:ring-2 focus:ring-amber-500 outline-none transition-all text-sm font-bold resize-none text-slate-900",
+                          isRtl ? "pr-11 pl-4" : "pl-11 pr-4"
+                        )}
                     />
                   </div>
                 </div>

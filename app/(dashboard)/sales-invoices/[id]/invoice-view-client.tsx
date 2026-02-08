@@ -185,6 +185,8 @@ export function InvoiceViewClient({
   const [selectedBankId, setSelectedBankId] = useState(bankAccounts[0]?.id);
   const [showBankSelector, setShowBankSelector] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
+  const [zatcaSubmitting, setZatcaSubmitting] = useState(false);
+  const [zatcaStatus, setZatcaStatus] = useState<string | null>(null);
 
     // Email sending states
     const [showEmailDialog, setShowEmailDialog] = useState<'confirm' | 'compose' | null>(null);
@@ -489,6 +491,77 @@ export function InvoiceViewClient({
     return `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/project-uploads/${path}`;
   };
 
+  // ZATCA submit handler
+  const handleZatcaSubmit = async () => {
+    setZatcaSubmitting(true);
+    setZatcaStatus(null);
+    try {
+      const invoiceData = {
+        id: String(invoice.id),
+        invoiceNumber: invoice.invoice_number,
+        invoiceTypeCode: "388",
+        invoiceSubType: customer?.vat_number ? "0100000" : "0200000",
+        issueDate: invoice.issue_date?.split("T")[0] || new Date().toISOString().split("T")[0],
+        issueTime: "00:00:00",
+        currency: "SAR",
+        sellerName: company?.name || "",
+        sellerVatNumber: company?.vat_number || "",
+        sellerCRNumber: company?.commercial_number || "",
+        sellerStreet: company?.street || "",
+        sellerDistrict: company?.district || "",
+        sellerCity: company?.region || "",
+        sellerPostalCode: company?.postal_code || "",
+        sellerCountry: "SA",
+        buyerName: customer?.name || customer?.customer_name || customer?.company_name || invoice.client_name || "",
+        buyerVatNumber: customer?.vat_number || invoice.client_vat || "",
+        buyerStreet: customer?.address || invoice.client_address || "",
+        buyerCity: "",
+        buyerDistrict: "",
+        buyerPostalCode: "",
+        buyerCountry: "SA",
+        totalBeforeVat: totalBeforeVat,
+        totalVat: totalVat,
+        totalWithVat: grandTotal,
+        paymentMeansCode: "10",
+        items: items.map((item, idx) => ({
+          id: String(idx + 1),
+          name: item.product_name,
+          quantity: item.quantity,
+          unitPrice: item.unit_price,
+          vatRate: 15,
+          vatAmount: item.vat_amount,
+          totalBeforeVat: item.total_before_vat,
+          totalWithVat: item.total_with_vat,
+          vatCategory: "S",
+        })),
+      };
+
+      const res = await fetch("/api/zatca/submit", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          company_id: company?.id,
+          document_type: "invoice",
+          document_id: String(invoice.id),
+          invoice_data: invoiceData,
+        }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setZatcaStatus("success");
+        toast.success("تم إرسال الفاتورة إلى ZATCA بنجاح");
+      } else {
+        setZatcaStatus("failed");
+        toast.error(data.error || "فشل إرسال الفاتورة");
+      }
+    } catch (err: any) {
+      setZatcaStatus("failed");
+      toast.error("خطأ في الاتصال بـ ZATCA");
+    } finally {
+      setZatcaSubmitting(false);
+    }
+  };
+
     return (
       <>
       <div className="min-h-screen bg-transparent overflow-y-auto">
@@ -522,6 +595,20 @@ export function InvoiceViewClient({
             >
               <Mail size={18} />
               إرسال عبر البريد
+            </button>
+            <button
+              onClick={handleZatcaSubmit}
+              disabled={zatcaSubmitting}
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg font-bold text-sm transition-all shadow-md ${
+                zatcaStatus === "success"
+                  ? "bg-emerald-600 text-white"
+                  : zatcaStatus === "failed"
+                  ? "bg-red-600 text-white hover:bg-red-700"
+                  : "bg-purple-600 text-white hover:bg-purple-700"
+              } disabled:opacity-50`}
+            >
+              {zatcaSubmitting ? <Loader2 size={18} className="animate-spin" /> : <ShieldCheck size={18} />}
+              {zatcaSubmitting ? "جاري الإرسال..." : zatcaStatus === "success" ? "تم الإرسال" : "إرسال ZATCA"}
             </button>
           </div>
 

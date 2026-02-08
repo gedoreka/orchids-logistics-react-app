@@ -39,6 +39,8 @@ export function CreditNoteViewClient({ creditNote, qrData }: CreditNoteViewClien
   const printRef = useRef<HTMLDivElement>(null);
   const [pdfLoading, setPdfLoading] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
+  const [zatcaSubmitting, setZatcaSubmitting] = useState(false);
+  const [zatcaStatus, setZatcaStatus] = useState<string | null>(null);
 
   // Email sending states
   const [showEmailDialog, setShowEmailDialog] = useState<'confirm' | 'compose' | null>(null);
@@ -298,6 +300,80 @@ export function CreditNoteViewClient({ creditNote, qrData }: CreditNoteViewClien
     } catch (e) {
       return dateStr;
     }
+    };
+
+  // ZATCA submit handler
+  const handleZatcaSubmit = async () => {
+    setZatcaSubmitting(true);
+    setZatcaStatus(null);
+    try {
+      const cn = creditNote;
+      const items = cn.items || [];
+      const invoiceData = {
+        id: String(cn.id),
+        invoiceNumber: cn.credit_note_number,
+        invoiceTypeCode: "381",
+        invoiceSubType: cn.customer_vat ? "0100000" : "0200000",
+        issueDate: cn.issue_date?.split("T")[0] || new Date().toISOString().split("T")[0],
+        issueTime: "00:00:00",
+        currency: "SAR",
+        sellerName: cn.company_name || "",
+        sellerVatNumber: cn.company_vat || "",
+        sellerCRNumber: cn.company_cr || "",
+        sellerStreet: cn.company_street || "",
+        sellerDistrict: cn.company_district || "",
+        sellerCity: cn.company_city || "",
+        sellerPostalCode: cn.company_postal || "",
+        sellerCountry: "SA",
+        buyerName: cn.customer_name || "",
+        buyerVatNumber: cn.customer_vat || "",
+        buyerStreet: cn.customer_address || "",
+        buyerCity: "",
+        buyerDistrict: "",
+        buyerPostalCode: "",
+        buyerCountry: "SA",
+        totalBeforeVat: parseFloat(cn.total_before_vat || 0),
+        totalVat: parseFloat(cn.vat_total || 0),
+        totalWithVat: parseFloat(cn.total_amount || 0),
+        billingReferenceId: cn.original_invoice_number || "",
+        paymentMeansCode: "10",
+        items: items.map((item: any, idx: number) => ({
+          id: String(idx + 1),
+          name: item.product_name || item.description || "",
+          quantity: item.quantity || 1,
+          unitPrice: item.unit_price || 0,
+          vatRate: 15,
+          vatAmount: item.vat_amount || 0,
+          totalBeforeVat: item.total_before_vat || 0,
+          totalWithVat: item.total_with_vat || 0,
+          vatCategory: "S",
+        })),
+      };
+
+      const res = await fetch("/api/zatca/submit", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          company_id: cn.company_id,
+          document_type: "credit_note",
+          document_id: String(cn.id),
+          invoice_data: invoiceData,
+        }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setZatcaStatus("success");
+        toast.success("تم إرسال الإشعار الدائن إلى ZATCA بنجاح");
+      } else {
+        setZatcaStatus("failed");
+        toast.error(data.error || "فشل إرسال الإشعار الدائن");
+      }
+    } catch {
+      setZatcaStatus("failed");
+      toast.error("خطأ في الاتصال بـ ZATCA");
+    } finally {
+      setZatcaSubmitting(false);
+    }
   };
 
     return (
@@ -328,12 +404,26 @@ export function CreditNoteViewClient({ creditNote, qrData }: CreditNoteViewClien
             {pdfLoading ? 'جاري...' : 'تحميل PDF'}
           </button>
           <button
-            onClick={handleEmailClick}
-            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-[#059669] text-white hover:bg-[#047857] font-bold text-sm transition-all shadow-md"
-          >
-            <Mail size={18} />
-            إرسال عبر البريد
-          </button>
+              onClick={handleEmailClick}
+              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-[#059669] text-white hover:bg-[#047857] font-bold text-sm transition-all shadow-md"
+            >
+              <Mail size={18} />
+              إرسال عبر البريد
+            </button>
+            <button
+              onClick={handleZatcaSubmit}
+              disabled={zatcaSubmitting}
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg font-bold text-sm transition-all shadow-md ${
+                zatcaStatus === "success"
+                  ? "bg-emerald-600 text-white"
+                  : zatcaStatus === "failed"
+                  ? "bg-red-600 text-white hover:bg-red-700"
+                  : "bg-purple-600 text-white hover:bg-purple-700"
+              } disabled:opacity-50`}
+            >
+              {zatcaSubmitting ? <Loader2 size={18} className="animate-spin" /> : <FileText size={18} />}
+              {zatcaSubmitting ? "جاري الإرسال..." : zatcaStatus === "success" ? "تم الإرسال" : "إرسال ZATCA"}
+            </button>
         </div>
 
         {/* Credit Note Layout */}

@@ -1125,167 +1125,799 @@ export function TaxSettingsClient({ companyId }: TaxSettingsClientProps) {
           </motion.div>
         )}
 
-        {/* ═══ Tab: ZATCA ═══ */}
-        {activeTab === "zatca" && (
-          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
-            {/* ZATCA Header */}
-            <div className="relative bg-slate-900/60 backdrop-blur-xl border border-white/5 rounded-2xl overflow-hidden">
-              <div className="absolute inset-0 bg-gradient-to-r from-purple-500/5 via-transparent to-blue-500/5 pointer-events-none" />
-              <div className="relative z-10 p-6 md:p-8">
-                <div className="flex items-center gap-4 mb-6">
-                  <div className="p-4 bg-gradient-to-br from-purple-500/20 to-violet-500/20 rounded-2xl border border-purple-500/20">
-                    <Shield className="w-8 h-8 text-purple-400" />
-                  </div>
-                  <div>
-                    <h2 className="text-2xl font-black text-white">ZATCA - الفوترة الإلكترونية</h2>
-                    <p className="text-white/40 font-medium text-sm">إعدادات هيئة الزكاة والضريبة والجمارك</p>
-                  </div>
-                </div>
+          {/* ═══ Tab: ZATCA ═══ */}
+          {activeTab === "zatca" && (
+            <ZatcaTab
+              companyId={companyId}
+              settings={settings}
+              setSettings={setSettings}
+              saving={saving}
+              handleSaveSettings={handleSaveSettings}
+              showNotification={showNotification}
+            />
+          )}
+      </div>
+    </div>
+  );
+}
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {/* Enable ZATCA */}
-                  <div className="flex items-center justify-between p-4 bg-white/[0.03] rounded-2xl border border-white/5">
-                    <div className="flex items-center gap-3">
-                      <Zap size={18} className="text-purple-400" />
-                      <div>
-                        <p className="text-white font-black text-sm">تفعيل ZATCA</p>
-                        <p className="text-white/30 text-xs">ربط مع هيئة الزكاة</p>
-                      </div>
-                    </div>
-                    <button
-                      onClick={() => setSettings({ ...settings, zatca_enabled: !settings.zatca_enabled })}
-                      className={`relative w-14 h-7 rounded-full transition-all duration-300 ${
-                        settings.zatca_enabled ? "bg-purple-500" : "bg-white/10"
-                      }`}
-                    >
-                      <div className={`absolute top-0.5 w-6 h-6 rounded-full bg-white shadow-lg transition-all duration-300 ${
-                        settings.zatca_enabled ? "left-7" : "left-0.5"
-                      }`} />
-                    </button>
-                  </div>
+// ─── X509 Certificate Display Component ─────────────────────────
+function X509CertificateCard({ certBase64 }: { certBase64: string }) {
+  // Parse basic cert info from base64 DER
+  const certInfo = useMemo(() => {
+    try {
+      const der = atob(certBase64);
 
-                  {/* Environment */}
-                  <div className="flex items-center justify-between p-4 bg-white/[0.03] rounded-2xl border border-white/5">
-                    <div className="flex items-center gap-3">
-                      <Globe size={18} className="text-blue-400" />
-                      <div>
-                        <p className="text-white font-black text-sm">البيئة</p>
-                        <p className="text-white/30 text-xs">اختر بيئة العمل</p>
-                      </div>
-                    </div>
-                    <div className="flex gap-2">
-                      {[
-                        { value: "sandbox", label: "تجريبي" },
-                        { value: "production", label: "إنتاجي" },
-                      ].map((env) => (
-                        <button
-                          key={env.value}
-                          onClick={() => setSettings({ ...settings, zatca_environment: env.value })}
-                          className={`px-3 py-1.5 rounded-lg text-xs font-black transition-all ${
-                            settings.zatca_environment === env.value
-                              ? "bg-purple-500/20 text-purple-300 border border-purple-500/30"
-                              : "bg-white/5 text-white/40 border border-white/10 hover:bg-white/10"
-                          }`}
-                        >
-                          {env.label}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              </div>
+      // Try to find serial number (large integer near start)
+      let serialHex = "";
+      for (let i = 0; i < Math.min(der.length, 100); i++) {
+        if (der.charCodeAt(i) === 0x02) { // INTEGER tag
+          const len = der.charCodeAt(i + 1);
+          if (len > 10 && len < 40) {
+            for (let j = 0; j < len; j++) {
+              serialHex += der.charCodeAt(i + 2 + j).toString(10);
+            }
+            break;
+          }
+        }
+      }
+
+      // Find strings that look like org/CN/country
+      const strings: string[] = [];
+      for (let i = 0; i < der.length - 3; i++) {
+        const tag = der.charCodeAt(i);
+        if (tag === 0x0c || tag === 0x13) { // UTF8String or PrintableString
+          const len = der.charCodeAt(i + 1);
+          if (len > 1 && len < 100 && i + 2 + len <= der.length) {
+            const str = der.substring(i + 2, i + 2 + len);
+            if (/^[\x20-\x7E\u0600-\u06FF]+$/.test(str)) {
+              strings.push(str);
+            }
+          }
+        }
+      }
+
+      // Heuristic: find CN, O, OU, C from cert strings
+      const country = strings.find(s => s === "SA") || "SA";
+      const org = strings.find(s => s.length > 5 && s !== "SA" && !s.includes("ZATCA") && !s.startsWith("EGS")) || "";
+      const cn = strings.find(s => s.startsWith("EGS") || s.includes("TST")) || strings.find(s => s.length > 10) || "";
+      const ou = strings.find(s => /RIYADH|riyadh|Riyadh|Jeddah|Dammam/i.test(s)) || "";
+
+      return {
+        serialNumber: serialHex || "N/A",
+        cn: cn || "N/A",
+        org: org || "N/A",
+        ou: ou || "N/A",
+        country,
+        notBefore: "تم الإصدار بنجاح",
+        notAfter: "",
+      };
+    } catch {
+      return null;
+    }
+  }, [certBase64]);
+
+  if (!certInfo) return null;
+
+  return (
+    <div className="relative bg-gradient-to-br from-yellow-50/10 to-green-50/10 rounded-2xl border-4 border-purple-500/30 p-6 overflow-hidden">
+      {/* Decorative star */}
+      <div className="absolute top-4 right-4">
+        <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
+          <path d="M20 0L24.5 15.5L40 20L24.5 24.5L20 40L15.5 24.5L0 20L15.5 15.5Z" fill="rgb(147,51,234)" fillOpacity="0.6"/>
+        </svg>
+      </div>
+
+      <h4 className="text-xl font-black text-white text-center mb-4">
+        شهادة رقمية <span className="text-purple-300">X509Certificate</span>
+      </h4>
+
+      <div className="space-y-2 text-sm text-center">
+        {certInfo.serialNumber !== "N/A" && (
+          <p className="text-white/60">
+            <span className="text-white/40">الرقم التسلسلي: </span>
+            <span className="font-mono text-xs text-white/50">{certInfo.serialNumber.substring(0, 40)}...</span>
+          </p>
+        )}
+        {certInfo.cn !== "N/A" && (
+          <p className="text-white/70">
+            <span className="text-white/40">الاسم العام: </span>
+            <span className="font-bold">{certInfo.cn}</span>
+          </p>
+        )}
+        {certInfo.org !== "N/A" && (
+          <p className="text-white/70">
+            <span className="text-white/40">المنظمة: </span>
+            <span className="font-bold">{certInfo.org}</span>
+          </p>
+        )}
+        {certInfo.ou !== "N/A" && (
+          <p className="text-white/70">
+            <span className="text-white/40">الوحدة التنظيمية: </span>
+            <span className="font-bold">{certInfo.ou}</span>
+          </p>
+        )}
+        <p className="text-white/70">
+          <span className="text-white/40">الدولة: </span>
+          <span className="font-bold">{certInfo.country}</span>
+        </p>
+      </div>
+
+      <p className="text-emerald-400 text-xs font-bold text-center mt-4">
+        تم التحقق من صحة هذه الشهادة وإصدارها بواسطة هيئة الزكاة والضريبة
+      </p>
+    </div>
+  );
+}
+
+// ─── Compliance Test Item Component ──────────────────────────────
+function ComplianceTestItem({
+  label,
+  status,
+  isRunning,
+}: {
+  label: string;
+  status: "pending" | "success" | "failed" | "warning" | "running";
+  isRunning: boolean;
+}) {
+  const bgColor = status === "success" ? "bg-emerald-500" :
+    status === "failed" ? "bg-red-500" :
+    status === "warning" ? "bg-amber-500" :
+    isRunning ? "bg-blue-500/50" : "bg-cyan-100/10";
+  const textColor = status === "success" || status === "failed" || status === "warning"
+    ? "text-white" : isRunning ? "text-blue-200" : "text-white/70";
+  const borderColor = status === "success" ? "border-emerald-400/30" :
+    status === "failed" ? "border-red-400/30" :
+    status === "warning" ? "border-amber-400/30" :
+    "border-white/5";
+
+  return (
+    <div className={`flex items-center gap-3 px-4 py-3 rounded-xl ${bgColor} border ${borderColor} transition-all duration-500`}>
+      <div className="flex-shrink-0">
+        {status === "success" ? (
+          <CheckCircle2 size={20} className="text-white" />
+        ) : status === "failed" ? (
+          <AlertCircle size={20} className="text-white" />
+        ) : status === "warning" ? (
+          <AlertTriangle size={20} className="text-white" />
+        ) : isRunning ? (
+          <Loader2 size={20} className="text-blue-200 animate-spin" />
+        ) : (
+          <Info size={20} className="text-blue-400" />
+        )}
+      </div>
+      <span className={`font-bold text-sm flex-1 text-center ${textColor}`}>
+        {label}
+        {status === "success" && " تم بنجاح"}
+      </span>
+    </div>
+  );
+}
+
+// ─── ZATCA Tab Component ─────────────────────────────────────────
+function ZatcaTab({
+  companyId,
+  settings,
+  setSettings,
+  saving,
+  handleSaveSettings,
+  showNotification,
+}: {
+  companyId: number;
+  settings: TaxSettings;
+  setSettings: (s: TaxSettings) => void;
+  saving: boolean;
+  handleSaveSettings: () => Promise<void>;
+  showNotification: (type: "success" | "error" | "warning" | "info", title: string, message: string) => void;
+}) {
+  const [credentials, setCredentials] = useState<any>(null);
+  const [credLoading, setCredLoading] = useState(true);
+  const [stepLoading, setStepLoading] = useState("");
+  const [otp, setOtp] = useState("");
+  const [orgName, setOrgName] = useState("");
+  const [orgId, setOrgId] = useState("");
+  const [commonName, setCommonName] = useState("");
+  const [location, setLocation] = useState("Riyadh");
+  const [industry, setIndustry] = useState("Logistics");
+  const [submissions, setSubmissions] = useState<any[]>([]);
+  const [complianceResults, setComplianceResults] = useState<Array<{
+    id: string;
+    label_ar: string;
+    status: "pending" | "success" | "failed" | "warning" | "running";
+  }>>([]);
+  const [complianceRunning, setComplianceRunning] = useState(false);
+  const [allCompliancePassed, setAllCompliancePassed] = useState(false);
+
+  // Fetch credentials on mount
+  useEffect(() => {
+    fetchCredentials();
+    fetchSubmissions();
+  }, [companyId]);
+
+  const fetchCredentials = async () => {
+    try {
+      const res = await fetch(`/api/zatca/credentials?company_id=${companyId}`);
+      const data = await res.json();
+      if (data.success) setCredentials(data.credentials);
+    } catch { /* ignore */ }
+    finally { setCredLoading(false); }
+  };
+
+  const fetchSubmissions = async () => {
+    try {
+      const res = await fetch(`/api/zatca/submissions?company_id=${companyId}&limit=10`);
+      const data = await res.json();
+      if (data.success) setSubmissions(data.submissions || []);
+    } catch { /* ignore */ }
+  };
+
+  // Step 1: Generate Keys & CSR
+  const handleGenerateKeys = async () => {
+    if (!orgName || !orgId) {
+      return showNotification("warning", "بيانات ناقصة", "يرجى إدخال اسم المنشأة ورقم التسجيل");
+    }
+    setStepLoading("keys");
+    try {
+      const res = await fetch("/api/zatca/credentials", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          company_id: companyId,
+          organization_name: orgName,
+          organization_identifier: orgId,
+          common_name: commonName || undefined,
+          location: location || "Riyadh",
+          industry: industry || "Logistics",
+          environment: settings.zatca_environment || "sandbox",
+        }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        showNotification("success", "تم إنشاء المفاتيح", "تم إنشاء مفاتيح التشفير و CSR بنجاح");
+        fetchCredentials();
+      } else {
+        showNotification("error", "خطأ", data.error);
+      }
+    } catch {
+      showNotification("error", "خطأ", "فشل في إنشاء المفاتيح");
+    } finally { setStepLoading(""); }
+  };
+
+  // Step 2: Onboarding (CCSID) with OTP
+  const handleOnboarding = async () => {
+    if (!otp) return showNotification("warning", "OTP مطلوب", "أدخل رمز OTP من بوابة هيئة الزكاة");
+    setStepLoading("onboarding");
+    try {
+      const res = await fetch("/api/zatca/onboarding", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ company_id: companyId, otp }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        showNotification("success", "تم إنشاء شهادة موقته بنجاح", data.message || "تم الحصول على CCSID بنجاح");
+        fetchCredentials();
+      } else {
+        showNotification("error", "خطأ", data.error);
+      }
+    } catch {
+      showNotification("error", "خطأ", "فشل التسجيل");
+    } finally { setStepLoading(""); }
+  };
+
+  // Step 3: Run all 6 compliance checks
+  const handleCompliance = async () => {
+    setComplianceRunning(true);
+    setAllCompliancePassed(false);
+
+    // Initialize all tests as pending
+    const testDefs = [
+      { id: "simplified_invoice", label_ar: "مشاركة الفاتورة المبسطة في منصة فاتورة" },
+      { id: "simplified_debit_note", label_ar: "مشاركة الاشعار الالكتروني المدين في منصة فاتورة" },
+      { id: "simplified_credit_note", label_ar: "مشاركة الاشعار الالكتروني الدائن في منصة فاتورة" },
+      { id: "standard_invoice", label_ar: "إعتماد الفاتورة الضريبية في منصة فاتورة" },
+      { id: "standard_debit_note", label_ar: "إعتماد الاشعار الالكتروني المدين في منصة فاتورة" },
+      { id: "standard_credit_note", label_ar: "إعتماد الاشعار الالكتروني الدائن في منصة فاتورة" },
+    ];
+
+    setComplianceResults(testDefs.map(t => ({ id: t.id, label_ar: t.label_ar, status: "pending" as const })));
+
+    try {
+      // Run all tests at once via API
+      const res = await fetch("/api/zatca/compliance", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ company_id: companyId }),
+      });
+      const data = await res.json();
+
+      if (data.success && data.results) {
+        // Update results from API response
+        setComplianceResults(data.results.map((r: any) => ({
+          id: r.id,
+          label_ar: testDefs.find(t => t.id === r.id)?.label_ar || r.label_ar,
+          status: r.status,
+        })));
+
+        if (data.allPassed) {
+          setAllCompliancePassed(true);
+          showNotification("success", "اجتياز جميع الاختبارات", "تم اجتياز جميع اختبارات المطابقة بنجاح");
+        } else {
+          showNotification("warning", "بعض الاختبارات فشلت", "لم يتم اجتياز جميع اختبارات المطابقة");
+        }
+      } else {
+        setComplianceResults(testDefs.map(t => ({ id: t.id, label_ar: t.label_ar, status: "failed" as const })));
+        showNotification("error", "خطأ", data.error || "فشل اختبار المطابقة");
+      }
+    } catch {
+      setComplianceResults(testDefs.map(t => ({ id: t.id, label_ar: t.label_ar, status: "failed" as const })));
+      showNotification("error", "خطأ", "فشل اختبار المطابقة");
+    } finally {
+      setComplianceRunning(false);
+    }
+  };
+
+  // Step 4: Production CSID
+  const handleProduction = async () => {
+    setStepLoading("production");
+    try {
+      const res = await fetch("/api/zatca/production", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ company_id: companyId }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        showNotification("success", "جاهز للإنتاج", data.message || "تم الحصول على شهادة الإنتاج بنجاح - صالحة لمدة 5 سنوات");
+        fetchCredentials();
+      } else {
+        showNotification("error", "خطأ", data.error);
+      }
+    } catch {
+      showNotification("error", "خطأ", "فشل الحصول على شهادة الإنتاج");
+    } finally { setStepLoading(""); }
+  };
+
+  const getStatusStep = () => {
+    if (!credentials) return 0;
+    switch (credentials.status) {
+      case "pending": return 1;
+      case "compliance": return 2;
+      case "production": return 4;
+      case "active": return 4;
+      default: return 0;
+    }
+  };
+
+  const statusStep = getStatusStep();
+
+  const statusColors: Record<string, string> = {
+    success: "text-emerald-400 bg-emerald-500/10 border-emerald-500/20",
+    failed: "text-red-400 bg-red-500/10 border-red-500/20",
+    warning: "text-amber-400 bg-amber-500/10 border-amber-500/20",
+    pending: "text-blue-400 bg-blue-500/10 border-blue-500/20",
+  };
+
+  const envLabel = settings.zatca_environment === "production" ? "الوضع الفعلي" :
+    settings.zatca_environment === "simulation" ? "وضع المحاكاة" : "الوضع التجريبي";
+
+  return (
+    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
+      {/* ZATCA Header + Settings */}
+      <div className="relative bg-slate-900/60 backdrop-blur-xl border border-white/5 rounded-2xl overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-r from-purple-500/5 via-transparent to-blue-500/5 pointer-events-none" />
+        <div className="relative z-10 p-6 md:p-8">
+          <div className="flex items-center gap-4 mb-6">
+            <div className="p-4 bg-gradient-to-br from-purple-500/20 to-violet-500/20 rounded-2xl border border-purple-500/20">
+              <Shield className="w-8 h-8 text-purple-400" />
             </div>
+            <div>
+              <h2 className="text-2xl font-black text-white">الربط مع هيئة الزكاة والضريبة</h2>
+              <p className="text-red-400 font-bold text-sm">{envLabel}</p>
+            </div>
+          </div>
 
-            {/* ZATCA Form Fields */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="bg-slate-900/60 backdrop-blur-xl border border-white/5 rounded-2xl p-6 space-y-4">
-                <h3 className="text-white font-black flex items-center gap-2 mb-4">
-                  <Hash size={16} className="text-purple-400" /> بيانات الضريبة
-                </h3>
-                <div className="space-y-2">
-                  <label className="text-white/40 font-bold text-xs">رقم التسجيل الضريبي (VAT)</label>
-                  <input
-                    value={settings.zatca_vat_number || ""}
-                    onChange={(e) => setSettings({ ...settings, zatca_vat_number: e.target.value })}
-                    placeholder="3XXXXXXXX00003"
-                    className="w-full bg-white/5 border-2 border-white/10 rounded-xl px-4 py-3 text-white placeholder-white/20 font-bold text-sm focus:border-purple-500/50 focus:ring-4 focus:ring-purple-500/10 outline-none transition-all"
-                  />
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <label className="text-white/40 font-bold text-xs">نسبة الضريبة</label>
-                    <input
-                      type="number"
-                      value={settings.zatca_vat_rate || 15}
-                      onChange={(e) => setSettings({ ...settings, zatca_vat_rate: parseFloat(e.target.value) })}
-                      className="w-full bg-white/5 border-2 border-white/10 rounded-xl px-4 py-3 text-white font-bold text-sm focus:border-purple-500/50 outline-none transition-all"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-white/40 font-bold text-xs">المرحلة</label>
-                    <div className="flex gap-2">
-                      {[1, 2].map((phase) => (
-                        <button
-                          key={phase}
-                          onClick={() => setSettings({ ...settings, zatca_phase: phase })}
-                          className={`flex-1 py-3 rounded-xl text-sm font-black transition-all border-2 ${
-                            settings.zatca_phase === phase
-                              ? "bg-purple-500/20 border-purple-500/50 text-purple-300"
-                              : "bg-white/5 border-white/10 text-white/40 hover:bg-white/10"
-                          }`}
-                        >
-                          المرحلة {phase}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="flex items-center justify-between p-4 bg-white/[0.03] rounded-2xl border border-white/5">
+              <div className="flex items-center gap-3">
+                <Zap size={18} className="text-purple-400" />
+                <div>
+                  <p className="text-white font-black text-sm">تفعيل ZATCA</p>
+                  <p className="text-white/30 text-xs">ربط مع هيئة الزكاة</p>
                 </div>
               </div>
-
-              <div className="bg-slate-900/60 backdrop-blur-xl border border-white/5 rounded-2xl p-6 space-y-4">
-                <h3 className="text-white font-black flex items-center gap-2 mb-4">
-                  <Settings size={16} className="text-blue-400" /> خيارات متقدمة
-                </h3>
+              <button
+                onClick={() => setSettings({ ...settings, zatca_enabled: !settings.zatca_enabled })}
+                className={`relative w-14 h-7 rounded-full transition-all duration-300 ${settings.zatca_enabled ? "bg-purple-500" : "bg-white/10"}`}
+              >
+                <div className={`absolute top-0.5 w-6 h-6 rounded-full bg-white shadow-lg transition-all duration-300 ${settings.zatca_enabled ? "left-7" : "left-0.5"}`} />
+              </button>
+            </div>
+            <div className="flex items-center justify-between p-4 bg-white/[0.03] rounded-2xl border border-white/5">
+              <div className="flex items-center gap-3">
+                <Globe size={18} className="text-blue-400" />
+                <div>
+                  <p className="text-white font-black text-sm">البيئة</p>
+                  <p className="text-white/30 text-xs">اختر بيئة العمل</p>
+                </div>
+              </div>
+              <div className="flex gap-2">
                 {[
-                  { key: "zatca_auto_signature", label: "التوقيع الإلكتروني التلقائي", desc: "توقيع الفواتير تلقائياً عند إصدارها" },
-                  { key: "zatca_immediate_send", label: "الإرسال الفوري", desc: "إرسال الفواتير مباشرة إلى الهيئة" },
-                ].map((item) => (
-                  <div key={item.key} className="flex items-center justify-between p-4 bg-white/[0.03] rounded-xl border border-white/5">
-                    <div>
-                      <p className="text-white font-black text-sm">{item.label}</p>
-                      <p className="text-white/30 text-xs">{item.desc}</p>
-                    </div>
-                    <button
-                      onClick={() => setSettings({ ...settings, [item.key]: !(settings as any)[item.key] })}
-                      className={`relative w-14 h-7 rounded-full transition-all duration-300 ${
-                        (settings as any)[item.key] ? "bg-purple-500" : "bg-white/10"
-                      }`}
-                    >
-                      <div className={`absolute top-0.5 w-6 h-6 rounded-full bg-white shadow-lg transition-all duration-300 ${
-                        (settings as any)[item.key] ? "left-7" : "left-0.5"
-                      }`} />
-                    </button>
-                  </div>
+                  { value: "sandbox", label: "تجريبي" },
+                  { value: "simulation", label: "محاكاة" },
+                  { value: "production", label: "إنتاجي" },
+                ].map((env) => (
+                  <button key={env.value}
+                    onClick={() => setSettings({ ...settings, zatca_environment: env.value })}
+                    className={`px-3 py-1.5 rounded-lg text-xs font-black transition-all ${
+                      settings.zatca_environment === env.value
+                        ? "bg-purple-500/20 text-purple-300 border border-purple-500/30"
+                        : "bg-white/5 text-white/40 border border-white/10 hover:bg-white/10"
+                    }`}
+                  >{env.label}</button>
                 ))}
               </div>
             </div>
+          </div>
 
-            {/* ZATCA Save */}
-            <div className="flex justify-end">
-              <motion.button
-                whileHover={{ scale: 1.02, boxShadow: "0 20px 40px rgba(147,51,234,0.3)" }}
-                whileTap={{ scale: 0.98 }}
-                onClick={handleSaveSettings}
-                disabled={saving}
-                className="flex items-center gap-3 bg-gradient-to-r from-purple-600 to-violet-600 hover:from-purple-500 hover:to-violet-500 text-white px-8 py-4 rounded-2xl font-black text-base shadow-xl shadow-purple-500/25 disabled:opacity-50 transition-all"
-              >
-                {saving ? <Loader2 size={18} className="animate-spin" /> : <Save size={18} />}
-                {saving ? "جاري الحفظ..." : "حفظ إعدادات ZATCA"}
-              </motion.button>
+          {/* VAT fields */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+            <div className="space-y-2">
+              <label className="text-white/40 font-bold text-xs">رقم التسجيل الضريبي (VAT)</label>
+              <input value={settings.zatca_vat_number || ""}
+                onChange={(e) => setSettings({ ...settings, zatca_vat_number: e.target.value })}
+                placeholder="3XXXXXXXX00003"
+                className="w-full bg-white/5 border-2 border-white/10 rounded-xl px-4 py-3 text-white placeholder-white/20 font-bold text-sm focus:border-purple-500/50 outline-none transition-all"
+              />
             </div>
-          </motion.div>
+            <div className="space-y-2">
+              <label className="text-white/40 font-bold text-xs">نسبة الضريبة %</label>
+              <input type="number" value={settings.zatca_vat_rate || 15}
+                onChange={(e) => setSettings({ ...settings, zatca_vat_rate: parseFloat(e.target.value) })}
+                className="w-full bg-white/5 border-2 border-white/10 rounded-xl px-4 py-3 text-white font-bold text-sm focus:border-purple-500/50 outline-none transition-all"
+              />
+            </div>
+            <div className="flex items-end gap-2">
+              {[
+                { key: "zatca_auto_signature", label: "توقيع تلقائي" },
+                { key: "zatca_immediate_send", label: "إرسال فوري" },
+              ].map((item) => (
+                <button key={item.key}
+                  onClick={() => setSettings({ ...settings, [item.key]: !(settings as any)[item.key] })}
+                  className={`flex-1 py-3 rounded-xl text-xs font-black transition-all border-2 ${
+                    (settings as any)[item.key]
+                      ? "bg-purple-500/20 border-purple-500/50 text-purple-300"
+                      : "bg-white/5 border-white/10 text-white/40"
+                  }`}
+                >{item.label}</button>
+              ))}
+            </div>
+          </div>
+
+          {/* Save settings */}
+          <div className="mt-4 flex justify-end">
+            <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}
+              onClick={handleSaveSettings} disabled={saving}
+              className="flex items-center gap-2 bg-gradient-to-r from-purple-600 to-violet-600 text-white px-6 py-3 rounded-xl font-black text-sm shadow-lg shadow-purple-500/25 disabled:opacity-50"
+            >
+              {saving ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />}
+              {saving ? "جاري الحفظ..." : "حفظ الإعدادات"}
+            </motion.button>
+          </div>
+        </div>
+      </div>
+
+      {/* ─── Onboarding Wizard ─── */}
+      <div className="bg-slate-900/60 backdrop-blur-xl border border-white/5 rounded-2xl p-6 md:p-8">
+        <h3 className="text-xl font-black text-white mb-2 flex items-center gap-3">
+          <Shield size={20} className="text-purple-400" />
+          الربط مع هيئة الزكاة والضريبة
+        </h3>
+        <p className="text-red-400 font-bold text-sm mb-6">{envLabel}</p>
+
+        {/* Progress Steps Bar */}
+        <div className="flex items-center gap-2 mb-8">
+          {[
+            { step: 1, label: "إنشاء المفاتيح والشهادة" },
+            { step: 2, label: "اختبار النماذج" },
+            { step: 3, label: "شهادة الإنتاج" },
+          ].map((s, i) => (
+            <React.Fragment key={s.step}>
+              <div className={`flex-1 h-10 rounded-lg flex items-center justify-center text-sm font-black transition-all ${
+                statusStep >= s.step
+                  ? "bg-emerald-500 text-white"
+                  : statusStep === s.step - 1 || (s.step === 2 && statusStep >= 2 && statusStep < 4)
+                  ? "bg-blue-500/30 text-blue-200 border border-blue-500/30"
+                  : "bg-white/5 text-white/30 border border-white/10"
+              }`}>
+                <span className="ml-2 font-black">{s.step}</span>
+              </div>
+              {i < 2 && <div className={`w-8 h-0.5 ${statusStep > s.step ? "bg-emerald-500" : "bg-white/10"}`} />}
+            </React.Fragment>
+          ))}
+        </div>
+
+        {/* Step Content */}
+        {credLoading ? (
+          <div className="flex items-center justify-center py-8">
+            <Loader2 size={24} className="text-purple-400 animate-spin" />
+          </div>
+        ) : (
+          <div className="space-y-6">
+
+            {/* ═══ Step 1: Generate Keys + Get CCSID ═══ */}
+            {statusStep < 2 && (
+              <>
+                {/* Step 1a: Generate Keys & CSR */}
+                {statusStep < 1 && (
+                  <div className="space-y-4">
+                    <h4 className="text-white font-black text-base flex items-center gap-2">
+                      <span className="w-7 h-7 bg-purple-500 rounded-lg flex items-center justify-center text-xs text-white font-black">1</span>
+                      إنشاء مفاتيح التشفير وشهادة CSR
+                    </h4>
+                    <div className="bg-white/[0.03] rounded-2xl border border-white/5 p-6 space-y-4">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <label className="text-white/40 font-bold text-xs">اسم المنشأة *</label>
+                          <input value={orgName} onChange={(e) => setOrgName(e.target.value)}
+                            placeholder="اسم المنشأة بالإنجليزي"
+                            className="w-full bg-white/5 border-2 border-white/10 rounded-xl px-4 py-3 text-white placeholder-white/20 font-bold text-sm focus:border-purple-500/50 outline-none"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <label className="text-white/40 font-bold text-xs">رقم تسجيل المنشأة (VAT) *</label>
+                          <input value={orgId} onChange={(e) => setOrgId(e.target.value)}
+                            placeholder="300XXXXXXXXX00003"
+                            className="w-full bg-white/5 border-2 border-white/10 rounded-xl px-4 py-3 text-white placeholder-white/20 font-bold text-sm focus:border-purple-500/50 outline-none"
+                          />
+                        </div>
+                      </div>
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div className="space-y-2">
+                          <label className="text-white/40 font-bold text-xs">الاسم الشائع (CN)</label>
+                          <input value={commonName} onChange={(e) => setCommonName(e.target.value)}
+                            placeholder="اختياري - يتم توليده تلقائياً"
+                            className="w-full bg-white/5 border-2 border-white/10 rounded-xl px-4 py-3 text-white placeholder-white/20 font-bold text-sm focus:border-purple-500/50 outline-none"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <label className="text-white/40 font-bold text-xs">المدينة / الموقع</label>
+                          <input value={location} onChange={(e) => setLocation(e.target.value)}
+                            placeholder="Riyadh"
+                            className="w-full bg-white/5 border-2 border-white/10 rounded-xl px-4 py-3 text-white placeholder-white/20 font-bold text-sm focus:border-purple-500/50 outline-none"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <label className="text-white/40 font-bold text-xs">القطاع / الصناعة</label>
+                          <input value={industry} onChange={(e) => setIndustry(e.target.value)}
+                            placeholder="Logistics"
+                            className="w-full bg-white/5 border-2 border-white/10 rounded-xl px-4 py-3 text-white placeholder-white/20 font-bold text-sm focus:border-purple-500/50 outline-none"
+                          />
+                        </div>
+                      </div>
+                      <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}
+                        onClick={handleGenerateKeys} disabled={stepLoading === "keys"}
+                        className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-purple-600 to-violet-600 text-white py-3.5 rounded-xl font-black text-sm disabled:opacity-50 shadow-lg shadow-purple-500/20"
+                      >
+                        {stepLoading === "keys" ? <Loader2 size={16} className="animate-spin" /> : <Zap size={16} />}
+                        {stepLoading === "keys" ? "جاري إنشاء المفاتيح..." : "إنشاء المفاتيح و CSR"}
+                      </motion.button>
+                    </div>
+                  </div>
+                )}
+
+                {/* Step 1b: Enter OTP and get CCSID */}
+                {statusStep >= 1 && (
+                  <div className="space-y-4">
+                    {/* Show success message for keys */}
+                    <div className="bg-emerald-500 rounded-xl p-3 flex items-center gap-3">
+                      <CheckCircle2 size={20} className="text-white flex-shrink-0" />
+                      <span className="text-white font-bold text-sm">تم إنشاء مفاتيح التشفير وإنشاء شهادة موقته بنجاح</span>
+                    </div>
+
+                    {/* Certificate display */}
+                    {credentials?.certificate && (
+                      <X509CertificateCard certBase64={credentials.certificate} />
+                    )}
+
+                    <h4 className="text-white font-black text-base flex items-center gap-2 mt-4">
+                      <span className="w-7 h-7 bg-blue-500 rounded-lg flex items-center justify-center text-xs text-white font-black">2</span>
+                      التسجيل في بوابة ZATCA (رمز OTP)
+                    </h4>
+                    <div className="bg-white/[0.03] rounded-2xl border border-white/5 p-6 space-y-4">
+                      <p className="text-white/50 text-xs leading-relaxed">
+                        أدخل رمز OTP الذي حصلت عليه من بوابة هيئة الزكاة والضريبة والجمارك.
+                        بعد الإدخال سيتم الحصول على شهادة المطابقة (CCSID) المؤقتة.
+                      </p>
+                      <input value={otp} onChange={(e) => setOtp(e.target.value)}
+                        placeholder="أدخل رمز OTP من بوابة هيئة الزكاة"
+                        maxLength={6}
+                        className="w-full bg-white/5 border-2 border-white/10 rounded-xl px-4 py-3 text-white text-center text-2xl tracking-[0.5em] placeholder-white/20 font-bold focus:border-blue-500/50 outline-none"
+                      />
+                      <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}
+                        onClick={handleOnboarding} disabled={stepLoading === "onboarding"}
+                        className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-3.5 rounded-xl font-black text-sm disabled:opacity-50 shadow-lg shadow-blue-500/20"
+                      >
+                        {stepLoading === "onboarding" ? <Loader2 size={16} className="animate-spin" /> : <Shield size={16} />}
+                        {stepLoading === "onboarding" ? "جاري التسجيل والتحقق..." : "التحقق والحصول على شهادة المطابقة"}
+                      </motion.button>
+                    </div>
+                  </div>
+                )}
+              </>
+            )}
+
+            {/* ═══ Step 2: Compliance Tests (6 tests) ═══ */}
+            {statusStep >= 2 && statusStep < 4 && (
+              <div className="space-y-4">
+                {/* Certificate display */}
+                {credentials?.certificate && (
+                  <X509CertificateCard certBase64={credentials.certificate} />
+                )}
+
+                {/* Success for step 1 */}
+                <div className="bg-emerald-500 rounded-xl p-3 flex items-center gap-3">
+                  <CheckCircle2 size={20} className="text-white flex-shrink-0" />
+                  <span className="text-white font-bold text-sm">تم إنشاء مفاتيح التشفير وإنشاء شهادة موقته بنجاح</span>
+                </div>
+
+                <h4 className="text-white font-black text-base text-center mt-4">
+                  إختبار النماذج في منصة فاتورة في {envLabel}
+                </h4>
+                <div className="h-px bg-white/10 mb-4" />
+
+                {/* Compliance test list */}
+                <div className="space-y-3">
+                  {complianceResults.length > 0 ? (
+                    complianceResults.map((test) => (
+                      <ComplianceTestItem
+                        key={test.id}
+                        label={test.label_ar}
+                        status={test.status}
+                        isRunning={complianceRunning}
+                      />
+                    ))
+                  ) : (
+                    // Show default test list before running
+                    [
+                      "مشاركة الفاتورة المبسطة في منصة فاتورة",
+                      "مشاركة الاشعار الالكتروني المدين في منصة فاتورة",
+                      "مشاركة الاشعار الالكتروني الدائن في منصة فاتورة",
+                      "إعتماد الفاتورة الضريبية في منصة فاتورة",
+                      "إعتماد الاشعار الالكتروني المدين في منصة فاتورة",
+                      "إعتماد الاشعار الالكتروني الدائن في منصة فاتورة",
+                    ].map((label, i) => (
+                      <ComplianceTestItem
+                        key={i}
+                        label={label}
+                        status="pending"
+                        isRunning={false}
+                      />
+                    ))
+                  )}
+                </div>
+
+                {/* Run compliance tests button */}
+                {!allCompliancePassed && (
+                  <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}
+                    onClick={handleCompliance} disabled={complianceRunning}
+                    className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-emerald-600 to-teal-600 text-white py-3.5 rounded-xl font-black text-sm disabled:opacity-50 shadow-lg shadow-emerald-500/20 mt-4"
+                  >
+                    {complianceRunning ? <Loader2 size={16} className="animate-spin" /> : <CheckCircle2 size={16} />}
+                    {complianceRunning ? "جاري تنفيذ الاختبارات..." : "تشغيل اختبارات المطابقة"}
+                  </motion.button>
+                )}
+
+                {/* Production CSID request */}
+                {allCompliancePassed && (
+                  <div className="bg-cyan-50/10 rounded-2xl border border-cyan-500/20 p-6 mt-4">
+                    <div className="flex items-center gap-4">
+                      <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}
+                        onClick={handleProduction} disabled={stepLoading === "production"}
+                        className="px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl font-black text-sm disabled:opacity-50 shadow-lg flex items-center gap-2"
+                      >
+                        {stepLoading === "production" ? <Loader2 size={16} className="animate-spin" /> : <Info size={16} />}
+                        طلب معرف الإنتاج
+                      </motion.button>
+                      <div className="flex-1 text-right">
+                        <h5 className="text-white font-black text-sm">طلب معرف الإنتاج (CSID)</h5>
+                        <p className="text-white/40 text-xs mt-1">
+                          جاهز للانطلاق؟ سنقوم بتقديم طلبك الآن للحصول على معرف الإنتاج بكل سهولة وسرعة!
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* ═══ Step 3: All Done - Production Ready ═══ */}
+            {statusStep >= 4 && (
+              <div className="space-y-4">
+                {/* Certificate display */}
+                {credentials?.certificate && (
+                  <X509CertificateCard certBase64={credentials.certificate} />
+                )}
+
+                <div className="bg-emerald-500/10 rounded-2xl border border-emerald-500/20 p-8 text-center">
+                  <CheckCircle2 size={48} className="text-emerald-400 mx-auto mb-4" />
+                  <h4 className="text-emerald-300 font-black text-xl">جاهز للعمل!</h4>
+                  <p className="text-emerald-400/60 text-sm mt-2">
+                    تم التسجيل بنجاح وحصلت على شهادة الإنتاج (PCSID).<br/>
+                    نظامك جاهز لإرسال الفواتير إلى هيئة الزكاة والضريبة والجمارك.
+                  </p>
+                  <p className="text-emerald-400/40 text-xs mt-3">
+                    الشهادة صالحة لمدة 5 سنوات
+                  </p>
+                </div>
+              </div>
+            )}
+
+            {/* Current status indicator */}
+            {credentials && (
+              <div className="bg-white/[0.02] rounded-xl border border-white/5 p-4 mt-4">
+                <div className="flex items-center justify-between">
+                  <span className="text-white/40 text-xs font-bold">الحالة الحالية</span>
+                  <span className={`px-3 py-1 rounded-lg text-xs font-black ${
+                    credentials.status === "production" ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20" :
+                    credentials.status === "compliance" ? "bg-blue-500/10 text-blue-400 border border-blue-500/20" :
+                    "bg-amber-500/10 text-amber-400 border border-amber-500/20"
+                  }`}>
+                    {credentials.status === "production" ? "إنتاج - جاهز" :
+                     credentials.status === "compliance" ? "مطابقة - في الاختبار" : "في الانتظار"}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between mt-2">
+                  <span className="text-white/40 text-xs font-bold">البيئة</span>
+                  <span className="text-white/60 text-xs font-bold">{credentials.environment}</span>
+                </div>
+                {credentials.ccsid && (
+                  <div className="flex items-center justify-between mt-2">
+                    <span className="text-white/40 text-xs font-bold">شهادة المطابقة (CCSID)</span>
+                    <span className="text-emerald-400 text-xs font-bold">موجودة</span>
+                  </div>
+                )}
+                {credentials.pcsid && (
+                  <div className="flex items-center justify-between mt-2">
+                    <span className="text-white/40 text-xs font-bold">شهادة الإنتاج (PCSID)</span>
+                    <span className="text-emerald-400 text-xs font-bold">موجودة</span>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
         )}
       </div>
-    </div>
+
+      {/* ─── Recent Submissions ─── */}
+      {submissions.length > 0 && (
+        <div className="bg-slate-900/60 backdrop-blur-xl border border-white/5 rounded-2xl p-6">
+          <h3 className="text-white font-black text-lg mb-4 flex items-center gap-2">
+            <FileText size={18} className="text-blue-400" />
+            آخر الإرسالات
+          </h3>
+          <div className="space-y-2">
+            {submissions.map((sub: any) => (
+              <div key={sub.id} className="flex items-center justify-between p-3 bg-white/[0.03] rounded-xl border border-white/5">
+                <div className="flex items-center gap-3">
+                  <span className={`px-2 py-1 rounded-lg text-[10px] font-black border ${statusColors[sub.submission_status] || statusColors.pending}`}>
+                    {sub.submission_status === "success" ? "ناجح" :
+                     sub.submission_status === "failed" ? "فشل" :
+                     sub.submission_status === "warning" ? "تحذير" : "معلق"}
+                  </span>
+                  <div>
+                    <p className="text-white/70 text-xs font-bold">{sub.document_type === "invoice" ? "فاتورة" : sub.document_type === "debit_note" ? "إشعار مدين" : "إشعار دائن"} - {sub.document_id}</p>
+                    <p className="text-white/30 text-[10px]">{sub.submission_type === "clearance" ? "اعتماد" : "إبلاغ"}</p>
+                  </div>
+                </div>
+                <span className="text-white/30 text-[10px] font-mono">
+                  {sub.submitted_at ? new Date(sub.submitted_at).toLocaleString("ar-SA") : "-"}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+    </motion.div>
   );
 }

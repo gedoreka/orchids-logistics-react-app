@@ -2558,3 +2558,132 @@ Import trace:
 2026-02-08T01:01:59.692Z [console][error] You are trying to animate  from "20484.00" to "0". "20484.00" is not an animatable value.. For more information and steps for solving, visit https://motion.dev/troubleshooting/value-not-animatable
 2026-02-08T01:02:12.749Z [console][error] TypeError: Failed to fetch
 2026-02-08T01:02:12.751Z [console][error] TypeError: Failed to fetch
+2026-02-08T01:57:14.086Z [console][error] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+
+- A server/client branch `if (typeof window !== 'undefined')`.
+- Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+- Date formatting in a user's locale which doesn't match the server.
+- External changing data without sending a snapshot of it along with the HTML.
+- Invalid HTML tag nesting.
+
+It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+
+%s%s https://react.dev/link/hydration-mismatch 
+
+  ...
+    <HotReload assetPrefix="" globalError={[...]}>
+      <AppDevOverlayErrorBoundary globalError={[...]}>
+        <ReplaySsrOnlyErrors>
+        <DevRootHTTPAccessFallbackBoundary>
+          <HTTPAccessFallbackBoundary notFound={<NotAllowedRootHTTPFallbackError>}>
+            <HTTPAccessFallbackErrorBoundary pathname="/login" notFound={<NotAllowedRootHTTPFallbackError>} ...>
+              <RedirectBoundary>
+                <RedirectErrorBoundary router={{...}}>
+                  <Head headCacheNode={{lazyData:null, ...}}>
+                    <__next_viewport_boundary__>
+                    <meta>
+                    <MetadataTree>
+                      <__next_metadata_boundary__>
+                        <__next_metadata_boundary__>
+                          <div
+                            hidden={true}
+-                           data-orchid-ref="ref-ly94nxmgk5"
+                          >
+                  ...
+
+2026-02-08T01:58:33.209Z [console][error] You are trying to animate  from "0" to "172118.00". "172118.00" is not an animatable value.. For more information and steps for solving, visit https://motion.dev/troubleshooting/value-not-animatable
+2026-02-08T01:58:33.209Z [console][error] You are trying to animate  from "0" to "20484.00". "20484.00" is not an animatable value.. For more information and steps for solving, visit https://motion.dev/troubleshooting/value-not-animatable
+2026-02-08T01:58:35.325Z [console][error] You are trying to animate  from "172118.00" to "0". "172118.00" is not an animatable value.. For more information and steps for solving, visit https://motion.dev/troubleshooting/value-not-animatable
+2026-02-08T01:58:35.325Z [console][error] You are trying to animate  from "20484.00" to "0". "20484.00" is not an animatable value.. For more information and steps for solving, visit https://motion.dev/troubleshooting/value-not-animatable
+2026-02-08T01:57:14.086Z [console][error] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+
+- A server/client branch `if (typeof window !== 'undefined')`.
+- Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+- Date formatting in a user's locale which doesn't match the server.
+- External changing data without sending a snapshot of it along with the HTML.
+- Invalid HTML tag nesting.
+
+It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+
+%s%s https://react.dev/link/hydration-mismatch 
+
+  ...
+    <HotReload assetPrefix="" globalError={[...]}>
+      <AppDevOverlayErrorBoundary globalError={[...]}>
+        <ReplaySsrOnlyErrors>
+        <DevRootHTTPAccessFallbackBoundary>
+          <HTTPAccessFallbackBoundary notFound={<NotAllowedRootHTTPFallbackError>}>
+            <HTTPAccessFallbackErrorBoundary pathname="/login" notFound={<NotAllowedRootHTTPFallbackError>} ...>
+              <RedirectBoundary>
+                <RedirectErrorBoundary router={{...}}>
+                  <Head headCacheNode={{lazyData:null, ...}}>
+                    <__next_viewport_boundary__>
+                    <meta>
+                    <MetadataTree>
+                      <__next_metadata_boundary__>
+                        <__next_metadata_boundary__>
+                          <div
+                            hidden={true}
+-                           data-orchid-ref="ref-ly94nxmgk5"
+                          >
+                  ...
+
+2026-02-08T02:10:43.437Z [console][error] Network error fetching chat: Failed to fetch
+2026-02-08T02:10:53.362Z [console][log] __ORCHIDS_NAVIGATE__ http://localhost:3006/tax-declarations
+2026-02-08T02:10:54.017Z [console][error] TypeError: Failed to fetch
+2026-02-08T02:10:54.018Z [console][error] TypeError: Failed to fetch
+2026-02-08T02:10:57.997Z [console][log] __ORCHIDS_NAVIGATE__ http://localhost:3006/tax-settings
+2026-02-08T02:10:58.301Z [console][error] Error fetching data: TypeError: Failed to fetch
+2026-02-08T02:10:58.302Z [console][error] Error fetching data: TypeError: Failed to fetch
+2026-02-08T02:10:59.372Z [network][GET 200] /api/taxes/types?company_id=22
+  response: {"success":true,"tax_types":[],"settings":{"tax_calculation_status":true,"tax_included":false,"tax_on_packaging":false,"order_module_tax":false,"parcel_module_tax":false,"vendor_tax":false},"stats":{"totalTypes":0,"activeCount":0,"inactiveCount":0,"defaultRate":15,"avgRate":0}}
+2026-02-08T02:11:00.045Z [network][GET 200] /api/taxes/types?company_id=22
+  response: {"success":true,"tax_types":[],"settings":{"tax_calculation_status":true,"tax_included":false,"tax_on_packaging":false,"order_module_tax":false,"parcel_module_tax":false,"vendor_tax":false},"stats":{"totalTypes":0,"activeCount":0,"inactiveCount":0,"defaultRate":15,"avgRate":0}}
+2026-02-08T02:11:03.773Z [network][GET 200] /api/zatca/credentials?company_id=22
+  response: {"success":true,"credentials":null}
+2026-02-08T02:11:03.794Z [network][GET 200] /api/zatca/submissions?company_id=22&limit=10
+  response: {"success":true,"submissions":[],"total":0}
+2026-02-08T02:11:04.409Z [network][GET 200] /api/zatca/submissions?company_id=22&limit=10
+  response: {"success":true,"submissions":[],"total":0}
+2026-02-08T02:11:04.414Z [network][GET 200] /api/zatca/credentials?company_id=22
+  response: {"success":true,"credentials":null}
+2026-02-08T02:13:06.710Z [network][POST 500] /api/taxes/settings
+  request: {"tax_calculation_status":true,"tax_included":false,"tax_on_packaging":false,"order_module_tax":false,"parcel_module_tax":false,"vendor_tax":false,"zatca_enabled":true,"zatca_environment":"sandbox","zatca_vat_number":"312242140900003","zatca_vat_rate":15,"zatca_phase":1,"zatca_auto_signature":true,"zatca_immediate_send":false,"company_id":22}
+  response: {"error":"Failed to save tax settings"}
+2026-02-08T09:11:49.871Z [console][error] TypeError: Failed to fetch
+2026-02-08T09:12:08.496Z [console][error] Network error fetching chat: Failed to fetch
+2026-02-08T09:12:08.497Z [console][error] Failed to fetch RSC payload for http://localhost:3006/profit-loss. Falling back to browser navigation. TypeError: Failed to fetch
+2026-02-08T09:12:08.500Z [console][error] Uncaught (in promise) TypeError: Failed to fetch
+2026-02-08T09:12:08.501Z [console][error] Uncaught (in promise) TypeError: Failed to fetch
+2026-02-08T09:12:08.507Z [console][error] Failed to fetch RSC payload for http://localhost:3006/profit-loss. Falling back to browser navigation. TypeError: Failed to fetch
+2026-02-08T09:12:08.510Z [console][error] Failed to fetch RSC payload for http://localhost:3006/profit-loss. Falling back to browser navigation. TypeError: Failed to fetch
+2026-02-08T09:12:08.498Z [console][error] Failed to fetch RSC payload for http://localhost:3006/profit-loss. Falling back to browser navigation. TypeError: Failed to fetch
+    at window.fetch (<anonymous>:126:38)
+    at createFetch (http://localhost:3006/_next/static/chunks/node_modules_next_dist_client_cf1d9188._.js:2091:33)
+    at fetchServerResponse (http://localhost:3006/_next/static/chunks/node_modules_next_dist_client_cf1d9188._.js:2014:27)
+    at hmrRefreshReducerImpl (http://localhost:3006/_next/static/chunks/node_modules_next_dist_client_cf1d9188._.js:8814:67)
+    at clientReducer (http://localhost:3006/_next/static/chunks/node_modules_next_dist_client_cf1d9188._.js:9238:65)
+    at Object.action (http://localhost:3006/_next/static/chunks/node_modules_next_dist_client_cf1d9188._.js:9434:55)
+    at runAction (http://localhost:3006/_next/static/chunks/node_modules_next_dist_client_cf1d9188._.js:9344:38)
+    at runRemainingActions (http://localhost:3006/_next/static/chunks/node_modules_next_dist_client_cf1d9188._.js:9322:13)
+    at handleResult (http://localhost:3006/_next/static/chunks/node_modules_next_dist_client_cf1d9188._.js:9351:9)
+2026-02-08T09:12:08.507Z [console][error] Failed to fetch RSC payload for http://localhost:3006/profit-loss. Falling back to browser navigation. TypeError: Failed to fetch
+    at window.fetch (<anonymous>:126:38)
+    at createFetch (http://localhost:3006/_next/static/chunks/node_modules_next_dist_client_cf1d9188._.js:2091:33)
+    at fetchServerResponse (http://localhost:3006/_next/static/chunks/node_modules_next_dist_client_cf1d9188._.js:2014:27)
+    at hmrRefreshReducerImpl (http://localhost:3006/_next/static/chunks/node_modules_next_dist_client_cf1d9188._.js:8814:67)
+    at clientReducer (http://localhost:3006/_next/static/chunks/node_modules_next_dist_client_cf1d9188._.js:9238:65)
+    at Object.action (http://localhost:3006/_next/static/chunks/node_modules_next_dist_client_cf1d9188._.js:9434:55)
+    at runAction (http://localhost:3006/_next/static/chunks/node_modules_next_dist_client_cf1d9188._.js:9344:38)
+    at runRemainingActions (http://localhost:3006/_next/static/chunks/node_modules_next_dist_client_cf1d9188._.js:9322:13)
+    at handleResult (http://localhost:3006/_next/static/chunks/node_modules_next_dist_client_cf1d9188._.js:9351:9)
+2026-02-08T09:12:08.510Z [console][error] Failed to fetch RSC payload for http://localhost:3006/profit-loss. Falling back to browser navigation. TypeError: Failed to fetch
+    at window.fetch (<anonymous>:126:38)
+    at createFetch (http://localhost:3006/_next/static/chunks/node_modules_next_dist_client_cf1d9188._.js:2091:33)
+    at fetchServerResponse (http://localhost:3006/_next/static/chunks/node_modules_next_dist_client_cf1d9188._.js:2014:27)
+    at hmrRefreshReducerImpl (http://localhost:3006/_next/static/chunks/node_modules_next_dist_client_cf1d9188._.js:8814:67)
+    at clientReducer (http://localhost:3006/_next/static/chunks/node_modules_next_dist_client_cf1d9188._.js:9238:65)
+    at Object.action (http://localhost:3006/_next/static/chunks/node_modules_next_dist_client_cf1d9188._.js:9434:55)
+    at runAction (http://localhost:3006/_next/static/chunks/node_modules_next_dist_client_cf1d9188._.js:9344:38)
+    at runRemainingActions (http://localhost:3006/_next/static/chunks/node_modules_next_dist_client_cf1d9188._.js:9322:13)
+    at handleResult (http://localhost:3006/_next/static/chunks/node_modules_next_dist_client_cf1d9188._.js:9351:9)

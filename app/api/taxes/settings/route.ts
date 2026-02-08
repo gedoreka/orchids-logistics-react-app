@@ -48,34 +48,34 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { 
-      company_id, 
-      tax_calculation_status,
-      tax_included,
-      tax_on_packaging,
-      order_module_tax,
-      parcel_module_tax,
-      vendor_tax
-    } = body;
+      const { company_id, ...settingsData } = body;
 
-    if (!company_id) {
-      return NextResponse.json({ error: "Company ID required" }, { status: 400 });
-    }
+      if (!company_id) {
+        return NextResponse.json({ error: "Company ID required" }, { status: 400 });
+      }
 
-    const { data, error } = await supabase
-      .from("tax_settings")
-      .upsert({
-        company_id: parseInt(company_id),
-        tax_calculation_status,
-        tax_included,
-        tax_on_packaging,
-        order_module_tax,
-        parcel_module_tax,
-        vendor_tax,
-        updated_at: new Date().toISOString()
-      }, { onConflict: 'company_id' })
-      .select()
-      .single();
+      // Only allow known fields
+      const allowedFields = [
+        "tax_calculation_status", "tax_included", "tax_on_packaging",
+        "order_module_tax", "parcel_module_tax", "vendor_tax",
+        "zatca_enabled", "zatca_environment", "zatca_vat_number",
+        "zatca_vat_rate", "zatca_phase", "zatca_auto_signature",
+        "zatca_immediate_send",
+      ];
+      const filtered: Record<string, any> = {};
+      for (const key of allowedFields) {
+        if (key in settingsData) filtered[key] = settingsData[key];
+      }
+
+      const { data, error } = await supabase
+        .from("tax_settings")
+        .upsert({
+          company_id: parseInt(company_id),
+          ...filtered,
+          updated_at: new Date().toISOString()
+        }, { onConflict: 'company_id' })
+        .select()
+        .single();
 
     if (error) throw error;
 
