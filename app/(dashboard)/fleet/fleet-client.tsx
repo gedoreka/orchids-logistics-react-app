@@ -147,30 +147,31 @@ function AddVehicleCategoryDialog({ companyId, t }: { companyId: number, t: any 
   }
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <button className="flex items-center gap-3 px-6 py-3 bg-white/10 backdrop-blur-md rounded-2xl border border-white/20 text-white font-black text-sm hover:bg-white/20 transition-all shadow-xl active:scale-95">
-          <Layers size={18} />
-          {t('newVehicleCategory')}
-        </button>
-      </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px] rounded-[2.5rem] bg-slate-900 text-white border-white/10">
-        <DialogHeader>
-          <DialogTitle className="text-2xl font-black">{t('addCategory')}</DialogTitle>
-        </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-6 pt-4">
-          <div className="space-y-2">
-            <Label className="text-white/60 font-black text-[10px] uppercase tracking-widest">{t('categoryName')}</Label>
-            <Input name="name" className="bg-white/5 border-white/10 rounded-xl h-12 text-white" required />
-          </div>
-          <div className="space-y-2">
-            <Label className="text-white/60 font-black text-[10px] uppercase tracking-widest">{t('description')}</Label>
-            <Input name="description" className="bg-white/5 border-white/10 rounded-xl h-12 text-white" />
-          </div>
-          <Button type="submit" className="w-full h-14 rounded-2xl bg-blue-600 hover:bg-blue-700 font-black text-lg shadow-xl shadow-blue-500/20" disabled={loading}>
-            {loading ? t('loading') : t('save')}
-          </Button>
-        </form>
+    <>
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogTrigger asChild>
+          <button className="flex items-center gap-3 px-6 py-3 bg-white/10 backdrop-blur-md rounded-2xl border border-white/20 text-white font-black text-sm hover:bg-white/20 transition-all shadow-xl active:scale-95">
+            <Layers size={18} />
+            {t('newVehicleCategory')}
+          </button>
+        </DialogTrigger>
+        <DialogContent className="sm:max-w-[425px] rounded-[2.5rem] bg-slate-900 text-white border-white/10">
+          <DialogHeader>
+            <DialogTitle className="text-2xl font-black">{t('addCategory')}</DialogTitle>
+          </DialogHeader>
+          <form onSubmit={handleSubmit} className="space-y-6 pt-4">
+            <div className="space-y-2">
+              <Label className="text-white/60 font-black text-[10px] uppercase tracking-widest">{t('categoryName')}</Label>
+              <Input name="name" className="bg-white/5 border-white/10 rounded-xl h-12 text-white" required />
+            </div>
+            <div className="space-y-2">
+              <Label className="text-white/60 font-black text-[10px] uppercase tracking-widest">{t('description')}</Label>
+              <Input name="description" className="bg-white/5 border-white/10 rounded-xl h-12 text-white" />
+            </div>
+            <Button type="submit" className="w-full h-14 rounded-2xl bg-blue-600 hover:bg-blue-700 font-black text-lg shadow-xl shadow-blue-500/20" disabled={loading}>
+              {loading ? t('loading') : t('save')}
+            </Button>
+          </form>
         </DialogContent>
       </Dialog>
       <SuccessModal open={showSuccess} onClose={() => setShowSuccess(false)} title={t('saveSuccess')} />
@@ -204,38 +205,44 @@ function AddCategoryDialog({ companyId, t }: { companyId: number, t: any }) {
     }
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <button className="flex items-center gap-3 px-6 py-3 bg-white/10 backdrop-blur-md rounded-2xl border border-white/20 text-white font-black text-sm hover:bg-white/20 transition-all shadow-xl active:scale-95">
-          <Tag size={18} />
-          {t('newSpareCategory')}
-        </button>
-      </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px] rounded-[2.5rem] bg-slate-900 text-white border-white/10">
-        <DialogHeader>
-          <DialogTitle className="text-2xl font-black">{t('addCategory')}</DialogTitle>
-        </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-6 pt-4">
-          <div className="space-y-2">
-            <Label className="text-white/60 font-black text-[10px] uppercase tracking-widest">{t('categoryName')}</Label>
-            <Input name="name" className="bg-white/5 border-white/10 rounded-xl h-12 text-white" required />
-          </div>
-          <div className="space-y-2">
-            <Label className="text-white/60 font-black text-[10px] uppercase tracking-widest">{t('description')}</Label>
-            <Input name="description" className="bg-white/5 border-white/10 rounded-xl h-12 text-white" />
-          </div>
-          <Button type="submit" className="w-full h-14 rounded-2xl bg-emerald-600 hover:bg-emerald-700 font-black text-lg shadow-xl shadow-emerald-500/20" disabled={loading}>
-            {loading ? t('loading') : t('save')}
-          </Button>
-        </form>
-      </DialogContent>
-    </Dialog>
+    <>
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogTrigger asChild>
+          <button className="flex items-center gap-3 px-6 py-3 bg-white/10 backdrop-blur-md rounded-2xl border border-white/20 text-white font-black text-sm hover:bg-white/20 transition-all shadow-xl active:scale-95">
+            <Tag size={18} />
+            {t('newSpareCategory')}
+          </button>
+        </DialogTrigger>
+        <DialogContent className="sm:max-w-[425px] rounded-[2.5rem] bg-slate-900 text-white border-white/10">
+          <DialogHeader>
+            <DialogTitle className="text-2xl font-black">{t('addCategory')}</DialogTitle>
+          </DialogHeader>
+          <form onSubmit={handleSubmit} className="space-y-6 pt-4">
+            <div className="space-y-2">
+              <Label className="text-white/60 font-black text-[10px] uppercase tracking-widest">{t('categoryName')}</Label>
+              <Input name="name" className="bg-white/5 border-white/10 rounded-xl h-12 text-white" required />
+            </div>
+            <div className="space-y-2">
+              <Label className="text-white/60 font-black text-[10px] uppercase tracking-widest">{t('description')}</Label>
+              <Input name="description" className="bg-white/5 border-white/10 rounded-xl h-12 text-white" />
+            </div>
+            <Button type="submit" className="w-full h-14 rounded-2xl bg-emerald-600 hover:bg-emerald-700 font-black text-lg shadow-xl shadow-emerald-500/20" disabled={loading}>
+              {loading ? t('loading') : t('save')}
+            </Button>
+          </form>
+        </DialogContent>
+      </Dialog>
+      <SuccessModal open={showSuccess} onClose={() => setShowSuccess(false)} title={t('saveSuccess')} />
+      <ErrorModal open={showError} onClose={() => setShowError(false)} title={t('error')} />
+    </>
   );
 }
 
 function AddVehicleDialog({ companyId, employees, vehicleCategories, t }: any) {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
+  const [showError, setShowError] = useState(false);
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -245,90 +252,96 @@ function AddVehicleDialog({ companyId, employees, vehicleCategories, t }: any) {
     const res = await addVehicle({ ...data, company_id: companyId });
     setLoading(false);
     if (res.success) {
-      toast.success(t('success'));
       setOpen(false);
+      setShowSuccess(true);
     } else {
-      toast.error(t('error'));
+      setShowError(true);
     }
   }
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <button className="flex items-center gap-3 px-6 py-3 bg-emerald-500 text-white font-black text-sm rounded-2xl hover:bg-emerald-600 transition-all shadow-xl active:scale-95">
-          <Truck size={18} />
-          {t('addVehicle')}
-        </button>
-      </DialogTrigger>
-      <DialogContent className="sm:max-w-[600px] rounded-[2.5rem] bg-slate-900 text-white border-white/10 max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle className="text-3xl font-black">{t('vehicleData')}</DialogTitle>
-        </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-6 pt-4">
-          <div className="grid grid-cols-2 gap-6">
-            <div className="space-y-2">
-              <Label className="text-white/60 font-black text-[10px] uppercase tracking-widest">{t('plateAr')}</Label>
-              <Input name="plate_number_ar" placeholder="أ ب ج 1234" className="bg-white/5 border-white/10 rounded-xl h-12 text-white" required />
+    <>
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogTrigger asChild>
+          <button className="flex items-center gap-3 px-6 py-3 bg-emerald-500 text-white font-black text-sm rounded-2xl hover:bg-emerald-600 transition-all shadow-xl active:scale-95">
+            <Truck size={18} />
+            {t('addVehicle')}
+          </button>
+        </DialogTrigger>
+        <DialogContent className="sm:max-w-[600px] rounded-[2.5rem] bg-slate-900 text-white border-white/10 max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="text-3xl font-black">{t('vehicleData')}</DialogTitle>
+          </DialogHeader>
+          <form onSubmit={handleSubmit} className="space-y-6 pt-4">
+            <div className="grid grid-cols-2 gap-6">
+              <div className="space-y-2">
+                <Label className="text-white/60 font-black text-[10px] uppercase tracking-widest">{t('plateAr')}</Label>
+                <Input name="plate_number_ar" placeholder="أ ب ج 1234" className="bg-white/5 border-white/10 rounded-xl h-12 text-white" required />
+              </div>
+              <div className="space-y-2">
+                <Label className="text-white/60 font-black text-[10px] uppercase tracking-widest">{t('plateEn')}</Label>
+                <Input name="plate_number_en" placeholder="ABC 1234" className="bg-white/5 border-white/10 rounded-xl h-12 text-white" required />
+              </div>
+              <div className="space-y-2">
+                <Label className="text-white/60 font-black text-[10px] uppercase tracking-widest">{t('brand')}</Label>
+                <Input name="brand" className="bg-white/5 border-white/10 rounded-xl h-12 text-white" required />
+              </div>
+              <div className="space-y-2">
+                <Label className="text-white/60 font-black text-[10px] uppercase tracking-widest">{t('model')}</Label>
+                <Input name="model" className="bg-white/5 border-white/10 rounded-xl h-12 text-white" required />
+              </div>
+              <div className="space-y-2">
+                <Label className="text-white/60 font-black text-[10px] uppercase tracking-widest">{t('manufactureYear')}</Label>
+                <Input name="manufacture_year" type="number" className="bg-white/5 border-white/10 rounded-xl h-12 text-white" required />
+              </div>
+              <div className="space-y-2">
+                <Label className="text-white/60 font-black text-[10px] uppercase tracking-widest">{t('currentKm')}</Label>
+                <Input name="current_km" type="number" className="bg-white/5 border-white/10 rounded-xl h-12 text-white" required />
+              </div>
+              <div className="space-y-2">
+                <Label className="text-white/60 font-black text-[10px] uppercase tracking-widest">{t('category')}</Label>
+                <Select name="category_id">
+                  <SelectTrigger className="bg-white/5 border-white/10 rounded-xl h-12 text-white">
+                    <SelectValue placeholder={t('selectCategory')} />
+                  </SelectTrigger>
+                  <SelectContent className="bg-slate-900 border-white/10 text-white">
+                    {vehicleCategories.map((cat: any) => (
+                      <SelectItem key={cat.id} value={cat.id.toString()}>{cat.name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label className="text-white/60 font-black text-[10px] uppercase tracking-widest">{t('driver')}</Label>
+                <Select name="driver_id">
+                  <SelectTrigger className="bg-white/5 border-white/10 rounded-xl h-12 text-white">
+                    <SelectValue placeholder={t('selectDriver')} />
+                  </SelectTrigger>
+                  <SelectContent className="bg-slate-900 border-white/10 text-white">
+                    {employees.map((emp: any) => (
+                      <SelectItem key={emp.id} value={emp.id.toString()}>{emp.name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
-            <div className="space-y-2">
-              <Label className="text-white/60 font-black text-[10px] uppercase tracking-widest">{t('plateEn')}</Label>
-              <Input name="plate_number_en" placeholder="ABC 1234" className="bg-white/5 border-white/10 rounded-xl h-12 text-white" required />
-            </div>
-            <div className="space-y-2">
-              <Label className="text-white/60 font-black text-[10px] uppercase tracking-widest">{t('brand')}</Label>
-              <Input name="brand" className="bg-white/5 border-white/10 rounded-xl h-12 text-white" required />
-            </div>
-            <div className="space-y-2">
-              <Label className="text-white/60 font-black text-[10px] uppercase tracking-widest">{t('model')}</Label>
-              <Input name="model" className="bg-white/5 border-white/10 rounded-xl h-12 text-white" required />
-            </div>
-            <div className="space-y-2">
-              <Label className="text-white/60 font-black text-[10px] uppercase tracking-widest">{t('manufactureYear')}</Label>
-              <Input name="manufacture_year" type="number" className="bg-white/5 border-white/10 rounded-xl h-12 text-white" required />
-            </div>
-            <div className="space-y-2">
-              <Label className="text-white/60 font-black text-[10px] uppercase tracking-widest">{t('currentKm')}</Label>
-              <Input name="current_km" type="number" className="bg-white/5 border-white/10 rounded-xl h-12 text-white" required />
-            </div>
-            <div className="space-y-2">
-              <Label className="text-white/60 font-black text-[10px] uppercase tracking-widest">{t('category')}</Label>
-              <Select name="category_id">
-                <SelectTrigger className="bg-white/5 border-white/10 rounded-xl h-12 text-white">
-                  <SelectValue placeholder={t('selectCategory')} />
-                </SelectTrigger>
-                <SelectContent className="bg-slate-900 border-white/10 text-white">
-                  {vehicleCategories.map((cat: any) => (
-                    <SelectItem key={cat.id} value={cat.id.toString()}>{cat.name}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-2">
-              <Label className="text-white/60 font-black text-[10px] uppercase tracking-widest">{t('driver')}</Label>
-              <Select name="driver_id">
-                <SelectTrigger className="bg-white/5 border-white/10 rounded-xl h-12 text-white">
-                  <SelectValue placeholder={t('selectDriver')} />
-                </SelectTrigger>
-                <SelectContent className="bg-slate-900 border-white/10 text-white">
-                  {employees.map((emp: any) => (
-                    <SelectItem key={emp.id} value={emp.id.toString()}>{emp.name}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-          <Button type="submit" className="w-full h-14 rounded-2xl bg-emerald-600 hover:bg-emerald-700 font-black text-lg shadow-xl shadow-emerald-500/20" disabled={loading}>
-            {loading ? t('loading') : t('addVehicle')}
-          </Button>
-        </form>
-      </DialogContent>
-    </Dialog>
+            <Button type="submit" className="w-full h-14 rounded-2xl bg-emerald-600 hover:bg-emerald-700 font-black text-lg shadow-xl shadow-emerald-500/20" disabled={loading}>
+              {loading ? t('loading') : t('addVehicle')}
+            </Button>
+          </form>
+        </DialogContent>
+      </Dialog>
+      <SuccessModal open={showSuccess} onClose={() => setShowSuccess(false)} title={t('saveSuccess')} />
+      <ErrorModal open={showError} onClose={() => setShowError(false)} title={t('error')} />
+    </>
   );
 }
 
 function AddSpareDialog({ companyId, categories, t }: any) {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
+  const [showError, setShowError] = useState(false);
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -338,21 +351,22 @@ function AddSpareDialog({ companyId, categories, t }: any) {
     const res = await addSpare({ ...data, company_id: companyId });
     setLoading(false);
     if (res.success) {
-      toast.success(t('success'));
       setOpen(false);
+      setShowSuccess(true);
     } else {
-      toast.error(t('error'));
+      setShowError(true);
     }
   }
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <button className="flex items-center gap-3 px-6 py-3 bg-blue-500 text-white font-black text-sm rounded-2xl hover:bg-blue-600 transition-all shadow-xl active:scale-95">
-          <Box size={18} />
-          {t('addInventory')}
-        </button>
-      </DialogTrigger>
+    <>
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogTrigger asChild>
+          <button className="flex items-center gap-3 px-6 py-3 bg-blue-500 text-white font-black text-sm rounded-2xl hover:bg-blue-600 transition-all shadow-xl active:scale-95">
+            <Box size={18} />
+            {t('addInventory')}
+          </button>
+        </DialogTrigger>
       <DialogContent className="sm:max-w-[500px] rounded-[2.5rem] bg-slate-900 text-white border-white/10">
         <DialogHeader>
           <DialogTitle className="text-2xl font-black">{t('addInventory')}</DialogTitle>
@@ -401,8 +415,11 @@ function AddSpareDialog({ companyId, categories, t }: any) {
             {loading ? t('loading') : t('save')}
           </Button>
         </form>
-      </DialogContent>
-    </Dialog>
+        </DialogContent>
+      </Dialog>
+      <SuccessModal open={showSuccess} onClose={() => setShowSuccess(false)} title={t('saveSuccess')} />
+      <ErrorModal open={showError} onClose={() => setShowError(false)} title={t('error')} />
+    </>
   );
 }
 
@@ -410,6 +427,8 @@ function MaintenanceRequestDialog({ companyId, vehicles, spares, t }: any) {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [selectedSpares, setSelectedSpares] = useState<any[]>([]);
+  const [showSuccess, setShowSuccess] = useState(false);
+  const [showError, setShowError] = useState(false);
 
   const totalCost = selectedSpares.reduce((sum, s) => sum + (s.quantity * s.unit_price), 0);
 
@@ -441,181 +460,172 @@ function MaintenanceRequestDialog({ companyId, vehicles, spares, t }: any) {
     const res = await createMaintenanceRequest(data, selectedSpares);
     setLoading(false);
     if (res.success) {
-      toast.success(t('success'));
       setOpen(false);
       setSelectedSpares([]);
+      setShowSuccess(true);
     } else {
-      toast.error(t('error'));
+      setShowError(true);
     }
   }
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <button className="flex items-center gap-3 px-6 py-3 bg-amber-500 text-white font-black text-sm rounded-2xl hover:bg-amber-600 transition-all shadow-xl active:scale-95">
-          <Wrench size={18} />
-          {t('maintenanceOrder')}
-        </button>
-      </DialogTrigger>
-      <DialogContent className="sm:max-w-[700px] rounded-[2.5rem] bg-slate-900 text-white border-white/10 max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle className="text-3xl font-black">{t('maintenanceOrder')}</DialogTitle>
-        </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-6 pt-4">
-          <div className="grid grid-cols-2 gap-6">
-            <div className="space-y-2">
-              <Label className="text-white/60 font-black text-[10px] uppercase tracking-widest">{t('vehicles')}</Label>
-              <Select name="vehicle_id" required>
+    <>
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogTrigger asChild>
+          <button className="flex items-center gap-3 px-6 py-3 bg-amber-500 text-white font-black text-sm rounded-2xl hover:bg-amber-600 transition-all shadow-xl active:scale-95">
+            <Wrench size={18} />
+            {t('maintenanceOrder')}
+          </button>
+        </DialogTrigger>
+        <DialogContent className="sm:max-w-[700px] rounded-[2.5rem] bg-slate-900 text-white border-white/10 max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="text-3xl font-black">{t('maintenanceOrder')}</DialogTitle>
+          </DialogHeader>
+          <form onSubmit={handleSubmit} className="space-y-6 pt-4">
+            <div className="grid grid-cols-2 gap-6">
+              <div className="space-y-2">
+                <Label className="text-white/60 font-black text-[10px] uppercase tracking-widest">{t('vehicles')}</Label>
+                <Select name="vehicle_id" required>
+                  <SelectTrigger className="bg-white/5 border-white/10 rounded-xl h-12 text-white">
+                    <SelectValue placeholder={t('vehicles')} />
+                  </SelectTrigger>
+                  <SelectContent className="bg-slate-900 border-white/10 text-white">
+                    {vehicles.map((v: any) => (
+                      <SelectItem key={v.id} value={v.id.toString()}>{v.plate_number_ar} ({v.brand})</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label className="text-white/60 font-black text-[10px] uppercase tracking-widest">{t('technician')}</Label>
+                <Input name="maintenance_person" className="bg-white/5 border-white/10 rounded-xl h-12 text-white" required />
+              </div>
+              <div className="space-y-2">
+                <Label className="text-white/60 font-black text-[10px] uppercase tracking-widest">{t('date')}</Label>
+                <Input name="maintenance_date" type="date" className="bg-white/5 border-white/10 rounded-xl h-12 text-white" defaultValue={new Date().toISOString().split('T')[0]} required />
+              </div>
+              <div className="space-y-2">
+                <Label className="text-white/60 font-black text-[10px] uppercase tracking-widest">{t('currentKm')}</Label>
+                <Input name="current_km" type="number" className="bg-white/5 border-white/10 rounded-xl h-12 text-white" placeholder="كم" required />
+              </div>
+            </div>
+
+            <div className="p-6 rounded-3xl bg-white/5 border border-white/10 space-y-4">
+              <h4 className="font-black text-white/70 text-sm flex items-center gap-2">
+                <Package size={18} className="text-amber-400" /> {t('usedSpares')}
+              </h4>
+              <Select onValueChange={addSpareToRequest}>
                 <SelectTrigger className="bg-white/5 border-white/10 rounded-xl h-12 text-white">
-                  <SelectValue placeholder={t('vehicles')} />
+                  <SelectValue placeholder={t('addSpares')} />
                 </SelectTrigger>
                 <SelectContent className="bg-slate-900 border-white/10 text-white">
-                  {vehicles.map((v: any) => (
-                    <SelectItem key={v.id} value={v.id.toString()}>{v.plate_number_ar} ({v.brand})</SelectItem>
+                  {spares.map((s: any) => (
+                    <SelectItem key={s.id} value={s.id.toString()} disabled={s.quantity <= 0}>
+                      {s.name} ({s.quantity} {t('available')})
+                    </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
-            </div>
-            <div className="space-y-2">
-              <Label className="text-white/60 font-black text-[10px] uppercase tracking-widest">{t('technician')}</Label>
-              <Input name="maintenance_person" className="bg-white/5 border-white/10 rounded-xl h-12 text-white" required />
-            </div>
-            <div className="space-y-2">
-              <Label className="text-white/60 font-black text-[10px] uppercase tracking-widest">{t('date')}</Label>
-              <Input name="maintenance_date" type="date" className="bg-white/5 border-white/10 rounded-xl h-12 text-white" defaultValue={new Date().toISOString().split('T')[0]} required />
-            </div>
-            <div className="space-y-2">
-              <Label className="text-white/60 font-black text-[10px] uppercase tracking-widest">{t('currentKm')}</Label>
-              <Input name="current_km" type="number" className="bg-white/5 border-white/10 rounded-xl h-12 text-white" placeholder="كم" required />
-            </div>
-          </div>
 
-          <div className="p-6 rounded-3xl bg-white/5 border border-white/10 space-y-4">
-            <h4 className="font-black text-white/70 text-sm flex items-center gap-2">
-              <Package size={18} className="text-amber-400" /> {t('usedSpares')}
-            </h4>
-            <Select onValueChange={addSpareToRequest}>
-              <SelectTrigger className="bg-white/5 border-white/10 rounded-xl h-12 text-white">
-                <SelectValue placeholder={t('addSpares')} />
-              </SelectTrigger>
-              <SelectContent className="bg-slate-900 border-white/10 text-white">
-                {spares.map((s: any) => (
-                  <SelectItem key={s.id} value={s.id.toString()} disabled={s.quantity <= 0}>
-                    {s.name} ({s.quantity} {t('available')})
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-
-            <ScrollArea className="h-[150px] w-full rounded-2xl border border-white/10 bg-black/20 p-4">
-              <AnimatePresence>
-                {selectedSpares.map(s => (
-                  <motion.div 
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: 20 }}
-                    key={s.id} 
-                    className="flex items-center justify-between p-3 border-b border-white/5 last:border-0"
-                  >
-                    <div className="flex flex-col">
-                      <span className="font-black text-sm text-white">{s.name}</span>
-                      <span className="text-[10px] text-white/30 font-mono tracking-widest">{s.code}</span>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <Input 
-                        type="number" 
-                        className="w-16 h-8 text-center bg-white/5 border-white/10 rounded-lg text-white font-black" 
-                        value={s.quantity} 
-                        onChange={(e) => updateSpareQuantity(s.id, parseInt(e.target.value))}
-                      />
-                      <button onClick={() => setSelectedSpares(selectedSpares.filter(item => item.id !== s.id))} className="text-rose-400 hover:text-rose-300 p-1">
-                        <X size={18} />
-                      </button>
-                    </div>
-                  </motion.div>
-                ))}
-              </AnimatePresence>
-              {selectedSpares.length === 0 && (
-                <div className="h-full flex items-center justify-center text-white/20 italic text-sm">{t('noSparesSelected')}</div>
-              )}
-            </ScrollArea>
-            
-            <div className="flex justify-between items-center bg-emerald-500/10 p-4 rounded-2xl border border-emerald-500/20">
-              <span className="font-black text-emerald-400/70 text-sm">{t('totalCost')}</span>
-              <div className="flex items-baseline gap-2">
-                <span className="text-3xl font-black text-emerald-400">{totalCost.toLocaleString()}</span>
-                <span className="text-xs font-black text-emerald-400/50 uppercase tracking-widest">{t('sar')}</span>
+              <ScrollArea className="h-[150px] w-full rounded-2xl border border-white/10 bg-black/20 p-4">
+                <AnimatePresence>
+                  {selectedSpares.map(s => (
+                    <motion.div 
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0, x: 20 }}
+                      key={s.id} 
+                      className="flex items-center justify-between p-3 border-b border-white/5 last:border-0"
+                    >
+                      <div className="flex flex-col">
+                        <span className="font-black text-sm text-white">{s.name}</span>
+                        <span className="text-[10px] text-white/30 font-mono tracking-widest">{s.code}</span>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <Input 
+                          type="number" 
+                          className="w-16 h-8 text-center bg-white/5 border-white/10 rounded-lg text-white font-black" 
+                          value={s.quantity} 
+                          onChange={(e) => updateSpareQuantity(s.id, parseInt(e.target.value))}
+                        />
+                        <button onClick={() => setSelectedSpares(selectedSpares.filter(item => item.id !== s.id))} className="text-rose-400 hover:text-rose-300 p-1">
+                          <X size={18} />
+                        </button>
+                      </div>
+                    </motion.div>
+                  ))}
+                </AnimatePresence>
+                {selectedSpares.length === 0 && (
+                  <div className="h-full flex items-center justify-center text-white/20 italic text-sm">{t('noSparesSelected')}</div>
+                )}
+              </ScrollArea>
+              
+              <div className="flex justify-between items-center bg-emerald-500/10 p-4 rounded-2xl border border-emerald-500/20">
+                <span className="font-black text-emerald-400/70 text-sm">{t('totalCost')}</span>
+                <div className="flex items-baseline gap-2">
+                  <span className="text-3xl font-black text-emerald-400">{totalCost.toLocaleString()}</span>
+                  <span className="text-xs font-black text-emerald-400/50 uppercase tracking-widest">{t('sar')}</span>
+                </div>
               </div>
             </div>
-          </div>
 
-          <div className="space-y-2">
-            <Label className="text-white/60 font-black text-[10px] uppercase tracking-widest">{t('notes')}</Label>
-            <Input name="notes" className="bg-white/5 border-white/10 rounded-xl h-12 text-white" />
-          </div>
+            <div className="space-y-2">
+              <Label className="text-white/60 font-black text-[10px] uppercase tracking-widest">{t('notes')}</Label>
+              <Input name="notes" className="bg-white/5 border-white/10 rounded-xl h-12 text-white" />
+            </div>
 
-          <Button type="submit" className="w-full h-14 rounded-2xl bg-amber-500 hover:bg-amber-600 font-black text-lg shadow-xl shadow-amber-500/20" disabled={loading}>
-            {loading ? t('loading') : t('save')}
-          </Button>
-        </form>
-      </DialogContent>
-    </Dialog>
+            <Button type="submit" className="w-full h-14 rounded-2xl bg-amber-500 hover:bg-amber-600 font-black text-lg shadow-xl shadow-amber-500/20" disabled={loading}>
+              {loading ? t('loading') : t('save')}
+            </Button>
+          </form>
+        </DialogContent>
+      </Dialog>
+      <SuccessModal open={showSuccess} onClose={() => setShowSuccess(false)} title={t('saveSuccess')} />
+      <ErrorModal open={showError} onClose={() => setShowError(false)} title={t('error')} />
+    </>
   );
 }
 
 function DeleteMaintenanceDialog({ id, onDeleted, t }: { id: number, onDeleted: () => void, t: any }) {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
+  const [showError, setShowError] = useState(false);
 
   async function handleDelete() {
     setLoading(true);
     const res = await deleteMaintenanceRequest(id);
     setLoading(false);
     if (res.success) {
-      toast.success(t('success'));
-      onDeleted();
       setOpen(false);
+      setShowSuccess(true);
+      onDeleted();
     } else {
-      toast.error(t('error'));
+      setShowError(true);
     }
   }
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <button className="h-10 w-10 rounded-xl bg-rose-500/10 text-rose-400 flex items-center justify-center hover:bg-rose-500 hover:text-white transition-all shadow-lg active:scale-95">
-          <Trash2 size={18} />
-        </button>
-      </DialogTrigger>
-      <DialogContent className="sm:max-w-[400px] rounded-[2.5rem] bg-slate-900 p-0 overflow-hidden border-none shadow-2xl">
-        <div className="bg-gradient-to-br from-rose-600 to-rose-700 p-10 text-center text-white relative">
-          <div className="absolute top-0 left-0 w-full h-1 bg-white/20" />
-          <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: "spring", damping: 10 }}>
-            <div className="w-24 h-24 bg-white/20 backdrop-blur-md rounded-[2rem] mx-auto flex items-center justify-center mb-6 border border-white/30 shadow-2xl">
-              <AlertTriangle size={48} className="text-white animate-pulse" />
-            </div>
-          </motion.div>
-          <h2 className="text-3xl font-black mb-3 tracking-tight">{t('confirmDelete')}</h2>
-          <p className="text-rose-100 font-medium text-sm leading-relaxed">{t('confirmDelete')}</p>
-        </div>
-        <div className="p-10 bg-slate-900 flex flex-col gap-4">
-          <Button 
-            className="h-14 rounded-2xl bg-rose-600 hover:bg-rose-700 text-white font-black text-xl shadow-xl shadow-rose-900/50 transition-all active:scale-95"
-            onClick={handleDelete}
-            disabled={loading}
-          >
-            {loading ? t('loading') : t('delete')}
-          </Button>
-          <Button 
-            variant="ghost" 
-            className="h-14 rounded-2xl font-black text-slate-400 hover:bg-white/5 text-lg"
-            onClick={() => setOpen(false)}
-          >
-            {t('cancel')}
-          </Button>
-        </div>
-      </DialogContent>
-    </Dialog>
+    <>
+      <button 
+        onClick={() => setOpen(true)}
+        className="h-10 w-10 rounded-xl bg-rose-500/10 text-rose-400 flex items-center justify-center hover:bg-rose-500 hover:text-white transition-all shadow-lg active:scale-95"
+      >
+        <Trash2 size={18} />
+      </button>
+      <DeleteConfirmModal
+        open={open}
+        onClose={() => setOpen(false)}
+        onConfirm={handleDelete}
+        title={t('confirmDelete')}
+        message={t('confirmDelete')}
+        loading={loading}
+        confirmLabel={t('delete')}
+        cancelLabel={t('cancel')}
+      />
+      <SuccessModal open={showSuccess} onClose={() => setShowSuccess(false)} title={t('saveSuccess')} />
+      <ErrorModal open={showError} onClose={() => setShowError(false)} title={t('error')} />
+    </>
   );
 }
 
@@ -623,6 +633,8 @@ function SlideConfirmButton({ id, onCompleted, t }: { id: number; onCompleted: (
   const [sliderValue, setSliderValue] = useState(0);
   const [loading, setLoading] = useState(false);
   const [confirmed, setConfirmed] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
+  const [showError, setShowError] = useState(false);
   const sliderRef = useRef<HTMLDivElement>(null);
   const isDragging = useRef(false);
 
@@ -640,50 +652,50 @@ function SlideConfirmButton({ id, onCompleted, t }: { id: number; onCompleted: (
   const handleMouseUp = async () => {
     if (isDragging.current) {
       isDragging.current = false;
-      if (sliderValue >= 95) {
-        setLoading(true);
-        const res = await completeMaintenanceRequest(id);
-        setLoading(false);
-        if (res.success) {
-          setConfirmed(true);
-          toast.success(t('success'));
-          onCompleted();
+        if (sliderValue >= 95) {
+          setLoading(true);
+          const res = await completeMaintenanceRequest(id);
+          setLoading(false);
+          if (res.success) {
+            setConfirmed(true);
+            setShowSuccess(true);
+            onCompleted();
+          } else {
+            setShowError(true);
+            setSliderValue(0);
+          }
         } else {
-          toast.error(t('error'));
           setSliderValue(0);
         }
-      } else {
-        setSliderValue(0);
       }
-    }
-  };
+    };
 
-  const handleTouchStart = (e: React.TouchEvent) => {
-    isDragging.current = true;
-    updateSlider(e.touches[0].clientX);
-  };
-
-  const handleTouchMove = (e: React.TouchEvent) => {
-    if (isDragging.current) {
+    const handleTouchStart = (e: React.TouchEvent) => {
+      isDragging.current = true;
       updateSlider(e.touches[0].clientX);
-    }
-  };
+    };
 
-  const handleTouchEnd = async () => {
-    if (isDragging.current) {
-      isDragging.current = false;
-      if (sliderValue >= 95) {
-        setLoading(true);
-        const res = await completeMaintenanceRequest(id);
-        setLoading(false);
-        if (res.success) {
-          setConfirmed(true);
-          toast.success(t('success'));
-          onCompleted();
-        } else {
-          toast.error(t('error'));
-          setSliderValue(0);
-        }
+    const handleTouchMove = (e: React.TouchEvent) => {
+      if (isDragging.current) {
+        updateSlider(e.touches[0].clientX);
+      }
+    };
+
+    const handleTouchEnd = async () => {
+      if (isDragging.current) {
+        isDragging.current = false;
+        if (sliderValue >= 95) {
+          setLoading(true);
+          const res = await completeMaintenanceRequest(id);
+          setLoading(false);
+          if (res.success) {
+            setConfirmed(true);
+            setShowSuccess(true);
+            onCompleted();
+          } else {
+            setShowError(true);
+            setSliderValue(0);
+          }
       } else {
         setSliderValue(0);
       }
@@ -701,52 +713,59 @@ function SlideConfirmButton({ id, onCompleted, t }: { id: number; onCompleted: (
 
   if (confirmed) {
     return (
-      <div className="h-10 px-4 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center gap-2 font-black text-xs border border-emerald-500/30">
-        <CheckCircle2 size={16} />
-        {t('completed')}
-      </div>
+      <>
+        <div className="h-10 px-4 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center gap-2 font-black text-xs border border-emerald-500/30">
+          <CheckCircle2 size={16} />
+          {t('completed')}
+        </div>
+        <SuccessModal open={showSuccess} onClose={() => setShowSuccess(false)} title={t('maintenanceCompleted')} />
+      </>
     );
   }
 
   return (
-    <div
-      ref={sliderRef}
-      className="relative h-10 w-40 bg-white/5 rounded-xl border border-white/10 overflow-hidden cursor-pointer select-none"
-      onMouseDown={handleMouseDown}
-      onMouseMove={handleMouseMove}
-      onMouseUp={handleMouseUp}
-      onMouseLeave={handleMouseUp}
-      onTouchStart={handleTouchStart}
-      onTouchMove={handleTouchMove}
-      onTouchEnd={handleTouchEnd}
-    >
+    <>
       <div
-        className={cn(
-          "absolute inset-y-0 left-0 transition-all duration-100",
-          sliderValue >= 95 ? "bg-emerald-500" : "bg-emerald-500/50"
-        )}
-        style={{ width: `${sliderValue}%` }}
-      />
-      <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-        {loading ? (
-          <Loader2 size={16} className="animate-spin text-white" />
-        ) : (
-          <span className={cn(
-            "text-[10px] font-black uppercase tracking-wider transition-colors",
-            sliderValue >= 95 ? "text-white" : "text-white/50"
-          )}>
-            {sliderValue >= 95 ? t('releaseConfirm') : t('slideConfirm') + " ←"}
-          </span>
-        )}
-      </div>
-      <motion.div
-        className="absolute top-1 bottom-1 w-8 bg-white rounded-lg shadow-lg flex items-center justify-center"
-        style={{ left: `calc(${sliderValue}% - ${sliderValue > 5 ? 16 : 4}px)` }}
-        animate={{ scale: isDragging.current ? 1.1 : 1 }}
+        ref={sliderRef}
+        className="relative h-10 w-40 bg-white/5 rounded-xl border border-white/10 overflow-hidden cursor-pointer select-none"
+        onMouseDown={handleMouseDown}
+        onMouseMove={handleMouseMove}
+        onMouseUp={handleMouseUp}
+        onMouseLeave={handleMouseUp}
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
       >
-        <ChevronRight size={16} className="text-emerald-500" />
-      </motion.div>
-    </div>
+        <div
+          className={cn(
+            "absolute inset-y-0 left-0 transition-all duration-100",
+            sliderValue >= 95 ? "bg-emerald-500" : "bg-emerald-500/50"
+          )}
+          style={{ width: `${sliderValue}%` }}
+        />
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+          {loading ? (
+            <Loader2 size={16} className="animate-spin text-white" />
+          ) : (
+            <span className={cn(
+              "text-[10px] font-black uppercase tracking-wider transition-colors",
+              sliderValue >= 95 ? "text-white" : "text-white/50"
+            )}>
+              {sliderValue >= 95 ? t('releaseConfirm') : t('slideConfirm') + " ←"}
+            </span>
+          )}
+        </div>
+        <motion.div
+          className="absolute top-1 bottom-1 w-8 bg-white rounded-lg shadow-lg flex items-center justify-center"
+          style={{ left: `calc(${sliderValue}% - ${sliderValue > 5 ? 16 : 4}px)` }}
+          animate={{ scale: isDragging.current ? 1.1 : 1 }}
+        >
+          <ChevronRight size={16} className="text-emerald-500" />
+        </motion.div>
+      </div>
+      <SuccessModal open={showSuccess} onClose={() => setShowSuccess(false)} title={t('maintenanceCompleted')} />
+      <ErrorModal open={showError} onClose={() => setShowError(false)} title={t('error')} />
+    </>
   );
 }
 
@@ -960,6 +979,9 @@ function ViewPrintEmailDialog({
   const [emailMode, setEmailMode] = useState(false);
   const [emailTo, setEmailTo] = useState("");
   const [sendingEmail, setSendingEmail] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
+  const [showError, setShowError] = useState(false);
+  const [errorMsg, setErrorMsg] = useState("");
   const printRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
