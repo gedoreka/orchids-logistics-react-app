@@ -145,7 +145,7 @@ export async function createMaintenanceRequest(data: any, spares: any[]) {
 
     // Update vehicle km and maintenance count
     await query(
-      "UPDATE vehicles SET current_km = ?, maintenance_count = maintenance_count + 1, last_maintenance_date = ? WHERE id = ?",
+      "UPDATE vehicles SET current_km = ?, maintenance_count = COALESCE(maintenance_count, 0) + 1, last_maintenance_date = ? WHERE id = ?",
       [data.current_km, data.maintenance_date, data.vehicle_id]
     );
 

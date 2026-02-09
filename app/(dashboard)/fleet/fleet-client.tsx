@@ -68,6 +68,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Label } from "@/components/ui/label";
 import { addVehicle, addSpare, addSpareCategory, addVehicleCategory, createMaintenanceRequest, deleteVehicle, deleteMaintenanceRequest, getMaintenanceDetails, completeMaintenanceRequest } from "@/lib/actions/fleet";
 import { toast } from "sonner";
+import { SuccessModal, ErrorModal, DeleteConfirmModal, LoadingModal, NotificationBanner } from "@/components/ui/luxury-notification";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { motion, AnimatePresence } from "framer-motion";
 import { useReactToPrint } from "react-to-print";
@@ -124,6 +125,8 @@ function DashboardStatCard({ title, value, icon, color, desc, alert }: any) {
 function AddVehicleCategoryDialog({ companyId, t }: { companyId: number, t: any }) {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
+  const [showError, setShowError] = useState(false);
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -136,10 +139,10 @@ function AddVehicleCategoryDialog({ companyId, t }: { companyId: number, t: any 
     });
     setLoading(false);
     if (res.success) {
-      toast.success(t('success'));
       setOpen(false);
+      setShowSuccess(true);
     } else {
-      toast.error(t('error'));
+      setShowError(true);
     }
   }
 
@@ -165,35 +168,40 @@ function AddVehicleCategoryDialog({ companyId, t }: { companyId: number, t: any 
             <Input name="description" className="bg-white/5 border-white/10 rounded-xl h-12 text-white" />
           </div>
           <Button type="submit" className="w-full h-14 rounded-2xl bg-blue-600 hover:bg-blue-700 font-black text-lg shadow-xl shadow-blue-500/20" disabled={loading}>
-            {loading ? t('common.loading') : t('save')}
+            {loading ? t('loading') : t('save')}
           </Button>
         </form>
-      </DialogContent>
-    </Dialog>
+        </DialogContent>
+      </Dialog>
+      <SuccessModal open={showSuccess} onClose={() => setShowSuccess(false)} title={t('saveSuccess')} />
+      <ErrorModal open={showError} onClose={() => setShowError(false)} title={t('error')} />
+    </>
   );
 }
 
 function AddCategoryDialog({ companyId, t }: { companyId: number, t: any }) {
-  const [open, setOpen] = useState(false);
-  const [loading, setLoading] = useState(false);
+    const [open, setOpen] = useState(false);
+    const [loading, setLoading] = useState(false);
+    const [showSuccess, setShowSuccess] = useState(false);
+    const [showError, setShowError] = useState(false);
 
-  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    setLoading(true);
-    const formData = new FormData(e.currentTarget);
-    const res = await addSpareCategory({
-      company_id: companyId,
-      name: formData.get("name") as string,
-      description: formData.get("description") as string,
-    });
-    setLoading(false);
-    if (res.success) {
-      toast.success(t('success'));
-      setOpen(false);
-    } else {
-      toast.error(t('error'));
+    async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+      e.preventDefault();
+      setLoading(true);
+      const formData = new FormData(e.currentTarget);
+      const res = await addSpareCategory({
+        company_id: companyId,
+        name: formData.get("name") as string,
+        description: formData.get("description") as string,
+      });
+      setLoading(false);
+      if (res.success) {
+        setOpen(false);
+        setShowSuccess(true);
+      } else {
+        setShowError(true);
+      }
     }
-  }
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -217,7 +225,7 @@ function AddCategoryDialog({ companyId, t }: { companyId: number, t: any }) {
             <Input name="description" className="bg-white/5 border-white/10 rounded-xl h-12 text-white" />
           </div>
           <Button type="submit" className="w-full h-14 rounded-2xl bg-emerald-600 hover:bg-emerald-700 font-black text-lg shadow-xl shadow-emerald-500/20" disabled={loading}>
-            {loading ? t('common.loading') : t('save')}
+            {loading ? t('loading') : t('save')}
           </Button>
         </form>
       </DialogContent>
@@ -310,7 +318,7 @@ function AddVehicleDialog({ companyId, employees, vehicleCategories, t }: any) {
             </div>
           </div>
           <Button type="submit" className="w-full h-14 rounded-2xl bg-emerald-600 hover:bg-emerald-700 font-black text-lg shadow-xl shadow-emerald-500/20" disabled={loading}>
-            {loading ? t('common.loading') : t('addVehicle')}
+            {loading ? t('loading') : t('addVehicle')}
           </Button>
         </form>
       </DialogContent>
@@ -390,7 +398,7 @@ function AddSpareDialog({ companyId, categories, t }: any) {
             </div>
           </div>
           <Button type="submit" className="w-full h-14 rounded-2xl bg-blue-600 hover:bg-blue-700 font-black text-lg shadow-xl shadow-blue-500/20" disabled={loading}>
-            {loading ? t('common.loading') : t('save')}
+            {loading ? t('loading') : t('save')}
           </Button>
         </form>
       </DialogContent>
@@ -547,7 +555,7 @@ function MaintenanceRequestDialog({ companyId, vehicles, spares, t }: any) {
           </div>
 
           <Button type="submit" className="w-full h-14 rounded-2xl bg-amber-500 hover:bg-amber-600 font-black text-lg shadow-xl shadow-amber-500/20" disabled={loading}>
-            {loading ? t('common.loading') : t('save')}
+            {loading ? t('loading') : t('save')}
           </Button>
         </form>
       </DialogContent>
@@ -596,7 +604,7 @@ function DeleteMaintenanceDialog({ id, onDeleted, t }: { id: number, onDeleted: 
             onClick={handleDelete}
             disabled={loading}
           >
-            {loading ? t('common.loading') : t('delete')}
+            {loading ? t('loading') : t('delete')}
           </Button>
           <Button 
             variant="ghost" 
