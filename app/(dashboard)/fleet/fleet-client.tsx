@@ -67,7 +67,6 @@ import {
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { addVehicle, addSpare, addSpareCategory, addVehicleCategory, createMaintenanceRequest, deleteVehicle, deleteMaintenanceRequest, getMaintenanceDetails, completeMaintenanceRequest } from "@/lib/actions/fleet";
-import { toast } from "sonner";
 import { SuccessModal, ErrorModal, DeleteConfirmModal, LoadingModal, NotificationBanner } from "@/components/ui/luxury-notification";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { motion, AnimatePresence } from "framer-motion";
@@ -629,7 +628,7 @@ function DeleteMaintenanceDialog({ id, onDeleted, t }: { id: number, onDeleted: 
   );
 }
 
-function SlideConfirmButton({ id, onCompleted, t }: { id: number; onCompleted: () => void, t: any }) {
+function SlideConfirmButton({ id, onCompleted, t, companyEmail }: { id: number; onCompleted: () => void, t: any, companyEmail?: string }) {
   const [sliderValue, setSliderValue] = useState(0);
   const [loading, setLoading] = useState(false);
   const [confirmed, setConfirmed] = useState(false);
@@ -652,50 +651,65 @@ function SlideConfirmButton({ id, onCompleted, t }: { id: number; onCompleted: (
   const handleMouseUp = async () => {
     if (isDragging.current) {
       isDragging.current = false;
-        if (sliderValue >= 95) {
-          setLoading(true);
-          const res = await completeMaintenanceRequest(id);
-          setLoading(false);
-          if (res.success) {
-            setConfirmed(true);
-            setShowSuccess(true);
-            onCompleted();
+          if (sliderValue >= 95) {
+            setLoading(true);
+            const res = await completeMaintenanceRequest(id);
+            setLoading(false);
+            if (res.success) {
+              setConfirmed(true);
+              setShowSuccess(true);
+              onCompleted();
+              // Send completion confirmation email
+              if (companyEmail) {
+                fetch('/api/fleet/complete-maintenance', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ maintenanceId: id, to: companyEmail }),
+                }).catch(() => {});
+              }
+            } else {
+              setShowError(true);
+              setSliderValue(0);
+            }
           } else {
-            setShowError(true);
             setSliderValue(0);
           }
-        } else {
-          setSliderValue(0);
         }
-      }
-    };
+      };
 
-    const handleTouchStart = (e: React.TouchEvent) => {
-      isDragging.current = true;
-      updateSlider(e.touches[0].clientX);
-    };
-
-    const handleTouchMove = (e: React.TouchEvent) => {
-      if (isDragging.current) {
+      const handleTouchStart = (e: React.TouchEvent) => {
+        isDragging.current = true;
         updateSlider(e.touches[0].clientX);
-      }
-    };
+      };
 
-    const handleTouchEnd = async () => {
-      if (isDragging.current) {
-        isDragging.current = false;
-        if (sliderValue >= 95) {
-          setLoading(true);
-          const res = await completeMaintenanceRequest(id);
-          setLoading(false);
-          if (res.success) {
-            setConfirmed(true);
-            setShowSuccess(true);
-            onCompleted();
-          } else {
-            setShowError(true);
-            setSliderValue(0);
-          }
+      const handleTouchMove = (e: React.TouchEvent) => {
+        if (isDragging.current) {
+          updateSlider(e.touches[0].clientX);
+        }
+      };
+
+      const handleTouchEnd = async () => {
+        if (isDragging.current) {
+          isDragging.current = false;
+          if (sliderValue >= 95) {
+            setLoading(true);
+            const res = await completeMaintenanceRequest(id);
+            setLoading(false);
+            if (res.success) {
+              setConfirmed(true);
+              setShowSuccess(true);
+              onCompleted();
+              if (companyEmail) {
+                fetch('/api/fleet/complete-maintenance', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ maintenanceId: id, to: companyEmail }),
+                }).catch(() => {});
+              }
+            } else {
+              setShowError(true);
+              setSliderValue(0);
+            }
       } else {
         setSliderValue(0);
       }
@@ -1031,9 +1045,10 @@ function ViewPrintEmailDialog({
 
   const handleSendEmail = async () => {
       if (!emailTo.trim()) {
-        toast.error(t('emailRequired'));
-        return;
-      }
+          setErrorMsg(t('emailRequired'));
+          setShowError(true);
+          return;
+        }
       
       setSendingEmail(true);
       try {
@@ -1042,54 +1057,59 @@ function ViewPrintEmailDialog({
           : `<tr><td colspan="3" style="padding: 12px; border: 1px solid #e2e8f0; text-align: center;">${t('maintenanceDetails')}</td></tr>`;
 
         const emailBody = `
-          <div dir="rtl" style="font-family: 'Cairo', Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
-            <div style="background: #f59e0b; color: white; padding: 30px; border-radius: 16px; text-align: center; margin-bottom: 20px;">
-              <h1 style="margin: 0; font-size: 24px;">${companyName}</h1>
-              <p style="margin: 5px 0 0; opacity: 0.9;">${t('maintenanceOrder')}</p>
+            <div dir="rtl" style="font-family: 'Segoe UI', Tahoma, Arial, sans-serif; max-width: 640px; margin: 0 auto; background: #0f172a; border-radius: 24px; overflow: hidden; border: 1px solid rgba(255,255,255,0.05);">
+              <div style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); padding: 40px 30px; text-align: center;">
+                <div style="width: 60px; height: 60px; background: rgba(255,255,255,0.2); border-radius: 16px; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 16px;">
+                  <span style="font-size: 28px;">🔧</span>
+                </div>
+                <h1 style="margin: 0; font-size: 26px; color: white; font-weight: 900; letter-spacing: -0.5px;">${companyName}</h1>
+                <p style="margin: 8px 0 0; color: rgba(255,255,255,0.85); font-size: 14px; font-weight: 600;">${t('maintenanceOrder')} #${maintenance.id.toString().padStart(6, '0')}</p>
+              </div>
+              
+              <div style="padding: 30px;">
+                <div style="background: rgba(245,158,11,0.1); border: 1px solid rgba(245,158,11,0.3); border-radius: 16px; padding: 16px 20px; margin-bottom: 24px;">
+                  <p style="margin: 0; color: #fbbf24; font-weight: 700; font-size: 13px;">⚠️ ${t('techInstructionsDesc')}</p>
+                </div>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 24px;">
+                  <div style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; padding: 16px;">
+                    <p style="margin: 0 0 4px; color: rgba(255,255,255,0.4); font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px;">${t('plateNumber')}</p>
+                    <p style="margin: 0; color: white; font-size: 16px; font-weight: 900;">${maintenance.plate_number_ar}</p>
+                  </div>
+                  <div style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; padding: 16px;">
+                    <p style="margin: 0 0 4px; color: rgba(255,255,255,0.4); font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px;">${t('brand')} / ${t('model')}</p>
+                    <p style="margin: 0; color: white; font-size: 16px; font-weight: 900;">${maintenance.brand} ${maintenance.model}</p>
+                  </div>
+                  <div style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; padding: 16px;">
+                    <p style="margin: 0 0 4px; color: rgba(255,255,255,0.4); font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px;">${t('technician')}</p>
+                    <p style="margin: 0; color: white; font-size: 14px; font-weight: 700;">${maintenance.maintenance_person}</p>
+                  </div>
+                  <div style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; padding: 16px;">
+                    <p style="margin: 0 0 4px; color: rgba(255,255,255,0.4); font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px;">${t('currentMileage')}</p>
+                    <p style="margin: 0; color: white; font-size: 14px; font-weight: 700;">${maintenance.current_km?.toLocaleString()} كم</p>
+                  </div>
+                </div>
+                
+                <div style="margin-bottom: 24px;">
+                  <h3 style="color: white; font-size: 14px; font-weight: 900; margin: 0 0 12px; padding-bottom: 8px; border-bottom: 1px solid rgba(255,255,255,0.1);">${t('usedSpares')}</h3>
+                  <table style="width: 100%; border-collapse: separate; border-spacing: 0 6px;">
+                    <tr>
+                      <th style="padding: 10px 14px; background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.6); font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; text-align: right; border-radius: 8px 0 0 8px;">${t('spareName')}</th>
+                      <th style="padding: 10px 14px; background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.6); font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; text-align: center;">${t('spareCode')}</th>
+                      <th style="padding: 10px 14px; background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.6); font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; text-align: center; border-radius: 0 8px 8px 0;">${t('quantity')}</th>
+                    </tr>
+                    ${sparesList}
+                  </table>
+                </div>
+                
+                ${maintenance.notes ? `<div style="background: rgba(59,130,246,0.1); border: 1px solid rgba(59,130,246,0.2); border-radius: 14px; padding: 16px; margin-bottom: 24px;"><p style="margin: 0; color: #93c5fd; font-size: 13px;"><strong style="color: #60a5fa;">📝 ${t('internalNotes')}:</strong> ${maintenance.notes}</p></div>` : ''}
+              </div>
+              
+              <div style="padding: 20px 30px; border-top: 1px solid rgba(255,255,255,0.05); text-align: center;">
+                <p style="margin: 0; color: rgba(255,255,255,0.3); font-size: 11px;">تم إرسال هذا البريد من نظام ${companyName} لإدارة الأسطول</p>
+              </div>
             </div>
-            
-            <div style="background: #fef3c7; border: 2px solid #fcd34d; padding: 15px; border-radius: 12px; margin-bottom: 20px;">
-              <p style="margin: 0; color: #92400e; font-weight: bold;">${t('techInstructionsDesc')}</p>
-            </div>
-            
-            <h2 style="color: #1e293b; margin-bottom: 15px;">${t('maintenanceOrder')} #${maintenance.id.toString().padStart(6, '0')}</h2>
-            
-            <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
-              <tr style="background: #f8fafc;">
-                <td style="padding: 12px; border: 1px solid #e2e8f0; font-weight: bold;">${t('vehicles')}</td>
-                <td style="padding: 12px; border: 1px solid #e2e8f0;">${maintenance.plate_number_ar} - ${maintenance.brand} ${maintenance.model}</td>
-              </tr>
-              <tr>
-                <td style="padding: 12px; border: 1px solid #e2e8f0; font-weight: bold;">${t('technician')}</td>
-                <td style="padding: 12px; border: 1px solid #e2e8f0;">${maintenance.maintenance_person}</td>
-              </tr>
-              <tr style="background: #f8fafc;">
-                <td style="padding: 12px; border: 1px solid #e2e8f0; font-weight: bold;">${t('date')}</td>
-                <td style="padding: 12px; border: 1px solid #e2e8f0;">${new Date(maintenance.maintenance_date).toLocaleDateString('en-GB')}</td>
-              </tr>
-              <tr>
-                <td style="padding: 12px; border: 1px solid #e2e8f0; font-weight: bold;">${t('currentMileage')}</td>
-                <td style="padding: 12px; border: 1px solid #e2e8f0;">${maintenance.current_km?.toLocaleString()} كم</td>
-              </tr>
-            </table>
-            
-            <h3 style="color: #1e293b; margin-bottom: 10px;">${t('usedSpares')}:</h3>
-            <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
-              <tr style="background: #1e293b; color: white;">
-                <th style="padding: 12px; text-align: right;">${t('spareName')}</th>
-                <th style="padding: 12px; text-align: center;">${t('spareCode')}</th>
-                <th style="padding: 12px; text-align: center;">${t('quantity')}</th>
-              </tr>
-              ${sparesList}
-            </table>
-            
-            ${maintenance.notes ? `<div style="background: #eff6ff; border: 1px solid #bfdbfe; padding: 15px; border-radius: 12px; margin-bottom: 20px;"><p style="margin: 0; color: #1e40af;"><strong>${t('internalNotes')}:</strong> ${maintenance.notes}</p></div>` : ''}
-            
-            <div style="text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid #e2e8f0;">
-              <p style="color: #94a3b8; font-size: 12px;">تم إرسال هذا البريد من نظام ${companyName} لإدارة الأسطول</p>
-            </div>
-          </div>
-        `;
+          `;
 
         const response = await fetch('/api/fleet/send-invoice', {
           method: 'POST',
@@ -1102,16 +1122,18 @@ function ViewPrintEmailDialog({
         });
 
       const result = await response.json();
-      if (result.success) {
-        toast.success(t('success'));
-        setEmailMode(false);
-        setEmailTo("");
-      } else {
-        toast.error(result.error || t('error'));
-      }
-    } catch {
-      toast.error(t('error'));
-    } finally {
+        if (result.success) {
+          setShowSuccess(true);
+          setEmailMode(false);
+          setEmailTo("");
+        } else {
+          setErrorMsg(result.error || t('error'));
+          setShowError(true);
+        }
+      } catch {
+        setErrorMsg(t('error'));
+        setShowError(true);
+      } finally {
       setSendingEmail(false);
     }
   };
@@ -1126,8 +1148,9 @@ function ViewPrintEmailDialog({
   const taxAmount = subtotal * taxRate;
   const grandTotal = subtotal + taxAmount;
 
-  return (
-    <Dialog open={open} onOpenChange={handleClose}>
+    return (
+    <>
+      <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent className="sm:max-w-[900px] max-h-[90vh] rounded-[2rem] bg-slate-900 text-white border-white/10 p-0 overflow-hidden">
         <DialogHeader className="p-6 border-b border-white/10 bg-white/5">
             <DialogTitle className="text-2xl font-black flex items-center gap-3">
@@ -1338,12 +1361,15 @@ function ViewPrintEmailDialog({
           )}
         </ScrollArea>
       </DialogContent>
-    </Dialog>
-  );
-}
-
-// ------------------------------------------------------------------------------------------------
-// Main Component
+      </Dialog>
+      <SuccessModal open={showSuccess} onClose={() => setShowSuccess(false)} title={t('success')} />
+      <ErrorModal open={showError} onClose={() => setShowError(false)} title={errorMsg || t('error')} />
+    </>
+    );
+  }
+  
+  // ------------------------------------------------------------------------------------------------
+  // Main Component
 // ------------------------------------------------------------------------------------------------
 
 export function FleetClient({ 
@@ -1364,7 +1390,11 @@ export function FleetClient({
   const [maintenance, setMaintenance] = useState(initialMaintenance);
   const [activeTab, setActiveTab] = useState("dashboard");
   const [searchQuery, setSearchQuery] = useState("");
-  const [viewingMaintenance, setViewingMaintenance] = useState<any>(null);
+    const [viewingMaintenance, setViewingMaintenance] = useState<any>(null);
+    const [deleteVehicleId, setDeleteVehicleId] = useState<number | null>(null);
+    const [showDeleteSuccess, setShowDeleteSuccess] = useState(false);
+    const [showCompletionBanner, setShowCompletionBanner] = useState(false);
+    const [completedMaintenanceInfo, setCompletedMaintenanceInfo] = useState("");
   
   useEffect(() => { setVehicles(initialVehicles); }, [initialVehicles]);
   useEffect(() => { setSpares(initialSpares); }, [initialSpares]);
@@ -1634,16 +1664,9 @@ export function FleetClient({
                               <Edit size={16} />
                             </button>
                             <button 
-                              onClick={() => {
-                                if(confirm(t('confirmDelete'))) {
-                                  deleteVehicle(v.id).then(() => {
-                                    toast.success(t('success'));
-                                    window.location.reload();
-                                  });
-                                }
-                              }}
-                              className="h-9 w-9 rounded-xl bg-rose-500/10 text-rose-400 flex items-center justify-center hover:bg-rose-500 hover:text-white transition-all"
-                            >
+                                onClick={() => setDeleteVehicleId(v.id)}
+                                className="h-9 w-9 rounded-xl bg-rose-500/10 text-rose-400 flex items-center justify-center hover:bg-rose-500 hover:text-white transition-all"
+                              >
                               <Trash2 size={16} />
                             </button>
                           </div>
@@ -1837,6 +1860,7 @@ export function FleetClient({
                               <SlideConfirmButton 
                                 id={m.id} 
                                 t={t}
+                                companyEmail={companyEmail}
                                 onCompleted={() => {
                                   setMaintenance(prev => prev.map(item => 
                                     item.id === m.id ? { ...item, status: 'completed' } : item
@@ -2069,6 +2093,21 @@ export function FleetClient({
           <span>{t('allRightsReserved')} © {new Date().getFullYear()}</span>
         </div>
       </div>
+
+      <DeleteConfirmModal
+        open={deleteVehicleId !== null}
+        onClose={() => setDeleteVehicleId(null)}
+        onConfirm={async () => {
+          if (deleteVehicleId) {
+            await deleteVehicle(deleteVehicleId);
+            setDeleteVehicleId(null);
+            setShowDeleteSuccess(true);
+            window.location.reload();
+          }
+        }}
+        title={t('confirmDelete')}
+      />
+      <SuccessModal open={showDeleteSuccess} onClose={() => setShowDeleteSuccess(false)} title={t('success')} />
     </div>
   );
 }
