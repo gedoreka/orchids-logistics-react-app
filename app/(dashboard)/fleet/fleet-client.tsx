@@ -1411,9 +1411,22 @@ export function FleetClient({
     v.model?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  return (
-    <div className="max-w-[98%] mx-auto p-4 md:p-8" dir={locale === 'ar' ? "rtl" : "ltr"}>
-      {/* Unified Main Card */}
+    return (
+      <div className="max-w-[98%] mx-auto p-4 md:p-8" dir={locale === 'ar' ? "rtl" : "ltr"}>
+        {/* In-App Notification Banner */}
+        <NotificationBanner
+          show={showCompletionBanner}
+          onClose={() => setShowCompletionBanner(false)}
+          title={t('maintenanceCompleted')}
+          message={completedMaintenanceInfo || t('maintenanceCompletedDesc')}
+          type="success"
+          actionLabel={t('view')}
+          onAction={() => {
+            setActiveTab("maintenance");
+            setShowCompletionBanner(false);
+          }}
+        />
+        {/* Unified Main Card */}
       <div className="bg-slate-950 rounded-[3rem] border border-white/5 shadow-2xl overflow-hidden flex flex-col p-8 space-y-8">
         
         {/* Luxurious Hero Section */}
@@ -1861,11 +1874,14 @@ export function FleetClient({
                                 id={m.id} 
                                 t={t}
                                 companyEmail={companyEmail}
-                                onCompleted={() => {
-                                  setMaintenance(prev => prev.map(item => 
-                                    item.id === m.id ? { ...item, status: 'completed' } : item
-                                  ));
-                                }} 
+                  onCompleted={() => {
+                                    setMaintenance(prev => prev.map(item => 
+                                      item.id === m.id ? { ...item, status: 'completed' } : item
+                                    ));
+                                    setCompletedMaintenanceInfo(`${m.maintenance_person || ''} - ${m.maintenance_type || ''}`);
+                                    setShowCompletionBanner(true);
+                                    setTimeout(() => setShowCompletionBanner(false), 8000);
+                                  }}
                               />
                             )}
                             <button 

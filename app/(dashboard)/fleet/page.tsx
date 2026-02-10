@@ -53,7 +53,12 @@ export default async function FleetPage() {
   );
 
   const employees = await query<any>(
-    "SELECT id, name, iqama_number FROM employees WHERE company_id = ? AND is_active = 1",
+    `SELECT e.id, e.name, e.iqama_number, e.personal_photo, e.user_code, e.identity_number, e.job_title, e.package_id, 
+     ep.group_name as package_name
+     FROM employees e 
+     LEFT JOIN employee_packages ep ON e.package_id = ep.id
+     WHERE e.company_id = ? AND e.is_active = 1
+     ORDER BY ep.group_name, e.name`,
     [companyId]
   );
 

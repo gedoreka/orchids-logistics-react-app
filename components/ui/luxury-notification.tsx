@@ -1,7 +1,8 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
 import { CheckCircle2, AlertTriangle, Loader2, X, XCircle } from "lucide-react";
@@ -27,15 +28,16 @@ export function SuccessModal({ open, onClose, title, message, autoClose = 2500 }
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent showCloseButton={false} className="sm:max-w-[380px] rounded-[2.5rem] bg-slate-900 p-0 overflow-hidden border-none shadow-2xl">
-        <div className="bg-gradient-to-br from-emerald-600 to-emerald-700 p-10 text-center text-white relative">
-          <div className="absolute top-0 left-0 w-full h-1 bg-white/20" />
-          <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: "spring", damping: 10 }}>
-            <div className="w-24 h-24 bg-white/20 backdrop-blur-md rounded-[2rem] mx-auto flex items-center justify-center mb-6 border border-white/30 shadow-2xl">
-              <CheckCircle2 size={48} className="text-white" />
-            </div>
-          </motion.div>
-          <h2 className="text-2xl font-black mb-2 tracking-tight">{title}</h2>
+        <DialogContent showCloseButton={false} className="sm:max-w-[380px] rounded-[2.5rem] bg-slate-900 p-0 overflow-hidden border-none shadow-2xl">
+          <VisuallyHidden><DialogTitle>{title}</DialogTitle></VisuallyHidden>
+          <div className="bg-gradient-to-br from-emerald-600 to-emerald-700 p-10 text-center text-white relative">
+            <div className="absolute top-0 left-0 w-full h-1 bg-white/20" />
+            <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: "spring", damping: 10 }}>
+              <div className="w-24 h-24 bg-white/20 backdrop-blur-md rounded-[2rem] mx-auto flex items-center justify-center mb-6 border border-white/30 shadow-2xl">
+                <CheckCircle2 size={48} className="text-white" />
+              </div>
+            </motion.div>
+            <h2 className="text-2xl font-black mb-2 tracking-tight">{title}</h2>
           {message && <p className="text-emerald-100 font-medium text-sm leading-relaxed">{message}</p>}
         </div>
         <div className="p-6 bg-slate-900 flex justify-center">
@@ -64,13 +66,14 @@ interface ErrorModalProps {
 
 export function ErrorModal({ open, onClose, title, message }: ErrorModalProps) {
   return (
-    <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent showCloseButton={false} className="sm:max-w-[380px] rounded-[2.5rem] bg-slate-900 p-0 overflow-hidden border-none shadow-2xl">
-        <div className="bg-gradient-to-br from-rose-600 to-rose-700 p-10 text-center text-white relative">
-          <div className="absolute top-0 left-0 w-full h-1 bg-white/20" />
-          <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: "spring", damping: 10 }}>
-            <div className="w-24 h-24 bg-white/20 backdrop-blur-md rounded-[2rem] mx-auto flex items-center justify-center mb-6 border border-white/30 shadow-2xl">
-              <XCircle size={48} className="text-white" />
+      <Dialog open={open} onOpenChange={onClose}>
+        <DialogContent showCloseButton={false} className="sm:max-w-[380px] rounded-[2.5rem] bg-slate-900 p-0 overflow-hidden border-none shadow-2xl">
+          <VisuallyHidden><DialogTitle>{title}</DialogTitle></VisuallyHidden>
+          <div className="bg-gradient-to-br from-rose-600 to-rose-700 p-10 text-center text-white relative">
+            <div className="absolute top-0 left-0 w-full h-1 bg-white/20" />
+            <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: "spring", damping: 10 }}>
+              <div className="w-24 h-24 bg-white/20 backdrop-blur-md rounded-[2rem] mx-auto flex items-center justify-center mb-6 border border-white/30 shadow-2xl">
+                <XCircle size={48} className="text-white" />
             </div>
           </motion.div>
           <h2 className="text-2xl font-black mb-2 tracking-tight">{title}</h2>
@@ -114,9 +117,10 @@ export function DeleteConfirmModal({
   cancelLabel = "إلغاء",
 }: DeleteConfirmModalProps) {
   return (
-    <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent showCloseButton={false} className="sm:max-w-[400px] rounded-[2.5rem] bg-slate-900 p-0 overflow-hidden border-none shadow-2xl">
-        <div className="bg-gradient-to-br from-rose-600 to-rose-700 p-10 text-center text-white relative">
+      <Dialog open={open} onOpenChange={onClose}>
+        <DialogContent showCloseButton={false} className="sm:max-w-[400px] rounded-[2.5rem] bg-slate-900 p-0 overflow-hidden border-none shadow-2xl">
+          <VisuallyHidden><DialogTitle>{title}</DialogTitle></VisuallyHidden>
+          <div className="bg-gradient-to-br from-rose-600 to-rose-700 p-10 text-center text-white relative">
           <div className="absolute top-0 left-0 w-full h-1 bg-white/20" />
           <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: "spring", damping: 10 }}>
             <div className="w-24 h-24 bg-white/20 backdrop-blur-md rounded-[2rem] mx-auto flex items-center justify-center mb-6 border border-white/30 shadow-2xl">
@@ -158,9 +162,10 @@ interface LoadingModalProps {
 
 export function LoadingModal({ open, title = "جاري التحميل..." }: LoadingModalProps) {
   return (
-    <Dialog open={open}>
-      <DialogContent showCloseButton={false} className="sm:max-w-[300px] rounded-[2.5rem] bg-slate-900 p-0 overflow-hidden border-none shadow-2xl">
-        <div className="bg-gradient-to-br from-blue-600 to-indigo-700 p-10 text-center text-white relative">
+      <Dialog open={open}>
+        <DialogContent showCloseButton={false} className="sm:max-w-[300px] rounded-[2.5rem] bg-slate-900 p-0 overflow-hidden border-none shadow-2xl">
+          <VisuallyHidden><DialogTitle>{title}</DialogTitle></VisuallyHidden>
+          <div className="bg-gradient-to-br from-blue-600 to-indigo-700 p-10 text-center text-white relative">
           <div className="absolute top-0 left-0 w-full h-1 bg-white/20" />
           <motion.div
             animate={{ rotate: 360 }}
