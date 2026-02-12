@@ -83,10 +83,15 @@ export function HRDashboardClient({ stats, activePackages, recentEmployees, comp
           <div className="p-8 md:p-12 space-y-12">
             {/* Header Section */}
             <motion.div 
-              variants={itemVariants}
-              className="flex flex-col md:flex-row md:items-center justify-between gap-8 bg-white/10 backdrop-blur-xl p-8 rounded-[2rem] border border-white/10 shadow-xl"
-            >
-              <div>
+                variants={itemVariants}
+                className="flex flex-col md:flex-row md:items-center justify-between gap-8 bg-white/10 dark:bg-white/10 bg-gradient-to-r from-violet-50/80 via-purple-50/50 to-indigo-50/80 dark:bg-none backdrop-blur-xl p-8 rounded-2xl dark:rounded-[2rem] border-2 border-violet-200/60 dark:border dark:border-white/10 shadow-sm dark:shadow-xl relative overflow-hidden"
+              >
+                {/* Decorative circles - light mode only */}
+                <div className="absolute top-0 left-0 w-32 h-32 bg-gradient-to-br from-violet-500/10 to-purple-500/10 rounded-full -translate-y-16 -translate-x-16 dark:hidden" />
+                <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-blue-500/10 to-indigo-500/10 rounded-full -translate-y-16 translate-x-16 dark:hidden" />
+                <div className="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-tr from-emerald-500/10 to-teal-500/10 rounded-full translate-y-12 -translate-x-12 dark:hidden" />
+                <div className="absolute bottom-0 right-0 w-24 h-24 bg-gradient-to-tr from-amber-500/10 to-orange-500/10 rounded-full translate-y-12 translate-x-12 dark:hidden" />
+                <div className="relative z-10">
                 <div className="flex items-center gap-2 text-xs font-bold text-slate-300 mb-2">
                   <Link href="/dashboard" className="hover:text-blue-400 transition-colors flex items-center gap-1">
                     <LayoutDashboard size={14} />
@@ -95,10 +100,10 @@ export function HRDashboardClient({ stats, activePackages, recentEmployees, comp
                   <ArrowRight size={14} className={`${isRTL ? 'rotate-180' : ''} text-slate-500`} />
                   <span className="text-blue-400">{isRTL ? 'الموارد البشرية' : 'HR'}</span>
                 </div>
-                <h1 className="text-3xl md:text-4xl font-black text-white">{t('employeesSystem')}</h1>
-              </div>
+                  <h1 className="text-3xl md:text-4xl font-black text-black dark:text-white">{t('employeesSystem')}</h1>
+                </div>
 
-              <div className="flex items-center gap-4">
+                <div className="flex items-center gap-4 relative z-10">
                 <div className="hidden md:flex items-center gap-3 px-5 py-2.5 bg-white/5 border border-white/10 rounded-2xl backdrop-blur-md">
                   <div className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></div>
                   <span className="text-sm font-black text-slate-200">{companyName}</span>
@@ -190,7 +195,12 @@ export function HRDashboardClient({ stats, activePackages, recentEmployees, comp
                   ].map((tool, idx) => (
                     <motion.div key={idx} variants={itemVariants}>
                       <Link href={tool.href}>
-                        <div className="bg-white/95 backdrop-blur-xl rounded-[2rem] p-8 border border-white/50 shadow-xl hover:shadow-2xl hover:-translate-y-1 transition-all h-full flex flex-col relative overflow-hidden group">
+                          <div className="bg-gradient-to-r from-violet-50/80 via-purple-50/50 to-indigo-50/80 dark:bg-white/95 dark:bg-none backdrop-blur-xl rounded-2xl dark:rounded-[2rem] p-5 dark:p-8 border-2 border-violet-200/60 dark:border dark:border-white/50 shadow-sm dark:shadow-xl hover:shadow-2xl hover:-translate-y-1 transition-all h-full flex flex-col relative overflow-hidden group">
+                            {/* Decorative circles - light mode only */}
+                            <div className="absolute top-0 left-0 w-32 h-32 bg-gradient-to-br from-violet-500/10 to-purple-500/10 rounded-full -translate-y-16 -translate-x-16 dark:hidden" />
+                            <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-blue-500/10 to-indigo-500/10 rounded-full -translate-y-16 translate-x-16 dark:hidden" />
+                            <div className="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-tr from-emerald-500/10 to-teal-500/10 rounded-full translate-y-12 -translate-x-12 dark:hidden" />
+                            <div className="absolute bottom-0 right-0 w-24 h-24 bg-gradient-to-tr from-amber-500/10 to-orange-500/10 rounded-full translate-y-12 translate-x-12 dark:hidden" />
                           <div className={`h-16 w-16 rounded-2xl bg-gradient-to-br from-${tool.color}-500 to-${tool.color}-600 flex items-center justify-center text-white mb-6 shadow-xl shadow-${tool.color}-500/20 group-hover:scale-110 transition-transform`}>
                             {tool.icon}
                           </div>
@@ -210,20 +220,25 @@ export function HRDashboardClient({ stats, activePackages, recentEmployees, comp
                   ))}
                 </div>
 
-                {/* Active Packages Section */}
-                <motion.div variants={itemVariants} className="bg-white/95 backdrop-blur-xl rounded-[2.5rem] border border-white/50 shadow-2xl overflow-hidden">
-                  <div className="bg-gradient-to-r from-slate-800 to-slate-900 px-8 py-6">
+                  {/* Active Packages Section */}
+                  <motion.div variants={itemVariants} className="bg-gradient-to-r from-violet-50/80 via-purple-50/50 to-indigo-50/80 dark:bg-white/95 dark:bg-none backdrop-blur-xl rounded-2xl dark:rounded-[2.5rem] border-2 border-violet-200/60 dark:border dark:border-white/50 shadow-sm dark:shadow-2xl overflow-hidden relative">
+                    {/* Decorative circles - light mode only */}
+                    <div className="absolute top-0 left-0 w-32 h-32 bg-gradient-to-br from-violet-500/10 to-purple-500/10 rounded-full -translate-y-16 -translate-x-16 dark:hidden z-0" />
+                    <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-blue-500/10 to-indigo-500/10 rounded-full -translate-y-16 translate-x-16 dark:hidden z-0" />
+                    <div className="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-tr from-emerald-500/10 to-teal-500/10 rounded-full translate-y-12 -translate-x-12 dark:hidden z-0" />
+                    <div className="absolute bottom-0 right-0 w-24 h-24 bg-gradient-to-tr from-amber-500/10 to-orange-500/10 rounded-full translate-y-12 translate-x-12 dark:hidden z-0" />
+                  <div className="bg-gradient-to-r from-violet-100 via-purple-100 to-indigo-100 dark:from-slate-800 dark:to-slate-900 px-8 py-6">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-4">
-                        <div className="h-12 w-12 rounded-2xl bg-white/10 flex items-center justify-center border border-white/10">
-                          <Package className="text-white" size={24} />
+                        <div className="h-12 w-12 rounded-2xl bg-violet-200/50 dark:bg-white/10 flex items-center justify-center border border-violet-300/50 dark:border-white/10">
+                          <Package className="text-violet-600 dark:text-white" size={24} />
                         </div>
                         <div>
-                          <h3 className="text-white text-lg font-black">{t('activePackages')}</h3>
-                          <p className="text-slate-400 text-xs font-bold">{activePackages.length} {isRTL ? 'باقة نشطة' : 'active packages'}</p>
+                          <h3 className="text-black dark:text-white text-lg font-black">{t('activePackages')}</h3>
+                          <p className="text-slate-600 dark:text-slate-400 text-xs font-bold">{activePackages.length} {isRTL ? 'باقة نشطة' : 'active packages'}</p>
                         </div>
                       </div>
-                      <Link href="/hr/packages" className="text-xs font-black text-slate-400 hover:text-white transition-colors bg-white/5 px-4 py-2 rounded-xl border border-white/10">{tCommon('viewAll')}</Link>
+                      <Link href="/hr/packages" className="text-xs font-black text-black dark:text-slate-400 hover:text-violet-600 dark:hover:text-white transition-colors bg-violet-100/50 dark:bg-white/5 px-4 py-2 rounded-xl border border-violet-200/60 dark:border-white/10">{tCommon('viewAll')}</Link>
                     </div>
                   </div>
 
@@ -233,10 +248,10 @@ export function HRDashboardClient({ stats, activePackages, recentEmployees, comp
                         {activePackages.map((pkg, index) => (
                           <motion.div key={pkg.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: index * 0.1 }}>
                             <Link href={`/hr/packages/${pkg.id}`}>
-                              <div className="group p-6 rounded-3xl bg-slate-50 border border-slate-100 hover:border-blue-200 hover:bg-white hover:shadow-2xl transition-all">
-                                <div className="flex justify-between items-start mb-4">
-                                  <div className="h-12 w-12 rounded-2xl bg-white flex items-center justify-center text-blue-500 shadow-sm group-hover:bg-blue-600 group-hover:text-white transition-all">
-                                    <Package size={24} />
+<div className="group p-6 rounded-3xl bg-white/80 dark:bg-slate-50 border border-violet-200/40 dark:border-slate-100 hover:border-violet-300 dark:hover:border-blue-200 hover:shadow-2xl transition-all">
+                                  <div className="flex justify-between items-start mb-4">
+                                    <div className="h-12 w-12 rounded-2xl bg-blue-600 flex items-center justify-center text-white shadow-sm">
+                                      <Package size={24} />
                                   </div>
                                   <span className={`px-3 py-1.5 rounded-full text-[10px] font-black uppercase border ${
                                     pkg.work_type === 'salary' 
@@ -274,8 +289,13 @@ export function HRDashboardClient({ stats, activePackages, recentEmployees, comp
 
               {/* Sidebar Content */}
               <div className="space-y-8">
-                {/* Recent Activity */}
-                <motion.div variants={itemVariants} className="bg-white/95 backdrop-blur-xl rounded-[2.5rem] border border-white/50 shadow-2xl overflow-hidden">
+                  {/* Recent Activity */}
+                  <motion.div variants={itemVariants} className="bg-gradient-to-r from-violet-50/80 via-purple-50/50 to-indigo-50/80 dark:bg-white/95 dark:bg-none backdrop-blur-xl rounded-2xl dark:rounded-[2.5rem] border-2 border-violet-200/60 dark:border dark:border-white/50 shadow-sm dark:shadow-2xl overflow-hidden relative">
+                    {/* Decorative circles - light mode only */}
+                    <div className="absolute top-0 left-0 w-32 h-32 bg-gradient-to-br from-violet-500/10 to-purple-500/10 rounded-full -translate-y-16 -translate-x-16 dark:hidden z-0" />
+                    <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-blue-500/10 to-indigo-500/10 rounded-full -translate-y-16 translate-x-16 dark:hidden z-0" />
+                    <div className="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-tr from-emerald-500/10 to-teal-500/10 rounded-full translate-y-12 -translate-x-12 dark:hidden z-0" />
+                    <div className="absolute bottom-0 right-0 w-24 h-24 bg-gradient-to-tr from-amber-500/10 to-orange-500/10 rounded-full translate-y-12 translate-x-12 dark:hidden z-0" />
                   <div className="bg-gradient-to-r from-purple-600 to-violet-600 px-8 py-6">
                     <div className="flex items-center gap-4">
                       <div className="h-12 w-12 rounded-2xl bg-white/20 flex items-center justify-center border border-white/10">
@@ -321,7 +341,12 @@ export function HRDashboardClient({ stats, activePackages, recentEmployees, comp
                 </motion.div>
 
                 {/* Quick Tools */}
-                <motion.div variants={itemVariants} className="bg-white/95 backdrop-blur-xl rounded-[2.5rem] border border-white/50 p-8 shadow-2xl">
+                  <motion.div variants={itemVariants} className="bg-gradient-to-r from-violet-50/80 via-purple-50/50 to-indigo-50/80 dark:bg-white/95 dark:bg-none backdrop-blur-xl rounded-2xl dark:rounded-[2.5rem] border-2 border-violet-200/60 dark:border dark:border-white/50 p-5 dark:p-8 shadow-sm dark:shadow-2xl relative overflow-hidden">
+                    {/* Decorative circles - light mode only */}
+                    <div className="absolute top-0 left-0 w-32 h-32 bg-gradient-to-br from-violet-500/10 to-purple-500/10 rounded-full -translate-y-16 -translate-x-16 dark:hidden" />
+                    <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-blue-500/10 to-indigo-500/10 rounded-full -translate-y-16 translate-x-16 dark:hidden" />
+                    <div className="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-tr from-emerald-500/10 to-teal-500/10 rounded-full translate-y-12 -translate-x-12 dark:hidden" />
+                    <div className="absolute bottom-0 right-0 w-24 h-24 bg-gradient-to-tr from-amber-500/10 to-orange-500/10 rounded-full translate-y-12 translate-x-12 dark:hidden" />
                   <div className="flex items-center gap-3 mb-8">
                     <div className="h-10 w-10 rounded-2xl bg-orange-100 flex items-center justify-center shadow-lg shadow-orange-500/10">
                       <Bolt className="text-orange-600" size={20} />
