@@ -76,6 +76,7 @@ import { cn } from "@/lib/utils";
 import { useLocale, useTranslations } from '@/lib/locale-context';
 import { LanguageSwitcher } from "./language-switcher";
 import { usePrayer } from "./prayer-provider";
+import { useTheme } from "next-themes";
 
 interface EmailAccount {
   id: string;
@@ -370,7 +371,8 @@ export function Header({ user, onToggleSidebar, unreadChatCount = 0, subscriptio
     const [showIncompleteDetail, setShowIncompleteDetail] = useState(false);
       const [showLoginSplash, setShowLoginSplash] = useState(false);
       const [activeNotifTab, setActiveNotifTab] = useState<'system' | 'identity' | 'incomplete'>('system');
-      const [isDarkMode, setIsDarkMode] = useState(true);
+      const { resolvedTheme, setTheme: setNextTheme } = useTheme();
+      const isDarkMode = resolvedTheme === "dark";
 
     
     const audioRef = useRef<HTMLAudioElement | null>(null);
@@ -498,30 +500,10 @@ export function Header({ user, onToggleSidebar, unreadChatCount = 0, subscriptio
 
   useEffect(() => {
     setMounted(true);
-    const savedTheme = localStorage.getItem('theme');
-    if (savedTheme === 'light') {
-      setIsDarkMode(false);
-      document.documentElement.classList.remove('dark');
-      document.documentElement.classList.add('light');
-    } else {
-      setIsDarkMode(true);
-      document.documentElement.classList.remove('light');
-      document.documentElement.classList.add('dark');
-    }
   }, []);
 
   const toggleTheme = () => {
-    const newMode = !isDarkMode;
-    setIsDarkMode(newMode);
-    if (newMode) {
-      document.documentElement.classList.remove('light');
-      document.documentElement.classList.add('dark');
-      localStorage.setItem('theme', 'dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-      document.documentElement.classList.add('light');
-      localStorage.setItem('theme', 'light');
-    }
+    setNextTheme(isDarkMode ? "light" : "dark");
   };
 
   useEffect(() => {
@@ -905,25 +887,28 @@ export function Header({ user, onToggleSidebar, unreadChatCount = 0, subscriptio
 
   return (
     <>
-      <header className="sticky top-0 z-[100] w-full no-print">
+      <header className={cn(
+        "sticky top-0 z-[100] w-full no-print",
+        !isDarkMode && "bg-gradient-to-r from-[#dbe4ff] via-[#c7d2f8] to-[#d0d0f0]"
+      )}>
           <div className="relative overflow-hidden">
-            {/* Glass effect */}
-            <div className="absolute inset-0 bg-white/[0.03] backdrop-blur-2xl" />
-            <div className="absolute inset-0 bg-gradient-to-r from-white/[0.04] via-transparent to-white/[0.04]" />
-            <div className="absolute bottom-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-white/[0.15] to-transparent" />
+            {/* Glass effect - dark mode only */}
+            {isDarkMode && <div className="absolute inset-0 backdrop-blur-2xl bg-white/[0.03]" />}
+            {isDarkMode && <div className="absolute inset-0 bg-gradient-to-r from-white/[0.04] via-transparent to-white/[0.04]" />}
+            <div className={`absolute bottom-0 left-0 right-0 h-[1px] ${isDarkMode ? 'bg-gradient-to-r from-transparent via-white/[0.15] to-transparent' : 'bg-gradient-to-r from-transparent via-indigo-300/50 to-transparent'}`} />
           
           <div className="relative z-10 w-full mx-auto px-4 md:px-6 py-3">
             <div className="flex items-center justify-between gap-4">
               
               <div className="flex items-center gap-3">
-                <motion.button 
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={onToggleSidebar}
-                  className="lg:hidden p-2.5 bg-white/5 hover:bg-white/10 rounded-xl transition-all text-white/70 border border-white/10"
-                >
-                  <Menu size={20} />
-                </motion.button>
+                  <motion.button 
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={onToggleSidebar}
+                    className={cn("lg:hidden p-2.5 rounded-xl transition-all border", isDarkMode ? "bg-white/5 hover:bg-white/10 text-white/70 border-white/10" : "bg-white/30 hover:bg-white/50 text-indigo-700 border-indigo-200/30")}
+                  >
+                    <Menu size={20} />
+                  </motion.button>
 
                     {pathname !== "/dashboard" && (
                       <div className="hidden sm:flex items-center gap-2">
@@ -931,10 +916,10 @@ export function Header({ user, onToggleSidebar, unreadChatCount = 0, subscriptio
                           whileHover={{ scale: 1.02, x: isRTL ? 3 : -3 }}
                           whileTap={{ scale: 0.98 }}
                           onClick={() => router.back()}
-                          className="flex items-center gap-2 px-4 py-2 bg-white/5 hover:bg-white/10 rounded-xl transition-all border border-white/10 group"
+                          className={cn("flex items-center gap-2 px-4 py-2 rounded-xl transition-all border group", isDarkMode ? "bg-white/5 hover:bg-white/10 border-white/10" : "bg-white/30 hover:bg-white/50 border-indigo-200/30")}
                         >
-                          <BackIcon size={16} className={cn("text-white/60 transition-transform", isRTL ? "group-hover:translate-x-1" : "group-hover:-translate-x-1")} />
-                          <span className="text-[11px] font-bold text-white/60">{tCommon('back')}</span>
+                          <BackIcon size={16} className={cn("transition-transform", isDarkMode ? "text-white/60" : "text-indigo-600", isRTL ? "group-hover:translate-x-1" : "group-hover:-translate-x-1")} />
+                          <span className={cn("text-[11px] font-bold", isDarkMode ? "text-white/60" : "text-indigo-600")}>{tCommon('back')}</span>
                         </motion.button>
                       </div>
                     )}
@@ -1051,7 +1036,7 @@ export function Header({ user, onToggleSidebar, unreadChatCount = 0, subscriptio
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         onClick={() => setIsSearchFocused(true)}
-                        className="p-3 bg-white/5 hover:bg-white/10 rounded-2xl transition-all border border-white/10 text-white/40 hover:text-blue-400"
+                        className={cn("p-3 rounded-2xl transition-all border", isDarkMode ? "bg-white/5 hover:bg-white/10 border-white/10 text-white/40 hover:text-blue-400" : "bg-white/30 hover:bg-white/50 border-indigo-200/30 text-indigo-400 hover:text-indigo-600")}
                       >
                         <Search size={20} />
                       </motion.button>
@@ -1059,7 +1044,7 @@ export function Header({ user, onToggleSidebar, unreadChatCount = 0, subscriptio
                   </AnimatePresence>
 
 
-                <div className="hidden xl:flex items-center gap-4 px-4 py-2 bg-white/5 rounded-2xl border border-white/10">
+                <div className={cn("hidden xl:flex items-center gap-4 px-4 py-2 rounded-2xl border", isDarkMode ? "bg-white/5 border-white/10" : "bg-white/30 border-indigo-200/30")}>
                     {mounted && (
                       <>
                         <div className="flex items-center gap-2">
@@ -1067,8 +1052,8 @@ export function Header({ user, onToggleSidebar, unreadChatCount = 0, subscriptio
                             <Clock size={12} className="text-blue-400" />
                           </div>
                           <div className="flex flex-col">
-                            <span className="text-[10px] font-bold text-white/70">{formatDate(prayerContextTime)}</span>
-                            <span className="text-[9px] text-white/40">{prayerHijri}</span>
+                            <span className={cn("text-[10px] font-bold", isDarkMode ? "text-white/70" : "text-indigo-700")}>{formatDate(prayerContextTime)}</span>
+                            <span className={cn("text-[9px]", isDarkMode ? "text-white/40" : "text-indigo-500")}>{prayerHijri}</span>
                           </div>
                         </div>
                         <div className="w-px h-6 bg-white/10" />
@@ -1076,7 +1061,7 @@ export function Header({ user, onToggleSidebar, unreadChatCount = 0, subscriptio
                           <div className="p-1.5 rounded-lg bg-gradient-to-br from-rose-500/30 to-pink-500/30">
                             <MapPin size={12} className="text-rose-400" />
                           </div>
-                          <span className="text-[10px] font-bold text-white/50 max-w-[120px] truncate">{prayerLocation}</span>
+                          <span className={cn("text-[10px] font-bold max-w-[120px] truncate", isDarkMode ? "text-white/50" : "text-indigo-600")}>{prayerLocation}</span>
                         </div>
                       </>
                     )}
@@ -1085,14 +1070,57 @@ export function Header({ user, onToggleSidebar, unreadChatCount = 0, subscriptio
 <div className="flex items-center gap-2">
                       <LanguageSwitcher />
 
+                      {/* Theme Toggle Button */}
+                      <motion.button
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        onClick={toggleTheme}
+                        className={cn(
+                          "relative hidden sm:flex items-center gap-2 px-3 py-2.5 rounded-xl overflow-hidden transition-all duration-300 border",
+                          isDarkMode
+                            ? "bg-gradient-to-br from-indigo-600/20 via-purple-600/20 to-pink-600/20 border-purple-500/20"
+                            : "bg-gradient-to-br from-amber-400/20 via-orange-500/20 to-rose-500/20 border-orange-500/20"
+                        )}
+                      >
+                        <AnimatePresence mode="wait" initial={false}>
+                          {isDarkMode ? (
+                            <motion.div
+                              key="moon"
+                              initial={{ scale: 0, rotate: -90, opacity: 0 }}
+                              animate={{ scale: 1, rotate: 0, opacity: 1 }}
+                              exit={{ scale: 0, rotate: 90, opacity: 0 }}
+                              transition={{ duration: 0.3, ease: "easeInOut" }}
+                            >
+                              <Moon size={18} className="text-purple-400" />
+                            </motion.div>
+                          ) : (
+                            <motion.div
+                              key="sun"
+                              initial={{ scale: 0, rotate: 90, opacity: 0 }}
+                              animate={{ scale: 1, rotate: 0, opacity: 1 }}
+                              exit={{ scale: 0, rotate: -90, opacity: 0 }}
+                              transition={{ duration: 0.3, ease: "easeInOut" }}
+                            >
+                              <Sun size={18} className="text-amber-400" />
+                            </motion.div>
+                          )}
+                        </AnimatePresence>
+                        <span className={cn(
+                          "text-[11px] font-bold transition-colors",
+                          isDarkMode ? "text-purple-400" : "text-amber-500"
+                        )}>
+                          {isDarkMode ? (isRTL ? 'الوضع الليلي' : 'Dark') : (isRTL ? 'الوضع النهاري' : 'Light')}
+                        </span>
+                      </motion.button>
+
                       <motion.button
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
                         onClick={() => setShowNotifications(!showNotifications)}
-                        className="relative hidden sm:flex items-center gap-2 px-3 py-2.5 bg-white/5 hover:bg-white/10 rounded-xl transition-all border border-white/10"
+                        className={cn("relative hidden sm:flex items-center gap-2 px-3 py-2.5 rounded-xl transition-all border", isDarkMode ? "bg-white/5 hover:bg-white/10 border-white/10" : "bg-white/30 hover:bg-white/50 border-indigo-200/30")}
                       >
-                      <Bell size={18} className="text-white/60" />
-                          <span className="text-[11px] font-bold text-white/60">{isRTL ? 'الإشعارات' : 'Notifications'}</span>
+                      <Bell size={18} className={isDarkMode ? "text-white/60" : "text-indigo-600"} />
+                          <span className={cn("text-[11px] font-bold", isDarkMode ? "text-white/60" : "text-indigo-600")}>{isRTL ? 'الإشعارات' : 'Notifications'}</span>
                           {(unreadAdminCount + (hrNotifications?.identity.total_expired || 0) + (hrNotifications?.identity.total_expiring_soon || 0) + (hrNotifications?.incomplete.total_incomplete || 0)) > 0 && (
                             <motion.span 
                               animate={{ scale: [1, 1.2, 1] }}
@@ -1200,7 +1228,7 @@ export function Header({ user, onToggleSidebar, unreadChatCount = 0, subscriptio
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
                       onClick={() => setShowUserDropdown(!showUserDropdown)}
-                      className="flex items-center gap-3 px-3 py-2 bg-white/5 hover:bg-white/10 rounded-xl transition-all border border-white/10"
+                      className={cn("flex items-center gap-3 px-3 py-2 rounded-xl transition-all border", isDarkMode ? "bg-white/5 hover:bg-white/10 border-white/10" : "bg-white/30 hover:bg-white/50 border-indigo-200/30")}
                     >
                       <div className="relative">
                         <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center shadow-lg">
@@ -1209,7 +1237,7 @@ export function Header({ user, onToggleSidebar, unreadChatCount = 0, subscriptio
                         <span className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 bg-emerald-500 rounded-full border-2 border-slate-950" />
                       </div>
                           <div className="hidden md:block text-right">
-                            <p className="text-[11px] font-bold text-white/90">{user?.role === "admin" ? (isRTL ? "مدير النظام" : "System Admin") : (isRTL ? "مدير منشأة" : "Manager")}</p>
+                            <p className={cn("text-[11px] font-bold", isDarkMode ? "text-white/90" : "text-indigo-700")}>{user?.role === "admin" ? (isRTL ? "مدير النظام" : "System Admin") : (isRTL ? "مدير منشأة" : "Manager")}</p>
                           </div>
 
                       <ChevronDown size={14} className={cn(
@@ -2933,175 +2961,222 @@ export function Header({ user, onToggleSidebar, unreadChatCount = 0, subscriptio
               )}
             </AnimatePresence>
 
-          {/* Login Splash - Identity Expiry Alert */}
-          <AnimatePresence>
-            {showLoginSplash && hrNotifications && (hrNotifications.identity.total_expired > 0 || hrNotifications.identity.total_expiring_soon > 0) && (
-              <div className="fixed inset-0 z-[10000] flex items-center justify-center p-4">
-                <motion.div 
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  className="absolute inset-0 bg-black/80 backdrop-blur-lg"
-                />
-                <motion.div 
-                  initial={{ scale: 0.8, opacity: 0, y: 30 }}
-                  animate={{ scale: 1, opacity: 1, y: 0 }}
-                  exit={{ scale: 0.8, opacity: 0, y: 30 }}
-                  transition={{ type: "spring", damping: 20, stiffness: 300 }}
-                  className="relative w-full max-w-md bg-gradient-to-b from-slate-900 via-slate-900 to-slate-950 rounded-[2.5rem] shadow-2xl overflow-hidden border border-red-500/20 max-h-[85vh] flex flex-col"
-                >
-                  {/* Animated background effects */}
-                  <div className="absolute inset-0 overflow-hidden pointer-events-none">
-                    <motion.div
-                      animate={{ x: [0, 50, 0], y: [0, -30, 0], scale: [1, 1.2, 1] }}
-                      transition={{ duration: 8, repeat: Infinity }}
-                      className="absolute -top-20 -right-20 w-60 h-60 bg-red-500/10 rounded-full blur-3xl"
-                    />
-                    <motion.div
-                      animate={{ x: [0, -30, 0], y: [0, 40, 0], scale: [1.1, 0.9, 1.1] }}
-                      transition={{ duration: 10, repeat: Infinity }}
-                      className="absolute -bottom-20 -left-20 w-60 h-60 bg-amber-500/10 rounded-full blur-3xl"
-                    />
-                  </div>
-
-                  {/* Close */}
-                  <button 
-                    onClick={() => setShowLoginSplash(false)}
-                    className="absolute top-5 left-5 p-2 text-white/20 hover:text-white hover:bg-white/10 rounded-xl transition-all z-10"
+            {/* Login Splash - Identity Expiry Alert */}
+            <AnimatePresence>
+              {showLoginSplash && hrNotifications && (hrNotifications.identity.total_expired > 0 || hrNotifications.identity.total_expiring_soon > 0) && (
+                <div className="fixed inset-0 z-[10000] flex items-center justify-center p-4" data-identity-alert>
+                  <motion.div 
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    className={cn(
+                      "absolute inset-0",
+                        isDarkMode ? "backdrop-blur-xl bg-black/80" : "identity-alert-backdrop"
+                    )}
+                  />
+                  <motion.div 
+                    initial={{ scale: 0.8, opacity: 0, y: 30 }}
+                    animate={{ scale: 1, opacity: 1, y: 0 }}
+                    exit={{ scale: 0.8, opacity: 0, y: 30 }}
+                    transition={{ type: "spring", damping: 20, stiffness: 300 }}
+                    className={cn(
+                      "relative w-full max-w-md rounded-[2rem] shadow-2xl overflow-hidden max-h-[85vh] flex flex-col",
+                        isDarkMode 
+                          ? "bg-gradient-to-b from-slate-900 via-slate-900 to-slate-950 border border-red-500/20" 
+                          : "bg-white/70 backdrop-blur-2xl border border-white/60 shadow-[0_25px_60px_rgba(0,0,0,0.12)]"
+                    )}
                   >
-                    <X size={20} />
-                  </button>
-
-                  {/* Header with animated shield */}
-                  <div className="relative p-8 pb-4 text-center">
-                    <div className="relative inline-block mb-5">
+                    {/* Animated background effects */}
+                    <div className="absolute inset-0 overflow-hidden pointer-events-none">
                       <motion.div
-                        animate={{ scale: [1, 1.2, 1], opacity: [0.2, 0.5, 0.2] }}
-                        transition={{ duration: 2, repeat: Infinity }}
-                        className="absolute inset-0 bg-red-500 rounded-full blur-2xl"
+                        animate={{ x: [0, 50, 0], y: [0, -30, 0], scale: [1, 1.2, 1] }}
+                        transition={{ duration: 8, repeat: Infinity }}
+                        className={cn(
+                          "absolute -top-20 -right-20 w-60 h-60 rounded-full blur-3xl",
+                          isDarkMode ? "bg-red-500/10" : "bg-red-500/8"
+                        )}
                       />
                       <motion.div
-                        animate={{ rotate: [0, -5, 5, 0] }}
-                        transition={{ duration: 4, repeat: Infinity }}
-                        className="relative"
-                      >
-                        <div className="p-5 rounded-3xl bg-gradient-to-br from-red-500/30 to-rose-500/30 border border-red-500/30 shadow-2xl shadow-red-500/20">
-                          <ShieldAlert size={40} className="text-red-400" />
-                        </div>
-                      </motion.div>
-                    </div>
-                    <h2 className="text-2xl font-black text-white mb-2">
-                      {isRTL ? 'تنبيه سريان الهويات' : 'ID Validity Alert'}
-                    </h2>
-                    <p className="text-sm text-white/50 max-w-xs mx-auto">
-                      {isRTL ? 'يوجد موظفون تحتاج هوياتهم إلى تجديد أو مراجعة فورية' : 'Some employees need immediate ID renewal or review'}
-                    </p>
-                  </div>
-
-                  {/* Stats */}
-                  <div className="px-6 pb-4">
-                    <div className="grid grid-cols-2 gap-3">
-                      {hrNotifications.identity.total_expired > 0 && (
-                        <motion.div
-                          initial={{ opacity: 0, y: 20 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          transition={{ delay: 0.2 }}
-                          className="p-4 rounded-2xl bg-gradient-to-br from-red-500/15 to-rose-500/15 border border-red-500/30"
-                        >
-                          <ShieldX size={22} className="text-red-400 mb-2" />
-                          <p className="text-3xl font-black text-red-400">{hrNotifications.identity.total_expired}</p>
-                          <p className="text-[10px] font-black text-red-400/60 uppercase mt-1">{isRTL ? 'هوية منتهية' : 'Expired'}</p>
-                        </motion.div>
-                      )}
-                      {hrNotifications.identity.total_expiring_soon > 0 && (
-                        <motion.div
-                          initial={{ opacity: 0, y: 20 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          transition={{ delay: 0.3 }}
-                          className="p-4 rounded-2xl bg-gradient-to-br from-amber-500/15 to-orange-500/15 border border-amber-500/30"
-                        >
-                          <ShieldAlert size={22} className="text-amber-400 mb-2" />
-                          <p className="text-3xl font-black text-amber-400">{hrNotifications.identity.total_expiring_soon}</p>
-                          <p className="text-[10px] font-black text-amber-400/60 uppercase mt-1">{isRTL ? 'تنتهي قريبا' : 'Expiring'}</p>
-                        </motion.div>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Employee list */}
-                  <div className="flex-1 overflow-y-auto px-6 pb-4 space-y-2 max-h-48">
-                    {[...(hrNotifications.identity.expired || []), ...(hrNotifications.identity.expiring_soon || [])].slice(0, 8).map((emp, i) => (
-                      <motion.div
-                        key={emp.id}
-                        initial={{ opacity: 0, x: isRTL ? 20 : -20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: 0.4 + i * 0.05 }}
+                        animate={{ x: [0, -30, 0], y: [0, 40, 0], scale: [1.1, 0.9, 1.1] }}
+                        transition={{ duration: 10, repeat: Infinity }}
                         className={cn(
-                          "flex items-center gap-3 p-3 rounded-xl border transition-all",
-                          emp.status === 'expired' 
-                            ? "bg-red-500/5 border-red-500/15" 
-                            : "bg-amber-500/5 border-amber-500/15"
+                          "absolute -bottom-20 -left-20 w-60 h-60 rounded-full blur-3xl",
+                          isDarkMode ? "bg-amber-500/10" : "bg-amber-500/8"
+                        )}
+                      />
+                    </div>
+
+                    {/* Close */}
+                    <button 
+                      onClick={() => setShowLoginSplash(false)}
+                      className={cn(
+                        "absolute top-5 left-5 p-2 rounded-xl transition-all z-10",
+                        isDarkMode 
+                          ? "text-white/20 hover:text-white hover:bg-white/10" 
+                          : "text-slate-400 hover:text-slate-700 hover:bg-slate-100"
+                      )}
+                    >
+                      <X size={20} />
+                    </button>
+
+                    {/* Header with animated shield */}
+                    <div className="relative p-8 pb-4 text-center">
+                      <div className="relative inline-block mb-5">
+                        <motion.div
+                          animate={{ scale: [1, 1.2, 1], opacity: [0.15, 0.35, 0.15] }}
+                          transition={{ duration: 2, repeat: Infinity }}
+                          className="absolute inset-0 bg-red-500 rounded-full blur-2xl"
+                        />
+                        <motion.div
+                          animate={{ rotate: [0, -5, 5, 0] }}
+                          transition={{ duration: 4, repeat: Infinity }}
+                          className="relative"
+                        >
+                          <div className={cn(
+                            "p-5 rounded-3xl border shadow-2xl",
+                            isDarkMode
+                              ? "bg-gradient-to-br from-red-500/30 to-rose-500/30 border-red-500/30 shadow-red-500/20"
+                              : "bg-gradient-to-br from-red-50 to-rose-50 border-red-200 shadow-red-200/40"
+                          )}>
+                            <ShieldAlert size={40} className={isDarkMode ? "text-red-400" : "text-red-500"} />
+                          </div>
+                        </motion.div>
+                      </div>
+                      <h2 className={cn(
+                        "text-2xl font-black mb-2",
+                        isDarkMode ? "text-white" : "text-slate-800"
+                      )}>
+                        {isRTL ? 'تنبيه سريان الهويات' : 'ID Validity Alert'}
+                      </h2>
+                      <p className={cn(
+                        "text-sm max-w-xs mx-auto",
+                        isDarkMode ? "text-white/50" : "text-slate-500"
+                      )}>
+                        {isRTL ? 'يوجد موظفون تحتاج هوياتهم إلى تجديد أو مراجعة فورية' : 'Some employees need immediate ID renewal or review'}
+                      </p>
+                    </div>
+
+                    {/* Stats */}
+                    <div className="px-6 pb-4">
+                      <div className="grid grid-cols-2 gap-3">
+                        {hrNotifications.identity.total_expired > 0 && (
+                          <motion.div
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.2 }}
+                            className={cn(
+                              "p-4 rounded-2xl border",
+                              isDarkMode
+                                ? "bg-gradient-to-br from-red-500/15 to-rose-500/15 border-red-500/30"
+                                : "bg-gradient-to-br from-red-50 to-rose-50 border-red-200/60"
+                            )}
+                          >
+                            <ShieldX size={22} className={cn("mb-2", isDarkMode ? "text-red-400" : "text-red-500")} />
+                            <p className={cn("text-3xl font-black", isDarkMode ? "text-red-400" : "text-red-600")}>{hrNotifications.identity.total_expired}</p>
+                            <p className={cn("text-[10px] font-black uppercase mt-1", isDarkMode ? "text-red-400/60" : "text-red-500/70")}>{isRTL ? 'هوية منتهية' : 'Expired'}</p>
+                          </motion.div>
+                        )}
+                        {hrNotifications.identity.total_expiring_soon > 0 && (
+                          <motion.div
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.3 }}
+                            className={cn(
+                              "p-4 rounded-2xl border",
+                              isDarkMode
+                                ? "bg-gradient-to-br from-amber-500/15 to-orange-500/15 border-amber-500/30"
+                                : "bg-gradient-to-br from-amber-50 to-orange-50 border-amber-200/60"
+                            )}
+                          >
+                            <ShieldAlert size={22} className={cn("mb-2", isDarkMode ? "text-amber-400" : "text-amber-500")} />
+                            <p className={cn("text-3xl font-black", isDarkMode ? "text-amber-400" : "text-amber-600")}>{hrNotifications.identity.total_expiring_soon}</p>
+                            <p className={cn("text-[10px] font-black uppercase mt-1", isDarkMode ? "text-amber-400/60" : "text-amber-500/70")}>{isRTL ? 'تنتهي قريبا' : 'Expiring'}</p>
+                          </motion.div>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Employee list */}
+                    <div className="flex-1 overflow-y-auto px-6 pb-4 space-y-2 max-h-48">
+                      {[...(hrNotifications.identity.expired || []), ...(hrNotifications.identity.expiring_soon || [])].slice(0, 8).map((emp, i) => (
+                        <motion.div
+                          key={emp.id}
+                          initial={{ opacity: 0, x: isRTL ? 20 : -20 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ delay: 0.4 + i * 0.05 }}
+                          className={cn(
+                            "flex items-center gap-3 p-3 rounded-xl border transition-all",
+                            emp.status === 'expired' 
+                              ? isDarkMode ? "bg-red-500/5 border-red-500/15" : "bg-red-50/80 border-red-200/40"
+                              : isDarkMode ? "bg-amber-500/5 border-amber-500/15" : "bg-amber-50/80 border-amber-200/40"
+                          )}
+                        >
+                          <div className={cn(
+                            "p-1.5 rounded-lg",
+                            emp.status === 'expired' 
+                              ? isDarkMode ? "bg-red-500/20" : "bg-red-100" 
+                              : isDarkMode ? "bg-amber-500/20" : "bg-amber-100"
+                          )}>
+                            {emp.status === 'expired' 
+                              ? <ShieldX size={14} className={isDarkMode ? "text-red-400" : "text-red-500"} />
+                              : <ShieldAlert size={14} className={isDarkMode ? "text-amber-400" : "text-amber-500"} />
+                            }
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className={cn("text-xs font-black truncate", isDarkMode ? "text-white/90" : "text-slate-700")}>{emp.name}</p>
+                            <p className={cn("text-[10px]", isDarkMode ? "text-white/30" : "text-slate-400")}>{emp.package_name}</p>
+                          </div>
+                          <span className={cn(
+                            "px-2 py-0.5 rounded-lg text-[9px] font-black shrink-0",
+                            emp.status === 'expired' 
+                              ? isDarkMode ? "bg-red-500/20 text-red-400" : "bg-red-100 text-red-600"
+                              : emp.days_remaining <= 7 
+                                ? isDarkMode ? "bg-red-500/20 text-red-400" : "bg-red-100 text-red-600"
+                                : isDarkMode ? "bg-amber-500/20 text-amber-400" : "bg-amber-100 text-amber-600"
+                          )}>
+                            {emp.status === 'expired' 
+                              ? (isRTL ? `منتهية ${Math.abs(emp.days_remaining)}ي` : `${Math.abs(emp.days_remaining)}d ago`)
+                              : emp.days_remaining === 0 ? (isRTL ? 'اليوم' : 'Today')
+                              : (isRTL ? `${emp.days_remaining} يوم` : `${emp.days_remaining}d`)
+                            }
+                          </span>
+                        </motion.div>
+                      ))}
+                      {(hrNotifications.identity.total_expired + hrNotifications.identity.total_expiring_soon) > 8 && (
+                        <p className={cn("text-[10px] text-center py-2", isDarkMode ? "text-white/30" : "text-slate-400")}>
+                          +{(hrNotifications.identity.total_expired + hrNotifications.identity.total_expiring_soon) - 8} {isRTL ? 'موظف آخر' : 'more employees'}
+                        </p>
+                      )}
+                    </div>
+
+                    {/* Actions */}
+                    <div className="p-6 pt-3 space-y-2.5 shrink-0">
+                      <motion.button
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                        onClick={() => {
+                          router.push('/hr/reports/iqama?filter=expired');
+                          setShowLoginSplash(false);
+                        }}
+                        className="w-full py-4 bg-gradient-to-r from-red-500 to-rose-500 hover:from-red-600 hover:to-rose-600 rounded-2xl text-white font-black text-sm shadow-xl shadow-red-500/30 transition-all flex items-center justify-center gap-2"
+                      >
+                        <Shield size={18} />
+                        {isRTL ? 'فتح تقرير سريان الهويات' : 'Open ID Validity Report'}
+                      </motion.button>
+                      <button
+                        onClick={() => setShowLoginSplash(false)}
+                        className={cn(
+                          "w-full py-3 text-center text-sm font-bold transition-colors",
+                          isDarkMode ? "text-white/30 hover:text-white/60" : "text-slate-400 hover:text-slate-600"
                         )}
                       >
-                        <div className={cn(
-                          "p-1.5 rounded-lg",
-                          emp.status === 'expired' ? "bg-red-500/20" : "bg-amber-500/20"
-                        )}>
-                          {emp.status === 'expired' 
-                            ? <ShieldX size={14} className="text-red-400" />
-                            : <ShieldAlert size={14} className="text-amber-400" />
-                          }
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-xs font-black text-white/90 truncate">{emp.name}</p>
-                          <p className="text-[10px] text-white/30">{emp.package_name}</p>
-                        </div>
-                        <span className={cn(
-                          "px-2 py-0.5 rounded-lg text-[9px] font-black shrink-0",
-                          emp.status === 'expired' ? "bg-red-500/20 text-red-400" : 
-                          emp.days_remaining <= 7 ? "bg-red-500/20 text-red-400" :
-                          "bg-amber-500/20 text-amber-400"
-                        )}>
-                          {emp.status === 'expired' 
-                            ? (isRTL ? `منتهية ${Math.abs(emp.days_remaining)}ي` : `${Math.abs(emp.days_remaining)}d ago`)
-                            : emp.days_remaining === 0 ? (isRTL ? 'اليوم' : 'Today')
-                            : (isRTL ? `${emp.days_remaining} يوم` : `${emp.days_remaining}d`)
-                          }
-                        </span>
-                      </motion.div>
-                    ))}
-                    {(hrNotifications.identity.total_expired + hrNotifications.identity.total_expiring_soon) > 8 && (
-                      <p className="text-[10px] text-white/30 text-center py-2">
-                        +{(hrNotifications.identity.total_expired + hrNotifications.identity.total_expiring_soon) - 8} {isRTL ? 'موظف آخر' : 'more employees'}
-                      </p>
-                    )}
-                  </div>
-
-                  {/* Actions */}
-                  <div className="p-6 pt-3 space-y-2.5 shrink-0">
-                    <motion.button
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
-                      onClick={() => {
-                        router.push('/hr/reports/iqama?filter=expired');
-                        setShowLoginSplash(false);
-                      }}
-                      className="w-full py-4 bg-gradient-to-r from-red-500 to-rose-500 hover:from-red-600 hover:to-rose-600 rounded-2xl text-white font-black text-sm shadow-xl shadow-red-500/30 transition-all flex items-center justify-center gap-2"
-                    >
-                      <Shield size={18} />
-                      {isRTL ? 'فتح تقرير سريان الهويات' : 'Open ID Validity Report'}
-                    </motion.button>
-                    <button
-                      onClick={() => setShowLoginSplash(false)}
-                      className="w-full py-3 text-center text-sm font-bold text-white/30 hover:text-white/60 transition-colors"
-                    >
-                      {isRTL ? 'تذكيري لاحقا' : 'Remind me later'}
-                    </button>
-                  </div>
-                </motion.div>
-              </div>
-            )}
-          </AnimatePresence>
+                        {isRTL ? 'تذكيري لاحقا' : 'Remind me later'}
+                      </button>
+                    </div>
+                  </motion.div>
+                </div>
+              )}
+            </AnimatePresence>
 
     
             <AnimatePresence>

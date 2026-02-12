@@ -30,6 +30,7 @@ import {
 import { useState, useEffect } from "react";
 import { useLocale, useTranslations } from "@/lib/locale-context";
 import { cn } from "@/lib/utils";
+import { useTheme } from "next-themes";
 
 interface DashboardClientProps {
   user: {
@@ -103,8 +104,10 @@ export function DashboardClient({
   });
   const [loadingStats, setLoadingStats] = useState(false);
   const { isRTL } = useLocale();
-  const t = useTranslations('dashboard');
-  const tCommon = useTranslations('common');
+    const t = useTranslations('dashboard');
+    const tCommon = useTranslations('common');
+    const { resolvedTheme } = useTheme();
+    const isDark = resolvedTheme === "dark";
 
     useEffect(() => {
     const controller = new AbortController();
@@ -185,67 +188,68 @@ export function DashboardClient({
         animate="visible"
         className="w-full space-y-4"
       >
-        <motion.div 
-          variants={itemVariants}
-          className="relative overflow-hidden rounded-3xl"
-        >
-          <div className="absolute inset-0 bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900" />
-          <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC4wMyI+PGNpcmNsZSBjeD0iMzAiIGN5PSIzMCIgcj0iMiIvPjwvZz48L2c+PC9zdmc+')] opacity-50" />
-          <div className={`absolute top-0 ${isRTL ? 'right-0' : 'left-0'} w-96 h-96 bg-gradient-to-br from-violet-600/20 to-transparent rounded-full blur-3xl`} />
-          <div className={`absolute bottom-0 ${isRTL ? 'left-0' : 'right-0'} w-96 h-96 bg-gradient-to-tr from-emerald-600/20 to-transparent rounded-full blur-3xl`} />
-          
-          <div className="relative z-10 p-8 md:p-12">
-            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
-              <div className="space-y-4">
-                <motion.div 
-                  initial={{ opacity: 0, x: isRTL ? 20 : -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.2 }}
-                  className="flex items-center gap-3"
-                >
-                  <div className="p-2 rounded-xl bg-white/10 backdrop-blur-sm border border-white/10">
-                    <Sparkles className="w-5 h-5 text-amber-400" />
-                  </div>
-                  <span className="text-slate-400 text-sm font-medium tracking-wide">{t('advancedDashboard')}</span>
-                </motion.div>
-                
-                <h1 className="text-3xl md:text-4xl font-bold text-white tracking-tight">
-                  {t('welcomeMessage')}, <span className="bg-gradient-to-r from-emerald-400 to-teal-400 bg-clip-text text-transparent">{user.name}</span>
-                </h1>
-                <p className="text-slate-400 text-sm max-w-md">
-                  {t('systemDescription')}
-                </p>
-              </div>
-
-                  <div className="flex flex-wrap gap-3">
+          <motion.div 
+            variants={itemVariants}
+            className="relative overflow-hidden rounded-3xl"
+          >
+            {/* Background layers */}
+            <div className={`absolute inset-0 ${isDark ? 'bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900' : 'bg-gradient-to-r from-violet-100 via-indigo-50 to-emerald-100'}`} />
+            <div className={`absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC4wMyI+PGNpcmNsZSBjeD0iMzAiIGN5PSIzMCIgcj0iMiIvPjwvZz48L2c+PC9zdmc+')] ${isDark ? 'opacity-50' : 'opacity-20'}`} />
+            <div className={`absolute top-0 ${isRTL ? 'right-0' : 'left-0'} w-96 h-96 bg-gradient-to-br ${isDark ? 'from-violet-600/20' : 'from-violet-400/30'} to-transparent rounded-full blur-3xl`} />
+            <div className={`absolute bottom-0 ${isRTL ? 'left-0' : 'right-0'} w-96 h-96 bg-gradient-to-tr ${isDark ? 'from-emerald-600/20' : 'from-emerald-400/30'} to-transparent rounded-full blur-3xl`} />
+            
+            <div className="relative z-10 p-8 md:p-12">
+              <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+                <div className="space-y-4">
                   <motion.div 
-                    whileHover={{ scale: 1.02 }}
-                    className={`px-5 py-2.5 rounded-2xl bg-gradient-to-r ${getSubscriptionGradient(subscription.badge)} shadow-lg shadow-emerald-500/25 flex items-center gap-2`}
+                    initial={{ opacity: 0, x: isRTL ? 20 : -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.2 }}
+                    className="flex items-center gap-3"
                   >
-                    <Crown className="w-4 h-4 text-white" />
-                    <span className="text-white font-semibold text-sm">
-                      {subscription.type === "premium" 
-                        ? t('permanentSubscription')
-                        : subscription.type === "expired"
-                          ? t('subscriptionExpired')
-                          : `${subscription.remaining_days} ${t('daysRemaining')}`
-                      }
-                    </span>
+                    <div className={`p-2 rounded-xl backdrop-blur-sm border ${isDark ? 'bg-white/10 border-white/10' : 'bg-white/60 border-violet-200/50'}`}>
+                      <Sparkles className={`w-5 h-5 ${isDark ? 'text-amber-400' : 'text-amber-500'}`} />
+                    </div>
+                    <span className={`text-sm font-medium tracking-wide ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>{t('advancedDashboard')}</span>
                   </motion.div>
                   
-                  <motion.div 
-                    whileHover={{ scale: 1.02 }}
-                    className="px-5 py-2.5 rounded-2xl bg-white/10 backdrop-blur-sm border border-white/10 flex items-center gap-2"
-                  >
-                    <User className="w-4 h-4 text-slate-300" />
-                    <span className="text-slate-300 font-medium text-sm">
-                      {user.userTypeName ? (isRTL ? user.userTypeName.ar : user.userTypeName.en) : (isAdmin ? t('admin') : t('manager'))}
-                    </span>
-                  </motion.div>
+                  <h1 className={`text-3xl md:text-4xl font-bold tracking-tight ${isDark ? 'text-white' : 'text-slate-800'}`}>
+                    {t('welcomeMessage')}, <span className="bg-gradient-to-r from-emerald-500 to-teal-500 bg-clip-text text-transparent">{user.name}</span>
+                  </h1>
+                  <p className={`text-sm max-w-md ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
+                    {t('systemDescription')}
+                  </p>
                 </div>
+
+                    <div className="flex flex-wrap gap-3">
+                    <motion.div 
+                      whileHover={{ scale: 1.02 }}
+                      className={`px-5 py-2.5 rounded-2xl bg-gradient-to-r ${getSubscriptionGradient(subscription.badge)} shadow-lg shadow-emerald-500/25 flex items-center gap-2`}
+                    >
+                      <Crown className="w-4 h-4 text-white" />
+                      <span className="text-white font-semibold text-sm">
+                        {subscription.type === "premium" 
+                          ? t('permanentSubscription')
+                          : subscription.type === "expired"
+                            ? t('subscriptionExpired')
+                            : `${subscription.remaining_days} ${t('daysRemaining')}`
+                        }
+                      </span>
+                    </motion.div>
+                    
+                    <motion.div 
+                      whileHover={{ scale: 1.02 }}
+                      className={`px-5 py-2.5 rounded-2xl backdrop-blur-sm border flex items-center gap-2 ${isDark ? 'bg-white/10 border-white/10' : 'bg-white/60 border-slate-200/60'}`}
+                    >
+                      <User className={`w-4 h-4 ${isDark ? 'text-slate-300' : 'text-slate-600'}`} />
+                      <span className={`font-medium text-sm ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>
+                        {user.userTypeName ? (isRTL ? user.userTypeName.ar : user.userTypeName.en) : (isAdmin ? t('admin') : t('manager'))}
+                      </span>
+                    </motion.div>
+                  </div>
+              </div>
             </div>
-          </div>
-        </motion.div>
+          </motion.div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <motion.div 

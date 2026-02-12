@@ -58,3 +58,12 @@
   response: {"unread_count":0}
 2026-02-12T15:22:13.109Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
   response: {"unread_count":0}
+2026-02-12T22:21:51.950Z [console][error] [Fast Refresh] performing full reload because your application had an unrecoverable error
+2026-02-12T22:21:51.950Z [console][error] [Fast Refresh] performing full reload because your application had an unrecoverable error
+2026-02-12T22:21:42.448Z [console][warn] [Fast Refresh] done in 532ms
+2026-02-12T22:21:51.420Z [console][warn] [Fast Refresh] rebuilding
+2026-02-12T22:21:51.969Z [console][warn] [Fast Refresh] done in 638ms
+2026-02-12T22:21:42.367Z [console][warn] [Fast Refresh] performing full reload because your application had an unrecoverable error
+2026-02-12T22:21:51.949Z [console][warn] [Fast Refresh] performing full reload because your application had an unrecoverable error
+2026-02-12T22:21:51.950Z [console][error] [Fast Refresh] performing full reload because your application had an unrecoverable error
+2026-02-12T22:22:36.076Z [console][error] [Fast Refresh] performing full reload because your application had an unrecoverable error

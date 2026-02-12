@@ -42,6 +42,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useLocale, useTranslations } from "@/lib/locale-context";
+import { useTheme } from "next-themes";
 
 interface NavItem {
     titleKey: string;
@@ -104,14 +105,16 @@ interface SidebarProps {
 }
 
 export function Sidebar({ userRole, permissions = {}, userType }: SidebarProps) {
-  const [mounted, setMounted] = useState(false);
-  const [hoveredItem, setHoveredItem] = useState<string | null>(null);
-  const pathname = usePathname();
-  const router = useRouter();
-  const isAdmin = userRole === "admin";
-  const isSubUser = userType === "sub_user";
-  const { isRTL } = useLocale();
-  const t = useTranslations('sidebar');
+    const [mounted, setMounted] = useState(false);
+    const [hoveredItem, setHoveredItem] = useState<string | null>(null);
+    const pathname = usePathname();
+    const router = useRouter();
+    const isAdmin = userRole === "admin";
+    const isSubUser = userType === "sub_user";
+    const { isRTL } = useLocale();
+    const t = useTranslations('sidebar');
+    const { resolvedTheme } = useTheme();
+    const isDark = resolvedTheme === "dark";
 
   useEffect(() => {
     setMounted(true);
@@ -147,56 +150,84 @@ export function Sidebar({ userRole, permissions = {}, userType }: SidebarProps) 
 
   const ChevronIcon = isRTL ? ChevronLeft : ChevronRight;
 
+  const getGradientColors = (gradient?: string) => {
+    const colorMap: Record<string, { from: string; to: string }> = {
+      "from-blue-500 to-cyan-500": { from: "#3b82f6", to: "#06b6d4" },
+      "from-violet-500 to-purple-500": { from: "#8b5cf6", to: "#a855f7" },
+      "from-emerald-500 to-green-500": { from: "#10b981", to: "#22c55e" },
+      "from-amber-500 to-yellow-500": { from: "#f59e0b", to: "#eab308" },
+      "from-sky-500 to-blue-500": { from: "#0ea5e9", to: "#3b82f6" },
+      "from-indigo-500 to-violet-500": { from: "#6366f1", to: "#8b5cf6" },
+      "from-rose-500 to-pink-500": { from: "#f43f5e", to: "#ec4899" },
+      "from-blue-500 to-indigo-500": { from: "#3b82f6", to: "#6366f1" },
+      "from-cyan-500 to-teal-500": { from: "#06b6d4", to: "#14b8a6" },
+      "from-indigo-500 to-purple-500": { from: "#6366f1", to: "#a855f7" },
+      "from-teal-500 to-emerald-500": { from: "#14b8a6", to: "#10b981" },
+      "from-red-500 to-rose-500": { from: "#ef4444", to: "#f43f5e" },
+      "from-yellow-500 to-amber-500": { from: "#eab308", to: "#f59e0b" },
+      "from-amber-500 to-orange-500": { from: "#f59e0b", to: "#f97316" },
+      "from-red-500 to-orange-500": { from: "#ef4444", to: "#f97316" },
+      "from-violet-500 to-indigo-500": { from: "#8b5cf6", to: "#6366f1" },
+      "from-orange-500 to-amber-500": { from: "#f97316", to: "#f59e0b" },
+      "from-slate-500 to-gray-500": { from: "#64748b", to: "#6b7280" },
+      "from-zinc-500 to-neutral-500": { from: "#71717a", to: "#737373" },
+      "from-gray-500 to-slate-500": { from: "#6b7280", to: "#64748b" },
+      "from-yellow-500 to-orange-500": { from: "#eab308", to: "#f97316" },
+      "from-blue-600 to-indigo-600": { from: "#2563eb", to: "#4f46e5" },
+    };
+    return colorMap[gradient || ""] || { from: "#6366f1", to: "#8b5cf6" };
+  };
+
   return (
-    <div className="w-64 h-screen overflow-hidden flex flex-col relative">
-        {/* Glass background */}
-        <div className="absolute inset-0 bg-white/[0.03] backdrop-blur-2xl" />
-        <div className="absolute inset-0 bg-gradient-to-b from-white/[0.06] via-transparent to-white/[0.02]" />
-        <div className={cn(
-          "absolute top-0 w-64 h-64 bg-gradient-to-br from-blue-500/8 to-transparent rounded-full blur-3xl",
-          isRTL ? "right-0" : "left-0"
-        )} />
-        <div className={cn(
-          "absolute bottom-0 w-64 h-64 bg-gradient-to-tr from-purple-500/8 to-transparent rounded-full blur-3xl",
-          isRTL ? "left-0" : "right-0"
-        )} />
-        {/* Glass edge border */}
-        <div className={cn(
-          "absolute top-0 bottom-0 w-[1px] bg-gradient-to-b from-white/10 via-white/[0.15] to-white/10",
-          isRTL ? "left-0" : "right-0"
-        )} />
+      <div className="w-64 h-screen overflow-hidden flex flex-col relative">
+          {/* Glass background */}
+          <div className={`absolute inset-0 ${isDark ? 'bg-white/[0.03] backdrop-blur-2xl' : ''}`} />
+          <div className={`absolute inset-0 bg-gradient-to-b ${isDark ? 'from-white/[0.06] via-transparent to-white/[0.02]' : 'from-white/10 via-transparent to-white/5'}`} />
+          <div className={cn(
+            "absolute top-0 w-64 h-64 bg-gradient-to-br from-blue-500/8 to-transparent rounded-full blur-3xl",
+            isRTL ? "right-0" : "left-0"
+          )} />
+          <div className={cn(
+            "absolute bottom-0 w-64 h-64 bg-gradient-to-tr from-purple-500/8 to-transparent rounded-full blur-3xl",
+            isRTL ? "left-0" : "right-0"
+          )} />
+          {/* Glass edge border */}
+          <div className={cn(
+            `absolute top-0 bottom-0 w-[1px] bg-gradient-to-b ${isDark ? 'from-white/10 via-white/[0.15] to-white/10' : 'from-indigo-300/30 via-indigo-300/50 to-indigo-300/30'}`,
+            isRTL ? "left-0" : "right-0"
+          )} />
       
-      <div className="relative z-10 p-5 border-b border-white/5">
-        {mounted && (
-          <motion.div 
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="flex flex-col items-center gap-4"
-          >
+        <div className={`relative z-10 p-5 border-b ${isDark ? 'border-white/5' : 'border-indigo-200/30'}`}>
+          {mounted && (
             <motion.div 
-              whileHover={{ scale: 1.05, rotate: [0, -5, 5, 0] }}
-              transition={{ duration: 0.5 }}
-              className="relative"
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="flex flex-col items-center gap-4"
             >
-              <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-purple-600 rounded-2xl blur-xl opacity-50 animate-pulse" />
-              <div className="relative bg-gradient-to-br from-blue-500 via-blue-600 to-purple-600 p-4 rounded-2xl shadow-2xl shadow-blue-500/30 border border-white/10">
-                <Truck size={28} className="text-white drop-shadow-lg" />
-              </div>
               <motion.div 
-                className={cn("absolute -top-1", isRTL ? "-left-1" : "-right-1")}
-                animate={{ scale: [1, 1.2, 1] }}
-                transition={{ duration: 2, repeat: Infinity }}
+                whileHover={{ scale: 1.05, rotate: [0, -5, 5, 0] }}
+                transition={{ duration: 0.5 }}
+                className="relative"
               >
-                <Sparkles size={14} className="text-amber-400" />
+                <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-purple-600 rounded-2xl blur-xl opacity-50 animate-pulse" />
+                <div className="relative bg-gradient-to-br from-blue-500 via-blue-600 to-purple-600 p-4 rounded-2xl shadow-2xl shadow-blue-500/30 border border-white/10">
+                  <Truck size={28} className="text-white drop-shadow-lg" />
+                </div>
+                <motion.div 
+                  className={cn("absolute -top-1", isRTL ? "-left-1" : "-right-1")}
+                  animate={{ scale: [1, 1.2, 1] }}
+                  transition={{ duration: 2, repeat: Infinity }}
+                >
+                  <Sparkles size={14} className="text-amber-400" />
+                </motion.div>
               </motion.div>
-            </motion.div>
-            
-            <div className="text-center">
-              <h2 className="text-sm font-black tracking-wider bg-gradient-to-r from-white via-blue-200 to-white bg-clip-text text-transparent">
-                LOGISTICS PRO
-              </h2>
-              <p className="text-[9px] text-white/30 font-medium tracking-[0.2em] mt-1">ENTERPRISE EDITION</p>
-            </div>
+              
+              <div className="text-center">
+                <h2 className={`text-sm font-black tracking-wider bg-gradient-to-r ${isDark ? 'from-white via-blue-200 to-white' : 'from-slate-800 via-blue-600 to-slate-800'} bg-clip-text text-transparent`}>
+                  LOGISTICS PRO
+                </h2>
+                <p className={`text-[9px] font-medium tracking-[0.2em] mt-1 ${isDark ? 'text-white/30' : 'text-slate-400'}`}>ENTERPRISE EDITION</p>
+              </div>
           </motion.div>
         )}
       </div>
@@ -219,16 +250,20 @@ export function Sidebar({ userRole, permissions = {}, userType }: SidebarProps) 
                     onClick={() => handleItemClick(item)}
                     className="cursor-pointer"
                   >
-                    <motion.div
-                      onHoverStart={() => setHoveredItem(item.href)}
-                      onHoverEnd={() => setHoveredItem(null)}
-                      whileTap={{ scale: 0.98 }}
-                      className={cn(
-                        "relative flex items-center gap-3 px-4 py-2.5 rounded-xl transition-all duration-300 group overflow-hidden",
-                        isActive 
-                          ? "bg-white/10 backdrop-blur-xl border border-white/20 shadow-lg shadow-blue-500/10" 
-                          : "hover:bg-white/5 border border-transparent"
-                      )}
+                      <motion.div
+                        onHoverStart={() => setHoveredItem(item.href)}
+                        onHoverEnd={() => setHoveredItem(null)}
+                        whileTap={{ scale: 0.98 }}
+                        className={cn(
+                          "relative flex items-center gap-3 px-4 py-2.5 rounded-xl transition-all duration-300 group overflow-hidden",
+                          isActive 
+                            ? isDark 
+                              ? "bg-white/10 backdrop-blur-xl border border-white/20 shadow-lg shadow-blue-500/10"
+                              : "bg-white/50 backdrop-blur-xl border border-indigo-300/40 shadow-lg shadow-indigo-500/10"
+                            : isDark 
+                              ? "hover:bg-white/5 border border-transparent"
+                              : "hover:bg-white/30 border border-transparent"
+                        )}
                     >
                       {isActive && (
                         <motion.div
@@ -240,36 +275,53 @@ export function Sidebar({ userRole, permissions = {}, userType }: SidebarProps) 
                       
                       <AnimatePresence>
                         {(isActive || isHovered) && (
-                          <motion.div
-                            initial={{ opacity: 0, width: 0 }}
-                            animate={{ opacity: 1, width: 3 }}
-                            exit={{ opacity: 0, width: 0 }}
-                            className={cn(
-                              "absolute top-2 bottom-2 rounded-full",
-                              isRTL ? "right-0" : "left-0",
-                              isActive 
-                                ? `bg-gradient-to-b ${item.gradient}` 
-                                : "bg-white/30"
-                            )}
-                          />
+                            <motion.div
+                              initial={{ opacity: 0, width: 0 }}
+                              animate={{ opacity: 1, width: 3 }}
+                              exit={{ opacity: 0, width: 0 }}
+                              className={cn(
+                                "absolute top-2 bottom-2 rounded-full",
+                                isRTL ? "right-0" : "left-0",
+                                isActive 
+                                    ? `bg-gradient-to-b ${item.gradient}` 
+                                    : isDark ? "bg-white/30" : ""
+                              )}
+                              style={!isActive && !isDark ? { 
+                                background: `linear-gradient(to bottom, ${getGradientColors(item.gradient).from}, ${getGradientColors(item.gradient).to})`,
+                                opacity: 0.6
+                              } : undefined}
+                            />
                         )}
                       </AnimatePresence>
 
                       <div className={cn(
-                          "relative p-2 rounded-lg transition-all duration-300",
-                          isActive 
-                            ? `bg-gradient-to-br ${item.gradient} shadow-lg` 
-                            : "bg-white/[0.06] group-hover:bg-white/[0.12]"
-                        )}>
-                          <item.icon size={16} className={cn(
-                            "transition-all duration-300",
-                            isActive ? "text-white drop-shadow-sm" : item.iconColor || "text-white/80"
-                          )} />
+                              "relative p-2 rounded-lg transition-all duration-300",
+                              isActive 
+                                ? `bg-gradient-to-br ${item.gradient} shadow-lg` 
+                                : isDark 
+                                  ? "bg-white/[0.06] group-hover:bg-white/[0.12]"
+                                  : "bg-white/40"
+                            )}
+                            style={!isDark && !isActive && isHovered ? { 
+                              background: `linear-gradient(135deg, ${getGradientColors(item.gradient).from}, ${getGradientColors(item.gradient).to})`,
+                              boxShadow: '0 4px 12px rgba(0,0,0,0.15)'
+                            } : undefined}
+                            >
+                              <item.icon size={16} className={cn(
+                                "transition-all duration-300",
+                                isActive 
+                                  ? "text-white drop-shadow-sm" 
+                                  : isDark 
+                                    ? (item.iconColor || "text-white/80") 
+                                    : (!isHovered ? (item.iconColor || "text-indigo-700") : "text-white drop-shadow-sm")
+                              )} />
                         </div>
                         
-                        <span className={cn(
+                          <span className={cn(
                           "relative font-bold text-[12px] tracking-wide transition-all duration-300",
-                          isActive ? "text-white" : "text-white/90 group-hover:text-white"
+                          isActive 
+                            ? isDark ? "text-white" : "text-indigo-900" 
+                            : isDark ? "text-white/90 group-hover:text-white" : "text-indigo-800 group-hover:text-indigo-900"
                         )}>
                         {t(item.titleKey)}
                       </span>
@@ -280,7 +332,7 @@ export function Sidebar({ userRole, permissions = {}, userType }: SidebarProps) 
                             animate={{ opacity: 1, scale: 1 }}
                             className={cn("absolute", isRTL ? "right-3" : "left-3")}
                           >
-                            <ChevronIcon size={14} className="text-white/50" />
+                              <ChevronIcon size={14} className={isDark ? "text-white/50" : "text-indigo-400"} />
                           </motion.div>
                         )}
                       </motion.div>
@@ -288,13 +340,13 @@ export function Sidebar({ userRole, permissions = {}, userType }: SidebarProps) 
                   </motion.div>
                 
                 {item.dividerAfter && (
-                  <div className="relative my-4 mx-4">
-                    <div className="h-[1px] bg-gradient-to-r from-transparent via-white/10 to-transparent" />
-                    <div className="absolute left-1/2 -translate-x-1/2 -top-1.5 bg-[#0d1525] px-2">
-                      <Zap size={10} className="text-white/20" />
+                    <div className="relative my-4 mx-4">
+                      <div className={`h-[1px] bg-gradient-to-r from-transparent ${isDark ? 'via-white/10' : 'via-indigo-300/40'} to-transparent`} />
+                      <div className={`absolute left-1/2 -translate-x-1/2 -top-1.5 px-2 ${isDark ? 'bg-[#0d1525]' : 'bg-transparent'}`}>
+                        <Zap size={10} className={isDark ? "text-white/20" : "text-indigo-300/60"} />
+                      </div>
                     </div>
-                  </div>
-                )}
+                  )}
               </React.Fragment>
             );
           })}

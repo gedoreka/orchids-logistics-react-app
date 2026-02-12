@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useLocale, useTranslations } from "@/lib/locale-context";
+import { useTheme } from "next-themes";
 
 export function Footer() {
   const [copiedPhone, setCopiedPhone] = useState<string | null>(null);
@@ -25,6 +26,8 @@ export function Footer() {
   const [systemStatus, setSystemStatus] = useState({ cpu: 23, memory: 45, latency: 42 });
   const { isRTL } = useLocale();
   const t = useTranslations('footer');
+  const { resolvedTheme } = useTheme();
+  const isDark = resolvedTheme === "dark";
 
   useEffect(() => {
     const handleOnline = () => setIsOnline(true);
@@ -56,19 +59,22 @@ export function Footer() {
   };
 
   return (
-    <footer className="w-full no-print mt-auto relative overflow-hidden">
-        {/* Glass effect */}
-        <div className="absolute inset-0 bg-white/[0.03] backdrop-blur-2xl" />
-        <div className="absolute inset-0 bg-gradient-to-r from-white/[0.04] via-transparent to-white/[0.04]" />
-        <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-white/[0.15] to-transparent" />
+    <footer className={cn(
+      "w-full no-print mt-auto relative overflow-hidden",
+      !isDark && "bg-gradient-to-r from-[#dbe4ff] via-[#c7d2f8] to-[#d0d0f0]"
+    )}>
+        {/* Glass effect - dark mode only */}
+        {isDark && <div className="absolute inset-0 backdrop-blur-2xl bg-white/[0.03]" />}
+        {isDark && <div className="absolute inset-0 bg-gradient-to-r from-white/[0.04] via-transparent to-white/[0.04]" />}
+        <div className={`absolute top-0 left-0 right-0 h-[1px] ${isDark ? 'bg-gradient-to-r from-transparent via-white/[0.15] to-transparent' : 'bg-gradient-to-r from-transparent via-indigo-300/50 to-transparent'}`} />
       
       <div className="relative z-10 max-w-[1800px] mx-auto px-4 md:px-6 py-3">
         <div className="flex flex-col md:flex-row items-center justify-between gap-4">
           
           <div className="flex items-center gap-4">
-            <div className="hidden sm:flex items-center gap-1.5 text-white/30 text-[10px] font-bold">
-              <Copyright size={10} />
-              <span>2026 {t('copyright')}</span>
+            <div className={cn("hidden sm:flex items-center gap-1.5 text-[10px] font-bold", isDark ? "text-white/30" : "text-indigo-600/60")}>
+                <Copyright size={10} />
+                <span>2026 {t('copyright')}</span>
             </div>
           </div>
 
@@ -100,21 +106,21 @@ export function Footer() {
               )}
             </motion.div>
 
-            <div className="flex items-center gap-2 px-3 py-1.5 bg-white/5 rounded-xl border border-white/10">
-              <Server size={12} className="text-blue-400" />
-              <span className="text-[10px] font-bold text-white/50">CPU</span>
-              <span className="text-[10px] font-bold text-blue-400">{systemStatus.cpu}%</span>
-            </div>
+            <div className={cn("flex items-center gap-2 px-3 py-1.5 rounded-xl border", isDark ? "bg-white/5 border-white/10" : "bg-white/30 border-indigo-200/30")}>
+                <Server size={12} className="text-blue-400" />
+                <span className={cn("text-[10px] font-bold", isDark ? "text-white/50" : "text-indigo-500")}>CPU</span>
+                <span className="text-[10px] font-bold text-blue-400">{systemStatus.cpu}%</span>
+              </div>
 
-            <div className="flex items-center gap-2 px-3 py-1.5 bg-white/5 rounded-xl border border-white/10">
-              <Activity size={12} className="text-purple-400" />
-              <span className="text-[10px] font-bold text-white/50">{isRTL ? 'الذاكرة' : 'Memory'}</span>
-              <span className="text-[10px] font-bold text-purple-400">{systemStatus.memory}%</span>
-            </div>
+            <div className={cn("flex items-center gap-2 px-3 py-1.5 rounded-xl border", isDark ? "bg-white/5 border-white/10" : "bg-white/30 border-indigo-200/30")}>
+                <Activity size={12} className="text-purple-400" />
+                <span className={cn("text-[10px] font-bold", isDark ? "text-white/50" : "text-indigo-500")}>{isRTL ? 'الذاكرة' : 'Memory'}</span>
+                <span className="text-[10px] font-bold text-purple-400">{systemStatus.memory}%</span>
+              </div>
 
-              <div className="flex items-center gap-2 px-3 py-1.5 bg-white/5 rounded-xl border border-white/10">
-                <Zap size={12} className="text-amber-400" />
-                <span className="text-[10px] font-bold text-white/50">Latency</span>
+              <div className={cn("flex items-center gap-2 px-3 py-1.5 rounded-xl border", isDark ? "bg-white/5 border-white/10" : "bg-white/30 border-indigo-200/30")}>
+                  <Zap size={12} className="text-amber-400" />
+                  <span className={cn("text-[10px] font-bold", isDark ? "text-white/50" : "text-indigo-500")}>Latency</span>
                 <span className="text-[10px] font-bold text-amber-400">{systemStatus.latency}ms</span>
               </div>
             </div>
@@ -122,10 +128,10 @@ export function Footer() {
             <div className="flex items-center flex-wrap justify-center gap-3">
               <motion.div 
                 whileHover={{ scale: 1.05 }}
-                className="flex items-center gap-2 px-3 py-1.5 bg-blue-500/5 rounded-xl border border-blue-500/10"
+                className={cn("flex items-center gap-2 px-3 py-1.5 rounded-xl border", isDark ? "bg-blue-500/5 border-blue-500/10" : "bg-white/30 border-indigo-200/30")}
               >
                 <div className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse" />
-                <span className="text-[10px] font-bold text-blue-400">
+                <span className={cn("text-[10px] font-bold", isDark ? "text-blue-400" : "text-indigo-600")}>
                     {isRTL ? 'نسخة النظام الحالي 1.4' : 'System Version 1.4'}
                 </span>
               </motion.div>
@@ -133,23 +139,23 @@ export function Footer() {
               <motion.a 
                 whileHover={{ scale: 1.05, y: -2 }}
                 href="mailto:Info@zoolspeed.com"
-                className="flex items-center gap-2 px-3 py-1.5 bg-white/5 hover:bg-white/10 rounded-xl border border-white/10 hover:border-blue-500/30 transition-all group"
+                className={cn("flex items-center gap-2 px-3 py-1.5 rounded-xl border transition-all group", isDark ? "bg-white/5 hover:bg-white/10 border-white/10 hover:border-blue-500/30" : "bg-white/30 hover:bg-white/50 border-indigo-200/30 hover:border-indigo-300/50")}
               >
                 <div className="p-1 rounded-md bg-blue-500/20">
                   <Mail size={10} className="text-blue-400" />
                 </div>
-                <span className="text-[10px] font-bold text-white/50 group-hover:text-white/80 transition-colors">Info@zoolspeed.com</span>
+                <span className={cn("text-[10px] font-bold transition-colors", isDark ? "text-white/50 group-hover:text-white/80" : "text-indigo-600 group-hover:text-indigo-700")}>Info@zoolspeed.com</span>
               </motion.a>
 
             <motion.button 
               whileHover={{ scale: 1.05, y: -2 }}
               onClick={() => copyToClipboard("+966534907721", "ksa")}
-              className="flex items-center gap-2 px-3 py-1.5 bg-white/5 hover:bg-white/10 rounded-xl border border-white/10 hover:border-emerald-500/30 transition-all group"
+              className={cn("flex items-center gap-2 px-3 py-1.5 rounded-xl border transition-all group", isDark ? "bg-white/5 hover:bg-white/10 border-white/10 hover:border-emerald-500/30" : "bg-white/30 hover:bg-white/50 border-indigo-200/30 hover:border-emerald-300/50")}
             >
               <div className="p-1 rounded-md bg-emerald-500/20">
                 <Phone size={10} className="text-emerald-400" />
               </div>
-              <span className="text-[10px] font-bold text-white/50 group-hover:text-white/80 transition-colors" dir="ltr">+966 53 490 7721</span>
+              <span className={cn("text-[10px] font-bold transition-colors", isDark ? "text-white/50 group-hover:text-white/80" : "text-indigo-600 group-hover:text-indigo-700")} dir="ltr">+966 53 490 7721</span>
               {copiedPhone === "ksa" ? (
                 <Check size={10} className="text-emerald-500" />
               ) : (
@@ -160,12 +166,12 @@ export function Footer() {
             <motion.button 
               whileHover={{ scale: 1.05, y: -2 }}
               onClick={() => copyToClipboard("+249921163000", "sdn")}
-              className="flex items-center gap-2 px-3 py-1.5 bg-white/5 hover:bg-white/10 rounded-xl border border-white/10 hover:border-amber-500/30 transition-all group"
+              className={cn("flex items-center gap-2 px-3 py-1.5 rounded-xl border transition-all group", isDark ? "bg-white/5 hover:bg-white/10 border-white/10 hover:border-amber-500/30" : "bg-white/30 hover:bg-white/50 border-indigo-200/30 hover:border-amber-300/50")}
             >
               <div className="p-1 rounded-md bg-amber-500/20">
                 <Globe size={10} className="text-amber-400" />
               </div>
-              <span className="text-[10px] font-bold text-white/50 group-hover:text-white/80 transition-colors" dir="ltr">+249 92 116 3000</span>
+              <span className={cn("text-[10px] font-bold transition-colors", isDark ? "text-white/50 group-hover:text-white/80" : "text-indigo-600 group-hover:text-indigo-700")} dir="ltr">+249 92 116 3000</span>
               {copiedPhone === "sdn" ? (
                 <Check size={10} className="text-emerald-500" />
               ) : (

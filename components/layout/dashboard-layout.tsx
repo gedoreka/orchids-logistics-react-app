@@ -10,6 +10,7 @@ import { GlobalAdminNotifications } from "./global-admin-notifications";
 import { X, AlertCircle } from "lucide-react";
 import { useLocale } from "@/lib/locale-context";
 import { usePathname, useRouter } from "next/navigation";
+import { useTheme } from "next-themes";
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -35,6 +36,12 @@ export function DashboardLayout({ children, user, permissions, userType, subscri
   const isFetchingRef = useRef(false);
   const pathname = usePathname();
   const router = useRouter();
+  const { resolvedTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => { setMounted(true); }, []);
+
+  const isDark = !mounted || resolvedTheme === "dark";
 
   const isSubscriptionPage = pathname.includes('/subscriptions');
   const isBlocked = user?.role !== 'admin' && subscriptionData && !subscriptionData.isActive && !isSubscriptionPage;
@@ -83,21 +90,35 @@ export function DashboardLayout({ children, user, permissions, userType, subscri
     return () => clearInterval(interval);
   }, [fetchUnreadCount]);
 
-  return (
+    return (
     <div 
       className="h-screen overflow-hidden text-foreground transition-colors duration-300" 
       dir={isRTL ? "rtl" : "ltr"}
     >
-      <div className="fixed inset-0 bg-gradient-to-br from-[#0a0e1a] via-[#0d1525] to-[#0a0e1a] -z-10" />
-      <div className="fixed inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-blue-900/20 via-transparent to-transparent -z-10" />
-      <div className="fixed inset-0 bg-[radial-gradient(ellipse_at_bottom_left,_var(--tw-gradient-stops))] from-purple-900/15 via-transparent to-transparent -z-10" />
+      {/* Dark mode backgrounds */}
+      {isDark && (
+        <>
+          <div className="fixed inset-0 bg-gradient-to-br from-[#0a0e1a] via-[#0d1525] to-[#0a0e1a] -z-10" />
+          <div className="fixed inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-blue-900/20 via-transparent to-transparent -z-10" />
+          <div className="fixed inset-0 bg-[radial-gradient(ellipse_at_bottom_left,_var(--tw-gradient-stops))] from-purple-900/15 via-transparent to-transparent -z-10" />
+        </>
+      )}
+      {/* Light mode FlowSchedule background */}
+      {!isDark && (
+        <>
+          <div className="fixed inset-0 bg-[#F9FAFB] -z-10" />
+          <div className="fixed inset-0 bg-gradient-to-br from-blue-50/40 via-white to-emerald-50/30 -z-10" />
+          <div className="light-bg-decorations" />
+          <div className="light-decor-extra" />
+        </>
+      )}
       
       <GlobalChatNotifications isAdmin={user?.role === "admin"} companyId={user?.company_id} />
       <GlobalAdminNotifications />
       
-      <aside className={`hidden lg:flex fixed top-0 ${isRTL ? 'right-0' : 'left-0'} h-screen w-64 z-50`}>
-        <Sidebar userRole={user?.role} permissions={permissions} userType={userType} />
-      </aside>
+        <aside className={`hidden lg:flex fixed top-0 ${isRTL ? 'right-0' : 'left-0'} h-screen w-64 z-50 ${isDark ? 'bg-gradient-to-b from-[#0d1525] via-[#0a0e1a] to-[#080c15]' : 'bg-gradient-to-b from-[#dbe4ff] via-[#c7d2f8] to-[#d0d0f0]'}`}>
+          <Sidebar userRole={user?.role} permissions={permissions} userType={userType} />
+        </aside>
 
       <AnimatePresence>
         {isSidebarOpen && (
@@ -116,15 +137,15 @@ export function DashboardLayout({ children, user, permissions, userType, subscri
               transition={{ type: "spring", damping: 25, stiffness: 200 }}
               className={`absolute top-0 ${isRTL ? 'right-0' : 'left-0'} bottom-0 w-64 overflow-hidden flex flex-col`}
             >
-              <div className="absolute inset-0 bg-gradient-to-b from-[#0d1525] via-[#0a0e1a] to-[#080c15]" />
-              <div className="relative z-10 flex items-center justify-between p-4 border-b border-white/5">
-                <span className="text-white font-black text-sm">{isRTL ? 'القائمة الرئيسية' : 'Main Menu'}</span>
-                <motion.button 
-                  whileHover={{ scale: 1.1 }}
-                  whileTap={{ scale: 0.9 }}
-                  onClick={() => setIsSidebarOpen(false)}
-                  className="p-2 text-white/50 hover:text-white hover:bg-white/10 rounded-xl transition-all"
-                >
+                <div className={`absolute inset-0 ${isDark ? 'bg-gradient-to-b from-[#0d1525] via-[#0a0e1a] to-[#080c15]' : 'bg-gradient-to-b from-[#dbe4ff] via-[#c7d2f8] to-[#d0d0f0]'}`} />
+                <div className={`relative z-10 flex items-center justify-between p-4 border-b ${isDark ? 'border-white/5' : 'border-indigo-200/30'}`}>
+                  <span className={`font-black text-sm ${isDark ? 'text-white' : 'text-slate-800'}`}>{isRTL ? 'القائمة الرئيسية' : 'Main Menu'}</span>
+                  <motion.button 
+                    whileHover={{ scale: 1.1 }}
+                    whileTap={{ scale: 0.9 }}
+                    onClick={() => setIsSidebarOpen(false)}
+                    className={`p-2 rounded-xl transition-all ${isDark ? 'text-white/50 hover:text-white hover:bg-white/10' : 'text-slate-400 hover:text-slate-700 hover:bg-slate-200/50'}`}
+                  >
                   <X size={20} />
                 </motion.button>
               </div>

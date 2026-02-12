@@ -1,9 +1,9 @@
 {
-  "projectId": "82776eef-af65-4f11-80e9-9b2d53ee4dac",
+  "projectId": "3da3a816-6a4d-4d35-9cac-7e5dc1400f34",
   "createdAt": 1768321687645,
   "version": "1.0",
   "startupCommands": [
-    "bun install; bun dev"
+    "npm install; npx next dev --turbopack --hostname 0.0.0.0 --port 3006"
   ],
   "templateId": "nextjs",
   "vercelProjectId": "prj_DqwmSpXBqGWDBdeNr1MSDOgKFKag",
