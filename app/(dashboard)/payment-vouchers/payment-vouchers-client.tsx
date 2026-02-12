@@ -106,6 +106,7 @@ function PaymentVouchersContent({ companyId }: { companyId: string }) {
   const [expandedId, setExpandedId] = useState<number | null>(null);
   const [printVoucher, setPrintVoucher] = useState<Voucher | null>(null);
   const [deleteLoading, setDeleteLoading] = useState<number | null>(null);
+  const [fetchError, setFetchError] = useState(false);
   const { notification, showDeleteConfirm, showLoading, showSuccess: showSuccessNotif, showError, hideNotification } = useDeleteNotification("rose");
   const printRef = useRef<HTMLDivElement>(null);
 
@@ -144,8 +145,10 @@ function PaymentVouchersContent({ companyId }: { companyId: string }) {
   const [form, setForm] = useState(initialForm);
 
   const fetchData = async () => {
+    setFetchError(false);
     try {
       const res = await fetch(`/api/payment-vouchers/metadata?company_id=${companyId}`);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
       if (data.error) throw new Error(data.error);
       setAccounts(data.accounts || []);
@@ -154,6 +157,7 @@ function PaymentVouchersContent({ companyId }: { companyId: string }) {
       if (!editingId) setVoucherNumber(data.voucherNumber);
     } catch (error) {
       console.error(error);
+      setFetchError(true);
       toast.error(t("notifications.fetchError"));
     } finally {
       setLoading(false);
@@ -325,6 +329,29 @@ function PaymentVouchersContent({ companyId }: { companyId: string }) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <Loader2 className="w-10 h-10 text-rose-500 animate-spin" />
+      </div>
+    );
+  }
+
+  if (fetchError && vouchers.length === 0) {
+    return (
+      <div className="flex items-center justify-center min-h-screen" dir={isRtl ? "rtl" : "ltr"}>
+        <div className="text-center space-y-6 max-w-md mx-auto p-10">
+          <div className="mx-auto w-20 h-20 rounded-full bg-rose-500/10 flex items-center justify-center">
+            <AlertCircle className="w-10 h-10 text-rose-400" />
+          </div>
+          <div className="space-y-2">
+            <h2 className="text-2xl font-black text-white">{isRtl ? "خطأ في جلب البيانات" : "Error Fetching Data"}</h2>
+            <p className="text-slate-400 font-medium">{isRtl ? "حدث خطأ أثناء الاتصال بقاعدة البيانات. يرجى المحاولة مرة أخرى." : "An error occurred while connecting to the database. Please try again."}</p>
+          </div>
+          <button
+            onClick={() => { setLoading(true); fetchData(); }}
+            className="inline-flex items-center gap-3 px-8 py-4 bg-rose-600 text-white font-black rounded-2xl hover:bg-rose-700 transition-all active:scale-95 shadow-xl"
+          >
+            <RefreshCw size={20} />
+            {isRtl ? "إعادة المحاولة" : "Retry"}
+          </button>
+        </div>
       </div>
     );
   }

@@ -44,56 +44,57 @@ import { cn } from "@/lib/utils";
 import { useLocale, useTranslations } from "@/lib/locale-context";
 
 interface NavItem {
-  titleKey: string;
-  href: string;
-  icon: React.ElementType;
-  adminOnly?: boolean;
-  permission?: string;
-  ownerOnly?: boolean;
-  dividerAfter?: boolean;
-  gradient?: string;
-}
+    titleKey: string;
+    href: string;
+    icon: React.ElementType;
+    adminOnly?: boolean;
+    permission?: string;
+    ownerOnly?: boolean;
+    dividerAfter?: boolean;
+    gradient?: string;
+    iconColor?: string;
+  }
 
 const navItems: NavItem[] = [
-    { titleKey: "home", href: "/dashboard", icon: Home, gradient: "from-blue-500 to-cyan-500" },
+    { titleKey: "home", href: "/dashboard", icon: Home, gradient: "from-blue-500 to-cyan-500", iconColor: "text-blue-400" },
     
-    { titleKey: "companyRequests", href: "/admin/companies", icon: Building2, adminOnly: true, gradient: "from-violet-500 to-purple-500" },
-  { titleKey: "addNewCompany", href: "/admin/companies/new", icon: PlusCircle, adminOnly: true, gradient: "from-emerald-500 to-green-500" },
-  { titleKey: "generateToken", href: "/admin/generate-token", icon: Key, adminOnly: true, gradient: "from-amber-500 to-yellow-500" },
-  { titleKey: "searchToken", href: "/admin/search-token", icon: Search, adminOnly: true, gradient: "from-sky-500 to-blue-500" },
-  { titleKey: "technicalSupport", href: "/admin/chat", icon: MessageSquare, adminOnly: true, gradient: "from-indigo-500 to-violet-500" },
-  { titleKey: "adminNotifications", href: "/admin/notifications", icon: Bell, adminOnly: true, gradient: "from-rose-500 to-pink-500" },
-  { titleKey: "subscriptionPlans", href: "/admin/subscriptions", icon: Package, adminOnly: true, gradient: "from-violet-500 to-purple-500" },
-  { titleKey: "specialSalaries", href: "/admin/special-salaries", icon: Coins, adminOnly: true, dividerAfter: true, gradient: "from-yellow-500 to-orange-500" },
+    { titleKey: "companyRequests", href: "/admin/companies", icon: Building2, adminOnly: true, gradient: "from-violet-500 to-purple-500", iconColor: "text-violet-400" },
+  { titleKey: "addNewCompany", href: "/admin/companies/new", icon: PlusCircle, adminOnly: true, gradient: "from-emerald-500 to-green-500", iconColor: "text-emerald-400" },
+  { titleKey: "generateToken", href: "/admin/generate-token", icon: Key, adminOnly: true, gradient: "from-amber-500 to-yellow-500", iconColor: "text-amber-400" },
+  { titleKey: "searchToken", href: "/admin/search-token", icon: Search, adminOnly: true, gradient: "from-sky-500 to-blue-500", iconColor: "text-sky-400" },
+  { titleKey: "technicalSupport", href: "/admin/chat", icon: MessageSquare, adminOnly: true, gradient: "from-indigo-500 to-violet-500", iconColor: "text-indigo-400" },
+  { titleKey: "adminNotifications", href: "/admin/notifications", icon: Bell, adminOnly: true, gradient: "from-rose-500 to-pink-500", iconColor: "text-rose-400" },
+  { titleKey: "subscriptionPlans", href: "/admin/subscriptions", icon: Package, adminOnly: true, gradient: "from-violet-500 to-purple-500", iconColor: "text-violet-400" },
+  { titleKey: "specialSalaries", href: "/admin/special-salaries", icon: Coins, adminOnly: true, dividerAfter: true, gradient: "from-yellow-500 to-orange-500", iconColor: "text-yellow-400" },
   
-  { titleKey: "hrManagement", href: "/hr", icon: Users, permission: "employees_module", gradient: "from-blue-500 to-indigo-500" },
+  { titleKey: "hrManagement", href: "/hr", icon: Users, permission: "employees_module", gradient: "from-blue-500 to-indigo-500", iconColor: "text-blue-400" },
   
-  { titleKey: "customersList", href: "/customers", icon: Users, permission: "clients_module", gradient: "from-cyan-500 to-teal-500" },
+  { titleKey: "customersList", href: "/customers", icon: Users, permission: "clients_module", gradient: "from-cyan-500 to-teal-500", iconColor: "text-cyan-400" },
   
-  { titleKey: "financialVouchers", href: "/financial-vouchers", icon: Receipt, permission: "receipts_module", gradient: "from-indigo-500 to-purple-500" },
-  { titleKey: "salaryPayrolls", href: "/salary-payrolls", icon: BadgeDollarSign, permission: "salary_payrolls_module", gradient: "from-teal-500 to-emerald-500" },
-  { titleKey: "taxInvoices", href: "/sales-invoices", icon: FileText, permission: "sales_module", gradient: "from-blue-500 to-sky-500" },
-  { titleKey: "creditNotes", href: "/credit-notes", icon: CreditCard, permission: "credit_notes_module", gradient: "from-red-500 to-rose-500" },
-  { titleKey: "fleetManagement", href: "/fleet", icon: Car, permission: "sales_module", gradient: "from-yellow-500 to-amber-500" },
+  { titleKey: "financialVouchers", href: "/financial-vouchers", icon: Receipt, permission: "receipts_module", gradient: "from-indigo-500 to-purple-500", iconColor: "text-indigo-400" },
+  { titleKey: "salaryPayrolls", href: "/salary-payrolls", icon: BadgeDollarSign, permission: "salary_payrolls_module", gradient: "from-teal-500 to-emerald-500", iconColor: "text-teal-400" },
+  { titleKey: "taxInvoices", href: "/sales-invoices", icon: FileText, permission: "sales_module", gradient: "from-blue-500 to-sky-500", iconColor: "text-blue-400" },
+  { titleKey: "creditNotes", href: "/credit-notes", icon: CreditCard, permission: "credit_notes_module", gradient: "from-red-500 to-rose-500", iconColor: "text-red-400" },
+  { titleKey: "fleetManagement", href: "/fleet", icon: Car, permission: "sales_module", gradient: "from-yellow-500 to-amber-500", iconColor: "text-yellow-400" },
     
-      { titleKey: "ecommerce", href: "/ecommerce", icon: Store, permission: "ecommerce_orders_module", gradient: "from-emerald-500 to-teal-500" },
+      { titleKey: "ecommerce", href: "/ecommerce", icon: Store, permission: "ecommerce_orders_module", gradient: "from-emerald-500 to-teal-500", iconColor: "text-emerald-400" },
       
-      { titleKey: "monthlyCommissions", href: "/hr/commissions", icon: HandCoins, permission: "monthly_commissions_module", gradient: "from-amber-500 to-orange-500" },
+      { titleKey: "monthlyCommissions", href: "/hr/commissions", icon: HandCoins, permission: "monthly_commissions_module", gradient: "from-amber-500 to-orange-500", iconColor: "text-amber-400" },
     
-      { titleKey: "expensesCenter", href: "/expenses", icon: BarChart3, permission: "expenses_module", gradient: "from-red-500 to-orange-500" },
-    { titleKey: "journalEntries", href: "/journal-entries", icon: FileEdit, permission: "journal_entries_module", gradient: "from-violet-500 to-indigo-500" },
-    { titleKey: "profitLossSummary", href: "/profit-loss", icon: PieChart, permission: "income_report_module", gradient: "from-sky-500 to-blue-500" },
+      { titleKey: "expensesCenter", href: "/expenses", icon: BarChart3, permission: "expenses_module", gradient: "from-red-500 to-orange-500", iconColor: "text-red-400" },
+    { titleKey: "journalEntries", href: "/journal-entries", icon: FileEdit, permission: "journal_entries_module", gradient: "from-violet-500 to-indigo-500", iconColor: "text-violet-400" },
+    { titleKey: "profitLossSummary", href: "/profit-loss", icon: PieChart, permission: "income_report_module", gradient: "from-sky-500 to-blue-500", iconColor: "text-sky-400" },
     
-    { titleKey: "accountsCenter", href: "/accounts", icon: BookOpen, permission: "accounts_module", gradient: "from-orange-500 to-amber-500" },
-  { titleKey: "costCenters", href: "/cost-centers", icon: Landmark, permission: "cost_centers_module", gradient: "from-slate-500 to-gray-500" },
-  { titleKey: "generalLedger", href: "/general-ledger", icon: BookOpen, permission: "ledger_module", gradient: "from-zinc-500 to-neutral-500" },
-  { titleKey: "trialBalance", href: "/trial-balance", icon: Scale, permission: "trial_balance_module", gradient: "from-gray-500 to-slate-500" },
-  { titleKey: "incomeStatement", href: "/income-statement", icon: BarChart3, permission: "income_statement_module", gradient: "from-emerald-500 to-teal-500" },
-  { titleKey: "balanceSheet", href: "/balance-sheet", icon: FileText, permission: "balance_sheet_module", gradient: "from-blue-500 to-cyan-500" },
+    { titleKey: "accountsCenter", href: "/accounts", icon: BookOpen, permission: "accounts_module", gradient: "from-orange-500 to-amber-500", iconColor: "text-orange-400" },
+  { titleKey: "costCenters", href: "/cost-centers", icon: Landmark, permission: "cost_centers_module", gradient: "from-slate-500 to-gray-500", iconColor: "text-slate-400" },
+  { titleKey: "generalLedger", href: "/general-ledger", icon: BookOpen, permission: "ledger_module", gradient: "from-zinc-500 to-neutral-500", iconColor: "text-zinc-400" },
+  { titleKey: "trialBalance", href: "/trial-balance", icon: Scale, permission: "trial_balance_module", gradient: "from-gray-500 to-slate-500", iconColor: "text-gray-400" },
+  { titleKey: "incomeStatement", href: "/income-statement", icon: BarChart3, permission: "income_statement_module", gradient: "from-emerald-500 to-teal-500", iconColor: "text-emerald-400" },
+  { titleKey: "balanceSheet", href: "/balance-sheet", icon: FileText, permission: "balance_sheet_module", gradient: "from-blue-500 to-cyan-500", iconColor: "text-blue-400" },
   
-    { titleKey: "subUsersManagement", href: "/sub-users", icon: Users, permission: "sub_users_module", gradient: "from-violet-500 to-purple-500" },
-    { titleKey: "taxDeclarations", href: "/tax-declarations", icon: FileCheck, permission: "balance_sheet_module", gradient: "from-blue-600 to-indigo-600" },
-    { titleKey: "taxSettings", href: "/tax-settings", icon: Calculator, permission: "balance_sheet_module", gradient: "from-rose-500 to-pink-500" },
+    { titleKey: "subUsersManagement", href: "/sub-users", icon: Users, permission: "sub_users_module", gradient: "from-violet-500 to-purple-500", iconColor: "text-violet-400" },
+    { titleKey: "taxDeclarations", href: "/tax-declarations", icon: FileCheck, permission: "balance_sheet_module", gradient: "from-blue-600 to-indigo-600", iconColor: "text-blue-400" },
+    { titleKey: "taxSettings", href: "/tax-settings", icon: Calculator, permission: "balance_sheet_module", gradient: "from-rose-500 to-pink-500", iconColor: "text-rose-400" },
   ];
 
 interface SidebarProps {
@@ -148,20 +149,22 @@ export function Sidebar({ userRole, permissions = {}, userType }: SidebarProps) 
 
   return (
     <div className="w-64 h-screen overflow-hidden flex flex-col relative">
-      <div className="absolute inset-0 bg-transparent" />
-      <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC4wMiI+PGNpcmNsZSBjeD0iMzAiIGN5PSIzMCIgcj0iMiIvPjwvZz48L2c+PC9zdmc+')] opacity-50" />
-      <div className={cn(
-        "absolute top-0 w-64 h-64 bg-gradient-to-br from-blue-600/10 to-transparent rounded-full blur-3xl",
-        isRTL ? "right-0" : "left-0"
-      )} />
-      <div className={cn(
-        "absolute bottom-0 w-64 h-64 bg-gradient-to-tr from-purple-600/10 to-transparent rounded-full blur-3xl",
-        isRTL ? "left-0" : "right-0"
-      )} />
-      <div className={cn(
-        "absolute top-0 bottom-0 w-[1px] bg-gradient-to-b from-white/5 via-white/10 to-white/5",
-        isRTL ? "left-0" : "right-0"
-      )} />
+        {/* Glass background */}
+        <div className="absolute inset-0 bg-white/[0.03] backdrop-blur-2xl" />
+        <div className="absolute inset-0 bg-gradient-to-b from-white/[0.06] via-transparent to-white/[0.02]" />
+        <div className={cn(
+          "absolute top-0 w-64 h-64 bg-gradient-to-br from-blue-500/8 to-transparent rounded-full blur-3xl",
+          isRTL ? "right-0" : "left-0"
+        )} />
+        <div className={cn(
+          "absolute bottom-0 w-64 h-64 bg-gradient-to-tr from-purple-500/8 to-transparent rounded-full blur-3xl",
+          isRTL ? "left-0" : "right-0"
+        )} />
+        {/* Glass edge border */}
+        <div className={cn(
+          "absolute top-0 bottom-0 w-[1px] bg-gradient-to-b from-white/10 via-white/[0.15] to-white/10",
+          isRTL ? "left-0" : "right-0"
+        )} />
       
       <div className="relative z-10 p-5 border-b border-white/5">
         {mounted && (
@@ -253,21 +256,21 @@ export function Sidebar({ userRole, permissions = {}, userType }: SidebarProps) 
                       </AnimatePresence>
 
                       <div className={cn(
-                        "relative p-2 rounded-lg transition-all duration-300",
-                        isActive 
-                          ? `bg-gradient-to-br ${item.gradient} shadow-lg` 
-                          : "bg-white/5 group-hover:bg-white/10"
-                      )}>
-                        <item.icon size={16} className={cn(
-                          "transition-all duration-300",
-                          isActive ? "text-white" : "text-white/50 group-hover:text-white/80"
-                        )} />
-                      </div>
-                      
-                      <span className={cn(
-                        "relative font-bold text-[12px] tracking-wide transition-all duration-300",
-                        isActive ? "text-white" : "text-white/50 group-hover:text-white/90"
-                      )}>
+                          "relative p-2 rounded-lg transition-all duration-300",
+                          isActive 
+                            ? `bg-gradient-to-br ${item.gradient} shadow-lg` 
+                            : "bg-white/[0.06] group-hover:bg-white/[0.12]"
+                        )}>
+                          <item.icon size={16} className={cn(
+                            "transition-all duration-300",
+                            isActive ? "text-white drop-shadow-sm" : item.iconColor || "text-white/80"
+                          )} />
+                        </div>
+                        
+                        <span className={cn(
+                          "relative font-bold text-[12px] tracking-wide transition-all duration-300",
+                          isActive ? "text-white" : "text-white/90 group-hover:text-white"
+                        )}>
                         {t(item.titleKey)}
                       </span>
 

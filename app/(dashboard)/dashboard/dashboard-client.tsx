@@ -247,134 +247,134 @@ export function DashboardClient({
           </div>
         </motion.div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <motion.div 
-            variants={itemVariants}
-            className="group relative overflow-hidden rounded-2xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl border border-white/60 dark:border-slate-700/60 shadow-2xl shadow-slate-200/50 dark:shadow-slate-900/50 p-6 hover:shadow-3xl transition-all duration-500"
-          >
-            <div className={`absolute top-0 ${isRTL ? 'right-0' : 'left-0'} w-32 h-32 bg-gradient-to-br from-blue-400/10 to-indigo-400/10 rounded-full -translate-y-16 ${isRTL ? 'translate-x-16' : '-translate-x-16'}`} />
-            <div className={`absolute bottom-0 ${isRTL ? 'left-0' : 'right-0'} w-24 h-24 bg-gradient-to-tr from-emerald-400/10 to-teal-400/10 rounded-full translate-y-12 ${isRTL ? '-translate-x-12' : 'translate-x-12'}`} />
-            
-            <div className="relative z-10">
-              <div className="flex items-center gap-3 mb-6">
-                <div className="p-3 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 shadow-lg shadow-blue-500/30">
-                  <Building2 className="w-5 h-5 text-white" />
-                </div>
-                <div>
-                  <h3 className="font-bold text-slate-800 dark:text-slate-100">{t('companyInfo')}</h3>
-                  <p className="text-xs text-slate-400 dark:text-slate-500">{t('companyData')}</p>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-4 mb-6 p-4 rounded-xl bg-slate-50/80 dark:bg-slate-700/50 border border-slate-100 dark:border-slate-600">
-                {company?.logo ? (
-                  <img src={company.logo} alt="Logo" className="w-16 h-16 rounded-xl object-cover shadow-lg" />
-                ) : (
-                  <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-slate-200 to-slate-300 dark:from-slate-600 dark:to-slate-700 flex items-center justify-center">
-                    <Building2 className="w-8 h-8 text-slate-400 dark:text-slate-300" />
-                  </div>
-                )}
-                  <div>
-                    <h4 className="font-bold text-slate-800 dark:text-slate-100 text-lg">{company?.name || t('companyName')}</h4>
-                    <p className="text-slate-500 dark:text-slate-400 text-sm font-mono">{company?.commercial_number || t('crNumber')}</p>
-                  </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div className="p-4 rounded-xl bg-gradient-to-br from-slate-50 to-white border border-slate-100 hover:border-blue-200 transition-colors">
-                  <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-1">{t('taxNumber')}</p>
-                  <p className="text-sm font-bold text-slate-700 font-mono">{company?.vat_number || t('notSpecified')}</p>
-                </div>
-                <div className="p-4 rounded-xl bg-gradient-to-br from-slate-50 to-white border border-slate-100 hover:border-emerald-200 transition-colors">
-                  <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-1">{t('accountStatus')}</p>
-                  <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold text-white bg-gradient-to-r ${getSubscriptionGradient(subscription.badge)}`}>
-                    <span className="w-1.5 h-1.5 rounded-full bg-white/80 animate-pulse" />
-                    {subscription.message}
-                  </span>
-                </div>
-              </div>
-            </div>
-          </motion.div>
-
-          <motion.div 
-            variants={itemVariants}
-            className="group relative overflow-hidden rounded-2xl bg-white/80 backdrop-blur-xl border border-white/60 shadow-2xl shadow-slate-200/50 p-6 hover:shadow-3xl transition-all duration-500"
-          >
-            <div className={`absolute top-0 ${isRTL ? 'left-0' : 'right-0'} w-32 h-32 bg-gradient-to-br from-violet-400/10 to-purple-400/10 rounded-full -translate-y-16 ${isRTL ? '-translate-x-16' : 'translate-x-16'}`} />
-            <div className={`absolute bottom-0 ${isRTL ? 'right-0' : 'left-0'} w-24 h-24 bg-gradient-to-tr from-amber-400/10 to-orange-400/10 rounded-full translate-y-12 ${isRTL ? 'translate-x-12' : '-translate-x-12'}`} />
-            
-            <div className="relative z-10">
-              <div className="flex items-center gap-3 mb-6">
-                <div className="p-3 rounded-xl bg-gradient-to-br from-violet-500 to-purple-600 shadow-lg shadow-violet-500/30">
-                  <Crown className="w-5 h-5 text-white" />
-                </div>
-                <div>
-                  <h3 className="font-bold text-slate-800">{t('systemInfo')}</h3>
-                  <p className="text-xs text-slate-400">{t('accountSettings')}</p>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4 mb-4">
-                <div className="p-4 rounded-xl bg-gradient-to-br from-slate-50 to-white border border-slate-100 hover:border-violet-200 transition-colors">
-                  <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-1">{t('accountType')}</p>
-                  <p className="text-sm font-bold text-slate-700">
-                    {user.userTypeName ? (isRTL ? user.userTypeName.ar : user.userTypeName.en) : (isAdmin ? t('admin') : t('user'))}
-                  </p>
-                </div>
-                <div className="p-4 rounded-xl bg-gradient-to-br from-slate-50 to-white border border-slate-100 hover:border-amber-200 transition-colors">
-                  <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-1">{t('subscriptionType')}</p>
-                  <p className="text-sm font-bold text-slate-700">
-                    {subscription.type === "premium" ? t('permanent') : subscription.type === "active" ? t('active') : t('expired')}
-                  </p>
-                </div>
-              </div>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <motion.div 
+              variants={itemVariants}
+              className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-slate-800/95 via-slate-800/90 to-slate-900/95 backdrop-blur-xl border border-slate-600/30 shadow-2xl shadow-black/20 p-6 hover:border-slate-500/40 transition-all duration-500"
+            >
+              <div className={`absolute top-0 ${isRTL ? 'right-0' : 'left-0'} w-32 h-32 bg-gradient-to-br from-blue-500/10 to-indigo-500/10 rounded-full -translate-y-16 ${isRTL ? 'translate-x-16' : '-translate-x-16'}`} />
+              <div className={`absolute bottom-0 ${isRTL ? 'left-0' : 'right-0'} w-24 h-24 bg-gradient-to-tr from-emerald-500/10 to-teal-500/10 rounded-full translate-y-12 ${isRTL ? '-translate-x-12' : 'translate-x-12'}`} />
               
-              <div className="p-4 rounded-xl bg-gradient-to-br from-amber-50 to-orange-50 border border-amber-100">
-                <p className="text-[10px] text-amber-600 font-bold uppercase tracking-wider mb-2">{t('accessToken')}</p>
-                <div className="flex items-center justify-between">
-                  <span className={`font-mono text-sm text-amber-800 ${tokenVisible ? "" : "blur-sm select-none"}`}>
-                    {company?.access_token?.substring(0, 24) || t('notAvailable')}...
-                  </span>
-                  <div className="flex items-center gap-1">
-                    <button 
-                      onClick={() => setTokenVisible(!tokenVisible)} 
-                      className="p-2 hover:bg-amber-200/50 rounded-lg transition-colors text-amber-600"
-                    >
-                      {tokenVisible ? <EyeOff size={16} /> : <Eye size={16} />}
-                    </button>
-                    <button 
-                      onClick={copyToken} 
-                      className="p-2 hover:bg-amber-200/50 rounded-lg transition-colors text-amber-600"
-                    >
-                      <Copy size={16} className={copied ? "text-emerald-600" : ""} />
-                    </button>
+              <div className="relative z-10">
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="p-3 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 shadow-lg shadow-blue-500/25">
+                    <Building2 className="w-5 h-5 text-white" />
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-white">{t('companyInfo')}</h3>
+                    <p className="text-xs text-slate-400">{t('companyData')}</p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-4 mb-6 p-4 rounded-xl bg-slate-700/40 border border-slate-600/40">
+                  {company?.logo ? (
+                    <img src={company.logo} alt="Logo" className="w-16 h-16 rounded-xl object-cover shadow-lg ring-2 ring-slate-600/50" />
+                  ) : (
+                    <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-slate-600 to-slate-700 flex items-center justify-center ring-2 ring-slate-600/50">
+                      <Building2 className="w-8 h-8 text-slate-400" />
+                    </div>
+                  )}
+                    <div>
+                      <h4 className="font-bold text-white text-lg">{company?.name || t('companyName')}</h4>
+                      <p className="text-slate-400 text-sm font-mono">{company?.commercial_number || t('crNumber')}</p>
+                    </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="p-4 rounded-xl bg-slate-700/30 border border-slate-600/30 hover:border-blue-500/30 transition-colors">
+                    <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider mb-1">{t('taxNumber')}</p>
+                    <p className="text-sm font-bold text-slate-200 font-mono">{company?.vat_number || t('notSpecified')}</p>
+                  </div>
+                  <div className="p-4 rounded-xl bg-slate-700/30 border border-slate-600/30 hover:border-emerald-500/30 transition-colors">
+                    <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider mb-1">{t('accountStatus')}</p>
+                    <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold text-white bg-gradient-to-r ${getSubscriptionGradient(subscription.badge)}`}>
+                      <span className="w-1.5 h-1.5 rounded-full bg-white/80 animate-pulse" />
+                      {subscription.message}
+                    </span>
                   </div>
                 </div>
               </div>
-            </div>
-          </motion.div>
-        </div>
+            </motion.div>
 
-        <motion.div 
-          variants={itemVariants}
-          className="flex items-center justify-between p-4 rounded-2xl bg-white/80 backdrop-blur-xl border border-white/60 shadow-xl"
-        >
-          <div className="flex items-center gap-3">
-            <div className="p-2.5 rounded-xl bg-gradient-to-br from-indigo-500 to-blue-600 shadow-lg shadow-indigo-500/25">
-              <Calendar className="w-4 h-4 text-white" />
-            </div>
-            <span className="font-bold text-slate-700">{t('fiscalYear')}</span>
+            <motion.div 
+              variants={itemVariants}
+              className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-slate-800/95 via-slate-800/90 to-slate-900/95 backdrop-blur-xl border border-slate-600/30 shadow-2xl shadow-black/20 p-6 hover:border-slate-500/40 transition-all duration-500"
+            >
+              <div className={`absolute top-0 ${isRTL ? 'left-0' : 'right-0'} w-32 h-32 bg-gradient-to-br from-violet-500/10 to-purple-500/10 rounded-full -translate-y-16 ${isRTL ? '-translate-x-16' : 'translate-x-16'}`} />
+              <div className={`absolute bottom-0 ${isRTL ? 'right-0' : 'left-0'} w-24 h-24 bg-gradient-to-tr from-amber-500/10 to-orange-500/10 rounded-full translate-y-12 ${isRTL ? 'translate-x-12' : '-translate-x-12'}`} />
+              
+              <div className="relative z-10">
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="p-3 rounded-xl bg-gradient-to-br from-violet-500 to-purple-600 shadow-lg shadow-violet-500/25">
+                    <Crown className="w-5 h-5 text-white" />
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-white">{t('systemInfo')}</h3>
+                    <p className="text-xs text-slate-400">{t('accountSettings')}</p>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4 mb-4">
+                  <div className="p-4 rounded-xl bg-slate-700/30 border border-slate-600/30 hover:border-violet-500/30 transition-colors">
+                    <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider mb-1">{t('accountType')}</p>
+                    <p className="text-sm font-bold text-slate-200">
+                      {user.userTypeName ? (isRTL ? user.userTypeName.ar : user.userTypeName.en) : (isAdmin ? t('admin') : t('user'))}
+                    </p>
+                  </div>
+                  <div className="p-4 rounded-xl bg-slate-700/30 border border-slate-600/30 hover:border-amber-500/30 transition-colors">
+                    <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider mb-1">{t('subscriptionType')}</p>
+                    <p className="text-sm font-bold text-slate-200">
+                      {subscription.type === "premium" ? t('permanent') : subscription.type === "active" ? t('active') : t('expired')}
+                    </p>
+                  </div>
+                </div>
+                
+                <div className="p-4 rounded-xl bg-amber-500/10 border border-amber-500/20">
+                  <p className="text-[10px] text-amber-400 font-bold uppercase tracking-wider mb-2">{t('accessToken')}</p>
+                  <div className="flex items-center justify-between">
+                    <span className={`font-mono text-sm text-amber-300 ${tokenVisible ? "" : "blur-sm select-none"}`}>
+                      {company?.access_token?.substring(0, 24) || t('notAvailable')}...
+                    </span>
+                    <div className="flex items-center gap-1">
+                      <button 
+                        onClick={() => setTokenVisible(!tokenVisible)} 
+                        className="p-2 hover:bg-amber-500/15 rounded-lg transition-colors text-amber-400"
+                      >
+                        {tokenVisible ? <EyeOff size={16} /> : <Eye size={16} />}
+                      </button>
+                      <button 
+                        onClick={copyToken} 
+                        className="p-2 hover:bg-amber-500/15 rounded-lg transition-colors text-amber-400"
+                      >
+                        <Copy size={16} className={copied ? "text-emerald-400" : ""} />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
           </div>
-          <select 
-            value={selectedYear}
-            onChange={(e) => setSelectedYear(Number(e.target.value))}
-            className="px-4 py-2 rounded-xl border border-slate-200 bg-white text-sm font-bold text-slate-900 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all cursor-pointer hover:border-indigo-300"
+
+          <motion.div 
+            variants={itemVariants}
+            className="flex items-center justify-between p-4 rounded-2xl bg-gradient-to-br from-slate-800/95 via-slate-800/90 to-slate-900/95 backdrop-blur-xl border border-slate-600/30 shadow-xl"
           >
-            {[2024, 2025, 2026, 2027, 2028].map(year => (
-              <option key={year} value={year}>{year}</option>
-            ))}
-          </select>
-        </motion.div>
+            <div className="flex items-center gap-3">
+              <div className="p-2.5 rounded-xl bg-gradient-to-br from-indigo-500 to-blue-600 shadow-lg shadow-indigo-500/25">
+                <Calendar className="w-4 h-4 text-white" />
+              </div>
+              <span className="font-bold text-slate-200">{t('fiscalYear')}</span>
+            </div>
+            <select 
+              value={selectedYear}
+              onChange={(e) => setSelectedYear(Number(e.target.value))}
+              className="px-4 py-2 rounded-xl border border-slate-600/40 bg-slate-700/50 text-sm font-bold text-slate-200 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all cursor-pointer hover:border-slate-500"
+            >
+              {[2024, 2025, 2026, 2027, 2028].map(year => (
+                <option key={year} value={year}>{year}</option>
+              ))}
+            </select>
+          </motion.div>
 
         <motion.div variants={itemVariants}>
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
@@ -469,54 +469,54 @@ export function DashboardClient({
           </div>
         </motion.div>
 
-        <motion.div 
-          variants={itemVariants}
-          className="relative overflow-hidden rounded-2xl bg-white/80 backdrop-blur-xl border border-white/60 shadow-2xl shadow-slate-200/50 p-6 md:p-8"
-        >
-          <div className={`absolute top-0 ${isRTL ? 'right-0' : 'left-0'} w-64 h-64 bg-gradient-to-br from-amber-400/5 to-orange-400/5 rounded-full -translate-y-32 ${isRTL ? 'translate-x-32' : '-translate-x-32'}`} />
-          
-          <div className="relative z-10">
-            <div className="flex items-center gap-3 mb-8">
-              <div className="p-3 rounded-xl bg-gradient-to-br from-amber-500 to-orange-600 shadow-lg shadow-amber-500/30">
-                <Bolt className="w-5 h-5 text-white" />
+          <motion.div 
+            variants={itemVariants}
+            className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-slate-800/95 via-slate-800/90 to-slate-900/95 backdrop-blur-xl border border-slate-600/30 shadow-2xl shadow-black/20 p-6 md:p-8"
+          >
+            <div className={`absolute top-0 ${isRTL ? 'right-0' : 'left-0'} w-64 h-64 bg-gradient-to-br from-amber-500/5 to-orange-500/5 rounded-full -translate-y-32 ${isRTL ? 'translate-x-32' : '-translate-x-32'}`} />
+            
+            <div className="relative z-10">
+              <div className="flex items-center gap-3 mb-8">
+                <div className="p-3 rounded-xl bg-gradient-to-br from-amber-500 to-orange-600 shadow-lg shadow-amber-500/25">
+                  <Bolt className="w-5 h-5 text-white" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-white text-lg">{t('quickAccess')}</h3>
+                  <p className="text-xs text-slate-400">{t('quickAccessDescription')}</p>
+                </div>
               </div>
-              <div>
-                <h3 className="font-bold text-slate-800 text-lg">{t('quickAccess')}</h3>
-                <p className="text-xs text-slate-400">{t('quickAccessDescription')}</p>
-              </div>
-            </div>
 
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-              {filteredQuickAccess.map((item, index) => (
-                <motion.a
-                  key={item.href}
-                  href={item.href}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.1 * index }}
-                  whileHover={{ y: -5, scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  className="group relative overflow-hidden p-5 rounded-2xl bg-gradient-to-br from-white to-slate-50 border border-slate-100 hover:border-slate-200 shadow-lg hover:shadow-xl transition-all duration-300"
-                >
-                  <div className={`absolute inset-0 ${item.bgGlow} opacity-0 group-hover:opacity-100 transition-opacity duration-300`} />
-                  
-                  <div className="relative z-10 text-center">
-                    <div className={`w-14 h-14 mx-auto mb-4 rounded-2xl bg-gradient-to-br ${item.gradient} flex items-center justify-center shadow-lg group-hover:shadow-xl group-hover:scale-110 transition-all duration-300`}>
-                      <item.icon className="w-6 h-6 text-white" />
-                    </div>
-                    <span className="font-bold text-slate-700 text-sm group-hover:text-slate-900 transition-colors">
-                        {t(item.titleKey)}
-                      </span>
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+                {filteredQuickAccess.map((item, index) => (
+                  <motion.a
+                    key={item.href}
+                    href={item.href}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.1 * index }}
+                    whileHover={{ y: -5, scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    className="group relative overflow-hidden p-5 rounded-2xl bg-slate-700/30 border border-slate-600/30 hover:border-slate-500/50 shadow-lg hover:shadow-xl transition-all duration-300"
+                  >
+                    <div className={`absolute inset-0 ${item.bgGlow} opacity-0 group-hover:opacity-100 transition-opacity duration-300`} />
                     
-                    <div className={`absolute top-3 ${isRTL ? 'right-3' : 'left-3'} opacity-0 group-hover:opacity-100 transition-opacity`}>
-                      <ArrowUpRight className="w-4 h-4 text-slate-400" />
+                    <div className="relative z-10 text-center">
+                      <div className={`w-14 h-14 mx-auto mb-4 rounded-2xl bg-gradient-to-br ${item.gradient} flex items-center justify-center shadow-lg group-hover:shadow-xl group-hover:scale-110 transition-all duration-300`}>
+                        <item.icon className="w-6 h-6 text-white" />
+                      </div>
+                      <span className="font-bold text-slate-300 text-sm group-hover:text-white transition-colors">
+                          {t(item.titleKey)}
+                        </span>
+                      
+                      <div className={`absolute top-3 ${isRTL ? 'right-3' : 'left-3'} opacity-0 group-hover:opacity-100 transition-opacity`}>
+                        <ArrowUpRight className="w-4 h-4 text-slate-400" />
+                      </div>
                     </div>
-                  </div>
-                </motion.a>
-              ))}
+                  </motion.a>
+                ))}
+              </div>
             </div>
-          </div>
-        </motion.div>
+          </motion.div>
       </motion.div>
     </div>
   );
@@ -538,58 +538,58 @@ function LuxuryStatCard({ icon: Icon, value, label, trend, gradient, glowColor, 
   const { isRTL } = useLocale();
   const t = useTranslations('dashboard');
   const glowClasses: Record<string, string> = {
-    blue: "shadow-blue-200/50 hover:shadow-blue-300/50",
-    emerald: "shadow-emerald-200/50 hover:shadow-emerald-300/50",
-    teal: "shadow-teal-200/50 hover:shadow-teal-300/50",
-    rose: "shadow-rose-200/50 hover:shadow-rose-300/50",
-    amber: "shadow-amber-200/50 hover:shadow-amber-300/50",
-    violet: "shadow-violet-200/50 hover:shadow-violet-300/50",
-  };
+      blue: "shadow-blue-500/10 hover:shadow-blue-500/20",
+      emerald: "shadow-emerald-500/10 hover:shadow-emerald-500/20",
+      teal: "shadow-teal-500/10 hover:shadow-teal-500/20",
+      rose: "shadow-rose-500/10 hover:shadow-rose-500/20",
+      amber: "shadow-amber-500/10 hover:shadow-amber-500/20",
+      violet: "shadow-violet-500/10 hover:shadow-violet-500/20",
+    };
 
-  return (
-    <motion.div
-      whileHover={{ y: -5, scale: 1.02 }}
-      className={`group relative overflow-hidden rounded-2xl bg-gradient-to-br from-white to-slate-50/80 p-6 shadow-2xl ${glowClasses[glowColor]} border border-white/60 backdrop-blur-xl hover:shadow-3xl transition-all duration-500`}
-    >
-      <div className={`absolute top-0 ${isRTL ? 'right-0' : 'left-0'} w-24 h-24 bg-gradient-to-br from-slate-100/50 to-transparent rounded-full -translate-y-12 ${isRTL ? 'translate-x-12' : '-translate-x-12'} group-hover:scale-150 transition-transform duration-500`} />
-      
-      <div className="relative z-10">
-        <div className="flex items-center justify-between mb-4">
-          <div className={`p-3 rounded-xl bg-gradient-to-br ${gradient} shadow-lg`}>
-            <Icon className="w-5 h-5 text-white" />
+    return (
+      <motion.div
+        whileHover={{ y: -5, scale: 1.02 }}
+        className={`group relative overflow-hidden rounded-2xl bg-gradient-to-br from-slate-800/95 via-slate-800/90 to-slate-900/95 p-6 shadow-2xl ${glowClasses[glowColor]} border border-slate-600/30 backdrop-blur-xl hover:border-slate-500/40 transition-all duration-500`}
+      >
+        <div className={`absolute top-0 ${isRTL ? 'right-0' : 'left-0'} w-24 h-24 bg-gradient-to-br from-slate-700/30 to-transparent rounded-full -translate-y-12 ${isRTL ? 'translate-x-12' : '-translate-x-12'} group-hover:scale-150 transition-transform duration-500`} />
+        
+        <div className="relative z-10">
+          <div className="flex items-center justify-between mb-4">
+            <div className={`p-3 rounded-xl bg-gradient-to-br ${gradient} shadow-lg`}>
+              <Icon className="w-5 h-5 text-white" />
+            </div>
+            <div className={`flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold ${trend >= 0 ? 'bg-emerald-500/15 text-emerald-400' : 'bg-rose-500/15 text-rose-400'}`}>
+              <TrendingUp className={`w-3 h-3 ${trend < 0 ? 'rotate-180' : ''}`} />
+              {Math.abs(trend)}%
+            </div>
           </div>
-          <div className={`flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold ${trend >= 0 ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700'}`}>
-            <TrendingUp className={`w-3 h-3 ${trend < 0 ? 'rotate-180' : ''}`} />
-            {Math.abs(trend)}%
+          
+          <div className="space-y-1">
+              <h4 className="text-3xl font-bold text-white tracking-tight">
+                {loading ? (
+                  <span className="inline-block w-20 h-8 bg-slate-700 animate-pulse rounded" />
+                ) : (
+                    <>
+                      <AnimatedCounter value={value} />
+                      {isCurrency && <span className={cn("text-sm text-slate-400", isRTL ? "mr-1" : "ml-1")}>{t('sar')}</span>}
+                    </>
+                  )}
+              </h4>
+              <p className="text-slate-400 font-medium text-sm">{label}</p>
+              {subValue && <p className="text-xs text-slate-500">{subValue}</p>}
+            </div>
+          
+          <div className="mt-4 pt-4 border-t border-slate-700/50">
+            <div className="h-2 w-full bg-slate-700/50 rounded-full overflow-hidden">
+              <motion.div 
+                initial={{ width: 0 }}
+                animate={{ width: `${Math.min(75 + Math.random() * 20, 95)}%` }}
+                transition={{ duration: 1.5, ease: "easeOut" }}
+                className={`h-full bg-gradient-to-r ${gradient} rounded-full`}
+              />
+            </div>
           </div>
         </div>
-        
-        <div className="space-y-1">
-            <h4 className="text-3xl font-bold text-slate-800 tracking-tight">
-              {loading ? (
-                <span className="inline-block w-20 h-8 bg-slate-200 animate-pulse rounded" />
-              ) : (
-                  <>
-                    <AnimatedCounter value={value} />
-                    {isCurrency && <span className={cn("text-sm text-slate-500", isRTL ? "mr-1" : "ml-1")}>{t('sar')}</span>}
-                  </>
-                )}
-            </h4>
-            <p className="text-slate-500 font-medium text-sm">{label}</p>
-            {subValue && <p className="text-xs text-slate-400">{subValue}</p>}
-          </div>
-        
-        <div className="mt-4 pt-4 border-t border-slate-100">
-          <div className="h-2 w-full bg-slate-100 rounded-full overflow-hidden">
-            <motion.div 
-              initial={{ width: 0 }}
-              animate={{ width: `${Math.min(75 + Math.random() * 20, 95)}%` }}
-              transition={{ duration: 1.5, ease: "easeOut" }}
-              className={`h-full bg-gradient-to-r ${gradient} rounded-full`}
-            />
-          </div>
-        </div>
-      </div>
-    </motion.div>
+      </motion.div>
   );
 }

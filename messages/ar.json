@@ -1157,7 +1157,7 @@
     "dueDatePrefix": "الاستحقاق:",
     "companyStamp": "ختم المنشأة",
     "digitalSignature": "التوقيع الإلكتروني",
-    "electronicInvoicingSystem": "نظام الفواتير الإلكترونية",
+    "electronicInvoicingSystem": "فاتورة ضريبية إلكترونية",
     "claimMonth": "مطالبة شهر:",
     "issueDateLabel": "تاريخ الإصدار:",
     "facilityData": "بيانات المنشأة",
@@ -1474,6 +1474,9 @@
     "plateEn": "رقم اللوحة (انجليزي)",
     "selectCategory": "اختر الفئة",
     "selectDriver": "اختر السائق",
+    "selectVehicleRequired": "يرجى اختيار المركبة",
+    "pendingMaintenanceAlert": "طلبات صيانة معلقة",
+    "pendingMaintenanceAlertDesc": "يوجد طلبات صيانة معلقة تتطلب المتابعة والتأكيد",
     "currentKm": "العداد الحالي (كم)",
     "usedSpares": "قطع الغيار المستخدمة",
     "addSpares": "أضف قطع غيار...",
@@ -1514,7 +1517,11 @@
     "clickToConfirm": "اضغط هنا للتأكيد",
     "maintenanceBannerTitle": "تحديث حالة الصيانة",
     "maintenanceBannerMessage": "تم إكمال أمر الصيانة بنجاح - تم إرسال إشعار بالبريد",
-    "viewDetails": "عرض التفاصيل"
+    "viewDetails": "عرض التفاصيل",
+    "searchByNameOrId": "بحث بالاسم أو رقم الهوية أو رقم المستخدم...",
+    "searchCategory": "بحث عن فئة...",
+    "noResults": "لا توجد نتائج",
+    "noPackage": "بدون باقة"
   },
   "profitLoss": {
     "loading": "جاري تحميل تقرير الربح والخسارة...",
@@ -2294,9 +2301,30 @@
         "descriptionPlaceholder": "اكتب تفاصيل سبب الإيراد...",
         "cancel": "إلغاء",
         "save": "حفظ السند",
-        "cancelForm": "إلغاء الإضافة"
-      },
-      "stats": {
+          "cancelForm": "إلغاء الإضافة"
+        },
+        "incomeTypes": {
+          "bankTransfer": "تحويل بنكي",
+          "capital": "رأس مال",
+          "otherRevenue": "إيرادات أخرى",
+          "investmentProfit": "أرباح استثمارات",
+          "rentalIncome": "دخل إيجار",
+          "depositReturn": "عائد ودائع",
+          "financialAdjustments": "تسويات مالية"
+        },
+        "paymentMethods": {
+          "cash": "نقدي",
+          "transfer": "تحويل",
+          "deposit": "إيداع"
+        },
+        "notifications": {
+          "saveSuccess": "تم حفظ سند الإيراد بنجاح"
+        },
+        "footer": {
+          "system": "نظام إدارة الإيرادات المالية",
+          "rights": "جميع الحقوق محفوظة © {year}"
+        },
+        "stats": {
         "count": "عدد السندات",
         "voucherLabel": "سند إيراد",
         "nextNumber": "الرقم التالي (INC00001)",

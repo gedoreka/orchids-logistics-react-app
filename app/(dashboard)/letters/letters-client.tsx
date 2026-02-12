@@ -62,46 +62,84 @@ const templateColors: Record<string, string> = {
   final_clearance: "from-emerald-500 to-teal-600",
 };
 
-function AutoFitContent({ content, maxHeight }: { content: string; maxHeight: number }) {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const [fontSize, setFontSize] = useState(16);
-  const [lineHeight, setLineHeight] = useState(1.6);
+function PreviewPage({ content, letterheadPath, topMargin, bottomMargin, convertPdfToImage }: {
+  content: string;
+  letterheadPath?: string;
+  topMargin: number;
+  bottomMargin: number;
+  convertPdfToImage: (url: string) => Promise<string>;
+}) {
+  const [bgImage, setBgImage] = useState<string>('');
 
   useEffect(() => {
-    const container = containerRef.current;
-    if (!container) return;
-    
-    let currentFontSize = 16;
-    let currentLineHeight = 1.6;
-    
-    const checkAndAdjust = () => {
-      if (container.scrollHeight > maxHeight && currentFontSize > 10) {
-        currentFontSize -= 0.5;
-        setFontSize(currentFontSize);
-        requestAnimationFrame(checkAndAdjust);
-      } else if (container.scrollHeight > maxHeight && currentLineHeight > 1.2) {
-        currentLineHeight -= 0.05;
-        setLineHeight(currentLineHeight);
-        requestAnimationFrame(checkAndAdjust);
-      }
-    };
-    
-    setFontSize(16);
-    setLineHeight(1.6);
-    requestAnimationFrame(checkAndAdjust);
-  }, [content, maxHeight]);
+    if (!letterheadPath) return;
+    if (letterheadPath.toLowerCase().endsWith('.pdf')) {
+      convertPdfToImage(letterheadPath).then(setBgImage);
+    } else {
+      setBgImage(letterheadPath);
+    }
+  }, [letterheadPath, convertPdfToImage]);
+
+  // Scale: A4 = 794x1123px at 96dpi, we show at 595px width
+  const scale = 595 / 794;
+  const scaledTop = Math.round(topMargin * scale);
+  const scaledBottom = Math.round(bottomMargin * scale);
 
   return (
-    <div 
-      ref={containerRef}
-      className="letter-content-auto"
-      style={{ 
-        fontSize: `${fontSize}px`, 
-        lineHeight: lineHeight,
-        textAlign: 'justify'
-      }}
-      dangerouslySetInnerHTML={{ __html: content }}
-    />
+    <div style={{ width: '595px', flexShrink: 0 }}>
+      <div
+        className="bg-white shadow-2xl"
+        style={{
+          width: '595px',
+          minHeight: '842px',
+          position: 'relative',
+        }}
+      >
+        {/* Letterhead background */}
+        {bgImage && (
+          <img
+            src={bgImage}
+            alt=""
+            style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              width: '100%',
+              height: '842px',
+              objectFit: 'fill',
+              zIndex: 0,
+              pointerEvents: 'none',
+            }}
+            crossOrigin="anonymous"
+          />
+        )}
+        {/* Content on top of letterhead with white semi-transparent bg for readability */}
+        <div
+          dir="rtl"
+          style={{
+            position: 'relative',
+            zIndex: 1,
+            paddingTop: `${scaledTop}px`,
+            paddingBottom: `${scaledBottom}px`,
+            paddingLeft: '35px',
+            paddingRight: '35px',
+          }}
+        >
+          <div
+            style={{
+              background: 'rgba(255,255,255,0.88)',
+              borderRadius: '8px',
+              padding: '24px 20px',
+              fontFamily: "'Tajawal', 'Arial', sans-serif",
+              fontSize: '13px',
+              lineHeight: 1.7,
+              color: '#1a1a1a',
+            }}
+            dangerouslySetInnerHTML={{ __html: content }}
+          />
+        </div>
+      </div>
+    </div>
   );
 }
 
@@ -521,106 +559,203 @@ export default function LettersClient() {
     return content;
   };
 
-  const handlePrint = () => {
-    if (!previewLetter) return;
-    const content = generateLetterContent(previewLetter);
-    const letterhead = companyInfo?.letterhead_path;
-    const topMargin = margins.top;
-    const bottomMargin = margins.bottom;
-    const isPdf = letterhead?.toLowerCase().endsWith('.pdf');
-    const printWindow = window.open("", "_blank");
-    if (!printWindow) return;
-    printWindow.document.write(`
-      <!DOCTYPE html>
-      <html dir="rtl" lang="ar">
-      <head>
-        <meta charset="UTF-8">
-        <title>طباعة الخطاب - ${previewLetter.letter_number}</title>
-        <style>
-          @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap');
-          * { margin: 0; padding: 0; box-sizing: border-box; }
-          body { font-family: 'Tajawal', sans-serif; direction: rtl; background: #fff; color: #000; line-height: 1.6; }
-          @page { size: A4; margin: 0; }
-          .page-container { width: 210mm; height: 297mm; position: relative; margin: 0 auto; overflow: hidden; }
-          ${!isPdf ? `
-          .page-container {
-            background-image: url('${letterhead}');
-            background-size: 100% 100%; background-repeat: no-repeat; background-position: center;
-          }` : ''}
-          .letterhead-pdf { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; z-index: -1; }
-          .letter-content-wrapper { 
-            position: absolute; 
-            top: ${topMargin}px; 
-            bottom: ${bottomMargin}px; 
-            left: 50px; 
-            right: 50px; 
-            z-index: 1; 
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
+    const convertPdfToImage = async (pdfUrl: string): Promise<string> => {
+      try {
+        const loadingTask = pdfjsLib.getDocument(pdfUrl);
+        const pdf = await loadingTask.promise;
+        const page = await pdf.getPage(1);
+        const scale = 3;
+        const viewport = page.getViewport({ scale });
+        const canvas = document.createElement('canvas');
+        canvas.width = viewport.width;
+        canvas.height = viewport.height;
+        const ctx = canvas.getContext('2d');
+        if (!ctx) throw new Error('no canvas context');
+        await page.render({ canvasContext: ctx, viewport }).promise;
+        return canvas.toDataURL('image/png');
+      } catch (e) {
+        console.error('PDF to image error:', e);
+        return '';
+      }
+    };
+
+    const buildPrintHTML = (content: string, forPrint: boolean = true, letterheadImageDataUrl?: string): string => {
+        const letterhead = companyInfo?.letterhead_path;
+        const topMargin = margins.top;
+        const bottomMargin = margins.bottom;
+        const isPdf = letterhead?.toLowerCase().endsWith('.pdf');
+        const bgImage = letterheadImageDataUrl || (!isPdf ? letterhead : '') || '';
+      
+      return `<!DOCTYPE html>
+<html dir="rtl" lang="ar">
+<head>
+  <meta charset="UTF-8">
+  <title>طباعة الخطاب</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      body { 
+        font-family: 'Tajawal', 'Arial', 'Tahoma', sans-serif; 
+        direction: rtl; 
+        background: #fff; 
+        color: #000; 
+        line-height: 1.6;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+      @page { size: A4; margin: 0; }
+      .page-container { 
+        width: 210mm; 
+        min-height: 297mm; 
+        position: relative; 
+        margin: 0 auto;
+      }
+      .letterhead-bg { 
+        position: absolute; 
+        top: 0; left: 0; 
+        width: 100%; height: 297mm; 
+        object-fit: fill; 
+        z-index: 0; 
+      }
+      .letter-content-wrapper { 
+        position: relative;
+        z-index: 1; 
+        padding-top: ${topMargin}px; 
+        padding-bottom: ${bottomMargin}px; 
+        padding-left: 50px; 
+        padding-right: 50px; 
+      }
+      .letter-content { 
+        font-size: 15px; 
+        text-align: justify; 
+        line-height: 1.7;
+        color: #000;
+      }
+      .letter-content p { margin-bottom: 10px; }
+      .field { font-weight: bold; color: #000; }
+      h2 { font-size: 20px; margin-bottom: 12px; text-align: center; }
+      table { width: 100%; border-collapse: collapse; margin: 8px 0; }
+      td, th { padding: 6px 8px; border: 1px solid #000; font-size: 13px; text-align: center; }
+      th { background: #f0f0f0; font-weight: bold; }
+      @media print { 
+        body { margin: 0; }
+        .page-container { width: 100%; min-height: 100%; margin: 0; box-shadow: none; }
+      }
+    </style>
+</head>
+<body>
+    <div class="page-container">
+      ${bgImage ? `<img src="${bgImage}" class="letterhead-bg" crossorigin="anonymous" />` : ''}
+      <div class="letter-content-wrapper">
+        <div class="letter-content">${content}</div>
+      </div>
+    </div>
+  ${forPrint ? `<script>
+    function waitAndPrint() {
+      var imgs = document.querySelectorAll('img');
+      var promises = [];
+      for (var i = 0; i < imgs.length; i++) {
+        if (!imgs[i].complete) {
+          promises.push(new Promise(function(resolve) { 
+            imgs[i].onload = resolve; 
+            imgs[i].onerror = resolve; 
+          }));
+        }
+      }
+      if (promises.length > 0) {
+        Promise.all(promises).then(function() { setTimeout(function(){ window.print(); }, 300); });
+      } else {
+        window.print();
+      }
+    }
+    if (document.fonts && document.fonts.ready) {
+      document.fonts.ready.then(function() { setTimeout(waitAndPrint, 300); });
+    } else {
+      setTimeout(waitAndPrint, 1500);
+    }
+  </script>` : ''}
+</body>
+</html>`;
+    };
+
+    const handlePrint = async () => {
+        if (!previewLetter) return;
+        const content = generateLetterContent(previewLetter);
+        if (!content) { toast.error("لا يوجد محتوى للطباعة"); return; }
+        
+        let letterheadImg = '';
+        if (companyInfo?.letterhead_path?.toLowerCase().endsWith('.pdf')) {
+          letterheadImg = await convertPdfToImage(companyInfo.letterhead_path);
+        }
+        
+        const printWindow = window.open("", "_blank");
+        if (!printWindow) { toast.error("يرجى السماح بالنوافذ المنبثقة"); return; }
+        printWindow.document.write(buildPrintHTML(content, true, letterheadImg));
+        printWindow.document.close();
+      };
+
+    const handleDownloadPdf = async () => {
+      if (!previewLetter) return;
+      const content = generateLetterContent(previewLetter);
+      if (!content) { toast.error("لا يوجد محتوى للتحميل"); return; }
+      
+      try {
+        toast.info("جاري تجهيز ملف PDF...");
+        
+        let letterheadImg = '';
+        if (companyInfo?.letterhead_path?.toLowerCase().endsWith('.pdf')) {
+          letterheadImg = await convertPdfToImage(companyInfo.letterhead_path);
+        }
+        
+        const html2canvas = (await import('html2canvas')).default;
+        const { jsPDF } = await import('jspdf');
+
+        const iframe = document.createElement('iframe');
+        iframe.style.cssText = 'position:fixed;left:-9999px;top:0;width:794px;height:1123px;border:none;';
+        document.body.appendChild(iframe);
+
+        const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document;
+        if (!iframeDoc) throw new Error('iframe error');
+
+          iframeDoc.open();
+          iframeDoc.write(buildPrintHTML(content, false, letterheadImg));
+          iframeDoc.close();
+
+          // Wait for fonts and images to load
+          await new Promise(resolve => setTimeout(resolve, 500));
+          const imgs = iframeDoc.querySelectorAll('img');
+          if (imgs.length > 0) {
+            await Promise.all(Array.from(imgs).map(img => 
+              img.complete ? Promise.resolve() : new Promise(r => { img.onload = r; img.onerror = r; })
+            ));
           }
-          .letter-content { 
-            font-size: var(--font-size, 16px); 
-            text-align: justify; 
-            line-height: var(--line-height, 1.6);
-          }
-          .letter-content p { margin-bottom: var(--paragraph-spacing, 12px); }
-          .field { font-weight: bold; color: #000; }
-          h2 { font-size: calc(var(--font-size, 16px) * 1.4); margin-bottom: 15px; }
-          table { width: 100%; border-collapse: collapse; margin: 10px 0; }
-          td, th { padding: 8px; border: 1px solid #000; font-size: var(--font-size, 16px); }
-          @media print { 
-            .page-container { width: 100%; height: 100%; margin: 0; box-shadow: none; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-            .letterhead-pdf { display: block; }
-          }
-        </style>
-      </head>
-      <body>
-        <div class="page-container">
-          ${isPdf ? `<iframe src="${letterhead}#toolbar=0&navpanes=0&scrollbar=0" class="letterhead-pdf"></iframe>` : ''}
-          <div class="letter-content-wrapper">
-            <div class="letter-content" id="letterContent">${content}</div>
-          </div>
-        </div>
-        <script>
-          window.onload = function() {
-            const wrapper = document.querySelector('.letter-content-wrapper');
-            const content = document.getElementById('letterContent');
-            const availableHeight = wrapper.clientHeight;
-            let fontSize = 16;
-            let lineHeight = 1.6;
-            let paragraphSpacing = 12;
-            
-            function adjustContent() {
-              document.documentElement.style.setProperty('--font-size', fontSize + 'px');
-              document.documentElement.style.setProperty('--line-height', lineHeight);
-              document.documentElement.style.setProperty('--paragraph-spacing', paragraphSpacing + 'px');
-            }
-            
-            adjustContent();
-            
-            while (content.scrollHeight > availableHeight && fontSize > 10) {
-              fontSize -= 0.5;
-              adjustContent();
-            }
-            
-            while (content.scrollHeight > availableHeight && lineHeight > 1.2) {
-              lineHeight -= 0.05;
-              adjustContent();
-            }
-            
-            while (content.scrollHeight > availableHeight && paragraphSpacing > 4) {
-              paragraphSpacing -= 1;
-              adjustContent();
-            }
-            
-            setTimeout(() => { window.print(); }, 500);
-          }
-        <\/script>
-      </body>
-      </html>
-    `);
-      printWindow.document.close();
+          await new Promise(resolve => setTimeout(resolve, 500));
+
+          const pageEl = iframeDoc.querySelector('.page-container') as HTMLElement;
+        if (!pageEl) throw new Error('no content');
+
+        const canvas = await html2canvas(pageEl, {
+          scale: 2,
+          useCORS: true,
+          allowTaint: true,
+          width: 794,
+          height: 1123,
+          backgroundColor: '#ffffff',
+        });
+
+        document.body.removeChild(iframe);
+
+        const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+        const imgData = canvas.toDataURL('image/png');
+        pdf.addImage(imgData, 'PNG', 0, 0, 210, 297);
+        pdf.save(`${previewLetter.letter_number}.pdf`);
+        toast.success("تم تحميل الملف بنجاح");
+      } catch (error) {
+        console.error("PDF error:", error);
+        toast.error("حدث خطأ أثناء إنشاء ملف PDF");
+      }
     };
 
   const openEmailModal = (letter: GeneratedLetter) => {
@@ -631,89 +766,52 @@ export default function LettersClient() {
 
   const generatePdfBase64 = async (letter: GeneratedLetter): Promise<string> => {
     const content = generateLetterContent(letter);
-    const letterhead = companyInfo?.letterhead_path;
-    const topMargin = margins.top;
-    const bottomMargin = margins.bottom;
-    const isPdf = letterhead?.toLowerCase().endsWith('.pdf');
 
-    const htmlContent = `
-      <!DOCTYPE html>
-      <html dir="rtl" lang="ar">
-      <head>
-        <meta charset="UTF-8">
-        <style>
-          @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap');
-          * { margin: 0; padding: 0; box-sizing: border-box; }
-          body { font-family: 'Tajawal', sans-serif; direction: rtl; background: #fff; color: #000; line-height: 1.6; }
-          @page { size: A4; margin: 0; }
-          .page-container { width: 210mm; height: 297mm; position: relative; margin: 0 auto; overflow: hidden; }
-          ${!isPdf && letterhead ? `
-          .page-container {
-            background-image: url('${letterhead}');
-            background-size: 100% 100%; background-repeat: no-repeat; background-position: center;
-          }` : ''}
-          .letter-content-wrapper { 
-            position: absolute; 
-            top: ${topMargin}px; 
-            bottom: ${bottomMargin}px; 
-            left: 50px; 
-            right: 50px; 
-            z-index: 1; 
-            overflow: hidden;
-          }
-          .letter-content { font-size: 14px; text-align: justify; line-height: 1.6; }
-          .letter-content p { margin-bottom: 10px; }
-          .field { font-weight: bold; color: #000; }
-          h2 { font-size: 18px; margin-bottom: 15px; }
-          table { width: 100%; border-collapse: collapse; margin: 10px 0; }
-          td, th { padding: 8px; border: 1px solid #000; font-size: 14px; }
-        </style>
-      </head>
-      <body>
-        <div class="page-container">
-          <div class="letter-content-wrapper">
-            <div class="letter-content">${content}</div>
-          </div>
-        </div>
-      </body>
-      </html>
-    `;
+    let letterheadImg = '';
+    if (companyInfo?.letterhead_path?.toLowerCase().endsWith('.pdf')) {
+      letterheadImg = await convertPdfToImage(companyInfo.letterhead_path);
+    }
+
+    const html = buildPrintHTML(content, false, letterheadImg);
 
     const { jsPDF } = await import('jspdf');
     const html2canvas = (await import('html2canvas')).default;
     
     const iframe = document.createElement('iframe');
-    iframe.style.position = 'absolute';
-    iframe.style.left = '-9999px';
-    iframe.style.width = '794px';
-    iframe.style.height = '1123px';
+    iframe.style.cssText = 'position:fixed;left:-9999px;top:0;width:794px;height:1123px;border:none;';
     document.body.appendChild(iframe);
     
     const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document;
     if (!iframeDoc) throw new Error('Could not access iframe document');
     
     iframeDoc.open();
-    iframeDoc.write(htmlContent);
+    iframeDoc.write(html);
     iframeDoc.close();
     
     await new Promise(resolve => setTimeout(resolve, 500));
+    const imgs = iframeDoc.querySelectorAll('img');
+    if (imgs.length > 0) {
+      await Promise.all(Array.from(imgs).map(img => 
+        img.complete ? Promise.resolve() : new Promise(r => { img.onload = r; img.onerror = r; })
+      ));
+    }
+    await new Promise(resolve => setTimeout(resolve, 500));
     
-    const canvas = await html2canvas(iframeDoc.body, {
+    const pageEl = iframeDoc.querySelector('.page-container') as HTMLElement;
+    if (!pageEl) throw new Error('no content');
+
+    const canvas = await html2canvas(pageEl, {
       scale: 2,
       useCORS: true,
       allowTaint: true,
       width: 794,
-      height: 1123
+      height: 1123,
+      backgroundColor: '#ffffff',
     });
     
     document.body.removeChild(iframe);
     
-    const pdf = new jsPDF({
-      orientation: 'portrait',
-      unit: 'mm',
-      format: 'a4'
-    });
-    
+    const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
     const imgData = canvas.toDataURL('image/png');
     pdf.addImage(imgData, 'PNG', 0, 0, 210, 297);
     
@@ -1160,65 +1258,32 @@ export default function LettersClient() {
           )}
         </AnimatePresence>
 
-        {/* Preview Modal */}
-        <AnimatePresence>
-          {showPreview && previewLetter && (
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={(e) => e.target === e.currentTarget && setShowPreview(false)}>
-              <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.9, opacity: 0 }} className="bg-white rounded-2xl w-full max-w-4xl max-h-[95vh] overflow-hidden flex flex-col">
-                <div className="bg-slate-800 p-4 flex items-center justify-between">
-                  <h2 className="text-xl font-bold text-white">{t("preview.title", { number: previewLetter.letter_number })}</h2>
-                  <div className="flex items-center gap-2">
-                    <button onClick={handlePrint} className="flex items-center gap-2 bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-all"><Printer className="w-5 h-5" /> {t("preview.print")}</button>
-                    <button onClick={handlePrint} className="flex items-center gap-2 bg-emerald-500 hover:bg-emerald-600 text-white px-4 py-2 rounded-lg transition-all"><Download className="w-5 h-5" /> {t("preview.downloadPdf")}</button>
-                    <button onClick={() => setShowPreview(false)} className="text-slate-400 hover:text-white p-2"><X className="w-6 h-6" /></button>
+          {/* Preview Modal */}
+          <AnimatePresence>
+            {showPreview && previewLetter && (
+              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={(e) => e.target === e.currentTarget && setShowPreview(false)}>
+                <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.9, opacity: 0 }} className="bg-white rounded-2xl w-full max-w-4xl max-h-[95vh] overflow-hidden flex flex-col">
+                  <div className="bg-slate-800 p-4 flex items-center justify-between">
+                    <h2 className="text-xl font-bold text-white">{t("preview.title", { number: previewLetter.letter_number })}</h2>
+                    <div className="flex items-center gap-2">
+                        <button onClick={handlePrint} className="flex items-center gap-2 bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-all"><Printer className="w-5 h-5" /> {t("preview.print")}</button>
+                        <button onClick={handleDownloadPdf} className="flex items-center gap-2 bg-emerald-500 hover:bg-emerald-600 text-white px-4 py-2 rounded-lg transition-all"><Download className="w-5 h-5" /> {t("preview.downloadPdf")}</button>
+                      <button onClick={() => setShowPreview(false)} className="text-slate-400 hover:text-white p-2"><X className="w-6 h-6" /></button>
+                    </div>
                   </div>
-                </div>
-                  <div className="flex-1 overflow-y-auto bg-slate-200 p-4 md:p-8 flex justify-center">
-                      <div 
-                        className="bg-white shadow-2xl origin-top relative overflow-hidden"
-                        style={{ 
-                          width: '210mm', height: '297mm',
-                          transform: 'scale(0.8)'
-                        }}
-                      >
-                        {companyInfo?.letterhead_path && (
-                          companyInfo.letterhead_path.toLowerCase().endsWith('.pdf') ? (
-                            <iframe 
-                              src={`${companyInfo.letterhead_path}#toolbar=0&navpanes=0&scrollbar=0`} 
-                              className="absolute inset-0 w-full h-full border-none pointer-events-none"
-                              style={{ zIndex: 0 }}
-                            />
-                          ) : (
-                            <div 
-                              className="absolute inset-0"
-                              style={{ 
-                                backgroundImage: `url(${companyInfo.letterhead_path})`,
-                                backgroundSize: '100% 100%',
-                                backgroundRepeat: 'no-repeat',
-                                zIndex: 0
-                              }}
-                            />
-                          )
-                        )}
-                        <div 
-                          ref={printRef}
-                          className={`absolute ${locale === 'ar' ? 'right-[50px] left-[50px]' : 'left-[50px] right-[50px]'} z-10 overflow-hidden`}
-                          style={{ 
-                            top: `${margins.top}px`,
-                            bottom: `${margins.bottom}px`
-                          }}
-                        >
-                            <AutoFitContent 
-                              content={generateLetterContent(previewLetter)}
-                              maxHeight={1122 - margins.top - margins.bottom}
-                            />
-                          </div>
+                    <div className="flex-1 overflow-y-auto bg-slate-200 p-4 md:p-8 flex justify-center">
+                        <PreviewPage
+                          content={generateLetterContent(previewLetter)}
+                          letterheadPath={companyInfo?.letterhead_path}
+                          topMargin={margins.top}
+                          bottomMargin={margins.bottom}
+                          convertPdfToImage={convertPdfToImage}
+                        />
                         </div>
-                      </div>
+                  </motion.div>
                 </motion.div>
-              </motion.div>
-            )}
-          </AnimatePresence>
+              )}
+            </AnimatePresence>
 
           {/* Email Modal */}
           <AnimatePresence>

@@ -59,7 +59,7 @@ interface Customer {
   cost_center_name?: string;
   is_active: number;
   created_at: string;
-  updated_at?: string;
+  updated_at?: string; // may not exist in DB but keep for display safety
 }
 
 interface CustomerViewClientProps {

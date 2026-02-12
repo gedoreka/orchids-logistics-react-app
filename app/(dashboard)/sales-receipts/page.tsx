@@ -1,5 +1,6 @@
 import { cookies } from "next/headers";
 import { query } from "@/lib/db";
+import { Loader2 } from "lucide-react";
 import { SalesReceiptsClient } from "./sales-receipts-client";
 
 interface SalesReceipt {

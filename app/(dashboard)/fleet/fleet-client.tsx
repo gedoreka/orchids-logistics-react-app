@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useMemo, useRef, useCallback } from "react";
+
 import { 
   Car, 
   Settings, 
@@ -65,9 +66,12 @@ import {
   TableRow 
 } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+
 import { Label } from "@/components/ui/label";
+import { ChevronsUpDown, Check, Users, Hash, IdCard, Image as ImageIcon } from "lucide-react";
 import { addVehicle, addSpare, addSpareCategory, addVehicleCategory, createMaintenanceRequest, deleteVehicle, deleteMaintenanceRequest, getMaintenanceDetails, completeMaintenanceRequest } from "@/lib/actions/fleet";
-import { SuccessModal, ErrorModal, DeleteConfirmModal, LoadingModal, NotificationBanner } from "@/components/ui/luxury-notification";
+import { SuccessModal, ErrorModal, DeleteConfirmModal, LoadingModal, NotificationBanner, MaintenanceAlertModal } from "@/components/ui/luxury-notification";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { motion, AnimatePresence } from "framer-motion";
 import { useReactToPrint } from "react-to-print";
@@ -237,21 +241,244 @@ function AddCategoryDialog({ companyId, t }: { companyId: number, t: any }) {
   );
 }
 
+// ---- Luxury Searchable Driver Selector (Popover portal, modal=false for Dialog compat) ----
+function LuxuryDriverSelector({ employees, value, onChange, t }: { employees: any[]; value: string; onChange: (v: string) => void; t: any }) {
+  const [open, setOpen] = useState(false);
+  const [search, setSearch] = useState("");
+  const selected = employees.find((e: any) => e.id.toString() === value);
+
+  const filtered = useMemo(() => {
+    if (!search.trim()) return employees;
+    const q = search.toLowerCase();
+    return employees.filter((emp: any) =>
+      (emp.name || '').toLowerCase().includes(q) ||
+      (emp.iqama_number || '').includes(q) ||
+      (emp.user_code || '').includes(q) ||
+      (emp.identity_number || '').includes(q)
+    );
+  }, [employees, search]);
+
+  const grouped = useMemo(() => {
+    const map: Record<string, any[]> = {};
+    filtered.forEach((emp: any) => {
+      const pkg = emp.package_name || t('noPackage') || 'بدون باقة';
+      if (!map[pkg]) map[pkg] = [];
+      map[pkg].push(emp);
+    });
+    return map;
+  }, [filtered, t]);
+
+  return (
+    <Popover open={open} onOpenChange={(v) => { setOpen(v); if (!v) setSearch(""); }} modal={false}>
+      <PopoverTrigger asChild>
+        <button type="button" className="flex items-center justify-between w-full bg-white/5 border border-white/10 rounded-xl h-12 px-3 text-white text-sm hover:bg-white/10 transition-all">
+          {selected ? (
+            <div className="flex items-center gap-3 overflow-hidden">
+              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-emerald-400 to-blue-500 flex items-center justify-center overflow-hidden flex-shrink-0 ring-2 ring-white/20">
+                {selected.personal_photo ? (
+                  <img src={selected.personal_photo} alt="" className="w-full h-full object-cover" />
+                ) : (
+                  <User size={14} className="text-white" />
+                )}
+              </div>
+              <span className="truncate font-bold">{selected.name}</span>
+            </div>
+          ) : (
+            <span className="text-white/40">{t('selectDriver')}</span>
+          )}
+          <ChevronsUpDown size={16} className="text-white/40 flex-shrink-0" />
+        </button>
+      </PopoverTrigger>
+      <PopoverContent
+        align="start"
+        sideOffset={8}
+        className="w-[340px] p-0 bg-slate-800 border-white/10 rounded-2xl shadow-2xl shadow-black/40"
+        onOpenAutoFocus={(e) => e.preventDefault()}
+      >
+        {/* Search */}
+        <div className="px-4 py-3 border-b border-white/10 bg-white/5 rounded-t-2xl flex items-center gap-2">
+          <Search size={16} className="text-white/40 flex-shrink-0" />
+          <input
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder={t('searchByNameOrId')}
+            className="w-full bg-transparent text-white text-sm placeholder:text-white/30 outline-none"
+            autoFocus
+          />
+        </div>
+        {/* Scrollable list */}
+        <div className="max-h-[300px] overflow-y-auto overscroll-contain p-1">
+          {filtered.length === 0 ? (
+            <div className="text-white/40 text-sm text-center py-8">{t('noResults')}</div>
+          ) : (
+            Object.entries(grouped).map(([pkgName, emps]) => (
+              <div key={pkgName}>
+                <div className="flex items-center gap-2 px-3 py-2 sticky top-0 bg-slate-800/95 backdrop-blur-sm z-10">
+                  <div className="w-5 h-5 rounded-md bg-gradient-to-br from-blue-500/30 to-purple-500/30 flex items-center justify-center">
+                    <Users size={10} className="text-blue-300" />
+                  </div>
+                  <span className="text-[11px] font-black text-blue-300/80 uppercase tracking-wider">{pkgName}</span>
+                  <span className="text-[10px] text-white/30 font-bold">({(emps as any[]).length})</span>
+                </div>
+                {(emps as any[]).map((emp: any) => (
+                  <button
+                    type="button"
+                    key={emp.id}
+                    onClick={() => { onChange(emp.id.toString()); setOpen(false); setSearch(""); }}
+                    className={cn(
+                      "flex items-center gap-3 px-3 py-3 w-full text-start cursor-pointer rounded-xl mx-0 my-0.5 transition-all",
+                      value === emp.id.toString() ? "bg-white/10" : "hover:bg-white/5"
+                    )}
+                  >
+                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-400/20 to-blue-500/20 flex items-center justify-center overflow-hidden flex-shrink-0 ring-1 ring-white/10">
+                      {emp.personal_photo ? (
+                        <img src={emp.personal_photo} alt="" className="w-full h-full object-cover" />
+                      ) : (
+                        <User size={18} className="text-white/40" />
+                      )}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2">
+                        <span className="font-bold text-white text-sm truncate">{emp.name}</span>
+                        {emp.job_title && (
+                          <span className="text-[9px] px-2 py-0.5 bg-white/5 rounded-full text-white/40 font-bold truncate">{emp.job_title}</span>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-3 mt-1">
+                        {emp.iqama_number && (
+                          <span className="flex items-center gap-1 text-[10px] text-white/30 font-mono">
+                            <IdCard size={9} className="text-white/20" />
+                            {emp.iqama_number}
+                          </span>
+                        )}
+                        {emp.user_code && (
+                          <span className="flex items-center gap-1 text-[10px] text-white/30 font-mono">
+                            <Hash size={9} className="text-white/20" />
+                            {emp.user_code}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                    {value === emp.id.toString() && (
+                      <Check size={16} className="text-emerald-400 flex-shrink-0" />
+                    )}
+                  </button>
+                ))}
+              </div>
+            ))
+        )}
+        </div>
+      </PopoverContent>
+    </Popover>
+  );
+}
+
+// ---- Luxury Searchable Category Selector (Popover portal, modal=false for Dialog compat) ----
+function LuxuryCategorySelector({ categories, value, onChange, placeholder, t }: { categories: any[]; value: string; onChange: (v: string) => void; placeholder: string; t: any }) {
+  const [open, setOpen] = useState(false);
+  const [search, setSearch] = useState("");
+  const selected = categories.find((c: any) => c.id.toString() === value);
+
+  const filtered = useMemo(() => {
+    if (!search.trim()) return categories;
+    const q = search.toLowerCase();
+    return categories.filter((cat: any) => (cat.name || '').toLowerCase().includes(q));
+  }, [categories, search]);
+
+  return (
+    <Popover open={open} onOpenChange={(v) => { setOpen(v); if (!v) setSearch(""); }} modal={false}>
+      <PopoverTrigger asChild>
+        <button type="button" className="flex items-center justify-between w-full bg-white/5 border border-white/10 rounded-xl h-12 px-3 text-white text-sm hover:bg-white/10 transition-all">
+          {selected ? (
+            <div className="flex items-center gap-2">
+              <div className="w-6 h-6 rounded-lg bg-gradient-to-br from-blue-500/20 to-purple-500/20 flex items-center justify-center">
+                <Layers size={12} className="text-blue-300" />
+              </div>
+              <span className="font-bold truncate">{selected.name}</span>
+            </div>
+          ) : (
+            <span className="text-white/40">{placeholder}</span>
+          )}
+          <ChevronsUpDown size={16} className="text-white/40 flex-shrink-0" />
+        </button>
+      </PopoverTrigger>
+      <PopoverContent
+        align="start"
+        sideOffset={8}
+        className="w-[300px] p-0 bg-slate-800 border-white/10 rounded-2xl shadow-2xl shadow-black/40"
+        onOpenAutoFocus={(e) => e.preventDefault()}
+      >
+        <div className="px-4 py-3 border-b border-white/10 bg-white/5 rounded-t-2xl flex items-center gap-2">
+          <Search size={16} className="text-white/40 flex-shrink-0" />
+          <input
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder={t('searchCategory')}
+            className="w-full bg-transparent text-white text-sm placeholder:text-white/30 outline-none"
+            autoFocus
+          />
+        </div>
+        <div className="max-h-[250px] overflow-y-auto overscroll-contain p-1">
+          {filtered.length === 0 ? (
+            <div className="text-white/40 text-sm text-center py-6">{t('noResults')}</div>
+          ) : (
+            filtered.map((cat: any) => (
+              <button
+                type="button"
+                key={cat.id}
+                onClick={() => { onChange(cat.id.toString()); setOpen(false); setSearch(""); }}
+                className={cn(
+                  "flex items-center gap-3 px-3 py-2.5 w-full text-start cursor-pointer rounded-xl mx-0 my-0.5 transition-all",
+                  value === cat.id.toString() ? "bg-white/10" : "hover:bg-white/5"
+                )}
+              >
+                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500/20 to-indigo-500/20 flex items-center justify-center flex-shrink-0">
+                  <Layers size={14} className="text-blue-300" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <span className="font-bold text-white text-sm">{cat.name}</span>
+                  {cat.description && (
+                    <p className="text-[10px] text-white/30 truncate">{cat.description}</p>
+                  )}
+                </div>
+                {value === cat.id.toString() && (
+                  <Check size={16} className="text-emerald-400 flex-shrink-0" />
+                )}
+              </button>
+            ))
+          )}
+        </div>
+      </PopoverContent>
+    </Popover>
+  );
+}
+
 function AddVehicleDialog({ companyId, employees, vehicleCategories, t }: any) {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [showError, setShowError] = useState(false);
+  const [selectedDriver, setSelectedDriver] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("");
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setLoading(true);
     const formData = new FormData(e.currentTarget);
-    const data = Object.fromEntries(formData.entries());
-    const res = await addVehicle({ ...data, company_id: companyId });
+    const data: Record<string, any> = {};
+    formData.forEach((val, key) => {
+      const v = val.toString().trim();
+      if (v) data[key] = v;
+    });
+    if (selectedDriver) data.driver_id = selectedDriver;
+    if (selectedCategory) data.category_id = selectedCategory;
+    data.company_id = companyId;
+    const res = await addVehicle(data);
     setLoading(false);
     if (res.success) {
       setOpen(false);
+      setSelectedDriver("");
+      setSelectedCategory("");
       setShowSuccess(true);
     } else {
       setShowError(true);
@@ -260,7 +487,7 @@ function AddVehicleDialog({ companyId, employees, vehicleCategories, t }: any) {
 
   return (
     <>
-      <Dialog open={open} onOpenChange={setOpen}>
+      <Dialog open={open} onOpenChange={(v) => { setOpen(v); if (!v) { setSelectedDriver(""); setSelectedCategory(""); } }}>
         <DialogTrigger asChild>
           <button className="flex items-center gap-3 px-6 py-3 bg-emerald-500 text-white font-black text-sm rounded-2xl hover:bg-emerald-600 transition-all shadow-xl active:scale-95">
             <Truck size={18} />
@@ -299,29 +526,11 @@ function AddVehicleDialog({ companyId, employees, vehicleCategories, t }: any) {
               </div>
               <div className="space-y-2">
                 <Label className="text-white/60 font-black text-[10px] uppercase tracking-widest">{t('category')}</Label>
-                <Select name="category_id">
-                  <SelectTrigger className="bg-white/5 border-white/10 rounded-xl h-12 text-white">
-                    <SelectValue placeholder={t('selectCategory')} />
-                  </SelectTrigger>
-                  <SelectContent className="bg-slate-900 border-white/10 text-white">
-                    {vehicleCategories.map((cat: any) => (
-                      <SelectItem key={cat.id} value={cat.id.toString()}>{cat.name}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <LuxuryCategorySelector categories={vehicleCategories} value={selectedCategory} onChange={setSelectedCategory} placeholder={t('selectCategory')} t={t} />
               </div>
               <div className="space-y-2">
                 <Label className="text-white/60 font-black text-[10px] uppercase tracking-widest">{t('driver')}</Label>
-                <Select name="driver_id">
-                  <SelectTrigger className="bg-white/5 border-white/10 rounded-xl h-12 text-white">
-                    <SelectValue placeholder={t('selectDriver')} />
-                  </SelectTrigger>
-                  <SelectContent className="bg-slate-900 border-white/10 text-white">
-                    {employees.map((emp: any) => (
-                      <SelectItem key={emp.id} value={emp.id.toString()}>{emp.name}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <LuxuryDriverSelector employees={employees} value={selectedDriver} onChange={setSelectedDriver} t={t} />
               </div>
             </div>
             <Button type="submit" className="w-full h-14 rounded-2xl bg-emerald-600 hover:bg-emerald-700 font-black text-lg shadow-xl shadow-emerald-500/20" disabled={loading}>
@@ -422,12 +631,14 @@ function AddSpareDialog({ companyId, categories, t }: any) {
   );
 }
 
-function MaintenanceRequestDialog({ companyId, vehicles, spares, t }: any) {
+function MaintenanceRequestDialog({ companyId, vehicles, spares, t, companyEmail }: any) {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [selectedVehicle, setSelectedVehicle] = useState("");
   const [selectedSpares, setSelectedSpares] = useState<any[]>([]);
   const [showSuccess, setShowSuccess] = useState(false);
   const [showError, setShowError] = useState(false);
+  const [errorMsg, setErrorMsg] = useState("");
 
   const totalCost = selectedSpares.reduce((sum, s) => sum + (s.quantity * s.unit_price), 0);
 
@@ -444,14 +655,19 @@ function MaintenanceRequestDialog({ companyId, vehicles, spares, t }: any) {
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    if (!selectedVehicle) {
+      setErrorMsg(t('selectVehicleRequired') || 'يرجى اختيار المركبة');
+      setShowError(true);
+      return;
+    }
     setLoading(true);
     const formData = new FormData(e.currentTarget);
     const data = {
       company_id: companyId,
-      vehicle_id: parseInt(formData.get("vehicle_id") as string),
+      vehicle_id: parseInt(selectedVehicle),
       maintenance_person: formData.get("maintenance_person") as string,
       maintenance_date: formData.get("maintenance_date") as string,
-      current_km: parseInt(formData.get("current_km") as string),
+      current_km: parseInt(formData.get("current_km") as string) || 0,
       notes: formData.get("notes") as string,
       total_cost: totalCost,
     };
@@ -460,16 +676,26 @@ function MaintenanceRequestDialog({ companyId, vehicles, spares, t }: any) {
     setLoading(false);
     if (res.success) {
       setOpen(false);
+      setSelectedVehicle("");
       setSelectedSpares([]);
       setShowSuccess(true);
+      // Send confirmation email automatically after creation
+      if (res.maintenanceId) {
+        fetch('/api/fleet/complete-maintenance', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ maintenanceId: res.maintenanceId, to: companyEmail }),
+        }).catch(() => {});
+      }
     } else {
+      setErrorMsg(t('error'));
       setShowError(true);
     }
   }
 
   return (
     <>
-      <Dialog open={open} onOpenChange={setOpen}>
+      <Dialog open={open} onOpenChange={(v) => { setOpen(v); if (!v) { setSelectedVehicle(""); setSelectedSpares([]); } }}>
         <DialogTrigger asChild>
           <button className="flex items-center gap-3 px-6 py-3 bg-amber-500 text-white font-black text-sm rounded-2xl hover:bg-amber-600 transition-all shadow-xl active:scale-95">
             <Wrench size={18} />
@@ -484,11 +710,11 @@ function MaintenanceRequestDialog({ companyId, vehicles, spares, t }: any) {
             <div className="grid grid-cols-2 gap-6">
               <div className="space-y-2">
                 <Label className="text-white/60 font-black text-[10px] uppercase tracking-widest">{t('vehicles')}</Label>
-                <Select name="vehicle_id" required>
+                <Select value={selectedVehicle} onValueChange={setSelectedVehicle}>
                   <SelectTrigger className="bg-white/5 border-white/10 rounded-xl h-12 text-white">
                     <SelectValue placeholder={t('vehicles')} />
                   </SelectTrigger>
-                  <SelectContent className="bg-slate-900 border-white/10 text-white">
+                  <SelectContent className="bg-slate-900 border-white/10 text-white z-[200]">
                     {vehicles.map((v: any) => (
                       <SelectItem key={v.id} value={v.id.toString()}>{v.plate_number_ar} ({v.brand})</SelectItem>
                     ))}
@@ -517,7 +743,7 @@ function MaintenanceRequestDialog({ companyId, vehicles, spares, t }: any) {
                 <SelectTrigger className="bg-white/5 border-white/10 rounded-xl h-12 text-white">
                   <SelectValue placeholder={t('addSpares')} />
                 </SelectTrigger>
-                <SelectContent className="bg-slate-900 border-white/10 text-white">
+                <SelectContent className="bg-slate-900 border-white/10 text-white z-[200]">
                   {spares.map((s: any) => (
                     <SelectItem key={s.id} value={s.id.toString()} disabled={s.quantity <= 0}>
                       {s.name} ({s.quantity} {t('available')})
@@ -580,7 +806,7 @@ function MaintenanceRequestDialog({ companyId, vehicles, spares, t }: any) {
         </DialogContent>
       </Dialog>
       <SuccessModal open={showSuccess} onClose={() => setShowSuccess(false)} title={t('saveSuccess')} />
-      <ErrorModal open={showError} onClose={() => setShowError(false)} title={t('error')} />
+      <ErrorModal open={showError} onClose={() => { setShowError(false); setErrorMsg(""); }} title={errorMsg || t('error')} />
     </>
   );
 }
@@ -1053,8 +1279,8 @@ function ViewPrintEmailDialog({
       setSendingEmail(true);
       try {
         const sparesList = details.length > 0 
-          ? details.map(item => `<tr><td style="padding: 12px; border: 1px solid #e2e8f0;">${item.spare_name}</td><td style="padding: 12px; border: 1px solid #e2e8f0; text-align: center;">${item.spare_code || '-'}</td><td style="padding: 12px; border: 1px solid #e2e8f0; text-align: center;">${item.quantity_used}</td></tr>`).join('')
-          : `<tr><td colspan="3" style="padding: 12px; border: 1px solid #e2e8f0; text-align: center;">${t('maintenanceDetails')}</td></tr>`;
+          ? details.map(item => `<tr><td style="padding: 12px; border: 1px solid rgba(255,255,255,0.1); color: white; font-weight: 700;">${item.spare_name}</td><td style="padding: 12px; border: 1px solid rgba(255,255,255,0.1); color: white; font-weight: 700; text-align: center;">${item.spare_code || '-'}</td><td style="padding: 12px; border: 1px solid rgba(255,255,255,0.1); color: white; font-weight: 700; text-align: center;">${item.quantity_used}</td></tr>`).join('')
+          : `<tr><td colspan="3" style="padding: 12px; border: 1px solid rgba(255,255,255,0.1); color: rgba(255,255,255,0.5); text-align: center;">${t('maintenanceDetails')}</td></tr>`;
 
         const emailBody = `
             <div dir="rtl" style="font-family: 'Segoe UI', Tahoma, Arial, sans-serif; max-width: 640px; margin: 0 auto; background: #0f172a; border-radius: 24px; overflow: hidden; border: 1px solid rgba(255,255,255,0.05);">
@@ -1103,6 +1329,12 @@ function ViewPrintEmailDialog({
                 </div>
                 
                 ${maintenance.notes ? `<div style="background: rgba(59,130,246,0.1); border: 1px solid rgba(59,130,246,0.2); border-radius: 14px; padding: 16px; margin-bottom: 24px;"><p style="margin: 0; color: #93c5fd; font-size: 13px;"><strong style="color: #60a5fa;">📝 ${t('internalNotes')}:</strong> ${maintenance.notes}</p></div>` : ''}
+                
+                <div style="background: rgba(16,185,129,0.1); border: 2px solid rgba(16,185,129,0.3); border-radius: 16px; padding: 24px; text-align: center; margin-bottom: 24px;">
+                  <p style="margin: 0 0 12px; color: #6ee7b7; font-weight: 700; font-size: 14px;">عند الانتهاء من أعمال الصيانة، اضغط الزر أدناه لتأكيد اكتمال العملية</p>
+                    <a href="%%CONFIRM_URL_PLACEHOLDER%%" style="display: inline-block; background: linear-gradient(135deg, #10b981, #059669); color: white; text-decoration: none; padding: 16px 48px; border-radius: 16px; font-size: 16px; font-weight: 900; letter-spacing: 0.5px;">✅ تأكيد اكتمال الصيانة</a>
+                  <p style="margin: 12px 0 0; color: rgba(255,255,255,0.3); font-size: 11px;">صالح لمدة 72 ساعة من وقت الإرسال</p>
+                </div>
               </div>
               
               <div style="padding: 20px 30px; border-top: 1px solid rgba(255,255,255,0.05); text-align: center;">
@@ -1111,15 +1343,16 @@ function ViewPrintEmailDialog({
             </div>
           `;
 
-        const response = await fetch('/api/fleet/send-invoice', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            to: emailTo,
-            subject: `${t('maintenanceOrder')} #${maintenance.id.toString().padStart(6, '0')} - ${companyName}`,
-            html: emailBody,
-          }),
-        });
+          const response = await fetch('/api/fleet/send-invoice', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              to: emailTo,
+              subject: `${t('maintenanceOrder')} #${maintenance.id.toString().padStart(6, '0')} - ${companyName}`,
+              html: emailBody,
+              maintenanceId: maintenance.id,
+            }),
+          });
 
       const result = await response.json();
         if (result.success) {
@@ -1395,6 +1628,7 @@ export function FleetClient({
     const [showDeleteSuccess, setShowDeleteSuccess] = useState(false);
     const [showCompletionBanner, setShowCompletionBanner] = useState(false);
     const [completedMaintenanceInfo, setCompletedMaintenanceInfo] = useState("");
+    const [showPendingBanner, setShowPendingBanner] = useState(false);
   
   useEffect(() => { setVehicles(initialVehicles); }, [initialVehicles]);
   useEffect(() => { setSpares(initialSpares); }, [initialSpares]);
@@ -1405,6 +1639,42 @@ export function FleetClient({
   const lowStockCount = spares.filter(s => s.quantity <= (s.min_quantity || 0)).length;
   const pendingMaintenance = maintenance.filter(m => m.status === 'pending').length;
 
+    // Show pending maintenance notification when company changes or data updates
+  useEffect(() => {
+    const currentPending = initialMaintenance.filter(m => m.status === 'pending').length;
+    if (currentPending > 0) {
+      setShowPendingBanner(true);
+    } else {
+      setShowPendingBanner(false);
+    }
+    // Reset completion banner on company switch
+    setShowCompletionBanner(false);
+  }, [companyId, initialMaintenance]);
+
+  // Poll for confirmed maintenance every 30 seconds (scoped to current company)
+  useEffect(() => {
+    const pageLoadTime = new Date().toISOString();
+    const currentCompanyId = companyId;
+    const interval = setInterval(async () => {
+      try {
+        const res = await fetch(`/api/fleet/check-completed?since=${encodeURIComponent(pageLoadTime)}&company_id=${currentCompanyId}`);
+        if (!res.ok) return;
+        const data = await res.json();
+        if (data.completed && data.completed.length > 0) {
+          const latest = data.completed[0];
+          const info = `أمر الصيانة #${String(latest.id).padStart(6, '0')} - ${latest.plate_number_ar || ''} (${latest.brand || ''} ${latest.model || ''}) - الفني: ${latest.maintenance_person || '-'}`;
+          setCompletedMaintenanceInfo(info);
+          setShowCompletionBanner(true);
+          // Update local maintenance list status
+          setMaintenance(prev => prev.map(m => 
+            data.completed.some((c: any) => c.id === m.id) ? { ...m, status: 'completed' } : m
+          ));
+        }
+      } catch { /* silent */ }
+    }, 30000);
+    return () => clearInterval(interval);
+  }, [companyId]);
+
   const filteredVehicles = vehicles.filter(v => 
     v.plate_number_ar?.includes(searchQuery) || 
     v.brand?.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -1414,18 +1684,29 @@ export function FleetClient({
     return (
       <div className="max-w-[98%] mx-auto p-4 md:p-8" dir={locale === 'ar' ? "rtl" : "ltr"}>
         {/* In-App Notification Banner */}
-        <NotificationBanner
-          show={showCompletionBanner}
-          onClose={() => setShowCompletionBanner(false)}
-          title={t('maintenanceCompleted')}
-          message={completedMaintenanceInfo || t('maintenanceCompletedDesc')}
-          type="success"
-          actionLabel={t('view')}
-          onAction={() => {
-            setActiveTab("maintenance");
-            setShowCompletionBanner(false);
-          }}
-        />
+          <MaintenanceAlertModal
+            open={showCompletionBanner}
+            onClose={() => setShowCompletionBanner(false)}
+            title={t('maintenanceCompleted') || "اكتمال أمر الصيانة"}
+            message={completedMaintenanceInfo || t('maintenanceCompletedDesc')}
+            type="success"
+            actionLabel={t('view')}
+            onAction={() => {
+              setActiveTab("maintenance");
+            }}
+          />
+          {/* Pending Maintenance Alert */}
+          <MaintenanceAlertModal
+            open={showPendingBanner}
+            onClose={() => setShowPendingBanner(false)}
+            title={t('pendingMaintenanceAlert') || `طلبات صيانة معلقة (${pendingMaintenance})`}
+            message={t('pendingMaintenanceAlertDesc') || `يوجد ${pendingMaintenance} طلب صيانة معلق يتطلب المتابعة والتأكيد`}
+            type="warning"
+            actionLabel={t('view')}
+            onAction={() => {
+              setActiveTab("maintenance");
+            }}
+          />
         {/* Unified Main Card */}
       <div className="bg-slate-950 rounded-[3rem] border border-white/5 shadow-2xl overflow-hidden flex flex-col p-8 space-y-8">
         
@@ -1459,7 +1740,7 @@ export function FleetClient({
                 <div className="flex flex-wrap justify-center lg:justify-start gap-4 mt-8">
                   <AddVehicleDialog companyId={companyId} employees={employees} vehicleCategories={vehicleCategories} t={t} />
                   <AddSpareDialog companyId={companyId} categories={categories} t={t} />
-                  <MaintenanceRequestDialog companyId={companyId} vehicles={vehicles} spares={spares} t={t} />
+                  <MaintenanceRequestDialog companyId={companyId} vehicles={vehicles} spares={spares} t={t} companyEmail={companyEmail} />
                   <button 
                     onClick={() => window.location.reload()}
                     className="flex items-center gap-3 px-6 py-3 bg-white/10 backdrop-blur-md rounded-2xl border border-white/20 text-white font-black text-sm hover:bg-white/20 transition-all shadow-xl active:scale-95"

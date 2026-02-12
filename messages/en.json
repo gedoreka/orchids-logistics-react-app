@@ -1157,7 +1157,7 @@
     "dueDatePrefix": "Due:",
     "companyStamp": "Establishment Stamp",
     "digitalSignature": "Digital Signature",
-    "electronicInvoicingSystem": "Electronic Invoicing System",
+    "electronicInvoicingSystem": "Electronic Tax Invoice",
     "claimMonth": "Month Claim:",
     "issueDateLabel": "Issue Date:",
     "facilityData": "Establishment Data",
@@ -1430,6 +1430,9 @@
     "plateEn": "Plate Number (English)",
     "selectCategory": "Select Category",
     "selectDriver": "Select Driver",
+    "selectVehicleRequired": "Please select a vehicle",
+    "pendingMaintenanceAlert": "Pending Maintenance Requests",
+    "pendingMaintenanceAlertDesc": "There are pending maintenance requests that require follow-up and confirmation",
     "currentKm": "Current Mileage (km)",
     "usedSpares": "Used Spare Parts",
     "addSpares": "Add spare parts...",
@@ -1470,7 +1473,11 @@
     "clickToConfirm": "Click here to confirm",
     "maintenanceBannerTitle": "Maintenance Status Update",
     "maintenanceBannerMessage": "Maintenance order completed successfully - notification email sent",
-    "viewDetails": "View Details"
+    "viewDetails": "View Details",
+    "searchByNameOrId": "Search by name, ID number or user code...",
+    "searchCategory": "Search category...",
+    "noResults": "No results found",
+    "noPackage": "No Package"
   },
   "profitLoss": {
     "loading": "Loading Profit & Loss Report...",
@@ -2250,9 +2257,30 @@
         "descriptionPlaceholder": "Enter income details...",
         "cancel": "Cancel",
         "save": "Save Voucher",
-        "cancelForm": "Cancel Addition"
-      },
-      "stats": {
+          "cancelForm": "Cancel Addition"
+        },
+        "incomeTypes": {
+          "bankTransfer": "Bank Transfer",
+          "capital": "Capital",
+          "otherRevenue": "Other Revenue",
+          "investmentProfit": "Investment Profit",
+          "rentalIncome": "Rental Income",
+          "depositReturn": "Deposit Return",
+          "financialAdjustments": "Financial Adjustments"
+        },
+        "paymentMethods": {
+          "cash": "Cash",
+          "transfer": "Transfer",
+          "deposit": "Deposit"
+        },
+        "notifications": {
+          "saveSuccess": "Income voucher saved successfully"
+        },
+        "footer": {
+          "system": "Financial Revenue Management System",
+          "rights": "All rights reserved © {year}"
+        },
+        "stats": {
         "count": "Vouchers Count",
         "voucherLabel": "income vouchers",
         "nextNumber": "Next Number (INC00001)",

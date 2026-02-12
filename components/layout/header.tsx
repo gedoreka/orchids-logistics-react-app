@@ -368,8 +368,9 @@ export function Header({ user, onToggleSidebar, unreadChatCount = 0, subscriptio
     const [hrNotifLoading, setHrNotifLoading] = useState(false);
     const [showIdentityExpiryDetail, setShowIdentityExpiryDetail] = useState(false);
     const [showIncompleteDetail, setShowIncompleteDetail] = useState(false);
-    const [showLoginSplash, setShowLoginSplash] = useState(false);
-    const [activeNotifTab, setActiveNotifTab] = useState<'system' | 'identity' | 'incomplete'>('system');
+      const [showLoginSplash, setShowLoginSplash] = useState(false);
+      const [activeNotifTab, setActiveNotifTab] = useState<'system' | 'identity' | 'incomplete'>('system');
+      const [isDarkMode, setIsDarkMode] = useState(true);
 
     
     const audioRef = useRef<HTMLAudioElement | null>(null);
@@ -497,7 +498,31 @@ export function Header({ user, onToggleSidebar, unreadChatCount = 0, subscriptio
 
   useEffect(() => {
     setMounted(true);
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme === 'light') {
+      setIsDarkMode(false);
+      document.documentElement.classList.remove('dark');
+      document.documentElement.classList.add('light');
+    } else {
+      setIsDarkMode(true);
+      document.documentElement.classList.remove('light');
+      document.documentElement.classList.add('dark');
+    }
   }, []);
+
+  const toggleTheme = () => {
+    const newMode = !isDarkMode;
+    setIsDarkMode(newMode);
+    if (newMode) {
+      document.documentElement.classList.remove('light');
+      document.documentElement.classList.add('dark');
+      localStorage.setItem('theme', 'dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+      document.documentElement.classList.add('light');
+      localStorage.setItem('theme', 'light');
+    }
+  };
 
   useEffect(() => {
     const savedSurah = localStorage.getItem('quran_last_surah');
@@ -881,9 +906,11 @@ export function Header({ user, onToggleSidebar, unreadChatCount = 0, subscriptio
   return (
     <>
       <header className="sticky top-0 z-[100] w-full no-print">
-        <div className="relative overflow-hidden">
-          <div className="absolute inset-0 bg-transparent" />
-          <div className="absolute bottom-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-white/10 to-transparent" />
+          <div className="relative overflow-hidden">
+            {/* Glass effect */}
+            <div className="absolute inset-0 bg-white/[0.03] backdrop-blur-2xl" />
+            <div className="absolute inset-0 bg-gradient-to-r from-white/[0.04] via-transparent to-white/[0.04]" />
+            <div className="absolute bottom-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-white/[0.15] to-transparent" />
           
           <div className="relative z-10 w-full mx-auto px-4 md:px-6 py-3">
             <div className="flex items-center justify-between gap-4">
@@ -1128,7 +1155,7 @@ export function Header({ user, onToggleSidebar, unreadChatCount = 0, subscriptio
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" className="text-blue-400">
                           <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z" fill="currentColor"/>
                         </svg>
-                        <span className="text-[11px] font-bold text-blue-400">{isRTL ? 'البريد' : 'Email'}</span>
+                        <span className="text-[11px] font-bold text-blue-400">{isRTL ? 'بريد شركتك' : 'Company Email'}</span>
                         {unreadEmailCount > 0 && (
                           <motion.span 
                             initial={{ scale: 0 }}

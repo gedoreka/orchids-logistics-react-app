@@ -8,7 +8,8 @@ import { useTranslations, useLocale } from "@/lib/locale-context";
 import {
   FileText, Receipt, Wallet, ArrowRight, TrendingUp, TrendingDown,
   Sparkles, Building2, RefreshCw,
-  ScrollText, FileCheck, ArrowUpRight, BarChart3, PlusCircle, DollarSign
+  ScrollText, FileCheck, ArrowUpRight, BarChart3, PlusCircle, DollarSign,
+  AlertCircle, Loader2
 } from "lucide-react";
 
 interface Stats {
@@ -38,6 +39,7 @@ function FinancialVouchersContent() {
     incomeVouchers: { count: 0, total: 0 }
   });
   const [loading, setLoading] = useState(true);
+  const [fetchError, setFetchError] = useState(false);
   const [companyInfo, setCompanyInfo] = useState<CompanyInfo | null>(null);
   const [companyId, setCompanyId] = useState<string>("");
 
@@ -60,6 +62,7 @@ function FinancialVouchersContent() {
   const fetchStats = async (cId: string) => {
     if (!cId) return;
     setLoading(true);
+    setFetchError(false);
     try {
       const [salesRes, receiptRes, paymentRes, promissoryRes, quotationsRes, incomeRes] = await Promise.all([
         fetch(`/api/sales-receipts?company_id=${cId}`).then(r => r.json()).catch(() => ({ data: [] })),
@@ -105,6 +108,7 @@ function FinancialVouchersContent() {
       });
     } catch (error) {
       console.error("Error fetching stats:", error);
+      setFetchError(true);
     } finally {
       setLoading(false);
     }
@@ -242,6 +246,37 @@ function FinancialVouchersContent() {
   const totalIncome = stats.salesReceipts.total + stats.receiptVouchers.total + stats.incomeVouchers.total;
   const totalExpense = stats.paymentVouchers.total;
   const netBalance = totalIncome - totalExpense;
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <Loader2 className="w-10 h-10 text-blue-500 animate-spin" />
+      </div>
+    );
+  }
+
+  if (fetchError) {
+    return (
+      <div className="flex items-center justify-center min-h-screen" dir={isRtl ? "rtl" : "ltr"}>
+        <div className="text-center space-y-6 max-w-md mx-auto p-10">
+          <div className="mx-auto w-20 h-20 rounded-full bg-rose-500/10 flex items-center justify-center">
+            <AlertCircle className="w-10 h-10 text-rose-400" />
+          </div>
+          <div className="space-y-2">
+            <h2 className="text-2xl font-black text-white">{isRtl ? "خطأ في جلب البيانات" : "Error Fetching Data"}</h2>
+            <p className="text-slate-400 font-medium">{isRtl ? "حدث خطأ أثناء الاتصال بقاعدة البيانات. يرجى المحاولة مرة أخرى." : "An error occurred while connecting to the database. Please try again."}</p>
+          </div>
+          <button
+            onClick={() => fetchStats(companyId)}
+            className="inline-flex items-center gap-3 px-8 py-4 bg-blue-600 text-white font-black rounded-2xl hover:bg-blue-700 transition-all active:scale-95 shadow-xl"
+          >
+            <RefreshCw size={20} />
+            {isRtl ? "إعادة المحاولة" : "Retry"}
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-[95%] mx-auto p-4 md:p-8 space-y-8" dir={isRtl ? "rtl" : "ltr"}>
@@ -487,7 +522,7 @@ function FinancialVouchersContent() {
       <div className={`flex flex-col md:flex-row justify-between items-center gap-4 text-[10px] font-black text-slate-400 uppercase tracking-widest pt-4 opacity-70 ${isRtl ? "text-right" : "text-left"}`}>
         <div className="flex items-center gap-2">
           <Sparkles size={10} className="text-indigo-500" />
-          <span>{t("systemTitle", { name: companyInfo?.name || "Logistics" })}</span>
+          <span>Logistics Systems Pro</span>
         </div>
         <span>{t("allRightsReserved", { year: new Date().getFullYear() })}</span>
       </div>

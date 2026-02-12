@@ -18,14 +18,23 @@ export async function addVehicleCategory(data: { company_id: number; name: strin
 }
 
 export async function addVehicle(data: any) {
-  // Ensure numeric fields are correctly formatted
-  const processedData = { ...data };
+  // Remove empty/null/undefined values and ensure numeric fields are correctly formatted
+  const processedData: Record<string, any> = {};
+  for (const [key, val] of Object.entries(data)) {
+    if (val === null || val === undefined || val === '') continue;
+    processedData[key] = val;
+  }
   if (processedData.category_id) processedData.category_id = parseInt(processedData.category_id);
   if (processedData.driver_id) processedData.driver_id = parseInt(processedData.driver_id);
   if (processedData.manufacture_year) processedData.manufacture_year = parseInt(processedData.manufacture_year);
   if (processedData.current_km) processedData.current_km = parseInt(processedData.current_km);
   if (processedData.last_oil_change_km) processedData.last_oil_change_km = parseInt(processedData.last_oil_change_km);
   if (processedData.oil_valid_km) processedData.oil_valid_km = parseInt(processedData.oil_valid_km);
+
+  // Remove any NaN values
+  for (const [key, val] of Object.entries(processedData)) {
+    if (typeof val === 'number' && isNaN(val)) delete processedData[key];
+  }
 
   const fields = Object.keys(processedData);
   const placeholders = fields.map(() => "?").join(", ");
@@ -150,7 +159,7 @@ export async function createMaintenanceRequest(data: any, spares: any[]) {
     );
 
     revalidatePath("/fleet");
-    return { success: true };
+    return { success: true, maintenanceId: maintenanceId };
   } catch (error: any) {
     console.error("Error creating maintenance request:", error);
     return { success: false, error: error.message };

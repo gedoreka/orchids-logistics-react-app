@@ -86,9 +86,8 @@ export async function PUT(
         short_address = ?,
         account_id = ?,
         cost_center_id = ?,
-        is_active = ?,
-        updated_at = NOW()
-       WHERE id = ? AND company_id = ?`,
+          is_active = ?
+         WHERE id = ? AND company_id = ?`,
       [
         customer_name || null, 
         company_name, 

@@ -182,6 +182,98 @@ export function LoadingModal({ open, title = "جاري التحميل..." }: Loa
   );
 }
 
+// ─── Maintenance Alert Modal (Centered Luxury) ─────────────────────────────
+
+interface MaintenanceAlertModalProps {
+  open: boolean;
+  onClose: () => void;
+  onAction?: () => void;
+  title: string;
+  message: string;
+  actionLabel?: string;
+  type?: "success" | "warning";
+}
+
+export function MaintenanceAlertModal({
+  open,
+  onClose,
+  onAction,
+  title,
+  message,
+  actionLabel,
+  type = "warning",
+}: MaintenanceAlertModalProps) {
+  const isSuccess = type === "success";
+  const gradientClass = isSuccess
+    ? "from-emerald-600 to-emerald-700"
+    : "from-amber-500 to-orange-600";
+  const icon = isSuccess ? (
+    <CheckCircle2 size={48} className="text-white" />
+  ) : (
+    <AlertTriangle size={48} className="text-white animate-pulse" />
+  );
+  const subtitleColor = isSuccess ? "text-emerald-100" : "text-amber-100";
+
+  return (
+    <Dialog open={open} onOpenChange={onClose}>
+      <DialogContent
+        showCloseButton={false}
+        className="sm:max-w-[420px] rounded-[2.5rem] bg-slate-900 p-0 overflow-hidden border-none shadow-2xl"
+      >
+        <VisuallyHidden>
+          <DialogTitle>{title}</DialogTitle>
+        </VisuallyHidden>
+        <div
+          className={cn(
+            "bg-gradient-to-br p-10 text-center text-white relative",
+            gradientClass
+          )}
+        >
+          <div className="absolute top-0 left-0 w-full h-1 bg-white/20" />
+          <motion.div
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            transition={{ type: "spring", damping: 10 }}
+          >
+            <div className="w-24 h-24 bg-white/20 backdrop-blur-md rounded-[2rem] mx-auto flex items-center justify-center mb-6 border border-white/30 shadow-2xl">
+              {icon}
+            </div>
+          </motion.div>
+          <h2 className="text-2xl font-black mb-3 tracking-tight">{title}</h2>
+          <p className={cn("font-medium text-sm leading-relaxed whitespace-pre-line", subtitleColor)}>
+            {message}
+          </p>
+        </div>
+        <div className="p-6 bg-slate-900 flex flex-col gap-3">
+          {onAction && actionLabel && (
+            <Button
+              onClick={() => {
+                onAction();
+                onClose();
+              }}
+              className={cn(
+                "h-14 rounded-2xl font-black text-lg text-white shadow-xl transition-all active:scale-95",
+                isSuccess
+                  ? "bg-emerald-600 hover:bg-emerald-700 shadow-emerald-900/50"
+                  : "bg-amber-600 hover:bg-amber-700 shadow-amber-900/50"
+              )}
+            >
+              {actionLabel}
+            </Button>
+          )}
+          <Button
+            variant="ghost"
+            className="h-12 rounded-2xl font-black text-slate-400 hover:bg-white/5 text-sm"
+            onClick={onClose}
+          >
+            إغلاق
+          </Button>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
 // ─── In-App Notification Banner ──────────────────────────────────────────────
 
 interface NotificationBannerProps {

@@ -113,8 +113,9 @@ export default function IncomeFormClient({ user }: { user: User }) {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
-  const [deleteLoading, setDeleteLoading] = useState<number | null>(null);
-  const [notification, setNotification] = useState<NotificationState>({
+    const [deleteLoading, setDeleteLoading] = useState<number | null>(null);
+    const [formValidation, setFormValidation] = useState(false);
+    const [notification, setNotification] = useState<NotificationState>({
     show: false,
     type: "success",
     title: "",
@@ -219,9 +220,22 @@ export default function IncomeFormClient({ user }: { user: User }) {
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setSubmitting(true);
+    const handleSubmit = async (e: React.FormEvent) => {
+      e.preventDefault();
+      setFormValidation(true);
+      
+      // Validate required fields
+      if (!formData.account_id || !formData.cost_center_id) {
+        showNotification(
+          "error",
+          isRtl ? "بيانات ناقصة" : "Missing Data",
+          isRtl ? "يرجى اختيار الحساب ومركز التكلفة قبل الحفظ" : "Please select account and cost center before saving"
+        );
+        setTimeout(() => hideNotification(), 3000);
+        return;
+      }
+      
+      setSubmitting(true);
 
     const submitData = new FormData();
     submitData.append('company_id', user.company_id.toString());
@@ -246,9 +260,10 @@ export default function IncomeFormClient({ user }: { user: User }) {
         body: submitData
       });
       const data = await res.json();
-      if (data.success) {
-        setShowSuccess(true);
-        setFormData({
+        if (data.success) {
+          setShowSuccess(true);
+          setFormValidation(false);
+          setFormData({
           income_type: '',
           income_date: new Date().toISOString().split('T')[0],
           amount: '',
@@ -552,39 +567,61 @@ export default function IncomeFormClient({ user }: { user: User }) {
                         </div>
 
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                              <div className="space-y-2">
-                                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mr-2">{t("form.account")} <span className="text-slate-500">({tCommon("optional")})</span></label>
-                                  <HierarchicalSearchableSelect
-                                      items={(metadata?.accounts || []).map(acc => ({
-                                          id: acc.id,
-                                          code: acc.account_code,
-                                          name: acc.account_name,
-                                          level: acc.account_level,
-                                          parent: acc.parent_account
-                                      }))}
-                                      value={formData.account_id}
-                                      valueKey="id"
-                                      onSelect={(val) => setFormData({...formData, account_id: val})}
-                                      placeholder={t("form.selectAccount")}
-                                      className="bg-white/5 border-white/10 text-white rounded-2xl h-[52px]"
-                                  />
-                              </div>
-                              <div className="space-y-2">
-                                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mr-2">{t("form.costCenter")} <span className="text-slate-500">({tCommon("optional")})</span></label>
-                                  <HierarchicalSearchableSelect
-                                      items={(metadata?.costCenters || []).map(cc => ({
-                                          id: cc.id,
-                                          code: cc.center_code,
-                                          name: cc.center_name
-                                      }))}
-                                      value={formData.cost_center_id}
-                                      valueKey="id"
-                                      onSelect={(val) => setFormData({...formData, cost_center_id: val})}
-                                      placeholder={t("form.selectCostCenter")}
-                                      className="bg-white/5 border-white/10 text-white rounded-2xl h-[52px]"
-                                  />
-                              </div>
-                          </div>
+                                <div className="space-y-3">
+                                    <label className="flex items-center gap-2 text-[10px] font-black text-slate-400 uppercase tracking-widest mr-2">
+                                        <Landmark size={14} className="text-cyan-400" />
+                                        {t("form.account")} <span className="text-red-400">*</span>
+                                    </label>
+                                    <HierarchicalSearchableSelect
+                                        items={(metadata?.accounts || []).map(acc => ({
+                                            id: acc.id,
+                                            code: acc.account_code,
+                                            name: acc.account_name,
+                                            level: acc.account_level,
+                                            parent: acc.parent_account
+                                        }))}
+                                        value={formData.account_id}
+                                        valueKey="id"
+                                        onSelect={(val) => setFormData({...formData, account_id: val})}
+                                        placeholder={t("form.selectAccount")}
+                                        required
+                                        error={formValidation && !formData.account_id}
+                                        className="rounded-2xl"
+                                    />
+                                    {formValidation && !formData.account_id && (
+                                        <p className="text-red-400 text-[10px] font-bold flex items-center gap-1">
+                                            <AlertCircle size={10} />
+                                            {isRtl ? "يجب اختيار الحساب" : "Account is required"}
+                                        </p>
+                                    )}
+                                </div>
+                                <div className="space-y-3">
+                                    <label className="flex items-center gap-2 text-[10px] font-black text-slate-400 uppercase tracking-widest mr-2">
+                                        <Building2 size={14} className="text-cyan-400" />
+                                        {t("form.costCenter")} <span className="text-red-400">*</span>
+                                    </label>
+                                    <HierarchicalSearchableSelect
+                                        items={(metadata?.costCenters || []).map(cc => ({
+                                            id: cc.id,
+                                            code: cc.center_code,
+                                            name: cc.center_name
+                                        }))}
+                                        value={formData.cost_center_id}
+                                        valueKey="id"
+                                        onSelect={(val) => setFormData({...formData, cost_center_id: val})}
+                                        placeholder={t("form.selectCostCenter")}
+                                        required
+                                        error={formValidation && !formData.cost_center_id}
+                                        className="rounded-2xl"
+                                    />
+                                    {formValidation && !formData.cost_center_id && (
+                                        <p className="text-red-400 text-[10px] font-bold flex items-center gap-1">
+                                            <AlertCircle size={10} />
+                                            {isRtl ? "يجب اختيار مركز التكلفة" : "Cost center is required"}
+                                        </p>
+                                    )}
+                                </div>
+                            </div>
 
                         <div className="space-y-2">
                             <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mr-2">{t("form.description")}</label>

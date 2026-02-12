@@ -58,8 +58,12 @@ export async function POST(request: NextRequest) {
       [token, expiresAt, maintenanceId]
     );
 
-    const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3006";
-    const confirmUrl = `${appUrl}/api/fleet/complete-maintenance?token=${token}&id=${maintenanceId}`;
+      const origin = request.headers.get("origin") 
+        || request.headers.get("referer")?.replace(/\/[^/]*$/, "") 
+        || process.env.NEXT_PUBLIC_APP_URL 
+        || "http://localhost:3006";
+      const baseUrl = origin.replace(/\/$/, "");
+      const confirmUrl = `${baseUrl}/api/fleet/complete-maintenance?token=${token}&id=${maintenanceId}`;
 
     const emailHtml = `
       <div dir="rtl" style="font-family: 'Segoe UI', Tahoma, Arial, sans-serif; max-width: 640px; margin: 0 auto; background: #0f172a; border-radius: 24px; overflow: hidden; border: 1px solid rgba(255,255,255,0.05);">
@@ -167,6 +171,30 @@ export async function GET(request: NextRequest) {
     await execute(
       "UPDATE maintenance_requests SET status = 'completed', confirmation_token = NULL, token_expires_at = NULL, confirmed_at = NOW() WHERE id = ?",
       [id]
+    );
+
+    // Get full maintenance details for notification
+    const fullDetails = await query<any>(
+      `SELECT m.*, v.plate_number_ar, v.brand, v.model 
+       FROM maintenance_requests m 
+       LEFT JOIN vehicles v ON m.vehicle_id = v.id 
+       WHERE m.id = ?`,
+      [id]
+    );
+    const mDetail = fullDetails?.[0];
+
+    // Insert system notification scoped to the company that owns this maintenance
+    const companyId = mDetail?.company_id || null;
+    await execute(
+      `INSERT INTO admin_notifications (title, message, type, is_read, sent_to_all, sent_to_companies, created_at) 
+       VALUES (?, ?, 'maintenance_completed', 0, 0, ?, NOW())`,
+      [
+        `✅ اكتمال أمر الصيانة #${String(id).padStart(6, "0")}`,
+        mDetail 
+          ? `تم تأكيد اكتمال صيانة المركبة ${mDetail.plate_number_ar || ""} (${mDetail.brand || ""} ${mDetail.model || ""}) - الفني: ${mDetail.maintenance_person || "-"} - ${mDetail.maintenance_type || "-"}`
+          : `تم تأكيد اكتمال أمر الصيانة رقم ${id}`,
+        companyId ? JSON.stringify([companyId]) : null
+      ]
     );
 
     return new NextResponse(renderResultPage(true, "تم تأكيد اكتمال الصيانة بنجاح"), {

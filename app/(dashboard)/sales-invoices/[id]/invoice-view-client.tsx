@@ -12,8 +12,7 @@ import {
   University,
   Truck,
   ShieldCheck,
-  Signature,
-  Stamp,
+
   QrCode,
   Mail,
   Send,
@@ -315,36 +314,60 @@ export function InvoiceViewClient({
     };
 
     const handleDownloadPDF = async () => {
-      setPdfLoading(true);
-      try {
-        const html2canvas = (await import('html2canvas-pro')).default;
-        const { jsPDF } = await import('jspdf');
-        
-        const element = printRef.current;
-        if (!element) return;
-        
-        // Wait for all fonts to be loaded
-        await document.fonts.ready;
-        
-        // Convert images to data URLs for foreignObjectRendering
-        await convertImagesToDataURLs(element);
-        
-        const canvas = await html2canvas(element, {
-          scale: 3,
-          useCORS: true,
-          logging: false,
-          backgroundColor: '#ffffff',
-          width: 794,
-          windowWidth: 794,
-          foreignObjectRendering: true,
+        setPdfLoading(true);
+        try {
+          const html2canvas = (await import('html2canvas-pro')).default;
+          const { jsPDF } = await import('jspdf');
+          
+          const element = printRef.current;
+          if (!element) return;
+          
+          // Wait for all fonts to be loaded
+          await document.fonts.ready;
+          
+          // Convert images to data URLs
+          await convertImagesToDataURLs(element);
+          
+          // Convert QR <canvas> elements to <img> so html2canvas can capture them
+          const canvasElements = element.querySelectorAll('canvas');
+          const canvasRestoreFns: (() => void)[] = [];
+          canvasElements.forEach((cvs) => {
+            try {
+              const dataUrl = cvs.toDataURL('image/png');
+              const img = document.createElement('img');
+              img.src = dataUrl;
+              img.width = cvs.width;
+              img.height = cvs.height;
+              img.style.width = cvs.style.width || `${cvs.width}px`;
+              img.style.height = cvs.style.height || `${cvs.height}px`;
+              const parent = cvs.parentNode;
+              if (parent) {
+                parent.replaceChild(img, cvs);
+                canvasRestoreFns.push(() => parent.replaceChild(cvs, img));
+              }
+            } catch (e) {
+              console.warn('Could not convert canvas:', e);
+            }
           });
           
+          const canvas = await html2canvas(element, {
+            scale: 3,
+            useCORS: true,
+            logging: false,
+            backgroundColor: '#ffffff',
+            width: 794,
+            windowWidth: 794,
+            foreignObjectRendering: false,
+          });
+          
+          // Restore original canvas elements
+          canvasRestoreFns.forEach(fn => fn());
+            
           const imgData = canvas.toDataURL('image/png');
           const pdf = new jsPDF('p', 'mm', 'a4');
           const pdfWidth = pdf.internal.pageSize.getWidth();
           const pdfHeight = pdf.internal.pageSize.getHeight();
           
-          // Scale image to fit exactly on one A4 page
           const imgAspect = canvas.width / canvas.height;
           const pageAspect = pdfWidth / pdfHeight;
           
@@ -358,18 +381,16 @@ export function InvoiceViewClient({
           }
           
           const xOffset = (pdfWidth - finalImgWidth) / 2;
-          const yOffset = 0;
-          
-          pdf.addImage(imgData, 'PNG', xOffset, yOffset, finalImgWidth, finalImgHeight);
+          pdf.addImage(imgData, 'PNG', xOffset, 0, finalImgWidth, finalImgHeight);
           pdf.save(`${t("vatInvoice")}-${invoice.invoice_number}.pdf`);
 
-
-    } catch (error) {
-      console.error('Error generating PDF:', error);
-    } finally {
-      setPdfLoading(false);
-    }
-    };
+      } catch (error) {
+        console.error('Error generating PDF:', error);
+        toast.error('فشل تصدير PDF');
+      } finally {
+        setPdfLoading(false);
+      }
+      };
 
     // Generate PDF as base64 for email attachment (optimized for smaller file size)
       const generatePDFBase64 = async (): Promise<string | null> => {
@@ -382,8 +403,30 @@ export function InvoiceViewClient({
             // Wait for all fonts to be loaded
             await document.fonts.ready;
 
-            // Convert images to data URLs for foreignObjectRendering
+            // Convert images to data URLs
             await convertImagesToDataURLs(element);
+
+            // Convert QR <canvas> elements to <img>
+            const canvasElements = element.querySelectorAll('canvas');
+            const canvasRestoreFns: (() => void)[] = [];
+            canvasElements.forEach((cvs) => {
+              try {
+                const dataUrl = cvs.toDataURL('image/png');
+                const img = document.createElement('img');
+                img.src = dataUrl;
+                img.width = cvs.width;
+                img.height = cvs.height;
+                img.style.width = cvs.style.width || `${cvs.width}px`;
+                img.style.height = cvs.style.height || `${cvs.height}px`;
+                const parent = cvs.parentNode;
+                if (parent) {
+                  parent.replaceChild(img, cvs);
+                  canvasRestoreFns.push(() => parent.replaceChild(cvs, img));
+                }
+              } catch (e) {
+                console.warn('Could not convert canvas:', e);
+              }
+            });
 
             const canvas = await html2canvas(element, {
               scale: 2,
@@ -394,6 +437,9 @@ export function InvoiceViewClient({
               windowWidth: 794,
               foreignObjectRendering: false,
             });
+
+            // Restore original canvas elements
+            canvasRestoreFns.forEach(fn => fn());
 
         // Use PNG to avoid black page issues with transparency
         const imgData = canvas.toDataURL('image/png');
@@ -688,13 +734,13 @@ export function InvoiceViewClient({
 
             {/* Header */}
             <div 
-              className="text-white p-8 relative overflow-hidden flex-shrink-0"
-              style={{ background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)' }}
-            >
-              <div className="flex flex-row justify-between items-center gap-4 relative z-10">
+                className="text-white px-6 py-4 relative overflow-hidden flex-shrink-0"
+                style={{ background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)' }}
+              >
+              <div className="flex flex-row items-center gap-4 relative z-10">
                 {/* Company Logo */}
                 <div 
-                  className="w-24 h-24 rounded-xl flex items-center justify-center p-3 border border-[#ffffff33]"
+                  className="w-20 h-20 rounded-xl flex items-center justify-center p-2.5 border border-[#ffffff33] flex-shrink-0"
                   style={{ backgroundColor: 'rgba(255,255,255,0.1)' }}
                 >
                   {company.logo_path ? (
@@ -705,61 +751,40 @@ export function InvoiceViewClient({
                       crossOrigin="anonymous"
                     />
                   ) : (
-                    <Building2 size={40} className="text-white/60" />
+                    <Building2 size={36} className="text-white/60" />
                   )}
                 </div>
 
                 {/* Title Center */}
                 <div className="text-center flex-1">
-                  <h1 className="text-3xl font-black mb-0 tracking-wider">{t("vatInvoice")}</h1>
-                  <p className="text-white/60 text-sm uppercase font-light">{t("vatInvoiceEn")}</p>
-                  <div className="mt-2 inline-flex items-center gap-2 px-5 py-1.5 rounded-lg border border-[#ffffff1a]" style={{ backgroundColor: 'rgba(255,255,255,0.05)' }}>
-                    <span className="font-bold text-xs">{t("electronicInvoicingSystem")}</span>
+                    <h1 className="text-xl font-black mb-0.5 tracking-wider">VAT Invoice</h1>
+                    <span className="font-bold text-[11px] text-white/60">{t("electronicInvoicingSystem")}</span>
                   </div>
-                </div>
-
-                {/* Representative Photo Circle */}
-                <div className="flex flex-col items-center gap-1.5">
-                  <div 
-                    className="w-20 h-20 rounded-full flex items-center justify-center border-2 border-[#ffffff44] overflow-hidden"
-                    style={{ backgroundColor: 'rgba(255,255,255,0.1)' }}
-                  >
-                    {createdByUser?.company_logo ? (
-                      <img 
-                        src={getPublicUrl(createdByUser.company_logo) || ''} 
-                        alt="المندوب" 
-                        className="w-full h-full object-cover"
-                        crossOrigin="anonymous"
-                      />
-                    ) : (
-                      <svg viewBox="0 0 24 24" fill="none" className="w-10 h-10 text-white/40">
-                        <path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z" fill="currentColor"/>
-                      </svg>
-                    )}
-                  </div>
-                  <span className="text-white/50 text-[10px] font-medium">المندوب</span>
-                </div>
 
                 {/* System Logo */}
-                <div className="flex flex-col items-center gap-1.5 p-4 rounded-xl border border-[#ffffff1a] min-w-[130px]" style={{ backgroundColor: 'rgba(255,255,255,0.05)' }}>
-                  <Truck size={28} className="text-[#3b82f6]" />
-                  <h2 className="text-xs font-black text-white uppercase">Logistics Systems</h2>
+                <div className="flex flex-col items-center gap-1 p-3 rounded-xl border border-[#ffffff1a] min-w-[110px] flex-shrink-0" style={{ backgroundColor: 'rgba(255,255,255,0.05)' }}>
+                  <Truck size={24} className="text-[#3b82f6]" />
+                  <h2 className="text-[10px] font-black text-white uppercase">Logistics Systems</h2>
                 </div>
               </div>
 
               {/* Header Meta */}
-              <div className="grid grid-cols-3 gap-4 mt-6 pt-4 border-t border-[#ffffff1a] relative z-10">
+              <div className="grid grid-cols-4 gap-3 mt-3 pt-3 border-t border-[#ffffff1a] relative z-10">
                 <div className="text-center">
-                  <span className="text-[#ffffff66] text-xs block">{t("claimMonth")}</span>
-                  <p className="font-bold text-base">{invoice.invoice_month || getClaimMonth(invoice.issue_date)}</p>
+                  <span className="text-[#ffffff55] text-[10px] block">{t("claimMonth")}</span>
+                  <p className="font-bold text-sm">{invoice.invoice_month || getClaimMonth(invoice.issue_date)}</p>
                 </div>
                 <div className="text-center">
-                  <span className="text-[#ffffff66] text-xs block">{t("invoiceNumber")}:</span>
-                  <p className="font-bold text-base tracking-widest">{invoice.invoice_number}</p>
+                  <span className="text-[#ffffff55] text-[10px] block">{t("invoiceNumber")}</span>
+                  <p className="font-bold text-sm tracking-widest">{invoice.invoice_number}</p>
                 </div>
                 <div className="text-center">
-                  <span className="text-[#ffffff66] text-xs block">{t("issueDateLabel")}</span>
-                  <p className="font-bold text-base">{formatDate(invoice.issue_date)}</p>
+                  <span className="text-[#ffffff55] text-[10px] block">{t("issueDateLabel")}</span>
+                  <p className="font-bold text-sm">{formatDate(invoice.issue_date)}</p>
+                </div>
+                <div className="text-center">
+                  <span className="text-[#ffffff55] text-[10px] block">{t("period")}</span>
+                  <p className="font-bold text-sm">{formatDate(items[0]?.period_from)} - {formatDate(items[0]?.period_to)}</p>
                 </div>
               </div>
             </div>
@@ -915,24 +940,18 @@ export function InvoiceViewClient({
                       <QrCode size={16} className="text-[#2563eb]" />
                       {t("zatcaBarcode")}
                     </h3>
-                    <div className="flex justify-center mb-2">
-                      <div className="p-2 bg-white rounded-xl shadow-sm border border-[#f8fafc]">
-                        {isMounted && (
-                          <QRCodeCanvas
-                              value={qrData}
-                              size={140}
-                              level="H"
-                              includeMargin={false}
-                            />
-                        )}
-                      </div>
+                    <div className="flex justify-center">
+                      <div className="bg-white rounded-xl shadow-sm border border-[#f8fafc] inline-block">
+                          {isMounted && (
+                            <QRCodeCanvas
+                                value={qrData}
+                                size={220}
+                                level="H"
+                                includeMargin={true}
+                              />
+                          )}
+                        </div>
                     </div>
-                  </div>
-                  
-                  <div className="pt-2 border-t border-[#f1f5f9]">
-                    <p className="font-bold text-[#2563eb] text-xs">
-                      {t("period")} {formatDate(items[0]?.period_from)} - {formatDate(items[0]?.period_to)}
-                    </p>
                   </div>
                 </div>
               </div>
@@ -1007,42 +1026,7 @@ export function InvoiceViewClient({
                 </div>
               )}
 
-              {/* Stamp and Signature Section */}
-              <div className="stamp-sig-section grid grid-cols-2 gap-8 pt-4 border-t border-[#f1f5f9] flex-shrink-0">
-                {/* Stamp */}
-                <div className="text-center">
-                  <h4 className="text-[#64748b] font-bold text-xs mb-3 uppercase tracking-tight">{t("companyStamp")}</h4>
-                  <div className="w-32 h-32 mx-auto bg-white rounded-2xl border border-dashed border-[#e2e8f0] flex items-center justify-center p-3 shadow-sm transition-all">
-                    {company.stamp_path ? (
-                      <img 
-                        src={getPublicUrl(company.stamp_path) || ''} 
-                        alt="Stamp" 
-                        className="max-w-full max-h-full object-contain grayscale opacity-80"
-                        crossOrigin="anonymous"
-                      />
-                    ) : (
-                      <Stamp size={44} className="text-[#e2e8f0]" />
-                    )}
-                  </div>
-                </div>
 
-                {/* Signature */}
-                <div className="text-center">
-                  <h4 className="text-[#64748b] font-bold text-xs mb-3 uppercase tracking-tight">{t("digitalSignature")}</h4>
-                  <div className="w-32 h-32 mx-auto bg-white rounded-2xl border border-dashed border-[#e2e8f0] flex items-center justify-center p-3 shadow-sm transition-all">
-                    {company.digital_seal_path ? (
-                      <img 
-                        src={getPublicUrl(company.digital_seal_path) || ''} 
-                        alt="Signature" 
-                        className="max-w-full max-h-full object-contain"
-                        crossOrigin="anonymous"
-                      />
-                    ) : (
-                      <Signature size={44} className="text-[#e2e8f0]" />
-                    )}
-                  </div>
-                </div>
-              </div>
             </div>
           </div>
 
