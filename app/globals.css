@@ -966,11 +966,11 @@ html:not(.dark) .light-decor-extra {
 
 /* ── HEADER ── */
 html:not(.dark) header.sticky {
-  background: linear-gradient(135deg, rgba(237,233,254,0.85) 0%, rgba(224,231,255,0.80) 50%, rgba(209,250,229,0.85) 100%) !important;
-  backdrop-filter: blur(30px) saturate(1.5) !important;
-  -webkit-backdrop-filter: blur(30px) saturate(1.5) !important;
-  border-bottom: 1px solid rgba(139, 92, 246, 0.15) !important;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.04), 0 8px 32px rgba(139,92,246,0.08) !important;
+  background: linear-gradient(to right, #dbe4ff, #c7d2f8, #d0d0f0) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  border-bottom: 1px solid rgba(99, 102, 241, 0.12) !important;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04), 0 4px 16px rgba(99,102,241,0.06) !important;
 }
 
 /* hide the dark glass overlays in header */
@@ -1028,11 +1028,11 @@ html:not(.dark) header [class*="bg-slate-900"] {
 
 /* ── FOOTER ── */
 html:not(.dark) footer {
-  background: linear-gradient(135deg, rgba(237,233,254,0.85) 0%, rgba(224,231,255,0.80) 50%, rgba(209,250,229,0.85) 100%) !important;
-  backdrop-filter: blur(24px) saturate(1.4) !important;
-  -webkit-backdrop-filter: blur(24px) saturate(1.4) !important;
-  border-top: 1px solid rgba(139, 92, 246, 0.12) !important;
-  box-shadow: 0 -2px 8px rgba(0,0,0,0.03), 0 -4px 20px rgba(139,92,246,0.06) !important;
+  background: linear-gradient(to right, #dbe4ff, #c7d2f8, #d0d0f0) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  border-top: 1px solid rgba(99, 102, 241, 0.12) !important;
+  box-shadow: 0 -2px 8px rgba(0,0,0,0.03), 0 -4px 16px rgba(99,102,241,0.05) !important;
 }
 
 html:not(.dark) footer > .absolute.inset-0,
