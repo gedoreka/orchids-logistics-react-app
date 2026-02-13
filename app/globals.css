@@ -1362,9 +1362,9 @@ html:not(.dark) .fixed > div:not(.absolute) [class*="border-white"] {
 
 /* Identity alert transparent backdrop */
 .identity-alert-backdrop {
-  backdrop-filter: blur(2px);
-  -webkit-backdrop-filter: blur(2px);
-  background: rgba(15, 23, 42, 0.08);
+  backdrop-filter: blur(12px) saturate(1.2);
+  -webkit-backdrop-filter: blur(12px) saturate(1.2);
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.15) 0%, rgba(99, 102, 241, 0.12) 50%, rgba(139, 92, 246, 0.15) 100%);
 }
 
 /* Protect identity alert popup action buttons - keep text white on colored bg */

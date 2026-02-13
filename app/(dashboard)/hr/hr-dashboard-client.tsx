@@ -100,7 +100,7 @@ export function HRDashboardClient({ stats, activePackages, recentEmployees, comp
                   <ArrowRight size={14} className={`${isRTL ? 'rotate-180' : ''} text-slate-500`} />
                   <span className="text-blue-400">{isRTL ? 'الموارد البشرية' : 'HR'}</span>
                 </div>
-                  <h1 className="text-3xl md:text-4xl font-black text-black dark:text-white">{t('employeesSystem')}</h1>
+                  <h1 className="text-3xl md:text-4xl font-black text-black">{t('employeesSystem')}</h1>
                 </div>
 
                 <div className="flex items-center gap-4 relative z-10">
@@ -234,11 +234,11 @@ export function HRDashboardClient({ stats, activePackages, recentEmployees, comp
                           <Package className="text-violet-600 dark:text-white" size={24} />
                         </div>
                         <div>
-                          <h3 className="text-black dark:text-white text-lg font-black">{t('activePackages')}</h3>
+                          <h3 className="text-black text-lg font-black">{t('activePackages')}</h3>
                           <p className="text-slate-600 dark:text-slate-400 text-xs font-bold">{activePackages.length} {isRTL ? 'باقة نشطة' : 'active packages'}</p>
                         </div>
                       </div>
-                      <Link href="/hr/packages" className="text-xs font-black text-black dark:text-slate-400 hover:text-violet-600 dark:hover:text-white transition-colors bg-violet-100/50 dark:bg-white/5 px-4 py-2 rounded-xl border border-violet-200/60 dark:border-white/10">{tCommon('viewAll')}</Link>
+                      <Link href="/hr/packages" className="text-xs font-black text-black hover:text-violet-600 transition-colors bg-violet-100/50 dark:bg-white/5 px-4 py-2 rounded-xl border border-violet-200/60 dark:border-white/10">{tCommon('viewAll')}</Link>
                     </div>
                   </div>
 
@@ -315,7 +315,7 @@ export function HRDashboardClient({ stats, activePackages, recentEmployees, comp
                           {idx !== recentEmployees.length - 1 && (
                             <div className={`absolute top-12 bottom-0 ${isRTL ? 'right-6' : 'left-6'} w-0.5 bg-slate-100 group-hover:bg-purple-200 transition-colors`} />
                           )}
-                          <div className="h-12 w-12 rounded-2xl bg-purple-50 text-purple-600 flex items-center justify-center flex-shrink-0 z-10 group-hover:bg-purple-600 group-hover:text-white transition-all shadow-sm">
+                            <div className="h-12 w-12 rounded-2xl bg-purple-600 text-white flex items-center justify-center flex-shrink-0 z-10 shadow-lg shadow-purple-500/30">
                             <UserPlus size={20} />
                           </div>
                           <div className="flex-1 min-w-0">
