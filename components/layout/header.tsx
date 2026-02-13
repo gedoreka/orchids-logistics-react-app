@@ -948,14 +948,14 @@ export function Header({ user, onToggleSidebar, unreadChatCount = 0, subscriptio
                             onBlur={() => {
                               if (searchQuery === "") setIsSearchFocused(false);
                             }}
-                            className="flex-1 !bg-transparent border-none text-white/90 text-[12px] font-medium placeholder:text-white/30 outline-none"
+                            className={cn("flex-1 !bg-transparent border-none text-[12px] font-medium outline-none", isDarkMode ? "text-white/90 placeholder:text-white/30" : "text-black/90 placeholder:text-black/30")}
                           />
                           <button 
                             onClick={() => {
                               setSearchQuery("");
                               setIsSearchFocused(false);
                             }}
-                            className="p-1 hover:bg-white/10 rounded-lg text-white/40"
+                            className={cn("p-1 rounded-lg", isDarkMode ? "hover:bg-white/10 text-white/40" : "hover:bg-black/10 text-black/40")}
                           >
                             <X size={14} />
                           </button>
@@ -968,7 +968,7 @@ export function Header({ user, onToggleSidebar, unreadChatCount = 0, subscriptio
                               initial={{ opacity: 0, y: 10 }}
                               animate={{ opacity: 1, y: 0 }}
                               exit={{ opacity: 0, y: 10 }}
-                              className="absolute top-full mt-2 left-0 right-0 bg-slate-900/95 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl overflow-hidden z-[1000] max-h-[400px] overflow-y-auto custom-scrollbar"
+                              className={cn("absolute top-full mt-2 left-0 right-0 backdrop-blur-xl rounded-2xl shadow-2xl overflow-hidden z-[1000] max-h-[400px] overflow-y-auto custom-scrollbar border", isDarkMode ? "bg-slate-900/95 border-white/10" : "bg-white/95 border-violet-200/60")}
                             >
                               <div className="p-2 space-y-1">
                                 {(() => {
@@ -999,8 +999,8 @@ export function Header({ user, onToggleSidebar, unreadChatCount = 0, subscriptio
                                   if (filteredResults.length === 0) {
                                     return (
                                       <div className="p-8 text-center">
-                                        <Search size={32} className="mx-auto mb-2 text-white/10" />
-                                        <p className="text-sm text-white/30">{isRTL ? "لا توجد نتائج" : "No results found"}</p>
+                                        <Search size={32} className={cn("mx-auto mb-2", isDarkMode ? "text-white/10" : "text-violet-300/40")} />
+                                        <p className={cn("text-sm", isDarkMode ? "text-white/30" : "text-black/30")}>{isRTL ? "لا توجد نتائج" : "No results found"}</p>
                                       </div>
                                     );
                                   }
@@ -1008,7 +1008,7 @@ export function Header({ user, onToggleSidebar, unreadChatCount = 0, subscriptio
                                   return filteredResults.map((item, idx) => (
                                     <motion.button
                                       key={item.href}
-                                      whileHover={{ backgroundColor: "rgba(255,255,255,0.05)" }}
+                                      whileHover={{ backgroundColor: isDarkMode ? "rgba(255,255,255,0.05)" : "rgba(139,92,246,0.08)" }}
                                       onClick={() => {
                                         router.push(item.href);
                                         setSearchQuery("");
@@ -1016,12 +1016,12 @@ export function Header({ user, onToggleSidebar, unreadChatCount = 0, subscriptio
                                       }}
                                       className="w-full flex items-center gap-3 p-3 rounded-xl transition-all"
                                     >
-                                      <div className="p-2 rounded-lg bg-blue-500/20 text-blue-400">
+                                      <div className={cn("p-2 rounded-lg", isDarkMode ? "bg-blue-500/20 text-blue-400" : "bg-violet-500/15 text-violet-600")}>
                                         <item.icon size={16} />
                                       </div>
                                       <div className="text-right">
-                                        <p className="text-sm font-bold text-white/90">{item.title}</p>
-                                        <p className="text-[10px] text-white/30 font-mono">{item.href}</p>
+                                        <p className={cn("text-sm font-bold", isDarkMode ? "text-white/90" : "text-black/90")}>{item.title}</p>
+                                        <p className={cn("text-[10px] font-mono", isDarkMode ? "text-white/30" : "text-black/30")}>{item.href}</p>
                                       </div>
                                     </motion.button>
                                   ));
@@ -1240,10 +1240,10 @@ export function Header({ user, onToggleSidebar, unreadChatCount = 0, subscriptio
                             <p className={cn("text-[11px] font-bold", isDarkMode ? "text-white/90" : "text-indigo-700")}>{user?.role === "admin" ? (isRTL ? "مدير النظام" : "System Admin") : (isRTL ? "مدير منشأة" : "Manager")}</p>
                           </div>
 
-                      <ChevronDown size={14} className={cn(
-                        "text-white/40 transition-transform",
-                        showUserDropdown && "rotate-180"
-                      )} />
+                        <ChevronDown size={14} className={cn(
+                          isDarkMode ? "text-white/40" : "text-black/40", "transition-transform",
+                          showUserDropdown && "rotate-180"
+                        )} />
                     </motion.button>
                     
                     <audio ref={audioRef} onEnded={handleSurahEnded} />
@@ -1262,43 +1262,57 @@ export function Header({ user, onToggleSidebar, unreadChatCount = 0, subscriptio
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 onClick={() => setShowPrayerModal(false)}
-                className="absolute inset-0 bg-black/70 backdrop-blur-md"
+                className={cn("absolute inset-0 backdrop-blur-md", isDarkMode ? "bg-black/70" : "bg-black/30")}
               />
               <motion.div 
                 initial={{ scale: 0.9, opacity: 0, y: 20 }}
                 animate={{ scale: 1, opacity: 1, y: 0 }}
                 exit={{ scale: 0.9, opacity: 0, y: 20 }}
-                className="relative w-full max-w-sm bg-gradient-to-b from-slate-900 to-slate-950 rounded-[2.5rem] shadow-2xl overflow-hidden border border-emerald-500/20"
+                className={cn(
+                  "relative w-full max-w-sm rounded-[2.5rem] shadow-2xl overflow-hidden",
+                  isDarkMode 
+                    ? "bg-gradient-to-b from-slate-900 to-slate-950 border border-emerald-500/20" 
+                    : "bg-gradient-to-b from-white via-violet-50/50 to-indigo-50/80 border-2 border-violet-200/60"
+                )}
               >
+                {/* Decorative circles - light mode */}
+                {!isDarkMode && (
+                  <>
+                    <div className="absolute top-0 left-0 w-32 h-32 bg-gradient-to-br from-violet-500/10 to-purple-500/10 rounded-full -translate-y-16 -translate-x-16" />
+                    <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-blue-500/10 to-indigo-500/10 rounded-full -translate-y-16 translate-x-16" />
+                    <div className="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-tr from-emerald-500/10 to-teal-500/10 rounded-full translate-y-12 -translate-x-12" />
+                    <div className="absolute bottom-0 right-0 w-24 h-24 bg-gradient-to-tr from-amber-500/10 to-orange-500/10 rounded-full translate-y-12 translate-x-12" />
+                  </>
+                )}
                 {!prayerTimesData ? (
-                  <div className="p-12 text-center">
+                  <div className="p-12 text-center relative z-10">
                     <Loader2 className="w-12 h-12 text-emerald-500 animate-spin mx-auto mb-4" />
-                    <p className="text-white/60">{isRTL ? "جاري جلب الأوقات..." : "Fetching times..."}</p>
+                    <p className={isDarkMode ? "text-white/60" : "text-black/60"}>{isRTL ? "جاري جلب الأوقات..." : "Fetching times..."}</p>
                   </div>
                 ) : (
                   <>
                     <button 
                       onClick={() => setShowPrayerModal(false)}
-                      className="absolute top-6 left-6 p-2 text-white/30 hover:text-white hover:bg-white/10 rounded-full transition-all z-10"
+                      className={cn("absolute top-6 left-6 p-2 rounded-full transition-all z-10", isDarkMode ? "text-white/30 hover:text-white hover:bg-white/10" : "text-black/30 hover:text-black hover:bg-black/5")}
                     >
                       <X size={20} />
                     </button>
                     
-                    <div className="p-8 bg-gradient-to-br from-emerald-500/20 to-teal-500/20 border-b border-emerald-500/10">
+                    <div className={cn("relative z-10 p-8 border-b", isDarkMode ? "bg-gradient-to-br from-emerald-500/20 to-teal-500/20 border-emerald-500/10" : "bg-gradient-to-br from-violet-100/60 to-indigo-100/60 border-violet-200/40")}>
                       <div className="flex flex-col items-center text-center space-y-4">
                         <div className="relative">
                           <motion.div
                             animate={{ scale: [1, 1.1, 1], opacity: [0.3, 0.6, 0.3] }}
                             transition={{ duration: 3, repeat: Infinity }}
-                            className="absolute inset-0 bg-emerald-500 rounded-full blur-xl"
+                            className={cn("absolute inset-0 rounded-full blur-xl", isDarkMode ? "bg-emerald-500" : "bg-violet-500")}
                           />
-                          <div className="relative p-4 rounded-3xl bg-emerald-500/30 border border-emerald-500/20">
-                            <Moon size={32} className="text-emerald-400" />
+                          <div className={cn("relative p-4 rounded-3xl border", isDarkMode ? "bg-emerald-500/30 border-emerald-500/20" : "bg-violet-500/20 border-violet-300/40")}>
+                            <Moon size={32} className={isDarkMode ? "text-emerald-400" : "text-violet-600"} />
                           </div>
                         </div>
                         <div>
-                          <h3 className="font-black text-white text-2xl tracking-tight mb-1">{isRTL ? 'أوقات الصلاة' : 'Prayer Times'}</h3>
-                          <div className="flex items-center justify-center gap-2 text-emerald-400/80">
+                          <h3 className={cn("font-black text-2xl tracking-tight mb-1", isDarkMode ? "text-white" : "text-black")}>{isRTL ? 'أوقات الصلاة' : 'Prayer Times'}</h3>
+                          <div className={cn("flex items-center justify-center gap-2", isDarkMode ? "text-emerald-400/80" : "text-violet-600/80")}>
                             <MapPin size={14} />
                             <span className="text-sm font-bold">{prayerLocation}</span>
                           </div>
@@ -1306,8 +1320,8 @@ export function Header({ user, onToggleSidebar, unreadChatCount = 0, subscriptio
                       </div>
                     </div>
 
-                    <div className="p-6 space-y-2">
-                      <div className="flex items-center justify-between px-4 py-2 text-[10px] font-black text-white/30 uppercase tracking-widest border-b border-white/5 mb-2">
+                    <div className="relative z-10 p-6 space-y-2">
+                      <div className={cn("flex items-center justify-between px-4 py-2 text-[10px] font-black uppercase tracking-widest border-b mb-2", isDarkMode ? "text-white/30 border-white/5" : "text-black/30 border-black/5")}>
                         <span>{isRTL ? 'الصلاة' : 'Prayer'}</span>
                         <span>{isRTL ? 'الوقت' : 'Time'}</span>
                       </div>
@@ -1330,29 +1344,39 @@ export function Header({ user, onToggleSidebar, unreadChatCount = 0, subscriptio
                             className={cn(
                               "flex items-center justify-between p-4 rounded-2xl transition-all border",
                               isNext 
-                                ? "bg-emerald-500/20 border-emerald-500/40 shadow-[0_0_20px_rgba(16,185,129,0.1)] scale-[1.02]" 
-                                : "bg-white/[0.02] border-white/5 hover:bg-white/[0.05]"
+                                ? isDarkMode 
+                                  ? "bg-emerald-500/20 border-emerald-500/40 shadow-[0_0_20px_rgba(16,185,129,0.1)] scale-[1.02]"
+                                  : "bg-violet-500/15 border-violet-400/40 shadow-[0_0_20px_rgba(139,92,246,0.1)] scale-[1.02]"
+                                : isDarkMode 
+                                  ? "bg-white/[0.02] border-white/5 hover:bg-white/[0.05]"
+                                  : "bg-white/40 border-violet-100/60 hover:bg-white/60"
                             )}
                           >
                             <div className="flex items-center gap-4">
                               <div className={cn(
                                 "p-2 rounded-xl transition-colors",
-                                isNext ? "bg-emerald-500 text-white" : "bg-white/5 text-white/40"
+                                isNext 
+                                  ? isDarkMode ? "bg-emerald-500 text-white" : "bg-violet-500 text-white"
+                                  : isDarkMode ? "bg-white/5 text-white/40" : "bg-violet-100 text-violet-500"
                               )}>
                                 {prayer.icon}
                               </div>
                               <span className={cn(
                                 "text-sm font-black",
-                                isNext ? "text-white" : "text-white/60"
+                                isNext 
+                                  ? isDarkMode ? "text-white" : "text-black"
+                                  : isDarkMode ? "text-white/60" : "text-black/70"
                               )}>{prayer.name}</span>
                             </div>
                             <div className="flex flex-col items-end">
                               <span className={cn(
                                 "text-lg font-black tracking-tighter",
-                                isNext ? "text-emerald-400" : "text-white/80"
+                                isNext 
+                                  ? isDarkMode ? "text-emerald-400" : "text-violet-600"
+                                  : isDarkMode ? "text-white/80" : "text-black/80"
                               )}>{timeStr}</span>
                               {isNext && (
-                                <span className="text-[10px] font-bold text-emerald-500/60 uppercase">
+                                <span className={cn("text-[10px] font-bold uppercase", isDarkMode ? "text-emerald-500/60" : "text-violet-500/70")}>
                                   {isRTL ? `بعد ${prayerContextNext.remaining}` : `in ${prayerContextNext.remaining}`}
                                 </span>
                               )}
@@ -1362,16 +1386,16 @@ export function Header({ user, onToggleSidebar, unreadChatCount = 0, subscriptio
                       })}
                     </div>
 
-                    <div className="p-6 pt-0 space-y-4">
-                      <div className="p-4 bg-white/5 rounded-3xl border border-white/10 space-y-3">
+                    <div className="relative z-10 p-6 pt-0 space-y-4">
+                      <div className={cn("p-4 rounded-3xl border space-y-3", isDarkMode ? "bg-white/5 border-white/10" : "bg-white/50 border-violet-200/40")}>
                         <div className="flex items-center justify-between text-xs font-bold">
-                          <span className="text-white/40">{isRTL ? 'التاريخ الهجري' : 'Hijri Date'}</span>
-                          <span className="text-emerald-400">{prayerHijri}</span>
+                          <span className={isDarkMode ? "text-white/40" : "text-black/40"}>{isRTL ? 'التاريخ الهجري' : 'Hijri Date'}</span>
+                          <span className={isDarkMode ? "text-emerald-400" : "text-violet-600"}>{prayerHijri}</span>
                         </div>
                         {prayerEvent && (
-                          <div className="flex items-center gap-2 p-2 bg-emerald-500/10 rounded-xl border border-emerald-500/20">
-                            <Star size={14} className="text-emerald-400 fill-emerald-400" />
-                            <span className="text-[11px] font-black text-emerald-400">{prayerEvent}</span>
+                          <div className={cn("flex items-center gap-2 p-2 rounded-xl border", isDarkMode ? "bg-emerald-500/10 border-emerald-500/20" : "bg-violet-500/10 border-violet-300/20")}>
+                            <Star size={14} className={isDarkMode ? "text-emerald-400 fill-emerald-400" : "text-violet-500 fill-violet-500"} />
+                            <span className={cn("text-[11px] font-black", isDarkMode ? "text-emerald-400" : "text-violet-600")}>{prayerEvent}</span>
                           </div>
                         )}
                         {prayerIsFriday && (
@@ -1390,7 +1414,7 @@ export function Header({ user, onToggleSidebar, unreadChatCount = 0, subscriptio
                           setShowPrayerModal(false);
                           toast.success(isRTL ? "بدء الإشعار التجريبي الفاخر" : "Starting luxury test alert");
                         }}
-                        className="w-full flex items-center justify-center gap-2 py-4 bg-gradient-to-r from-emerald-500 to-teal-600 rounded-2xl text-white font-black text-sm shadow-xl shadow-emerald-500/20 transition-all"
+                        className={cn("w-full flex items-center justify-center gap-2 py-4 rounded-2xl text-white font-black text-sm shadow-xl transition-all", isDarkMode ? "bg-gradient-to-r from-emerald-500 to-teal-600 shadow-emerald-500/20" : "bg-gradient-to-r from-violet-500 to-indigo-600 shadow-violet-500/20")}
                       >
                         <Bell size={18} />
                         <span>{isRTL ? 'عرض الإشعار الفاخر (تجربة)' : 'Show Luxury Alert (Test)'}</span>
@@ -1411,141 +1435,158 @@ export function Header({ user, onToggleSidebar, unreadChatCount = 0, subscriptio
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                onClick={() => setShowQuranPlayer(false)}
-                className="absolute inset-0 bg-black/70 backdrop-blur-md"
-              />
-              <motion.div 
-                initial={{ scale: 0.9, opacity: 0, y: 20 }}
-                animate={{ scale: 1, opacity: 1, y: 0 }}
-                exit={{ scale: 0.9, opacity: 0, y: 20 }}
-                className="relative w-full max-w-md bg-gradient-to-b from-slate-900 to-slate-950 rounded-3xl shadow-2xl overflow-hidden border border-amber-500/20"
-              >
-                <button 
                   onClick={() => setShowQuranPlayer(false)}
-                  className="absolute top-4 left-4 p-2 text-white/30 hover:text-white hover:bg-white/10 rounded-xl transition-all z-10"
+                  className={cn("absolute inset-0 backdrop-blur-md", isDarkMode ? "bg-black/70" : "bg-black/30")}
+                />
+                <motion.div 
+                  initial={{ scale: 0.9, opacity: 0, y: 20 }}
+                  animate={{ scale: 1, opacity: 1, y: 0 }}
+                  exit={{ scale: 0.9, opacity: 0, y: 20 }}
+                  className={cn(
+                    "relative w-full max-w-md rounded-3xl shadow-2xl overflow-hidden",
+                    isDarkMode 
+                      ? "bg-gradient-to-b from-slate-900 to-slate-950 border border-amber-500/20"
+                      : "bg-gradient-to-b from-white via-violet-50/50 to-indigo-50/80 border-2 border-violet-200/60"
+                  )}
                 >
-                  <X size={20} />
-                </button>
-                
-                <div className="p-6 bg-gradient-to-r from-amber-500/20 to-orange-500/20 border-b border-amber-500/20">
-                  <div className="flex items-center gap-4">
-                    <div className="p-3 rounded-2xl bg-amber-500/30">
-                      <BookOpen size={28} className="text-amber-400" />
+                  {!isDarkMode && (
+                    <>
+                      <div className="absolute top-0 left-0 w-32 h-32 bg-gradient-to-br from-violet-500/10 to-purple-500/10 rounded-full -translate-y-16 -translate-x-16" />
+                      <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-blue-500/10 to-indigo-500/10 rounded-full -translate-y-16 translate-x-16" />
+                      <div className="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-tr from-emerald-500/10 to-teal-500/10 rounded-full translate-y-12 -translate-x-12" />
+                      <div className="absolute bottom-0 right-0 w-24 h-24 bg-gradient-to-tr from-amber-500/10 to-orange-500/10 rounded-full translate-y-12 translate-x-12" />
+                    </>
+                  )}
+                  <button 
+                    onClick={() => setShowQuranPlayer(false)}
+                    className={cn("absolute top-4 left-4 p-2 rounded-xl transition-all z-10", isDarkMode ? "text-white/30 hover:text-white hover:bg-white/10" : "text-black/30 hover:text-black hover:bg-black/5")}
+                  >
+                    <X size={20} />
+                  </button>
+                  
+                  <div className={cn("relative z-10 p-6 border-b", isDarkMode ? "bg-gradient-to-r from-amber-500/20 to-orange-500/20 border-amber-500/20" : "bg-gradient-to-r from-violet-100/60 to-indigo-100/60 border-violet-200/40")}>
+                    <div className="flex items-center gap-4">
+                      <div className={cn("p-3 rounded-2xl", isDarkMode ? "bg-amber-500/30" : "bg-violet-500/20")}>
+                        <BookOpen size={28} className={isDarkMode ? "text-amber-400" : "text-violet-600"} />
+                      </div>
+                      <div>
+                        <h3 className={cn("font-bold text-xl", isDarkMode ? "text-white" : "text-black")}>{isRTL ? 'القرآن الكريم' : 'Holy Quran'}</h3>
+                        <p className={cn("text-sm", isDarkMode ? "text-amber-400" : "text-violet-600")}>{isRTL ? 'مشاري العفاسي' : 'Mishary Alafasy'}</p>
+                      </div>
                     </div>
-                    <div>
-                      <h3 className="font-bold text-white text-xl">{isRTL ? 'القرآن الكريم' : 'Holy Quran'}</h3>
-                      <p className="text-sm text-amber-400">{isRTL ? 'مشاري العفاسي' : 'Mishary Alafasy'}</p>
-                    </div>
-                  </div>
-                </div>
-                
-                <div className="p-6">
-                  <div className="text-center mb-6">
-                    <p className="text-2xl font-bold text-white mb-1">{SURAHS[currentSurahIndex].name}</p>
-                    <p className="text-sm text-white/50">{SURAHS[currentSurahIndex].englishName}</p>
                   </div>
                   
-                  <div className="flex items-center justify-center gap-4 mb-6">
-                    <motion.button
-                      whileHover={{ scale: 1.1 }}
-                      whileTap={{ scale: 0.9 }}
-                      onClick={prevSurah}
-                      className="p-3 bg-white/10 hover:bg-white/20 rounded-2xl transition-all"
-                    >
-                      <SkipBack size={24} className="text-white/70" />
-                    </motion.button>
-                    
-                    <motion.button
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                      onClick={togglePlay}
-                      className="p-5 bg-gradient-to-r from-amber-500 to-orange-500 rounded-full shadow-xl shadow-amber-500/40"
-                    >
-                      {isPlaying ? <Pause size={32} className="text-white" /> : <Play size={32} className="text-white" />}
-                    </motion.button>
-                    
-                    <motion.button
-                      whileHover={{ scale: 1.1 }}
-                      whileTap={{ scale: 0.9 }}
-                      onClick={nextSurah}
-                      className="p-3 bg-white/10 hover:bg-white/20 rounded-2xl transition-all"
-                    >
-                      <SkipForward size={24} className="text-white/70" />
-                    </motion.button>
+                  <div className="relative z-10 p-6">
+                    <div className="text-center mb-6">
+                      <p className={cn("text-2xl font-bold mb-1", isDarkMode ? "text-white" : "text-black")}>{SURAHS[currentSurahIndex].name}</p>
+                      <p className={cn("text-sm", isDarkMode ? "text-white/50" : "text-black/50")}>{SURAHS[currentSurahIndex].englishName}</p>
                     </div>
                     
-                    {/* Volume Control */}
-                    <div className="flex items-center gap-3 mb-6 px-2">
+                    <div className="flex items-center justify-center gap-4 mb-6">
                       <motion.button
                         whileHover={{ scale: 1.1 }}
                         whileTap={{ scale: 0.9 }}
-                        onClick={() => {
-                          if (volume > 0) {
-                            setPrevVolume(volume);
-                            setVolume(0);
-                          } else {
-                            setVolume(prevVolume || 0.5);
-                          }
-                        }}
-                        className="text-amber-400 p-1 hover:bg-white/5 rounded-lg transition-colors"
+                        onClick={prevSurah}
+                        className={cn("p-3 rounded-2xl transition-all", isDarkMode ? "bg-white/10 hover:bg-white/20" : "bg-violet-100 hover:bg-violet-200")}
                       >
-                        {volume === 0 ? <VolumeX size={18} /> : volume < 0.5 ? <Volume1 size={18} /> : <Volume2 size={18} />}
+                        <SkipBack size={24} className={isDarkMode ? "text-white/70" : "text-violet-600"} />
                       </motion.button>
-                      <div className="flex-1 h-1.5 bg-white/10 rounded-full relative group cursor-pointer">
-                        <motion.div 
-                          className="absolute inset-y-0 left-0 bg-gradient-to-r from-amber-500 to-orange-500 rounded-full shadow-[0_0_10px_rgba(245,158,11,0.5)]"
-                          style={{ width: `${volume * 100}%` }}
-                        />
-                        <input 
-                          type="range" 
-                          min="0" 
-                          max="1" 
-                          step="0.01" 
-                          value={volume}
-                          onChange={(e) => setVolume(parseFloat(e.target.value))}
-                          className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
-                        />
-                        <motion.div 
-                          className="absolute top-1/2 -translate-y-1/2 w-3.5 h-3.5 bg-white rounded-full shadow-[0_0_8px_rgba(255,255,255,0.8)] border-2 border-amber-500"
-                          style={{ left: `${volume * 100}%`, x: '-50%' }}
-                        />
-                      </div>
-                      <span className="text-[10px] font-bold text-white/40 w-8">{Math.round(volume * 100)}%</span>
-                    </div>
-                    
-                    <motion.button
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                    onClick={resetAndStop}
-                    className="w-full flex items-center justify-center gap-2 py-3 bg-red-500/10 hover:bg-red-500/20 rounded-2xl transition-all text-red-400 hover:text-red-300 border border-red-500/20"
-                  >
-                    <Square size={18} />
-                    <span className="text-sm font-bold">{isRTL ? 'إيقاف والبدء من جديد' : 'Stop & Reset'}</span>
-                  </motion.button>
-                </div>
-                
-                <div className="p-4 border-t border-white/10 max-h-60 overflow-y-auto">
-                  <div className="flex items-center justify-between mb-3">
-                    <p className="text-xs text-white/40">{isRTL ? 'سور القرآن الكريم (114 سورة)' : 'Quran Surahs (114)'}</p>
-                    <p className="text-xs text-amber-400">{currentSurahIndex + 1}/114</p>
-                  </div>
-                  <div className="grid grid-cols-3 gap-2">
-                    {SURAHS.map((surah, i) => (
-                      <button
-                        key={surah.number}
-                        onClick={() => { setCurrentSurahIndex(i); playSurah(i); }}
-                        className={cn(
-                          "text-right p-2 rounded-xl transition-all text-xs",
-                          currentSurahIndex === i 
-                            ? "bg-amber-500/20 text-amber-400 font-bold border border-amber-500/30" 
-                            : "bg-white/5 hover:bg-white/10 text-white/60 border border-white/5"
-                        )}
+                      
+                      <motion.button
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        onClick={togglePlay}
+                        className={cn("p-5 rounded-full shadow-xl", isDarkMode ? "bg-gradient-to-r from-amber-500 to-orange-500 shadow-amber-500/40" : "bg-gradient-to-r from-violet-500 to-indigo-600 shadow-violet-500/40")}
                       >
-                        <span className="text-white/30 text-[10px]">{surah.number}.</span> {surah.name}
-                      </button>
-                    ))}
+                        {isPlaying ? <Pause size={32} className="text-white" /> : <Play size={32} className="text-white" />}
+                      </motion.button>
+                      
+                      <motion.button
+                        whileHover={{ scale: 1.1 }}
+                        whileTap={{ scale: 0.9 }}
+                        onClick={nextSurah}
+                        className={cn("p-3 rounded-2xl transition-all", isDarkMode ? "bg-white/10 hover:bg-white/20" : "bg-violet-100 hover:bg-violet-200")}
+                      >
+                        <SkipForward size={24} className={isDarkMode ? "text-white/70" : "text-violet-600"} />
+                      </motion.button>
+                      </div>
+                      
+                      {/* Volume Control */}
+                      <div className="flex items-center gap-3 mb-6 px-2">
+                        <motion.button
+                          whileHover={{ scale: 1.1 }}
+                          whileTap={{ scale: 0.9 }}
+                          onClick={() => {
+                            if (volume > 0) {
+                              setPrevVolume(volume);
+                              setVolume(0);
+                            } else {
+                              setVolume(prevVolume || 0.5);
+                            }
+                          }}
+                          className={cn("p-1 rounded-lg transition-colors", isDarkMode ? "text-amber-400 hover:bg-white/5" : "text-violet-600 hover:bg-violet-100")}
+                        >
+                          {volume === 0 ? <VolumeX size={18} /> : volume < 0.5 ? <Volume1 size={18} /> : <Volume2 size={18} />}
+                        </motion.button>
+                        <div className={cn("flex-1 h-1.5 rounded-full relative group cursor-pointer", isDarkMode ? "bg-white/10" : "bg-violet-200/50")}>
+                          <motion.div 
+                            className={cn("absolute inset-y-0 left-0 rounded-full", isDarkMode ? "bg-gradient-to-r from-amber-500 to-orange-500 shadow-[0_0_10px_rgba(245,158,11,0.5)]" : "bg-gradient-to-r from-violet-500 to-indigo-500 shadow-[0_0_10px_rgba(139,92,246,0.3)]")}
+                            style={{ width: `${volume * 100}%` }}
+                          />
+                          <input 
+                            type="range" 
+                            min="0" 
+                            max="1" 
+                            step="0.01" 
+                            value={volume}
+                            onChange={(e) => setVolume(parseFloat(e.target.value))}
+                            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                          />
+                          <motion.div 
+                            className={cn("absolute top-1/2 -translate-y-1/2 w-3.5 h-3.5 bg-white rounded-full border-2", isDarkMode ? "shadow-[0_0_8px_rgba(255,255,255,0.8)] border-amber-500" : "shadow-[0_0_8px_rgba(139,92,246,0.5)] border-violet-500")}
+                            style={{ left: `${volume * 100}%`, x: '-50%' }}
+                          />
+                        </div>
+                        <span className={cn("text-[10px] font-bold w-8", isDarkMode ? "text-white/40" : "text-black/40")}>{Math.round(volume * 100)}%</span>
+                      </div>
+                      
+                      <motion.button
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      onClick={resetAndStop}
+                      className="w-full flex items-center justify-center gap-2 py-3 bg-red-500/10 hover:bg-red-500/20 rounded-2xl transition-all text-red-400 hover:text-red-300 border border-red-500/20"
+                    >
+                      <Square size={18} />
+                      <span className="text-sm font-bold">{isRTL ? 'إيقاف والبدء من جديد' : 'Stop & Reset'}</span>
+                    </motion.button>
                   </div>
-                </div>
+                  
+                  <div className={cn("relative z-10 p-4 border-t max-h-60 overflow-y-auto", isDarkMode ? "border-white/10" : "border-violet-200/40")}>
+                    <div className="flex items-center justify-between mb-3">
+                      <p className={cn("text-xs", isDarkMode ? "text-white/40" : "text-black/40")}>{isRTL ? 'سور القرآن الكريم (114 سورة)' : 'Quran Surahs (114)'}</p>
+                      <p className={cn("text-xs", isDarkMode ? "text-amber-400" : "text-violet-600")}>{currentSurahIndex + 1}/114</p>
+                    </div>
+                    <div className="grid grid-cols-3 gap-2">
+                      {SURAHS.map((surah, i) => (
+                        <button
+                          key={surah.number}
+                          onClick={() => { setCurrentSurahIndex(i); playSurah(i); }}
+                          className={cn(
+                            "text-right p-2 rounded-xl transition-all text-xs",
+                            currentSurahIndex === i 
+                              ? isDarkMode 
+                                ? "bg-amber-500/20 text-amber-400 font-bold border border-amber-500/30"
+                                : "bg-violet-500/20 text-violet-600 font-bold border border-violet-400/30"
+                              : isDarkMode 
+                                ? "bg-white/5 hover:bg-white/10 text-white/60 border border-white/5"
+                                : "bg-white/40 hover:bg-white/60 text-black/60 border border-violet-100/60"
+                          )}
+                        >
+                          <span className={isDarkMode ? "text-white/30 text-[10px]" : "text-black/30 text-[10px]"}>{surah.number}.</span> {surah.name}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
               </motion.div>
             </div>
           )}
@@ -1560,49 +1601,49 @@ export function Header({ user, onToggleSidebar, unreadChatCount = 0, subscriptio
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
                   onClick={() => { setShowNotifications(false); setActiveNotifTab('system'); }}
-                  className="absolute inset-0 bg-black/70 backdrop-blur-md"
+                  className={cn("absolute inset-0 backdrop-blur-md", isDarkMode ? "bg-black/70" : "bg-black/30")}
                 />
                 <motion.div 
                   initial={{ scale: 0.9, opacity: 0, y: 20 }}
                   animate={{ scale: 1, opacity: 1, y: 0 }}
                   exit={{ scale: 0.9, opacity: 0, y: 20 }}
-                  className="relative w-full max-w-lg bg-gradient-to-b from-slate-900 to-slate-950 rounded-3xl shadow-2xl overflow-hidden border border-white/10 max-h-[85vh] flex flex-col"
+                  className={cn("relative w-full max-w-lg rounded-3xl shadow-2xl overflow-hidden max-h-[85vh] flex flex-col", isDarkMode ? "bg-gradient-to-b from-slate-900 to-slate-950 border border-white/10" : "bg-gradient-to-b from-white via-violet-50/50 to-indigo-50/80 border-2 border-violet-200/60")}
                 >
                   <button 
                     onClick={() => { setShowNotifications(false); setActiveNotifTab('system'); }}
-                    className="absolute top-4 left-4 p-2 text-white/30 hover:text-white hover:bg-white/10 rounded-xl transition-all z-10"
+                    className={cn("absolute top-4 left-4 p-2 rounded-xl transition-all z-10", isDarkMode ? "text-white/30 hover:text-white hover:bg-white/10" : "text-black/30 hover:text-black hover:bg-black/5")}
                   >
                     <X size={20} />
                   </button>
                   
                   {/* Header */}
-                  <div className="p-6 border-b border-white/10">
+                  <div className={cn("p-6 border-b", isDarkMode ? "border-white/10" : "border-violet-200/40")}>
                     <div className="flex items-center gap-4 mb-5">
                       <div className="relative">
                         <motion.div
                           animate={{ scale: [1, 1.15, 1], opacity: [0.3, 0.6, 0.3] }}
                           transition={{ duration: 3, repeat: Infinity }}
-                          className="absolute inset-0 bg-blue-500 rounded-2xl blur-xl"
+                          className={cn("absolute inset-0 rounded-2xl blur-xl", isDarkMode ? "bg-blue-500" : "bg-violet-500")}
                         />
-                        <div className="relative p-3 rounded-2xl bg-gradient-to-br from-blue-500/30 to-indigo-500/30 border border-blue-500/20">
-                          <Bell size={28} className="text-blue-400" />
+                        <div className={cn("relative p-3 rounded-2xl border", isDarkMode ? "bg-gradient-to-br from-blue-500/30 to-indigo-500/30 border-blue-500/20" : "bg-gradient-to-br from-violet-500/20 to-indigo-500/20 border-violet-300/40")}>
+                          <Bell size={28} className={isDarkMode ? "text-blue-400" : "text-violet-600"} />
                         </div>
                       </div>
                       <div>
-                        <h3 className="font-black text-white text-xl">{isRTL ? 'مركز الإشعارات' : 'Notification Center'}</h3>
-                        <p className="text-sm text-white/40">{isRTL ? 'جميع التنبيهات والتحديثات' : 'All alerts and updates'}</p>
+                        <h3 className={cn("font-black text-xl", isDarkMode ? "text-white" : "text-black")}>{isRTL ? 'مركز الإشعارات' : 'Notification Center'}</h3>
+                        <p className={cn("text-sm", isDarkMode ? "text-white/40" : "text-black/40")}>{isRTL ? 'جميع التنبيهات والتحديثات' : 'All alerts and updates'}</p>
                       </div>
                     </div>
                     
                     {/* Tabs */}
-                    <div className="flex items-center gap-1 bg-white/5 p-1 rounded-xl">
+                    <div className={cn("flex items-center gap-1 p-1 rounded-xl", isDarkMode ? "bg-white/5" : "bg-violet-100/50")}>
                       <button
                         onClick={() => setActiveNotifTab('system')}
                         className={cn(
                           "flex-1 flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-lg text-[11px] font-black transition-all",
                           activeNotifTab === 'system' 
                             ? "bg-blue-500 text-white shadow-lg shadow-blue-500/30" 
-                            : "text-white/40 hover:text-white/70"
+                            : isDarkMode ? "text-white/40 hover:text-white/70" : "text-black/40 hover:text-black/70"
                         )}
                       >
                         <Bell size={13} />
@@ -1615,7 +1656,7 @@ export function Header({ user, onToggleSidebar, unreadChatCount = 0, subscriptio
                           "flex-1 flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-lg text-[11px] font-black transition-all",
                           activeNotifTab === 'identity' 
                             ? "bg-gradient-to-r from-red-500 to-rose-500 text-white shadow-lg shadow-red-500/30" 
-                            : "text-white/40 hover:text-white/70"
+                            : isDarkMode ? "text-white/40 hover:text-white/70" : "text-black/40 hover:text-black/70"
                         )}
                       >
                         <ShieldAlert size={13} />
@@ -1630,9 +1671,9 @@ export function Header({ user, onToggleSidebar, unreadChatCount = 0, subscriptio
                         onClick={() => setActiveNotifTab('incomplete')}
                         className={cn(
                           "flex-1 flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-lg text-[11px] font-black transition-all",
-                          activeNotifTab === 'incomplete' 
-                            ? "bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-lg shadow-amber-500/30" 
-                            : "text-white/40 hover:text-white/70"
+                            activeNotifTab === 'incomplete' 
+                              ? "bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-lg shadow-amber-500/30" 
+                              : isDarkMode ? "text-white/40 hover:text-white/70" : "text-black/40 hover:text-black/70"
                         )}
                       >
                         <FileWarning size={13} />
@@ -1654,8 +1695,8 @@ export function Header({ user, onToggleSidebar, unreadChatCount = 0, subscriptio
                         {adminNotifications.length > 0 ? adminNotifications.map((notif) => (
                           <motion.div
                             key={notif.id}
-                            whileHover={{ backgroundColor: "rgba(255,255,255,0.05)" }}
-                            className="p-4 border-b border-white/5 cursor-pointer"
+                              whileHover={{ backgroundColor: isDarkMode ? "rgba(255,255,255,0.05)" : "rgba(139,92,246,0.05)" }}
+                              className={cn("p-4 border-b cursor-pointer", isDarkMode ? "border-white/5" : "border-violet-100/60")}
                             onClick={() => {
                               const currentLastSeen = parseInt(localStorage.getItem("last_admin_notification_id") || "0");
                               if (notif.id > currentLastSeen) {
@@ -1667,19 +1708,19 @@ export function Header({ user, onToggleSidebar, unreadChatCount = 0, subscriptio
                             }}
                           >
                             <div className="flex items-start gap-3">
-                              <div className="p-2 rounded-xl bg-blue-500/20">
-                                <Bell size={16} className="text-blue-400" />
-                              </div>
-                              <div className="flex-1">
-                                <p className="text-sm font-bold text-white/90">{notif.title}</p>
-                                <p className="text-xs text-white/40">{new Date(notif.created_at).toLocaleDateString('en-US')}</p>
+                                <div className={cn("p-2 rounded-xl", isDarkMode ? "bg-blue-500/20" : "bg-violet-500/15")}>
+                                  <Bell size={16} className={isDarkMode ? "text-blue-400" : "text-violet-600"} />
+                                </div>
+                                <div className="flex-1">
+                                  <p className={cn("text-sm font-bold", isDarkMode ? "text-white/90" : "text-black/90")}>{notif.title}</p>
+                                  <p className={cn("text-xs", isDarkMode ? "text-white/40" : "text-black/40")}>{new Date(notif.created_at).toLocaleDateString('en-US')}</p>
                               </div>
                             </div>
                           </motion.div>
                         )) : (
                           <div className="p-16 text-center">
-                            <Bell size={48} className="mx-auto mb-3 text-white/10" />
-                            <p className="text-sm font-bold text-white/30">{isRTL ? 'لا توجد تنبيهات' : 'No alerts'}</p>
+                              <Bell size={48} className={cn("mx-auto mb-3", isDarkMode ? "text-white/10" : "text-violet-300/40")} />
+                              <p className={cn("text-sm font-bold", isDarkMode ? "text-white/30" : "text-black/30")}>{isRTL ? 'لا توجد تنبيهات' : 'No alerts'}</p>
                           </div>
                         )}
                       </div>
@@ -1728,44 +1769,44 @@ export function Header({ user, onToggleSidebar, unreadChatCount = 0, subscriptio
                                     <ShieldX size={14} className="text-red-400" />
                                   </div>
                                   <div className="flex-1 min-w-0">
-                                    <p className="text-xs font-black text-white/90 truncate">{emp.name}</p>
-                                    <p className="text-[10px] text-white/40">{emp.package_name}</p>
-                                  </div>
-                                  <div className="text-left shrink-0">
-                                    <span className="px-2 py-1 rounded-lg bg-red-500/20 text-red-400 text-[10px] font-black">
-                                      {isRTL ? `منتهية منذ ${Math.abs(emp.days_remaining)} يوم` : `${Math.abs(emp.days_remaining)}d ago`}
-                                    </span>
-                                  </div>
-                                </motion.div>
-                              ))}
+                                      <p className={cn("text-xs font-black truncate", isDarkMode ? "text-white/90" : "text-black/90")}>{emp.name}</p>
+                                      <p className={cn("text-[10px]", isDarkMode ? "text-white/40" : "text-black/40")}>{emp.package_name}</p>
+                                    </div>
+                                    <div className="text-left shrink-0">
+                                      <span className="px-2 py-1 rounded-lg bg-red-500/20 text-red-400 text-[10px] font-black">
+                                        {isRTL ? `منتهية منذ ${Math.abs(emp.days_remaining)} يوم` : `${Math.abs(emp.days_remaining)}d ago`}
+                                      </span>
+                                    </div>
+                                  </motion.div>
+                                ))}
+                              </div>
                             </div>
-                          </div>
-                        )}
+                          )}
 
-                        {/* Expiring Soon List */}
-                        {(hrNotifications?.identity.expiring_soon || []).length > 0 && (
-                          <div>
-                            <div className="flex items-center gap-2 mb-2 px-1">
-                              <div className="w-2 h-2 rounded-full bg-amber-500" />
-                              <span className="text-[11px] font-black text-amber-400">{isRTL ? 'هويات تنتهي قريبا' : 'Expiring Soon'}</span>
-                            </div>
-                            <div className="space-y-2">
-                              {hrNotifications?.identity.expiring_soon.slice(0, 10).map((emp) => (
-                                <motion.div
-                                  key={emp.id}
-                                  whileHover={{ x: isRTL ? -4 : 4 }}
-                                  className="flex items-center gap-3 p-3 rounded-xl bg-amber-500/5 border border-amber-500/10 hover:border-amber-500/30 transition-all cursor-pointer"
-                                  onClick={() => {
-                                    router.push(`/hr/employees/${emp.id}`);
-                                    setShowNotifications(false);
-                                  }}
-                                >
-                                  <div className="p-2 rounded-lg bg-amber-500/20">
-                                    <ShieldAlert size={14} className="text-amber-400" />
-                                  </div>
-                                  <div className="flex-1 min-w-0">
-                                    <p className="text-xs font-black text-white/90 truncate">{emp.name}</p>
-                                    <p className="text-[10px] text-white/40">{emp.package_name}</p>
+                          {/* Expiring Soon List */}
+                          {(hrNotifications?.identity.expiring_soon || []).length > 0 && (
+                            <div>
+                              <div className="flex items-center gap-2 mb-2 px-1">
+                                <div className="w-2 h-2 rounded-full bg-amber-500" />
+                                <span className="text-[11px] font-black text-amber-400">{isRTL ? 'هويات تنتهي قريبا' : 'Expiring Soon'}</span>
+                              </div>
+                              <div className="space-y-2">
+                                {hrNotifications?.identity.expiring_soon.slice(0, 10).map((emp) => (
+                                  <motion.div
+                                    key={emp.id}
+                                    whileHover={{ x: isRTL ? -4 : 4 }}
+                                    className="flex items-center gap-3 p-3 rounded-xl bg-amber-500/5 border border-amber-500/10 hover:border-amber-500/30 transition-all cursor-pointer"
+                                    onClick={() => {
+                                      router.push(`/hr/employees/${emp.id}`);
+                                      setShowNotifications(false);
+                                    }}
+                                  >
+                                    <div className="p-2 rounded-lg bg-amber-500/20">
+                                      <ShieldAlert size={14} className="text-amber-400" />
+                                    </div>
+                                    <div className="flex-1 min-w-0">
+                                      <p className={cn("text-xs font-black truncate", isDarkMode ? "text-white/90" : "text-black/90")}>{emp.name}</p>
+                                      <p className={cn("text-[10px]", isDarkMode ? "text-white/40" : "text-black/40")}>{emp.package_name}</p>
                                   </div>
                                   <div className="text-left shrink-0">
                                     <span className={cn(
@@ -1804,8 +1845,8 @@ export function Header({ user, onToggleSidebar, unreadChatCount = 0, subscriptio
                                 <FileWarning size={20} className="text-amber-400" />
                               </div>
                               <div>
-                                <p className="text-sm font-black text-white">{isRTL ? 'بيانات غير مكتملة' : 'Incomplete Data'}</p>
-                                <p className="text-[10px] text-white/40">{isRTL ? 'موظفون يحتاجون استكمال بياناتهم' : 'Employees need data completion'}</p>
+                                  <p className={cn("text-sm font-black", isDarkMode ? "text-white" : "text-black")}>{isRTL ? 'بيانات غير مكتملة' : 'Incomplete Data'}</p>
+                                  <p className={cn("text-[10px]", isDarkMode ? "text-white/40" : "text-black/40")}>{isRTL ? 'موظفون يحتاجون استكمال بياناتهم' : 'Employees need data completion'}</p>
                               </div>
                             </div>
                             <p className="text-2xl font-black text-amber-400">{hrNotifications?.incomplete.total_incomplete || 0}</p>
@@ -1814,9 +1855,9 @@ export function Header({ user, onToggleSidebar, unreadChatCount = 0, subscriptio
 
                         {/* Packages */}
                         {(hrNotifications?.incomplete.packages || []).map((pkg) => (
-                          <div key={pkg.package_id} className="rounded-2xl border border-white/10 overflow-hidden">
-                            <motion.button
-                              whileHover={{ backgroundColor: "rgba(255,255,255,0.03)" }}
+                            <div key={pkg.package_id} className={cn("rounded-2xl border overflow-hidden", isDarkMode ? "border-white/10" : "border-violet-200/40")}>
+                              <motion.button
+                                whileHover={{ backgroundColor: isDarkMode ? "rgba(255,255,255,0.03)" : "rgba(139,92,246,0.03)" }}
                               onClick={() => {
                                 router.push(`/hr/employees?package=${pkg.package_id}`);
                                 setShowNotifications(false);
@@ -1828,20 +1869,20 @@ export function Header({ user, onToggleSidebar, unreadChatCount = 0, subscriptio
                                   <Package size={16} className="text-purple-400" />
                                 </div>
                                 <div className="text-right">
-                                  <p className="text-sm font-black text-white">{pkg.package_name}</p>
-                                  <p className="text-[10px] text-white/40">{pkg.employees.length} {isRTL ? 'موظف' : 'employees'}</p>
+                                    <p className={cn("text-sm font-black", isDarkMode ? "text-white" : "text-black")}>{pkg.package_name}</p>
+                                    <p className={cn("text-[10px]", isDarkMode ? "text-white/40" : "text-black/40")}>{pkg.employees.length} {isRTL ? 'موظف' : 'employees'}</p>
                                 </div>
                               </div>
                               <div className="flex items-center gap-2">
                                 <span className="px-2.5 py-1 rounded-lg bg-amber-500/20 text-amber-400 text-[10px] font-black">
                                   {pkg.employees.length} {isRTL ? 'ناقص' : 'incomplete'}
                                 </span>
-                                <ChevronRight size={16} className={cn("text-white/30", isRTL && "rotate-180")} />
+                                <ChevronRight size={16} className={cn(isDarkMode ? "text-white/30" : "text-black/30", isRTL && "rotate-180")} />
                               </div>
                             </motion.button>
                             
                             {/* Employee list preview */}
-                            <div className="border-t border-white/5 px-4 py-2 space-y-1 max-h-32 overflow-y-auto">
+                            <div className={cn("border-t px-4 py-2 space-y-1 max-h-32 overflow-y-auto", isDarkMode ? "border-white/5" : "border-violet-100/40")}>
                               {pkg.employees.slice(0, 5).map((emp) => {
                                 const fieldLabels: Record<string, string> = isRTL ? {
                                   name: 'الاسم', iqama_number: 'رقم الهوية', phone: 'الهاتف',
@@ -1852,7 +1893,7 @@ export function Header({ user, onToggleSidebar, unreadChatCount = 0, subscriptio
                                 };
                                 return (
                                   <div key={emp.id} className="flex items-center justify-between py-1.5">
-                                    <span className="text-[11px] font-bold text-white/60">{emp.name}</span>
+                                      <span className={cn("text-[11px] font-bold", isDarkMode ? "text-white/60" : "text-black/60")}>{emp.name}</span>
                                     <div className="flex items-center gap-1">
                                       {emp.missing_fields.slice(0, 3).map(f => (
                                         <span key={f} className="px-1.5 py-0.5 rounded bg-red-500/10 text-red-400/80 text-[9px] font-bold">
@@ -1860,14 +1901,14 @@ export function Header({ user, onToggleSidebar, unreadChatCount = 0, subscriptio
                                         </span>
                                       ))}
                                       {emp.missing_fields.length > 3 && (
-                                        <span className="text-[9px] text-white/30">+{emp.missing_fields.length - 3}</span>
+                                          <span className={cn("text-[9px]", isDarkMode ? "text-white/30" : "text-black/30")}>+{emp.missing_fields.length - 3}</span>
                                       )}
                                     </div>
                                   </div>
                                 );
                               })}
                               {pkg.employees.length > 5 && (
-                                <p className="text-[10px] text-white/30 text-center py-1">+{pkg.employees.length - 5} {isRTL ? 'موظف آخر' : 'more'}</p>
+                                  <p className={cn("text-[10px] text-center py-1", isDarkMode ? "text-white/30" : "text-black/30")}>+{pkg.employees.length - 5} {isRTL ? 'موظف آخر' : 'more'}</p>
                               )}
                             </div>
                           </div>
@@ -1884,7 +1925,7 @@ export function Header({ user, onToggleSidebar, unreadChatCount = 0, subscriptio
                   </div>
 
                   {/* Footer */}
-                  <div className="p-4 border-t border-white/10 shrink-0">
+                    <div className={cn("p-4 border-t shrink-0", isDarkMode ? "border-white/10" : "border-violet-200/40")}>
                     {activeNotifTab === 'system' && (
                       <button 
                         onClick={() => {
@@ -1934,39 +1975,39 @@ export function Header({ user, onToggleSidebar, unreadChatCount = 0, subscriptio
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                onClick={() => setShowUserDropdown(false)}
-                className="absolute inset-0 bg-black/70 backdrop-blur-md"
+                  onClick={() => setShowUserDropdown(false)}
+                  className={cn("absolute inset-0 backdrop-blur-md", isDarkMode ? "bg-black/70" : "bg-black/30")}
               />
               <motion.div 
                 initial={{ scale: 0.9, opacity: 0, y: 20 }}
                 animate={{ scale: 1, opacity: 1, y: 0 }}
                 exit={{ scale: 0.9, opacity: 0, y: 20 }}
-                className="relative w-full max-w-md bg-gradient-to-b from-slate-900 to-slate-950 rounded-3xl shadow-2xl overflow-hidden border border-white/10 max-h-[90vh] overflow-y-auto"
+                className={cn("relative w-full max-w-md rounded-3xl shadow-2xl overflow-hidden max-h-[90vh] overflow-y-auto", isDarkMode ? "bg-gradient-to-b from-slate-900 to-slate-950 border border-white/10" : "bg-gradient-to-b from-white via-violet-50/50 to-indigo-50/80 border-2 border-violet-200/60")}
               >
                 <button 
-                  onClick={() => setShowUserDropdown(false)}
-                  className="absolute top-4 left-4 p-2 text-white/30 hover:text-white hover:bg-white/10 rounded-xl transition-all z-10"
-                >
-                  <X size={20} />
-                </button>
-                
-                <div className="p-6 border-b border-white/10 bg-gradient-to-r from-blue-500/10 to-purple-500/10">
-                  <div className="flex items-center gap-4">
-                    <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center shadow-xl">
-                      <User size={32} className="text-white" />
-                    </div>
-                    <div>
-                      <p className="font-bold text-white text-lg">{user?.name}</p>
-                      <p className="text-sm text-white/40">{user?.email}</p>
-                      <p className="text-xs text-white/30 mt-1">
+                    onClick={() => setShowUserDropdown(false)}
+                    className={cn("absolute top-4 left-4 p-2 rounded-xl transition-all z-10", isDarkMode ? "text-white/30 hover:text-white hover:bg-white/10" : "text-black/30 hover:text-black hover:bg-black/5")}
+                  >
+                    <X size={20} />
+                  </button>
+                  
+                  <div className={cn("p-6 border-b", isDarkMode ? "border-white/10 bg-gradient-to-r from-blue-500/10 to-purple-500/10" : "border-violet-200/40 bg-gradient-to-r from-violet-100/60 to-indigo-100/60")}>
+                    <div className="flex items-center gap-4">
+                      <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center shadow-xl">
+                        <User size={32} className="text-white" />
+                      </div>
+                      <div>
+                        <p className={cn("font-bold text-lg", isDarkMode ? "text-white" : "text-black")}>{user?.name}</p>
+                        <p className={cn("text-sm", isDarkMode ? "text-white/40" : "text-black/40")}>{user?.email}</p>
+                        <p className={cn("text-xs mt-1", isDarkMode ? "text-white/30" : "text-black/30")}>
                         {user?.role === "admin" ? (isRTL ? "مدير النظام" : "System Admin") : (isRTL ? "مدير منشأة" : "Facility Manager")}
                       </p>
                     </div>
                   </div>
                 </div>
                   
-                {user?.role !== 'admin' && subscriptionData && (
-                  <div className="p-4 border-b border-white/10">
+                  {user?.role !== 'admin' && subscriptionData && (
+                    <div className={cn("p-4 border-b", isDarkMode ? "border-white/10" : "border-violet-200/40")}>
                     <div className={cn(
                       "p-4 rounded-2xl",
                       subscriptionData.isActive && subscriptionData.daysRemaining > 7
@@ -1978,7 +2019,7 @@ export function Header({ user, onToggleSidebar, unreadChatCount = 0, subscriptio
                       <div className="flex items-center justify-between mb-3">
                         <div className="flex items-center gap-2">
                           <Package size={18} className="text-amber-400" />
-                          <span className="text-sm font-bold text-white">{isRTL ? 'باقتك الحالية' : 'Your Plan'}</span>
+                            <span className={cn("text-sm font-bold", isDarkMode ? "text-white" : "text-black")}>{isRTL ? 'باقتك الحالية' : 'Your Plan'}</span>
                         </div>
                         <Crown size={20} className={cn(
                           subscriptionData.isActive ? "text-amber-400" : "text-red-400"
@@ -1995,18 +2036,18 @@ export function Header({ user, onToggleSidebar, unreadChatCount = 0, subscriptio
                               : isRTL ? 'غير مشترك' : 'Not Subscribed'}
                           </p>
                           {subscriptionData.endDate && (
-                            <p className="text-xs text-white/40 mt-1">
-                              {isRTL ? 'تنتهي في: ' : 'Expires: '}{new Date(subscriptionData.endDate).toLocaleDateString( 'en-US' )}
-                            </p>
+                            <p className={cn("text-xs mt-1", isDarkMode ? "text-white/40" : "text-black/40")}>
+                                {isRTL ? 'تنتهي في: ' : 'Expires: '}{new Date(subscriptionData.endDate).toLocaleDateString( 'en-US' )}
+                              </p>
                           )}
                         </div>
                         <motion.button
                           whileHover={{ scale: 1.05 }}
                           whileTap={{ scale: 0.95 }}
                           onClick={openSubscriptionModal}
-                          className="p-2 bg-white/10 hover:bg-white/20 rounded-xl transition-all"
-                        >
-                          <Info size={16} className="text-white/60" />
+                            className={cn("p-2 rounded-xl transition-all", isDarkMode ? "bg-white/10 hover:bg-white/20" : "bg-violet-100 hover:bg-violet-200")}
+                          >
+                            <Info size={16} className={isDarkMode ? "text-white/60" : "text-violet-600"} />
                         </motion.button>
                       </div>
                     </div>
@@ -2036,21 +2077,21 @@ export function Header({ user, onToggleSidebar, unreadChatCount = 0, subscriptio
 
                     <div className="p-3 space-y-1">
                         <motion.button
-                          whileHover={{ backgroundColor: "rgba(255,255,255,0.05)" }}
-                          onClick={() => { router.push("/user_profile"); setShowUserDropdown(false); }}
-                          className="w-full flex items-center gap-4 px-4 py-3.5 rounded-xl text-white/70 hover:text-white transition-colors"
-                        >
-                          <div className="p-2 rounded-xl bg-blue-500/20">
-                            <Building2 size={18} className="text-blue-400" />
+                          whileHover={{ backgroundColor: isDarkMode ? "rgba(255,255,255,0.05)" : "rgba(139,92,246,0.05)" }}
+                            onClick={() => { router.push("/user_profile"); setShowUserDropdown(false); }}
+                            className={cn("w-full flex items-center gap-4 px-4 py-3.5 rounded-xl transition-colors", isDarkMode ? "text-white/70 hover:text-white" : "text-black/70 hover:text-black")}
+                          >
+                            <div className={cn("p-2 rounded-xl", isDarkMode ? "bg-blue-500/20" : "bg-violet-500/15")}>
+                              <Building2 size={18} className={isDarkMode ? "text-blue-400" : "text-violet-600"} />
                           </div>
                           <span className="text-sm font-bold">{t('userProfile')}</span>
                         </motion.button>
 
                       {user?.role !== 'admin' && (
-                          <motion.button
-                            whileHover={{ backgroundColor: "rgba(255,255,255,0.05)" }}
-                            onClick={() => { router.push("/subscriptions"); setShowUserDropdown(false); }}
-                            className="w-full flex items-center gap-4 px-4 py-3.5 rounded-xl text-white/70 hover:text-white transition-colors"
+                            <motion.button
+                              whileHover={{ backgroundColor: isDarkMode ? "rgba(255,255,255,0.05)" : "rgba(139,92,246,0.05)" }}
+                              onClick={() => { router.push("/subscriptions"); setShowUserDropdown(false); }}
+                              className={cn("w-full flex items-center gap-4 px-4 py-3.5 rounded-xl transition-colors", isDarkMode ? "text-white/70 hover:text-white" : "text-black/70 hover:text-black")}
                           >
                             <div className="p-2 rounded-xl bg-amber-500/20">
                               <Package size={18} className="text-amber-400" />
@@ -2060,18 +2101,18 @@ export function Header({ user, onToggleSidebar, unreadChatCount = 0, subscriptio
                         )}
                       
                         <motion.button
-                          whileHover={{ backgroundColor: "rgba(255,255,255,0.05)" }}
-                          onClick={() => { router.push("/settings"); setShowUserDropdown(false); }}
-                          className="w-full flex items-center gap-4 px-4 py-3.5 rounded-xl text-white/70 hover:text-white transition-colors"
-                        >
-                        <div className="p-2 rounded-xl bg-slate-500/20">
-                          <Settings size={18} className="text-slate-400" />
+                          whileHover={{ backgroundColor: isDarkMode ? "rgba(255,255,255,0.05)" : "rgba(139,92,246,0.05)" }}
+                            onClick={() => { router.push("/settings"); setShowUserDropdown(false); }}
+                            className={cn("w-full flex items-center gap-4 px-4 py-3.5 rounded-xl transition-colors", isDarkMode ? "text-white/70 hover:text-white" : "text-black/70 hover:text-black")}
+                          >
+                        <div className={cn("p-2 rounded-xl", isDarkMode ? "bg-slate-500/20" : "bg-violet-100")}>
+                          <Settings size={18} className={isDarkMode ? "text-slate-400" : "text-violet-600"} />
                         </div>
                         <span className="text-sm font-bold">{isRTL ? 'إعدادات النظام' : 'System Settings'}</span>
                       </motion.button>
                     </div>
                 
-                <div className="p-3 border-t border-white/10">
+                  <div className={cn("p-3 border-t", isDarkMode ? "border-white/10" : "border-violet-200/40")}>
                   <motion.button
                     whileHover={{ scale: 1.02, backgroundColor: "rgba(239, 68, 68, 0.1)" }}
                     whileTap={{ scale: 0.98 }}
@@ -2095,30 +2136,30 @@ export function Header({ user, onToggleSidebar, unreadChatCount = 0, subscriptio
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                onClick={() => setShowSubscriptionModal(false)}
-                className="absolute inset-0 bg-black/70 backdrop-blur-md"
+                  onClick={() => setShowSubscriptionModal(false)}
+                  className={cn("absolute inset-0 backdrop-blur-md", isDarkMode ? "bg-black/70" : "bg-black/30")}
               />
               <motion.div 
                 initial={{ scale: 0.9, opacity: 0, y: 20 }}
                 animate={{ scale: 1, opacity: 1, y: 0 }}
                 exit={{ scale: 0.9, opacity: 0, y: 20 }}
-                className="relative w-full max-w-lg bg-gradient-to-b from-slate-900 to-slate-950 rounded-3xl shadow-2xl overflow-hidden border border-amber-500/20 max-h-[90vh] overflow-y-auto"
+                className={cn("relative w-full max-w-lg rounded-3xl shadow-2xl overflow-hidden max-h-[90vh] overflow-y-auto", isDarkMode ? "bg-gradient-to-b from-slate-900 to-slate-950 border border-amber-500/20" : "bg-gradient-to-b from-white via-violet-50/50 to-indigo-50/80 border-2 border-violet-200/60")}
               >
                 <button 
-                  onClick={() => setShowSubscriptionModal(false)}
-                  className="absolute top-4 left-4 p-2 text-white/30 hover:text-white hover:bg-white/10 rounded-xl transition-all z-10"
-                >
-                  <X size={20} />
-                </button>
-                
-                <div className="p-6 bg-gradient-to-r from-amber-500/20 to-orange-500/20 border-b border-amber-500/20">
-                  <div className="flex items-center gap-4">
-                    <div className="p-4 rounded-2xl bg-gradient-to-br from-amber-500/30 to-orange-500/30">
-                      <Crown size={32} className="text-amber-400" />
-                    </div>
-                    <div>
-                      <h3 className="font-bold text-white text-xl">{isRTL ? 'تفاصيل الاشتراك' : 'Subscription Details'}</h3>
-                      <p className="text-sm text-amber-400">{isRTL ? 'إدارة باقتك وتجديدها' : 'Manage and renew your plan'}</p>
+                    onClick={() => setShowSubscriptionModal(false)}
+                    className={cn("absolute top-4 left-4 p-2 rounded-xl transition-all z-10", isDarkMode ? "text-white/30 hover:text-white hover:bg-white/10" : "text-black/30 hover:text-black hover:bg-black/5")}
+                  >
+                    <X size={20} />
+                  </button>
+                  
+                  <div className={cn("p-6 border-b", isDarkMode ? "bg-gradient-to-r from-amber-500/20 to-orange-500/20 border-amber-500/20" : "bg-gradient-to-r from-violet-100/60 to-indigo-100/60 border-violet-200/40")}>
+                    <div className="flex items-center gap-4">
+                      <div className={cn("p-4 rounded-2xl", isDarkMode ? "bg-gradient-to-br from-amber-500/30 to-orange-500/30" : "bg-gradient-to-br from-violet-500/20 to-indigo-500/20")}>
+                        <Crown size={32} className={isDarkMode ? "text-amber-400" : "text-violet-600"} />
+                      </div>
+                      <div>
+                        <h3 className={cn("font-bold text-xl", isDarkMode ? "text-white" : "text-black")}>{isRTL ? 'تفاصيل الاشتراك' : 'Subscription Details'}</h3>
+                        <p className={cn("text-sm", isDarkMode ? "text-amber-400" : "text-violet-600")}>{isRTL ? 'إدارة باقتك وتجديدها' : 'Manage and renew your plan'}</p>
                     </div>
                   </div>
                 </div>
@@ -2140,7 +2181,7 @@ export function Header({ user, onToggleSidebar, unreadChatCount = 0, subscriptio
                             <Shield size={24} className={subscriptionData.isActive ? "text-emerald-400" : "text-red-400"} />
                           </div>
                           <div>
-                            <p className="font-bold text-white">{isRTL ? 'حالة الاشتراك' : 'Status'}</p>
+                              <p className={cn("font-bold", isDarkMode ? "text-white" : "text-black")}>{isRTL ? 'حالة الاشتراك' : 'Status'}</p>
                             <p className={cn(
                               "text-sm font-bold",
                               subscriptionData.isActive ? "text-emerald-400" : "text-red-400"
@@ -2151,26 +2192,26 @@ export function Header({ user, onToggleSidebar, unreadChatCount = 0, subscriptio
                         </div>
                         {subscriptionData.isActive && (
                           <div className="text-left">
-                            <p className="text-3xl font-black text-white">{subscriptionData.daysRemaining}</p>
-                            <p className="text-xs text-white/40">{isRTL ? 'يوم متبقي' : 'days left'}</p>
+                              <p className={cn("text-3xl font-black", isDarkMode ? "text-white" : "text-black")}>{subscriptionData.daysRemaining}</p>
+                              <p className={cn("text-xs", isDarkMode ? "text-white/40" : "text-black/40")}>{isRTL ? 'يوم متبقي' : 'days left'}</p>
                           </div>
                         )}
                       </div>
                       
                       {currentPlanDetails && (
-                        <div className="space-y-3 pt-4 border-t border-white/10">
-                          <div className="flex items-center justify-between">
-                            <span className="text-sm text-white/50">{isRTL ? 'اسم الباقة' : 'Plan Name'}</span>
-                            <span className="text-sm font-bold text-white">{currentPlanDetails.plan_name}</span>
-                          </div>
-                          <div className="flex items-center justify-between">
-                            <span className="text-sm text-white/50">{isRTL ? 'السعر' : 'Price'}</span>
+                          <div className={cn("space-y-3 pt-4 border-t", isDarkMode ? "border-white/10" : "border-violet-200/40")}>
+                            <div className="flex items-center justify-between">
+                              <span className={cn("text-sm", isDarkMode ? "text-white/50" : "text-black/50")}>{isRTL ? 'اسم الباقة' : 'Plan Name'}</span>
+                              <span className={cn("text-sm font-bold", isDarkMode ? "text-white" : "text-black")}>{currentPlanDetails.plan_name}</span>
+                            </div>
+                            <div className="flex items-center justify-between">
+                              <span className={cn("text-sm", isDarkMode ? "text-white/50" : "text-black/50")}>{isRTL ? 'السعر' : 'Price'}</span>
                             <span className="text-sm font-bold text-amber-400">{currentPlanDetails.plan_price} {isRTL ? 'ر.س' : 'SAR'}</span>
                           </div>
                           {subscriptionData.endDate && (
                             <div className="flex items-center justify-between">
-                              <span className="text-sm text-white/50">{isRTL ? 'تاريخ الانتهاء' : 'End Date'}</span>
-                              <span className="text-sm font-bold text-white">{new Date(subscriptionData.endDate).toLocaleDateString( 'en-US' )}</span>
+                              <span className={cn("text-sm", isDarkMode ? "text-white/50" : "text-black/50")}>{isRTL ? 'تاريخ الانتهاء' : 'End Date'}</span>
+                              <span className={cn("text-sm font-bold", isDarkMode ? "text-white" : "text-black")}>{new Date(subscriptionData.endDate).toLocaleDateString( 'en-US' )}</span>
                             </div>
                           )}
                         </div>
@@ -2179,16 +2220,16 @@ export function Header({ user, onToggleSidebar, unreadChatCount = 0, subscriptio
                   )}
 
                   {currentPlanDetails?.features && (
-                    <div className="p-5 rounded-2xl bg-white/5 border border-white/10">
-                      <div className="flex items-center gap-3 mb-4">
-                        <Star size={20} className="text-amber-400" />
-                        <p className="font-bold text-white">{isRTL ? 'مميزات الباقة' : 'Plan Features'}</p>
-                      </div>
-                      <div className="space-y-2">
-                        {(currentPlanDetails.features || '').split(',').map((feature: string, i: number) => (
-                          <div key={i} className="flex items-center gap-3">
-                            <CheckCircle2 size={16} className="text-emerald-400" />
-                            <span className="text-sm text-white/70">{feature.trim()}</span>
+                      <div className={cn("p-5 rounded-2xl border", isDarkMode ? "bg-white/5 border-white/10" : "bg-white/60 border-violet-200/40")}>
+                        <div className="flex items-center gap-3 mb-4">
+                          <Star size={20} className="text-amber-400" />
+                          <p className={cn("font-bold", isDarkMode ? "text-white" : "text-black")}>{isRTL ? 'مميزات الباقة' : 'Plan Features'}</p>
+                        </div>
+                        <div className="space-y-2">
+                          {(currentPlanDetails.features || '').split(',').map((feature: string, i: number) => (
+                            <div key={i} className="flex items-center gap-3">
+                              <CheckCircle2 size={16} className="text-emerald-400" />
+                              <span className={cn("text-sm", isDarkMode ? "text-white/70" : "text-black/70")}>{feature.trim()}</span>
                           </div>
                         ))}
                       </div>
@@ -2242,30 +2283,30 @@ export function Header({ user, onToggleSidebar, unreadChatCount = 0, subscriptio
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                onClick={() => setShowUpgradeModal(false)}
-                className="absolute inset-0 bg-black/70 backdrop-blur-md"
+                  onClick={() => setShowUpgradeModal(false)}
+                  className={cn("absolute inset-0 backdrop-blur-md", isDarkMode ? "bg-black/70" : "bg-black/30")}
               />
               <motion.div 
                 initial={{ scale: 0.9, opacity: 0, y: 20 }}
                 animate={{ scale: 1, opacity: 1, y: 0 }}
                 exit={{ scale: 0.9, opacity: 0, y: 20 }}
-                className="relative w-full max-w-2xl bg-gradient-to-b from-slate-900 to-slate-950 rounded-3xl shadow-2xl overflow-hidden border border-purple-500/20 max-h-[90vh] overflow-y-auto"
+                className={cn("relative w-full max-w-2xl rounded-3xl shadow-2xl overflow-hidden max-h-[90vh] overflow-y-auto", isDarkMode ? "bg-gradient-to-b from-slate-900 to-slate-950 border border-purple-500/20" : "bg-gradient-to-b from-white via-violet-50/50 to-indigo-50/80 border-2 border-violet-200/60")}
               >
                 <button 
-                  onClick={() => setShowUpgradeModal(false)}
-                  className="absolute top-4 left-4 p-2 text-white/30 hover:text-white hover:bg-white/10 rounded-xl transition-all z-10"
-                >
-                  <X size={20} />
-                </button>
-                
-                <div className="p-6 bg-gradient-to-r from-purple-500/20 to-pink-500/20 border-b border-purple-500/20">
-                  <div className="flex items-center gap-4">
-                    <div className="p-4 rounded-2xl bg-gradient-to-br from-purple-500/30 to-pink-500/30">
-                      <Zap size={32} className="text-purple-400" />
-                    </div>
-                    <div>
-                      <h3 className="font-bold text-white text-xl">{isRTL ? 'ترقية الباقة' : 'Upgrade Plan'}</h3>
-                      <p className="text-sm text-purple-400">{isRTL ? 'اختر الباقة المناسبة لاحتياجاتك' : 'Choose the plan that fits your needs'}</p>
+                    onClick={() => setShowUpgradeModal(false)}
+                    className={cn("absolute top-4 left-4 p-2 rounded-xl transition-all z-10", isDarkMode ? "text-white/30 hover:text-white hover:bg-white/10" : "text-black/30 hover:text-black hover:bg-black/5")}
+                  >
+                    <X size={20} />
+                  </button>
+                  
+                  <div className={cn("p-6 border-b", isDarkMode ? "bg-gradient-to-r from-purple-500/20 to-pink-500/20 border-purple-500/20" : "bg-gradient-to-r from-violet-100/60 to-indigo-100/60 border-violet-200/40")}>
+                    <div className="flex items-center gap-4">
+                      <div className={cn("p-4 rounded-2xl", isDarkMode ? "bg-gradient-to-br from-purple-500/30 to-pink-500/30" : "bg-gradient-to-br from-violet-500/20 to-indigo-500/20")}>
+                        <Zap size={32} className={isDarkMode ? "text-purple-400" : "text-violet-600"} />
+                      </div>
+                      <div>
+                        <h3 className={cn("font-bold text-xl", isDarkMode ? "text-white" : "text-black")}>{isRTL ? 'ترقية الباقة' : 'Upgrade Plan'}</h3>
+                        <p className={cn("text-sm", isDarkMode ? "text-purple-400" : "text-violet-600")}>{isRTL ? 'اختر الباقة المناسبة لاحتياجاتك' : 'Choose the plan that fits your needs'}</p>
                     </div>
                   </div>
                 </div>
@@ -2280,41 +2321,41 @@ export function Header({ user, onToggleSidebar, unreadChatCount = 0, subscriptio
                         transition={{ delay: index * 0.1 }}
                         className={cn(
                           "p-5 rounded-2xl border transition-all cursor-pointer",
-                          index === 1 
-                            ? "bg-gradient-to-r from-amber-500/10 to-orange-500/10 border-amber-500/30 ring-2 ring-amber-500/20"
-                            : "bg-white/5 border-white/10 hover:border-white/20"
+                            index === 1 
+                              ? "bg-gradient-to-r from-amber-500/10 to-orange-500/10 border-amber-500/30 ring-2 ring-amber-500/20"
+                              : isDarkMode ? "bg-white/5 border-white/10 hover:border-white/20" : "bg-white/60 border-violet-200/40 hover:border-violet-300/60"
                         )}
                       >
                         <div className="flex items-center justify-between mb-4">
                           <div className="flex items-center gap-3">
                             <div className={cn(
                               "p-3 rounded-xl",
-                              index === 1 ? "bg-amber-500/20" : "bg-white/10"
-                            )}>
-                              <Package size={24} className={index === 1 ? "text-amber-400" : "text-white/60"} />
-                            </div>
-                            <div>
-                              <div className="flex items-center gap-2">
-                                <p className="font-bold text-white text-lg">{plan.name}</p>
+                                index === 1 ? "bg-amber-500/20" : isDarkMode ? "bg-white/10" : "bg-violet-100"
+                              )}>
+                                <Package size={24} className={index === 1 ? "text-amber-400" : isDarkMode ? "text-white/60" : "text-violet-600"} />
+                              </div>
+                              <div>
+                                <div className="flex items-center gap-2">
+                                  <p className={cn("font-bold text-lg", isDarkMode ? "text-white" : "text-black")}>{plan.name}</p>
                                 {index === 1 && (
                                   <span className="px-2 py-0.5 bg-amber-500 text-white text-[10px] font-bold rounded-full">
                                     {isRTL ? 'الأكثر طلباً' : 'Popular'}
                                   </span>
                                 )}
                               </div>
-                              <p className="text-sm text-white/40">
-                                {plan.duration_value} {plan.duration_unit === 'day' ? (isRTL ? 'يوم' : 'days') : plan.duration_unit === 'month' ? (isRTL ? 'شهر' : 'months') : (isRTL ? 'سنة' : 'years')}
-                              </p>
+                                <p className={cn("text-sm", isDarkMode ? "text-white/40" : "text-black/40")}>
+                                  {plan.duration_value} {plan.duration_unit === 'day' ? (isRTL ? 'يوم' : 'days') : plan.duration_unit === 'month' ? (isRTL ? 'شهر' : 'months') : (isRTL ? 'سنة' : 'years')}
+                                </p>
                             </div>
                           </div>
                           <div className="text-left">
-                            <p className="text-2xl font-black text-white">{plan.price}</p>
-                            <p className="text-xs text-white/40">{isRTL ? 'ر.س' : 'SAR'}</p>
+                            <p className={cn("text-2xl font-black", isDarkMode ? "text-white" : "text-black")}>{plan.price}</p>
+                            <p className={cn("text-xs", isDarkMode ? "text-white/40" : "text-black/40")}>{isRTL ? 'ر.س' : 'SAR'}</p>
                           </div>
                         </div>
                         
                         {plan.description && (
-                          <p className="text-sm text-white/50 mb-4">{plan.description}</p>
+                          <p className={cn("text-sm mb-4", isDarkMode ? "text-white/50" : "text-black/50")}>{plan.description}</p>
                         )}
                         
                         <motion.button
@@ -2323,9 +2364,9 @@ export function Header({ user, onToggleSidebar, unreadChatCount = 0, subscriptio
                           onClick={() => setShowPaymentModal({ plan, type: 'upgrade' })}
                           className={cn(
                             "w-full py-3 rounded-xl font-bold text-sm transition-all",
-                            index === 1
-                              ? "bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-lg shadow-amber-500/30"
-                              : "bg-white/10 text-white/70 hover:bg-white/20 hover:text-white"
+                              index === 1
+                                ? "bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-lg shadow-amber-500/30"
+                                : isDarkMode ? "bg-white/10 text-white/70 hover:bg-white/20 hover:text-white" : "bg-violet-100 text-violet-700 hover:bg-violet-200 hover:text-violet-800"
                           )}
                         >
                           {isRTL ? 'اختيار هذه الباقة' : 'Choose This Plan'}
@@ -2347,30 +2388,30 @@ export function Header({ user, onToggleSidebar, unreadChatCount = 0, subscriptio
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                onClick={() => { setShowPaymentModal(null); setReceiptImage(null); }}
-                className="absolute inset-0 bg-black/70 backdrop-blur-md"
+                  onClick={() => { setShowPaymentModal(null); setReceiptImage(null); }}
+                  className={cn("absolute inset-0 backdrop-blur-md", isDarkMode ? "bg-black/70" : "bg-black/30")}
               />
               <motion.div 
                 initial={{ scale: 0.9, opacity: 0, y: 20 }}
                 animate={{ scale: 1, opacity: 1, y: 0 }}
                 exit={{ scale: 0.9, opacity: 0, y: 20 }}
-                className="relative w-full max-w-lg bg-gradient-to-b from-slate-900 to-slate-950 rounded-3xl shadow-2xl overflow-hidden border border-emerald-500/20 max-h-[90vh] overflow-y-auto"
+                className={cn("relative w-full max-w-lg rounded-3xl shadow-2xl overflow-hidden max-h-[90vh] overflow-y-auto", isDarkMode ? "bg-gradient-to-b from-slate-900 to-slate-950 border border-emerald-500/20" : "bg-gradient-to-b from-white via-violet-50/50 to-indigo-50/80 border-2 border-violet-200/60")}
               >
                 <button 
-                  onClick={() => { setShowPaymentModal(null); setReceiptImage(null); }}
-                  className="absolute top-4 left-4 p-2 text-white/30 hover:text-white hover:bg-white/10 rounded-xl transition-all z-10"
-                >
-                  <X size={20} />
-                </button>
-                
-                <div className="p-6 bg-gradient-to-r from-emerald-500/20 to-teal-500/20 border-b border-emerald-500/20">
-                  <div className="flex items-center gap-4">
-                    <div className="p-4 rounded-2xl bg-gradient-to-br from-emerald-500/30 to-teal-500/30">
-                      <Landmark size={32} className="text-emerald-400" />
-                    </div>
-                    <div>
-                      <h3 className="font-bold text-white text-xl">{isRTL ? 'إتمام الدفع' : 'Complete Payment'}</h3>
-                      <p className="text-sm text-emerald-400">
+                    onClick={() => { setShowPaymentModal(null); setReceiptImage(null); }}
+                    className={cn("absolute top-4 left-4 p-2 rounded-xl transition-all z-10", isDarkMode ? "text-white/30 hover:text-white hover:bg-white/10" : "text-black/30 hover:text-black hover:bg-black/5")}
+                  >
+                    <X size={20} />
+                  </button>
+                  
+                  <div className={cn("p-6 border-b", isDarkMode ? "bg-gradient-to-r from-emerald-500/20 to-teal-500/20 border-emerald-500/20" : "bg-gradient-to-r from-violet-100/60 to-indigo-100/60 border-violet-200/40")}>
+                    <div className="flex items-center gap-4">
+                      <div className={cn("p-4 rounded-2xl", isDarkMode ? "bg-gradient-to-br from-emerald-500/30 to-teal-500/30" : "bg-gradient-to-br from-violet-500/20 to-indigo-500/20")}>
+                        <Landmark size={32} className={isDarkMode ? "text-emerald-400" : "text-violet-600"} />
+                      </div>
+                      <div>
+                        <h3 className={cn("font-bold text-xl", isDarkMode ? "text-white" : "text-black")}>{isRTL ? 'إتمام الدفع' : 'Complete Payment'}</h3>
+                        <p className={cn("text-sm", isDarkMode ? "text-emerald-400" : "text-violet-600")}>
                         {showPaymentModal.type === 'renewal' ? (isRTL ? 'تجديد الباقة' : 'Plan Renewal') : 
                          showPaymentModal.type === 'upgrade' ? (isRTL ? 'ترقية الباقة' : 'Plan Upgrade') : 
                          (isRTL ? 'اشتراك جديد' : 'New Subscription')}
@@ -2383,22 +2424,22 @@ export function Header({ user, onToggleSidebar, unreadChatCount = 0, subscriptio
                   <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/20">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
-                        <Package size={20} className="text-amber-400" />
-                        <span className="font-bold text-white">{showPaymentModal.plan.name}</span>
+                          <Package size={20} className="text-amber-400" />
+                          <span className={cn("font-bold", isDarkMode ? "text-white" : "text-black")}>{showPaymentModal.plan.name}</span>
                       </div>
                       <span className="text-lg font-black text-amber-400">{showPaymentModal.plan.price} {isRTL ? 'ر.س' : 'SAR'}</span>
                     </div>
                   </div>
 
                   <div>
-                    <label className="block text-sm font-bold text-white/70 mb-3">{isRTL ? 'اختر الحساب البنكي للتحويل' : 'Select Bank Account'}</label>
-                    <div className="space-y-2">
-                      {bankAccounts.map((bank) => (
-                        <label key={bank.id} className="flex items-center gap-4 p-4 rounded-xl bg-white/5 border border-white/10 hover:border-white/20 cursor-pointer transition-all">
-                          <input type="radio" name="bank_account_id" value={bank.id} required className="w-4 h-4 accent-emerald-500" />
-                          <div className="flex-1">
-                            <p className="font-bold text-white text-sm">{bank.bank_name}</p>
-                            <p className="text-xs text-white/40">{bank.account_holder}</p>
+                      <label className={cn("block text-sm font-bold mb-3", isDarkMode ? "text-white/70" : "text-black/70")}>{isRTL ? 'اختر الحساب البنكي للتحويل' : 'Select Bank Account'}</label>
+                      <div className="space-y-2">
+                        {bankAccounts.map((bank) => (
+                          <label key={bank.id} className={cn("flex items-center gap-4 p-4 rounded-xl border cursor-pointer transition-all", isDarkMode ? "bg-white/5 border-white/10 hover:border-white/20" : "bg-white/60 border-violet-200/40 hover:border-violet-300/60")}>
+                            <input type="radio" name="bank_account_id" value={bank.id} required className="w-4 h-4 accent-emerald-500" />
+                            <div className="flex-1">
+                              <p className={cn("font-bold text-sm", isDarkMode ? "text-white" : "text-black")}>{bank.bank_name}</p>
+                              <p className={cn("text-xs", isDarkMode ? "text-white/40" : "text-black/40")}>{bank.account_holder}</p>
                             <p className="text-xs text-emerald-400 font-mono mt-1">{bank.iban}</p>
                           </div>
                         </label>
@@ -2407,10 +2448,12 @@ export function Header({ user, onToggleSidebar, unreadChatCount = 0, subscriptio
                   </div>
 
                   <div>
-                    <label className="block text-sm font-bold text-white/70 mb-3">{isRTL ? 'إرفاق إيصال الدفع' : 'Upload Receipt'}</label>
-                    <div className={cn(
-                      "relative p-6 rounded-2xl border-2 border-dashed transition-all text-center",
-                      receiptImage ? "border-emerald-500/50 bg-emerald-500/10" : "border-white/20 bg-white/5 hover:border-white/30"
+                      <label className={cn("block text-sm font-bold mb-3", isDarkMode ? "text-white/70" : "text-black/70")}>{isRTL ? 'إرفاق إيصال الدفع' : 'Upload Receipt'}</label>
+                      <div className={cn(
+                        "relative p-6 rounded-2xl border-2 border-dashed transition-all text-center",
+                        receiptImage 
+                          ? "border-emerald-500/50 bg-emerald-500/10" 
+                          : isDarkMode ? "border-white/20 bg-white/5 hover:border-white/30" : "border-violet-200/40 bg-white/40 hover:border-violet-300/60"
                     )}>
                       <input 
                         type="file" 
@@ -2426,19 +2469,19 @@ export function Header({ user, onToggleSidebar, unreadChatCount = 0, subscriptio
                         </div>
                       ) : (
                         <div className="space-y-3">
-                          <Upload size={32} className="mx-auto text-white/30" />
-                          <p className="text-sm text-white/50">{isRTL ? 'اضغط لرفع صورة الإيصال' : 'Click to upload receipt'}</p>
+                            <Upload size={32} className={isDarkMode ? "mx-auto text-white/30" : "mx-auto text-violet-300"} />
+                            <p className={cn("text-sm", isDarkMode ? "text-white/50" : "text-black/50")}>{isRTL ? 'اضغط لرفع صورة الإيصال' : 'Click to upload receipt'}</p>
                         </div>
                       )}
                     </div>
                   </div>
 
                   <div>
-                    <label className="block text-sm font-bold text-white/70 mb-2">{isRTL ? 'ملاحظات (اختياري)' : 'Notes (Optional)'}</label>
-                    <textarea 
-                      name="notes"
-                      rows={2}
-                      className="w-full p-3 rounded-xl bg-white/5 border border-white/10 text-white text-sm placeholder:text-white/30 focus:border-emerald-500/50 focus:ring-0 outline-none resize-none"
+                      <label className={cn("block text-sm font-bold mb-2", isDarkMode ? "text-white/70" : "text-black/70")}>{isRTL ? 'ملاحظات (اختياري)' : 'Notes (Optional)'}</label>
+                      <textarea 
+                        name="notes"
+                        rows={2}
+                        className={cn("w-full p-3 rounded-xl border text-sm focus:ring-0 outline-none resize-none", isDarkMode ? "bg-white/5 border-white/10 text-white placeholder:text-white/30 focus:border-emerald-500/50" : "bg-white/60 border-violet-200/40 text-black placeholder:text-black/30 focus:border-violet-400/60")}
                       placeholder={isRTL ? 'أي ملاحظات إضافية...' : 'Any additional notes...'}
                     />
                   </div>
@@ -2488,7 +2531,7 @@ export function Header({ user, onToggleSidebar, unreadChatCount = 0, subscriptio
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
                     onClick={() => setShowEmailModal(false)}
-                    className="absolute inset-0 bg-black/70 backdrop-blur-md"
+                    className={cn("absolute inset-0 backdrop-blur-md", isDarkMode ? "bg-black/70" : "bg-black/30")}
                   />
                   <motion.div 
                     initial={{ scale: 0.9, opacity: 0, y: 20 }}
@@ -2501,19 +2544,19 @@ export function Header({ user, onToggleSidebar, unreadChatCount = 0, subscriptio
                       maxWidth: isEmailMaximized ? "none" : "1024px"
                     }}
                     exit={{ scale: 0.9, opacity: 0, y: 20 }}
-                    className="relative bg-gradient-to-b from-slate-900 to-slate-950 rounded-3xl shadow-2xl overflow-hidden border border-blue-500/20 flex flex-col transition-all duration-300"
+                    className={cn("relative rounded-3xl shadow-2xl overflow-hidden flex flex-col transition-all duration-300", isDarkMode ? "bg-gradient-to-b from-slate-900 to-slate-950 border border-blue-500/20" : "bg-gradient-to-b from-white via-violet-50/50 to-indigo-50/80 border-2 border-violet-200/60")}
                   >
                     {/* Modal Header */}
-                    <div className="p-4 md:p-6 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 border-b border-white/10 flex items-center justify-between shrink-0">
-                      <div className="flex items-center gap-4">
-                        <div className="p-3 rounded-2xl bg-blue-500/20">
-                          <Mail size={24} className="text-blue-400" />
-                        </div>
-                        <div>
-                          <h3 className="font-bold text-white text-lg md:text-xl">
-                            {showEmailSettings ? (isRTL ? 'إعدادات البريد' : 'Email Settings') : (isRTL ? 'بريد الشركة' : 'Company Email')}
-                          </h3>
-                          <p className="text-sm text-blue-400 truncate max-w-[200px]">
+                      <div className={cn("p-4 md:p-6 border-b flex items-center justify-between shrink-0", isDarkMode ? "bg-gradient-to-r from-blue-500/10 to-indigo-500/10 border-white/10" : "bg-gradient-to-r from-violet-100/60 to-indigo-100/60 border-violet-200/40")}>
+                        <div className="flex items-center gap-4">
+                          <div className={cn("p-3 rounded-2xl", isDarkMode ? "bg-blue-500/20" : "bg-violet-500/15")}>
+                            <Mail size={24} className={isDarkMode ? "text-blue-400" : "text-violet-600"} />
+                          </div>
+                          <div>
+                            <h3 className={cn("font-bold text-lg md:text-xl", isDarkMode ? "text-white" : "text-black")}>
+                              {showEmailSettings ? (isRTL ? 'إعدادات البريد' : 'Email Settings') : (isRTL ? 'بريد الشركة' : 'Company Email')}
+                            </h3>
+                            <p className={cn("text-sm truncate max-w-[200px]", isDarkMode ? "text-blue-400" : "text-violet-600")}>
                             {showEmailSettings ? (isRTL ? 'إدارة الحسابات' : 'Manage Accounts') : (selectedEmailAccount?.email || (isRTL ? 'اختر حساباً' : 'Select an account'))}
                           </p>
                         </div>
@@ -2526,9 +2569,9 @@ export function Header({ user, onToggleSidebar, unreadChatCount = 0, subscriptio
                           onClick={() => setShowEmailSettings(!showEmailSettings)}
                           className={cn(
                             "p-2.5 rounded-xl transition-all border",
-                            showEmailSettings 
-                              ? "bg-blue-500 text-white border-blue-400" 
-                              : "bg-white/5 text-white/40 hover:text-white border-white/10"
+                              showEmailSettings 
+                                ? "bg-blue-500 text-white border-blue-400" 
+                                : isDarkMode ? "bg-white/5 text-white/40 hover:text-white border-white/10" : "bg-white/40 text-black/40 hover:text-black border-violet-200/40"
                           )}
                           title={isRTL ? "الإعدادات" : "Settings"}
                         >
@@ -2538,8 +2581,8 @@ export function Header({ user, onToggleSidebar, unreadChatCount = 0, subscriptio
                         <motion.button
                           whileHover={{ scale: 1.05 }}
                           whileTap={{ scale: 0.95 }}
-                          onClick={() => setIsEmailMaximized(!isEmailMaximized)}
-                          className="p-2.5 bg-white/5 text-white/40 hover:text-white rounded-xl transition-all border border-white/10"
+                            onClick={() => setIsEmailMaximized(!isEmailMaximized)}
+                            className={cn("p-2.5 rounded-xl transition-all border", isDarkMode ? "bg-white/5 text-white/40 hover:text-white border-white/10" : "bg-white/40 text-black/40 hover:text-black border-violet-200/40")}
                         >
                           {isEmailMaximized ? <Minimize2 size={20} /> : <Maximize2 size={20} />}
                         </motion.button>
@@ -2549,8 +2592,8 @@ export function Header({ user, onToggleSidebar, unreadChatCount = 0, subscriptio
                               <motion.button
                                 whileHover={{ scale: 1.05 }}
                                 whileTap={{ scale: 0.95 }}
-                                onClick={() => selectedEmailAccount && fetchEmails(selectedEmailAccount.id, activeEmailFolder)}
-                                className="p-2.5 bg-white/5 text-white/40 hover:text-white rounded-xl transition-all border border-white/10"
+                                  onClick={() => selectedEmailAccount && fetchEmails(selectedEmailAccount.id, activeEmailFolder)}
+                                  className={cn("p-2.5 rounded-xl transition-all border", isDarkMode ? "bg-white/5 text-white/40 hover:text-white border-white/10" : "bg-white/40 text-black/40 hover:text-black border-violet-200/40")}
                               >
                                 <RefreshCw size={20} className={loadingEmails ? "animate-spin" : ""} />
                               </motion.button>
@@ -2558,8 +2601,8 @@ export function Header({ user, onToggleSidebar, unreadChatCount = 0, subscriptio
                           )}
                         
                         <button 
-                          onClick={() => setShowEmailModal(false)}
-                          className="p-2.5 bg-white/5 text-white/30 hover:text-white hover:bg-white/10 rounded-xl transition-all border border-white/10"
+                            onClick={() => setShowEmailModal(false)}
+                            className={cn("p-2.5 rounded-xl transition-all border", isDarkMode ? "bg-white/5 text-white/30 hover:text-white hover:bg-white/10 border-white/10" : "bg-white/40 text-black/30 hover:text-black hover:bg-black/5 border-violet-200/40")}
                         >
                           <X size={20} />
                         </button>
@@ -2568,10 +2611,10 @@ export function Header({ user, onToggleSidebar, unreadChatCount = 0, subscriptio
     
                     <div className="flex-1 flex overflow-hidden min-h-0">
                       {/* Left Sidebar: Folders & Accounts */}
-                      <div className="w-20 md:w-64 border-l border-white/5 bg-black/20 flex flex-col shrink-0 min-h-0">
-                        {/* Accounts Section */}
-                        <div className="p-4 border-b border-white/5">
-                          <p className="hidden md:block text-[10px] font-bold text-white/30 uppercase tracking-widest mb-3 px-2">
+                        <div className={cn("w-20 md:w-64 border-l flex flex-col shrink-0 min-h-0", isDarkMode ? "border-white/5 bg-black/20" : "border-violet-200/30 bg-violet-50/30")}>
+                          {/* Accounts Section */}
+                          <div className={cn("p-4 border-b", isDarkMode ? "border-white/5" : "border-violet-200/30")}>
+                            <p className={cn("hidden md:block text-[10px] font-bold uppercase tracking-widest mb-3 px-2", isDarkMode ? "text-white/30" : "text-black/30")}>
                             {isRTL ? 'الحسابات' : 'Accounts'}
                           </p>
                           <div className="space-y-2">
@@ -2581,14 +2624,14 @@ export function Header({ user, onToggleSidebar, unreadChatCount = 0, subscriptio
                                 onClick={() => handleSelectAccount(account)}
                                 className={cn(
                                   "w-full flex items-center gap-3 p-2 md:p-3 rounded-xl transition-all",
-                                  selectedEmailAccount?.id === account.id 
-                                    ? "bg-blue-500/20 border border-blue-500/30 text-white" 
-                                    : "hover:bg-white/5 text-white/40 border border-transparent"
+                                    selectedEmailAccount?.id === account.id 
+                                      ? "bg-blue-500/20 border border-blue-500/30 text-white" 
+                                      : isDarkMode ? "hover:bg-white/5 text-white/40 border border-transparent" : "hover:bg-violet-100 text-black/40 border border-transparent"
                                 )}
                               >
                                 <div className={cn(
                                   "w-8 h-8 rounded-lg flex items-center justify-center shrink-0",
-                                  selectedEmailAccount?.id === account.id ? "bg-blue-500 text-white" : "bg-white/10"
+                                    selectedEmailAccount?.id === account.id ? "bg-blue-500 text-white" : isDarkMode ? "bg-white/10" : "bg-violet-100"
                                 )}>
                                   <AtSign size={14} />
                                 </div>
@@ -2613,7 +2656,7 @@ export function Header({ user, onToggleSidebar, unreadChatCount = 0, subscriptio
                         {/* Folders Section */}
                         {!showEmailSettings && selectedEmailAccount && (
                           <div className="flex-1 min-h-0 p-4 space-y-1 overflow-y-auto">
-                            <p className="hidden md:block text-[10px] font-bold text-white/30 uppercase tracking-widest mb-3 px-2">
+                              <p className={cn("hidden md:block text-[10px] font-bold uppercase tracking-widest mb-3 px-2", isDarkMode ? "text-white/30" : "text-black/30")}>
                               {isRTL ? 'المجلدات' : 'Folders'}
                             </p>
                             {[
@@ -2627,9 +2670,9 @@ export function Header({ user, onToggleSidebar, unreadChatCount = 0, subscriptio
                                 onClick={() => fetchEmails(selectedEmailAccount.id, folder.id)}
                                 className={cn(
                                   "w-full flex items-center gap-3 p-3 rounded-xl transition-all",
-                                  activeEmailFolder === folder.id 
-                                    ? "bg-white/10 text-white shadow-sm" 
-                                    : "text-white/40 hover:text-white/70 hover:bg-white/5"
+                                    activeEmailFolder === folder.id 
+                                      ? isDarkMode ? "bg-white/10 text-white shadow-sm" : "bg-violet-100 text-black shadow-sm"
+                                      : isDarkMode ? "text-white/40 hover:text-white/70 hover:bg-white/5" : "text-black/40 hover:text-black/70 hover:bg-violet-50"
                                 )}
                               >
                                 <folder.icon size={18} className={cn(activeEmailFolder === folder.id ? folder.color : "text-inherit")} />
@@ -2641,32 +2684,32 @@ export function Header({ user, onToggleSidebar, unreadChatCount = 0, subscriptio
                       </div>
     
                       {/* Main Content Area */}
-                      <div className="flex-1 flex flex-col min-w-0 min-h-0 bg-white/[0.02]">
+                        <div className={cn("flex-1 flex flex-col min-w-0 min-h-0", isDarkMode ? "bg-white/[0.02]" : "bg-white/30")}>
                         {showEmailSettings ? (
                           /* Settings View */
                           <div className="flex-1 overflow-y-auto p-6">
                             <div className="max-w-2xl mx-auto space-y-8">
                               {/* Account Management */}
                               <section>
-                                <h4 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
+                                  <h4 className={cn("text-lg font-bold mb-4 flex items-center gap-2", isDarkMode ? "text-white" : "text-black")}>
                                   <Settings size={20} className="text-blue-400" />
                                   {isRTL ? 'إدارة الحسابات' : 'Account Management'}
                                 </h4>
                                 <div className="grid gap-3">
                                   {emailAccounts.map(account => (
-                                    <div key={account.id} className="flex items-center justify-between p-4 bg-white/5 border border-white/10 rounded-2xl group">
-                                      <div className="flex items-center gap-4">
-                                        <div className="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center">
-                                          <Mail size={20} className="text-blue-400" />
-                                        </div>
-                                        <div>
-                                          <p className="font-bold text-white text-sm">{account.email}</p>
-                                          <p className="text-xs text-white/40">{account.provider} • IMAP: {account.is_active ? (isRTL ? 'متصل' : 'Connected') : (isRTL ? 'فشل الاتصال' : 'Connection Failed')}</p>
+                                      <div key={account.id} className={cn("flex items-center justify-between p-4 border rounded-2xl group", isDarkMode ? "bg-white/5 border-white/10" : "bg-white/60 border-violet-200/40")}>
+                                        <div className="flex items-center gap-4">
+                                          <div className="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center">
+                                            <Mail size={20} className="text-blue-400" />
+                                          </div>
+                                          <div>
+                                            <p className={cn("font-bold text-sm", isDarkMode ? "text-white" : "text-black")}>{account.email}</p>
+                                            <p className={cn("text-xs", isDarkMode ? "text-white/40" : "text-black/40")}>{account.provider} • IMAP: {account.is_active ? (isRTL ? 'متصل' : 'Connected') : (isRTL ? 'فشل الاتصال' : 'Connection Failed')}</p>
                                         </div>
                                       </div>
                                       <button 
                                         onClick={() => handleDeleteAccount(account.id)}
-                                        className="p-2 text-white/20 hover:text-rose-400 hover:bg-rose-500/10 rounded-xl transition-all"
+                                        className={cn("p-2 hover:text-rose-400 hover:bg-rose-500/10 rounded-xl transition-all", isDarkMode ? "text-white/20" : "text-black/20")}
                                       >
                                         <Trash2 size={18} />
                                       </button>
@@ -2676,43 +2719,43 @@ export function Header({ user, onToggleSidebar, unreadChatCount = 0, subscriptio
                               </section>
 
                               {/* Add New Account Form */}
-                              <section className="p-6 bg-white/5 border border-white/10 rounded-3xl">
-                                <h4 className="text-lg font-bold text-white mb-6 flex items-center gap-2">
+                                <section className={cn("p-6 border rounded-3xl", isDarkMode ? "bg-white/5 border-white/10" : "bg-white/60 border-violet-200/40")}>
+                                  <h4 className={cn("text-lg font-bold mb-6 flex items-center gap-2", isDarkMode ? "text-white" : "text-black")}>
                                   <PlusCircle size={20} className="text-emerald-400" />
                                   {isRTL ? 'إضافة حساب جديد' : 'Add New Account'}
                                 </h4>
                                 <form onSubmit={handleAddAccount} className="space-y-4">
                                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div className="space-y-1.5">
-                                      <label className="text-xs font-bold text-white/50 px-1">{isRTL ? 'البريد الإلكتروني' : 'Email Address'}</label>
-                                      <input 
-                                        name="email" 
-                                        type="email" 
-                                        required 
-                                        placeholder="user@example.com"
-                                        className="w-full bg-black/40 border border-white/10 rounded-xl p-3 text-sm text-white focus:border-blue-500/50 outline-none transition-all"
-                                      />
-                                    </div>
-                                    <div className="space-y-1.5">
-                                      <label className="text-xs font-bold text-white/50 px-1">{isRTL ? 'كلمة المرور' : 'Password'}</label>
-                                      <input 
-                                        name="password" 
-                                        type="password" 
-                                        required 
-                                        placeholder="••••••••"
-                                        className="w-full bg-black/40 border border-white/10 rounded-xl p-3 text-sm text-white focus:border-blue-500/50 outline-none transition-all"
-                                      />
+                                        <label className={cn("text-xs font-bold px-1", isDarkMode ? "text-white/50" : "text-black/50")}>{isRTL ? 'البريد الإلكتروني' : 'Email Address'}</label>
+                                        <input 
+                                          name="email" 
+                                          type="email" 
+                                          required 
+                                          placeholder="user@example.com"
+                                          className={cn("w-full border rounded-xl p-3 text-sm focus:border-blue-500/50 outline-none transition-all", isDarkMode ? "bg-black/40 border-white/10 text-white" : "bg-white/80 border-violet-200/40 text-black")}
+                                        />
+                                      </div>
+                                      <div className="space-y-1.5">
+                                        <label className={cn("text-xs font-bold px-1", isDarkMode ? "text-white/50" : "text-black/50")}>{isRTL ? 'كلمة المرور' : 'Password'}</label>
+                                        <input 
+                                          name="password" 
+                                          type="password" 
+                                          required 
+                                          placeholder="••••••••"
+                                          className={cn("w-full border rounded-xl p-3 text-sm focus:border-blue-500/50 outline-none transition-all", isDarkMode ? "bg-black/40 border-white/10 text-white" : "bg-white/80 border-violet-200/40 text-black")}
+                                        />
                                     </div>
                                   </div>
                                   
                                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div className="space-y-1.5">
-                                      <label className="text-xs font-bold text-white/50 px-1">{isRTL ? 'مزود الخدمة' : 'Provider'}</label>
-                                      <select 
-                                        name="provider" 
-                                        defaultValue="hostinger"
-                                        className="w-full bg-black/40 border border-white/10 rounded-xl p-3 text-sm text-white focus:border-blue-500/50 outline-none transition-all"
-                                      >
+                                        <label className={cn("text-xs font-bold px-1", isDarkMode ? "text-white/50" : "text-black/50")}>{isRTL ? 'مزود الخدمة' : 'Provider'}</label>
+                                        <select 
+                                          name="provider" 
+                                          defaultValue="hostinger"
+                                          className={cn("w-full border rounded-xl p-3 text-sm focus:border-blue-500/50 outline-none transition-all", isDarkMode ? "bg-black/40 border-white/10 text-white" : "bg-white/80 border-violet-200/40 text-black")}
+                                        >
                                         <option value="hostinger">Hostinger</option>
                                         <option value="gmail">Gmail</option>
                                         <option value="outlook">Outlook</option>
@@ -2740,40 +2783,40 @@ export function Header({ user, onToggleSidebar, unreadChatCount = 0, subscriptio
                               {viewingEmail ? (
                                 /* Single Email Detail View */
                                 <div className="flex-1 flex flex-col overflow-hidden">
-                                  <div className="flex items-center gap-3 p-4 border-b border-white/5">
-                                    <button
-                                      onClick={() => setViewingEmail(null)}
-                                      className="p-2 hover:bg-white/10 rounded-xl transition-all text-white/60 hover:text-white"
-                                    >
-                                      <ChevronLeft size={18} className={isRTL ? "rotate-180" : ""} />
-                                    </button>
-                                    <div className="min-w-0 flex-1">
-                                      <h4 className="text-sm font-bold text-white truncate">{viewingEmail.subject}</h4>
-                                      <p className="text-[11px] text-white/40">{viewingEmail.from} &lt;{viewingEmail.fromEmail}&gt;</p>
-                                    </div>
-                                    <span className="text-[10px] text-white/30">{new Date(viewingEmail.date).toLocaleString('en-US')}</span>
+                                    <div className={cn("flex items-center gap-3 p-4 border-b", isDarkMode ? "border-white/5" : "border-violet-200/30")}>
+                                      <button
+                                        onClick={() => setViewingEmail(null)}
+                                        className={cn("p-2 rounded-xl transition-all", isDarkMode ? "hover:bg-white/10 text-white/60 hover:text-white" : "hover:bg-violet-100 text-black/60 hover:text-black")}
+                                      >
+                                        <ChevronLeft size={18} className={isRTL ? "rotate-180" : ""} />
+                                      </button>
+                                      <div className="min-w-0 flex-1">
+                                        <h4 className={cn("text-sm font-bold truncate", isDarkMode ? "text-white" : "text-black")}>{viewingEmail.subject}</h4>
+                                        <p className={cn("text-[11px]", isDarkMode ? "text-white/40" : "text-black/40")}>{viewingEmail.from} &lt;{viewingEmail.fromEmail}&gt;</p>
+                                      </div>
+                                      <span className={cn("text-[10px]", isDarkMode ? "text-white/30" : "text-black/30")}>{new Date(viewingEmail.date).toLocaleString('en-US')}</span>
                                   </div>
                                   <div className="flex-1 overflow-y-auto p-4">
                                     {loadingEmailBody ? (
                                       <div className="flex flex-col items-center justify-center py-12 gap-3">
                                         <Loader2 size={28} className="text-blue-500 animate-spin" />
-                                        <p className="text-xs text-white/40">{isRTL ? 'جاري تحميل الرسالة...' : 'Loading message...'}</p>
+                                        <p className={cn("text-xs", isDarkMode ? "text-white/40" : "text-black/40")}>{isRTL ? 'جاري تحميل الرسالة...' : 'Loading message...'}</p>
                                       </div>
                                     ) : viewingEmail.body ? (
                                       <div
-                                        className="prose prose-invert prose-sm max-w-none text-white/80 [&_a]:text-blue-400 [&_img]:max-w-full [&_img]:rounded-lg"
+                                        className={cn("prose prose-sm max-w-none [&_a]:text-blue-400 [&_img]:max-w-full [&_img]:rounded-lg", isDarkMode ? "prose-invert text-white/80" : "text-black/80")}
                                         style={{ fontSize: '13px', lineHeight: '1.6' }}
                                         dangerouslySetInnerHTML={{ __html: viewingEmail.body }}
                                       />
                                     ) : (
-                                      <p className="text-sm text-white/40 text-center py-8">{isRTL ? 'لا يوجد محتوى للرسالة' : 'No message content'}</p>
+                                      <p className={cn("text-sm text-center py-8", isDarkMode ? "text-white/40" : "text-black/40")}>{isRTL ? 'لا يوجد محتوى للرسالة' : 'No message content'}</p>
                                     )}
                                   </div>
                                 </div>
                               ) : loadingEmails ? (
                                 <div className="flex-1 flex flex-col items-center justify-center gap-4">
                                   <Loader2 size={40} className="text-blue-500 animate-spin" />
-                                  <p className="text-sm text-white/40">{isRTL ? 'جاري جلب الرسائل...' : 'Fetching emails...'}</p>
+                                    <p className={cn("text-sm", isDarkMode ? "text-white/40" : "text-black/40")}>{isRTL ? 'جاري جلب الرسائل...' : 'Fetching emails...'}</p>
                                 </div>
                               ) : emails.length > 0 ? (
                                   <div className="flex-1 overflow-y-auto p-4 space-y-3">
@@ -2790,7 +2833,7 @@ export function Header({ user, onToggleSidebar, unreadChatCount = 0, subscriptio
                                       </motion.button>
                                     )}
                                     <div className="flex items-center justify-between mb-4 px-2">
-                                    <h4 className="text-sm font-bold text-white/60">
+                                      <h4 className={cn("text-sm font-bold", isDarkMode ? "text-white/60" : "text-black/60")}>
                                       {activeEmailFolder === "INBOX" ? (isRTL ? 'صندوق الوارد' : 'Inbox') : 
                                        activeEmailFolder === "Sent" ? (isRTL ? 'المرسل' : 'Sent') :
                                        activeEmailFolder === "Trash" ? (isRTL ? 'المحذوفات' : 'Trash') : (isRTL ? 'الرسائل المزعجة' : 'Spam')}
@@ -2807,22 +2850,22 @@ export function Header({ user, onToggleSidebar, unreadChatCount = 0, subscriptio
                                       onClick={() => handleViewEmail(email)}
                                       className={cn(
                                         "group relative p-4 rounded-2xl border transition-all cursor-pointer",
-                                        !email.isRead 
-                                          ? "bg-white/5 border-blue-500/30 shadow-lg shadow-blue-500/5" 
-                                          : "bg-transparent border-white/5 hover:bg-white/5"
+                                          !email.isRead 
+                                            ? isDarkMode ? "bg-white/5 border-blue-500/30 shadow-lg shadow-blue-500/5" : "bg-violet-50 border-blue-400/30 shadow-lg shadow-blue-500/5"
+                                            : isDarkMode ? "bg-transparent border-white/5 hover:bg-white/5" : "bg-transparent border-violet-200/30 hover:bg-violet-50"
                                       )}
                                     >
                                       <div className="flex justify-between items-start gap-4 mb-1">
                                         <div className="flex items-center gap-3 min-w-0">
                                           {!email.isRead && <div className="w-2 h-2 rounded-full bg-blue-500" />}
-                                          <span className="font-bold text-sm text-white/90 truncate">{email.from}</span>
+                                            <span className={cn("font-bold text-sm truncate", isDarkMode ? "text-white/90" : "text-black/90")}>{email.from}</span>
                                         </div>
-                                        <span className="text-[10px] text-white/30 whitespace-nowrap">
+                                        <span className={cn("text-[10px] whitespace-nowrap", isDarkMode ? "text-white/30" : "text-black/30")}>
                                           {new Date(email.date).toLocaleString('ar-SA', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}
                                         </span>
                                       </div>
                                       <h4 className="text-xs font-bold text-blue-400 mb-1 truncate">{email.subject}</h4>
-                                      <p className="text-[11px] text-white/40 line-clamp-2 leading-relaxed">{email.snippet || (isRTL ? 'اضغط لعرض الرسالة' : 'Click to view message')}</p>
+                                      <p className={cn("text-[11px] line-clamp-2 leading-relaxed", isDarkMode ? "text-white/40" : "text-black/40")}>{email.snippet || (isRTL ? 'اضغط لعرض الرسالة' : 'Click to view message')}</p>
                                     </motion.div>
                                   ))}
                                 </div>
@@ -2839,11 +2882,11 @@ export function Header({ user, onToggleSidebar, unreadChatCount = 0, subscriptio
                                         <span>{isRTL ? 'ارسال رسالة جديدة' : 'Send New Message'}</span>
                                       </motion.button>
                                     )}
-                                    <div className="w-20 h-20 rounded-full bg-white/5 flex items-center justify-center mb-6">
-                                    <Mail size={40} className="text-white/10" />
-                                  </div>
-                                  <h4 className="text-lg font-bold text-white mb-2">{isRTL ? 'لا توجد رسائل' : 'No messages'}</h4>
-                                  <p className="text-sm text-white/30 max-w-xs">{isRTL ? 'هذا المجلد فارغ حالياً أو لم يتم جلب الرسائل بعد.' : 'This folder is currently empty or messages haven\'t been fetched yet.'}</p>
+                                      <div className={cn("w-20 h-20 rounded-full flex items-center justify-center mb-6", isDarkMode ? "bg-white/5" : "bg-violet-100")}>
+                                      <Mail size={40} className={isDarkMode ? "text-white/10" : "text-violet-300"} />
+                                    </div>
+                                    <h4 className={cn("text-lg font-bold mb-2", isDarkMode ? "text-white" : "text-black")}>{isRTL ? 'لا توجد رسائل' : 'No messages'}</h4>
+                                    <p className={cn("text-sm max-w-xs", isDarkMode ? "text-white/30" : "text-black/30")}>{isRTL ? 'هذا المجلد فارغ حالياً أو لم يتم جلب الرسائل بعد.' : 'This folder is currently empty or messages haven\'t been fetched yet.'}</p>
                                   {!selectedEmailAccount && (
                                     <button 
                                       onClick={() => setShowEmailSettings(true)}
@@ -2883,62 +2926,62 @@ export function Header({ user, onToggleSidebar, unreadChatCount = 0, subscriptio
                           initial={{ opacity: 0, y: 20 }}
                           animate={{ opacity: 1, y: 0 }}
                           exit={{ opacity: 0, y: 20 }}
-                          className="absolute inset-0 z-50 bg-slate-900/98 backdrop-blur-sm flex flex-col rounded-3xl"
-                        >
-                          <div className="p-4 md:p-6 border-b border-white/10 flex items-center justify-between shrink-0">
-                            <div className="flex items-center gap-3">
-                              <div className="p-2.5 rounded-xl bg-blue-500/20">
-                                <Edit3 size={20} className="text-blue-400" />
+                            className={cn("absolute inset-0 z-50 backdrop-blur-sm flex flex-col rounded-3xl", isDarkMode ? "bg-slate-900/98" : "bg-white/98")}
+                          >
+                            <div className={cn("p-4 md:p-6 border-b flex items-center justify-between shrink-0", isDarkMode ? "border-white/10" : "border-violet-200/30")}>
+                              <div className="flex items-center gap-3">
+                                <div className="p-2.5 rounded-xl bg-blue-500/20">
+                                  <Edit3 size={20} className="text-blue-400" />
+                                </div>
+                                <h3 className={cn("font-bold text-lg", isDarkMode ? "text-white" : "text-black")}>{isRTL ? 'رسالة جديدة' : 'New Message'}</h3>
                               </div>
-                              <h3 className="font-bold text-white text-lg">{isRTL ? 'رسالة جديدة' : 'New Message'}</h3>
-                            </div>
-                            <button
-                              onClick={() => { setShowCompose(false); setComposeData({ to: '', subject: '', body: '' }); }}
-                              className="p-2.5 bg-white/5 text-white/30 hover:text-white hover:bg-white/10 rounded-xl transition-all border border-white/10"
-                            >
+                              <button
+                                onClick={() => { setShowCompose(false); setComposeData({ to: '', subject: '', body: '' }); }}
+                                className={cn("p-2.5 rounded-xl transition-all border", isDarkMode ? "bg-white/5 text-white/30 hover:text-white hover:bg-white/10 border-white/10" : "bg-black/5 text-black/30 hover:text-black hover:bg-black/10 border-violet-200/30")}
+                              >
                               <X size={20} />
                             </button>
                           </div>
                           <div className="flex-1 flex flex-col p-4 md:p-6 gap-4 overflow-y-auto min-h-0">
                             <div className="space-y-1.5">
-                              <label className="text-xs font-bold text-white/50 px-1">{isRTL ? 'إلى' : 'To'}</label>
-                              <input
-                                type="email"
-                                value={composeData.to}
-                                onChange={(e) => setComposeData({ ...composeData, to: e.target.value })}
-                                placeholder={isRTL ? 'البريد الإلكتروني للمستلم' : 'Recipient email address'}
-                                className="w-full bg-black/40 border border-white/10 rounded-xl p-3 text-sm text-white focus:border-blue-500/50 outline-none transition-all"
-                                dir="ltr"
-                              />
-                            </div>
-                            <div className="space-y-1.5">
-                              <label className="text-xs font-bold text-white/50 px-1">{isRTL ? 'الموضوع' : 'Subject'}</label>
-                              <input
-                                type="text"
-                                value={composeData.subject}
-                                onChange={(e) => setComposeData({ ...composeData, subject: e.target.value })}
-                                placeholder={isRTL ? 'موضوع الرسالة' : 'Email subject'}
-                                className="w-full bg-black/40 border border-white/10 rounded-xl p-3 text-sm text-white focus:border-blue-500/50 outline-none transition-all"
-                              />
-                            </div>
-                            <div className="flex-1 space-y-1.5 flex flex-col min-h-0">
-                              <label className="text-xs font-bold text-white/50 px-1">{isRTL ? 'نص الرسالة' : 'Message'}</label>
-                              <textarea
-                                value={composeData.body}
-                                onChange={(e) => setComposeData({ ...composeData, body: e.target.value })}
-                                placeholder={isRTL ? 'اكتب رسالتك هنا...' : 'Write your message here...'}
-                                className="flex-1 min-h-[200px] w-full bg-black/40 border border-white/10 rounded-xl p-3 text-sm text-white focus:border-blue-500/50 outline-none transition-all resize-none"
-                              />
+                                <label className={cn("text-xs font-bold px-1", isDarkMode ? "text-white/50" : "text-black/50")}>{isRTL ? 'إلى' : 'To'}</label>
+                                <input
+                                  type="email"
+                                  value={composeData.to}
+                                  onChange={(e) => setComposeData({ ...composeData, to: e.target.value })}
+                                  placeholder={isRTL ? 'البريد الإلكتروني للمستلم' : 'Recipient email address'}
+                                  className={cn("w-full border rounded-xl p-3 text-sm focus:border-blue-500/50 outline-none transition-all", isDarkMode ? "bg-black/40 border-white/10 text-white" : "bg-white/80 border-violet-200/40 text-black")}
+                                  dir="ltr"
+                                />
+                              </div>
+                              <div className="space-y-1.5">
+                                <label className={cn("text-xs font-bold px-1", isDarkMode ? "text-white/50" : "text-black/50")}>{isRTL ? 'الموضوع' : 'Subject'}</label>
+                                <input
+                                  type="text"
+                                  value={composeData.subject}
+                                  onChange={(e) => setComposeData({ ...composeData, subject: e.target.value })}
+                                  placeholder={isRTL ? 'موضوع الرسالة' : 'Email subject'}
+                                  className={cn("w-full border rounded-xl p-3 text-sm focus:border-blue-500/50 outline-none transition-all", isDarkMode ? "bg-black/40 border-white/10 text-white" : "bg-white/80 border-violet-200/40 text-black")}
+                                />
+                              </div>
+                              <div className="flex-1 space-y-1.5 flex flex-col min-h-0">
+                                <label className={cn("text-xs font-bold px-1", isDarkMode ? "text-white/50" : "text-black/50")}>{isRTL ? 'نص الرسالة' : 'Message'}</label>
+                                <textarea
+                                  value={composeData.body}
+                                  onChange={(e) => setComposeData({ ...composeData, body: e.target.value })}
+                                  placeholder={isRTL ? 'اكتب رسالتك هنا...' : 'Write your message here...'}
+                                  className={cn("flex-1 min-h-[200px] w-full border rounded-xl p-3 text-sm focus:border-blue-500/50 outline-none transition-all resize-none", isDarkMode ? "bg-black/40 border-white/10 text-white" : "bg-white/80 border-violet-200/40 text-black")}
+                                />
                             </div>
                           </div>
-                          <div className="p-4 md:p-6 border-t border-white/10 flex items-center justify-between shrink-0">
-                            <p className="text-xs text-white/30">
+                          <div className={cn("p-4 md:p-6 border-t flex items-center justify-between shrink-0", isDarkMode ? "border-white/10" : "border-violet-200/30")}>
+                            <p className={cn("text-xs", isDarkMode ? "text-white/30" : "text-black/30")}>
                               {isRTL ? `الإرسال من: ${selectedEmailAccount?.email || ''}` : `Sending from: ${selectedEmailAccount?.email || ''}`}
                             </p>
                             <div className="flex items-center gap-3">
                               <button
                                 onClick={() => { setShowCompose(false); setComposeData({ to: '', subject: '', body: '' }); }}
-                                className="px-4 py-2.5 text-white/40 hover:text-white text-sm font-medium transition-all"
+                                className={cn("px-4 py-2.5 text-sm font-medium transition-all", isDarkMode ? "text-white/40 hover:text-white" : "text-black/40 hover:text-black")}
                               >
                                 {isRTL ? 'إلغاء' : 'Cancel'}
                               </button>
@@ -3186,79 +3229,79 @@ export function Header({ user, onToggleSidebar, unreadChatCount = 0, subscriptio
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              onClick={() => setIsDriverModalOpen(false)}
-              className="absolute inset-0 bg-black/70 backdrop-blur-md"
+                onClick={() => setIsDriverModalOpen(false)}
+                className={cn("absolute inset-0 backdrop-blur-md", isDarkMode ? "bg-black/70" : "bg-black/30")}
             />
             <motion.div 
               initial={{ scale: 0.9, opacity: 0, y: 20 }}
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.9, opacity: 0, y: 20 }}
-              className="relative w-full max-w-md bg-gradient-to-b from-slate-900 to-slate-950 rounded-3xl p-8 shadow-2xl overflow-hidden border border-white/10"
+              className={cn("relative w-full max-w-md rounded-3xl p-8 shadow-2xl overflow-hidden", isDarkMode ? "bg-gradient-to-b from-slate-900 to-slate-950 border border-white/10" : "bg-gradient-to-b from-white via-violet-50/50 to-indigo-50/80 border-2 border-violet-200/60")}
             >
               <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-amber-500/10 to-transparent rounded-full blur-3xl" />
               
               <button 
-                onClick={() => setIsDriverModalOpen(false)}
-                className="absolute top-6 left-6 p-2 text-white/30 hover:text-white hover:bg-white/10 rounded-xl transition-all"
-              >
-                <X size={20} />
-              </button>
-
-              <div className="relative z-10 flex flex-col items-center text-center gap-4 mb-8">
-                <motion.div 
-                  animate={{ rotate: [0, -5, 5, 0] }}
-                  transition={{ duration: 4, repeat: Infinity }}
-                  className="relative"
+                  onClick={() => setIsDriverModalOpen(false)}
+                  className={cn("absolute top-6 left-6 p-2 rounded-xl transition-all", isDarkMode ? "text-white/30 hover:text-white hover:bg-white/10" : "text-black/30 hover:text-black hover:bg-black/5")}
                 >
-                  <div className="absolute inset-0 bg-gradient-to-r from-amber-500 to-orange-500 rounded-2xl blur-xl opacity-40" />
-                  <div className="relative w-16 h-16 bg-gradient-to-br from-amber-500 to-orange-600 rounded-2xl flex items-center justify-center shadow-2xl border border-amber-400/30">
-                    <Truck size={32} className="text-white" />
+                  <X size={20} />
+                </button>
+
+                <div className="relative z-10 flex flex-col items-center text-center gap-4 mb-8">
+                  <motion.div 
+                    animate={{ rotate: [0, -5, 5, 0] }}
+                    transition={{ duration: 4, repeat: Infinity }}
+                    className="relative"
+                  >
+                    <div className={cn("absolute inset-0 rounded-2xl blur-xl opacity-40", isDarkMode ? "bg-gradient-to-r from-amber-500 to-orange-500" : "bg-gradient-to-r from-violet-500 to-indigo-500")} />
+                    <div className={cn("relative w-16 h-16 rounded-2xl flex items-center justify-center shadow-2xl border", isDarkMode ? "bg-gradient-to-br from-amber-500 to-orange-600 border-amber-400/30" : "bg-gradient-to-br from-violet-500 to-indigo-600 border-violet-400/30")}>
+                      <Truck size={32} className="text-white" />
+                    </div>
+                  </motion.div>
+                  <div>
+                    <h3 className={cn("text-2xl font-black mb-1", isDarkMode ? "text-white" : "text-black")}>{t('driverApp')}</h3>
+                    <p className={cn("text-sm", isDarkMode ? "text-white/40" : "text-black/40")}>{isRTL ? 'نظام إدخال البيانات للسائقين الميدانيين' : 'Data entry system for field drivers'}</p>
                   </div>
-                </motion.div>
-                <div>
-                  <h3 className="text-2xl font-black text-white mb-1">{t('driverApp')}</h3>
-                  <p className="text-white/40 text-sm">{isRTL ? 'نظام إدخال البيانات للسائقين الميدانيين' : 'Data entry system for field drivers'}</p>
                 </div>
-              </div>
 
-              <div className="relative z-10 grid grid-cols-1 gap-3 mb-6">
-                <a 
-                  href={`${process.env.NEXT_PUBLIC_APP_URL}/driver/`} 
-                  target="_blank"
-                  className="flex items-center justify-between p-4 bg-white/5 hover:bg-white/10 rounded-2xl transition-all group border border-white/10 hover:border-white/20"
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="p-2 bg-blue-500/20 rounded-xl">
-                      <ExternalLink size={18} className="text-blue-400" />
+                <div className="relative z-10 grid grid-cols-1 gap-3 mb-6">
+                  <a 
+                    href={`${process.env.NEXT_PUBLIC_APP_URL}/driver/`} 
+                    target="_blank"
+                    className={cn("flex items-center justify-between p-4 rounded-2xl transition-all group border", isDarkMode ? "bg-white/5 hover:bg-white/10 border-white/10 hover:border-white/20" : "bg-white/60 hover:bg-white/80 border-violet-200/40 hover:border-violet-300/60")}
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className={cn("p-2 rounded-xl", isDarkMode ? "bg-blue-500/20" : "bg-violet-500/15")}>
+                        <ExternalLink size={18} className={isDarkMode ? "text-blue-400" : "text-violet-600"} />
+                      </div>
+                      <span className={cn("font-bold text-sm", isDarkMode ? "text-white/90" : "text-black/90")}>{isRTL ? 'فتح رابط التطبيق' : 'Open App Link'}</span>
                     </div>
-                    <span className="font-bold text-sm text-white/90">{isRTL ? 'فتح رابط التطبيق' : 'Open App Link'}</span>
-                  </div>
-                  <ArrowRight size={18} className="text-white/30 group-hover:-translate-x-1 transition-transform" />
-                </a>
+                    <ArrowRight size={18} className={cn("group-hover:-translate-x-1 transition-transform", isDarkMode ? "text-white/30" : "text-black/30")} />
+                  </a>
 
-                <button 
-                  onClick={copyDriverLink}
-                  className="flex items-center justify-between p-4 bg-white/5 hover:bg-white/10 rounded-2xl transition-all group text-right w-full border border-white/10 hover:border-white/20"
-                >
-                  <div className="flex items-center gap-3">
-                    <div className={cn("p-2 rounded-xl", copied ? "bg-emerald-500/20" : "bg-amber-500/20")}>
-                      {copied ? <Check size={18} className="text-emerald-400" /> : <Copy size={18} className="text-amber-400" />}
+                  <button 
+                    onClick={copyDriverLink}
+                    className={cn("flex items-center justify-between p-4 rounded-2xl transition-all group text-right w-full border", isDarkMode ? "bg-white/5 hover:bg-white/10 border-white/10 hover:border-white/20" : "bg-white/60 hover:bg-white/80 border-violet-200/40 hover:border-violet-300/60")}
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className={cn("p-2 rounded-xl", copied ? "bg-emerald-500/20" : isDarkMode ? "bg-amber-500/20" : "bg-violet-500/15")}>
+                        {copied ? <Check size={18} className="text-emerald-400" /> : <Copy size={18} className={isDarkMode ? "text-amber-400" : "text-violet-600"} />}
+                      </div>
+                      <span className={cn("font-bold text-sm", isDarkMode ? "text-white/90" : "text-black/90")}>{copied ? (isRTL ? "تم النسخ بنجاح" : "Copied!") : (isRTL ? "نسخ رابط التطبيق" : "Copy App Link")}</span>
                     </div>
-                    <span className="font-bold text-sm text-white/90">{copied ? (isRTL ? "تم النسخ بنجاح" : "Copied!") : (isRTL ? "نسخ رابط التطبيق" : "Copy App Link")}</span>
-                  </div>
-                </button>
+                  </button>
 
-                <button 
-                  onClick={() => setShowQR(!showQR)}
-                  className="flex items-center justify-between p-4 bg-white/5 hover:bg-white/10 rounded-2xl transition-all group text-right w-full border border-white/10 hover:border-white/20"
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="p-2 bg-purple-500/20 rounded-xl">
-                      <QrCode size={18} className="text-purple-400" />
+                  <button 
+                    onClick={() => setShowQR(!showQR)}
+                    className={cn("flex items-center justify-between p-4 rounded-2xl transition-all group text-right w-full border", isDarkMode ? "bg-white/5 hover:bg-white/10 border-white/10 hover:border-white/20" : "bg-white/60 hover:bg-white/80 border-violet-200/40 hover:border-violet-300/60")}
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className={cn("p-2 rounded-xl", isDarkMode ? "bg-purple-500/20" : "bg-violet-500/15")}>
+                        <QrCode size={18} className={isDarkMode ? "text-purple-400" : "text-violet-600"} />
+                      </div>
+                      <span className={cn("font-bold text-sm", isDarkMode ? "text-white/90" : "text-black/90")}>{isRTL ? 'عرض رمز QR' : 'Show QR Code'}</span>
                     </div>
-                    <span className="font-bold text-sm text-white/90">{isRTL ? 'عرض رمز QR' : 'Show QR Code'}</span>
-                  </div>
-                </button>
+                  </button>
               </div>
 
               <AnimatePresence>
