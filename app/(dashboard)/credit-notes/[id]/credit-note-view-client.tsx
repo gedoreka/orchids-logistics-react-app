@@ -478,64 +478,64 @@ export function CreditNoteViewClient({ creditNote, qrData }: CreditNoteViewClien
 
           {/* Header */}
           <div 
-            className="text-white p-6 relative overflow-hidden flex-shrink-0"
-            style={{ background: 'linear-gradient(135deg, #1e293b 0%, #2c3e50 100%)' }}
-          >
-            <div className="flex flex-row justify-between items-center gap-4 relative z-10">
-              {/* Company Logo */}
-              <div 
-                className="w-20 h-20 rounded-xl flex items-center justify-center p-3 border border-[#ffffff33]"
-                style={{ backgroundColor: 'rgba(255,255,255,0.1)' }}
-              >
-                {creditNote.company_logo ? (
-                  <img 
-                    src={getPublicUrl(creditNote.company_logo) || ''} 
-                    alt="Logo" 
-                    className="max-w-full max-h-full object-contain rounded-md"
-                    crossOrigin="anonymous"
-                  />
-                ) : (
-                  <Building2 size={36} className="text-white/60" />
-                )}
-              </div>
+              className="p-6 relative overflow-hidden flex-shrink-0"
+              style={{ background: 'linear-gradient(135deg, #edd3de 0%, #f5e0ea 50%, #fce7f3 100%)' }}
+            >
+              <div className="flex flex-row justify-between items-center gap-4 relative z-10">
+                {/* Company Logo */}
+                <div 
+                  className="w-20 h-20 rounded-xl flex items-center justify-center p-3 border-2 border-rose-300/50 shadow-md"
+                  style={{ backgroundColor: 'rgba(255,255,255,0.7)' }}
+                >
+                  {creditNote.company_logo ? (
+                    <img 
+                      src={getPublicUrl(creditNote.company_logo) || ''} 
+                      alt="Logo" 
+                      className="max-w-full max-h-full object-contain rounded-md"
+                      crossOrigin="anonymous"
+                    />
+                  ) : (
+                    <Building2 size={36} className="text-rose-400" />
+                  )}
+                </div>
 
-              {/* Title Center */}
-              <div className="text-center flex-1">
-                <h1 className="text-2xl font-black mb-0 tracking-wider">إشعار دائن ضريبي</h1>
-                <p className="text-white/60 text-[12px] uppercase font-light">Credit Note</p>
-                <div className="mt-2 inline-flex items-center gap-2 px-4 py-1 rounded-lg border border-[#ffffff1a]" style={{ backgroundColor: 'rgba(255,255,255,0.05)' }}>
-                  <span className="font-bold text-[10px]">نظام الفواتير الإلكترونية</span>
+                {/* Title Center */}
+                <div className="text-center flex-1">
+                  <h1 className="text-2xl font-black mb-0 tracking-wider text-slate-800">إشعار دائن ضريبي</h1>
+                  <p className="text-slate-500 text-[12px] uppercase font-light">Credit Note</p>
+                  <div className="mt-2 inline-flex items-center gap-2 px-4 py-1 rounded-lg border border-rose-300/40" style={{ backgroundColor: 'rgba(255,255,255,0.5)' }}>
+                    <span className="font-bold text-[10px] text-slate-600">نظام الفواتير الإلكترونية</span>
+                  </div>
+                </div>
+
+                {/* System Logo */}
+                <div className="flex flex-col items-center gap-1 p-3 rounded-xl border-2 border-rose-300/40 min-w-[120px] shadow-md" style={{ backgroundColor: 'rgba(255,255,255,0.6)' }}>
+                  <Truck size={24} className="text-rose-500" />
+                  <h2 className="text-[10px] font-black text-slate-700 uppercase">Logistics Systems</h2>
                 </div>
               </div>
 
-              {/* System Logo */}
-              <div className="flex flex-col items-center gap-1 p-3 rounded-xl border border-[#ffffff1a] min-w-[120px]" style={{ backgroundColor: 'rgba(255,255,255,0.05)' }}>
-                <Truck size={24} className="text-[#3b82f6]" />
-                <h2 className="text-[10px] font-black text-white uppercase">Logistics Systems</h2>
+              {/* Header Meta */}
+              <div className="grid grid-cols-3 gap-4 mt-6 pt-4 border-t border-rose-300/30 relative z-10">
+                <div className="text-center">
+                  <span className="text-slate-500 text-[10px] block">رقم الإشعار:</span>
+                  <p className="font-bold text-[13px] tracking-widest text-slate-800">{creditNote.credit_note_number}</p>
+                </div>
+                <div className="text-center">
+                  <span className="text-slate-500 text-[10px] block">تاريخ الإصدار:</span>
+                  <p className="font-bold text-[13px] text-slate-800">{formatDate(creditNote.created_at)}</p>
+                </div>
+                <div className="text-center">
+                  <span className="text-slate-500 text-[10px] block">الحالة:</span>
+                  <p className={cn(
+                    "font-bold text-[13px]",
+                    creditNote.status === 'cancelled' ? "text-red-600" : "text-emerald-600"
+                  )}>
+                    {creditNote.status === 'cancelled' ? 'ملغي' : 'نشط'}
+                  </p>
+                </div>
               </div>
             </div>
-
-            {/* Header Meta */}
-            <div className="grid grid-cols-3 gap-4 mt-6 pt-4 border-t border-[#ffffff1a] relative z-10">
-              <div className="text-center">
-                <span className="text-[#ffffff66] text-[10px] block">رقم الإشعار:</span>
-                <p className="font-bold text-[13px] tracking-widest">{creditNote.credit_note_number}</p>
-              </div>
-              <div className="text-center">
-                <span className="text-[#ffffff66] text-[10px] block">تاريخ الإصدار:</span>
-                <p className="font-bold text-[13px]">{formatDate(creditNote.created_at)}</p>
-              </div>
-              <div className="text-center">
-                <span className="text-[#ffffff66] text-[10px] block">الحالة:</span>
-                <p className={cn(
-                  "font-bold text-[13px]",
-                  creditNote.status === 'cancelled' ? "text-red-400" : "text-green-400"
-                )}>
-                  {creditNote.status === 'cancelled' ? 'ملغي' : 'نشط'}
-                </p>
-              </div>
-            </div>
-          </div>
 
             <div className="invoice-content p-6 space-y-4 flex-grow flex flex-col">
               {/* Info Cards */}

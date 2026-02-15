@@ -15,7 +15,9 @@ import { Suspense } from "react";
 import { useTranslations, useLocale } from "@/lib/locale-context";
 import { HierarchicalSearchableSelect } from "@/components/ui/hierarchical-searchable-select";
 import { cn } from "@/lib/utils";
+import { useTheme } from "next-themes";
 import Link from "next/link";
+import { SuccessModal, ErrorModal, WarningModal } from "@/components/ui/notification-modals";
 
 // ─── Types ───────────────────────────────────────────────────────
 interface Account {
@@ -93,6 +95,8 @@ function JournalEntriesContent({ companyId }: JournalEntriesProps) {
   const tCommon = useTranslations("common");
   const { isRTL, locale } = useLocale();
   const isAr = locale === "ar";
+  const { resolvedTheme } = useTheme();
+  const isDark = resolvedTheme === "dark";
 
   // Data
   const [accounts, setAccounts] = useState<Account[]>([]);
@@ -291,11 +295,10 @@ function JournalEntriesContent({ companyId }: JournalEntriesProps) {
 
   const closeModal = () => setModal({ type: "idle", entryNumber: null });
 
-  const showNotification = (type: "success" | "error" | "warning" | "info", title: string, message: string) => {
-    setModal({ type: "notification", entryNumber: null, notificationType: type, notificationTitle: title, notificationMessage: message });
-    if (type === "success" || type === "info") {
-      setTimeout(() => setModal(prev => prev.type === "notification" ? { type: "idle", entryNumber: null } : prev), 2500);
-    }
+  const showNotification = (type: "success" | "error" | "warning", title: string, message: string) => {
+    if (type === "success") setSuccessModal({ isOpen: true, title, message });
+    else if (type === "error") setErrorModal({ isOpen: true, title, message });
+    else if (type === "warning") setWarningModal({ isOpen: true, title, message });
   };
 
   const handleDelete = async () => {
@@ -625,38 +628,53 @@ function JournalEntriesContent({ companyId }: JournalEntriesProps) {
 
       {/* ═══════════ Main Layout ═══════════ */}
       <motion.div variants={containerVariants} initial="hidden" animate="visible" className="max-w-[98%] mx-auto px-4 pt-6">
-        <div className="bg-slate-900 rounded-3xl border border-white/5 shadow-2xl overflow-hidden flex flex-col">
+          <div className={cn(
+            "rounded-3xl border shadow-2xl overflow-hidden flex flex-col",
+            isDark ? "bg-slate-900 border-white/5" : "bg-[#edd3de] border-slate-200/30"
+          )}>
 
           {/* ─── Header ───────────────────────────────────────── */}
-          <div className="p-8 space-y-8 bg-slate-900 border-b border-white/5">
+          <div className={cn(
+            "p-8 space-y-8 border-b preserve-colors",
+            isDark ? "bg-slate-900 border-white/5" : "bg-gradient-to-r from-blue-500 via-blue-400 to-blue-500 border-blue-300/30"
+          )}>
             <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
               <div className="flex items-center gap-4">
-                <div className="h-14 w-14 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-blue-500/30 border border-white/10">
+                <div className={cn(
+                  "h-14 w-14 rounded-2xl flex items-center justify-center shadow-lg border",
+                  isDark ? "bg-gradient-to-br from-blue-500 to-indigo-600 shadow-blue-500/30 border-white/10" : "bg-white/20 backdrop-blur-sm shadow-blue-600/20 border-white/30"
+                )}>
                   <Book className="text-white" size={28} />
                 </div>
                 <div>
-                  <div className="flex items-center gap-2 text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">
-                    <Link href="/dashboard" className="hover:text-blue-400 transition-colors flex items-center gap-1">
+                  <div className={cn("flex items-center gap-2 text-[10px] font-black uppercase tracking-widest mb-1", isDark ? "text-slate-400" : "text-white/80")}>
+                    <Link href="/dashboard" className={cn("transition-colors flex items-center gap-1", isDark ? "hover:text-blue-400" : "hover:text-white")}>
                       <LayoutDashboard size={12} />
                       {t("dashboard")}
                     </Link>
                     <ArrowRight size={10} className={cn(isAr && "rotate-180")} />
-                    <span className="text-blue-500">{t("breadcrumb")}</span>
+                    <span className={isDark ? "text-blue-500" : "text-white"}>{t("breadcrumb")}</span>
                   </div>
-                  <h1 className="text-2xl font-black text-white tracking-tight">{t("title")}</h1>
+                  <h1 className={cn("text-2xl font-black tracking-tight", isDark ? "text-white" : "text-black drop-shadow-sm")}>{t("title")}</h1>
                 </div>
               </div>
 
               <div className="flex items-center gap-4">
-                <div className="hidden md:flex items-center gap-2 px-5 py-2.5 bg-white/5 border border-white/10 rounded-2xl">
-                  <div className="w-2.5 h-2.5 rounded-full bg-blue-500 animate-pulse shadow-[0_0_10px_rgba(59,130,246,0.5)]" />
-                  <span className="text-xs font-black text-blue-400 tracking-wide uppercase">{entryNumber}</span>
+                <div className={cn("hidden md:flex items-center gap-2 px-5 py-2.5 rounded-2xl border", isDark ? "bg-white/5 border-white/10" : "bg-white/20 backdrop-blur-sm border-white/30")}>
+                  <div className={cn("w-2.5 h-2.5 rounded-full animate-pulse", isDark ? "bg-blue-500 shadow-[0_0_10px_rgba(59,130,246,0.5)]" : "bg-white shadow-[0_0_10px_rgba(255,255,255,0.5)]")} />
+                  <span className={cn("text-xs font-black tracking-wide uppercase", isDark ? "text-blue-400" : "text-white")}>{entryNumber}</span>
                 </div>
                 <motion.button
                   whileHover={{ scale: 1.02, translateY: -2 }}
                   whileTap={{ scale: 0.98 }}
                   onClick={openNewEntryModal}
-                  className="flex items-center gap-2.5 px-6 py-3.5 rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 text-white hover:from-blue-700 hover:to-indigo-700 transition-all font-black text-sm shadow-xl shadow-blue-500/25"
+                    className="flex items-center gap-2.5 px-6 py-3.5 rounded-2xl text-white transition-all font-black text-sm shadow-xl"
+                    style={{
+                      background: 'linear-gradient(to right, #ec4899, #f43f5e)',
+                      color: '#ffffff',
+                      boxShadow: '0 20px 25px -5px rgba(236, 72, 153, 0.3), 0 8px 10px -6px rgba(236, 72, 153, 0.3)',
+                      WebkitTextFillColor: '#ffffff',
+                    }}
                 >
                   <PlusCircle size={20} />
                   {t("createEntry")}
@@ -667,23 +685,31 @@ function JournalEntriesContent({ companyId }: JournalEntriesProps) {
             {/* ─── Stats Cards ────────────────────────────────── */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
               {[
-                { label: t("totalDebit"), value: stats.totalDebit, icon: TrendingDown, gradient: "from-red-500 to-rose-600", shadow: "shadow-red-500/20" },
-                { label: t("totalCredit"), value: stats.totalCredit, icon: TrendingUp, gradient: "from-emerald-500 to-teal-600", shadow: "shadow-emerald-500/20" },
-                { label: t("entriesCount"), value: stats.entriesCount, icon: BarChart3, gradient: "from-blue-500 to-indigo-600", shadow: "shadow-blue-500/20", isCount: true },
-                { label: t("drafts"), value: stats.draftsCount, icon: Clock, gradient: "from-amber-500 to-orange-600", shadow: "shadow-amber-500/20", isCount: true },
-                { label: t("approved"), value: stats.approvedCount, icon: CheckCircle2, gradient: "from-violet-500 to-purple-600", shadow: "shadow-violet-500/20", isCount: true },
+                { label: t("totalDebit"), value: stats.totalDebit, icon: TrendingDown, gradient: "from-red-500 to-rose-600", shadow: "shadow-red-500/20", lightBg: "#fff0f3", lightBorder: "#f8a3b5" },
+                { label: t("totalCredit"), value: stats.totalCredit, icon: TrendingUp, gradient: "from-emerald-500 to-teal-600", shadow: "shadow-emerald-500/20", lightBg: "#edfcf4", lightBorder: "#7dd4a3" },
+                { label: t("entriesCount"), value: stats.entriesCount, icon: BarChart3, gradient: "from-blue-500 to-indigo-600", shadow: "shadow-blue-500/20", isCount: true, lightBg: "#eff4ff", lightBorder: "#93b4f8" },
+                { label: t("drafts"), value: stats.draftsCount, icon: Clock, gradient: "from-amber-500 to-orange-600", shadow: "shadow-amber-500/20", isCount: true, lightBg: "#fff8eb", lightBorder: "#f5c862" },
+                { label: t("approved"), value: stats.approvedCount, icon: CheckCircle2, gradient: "from-violet-500 to-purple-600", shadow: "shadow-violet-500/20", isCount: true, lightBg: "#f3eeff", lightBorder: "#b794f6" },
               ].map((card, i) => (
                 <motion.div key={i} variants={itemVariants} className="relative group">
-                  <div className={`h-full rounded-2xl bg-gradient-to-br ${card.gradient} p-5 shadow-lg ${card.shadow} transition-all group-hover:shadow-xl group-hover:scale-[1.02]`}>
+                  <div
+                    className={cn(
+                      "h-full rounded-2xl p-5 transition-all group-hover:shadow-xl group-hover:scale-[1.02]",
+                      isDark
+                        ? `bg-gradient-to-br ${card.gradient} shadow-lg ${card.shadow}`
+                        : "shadow-md"
+                    )}
+                    style={!isDark ? { backgroundColor: card.lightBg, border: `2px solid ${card.lightBorder}` } : undefined}
+                  >
                     <div className="flex items-center justify-between mb-3">
-                      <div className="p-2 bg-white/15 rounded-xl text-white backdrop-blur-md">
+                      <div className={cn("p-2 rounded-xl", isDark ? "bg-white/15 text-white backdrop-blur-md" : "bg-white/60 text-slate-700")}>
                         <card.icon size={18} />
                       </div>
                     </div>
-                    <p className="text-white/70 text-[10px] font-black uppercase tracking-widest">{card.label}</p>
-                    <p className="text-xl font-black text-white mt-1 flex items-baseline gap-1">
+                    <p className={cn("text-[10px] font-black uppercase tracking-widest", isDark ? "text-white/70" : "text-slate-600")}>{card.label}</p>
+                    <p className={cn("text-xl font-black mt-1 flex items-baseline gap-1", isDark ? "text-white" : "text-slate-800")}>
                       {card.isCount ? card.value : card.value.toLocaleString("en-US", { minimumFractionDigits: 2 })}
-                      {!card.isCount && <span className="text-xs text-white/60 font-bold">{t("sar")}</span>}
+                      {!card.isCount && <span className={cn("text-xs font-bold", isDark ? "text-white/60" : "text-slate-500")}>{t("sar")}</span>}
                     </p>
                   </div>
                 </motion.div>
@@ -692,7 +718,7 @@ function JournalEntriesContent({ companyId }: JournalEntriesProps) {
           </div>
 
           {/* ─── Filters & Source Tabs ─────────────────────────── */}
-          <div className="bg-slate-900/80 px-8 py-5 border-b border-white/5 space-y-4">
+          <div className={cn("px-8 py-5 border-b space-y-4", isDark ? "bg-slate-900/80 border-white/5" : "bg-[#edd3de]/60 border-slate-200/30")}>
             {/* Source Tabs */}
             <div className="flex flex-wrap items-center gap-2">
               {sourceTabs.map(tab => (
@@ -703,12 +729,14 @@ function JournalEntriesContent({ companyId }: JournalEntriesProps) {
                     "flex items-center gap-2 px-4 py-2 rounded-xl font-black text-xs transition-all",
                     sourceFilter === tab.key
                       ? `bg-gradient-to-r ${tab.color} text-white shadow-lg scale-105`
-                      : "bg-white/5 text-slate-400 hover:bg-white/10 border border-white/10"
+                      : isDark
+                        ? "bg-white/5 text-slate-400 hover:bg-white/10 border border-white/10"
+                        : "bg-white/60 text-slate-600 hover:bg-white/80 border border-slate-200/60"
                   )}
                 >
                   <span>{tab.label}</span>
                   {tab.count > 0 && (
-                    <span className={cn("px-2 py-0.5 rounded-full text-[10px] font-black", sourceFilter === tab.key ? "bg-white/20" : "bg-white/5")}>
+                    <span className={cn("px-2 py-0.5 rounded-full text-[10px] font-black", sourceFilter === tab.key ? "bg-white/20" : isDark ? "bg-white/5" : "bg-slate-200/60")}>
                       {tab.count}
                     </span>
                   )}
@@ -720,28 +748,32 @@ function JournalEntriesContent({ companyId }: JournalEntriesProps) {
             <div className="flex flex-wrap items-center gap-3">
               {/* Search */}
               <div className="relative flex-1 min-w-[200px]">
-                <Search className={cn("absolute top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500", isRTL ? "right-3" : "left-3")} />
+                <Search className={cn("absolute top-1/2 -translate-y-1/2 w-4 h-4", isDark ? "text-slate-500" : "text-slate-400", isRTL ? "right-3" : "left-3")} />
                 <input
                   type="text"
                   placeholder={t("searchPlaceholder")}
                   value={searchTerm}
                   onChange={e => setSearchTerm(e.target.value)}
-                  className={cn("w-full py-2.5 bg-white/5 border border-white/10 rounded-xl text-white placeholder-slate-500 focus:border-blue-500/50 focus:bg-white/10 outline-none transition-all text-sm font-bold", isRTL ? "pr-10 pl-4" : "pl-10 pr-4")}
+                  className={cn(
+                    "w-full py-2.5 rounded-xl outline-none transition-all text-sm font-bold",
+                    isDark ? "bg-white/5 border border-white/10 text-white placeholder-slate-500 focus:border-blue-500/50 focus:bg-white/10" : "bg-white/70 border border-slate-200/60 text-slate-800 placeholder-slate-400 focus:border-blue-400/50 focus:bg-white",
+                    isRTL ? "pr-10 pl-4" : "pl-10 pr-4"
+                  )}
                 />
               </div>
 
               {/* Date Filters */}
               <div className="flex items-center gap-2">
                 <input type="date" value={fromDate} onChange={e => setFromDate(e.target.value)}
-                  className="py-2.5 px-3 bg-white/5 border border-white/10 rounded-xl text-white text-xs font-bold focus:border-blue-500/50 outline-none transition-all [color-scheme:dark]" />
-                <span className="text-slate-500 text-xs font-black">→</span>
+                  className={cn("py-2.5 px-3 rounded-xl text-xs font-bold outline-none transition-all", isDark ? "bg-white/5 border border-white/10 text-white focus:border-blue-500/50 [color-scheme:dark]" : "bg-white/70 border border-slate-200/60 text-slate-800 focus:border-blue-400/50")} />
+                <span className={cn("text-xs font-black", isDark ? "text-slate-500" : "text-slate-400")}>→</span>
                 <input type="date" value={toDate} onChange={e => setToDate(e.target.value)}
-                  className="py-2.5 px-3 bg-white/5 border border-white/10 rounded-xl text-white text-xs font-bold focus:border-blue-500/50 outline-none transition-all [color-scheme:dark]" />
+                  className={cn("py-2.5 px-3 rounded-xl text-xs font-bold outline-none transition-all", isDark ? "bg-white/5 border border-white/10 text-white focus:border-blue-500/50 [color-scheme:dark]" : "bg-white/70 border border-slate-200/60 text-slate-800 focus:border-blue-400/50")} />
               </div>
 
               {/* Status Filter */}
               <select value={statusFilter} onChange={e => setStatusFilter(e.target.value)}
-                className="py-2.5 px-3 bg-white/5 border border-white/10 rounded-xl text-white text-xs font-bold focus:border-blue-500/50 outline-none transition-all appearance-none cursor-pointer [color-scheme:dark]">
+                className={cn("py-2.5 px-3 rounded-xl text-xs font-bold outline-none transition-all appearance-none cursor-pointer", isDark ? "bg-white/5 border border-white/10 text-white focus:border-blue-500/50 [color-scheme:dark]" : "bg-white/70 border border-slate-200/60 text-slate-800 focus:border-blue-400/50")}>
                 <option value="all">{t("statusAll")}</option>
                 <option value="draft">{t("statusDraft")}</option>
                 <option value="approved">{t("statusApproved")}</option>
@@ -749,25 +781,25 @@ function JournalEntriesContent({ companyId }: JournalEntriesProps) {
 
               {/* Action Buttons */}
               <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={exportCsv}
-                className="flex items-center gap-2 px-4 py-2.5 bg-white/5 border border-white/10 rounded-xl text-slate-400 hover:text-white hover:bg-white/10 transition-all text-xs font-black">
+                className={cn("flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-black transition-all border", isDark ? "bg-white/5 border-white/10 text-slate-400 hover:text-white hover:bg-white/10" : "bg-white/70 border-slate-200/60 text-slate-600 hover:bg-white hover:text-slate-800")}>
                 <Download size={14} />{t("exportCsv")}
               </motion.button>
               <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={() => window.print()}
-                className="flex items-center gap-2 px-4 py-2.5 bg-white/5 border border-white/10 rounded-xl text-slate-400 hover:text-white hover:bg-white/10 transition-all text-xs font-black">
+                className={cn("flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-black transition-all border", isDark ? "bg-white/5 border-white/10 text-slate-400 hover:text-white hover:bg-white/10" : "bg-white/70 border-slate-200/60 text-slate-600 hover:bg-white hover:text-slate-800")}>
                 <Printer size={14} />{t("print")}
               </motion.button>
             </div>
           </div>
 
           {/* ─── Table Header ─────────────────────────────────── */}
-          <div className="bg-slate-900 px-8 py-5 flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-white/5">
+          <div className={cn("px-8 py-5 flex flex-col md:flex-row md:items-center justify-between gap-4 border-b", isDark ? "bg-slate-900 border-white/5" : "bg-[#e4c0ce] border-slate-200/30")}>
             <div className="flex items-center gap-4">
-              <div className="h-12 w-12 rounded-2xl bg-white/10 flex items-center justify-center border border-white/10">
-                <List className="text-white" size={24} />
+              <div className={cn("h-12 w-12 rounded-2xl flex items-center justify-center border", isDark ? "bg-white/10 border-white/10" : "bg-white/40 border-slate-300/40")}>
+                <List className={isDark ? "text-white" : "text-slate-700"} size={24} />
               </div>
               <div>
-                <h3 className="text-white font-black tracking-tight">{t("journalLog")}</h3>
-                <p className="text-slate-400 text-xs font-bold tracking-wide uppercase">{Object.keys(filteredGroups).length} {t("entriesCount")}</p>
+                <h3 className={cn("font-black tracking-tight", isDark ? "text-white" : "text-slate-800")}>{t("journalLog")}</h3>
+                <p className={cn("text-xs font-bold tracking-wide uppercase", isDark ? "text-slate-400" : "text-slate-600")}>{Object.keys(filteredGroups).length} {t("entriesCount")}</p>
               </div>
             </div>
           </div>
@@ -781,35 +813,35 @@ function JournalEntriesContent({ companyId }: JournalEntriesProps) {
                   const isDraft = !entryLines[0].status || entryLines[0].status === "draft";
                   const totalDebit = entryLines.reduce((s, l) => s + l.debit, 0);
 
-                  return (
+                    return (
                     <motion.div key={num} variants={itemVariants}
-                      className="rounded-2xl overflow-hidden border border-white/5 hover:border-white/10 transition-all group bg-slate-800/50">
+                      className={cn("rounded-2xl overflow-hidden border transition-all group", isDark ? "border-white/5 hover:border-white/10 bg-slate-800/50" : "border-slate-200/40 hover:border-slate-300/60 bg-white/50")}>
                       <div onClick={() => toggleExpand(num)}
-                        className="p-5 flex justify-between items-center cursor-pointer hover:bg-white/5 transition-all">
+                        className={cn("p-5 flex justify-between items-center cursor-pointer transition-all", isDark ? "hover:bg-white/5" : "hover:bg-white/30")}>
                         <div className="flex items-center gap-4 flex-wrap">
-                          <div className={cn("px-4 py-2 rounded-xl font-black text-sm border", "bg-white/5 text-blue-400 border-blue-500/20")}>
+                          <div className={cn("px-4 py-2 rounded-xl font-black text-sm border", isDark ? "bg-white/5 text-blue-400 border-blue-500/20" : "bg-blue-50 text-blue-600 border-blue-200/60")}>
                             {num}
                           </div>
                           <div className="flex flex-col">
-                            <span className="text-[11px] text-slate-500 font-bold flex items-center gap-1">
+                            <span className={cn("text-[11px] font-bold flex items-center gap-1", isDark ? "text-slate-500" : "text-slate-500")}>
                               <Calendar size={10} />
                               {formatDateGregorian(entryLines[0].entry_date)}
                             </span>
-                            <span className="text-slate-300 font-bold text-sm line-clamp-1">{entryLines[0].description || "---"}</span>
+                            <span className={cn("font-bold text-sm line-clamp-1", isDark ? "text-slate-300" : "text-slate-700")}>{entryLines[0].description || "---"}</span>
                           </div>
-                          <span className={cn("px-3 py-1 rounded-lg text-[10px] font-black border", getSourceBadge(entryLines[0].source_type))}>
+                          <span className={cn("px-3 py-1 rounded-lg text-[10px] font-black border", isDark ? getSourceBadge(entryLines[0].source_type) : "bg-blue-50 text-blue-600 border-blue-200/60")}>
                             {getSourceLabel(entryLines[0].source_type)}
                           </span>
-                          <span className={cn("px-3 py-1 rounded-lg text-[10px] font-black border", getStatusBadge(entryLines[0].status))}>
+                          <span className={cn("px-3 py-1 rounded-lg text-[10px] font-black border", isDark ? getStatusBadge(entryLines[0].status) : entryLines[0].status === "approved" ? "bg-emerald-50 text-emerald-600 border-emerald-200/60" : "bg-amber-50 text-amber-600 border-amber-200/60")}>
                             {entryLines[0].status === "approved" ? t("statusApproved") : t("statusDraft")}
                           </span>
                         </div>
                         <div className="flex items-center gap-4">
                           <div className="flex flex-col items-end">
-                            <span className="text-[10px] text-slate-500 font-black uppercase">{t("total")}</span>
-                            <span className="text-lg font-black text-white">
+                            <span className={cn("text-[10px] font-black uppercase", isDark ? "text-slate-500" : "text-slate-500")}>{t("total")}</span>
+                            <span className={cn("text-lg font-black", isDark ? "text-white" : "text-slate-800")}>
                               {totalDebit.toLocaleString("en-US", { minimumFractionDigits: 2 })}
-                              <small className="text-[10px] text-slate-500 font-bold mr-1">{t("sar")}</small>
+                              <small className={cn("text-[10px] font-bold mr-1", isDark ? "text-slate-500" : "text-slate-400")}>{t("sar")}</small>
                             </span>
                           </div>
 
@@ -840,8 +872,8 @@ function JournalEntriesContent({ companyId }: JournalEntriesProps) {
                           </div>
 
                           {expandedEntries[num]
-                            ? <ChevronUp size={18} className="text-slate-500" />
-                            : <ChevronDown size={18} className="text-slate-500" />
+                            ? <ChevronUp size={18} className={isDark ? "text-slate-500" : "text-slate-400"} />
+                            : <ChevronDown size={18} className={isDark ? "text-slate-500" : "text-slate-400"} />
                           }
                         </div>
                       </div>
@@ -852,10 +884,10 @@ function JournalEntriesContent({ companyId }: JournalEntriesProps) {
                           <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }}
                             className="overflow-hidden">
                             <div className="px-5 pb-5 pt-2">
-                              <div className="bg-slate-900/50 rounded-2xl border border-white/5 overflow-hidden">
+                              <div className={cn("rounded-2xl border overflow-hidden", isDark ? "bg-slate-900/50 border-white/5" : "bg-white/60 border-slate-200/40")}>
                                 <table className="w-full">
                                   <thead>
-                                      <tr className="text-slate-500 text-[11px] font-black uppercase border-b border-white/5">
+                                      <tr className={cn("text-[11px] font-black uppercase", isDark ? "text-slate-500 border-b border-white/5" : "text-slate-500 border-b border-slate-200/40")}>
                                         <th className="pb-3 pt-4 px-4 text-right">{isAr ? "شجرة الحسابات" : "Chart of Accounts"}</th>
                                       <th className="pb-3 pt-4 px-4 text-right">{t("costCenter")}</th>
                                       <th className="pb-3 pt-4 px-4 text-right">{t("description")}</th>
@@ -863,31 +895,31 @@ function JournalEntriesContent({ companyId }: JournalEntriesProps) {
                                       <th className="pb-3 pt-4 px-4 text-center">{t("credit")}</th>
                                     </tr>
                                   </thead>
-                                  <tbody className="divide-y divide-white/5">
+                                  <tbody className={cn("divide-y", isDark ? "divide-white/5" : "divide-slate-200/40")}>
                                     {entryLines.map((l, i) => (
-                                      <tr key={i} className="text-sm font-medium hover:bg-white/5 transition-colors">
-                                        <td className="py-3 px-4 text-blue-400 font-bold">
+                                      <tr key={i} className={cn("text-sm font-medium transition-colors", isDark ? "hover:bg-white/5" : "hover:bg-white/40")}>
+                                        <td className={cn("py-3 px-4 font-bold", isDark ? "text-blue-400" : "text-blue-600")}>
                                           <div className="flex items-center gap-2">
                                             <Landmark size={12} className="opacity-40" />
                                             {l.accounts?.account_code} - {l.accounts?.account_name}
                                           </div>
                                         </td>
-                                        <td className="py-3 px-4 text-slate-400">
+                                        <td className={cn("py-3 px-4", isDark ? "text-slate-400" : "text-slate-600")}>
                                           {l.cost_centers ? (
                                             <div className="flex items-center gap-2">
                                               <Building size={12} className="opacity-40" />
                                               {l.cost_centers.center_code} - {l.cost_centers.center_name}
                                             </div>
-                                          ) : <span className="text-slate-600">---</span>}
+                                          ) : <span className={isDark ? "text-slate-600" : "text-slate-400"}>---</span>}
                                         </td>
-                                        <td className="py-3 px-4 text-slate-400 italic">{l.description || "---"}</td>
+                                        <td className={cn("py-3 px-4 italic", isDark ? "text-slate-400" : "text-slate-600")}>{l.description || "---"}</td>
                                         <td className="py-3 px-4 text-center font-black text-red-400">{l.debit > 0 ? l.debit.toLocaleString() : "-"}</td>
                                         <td className="py-3 px-4 text-center font-black text-emerald-400">{l.credit > 0 ? l.credit.toLocaleString() : "-"}</td>
                                       </tr>
                                     ))}
                                   </tbody>
                                 </table>
-                                <div className="mt-0 px-4 py-3 border-t border-white/5 flex justify-between text-[10px] font-bold text-slate-600">
+                                <div className={cn("mt-0 px-4 py-3 border-t flex justify-between text-[10px] font-bold", isDark ? "border-white/5 text-slate-600" : "border-slate-200/40 text-slate-500")}>
                                   <span>{t("createdBy")}: {entryLines[0].created_by}</span>
                                   <span>{t("operationNumber")}: {entryLines[0].id}</span>
                                 </div>
@@ -900,10 +932,10 @@ function JournalEntriesContent({ companyId }: JournalEntriesProps) {
                   );
                 })
               ) : (
-                <div className="text-center py-20 rounded-3xl border-2 border-dashed border-white/10 bg-white/5">
-                  <Book size={64} className="text-slate-700 mx-auto mb-4" />
-                  <h4 className="text-lg font-black text-slate-500">{t("noEntries")}</h4>
-                  <p className="text-slate-600 text-sm">{t("noEntriesDesc")}</p>
+                <div className={cn("text-center py-20 rounded-3xl border-2 border-dashed", isDark ? "border-white/10 bg-white/5" : "border-slate-300/40 bg-white/30")}>
+                  <Book size={64} className={cn("mx-auto mb-4", isDark ? "text-slate-700" : "text-slate-400")} />
+                  <h4 className={cn("text-lg font-black", isDark ? "text-slate-500" : "text-slate-500")}>{t("noEntries")}</h4>
+                  <p className={cn("text-sm", isDark ? "text-slate-600" : "text-slate-400")}>{t("noEntriesDesc")}</p>
                 </div>
               )}
             </div>

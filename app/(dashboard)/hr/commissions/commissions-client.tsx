@@ -537,17 +537,17 @@ export function CommissionsClient({ companyId, initialPackages }: CommissionsCli
   return (
     <div className="min-h-screen bg-transparent p-4 md:p-8" dir={isRtl ? "rtl" : "ltr"}>
       {/* Header Section */}
-      <div className="relative mb-8 rounded-[2rem] bg-gradient-to-r from-[#1e293b] to-[#334155] p-8 text-white shadow-2xl overflow-hidden">
-        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
-            <div className="flex items-center gap-6">
-              <div className="h-16 w-16 rounded-2xl bg-white/10 backdrop-blur-md flex items-center justify-center border border-white/20 shadow-inner">
-                <DollarSign size={32} className="text-blue-400" />
-              </div>
-              <div>
-                  <h1 className="text-3xl font-black tracking-tight">{t("title")}</h1>
-                  <div className="flex items-center gap-4 mt-1">
-                    <p className="text-blue-200 font-medium opacity-80">{t("subtitle")}</p>
-                    <div className="h-4 w-px bg-white/10" />
+        <div className="relative mb-8 rounded-[2rem] bg-gradient-to-br from-[#edd3de] via-[#f5e0ea] to-[#fce7f3] p-8 text-slate-800 shadow-2xl overflow-hidden border border-rose-200/60">
+          <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+              <div className="flex items-center gap-6">
+                <div className="h-16 w-16 rounded-2xl bg-white/60 backdrop-blur-md flex items-center justify-center border border-rose-200/50 shadow-inner">
+                  <DollarSign size={32} className="text-pink-600" />
+                </div>
+                <div>
+                    <h1 className="text-3xl font-black tracking-tight bg-gradient-to-r from-pink-600 via-rose-500 to-orange-500 bg-clip-text text-transparent">{t("title")}</h1>
+                    <div className="flex items-center gap-4 mt-1">
+                      <p className="text-slate-600 font-medium">{t("subtitle")}</p>
+                      <div className="h-4 w-px bg-slate-300/50" />
                     <PageInstructions 
                       title={t("instructionsTitle")}
                       instructions={commissionInstructions}
@@ -558,35 +558,35 @@ export function CommissionsClient({ companyId, initialPackages }: CommissionsCli
               </div>
   
             
-            <div className="flex items-center gap-2 bg-white/5 backdrop-blur-sm p-1.5 rounded-2xl border border-white/10">
-              <button 
-                onClick={() => setActiveTab("manage")}
-                className={cn(
-                  "px-6 py-2.5 rounded-xl font-bold text-sm transition-all duration-300",
-                  activeTab === "manage" ? "bg-blue-500 text-white shadow-lg" : "text-white/60 hover:text-white hover:bg-white/5"
-                )}
-              >
-                <div className="flex items-center gap-2">
-                  <Settings size={16} />
-                  <span>{t("manageCommissions")}</span>
-                </div>
-              </button>
-              <button 
-                onClick={() => setActiveTab("report")}
-                className={cn(
-                  "px-6 py-2.5 rounded-xl font-bold text-sm transition-all duration-300",
-                  activeTab === "report" ? "bg-blue-500 text-white shadow-lg" : "text-white/60 hover:text-white hover:bg-white/5"
-                )}
-              >
-                <div className="flex items-center gap-2">
-                  <FileText size={16} />
-                  <span>{t("commissionsReport")}</span>
-                </div>
-              </button>
-            </div>
+              <div className="flex items-center gap-2 bg-white/50 backdrop-blur-sm p-1.5 rounded-2xl border border-rose-200/50">
+                <button 
+                  onClick={() => setActiveTab("manage")}
+                  className={cn(
+                    "px-6 py-2.5 rounded-xl font-bold text-sm transition-all duration-300",
+                    activeTab === "manage" ? "bg-white text-pink-600 shadow-lg border border-rose-200/50" : "text-slate-500 hover:text-slate-700 hover:bg-white/50"
+                  )}
+                >
+                  <div className="flex items-center gap-2">
+                    <Settings size={16} />
+                    <span>{t("manageCommissions")}</span>
+                  </div>
+                </button>
+                <button 
+                  onClick={() => setActiveTab("report")}
+                  className={cn(
+                    "px-6 py-2.5 rounded-xl font-bold text-sm transition-all duration-300",
+                    activeTab === "report" ? "bg-white text-pink-600 shadow-lg border border-rose-200/50" : "text-slate-500 hover:text-slate-700 hover:bg-white/50"
+                  )}
+                >
+                  <div className="flex items-center gap-2">
+                    <FileText size={16} />
+                    <span>{t("commissionsReport")}</span>
+                  </div>
+                </button>
+              </div>
         </div>
-        <div className="absolute -top-24 -right-24 w-64 h-64 bg-blue-500/10 rounded-full blur-3xl" />
-        <div className="absolute -bottom-24 -left-24 w-64 h-64 bg-purple-500/10 rounded-full blur-3xl" />
+        <div className="absolute -top-24 -right-24 w-64 h-64 bg-pink-400/10 rounded-full blur-3xl" />
+        <div className="absolute -bottom-24 -left-24 w-64 h-64 bg-rose-400/10 rounded-full blur-3xl" />
       </div>
 
       {/* ═══════════ Premium Modal System ═══════════ */}

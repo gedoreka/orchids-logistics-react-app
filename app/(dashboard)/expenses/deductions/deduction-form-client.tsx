@@ -14,21 +14,7 @@ import DeductionSubtypeManager from "./deduction-subtype-manager";
 import { useTranslations } from "@/lib/locale-context";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { HierarchicalSearchableSelect } from "@/components/ui/hierarchical-searchable-select";
-
-interface NotificationState {
-  show: boolean;
-  type: 'warning' | 'confirm' | 'loading' | 'success' | 'error';
-  title: string;
-  message: string;
-  details?: {
-    count: number;
-    totalAmount: number;
-    types?: string[];
-    month?: string;
-  };
-  missingFields?: string[];
-  onConfirm?: () => void;
-}
+import { SuccessModal, LoadingModal, ErrorModal, WarningModal, ConfirmModal } from "@/components/ui/notification-modals";
 
 interface Employee {
   id: number;
@@ -230,24 +216,13 @@ export default function DeductionFormClient({ user }: { user: User }) {
   const [showSubtypeManager, setShowSubtypeManager] = useState(false);
   const [monthReference, setMonthReference] = useState(new Date().toISOString().substring(0, 7));
 
-  const [notification, setNotification] = useState<NotificationState>({
-    show: false,
-    type: 'warning',
-    title: '',
-    message: '',
-  });
+  const [successModal, setSuccessModal] = useState<{ isOpen: boolean; type: 'delete' | 'update' | 'create' | null; title: string }>({ isOpen: false, type: null, title: '' });
+  const [loadingModal, setLoadingModal] = useState(false);
+  const [errorModal, setErrorModal] = useState<{ isOpen: boolean; title: string; message: string }>({ isOpen: false, title: '', message: '' });
+  const [warningModal, setWarningModal] = useState<{ isOpen: boolean; title: string; message: string; missingFields: string[] }>({ isOpen: false, title: '', message: '', missingFields: [] });
+  const [confirmModal, setConfirmModal] = useState<{ isOpen: boolean; title: string; message: string; details: React.ReactNode; onConfirm: () => void }>({ isOpen: false, title: '', message: '', details: null, onConfirm: () => {} });
 
-  const showNotification = (
-    type: NotificationState['type'],
-    title: string,
-    message: string,
-    details?: NotificationState['details'],
-    missingFields?: string[],
-    onConfirm?: () => void
-  ) => {
-    setNotification({ show: true, type, title, message, details, missingFields, onConfirm });
-  };
-
+  
   const fetchMetadata = async () => {
     try {
       const res = await fetch(`/api/expenses/deductions/metadata?company_id=${user.company_id}&user_id=${user.id}`, {
@@ -383,13 +358,12 @@ export default function DeductionFormClient({ user }: { user: User }) {
     });
 
     if (rowsWithMissingFields.length > 0) {
-      showNotification(
-        'warning',
-        'حقول إجبارية مفقودة',
-        'يرجى إكمال الحقول التالية قبل الحفظ:',
-        undefined,
-        rowsWithMissingFields
-      );
+      setWarningModal({
+        isOpen: true,
+        title: 'حقول إجبارية مفقودة',
+        message: 'يرجى إكمال الحقول التالية قبل الحفظ:',
+        missingFields: rowsWithMissingFields
+      });
       return;
     }
 
@@ -398,24 +372,43 @@ export default function DeductionFormClient({ user }: { user: User }) {
     const totalCount = allRows.length;
     const totalAmount = allRows.reduce((sum, row) => sum + (parseFloat(row.amount) || 0), 0);
     const types = Object.keys(sections).map(type => t(`types.${type}`));
+    const month = new Date(monthReference + '-01').toLocaleDateString('ar-SA', { month: 'long', year: 'numeric' });
 
-    showNotification(
-      'confirm',
-      'تأكيد حفظ الاستقطاعات',
-      'هل تريد حفظ الاستقطاعات التالية؟',
-      {
-        count: totalCount,
-        totalAmount,
-        types,
-        month: new Date(monthReference + '-01').toLocaleDateString('ar-SA', { month: 'long', year: 'numeric' })
-      },
-      undefined,
-      () => executeSave()
-    );
+    setConfirmModal({
+      isOpen: true,
+      title: 'تأكيد حفظ الاستقطاعات',
+      message: 'هل تريد حفظ الاستقطاعات التالية؟',
+      details: (
+        <div className="space-y-3">
+          <div className="grid grid-cols-2 gap-3">
+            <div className="bg-rose-50 border border-rose-100 rounded-xl p-4 text-center">
+              <p className="text-xs text-rose-500 font-bold mb-1">عدد العمليات</p>
+              <p className="text-2xl font-black text-rose-700">{totalCount}</p>
+            </div>
+            <div className="bg-green-50 border border-green-100 rounded-xl p-4 text-center">
+              <p className="text-xs text-green-500 font-bold mb-1">إجمالي المبلغ</p>
+              <p className="text-2xl font-black text-green-700">{totalAmount.toFixed(2)}</p>
+            </div>
+          </div>
+          {types.length > 0 && (
+            <div className="flex flex-wrap gap-2 justify-center">
+              {types.map((type, idx) => (
+                <span key={idx} className="bg-rose-100 text-rose-700 px-3 py-1 rounded-full text-xs font-bold">{type}</span>
+              ))}
+            </div>
+          )}
+          <p className="text-center text-sm text-slate-500 flex items-center justify-center gap-2">
+            <Calendar className="w-4 h-4" />
+            {month}
+          </p>
+        </div>
+      ),
+      onConfirm: () => executeSave()
+    });
   };
 
   const executeSave = async () => {
-    showNotification('loading', 'جاري الحفظ...', 'يتم حفظ الاستقطاعات في النظام');
+    setLoadingModal(true);
 
     setSubmitting(true);
     const allDeductions = Object.values(sections).flat();
@@ -446,152 +439,145 @@ export default function DeductionFormClient({ user }: { user: User }) {
         if (data.success) {
           const totalAmount = allDeductions.reduce((sum, row) => sum + (parseFloat(row.amount) || 0), 0);
           setSavedCount(data.saved_count);
-          showNotification(
-            'success',
-            'تم الحفظ بنجاح',
-            `تم حفظ ${data.saved_count} استقطاع بنجاح`,
-            {
-              count: data.saved_count,
-              totalAmount,
-              types: Object.keys(sections).map(type => t(`types.${type}`)),
-              month: new Date(monthReference + '-01').toLocaleDateString('ar-SA', { month: 'long', year: 'numeric' })
-            }
-          );
+          setLoadingModal(false);
+          setConfirmModal(prev => ({ ...prev, isOpen: false }));
+          setSuccessModal({ isOpen: true, type: 'create', title: `تم حفظ ${data.saved_count} استقطاع بنجاح` });
         } else {
           const errorMsg = data.message || data.error || "فشل حفظ الاستقطاعات";
-          showNotification('error', 'خطأ في الحفظ', errorMsg);
+          setErrorModal({ isOpen: true, title: 'خطأ في الحفظ', message: errorMsg });
         }
       } catch (error) {
         const errorMessage = error instanceof Error ? error.message : "حدث خطأ في الاتصال";
-        showNotification('error', 'خطأ في الحفظ', errorMessage);
+        setErrorModal({ isOpen: true, title: 'خطأ في الحفظ', message: errorMessage });
       } finally {
         setSubmitting(false);
       }
     };
 
   if (loading) {
-      return (
-        <div className="flex items-center justify-center h-40">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-rose-600"></div>
-        </div>
-      );
-    }
-
-      return (
-          <div className="w-full min-h-screen px-3 py-3 space-y-3">
-          <motion.div 
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="relative overflow-hidden rounded-lg bg-gradient-to-r from-rose-900 to-rose-800 p-3 text-white shadow-md border border-white/10"
-          >
-            <div className="relative z-10 flex flex-col items-center justify-center text-center space-y-1">
-              <div className="p-1.5 bg-white/10 rounded-full backdrop-blur-sm">
-                <HandCoins className="w-4 h-4 text-rose-400" />
-              </div>
-              <h1 className="text-base font-bold tracking-tight">{t("deductions.title")}</h1>
-              <p className="text-rose-300 max-w-2xl text-[10px]">{t("deductions.subtitle")}</p>
-            </div>
-            <div className="absolute top-0 left-0 w-full h-0.5 bg-gradient-to-r from-rose-500 via-pink-500 to-red-500"></div>
-          </motion.div>
-
-        <div className="bg-white rounded-xl shadow-md border border-slate-100 p-3 space-y-3">
-          <motion.div 
-            className="bg-slate-50 p-2 rounded-lg border border-slate-200 flex flex-col md:flex-row items-center justify-between gap-2"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-          >
-            <div className="flex items-center space-x-2 space-x-reverse">
-              <div className="p-1 bg-rose-100 rounded text-rose-600">
-                <Tags className="w-3 h-3" />
-              </div>
-              <div>
-                <h3 className="text-xs font-bold text-slate-900">{t("form.manageCustomTypes")}</h3>
-                <p className="text-[9px] text-slate-500">{t("form.manageCustomTypesDesc")}</p>
-              </div>
-            </div>
-            <button 
-              onClick={() => setShowSubtypeManager(true)}
-              className="bg-white hover:bg-rose-50 text-rose-700 px-3 py-1 rounded font-bold transition-all flex items-center space-x-1 space-x-reverse border border-rose-200 shadow-sm text-[10px]"
-            >
-              <Settings className="w-3 h-3" />
-              <span>{t("form.manageBtn")}</span>
-            </button>
-          </motion.div>
-
-          <motion.div 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="grid grid-cols-1 md:grid-cols-3 gap-2"
-          >
-            <div className="bg-rose-50/50 p-2 rounded-lg border border-rose-100 flex items-center space-x-2 space-x-reverse">
-              <div className="p-1.5 bg-white rounded text-rose-600 shadow-sm">
-                <History className="w-3 h-3" />
-              </div>
-              <div className="flex-1">
-                <p className="text-[8px] uppercase tracking-wider font-bold text-rose-400">{t("form.currentMonth")}</p>
-                <input 
-                  type="month" 
-                  className="bg-transparent border-none p-0 focus:ring-0 font-bold text-slate-900 text-xs w-full cursor-pointer"
-                  value={monthReference}
-                  onChange={(e) => setMonthReference(e.target.value)}
-                />
-              </div>
-            </div>
-            <div className="bg-emerald-50/50 p-2 rounded-lg border border-emerald-100 flex items-center space-x-2 space-x-reverse">
-              <div className="p-1.5 bg-white rounded text-emerald-600 shadow-sm">
-                <FileText className="w-3 h-3" />
-              </div>
-              <div>
-                <p className="text-[8px] uppercase tracking-wider font-bold text-emerald-400">{t("form.nextVoucher")}</p>
-                <p className="text-sm font-bold text-slate-900">{metadata?.voucherNumber}</p>
-              </div>
-            </div>
-            <div className="bg-purple-50/50 p-2 rounded-lg border border-purple-100 flex items-center space-x-2 space-x-reverse">
-              <div className="p-1.5 bg-white rounded text-purple-600 shadow-sm">
-                <Bolt className="w-3 h-3" />
-              </div>
-              <div>
-                <p className="text-[8px] uppercase tracking-wider font-bold text-purple-400">{t("form.voucherStatus")}</p>
-                <p className="text-sm font-bold text-slate-900">{t("form.new")}</p>
-              </div>
-            </div>
-          </motion.div>
-
-          <div className="relative">
-            <div className="absolute inset-0 flex items-center" aria-hidden="true">
-              <div className="w-full border-t border-slate-100"></div>
-            </div>
-            <div className="relative flex justify-center">
-              <span className="bg-white px-2 text-[10px] font-bold text-slate-400 uppercase tracking-wider">{t("form.chooseType")}</span>
-            </div>
+        return (
+          <div className="flex items-center justify-center h-64">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-rose-600"></div>
           </div>
+        );
+      }
 
-          <motion.div 
-            className="bg-slate-50 p-3 rounded-lg border-2 border-dashed border-slate-200"
-          >
-            <div className="flex flex-col md:flex-row gap-2 items-end">
-              <div className="flex-1 space-y-1">
-                <label className="text-[9px] font-bold text-slate-500 mr-2">{t("form.selectType")}</label>
-                  <select 
-                    className="w-full bg-white border border-slate-200 rounded px-2 py-1.5 focus:ring-2 focus:ring-rose-500/10 focus:border-rose-500 outline-none transition-all text-xs font-bold shadow-sm text-slate-900"
-                    value={selectedTypeToAdd}
-                    onChange={(e) => setSelectedTypeToAdd(e.target.value)}
-                  >
-                    <option value="" className="text-slate-900">{t("form.selectType")}</option>
-                  {Object.entries(mainTypes).map(([key]) => (
-                    <option key={key} value={key}>{t(`types.${key}`)}</option>
-                  ))}
-                </select>
+        return (
+            <div className="max-w-[96%] w-[96%] mx-auto px-4 py-8">
+            <motion.div
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="bg-[#edd3de] dark:bg-gradient-to-b dark:from-slate-800 dark:via-slate-700 dark:to-slate-600 rounded-3xl shadow-2xl overflow-hidden border border-rose-200/50 dark:border-slate-600/50"
+            >
+            <div className="relative overflow-hidden preserve-colors bg-gradient-to-r from-rose-500 via-pink-400 to-rose-500 dark:from-rose-900 dark:to-rose-800 p-8 text-white border-b border-rose-300/50 dark:border-white/10">
+              <div className="relative z-10 flex flex-col items-center justify-center text-center space-y-4">
+                <div className="p-3 bg-white/20 rounded-2xl backdrop-blur-sm">
+                  <HandCoins className="w-8 h-8 text-white" />
+                </div>
+                <h1 className="text-2xl font-bold tracking-tight">{t("deductions.title")}</h1>
+                <p className="text-rose-100 dark:text-rose-300 max-w-2xl">{t("deductions.subtitle")}</p>
+              </div>
+              <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-rose-300 via-pink-200 to-rose-300 dark:from-rose-500 dark:via-pink-500 dark:to-red-500"></div>
+            </div>
+
+          <div className="p-6 space-y-6 bg-[#edd3de] dark:bg-transparent rounded-2xl">
+            <motion.div 
+              className="bg-white/95 dark:bg-white/5 backdrop-blur-sm p-4 rounded-2xl shadow-lg border border-white/50 dark:border-white/10 flex flex-col md:flex-row items-center justify-between gap-4"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+            >
+              <div className="flex items-center space-x-4 space-x-reverse">
+                <div className="p-2.5 bg-rose-50 dark:bg-rose-500/20 rounded-xl text-rose-600 dark:text-rose-400">
+                  <Tags className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="text-base font-bold text-slate-900 dark:text-white">{t("form.manageCustomTypes")}</h3>
+                  <p className="text-xs text-slate-700 dark:text-slate-400">{t("form.manageCustomTypesDesc")}</p>
+                </div>
               </div>
               <button 
-                onClick={() => addSection(selectedTypeToAdd)}
-                className="bg-rose-600 hover:bg-rose-700 text-white px-4 py-1.5 rounded font-bold transition-all flex items-center justify-center space-x-1 space-x-reverse shadow-md text-xs"
+                onClick={() => setShowSubtypeManager(true)}
+                className="bg-rose-50 hover:bg-rose-100 dark:bg-rose-500/20 dark:hover:bg-rose-500/30 text-rose-700 dark:text-rose-300 px-4 py-2 rounded-xl font-bold transition-all flex items-center space-x-2 space-x-reverse border border-rose-100 dark:border-rose-500/30 text-sm"
               >
-                <Plus className="w-3 h-3" />
-                <span>{t("form.addTypeBtn")}</span>
+                <Settings className="w-4 h-4" />
+                <span>{t("form.manageBtn")}</span>
               </button>
+            </motion.div>
+
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="grid grid-cols-1 md:grid-cols-3 gap-4"
+            >
+              <div className="bg-white/95 dark:bg-white/5 backdrop-blur-md p-4 rounded-xl border border-white/50 dark:border-white/10 shadow-md flex items-center space-x-3 space-x-reverse">
+                <div className="p-2.5 bg-rose-50 dark:bg-rose-500/20 rounded-lg text-rose-600 dark:text-rose-400">
+                  <History className="w-5 h-5" />
+                </div>
+                <div className="flex-1">
+                  <p className="text-xs text-slate-700 dark:text-rose-400">{t("form.currentMonth")}</p>
+                  <input 
+                    type="month" 
+                    className="bg-transparent border-none p-0 focus:ring-0 font-bold text-slate-900 dark:text-white text-base w-full cursor-pointer"
+                    value={monthReference}
+                    onChange={(e) => setMonthReference(e.target.value)}
+                  />
+                </div>
+              </div>
+              <div className="bg-white/95 dark:bg-white/5 backdrop-blur-md p-4 rounded-xl border border-white/50 dark:border-white/10 shadow-md flex items-center space-x-3 space-x-reverse">
+                <div className="p-2.5 bg-green-50 dark:bg-green-500/20 rounded-lg text-green-600 dark:text-green-400">
+                  <FileText className="w-5 h-5" />
+                </div>
+                <div>
+                  <p className="text-xs text-slate-700 dark:text-emerald-400">{t("form.nextVoucher")}</p>
+                  <p className="text-base font-bold text-slate-900 dark:text-white">{metadata?.voucherNumber}</p>
+                </div>
+              </div>
+              <div className="bg-white/95 dark:bg-white/5 backdrop-blur-md p-4 rounded-xl border border-white/50 dark:border-white/10 shadow-md flex items-center space-x-3 space-x-reverse">
+                <div className="p-2.5 bg-purple-50 dark:bg-purple-500/20 rounded-lg text-purple-600 dark:text-purple-400">
+                  <Bolt className="w-5 h-5" />
+                </div>
+                <div>
+                  <p className="text-xs text-slate-700 dark:text-purple-400">{t("form.voucherStatus")}</p>
+                  <p className="text-base font-bold text-slate-900 dark:text-white">{t("form.new")}</p>
+                </div>
+              </div>
+            </motion.div>
+
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center" aria-hidden="true">
+                <div className="w-full border-t border-white/30 dark:border-slate-100"></div>
+              </div>
+              <div className="relative flex justify-center">
+                <span className="bg-[#edd3de] dark:bg-white px-2 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">{t("form.chooseType")}</span>
+              </div>
             </div>
-          </motion.div>
+
+            <motion.div 
+              className="bg-white/95 dark:bg-white/5 backdrop-blur-sm p-6 rounded-2xl shadow-lg border border-white/50 dark:border-white/10"
+            >
+              <div className="flex flex-col md:flex-row gap-3 items-end">
+                <div className="flex-1 space-y-1">
+                  <label className="text-xs font-bold text-slate-500 dark:text-slate-400 mr-2">{t("form.selectType")}</label>
+                    <select 
+                      className="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 rounded-lg px-3 py-2 focus:ring-2 focus:ring-rose-500/10 focus:border-rose-500 outline-none transition-all text-sm font-bold shadow-sm text-slate-900 dark:text-white"
+                      value={selectedTypeToAdd}
+                      onChange={(e) => setSelectedTypeToAdd(e.target.value)}
+                    >
+                      <option value="">{t("form.selectType")}</option>
+                    {Object.entries(mainTypes).map(([key]) => (
+                      <option key={key} value={key}>{t(`types.${key}`)}</option>
+                    ))}
+                  </select>
+                </div>
+                <button 
+                  onClick={() => addSection(selectedTypeToAdd)}
+                  className="bg-rose-600 hover:bg-rose-700 text-white px-6 py-2 rounded-lg font-bold transition-all flex items-center justify-center space-x-2 space-x-reverse shadow-md text-sm"
+                >
+                  <Plus className="w-4 h-4" />
+                  <span>{t("form.addTypeBtn")}</span>
+                </button>
+              </div>
+            </motion.div>
 
           <form onSubmit={handleSubmit} className="space-y-3">
             <AnimatePresence>
@@ -817,221 +803,47 @@ export default function DeductionFormClient({ user }: { user: User }) {
                 </button>
               </motion.div>
             )}
-          </form>
-        </div>
+            </form>
+          </div>
+          </motion.div>
 
-      <AnimatePresence>
-        {/* Luxury Notification Modal */}
-        {notification.show && (
-          <>
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-black/60 backdrop-blur-md z-[9998]"
-              onClick={() => {
-                if (notification.type !== 'loading') {
-                  if (notification.type === 'success') {
-                    setNotification(prev => ({ ...prev, show: false }));
-                    setSections({});
-                    setSelectedTypeToAdd("");
-                    fetchMetadata();
-                  } else {
-                    setNotification(prev => ({ ...prev, show: false }));
-                  }
-                }
-              }}
-            />
-            <motion.div
-              initial={{ opacity: 0, scale: 0.8, y: 50 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.8, y: 50 }}
-              transition={{ type: "spring", duration: 0.5 }}
-              className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[9999] w-[90%] max-w-[520px]"
-            >
-              {/* Warning Modal */}
-              {notification.type === 'warning' && (
-                <div className="bg-white rounded-3xl shadow-2xl overflow-hidden border border-amber-100">
-                  <div className="bg-gradient-to-r from-amber-500 to-orange-500 p-6 text-center">
-                    <div className="w-20 h-20 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                      <AlertTriangle className="w-10 h-10 text-white" />
-                    </div>
-                    <h2 className="text-2xl font-black text-white">{notification.title}</h2>
-                    <p className="text-amber-100 mt-2 text-sm">{notification.message}</p>
-                  </div>
-                  {notification.missingFields && notification.missingFields.length > 0 && (
-                    <div className="p-6 max-h-[300px] overflow-y-auto">
-                      <div className="space-y-2">
-                        {notification.missingFields.map((field, idx) => (
-                          <div key={idx} className="flex items-start gap-3 p-3 bg-red-50 border border-red-100 rounded-xl">
-                            <div className="w-6 h-6 bg-red-100 rounded-full flex items-center justify-center shrink-0 mt-0.5">
-                              <X className="w-3 h-3 text-red-600" />
-                            </div>
-                            <span className="text-sm font-bold text-red-800">{field}</span>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                  <div className="p-4 bg-slate-50 border-t border-slate-100 flex justify-center">
-                    <button
-                      onClick={() => setNotification(prev => ({ ...prev, show: false }))}
-                      className="bg-gradient-to-r from-amber-500 to-orange-500 text-white px-8 py-3 rounded-xl font-bold hover:from-amber-600 hover:to-orange-600 transition-all shadow-lg shadow-amber-200 active:scale-95"
-                    >
-                      فهمت، سأكمل البيانات
-                    </button>
-                  </div>
-                </div>
-              )}
-
-              {/* Confirm Modal */}
-              {notification.type === 'confirm' && (
-                <div className="bg-white rounded-3xl shadow-2xl overflow-hidden border border-rose-100">
-                  <div className="bg-gradient-to-r from-rose-600 to-pink-600 p-6 text-center">
-                    <div className="w-20 h-20 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                      <FileCheck className="w-10 h-10 text-white" />
-                    </div>
-                    <h2 className="text-2xl font-black text-white">{notification.title}</h2>
-                    <p className="text-rose-200 mt-2 text-sm">{notification.message}</p>
-                  </div>
-                  {notification.details && (
-                    <div className="p-6">
-                      <div className="grid grid-cols-2 gap-3">
-                        <div className="bg-rose-50 border border-rose-100 rounded-xl p-4 text-center">
-                          <p className="text-xs text-rose-500 font-bold mb-1">عدد العمليات</p>
-                          <p className="text-2xl font-black text-rose-700">{notification.details.count}</p>
-                        </div>
-                        <div className="bg-green-50 border border-green-100 rounded-xl p-4 text-center">
-                          <p className="text-xs text-green-500 font-bold mb-1">إجمالي المبلغ</p>
-                          <p className="text-2xl font-black text-green-700">{notification.details.totalAmount?.toFixed(2)}</p>
-                        </div>
-                      </div>
-                      {notification.details.types && notification.details.types.length > 0 && (
-                        <div className="mt-3 flex flex-wrap gap-2 justify-center">
-                          {notification.details.types.map((type, idx) => (
-                            <span key={idx} className="bg-rose-100 text-rose-700 px-3 py-1 rounded-full text-xs font-bold">{type}</span>
-                          ))}
-                        </div>
-                      )}
-                      {notification.details.month && (
-                        <p className="text-center text-sm text-slate-500 mt-3 flex items-center justify-center gap-2">
-                          <Calendar className="w-4 h-4" />
-                          {notification.details.month}
-                        </p>
-                      )}
-                    </div>
-                  )}
-                  <div className="p-4 bg-slate-50 border-t border-slate-100 flex gap-3 justify-center">
-                    <button
-                      onClick={() => {
-                        setNotification(prev => ({ ...prev, show: false }));
-                        notification.onConfirm?.();
-                      }}
-                      className="bg-gradient-to-r from-green-500 to-emerald-600 text-white px-8 py-3 rounded-xl font-bold hover:from-green-600 hover:to-emerald-700 transition-all shadow-lg shadow-green-200 active:scale-95 flex items-center gap-2"
-                    >
-                      <CheckCircle2 className="w-5 h-5" />
-                      تأكيد الحفظ
-                    </button>
-                    <button
-                      onClick={() => setNotification(prev => ({ ...prev, show: false }))}
-                      className="bg-slate-200 text-slate-700 px-8 py-3 rounded-xl font-bold hover:bg-slate-300 transition-all active:scale-95"
-                    >
-                      إلغاء
-                    </button>
-                  </div>
-                </div>
-              )}
-
-              {/* Loading Modal */}
-              {notification.type === 'loading' && (
-                <div className="bg-white rounded-3xl shadow-2xl overflow-hidden border border-rose-100 p-10 text-center">
-                  <div className="w-20 h-20 mx-auto mb-6 relative">
-                    <div className="absolute inset-0 rounded-full border-4 border-rose-100"></div>
-                    <div className="absolute inset-0 rounded-full border-4 border-rose-600 border-t-transparent animate-spin"></div>
-                    <div className="absolute inset-3 rounded-full border-4 border-pink-100"></div>
-                    <div className="absolute inset-3 rounded-full border-4 border-pink-500 border-b-transparent animate-spin" style={{ animationDirection: 'reverse', animationDuration: '0.8s' }}></div>
-                  </div>
-                  <h2 className="text-xl font-black text-slate-800 mb-2">{notification.title}</h2>
-                  <p className="text-slate-500 text-sm">{notification.message}</p>
-                  <div className="mt-6 flex justify-center gap-1.5">
-                    {[0, 1, 2].map(i => (
-                      <div key={i} className="w-2.5 h-2.5 rounded-full bg-rose-500 animate-bounce" style={{ animationDelay: `${i * 0.15}s` }} />
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Success Modal */}
-              {notification.type === 'success' && (
-                <div className="bg-gradient-to-br from-rose-500 via-pink-600 to-rose-700 rounded-3xl shadow-2xl overflow-hidden text-white p-8 text-center">
-                  <div className="w-24 h-24 bg-white/25 rounded-full flex items-center justify-center mx-auto mb-6 animate-bounce">
-                    <CheckCircle className="w-16 h-16 text-white drop-shadow-lg" />
-                  </div>
-                  <h2 className="text-3xl font-black mb-3 drop-shadow-md">{notification.title}</h2>
-                  <p className="text-lg opacity-95 font-bold mb-2">{notification.message}</p>
-                  {notification.details && (
-                    <div className="mt-4 grid grid-cols-2 gap-3">
-                      <div className="bg-white/15 backdrop-blur-sm rounded-xl p-3">
-                        <p className="text-xs text-rose-200">عدد العمليات</p>
-                        <p className="text-2xl font-black">{notification.details.count}</p>
-                      </div>
-                      <div className="bg-white/15 backdrop-blur-sm rounded-xl p-3">
-                        <p className="text-xs text-rose-200">إجمالي المبلغ</p>
-                        <p className="text-2xl font-black">{notification.details.totalAmount?.toFixed(2)}</p>
-                      </div>
-                    </div>
-                  )}
-                  <div className="flex gap-4 justify-center mt-8">
-                    <button
-                      onClick={() => {
-                        setNotification(prev => ({ ...prev, show: false }));
-                        setSections({});
-                        setSelectedTypeToAdd("");
-                        fetchMetadata();
-                      }}
-                      className="bg-white text-rose-700 px-8 py-3.5 rounded-xl font-bold text-base hover:bg-rose-50 transition-all flex items-center gap-2 shadow-lg active:scale-95"
-                    >
-                      <Plus className="w-5 h-5" />
-                      إدخال جديد
-                    </button>
-                    <button
-                      onClick={() => {
-                        setNotification(prev => ({ ...prev, show: false }));
-                        setTimeout(() => router.push('/expenses'), 200);
-                      }}
-                      className="bg-white/20 backdrop-blur-sm text-white border-2 border-white/40 px-8 py-3.5 rounded-xl font-bold text-base hover:bg-white/30 transition-all flex items-center gap-2 shadow-lg active:scale-95"
-                    >
-                      العودة للمركز
-                      <ArrowRight className="w-5 h-5" />
-                    </button>
-                  </div>
-                </div>
-              )}
-
-              {/* Error Modal */}
-              {notification.type === 'error' && (
-                <div className="bg-white rounded-3xl shadow-2xl overflow-hidden border border-red-100">
-                  <div className="bg-gradient-to-r from-red-600 to-rose-600 p-6 text-center">
-                    <div className="w-20 h-20 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                      <X className="w-10 h-10 text-white" />
-                    </div>
-                    <h2 className="text-2xl font-black text-white">{notification.title}</h2>
-                    <p className="text-red-200 mt-2 text-sm">{notification.message}</p>
-                  </div>
-                  <div className="p-4 bg-slate-50 border-t border-slate-100 flex justify-center">
-                    <button
-                      onClick={() => setNotification(prev => ({ ...prev, show: false }))}
-                      className="bg-gradient-to-r from-red-500 to-rose-600 text-white px-8 py-3 rounded-xl font-bold hover:from-red-600 hover:to-rose-700 transition-all shadow-lg shadow-red-200 active:scale-95"
-                    >
-                      حسناً
-                    </button>
-                  </div>
-                </div>
-              )}
-            </motion.div>
-          </>
-        )}
-      </AnimatePresence>
+        <WarningModal
+        isOpen={warningModal.isOpen}
+        title={warningModal.title}
+        message={warningModal.message}
+        missingFields={warningModal.missingFields}
+        onClose={() => setWarningModal(prev => ({ ...prev, isOpen: false }))}
+      />
+      <ConfirmModal
+        isOpen={confirmModal.isOpen}
+        title={confirmModal.title}
+        message={confirmModal.message}
+        details={confirmModal.details}
+        confirmText="تأكيد الحفظ"
+        onConfirm={() => {
+          setConfirmModal(prev => ({ ...prev, isOpen: false }));
+          confirmModal.onConfirm();
+        }}
+        onCancel={() => setConfirmModal(prev => ({ ...prev, isOpen: false }))}
+      />
+      <LoadingModal isOpen={loadingModal} title="جاري الحفظ..." message="يرجى الانتظار" />
+      <SuccessModal
+        isOpen={successModal.isOpen}
+        type={successModal.type}
+        title={successModal.title}
+        onClose={() => {
+          setSuccessModal({ isOpen: false, type: null, title: '' });
+          setSections({});
+          setSelectedTypeToAdd("");
+          fetchMetadata();
+        }}
+      />
+      <ErrorModal
+        isOpen={errorModal.isOpen}
+        title={errorModal.title}
+        message={errorModal.message}
+        onClose={() => setErrorModal({ isOpen: false, title: '', message: '' })}
+      />
 
       <AnimatePresence>
         {showSubtypeManager && (

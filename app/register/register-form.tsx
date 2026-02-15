@@ -54,6 +54,7 @@ import Link from "next/link";
 import { locationLibrary } from "@/lib/location-data";
 import { registerAction } from "@/lib/actions/auth";
 import { useLocale, useTranslations } from "@/lib/locale-context";
+import BrandLogo from "@/components/brand-logo";
 
 const currencies = [
   { code: "SAR", name: "ريال سعودي", en: "Saudi Riyal" },
@@ -551,15 +552,7 @@ export default function RegisterForm() {
             animate={{ opacity: 1, y: 0 }}
             className="space-y-10"
           >
-            <div className="flex items-center gap-4">
-              <div className="h-14 w-14 rounded-2xl bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center text-white shadow-2xl border border-white/10">
-                <Truck size={28} />
-              </div>
-              <div>
-                <h2 className="text-xl font-black text-white tracking-tight">Logistics Systems Pro</h2>
-                <p className="text-blue-400 text-sm font-bold">Enterprise Edition</p>
-              </div>
-            </div>
+                <BrandLogo size="lg" />
 
             <div className="space-y-6">
               <h1 className="text-4xl font-black text-white leading-tight">

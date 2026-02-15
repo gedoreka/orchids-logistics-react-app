@@ -2,8 +2,8 @@
 
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import BrandLogo from "@/components/brand-logo";
 import { 
-  Truck, 
   Mail, 
   AlertTriangle, 
   Send, 
@@ -130,18 +130,7 @@ export default function ForgotForm() {
             transition={{ duration: 0.8 }}
             className="space-y-10"
           >
-            <motion.div 
-              className="flex items-center gap-4 justify-start"
-              whileHover={{ scale: 1.02 }}
-            >
-              <div className="h-16 w-16 rounded-2xl bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center text-white shadow-2xl shadow-blue-500/30 border border-white/10">
-                <Truck size={32} />
-              </div>
-              <div>
-                <h2 className="text-2xl font-black text-white tracking-tight">Logistics Systems Pro</h2>
-                <p className="text-blue-400 text-sm font-bold">Enterprise Edition</p>
-              </div>
-            </motion.div>
+              <BrandLogo size="lg" />
 
             <div className="space-y-6">
               <h1 className="text-5xl font-black text-white leading-[1.15]">
@@ -229,18 +218,9 @@ export default function ForgotForm() {
           transition={{ duration: 0.5 }}
           className="w-full max-w-[440px] relative z-10"
         >
-          <div className="lg:hidden mb-10 text-center">
-            <motion.div 
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              transition={{ type: "spring", stiffness: 200 }}
-              className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-600 to-blue-700 text-white shadow-xl shadow-blue-500/30"
-            >
-              <Truck size={30} />
-            </motion.div>
-            <h1 className="text-2xl font-black text-slate-900 dark:text-white mb-1">Logistics Systems Pro</h1>
-            <p className="text-blue-600 dark:text-blue-400 font-bold text-xs uppercase tracking-widest">Enterprise Edition</p>
-          </div>
+            <div className="lg:hidden mb-10 text-center">
+              <BrandLogo size="md" />
+            </div>
 
           <div className="mb-10">
             <motion.div

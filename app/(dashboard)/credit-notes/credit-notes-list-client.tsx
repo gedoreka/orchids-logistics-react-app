@@ -30,6 +30,7 @@ import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { ar, enUS } from "date-fns/locale";
 import { useTranslations, useLocale } from "@/lib/locale-context";
+import { useTheme } from "next-themes";
 
 interface CreditNote {
   id: number;
@@ -50,8 +51,10 @@ interface CreditNotesListClientProps {
 
 export function CreditNotesListClient({ creditNotes: initialNotes }: CreditNotesListClientProps) {
   const t = useTranslations('creditNotes');
-  const { locale } = useLocale();
-  const [creditNotes, setCreditNotes] = useState(initialNotes);
+    const { locale } = useLocale();
+    const { resolvedTheme } = useTheme();
+    const isDark = resolvedTheme === "dark";
+    const [creditNotes, setCreditNotes] = useState(initialNotes);
   const [searchTerm, setSearchTerm] = useState("");
   const [premiumModal, setPremiumModal] = useState<{
     show: boolean;
@@ -183,11 +186,21 @@ export function CreditNotesListClient({ creditNotes: initialNotes }: CreditNotes
         animate="visible"
         className="max-w-[98%] mx-auto px-4 pt-6"
       >
-        {/* Unified Professional Card */}
-        <div className="bg-slate-900 rounded-3xl border border-white/5 shadow-2xl overflow-hidden flex flex-col">
-          
-            {/* Luxury Integrated Header */}
-            <div className="p-8 space-y-8 bg-slate-900 border-b border-white/5">
+          {/* Unified Professional Card */}
+          <div className={cn(
+            "rounded-3xl shadow-2xl overflow-hidden flex flex-col",
+            isDark 
+              ? "bg-slate-900 border border-white/5" 
+              : "bg-[#edd3de] border border-rose-200/60"
+          )}>
+            
+              {/* Luxury Integrated Header */}
+              <div className={cn(
+                "p-8 space-y-8 border-b",
+                isDark 
+                  ? "bg-slate-900 border-white/5" 
+                  : "bg-gradient-to-br from-[#edd3de] via-[#f0d5e0] to-[#f5e0ea] border-rose-200/40"
+              )}>
               <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
                 <div className="flex items-center gap-4">
                   <div className="h-14 w-14 rounded-2xl bg-gradient-to-br from-rose-500 to-pink-600 flex items-center justify-center shadow-lg shadow-rose-500/30 border border-white/10">
@@ -202,7 +215,10 @@ export function CreditNotesListClient({ creditNotes: initialNotes }: CreditNotes
                       <ArrowRight size={10} className={cn(locale === 'ar' && "rotate-180")} />
                       <span className="text-rose-500">{t('breadcrumb')}</span>
                     </div>
-                    <h1 className="text-2xl font-black text-white tracking-tight">{t('title')}</h1>
+                      <h1 className={cn(
+                        "text-2xl font-black tracking-tight",
+                        isDark ? "text-white" : "bg-gradient-to-r from-pink-600 via-rose-500 to-orange-500 bg-clip-text text-transparent"
+                      )}>{t('title')}</h1>
                   </div>
                 </div>
 
@@ -304,14 +320,20 @@ export function CreditNotesListClient({ creditNotes: initialNotes }: CreditNotes
           {/* Table Area Integrated into the Card */}
           <div className="p-0">
             {/* Table Control Bar */}
-            <div className="bg-slate-900 px-8 py-5 flex flex-col md:flex-row md:items-center justify-between gap-6">
-              <div className="flex items-center gap-4">
-                <div className="h-12 w-12 rounded-2xl bg-white/10 flex items-center justify-center border border-white/10">
-                  <FileText className="text-white" size={24} />
-                </div>
-                <div>
-                  <h3 className="text-white font-black tracking-tight">{t('listTitle')}</h3>
-                  <p className="text-slate-400 text-xs font-bold tracking-wide uppercase">{filteredNotes.length} {t('notesInList')}</p>
+              <div className={cn(
+                "px-8 py-5 flex flex-col md:flex-row md:items-center justify-between gap-6",
+                isDark ? "bg-slate-900" : "bg-[#f5e0ea]/80"
+              )}>
+                <div className="flex items-center gap-4">
+                  <div className={cn(
+                    "h-12 w-12 rounded-2xl flex items-center justify-center border",
+                    isDark ? "bg-white/10 border-white/10" : "bg-gradient-to-br from-rose-500 to-pink-600 border-rose-300/30"
+                  )}>
+                    <FileText className="text-white" size={24} />
+                  </div>
+                  <div>
+                    <h3 className={cn("font-black tracking-tight", isDark ? "text-white" : "text-slate-800")}>{t('listTitle')}</h3>
+                    <p className={cn("text-xs font-bold tracking-wide uppercase", isDark ? "text-slate-400" : "text-slate-500")}>{filteredNotes.length} {t('notesInList')}</p>
                 </div>
               </div>
               
@@ -348,21 +370,26 @@ export function CreditNotesListClient({ creditNotes: initialNotes }: CreditNotes
             </div>
 
               {/* Table */}
-              <div className="overflow-x-auto bg-slate-900/50">
-                <table className="w-full border-collapse">
-                  <thead>
-                    <tr className="bg-white/5 border-b border-white/5">
-                      <th className="px-8 py-5 text-[11px] font-black text-slate-400 uppercase tracking-widest text-right">{t('noteNumber')}</th>
-                      <th className="px-8 py-5 text-[11px] font-black text-slate-400 uppercase tracking-widest text-right">{t('invoice')}</th>
-                      <th className="px-8 py-5 text-[11px] font-black text-slate-400 uppercase tracking-widest text-right">{t('client')}</th>
-                      <th className="px-8 py-5 text-[11px] font-black text-slate-400 uppercase tracking-widest text-right">{t('reason')}</th>
-                      <th className="px-8 py-5 text-[11px] font-black text-slate-400 uppercase tracking-widest text-center">{t('amount')}</th>
-                      <th className="px-8 py-5 text-[11px] font-black text-slate-400 uppercase tracking-widest text-center">{t('date')}</th>
-                      <th className="px-8 py-5 text-[11px] font-black text-slate-400 uppercase tracking-widest text-center">{t('status')}</th>
-                      <th className="px-8 py-5 text-[11px] font-black text-slate-400 uppercase tracking-widest text-center">{t('actions')}</th>
-                    </tr>
+              <div className={cn("overflow-x-auto", isDark ? "bg-slate-900/50" : "bg-white/40")}>
+                  <table className="w-full border-collapse">
+                    <thead>
+                      <tr className={cn(
+                        "border-b",
+                        isDark 
+                          ? "bg-white/5 border-white/5" 
+                          : "bg-gradient-to-r from-[#f5e0ea] via-[#f0d5e0] to-[#edd3de] border-rose-200/40"
+                      )}>
+                        <th className={cn("px-8 py-5 text-[11px] font-black uppercase tracking-widest text-right", isDark ? "text-slate-400" : "text-slate-600")}>{t('noteNumber')}</th>
+                        <th className={cn("px-8 py-5 text-[11px] font-black uppercase tracking-widest text-right", isDark ? "text-slate-400" : "text-slate-600")}>{t('invoice')}</th>
+                        <th className={cn("px-8 py-5 text-[11px] font-black uppercase tracking-widest text-right", isDark ? "text-slate-400" : "text-slate-600")}>{t('client')}</th>
+                        <th className={cn("px-8 py-5 text-[11px] font-black uppercase tracking-widest text-right", isDark ? "text-slate-400" : "text-slate-600")}>{t('reason')}</th>
+                        <th className={cn("px-8 py-5 text-[11px] font-black uppercase tracking-widest text-center", isDark ? "text-slate-400" : "text-slate-600")}>{t('amount')}</th>
+                        <th className={cn("px-8 py-5 text-[11px] font-black uppercase tracking-widest text-center", isDark ? "text-slate-400" : "text-slate-600")}>{t('date')}</th>
+                        <th className={cn("px-8 py-5 text-[11px] font-black uppercase tracking-widest text-center", isDark ? "text-slate-400" : "text-slate-600")}>{t('status')}</th>
+                        <th className={cn("px-8 py-5 text-[11px] font-black uppercase tracking-widest text-center", isDark ? "text-slate-400" : "text-slate-600")}>{t('actions')}</th>
+                      </tr>
                   </thead>
-                  <tbody className="divide-y divide-white/5">
+                    <tbody className={cn("divide-y", isDark ? "divide-white/5" : "divide-rose-100/60")}>
                     <AnimatePresence>
                       {filteredNotes.map((note, index) => (
                         <motion.tr
@@ -371,24 +398,27 @@ export function CreditNotesListClient({ creditNotes: initialNotes }: CreditNotes
                           animate={{ opacity: 1, x: 0 }}
                           exit={{ opacity: 0, x: 10 }}
                           transition={{ delay: 0.03 * index }}
-                          className="hover:bg-white/5 transition-all group border-l-4 border-l-transparent hover:border-l-rose-500"
+                          className={cn(
+                            "transition-all group border-l-4 border-l-transparent hover:border-l-rose-500",
+                            isDark ? "hover:bg-white/5" : "hover:bg-white/60"
+                          )}
                         >
                           <td className="px-8 py-5 whitespace-nowrap">
                             <div className="flex items-center gap-3">
                               <div className="h-10 w-10 rounded-xl bg-rose-500/10 flex items-center justify-center group-hover:scale-110 transition-transform shadow-sm border border-rose-500/20">
                                 <ReceiptText size={16} className="text-rose-400" />
                               </div>
-                              <span className="font-black text-white text-sm tracking-tight">{note.credit_note_number}</span>
+                                <span className={cn("font-black text-sm tracking-tight", isDark ? "text-white" : "text-slate-800")}>{note.credit_note_number}</span>
                             </div>
                           </td>
                           <td className="px-8 py-5 whitespace-nowrap">
                             <div className="flex flex-col">
-                              <span className="font-bold text-slate-200 text-sm">{note.invoice_number}</span>
-                              <span className="text-[10px] text-slate-500 font-black uppercase tracking-wide">{note.invoice_status}</span>
+                              <span className={cn("font-bold text-sm", isDark ? "text-slate-200" : "text-slate-700")}>{note.invoice_number}</span>
+                              <span className={cn("text-[10px] font-black uppercase tracking-wide", isDark ? "text-slate-500" : "text-slate-400")}>{note.invoice_status}</span>
                             </div>
                           </td>
                           <td className="px-8 py-5 whitespace-nowrap">
-                            <span className="font-bold text-slate-200 text-sm">{note.client_name}</span>
+                            <span className={cn("font-bold text-sm", isDark ? "text-slate-200" : "text-slate-700")}>{note.client_name}</span>
                           </td>
                           <td className="px-8 py-5 whitespace-nowrap">
                             <span className="text-slate-400 text-xs truncate max-w-[180px] block font-medium" title={note.reason}>
@@ -412,36 +442,51 @@ export function CreditNotesListClient({ creditNotes: initialNotes }: CreditNotes
                             <StatusBadge status={note.status} t={t} />
                           </td>
                           <td className="px-8 py-5 whitespace-nowrap text-center">
-                            <div className="flex items-center justify-center gap-2">
-                              <Link href={`/credit-notes/${note.id}`}>
-                                <motion.button 
-                                  whileHover={{ scale: 1.15, rotate: 5 }}
-                                  whileTap={{ scale: 0.9 }}
-                                  className="p-2.5 text-blue-400 hover:bg-blue-500/10 rounded-xl transition-all border border-transparent hover:border-blue-500/20" 
-                                  title={t('viewDetails')}
-                                >
-                                  <Eye size={18} />
-                                </motion.button>
-                              </Link>
-                              <motion.button 
-                                whileHover={{ scale: 1.15, rotate: -5 }}
-                                whileTap={{ scale: 0.9 }}
-                                  className="p-2.5 text-amber-400 hover:bg-amber-500/10 rounded-xl transition-all border border-transparent hover:border-amber-500/20" 
-                                title={t('downloadPdf')}
-                              >
-                                <FileDown size={18} />
-                              </motion.button>
-                              {note.status === 'active' && (
+                              <div className="flex items-center justify-center gap-2">
+                                <Link href={`/credit-notes/${note.id}`}>
                                   <motion.button 
-                                    whileHover={{ scale: 1.15, rotate: 10 }}
+                                    whileHover={{ scale: 1.15, rotate: 5 }}
                                     whileTap={{ scale: 0.9 }}
-                                    onClick={() => handleCancel(note.id, note.credit_note_number, note.invoice_number)}
-                                    className="p-2.5 text-rose-400 hover:bg-rose-500/10 rounded-xl transition-all border border-transparent hover:border-rose-500/20" 
-                                    title={t('cancelNote')}
+                                    className={cn(
+                                      "h-9 w-9 flex items-center justify-center rounded-xl transition-all border",
+                                      isDark 
+                                        ? "text-blue-400 hover:bg-blue-500/10 border-transparent hover:border-blue-500/20" 
+                                        : "text-blue-600 bg-blue-50 border-blue-200/60 hover:bg-blue-100"
+                                    )}
+                                    title={t('viewDetails')}
                                   >
-                                  <XCircle size={18} />
+                                    <Eye size={16} />
+                                  </motion.button>
+                                </Link>
+                                <motion.button 
+                                  whileHover={{ scale: 1.15, rotate: -5 }}
+                                  whileTap={{ scale: 0.9 }}
+                                  className={cn(
+                                    "h-9 w-9 flex items-center justify-center rounded-xl transition-all border",
+                                    isDark 
+                                      ? "text-amber-400 hover:bg-amber-500/10 border-transparent hover:border-amber-500/20" 
+                                      : "text-amber-600 bg-amber-50 border-amber-200/60 hover:bg-amber-100"
+                                  )}
+                                  title={t('downloadPdf')}
+                                >
+                                  <FileDown size={16} />
                                 </motion.button>
-                              )}
+                                {note.status === 'active' && (
+                                    <motion.button 
+                                      whileHover={{ scale: 1.15, rotate: 10 }}
+                                      whileTap={{ scale: 0.9 }}
+                                      onClick={() => handleCancel(note.id, note.credit_note_number, note.invoice_number)}
+                                      className={cn(
+                                        "h-9 w-9 flex items-center justify-center rounded-xl transition-all border",
+                                        isDark 
+                                          ? "text-rose-400 hover:bg-rose-500/10 border-transparent hover:border-rose-500/20" 
+                                          : "text-rose-600 bg-rose-50 border-rose-200/60 hover:bg-rose-100"
+                                      )}
+                                      title={t('cancelNote')}
+                                    >
+                                    <XCircle size={16} />
+                                  </motion.button>
+                                )}
                             </div>
                           </td>
                         </motion.tr>
@@ -477,7 +522,10 @@ export function CreditNotesListClient({ creditNotes: initialNotes }: CreditNotes
               </div>
   
               {/* Table Footer */}
-              <div className="bg-slate-900 px-8 py-5 border-t border-white/5">
+              <div className={cn(
+                "px-8 py-5 border-t",
+                isDark ? "bg-slate-900 border-white/5" : "bg-[#f5e0ea]/60 border-rose-200/40"
+              )}>
                 <div className="flex items-center justify-between text-xs font-black text-slate-500 uppercase tracking-widest">
                   <span className="bg-white/5 px-4 py-2 rounded-xl border border-white/5 shadow-sm">{t('totalItems')}: {filteredNotes.length}</span>
                   <div className="flex items-center gap-6">

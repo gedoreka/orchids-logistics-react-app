@@ -299,7 +299,7 @@ function FinancialVouchersContent() {
                 className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-md rounded-2xl border border-white/10 mb-2"
               >
                 <Sparkles className="w-4 h-4 text-yellow-400 animate-pulse" />
-                <span className="text-blue-200 font-black text-[10px] uppercase tracking-widest">{t("managementCenter")}</span>
+                  <span className="text-black font-black text-[10px] uppercase tracking-widest">{t("managementCenter")}</span>
               </motion.div>
               
               <h1 className="text-4xl md:text-6xl font-black text-white tracking-tight bg-gradient-to-r from-white via-blue-100 to-white bg-clip-text text-transparent">
@@ -311,10 +311,10 @@ function FinancialVouchersContent() {
               
                 <div className="flex flex-wrap justify-center lg:justify-start gap-4 mt-8">
 
-                <div className="flex items-center gap-3 px-6 py-3 bg-blue-500/20 backdrop-blur-md rounded-2xl border border-blue-500/30 text-blue-200 font-black text-sm shadow-xl">
-                  <Building2 size={18} className="text-blue-400" />
-                  {companyInfo?.name || t("loading")}
-                </div>
+                <div className="flex items-center gap-3 px-6 py-3 bg-blue-500/20 backdrop-blur-md rounded-2xl border border-blue-500/30 text-black font-black text-sm shadow-xl">
+                    <Building2 size={18} className="text-blue-400" />
+                    {companyInfo?.name || t("loading")}
+                  </div>
                 <button 
                   onClick={() => fetchStats(companyId)}
                   className="flex items-center gap-3 px-6 py-3 bg-white/10 backdrop-blur-md rounded-2xl border border-white/20 text-white font-black text-sm hover:bg-white/20 transition-all shadow-xl active:scale-95"
@@ -331,13 +331,13 @@ function FinancialVouchersContent() {
                 initial={{ opacity: 0, x: isRtl ? 30 : -30 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: 0.3 }}
-                className="bg-white/10 backdrop-blur-xl rounded-[2rem] p-6 border border-white/10 shadow-2xl min-w-[200px] group hover:bg-white/20 transition-all"
-              >
-                <div className="flex items-center gap-3 mb-3">
-                  <div className="p-2 bg-emerald-500/20 rounded-lg text-emerald-400 group-hover:scale-110 transition-transform">
-                    <TrendingUp className="w-5 h-5" />
-                  </div>
-                  <span className="text-emerald-300 font-black text-xs uppercase tracking-wider">{t("totalIncome")}</span>
+                  className="bg-white/20 backdrop-blur-xl rounded-[2rem] p-6 border border-white/20 shadow-2xl min-w-[200px] group hover:bg-white/30 transition-all"
+                >
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className="p-2 bg-emerald-500/20 rounded-lg text-emerald-400 group-hover:scale-110 transition-transform">
+                      <TrendingUp className="w-5 h-5" />
+                    </div>
+                    <span className="text-emerald-300 font-black text-xs uppercase tracking-wider">{t("totalIncome")}</span>
                 </div>
                 <p className="text-3xl font-black text-white tracking-tight">{totalIncome.toLocaleString()}</p>
                 <p className="text-emerald-400/60 text-[10px] font-black mt-1">{t("sar")}</p>
@@ -347,13 +347,13 @@ function FinancialVouchersContent() {
                 initial={{ opacity: 0, x: isRtl ? 30 : -30 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: 0.4 }}
-                className="bg-white/10 backdrop-blur-xl rounded-[2rem] p-6 border border-white/10 shadow-2xl min-w-[200px] group hover:bg-white/20 transition-all"
-              >
-                <div className="flex items-center gap-3 mb-3">
-                  <div className="p-2 bg-rose-500/20 rounded-lg text-rose-400 group-hover:scale-110 transition-transform">
-                    <TrendingDown className="w-5 h-5" />
-                  </div>
-                  <span className="text-rose-300 font-black text-xs uppercase tracking-wider">{t("expenses")}</span>
+                  className="bg-white/20 backdrop-blur-xl rounded-[2rem] p-6 border border-white/20 shadow-2xl min-w-[200px] group hover:bg-white/30 transition-all"
+                >
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className="p-2 bg-rose-500/20 rounded-lg text-rose-400 group-hover:scale-110 transition-transform">
+                      <TrendingDown className="w-5 h-5" />
+                    </div>
+                    <span className="text-rose-300 font-black text-xs uppercase tracking-wider">{t("expenses")}</span>
                 </div>
                 <p className="text-3xl font-black text-white tracking-tight">{totalExpense.toLocaleString()}</p>
                 <p className="text-rose-400/60 text-[10px] font-black mt-1">{t("sar")}</p>
@@ -415,7 +415,7 @@ function FinancialVouchersContent() {
                     className="group"
                   >
                     <Link href={voucher.href}>
-                      <div className="relative overflow-hidden bg-white/10 backdrop-blur-xl rounded-[2rem] shadow-xl border border-white/10 hover:bg-white/15 hover:shadow-2xl transition-all duration-300">
+                        <div className="relative overflow-hidden bg-white/20 backdrop-blur-xl rounded-[2rem] shadow-xl border border-white/20 hover:bg-white/30 hover:shadow-2xl transition-all duration-300">
                         <div className={`h-1 bg-gradient-to-r ${voucher.gradient} opacity-80 group-hover:opacity-100 transition-opacity`} />
                         
                         <div className="p-6">
@@ -435,7 +435,7 @@ function FinancialVouchersContent() {
                           <h3 className="text-lg font-black text-white mb-1">{voucher.title}</h3>
                           <p className="text-slate-400 text-xs font-medium mb-4 line-clamp-1">{voucher.description}</p>
 
-                          <div className="rounded-xl p-4 mb-4 bg-white/5 border border-white/10">
+                            <div className="rounded-xl p-4 mb-4 bg-white/10 border border-white/15">
                             <div className="flex items-center justify-between mb-2">
                               <span className="text-slate-400 font-bold text-[10px] uppercase tracking-widest">{voucher.stats.label}</span>
                               <span className={cn(
@@ -499,7 +499,7 @@ function FinancialVouchersContent() {
 
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
               {voucherTypes.map((tool) => (
-                <Link key={tool.id} href={tool.href} className="flex flex-col items-center gap-3 p-4 bg-white/5 rounded-2xl border border-white/10 hover:border-white/20 hover:bg-white/10 transition-all group cursor-pointer text-center active:scale-95">
+                  <Link key={tool.id} href={tool.href} className="flex flex-col items-center gap-3 p-4 bg-white/15 rounded-2xl border border-white/20 hover:border-white/30 hover:bg-white/25 transition-all group cursor-pointer text-center active:scale-95">
                   <div className={cn(
                     "p-3 rounded-xl group-hover:scale-110 transition-transform shadow-md",
                     tool.iconBg

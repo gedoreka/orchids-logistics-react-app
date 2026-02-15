@@ -23,8 +23,6 @@ import {
   Loader2,
   Power,
   Eye,
-  CheckCircle,
-  AlertCircle,
   Route
 } from "lucide-react";
 import Link from "next/link";
@@ -32,6 +30,7 @@ import { useRouter } from "next/navigation";
 import { locationLibrary } from "@/lib/location-data";
 import { HierarchicalSearchableSelect } from "@/components/ui/hierarchical-searchable-select";
 import { LuxurySearchableSelect } from "@/components/ui/luxury-searchable-select";
+import { SuccessModal, LoadingModal, ErrorModal } from "@/components/ui/notification-modals";
 
 interface Customer {
   id: number;
@@ -76,22 +75,12 @@ interface EditCustomerClientProps {
   companyId: number;
 }
 
-interface NotificationState {
-  show: boolean;
-  type: "success" | "error" | "loading";
-  title: string;
-  message: string;
-}
-
 export function EditCustomerClient({ customer, accounts, costCenters, companyId }: EditCustomerClientProps) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
-  const [notification, setNotification] = useState<NotificationState>({
-    show: false,
-    type: "success",
-    title: "",
-    message: ""
-  });
+  const [successModal, setSuccessModal] = useState<{ isOpen: boolean; type: 'update' | null; title: string }>({ isOpen: false, type: null, title: '' });
+  const [loadingModal, setLoadingModal] = useState(false);
+  const [errorModal, setErrorModal] = useState<{ isOpen: boolean; title: string; message: string }>({ isOpen: false, title: '', message: '' });
 
   // Map country name back to code if possible, default to SA
   const countryCode = locationLibrary.countries.find(c => c.nativeName === customer.country)?.code || "SA";
@@ -150,14 +139,6 @@ export function EditCustomerClient({ customer, accounts, costCenters, companyId 
     }
   }, [formData.country, formData.city]);
 
-  const showNotification = (type: "success" | "error" | "loading", title: string, message: string) => {
-    setNotification({ show: true, type, title, message });
-  };
-
-  const hideNotification = () => {
-    setNotification(prev => ({ ...prev, show: false }));
-  };
-
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = e.target;
     setFormData(prev => ({ 
@@ -187,12 +168,22 @@ export function EditCustomerClient({ customer, accounts, costCenters, companyId 
     e.preventDefault();
     
     if (!formData.company_name || !formData.commercial_number || !formData.vat_number) {
-      showNotification("error", "خطأ في البيانات", "يرجى ملء جميع الحقول الإجبارية (اسم المنشأة، السجل التجاري، الرقم الضريبي)");
+      setErrorModal({ isOpen: true, title: "خطأ في البيانات", message: "يرجى ملء جميع الحقول الإجبارية (اسم المنشأة، السجل التجاري، الرقم الضريبي)" });
+      return;
+    }
+
+    if (!formData.account_id) {
+      setErrorModal({ isOpen: true, title: "خطأ في البيانات", message: "يرجى اختيار شجرة الحسابات - هذا الحقل إجباري" });
+      return;
+    }
+
+    if (!formData.cost_center_id) {
+      setErrorModal({ isOpen: true, title: "خطأ في البيانات", message: "يرجى اختيار مركز التكلفة - هذا الحقل إجباري" });
       return;
     }
 
     setLoading(true);
-    showNotification("loading", "جاري الحفظ", "جاري تحديث بيانات العميل...");
+    setLoadingModal(true);
 
     try {
       const res = await fetch(`/api/customers/${customer.id}`, {
@@ -207,18 +198,21 @@ export function EditCustomerClient({ customer, accounts, costCenters, companyId 
         })
       });
 
+      setLoadingModal(false);
+
       if (res.ok) {
-        showNotification("success", "تم التحديث بنجاح", "تم تحديث بيانات العميل بنجاح");
+        setSuccessModal({ isOpen: true, type: 'update', title: formData.company_name || formData.customer_name });
         setTimeout(() => {
           router.push(`/customers/${customer.id}`);
           router.refresh();
-        }, 1500);
+        }, 2000);
       } else {
         const data = await res.json();
-        showNotification("error", "فشل الحفظ", data.error || "فشل تحديث بيانات العميل");
+        setErrorModal({ isOpen: true, title: "فشل الحفظ", message: data.error || "فشل تحديث بيانات العميل" });
       }
     } catch {
-      showNotification("error", "خطأ", "حدث خطأ أثناء الحفظ");
+      setLoadingModal(false);
+      setErrorModal({ isOpen: true, title: "خطأ", message: "حدث خطأ أثناء الحفظ" });
     } finally {
       setLoading(false);
     }
@@ -230,53 +224,20 @@ export function EditCustomerClient({ customer, accounts, costCenters, companyId 
       <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-blue-600/5 rounded-full blur-[150px] -mr-96 -mt-96 pointer-events-none" />
       <div className="absolute bottom-0 left-0 w-[800px] h-[800px] bg-purple-600/5 rounded-full blur-[150px] -ml-96 -mb-96 pointer-events-none" />
       
-      <AnimatePresence>
-        {notification.show && (
-          <>
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-[#0d1525]/80 backdrop-blur-xl z-[10000]"
-              onClick={() => notification.type !== "loading" && hideNotification()}
-            />
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.9, y: 20 }}
-              className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[10001] w-full max-w-md p-4"
-            >
-              <div className={`bg-white rounded-[2.5rem] p-10 shadow-[0_30px_100px_rgba(0,0,0,0.4)] border-t-[12px] ${
-                notification.type === "success" ? "border-emerald-500" :
-                notification.type === "error" ? "border-red-500" : "border-blue-500"
-              }`}>
-                <div className="text-center">
-                  <div className={`h-28 w-28 rounded-full mx-auto mb-8 flex items-center justify-center ${
-                    notification.type === "success" ? "bg-emerald-50 text-emerald-500" :
-                    notification.type === "error" ? "bg-red-50 text-red-500" : "bg-blue-50 text-blue-500"
-                  }`}>
-                    {notification.type === "success" && <CheckCircle size={56} strokeWidth={2.5} />}
-                    {notification.type === "error" && <AlertCircle size={56} strokeWidth={2.5} />}
-                    {notification.type === "loading" && <Loader2 size={56} className="animate-spin" strokeWidth={2.5} />}
-                  </div>
-                  <h3 className="text-3xl font-black text-slate-900 mb-3">{notification.title}</h3>
-                  <p className="text-slate-500 mb-10 text-lg leading-relaxed font-bold">{notification.message}</p>
-                  {notification.type !== "loading" && (
-                    <button
-                      onClick={hideNotification}
-                      className={`w-full py-5 rounded-2xl font-black text-white text-xl shadow-2xl transition-all active:scale-95 ${
-                        notification.type === "success" ? "bg-emerald-500 hover:bg-emerald-600 shadow-emerald-500/30" : "bg-red-500 hover:bg-red-600 shadow-red-500/30"
-                      }`}
-                    >
-                      موافق
-                    </button>
-                  )}
-                </div>
-              </div>
-            </motion.div>
-          </>
-        )}
-      </AnimatePresence>
+      {/* Modals */}
+      <SuccessModal
+        isOpen={successModal.isOpen}
+        type={successModal.type}
+        title={successModal.title}
+        onClose={() => setSuccessModal({ isOpen: false, type: null, title: '' })}
+      />
+      <LoadingModal isOpen={loadingModal} title="جاري الحفظ" message="جاري تحديث بيانات العميل..." />
+      <ErrorModal
+        isOpen={errorModal.isOpen}
+        title={errorModal.title}
+        message={errorModal.message}
+        onClose={() => setErrorModal({ isOpen: false, title: '', message: '' })}
+      />
 
       <div className="relative z-10 flex-1 p-4 md:p-10">
         <div className="max-w-[1200px] mx-auto space-y-10">
@@ -449,34 +410,44 @@ export function EditCustomerClient({ customer, accounts, costCenters, companyId 
               {/* Financial Info */}
               <Section title="الإعدادات المالية (شجرة الحسابات)" icon={<Wallet size={28} />} color="orange">
                 <div className="space-y-8">
-                  <HierarchicalSearchableSelect
-                    label="شجرة الحسابات"
-                    icon={<Wallet size={20} />}
-                    value={formData.account_id}
-                    onSelect={(val) => handleSelectChange("account_id", val)}
-                    items={accounts.map(a => ({
-                      id: a.id,
-                      code: a.account_code,
-                      name: a.account_name,
-                      type: a.account_type as any,
-                      parent_id: a.parent_id
-                    }))}
-                    placeholder="ابحث بالاسم أو رقم الحساب"
-                  />
-                  <HierarchicalSearchableSelect
-                    label="مركز التكلفة"
-                    icon={<Calculator size={20} />}
-                    value={formData.cost_center_id}
-                    onSelect={(val) => handleSelectChange("cost_center_id", val)}
-                    items={costCenters.map(c => ({
-                      id: c.id,
-                      code: c.center_code,
-                      name: c.center_name,
-                      type: c.center_type as any,
-                      parent_id: c.parent_id
-                    }))}
-                    placeholder="ابحث بالاسم أو كود المركز"
-                  />
+                  <div>
+                    <HierarchicalSearchableSelect
+                      label="شجرة الحسابات"
+                      icon={<Wallet size={20} />}
+                      value={formData.account_id}
+                      onSelect={(val) => handleSelectChange("account_id", val)}
+                      items={accounts.map(a => ({
+                        id: a.id,
+                        code: a.account_code,
+                        name: a.account_name,
+                        type: a.account_type as any,
+                        parent_id: a.parent_id
+                      }))}
+                      placeholder="ابحث بالاسم أو رقم الحساب"
+                    />
+                    {!formData.account_id && (
+                      <p className="text-red-400 text-xs font-bold mt-2 mr-1">* هذا الحقل إجباري</p>
+                    )}
+                  </div>
+                  <div>
+                    <HierarchicalSearchableSelect
+                      label="مركز التكلفة"
+                      icon={<Calculator size={20} />}
+                      value={formData.cost_center_id}
+                      onSelect={(val) => handleSelectChange("cost_center_id", val)}
+                      items={costCenters.map(c => ({
+                        id: c.id,
+                        code: c.center_code,
+                        name: c.center_name,
+                        type: c.center_type as any,
+                        parent_id: c.parent_id
+                      }))}
+                      placeholder="ابحث بالاسم أو كود المركز"
+                    />
+                    {!formData.cost_center_id && (
+                      <p className="text-red-400 text-xs font-bold mt-2 mr-1">* هذا الحقل إجباري</p>
+                    )}
+                  </div>
                 </div>
               </Section>
 

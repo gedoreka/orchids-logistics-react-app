@@ -895,132 +895,249 @@ export default function LettersClient() {
     );
   }
 
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-blue-900 p-4 md:p-8" dir={locale === 'ar' ? 'rtl' : 'ltr'}>
-      <div className="max-w-7xl mx-auto">
-        {/* Header */}
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-3xl p-8 mb-8 shadow-2xl"
-        >
-          <div className="flex flex-col md:flex-row justify-between items-center gap-6">
-            <div className={`text-center ${locale === 'ar' ? 'md:text-right' : 'md:text-left'}`}>
-              <h1 className="text-3xl md:text-4xl font-bold text-white mb-2 flex items-center gap-3">
-                <FileText className="w-10 h-10" />
-                {t("title")}
-              </h1>
-              <p className="text-blue-100">{t("subtitle")}</p>
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-blue-900 p-4 md:p-8" dir={locale === 'ar' ? 'rtl' : 'ltr'}>
+        <div className="max-w-7xl mx-auto">
+          {/* Header */}
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 rounded-3xl p-8 mb-8 shadow-2xl relative overflow-hidden"
+          >
+            {/* Decorative elements */}
+            <div className="absolute inset-0 overflow-hidden">
+              <div className="absolute -top-20 -right-20 w-60 h-60 bg-white/5 rounded-full blur-3xl" />
+              <div className="absolute -bottom-20 -left-20 w-60 h-60 bg-purple-500/10 rounded-full blur-3xl" />
             </div>
-            <div className="flex items-center gap-3">
+            <div className="relative z-10 flex flex-col md:flex-row justify-between items-center gap-6">
+              <div className={`text-center ${locale === 'ar' ? 'md:text-right' : 'md:text-left'}`}>
+                <h1 className="text-3xl md:text-4xl font-black text-white mb-2 flex items-center gap-3 tracking-tight">
+                  <div className="p-3 bg-white/15 backdrop-blur-sm rounded-2xl border border-white/20">
+                    <FileText className="w-8 h-8" />
+                  </div>
+                  {t("title")}
+                </h1>
+                <p className="text-blue-100/80 text-lg">{t("subtitle")}</p>
+              </div>
+              <div className="flex items-center gap-3">
                 <button
                   onClick={() => setShowSettings(true)}
-                  className="bg-amber-500 hover:bg-amber-600 text-white shadow-lg shadow-amber-500/30 rounded-xl p-3 transition-all flex items-center gap-2 border border-amber-400/50"
+                  className="bg-white/15 hover:bg-white/25 backdrop-blur-sm text-white shadow-lg rounded-2xl p-3 transition-all flex items-center gap-2 border border-white/20"
                   title={t("paperSettings")}
                 >
-                <Settings className="w-5 h-5" />
-                <span className="hidden sm:inline">{t("paperSettings")}</span>
-              </button>
-              {companyInfo && (
-                <div className="bg-white/20 backdrop-blur-sm rounded-xl px-4 py-2 text-white border border-white/10">
-                  <Building2 className={`w-5 h-5 inline-block ${locale === 'ar' ? 'ml-2' : 'mr-2'}`} />
-                  {companyInfo.name}
-                </div>
-              )}
-            </div>
-          </div>
-        </motion.div>
-
-        {/* Templates Section */}
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.1 }} className="mb-8">
-          <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
-            <Plus className="w-5 h-5 text-blue-400" />
-            {t("newLetterTitle")}
-          </h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            {templates.map((template) => {
-              const Icon = templateIcons[template.template_key] || FileText;
-              const colorClass = templateColors[template.template_key] || "from-gray-500 to-gray-600";
-              return (
-                <motion.button
-                  key={template.id}
-                  whileHover={{ scale: 1.02, y: -3 }}
-                  whileTap={{ scale: 0.98 }}
-                  onClick={() => openCreateForm(template)}
-                  className={`bg-gradient-to-br ${colorClass} p-6 rounded-2xl text-white ${locale === 'ar' ? 'text-right' : 'text-left'} shadow-xl hover:shadow-2xl transition-all`}
-                >
-                  <div className="flex items-start justify-between mb-3">
-                    <div className="p-3 bg-white/20 rounded-xl"><Icon className="w-6 h-6" /></div>
-                    {locale === 'ar' ? <ChevronLeft className="w-5 h-5 opacity-50" /> : <ChevronLeft className="w-5 h-5 opacity-50 rotate-180" />}
+                  <Settings className="w-5 h-5" />
+                  <span className="hidden sm:inline font-bold">{t("paperSettings")}</span>
+                </button>
+                {companyInfo && (
+                  <div className="bg-white/15 backdrop-blur-sm rounded-2xl px-5 py-3 text-white border border-white/20 font-bold">
+                    <Building2 className={`w-5 h-5 inline-block ${locale === 'ar' ? 'ml-2' : 'mr-2'}`} />
+                    {companyInfo.name}
                   </div>
-                  <h3 className="font-bold text-lg mb-1">{t(`templates.${template.template_key}`)}</h3>
-                  <p className="text-sm text-white/70">{t("fieldsToFill", { count: getPlaceholders(template).length })}</p>
-                </motion.button>
-              );
-            })}
-          </div>
-        </motion.div>
-
-        {/* Search */}
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }} className="bg-white/10 backdrop-blur-xl rounded-2xl p-6 mb-6">
-          <div className="relative">
-            <Search className={`absolute ${locale === 'ar' ? 'right-4' : 'left-4'} top-1/2 -translate-y-1/2 text-slate-400 w-5 h-5`} />
-            <input
-              type="text"
-              placeholder={t("searchPlaceholder")}
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className={`w-full bg-white/10 border border-white/20 rounded-xl py-3 ${locale === 'ar' ? 'pr-12 pl-4' : 'pl-12 pr-4'} text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500`}
-            />
-          </div>
-        </motion.div>
-
-        {/* Letters List */}
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }}>
-          <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
-            <FileText className="w-5 h-5 text-blue-400" />
-            {t("createdLettersTitle", { count: filteredLetters.length })}
-          </h2>
-          {filteredLetters.length === 0 ? (
-            <div className="bg-white/10 backdrop-blur-xl rounded-2xl p-12 text-center">
-              <FileText className="w-16 h-16 text-slate-400 mx-auto mb-4" />
-              <h3 className="text-xl text-white mb-2">{t("noLetters")}</h3>
-              <p className="text-slate-400">{t("noLettersDesc")}</p>
+                )}
+              </div>
             </div>
-          ) : (
-            <div className="grid gap-4">
-              {filteredLetters.map((letter, index) => {
-                const Icon = templateIcons[letter.template_key] || FileText;
-                const colorClass = templateColors[letter.template_key] || "from-gray-500 to-gray-600";
-                return (
-                  <motion.div key={letter.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: index * 0.05 }} className="bg-white/10 backdrop-blur-xl rounded-2xl p-6 border border-white/10 hover:border-blue-500/50 transition-all">
-                    <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                      <div className="flex items-center gap-4 flex-1">
-                        <div className={`p-3 rounded-xl bg-gradient-to-br ${colorClass}`}><Icon className="w-6 h-6 text-white" /></div>
-                        <div>
-                          <div className="flex items-center gap-3 mb-1">
-                            <span className="bg-blue-500/20 text-blue-400 px-3 py-1 rounded-lg text-sm font-bold">{letter.letter_number}</span>
-                            <span className={`px-3 py-1 rounded-lg text-sm font-bold ${letter.status === 'active' ? 'bg-green-500/20 text-green-400' : letter.status === 'cancelled' ? 'bg-red-500/20 text-red-400' : 'bg-yellow-500/20 text-yellow-400'}`}>
-                              {t(`status.${letter.status}`)}
-                            </span>
+          </motion.div>
+
+          {/* Luxury Create New Letter Button */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.05 }}
+            className="mb-8"
+          >
+            <motion.button
+              whileHover={{ scale: 1.01, y: -2 }}
+              whileTap={{ scale: 0.99 }}
+              onClick={() => {
+                if (templates.length > 0) {
+                  // scroll to templates section
+                  document.getElementById('templates-section')?.scrollIntoView({ behavior: 'smooth' });
+                }
+              }}
+              className="w-full group relative overflow-hidden rounded-3xl bg-gradient-to-r from-blue-600 via-indigo-500 to-purple-600 p-[2px] shadow-2xl shadow-blue-500/20 hover:shadow-blue-500/40 transition-all"
+            >
+              <div className="relative bg-gradient-to-r from-blue-600/90 via-indigo-500/90 to-purple-600/90 backdrop-blur-xl rounded-[22px] px-8 py-6 flex items-center justify-center gap-4 overflow-hidden">
+                {/* Animated background shimmer */}
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
+                <div className="absolute inset-0 overflow-hidden">
+                  <div className="absolute -top-10 -right-10 w-40 h-40 bg-white/5 rounded-full blur-2xl" />
+                  <div className="absolute -bottom-10 -left-10 w-40 h-40 bg-purple-400/10 rounded-full blur-2xl" />
+                </div>
+                <div className="relative z-10 flex items-center gap-4">
+                  <div className="p-4 bg-white/20 backdrop-blur-sm rounded-2xl border border-white/30 shadow-lg">
+                    <Plus className="w-7 h-7 text-white" strokeWidth={3} />
+                  </div>
+                  <div className={`${locale === 'ar' ? 'text-right' : 'text-left'}`}>
+                    <span className="text-white font-black text-2xl block tracking-tight">{t("newLetterTitle")}</span>
+                    <span className="text-white/70 text-sm font-medium">{t("subtitle")}</span>
+                  </div>
+                </div>
+                <div className="relative z-10">
+                  <Sparkles className="w-6 h-6 text-yellow-300 opacity-70" />
+                </div>
+              </div>
+            </motion.button>
+          </motion.div>
+
+          {/* Templates Section - Own Card */}
+          <motion.div
+            id="templates-section"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            className="mb-8"
+          >
+            <div className="relative bg-gradient-to-br from-slate-800/80 via-slate-800/60 to-slate-900/80 backdrop-blur-2xl rounded-[2rem] border border-white/10 overflow-hidden shadow-2xl">
+              {/* Card decorative top border */}
+              <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500" />
+              {/* Decorative glow */}
+              <div className="absolute -top-20 -right-20 w-60 h-60 bg-blue-500/5 rounded-full blur-3xl" />
+              <div className="absolute -bottom-20 -left-20 w-60 h-60 bg-indigo-500/5 rounded-full blur-3xl" />
+
+              <div className="relative z-10 p-8">
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="p-2.5 bg-gradient-to-br from-blue-500/20 to-indigo-500/20 rounded-xl border border-blue-500/20">
+                    <FileSignature className="w-6 h-6 text-blue-400" />
+                  </div>
+                  <div>
+                    <h2 className="text-2xl font-black text-white tracking-tight">{t("newLetterTitle")}</h2>
+                    <p className="text-slate-400 text-sm">اختر نوع الخطاب لإنشائه</p>
+                  </div>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
+                  {templates.map((template, idx) => {
+                    const Icon = templateIcons[template.template_key] || FileText;
+                    const colorClass = templateColors[template.template_key] || "from-gray-500 to-gray-600";
+                    return (
+                      <motion.button
+                        key={template.id}
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.1 + idx * 0.05 }}
+                        whileHover={{ scale: 1.03, y: -5 }}
+                        whileTap={{ scale: 0.97 }}
+                        onClick={() => openCreateForm(template)}
+                        className={`group relative bg-gradient-to-br ${colorClass} p-6 rounded-2xl text-white ${locale === 'ar' ? 'text-right' : 'text-left'} shadow-xl hover:shadow-2xl transition-all overflow-hidden`}
+                      >
+                        {/* Shimmer effect */}
+                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
+                        <div className="relative z-10">
+                          <div className="flex items-start justify-between mb-4">
+                            <div className="p-3 bg-white/20 backdrop-blur-sm rounded-xl border border-white/20 shadow-lg">
+                              <Icon className="w-6 h-6" />
+                            </div>
+                            <motion.div whileHover={{ x: locale === 'ar' ? -5 : 5 }}>
+                              {locale === 'ar' ? <ChevronLeft className="w-5 h-5 opacity-50" /> : <ChevronLeft className="w-5 h-5 opacity-50 rotate-180" />}
+                            </motion.div>
                           </div>
-                          <h3 className="text-lg font-bold text-white">{t(`templates.${letter.template_key}`)}</h3>
-                          <p className="text-slate-400 text-sm flex items-center gap-2"><Calendar className="w-4 h-4" />{new Date(letter.created_at).toLocaleDateString(locale === 'ar' ? 'ar-SA' : 'en-US')}</p>
+                          <h3 className="font-bold text-base mb-1 leading-tight">{t(`templates.${template.template_key}`)}</h3>
+                          <p className="text-sm text-white/60">{t("fieldsToFill", { count: getPlaceholders(template).length })}</p>
                         </div>
-                      </div>
-                      <div className="flex items-center gap-2">
-                          <button onClick={() => openPreview(letter)} className="p-2 bg-blue-500/20 text-blue-400 rounded-lg hover:bg-blue-500/30 transition-all" title={t("actions.preview")}><Eye className="w-5 h-5" /></button>
-                          <button onClick={() => openEmailModal(letter)} className="p-2 bg-emerald-500/20 text-emerald-400 rounded-lg hover:bg-emerald-500/30 transition-all" title={t("actions.sendEmail")}><Send className="w-5 h-5" /></button>
-                          <button onClick={() => openEditForm(letter)} className="p-2 bg-yellow-500/20 text-yellow-400 rounded-lg hover:bg-yellow-500/30 transition-all" title={t("actions.edit")}><Edit2 className="w-5 h-5" /></button>
-                          <button onClick={() => handleDeleteClick(letter)} className="p-2 bg-red-500/20 text-red-400 rounded-lg hover:bg-red-500/30 transition-all" title={t("actions.delete")}><Trash2 className="w-5 h-5" /></button>
-                        </div>
-                    </div>
-                  </motion.div>
-                );
-              })}
+                      </motion.button>
+                    );
+                  })}
+                </div>
+              </div>
             </div>
-          )}
-        </motion.div>
+          </motion.div>
+
+          {/* Created Letters Section - Own Luxury Card */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+          >
+            <div className="relative bg-gradient-to-br from-slate-800/80 via-slate-800/60 to-slate-900/80 backdrop-blur-2xl rounded-[2rem] border border-white/10 overflow-hidden shadow-2xl">
+              {/* Card decorative top border */}
+              <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-emerald-500 via-blue-500 to-purple-500" />
+              {/* Decorative glow */}
+              <div className="absolute -top-20 -right-20 w-60 h-60 bg-emerald-500/5 rounded-full blur-3xl" />
+              <div className="absolute -bottom-20 -left-20 w-60 h-60 bg-blue-500/5 rounded-full blur-3xl" />
+
+              <div className="relative z-10 p-8">
+                {/* Section header */}
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2.5 bg-gradient-to-br from-emerald-500/20 to-blue-500/20 rounded-xl border border-emerald-500/20">
+                      <ClipboardList className="w-6 h-6 text-emerald-400" />
+                    </div>
+                    <div>
+                      <h2 className="text-2xl font-black text-white tracking-tight">{t("createdLettersTitle", { count: filteredLetters.length })}</h2>
+                      <p className="text-slate-400 text-sm">الخطابات الرسمية المنشأة مسبقاً</p>
+                    </div>
+                  </div>
+                  {/* Search inside the card */}
+                  <div className="relative w-full md:w-80">
+                    <Search className={`absolute ${locale === 'ar' ? 'right-4' : 'left-4'} top-1/2 -translate-y-1/2 text-slate-400 w-5 h-5`} />
+                    <input
+                      type="text"
+                      placeholder={t("searchPlaceholder")}
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      className={`w-full bg-white/5 border border-white/10 rounded-xl py-3 ${locale === 'ar' ? 'pr-12 pl-4' : 'pl-12 pr-4'} text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all`}
+                    />
+                  </div>
+                </div>
+
+                {filteredLetters.length === 0 ? (
+                  <div className="bg-white/5 backdrop-blur-sm rounded-2xl p-12 text-center border border-white/5">
+                    <div className="p-5 bg-slate-700/30 rounded-full w-20 h-20 mx-auto mb-4 flex items-center justify-center">
+                      <FileText className="w-10 h-10 text-slate-500" />
+                    </div>
+                    <h3 className="text-xl text-white font-bold mb-2">{t("noLetters")}</h3>
+                    <p className="text-slate-400">{t("noLettersDesc")}</p>
+                  </div>
+                ) : (
+                  <div className="grid gap-3">
+                    {filteredLetters.map((letter, index) => {
+                      const Icon = templateIcons[letter.template_key] || FileText;
+                      const colorClass = templateColors[letter.template_key] || "from-gray-500 to-gray-600";
+                      return (
+                        <motion.div
+                          key={letter.id}
+                          initial={{ opacity: 0, x: locale === 'ar' ? 30 : -30 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ delay: index * 0.04 }}
+                          whileHover={{ x: locale === 'ar' ? -4 : 4 }}
+                          className="group relative bg-gradient-to-r from-white/[0.07] to-white/[0.03] backdrop-blur-sm rounded-2xl p-5 border border-white/[0.08] hover:border-blue-500/30 transition-all hover:shadow-lg hover:shadow-blue-500/5"
+                        >
+                          {/* Left accent bar */}
+                          <div className={`absolute ${locale === 'ar' ? 'right-0 rounded-l-full' : 'left-0 rounded-r-full'} top-3 bottom-3 w-1 bg-gradient-to-b ${colorClass} opacity-60 group-hover:opacity-100 transition-opacity`} />
+
+                          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                            <div className="flex items-center gap-4 flex-1">
+                              <div className={`p-3 rounded-xl bg-gradient-to-br ${colorClass} shadow-lg`}>
+                                <Icon className="w-6 h-6 text-white" />
+                              </div>
+                              <div className="flex-1">
+                                <div className="flex items-center gap-2 mb-1.5 flex-wrap">
+                                  <span className="bg-blue-500/15 text-blue-400 px-3 py-1 rounded-lg text-xs font-black tracking-wider border border-blue-500/20">{letter.letter_number}</span>
+                                  <span className={`px-3 py-1 rounded-lg text-xs font-bold border ${letter.status === 'active' ? 'bg-emerald-500/15 text-emerald-400 border-emerald-500/20' : letter.status === 'cancelled' ? 'bg-red-500/15 text-red-400 border-red-500/20' : 'bg-yellow-500/15 text-yellow-400 border-yellow-500/20'}`}>
+                                    {t(`status.${letter.status}`)}
+                                  </span>
+                                </div>
+                                <h3 className="text-lg font-bold text-white group-hover:text-blue-300 transition-colors">{t(`templates.${letter.template_key}`)}</h3>
+                                <p className="text-slate-500 text-sm flex items-center gap-2 mt-1">
+                                  <Calendar className="w-3.5 h-3.5" />
+                                  {new Date(letter.created_at).toLocaleDateString(locale === 'ar' ? 'ar-SA' : 'en-US')}
+                                </p>
+                              </div>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <button onClick={() => openPreview(letter)} className="p-2.5 bg-blue-500/10 text-blue-400 rounded-xl hover:bg-blue-500/20 transition-all border border-blue-500/10 hover:border-blue-500/30" title={t("actions.preview")}><Eye className="w-5 h-5" /></button>
+                              <button onClick={() => openEmailModal(letter)} className="p-2.5 bg-emerald-500/10 text-emerald-400 rounded-xl hover:bg-emerald-500/20 transition-all border border-emerald-500/10 hover:border-emerald-500/30" title={t("actions.sendEmail")}><Send className="w-5 h-5" /></button>
+                              <button onClick={() => openEditForm(letter)} className="p-2.5 bg-yellow-500/10 text-yellow-400 rounded-xl hover:bg-yellow-500/20 transition-all border border-yellow-500/10 hover:border-yellow-500/30" title={t("actions.edit")}><Edit2 className="w-5 h-5" /></button>
+                              <button onClick={() => handleDeleteClick(letter)} className="p-2.5 bg-red-500/10 text-red-400 rounded-xl hover:bg-red-500/20 transition-all border border-red-500/10 hover:border-red-500/30" title={t("actions.delete")}><Trash2 className="w-5 h-5" /></button>
+                            </div>
+                          </div>
+                        </motion.div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            </div>
+          </motion.div>
 
         {/* Settings Modal */}
         <AnimatePresence>

@@ -29,6 +29,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useTranslations, useLocale } from "@/lib/locale-context";
 import { cn } from "@/lib/utils";
+import { SuccessModal, ErrorModal, LoadingModal } from "@/components/ui/notification-modals";
 
 interface Customer {
   id: number;
@@ -59,24 +60,15 @@ interface NewSalesReceiptClientProps {
   userName: string;
 }
 
-interface NotificationState {
-  show: boolean;
-  type: "success" | "error" | "loading";
-  title: string;
-  message: string;
-}
 
 export function NewSalesReceiptClient({ customers, invoices, companyId, userName }: NewSalesReceiptClientProps) {
   const t = useTranslations("financialVouchersPage.newSalesReceiptPage");
   const { locale, isRTL: isRtl } = useLocale();
   const router = useRouter();
   const [loading, setLoading] = useState(false);
-  const [notification, setNotification] = useState<NotificationState>({
-    show: false,
-    type: "success",
-    title: "",
-    message: ""
-  });
+  const [successModal, setSuccessModal] = useState<{ isOpen: boolean; title: string; message: string }>({ isOpen: false, title: "", message: "" });
+  const [errorModal, setErrorModal] = useState<{ isOpen: boolean; title: string; message: string }>({ isOpen: false, title: "", message: "" });
+  const [loadingModal, setLoadingModal] = useState(false);
   
   const receiptNumber = 'RCPT' + Math.floor(10000 + Math.random() * 90000);
   
@@ -131,12 +123,12 @@ export function NewSalesReceiptClient({ customers, invoices, companyId, userName
   const { subtotal, taxAmount, totalAmount } = calculateGrandTotals();
 
   const showNotification = (type: "success" | "error" | "loading", title: string, message: string) => {
-    setNotification({ show: true, type, title, message });
+    if (type === "success") setSuccessModal({ isOpen: true, title, message });
+    else if (type === "error") setErrorModal({ isOpen: true, title, message });
+    else if (type === "loading") setLoadingModal(true);
   };
 
-  const hideNotification = () => {
-    setNotification(prev => ({ ...prev, show: false }));
-  };
+  const hideNotification = () => setLoadingModal(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value, type } = e.target as any;
@@ -234,52 +226,19 @@ export function NewSalesReceiptClient({ customers, invoices, companyId, userName
   return (
     <div className="max-w-[95%] mx-auto p-4 md:p-8 space-y-8" dir={isRtl ? "rtl" : "ltr"}>
       <AnimatePresence>
-        {notification.show && (
-          <>
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-black/60 backdrop-blur-md z-[100]"
-              onClick={() => notification.type !== "loading" && hideNotification()}
-            />
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.9, y: 20 }}
-              className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[101] w-full max-w-md p-4"
-            >
-              <div className={cn(
-                "bg-white rounded-[2.5rem] p-10 shadow-2xl border-t-8 text-center",
-                notification.type === "success" ? "border-emerald-500" :
-                notification.type === "error" ? "border-rose-500" : "border-blue-500"
-              )}>
-                <div className={cn(
-                  "h-24 w-24 rounded-3xl mx-auto mb-8 flex items-center justify-center rotate-3 transform transition-transform hover:rotate-6 shadow-xl",
-                  notification.type === "success" ? "bg-emerald-100 text-emerald-600" :
-                  notification.type === "error" ? "bg-rose-100 text-rose-600" : "bg-blue-100 text-blue-600"
-                )}>
-                  {notification.type === "success" && <CheckCircle size={48} />}
-                  {notification.type === "error" && <AlertCircle size={48} />}
-                  {notification.type === "loading" && <Loader2 size={48} className="animate-spin" />}
-                </div>
-                <h3 className="text-3xl font-black text-slate-900 mb-3">{notification.title}</h3>
-                <p className="text-slate-500 font-medium mb-10 leading-relaxed">{notification.message}</p>
-                {notification.type !== "loading" && (
-                  <button
-                    onClick={hideNotification}
-                    className={cn(
-                      "w-full py-4 rounded-2xl font-black text-white transition-all shadow-xl active:scale-95",
-                      notification.type === "success" ? "bg-emerald-500 hover:bg-emerald-600 shadow-emerald-200" : "bg-rose-500 hover:bg-rose-600 shadow-rose-200"
-                    )}
-                  >
-                    {t("ok")}
-                  </button>
-                )}
-              </div>
-            </motion.div>
-          </>
-        )}
+      <SuccessModal
+        isOpen={successModal.isOpen}
+        onClose={() => setSuccessModal(prev => ({ ...prev, isOpen: false }))}
+        title={successModal.title}
+        message={successModal.message}
+      />
+      <ErrorModal
+        isOpen={errorModal.isOpen}
+        onClose={() => setErrorModal(prev => ({ ...prev, isOpen: false }))}
+        title={errorModal.title}
+        message={errorModal.message}
+      />
+      <LoadingModal isOpen={loadingModal} />
       </AnimatePresence>
 
       <motion.div

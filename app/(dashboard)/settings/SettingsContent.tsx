@@ -3,28 +3,24 @@
 import { useState } from "react";
 import { useTranslations, useLocale } from "@/lib/locale-context";
 import { 
-  User, 
-  Lock, 
-  ShieldCheck, 
-  Settings, 
-  Globe, 
-  CreditCard, 
-  Database, 
-  Bell, 
-  FileText,
-  AlertCircle,
-  CheckCircle2,
-  RefreshCw,
-  Cpu,
-  Info,
-  Key,
-  Calendar,
-  MapPin,
-  Coins,
-  Shield,
-  Zap,
-  LayoutGrid
-} from "lucide-react";
+    Lock, 
+    ShieldCheck, 
+    Settings, 
+    Globe, 
+    Database, 
+    Bell, 
+    AlertCircle,
+    RefreshCw,
+    Info,
+    Calendar,
+    MapPin,
+    Coins,
+    Shield,
+    LayoutGrid,
+    Key,
+    Zap
+  } from "lucide-react";
+import { ThemeCustomizer } from "@/components/theme-customizer";
 import { createClient } from "@supabase/supabase-js";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
@@ -57,15 +53,10 @@ export function SettingsContent({ company, taxSettings, userEmail, companyId }: 
     toast.success(newLocale === "ar" ? "تم تغيير اللغة إلى العربية" : "Language changed to English");
   };
   
-  // Password state
-  const [currentPassword, setCurrentPassword] = useState("");
-  const [newPassword, setNewPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  
-  // Tax settings state
-  const [zatcaEnabled, setZatcaEnabled] = useState(taxSettings.zatca_enabled || false);
-  const [zatcaEnv, setZatcaEnvironment] = useState(taxSettings.zatca_environment || "sandbox");
-  const [zatcaApiKey, setZatcaApiKey] = useState(taxSettings.zatca_api_key || "");
+    // Password state
+    const [currentPassword, setCurrentPassword] = useState("");
+    const [newPassword, setNewPassword] = useState("");
+    const [confirmPassword, setConfirmPassword] = useState("");
 
   const handleUpdatePassword = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -94,30 +85,7 @@ export function SettingsContent({ company, taxSettings, userEmail, companyId }: 
     }
   };
 
-  const handleSaveTaxSettings = async () => {
-    setLoading(true);
-    try {
-      const { error } = await supabase
-        .from("tax_settings")
-        .upsert({
-          company_id: companyId,
-          zatca_enabled: zatcaEnabled,
-          zatca_environment: zatcaEnv,
-          zatca_api_key: zatcaApiKey,
-          updated_at: new Date().toISOString()
-        }, { onConflict: "company_id" });
-
-      if (error) throw error;
-      toast.success(commonT("success"));
-    } catch (error: any) {
-      console.error("Error saving tax settings:", error);
-      toast.error(commonT("error"));
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  return (
+    return (
     <div className="max-w-5xl mx-auto space-y-8 pb-20">
       {/* Dynamic Header */}
       <motion.div 
@@ -237,96 +205,8 @@ export function SettingsContent({ company, taxSettings, userEmail, companyId }: 
 
             <div className="h-px bg-gradient-to-r from-transparent via-white/5 to-transparent" />
 
-            {/* 2. ZATCA Integration Section */}
-            <section className="space-y-8">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-4">
-                  <div className="p-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20">
-                    <Zap size={20} className="text-emerald-400" />
-                  </div>
-                  <div>
-                    <h2 className="text-xl font-black text-white tracking-tight">{t("taxIntegration")}</h2>
-                    <p className="text-xs text-slate-500 mt-0.5 font-medium">الربط مع هيئة الزكاة والضريبة والجمارك</p>
-                  </div>
-                </div>
-                <div className="hidden sm:flex px-4 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20">
-                  <span className="text-[10px] font-black text-emerald-400 uppercase tracking-widest">Enterprise Feature</span>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div className="md:col-span-2 flex items-center justify-between p-6 rounded-[2rem] bg-gradient-to-br from-emerald-500/5 to-transparent border border-emerald-500/10">
-                  <div className="space-y-1">
-                    <p className="text-sm font-black text-white">{t("zatcaEnabled")}</p>
-                    <p className="text-xs text-slate-400 font-medium leading-relaxed max-w-md">{t("zatcaEnabledDesc")}</p>
-                  </div>
-                  <motion.button
-                    whileTap={{ scale: 0.9 }}
-                    onClick={() => setZatcaEnabled(!zatcaEnabled)}
-                    className={cn(
-                      "w-16 h-9 rounded-full p-1.5 transition-all duration-500 ease-in-out",
-                      zatcaEnabled ? "bg-emerald-500 shadow-[0_0_20px_rgba(16,185,129,0.4)]" : "bg-slate-800"
-                    )}
-                  >
-                    <div className={cn(
-                      "w-6 h-6 rounded-full bg-white shadow-xl transition-transform duration-500 transform",
-                      zatcaEnabled ? "translate-x-7 rtl:-translate-x-7" : "translate-x-0"
-                    )} />
-                  </motion.button>
-                </div>
-
-                <div className="space-y-3">
-                  <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest px-1">{t("environment")}</label>
-                  <div className="flex p-1.5 rounded-2xl bg-black/40 border border-white/5">
-                    <button 
-                      onClick={() => setZatcaEnvironment("sandbox")}
-                      className={cn(
-                        "flex-1 py-3 text-xs font-black rounded-xl transition-all",
-                        zatcaEnv === "sandbox" ? "bg-white/10 text-white shadow-lg" : "text-slate-500 hover:text-slate-300"
-                      )}
-                    >
-                      {t("sandbox")}
-                    </button>
-                    <button 
-                      onClick={() => setZatcaEnvironment("production")}
-                      className={cn(
-                        "flex-1 py-3 text-xs font-black rounded-xl transition-all",
-                        zatcaEnv === "production" ? "bg-emerald-500/20 text-emerald-400 shadow-lg" : "text-slate-500 hover:text-slate-300"
-                      )}
-                    >
-                      {t("production")}
-                    </button>
-                  </div>
-                </div>
-
-                <div className="space-y-3">
-                  <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest px-1">{t("apiKey")}</label>
-                  <div className="relative">
-                    <input 
-                      type="password"
-                      value={zatcaApiKey}
-                      onChange={(e) => setZatcaApiKey(e.target.value)}
-                      placeholder="••••••••••••••••"
-                      className="w-full p-4 rounded-2xl bg-white/5 border border-white/10 text-white focus:border-emerald-500/50 focus:ring-4 focus:ring-emerald-500/10 outline-none transition-all"
-                    />
-                    <Key className="absolute right-4 top-1/2 -translate-y-1/2 text-white/5" size={18} />
-                  </div>
-                </div>
-
-                <div className="md:col-span-2">
-                  <motion.button 
-                    whileHover={{ scale: 1.02, y: -2 }}
-                    whileTap={{ scale: 0.98 }}
-                    onClick={handleSaveTaxSettings}
-                    disabled={loading}
-                    className="w-full md:w-auto px-12 py-4 rounded-2xl bg-white text-slate-950 font-black text-sm shadow-xl shadow-white/5 hover:shadow-white/20 transition-all disabled:opacity-50 flex items-center justify-center gap-3"
-                  >
-                    {loading ? <RefreshCw className="w-5 h-5 animate-spin" /> : <CheckCircle2 className="w-5 h-5" />}
-                    {t("saveSettings")}
-                  </motion.button>
-                </div>
-              </div>
-            </section>
+              {/* 2. Theme Customization Section */}
+              <ThemeCustomizer />
           </div>
 
           {/* Side Info Column (Right) */}

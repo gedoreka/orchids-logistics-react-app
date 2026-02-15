@@ -1705,7 +1705,7 @@
   },
   "systemSettings": {
     "title": "System Settings",
-    "subtitle": "Manage system details, security, and tax integration",
+    "subtitle": "Manage system details, security, and theme customization",
     "version": "System Version",
     "security": "Security & Protection",
     "email": "Current Email",

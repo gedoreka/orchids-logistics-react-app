@@ -72,9 +72,9 @@ export function Footer() {
         <div className="flex flex-col md:flex-row items-center justify-between gap-4">
           
           <div className="flex items-center gap-4">
-            <div className={cn("hidden sm:flex items-center gap-1.5 text-[10px] font-bold", isDark ? "text-white/30" : "text-indigo-600/60")}>
-                <Copyright size={10} />
-                <span>2026 {t('copyright')}</span>
+            <div className={cn("hidden sm:flex items-center gap-1.5 text-[10px] font-bold", isDark ? "text-white/30" : "text-black")}>
+                  <Copyright size={10} />
+                  <span>2026 {t('copyright')}</span>
             </div>
           </div>
 
@@ -95,8 +95,8 @@ export function Footer() {
                     transition={{ duration: 2, repeat: Infinity }}
                   >
                     <Wifi size={12} className="text-emerald-400" />
-                  </motion.div>
-                  <span className="text-[10px] font-bold text-emerald-400">{t('online')}</span>
+                    </motion.div>
+                    <span className={cn("text-[10px] font-bold", isDark ? "text-emerald-400" : "text-black")}>{t('online')}</span>
                 </>
               ) : (
                 <>
@@ -107,21 +107,21 @@ export function Footer() {
             </motion.div>
 
             <div className={cn("flex items-center gap-2 px-3 py-1.5 rounded-xl border", isDark ? "bg-white/5 border-white/10" : "bg-white/30 border-indigo-200/30")}>
-                <Server size={12} className="text-blue-400" />
-                <span className={cn("text-[10px] font-bold", isDark ? "text-white/50" : "text-indigo-500")}>CPU</span>
-                <span className="text-[10px] font-bold text-blue-400">{systemStatus.cpu}%</span>
+                  <Server size={12} className="text-blue-400" />
+                  <span className={cn("text-[10px] font-bold", isDark ? "text-white/50" : "text-black")}>CPU</span>
+                  <span className={cn("text-[10px] font-bold", isDark ? "text-blue-400" : "text-black")}>{systemStatus.cpu}%</span>
               </div>
 
             <div className={cn("flex items-center gap-2 px-3 py-1.5 rounded-xl border", isDark ? "bg-white/5 border-white/10" : "bg-white/30 border-indigo-200/30")}>
                 <Activity size={12} className="text-purple-400" />
-                <span className={cn("text-[10px] font-bold", isDark ? "text-white/50" : "text-indigo-500")}>{isRTL ? 'الذاكرة' : 'Memory'}</span>
-                <span className="text-[10px] font-bold text-purple-400">{systemStatus.memory}%</span>
+                <span className={cn("text-[10px] font-bold", isDark ? "text-white/50" : "text-black")}>{isRTL ? 'الذاكرة' : 'Memory'}</span>
+                  <span className={cn("text-[10px] font-bold", isDark ? "text-purple-400" : "text-black")}>{systemStatus.memory}%</span>
               </div>
 
               <div className={cn("flex items-center gap-2 px-3 py-1.5 rounded-xl border", isDark ? "bg-white/5 border-white/10" : "bg-white/30 border-indigo-200/30")}>
                   <Zap size={12} className="text-amber-400" />
-                  <span className={cn("text-[10px] font-bold", isDark ? "text-white/50" : "text-indigo-500")}>Latency</span>
-                <span className="text-[10px] font-bold text-amber-400">{systemStatus.latency}ms</span>
+                  <span className={cn("text-[10px] font-bold", isDark ? "text-white/50" : "text-black")}>Latency</span>
+                <span className={cn("text-[10px] font-bold", isDark ? "text-amber-400" : "text-black")}>{systemStatus.latency}ms</span>
               </div>
             </div>
 
@@ -131,8 +131,8 @@ export function Footer() {
                 className={cn("flex items-center gap-2 px-3 py-1.5 rounded-xl border", isDark ? "bg-blue-500/5 border-blue-500/10" : "bg-white/30 border-indigo-200/30")}
               >
                 <div className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse" />
-                <span className={cn("text-[10px] font-bold", isDark ? "text-blue-400" : "text-indigo-600")}>
-                    {isRTL ? 'نسخة النظام الحالي 1.4' : 'System Version 1.4'}
+                  <span className={cn("text-[10px] font-bold", isDark ? "text-blue-400" : "text-black")}>
+                      {isRTL ? 'نسخة النظام الحالي 1.4' : 'System Version 1.4'}
                 </span>
               </motion.div>
 
@@ -143,8 +143,8 @@ export function Footer() {
               >
                 <div className="p-1 rounded-md bg-blue-500/20">
                   <Mail size={10} className="text-blue-400" />
-                </div>
-                <span className={cn("text-[10px] font-bold transition-colors", isDark ? "text-white/50 group-hover:text-white/80" : "text-indigo-600 group-hover:text-indigo-700")}>Info@zoolspeed.com</span>
+                  </div>
+                  <span className={cn("text-[10px] font-bold transition-colors", isDark ? "text-white/50 group-hover:text-white/80" : "text-black")}>Info@zoolspeed.com</span>
               </motion.a>
 
             <motion.button 
@@ -153,9 +153,9 @@ export function Footer() {
               className={cn("flex items-center gap-2 px-3 py-1.5 rounded-xl border transition-all group", isDark ? "bg-white/5 hover:bg-white/10 border-white/10 hover:border-emerald-500/30" : "bg-white/30 hover:bg-white/50 border-indigo-200/30 hover:border-emerald-300/50")}
             >
               <div className="p-1 rounded-md bg-emerald-500/20">
-                <Phone size={10} className="text-emerald-400" />
-              </div>
-              <span className={cn("text-[10px] font-bold transition-colors", isDark ? "text-white/50 group-hover:text-white/80" : "text-indigo-600 group-hover:text-indigo-700")} dir="ltr">+966 53 490 7721</span>
+                  <Phone size={10} className="text-emerald-400" />
+                </div>
+                <span className={cn("text-[10px] font-bold transition-colors", isDark ? "text-white/50 group-hover:text-white/80" : "text-black")} dir="ltr">+966 53 490 7721</span>
               {copiedPhone === "ksa" ? (
                 <Check size={10} className="text-emerald-500" />
               ) : (
@@ -170,8 +170,8 @@ export function Footer() {
             >
               <div className="p-1 rounded-md bg-amber-500/20">
                 <Globe size={10} className="text-amber-400" />
-              </div>
-              <span className={cn("text-[10px] font-bold transition-colors", isDark ? "text-white/50 group-hover:text-white/80" : "text-indigo-600 group-hover:text-indigo-700")} dir="ltr">+249 92 116 3000</span>
+                </div>
+                <span className={cn("text-[10px] font-bold transition-colors", isDark ? "text-white/50 group-hover:text-white/80" : "text-black")} dir="ltr">+249 92 116 3000</span>
               {copiedPhone === "sdn" ? (
                 <Check size={10} className="text-emerald-500" />
               ) : (
@@ -183,8 +183,8 @@ export function Footer() {
               whileHover={{ scale: 1.05 }}
               className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-gradient-to-r from-emerald-500/10 to-teal-500/10 rounded-xl border border-emerald-500/20"
             >
-              <Shield size={10} className="text-emerald-400" />
-              <span className="text-[10px] font-bold text-emerald-400">SSL Secured</span>
+                <Shield size={10} className="text-emerald-400" />
+                <span className={cn("text-[10px] font-bold", isDark ? "text-emerald-400" : "text-black")}>SSL Secured</span>
             </motion.div>
           </div>
         </div>

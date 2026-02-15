@@ -918,8 +918,8 @@ export function Header({ user, onToggleSidebar, unreadChatCount = 0, subscriptio
                           onClick={() => router.back()}
                           className={cn("flex items-center gap-2 px-4 py-2 rounded-xl transition-all border group", isDarkMode ? "bg-white/5 hover:bg-white/10 border-white/10" : "bg-white/30 hover:bg-white/50 border-indigo-200/30")}
                         >
-                          <BackIcon size={16} className={cn("transition-transform", isDarkMode ? "text-white/60" : "text-indigo-600", isRTL ? "group-hover:translate-x-1" : "group-hover:-translate-x-1")} />
-                          <span className={cn("text-[11px] font-bold", isDarkMode ? "text-white/60" : "text-indigo-600")}>{tCommon('back')}</span>
+                          <BackIcon size={16} className={cn("transition-transform", isDarkMode ? "text-white/60" : "text-indigo-500", isRTL ? "group-hover:translate-x-1" : "group-hover:-translate-x-1")} />
+                            <span className={cn("text-[14px] font-extrabold", isDarkMode ? "text-white/60" : "text-black")}>{tCommon('back')}</span>
                         </motion.button>
                       </div>
                     )}
@@ -1105,11 +1105,11 @@ export function Header({ user, onToggleSidebar, unreadChatCount = 0, subscriptio
                             </motion.div>
                           )}
                         </AnimatePresence>
-                        <span className={cn(
-                          "text-[11px] font-bold transition-colors",
-                          isDarkMode ? "text-purple-400" : "text-amber-500"
-                        )}>
-                          {isDarkMode ? (isRTL ? 'الوضع الليلي' : 'Dark') : (isRTL ? 'الوضع النهاري' : 'Light')}
+                            <span className={cn(
+                "text-[14px] font-extrabold transition-colors",
+                isDarkMode ? "text-purple-400" : "text-black"
+                            )}>
+                            {isDarkMode ? (isRTL ? 'الوضع الليلي' : 'Dark') : (isRTL ? 'الوضع النهاري' : 'Light')}
                         </span>
                       </motion.button>
 
@@ -1119,8 +1119,8 @@ export function Header({ user, onToggleSidebar, unreadChatCount = 0, subscriptio
                         onClick={() => setShowNotifications(!showNotifications)}
                         className={cn("relative hidden sm:flex items-center gap-2 px-3 py-2.5 rounded-xl transition-all border", isDarkMode ? "bg-white/5 hover:bg-white/10 border-white/10" : "bg-white/30 hover:bg-white/50 border-indigo-200/30")}
                       >
-                      <Bell size={18} className={isDarkMode ? "text-white/60" : "text-indigo-600"} />
-                          <span className={cn("text-[11px] font-bold", isDarkMode ? "text-white/60" : "text-indigo-600")}>{isRTL ? 'الإشعارات' : 'Notifications'}</span>
+                      <Bell size={18} className={isDarkMode ? "text-white/60" : "text-yellow-500"} />
+                              <span className={cn("text-[14px] font-extrabold", isDarkMode ? "text-white/60" : "text-black")}>{isRTL ? 'الإشعارات' : 'Notifications'}</span>
                           {(unreadAdminCount + (hrNotifications?.identity.total_expired || 0) + (hrNotifications?.identity.total_expiring_soon || 0) + (hrNotifications?.incomplete.total_incomplete || 0)) > 0 && (
                             <motion.span 
                               animate={{ scale: [1, 1.2, 1] }}
@@ -1144,7 +1144,7 @@ export function Header({ user, onToggleSidebar, unreadChatCount = 0, subscriptio
                       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" className="text-emerald-400">
                         <path d="M12 3C7.03 3 3 7.03 3 12s4.03 9 9 9 9-4.03 9-9-4.03-9-9-9zm0 16c-3.86 0-7-3.14-7-7s3.14-7 7-7 7 3.14 7 7-3.14 7-7 7zm.5-11H11v5l4.28 2.54.72-1.21-3.5-2.08V8z" fill="currentColor"/>
                       </svg>
-                      <span className="text-[11px] font-bold text-emerald-400">{isRTL ? 'أوقات الصلاة' : 'Prayer Times'}</span>
+                      <span className={cn("text-[14px] font-extrabold", isDarkMode ? "text-emerald-400" : "text-black")}>{isRTL ? 'أوقات الصلاة' : 'Prayer Times'}</span>
                       {prayerContextNext && (
                         <span className="min-w-[20px] h-[20px] bg-emerald-500 text-white text-[9px] font-bold rounded-full flex items-center justify-center">
                           {prayerContextNext.remaining.replace(/[سد]/g, '').trim().split(' ')[0]}
@@ -1164,7 +1164,7 @@ export function Header({ user, onToggleSidebar, unreadChatCount = 0, subscriptio
                       )}
                     >
                       <BookOpen size={18} className="text-amber-400" />
-                      <span className="text-[11px] font-bold text-amber-400">{isRTL ? 'المصحف الشريف' : 'Holy Quran'}</span>
+                        <span className={cn("text-[14px] font-extrabold", isDarkMode ? "text-amber-400" : "text-black")}>{isRTL ? 'المصحف الشريف' : 'Holy Quran'}</span>
                       {isPlaying && (
                         <motion.span 
                           animate={{ scale: [1, 1.3, 1] }}
@@ -1183,7 +1183,7 @@ export function Header({ user, onToggleSidebar, unreadChatCount = 0, subscriptio
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" className="text-blue-400">
                           <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z" fill="currentColor"/>
                         </svg>
-                        <span className="text-[11px] font-bold text-blue-400">{isRTL ? 'بريد شركتك' : 'Company Email'}</span>
+                          <span className={cn("text-[14px] font-extrabold", isDarkMode ? "text-blue-400" : "text-black")}>{isRTL ? 'بريد شركتك' : 'Company Email'}</span>
                         {unreadEmailCount > 0 && (
                           <motion.span 
                             initial={{ scale: 0 }}
@@ -1202,7 +1202,7 @@ export function Header({ user, onToggleSidebar, unreadChatCount = 0, subscriptio
                       className="hidden sm:flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 rounded-xl transition-all shadow-lg shadow-amber-500/20 border border-amber-400/20"
                     >
                       <Truck size={16} className="text-white" />
-                      <span className="text-[11px] font-bold text-white">{t('driverApp')}</span>
+                        <span className="text-[14px] font-extrabold text-white">{t('driverApp')}</span>
                     </motion.button>
 
                   <motion.button
@@ -1212,7 +1212,7 @@ export function Header({ user, onToggleSidebar, unreadChatCount = 0, subscriptio
                     className="hidden sm:flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 rounded-xl transition-all shadow-lg shadow-emerald-500/20 border border-emerald-400/20 relative"
                   >
                     <MessageSquare size={16} className="text-white" />
-                    <span className="text-[11px] font-bold text-white">{t('support')}</span>
+                      <span className="text-[14px] font-extrabold text-white">{t('support')}</span>
                     {unreadChatCount > 0 && (
                       <motion.span 
                         initial={{ scale: 0 }}
@@ -1237,7 +1237,7 @@ export function Header({ user, onToggleSidebar, unreadChatCount = 0, subscriptio
                         <span className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 bg-emerald-500 rounded-full border-2 border-slate-950" />
                       </div>
                           <div className="hidden md:block text-right">
-                            <p className={cn("text-[11px] font-bold", isDarkMode ? "text-white/90" : "text-indigo-700")}>{user?.role === "admin" ? (isRTL ? "مدير النظام" : "System Admin") : (isRTL ? "مدير منشأة" : "Manager")}</p>
+                            <p className={cn("text-[14px] font-extrabold", isDarkMode ? "text-white/90" : "text-black")}>{user?.role === "admin" ? (isRTL ? "مدير النظام" : "System Admin") : (isRTL ? "مدير منشأة" : "Manager")}</p>
                           </div>
 
                         <ChevronDown size={14} className={cn(
@@ -3014,7 +3014,7 @@ export function Header({ user, onToggleSidebar, unreadChatCount = 0, subscriptio
                     exit={{ opacity: 0 }}
                     className={cn(
                       "absolute inset-0",
-                        isDarkMode ? "backdrop-blur-xl bg-black/80" : "identity-alert-backdrop"
+                        isDarkMode ? "backdrop-blur-2xl bg-black/90" : "backdrop-blur-xl bg-black/60"
                     )}
                   />
                   <motion.div 
@@ -3064,15 +3064,18 @@ export function Header({ user, onToggleSidebar, unreadChatCount = 0, subscriptio
 
                     {/* Header with animated shield */}
                     <div className="relative p-8 pb-4 text-center">
-                      <div className="relative inline-block mb-5">
-                        <motion.div
-                          animate={{ scale: [1, 1.2, 1], opacity: [0.15, 0.35, 0.15] }}
-                          transition={{ duration: 2, repeat: Infinity }}
-                          className="absolute inset-0 bg-red-500 rounded-full blur-2xl"
-                        />
-                        <motion.div
-                          animate={{ rotate: [0, -5, 5, 0] }}
-                          transition={{ duration: 4, repeat: Infinity }}
+                        <div className="relative inline-block mb-5">
+                          <motion.div
+                            animate={{ scale: [1, 1.3, 1], opacity: [0.15, 0.4, 0.15] }}
+                            transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+                            className="absolute inset-0 bg-red-500 rounded-full blur-2xl"
+                          />
+                          <motion.div
+                            animate={{ 
+                              rotate: [0, -8, 8, -5, 5, 0],
+                              scale: [1, 1.05, 0.95, 1.03, 0.97, 1]
+                            }}
+                            transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
                           className="relative"
                         >
                           <div className={cn(
@@ -3192,30 +3195,39 @@ export function Header({ user, onToggleSidebar, unreadChatCount = 0, subscriptio
                       )}
                     </div>
 
-                    {/* Actions */}
-                    <div className="p-6 pt-3 space-y-2.5 shrink-0">
-                      <motion.button
-                        whileHover={{ scale: 1.02 }}
-                        whileTap={{ scale: 0.98 }}
-                        onClick={() => {
-                          router.push('/hr/reports/iqama?filter=expired');
-                          setShowLoginSplash(false);
-                        }}
-                        className="w-full py-4 bg-gradient-to-r from-red-500 to-rose-500 hover:from-red-600 hover:to-rose-600 rounded-2xl text-white font-black text-sm shadow-xl shadow-red-500/30 transition-all flex items-center justify-center gap-2"
-                      >
-                        <Shield size={18} />
-                        {isRTL ? 'فتح تقرير سريان الهويات' : 'Open ID Validity Report'}
-                      </motion.button>
-                      <button
-                        onClick={() => setShowLoginSplash(false)}
-                        className={cn(
-                          "w-full py-3 text-center text-sm font-bold transition-colors",
-                          isDarkMode ? "text-white/30 hover:text-white/60" : "text-slate-400 hover:text-slate-600"
-                        )}
-                      >
-                        {isRTL ? 'تذكيري لاحقا' : 'Remind me later'}
-                      </button>
-                    </div>
+                      {/* Actions */}
+                      <div className="p-6 pt-3 space-y-3 shrink-0">
+                          <motion.button
+                            whileHover={{ scale: 1.03, y: -2 }}
+                            whileTap={{ scale: 0.97 }}
+                            onClick={() => {
+                              router.push('/hr/reports/iqama?filter=expired');
+                              setShowLoginSplash(false);
+                            }}
+                            className={cn(
+                              "w-full py-4 rounded-2xl font-black text-base transition-all flex items-center justify-center gap-2.5",
+                              isDarkMode
+                                ? "bg-red-600 hover:bg-red-500 text-white shadow-[0_6px_24px_rgba(220,38,38,0.5)] hover:shadow-[0_8px_30px_rgba(220,38,38,0.6)]"
+                                : "bg-red-600 hover:bg-red-700 text-white shadow-[0_6px_24px_rgba(220,38,38,0.45)] hover:shadow-[0_8px_30px_rgba(220,38,38,0.55)]"
+                            )}
+                          >
+                            <Shield size={20} className="text-white" />
+                            {isRTL ? 'فتح تقرير سريان الهويات' : 'Open ID Validity Report'}
+                          </motion.button>
+                          <motion.button
+                            whileHover={{ scale: 1.02, y: -1 }}
+                            whileTap={{ scale: 0.97 }}
+                            onClick={() => setShowLoginSplash(false)}
+                            className={cn(
+                              "w-full py-3.5 text-center text-sm font-black transition-all rounded-2xl flex items-center justify-center gap-2",
+                              isDarkMode 
+                                ? "bg-emerald-600 hover:bg-emerald-500 text-white shadow-[0_4px_20px_rgba(16,185,129,0.4)] hover:shadow-[0_6px_24px_rgba(16,185,129,0.5)]" 
+                                : "bg-emerald-600 hover:bg-emerald-700 text-white shadow-[0_4px_20px_rgba(16,185,129,0.35)] hover:shadow-[0_6px_24px_rgba(16,185,129,0.45)]"
+                            )}
+                          >
+                            {isRTL ? 'تذكيري لاحقا' : 'Remind me later'}
+                          </motion.button>
+                      </div>
                   </motion.div>
                 </div>
               )}

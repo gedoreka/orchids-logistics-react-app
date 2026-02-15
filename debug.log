@@ -67,3 +67,323 @@
 2026-02-12T22:21:51.949Z [console][warn] [Fast Refresh] performing full reload because your application had an unrecoverable error
 2026-02-12T22:21:51.950Z [console][error] [Fast Refresh] performing full reload because your application had an unrecoverable error
 2026-02-12T22:22:36.076Z [console][error] [Fast Refresh] performing full reload because your application had an unrecoverable error
+2026-02-14T15:57:14.319Z [console][error] ./app/(dashboard)/subscriptions/page.tsx:300:14
+Parsing ecmascript source code failed
+  298 |                 </div>
+  299 |               </motion.div>
+> 300 |             )}
+      |              ^
+  301 |
+  302 |             {/* Plan Cards */}
+  303 |             <div className="grid md:grid-cols-3 gap-8">
+
+Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+
+Import traces:
+  Client Component Browser:
+    ./app/(dashboard)/subscriptions/page.tsx [Client Component Browser]
+    ./app/(dashboard)/subscriptions/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./app/(dashboard)/subscriptions/page.tsx [Client Component SSR]
+    ./app/(dashboard)/subscriptions/page.tsx [Server Component]
+2026-02-14T15:57:14.358Z [console][error] ./app/(dashboard)/subscriptions/page.tsx:300:14
+Parsing ecmascript source code failed
+  298 |                 </div>
+  299 |               </motion.div>
+> 300 |             )}
+      |              ^
+  301 |
+  302 |             {/* Plan Cards */}
+  303 |             <div className="grid md:grid-cols-3 gap-8">
+
+Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+
+Import traces:
+  Client Component Browser:
+    ./app/(dashboard)/subscriptions/page.tsx [Client Component Browser]
+    ./app/(dashboard)/subscriptions/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./app/(dashboard)/subscriptions/page.tsx [Client Component SSR]
+    ./app/(dashboard)/subscriptions/page.tsx [Server Component]
+2026-02-14T15:57:14.319Z [console][error] ./app/(dashboard)/subscriptions/page.tsx:300:14
+Parsing ecmascript source code failed
+  298 |                 </div>
+  299 |               </motion.div>
+> 300 |             )}
+      |              ^
+  301 |
+  302 |             {/* Plan Cards */}
+  303 |             <div className="grid md:grid-cols-3 gap-8">
+
+Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+
+Import traces:
+  Client Component Browser:
+    ./app/(dashboard)/subscriptions/page.tsx [Client Component Browser]
+    ./app/(dashboard)/subscriptions/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./app/(dashboard)/subscriptions/page.tsx [Client Component SSR]
+    ./app/(dashboard)/subscriptions/page.tsx [Server Component]
+2026-02-14T15:57:14.358Z [console][error] ./app/(dashboard)/subscriptions/page.tsx:300:14
+Parsing ecmascript source code failed
+  298 |                 </div>
+  299 |               </motion.div>
+> 300 |             )}
+      |              ^
+  301 |
+  302 |             {/* Plan Cards */}
+  303 |             <div className="grid md:grid-cols-3 gap-8">
+
+Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+
+Import traces:
+  Client Component Browser:
+    ./app/(dashboard)/subscriptions/page.tsx [Client Component Browser]
+    ./app/(dashboard)/subscriptions/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./app/(dashboard)/subscriptions/page.tsx [Client Component SSR]
+    ./app/(dashboard)/subscriptions/page.tsx [Server Component]
+2026-02-14T21:22:32.460Z [console][error] ./app/(dashboard)/settings/SettingsContent.tsx:26:1
+Module not found: Can't resolve '@/components/theme-customizer'
+  24 |     LayoutGrid
+  25 |   } from "lucide-react";
+> 26 | import { ThemeCustomizer } from "@/components/theme-customizer";
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  27 | import { createClient } from "@supabase/supabase-js";
+  28 | import { toast } from "sonner";
+  29 | import { motion } from "framer-motion";
+
+Import map: aliased to relative './components/theme-customizer' inside of [project]/
+
+Import trace:
+  Server Component:
+    ./app/(dashboard)/settings/SettingsContent.tsx
+    ./app/(dashboard)/settings/page.tsx
+
+https://nextjs.org/docs/messages/module-not-found
+2026-02-14T21:22:32.500Z [console][error] ./app/(dashboard)/settings/SettingsContent.tsx:26:1
+Module not found: Can't resolve '@/components/theme-customizer'
+  24 |     LayoutGrid
+  25 |   } from "lucide-react";
+> 26 | import { ThemeCustomizer } from "@/components/theme-customizer";
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  27 | import { createClient } from "@supabase/supabase-js";
+  28 | import { toast } from "sonner";
+  29 | import { motion } from "framer-motion";
+
+Import map: aliased to relative './components/theme-customizer' inside of [project]/
+
+Import trace:
+  Server Component:
+    ./app/(dashboard)/settings/SettingsContent.tsx
+    ./app/(dashboard)/settings/page.tsx
+
+https://nextjs.org/docs/messages/module-not-found
+2026-02-14T21:22:32.460Z [console][error] ./app/(dashboard)/settings/SettingsContent.tsx:26:1
+Module not found: Can't resolve '@/components/theme-customizer'
+  24 |     LayoutGrid
+  25 |   } from "lucide-react";
+> 26 | import { ThemeCustomizer } from "@/components/theme-customizer";
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  27 | import { createClient } from "@supabase/supabase-js";
+  28 | import { toast } from "sonner";
+  29 | import { motion } from "framer-motion";
+
+Import map: aliased to relative './components/theme-customizer' inside of [project]/
+
+Import trace:
+  Server Component:
+    ./app/(dashboard)/settings/SettingsContent.tsx
+    ./app/(dashboard)/settings/page.tsx
+
+https://nextjs.org/docs/messages/module-not-found
+2026-02-14T21:22:32.500Z [console][error] ./app/(dashboard)/settings/SettingsContent.tsx:26:1
+Module not found: Can't resolve '@/components/theme-customizer'
+  24 |     LayoutGrid
+  25 |   } from "lucide-react";
+> 26 | import { ThemeCustomizer } from "@/components/theme-customizer";
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  27 | import { createClient } from "@supabase/supabase-js";
+  28 | import { toast } from "sonner";
+  29 | import { motion } from "framer-motion";
+
+Import map: aliased to relative './components/theme-customizer' inside of [project]/
+
+Import trace:
+  Server Component:
+    ./app/(dashboard)/settings/SettingsContent.tsx
+    ./app/(dashboard)/settings/page.tsx
+
+https://nextjs.org/docs/messages/module-not-found
+2026-02-14T21:22:32.460Z [console][error] ./app/(dashboard)/settings/SettingsContent.tsx:26:1
+Module not found: Can't resolve '@/components/theme-customizer'
+  24 |     LayoutGrid
+  25 |   } from "lucide-react";
+> 26 | import { ThemeCustomizer } from "@/components/theme-customizer";
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  27 | import { createClient } from "@supabase/supabase-js";
+  28 | import { toast } from "sonner";
+  29 | import { motion } from "framer-motion";
+
+Import map: aliased to relative './components/theme-customizer' inside of [project]/
+
+Import trace:
+  Server Component:
+    ./app/(dashboard)/settings/SettingsContent.tsx
+    ./app/(dashboard)/settings/page.tsx
+
+https://nextjs.org/docs/messages/module-not-found
+2026-02-14T21:22:32.500Z [console][error] ./app/(dashboard)/settings/SettingsContent.tsx:26:1
+Module not found: Can't resolve '@/components/theme-customizer'
+  24 |     LayoutGrid
+  25 |   } from "lucide-react";
+> 26 | import { ThemeCustomizer } from "@/components/theme-customizer";
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  27 | import { createClient } from "@supabase/supabase-js";
+  28 | import { toast } from "sonner";
+  29 | import { motion } from "framer-motion";
+
+Import map: aliased to relative './components/theme-customizer' inside of [project]/
+
+Import trace:
+  Server Component:
+    ./app/(dashboard)/settings/SettingsContent.tsx
+    ./app/(dashboard)/settings/page.tsx
+
+https://nextjs.org/docs/messages/module-not-found
+2026-02-14T21:38:53.567Z [console][error] ./app/globals.css:23090:48
+Parsing CSS source code failed
+  23088 |   background: linear-gradient(180deg, #e1bee7, #ce93d8, #ba68c8) !important;
+  23089 | }
+> 23090 | html:not(.dark)[data-accent="rose-gold"] .lg\\:hidden aside,
+        |                                                ^
+  23091 | html:not(.dark)[data-accent="rose-gold"] .lg\\:hidden [class*="bg-gradient-to-b"] {
+  23092 |   background: linear-gradient(180deg, #fce4ec, #f8bbd0, #f3a7c0) !important;
+  23093 | }
+
+'hidden' is not recognized as a valid pseudo-class. Did you mean '::hidden' (pseudo-element) or is this a typo?
+
+Import trace:
+  Client Component Browser:
+    ./app/globals.css [Client Component Browser]
+    ./app/layout.tsx [Server Component]
+2026-02-14T21:38:53.720Z [console][error] ./app/globals.css:23090:48
+Parsing CSS source code failed
+  23088 |   background: linear-gradient(180deg, #e1bee7, #ce93d8, #ba68c8) !important;
+  23089 | }
+> 23090 | html:not(.dark)[data-accent="rose-gold"] .lg\\:hidden aside,
+        |                                                ^
+  23091 | html:not(.dark)[data-accent="rose-gold"] .lg\\:hidden [class*="bg-gradient-to-b"] {
+  23092 |   background: linear-gradient(180deg, #fce4ec, #f8bbd0, #f3a7c0) !important;
+  23093 | }
+
+'hidden' is not recognized as a valid pseudo-class. Did you mean '::hidden' (pseudo-element) or is this a typo?
+
+Import trace:
+  Client Component Browser:
+    ./app/globals.css [Client Component Browser]
+    ./app/layout.tsx [Server Component]
+2026-02-14T21:38:53.567Z [console][error] ./app/globals.css:23090:48
+Parsing CSS source code failed
+  23088 |   background: linear-gradient(180deg, #e1bee7, #ce93d8, #ba68c8) !important;
+  23089 | }
+> 23090 | html:not(.dark)[data-accent="rose-gold"] .lg\\:hidden aside,
+        |                                                ^
+  23091 | html:not(.dark)[data-accent="rose-gold"] .lg\\:hidden [class*="bg-gradient-to-b"] {
+  23092 |   background: linear-gradient(180deg, #fce4ec, #f8bbd0, #f3a7c0) !important;
+  23093 | }
+
+'hidden' is not recognized as a valid pseudo-class. Did you mean '::hidden' (pseudo-element) or is this a typo?
+
+Import trace:
+  Client Component Browser:
+    ./app/globals.css [Client Component Browser]
+    ./app/layout.tsx [Server Component]
+2026-02-14T21:38:53.720Z [console][error] ./app/globals.css:23090:48
+Parsing CSS source code failed
+  23088 |   background: linear-gradient(180deg, #e1bee7, #ce93d8, #ba68c8) !important;
+  23089 | }
+> 23090 | html:not(.dark)[data-accent="rose-gold"] .lg\\:hidden aside,
+        |                                                ^
+  23091 | html:not(.dark)[data-accent="rose-gold"] .lg\\:hidden [class*="bg-gradient-to-b"] {
+  23092 |   background: linear-gradient(180deg, #fce4ec, #f8bbd0, #f3a7c0) !important;
+  23093 | }
+
+'hidden' is not recognized as a valid pseudo-class. Did you mean '::hidden' (pseudo-element) or is this a typo?
+
+Import trace:
+  Client Component Browser:
+    ./app/globals.css [Client Component Browser]
+    ./app/layout.tsx [Server Component]
+2026-02-14T21:47:56.093Z [console][error] Uncaught ReferenceError: fetchData is not defined
+2026-02-14T21:48:14.506Z [console][error] [Fast Refresh] performing full reload because your application had an unrecoverable error
+2026-02-14T22:03:46.534Z [console][error] ./app/(dashboard)/credit-notes/credit-notes-list-client.tsx:33:1
+Module not found: Can't resolve '@/hooks/use-theme'
+  31 | import { ar, enUS } from "date-fns/locale";
+  32 | import { useTranslations, useLocale } from "@/lib/locale-context";
+> 33 | import { useTheme } from "@/hooks/use-theme";
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  34 |
+  35 | interface CreditNote {
+  36 |   id: number;
+
+Import map: aliased to relative './hooks/use-theme' inside of [project]/
+
+Import trace:
+  Server Component:
+    ./app/(dashboard)/credit-notes/credit-notes-list-client.tsx
+    ./app/(dashboard)/credit-notes/page.tsx
+
+https://nextjs.org/docs/messages/module-not-found
+2026-02-14T22:03:46.569Z [console][error] ./app/(dashboard)/credit-notes/credit-notes-list-client.tsx:33:1
+Module not found: Can't resolve '@/hooks/use-theme'
+  31 | import { ar, enUS } from "date-fns/locale";
+  32 | import { useTranslations, useLocale } from "@/lib/locale-context";
+> 33 | import { useTheme } from "@/hooks/use-theme";
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  34 |
+  35 | interface CreditNote {
+  36 |   id: number;
+
+Import map: aliased to relative './hooks/use-theme' inside of [project]/
+
+Import trace:
+  Server Component:
+    ./app/(dashboard)/credit-notes/credit-notes-list-client.tsx
+    ./app/(dashboard)/credit-notes/page.tsx
+
+https://nextjs.org/docs/messages/module-not-found
+2026-02-14T23:10:06.926Z [console][error] ./app/(dashboard)/expenses/deductions/deduction-form-client.tsx:867:1
+Parsing ecmascript source code failed
+  865 |     </div>
+  866 |   );
+> 867 | }
+      | ^
+  868 |
+
+Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+
+Import trace:
+  Server Component:
+    ./app/(dashboard)/expenses/deductions/deduction-form-client.tsx
+    ./app/(dashboard)/expenses/deductions/page.tsx
+2026-02-14T23:10:06.970Z [console][error] ./app/(dashboard)/expenses/deductions/deduction-form-client.tsx:867:1
+Parsing ecmascript source code failed
+  865 |     </div>
+  866 |   );
+> 867 | }
+      | ^
+  868 |
+
+Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+
+Import trace:
+  Server Component:
+    ./app/(dashboard)/expenses/deductions/deduction-form-client.tsx
+    ./app/(dashboard)/expenses/deductions/page.tsx
+2026-02-14T23:16:11.618Z [console][error] Encountered two children with the same key, `%s`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version. 
+2026-02-14T23:16:12.392Z [console][error] Encountered two children with the same key, `%s`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version. 

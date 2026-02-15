@@ -22,6 +22,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { SuccessModal, LoadingModal, ErrorModal } from "@/components/ui/notification-modals";
 
 interface Customer {
   id: number;
@@ -44,22 +45,12 @@ interface NewQuotationClientProps {
   nextQuotationNumber: string;
 }
 
-interface NotificationState {
-  show: boolean;
-  type: "success" | "error" | "loading";
-  title: string;
-  message: string;
-}
-
 export function NewQuotationClient({ customers, companyId, nextQuotationNumber }: NewQuotationClientProps) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
-  const [notification, setNotification] = useState<NotificationState>({
-    show: false,
-    type: "success",
-    title: "",
-    message: ""
-  });
+  const [successModal, setSuccessModal] = useState<{ isOpen: boolean; type: 'delete' | 'update' | 'create' | null; title: string }>({ isOpen: false, type: null, title: '' });
+  const [loadingModal, setLoadingModal] = useState(false);
+  const [errorModal, setErrorModal] = useState<{ isOpen: boolean; title: string; message: string }>({ isOpen: false, title: '', message: '' });
   const [formData, setFormData] = useState({
     quotation_number: nextQuotationNumber,
     client_id: "",
@@ -84,10 +75,7 @@ export function NewQuotationClient({ customers, companyId, nextQuotationNumber }
 
   const { subtotal, vatAmount, total } = calculateTotals();
 
-  const showNotification = (type: "success" | "error" | "loading", title: string, message: string) => {
-    setNotification({ show: true, type, title, message });
-  };
-
+  
   const hideNotification = () => {
     setNotification(prev => ({ ...prev, show: false }));
   };
@@ -121,23 +109,23 @@ export function NewQuotationClient({ customers, companyId, nextQuotationNumber }
 
   const handleSubmit = async (status: 'draft' | 'confirmed') => {
     if (!formData.client_id) {
-      showNotification("error", "خطأ في البيانات", "يرجى اختيار العميل");
+      setErrorModal({ isOpen: true, title: 'خطأ في البيانات', message: 'يرجى اختيار العميل' });
       return;
     }
 
     if (!formData.due_date) {
-      showNotification("error", "خطأ في البيانات", "يرجى تحديد تاريخ الانتهاء");
+      setErrorModal({ isOpen: true, title: 'خطأ في البيانات', message: 'يرجى تحديد تاريخ الانتهاء' });
       return;
     }
 
     const validItems = items.filter(item => item.product_name && item.quantity > 0 && item.price > 0);
     if (validItems.length === 0) {
-      showNotification("error", "خطأ في البيانات", "يرجى إضافة منتج واحد على الأقل");
+      setErrorModal({ isOpen: true, title: 'خطأ في البيانات', message: 'يرجى إضافة منتج واحد على الأقل' });
       return;
     }
 
     setLoading(true);
-    showNotification("loading", "جاري الحفظ", "جاري حفظ عرض السعر...");
+    setLoadingModal(true);
 
     try {
       const res = await fetch("/api/quotations", {
@@ -152,17 +140,17 @@ export function NewQuotationClient({ customers, companyId, nextQuotationNumber }
       });
 
       if (res.ok) {
-        showNotification("success", "تم الحفظ بنجاح", status === 'confirmed' ? "تم حفظ وتأكيد عرض السعر" : "تم حفظ عرض السعر كمسودة");
+        setSuccessModal({ isOpen: true, type: 'update', title: "تم الحفظ بنجاح" });
         setTimeout(() => {
           router.push("/quotations");
           router.refresh();
         }, 1500);
       } else {
         const data = await res.json();
-        showNotification("error", "فشل الحفظ", data.error || "فشل حفظ عرض السعر");
+        setErrorModal({ isOpen: true, title: "فشل الحفظ", message: data.error || "فشل حفظ عرض السعر" });
       }
     } catch {
-      showNotification("error", "خطأ", "حدث خطأ أثناء الحفظ");
+      setErrorModal({ isOpen: true, title: 'خطأ', message: 'حدث خطأ أثناء الحفظ' });
     } finally {
       setLoading(false);
     }
@@ -170,53 +158,19 @@ export function NewQuotationClient({ customers, companyId, nextQuotationNumber }
 
   return (
     <div className="h-full flex flex-col">
-      <AnimatePresence>
-        {notification.show && (
-          <>
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50"
-              onClick={() => notification.type !== "loading" && hideNotification()}
-            />
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.9, y: 20 }}
-              className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50 w-full max-w-md"
-            >
-              <div className={`bg-white rounded-3xl p-8 shadow-2xl border-t-4 ${
-                notification.type === "success" ? "border-emerald-500" :
-                notification.type === "error" ? "border-red-500" : "border-blue-500"
-              }`}>
-                <div className="text-center">
-                  <div className={`h-20 w-20 rounded-full mx-auto mb-6 flex items-center justify-center ${
-                    notification.type === "success" ? "bg-emerald-100 text-emerald-500" :
-                    notification.type === "error" ? "bg-red-100 text-red-500" : "bg-blue-100 text-blue-500"
-                  }`}>
-                    {notification.type === "success" && <CheckCircle size={40} />}
-                    {notification.type === "error" && <AlertCircle size={40} />}
-                    {notification.type === "loading" && <Loader2 size={40} className="animate-spin" />}
-                  </div>
-                  <h3 className="text-2xl font-black text-gray-900 mb-2">{notification.title}</h3>
-                  <p className="text-gray-500 mb-6">{notification.message}</p>
-                  {notification.type !== "loading" && (
-                    <button
-                      onClick={hideNotification}
-                      className={`px-8 py-3 rounded-xl font-bold text-white transition-all ${
-                        notification.type === "success" ? "bg-emerald-500 hover:bg-emerald-600" : "bg-red-500 hover:bg-red-600"
-                      }`}
-                    >
-                      حسناً
-                    </button>
-                  )}
-                </div>
-              </div>
-            </motion.div>
-          </>
-        )}
-      </AnimatePresence>
+      <SuccessModal
+          isOpen={successModal.isOpen}
+          type={successModal.type}
+          title={successModal.title}
+          onClose={() => setSuccessModal({ isOpen: false, type: null, title: '' })}
+        />
+        <LoadingModal isOpen={loadingModal} />
+        <ErrorModal
+          isOpen={errorModal.isOpen}
+          title={errorModal.title}
+          message={errorModal.message}
+          onClose={() => setErrorModal({ isOpen: false, title: '', message: '' })}
+        />
 
       <div className="flex-1 overflow-auto p-6">
         <div className="max-w-[1200px] mx-auto space-y-6">

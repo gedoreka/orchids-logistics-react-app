@@ -49,6 +49,7 @@ import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { useTranslations, useLocale } from "@/lib/locale-context";
 import { HierarchicalSearchableSelect } from "@/components/ui/hierarchical-searchable-select";
+import { SuccessModal, LoadingModal, ErrorModal, ConfirmModal } from "@/components/ui/notification-modals";
 
 interface Account {
   id: number;
@@ -87,16 +88,6 @@ interface Metadata {
   totalIncomes: number;
 }
 
-interface NotificationState {
-  show: boolean;
-  type: "success" | "error" | "loading" | "confirm";
-  title: string;
-  message: string;
-  onConfirm?: () => void;
-  itemId?: number;
-  itemName?: string;
-}
-
 export default function IncomeFormClient({ user }: { user: User }) {
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -115,12 +106,10 @@ export default function IncomeFormClient({ user }: { user: User }) {
   const [searchTerm, setSearchTerm] = useState("");
     const [deleteLoading, setDeleteLoading] = useState<number | null>(null);
     const [formValidation, setFormValidation] = useState(false);
-    const [notification, setNotification] = useState<NotificationState>({
-    show: false,
-    type: "success",
-    title: "",
-    message: ""
-  });
+    const [successModal, setSuccessModal] = useState<{ isOpen: boolean; type: 'delete' | 'update' | 'create' | null; title: string }>({ isOpen: false, type: null, title: '' });
+  const [loadingModal, setLoadingModal] = useState(false);
+  const [errorModal, setErrorModal] = useState<{ isOpen: boolean; title: string; message: string }>({ isOpen: false, title: '', message: '' });
+  const [deleteConfirmModal, setDeleteConfirmModal] = useState<{ isOpen: boolean; title: string; message: string; onConfirm: () => void }>({ isOpen: false, title: '', message: '', onConfirm: () => {} });
 
   const paymentMethods = [
     { value: 'نقدي', label: t("paymentMethods.cash"), icon: Wallet },
@@ -177,29 +166,19 @@ export default function IncomeFormClient({ user }: { user: User }) {
     }));
   }, [formData.amount, enableVAT]);
 
-  const showNotification = (type: "success" | "error" | "loading" | "confirm", title: string, message: string, onConfirm?: () => void, itemId?: number, itemName?: string) => {
-    setNotification({ show: true, type, title, message, onConfirm, itemId, itemName });
-  };
-
-  const hideNotification = () => {
-    setNotification(prev => ({ ...prev, show: false }));
-  };
-
+  
   const handleDelete = (id: number, operationNumber: string) => {
-    showNotification(
-      "confirm",
-      isRtl ? "تأكيد حذف سند الإيراد" : "Confirm Delete Income Voucher",
-      isRtl ? `هل أنت متأكد من حذف سند الإيراد رقم "${operationNumber}"؟\nلا يمكن التراجع عن هذا الإجراء.` : `Are you sure you want to delete income voucher "${operationNumber}"?\nThis action cannot be undone.`,
-      () => confirmDelete(id),
-      id,
-      operationNumber
-    );
+    setDeleteConfirmModal({
+      isOpen: true,
+      title: isRtl ? "تأكيد حذف سند الإيراد" : "Confirm Delete Income Voucher",
+      message: isRtl ? `هل أنت متأكد من حذف سند الإيراد رقم "${operationNumber}"؟` : `Are you sure you want to delete income voucher "${operationNumber}"?`,
+      onConfirm: () => confirmDelete(id)
+    });
   };
 
   const confirmDelete = async (id: number) => {
     setDeleteLoading(id);
-    hideNotification();
-    showNotification("loading", isRtl ? "جاري الحذف" : "Deleting", isRtl ? "جاري حذف سند الإيراد..." : "Deleting income voucher...");
+      setLoadingModal(true);
     
     try {
       const res = await fetch(`/api/income/${id}?company_id=${user.company_id}`, {
@@ -207,14 +186,13 @@ export default function IncomeFormClient({ user }: { user: User }) {
       });
       
       if (res.ok) {
-        showNotification("success", isRtl ? "تم الحذف بنجاح" : "Deleted Successfully", isRtl ? "تم حذف سند الإيراد بنجاح" : "Income voucher deleted successfully");
-        fetchMetadata();
-        setTimeout(() => hideNotification(), 2000);
+        setSuccessModal({ isOpen: true, type: 'update', title: isRtl ? "تم الحذف بنجاح" : "Deleted Successfully" });
+          fetchMetadata();
       } else {
-        showNotification("error", isRtl ? "فشل الحذف" : "Delete Failed", isRtl ? "فشل حذف سند الإيراد" : "Failed to delete income voucher");
+        setErrorModal({ isOpen: true, title: isRtl ? "فشل الحذف" : "Delete Failed", message: isRtl ? "فشل حذف سند الإيراد" : "Failed to delete income voucher" });
       }
     } catch {
-      showNotification("error", isRtl ? "خطأ" : "Error", isRtl ? "حدث خطأ أثناء الحذف" : "An error occurred during deletion");
+      setErrorModal({ isOpen: true, title: isRtl ? "خطأ" : "Error", message: isRtl ? "حدث خطأ أثناء الحذف" : "An error occurred during deletion" });
     } finally {
       setDeleteLoading(null);
     }
@@ -226,13 +204,8 @@ export default function IncomeFormClient({ user }: { user: User }) {
       
       // Validate required fields
       if (!formData.account_id || !formData.cost_center_id) {
-        showNotification(
-          "error",
-          isRtl ? "بيانات ناقصة" : "Missing Data",
-          isRtl ? "يرجى اختيار الحساب ومركز التكلفة قبل الحفظ" : "Please select account and cost center before saving"
-        );
-        setTimeout(() => hideNotification(), 3000);
-        return;
+        setErrorModal({ isOpen: true, title: isRtl ? "بيانات ناقصة" : "Missing Data", message: isRtl ? "يرجى اختيار الحساب ومركز التكلفة قبل الحفظ" : "Please select account and cost center before saving" });
+          return;
       }
       
       setSubmitting(true);
@@ -301,78 +274,19 @@ export default function IncomeFormClient({ user }: { user: User }) {
 
   return (
     <div className="max-w-[96%] w-[96%] mx-auto p-4 md:p-8 space-y-8" dir={isRtl ? "rtl" : "ltr"}>
-      <AnimatePresence>
-        {notification.show && (
-          <>
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-black/60 backdrop-blur-md z-[100]"
-              onClick={() => notification.type !== "loading" && notification.type !== "confirm" && hideNotification()}
-            />
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.9, y: 20 }}
-              className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[101] w-full max-w-md p-4"
-            >
-              <div className={cn(
-                "bg-white rounded-[2rem] p-8 shadow-2xl border-t-4",
-                notification.type === "success" ? "border-emerald-500" :
-                notification.type === "error" ? "border-red-500" : 
-                notification.type === "confirm" ? "border-cyan-500" : "border-blue-500"
-              )}>
-                <div className="text-center">
-                  <div className={cn(
-                    "h-20 w-20 rounded-full mx-auto mb-6 flex items-center justify-center",
-                    notification.type === "success" ? "bg-emerald-100 text-emerald-500" :
-                    notification.type === "error" ? "bg-red-100 text-red-500" : 
-                    notification.type === "confirm" ? "bg-cyan-100 text-cyan-500" : "bg-blue-100 text-blue-500"
-                  )}>
-                    {notification.type === "success" && <CheckCircle size={40} />}
-                    {notification.type === "error" && <AlertCircle size={40} />}
-                    {notification.type === "loading" && <Loader2 size={40} className="animate-spin" />}
-                    {notification.type === "confirm" && <Trash2 size={40} />}
-                  </div>
-                  <h3 className="text-2xl font-black text-gray-900 mb-2">{notification.title}</h3>
-                  <p className="text-gray-500 mb-6 font-medium whitespace-pre-line">{notification.message}</p>
-                  
-                  {notification.type === "confirm" && (
-                    <div className="flex gap-3">
-                      <button
-                        onClick={hideNotification}
-                        className="flex-1 py-4 rounded-2xl bg-gray-100 text-gray-600 font-black hover:bg-gray-200 transition-all"
-                      >
-                        {tCommon("cancel")}
-                      </button>
-                      <button
-                        onClick={() => notification.onConfirm && notification.onConfirm()}
-                        className="flex-1 py-4 rounded-2xl bg-red-500 text-white font-black hover:bg-red-600 transition-all shadow-lg shadow-red-200 flex items-center justify-center gap-2"
-                      >
-                        <Trash2 size={18} />
-                        {tCommon("delete")}
-                      </button>
-                    </div>
-                  )}
-                  
-                  {notification.type !== "loading" && notification.type !== "confirm" && (
-                    <button
-                      onClick={hideNotification}
-                      className={cn(
-                        "w-full py-4 rounded-2xl font-black text-white transition-all shadow-lg active:scale-95",
-                        notification.type === "success" ? "bg-emerald-500 hover:bg-emerald-600" : "bg-red-500 hover:bg-red-600"
-                      )}
-                    >
-                      {tCommon("ok")}
-                    </button>
-                  )}
-                </div>
-              </div>
-            </motion.div>
-          </>
-        )}
-      </AnimatePresence>
+      <SuccessModal
+          isOpen={successModal.isOpen}
+          type={successModal.type}
+          title={successModal.title}
+          onClose={() => setSuccessModal({ isOpen: false, type: null, title: '' })}
+        />
+        <LoadingModal isOpen={loadingModal} />
+        <ErrorModal
+          isOpen={errorModal.isOpen}
+          title={errorModal.title}
+          message={errorModal.message}
+          onClose={() => setErrorModal({ isOpen: false, title: '', message: '' })}
+        />
 
       <motion.div
         initial={{ opacity: 0, y: -30 }}

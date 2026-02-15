@@ -164,20 +164,20 @@ export function UserProfileClient({ user, company, bankAccounts: initialBankAcco
   };
 
   const tabs = [
-    { id: "overview" as TabType, label: t("tabs.overview"), icon: <Building className="w-6 h-6" /> },
-    { id: "bank" as TabType, label: t("tabs.bank"), icon: <University className="w-6 h-6" /> },
-    { id: "license" as TabType, label: t("tabs.license"), icon: <IdCard className="w-6 h-6" /> },
-    { id: "files" as TabType, label: t("tabs.files"), icon: <FileText className="w-6 h-6" /> },
+    { id: "overview" as TabType, label: t("tabs.overview"), icon: Building, gradient: "from-pink-500 to-rose-600", shadowColor: "shadow-pink-500/40", iconColor: "text-pink-500", iconBg: "bg-pink-100 dark:bg-pink-500/20" },
+    { id: "bank" as TabType, label: t("tabs.bank"), icon: University, gradient: "from-blue-500 to-cyan-600", shadowColor: "shadow-blue-500/40", iconColor: "text-blue-500", iconBg: "bg-blue-100 dark:bg-blue-500/20" },
+    { id: "license" as TabType, label: t("tabs.license"), icon: IdCard, gradient: "from-purple-500 to-violet-600", shadowColor: "shadow-purple-500/40", iconColor: "text-purple-500", iconBg: "bg-purple-100 dark:bg-purple-500/20" },
+    { id: "files" as TabType, label: t("tabs.files"), icon: FileText, gradient: "from-amber-500 to-orange-600", shadowColor: "shadow-amber-500/40", iconColor: "text-amber-500", iconBg: "bg-amber-100 dark:bg-amber-500/20" },
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 p-4 md:p-8 pb-32" style={{ zoom: "0.9" }}>
-      <div className="max-w-[90%] mx-auto space-y-8">
+    <div className="min-h-screen p-4 md:p-8 pb-32 dark:bg-gradient-to-br dark:from-slate-950 dark:via-slate-900 dark:to-slate-950" style={{ zoom: "0.9" }}>
+        <div className="max-w-[90%] mx-auto space-y-8">
         
         {/* Header Section */}
-        <div className="flex flex-col md:flex-row items-center justify-between gap-6 bg-gradient-to-br from-slate-900/80 via-slate-800/50 to-slate-900/80 backdrop-blur-xl p-8 rounded-[2.5rem] shadow-2xl shadow-blue-500/5 border border-white/10 overflow-hidden relative group">
-          <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-br from-blue-600/20 via-purple-600/10 to-transparent rounded-full -mr-48 -mt-48 blur-3xl group-hover:from-blue-500/30 transition-all duration-1000"></div>
-          <div className="absolute bottom-0 left-0 w-64 h-64 bg-gradient-to-tr from-purple-600/15 via-pink-500/10 to-transparent rounded-full -ml-32 -mb-32 blur-3xl"></div>
+        <div className="flex flex-col md:flex-row items-center justify-between gap-6 bg-[#edd3de] border-[#d4a0b5] shadow-lg shadow-[#d4a0b5]/30 hover:border-[#c48da3] hover:shadow-xl hover:shadow-[#d4a0b5]/40 dark:bg-gradient-to-br dark:from-slate-900/80 dark:via-slate-800/50 dark:to-slate-900/80 dark:border-white/10 dark:shadow-blue-500/5 backdrop-blur-xl p-8 rounded-[2.5rem] border overflow-hidden relative group transition-all duration-500">
+            <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-br from-pink-300/20 via-rose-300/10 to-transparent dark:from-blue-600/20 dark:via-purple-600/10 dark:to-transparent rounded-full -mr-48 -mt-48 blur-3xl group-hover:from-pink-400/30 dark:group-hover:from-blue-500/30 transition-all duration-1000"></div>
+            <div className="absolute bottom-0 left-0 w-64 h-64 bg-gradient-to-tr from-rose-300/15 via-pink-300/10 to-transparent dark:from-purple-600/15 dark:via-pink-500/10 dark:to-transparent rounded-full -ml-32 -mb-32 blur-3xl"></div>
           
             <div className="flex flex-col md:flex-row items-center gap-8 relative z-10">
               <div className="relative">
@@ -197,16 +197,16 @@ export function UserProfileClient({ user, company, bankAccounts: initialBankAcco
               </div>
 
               <div className="text-center md:text-right">
-                <h1 className="text-xl md:text-2xl font-black bg-gradient-to-r from-white via-blue-100 to-white bg-clip-text text-transparent mb-2 tracking-tight">
+                <h1 className="text-xl md:text-2xl font-black text-slate-800 dark:bg-gradient-to-r dark:from-white dark:via-blue-100 dark:to-white dark:bg-clip-text dark:text-transparent mb-2 tracking-tight">
                   {companyState?.name || t("header.companyName")}
                 </h1>
                 <div className="flex flex-wrap items-center justify-center md:justify-start gap-4">
-                  <span className="flex items-center gap-2 text-slate-400 text-sm font-medium">
-                    <Mail size={14} className="text-blue-400" />
-                    {user?.email}
-                  </span>
-                  <span className="w-1 h-1 bg-slate-600 rounded-full"></span>
-                  <span className="flex items-center gap-2 text-slate-400 text-sm font-medium">
+                    <span className="flex items-center gap-2 text-slate-500 dark:text-slate-400 text-sm font-medium">
+                      <Mail size={14} className="text-blue-400" />
+                      {user?.email}
+                    </span>
+                    <span className="w-1 h-1 bg-slate-400 dark:bg-slate-600 rounded-full"></span>
+                    <span className="flex items-center gap-2 text-slate-500 dark:text-slate-400 text-sm font-medium">
                     <Phone size={14} className="text-blue-400" />
                     {companyState?.phone || t("header.noPhone")}
                   </span>
@@ -215,13 +215,13 @@ export function UserProfileClient({ user, company, bankAccounts: initialBankAcco
             </div>
 
             <div className="flex gap-4 relative z-10">
-              <div className="bg-gradient-to-br from-slate-800/80 to-slate-900/80 backdrop-blur px-6 py-4 rounded-2xl border border-white/5 text-center min-w-[130px]">
-                <p className="text-slate-500 text-[10px] font-black uppercase tracking-wider mb-1">{t("header.commercialNumber")}</p>
-                <p className="font-black text-white text-lg">{companyState?.commercial_number || "---"}</p>
-              </div>
-                <div className="bg-gradient-to-br from-blue-600/20 to-purple-600/20 backdrop-blur px-6 py-4 rounded-2xl border border-blue-500/20 text-center min-w-[130px]">
-                  <p className="text-blue-300 text-[10px] font-black uppercase tracking-wider mb-1">{t("header.taxNumber")}</p>
-                  <p className="font-black text-blue-300 text-lg">{companyState?.vat_number || "---"}</p>
+                <div className="bg-white/60 border-[#c48da3]/40 dark:bg-gradient-to-br dark:from-slate-800/80 dark:to-slate-900/80 backdrop-blur px-6 py-4 rounded-2xl border dark:border-white/5 text-center min-w-[130px]">
+                  <p className="text-slate-400 dark:text-slate-500 text-[10px] font-black uppercase tracking-wider mb-1">{t("header.commercialNumber")}</p>
+                  <p className="font-black text-slate-800 dark:text-white text-lg">{companyState?.commercial_number || "---"}</p>
+                </div>
+                  <div className="bg-white/60 border-[#c48da3]/40 dark:bg-gradient-to-br dark:from-blue-600/20 dark:to-purple-600/20 backdrop-blur px-6 py-4 rounded-2xl border dark:border-blue-500/20 text-center min-w-[130px]">
+                    <p className="text-slate-400 dark:text-blue-300 text-[10px] font-black uppercase tracking-wider mb-1">{t("header.taxNumber")}</p>
+                    <p className="font-black text-slate-800 dark:text-blue-300 text-lg">{companyState?.vat_number || "---"}</p>
                 </div>
             </div>
           </div>
@@ -229,36 +229,45 @@ export function UserProfileClient({ user, company, bankAccounts: initialBankAcco
 
         {/* Centered Modern Tabs */}
         <div className="flex justify-center">
-          <div className="inline-flex bg-gradient-to-br from-slate-900/90 via-slate-800/70 to-slate-900/90 backdrop-blur-xl p-2 rounded-[2rem] shadow-2xl border border-white/10 gap-2">
+            <div className="inline-flex bg-[#edd3de] border border-[#d4a0b5] shadow-lg shadow-[#d4a0b5]/30 dark:bg-gradient-to-br dark:from-slate-900/90 dark:via-slate-800/70 dark:to-slate-900/90 dark:border-white/10 backdrop-blur-xl p-3 rounded-[2rem] shadow-2xl gap-3">
             {tabs.map((tab) => {
               const isActive = activeTab === tab.id;
+              const IconComponent = tab.icon;
               return (
                 <button
-                  key={tab.id}
-                  onClick={() => setActiveTab(tab.id)}
-                  className={cn(
-                    "relative flex flex-col items-center justify-center w-24 h-24 rounded-[1.8rem] transition-all duration-500 group",
-                    isActive 
-                      ? "bg-gradient-to-br from-blue-600 via-blue-700 to-purple-700 text-white shadow-xl shadow-blue-500/30 -translate-y-2" 
-                      : "text-slate-500 hover:text-slate-300 hover:bg-white/5"
-                  )}
-                >
-                  <div className={cn(
-                    "mb-2 transition-transform duration-500",
-                    isActive ? "scale-110" : "group-hover:scale-110"
-                  )}>
-                    {tab.icon}
-                  </div>
-                  <span className="text-[10px] font-black uppercase tracking-tighter">
-                    {tab.label}
-                  </span>
-                  {isActive && (
-                    <motion.div 
-                      layoutId="activeTab"
-                      className="absolute -bottom-1 w-8 h-1 bg-white rounded-full shadow-lg shadow-white/50"
-                    />
-                  )}
-                </button>
+                    key={tab.id}
+                    onClick={() => setActiveTab(tab.id)}
+                      className={cn(
+                        "relative flex flex-col items-center justify-center w-28 h-28 rounded-[1.8rem] transition-all duration-500 group",
+                        isActive 
+                          ? `bg-gradient-to-br ${tab.gradient} text-white shadow-xl ${tab.shadowColor} -translate-y-2 scale-105` 
+                          : "bg-white/50 dark:bg-white/5 hover:bg-white/70 dark:hover:bg-white/10 hover:scale-105"
+                      )}
+                  >
+                    <div className={cn(
+                      "mb-2 transition-all duration-500 p-2.5 rounded-xl",
+                      isActive 
+                        ? "bg-white/20 scale-110 drop-shadow-lg" 
+                        : `${tab.iconBg} group-hover:scale-110 group-hover:drop-shadow-md`
+                    )}>
+                      <IconComponent className={cn(
+                        "w-8 h-8 transition-colors duration-300",
+                        isActive ? "text-white" : tab.iconColor
+                      )} />
+                    </div>
+                    <span className={cn(
+                      "text-[10px] font-black uppercase tracking-tighter transition-colors duration-300",
+                      isActive ? "text-white" : `${tab.iconColor}`
+                    )}>
+                      {tab.label}
+                    </span>
+                    {isActive && (
+                      <motion.div 
+                        layoutId="activeTab"
+                        className="absolute -bottom-1.5 w-10 h-1.5 bg-white rounded-full shadow-lg shadow-white/50"
+                      />
+                    )}
+                  </button>
               );
             })}
           </div>
@@ -307,7 +316,7 @@ export function UserProfileClient({ user, company, bankAccounts: initialBankAcco
               {activeTab === "bank" && (
                 <div className="space-y-6">
                   <div className="flex items-center justify-between mb-2">
-                    <h3 className="text-xl font-black text-white flex items-center gap-3">
+                    <h3 className="text-xl font-black text-slate-800 dark:text-white flex items-center gap-3">
                       <div className="p-2 bg-gradient-to-r from-blue-600 to-cyan-600 rounded-xl">
                         <Landmark className="text-white" size={20} />
                       </div>
@@ -332,7 +341,7 @@ export function UserProfileClient({ user, company, bankAccounts: initialBankAcco
                         <motion.div 
                           layout
                           key={bank.id} 
-                          className="bg-gradient-to-br from-slate-900/90 via-slate-800/70 to-slate-900/90 backdrop-blur-xl rounded-[2rem] p-6 border border-white/10 shadow-xl group relative overflow-hidden"
+                          className="bg-[#edd3de] border-[#d4a0b5] shadow-lg shadow-[#d4a0b5]/30 hover:border-[#c48da3] hover:shadow-xl hover:shadow-[#d4a0b5]/40 dark:bg-gradient-to-br dark:from-slate-900/90 dark:via-slate-800/70 dark:to-slate-900/90 dark:border-white/10 dark:shadow-xl backdrop-blur-xl rounded-[2rem] p-6 border group relative overflow-hidden transition-all duration-500"
                         >
                           <div className="absolute top-0 left-0 w-1.5 h-full bg-gradient-to-b from-blue-500 via-cyan-500 to-blue-600"></div>
                           <div className="flex justify-between items-start mb-6">
@@ -341,8 +350,8 @@ export function UserProfileClient({ user, company, bankAccounts: initialBankAcco
                                 <University size={24} />
                               </div>
                               <div>
-                                <h4 className="font-black text-lg text-white">{bank.bank_name}</h4>
-                                <p className="text-sm text-slate-400 font-medium">{bank.bank_beneficiary}</p>
+                                <h4 className="font-black text-lg text-slate-800 dark:text-white">{bank.bank_name}</h4>
+                                <p className="text-sm text-slate-500 dark:text-slate-400 font-medium">{bank.bank_beneficiary}</p>
                               </div>
                             </div>
                             <div className="flex gap-2">
@@ -352,7 +361,7 @@ export function UserProfileClient({ user, company, bankAccounts: initialBankAcco
                                   setBankFormData({ ...bank });
                                   setIsBankModalOpen(true);
                                 }} 
-                                className="p-2.5 bg-white/5 text-slate-400 hover:text-blue-400 hover:bg-blue-500/10 rounded-xl transition-all border border-white/5"
+                                className="p-2.5 bg-white/40 dark:bg-white/5 text-slate-500 dark:text-slate-400 hover:text-blue-400 hover:bg-blue-500/10 rounded-xl transition-all border border-[#c48da3]/30 dark:border-white/5"
                               >
                                 <Edit size={16} />
                               </button>
@@ -366,20 +375,20 @@ export function UserProfileClient({ user, company, bankAccounts: initialBankAcco
                                     }
                                   }
                                 }}
-                                className="p-2.5 bg-white/5 text-slate-400 hover:text-red-400 hover:bg-red-500/10 rounded-xl transition-all border border-white/5"
+                                className="p-2.5 bg-white/40 dark:bg-white/5 text-slate-500 dark:text-slate-400 hover:text-red-400 hover:bg-red-500/10 rounded-xl transition-all border border-[#c48da3]/30 dark:border-white/5"
                               >
                                 <Trash2 size={16} />
                               </button>
                             </div>
                           </div>
                           <div className="grid grid-cols-2 gap-4">
-                            <div className="bg-white/5 backdrop-blur p-4 rounded-2xl border border-white/5">
-                              <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">{t("bank.accountNumber")}</p>
-                              <p className="font-black text-slate-200">{bank.bank_account}</p>
+                            <div className="bg-white/60 dark:bg-white/5 backdrop-blur p-4 rounded-2xl border border-[#c48da3]/40 dark:border-white/5">
+                              <p className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-1">{t("bank.accountNumber")}</p>
+                              <p className="font-black text-slate-800 dark:text-slate-200">{bank.bank_account}</p>
                             </div>
-                            <div className="bg-white/5 backdrop-blur p-4 rounded-2xl border border-white/5">
-                              <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">{t("bank.iban")}</p>
-                              <p className="font-black text-slate-200 text-xs truncate">{bank.bank_iban}</p>
+                            <div className="bg-white/60 dark:bg-white/5 backdrop-blur p-4 rounded-2xl border border-[#c48da3]/40 dark:border-white/5">
+                              <p className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-1">{t("bank.iban")}</p>
+                              <p className="font-black text-slate-800 dark:text-slate-200 text-xs truncate">{bank.bank_iban}</p>
                             </div>
                           </div>
                         </motion.div>
@@ -394,7 +403,7 @@ export function UserProfileClient({ user, company, bankAccounts: initialBankAcco
               {activeTab === "license" && (
                 <div className="space-y-6">
                   <div className="flex items-center justify-between mb-2">
-                    <h3 className="text-xl font-black text-white flex items-center gap-3">
+                    <h3 className="text-xl font-black text-slate-800 dark:text-white flex items-center gap-3">
                       <div className="p-2 bg-gradient-to-r from-purple-600 to-pink-600 rounded-xl">
                         <Shield className="text-white" size={20} />
                       </div>
@@ -419,7 +428,7 @@ export function UserProfileClient({ user, company, bankAccounts: initialBankAcco
                         <motion.div 
                           layout
                           key={license.id} 
-                          className="bg-gradient-to-br from-slate-900/90 via-slate-800/70 to-slate-900/90 backdrop-blur-xl rounded-[2rem] p-6 border border-white/10 shadow-xl group relative overflow-hidden"
+                          className="bg-[#edd3de] border-[#d4a0b5] shadow-lg shadow-[#d4a0b5]/30 hover:border-[#c48da3] hover:shadow-xl hover:shadow-[#d4a0b5]/40 dark:bg-gradient-to-br dark:from-slate-900/90 dark:via-slate-800/70 dark:to-slate-900/90 dark:border-white/10 dark:shadow-xl backdrop-blur-xl rounded-[2rem] p-6 border group relative overflow-hidden transition-all duration-500"
                         >
                           <div className="absolute top-0 left-0 w-1.5 h-full bg-gradient-to-b from-purple-500 via-pink-500 to-purple-600"></div>
                           <div className="flex justify-between items-start mb-6">
@@ -428,8 +437,8 @@ export function UserProfileClient({ user, company, bankAccounts: initialBankAcco
                                 <IdCard size={24} />
                               </div>
                               <div>
-                                <h4 className="font-black text-lg text-white">{license.license_type}</h4>
-                                <p className="text-sm text-slate-400 font-medium">{t("licenses.numberPrefix")} {license.license_number}</p>
+                                <h4 className="font-black text-lg text-slate-800 dark:text-white">{license.license_type}</h4>
+                                <p className="text-sm text-slate-500 dark:text-slate-400 font-medium">{t("licenses.numberPrefix")} {license.license_number}</p>
                               </div>
                             </div>
                             <div className="flex gap-2">
@@ -439,7 +448,7 @@ export function UserProfileClient({ user, company, bankAccounts: initialBankAcco
                                   setLicenseFormData({ ...license });
                                   setIsLicenseModalOpen(true);
                                 }}
-                                className="p-2.5 bg-white/5 text-slate-400 hover:text-blue-400 hover:bg-blue-500/10 rounded-xl transition-all border border-white/5"
+                                className="p-2.5 bg-white/40 dark:bg-white/5 text-slate-500 dark:text-slate-400 hover:text-blue-400 hover:bg-blue-500/10 rounded-xl transition-all border border-[#c48da3]/30 dark:border-white/5"
                               >
                                 <Edit size={16} />
                               </button>
@@ -453,20 +462,20 @@ export function UserProfileClient({ user, company, bankAccounts: initialBankAcco
                                     }
                                   }
                                 }}
-                                className="p-2.5 bg-white/5 text-slate-400 hover:text-red-400 hover:bg-red-500/10 rounded-xl transition-all border border-white/5"
+                                className="p-2.5 bg-white/40 dark:bg-white/5 text-slate-500 dark:text-slate-400 hover:text-red-400 hover:bg-red-500/10 rounded-xl transition-all border border-[#c48da3]/30 dark:border-white/5"
                               >
                                 <Trash2 size={16} />
                               </button>
                             </div>
                           </div>
                           <div className="grid grid-cols-2 gap-4 mb-4">
-                            <div className="bg-white/5 backdrop-blur p-4 rounded-2xl border border-white/5">
-                              <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">{t("licenses.issueDate")}</p>
-                              <p className="font-black text-slate-200">{license.start_date || "---"}</p>
+                            <div className="bg-white/60 dark:bg-white/5 backdrop-blur p-4 rounded-2xl border border-[#c48da3]/40 dark:border-white/5">
+                              <p className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-1">{t("licenses.issueDate")}</p>
+                              <p className="font-black text-slate-800 dark:text-slate-200">{license.start_date || "---"}</p>
                             </div>
-                            <div className="bg-white/5 backdrop-blur p-4 rounded-2xl border border-white/5">
-                              <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">{t("licenses.expiryDate")}</p>
-                              <p className="font-black text-slate-200">{license.end_date || "---"}</p>
+                            <div className="bg-white/60 dark:bg-white/5 backdrop-blur p-4 rounded-2xl border border-[#c48da3]/40 dark:border-white/5">
+                              <p className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-1">{t("licenses.expiryDate")}</p>
+                              <p className="font-black text-slate-800 dark:text-slate-200">{license.end_date || "---"}</p>
                             </div>
                           </div>
                           {license.license_image && (
@@ -637,12 +646,12 @@ export function UserProfileClient({ user, company, bankAccounts: initialBankAcco
             <FormInput label={t("forms.endDate")} type="date" value={licenseFormData.end_date} onChange={(v: string) => setLicenseFormData({...licenseFormData, end_date: v})} />
           </div>
           <div className="mt-4">
-            <label className="text-sm font-black text-slate-400 mb-2 block">{t("forms.licenseFile")}</label>
-            <div className="border-2 border-dashed border-white/10 rounded-2xl p-6 text-center bg-white/5">
+              <label className="text-sm font-black text-slate-500 dark:text-slate-400 mb-2 block">{t("forms.licenseFile")}</label>
+              <div className="border-2 border-dashed border-[#c48da3]/40 dark:border-white/10 rounded-2xl p-6 text-center bg-white/40 dark:bg-white/5">
               {licenseFormData.license_image ? (
                 <div className="flex flex-col items-center gap-2">
                   <CheckCircle2 className="text-emerald-400 w-10 h-10" />
-                  <p className="text-sm font-black text-white">{t("forms.fileUploaded")}</p>
+                  <p className="text-sm font-black text-slate-800 dark:text-white">{t("forms.fileUploaded")}</p>
                   <button type="button" onClick={() => setLicenseFormData({...licenseFormData, license_image: ""})} className="text-red-400 text-xs font-bold">{t("forms.deleteAndReplace")}</button>
                 </div>
               ) : (
@@ -665,13 +674,13 @@ export function UserProfileClient({ user, company, bankAccounts: initialBankAcco
 // Components
 function CardSection({ title, icon, children, className, gradient = "from-blue-500 to-cyan-500" }: any) {
   return (
-    <div className={cn("bg-gradient-to-br from-slate-900/90 via-slate-800/70 to-slate-900/90 backdrop-blur-xl rounded-[2.5rem] shadow-2xl border border-white/10 overflow-hidden", className)}>
-      <div className="px-8 py-6 border-b border-white/5 flex items-center gap-4 relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/[0.02] to-transparent"></div>
+    <div className={cn("bg-[#edd3de] border-[#d4a0b5] shadow-lg shadow-[#d4a0b5]/30 hover:border-[#c48da3] hover:shadow-xl hover:shadow-[#d4a0b5]/40 dark:bg-gradient-to-br dark:from-slate-900/90 dark:via-slate-800/70 dark:to-slate-900/90 dark:border-white/10 dark:shadow-none backdrop-blur-xl rounded-[2.5rem] border overflow-hidden transition-all duration-500", className)}>
+      <div className="px-8 py-6 border-b border-[#c48da3]/30 dark:border-white/5 flex items-center gap-4 relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/[0.05] dark:via-white/[0.02] to-transparent"></div>
         <div className={cn("p-3 bg-gradient-to-br rounded-2xl text-white shadow-lg relative z-10", gradient)}>
           {icon}
         </div>
-        <h3 className="text-xl font-black text-white tracking-tight relative z-10">{title}</h3>
+        <h3 className="text-xl font-black text-slate-800 dark:text-white tracking-tight relative z-10">{title}</h3>
         <Sparkles size={16} className="text-amber-400/50 absolute top-4 left-4" />
       </div>
       <div className="p-8">{children}</div>
@@ -681,17 +690,17 @@ function CardSection({ title, icon, children, className, gradient = "from-blue-5
 
 function InfoTile({ label, value, icon, color, description }: any) {
   return (
-    <div className="group bg-gradient-to-br from-white/[0.08] to-white/[0.02] p-5 rounded-[2rem] border border-white/10 hover:border-blue-500/30 transition-all hover:shadow-lg hover:shadow-blue-500/10">
+    <div className="group bg-white/60 border-[#c48da3]/40 hover:border-[#c48da3]/60 dark:bg-gradient-to-br dark:from-white/[0.08] dark:to-white/[0.02] dark:border-white/10 dark:hover:border-blue-500/30 p-5 rounded-[2rem] border transition-all hover:shadow-lg hover:shadow-[#d4a0b5]/20 dark:hover:shadow-blue-500/10">
       <div className="flex items-center gap-3 mb-3">
-        <div className="text-blue-400/50 group-hover:text-blue-400 transition-colors">
+        <div className="text-[#c48da3] group-hover:text-[#a06b80] dark:text-blue-400/50 dark:group-hover:text-blue-400 transition-colors">
           {React.cloneElement(icon, { size: 16 })}
         </div>
-        <span className="text-[10px] font-black uppercase text-slate-500 tracking-widest">{label}</span>
+        <span className="text-[10px] font-black uppercase text-slate-400 dark:text-slate-500 tracking-widest">{label}</span>
       </div>
-      <p className={cn("text-base font-black truncate", color || "text-white")}>
+      <p className={cn("text-base font-black truncate", color || "text-slate-800 dark:text-white")}>
         {value || "---"}
       </p>
-      {description && <p className="text-[10px] text-slate-500 mt-1 font-medium">{description}</p>}
+      {description && <p className="text-[10px] text-slate-400 dark:text-slate-500 mt-1 font-medium">{description}</p>}
     </div>
   );
 }
@@ -702,11 +711,11 @@ function SmallFileUploader({ label, field, value, onUpload, isUploading, t }: an
   
   return (
     <div className="flex flex-col items-center">
-      <div 
-        className={cn(
-          "w-full h-28 rounded-2xl border-2 border-dashed flex flex-col items-center justify-center relative overflow-hidden transition-all duration-300 group/upload cursor-pointer",
-          value ? "border-emerald-500/30 bg-white" : "border-white/10 hover:border-blue-500/30 bg-white"
-        )}
+        <div 
+          className={cn(
+            "w-full h-28 rounded-2xl border-2 border-dashed flex flex-col items-center justify-center relative overflow-hidden transition-all duration-300 group/upload cursor-pointer",
+            value ? "border-emerald-500/30 bg-white" : "border-[#c48da3]/40 dark:border-white/10 hover:border-[#c48da3] dark:hover:border-blue-500/30 bg-white"
+          )}
         onClick={() => inputRef.current?.click()}
       >
         {isUploading ? (
@@ -746,7 +755,7 @@ function SmallFileUploader({ label, field, value, onUpload, isUploading, t }: an
         )}
         <input ref={inputRef} type="file" className="hidden" accept="image/*,.pdf" onChange={(e) => onUpload(e, field)} />
       </div>
-      {value && <p className="text-[9px] text-slate-400 mt-1 font-bold truncate w-full text-center">{label}</p>}
+      {value && <p className="text-[9px] text-slate-500 dark:text-slate-400 mt-1 font-bold truncate w-full text-center">{label}</p>}
     </div>
   );
 }
@@ -754,13 +763,13 @@ function SmallFileUploader({ label, field, value, onUpload, isUploading, t }: an
 function FormInput({ label, value, onChange, type = "text", required = false }: any) {
   return (
     <div className="space-y-1">
-      <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest mr-2">{label}</label>
+      <label className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mr-2">{label}</label>
       <input 
         type={type}
         required={required}
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="w-full bg-white/5 border-2 border-white/10 rounded-2xl px-6 py-4 text-sm font-black text-white focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500/50 transition-all placeholder:text-slate-600"
+        className="w-full bg-white/60 dark:bg-white/5 border-2 border-[#c48da3]/40 dark:border-white/10 rounded-2xl px-6 py-4 text-sm font-black text-slate-800 dark:text-white focus:outline-none focus:ring-4 focus:ring-pink-500/20 dark:focus:ring-blue-500/20 focus:border-[#c48da3] dark:focus:border-blue-500/50 transition-all placeholder:text-slate-400 dark:placeholder:text-slate-600"
       />
     </div>
   );
@@ -768,9 +777,9 @@ function FormInput({ label, value, onChange, type = "text", required = false }: 
 
 function EmptyContent({ message, icon }: any) {
   return (
-    <div className="flex flex-col items-center justify-center py-20 bg-white/5 backdrop-blur rounded-[3rem] border-2 border-dashed border-white/10">
-      <div className="text-slate-600 mb-6">{icon}</div>
-      <p className="text-slate-500 font-black tracking-tight">{message}</p>
+    <div className="flex flex-col items-center justify-center py-20 bg-white/40 dark:bg-white/5 backdrop-blur rounded-[3rem] border-2 border-dashed border-[#c48da3]/40 dark:border-white/10">
+      <div className="text-[#c48da3] dark:text-slate-600 mb-6">{icon}</div>
+      <p className="text-slate-500 dark:text-slate-500 font-black tracking-tight">{message}</p>
     </div>
   );
 }
@@ -790,13 +799,13 @@ function Modal({ isOpen, onClose, title, children }: any) {
         initial={{ scale: 0.9, opacity: 0, y: 20 }}
         animate={{ scale: 1, opacity: 1, y: 0 }}
         exit={{ scale: 0.9, opacity: 0, y: 20 }}
-        className="relative w-full max-w-2xl bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 rounded-[3rem] shadow-2xl overflow-hidden border border-white/10"
-      >
-        <div className="px-10 py-8 border-b border-white/5 flex justify-between items-center relative">
-          <div className="absolute inset-0 bg-gradient-to-r from-blue-600/5 via-purple-600/5 to-pink-600/5"></div>
-          <h3 className="text-2xl font-black text-white tracking-tight relative z-10">{title}</h3>
-          <button onClick={onClose} className="p-3 bg-white/5 rounded-2xl hover:bg-white/10 transition-colors relative z-10 border border-white/10">
-            <X size={20} className="text-slate-400" />
+          className="relative w-full max-w-2xl bg-[#edd3de] dark:bg-gradient-to-br dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 rounded-[3rem] shadow-2xl overflow-hidden border border-[#d4a0b5] dark:border-white/10"
+        >
+          <div className="px-10 py-8 border-b border-[#c48da3]/30 dark:border-white/5 flex justify-between items-center relative">
+            <div className="absolute inset-0 bg-gradient-to-r from-pink-300/10 via-rose-300/5 to-pink-300/10 dark:from-blue-600/5 dark:via-purple-600/5 dark:to-pink-600/5"></div>
+            <h3 className="text-2xl font-black text-slate-800 dark:text-white tracking-tight relative z-10">{title}</h3>
+            <button onClick={onClose} className="p-3 bg-white/40 dark:bg-white/5 rounded-2xl hover:bg-white/60 dark:hover:bg-white/10 transition-colors relative z-10 border border-[#c48da3]/40 dark:border-white/10">
+              <X size={20} className="text-slate-500 dark:text-slate-400" />
           </button>
         </div>
         <div className="p-10">{children}</div>

@@ -84,10 +84,10 @@ import { useTranslations, useLocale } from "@/lib/locale-context";
 
 function DashboardStatCard({ title, value, icon, color, desc, alert }: any) {
   const colorMap: any = {
-    blue: "from-blue-500/20 to-indigo-500/20 text-blue-400 border-blue-500/20",
-    emerald: "from-emerald-500/20 to-teal-500/20 text-emerald-400 border-emerald-500/20",
-    amber: "from-amber-500/20 to-orange-500/20 text-amber-400 border-amber-500/20",
-    rose: "from-rose-500/20 to-red-500/20 text-rose-400 border-rose-500/20",
+    blue: "bg-white/80 text-blue-500 border-blue-200/50",
+    emerald: "bg-white/80 text-emerald-500 border-emerald-200/50",
+    amber: "bg-white/80 text-amber-500 border-amber-200/50",
+    rose: "bg-white/80 text-rose-500 border-rose-200/50",
   };
 
   const selected = colorMap[color] || colorMap.blue;
@@ -96,12 +96,12 @@ function DashboardStatCard({ title, value, icon, color, desc, alert }: any) {
     <motion.div 
       whileHover={{ y: -5, scale: 1.02 }}
       className={cn(
-        "relative overflow-hidden bg-white/10 backdrop-blur-xl rounded-[2rem] p-6 border shadow-2xl transition-all group",
+        "relative overflow-hidden backdrop-blur-xl rounded-[2rem] p-6 border shadow-lg transition-all group",
         selected
       )}
     >
       <div className="flex justify-between items-start mb-4">
-        <div className="p-3 bg-white/10 rounded-2xl group-hover:scale-110 transition-transform">
+        <div className="p-3 bg-[#f5e0ea]/60 rounded-2xl group-hover:scale-110 transition-transform">
           {React.cloneElement(icon, { size: 24 })}
         </div>
         {alert && (
@@ -112,10 +112,10 @@ function DashboardStatCard({ title, value, icon, color, desc, alert }: any) {
         )}
       </div>
       <div>
-          <p className="text-white/70 font-black text-[10px] uppercase tracking-wider mb-1">{title}</p>
+          <p className="text-slate-500 font-black text-[10px] uppercase tracking-wider mb-1">{title}</p>
         <div className="flex items-baseline gap-2">
-          <span className="text-3xl font-black text-white tracking-tight">{value}</span>
-          <span className="text-[10px] font-black opacity-40 uppercase">{desc}</span>
+          <span className="text-3xl font-black text-slate-800 tracking-tight">{value}</span>
+          <span className="text-[10px] font-black text-slate-400 uppercase">{desc}</span>
         </div>
       </div>
       <div className="absolute -bottom-4 -right-4 opacity-5 group-hover:opacity-10 transition-opacity">
@@ -1708,65 +1708,65 @@ export function FleetClient({
             }}
           />
         {/* Unified Main Card */}
-      <div className="bg-slate-950 rounded-[3rem] border border-white/5 shadow-2xl overflow-hidden flex flex-col p-8 space-y-8">
+      <div className="bg-[#fafbfd] rounded-[3rem] border border-slate-200/30 shadow-2xl overflow-hidden flex flex-col p-8 space-y-8">
         
         {/* Luxurious Hero Section */}
         <motion.div
           initial={{ opacity: 0, y: -30 }}
           animate={{ opacity: 1, y: 0 }}
-          className="relative overflow-hidden rounded-[2.5rem] bg-gradient-to-br from-[#1e293b] via-[#334155] to-[#1e293b] p-10 text-white shadow-2xl border border-white/10"
+          className="relative overflow-hidden rounded-[2.5rem] bg-gradient-to-br from-[#edd3de] via-[#f5e0ea] to-[#fce7f3] p-10 shadow-2xl border border-rose-200/50"
         >
-          <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 via-emerald-500 to-blue-500 animate-gradient-x" />
+          <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-pink-500 via-rose-400 to-orange-400" />
           
           <div className="relative z-10 space-y-10">
             <div className="flex flex-col lg:flex-row items-center justify-between gap-10">
               <div className="text-center lg:text-right space-y-4">
-                <motion.div 
-                  initial={{ scale: 0 }}
-                  animate={{ scale: 1 }}
-                  className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-md rounded-2xl border border-white/10 mb-2"
-                >
-                  <Sparkles className="w-4 h-4 text-yellow-400 animate-pulse" />
-                  <span className="text-blue-200 font-black text-[10px] uppercase tracking-widest">{t('dashboard')}</span>
-                </motion.div>
-                
-                <h1 className="text-4xl md:text-6xl font-black text-white tracking-tight bg-gradient-to-r from-white via-blue-100 to-white bg-clip-text text-transparent">
-                  {t('title')}
-                </h1>
-                <p className="text-lg text-slate-300 max-w-2xl font-medium leading-relaxed">
-                  {t('subtitle', { name: companyName })}
-                </p>
+                  <motion.div 
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    className="inline-flex items-center gap-2 px-4 py-2 bg-white/60 backdrop-blur-md rounded-2xl border border-rose-200/50 mb-2"
+                  >
+                    <Sparkles className="w-4 h-4 text-pink-500 animate-pulse" />
+                    <span className="text-pink-700 font-black text-[10px] uppercase tracking-widest">{t('dashboard')}</span>
+                  </motion.div>
+                  
+                  <h1 className="text-4xl md:text-6xl font-black tracking-tight bg-gradient-to-r from-pink-600 via-rose-500 to-orange-500 bg-clip-text text-transparent">
+                    {t('title')}
+                  </h1>
+                  <p className="text-lg text-slate-700 max-w-2xl font-medium leading-relaxed">
+                    {t('subtitle', { name: companyName })}
+                  </p>
                 
                 <div className="flex flex-wrap justify-center lg:justify-start gap-4 mt-8">
                   <AddVehicleDialog companyId={companyId} employees={employees} vehicleCategories={vehicleCategories} t={t} />
                   <AddSpareDialog companyId={companyId} categories={categories} t={t} />
                   <MaintenanceRequestDialog companyId={companyId} vehicles={vehicles} spares={spares} t={t} companyEmail={companyEmail} />
-                  <button 
-                    onClick={() => window.location.reload()}
-                    className="flex items-center gap-3 px-6 py-3 bg-white/10 backdrop-blur-md rounded-2xl border border-white/20 text-white font-black text-sm hover:bg-white/20 transition-all shadow-xl active:scale-95"
-                  >
-                    <RefreshCcw size={18} className="text-blue-400" />
-                    {t('refreshData')}
-                  </button>
+                    <button 
+                      onClick={() => window.location.reload()}
+                      className="flex items-center gap-3 px-6 py-3 bg-white/60 backdrop-blur-md rounded-2xl border border-rose-200/50 text-slate-700 font-black text-sm hover:bg-white/80 transition-all shadow-xl active:scale-95"
+                    >
+                      <RefreshCcw size={18} className="text-pink-500" />
+                      {t('refreshData')}
+                    </button>
+                  </div>
                 </div>
-              </div>
 
-              <div className="flex flex-col gap-4">
-                <div className="flex items-center gap-4">
-                  <AddVehicleCategoryDialog companyId={companyId} t={t} />
-                  <AddCategoryDialog companyId={companyId} t={t} />
+                <div className="flex flex-col gap-4">
+                  <div className="flex items-center gap-4">
+                    <AddVehicleCategoryDialog companyId={companyId} t={t} />
+                    <AddCategoryDialog companyId={companyId} t={t} />
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
 
-          <div className="absolute -bottom-24 -right-24 w-96 h-96 bg-blue-500/10 rounded-full blur-[100px] pointer-events-none" />
-          <div className="absolute -top-24 -left-24 w-96 h-96 bg-emerald-500/10 rounded-full blur-[100px] pointer-events-none" />
+            <div className="absolute -bottom-24 -right-24 w-96 h-96 bg-pink-300/20 rounded-full blur-[100px] pointer-events-none" />
+            <div className="absolute -top-24 -left-24 w-96 h-96 bg-rose-300/20 rounded-full blur-[100px] pointer-events-none" />
         </motion.div>
 
         <Tabs defaultValue="dashboard" value={activeTab} onValueChange={setActiveTab} className="w-full">
           <div className="flex items-center justify-center mb-8">
-            <TabsList className="bg-[#1e293b]/50 backdrop-blur-xl p-1.5 rounded-2xl border border-white/10 h-16 shadow-2xl">
+            <TabsList className="bg-white/70 backdrop-blur-xl p-1.5 rounded-2xl border border-rose-200/30 h-16 shadow-xl">
                 {[
                   { id: "dashboard", label: t('dashboard'), icon: <LayoutDashboard size={18} className="text-blue-400" /> },
                   { id: "vehicles", label: t('vehicles'), icon: <Car size={18} className="text-emerald-400" /> },
@@ -1777,7 +1777,7 @@ export function FleetClient({
                 <TabsTrigger 
                   key={tab.id}
                   value={tab.id} 
-                  className="rounded-xl px-8 h-full data-[state=active]:bg-white/10 data-[state=active]:text-white data-[state=active]:border-white/20 data-[state=active]:shadow-2xl font-black text-white/50 transition-all gap-2 border border-transparent"
+                    className="rounded-xl px-8 h-full data-[state=active]:bg-[#f5e0ea] data-[state=active]:text-slate-800 data-[state=active]:border-rose-200/50 data-[state=active]:shadow-lg font-black text-slate-500 transition-all gap-2 border border-transparent"
                 >
                   {tab.icon}
                   {tab.label}

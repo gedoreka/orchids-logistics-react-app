@@ -15,21 +15,7 @@ import SubtypeManager from "./subtype-manager";
 import { useTranslations } from "@/lib/locale-context";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { HierarchicalSearchableSelect } from "@/components/ui/hierarchical-searchable-select";
-
-interface NotificationState {
-  show: boolean;
-  type: 'warning' | 'confirm' | 'loading' | 'success' | 'error';
-  title: string;
-  message: string;
-  details?: {
-    count: number;
-    totalAmount: number;
-    types?: string[];
-    month?: string;
-  };
-  missingFields?: string[];
-  onConfirm?: () => void;
-}
+import { SuccessModal, LoadingModal, ErrorModal, WarningModal, ConfirmModal } from "@/components/ui/notification-modals";
 
 interface Employee {
   id: number;
@@ -127,7 +113,7 @@ function EmployeeSelect({ row, type, metadata, updateRow, t }: {
       <div className="flex items-center space-x-2 space-x-reverse">
         <input 
           type="text" 
-          className="w-full bg-slate-100 border border-slate-200 rounded-lg px-2 py-1 text-sm text-gray-900"
+          className="w-full bg-slate-100 border border-slate-200 rounded-lg px-2 py-1 text-sm text-gray-900 dark:text-white"
           placeholder={t("form.employeeName")}
           value={row.employee_name || ""}
           onChange={(e) => updateRow(type, row.id, 'employee_name', e.target.value)}
@@ -152,7 +138,7 @@ function EmployeeSelect({ row, type, metadata, updateRow, t }: {
             <div 
               className="w-full bg-white/50 border border-slate-200 cursor-pointer text-sm font-medium py-1.5 px-3 flex items-center justify-between min-h-[36px] hover:bg-white hover:border-blue-300 rounded-lg transition-all shadow-sm"
             >
-              <span className={row.employee_name ? "text-gray-900 font-bold" : "text-slate-400"}>
+              <span className={row.employee_name ? "text-gray-900 dark:text-white font-bold" : "text-slate-400"}>
                 {row.employee_name || t("form.selectEmployee")}
               </span>
               <ChevronDown className={`w-4 h-4 text-slate-400 transition-transform duration-200 ${isOpen ? 'rotate-180 text-blue-500' : ''}`} />
@@ -247,24 +233,13 @@ export default function ExpenseFormClient({ user }: { user: User }) {
   const [savedCount, setSavedCount] = useState(0);
   const [showSubtypeManager, setShowSubtypeManager] = useState(false);
 
-  const [notification, setNotification] = useState<NotificationState>({
-    show: false,
-    type: 'warning',
-    title: '',
-    message: '',
-  });
+  const [successModal, setSuccessModal] = useState<{ isOpen: boolean; type: 'delete' | 'update' | 'create' | null; title: string }>({ isOpen: false, type: null, title: '' });
+  const [loadingModal, setLoadingModal] = useState(false);
+  const [errorModal, setErrorModal] = useState<{ isOpen: boolean; title: string; message: string }>({ isOpen: false, title: '', message: '' });
+  const [warningModal, setWarningModal] = useState<{ isOpen: boolean; title: string; message: string; missingFields: string[] }>({ isOpen: false, title: '', message: '', missingFields: [] });
+  const [confirmModal, setConfirmModal] = useState<{ isOpen: boolean; title: string; message: string; details: React.ReactNode; onConfirm: () => void }>({ isOpen: false, title: '', message: '', details: null, onConfirm: () => {} });
 
-  const showNotification = (
-    type: NotificationState['type'],
-    title: string,
-    message: string,
-    details?: NotificationState['details'],
-    missingFields?: string[],
-    onConfirm?: () => void
-  ) => {
-    setNotification({ show: true, type, title, message, details, missingFields, onConfirm });
-  };
-
+  
   const fetchMetadata = async () => {
     try {
       const res = await fetch(`/api/expenses/metadata?company_id=${user.company_id}&user_id=${user.id}`);
@@ -405,13 +380,12 @@ export default function ExpenseFormClient({ user }: { user: User }) {
     });
 
     if (rowsWithMissingFields.length > 0) {
-      showNotification(
-        'warning',
-        'حقول إجبارية مفقودة',
-        'يرجى إكمال الحقول التالية قبل الحفظ:',
-        undefined,
-        rowsWithMissingFields
-      );
+      setWarningModal({
+        isOpen: true,
+        title: 'حقول إجبارية مفقودة',
+        message: 'يرجى إكمال الحقول التالية قبل الحفظ:',
+        missingFields: rowsWithMissingFields
+      });
       return;
     }
 
@@ -420,25 +394,40 @@ export default function ExpenseFormClient({ user }: { user: User }) {
     const totalCount = allRows.length;
     const totalAmount = allRows.reduce((sum, row) => sum + (parseFloat(row.net_amount) || parseFloat(row.amount) || 0), 0);
     const types = Object.keys(sections).map(type => t(`types.${type}`));
+    const month = new Date().toLocaleDateString('ar-SA', { month: 'long', year: 'numeric' });
 
-    // Show confirm modal
-    showNotification(
-      'confirm',
-      'تأكيد حفظ المنصرفات',
-      'هل تريد حفظ المنصرفات التالية؟',
-      {
-        count: totalCount,
-        totalAmount,
-        types,
-        month: new Date().toLocaleDateString('ar-SA', { month: 'long', year: 'numeric' })
-      },
-      undefined,
-      () => executeSave()
-    );
+    setConfirmModal({
+      isOpen: true,
+      title: 'تأكيد حفظ المنصرفات',
+      message: 'هل تريد حفظ المنصرفات التالية؟',
+      details: (
+        <div className="space-y-3">
+          <div className="grid grid-cols-2 gap-3">
+            <div className="bg-rose-50 border border-rose-100 rounded-xl p-4 text-center">
+              <p className="text-xs text-rose-500 font-bold mb-1">عدد العمليات</p>
+              <p className="text-2xl font-black text-rose-700">{totalCount}</p>
+            </div>
+            <div className="bg-green-50 border border-green-100 rounded-xl p-4 text-center">
+              <p className="text-xs text-green-500 font-bold mb-1">إجمالي المبلغ</p>
+              <p className="text-2xl font-black text-green-700">{totalAmount.toFixed(2)}</p>
+            </div>
+          </div>
+          {types.length > 0 && (
+            <div className="flex flex-wrap gap-2 justify-center">
+              {types.map((t, idx) => (
+                <span key={idx} className="bg-rose-100 text-rose-700 px-3 py-1 rounded-full text-xs font-bold">{t}</span>
+              ))}
+            </div>
+          )}
+          <p className="text-center text-sm text-slate-500">{month}</p>
+        </div>
+      ),
+      onConfirm: () => executeSave()
+    });
   };
 
   const executeSave = async () => {
-    showNotification('loading', 'جاري الحفظ...', 'يتم حفظ المنصرفات في النظام');
+    setLoadingModal(true);
 
     setSubmitting(true);
     const formData = new FormData();
@@ -481,29 +470,21 @@ export default function ExpenseFormClient({ user }: { user: User }) {
       
       const data = await res.json();
       
-      if (data.success) {
-        const allRows = Object.values(sections).flat();
-        const totalAmount = allRows.reduce((sum, row) => sum + (parseFloat(row.net_amount) || parseFloat(row.amount) || 0), 0);
-        
-        setSavedCount(data.savedCount);
-        showNotification(
-          'success',
-          '✓ تم الحفظ بنجاح',
-          `تم حفظ ${data.savedCount} منصرف بنجاح`,
-          {
-            count: data.savedCount,
-            totalAmount,
-            types: Object.keys(sections).map(type => t(`types.${type}`)),
-            month: new Date().toLocaleDateString('ar-SA', { month: 'long', year: 'numeric' })
-          }
-        );
-      } else {
+        if (data.success) {
+          const allRows = Object.values(sections).flat();
+          const totalAmount = allRows.reduce((sum, row) => sum + (parseFloat(row.net_amount) || parseFloat(row.amount) || 0), 0);
+          
+          setSavedCount(data.savedCount);
+          setLoadingModal(false);
+          setConfirmModal(prev => ({ ...prev, isOpen: false }));
+          setSuccessModal({ isOpen: true, type: 'create', title: `تم حفظ ${data.savedCount} منصرف بنجاح` });
+        } else {
         const errorMsg = data.message || data.error || "فشل حفظ المنصرفات";
-        showNotification('error', 'خطأ في الحفظ', errorMsg);
+        setErrorModal({ isOpen: true, title: 'خطأ في الحفظ', message: errorMsg });
       }
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : "حدث خطأ في الاتصال";
-      showNotification('error', 'خطأ في الحفظ', errorMessage);
+      setErrorModal({ isOpen: true, title: 'خطأ في الحفظ', message: errorMessage });
     } finally {
       setSubmitting(false);
     }
@@ -522,37 +503,37 @@ export default function ExpenseFormClient({ user }: { user: User }) {
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="bg-gradient-to-b from-slate-800 via-slate-700 to-slate-600 rounded-3xl shadow-2xl overflow-hidden border border-slate-500/30"
+        className="bg-[#edd3de] dark:bg-gradient-to-b dark:from-slate-800 dark:via-slate-700 dark:to-slate-600 rounded-3xl shadow-2xl overflow-hidden border border-rose-200/50 dark:border-slate-600/50"
       >
-        <div className="relative overflow-hidden bg-gradient-to-r from-slate-900 to-slate-800 p-8 text-white border-b border-slate-600/50">
-          <div className="relative z-10 flex flex-col items-center justify-center text-center space-y-4">
-            <div className="p-3 bg-white/10 rounded-full backdrop-blur-sm">
-              <Plus className="w-8 h-8 text-blue-400" />
+        <div className="relative overflow-hidden preserve-colors bg-gradient-to-r from-blue-500 via-blue-400 to-blue-500 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 p-8 text-white border-b border-blue-300/50 dark:border-slate-600/50">
+            <div className="relative z-10 flex flex-col items-center justify-center text-center space-y-4">
+              <div className="p-3 bg-white/20 rounded-2xl backdrop-blur-sm">
+                <Plus className="w-8 h-8 text-white" />
+              </div>
+              <h1 className="text-2xl font-bold tracking-tight glow-text-white">{t("form.addMultiple")}</h1>
+              <p className="text-blue-100 dark:text-slate-400 max-w-2xl">{t("form.subtitle")}</p>
             </div>
-            <h1 className="text-2xl font-bold tracking-tight glow-text-white">{t("form.addMultiple")}</h1>
-            <p className="text-slate-300 max-w-2xl">{t("form.subtitle")}</p>
-          </div>
-          <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 via-green-500 to-red-500"></div>
+            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-300 via-blue-200 to-blue-300 dark:from-red-500 dark:via-yellow-500 dark:to-green-500"></div>
         </div>
   
-        <div className="p-6 space-y-6">
+        <div className="p-6 space-y-6 bg-[#edd3de] dark:bg-transparent rounded-2xl">
           <motion.div 
-            className="bg-white/95 backdrop-blur-sm p-4 rounded-2xl shadow-lg border border-white/50 flex flex-col md:flex-row items-center justify-between gap-4"
+            className="bg-white/95 dark:bg-white/5 backdrop-blur-sm p-4 rounded-2xl shadow-lg border border-white/50 dark:border-white/10 flex flex-col md:flex-row items-center justify-between gap-4"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
           >
             <div className="flex items-center space-x-4 space-x-reverse">
-              <div className="p-2.5 bg-indigo-50 rounded-xl text-indigo-600">
+              <div className="p-2.5 bg-indigo-50 dark:bg-indigo-500/20 rounded-xl text-indigo-600 dark:text-indigo-400">
                 <Tags className="w-5 h-5" />
               </div>
               <div>
-                <h3 className="text-base font-bold text-slate-900 glow-text">{t("form.manageCustomTypes")}</h3>
-                <p className="text-xs text-slate-500">{t("form.manageCustomTypesDesc")}</p>
+                <h3 className="text-base font-bold text-slate-900 dark:text-white">{t("form.manageCustomTypes")}</h3>
+                <p className="text-xs text-slate-700 dark:text-slate-400">{t("form.manageCustomTypesDesc")}</p>
               </div>
             </div>
             <button 
               onClick={() => setShowSubtypeManager(true)}
-              className="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 px-4 py-2 rounded-xl font-bold transition-all flex items-center space-x-2 space-x-reverse border border-indigo-100 text-sm"
+              className="bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-500/20 dark:hover:bg-indigo-500/30 text-indigo-700 dark:text-indigo-300 px-4 py-2 rounded-xl font-bold transition-all flex items-center space-x-2 space-x-reverse border border-indigo-100 dark:border-indigo-500/30 text-sm"
             >
               <Settings className="w-4 h-4" />
               <span>{t("form.manageBtn")}</span>
@@ -564,47 +545,47 @@ export default function ExpenseFormClient({ user }: { user: User }) {
             animate={{ opacity: 1 }}
             className="grid grid-cols-1 md:grid-cols-3 gap-4"
           >
-            <div className="bg-white/95 backdrop-blur-md p-4 rounded-xl border border-white/50 shadow-md flex items-center space-x-3 space-x-reverse">
-              <div className="p-2.5 bg-blue-50 rounded-lg text-blue-600">
-                <History className="w-5 h-5" />
+            <div className="bg-white/95 dark:bg-white/5 backdrop-blur-md p-4 rounded-xl border border-white/50 dark:border-white/10 shadow-md flex items-center space-x-3 space-x-reverse">
+                <div className="p-2.5 bg-blue-50 dark:bg-blue-500/20 rounded-lg text-blue-600 dark:text-blue-400">
+                  <History className="w-5 h-5" />
+                </div>
+                <div>
+                <p className="text-xs text-slate-700 dark:text-slate-400">{t("form.currentMonth")}</p>
+                    <p className="text-base font-bold text-slate-900 dark:text-white">{new Date().toLocaleString('en-US', { month: 'long', year: 'numeric' })}</p>
+                </div>
               </div>
-              <div>
-                <p className="text-xs text-slate-500">{t("form.currentMonth")}</p>
-                <p className="text-base font-bold text-slate-900 glow-text">{new Date().toLocaleString('en-US', { month: 'long', year: 'numeric' })}</p>
+              <div className="bg-white/95 dark:bg-white/5 backdrop-blur-md p-4 rounded-xl border border-white/50 dark:border-white/10 shadow-md flex items-center space-x-3 space-x-reverse">
+                <div className="p-2.5 bg-green-50 dark:bg-green-500/20 rounded-lg text-green-600 dark:text-green-400">
+                  <FileText className="w-5 h-5" />
+                </div>
+                <div>
+                <p className="text-xs text-slate-700 dark:text-slate-400">{t("form.nextVoucher")}</p>
+                    <p className="text-base font-bold text-slate-900 dark:text-white">{metadata?.voucherNumber}</p>
+                </div>
               </div>
-            </div>
-            <div className="bg-white/95 backdrop-blur-md p-4 rounded-xl border border-white/50 shadow-md flex items-center space-x-3 space-x-reverse">
-              <div className="p-2.5 bg-green-50 rounded-lg text-green-600">
-                <FileText className="w-5 h-5" />
-              </div>
-              <div>
-                <p className="text-xs text-slate-500">{t("form.nextVoucher")}</p>
-                <p className="text-base font-bold text-slate-900 glow-text">{metadata?.voucherNumber}</p>
-              </div>
-            </div>
-            <div className="bg-white/95 backdrop-blur-md p-4 rounded-xl border border-white/50 shadow-md flex items-center space-x-3 space-x-reverse">
-              <div className="p-2.5 bg-purple-50 rounded-lg text-purple-600">
-                <Bolt className="w-5 h-5" />
-              </div>
-              <div>
-                <p className="text-xs text-slate-500">{t("form.voucherStatus")}</p>
-                <p className="text-base font-bold text-slate-900 glow-text">{t("form.new")}</p>
+              <div className="bg-white/95 dark:bg-white/5 backdrop-blur-md p-4 rounded-xl border border-white/50 dark:border-white/10 shadow-md flex items-center space-x-3 space-x-reverse">
+                <div className="p-2.5 bg-purple-50 dark:bg-purple-500/20 rounded-lg text-purple-600 dark:text-purple-400">
+                  <Bolt className="w-5 h-5" />
+                </div>
+                <div>
+                <p className="text-xs text-slate-700 dark:text-slate-400">{t("form.voucherStatus")}</p>
+                    <p className="text-base font-bold text-slate-900 dark:text-white">{t("form.new")}</p>
               </div>
             </div>
           </motion.div>
   
           <motion.div 
-            className="bg-white/95 backdrop-blur-sm p-6 rounded-2xl shadow-lg border border-white/50"
+            className="bg-white/95 dark:bg-white/5 backdrop-blur-sm p-6 rounded-2xl shadow-lg border border-white/50 dark:border-white/10"
             whileHover={{ y: -2 }}
             transition={{ type: "spring", stiffness: 300 }}
           >
             <div className="flex items-center space-x-2 space-x-reverse mb-4">
-              <Tags className="w-5 h-5 text-blue-600" />
-              <h2 className="text-lg font-bold text-slate-900 glow-text">{t("form.chooseType")}</h2>
+              <Tags className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+              <h2 className="text-lg font-bold text-slate-900 dark:text-white">{t("form.chooseType")}</h2>
             </div>
             <div className="flex flex-col md:flex-row gap-4">
               <select 
-                className="flex-1 bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all text-sm text-gray-900"
+                className="flex-1 bg-slate-50 dark:bg-slate-700/50 border border-slate-200 dark:border-slate-600 rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all text-sm text-gray-900 dark:text-white dark:text-white"
                 value={selectedTypeToAdd}
                 onChange={(e) => setSelectedTypeToAdd(e.target.value)}
               >
@@ -624,7 +605,7 @@ export default function ExpenseFormClient({ user }: { user: User }) {
           </motion.div>
         </div>
 
-        <div className="space-y-6 p-6">
+        <div className="space-y-6 p-6 bg-[#edd3de] dark:bg-transparent rounded-2xl">
           <AnimatePresence>
             {Object.entries(sections).map(([type, rows]) => (
               <motion.div 
@@ -632,14 +613,14 @@ export default function ExpenseFormClient({ user }: { user: User }) {
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.95 }}
-                className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-lg border border-white/50 overflow-hidden"
-              >
-                <div className="bg-slate-50 p-4 border-b border-slate-100 flex items-center justify-between">
-                  <div className="flex items-center space-x-3 space-x-reverse">
-                    <div className="p-2 bg-blue-100 rounded-lg text-blue-600">
-                      <Building2 className="w-4 h-4" />
-                    </div>
-                    <h3 className="text-base font-bold text-slate-900 glow-text">{t(`types.${type}`)}</h3>
+className="bg-white/95 dark:bg-white/5 backdrop-blur-sm rounded-2xl shadow-lg border border-white/50 dark:border-white/10 overflow-hidden"
+                >
+                  <div className="bg-slate-50 dark:bg-slate-800/50 p-4 border-b border-slate-100 dark:border-slate-700 flex items-center justify-between">
+                    <div className="flex items-center space-x-3 space-x-reverse">
+                      <div className="p-2 bg-blue-100 dark:bg-blue-500/20 rounded-lg text-blue-600 dark:text-blue-400">
+                        <Building2 className="w-4 h-4" />
+                      </div>
+                      <h3 className="text-base font-bold text-slate-900 dark:text-white glow-text">{t(`types.${type}`)}</h3>
                   </div>
                   <button 
                     type="button"
@@ -679,12 +660,12 @@ export default function ExpenseFormClient({ user }: { user: User }) {
                         </thead>
                         <tbody>
                           {rows.map((row) => (
-                            <tr key={row.id} className="bg-white border-b border-slate-100 hover:bg-blue-50/30 transition-colors group">
+                            <tr key={row.id} className="bg-white dark:bg-slate-800/30 border-b border-slate-100 dark:border-slate-700 hover:bg-blue-50/30 dark:hover:bg-blue-500/10 transition-colors group">
                               <td className="px-2 py-4">
 
                               <input 
                                 type="date" 
-                                className="w-full bg-transparent border-none focus:ring-0 text-xs font-bold text-gray-900"
+                                className="w-full bg-transparent border-none focus:ring-0 text-xs font-bold text-gray-900 dark:text-white"
                                 value={row.expense_date || ""}
                                 onChange={(e) => updateRow(type, row.id, 'expense_date', e.target.value)}
                                 required
@@ -692,7 +673,7 @@ export default function ExpenseFormClient({ user }: { user: User }) {
                             </td>
                             <td className="px-2 py-4">
                               <select 
-                                className="w-full bg-transparent border-none focus:ring-0 text-xs font-bold text-gray-900"
+                                className="w-full bg-transparent border-none focus:ring-0 text-xs font-bold text-gray-900 dark:text-white"
                                 value={row.expense_type || ""}
                                 onChange={(e) => updateRow(type, row.id, 'expense_type', e.target.value)}
                               >
@@ -708,7 +689,7 @@ export default function ExpenseFormClient({ user }: { user: User }) {
                             <td className="px-2 py-4">
                               <input 
                                 type="number" 
-                                className="w-20 bg-transparent border-none focus:ring-0 text-xs font-black text-gray-900"
+                                className="w-20 bg-transparent border-none focus:ring-0 text-xs font-black text-gray-900 dark:text-white"
                                 placeholder="0.00"
                                 value={row.amount || ""}
                                 onChange={(e) => updateRow(type, row.id, 'amount', e.target.value)}
@@ -735,7 +716,7 @@ export default function ExpenseFormClient({ user }: { user: User }) {
                                 <td className="px-2 py-4">
                                   <input 
                                     type="text" 
-                                    className="w-24 bg-transparent border-none focus:ring-0 text-xs font-bold text-gray-900"
+                                    className="w-24 bg-transparent border-none focus:ring-0 text-xs font-bold text-gray-900 dark:text-white"
                                     value={row.employee_iqama || ""}
                                     readOnly={!row.manualEmployee}
                                     onChange={(e) => updateRow(type, row.id, 'employee_iqama', e.target.value)}
@@ -755,7 +736,7 @@ export default function ExpenseFormClient({ user }: { user: User }) {
                                 <td className="px-2 py-4">
                                   <input 
                                     type="text" 
-                                    className="w-24 bg-transparent border-none focus:ring-0 text-xs font-bold text-gray-900"
+                                    className="w-24 bg-transparent border-none focus:ring-0 text-xs font-bold text-gray-900 dark:text-white"
                                     value={row.employee_iqama || ""}
                                     readOnly={!row.manualEmployee}
                                     onChange={(e) => updateRow(type, row.id, 'employee_iqama', e.target.value)}
@@ -799,7 +780,7 @@ export default function ExpenseFormClient({ user }: { user: User }) {
                           <td className="px-2 py-4">
                             <input 
                               type="text" 
-                              className="w-full bg-transparent border-none focus:ring-0 text-sm text-gray-900"
+                              className="w-full bg-transparent border-none focus:ring-0 text-sm text-gray-900 dark:text-white"
                               placeholder={t("form.description")}
                               value={row.description || ""}
                               onChange={(e) => updateRow(type, row.id, 'description', e.target.value)}
@@ -829,7 +810,7 @@ export default function ExpenseFormClient({ user }: { user: User }) {
                     </tbody>
                   </table>
                 </div>
-                <div className="p-4 bg-slate-50/50 border-t border-slate-100">
+                <div className="p-4 bg-slate-50/50 dark:bg-slate-800/30 border-t border-slate-100 dark:border-slate-700">
                   <button 
                     type="button"
                     onClick={() => addRow(type)}
@@ -853,7 +834,7 @@ export default function ExpenseFormClient({ user }: { user: User }) {
                 type="button"
                 onClick={handleSubmit}
                 disabled={submitting}
-                className={`bg-green-600 hover:bg-green-700 text-white px-8 py-3 rounded-xl font-bold transition-all flex items-center space-x-3 space-x-reverse shadow-xl shadow-green-200/50 transform active:scale-95 ${submitting ? 'opacity-50 cursor-not-allowed' : ''}`}
+                className={`bg-green-600 hover:bg-green-700 text-white px-8 py-3 rounded-xl font-bold transition-all flex items-center space-x-3 space-x-reverse shadow-xl shadow-green-200/50 dark:shadow-green-900/50 transform active:scale-95 ${submitting ? 'opacity-50 cursor-not-allowed' : ''}`}
               >
                 {submitting ? (
                   <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
@@ -927,217 +908,43 @@ export default function ExpenseFormClient({ user }: { user: User }) {
       </AnimatePresence>
 
         {/* Luxury Notification Modal */}
-        <AnimatePresence>
-          {notification.show && (
-            <>
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                className="fixed inset-0 bg-black/60 backdrop-blur-md z-[9998]"
-                onClick={() => {
-                  if (notification.type !== 'loading') {
-                    if (notification.type === 'success') {
-                      setNotification(prev => ({ ...prev, show: false }));
-                      setSections({});
-                      setSelectedTypeToAdd("");
-                      fetchMetadata();
-                    } else {
-                      setNotification(prev => ({ ...prev, show: false }));
-                    }
-                  }
-                }}
-              />
-              <motion.div
-                initial={{ opacity: 0, scale: 0.8, y: 50 }}
-                animate={{ opacity: 1, scale: 1, y: 0 }}
-                exit={{ opacity: 0, scale: 0.8, y: 50 }}
-                transition={{ type: "spring", duration: 0.5 }}
-                className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[9999] w-[90%] max-w-[520px]"
-              >
-                {/* Warning Modal */}
-                {notification.type === 'warning' && (
-                  <div className="bg-white rounded-3xl shadow-2xl overflow-hidden border border-amber-100">
-                    <div className="bg-gradient-to-r from-amber-500 to-orange-500 p-6 text-center">
-                      <div className="w-20 h-20 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <AlertTriangle className="w-10 h-10 text-white" />
-                      </div>
-                      <h2 className="text-2xl font-black text-white">{notification.title}</h2>
-                      <p className="text-amber-100 mt-2 text-sm">{notification.message}</p>
-                    </div>
-                    {notification.missingFields && notification.missingFields.length > 0 && (
-                      <div className="p-6 max-h-[300px] overflow-y-auto">
-                        <div className="space-y-2">
-                          {notification.missingFields.map((field, idx) => (
-                            <div key={idx} className="flex items-start gap-3 p-3 bg-red-50 border border-red-100 rounded-xl">
-                              <div className="w-6 h-6 bg-red-100 rounded-full flex items-center justify-center shrink-0 mt-0.5">
-                                <X className="w-3 h-3 text-red-600" />
-                              </div>
-                              <span className="text-sm font-bold text-red-800">{field}</span>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-                    <div className="p-4 bg-slate-50 border-t border-slate-100 flex justify-center">
-                      <button
-                        onClick={() => setNotification(prev => ({ ...prev, show: false }))}
-                        className="bg-gradient-to-r from-amber-500 to-orange-500 text-white px-8 py-3 rounded-xl font-bold hover:from-amber-600 hover:to-orange-600 transition-all shadow-lg shadow-amber-200 active:scale-95"
-                      >
-                        فهمت، سأكمل البيانات
-                      </button>
-                    </div>
-                  </div>
-                )}
-
-                {/* Confirm Modal */}
-                {notification.type === 'confirm' && (
-                  <div className="bg-white rounded-3xl shadow-2xl overflow-hidden border border-blue-100">
-                    <div className="bg-gradient-to-r from-blue-600 to-indigo-600 p-6 text-center">
-                      <div className="w-20 h-20 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <FileCheck className="w-10 h-10 text-white" />
-                      </div>
-                      <h2 className="text-2xl font-black text-white">{notification.title}</h2>
-                      <p className="text-blue-200 mt-2 text-sm">{notification.message}</p>
-                    </div>
-                    {notification.details && (
-                      <div className="p-6">
-                        <div className="grid grid-cols-2 gap-3">
-                          <div className="bg-blue-50 border border-blue-100 rounded-xl p-4 text-center">
-                            <p className="text-xs text-blue-500 font-bold mb-1">عدد العمليات</p>
-                            <p className="text-2xl font-black text-blue-700">{notification.details.count}</p>
-                          </div>
-                          <div className="bg-green-50 border border-green-100 rounded-xl p-4 text-center">
-                            <p className="text-xs text-green-500 font-bold mb-1">إجمالي المبلغ</p>
-                            <p className="text-2xl font-black text-green-700">{notification.details.totalAmount?.toFixed(2)}</p>
-                          </div>
-                        </div>
-                        {notification.details.types && notification.details.types.length > 0 && (
-                          <div className="mt-3 flex flex-wrap gap-2 justify-center">
-                            {notification.details.types.map((type, idx) => (
-                              <span key={idx} className="bg-indigo-100 text-indigo-700 px-3 py-1 rounded-full text-xs font-bold">{type}</span>
-                            ))}
-                          </div>
-                        )}
-                        {notification.details.month && (
-                          <p className="text-center text-sm text-slate-500 mt-3 flex items-center justify-center gap-2">
-                            <Calendar className="w-4 h-4" />
-                            {notification.details.month}
-                          </p>
-                        )}
-                      </div>
-                    )}
-                    <div className="p-4 bg-slate-50 border-t border-slate-100 flex gap-3 justify-center">
-                      <button
-                        onClick={() => {
-                          setNotification(prev => ({ ...prev, show: false }));
-                          notification.onConfirm?.();
-                        }}
-                        className="bg-gradient-to-r from-green-500 to-emerald-600 text-white px-8 py-3 rounded-xl font-bold hover:from-green-600 hover:to-emerald-700 transition-all shadow-lg shadow-green-200 active:scale-95 flex items-center gap-2"
-                      >
-                        <CheckCircle2 className="w-5 h-5" />
-                        تأكيد الحفظ
-                      </button>
-                      <button
-                        onClick={() => setNotification(prev => ({ ...prev, show: false }))}
-                        className="bg-slate-200 text-slate-700 px-8 py-3 rounded-xl font-bold hover:bg-slate-300 transition-all active:scale-95"
-                      >
-                        إلغاء
-                      </button>
-                    </div>
-                  </div>
-                )}
-
-                {/* Loading Modal */}
-                {notification.type === 'loading' && (
-                  <div className="bg-white rounded-3xl shadow-2xl overflow-hidden border border-blue-100 p-10 text-center">
-                    <div className="w-20 h-20 mx-auto mb-6 relative">
-                      <div className="absolute inset-0 rounded-full border-4 border-blue-100"></div>
-                      <div className="absolute inset-0 rounded-full border-4 border-blue-600 border-t-transparent animate-spin"></div>
-                      <div className="absolute inset-3 rounded-full border-4 border-indigo-100"></div>
-                      <div className="absolute inset-3 rounded-full border-4 border-indigo-500 border-b-transparent animate-spin" style={{ animationDirection: 'reverse', animationDuration: '0.8s' }}></div>
-                    </div>
-                    <h2 className="text-xl font-black text-slate-800 mb-2">{notification.title}</h2>
-                    <p className="text-slate-500 text-sm">{notification.message}</p>
-                    <div className="mt-6 flex justify-center gap-1.5">
-                      {[0, 1, 2].map(i => (
-                        <div key={i} className="w-2.5 h-2.5 rounded-full bg-blue-500 animate-bounce" style={{ animationDelay: `${i * 0.15}s` }} />
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {/* Success Modal */}
-                {notification.type === 'success' && (
-                  <div className="bg-gradient-to-br from-green-500 via-emerald-600 to-teal-700 rounded-3xl shadow-2xl overflow-hidden text-white p-8 text-center">
-                    <div className="w-24 h-24 bg-white/25 rounded-full flex items-center justify-center mx-auto mb-6 animate-bounce">
-                      <CheckCircle className="w-16 h-16 text-white drop-shadow-lg" />
-                    </div>
-                    <h2 className="text-3xl font-black mb-3 drop-shadow-md">{notification.title}</h2>
-                    <p className="text-lg opacity-95 font-bold mb-2">{notification.message}</p>
-                    {notification.details && (
-                      <div className="mt-4 grid grid-cols-2 gap-3">
-                        <div className="bg-white/15 backdrop-blur-sm rounded-xl p-3">
-                          <p className="text-xs text-green-200">عدد العمليات</p>
-                          <p className="text-2xl font-black">{notification.details.count}</p>
-                        </div>
-                        <div className="bg-white/15 backdrop-blur-sm rounded-xl p-3">
-                          <p className="text-xs text-green-200">إجمالي المبلغ</p>
-                          <p className="text-2xl font-black">{notification.details.totalAmount?.toFixed(2)}</p>
-                        </div>
-                      </div>
-                    )}
-                    <div className="flex gap-4 justify-center mt-8">
-                      <button
-                        onClick={() => {
-                          setNotification(prev => ({ ...prev, show: false }));
-                          setSections({});
-                          setSelectedTypeToAdd("");
-                          fetchMetadata();
-                        }}
-                        className="bg-white text-green-700 px-8 py-3.5 rounded-xl font-bold text-base hover:bg-green-50 transition-all flex items-center gap-2 shadow-lg active:scale-95"
-                      >
-                        <Plus className="w-5 h-5" />
-                        إدخال جديد
-                      </button>
-                      <button
-                        onClick={() => {
-                          setNotification(prev => ({ ...prev, show: false }));
-                          setTimeout(() => router.push('/expenses'), 200);
-                        }}
-                        className="bg-white/20 backdrop-blur-sm text-white border-2 border-white/40 px-8 py-3.5 rounded-xl font-bold text-base hover:bg-white/30 transition-all flex items-center gap-2 shadow-lg active:scale-95"
-                      >
-                        العودة للمركز
-                        <ArrowRight className="w-5 h-5" />
-                      </button>
-                    </div>
-                  </div>
-                )}
-
-                {/* Error Modal */}
-                {notification.type === 'error' && (
-                  <div className="bg-white rounded-3xl shadow-2xl overflow-hidden border border-red-100">
-                    <div className="bg-gradient-to-r from-red-600 to-rose-600 p-6 text-center">
-                      <div className="w-20 h-20 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <X className="w-10 h-10 text-white" />
-                      </div>
-                      <h2 className="text-2xl font-black text-white">{notification.title}</h2>
-                      <p className="text-red-200 mt-2 text-sm">{notification.message}</p>
-                    </div>
-                    <div className="p-4 bg-slate-50 border-t border-slate-100 flex justify-center">
-                      <button
-                        onClick={() => setNotification(prev => ({ ...prev, show: false }))}
-                        className="bg-gradient-to-r from-red-500 to-rose-600 text-white px-8 py-3 rounded-xl font-bold hover:from-red-600 hover:to-rose-700 transition-all shadow-lg shadow-red-200 active:scale-95"
-                      >
-                        حسناً
-                      </button>
-                    </div>
-                  </div>
-                )}
-              </motion.div>
-            </>
-          )}
-        </AnimatePresence>
+        <WarningModal
+          isOpen={warningModal.isOpen}
+          title={warningModal.title}
+          message={warningModal.message}
+          missingFields={warningModal.missingFields}
+          onClose={() => setWarningModal(prev => ({ ...prev, isOpen: false }))}
+        />
+        <ConfirmModal
+          isOpen={confirmModal.isOpen}
+          title={confirmModal.title}
+          message={confirmModal.message}
+          details={confirmModal.details}
+          confirmText="تأكيد الحفظ"
+          onConfirm={() => {
+            setConfirmModal(prev => ({ ...prev, isOpen: false }));
+            confirmModal.onConfirm();
+          }}
+          onCancel={() => setConfirmModal(prev => ({ ...prev, isOpen: false }))}
+        />
+        <SuccessModal
+          isOpen={successModal.isOpen}
+          type={successModal.type}
+          title={successModal.title}
+          onClose={() => {
+            setSuccessModal({ isOpen: false, type: null, title: '' });
+            setSections({});
+            setSelectedTypeToAdd("");
+            fetchMetadata();
+          }}
+        />
+        <LoadingModal isOpen={loadingModal} title="جاري الحفظ..." message="يرجى الانتظار" />
+        <ErrorModal
+          isOpen={errorModal.isOpen}
+          title={errorModal.title}
+          message={errorModal.message}
+          onClose={() => setErrorModal({ isOpen: false, title: '', message: '' })}
+        />
 
         <AnimatePresence>
           {showSubtypeManager && (
@@ -1152,7 +959,7 @@ export default function ExpenseFormClient({ user }: { user: User }) {
 
         <style jsx global>{`
         .glow-text {
-          text-shadow: 0 0 8px rgba(59, 130, 246, 0.2), 0 0 15px rgba(59, 130, 246, 0.1);
+          text-shadow: 0 0 10px rgba(59, 130, 246, 0.15), 0 0 20px rgba(147, 51, 234, 0.1);
         }
         .glow-text-white {
           text-shadow: 0 0 10px rgba(255, 255, 255, 0.4), 0 0 20px rgba(59, 130, 246, 0.3);

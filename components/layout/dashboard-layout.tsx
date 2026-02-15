@@ -11,6 +11,7 @@ import { X, AlertCircle } from "lucide-react";
 import { useLocale } from "@/lib/locale-context";
 import { usePathname, useRouter } from "next/navigation";
 import { useTheme } from "next-themes";
+import { applyAccentTheme } from "@/components/theme-customizer";
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -40,6 +41,16 @@ export function DashboardLayout({ children, user, permissions, userType, subscri
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => { setMounted(true); }, []);
+
+  // Apply accent theme on mount and when theme changes
+  useEffect(() => {
+    if (mounted) {
+      applyAccentTheme();
+      // Re-apply after a short delay in case next-themes resets attributes
+      const t = setTimeout(applyAccentTheme, 150);
+      return () => clearTimeout(t);
+    }
+  }, [mounted, resolvedTheme]);
 
   const isDark = !mounted || resolvedTheme === "dark";
 
@@ -103,15 +114,15 @@ export function DashboardLayout({ children, user, permissions, userType, subscri
           <div className="fixed inset-0 bg-[radial-gradient(ellipse_at_bottom_left,_var(--tw-gradient-stops))] from-purple-900/15 via-transparent to-transparent -z-10" />
         </>
       )}
-      {/* Light mode FlowSchedule background */}
-      {!isDark && (
-        <>
-          <div className="fixed inset-0 bg-[#F9FAFB] -z-10" />
-          <div className="fixed inset-0 bg-gradient-to-br from-blue-50/40 via-white to-emerald-50/30 -z-10" />
-          <div className="light-bg-decorations" />
-          <div className="light-decor-extra" />
-        </>
-      )}
+          {/* Light mode background - clean white like financial vouchers */}
+            {!isDark && (
+              <>
+                <div className="fixed inset-0 bg-[#fafbfd] -z-10" />
+                <div className="fixed inset-0 bg-gradient-to-br from-[#f8f9fb] via-[#fafbfd] to-[#f9f7fb] -z-10" />
+            <div className="light-bg-decorations" />
+            <div className="light-decor-extra" />
+          </>
+        )}
       
       <GlobalChatNotifications isAdmin={user?.role === "admin"} companyId={user?.company_id} />
       <GlobalAdminNotifications />

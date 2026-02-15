@@ -36,6 +36,7 @@ import { useReactToPrint } from "react-to-print";
 import { QRCodeCanvas } from "qrcode.react";
 import { cn } from "@/lib/utils";
 import { useTranslations, useLocale } from "@/lib/locale-context";
+import { SuccessModal, ErrorModal, LoadingModal } from "@/components/ui/notification-modals";
 
 interface QuotationItem {
   id: number;
@@ -82,12 +83,6 @@ interface Company {
   digital_seal_path: string;
 }
 
-interface NotificationState {
-  show: boolean;
-  type: "success" | "error" | "loading";
-  title: string;
-  message: string;
-}
 
 interface QuotationViewClientProps {
   quotation: Quotation;
@@ -163,12 +158,9 @@ export function QuotationViewClient({ quotation, company, companyId }: Quotation
   const [showEmailModal, setShowEmailModal] = useState(false);
   const [emailAddress, setEmailAddress] = useState("");
   const [isMounted, setIsMounted] = useState(false);
-  const [notification, setNotification] = useState<NotificationState>({
-    show: false,
-    type: "success",
-    title: "",
-    message: ""
-  });
+  const [successModal, setSuccessModal] = useState<{ isOpen: boolean; title: string; message: string }>({ isOpen: false, title: "", message: "" });
+  const [errorModal, setErrorModal] = useState<{ isOpen: boolean; title: string; message: string }>({ isOpen: false, title: "", message: "" });
+  const [loadingModal, setLoadingModal] = useState(false);
 
   useEffect(() => {
     setIsMounted(true);
@@ -186,12 +178,12 @@ export function QuotationViewClient({ quotation, company, companyId }: Quotation
   );
 
   const showNotification = (type: "success" | "error" | "loading", title: string, message: string) => {
-    setNotification({ show: true, type, title, message });
+    if (type === "success") setSuccessModal({ isOpen: true, title, message });
+    else if (type === "error") setErrorModal({ isOpen: true, title, message });
+    else if (type === "loading") setLoadingModal(true);
   };
 
-  const hideNotification = () => {
-    setNotification(prev => ({ ...prev, show: false }));
-  };
+  const hideNotification = () => setLoadingModal(false);
 
   const handleDelete = async () => {
     if (!confirm(t("notifications.deleteConfirm", { number: quotation.quotation_number }))) return;
@@ -361,54 +353,19 @@ export function QuotationViewClient({ quotation, company, companyId }: Quotation
           </>
         )}
 
-        {notification.show && (
-          <>
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50"
-              onClick={() => notification.type !== "loading" && hideNotification()}
-            />
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.9, y: 20 }}
-              className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50 w-full max-w-md p-4"
-            >
-              <div className={cn(
-                "bg-white rounded-3xl p-8 shadow-2xl border-t-4",
-                notification.type === "success" ? "border-emerald-500" :
-                notification.type === "error" ? "border-red-500" : "border-blue-500"
-              )}>
-                <div className="text-center">
-                  <div className={cn(
-                    "h-20 w-20 rounded-full mx-auto mb-6 flex items-center justify-center",
-                    notification.type === "success" ? "bg-emerald-100 text-emerald-500" :
-                    notification.type === "error" ? "bg-red-100 text-red-500" : "bg-blue-100 text-blue-500"
-                  )}>
-                    {notification.type === "success" && <CheckCircle size={40} />}
-                    {notification.type === "error" && <AlertCircle size={40} />}
-                    {notification.type === "loading" && <Loader2 size={40} className="animate-spin" />}
-                  </div>
-                  <h3 className="text-2xl font-black text-gray-900 mb-2">{notification.title}</h3>
-                  <p className="text-gray-500 mb-6 font-medium">{notification.message}</p>
-                  {notification.type !== "loading" && (
-                    <button
-                      onClick={hideNotification}
-                      className={cn(
-                        "w-full py-3 rounded-xl font-bold text-white transition-all shadow-lg active:scale-95",
-                        notification.type === "success" ? "bg-emerald-500 hover:bg-emerald-600" : "bg-red-500 hover:bg-red-600"
-                      )}
-                    >
-                      {t("notifications.ok")}
-                    </button>
-                  )}
-                </div>
-              </div>
-            </motion.div>
-          </>
-        )}
+      <SuccessModal
+        isOpen={successModal.isOpen}
+        onClose={() => setSuccessModal(prev => ({ ...prev, isOpen: false }))}
+        title={successModal.title}
+        message={successModal.message}
+      />
+      <ErrorModal
+        isOpen={errorModal.isOpen}
+        onClose={() => setErrorModal(prev => ({ ...prev, isOpen: false }))}
+        title={errorModal.title}
+        message={errorModal.message}
+      />
+      <LoadingModal isOpen={loadingModal} />
       </AnimatePresence>
 
       <div className="no-print p-4 md:p-6 pb-0 flex flex-wrap gap-2 justify-between items-center max-w-[1200px] mx-auto w-full">

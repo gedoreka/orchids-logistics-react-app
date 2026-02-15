@@ -101,33 +101,33 @@ export function ExpensesClient({ companyId, companyInfo, stats, recentActivity, 
       value: stats.expenses, 
       icon: TrendingDown, 
       gradient: "from-blue-500 to-blue-600",
-      bgColor: "bg-blue-500/10",
-      textColor: "text-blue-400"
+        bgColor: "bg-white/60 border-blue-200/50",
+        textColor: "text-blue-600"
     },
-    { 
-      label: t("dashboard.totalDeductions"), 
-      value: stats.deductions, 
-      icon: HandCoins, 
-      gradient: "from-rose-500 to-rose-600",
-      bgColor: "bg-rose-500/10",
-      textColor: "text-rose-400"
-    },
-    { 
-      label: t("dashboard.totalSalaries"), 
-      value: stats.payrolls, 
-      icon: Users, 
-      gradient: "from-amber-500 to-amber-600",
-      bgColor: "bg-amber-500/10",
-      textColor: "text-amber-400"
-    },
-    { 
-      label: t("dashboard.grandTotal"), 
-      value: stats.total, 
-      icon: Receipt, 
-      gradient: "from-emerald-500 to-emerald-600",
-      bgColor: "bg-emerald-500/10",
-      textColor: "text-emerald-400"
-    },
+      { 
+        label: t("dashboard.totalDeductions"), 
+        value: stats.deductions, 
+        icon: HandCoins, 
+        gradient: "from-rose-500 to-rose-600",
+        bgColor: "bg-white/60 border-rose-200/50",
+        textColor: "text-rose-600"
+      },
+      { 
+        label: t("dashboard.totalSalaries"), 
+        value: stats.payrolls, 
+        icon: Users, 
+        gradient: "from-amber-500 to-amber-600",
+        bgColor: "bg-white/60 border-amber-200/50",
+        textColor: "text-amber-600"
+      },
+      { 
+        label: t("dashboard.grandTotal"), 
+        value: stats.total, 
+        icon: Receipt, 
+        gradient: "from-emerald-500 to-emerald-600",
+        bgColor: "bg-white/60 border-emerald-200/50",
+        textColor: "text-emerald-600"
+      },
   ];
 
 return (
@@ -139,15 +139,15 @@ return (
           variants={containerVariants}
         >
           {/* Main Card Container */}
-          <div className="bg-[#1a2234] rounded-[3rem] p-6 md:p-8 shadow-2xl border border-white/5">
+          <div className="bg-[#fafbfd] rounded-[3rem] p-6 md:p-8 shadow-2xl border border-slate-200/30">
             <div className="space-y-6">
               {/* Header Banner */}
               <motion.div 
                 initial={{ opacity: 0, y: -20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="relative overflow-hidden rounded-[2.5rem] bg-gradient-to-br from-[#1e293b] via-[#334155] to-[#1e293b] p-8 text-white shadow-2xl border border-white/10"
+                className="relative overflow-hidden rounded-[2.5rem] bg-gradient-to-br from-[#edd3de] via-[#f5e0ea] to-[#fce7f3] p-8 shadow-2xl border border-rose-200/50"
               >
-                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 via-emerald-500 via-rose-500 via-amber-500 via-purple-500 to-blue-500 animate-gradient-x" />
+                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-pink-500 via-rose-500 via-orange-400 via-pink-500 to-rose-500 animate-gradient-x" />
                 
                 <div className="relative z-10">
                   <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
@@ -162,36 +162,36 @@ return (
                           />
                         </div>
                       ) : (
-                        <div className="w-16 h-16 rounded-2xl bg-white/10 backdrop-blur-md flex items-center justify-center shadow-2xl border border-white/10">
-                          <Building2 className="w-8 h-8 text-blue-400" />
+<div className="w-16 h-16 rounded-2xl bg-white/60 backdrop-blur-md flex items-center justify-center shadow-2xl border border-rose-200/50">
+                            <Building2 className="w-8 h-8 text-pink-600" />
                         </div>
                       )}
                       <div className="space-y-1">
-                        <h1 className="text-2xl md:text-3xl font-black tracking-tight bg-gradient-to-r from-white via-blue-100 to-white bg-clip-text text-transparent">
+                        <h1 className="text-2xl md:text-3xl font-black tracking-tight bg-gradient-to-r from-pink-600 via-rose-500 to-orange-500 bg-clip-text text-transparent">
                           {t("dashboard.title")}
                         </h1>
-                        <p className="text-sm font-medium text-slate-300">{companyInfo.name || "Company Name"}</p>
+                        <p className="text-sm font-medium text-slate-600">{companyInfo.name || "Company Name"}</p>
                       </div>
                     </div>
 
                     {/* Month Selector */}
                     <div className="flex items-center gap-3">
-                      <div className="flex items-center bg-white/10 backdrop-blur-md rounded-2xl border border-white/10 overflow-hidden">
-                        <button 
-                          onClick={() => changeMonth('next')}
-                          className="p-3 hover:bg-white/10 transition-colors"
-                        >
-                          <ChevronRight className="w-5 h-5 text-white" />
-                        </button>
-                        <div className="px-5 py-2 flex items-center gap-2 min-w-[160px] justify-center">
-                          <Calendar className="w-4 h-4 text-blue-400" />
-                          <span className="font-bold text-white text-sm">{formatMonthDisplay(selectedMonth)}</span>
-                        </div>
-                        <button 
-                          onClick={() => changeMonth('prev')}
-                          className="p-3 hover:bg-white/10 transition-colors"
-                        >
-                          <ChevronLeft className="w-5 h-5 text-white" />
+<div className="flex items-center bg-white/60 backdrop-blur-md rounded-2xl border border-rose-200/50 overflow-hidden">
+                          <button 
+                            onClick={() => changeMonth('next')}
+                            className="p-3 hover:bg-white/40 transition-colors"
+                          >
+                            <ChevronRight className="w-5 h-5 text-slate-700" />
+                          </button>
+                          <div className="px-5 py-2 flex items-center gap-2 min-w-[160px] justify-center">
+                            <Calendar className="w-4 h-4 text-pink-500" />
+                            <span className="font-bold text-slate-800 text-sm">{formatMonthDisplay(selectedMonth)}</span>
+                          </div>
+                          <button 
+                            onClick={() => changeMonth('prev')}
+                            className="p-3 hover:bg-white/40 transition-colors"
+                          >
+                            <ChevronLeft className="w-5 h-5 text-slate-700" />
                         </button>
                       </div>
                     </div>
@@ -208,7 +208,7 @@ return (
                           <div className={`p-2.5 rounded-xl bg-gradient-to-br ${stat.gradient} shadow-lg`}>
                             <stat.icon className="w-5 h-5 text-white" />
                           </div>
-                          <span className="text-2xl font-black text-white tabular-nums">
+                          <span className="text-2xl font-black text-slate-800 tabular-nums">
                             {new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(stat.value)}
                           </span>
                           <span className={`text-[10px] font-bold ${stat.textColor} uppercase tracking-wider`}>{stat.label}</span>
@@ -219,8 +219,8 @@ return (
                 </div>
                 
                 {/* Decorative elements */}
-                <div className="absolute -bottom-12 -right-12 w-48 h-48 bg-blue-500/10 rounded-full blur-3xl" />
-                <div className="absolute -top-12 -left-12 w-48 h-48 bg-purple-500/10 rounded-full blur-3xl" />
+                  <div className="absolute -bottom-12 -right-12 w-48 h-48 bg-pink-500/10 rounded-full blur-3xl" />
+                  <div className="absolute -top-12 -left-12 w-48 h-48 bg-rose-500/10 rounded-full blur-3xl" />
               </motion.div>
 
               {/* Action Buttons Row */}
@@ -311,11 +311,11 @@ return (
                 {/* Recent Activity */}
                 <motion.div className="lg:col-span-2 space-y-4" variants={itemVariants}>
                   <div className="flex items-center justify-between px-2">
-                    <h2 className="text-xl font-bold text-white flex items-center gap-3">
-                      <History className="w-6 h-6 text-blue-400" />
-                      {t("dashboard.recentActivity")}
-                    </h2>
-                    <Button variant="ghost" className="text-blue-400 font-bold hover:bg-white/10 h-8 text-sm">{t("dashboard.viewAll")}</Button>
+                    <h2 className="text-xl font-bold text-slate-800 flex items-center gap-3">
+                        <History className="w-6 h-6 text-pink-500" />
+                        {t("dashboard.recentActivity")}
+                      </h2>
+                      <Button variant="ghost" className="text-pink-500 font-bold hover:bg-pink-50 h-8 text-sm">{t("dashboard.viewAll")}</Button>
                   </div>
                   
                   <Card className="border-none shadow-xl rounded-[2rem] overflow-hidden bg-white/90 backdrop-blur-xl">
@@ -362,8 +362,8 @@ return (
 
                 {/* Quick Actions */}
                 <motion.div className="space-y-4" variants={itemVariants}>
-                  <h2 className="text-xl font-bold text-white flex items-center gap-3 px-2">
-                    <PlusCircle className="w-6 h-6 text-rose-400" />
+                    <h2 className="text-xl font-bold text-slate-800 flex items-center gap-3 px-2">
+                      <PlusCircle className="w-6 h-6 text-pink-500" />
                     {t("dashboard.quickActions")}
                   </h2>
                   

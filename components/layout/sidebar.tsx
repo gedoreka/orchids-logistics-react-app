@@ -43,6 +43,7 @@ import {
 import { cn } from "@/lib/utils";
 import { useLocale, useTranslations } from "@/lib/locale-context";
 import { useTheme } from "next-themes";
+import BrandLogo from "@/components/brand-logo";
 
 interface NavItem {
     titleKey: string;
@@ -197,40 +198,17 @@ export function Sidebar({ userRole, permissions = {}, userType }: SidebarProps) 
             isRTL ? "left-0" : "right-0"
           )} />
       
-        <div className={`relative z-10 p-5 border-b ${isDark ? 'border-white/5' : 'border-indigo-200/30'}`}>
-          {mounted && (
+      <div className={`relative z-10 p-4 pb-5 border-b ${isDark ? 'border-white/5' : 'border-indigo-200/30'}`}>
+        {mounted && (
             <motion.div 
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
-              className="flex flex-col items-center gap-4"
+              className="flex flex-col items-center"
             >
-              <motion.div 
-                whileHover={{ scale: 1.05, rotate: [0, -5, 5, 0] }}
-                transition={{ duration: 0.5 }}
-                className="relative"
-              >
-                <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-purple-600 rounded-2xl blur-xl opacity-50 animate-pulse" />
-                <div className="relative bg-gradient-to-br from-blue-500 via-blue-600 to-purple-600 p-4 rounded-2xl shadow-2xl shadow-blue-500/30 border border-white/10">
-                  <Truck size={28} className="text-white drop-shadow-lg" />
-                </div>
-                <motion.div 
-                  className={cn("absolute -top-1", isRTL ? "-left-1" : "-right-1")}
-                  animate={{ scale: [1, 1.2, 1] }}
-                  transition={{ duration: 2, repeat: Infinity }}
-                >
-                  <Sparkles size={14} className="text-amber-400" />
-                </motion.div>
-              </motion.div>
-              
-              <div className="text-center">
-                <h2 className={`text-sm font-black tracking-wider bg-gradient-to-r ${isDark ? 'from-white via-blue-200 to-white' : 'from-slate-800 via-blue-600 to-slate-800'} bg-clip-text text-transparent`}>
-                  LOGISTICS PRO
-                </h2>
-                <p className={`text-[9px] font-medium tracking-[0.2em] mt-1 ${isDark ? 'text-white/30' : 'text-slate-400'}`}>ENTERPRISE EDITION</p>
-              </div>
+                <BrandLogo size="md" />
           </motion.div>
-        )}
-      </div>
+      )}
+    </div>
 
       <nav className="relative z-10 flex-1 p-3 overflow-y-auto custom-scrollbar">
         <motion.div 
@@ -317,12 +295,12 @@ export function Sidebar({ userRole, permissions = {}, userType }: SidebarProps) 
                               )} />
                         </div>
                         
-                          <span className={cn(
-                          "relative font-bold text-[12px] tracking-wide transition-all duration-300",
-                          isActive 
-                            ? isDark ? "text-white" : "text-indigo-900" 
-                            : isDark ? "text-white/90 group-hover:text-white" : "text-indigo-800 group-hover:text-indigo-900"
-                        )}>
+                            <span className={cn(
+                            "relative text-[12px] tracking-wide transition-all duration-300",
+                            isActive 
+                              ? isDark ? "text-white font-bold" : "text-black font-black" 
+                              : isDark ? "text-white/90 group-hover:text-white font-bold" : "text-black font-extrabold group-hover:text-black"
+                          )}>
                         {t(item.titleKey)}
                       </span>
 

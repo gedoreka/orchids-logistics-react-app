@@ -167,7 +167,7 @@ export function HierarchicalSearchableSelect({
   const dropdown = isOpen && typeof document !== "undefined" ? createPortal(
       <div
         ref={dropdownRef}
-        className="fixed z-[99999] bg-slate-900/95 border border-white/10 rounded-2xl shadow-[0_10px_50px_rgba(0,0,0,0.8)] overflow-hidden backdrop-blur-2xl"
+        className="fixed z-[99999] bg-white border border-gray-200 rounded-2xl shadow-[0_10px_50px_rgba(0,0,0,0.15)] overflow-hidden backdrop-blur-2xl"
         style={{
           top: dropdownPos.top,
           left: dropdownPos.left,
@@ -176,13 +176,13 @@ export function HierarchicalSearchableSelect({
         }}
       >
         {/* Search */}
-        <div className="p-3 border-b border-white/5 bg-slate-900/80 sticky top-0 z-10">
+        <div className="p-3 border-b border-gray-100 bg-gray-50/50 sticky top-0 z-10">
           <div className="relative group">
-            <Search className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-cyan-400 transition-colors" size={14} />
+            <Search className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-cyan-500 transition-colors" size={14} />
             <input
               ref={searchInputRef}
               type="text"
-              className="w-full pr-9 pl-3 py-2.5 bg-white/5 rounded-xl border border-white/10 focus:border-cyan-500/50 focus:ring-1 focus:ring-cyan-500/20 outline-none transition-all text-sm font-bold text-white placeholder:text-slate-600"
+              className="w-full pr-9 pl-3 py-2.5 bg-gray-100 rounded-xl border border-gray-200 focus:border-cyan-500/50 focus:ring-1 focus:ring-cyan-500/20 outline-none transition-all text-sm font-bold text-gray-900 placeholder:text-gray-400"
               placeholder={searchPlaceholder}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
@@ -199,7 +199,7 @@ export function HierarchicalSearchableSelect({
           overscrollBehavior: 'contain',
           WebkitOverflowScrolling: 'touch',
           scrollbarWidth: 'thin',
-          scrollbarColor: '#334155 transparent'
+          scrollbarColor: '#d1d5db transparent'
         }}
       >
           <div className="p-1.5 space-y-0">
@@ -222,9 +222,9 @@ export function HierarchicalSearchableSelect({
                       className={cn(
                         "w-full text-start px-3 py-2.5 rounded-xl transition-all flex items-center gap-2 group relative border border-transparent text-sm",
                         isSelected
-                          ? "bg-cyan-500/20 text-white border-cyan-500/30"
-                          : "hover:bg-white/5 text-slate-300",
-                        isMain && !isSelected && "bg-white/[0.02]"
+                          ? "bg-cyan-500/10 text-gray-900 border-cyan-500/30"
+                          : "hover:bg-gray-50 text-gray-600",
+                        isMain && !isSelected && "bg-gray-50/50"
                       )}
                       style={{
                         paddingRight: `${(item.level * 16) + 12}px`,
@@ -237,7 +237,7 @@ export function HierarchicalSearchableSelect({
                             onClick={(e) => toggleExpand(item.id, e)}
                             className="p-0.5 hover:bg-white/10 rounded transition-colors cursor-pointer"
                           >
-                            <ChevronRight size={14} className={cn("transition-transform text-slate-500", isExpanded && "rotate-90 text-cyan-400")} />
+                            <ChevronRight size={14} className={cn("transition-transform text-gray-400", isExpanded && "rotate-90 text-cyan-500")} />
                           </div>
                         ) : (
                           <div className="w-5" />
@@ -246,9 +246,9 @@ export function HierarchicalSearchableSelect({
                         <div className={cn(
                           "p-1.5 rounded-lg border text-[10px]",
                           isMain
-                            ? "bg-cyan-500/20 border-cyan-500/30 text-cyan-400"
-                            : "bg-white/5 border-white/10 text-slate-500",
-                          isSelected && "bg-cyan-500/30 border-cyan-500/40 text-cyan-300"
+                            ? "bg-cyan-500/10 border-cyan-500/20 text-cyan-600"
+                            : "bg-gray-100 border-gray-200 text-gray-400",
+                          isSelected && "bg-cyan-500/20 border-cyan-500/30 text-cyan-600"
                         )}>
                           {isMain ? <Folder size={12} /> : <FileText size={12} />}
                         </div>
@@ -256,9 +256,9 @@ export function HierarchicalSearchableSelect({
                         <span className={cn(
                           "text-[10px] font-bold px-2 py-0.5 rounded-md shrink-0",
                           isMain
-                            ? "bg-indigo-500/10 text-indigo-400 border border-indigo-500/20"
-                            : "bg-white/5 text-slate-500 border border-white/5",
-                          isSelected && "bg-cyan-500/20 text-cyan-300 border-cyan-500/30"
+                            ? "bg-indigo-500/10 text-indigo-600 border border-indigo-500/20"
+                            : "bg-gray-100 text-gray-500 border border-gray-200",
+                          isSelected && "bg-cyan-500/10 text-cyan-600 border-cyan-500/20"
                         )}>
                           {item.code}
                         </span>
@@ -266,7 +266,7 @@ export function HierarchicalSearchableSelect({
                         <div className="flex flex-col min-w-0 flex-1">
                           <span className={cn(
                             "truncate font-bold text-sm leading-tight",
-                            isSelected ? "text-white" : isMain ? "text-slate-200" : "text-slate-400"
+                            isSelected ? "text-gray-900" : isMain ? "text-gray-800" : "text-gray-500"
                           )}>
                             {item.name}
                           </span>
@@ -275,12 +275,12 @@ export function HierarchicalSearchableSelect({
 
                       {isSelected && <Check size={14} className="text-cyan-400 shrink-0" />}
                     </button>
-                  {isMain && <div className="my-0.5 mx-2 h-px bg-gradient-to-r from-transparent via-white/5 to-transparent" />}
+                  {isMain && <div className="my-0.5 mx-2 h-px bg-gradient-to-r from-transparent via-gray-200 to-transparent" />}
                 </div>
               );
             })
           ) : (
-            <div className="px-3 py-8 text-center text-slate-500 flex flex-col items-center gap-2">
+            <div className="px-3 py-8 text-center text-gray-400 flex flex-col items-center gap-2">
                 <Search size={20} className="opacity-30" />
                 <span className="text-xs font-bold">{noResultsText}</span>
               </div>
@@ -289,7 +289,7 @@ export function HierarchicalSearchableSelect({
       </div>
 
       {/* Footer */}
-        <div className="p-2 border-t border-white/5 bg-slate-900/80 text-[10px] text-slate-600 text-center font-bold">
+        <div className="p-2 border-t border-gray-100 bg-gray-50/50 text-[10px] text-gray-400 text-center font-bold">
           {displayItems.length} / {items.length}
       </div>
     </div>,

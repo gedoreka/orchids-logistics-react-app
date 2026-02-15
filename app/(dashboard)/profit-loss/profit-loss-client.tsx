@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { useTranslations, useLocale } from "@/lib/locale-context";
 import { cn } from "@/lib/utils";
+import { SuccessModal, LoadingModal, ErrorModal } from "@/components/ui/notification-modals";
 
 interface Invoice {
   id: number;
@@ -165,37 +166,27 @@ function ProfitLossContent() {
     journalExpense: true,
   });
   const [modal, setModal] = useState<ModalState>({ type: "idle" });
-  const printRef = useRef<HTMLDivElement>(null);
+    const printRef = useRef<HTMLDivElement>(null);
 
-  const showNotification = useCallback((type: "success" | "error" | "warning" | "info", title: string, message: string) => {
-    setModal({ type: "notification", notificationType: type, notificationTitle: title, notificationMessage: message });
-    if (type === "success" || type === "info") {
-      setTimeout(() => setModal(prev => prev.type === "notification" ? { type: "idle" } : prev), 2500);
-    }
-  }, []);
+    const fetchData = async (month?: string) => {
+      try {
+        setLoading(true);
+        const m = month || selectedMonth;
+        const res = await fetch(`/api/profit-loss?month=${m}&includeTax=${includeTax}`);
+        if (!res.ok) throw new Error("Failed to fetch");
+        const json = await res.json();
+        setData(json);
+      } catch (err) {
+        console.error("Error fetching profit/loss data:", err);
+        setData(null);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  const closeModal = () => setModal({ type: "idle" });
-
-  const fetchData = async (monthOverride?: string) => {
-    setLoading(true);
-    const monthToFetch = monthOverride || `${inputYear}-${inputMonthIndex}`;
-    try {
-      const res = await fetch(`/api/profit-loss?month=${monthToFetch}&includeTax=${includeTax}`);
-      const result = await res.json();
-      if (result.error) throw new Error(result.error);
-      setData(result);
-      setSelectedMonth(monthToFetch);
-    } catch (error: any) {
-      console.error(error);
-      showNotification("error", t("errorLoading") || "خطأ", t("errorLoadingDesc") || "حدث خطأ في جلب البيانات");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchData(selectedMonth);
-  }, [includeTax]);
+    useEffect(() => {
+      fetchData(selectedMonth);
+    }, [includeTax]);
 
   const toggleSection = (section: string) => {
     setExpandedSections(prev => ({ ...prev, [section]: !prev[section] }));
@@ -248,7 +239,7 @@ function ProfitLossContent() {
     a.download = `profit-loss-${selectedMonth}.csv`;
     a.click();
     URL.revokeObjectURL(url);
-    showNotification("success", "تم التصدير", "تم تصدير ملف CSV بنجاح");
+    setSuccessModal({ isOpen: true, type: 'update', title: 'تم التصدير' });
   };
 
   const years = Array.from({ length: 11 }, (_, i) => (new Date().getFullYear() - 5 + i).toString());

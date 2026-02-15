@@ -59,6 +59,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useTranslations } from "@/lib/locale-context";
+import { useTheme } from "next-themes";
+import { SuccessModal, ErrorModal } from "@/components/ui/notification-modals";
 
 interface ExpenseItem {
   id: number;
@@ -198,6 +200,8 @@ const generateMonthOptions = () => {
 
 export function ExpensesReportClient({ companyId }: ExpensesReportClientProps) {
   const t = useTranslations("expenses");
+  const { resolvedTheme } = useTheme();
+  const isDark = resolvedTheme === "dark";
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState<ReportData | null>(null);
   const [selectedMonth, setSelectedMonth] = useState(() => {
@@ -217,7 +221,8 @@ export function ExpensesReportClient({ companyId }: ExpensesReportClientProps) {
   const [showEditModal, setShowEditModal] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [editLoading, setEditLoading] = useState(false);
-  const [notification, setNotification] = useState<{show: boolean; type: 'success' | 'error'; message: string}>({show: false, type: 'success', message: ''});
+  const [successModal, setSuccessModal] = useState<{ isOpen: boolean; title: string; message: string }>({ isOpen: false, title: "", message: "" });
+  const [errorModal, setErrorModal] = useState<{ isOpen: boolean; title: string; message: string }>({ isOpen: false, title: "", message: "" });
   const [editForm, setEditForm] = useState<any>({});
   const [accounts, setAccounts] = useState<AccountOption[]>([]);
   const [costCenters, setCostCenters] = useState<CostCenterOption[]>([]);
@@ -385,8 +390,11 @@ export function ExpensesReportClient({ companyId }: ExpensesReportClientProps) {
   };
 
   const showNotification = (type: 'success' | 'error', message: string) => {
-    setNotification({show: true, type, message});
-    setTimeout(() => setNotification({show: false, type: 'success', message: ''}), 3000);
+    if (type === 'success') {
+      setSuccessModal({ isOpen: true, title: "نجاح", message });
+    } else {
+      setErrorModal({ isOpen: true, title: "خطأ", message });
+    }
   };
 
   const fetchMetadata = async () => {
@@ -650,54 +658,54 @@ export function ExpensesReportClient({ companyId }: ExpensesReportClientProps) {
     <div className="min-h-screen bg-transparent rtl print:bg-white" dir="rtl">
       <div className="max-w-[97%] w-[97%] mx-auto py-4 space-y-2 print:w-full print:p-2">
         <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="print:shadow-none">
-          <Card className="overflow-hidden border-none shadow-xl bg-gradient-to-br from-[#1e293b] via-[#334155] to-[#1e293b] text-white rounded-3xl print:rounded-none print:shadow-none">
-            <div className="h-1 bg-gradient-to-r from-blue-500 via-emerald-500 via-rose-500 via-amber-500 via-purple-500 to-blue-500 animate-gradient-x print:hidden" />
-            <CardContent className="p-5">
-              <div className="flex flex-col items-center justify-center gap-2">
-                <h1 className="text-xl lg:text-2xl font-bold flex items-center justify-center gap-3">
-                  <TrendingUp className="w-7 h-7 text-amber-400" />
-                  {t("report.title")}
-                </h1>
-                <p className="text-blue-200 text-sm">{t("report.subtitle")}</p>
-              </div>
-            </CardContent>
-          </Card>
+          <Card className="preserve-colors overflow-hidden border-none shadow-xl bg-gradient-to-r from-blue-500 via-blue-400 to-blue-500 dark:bg-gradient-to-br dark:from-[#1e293b] dark:via-[#334155] dark:to-[#1e293b] text-white rounded-3xl print:rounded-none print:shadow-none" style={{ background: 'linear-gradient(to right, #3b82f6, #60a5fa, #3b82f6)' }}>
+              <div className="h-1 bg-gradient-to-r from-blue-300 via-blue-200 to-blue-300 dark:from-blue-500 dark:via-emerald-500 dark:via-rose-500 dark:via-amber-500 dark:via-purple-500 dark:to-blue-500 animate-gradient-x print:hidden" />
+              <CardContent className="p-5">
+                <div className="flex flex-col items-center justify-center gap-2">
+                    <h1 className="text-xl lg:text-2xl font-black flex items-center justify-center gap-3 text-black dark:text-white drop-shadow-sm">
+                      <TrendingUp className="w-7 h-7 text-black dark:text-amber-400" />
+                    {t("report.title")}
+                  </h1>
+                  <p className="text-blue-100 dark:text-blue-200 text-sm">{t("report.subtitle")}</p>
+                </div>
+              </CardContent>
+            </Card>
         </motion.div>
 
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-          {[
-            { label: t("dashboard.totalExpenses"), value: stats.totalExpenses, count: stats.expensesCount, icon: Wallet, gradient: "from-blue-600 to-blue-700", bgGradient: "from-blue-50 to-white", accent: "blue" },
-            { label: t("dashboard.totalDeductions"), value: stats.totalDeductions, count: stats.deductionsCount, icon: HandCoins, gradient: "from-rose-600 to-rose-700", bgGradient: "from-rose-50 to-white", accent: "rose" },
-            { label: t("dashboard.totalSalaries"), value: stats.totalPayrolls, count: stats.payrollsCount, icon: FileText, gradient: "from-emerald-600 to-emerald-700", bgGradient: "from-emerald-50 to-white", accent: "emerald", link: "/salary-payrolls" },
-            { label: t("dashboard.grandTotal"), value: stats.totalAll, count: stats.expensesCount + stats.deductionsCount + stats.payrollsCount, icon: Calculator, gradient: "from-amber-600 to-amber-700", bgGradient: "from-amber-50 to-white", accent: "amber" },
-          ].map((stat, idx) => (
-            <motion.div key={idx} whileHover={{ y: -5, scale: 1.02 }} onClick={() => stat.link && (window.location.href = stat.link)} className={`relative group ${stat.link ? "cursor-pointer" : ""}`}>
-              <Card className={`border-none shadow-xl rounded-[2.5rem] overflow-hidden bg-gradient-to-br ${stat.bgGradient} h-full border-b-4 border-${stat.accent}-500/30`}>
-                <CardContent className="p-6">
-                  <div className="flex flex-col items-center text-center space-y-4">
-                    <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${stat.gradient} flex items-center justify-center shadow-lg`}>
-                      <stat.icon className="w-7 h-7 text-white" />
-                    </div>
-                    <div className="space-y-1">
-                      <p className={`text-sm font-bold text-${stat.accent}-700`}>{stat.label}</p>
-                      <div className="flex items-baseline justify-center gap-1">
-                        <span className="text-2xl font-black text-slate-800">{formatNumber(stat.value)}</span>
-                        <span className="text-[10px] font-bold text-slate-400">SAR</span>
+            {[
+                { label: t("dashboard.totalExpenses"), value: stats.totalExpenses, count: stats.expensesCount, icon: Wallet, gradient: "from-blue-600 to-blue-700", accent: "blue", lightBg: "#eff4ff", borderColor: "#93b4f8" },
+                { label: t("dashboard.totalDeductions"), value: stats.totalDeductions, count: stats.deductionsCount, icon: HandCoins, gradient: "from-rose-600 to-rose-700", accent: "rose", lightBg: "#fff0f3", borderColor: "#f8a3b5" },
+                { label: t("dashboard.totalSalaries"), value: stats.totalPayrolls, count: stats.payrollsCount, icon: FileText, gradient: "from-emerald-600 to-emerald-700", accent: "emerald", link: "/salary-payrolls", lightBg: "#edfcf4", borderColor: "#7dd4a3" },
+                { label: t("dashboard.grandTotal"), value: stats.totalAll, count: stats.expensesCount + stats.deductionsCount + stats.payrollsCount, icon: Calculator, gradient: "from-amber-600 to-amber-700", accent: "amber", lightBg: "#fff8eb", borderColor: "#f5c862" },
+              ].map((stat, idx) => (
+                <motion.div key={idx} whileHover={{ y: -5, scale: 1.02 }} onClick={() => stat.link && (window.location.href = stat.link)} className={`relative group ${stat.link ? "cursor-pointer" : ""}`}>
+                  <Card className={`shadow-xl rounded-[2.5rem] overflow-hidden ${isDark ? 'border-none bg-white/5' : ''} h-full`} style={isDark ? {} : { backgroundColor: stat.lightBg, borderColor: stat.borderColor, borderWidth: '2px' }}>
+                    <CardContent className="p-6">
+                      <div className="flex flex-col items-center text-center space-y-4">
+                        <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${stat.gradient} flex items-center justify-center shadow-lg`}>
+                          <stat.icon className="w-7 h-7 text-white" />
+                        </div>
+                        <div className="space-y-1">
+                          <p className={`text-sm font-bold text-slate-700 dark:text-slate-300`}>{stat.label}</p>
+                          <div className="flex items-baseline justify-center gap-1">
+                            <span className="text-2xl font-black text-slate-800 dark:text-white">{formatNumber(stat.value)}</span>
+                            <span className="text-[10px] font-bold text-slate-400">SAR</span>
+                          </div>
+                        </div>
+                        <div className={`w-full pt-3 border-t dark:border-slate-700 flex items-center justify-between`} style={isDark ? {} : { borderColor: `${stat.borderColor}80` }}>
+                          <span className="text-xs font-bold text-slate-600 dark:text-slate-400">{stat.count}</span>
+                          <Info className="w-3.5 h-3.5 text-slate-400 dark:text-slate-500" />
+                        </div>
                       </div>
-                    </div>
-                    <div className="w-full pt-3 border-t border-slate-100 flex items-center justify-between">
-                      <span className="text-xs font-bold text-slate-600">{stat.count}</span>
-                      <Info className="w-3.5 h-3.5 text-slate-300" />
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </motion.div>
-          ))}
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              ))}
         </motion.div>
 
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="print:hidden">
-          <div className="bg-gradient-to-r from-blue-100/80 via-rose-100/80 via-emerald-100/80 to-amber-100/80 backdrop-blur-xl p-2 rounded-[3rem] shadow-inner border border-white/50 inline-flex w-full">
+          <div className="bg-[#edd3de] dark:bg-white/5 backdrop-blur-xl p-2 rounded-[3rem] shadow-inner border border-pink-200/50 dark:border-slate-700 inline-flex w-full">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-2 w-full">
                 {[
                   { id: "expenses", label: t("dashboard.expensesReport"), icon: Wallet, color: "blue", gradient: "from-blue-500 to-blue-700" },
@@ -716,7 +724,7 @@ export function ExpensesReportClient({ companyId }: ExpensesReportClientProps) {
         </motion.div>
 
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="print:hidden">
-          <Card className="border-none shadow-md rounded-[2rem] bg-gradient-to-r from-blue-100/80 via-rose-100/80 via-emerald-100/80 to-amber-100/80 backdrop-blur-md border border-white/50">
+          <Card className="border-none shadow-md rounded-[2rem] bg-[#edd3de] dark:bg-white/5 backdrop-blur-md border border-pink-200/50 dark:border-slate-700">
             <CardContent className="p-3">
               <div className="flex flex-col lg:flex-row items-center justify-center gap-6">
                 <div className="flex items-center gap-3 flex-wrap">
@@ -766,7 +774,7 @@ export function ExpensesReportClient({ companyId }: ExpensesReportClientProps) {
         {/* Expenses Table */}
         {(reportType === "expenses" || reportType === "all") && (
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}>
-            <Card className="border-none shadow-lg rounded-3xl overflow-hidden">
+            <Card className="border-none shadow-lg rounded-3xl overflow-hidden bg-[#edd3de] dark:bg-white/5">
               <CardContent className="p-4 space-y-4">
                 {Object.keys(expensesGrouped).length > 0 ? (
 Object.entries(expensesGrouped).map(([group, expenses], groupIdx) => {
@@ -829,27 +837,27 @@ Object.entries(expensesGrouped).map(([group, expenses], groupIdx) => {
                                                   </td>
                                                   <td className="p-1 text-center print:hidden">
                                                     <div className="flex items-center justify-center -space-x-px">
-                                                      <Button 
-                                                        variant="outline" 
-                                                        onClick={() => showItemDetails(expense)} 
-                                                        className="h-9 px-3 text-xs font-bold text-blue-600 border-slate-200 rounded-none rounded-r-md hover:bg-blue-50 hover:border-blue-200 z-10"
-                                                      >
-                                                        {t("actions.view")}
-                                                      </Button>
-                                                      <Button 
-                                                        variant="outline" 
-                                                        onClick={() => handleEditClick(expense)} 
-                                                        className="h-9 px-3 text-xs font-bold text-amber-600 border-slate-200 rounded-none border-r-0 hover:bg-amber-50 hover:border-amber-200 z-20"
-                                                      >
-                                                        {t("actions.edit")}
-                                                      </Button>
-                                                      <Button 
-                                                        variant="outline" 
-                                                        onClick={() => handleDeleteClick(expense)} 
-                                                        className="h-9 px-3 text-xs font-bold text-rose-600 border-slate-200 rounded-none rounded-l-md border-r-0 hover:bg-rose-50 hover:border-rose-200 z-30"
-                                                      >
-                                                        {t("actions.delete")}
-                                                      </Button>
+                                                        <Button 
+                                                          variant="outline" 
+                                                          onClick={() => showItemDetails(expense)} 
+                                                          className="h-9 px-4 text-xs font-black text-white bg-blue-500 border-blue-500 rounded-none rounded-r-md hover:bg-blue-600 hover:border-blue-600 shadow-sm z-10"
+                                                        >
+                                                          {t("actions.view")}
+                                                        </Button>
+                                                        <Button 
+                                                          variant="outline" 
+                                                          onClick={() => handleEditClick(expense)} 
+                                                          className="h-9 px-4 text-xs font-black text-white bg-amber-500 border-amber-500 rounded-none border-r-0 hover:bg-amber-600 hover:border-amber-600 shadow-sm z-20"
+                                                        >
+                                                          {t("actions.edit")}
+                                                        </Button>
+                                                        <Button 
+                                                          variant="outline" 
+                                                          onClick={() => handleDeleteClick(expense)} 
+                                                          className="h-9 px-4 text-xs font-black text-white bg-rose-500 border-rose-500 rounded-none rounded-l-md border-r-0 hover:bg-rose-600 hover:border-rose-600 shadow-sm z-30"
+                                                        >
+                                                          {t("actions.delete")}
+                                                        </Button>
                                                     </div>
                                                   </td>
                                             </tr>
@@ -877,8 +885,8 @@ Object.entries(expensesGrouped).map(([group, expenses], groupIdx) => {
         {/* Deductions Table */}
         {(reportType === "deductions" || reportType === "all") && (
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }}>
-            <Card className="border-none shadow-lg rounded-3xl overflow-hidden bg-white/80 backdrop-blur-sm">
-              <CardHeader className="bg-gradient-to-r from-rose-50 to-rose-100/80 p-4 border-b border-rose-200/50">
+            <Card className="border-none shadow-lg rounded-3xl overflow-hidden bg-[#edd3de] dark:bg-white/5 dark:backdrop-blur-sm">
+              <CardHeader className="bg-[#e4c0ce] dark:bg-rose-900/30 p-4 border-b border-pink-200/50 dark:border-rose-800/50">
                 <div className="flex items-center justify-between">
                   <CardTitle className="flex items-center gap-2 text-base font-extrabold">
                     <HandCoins className="w-5 h-5 text-rose-600" />
@@ -972,26 +980,26 @@ Object.entries(deductionsGrouped).map(([group, deductions], groupIdx) => {
                                               </td>
                                                 <td className="p-1 text-center print:hidden">
                                                   <div className="flex items-center justify-center -space-x-px">
-                                                    <Button 
-                                                      variant="outline" 
-                                                      onClick={() => showItemDetails(deduction)} 
-                                                      className="h-9 px-3 text-xs font-bold text-blue-600 border-slate-200 rounded-none rounded-r-md hover:bg-blue-50 hover:border-blue-200 z-10"
-                                                    >
-                                                      {t("actions.view")}
-                                                    </Button>
-                                                    <Button 
-                                                      variant="outline" 
-                                                      onClick={() => handleEditClick(deduction)} 
-                                                      className="h-9 px-3 text-xs font-bold text-amber-600 border-slate-200 rounded-none border-r-0 hover:bg-amber-50 hover:border-amber-200 z-20"
-                                                    >
-                                                      {t("actions.edit")}
-                                                    </Button>
-                                                    <Button 
-                                                      variant="outline" 
-                                                      onClick={() => handleDeleteClick(deduction)} 
-                                                      className="h-9 px-3 text-xs font-bold text-rose-600 border-slate-200 rounded-none rounded-l-md border-r-0 hover:bg-rose-50 hover:border-rose-200 z-30"
-                                                    >
-                                                      {t("actions.delete")}
+                                                      <Button 
+                                                        variant="outline" 
+                                                        onClick={() => showItemDetails(deduction)} 
+                                                        className="h-9 px-4 text-xs font-black text-white bg-blue-500 border-blue-500 rounded-none rounded-r-md hover:bg-blue-600 hover:border-blue-600 shadow-sm z-10"
+                                                      >
+                                                        {t("actions.view")}
+                                                      </Button>
+                                                      <Button 
+                                                        variant="outline" 
+                                                        onClick={() => handleEditClick(deduction)} 
+                                                        className="h-9 px-4 text-xs font-black text-white bg-amber-500 border-amber-500 rounded-none border-r-0 hover:bg-amber-600 hover:border-amber-600 shadow-sm z-20"
+                                                      >
+                                                        {t("actions.edit")}
+                                                      </Button>
+                                                      <Button 
+                                                        variant="outline" 
+                                                        onClick={() => handleDeleteClick(deduction)} 
+                                                        className="h-9 px-4 text-xs font-black text-white bg-rose-500 border-rose-500 rounded-none rounded-l-md border-r-0 hover:bg-rose-600 hover:border-rose-600 shadow-sm z-30"
+                                                      >
+                                                        {t("actions.delete")}
                                                     </Button>
                                                   </div>
                                                 </td>
@@ -1018,13 +1026,13 @@ Object.entries(deductionsGrouped).map(([group, deductions], groupIdx) => {
         )}
 
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.7 }}>
-          <Card className="border-none shadow-xl rounded-3xl overflow-hidden bg-gradient-to-r from-rose-600 via-rose-700 to-red-700 text-white">
+          <Card className="border-none shadow-xl rounded-3xl overflow-hidden bg-[#edd3de] dark:bg-gradient-to-r dark:from-rose-600 dark:via-rose-700 dark:to-red-700 text-slate-800 dark:text-white">
             <CardContent className="p-5 text-center">
               <div className="flex items-center justify-center gap-3 mb-3">
-                <Calculator className="w-7 h-7 text-amber-300" />
+                <Calculator className="w-7 h-7 text-rose-600 dark:text-amber-300" />
                 <h2 className="text-lg font-bold">{t("report.summary")} {getMonthName(selectedMonth)}</h2>
               </div>
-              <p className="text-3xl font-bold">{formatNumber(stats.totalAll)} SAR</p>
+              <p className="text-3xl font-bold text-slate-900 dark:text-white">{formatNumber(stats.totalAll)} SAR</p>
             </CardContent>
           </Card>
         </motion.div>
@@ -1580,14 +1588,20 @@ Object.entries(deductionsGrouped).map(([group, deductions], groupIdx) => {
       </AnimatePresence>
 
         <AnimatePresence>
-          {notification.show && (
-            <motion.div initial={{ opacity: 0, y: -50 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -50 }} className="fixed top-10 left-1/2 -translate-x-1/2 z-[100]">
-              <div className={`px-6 py-3 rounded-2xl shadow-2xl flex items-center gap-3 text-white ${notification.type === 'success' ? 'bg-emerald-600' : 'bg-rose-600'}`}>
-                {notification.type === 'success' ? <CheckCircle2 /> : <X />}
-                <span className="font-bold">{notification.message}</span>
-              </div>
-            </motion.div>
-          )}
+      <SuccessModal
+        key="success-modal"
+        isOpen={successModal.isOpen}
+        onClose={() => setSuccessModal(prev => ({ ...prev, isOpen: false }))}
+        title={successModal.title}
+        message={successModal.message}
+      />
+      <ErrorModal
+        key="error-modal"
+        isOpen={errorModal.isOpen}
+        onClose={() => setErrorModal(prev => ({ ...prev, isOpen: false }))}
+        title={errorModal.title}
+        message={errorModal.message}
+      />
         </AnimatePresence>
     </div>
 

@@ -20,9 +20,7 @@ import {
   Calculator,
   Save,
   Loader2,
-  CheckCircle,
   Power,
-  AlertCircle,
   Route
 } from "lucide-react";
 import Link from "next/link";
@@ -30,6 +28,7 @@ import { useRouter } from "next/navigation";
 import { locationLibrary } from "@/lib/location-data";
 import { HierarchicalSearchableSelect } from "@/components/ui/hierarchical-searchable-select";
 import { LuxurySearchableSelect } from "@/components/ui/luxury-searchable-select";
+import { SuccessModal, LoadingModal, ErrorModal } from "@/components/ui/notification-modals";
 
 interface Account {
   id: number;
@@ -53,22 +52,12 @@ interface NewCustomerClientProps {
   companyId: number;
 }
 
-interface NotificationState {
-  show: boolean;
-  type: "success" | "error" | "loading";
-  title: string;
-  message: string;
-}
-
 export function NewCustomerClient({ accounts, costCenters, companyId }: NewCustomerClientProps) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
-  const [notification, setNotification] = useState<NotificationState>({
-    show: false,
-    type: "success",
-    title: "",
-    message: ""
-  });
+  const [successModal, setSuccessModal] = useState<{ isOpen: boolean; type: 'create' | null; title: string }>({ isOpen: false, type: null, title: '' });
+  const [loadingModal, setLoadingModal] = useState(false);
+  const [errorModal, setErrorModal] = useState<{ isOpen: boolean; title: string; message: string }>({ isOpen: false, title: '', message: '' });
   const [formData, setFormData] = useState({
     customer_name: "",
     company_name: "",
@@ -113,14 +102,6 @@ export function NewCustomerClient({ accounts, costCenters, companyId }: NewCusto
     }
   }, [formData.country, formData.city]);
 
-  const showNotification = (type: "success" | "error" | "loading", title: string, message: string) => {
-    setNotification({ show: true, type, title, message });
-  };
-
-  const hideNotification = () => {
-    setNotification(prev => ({ ...prev, show: false }));
-  };
-
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = e.target;
     setFormData(prev => ({ 
@@ -137,12 +118,22 @@ export function NewCustomerClient({ accounts, costCenters, companyId }: NewCusto
     e.preventDefault();
     
     if (!formData.company_name || !formData.commercial_number || !formData.vat_number) {
-      showNotification("error", "خطأ في البيانات", "يرجى ملء جميع الحقول الإجبارية (اسم المنشأة، السجل التجاري، الرقم الضريبي)");
+      setErrorModal({ isOpen: true, title: "خطأ في البيانات", message: "يرجى ملء جميع الحقول الإجبارية (اسم المنشأة، السجل التجاري، الرقم الضريبي)" });
+      return;
+    }
+
+    if (!formData.account_id) {
+      setErrorModal({ isOpen: true, title: "خطأ في البيانات", message: "يرجى اختيار شجرة الحسابات - هذا الحقل إجباري" });
+      return;
+    }
+
+    if (!formData.cost_center_id) {
+      setErrorModal({ isOpen: true, title: "خطأ في البيانات", message: "يرجى اختيار مركز التكلفة - هذا الحقل إجباري" });
       return;
     }
 
     setLoading(true);
-    showNotification("loading", "جاري الحفظ", "جاري حفظ بيانات العميل...");
+    setLoadingModal(true);
 
     try {
       const res = await fetch("/api/customers", {
@@ -157,38 +148,25 @@ export function NewCustomerClient({ accounts, costCenters, companyId }: NewCusto
         })
       });
 
+      setLoadingModal(false);
+
       if (res.ok) {
-        showNotification("success", "تم الحفظ بنجاح", "تم إضافة العميل بنجاح");
+        setSuccessModal({ isOpen: true, type: 'create', title: formData.company_name || formData.customer_name });
         setTimeout(() => {
           router.push("/customers");
           router.refresh();
-        }, 1500);
+        }, 2000);
       } else {
         const data = await res.json();
-        showNotification("error", "فشل الحفظ", data.error || "فشل حفظ العميل");
+        setErrorModal({ isOpen: true, title: "فشل الحفظ", message: data.error || "فشل حفظ العميل" });
       }
     } catch {
-      showNotification("error", "خطأ", "حدث خطأ أثناء الحفظ");
+      setLoadingModal(false);
+      setErrorModal({ isOpen: true, title: "خطأ", message: "حدث خطأ أثناء الحفظ" });
     } finally {
       setLoading(false);
     }
   };
-
-  // Format account options for hierarchical view
-  const accountOptions = accounts.map(a => {
-    const isMain = a.account_type === 'main';
-    return {
-      value: a.id,
-      label: isMain ? `📂 ${a.account_name}` : `└─ ${a.account_name}`,
-      subLabel: `${a.account_code}`
-    };
-  });
-
-  const costCenterOptions = costCenters.map(c => ({
-    value: c.id,
-    label: `📍 ${c.center_name}`,
-    subLabel: `${c.center_code}`
-  }));
 
   return (
     <div className="min-h-screen flex flex-col bg-[#0d1525] relative overflow-hidden">
@@ -196,53 +174,20 @@ export function NewCustomerClient({ accounts, costCenters, companyId }: NewCusto
       <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-blue-600/5 rounded-full blur-[150px] -mr-96 -mt-96 pointer-events-none" />
       <div className="absolute bottom-0 left-0 w-[800px] h-[800px] bg-purple-600/5 rounded-full blur-[150px] -ml-96 -mb-96 pointer-events-none" />
       
-      <AnimatePresence>
-        {notification.show && (
-          <>
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-[#0d1525]/80 backdrop-blur-xl z-[10000]"
-              onClick={() => notification.type !== "loading" && hideNotification()}
-            />
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.9, y: 20 }}
-              className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[10001] w-full max-w-md p-4"
-            >
-              <div className={`bg-white rounded-[2.5rem] p-10 shadow-[0_30px_100px_rgba(0,0,0,0.4)] border-t-[12px] ${
-                notification.type === "success" ? "border-emerald-500" :
-                notification.type === "error" ? "border-red-500" : "border-blue-500"
-              }`}>
-                <div className="text-center">
-                  <div className={`h-28 w-28 rounded-full mx-auto mb-8 flex items-center justify-center ${
-                    notification.type === "success" ? "bg-emerald-50 text-emerald-500" :
-                    notification.type === "error" ? "bg-red-50 text-red-500" : "bg-blue-50 text-blue-500"
-                  }`}>
-                    {notification.type === "success" && <CheckCircle size={56} strokeWidth={2.5} />}
-                    {notification.type === "error" && <AlertCircle size={56} strokeWidth={2.5} />}
-                    {notification.type === "loading" && <Loader2 size={56} className="animate-spin" strokeWidth={2.5} />}
-                  </div>
-                  <h3 className="text-3xl font-black text-slate-900 mb-3">{notification.title}</h3>
-                  <p className="text-slate-500 mb-10 text-lg leading-relaxed font-bold">{notification.message}</p>
-                  {notification.type !== "loading" && (
-                    <button
-                      onClick={hideNotification}
-                      className={`w-full py-5 rounded-2xl font-black text-white text-xl shadow-2xl transition-all active:scale-95 ${
-                        notification.type === "success" ? "bg-emerald-500 hover:bg-emerald-600 shadow-emerald-500/30" : "bg-red-500 hover:bg-red-600 shadow-red-500/30"
-                      }`}
-                    >
-                      موافق
-                    </button>
-                  )}
-                </div>
-              </div>
-            </motion.div>
-          </>
-        )}
-      </AnimatePresence>
+      {/* Modals */}
+      <SuccessModal
+        isOpen={successModal.isOpen}
+        type={successModal.type}
+        title={successModal.title}
+        onClose={() => setSuccessModal({ isOpen: false, type: null, title: '' })}
+      />
+      <LoadingModal isOpen={loadingModal} title="جاري الحفظ" message="جاري حفظ بيانات العميل..." />
+      <ErrorModal
+        isOpen={errorModal.isOpen}
+        title={errorModal.title}
+        message={errorModal.message}
+        onClose={() => setErrorModal({ isOpen: false, title: '', message: '' })}
+      />
 
       <div className="relative z-10 flex-1 p-4 md:p-10">
         <div className="max-w-[1200px] mx-auto space-y-10">
@@ -258,9 +203,9 @@ export function NewCustomerClient({ accounts, costCenters, companyId }: NewCusto
                     <h1 className="text-4xl md:text-5xl font-black tracking-tight mb-3">إضافة عميل جديد</h1>
                     <div className="flex items-center gap-3">
                       <span className="px-4 py-1.5 rounded-full bg-emerald-500/10 text-emerald-400 text-sm font-black border border-emerald-500/20">
-                        إصدار 2026
+                        عميل جديد
                       </span>
-                      <p className="text-slate-400 text-xl font-bold">نظام إدارة العملاء الذكي</p>
+                      <p className="text-slate-400 text-xl font-bold">تعبئة بيانات المنشأة والعنوان</p>
                     </div>
                   </div>
                 </div>
@@ -404,9 +349,10 @@ export function NewCustomerClient({ accounts, costCenters, companyId }: NewCusto
               </div>
             </Section>
 
-              {/* Financial Info */}
-              <Section title="الإعدادات المالية (شجرة الحسابات)" icon={<Wallet size={28} />} color="orange">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            {/* Financial Info */}
+            <Section title="الإعدادات المالية (شجرة الحسابات)" icon={<Wallet size={28} />} color="orange">
+              <div className="space-y-8">
+                <div>
                   <HierarchicalSearchableSelect
                     label="شجرة الحسابات"
                     icon={<Wallet size={20} />}
@@ -421,6 +367,11 @@ export function NewCustomerClient({ accounts, costCenters, companyId }: NewCusto
                     }))}
                     placeholder="ابحث بالاسم أو رقم الحساب"
                   />
+                  {!formData.account_id && (
+                    <p className="text-red-400 text-xs font-bold mt-2 mr-1">* هذا الحقل إجباري</p>
+                  )}
+                </div>
+                <div>
                   <HierarchicalSearchableSelect
                     label="مركز التكلفة"
                     icon={<Calculator size={20} />}
@@ -435,8 +386,12 @@ export function NewCustomerClient({ accounts, costCenters, companyId }: NewCusto
                     }))}
                     placeholder="ابحث بالاسم أو كود المركز"
                   />
+                  {!formData.cost_center_id && (
+                    <p className="text-red-400 text-xs font-bold mt-2 mr-1">* هذا الحقل إجباري</p>
+                  )}
                 </div>
-              </Section>
+              </div>
+            </Section>
 
             {/* Status & Submit */}
             <div className="flex flex-col lg:flex-row gap-10 items-stretch pb-20">

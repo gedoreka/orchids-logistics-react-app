@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { SuccessModal, LoadingModal, ErrorModal } from "@/components/ui/notification-modals";
 
 interface PayrollItem {
   id: number;
@@ -51,31 +52,15 @@ interface PayrollEditClientProps {
   companyId: number;
 }
 
-interface NotificationState {
-  show: boolean;
-  type: "success" | "error" | "loading";
-  title: string;
-  message: string;
-}
-
 export function PayrollEditClient({ payroll, companyId }: PayrollEditClientProps) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [items, setItems] = useState<PayrollItem[]>(payroll.items || []);
-  const [notification, setNotification] = useState<NotificationState>({
-    show: false,
-    type: "success",
-    title: "",
-    message: ""
-  });
+  const [successModal, setSuccessModal] = useState<{ isOpen: boolean; type: 'delete' | 'update' | 'create' | null; title: string }>({ isOpen: false, type: null, title: '' });
+  const [loadingModal, setLoadingModal] = useState(false);
+  const [errorModal, setErrorModal] = useState<{ isOpen: boolean; title: string; message: string }>({ isOpen: false, title: '', message: '' });
 
-  const showNotification = (type: "success" | "error" | "loading", title: string, message: string) => {
-    setNotification({ show: true, type, title, message });
-    if (type !== "loading") {
-      setTimeout(() => setNotification(prev => ({ ...prev, show: false })), 3000);
-    }
-  };
-
+  
     const calculateRow = useCallback((item: PayrollItem): PayrollItem => {
       const workType = payroll.work_type || 'salary';
       let net = 0;
@@ -145,13 +130,13 @@ export function PayrollEditClient({ payroll, companyId }: PayrollEditClientProps
     if (currentWorkType !== 'salary') {
       const hasNoOrders = items.some(item => Number(item.successful_orders) <= 0);
       if (hasNoOrders) {
-        showNotification("error", "حقل مطلوب", "يجب إدخال عدد الطلبات لجميع الموظفين قبل الحفظ");
+        setErrorModal({ isOpen: true, title: 'حقل مطلوب', message: 'يجب إدخال عدد الطلبات لجميع الموظفين قبل الحفظ' });
         return;
       }
     }
 
     setLoading(true);
-    showNotification("loading", "جاري الحفظ", "جاري حفظ التعديلات...");
+    setLoadingModal(true);
 
     try {
       const res = await fetch(`/api/payrolls/${payroll.id}`, {
@@ -161,17 +146,17 @@ export function PayrollEditClient({ payroll, companyId }: PayrollEditClientProps
       });
 
       if (res.ok) {
-        showNotification("success", "تم الحفظ بنجاح", "تم حفظ التعديلات بنجاح");
+        setSuccessModal({ isOpen: true, type: 'update', title: 'تم الحفظ بنجاح' });
         setTimeout(() => {
           router.push("/payrolls");
           router.refresh();
         }, 1500);
       } else {
         const data = await res.json();
-        showNotification("error", "فشل الحفظ", data.error || "فشل حفظ التعديلات");
+        setErrorModal({ isOpen: true, title: "فشل الحفظ", message: data.error || "فشل حفظ التعديلات" });
       }
     } catch {
-      showNotification("error", "خطأ", "حدث خطأ أثناء الحفظ");
+      setErrorModal({ isOpen: true, title: 'خطأ', message: 'حدث خطأ أثناء الحفظ' });
     } finally {
       setLoading(false);
     }
@@ -181,53 +166,19 @@ export function PayrollEditClient({ payroll, companyId }: PayrollEditClientProps
 
   return (
     <div className="h-full flex flex-col">
-      <AnimatePresence>
-        {notification.show && (
-          <>
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50"
-              onClick={() => notification.type !== "loading" && setNotification(prev => ({ ...prev, show: false }))}
-            />
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.9, y: 20 }}
-              className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50 w-full max-w-md"
-            >
-              <div className={`bg-white rounded-3xl p-8 shadow-2xl border-t-4 ${
-                notification.type === "success" ? "border-emerald-500" :
-                notification.type === "error" ? "border-red-500" : "border-blue-500"
-              }`}>
-                <div className="text-center">
-                  <div className={`h-20 w-20 rounded-full mx-auto mb-6 flex items-center justify-center ${
-                    notification.type === "success" ? "bg-emerald-100 text-emerald-500" :
-                    notification.type === "error" ? "bg-red-100 text-red-500" : "bg-blue-100 text-blue-500"
-                  }`}>
-                    {notification.type === "success" && <CheckCircle size={40} />}
-                    {notification.type === "error" && <AlertCircle size={40} />}
-                    {notification.type === "loading" && <Loader2 size={40} className="animate-spin" />}
-                  </div>
-                  <h3 className="text-2xl font-black text-gray-900 mb-2">{notification.title}</h3>
-                  <p className="text-gray-500 mb-6">{notification.message}</p>
-                  {notification.type !== "loading" && (
-                    <button
-                      onClick={() => setNotification(prev => ({ ...prev, show: false }))}
-                      className={`px-8 py-3 rounded-xl font-bold text-white transition-all ${
-                        notification.type === "success" ? "bg-emerald-500 hover:bg-emerald-600" : "bg-red-500 hover:bg-red-600"
-                      }`}
-                    >
-                      حسناً
-                    </button>
-                  )}
-                </div>
-              </div>
-            </motion.div>
-          </>
-        )}
-      </AnimatePresence>
+      <SuccessModal
+          isOpen={successModal.isOpen}
+          type={successModal.type}
+          title={successModal.title}
+          onClose={() => setSuccessModal({ isOpen: false, type: null, title: '' })}
+        />
+        <LoadingModal isOpen={loadingModal} />
+        <ErrorModal
+          isOpen={errorModal.isOpen}
+          title={errorModal.title}
+          message={errorModal.message}
+          onClose={() => setErrorModal({ isOpen: false, title: '', message: '' })}
+        />
 
       <div className="flex-1 overflow-auto p-6">
         <div className="max-w-[1600px] mx-auto space-y-6">

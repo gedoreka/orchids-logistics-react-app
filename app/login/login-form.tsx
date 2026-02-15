@@ -27,6 +27,7 @@ import { loginAction } from "@/lib/actions/auth";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { useLocale, useTranslations } from "@/lib/locale-context";
+import BrandLogo from "@/components/brand-logo";
 
 interface LoginFormProps {
   initialEmail?: string;
@@ -237,28 +238,16 @@ export default function LoginForm({ initialEmail = "" }: LoginFormProps) {
           <div className="absolute bottom-0 right-0 w-80 h-80 bg-purple-500/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: "1s" }} />
         </div>
 
-        <div className="relative z-10 w-full max-w-lg">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            className="space-y-10"
-          >
-            <motion.div 
-              className="flex items-center gap-4"
-              whileHover={{ scale: 1.02 }}
-              transition={{ type: "spring", stiffness: 400 }}
+          <div className="relative z-10 w-full max-w-lg flex flex-col items-center">
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8 }}
+              className="space-y-10 flex flex-col items-center"
             >
-              <div className="h-16 w-16 rounded-2xl bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center text-white shadow-2xl shadow-blue-500/30 border border-white/10">
-                <Truck size={32} />
-              </div>
-              <div>
-                <h2 className="text-2xl font-black text-white tracking-tight">Logistics Systems Pro</h2>
-                <p className="text-blue-400 text-sm font-bold">Enterprise Edition</p>
-              </div>
-            </motion.div>
+                  <BrandLogo size="lg" />
 
-            <div className="space-y-6">
+            <div className="space-y-6 text-center">
               <h1 className="text-5xl font-black text-white leading-[1.15]">
                 {isRTL ? (
                   <>
@@ -320,271 +309,214 @@ export default function LoginForm({ initialEmail = "" }: LoginFormProps) {
         </div>
       </div>
 
-        <div className="w-full lg:w-1/2 flex items-center justify-center p-6 sm:p-10 relative bg-gradient-to-br from-slate-100 via-blue-50/40 to-slate-100 dark:from-slate-900 dark:via-slate-900 dark:to-slate-900">
-            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(59,130,246,0.06),transparent_60%),radial-gradient(ellipse_at_bottom,rgba(139,92,246,0.06),transparent_60%)] dark:bg-[radial-gradient(ellipse_at_top,rgba(59,130,246,0.08),transparent_60%),radial-gradient(ellipse_at_bottom,rgba(139,92,246,0.08),transparent_60%)]" />
+        <div className="w-full lg:w-1/2 flex items-center justify-center p-4 sm:p-8 relative bg-gradient-to-br from-slate-50 via-blue-50/30 to-slate-50 dark:from-slate-900 dark:via-slate-900 dark:to-slate-900">
+            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(59,130,246,0.04),transparent_60%)] dark:bg-[radial-gradient(ellipse_at_top,rgba(59,130,246,0.08),transparent_60%)]" />
             
-            {/* Language Switcher Button */}
+            {/* Language Switcher */}
             <motion.button
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={toggleLocale}
-              className="absolute top-6 right-6 z-20 flex items-center gap-2 px-4 py-2.5 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 rounded-2xl transition-all border border-slate-200 dark:border-slate-700 shadow-lg shadow-slate-200/50 dark:shadow-slate-900/50"
-            >
-              <Languages size={18} className="text-blue-600 dark:text-blue-400" />
-              <span className="text-sm font-bold text-slate-700 dark:text-slate-300">
-                {locale === 'ar' ? 'English' : 'العربية'}
-              </span>
+              className="absolute top-5 right-5 z-20 flex items-center gap-2.5 px-5 py-3 bg-white/90 dark:bg-slate-800/90 hover:bg-white dark:hover:bg-slate-700 rounded-2xl transition-all duration-200 border-2 border-blue-200/60 dark:border-blue-500/30 shadow-lg hover:shadow-xl hover:shadow-blue-500/10 dark:hover:shadow-blue-500/10 backdrop-blur-sm"
+              >
+                <Languages size={20} className="text-blue-600 dark:text-blue-400" />
+                <span className="text-sm font-extrabold text-slate-700 dark:text-slate-200 tracking-wide">
+                  {locale === 'ar' ? 'EN' : 'عربي'}
+                </span>
             </motion.button>
             
-              <div className="w-full max-w-[600px] relative z-10 flex flex-col items-center">
-              {/* Logo Title - Above Card */}
-              <motion.div
-                initial={{ opacity: 0, y: -20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6 }}
-                className="mb-8 text-center"
-              >
-                <motion.div 
-                    initial={{ scale: 0 }}
-                    animate={{ scale: 1 }}
-                    transition={{ type: "spring", stiffness: 200 }}
-                    className="mx-auto mb-6 flex h-24 w-24 items-center justify-center rounded-[28px] bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-700 text-white shadow-2xl shadow-blue-500/30 border border-white/20 ring-4 ring-blue-500/10"
-                  >
-                    <Truck size={48} />
-                  </motion.div>
-                  <h1 className="text-4xl font-black text-slate-900 dark:text-white tracking-tight mb-2">Logistics Systems Pro</h1>
-                  <p className="text-blue-600 dark:text-blue-400 font-bold text-sm uppercase tracking-[0.3em]">Enterprise Edition</p>
-              </motion.div>
-
-              {/* Main Card */}
-              <motion.div 
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: 0.1 }}
-                className="w-full rounded-[28px] border border-white/60 dark:border-slate-700/60 shadow-[0_20px_80px_-20px_rgba(0,0,0,0.12),0_0_0_1px_rgba(255,255,255,0.6)] dark:shadow-[0_20px_80px_-20px_rgba(0,0,0,0.5)] px-10 sm:px-16 py-14 bg-white/90 dark:bg-slate-800/80 backdrop-blur-xl"
-              >
-
-              {/* Welcome Text */}
-              <div className="mb-12 text-center">
-                <motion.h2 
-                    initial={{ opacity: 0, y: -20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.2 }}
-                    className="text-[2.5rem] font-black mb-4"
-                >
-                  <span className="bg-gradient-to-r from-blue-600 via-purple-600 to-blue-600 bg-clip-text text-transparent">
-                    {t('subtitle')}
-                  </span>
-                </motion.h2>
-                <motion.p 
-                  initial={{ opacity: 0, y: -20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.3 }}
-                    className="text-slate-500 dark:text-slate-400 font-medium text-lg"
-                >
-                  {isRTL ? 'أدخل بياناتك للوصول إلى لوحة التحكم الخاصة بك' : 'Enter your credentials to access your dashboard'}
-                </motion.p>
-                
-                {lastCompany && (
-                  <motion.div
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ delay: 0.4 }}
-                    className="mt-4 inline-flex items-center gap-2.5 px-5 py-2.5 rounded-full bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-950/50 dark:to-purple-950/50 border border-blue-100 dark:border-blue-900/50"
-                  >
-                    <Building2 size={16} className="text-blue-600 dark:text-blue-400" />
-                    <span className="text-sm font-bold text-blue-700 dark:text-blue-300">
-                      {isRTL ? 'آخر دخول:' : 'Last login:'} {lastCompany}
-                    </span>
-                  </motion.div>
-                )}
-              </div>
-
-              <AnimatePresence>
-                {error && (
-                  <motion.div
-                    initial={{ opacity: 0, y: -10, scale: 0.95 }}
-                    animate={{ opacity: 1, y: 0, scale: 1 }}
-                    exit={{ opacity: 0, y: -10, scale: 0.95 }}
-                    className="mb-8 flex items-center gap-3 rounded-2xl bg-red-50 dark:bg-red-950/30 p-5 text-red-600 dark:text-red-400 border border-red-100 dark:border-red-900/50 backdrop-blur-sm"
-                  >
-                    <div className="p-2.5 rounded-xl bg-red-100 dark:bg-red-900/50">
-                      <AlertTriangle size={20} />
-                    </div>
-                    <span className="text-base font-bold">{error}</span>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-
-              <form onSubmit={handleSubmit} className="space-y-7">
+            <div className="w-full max-w-[540px] relative z-10">
+                {/* Single Elegant Card */}
                 <motion.div 
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.4 }}
-                  className="space-y-2.5"
+                  transition={{ duration: 0.5 }}
+                  className="w-full rounded-[2rem] bg-white dark:bg-slate-800/95 border border-slate-200/60 dark:border-slate-700/60 shadow-[0_4px_6px_-1px_rgba(59,130,246,0.06),0_10px_15px_-3px_rgba(59,130,246,0.08),0_20px_50px_-12px_rgba(99,102,241,0.12)] dark:shadow-[0_4px_6px_-1px_rgba(59,130,246,0.1),0_10px_15px_-3px_rgba(59,130,246,0.15),0_20px_60px_-12px_rgba(99,102,241,0.3),0_0_0_1px_rgba(59,130,246,0.05)] overflow-hidden backdrop-blur-sm"
                 >
-                  <label className="text-sm font-bold text-slate-600 dark:text-slate-400 flex items-center gap-2">
-                    <Mail size={14} className="text-blue-500" />
-                    {tCommon('email')}
-                  </label>
-                  <div className="relative group">
-                    <div className={cn(
-                      "absolute top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-blue-600 transition-colors duration-300",
-                      isRTL ? "right-5" : "left-5"
-                    )}>
-                      <Mail size={20} />
-                    </div>
-                    <input
-                      type="email"
-                      required
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      placeholder="name@company.com"
-                        className={cn(
-                          "w-full rounded-2xl border-2 border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/50 py-5 text-lg font-bold text-slate-900 dark:text-white placeholder:text-slate-300 dark:placeholder:text-slate-600 focus:bg-white dark:focus:bg-slate-800 focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all duration-300",
-                          isRTL ? "pr-14 pl-5" : "pl-14 pr-5"
-                        )}
-                    />
-                    <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-blue-500 to-purple-500 opacity-0 group-focus-within:opacity-100 transition-opacity duration-300 -z-10 blur-xl" />
+                  {/* Gradient Top Strip */}
+                  <div className="h-1.5 bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500" />
+
+                  {/* Card Content */}
+                <div className="px-10 sm:px-12 py-10">
+                  {/* Logo + Title */}
+                    <div className="text-center mb-10">
+                      <h2 className="text-3xl font-black mb-2">
+                        <span className="bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 bg-clip-text text-transparent">
+                          {t('subtitle')}
+                        </span>
+                      </h2>
+                      <p className="text-slate-400 dark:text-slate-500 text-sm font-medium mt-1">
+                      {isRTL ? 'أدخل بياناتك للوصول إلى لوحة التحكم' : 'Enter your credentials to access your dashboard'}
+                    </p>
+                    
+                    {lastCompany && (
+                      <motion.div
+                        initial={{ opacity: 0, scale: 0.9 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        className="mt-3 inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-blue-50 dark:bg-blue-950/40 border border-blue-100 dark:border-blue-900/40"
+                      >
+                        <Building2 size={13} className="text-blue-500" />
+                        <span className="text-xs font-bold text-blue-600 dark:text-blue-400">
+                          {isRTL ? 'آخر دخول:' : 'Last:'} {lastCompany}
+                        </span>
+                      </motion.div>
+                    )}
                   </div>
-                </motion.div>
 
-                <motion.div 
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.5 }}
-                  className="space-y-2.5"
-                >
-                  <label className="text-sm font-bold text-slate-600 dark:text-slate-400 flex items-center gap-2">
-                    <Lock size={14} className="text-blue-500" />
-                    {tCommon('password')}
-                  </label>
-                  <div className="relative group">
-                    <div className={cn(
-                      "absolute top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-blue-600 transition-colors duration-300",
-                      isRTL ? "right-5" : "left-5"
-                    )}>
-                      <Lock size={20} />
+                  {/* Error */}
+                  <AnimatePresence>
+                    {error && (
+                      <motion.div
+                        initial={{ opacity: 0, y: -10, scale: 0.95 }}
+                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        exit={{ opacity: 0, y: -10, scale: 0.95 }}
+                        className="mb-5 flex items-center gap-2.5 rounded-xl bg-red-50 dark:bg-red-950/30 p-3.5 text-red-600 dark:text-red-400 border border-red-100 dark:border-red-900/50"
+                      >
+                        <AlertTriangle size={18} />
+                        <span className="text-sm font-bold">{error}</span>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+
+                  {/* Form */}
+                    <form onSubmit={handleSubmit} className="space-y-6">
+                      <div className="space-y-2">
+                        <label className="text-xs font-bold text-slate-500 dark:text-slate-400 flex items-center gap-1.5 mb-1">
+                          <Mail size={12} className="text-blue-500" />
+                          {tCommon('email')}
+                        </label>
+                        <div className="relative group">
+                          <div className={cn(
+                            "absolute top-1/2 -translate-y-1/2 text-slate-300 dark:text-slate-500 group-focus-within:text-blue-500 transition-all duration-300",
+                            isRTL ? "right-4" : "left-4"
+                          )}>
+                            <Mail size={20} />
+                          </div>
+                          <input
+                            type="email"
+                            required
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            placeholder="name@company.com"
+                            className={cn(
+                              "w-full rounded-2xl border-2 border-slate-200 dark:border-slate-600/80 bg-slate-50/80 dark:bg-slate-700/40 py-4 text-[15px] font-bold text-slate-900 dark:text-white placeholder:text-slate-300 dark:placeholder:text-slate-500 focus:bg-white dark:focus:bg-slate-700/60 focus:ring-4 focus:ring-blue-500/10 dark:focus:ring-blue-500/20 focus:border-blue-500 dark:focus:border-blue-400 outline-none transition-all duration-300 shadow-sm hover:shadow-md focus:shadow-lg focus:shadow-blue-500/5 dark:focus:shadow-blue-500/10",
+                              isRTL ? "pr-12 pl-4" : "pl-12 pr-4"
+                            )}
+                          />
+                        </div>
+                      </div>
+
+                      <div className="space-y-2">
+                        <label className="text-xs font-bold text-slate-500 dark:text-slate-400 flex items-center gap-1.5 mb-1">
+                          <Lock size={12} className="text-blue-500" />
+                          {tCommon('password')}
+                        </label>
+                        <div className="relative group">
+                          <div className={cn(
+                            "absolute top-1/2 -translate-y-1/2 text-slate-300 dark:text-slate-500 group-focus-within:text-blue-500 transition-all duration-300",
+                            isRTL ? "right-4" : "left-4"
+                          )}>
+                            <Lock size={20} />
+                          </div>
+                          <input
+                            type={showPassword ? "text" : "password"}
+                            required
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            placeholder="••••••••"
+                            className={cn(
+                              "w-full rounded-2xl border-2 border-slate-200 dark:border-slate-600/80 bg-slate-50/80 dark:bg-slate-700/40 py-4 text-[15px] font-bold text-slate-900 dark:text-white placeholder:text-slate-300 dark:placeholder:text-slate-500 focus:bg-white dark:focus:bg-slate-700/60 focus:ring-4 focus:ring-blue-500/10 dark:focus:ring-blue-500/20 focus:border-blue-500 dark:focus:border-blue-400 outline-none transition-all duration-300 shadow-sm hover:shadow-md focus:shadow-lg focus:shadow-blue-500/5 dark:focus:shadow-blue-500/10",
+                              isRTL ? "pr-12 pl-12" : "pl-12 pr-12"
+                            )}
+                          />
+                          <button
+                            type="button"
+                            onClick={() => setShowPassword(!showPassword)}
+                            className={cn(
+                              "absolute top-1/2 -translate-y-1/2 text-slate-300 dark:text-slate-500 hover:text-blue-500 dark:hover:text-blue-400 transition-all duration-300 p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-600/50",
+                              isRTL ? "left-3" : "right-3"
+                            )}
+                          >
+                            {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                          </button>
+                        </div>
+                      </div>
+
+                    <div className="flex items-center justify-between pt-0.5">
+                      <div className="flex items-center gap-2">
+                        <div className="relative">
+                          <input
+                            type="checkbox"
+                            id="remember"
+                            checked={remember}
+                            onChange={(e) => setRemember(e.target.checked)}
+                            className="peer h-4 w-4 rounded-md border-2 border-slate-300 dark:border-slate-600 text-blue-600 focus:ring-blue-500 focus:ring-offset-0 cursor-pointer appearance-none checked:bg-blue-600 checked:border-blue-600 transition-all"
+                          />
+                          <CheckCircle2 size={12} className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-white opacity-0 peer-checked:opacity-100 transition-opacity pointer-events-none" />
+                        </div>
+                        <label htmlFor="remember" className="text-xs font-bold text-slate-500 dark:text-slate-400 cursor-pointer select-none">
+                          {t('rememberMe')}
+                        </label>
+                      </div>
+
+                      <Link 
+                        href="/forgot-password" 
+                        className="flex items-center gap-1.5 text-xs font-bold text-amber-600 dark:text-amber-400 hover:text-amber-500 transition-colors"
+                      >
+                        <KeyRound size={12} />
+                        {tCommon('forgotPassword')}?
+                      </Link>
                     </div>
-                    <input
-                      type={showPassword ? "text" : "password"}
-                      required
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      placeholder="••••••••"
-                        className={cn(
-                          "w-full rounded-2xl border-2 border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/50 py-5 text-lg font-bold text-slate-900 dark:text-white placeholder:text-slate-300 dark:placeholder:text-slate-600 focus:bg-white dark:focus:bg-slate-800 focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all duration-300",
-                          isRTL ? "pr-14 pl-14" : "pl-14 pr-14"
-                        )}
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowPassword(!showPassword)}
-                      className={cn(
-                        "absolute top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors p-1",
-                        isRTL ? "left-5" : "right-5"
+
+                      <motion.button
+                        whileHover={{ scale: 1.01, y: -1 }}
+                        whileTap={{ scale: 0.98 }}
+                        type="submit"
+                        disabled={isLoading}
+                        className="relative w-full rounded-2xl bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-600 py-4.5 text-white font-black text-[16px] shadow-xl shadow-blue-500/25 hover:shadow-2xl hover:shadow-blue-500/35 transition-all duration-300 disabled:opacity-70 flex items-center justify-center gap-3 overflow-hidden group mt-2"
+                      >
+                      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
+                      {isLoading ? (
+                        <div className="h-5 w-5 animate-spin rounded-full border-2 border-white/30 border-t-white" />
+                      ) : (
+                        <>
+                          <LogIn size={20} />
+                          {t('loginButton')}
+                        </>
                       )}
+                    </motion.button>
+                  </form>
+
+                  {/* Divider + Register */}
+                  <div className="mt-6 pt-6 border-t border-slate-100 dark:border-slate-700/40 text-center">
+                    <p className="mb-4 text-sm font-bold text-slate-400 dark:text-slate-500">
+                      {t('noAccount')}
+                    </p>
+                    <Link
+                      href="/register"
+                      className="group relative inline-flex items-center justify-center gap-2 py-3 px-8 rounded-xl text-sm font-black transition-all duration-300 overflow-hidden"
                     >
-                      {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
-                    </button>
-                    <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-blue-500 to-purple-500 opacity-0 group-focus-within:opacity-100 transition-opacity duration-300 -z-10 blur-xl" />
+                      <span className="absolute inset-0 bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500" />
+                      <span className="absolute inset-0 bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                      <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/15 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
+                      <UserPlus size={18} className="relative text-white" />
+                      <span className="relative text-white">{t('createAccount')}</span>
+                      {isRTL ? (
+                        <ChevronLeft size={16} className="relative text-white group-hover:-translate-x-1 transition-transform" />
+                      ) : (
+                        <ChevronRight size={16} className="relative text-white group-hover:translate-x-1 transition-transform" />
+                      )}
+                    </Link>
                   </div>
-                </motion.div>
-
-                <motion.div 
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.55 }}
-                  className="flex items-center justify-between px-1 pt-1"
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="relative">
-                      <input
-                        type="checkbox"
-                        id="remember"
-                        checked={remember}
-                        onChange={(e) => setRemember(e.target.checked)}
-                        className="peer h-5.5 w-5.5 rounded-lg border-2 border-slate-300 dark:border-slate-600 text-blue-600 focus:ring-blue-500 focus:ring-offset-0 cursor-pointer appearance-none checked:bg-blue-600 checked:border-blue-600 transition-all"
-                      />
-                      <CheckCircle2 size={15} className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-white opacity-0 peer-checked:opacity-100 transition-opacity pointer-events-none" />
-                    </div>
-                    <label htmlFor="remember" className="text-sm font-bold text-slate-600 dark:text-slate-400 cursor-pointer select-none">
-                      {t('rememberMe')}
-                    </label>
-                  </div>
-
-                  <Link 
-                    href="/forgot-password" 
-                    className="group relative inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-black transition-all duration-300 overflow-hidden"
-                  >
-                    <span className="absolute inset-0 bg-gradient-to-r from-amber-500/10 via-orange-500/10 to-red-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-xl" />
-                    <span className="absolute inset-0 border border-transparent group-hover:border-amber-500/30 rounded-xl transition-all duration-300" />
-                    <KeyRound size={15} className="text-amber-600 dark:text-amber-400 group-hover:rotate-12 transition-transform duration-300" />
-                    <span className="relative bg-gradient-to-r from-amber-600 via-orange-600 to-amber-600 bg-clip-text text-transparent group-hover:from-amber-500 group-hover:via-orange-500 group-hover:to-amber-500 transition-all">
-                      {tCommon('forgotPassword')}?
-                    </span>
-                  </Link>
-                </motion.div>
-
-                <motion.button
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.6 }}
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  type="submit"
-                  disabled={isLoading}
-                    className="relative w-full rounded-2xl bg-gradient-to-r from-blue-600 via-blue-700 to-blue-600 bg-size-200 bg-pos-0 hover:bg-pos-100 py-[22px] text-white font-black text-xl shadow-xl shadow-blue-500/25 hover:shadow-blue-500/40 transition-all duration-500 disabled:opacity-70 flex items-center justify-center gap-3 overflow-hidden group mt-3"
-                >
-                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
-                  {isLoading ? (
-                    <div className="h-7 w-7 animate-spin rounded-full border-3 border-white/30 border-t-white" />
-                  ) : (
-                    <>
-                        <LogIn size={24} />
-                      {t('loginButton')}
-                    </>
-                  )}
-                </motion.button>
-              </form>
-
-              <div className="mt-12 pt-10 border-t border-slate-200/60 dark:border-slate-700/50 text-center">
-                  <motion.p 
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ delay: 0.7 }}
-                    className="mb-6 text-lg font-bold bg-gradient-to-r from-slate-500 via-slate-600 to-slate-500 bg-clip-text text-transparent dark:from-slate-400 dark:via-slate-300 dark:to-slate-400"
-                >
-                  {t('noAccount')}
-                </motion.p>
-                <Link
-                  href="/register"
-                    className="group relative inline-flex items-center justify-center gap-3 py-5 px-14 rounded-2xl text-lg font-black transition-all duration-500 overflow-hidden"
-                >
-                  <span className="absolute inset-0 bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 opacity-100" />
-                  <span className="absolute inset-0 bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                  <span className="absolute inset-0 shadow-xl shadow-emerald-500/30 group-hover:shadow-emerald-500/50 transition-shadow duration-500 rounded-2xl" />
-                  <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
-                  <span className="absolute inset-[2px] bg-gradient-to-br from-white/10 to-transparent rounded-[14px] opacity-50" />
-                  
-                    <UserPlus size={22} className="relative text-white group-hover:scale-110 transition-transform duration-300" />
-                  <span className="relative text-white">
-                    {t('createAccount')}
-                  </span>
-                  {isRTL ? (
-                    <ChevronLeft size={18} className="relative text-white group-hover:-translate-x-2 transition-transform duration-300" />
-                  ) : (
-                    <ChevronRight size={18} className="relative text-white group-hover:translate-x-2 transition-transform duration-300" />
-                  )}
-                </Link>
-              </div>
+                </div>
               </motion.div>
-            </div>
 
-            <div className="absolute bottom-6 left-0 right-0 lg:hidden text-center text-[10px] font-bold text-slate-300 dark:text-slate-600 uppercase tracking-widest">
-              Logistics Systems Pro © 2026
+              {/* Footer */}
+              <div className="mt-4 text-center text-[10px] font-bold text-slate-300 dark:text-slate-600 uppercase tracking-widest lg:hidden">
+                Logistics Systems Pro © 2026
+              </div>
             </div>
           </div>
     </div>

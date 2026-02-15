@@ -960,9 +960,42 @@ html:not(.dark) .light-decor-extra {
 
 /* ========================================
    COMPREHENSIVE LIGHT MODE OVERRIDES
-   Transform hardcoded dark elements
+   Transform ALL hardcoded dark elements
    DO NOT touch dark mode (.dark) at all
    ======================================== */
+
+/* ── LIGHT MODE FONT CLARITY ── */
+html:not(.dark) body {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  font-weight: 500 !important;
+  letter-spacing: 0.01em;
+}
+
+html:not(.dark) h1, html:not(.dark) h2, html:not(.dark) h3, html:not(.dark) h4, html:not(.dark) h5, html:not(.dark) h6 {
+  font-weight: 700 !important;
+}
+
+html:not(.dark) p, html:not(.dark) span, html:not(.dark) div, html:not(.dark) label, html:not(.dark) td, html:not(.dark) th, html:not(.dark) li, html:not(.dark) a {
+  font-weight: 500 !important;
+}
+
+html:not(.dark) .text-xs, html:not(.dark) .text-sm, html:not(.dark) [class*="text-[11px]"], html:not(.dark) [class*="text-[12px]"], html:not(.dark) [class*="text-[13px]"] {
+  font-weight: 600 !important;
+  letter-spacing: 0.02em;
+}
+
+html:not(.dark) button, html:not(.dark) input, html:not(.dark) textarea, html:not(.dark) select {
+  font-weight: 500 !important;
+}
+
+html:not(.dark) header span, html:not(.dark) header button span {
+  font-weight: 600 !important;
+  font-size: 13px !important;
+  letter-spacing: 0.02em;
+  text-shadow: 0 0 0 rgba(0,0,0,0.1);
+}
 
 /* ── HEADER ── */
 html:not(.dark) header.sticky {
@@ -973,18 +1006,15 @@ html:not(.dark) header.sticky {
   box-shadow: 0 2px 8px rgba(0,0,0,0.04), 0 4px 16px rgba(99,102,241,0.06) !important;
 }
 
-/* hide the dark glass overlays in header */
 html:not(.dark) header .absolute.inset-0,
 html:not(.dark) header [class*="backdrop-blur-2xl"].absolute {
   display: none !important;
 }
 
-/* header general white text → dark slate */
 html:not(.dark) header [class*="text-white"] {
   color: #1e293b !important;
 }
 
-/* header buttons bg-white/* → soft indigo tint */
 html:not(.dark) header [class*="bg-white/5"],
 html:not(.dark) header [class*="bg-white/10"],
 html:not(.dark) header [class*="bg-white/[0.03]"],
@@ -999,17 +1029,14 @@ html:not(.dark) header [class*="bg-white/10"]:hover {
   background: rgba(99, 102, 241, 0.12) !important;
 }
 
-/* header borders */
 html:not(.dark) header [class*="border-white"] {
   border-color: rgba(99, 102, 241, 0.12) !important;
 }
 
-/* header bottom gradient line */
 html:not(.dark) header [class*="via-white/[0.15]"] {
   background: linear-gradient(to right, transparent, rgba(99, 102, 241, 0.15), transparent) !important;
 }
 
-/* search input in header */
 html:not(.dark) header input {
   color: #1e293b !important;
   background: rgba(99, 102, 241, 0.04) !important;
@@ -1019,7 +1046,6 @@ html:not(.dark) header input::placeholder {
   color: #94a3b8 !important;
 }
 
-/* ── SEARCH DROPDOWN ── */
 html:not(.dark) header [class*="bg-slate-900"] {
   background: rgba(255, 255, 255, 0.98) !important;
   border: 1px solid rgba(99, 102, 241, 0.12) !important;
@@ -1043,9 +1069,7 @@ html:not(.dark) footer > .absolute.top-0 {
   display: none !important;
 }
 
-html:not(.dark) footer [class*="text-white"] {
-  color: #334155 !important;
-}
+html:not(.dark) footer [class*="text-white"] { color: #334155 !important; }
 
 html:not(.dark) footer [class*="bg-white/5"],
 html:not(.dark) footer [class*="bg-white/10"] {
@@ -1053,131 +1077,161 @@ html:not(.dark) footer [class*="bg-white/10"] {
   border-color: rgba(99, 102, 241, 0.10) !important;
 }
 
-html:not(.dark) footer [class*="border-white"] {
-  border-color: rgba(99, 102, 241, 0.10) !important;
-}
+html:not(.dark) footer [class*="border-white"] { border-color: rgba(99, 102, 241, 0.10) !important; }
 
 html:not(.dark) footer [class*="via-white/[0.15]"] {
   background: linear-gradient(to right, transparent, rgba(99, 102, 241, 0.12), transparent) !important;
 }
 
-/* ── SIDEBAR: theme handled in JSX, no CSS overrides needed ── */
+/* ════════════════════════════════════════════
+   MAIN CONTENT - BACKGROUNDS
+   ════════════════════════════════════════════ */
 
-/* ── MAIN CONTENT: CARDS ── */
+/* All slate dark backgrounds → light glassmorphism */
+html:not(.dark) main [class*="bg-slate-600"],
 html:not(.dark) main [class*="bg-slate-700"],
 html:not(.dark) main [class*="bg-slate-800"],
 html:not(.dark) main [class*="bg-slate-900"],
-html:not(.dark) main [class*="bg-slate-950"] {
-  background: linear-gradient(to right, rgba(245, 243, 255, 0.80), rgba(250, 245, 255, 0.50), rgba(238, 242, 255, 0.80)) !important;
-  backdrop-filter: blur(16px) !important;
-  -webkit-backdrop-filter: blur(16px) !important;
-  border: 2px solid rgba(196, 181, 253, 0.60) !important;
-  border-radius: 16px !important;
-  box-shadow: 0 1px 2px rgba(0,0,0,0.05) !important;
-}
-
-html:not(.dark) main [class*="bg-slate-600"] {
-  background: linear-gradient(to right, rgba(245, 243, 255, 0.70), rgba(250, 245, 255, 0.50), rgba(238, 242, 255, 0.70)) !important;
-  border: 2px solid rgba(196, 181, 253, 0.40) !important;
-}
-
-/* Gradient from-slate → violet gradient */
-html:not(.dark) main [class*="from-slate-900"],
-html:not(.dark) main [class*="from-slate-950"],
-html:not(.dark) main [class*="from-slate-800"],
-html:not(.dark) main [class*="from-gray-800"],
-html:not(.dark) main [class*="from-gray-900"] {
-  --tw-gradient-from: rgba(245, 243, 255, 0.80) !important;
-  --tw-gradient-via: rgba(250, 245, 255, 0.50) !important;
-  --tw-gradient-to: rgba(238, 242, 255, 0.80) !important;
-}
-
-/* bg-[#0d1525] etc hardcoded hex dark bgs */
-html:not(.dark) main [class*="bg-[#0a"],
-html:not(.dark) main [class*="bg-[#0b"],
-html:not(.dark) main [class*="bg-[#0c"],
-html:not(.dark) main [class*="bg-[#0d"],
-html:not(.dark) main [class*="bg-[#08"],
-html:not(.dark) main [class*="bg-[#0f"],
-html:not(.dark) main [class*="from-[#1e"],
-html:not(.dark) main [class*="from-[#0c"],
-html:not(.dark) main [class*="from-[#0d"],
-html:not(.dark) main [class*="from-[#0a"],
-html:not(.dark) main [class*="from-[#0f"],
-html:not(.dark) main [class*="from-[#33"],
-html:not(.dark) main [class*="from-[#34495"],
-html:not(.dark) main [class*="from-[#11"],
-html:not(.dark) main [class*="from-[#2c"],
-html:not(.dark) main [class*="bg-[#1e"],
-html:not(.dark) main [class*="bg-[#1a"],
-html:not(.dark) main [class*="bg-[#11"],
-html:not(.dark) main [class*="bg-[#2c"],
-html:not(.dark) main [class*="bg-[#33"],
+html:not(.dark) main [class*="bg-slate-950"],
+html:not(.dark) main [class*="bg-gray-700"],
+html:not(.dark) main [class*="bg-gray-800"],
 html:not(.dark) main [class*="bg-gray-900"],
-html:not(.dark) main [class*="bg-gray-950"] {
-  background: linear-gradient(to right, rgba(245, 243, 255, 0.80), rgba(250, 245, 255, 0.50), rgba(238, 242, 255, 0.80)) !important;
-  backdrop-filter: blur(16px) !important;
-  -webkit-backdrop-filter: blur(16px) !important;
-  border: 2px solid rgba(196, 181, 253, 0.60) !important;
-  border-radius: 16px !important;
-  box-shadow: 0 1px 2px rgba(0,0,0,0.05) !important;
+html:not(.dark) main [class*="bg-gray-950"],
+html:not(.dark) main [class*="bg-zinc-800"],
+html:not(.dark) main [class*="bg-zinc-900"],
+html:not(.dark) main [class*="bg-neutral-800"],
+html:not(.dark) main [class*="bg-neutral-900"] {
+  background: #fafbfd !important;
+    border: 1px solid rgba(226, 232, 240, 0.60) !important;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.04) !important;
 }
 
-/* Indigo gradient headers (payroll pages) - light indigo in light mode */
+/* Hardcoded hex dark backgrounds */
+html:not(.dark) main [class*="bg-[#0"],
+html:not(.dark) main [class*="bg-[#1"],
+html:not(.dark) main [class*="bg-[#2"],
+html:not(.dark) main [class*="bg-[#3"] {
+  background: #fafbfd !important;
+    border: 1px solid rgba(226, 232, 240, 0.60) !important;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.04) !important;
+}
+
+/* Gradient from-slate/gray → clean white gradient */
+html:not(.dark) main [class*="from-slate-6"]:not(.preserve-colors),
+html:not(.dark) main [class*="from-slate-7"]:not(.preserve-colors),
+html:not(.dark) main [class*="from-slate-8"]:not(.preserve-colors),
+html:not(.dark) main [class*="from-slate-9"]:not(.preserve-colors),
+html:not(.dark) main [class*="from-gray-7"]:not(.preserve-colors),
+html:not(.dark) main [class*="from-gray-8"]:not(.preserve-colors),
+html:not(.dark) main [class*="from-gray-9"]:not(.preserve-colors) {
+  background: linear-gradient(135deg, #fafbfd, #f5f7fa, #fafbfd) !important;
+    border: 1px solid rgba(226, 232, 240, 0.60) !important;
+}
+
+/* via-slate gradients */
+html:not(.dark) main [class*="via-slate-7"],
+html:not(.dark) main [class*="via-slate-8"],
+html:not(.dark) main [class*="via-slate-9"] {
+  --tw-gradient-via: #f5f7fa !important;
+}
+
+/* to-slate gradients */
+html:not(.dark) main [class*="to-slate-6"],
+html:not(.dark) main [class*="to-slate-7"],
+html:not(.dark) main [class*="to-slate-8"],
+html:not(.dark) main [class*="to-slate-9"] {
+  --tw-gradient-to: #fafbfd !important;
+}
+
+/* Hardcoded hex dark gradient backgrounds */
+html:not(.dark) main [class*="from-[#0"],
+html:not(.dark) main [class*="from-[#1"],
+html:not(.dark) main [class*="from-[#2"],
+html:not(.dark) main [class*="from-[#3"] {
+  background: linear-gradient(135deg, #fafbfd, #f5f7fa, #fafbfd) !important;
+    border: 1px solid rgba(226, 232, 240, 0.60) !important;
+}
+
+/* Indigo gradient headers (payroll pages) */
 html:not(.dark) main [class*="from-[#1a237e]"],
 html:not(.dark) main [class*="from-[#1e2a8a]"],
 html:not(.dark) main [class*="to-[#283593]"] {
-  --tw-gradient-from: #e0e7ff !important;
-  --tw-gradient-via: #c7d2fe !important;
-  --tw-gradient-to: #ddd6fe !important;
-  background: linear-gradient(to bottom right, #e0e7ff, #c7d2fe, #ddd6fe) !important;
+  background: linear-gradient(135deg, #e0e7ff, #c7d2fe, #ddd6fe) !important;
   border-color: rgba(99, 102, 241, 0.15) !important;
 }
 
-/* Keep text white in light indigo gradient headers */
 html:not(.dark) main [class*="from-[#1a237e]"] [class*="text-white"],
 html:not(.dark) main [class*="from-[#1a237e]"][class*="text-white"] {
   color: #312e81 !important;
 }
 
-/* ── MAIN CONTENT: TEXT ── */
-/* Override ALL white text to dark in light mode */
-html:not(.dark) main [class*="text-white"] {
-  color: #1e293b !important;
+/* bg-slate-700/40 etc (sub-cards with opacity) */
+html:not(.dark) main [class*="bg-slate-700/"],
+html:not(.dark) main [class*="bg-slate-800/"],
+html:not(.dark) main [class*="bg-slate-900/"] {
+  background: rgba(255, 255, 255, 0.60) !important;
+    border-color: rgba(226, 232, 240, 0.40) !important;
 }
 
-html:not(.dark) main [class*="text-white/70"],
-html:not(.dark) main [class*="text-white/60"] {
-  color: #475569 !important;
+/* ════════════════════════════════════════════
+   PRESERVE ORIGINAL COLORS (opt-in)
+   ════════════════════════════════════════════ */
+.preserve-colors,
+.preserve-colors * {
+  /* Let Tailwind classes apply without override */
+}
+html:not(.dark) main .preserve-colors {
+  background: linear-gradient(to right, #3b82f6, #60a5fa, #3b82f6) !important;
+  border-color: rgba(147, 197, 253, 0.5) !important;
+  color: #ffffff !important;
+}
+html:not(.dark) main .preserve-colors [class*="text-white"],
+html:not(.dark) main .preserve-colors [class*="text-blue-100"],
+html:not(.dark) main .preserve-colors .glow-text-white {
+  color: #ffffff !important;
+}
+html:not(.dark) main .preserve-colors [class*="bg-white/20"] {
+  background: rgba(255, 255, 255, 0.2) !important;
+}
+html:not(.dark) main .preserve-colors [class*="from-blue-300"] {
+  background: linear-gradient(to right, #93c5fd, #bfdbfe, #93c5fd) !important;
 }
 
-html:not(.dark) main [class*="text-white/50"],
-html:not(.dark) main [class*="text-white/40"],
-html:not(.dark) main [class*="text-white/30"],
-html:not(.dark) main [class*="text-white/20"] {
-  color: #64748b !important;
-}
+/* ════════════════════════════════════════════
+   MAIN CONTENT - TEXT COLORS (Pure Black for readability)
+   ════════════════════════════════════════════ */
 
-html:not(.dark) main [class*="text-slate-400"] {
-  color: #64748b !important;
-}
+/* White text → pure black in light mode */
+html:not(.dark) main [class*="text-white"]:not(.preserve-colors *) { color: #000000 !important; }
+html:not(.dark) main [class*="text-white/9"] { color: #000000 !important; }
+html:not(.dark) main [class*="text-white/8"] { color: #0f172a !important; }
+html:not(.dark) main [class*="text-white/7"],
+html:not(.dark) main [class*="text-white/6"] { color: #1e293b !important; }
+html:not(.dark) main [class*="text-white/5"],
+html:not(.dark) main [class*="text-white/4"],
+html:not(.dark) main [class*="text-white/3"],
+html:not(.dark) main [class*="text-white/2"] { color: #334155 !important; }
 
-html:not(.dark) main [class*="text-slate-300"] {
-  color: #475569 !important;
-}
+/* Slate light text → pure black for max readability */
+html:not(.dark) main [class*="text-slate-100"],
+html:not(.dark) main [class*="text-slate-200"] { color: #000000 !important; }
+html:not(.dark) main [class*="text-slate-300"] { color: #0f172a !important; }
+html:not(.dark) main [class*="text-slate-400"] { color: #334155 !important; }
+html:not(.dark) main [class*="text-slate-500"] { color: #475569 !important; }
 
-html:not(.dark) main [class*="text-slate-200"],
-html:not(.dark) main [class*="text-slate-100"] {
-  color: #1e293b !important;
-}
-
-html:not(.dark) main [class*="text-gray-300"],
+/* Gray light text → darker */
+html:not(.dark) main [class*="text-gray-100"],
 html:not(.dark) main [class*="text-gray-200"],
-html:not(.dark) main [class*="text-gray-100"] {
-  color: #475569 !important;
-}
+html:not(.dark) main [class*="text-gray-300"] { color: #0f172a !important; }
+html:not(.dark) main [class*="text-gray-400"] { color: #334155 !important; }
+html:not(.dark) main [class*="text-gray-500"] { color: #475569 !important; }
 
-/* Text inside colored text classes - override dark */
+/* text-slate-800, text-black → ensure pure black */
+html:not(.dark) main [class*="text-slate-800"],
+html:not(.dark) main [class*="text-slate-900"],
+html:not(.dark) main [class*="text-black"] { color: #000000 !important; }
+
+/* Colored text classes - keep their natural colors */
 html:not(.dark) main [class*="text-emerald"],
 html:not(.dark) main [class*="text-rose"],
 html:not(.dark) main [class*="text-blue"],
@@ -1195,22 +1249,77 @@ html:not(.dark) main [class*="text-pink"] {
   color: revert-layer;
 }
 
-/* RE-APPLY white text ONLY inside actual colored gradient stat cards/buttons */
+/* ════════════════════════════════════════════
+   GRADIENT HEADINGS (pink-to-orange like logo)
+   Applies to main page headings h1, h2
+   ════════════════════════════════════════════ */
+
+html:not(.dark) main h1:not([class*="bg-clip-text"]):not([data-no-gradient]),
+html:not(.dark) main h2:not([class*="bg-clip-text"]):not([class*="text-emerald"]):not([class*="text-rose"]):not([class*="text-blue"]):not([class*="text-amber"]):not([class*="text-red"]):not([data-no-gradient]) {
+  background: linear-gradient(135deg, #ec4899, #f97316) !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  background-clip: text !important;
+}
+
+/* h3, h4 inside cards → pure black bold */
+html:not(.dark) main h3,
+html:not(.dark) main h4 {
+  color: #000000 !important;
+  -webkit-text-fill-color: #000000 !important;
+}
+
+/* Numbers/values (large font inside cards) → pure black */
+html:not(.dark) main [class*="text-3xl"],
+html:not(.dark) main [class*="text-4xl"],
+html:not(.dark) main [class*="text-5xl"] {
+  color: #000000 !important;
+  -webkit-text-fill-color: #000000 !important;
+}
+
+/* Small labels → dark gray */
+html:not(.dark) main [class*="text-\\[10px\\]"],
+html:not(.dark) main [class*="text-xs"][class*="uppercase"],
+html:not(.dark) main [class*="tracking-wider"] {
+  color: #475569 !important;
+}
+
+/* p tags → very dark for readability */
+html:not(.dark) main p {
+  color: #1e293b !important;
+  -webkit-text-fill-color: #1e293b !important;
+}
+
+/* span text → dark */
+html:not(.dark) main span:not([class*="bg-clip-text"]):not([class*="text-emerald"]):not([class*="text-rose"]):not([class*="text-blue"]):not([class*="text-amber"]):not([class*="text-red"]):not([class*="text-green"]):not([class*="text-pink"]):not([class*="text-orange"]):not([class*="text-violet"]):not([class*="text-purple"]):not([class*="text-cyan"]):not([class*="text-teal"]):not([class*="text-yellow"]):not([class*="text-indigo"]):not([class*="text-transparent"]) {
+  color: #000000 !important;
+}
+
+/* ════════════════════════════════════════════
+   PROTECT WHITE TEXT ON COLORED BACKGROUNDS
+   (gradient stat cards, buttons, badges)
+   ════════════════════════════════════════════ */
+
 html:not(.dark) main [class*="from-rose"][class*="bg-gradient"] [class*="text-white"],
 html:not(.dark) main [class*="from-rose"][class*="bg-gradient"][class*="text-white"],
 html:not(.dark) main [class*="from-pink"][class*="bg-gradient"] [class*="text-white"],
 html:not(.dark) main [class*="from-pink"][class*="bg-gradient"][class*="text-white"],
 html:not(.dark) main [class*="from-red"][class*="bg-gradient"] [class*="text-white"],
+html:not(.dark) main [class*="from-red"][class*="bg-gradient"][class*="text-white"],
 html:not(.dark) main [class*="from-blue"][class*="bg-gradient"] [class*="text-white"],
 html:not(.dark) main [class*="from-blue"][class*="bg-gradient"][class*="text-white"],
 html:not(.dark) main [class*="from-emerald"][class*="bg-gradient"] [class*="text-white"],
 html:not(.dark) main [class*="from-emerald"][class*="bg-gradient"][class*="text-white"],
 html:not(.dark) main [class*="from-green"][class*="bg-gradient"] [class*="text-white"],
+html:not(.dark) main [class*="from-green"][class*="bg-gradient"][class*="text-white"],
 html:not(.dark) main [class*="from-amber"][class*="bg-gradient"] [class*="text-white"],
 html:not(.dark) main [class*="from-amber"][class*="bg-gradient"][class*="text-white"],
 html:not(.dark) main [class*="from-indigo"][class*="bg-gradient"] [class*="text-white"],
+html:not(.dark) main [class*="from-indigo"][class*="bg-gradient"][class*="text-white"],
 html:not(.dark) main [class*="from-violet"][class*="bg-gradient"] [class*="text-white"],
+html:not(.dark) main [class*="from-violet"][class*="bg-gradient"][class*="text-white"],
 html:not(.dark) main [class*="from-purple"][class*="bg-gradient"] [class*="text-white"],
+html:not(.dark) main [class*="from-purple"][class*="bg-gradient"][class*="text-white"],
 html:not(.dark) main [class*="from-cyan"][class*="bg-gradient"] [class*="text-white"],
 html:not(.dark) main [class*="from-teal"][class*="bg-gradient"] [class*="text-white"],
 html:not(.dark) main [class*="from-orange"][class*="bg-gradient"] [class*="text-white"],
@@ -1225,46 +1334,86 @@ html:not(.dark) main [class*="bg-amber"][class*="text-white"],
 html:not(.dark) main [class*="bg-indigo"][class*="text-white"],
 html:not(.dark) main [class*="bg-violet"][class*="text-white"],
 html:not(.dark) main [class*="bg-purple"][class*="text-white"],
+html:not(.dark) main [class*="bg-cyan"][class*="text-white"],
+html:not(.dark) main [class*="bg-teal"][class*="text-white"],
+html:not(.dark) main [class*="bg-orange"][class*="text-white"],
 html:not(.dark) main button[class*="bg-gradient"][class*="text-white"],
 html:not(.dark) main a[class*="bg-gradient"][class*="text-white"] {
   color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
 }
 
-/* Also keep white text inside gradient-bg children */
+/* Keep children white inside colored gradient cards */
 html:not(.dark) main [class*="from-rose"][class*="bg-gradient"] *,
 html:not(.dark) main [class*="from-pink"][class*="bg-gradient"] *,
 html:not(.dark) main [class*="from-blue"][class*="bg-gradient"] *,
 html:not(.dark) main [class*="from-emerald"][class*="bg-gradient"] *,
 html:not(.dark) main [class*="from-amber"][class*="bg-gradient"] *,
 html:not(.dark) main [class*="from-green"][class*="bg-gradient"] *,
-html:not(.dark) main [class*="from-indigo"][class*="bg-gradient"] * {
+html:not(.dark) main [class*="from-indigo"][class*="bg-gradient"] *,
+html:not(.dark) main [class*="from-violet"][class*="bg-gradient"]:not([class*="from-violet-50"]):not([class*="from-violet-100"]) *,
+html:not(.dark) main [class*="from-purple"][class*="bg-gradient"] *,
+html:not(.dark) main [class*="from-cyan"][class*="bg-gradient"] *,
+html:not(.dark) main [class*="from-teal"][class*="bg-gradient"] *,
+html:not(.dark) main [class*="from-orange"][class*="bg-gradient"] * {
   color: inherit;
+  -webkit-text-fill-color: inherit !important;
+  background: none !important;
+  -webkit-background-clip: unset !important;
+  background-clip: unset !important;
 }
 
-/* ── MAIN CONTENT: BORDERS ── */
-html:not(.dark) main [class*="border-white"] {
-  border-color: rgba(99, 102, 241, 0.08) !important;
-}
+/* ════════════════════════════════════════════
+   BORDERS
+   ════════════════════════════════════════════ */
 
-html:not(.dark) main [class*="border-slate-7"],
+html:not(.dark) main [class*="border-white"] { border-color: rgba(226, 232, 240, 0.20) !important; }
+html:not(.dark) main [class*="border-white/5"],
+html:not(.dark) main [class*="border-white/10"],
+html:not(.dark) main [class*="border-white/20"] { border-color: rgba(226, 232, 240, 0.30) !important; }
+
+html:not(.dark) main [class*="border-slate-5"],
 html:not(.dark) main [class*="border-slate-6"],
+html:not(.dark) main [class*="border-slate-7"],
 html:not(.dark) main [class*="border-slate-8"],
-html:not(.dark) main [class*="border-slate-9"] {
-  border-color: rgba(196, 181, 253, 0.60) !important;
+html:not(.dark) main [class*="border-slate-9"] { border-color: rgba(226, 232, 240, 0.40) !important; }
+
+html:not(.dark) main [class*="border-gray-6"],
+html:not(.dark) main [class*="border-gray-7"],
+html:not(.dark) main [class*="border-gray-8"] { border-color: rgba(226, 232, 240, 0.40) !important; }
+
+/* ════════════════════════════════════════════
+   BACKDROP BLUR CONTAINERS
+   ════════════════════════════════════════════ */
+
+html:not(.dark) main [class*="backdrop-blur"]:not([class*="from-rose"]):not([class*="from-pink"]):not([class*="from-blue"]):not([class*="from-emerald"]):not([class*="from-amber"]):not([class*="from-green"]):not([class*="from-indigo"]):not([class*="from-violet"]):not([class*="from-purple"]):not([class*="from-cyan"]):not([class*="from-teal"]):not([class*="from-orange"]) {
+  background: rgba(241, 245, 249, 0.60) !important;
 }
 
-/* ── MAIN: BACKDROP BLUR CONTAINERS (exclude gradient cards) ── */
-html:not(.dark) main [class*="backdrop-blur"]:not([class*="from-rose"]):not([class*="from-pink"]):not([class*="from-blue"]):not([class*="from-emerald"]):not([class*="from-amber"]):not([class*="from-green"]):not([class*="from-indigo"]):not([class*="from-violet"]):not([class*="from-purple"]):not([class*="from-cyan"]):not([class*="from-teal"]) {
-  background: linear-gradient(to right, rgba(245, 243, 255, 0.80), rgba(250, 245, 255, 0.50), rgba(238, 242, 255, 0.80)) !important;
-}
+/* ════════════════════════════════════════════
+   INPUTS / FORMS / SELECTS
+   ════════════════════════════════════════════ */
 
-/* ── MAIN: INPUTS/FORMS ── */
 html:not(.dark) main input:not([type="checkbox"]):not([type="radio"]),
 html:not(.dark) main textarea,
 html:not(.dark) main select {
-  background-color: rgba(255, 255, 255, 0.9) !important;
-  border-color: rgba(99, 102, 241, 0.12) !important;
-  color: #1e293b !important;
+  background: #ffffff !important;
+  background-image: none !important;
+  border-color: rgba(226, 232, 240, 0.60) !important;
+  color: #000000 !important;
+}
+
+html:not(.dark) main input:not([type="checkbox"]):not([type="radio"]):hover,
+html:not(.dark) main textarea:hover,
+html:not(.dark) main select:hover {
+  border-color: #94a3b8 !important;
+}
+
+html:not(.dark) main input:not([type="checkbox"]):not([type="radio"]):focus,
+html:not(.dark) main textarea:focus,
+html:not(.dark) main select:focus {
+  border-color: #94a3b8 !important;
+  box-shadow: 0 0 0 2px rgba(226, 232, 240, 0.20) !important;
 }
 
 html:not(.dark) main input::placeholder,
@@ -1272,50 +1421,68 @@ html:not(.dark) main textarea::placeholder {
   color: #94a3b8 !important;
 }
 
-/* ── MAIN: TABLES ── */
+/* Inputs/selects inside modals/dialogs */
+html:not(.dark) [data-slot="dialog-content"] input:not([type="checkbox"]):not([type="radio"]),
+html:not(.dark) [data-slot="dialog-content"] textarea,
+html:not(.dark) [data-slot="dialog-content"] select {
+  background: #ffffff !important;
+  background-image: none !important;
+  border-color: rgba(226, 232, 240, 0.60) !important;
+  color: #000000 !important;
+}
+
+/* ════════════════════════════════════════════
+   TABLES
+   ════════════════════════════════════════════ */
+
 html:not(.dark) main table {
-  background: rgba(255, 255, 255, 0.85) !important;
+  background: rgba(255, 255, 255, 0.70) !important;
+  border-radius: 12px !important;
+  overflow: hidden;
 }
 
 html:not(.dark) main thead {
-  background: rgba(99, 102, 241, 0.04) !important;
+  background: rgba(226, 232, 240, 0.40) !important;
 }
 
 html:not(.dark) main thead th {
-  color: #334155 !important;
-  border-color: rgba(99, 102, 241, 0.06) !important;
+  color: #000000 !important;
+  border-color: rgba(226, 232, 240, 0.20) !important;
+  font-weight: 700 !important;
 }
 
 html:not(.dark) main tbody td {
-  border-color: rgba(0, 0, 0, 0.04) !important;
+  color: #000000 !important;
+  border-color: rgba(226, 232, 240, 0.15) !important;
 }
 
 html:not(.dark) main tbody tr:hover {
-  background: rgba(99, 102, 241, 0.03) !important;
+  background: rgba(241, 245, 249, 0.25) !important;
 }
 
-/* ── SEMI-TRANSPARENT WHITE BGs → light indigo tint ── */
-/* These are badges, pills, and dividers on dark bg. In light mode, make them subtle indigo */
+/* ════════════════════════════════════════════
+   SEMI-TRANSPARENT WHITE BGs
+   ════════════════════════════════════════════ */
+
 html:not(.dark) main [class*="bg-white/5"],
 html:not(.dark) main [class*="bg-white/10"],
+html:not(.dark) main [class*="bg-white/15"],
 html:not(.dark) main [class*="bg-white/20"],
 html:not(.dark) main [class*="bg-white/[0.03]"],
 html:not(.dark) main [class*="bg-white/[0.06]"] {
-  background: rgba(99, 102, 241, 0.05) !important;
+  background: rgba(226, 232, 240, 0.08) !important;
 }
 
-/* Hover states for semi-transparent white */
 html:not(.dark) main [class*="hover:bg-white"]:hover {
-  background: rgba(99, 102, 241, 0.08) !important;
+  background: rgba(226, 232, 240, 0.12) !important;
 }
 
-/* Hover states for dark bg hovers */
 html:not(.dark) main [class*="hover:bg-slate-800"]:hover,
 html:not(.dark) main [class*="hover:bg-slate-700"]:hover {
-  background: rgba(99, 102, 241, 0.06) !important;
+  background: rgba(241, 245, 249, 0.50) !important;
 }
 
-/* But NOT inside gradient stat cards - keep bg-white/15 as is */
+/* Keep white-bg inside colored gradient cards */
 html:not(.dark) main [class*="from-rose"] [class*="bg-white"],
 html:not(.dark) main [class*="from-pink"] [class*="bg-white"],
 html:not(.dark) main [class*="from-blue"] [class*="bg-white"],
@@ -1326,53 +1493,165 @@ html:not(.dark) main [class*="from-indigo"] [class*="bg-white"] {
   background: rgba(255, 255, 255, 0.15) !important;
 }
 
-/* ── SHADOWS (softer in light mode) ── */
+/* ════════════════════════════════════════════
+   SHADOWS
+   ════════════════════════════════════════════ */
+
 html:not(.dark) main [class*="shadow-lg"],
 html:not(.dark) main [class*="shadow-xl"],
 html:not(.dark) main [class*="shadow-2xl"] {
-  --tw-shadow-color: rgba(99, 102, 241, 0.06) !important;
+  --tw-shadow-color: rgba(226, 232, 240, 0.15) !important;
 }
 
-/* ── USER DROPDOWN BORDER ── */
-html:not(.dark) [class*="border-slate-950"] {
-  border-color: rgba(99, 102, 241, 0.10) !important;
+/* ════════════════════════════════════════════
+   BORDERS - GLOBAL
+   ════════════════════════════════════════════ */
+
+html:not(.dark) [class*="border-slate-950"] { border-color: rgba(226, 232, 240, 0.20) !important; }
+
+/* ════════════════════════════════════════════
+   MODALS / DIALOGS / POPUPS
+   ════════════════════════════════════════════ */
+
+/* Dialog content panels (Radix) */
+html:not(.dark) [data-slot="dialog-content"] {
+  background: #fafbfd !important;
+  border: 1px solid rgba(226, 232, 240, 0.40) !important;
+  box-shadow: 0 24px 48px rgba(226, 232, 240, 0.15) !important;
 }
 
-/* ── MODALS in light mode (scoped to .fixed, NOT sidebar) ── */
-/* Only target modal CONTENT panels, NOT backdrop overlays */
+/* bg-slate-900 inside modals/dialogs */
+html:not(.dark) [data-slot="dialog-content"] [class*="bg-slate-900"],
+html:not(.dark) [data-slot="dialog-content"] [class*="bg-slate-800"],
+html:not(.dark) [data-slot="dialog-content"] [class*="bg-slate-950"] {
+  background: #fafbfd !important;
+}
+
+/* Text in modals */
+html:not(.dark) [data-slot="dialog-content"] [class*="text-white"] {
+  color: #000000 !important;
+}
+
+html:not(.dark) [data-slot="dialog-content"] [class*="text-slate-400"],
+html:not(.dark) [data-slot="dialog-content"] [class*="text-slate-300"] {
+  color: #334155 !important;
+}
+
+html:not(.dark) [data-slot="dialog-content"] [class*="text-slate-100"],
+html:not(.dark) [data-slot="dialog-content"] [class*="text-slate-200"] {
+  color: #000000 !important;
+}
+
+/* All text in modals → black */
+html:not(.dark) [data-slot="dialog-content"] p,
+html:not(.dark) [data-slot="dialog-content"] span:not([class*="text-transparent"]):not([class*="text-emerald"]):not([class*="text-rose"]):not([class*="text-blue"]):not([class*="text-red"]):not([class*="text-green"]):not([class*="text-amber"]):not([class*="text-pink"]):not([class*="text-orange"]),
+html:not(.dark) [data-slot="dialog-content"] label {
+  color: #000000 !important;
+  -webkit-text-fill-color: #000000 !important;
+}
+
+/* Modal headings → gradient */
+html:not(.dark) [data-slot="dialog-content"] h1,
+html:not(.dark) [data-slot="dialog-content"] h2,
+html:not(.dark) [data-slot="dialog-content"] h3 {
+  background: linear-gradient(135deg, #ec4899, #f97316) !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  background-clip: text !important;
+}
+
+/* Modal h4, h5 → pure black */
+html:not(.dark) [data-slot="dialog-content"] h4,
+html:not(.dark) [data-slot="dialog-content"] h5 {
+  color: #000000 !important;
+  -webkit-text-fill-color: #000000 !important;
+}
+
+/* Borders in modals */
+html:not(.dark) [data-slot="dialog-content"] [class*="border-white"] {
+  border-color: rgba(226, 232, 240, 0.20) !important;
+}
+
+/* Buttons inside modals - keep white text on colored bg */
+html:not(.dark) [data-slot="dialog-content"] [class*="bg-rose"] [class*="text-white"],
+html:not(.dark) [data-slot="dialog-content"] [class*="bg-emerald"] [class*="text-white"],
+html:not(.dark) [data-slot="dialog-content"] [class*="bg-blue"] [class*="text-white"],
+html:not(.dark) [data-slot="dialog-content"] [class*="bg-amber"] [class*="text-white"],
+html:not(.dark) [data-slot="dialog-content"] button[class*="bg-rose"],
+html:not(.dark) [data-slot="dialog-content"] button[class*="bg-emerald"],
+html:not(.dark) [data-slot="dialog-content"] button[class*="bg-blue"],
+html:not(.dark) [data-slot="dialog-content"] button[class*="bg-gradient"] {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+}
+
+/* Keep white text inside colored gradient modal headers (success/error/delete) */
+html:not(.dark) [data-slot="dialog-content"] [class*="from-emerald"] *,
+html:not(.dark) [data-slot="dialog-content"] [class*="from-rose"] *,
+html:not(.dark) [data-slot="dialog-content"] [class*="from-blue"] *,
+html:not(.dark) [data-slot="dialog-content"] [class*="from-amber"] *,
+html:not(.dark) [data-slot="dialog-content"] [class*="from-red"] * {
+  color: inherit;
+  -webkit-text-fill-color: inherit !important;
+  background: none !important;
+  -webkit-background-clip: unset !important;
+  background-clip: unset !important;
+}
+
+/* bg-white/10 inside modals (ghost buttons) */
+html:not(.dark) [data-slot="dialog-content"] [class*="bg-white/10"],
+html:not(.dark) [data-slot="dialog-content"] [class*="bg-white/5"],
+html:not(.dark) [data-slot="dialog-content"] [class*="hover:bg-white/5"]:hover,
+html:not(.dark) [data-slot="dialog-content"] [class*="hover:bg-white/20"]:hover {
+  background: rgba(226, 232, 240, 0.12) !important;
+}
+
+/* .fixed modals (non-Radix) */
 html:not(.dark) .fixed > div:not(.absolute) [class*="bg-slate-900"],
 html:not(.dark) .fixed > div:not(.absolute) [class*="bg-slate-950"] {
-  background: rgba(255, 255, 255, 0.98) !important;
-}
-
-html:not(.dark) .fixed > div:not(.absolute) [class*="from-slate-900"],
-html:not(.dark) .fixed > div:not(.absolute) [class*="from-slate-950"] {
-  --tw-gradient-from: rgba(255, 255, 255, 0.98) !important;
-  --tw-gradient-via: rgba(248, 250, 252, 0.96) !important;
-  --tw-gradient-to: rgba(241, 245, 249, 0.94) !important;
+  background: #fafbfd !important;
 }
 
 html:not(.dark) .fixed > div:not(.absolute) [class*="text-white"] {
-  color: #1e293b !important;
+  color: #000000 !important;
+}
+
+html:not(.dark) .fixed > div:not(.absolute) p,
+html:not(.dark) .fixed > div:not(.absolute) span:not([class*="text-transparent"]):not([class*="text-emerald"]):not([class*="text-rose"]):not([class*="text-blue"]):not([class*="text-red"]):not([class*="text-green"]):not([class*="text-amber"]):not([class*="text-pink"]):not([class*="text-orange"]),
+html:not(.dark) .fixed > div:not(.absolute) label {
+  color: #000000 !important;
+  -webkit-text-fill-color: #000000 !important;
 }
 
 html:not(.dark) .fixed > div:not(.absolute) [class*="border-white"] {
-  border-color: rgba(99, 102, 241, 0.10) !important;
+  border-color: rgba(226, 232, 240, 0.20) !important;
 }
 
-/* Identity alert transparent backdrop */
-.identity-alert-backdrop {
-  backdrop-filter: blur(12px) saturate(1.2);
-  -webkit-backdrop-filter: blur(12px) saturate(1.2);
-  background: linear-gradient(135deg, rgba(139, 92, 246, 0.15) 0%, rgba(99, 102, 241, 0.12) 50%, rgba(139, 92, 246, 0.15) 100%);
-}
-
-/* Protect identity alert popup action buttons - keep text white on colored bg */
-html:not(.dark) [data-identity-alert] [class*="bg-gradient-to-r"][class*="from-red"] [class*="text-white"],
+/* Keep white text on colored buttons in .fixed modals */
 html:not(.dark) .fixed [class*="bg-gradient-to-r"][class*="from-red"] [class*="text-white"],
 html:not(.dark) .fixed [class*="bg-gradient-to-r"][class*="from-red"][class*="text-white"],
 html:not(.dark) .fixed [class*="bg-gradient-to-r"][class*="from-amber"][class*="text-white"],
 html:not(.dark) .fixed button[class*="bg-gradient-to-r"],
+html:not(.dark) .fixed [class*="from-emerald"] *,
+html:not(.dark) .fixed [class*="from-rose"] *,
+html:not(.dark) .fixed [class*="from-blue"] *,
+html:not(.dark) .fixed [class*="from-amber"] * {
+  color: inherit;
+  -webkit-text-fill-color: inherit !important;
+  background: none !important;
+  -webkit-background-clip: unset !important;
+  background-clip: unset !important;
+}
+
+/* Identity alert backdrop */
+.identity-alert-backdrop {
+  backdrop-filter: blur(12px) saturate(1.2);
+  -webkit-backdrop-filter: blur(12px) saturate(1.2);
+  background: rgba(0, 0, 0, 0.35);
+}
+
+/* White text on any colored bg buttons across entire app */
+html:not(.dark) [data-identity-alert] [class*="bg-gradient-to-r"][class*="from-red"] [class*="text-white"],
 html:not(.dark) main button[class*="bg-gradient"][class*="text-white"],
 html:not(.dark) main a[class*="bg-gradient"][class*="text-white"],
 html:not(.dark) main [class*="bg-gradient-to-r"][class*="from-rose"][class*="text-white"],
@@ -1387,6 +1666,673 @@ html:not(.dark) main [class*="bg-green"][class*="text-white"],
 html:not(.dark) main [class*="bg-amber"][class*="text-white"],
 html:not(.dark) main [class*="bg-indigo"][class*="text-white"],
 html:not(.dark) main [class*="bg-violet"][class*="text-white"],
-html:not(.dark) main [class*="bg-purple"][class*="text-white"] {
+html:not(.dark) main [class*="bg-purple"][class*="text-white"],
+html:not(.dark) main [class*="bg-cyan"][class*="text-white"],
+html:not(.dark) main [class*="bg-teal"][class*="text-white"],
+html:not(.dark) main [class*="bg-orange"][class*="text-white"] {
   color: #ffffff !important;
 }
+
+/* ════════════════════════════════════════════
+   NOTIFICATION BANNERS (fixed position)
+   ════════════════════════════════════════════ */
+
+/* Notification banners with colored gradients - keep original styling */
+html:not(.dark) .fixed [class*="from-emerald"][class*="bg-gradient"] *,
+html:not(.dark) .fixed [class*="from-amber"][class*="bg-gradient"] *,
+html:not(.dark) .fixed [class*="from-blue"][class*="bg-gradient"] * {
+  color: inherit;
+  -webkit-text-fill-color: inherit !important;
+  background: none !important;
+  -webkit-background-clip: unset !important;
+  background-clip: unset !important;
+}
+
+/* ════════════════════════════════════════════
+   POPOVERS / DROPDOWNS / COMMAND PALETTE
+   ════════════════════════════════════════════ */
+
+html:not(.dark) [data-slot="popover-content"],
+html:not(.dark) [data-radix-popper-content-wrapper] > div {
+  background: #fafbfd !important;
+  border-color: rgba(226, 232, 240, 0.40) !important;
+  color: #000000 !important;
+}
+
+html:not(.dark) [role="listbox"],
+html:not(.dark) [role="menu"] {
+  background: #fafbfd !important;
+  border-color: rgba(226, 232, 240, 0.40) !important;
+  color: #000000 !important;
+}
+
+html:not(.dark) [role="option"],
+html:not(.dark) [role="menuitem"] {
+  color: #000000 !important;
+}
+
+html:not(.dark) [role="option"]:hover,
+html:not(.dark) [role="menuitem"]:hover,
+html:not(.dark) [data-highlighted] {
+  background: rgba(226, 232, 240, 0.15) !important;
+}
+
+/* ════════════════════════════════════════════
+   SELECT/COMBOBOX DROPDOWNS
+   ════════════════════════════════════════════ */
+
+html:not(.dark) [data-slot="select-content"] {
+  background: #fafbfd !important;
+  border-color: rgba(226, 232, 240, 0.40) !important;
+  color: #000000 !important;
+}
+
+html:not(.dark) [data-slot="select-item"] {
+  color: #000000 !important;
+}
+
+html:not(.dark) [data-slot="select-item"]:hover,
+html:not(.dark) [data-slot="select-item"][data-highlighted] {
+  background: rgba(226, 232, 240, 0.15) !important;
+}
+
+/* ════════════════════════════════════════════
+   SHEET / DRAWER
+   ════════════════════════════════════════════ */
+
+html:not(.dark) [data-slot="sheet-content"] {
+  background: #fafbfd !important;
+  border-color: rgba(226, 232, 240, 0.40) !important;
+}
+
+html:not(.dark) [data-slot="sheet-content"] [class*="text-white"] {
+  color: #000000 !important;
+}
+
+html:not(.dark) [data-slot="sheet-content"] p,
+html:not(.dark) [data-slot="sheet-content"] span:not([class*="text-transparent"]):not([class*="text-emerald"]):not([class*="text-rose"]):not([class*="text-blue"]),
+html:not(.dark) [data-slot="sheet-content"] label,
+html:not(.dark) [data-slot="sheet-content"] h1,
+html:not(.dark) [data-slot="sheet-content"] h2,
+html:not(.dark) [data-slot="sheet-content"] h3,
+html:not(.dark) [data-slot="sheet-content"] h4 {
+  color: #000000 !important;
+  -webkit-text-fill-color: #000000 !important;
+}
+
+/* ════════════════════════════════════════════
+   SONNER TOAST NOTIFICATIONS
+   ════════════════════════════════════════════ */
+
+html:not(.dark) [data-sonner-toaster] [data-sonner-toast] {
+  background: #fafbfd !important;
+  border-color: rgba(226, 232, 240, 0.40) !important;
+  color: #000000 !important;
+}
+
+/* ════════════════════════════════════════════
+   SUBSCRIPTION PAGE SPECIFIC (dark mode only)
+   ════════════════════════════════════════════ */
+
+.dark main .subscription-title,
+.dark .subscription-title {
+  color: #ffffff !important;
+}
+
+.dark main .subscription-subtitle,
+.dark .subscription-subtitle {
+  color: #94a3b8 !important;
+}
+
+/* ════════════════════════════════════════════
+   EXTERNAL PAGES (login, register, etc)
+   ════════════════════════════════════════════ */
+
+html:not(.dark) [class*="bg-[#0a0e1a]"],
+html:not(.dark) [class*="bg-[#0d1525]"],
+html:not(.dark) [class*="bg-[#080c15]"],
+html:not(.dark) [class*="from-[#0a0e1a]"],
+html:not(.dark) [class*="from-[#0d1525]"] {
+  background: linear-gradient(135deg, #e4e9f2, #e8ecf4, #eae0ed) !important;
+}
+
+/* ════════════════════════════════════════════
+   TOOLTIP
+   ════════════════════════════════════════════ */
+
+html:not(.dark) [data-slot="tooltip-content"] {
+  background: #1e293b !important;
+  color: #ffffff !important;
+}
+
+/* ════════════════════════════════════════════
+   BADGE - keep colored badges readable
+   ════════════════════════════════════════════ */
+
+html:not(.dark) main [class*="bg-slate-500"] {
+  background: rgba(226, 232, 240, 0.20) !important;
+  color: #000000 !important;
+}
+
+/* ════════════════════════════════════════════
+   ALERT DIALOGS
+   ════════════════════════════════════════════ */
+
+html:not(.dark) [data-slot="alert-dialog-content"] {
+  background: #fafbfd !important;
+  border: 1px solid rgba(226, 232, 240, 0.40) !important;
+}
+
+html:not(.dark) [data-slot="alert-dialog-content"] [class*="text-white"] {
+  color: #000000 !important;
+}
+
+html:not(.dark) [data-slot="alert-dialog-content"] p,
+html:not(.dark) [data-slot="alert-dialog-content"] span:not([class*="text-transparent"]),
+html:not(.dark) [data-slot="alert-dialog-content"] label,
+html:not(.dark) [data-slot="alert-dialog-content"] h1,
+html:not(.dark) [data-slot="alert-dialog-content"] h2,
+html:not(.dark) [data-slot="alert-dialog-content"] h3,
+html:not(.dark) [data-slot="alert-dialog-content"] h4 {
+  color: #000000 !important;
+  -webkit-text-fill-color: #000000 !important;
+}
+
+/* Colored buttons in alert dialog keep white */
+html:not(.dark) [data-slot="alert-dialog-content"] button[class*="bg-rose"],
+html:not(.dark) [data-slot="alert-dialog-content"] button[class*="bg-red"],
+html:not(.dark) [data-slot="alert-dialog-content"] button[class*="bg-gradient"] {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+}
+
+/* ════════════════════════════════════════════
+   ACCORDION
+   ════════════════════════════════════════════ */
+
+html:not(.dark) main [data-slot="accordion-trigger"] {
+  color: #000000 !important;
+  -webkit-text-fill-color: #000000 !important;
+}
+
+/* ════════════════════════════════════════════
+   TABS
+   ════════════════════════════════════════════ */
+
+html:not(.dark) main [data-slot="tabs-list"] {
+  background: rgba(226, 232, 240, 0.40) !important;
+}
+
+html:not(.dark) main [data-slot="tabs-trigger"] {
+  color: #000000 !important;
+}
+
+html:not(.dark) main [data-slot="tabs-trigger"][data-state="active"] {
+  background: #ffffff !important;
+  color: #000000 !important;
+  -webkit-text-fill-color: #000000 !important;
+}
+
+/* ════════════════════════════════════════════
+   PROGRESS BAR
+   ════════════════════════════════════════════ */
+
+html:not(.dark) main [data-slot="progress"] {
+  background: rgba(226, 232, 240, 0.20) !important;
+}
+
+/* ════════════════════════════════════════════
+   CHECKBOX / SWITCH
+   ════════════════════════════════════════════ */
+
+html:not(.dark) main [data-slot="checkbox"] {
+  border-color: #94a3b8 !important;
+}
+
+html:not(.dark) main [data-slot="switch"] {
+  border-color: #94a3b8 !important;
+}
+
+/* ════════════════════════════════════════════
+   EXTERNAL PAGES (login, register, etc) - TEXT
+   ════════════════════════════════════════════ */
+
+html:not(.dark) [class*="bg-[#0a0e1a]"] h1,
+html:not(.dark) [class*="bg-[#0a0e1a]"] h2,
+html:not(.dark) [class*="bg-[#0d1525]"] h1,
+html:not(.dark) [class*="bg-[#0d1525]"] h2 {
+  background: linear-gradient(135deg, #ec4899, #f97316) !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  background-clip: text !important;
+}
+
+html:not(.dark) [class*="bg-[#0a0e1a]"] [class*="text-white"],
+html:not(.dark) [class*="bg-[#0d1525]"] [class*="text-white"],
+html:not(.dark) [class*="bg-[#080c15]"] [class*="text-white"] {
+  color: #000000 !important;
+}
+
+html:not(.dark) [class*="bg-[#0a0e1a]"] p,
+html:not(.dark) [class*="bg-[#0d1525]"] p,
+html:not(.dark) [class*="bg-[#080c15]"] p {
+  color: #1e293b !important;
+}
+
+html:not(.dark) [class*="bg-[#0a0e1a]"] input,
+html:not(.dark) [class*="bg-[#0d1525]"] input,
+html:not(.dark) [class*="bg-[#080c15]"] input {
+  background-color: rgba(255, 255, 255, 0.60) !important;
+  border-color: rgba(226, 232, 240, 0.40) !important;
+  color: #000000 !important;
+}
+
+/* ════════════════════════════════════════════
+   GLOBAL ICON COLORS (SVGs inside main)
+   ════════════════════════════════════════════ */
+
+html:not(.dark) main svg:not([class*="text-emerald"]):not([class*="text-rose"]):not([class*="text-blue"]):not([class*="text-amber"]):not([class*="text-red"]):not([class*="text-green"]):not([class*="text-pink"]):not([class*="text-orange"]):not([class*="text-violet"]):not([class*="text-purple"]):not([class*="text-cyan"]):not([class*="text-teal"]):not([class*="text-yellow"]):not([class*="text-indigo"]):not([class*="text-white"]) {
+  color: #334155 !important;
+}
+
+/* ════════════════════════════════════════════
+   CATCH-ALL: Ensure ALL buttons have readable text
+   ════════════════════════════════════════════ */
+
+/* Default buttons → black text */
+html:not(.dark) main button:not([class*="bg-gradient"]):not([class*="bg-rose"]):not([class*="bg-red"]):not([class*="bg-emerald"]):not([class*="bg-green"]):not([class*="bg-blue"]):not([class*="bg-amber"]):not([class*="bg-indigo"]):not([class*="bg-violet"]):not([class*="bg-purple"]) {
+  color: #000000 !important;
+}
+
+/* Colored buttons keep white text */
+html:not(.dark) main button[class*="bg-gradient"],
+html:not(.dark) main button[class*="bg-rose"],
+html:not(.dark) main button[class*="bg-red"],
+html:not(.dark) main button[class*="bg-emerald"],
+html:not(.dark) main button[class*="bg-green"],
+html:not(.dark) main button[class*="bg-blue"],
+html:not(.dark) main button[class*="bg-amber"],
+html:not(.dark) main button[class*="bg-indigo"],
+html:not(.dark) main button[class*="bg-violet"],
+html:not(.dark) main button[class*="bg-purple"] {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+}
+
+/* ════════════════════════════════════════════
+   CATCH-ALL: Links → black text (unless colored)
+   ════════════════════════════════════════════ */
+
+html:not(.dark) main a:not([class*="text-emerald"]):not([class*="text-rose"]):not([class*="text-blue"]):not([class*="text-pink"]):not([class*="text-orange"]):not([class*="bg-gradient"]):not([class*="text-transparent"]) {
+  color: #000000 !important;
+}
+
+/* ════════════════════════════════════════════
+   PAGINATION - active page
+   ════════════════════════════════════════════ */
+
+html:not(.dark) main [class*="bg-slate-800"][class*="text-white"] {
+  background: linear-gradient(135deg, #ec4899, #f97316) !important;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+}
+
+/* ════════════════════════════════════════════
+   LUXURY NOTIFICATION (custom component)
+   ════════════════════════════════════════════ */
+
+html:not(.dark) [class*="luxury-notification"],
+html:not(.dark) [data-notification] {
+  background: #fafbfd !important;
+  border-color: rgba(226, 232, 240, 0.40) !important;
+  color: #000000 !important;
+}
+
+/* ════════════════════════════════════════════
+   LABEL elements globally
+   ════════════════════════════════════════════ */
+
+html:not(.dark) main label {
+  color: #000000 !important;
+  -webkit-text-fill-color: #000000 !important;
+}
+
+/* ════════════════════════════════════════════
+   DT/DD (definition lists) 
+   ════════════════════════════════════════════ */
+
+html:not(.dark) main dt {
+  color: #475569 !important;
+}
+
+html:not(.dark) main dd {
+  color: #000000 !important;
+}
+
+/* ════════════════════════════════════════════
+   LI items
+   ════════════════════════════════════════════ */
+
+html:not(.dark) main li {
+  color: #000000 !important;
+}
+
+/* ════════════════════════════════════════════
+   STRONG / B / EM tags
+   ════════════════════════════════════════════ */
+
+html:not(.dark) main strong,
+html:not(.dark) main b {
+  color: #000000 !important;
+  -webkit-text-fill-color: #000000 !important;
+}
+
+/* ════════════════════════════════════════════
+   DIV text fallback (divs that directly contain text)
+   ════════════════════════════════════════════ */
+
+html:not(.dark) main div[class*="text-white"],
+html:not(.dark) main div[class*="text-slate-1"],
+html:not(.dark) main div[class*="text-slate-2"],
+html:not(.dark) main div[class*="text-slate-3"],
+html:not(.dark) main div[class*="text-gray-1"],
+html:not(.dark) main div[class*="text-gray-2"],
+html:not(.dark) main div[class*="text-gray-3"] {
+  color: #000000 !important;
+}
+
+/* ════════════════════════════════════════════════════════
+   ACCENT THEME SYSTEM - CSS Variable Overrides
+   Applied via data-accent attribute on <html>
+   ════════════════════════════════════════════════════════ */
+
+:root {
+  --accent-page-bg: transparent;
+  --accent-card-bg: transparent;
+  --accent-card-border: transparent;
+  --accent-text-primary: inherit;
+  --accent-text-secondary: inherit;
+  --accent-color: #3b82f6;
+  --accent-color-light: rgba(59,130,246,0.08);
+  --accent-heading: #3b82f6;
+  --accent-heading2: #6366f1;
+  --accent-sidebar-from: transparent;
+  --accent-sidebar-via: transparent;
+  --accent-sidebar-to: transparent;
+  --accent-header-bg: transparent;
+}
+
+/* ════════════════════════════════════════════
+   LIGHT MODE ACCENT THEMES
+   Only target specific structural elements
+   ════════════════════════════════════════════ */
+
+/* --- Light: Page background (the fixed layers) --- */
+html:not(.dark)[data-accent="rose-gold"] .fixed.inset-0:first-child {
+  background: #FDF2F4 !important;
+}
+html:not(.dark)[data-accent="rose-gold"] .fixed.inset-0:nth-child(2) {
+  background: linear-gradient(135deg, #FDF2F4, #fff5f7, #fef0f3) !important;
+}
+html:not(.dark)[data-accent="ocean-breeze"] .fixed.inset-0:first-child {
+  background: #F0F9FF !important;
+}
+html:not(.dark)[data-accent="ocean-breeze"] .fixed.inset-0:nth-child(2) {
+  background: linear-gradient(135deg, #F0F9FF, #e8f4fd, #f0f9ff) !important;
+}
+html:not(.dark)[data-accent="forest-mint"] .fixed.inset-0:first-child {
+  background: #F0FDF4 !important;
+}
+html:not(.dark)[data-accent="forest-mint"] .fixed.inset-0:nth-child(2) {
+  background: linear-gradient(135deg, #F0FDF4, #ecfdf0, #f0fdf4) !important;
+}
+html:not(.dark)[data-accent="royal-purple"] .fixed.inset-0:first-child {
+  background: #FAF5FF !important;
+}
+html:not(.dark)[data-accent="royal-purple"] .fixed.inset-0:nth-child(2) {
+  background: linear-gradient(135deg, #FAF5FF, #f5edff, #faf5ff) !important;
+}
+
+/* --- Light: Decorative blobs --- */
+html:not(.dark)[data-accent="rose-gold"] .light-bg-decorations::before {
+  background: radial-gradient(circle, rgba(225,29,72,0.08) 0%, transparent 70%) !important;
+}
+html:not(.dark)[data-accent="rose-gold"] .light-bg-decorations::after {
+  background: radial-gradient(circle, rgba(244,114,182,0.06) 0%, transparent 70%) !important;
+}
+html:not(.dark)[data-accent="ocean-breeze"] .light-bg-decorations::before {
+  background: radial-gradient(circle, rgba(2,132,199,0.08) 0%, transparent 70%) !important;
+}
+html:not(.dark)[data-accent="ocean-breeze"] .light-bg-decorations::after {
+  background: radial-gradient(circle, rgba(56,189,248,0.06) 0%, transparent 70%) !important;
+}
+html:not(.dark)[data-accent="forest-mint"] .light-bg-decorations::before {
+  background: radial-gradient(circle, rgba(5,150,105,0.08) 0%, transparent 70%) !important;
+}
+html:not(.dark)[data-accent="forest-mint"] .light-bg-decorations::after {
+  background: radial-gradient(circle, rgba(52,211,153,0.06) 0%, transparent 70%) !important;
+}
+html:not(.dark)[data-accent="royal-purple"] .light-bg-decorations::before {
+  background: radial-gradient(circle, rgba(124,58,237,0.08) 0%, transparent 70%) !important;
+}
+html:not(.dark)[data-accent="royal-purple"] .light-bg-decorations::after {
+  background: radial-gradient(circle, rgba(167,139,250,0.06) 0%, transparent 70%) !important;
+}
+
+/* --- Light: Sidebar backgrounds --- */
+html:not(.dark)[data-accent="rose-gold"] aside {
+  background: linear-gradient(180deg, #fce4ec, #f8bbd0, #f3a7c0) !important;
+}
+html:not(.dark)[data-accent="ocean-breeze"] aside {
+  background: linear-gradient(180deg, #cce5ff, #b3d9ff, #99ccff) !important;
+}
+html:not(.dark)[data-accent="forest-mint"] aside {
+  background: linear-gradient(180deg, #c8e6c9, #a5d6a7, #81c784) !important;
+}
+html:not(.dark)[data-accent="royal-purple"] aside {
+  background: linear-gradient(180deg, #e1bee7, #ce93d8, #ba68c8) !important;
+}
+
+/* Mobile sidebar inherits from `aside` rules above */
+
+/* --- Light: Header --- */
+html:not(.dark)[data-accent="rose-gold"] header.sticky {
+  background: linear-gradient(to right, rgba(252,228,236,0.85), rgba(248,187,208,0.7), rgba(252,228,236,0.85)) !important;
+  backdrop-filter: blur(12px) !important;
+  border-bottom-color: rgba(225,29,72,0.10) !important;
+}
+html:not(.dark)[data-accent="ocean-breeze"] header.sticky {
+  background: linear-gradient(to right, rgba(204,229,255,0.85), rgba(179,217,255,0.7), rgba(204,229,255,0.85)) !important;
+  backdrop-filter: blur(12px) !important;
+  border-bottom-color: rgba(2,132,199,0.10) !important;
+}
+html:not(.dark)[data-accent="forest-mint"] header.sticky {
+  background: linear-gradient(to right, rgba(200,230,201,0.85), rgba(165,214,167,0.7), rgba(200,230,201,0.85)) !important;
+  backdrop-filter: blur(12px) !important;
+  border-bottom-color: rgba(5,150,105,0.10) !important;
+}
+html:not(.dark)[data-accent="royal-purple"] header.sticky {
+  background: linear-gradient(to right, rgba(225,190,231,0.85), rgba(206,147,216,0.7), rgba(225,190,231,0.85)) !important;
+  backdrop-filter: blur(12px) !important;
+  border-bottom-color: rgba(124,58,237,0.10) !important;
+}
+
+/* --- Light: Footer --- */
+html:not(.dark)[data-accent="rose-gold"] footer {
+  background: linear-gradient(to right, rgba(252,228,236,0.6), rgba(248,187,208,0.4), rgba(252,228,236,0.6)) !important;
+}
+html:not(.dark)[data-accent="ocean-breeze"] footer {
+  background: linear-gradient(to right, rgba(204,229,255,0.6), rgba(179,217,255,0.4), rgba(204,229,255,0.6)) !important;
+}
+html:not(.dark)[data-accent="forest-mint"] footer {
+  background: linear-gradient(to right, rgba(200,230,201,0.6), rgba(165,214,167,0.4), rgba(200,230,201,0.6)) !important;
+}
+html:not(.dark)[data-accent="royal-purple"] footer {
+  background: linear-gradient(to right, rgba(225,190,231,0.6), rgba(206,147,216,0.4), rgba(225,190,231,0.6)) !important;
+}
+
+/* --- Light: Gradient heading buttons (the icon pill behind page titles) --- */
+html:not(.dark)[data-accent="rose-gold"] main [class*="bg-gradient-to-br"][class*="from-blue-500"] {
+  background: linear-gradient(135deg, #e11d48, #f43f5e) !important;
+}
+html:not(.dark)[data-accent="ocean-breeze"] main [class*="bg-gradient-to-br"][class*="from-blue-500"] {
+  background: linear-gradient(135deg, #0284c7, #0ea5e9) !important;
+}
+html:not(.dark)[data-accent="forest-mint"] main [class*="bg-gradient-to-br"][class*="from-blue-500"] {
+  background: linear-gradient(135deg, #059669, #10b981) !important;
+}
+html:not(.dark)[data-accent="royal-purple"] main [class*="bg-gradient-to-br"][class*="from-blue-500"] {
+  background: linear-gradient(135deg, #7c3aed, #a78bfa) !important;
+}
+
+/* --- Light: Primary action buttons (blue->indigo gradients) --- */
+html:not(.dark)[data-accent="rose-gold"] main [class*="bg-gradient-to-r"][class*="from-blue-600"] {
+  background: linear-gradient(to right, #e11d48, #be123c) !important;
+  box-shadow: 0 10px 25px -5px rgba(225,29,72,0.25) !important;
+}
+html:not(.dark)[data-accent="ocean-breeze"] main [class*="bg-gradient-to-r"][class*="from-blue-600"] {
+  background: linear-gradient(to right, #0284c7, #0369a1) !important;
+  box-shadow: 0 10px 25px -5px rgba(2,132,199,0.25) !important;
+}
+html:not(.dark)[data-accent="forest-mint"] main [class*="bg-gradient-to-r"][class*="from-blue-600"] {
+  background: linear-gradient(to right, #059669, #047857) !important;
+  box-shadow: 0 10px 25px -5px rgba(5,150,105,0.25) !important;
+}
+html:not(.dark)[data-accent="royal-purple"] main [class*="bg-gradient-to-r"][class*="from-blue-600"] {
+  background: linear-gradient(to right, #7c3aed, #6d28d9) !important;
+  box-shadow: 0 10px 25px -5px rgba(124,58,237,0.25) !important;
+}
+
+/* --- Light: Scrollbar thumb --- */
+html:not(.dark)[data-accent="rose-gold"] ::-webkit-scrollbar-thumb { background: rgba(225,29,72,0.3) !important; }
+html:not(.dark)[data-accent="ocean-breeze"] ::-webkit-scrollbar-thumb { background: rgba(2,132,199,0.3) !important; }
+html:not(.dark)[data-accent="forest-mint"] ::-webkit-scrollbar-thumb { background: rgba(5,150,105,0.3) !important; }
+html:not(.dark)[data-accent="royal-purple"] ::-webkit-scrollbar-thumb { background: rgba(124,58,237,0.3) !important; }
+
+/* --- Light: Gradient dividers --- */
+html:not(.dark)[data-accent="rose-gold"] main .h-px {
+  background: linear-gradient(to right, transparent, rgba(225,29,72,0.12), transparent) !important;
+}
+html:not(.dark)[data-accent="ocean-breeze"] main .h-px {
+  background: linear-gradient(to right, transparent, rgba(2,132,199,0.12), transparent) !important;
+}
+html:not(.dark)[data-accent="forest-mint"] main .h-px {
+  background: linear-gradient(to right, transparent, rgba(5,150,105,0.12), transparent) !important;
+}
+html:not(.dark)[data-accent="royal-purple"] main .h-px {
+  background: linear-gradient(to right, transparent, rgba(124,58,237,0.12), transparent) !important;
+}
+
+/* ════════════════════════════════════════════
+   DARK MODE ACCENT THEMES
+   ════════════════════════════════════════════ */
+
+/* --- Dark: Main background gradient layer --- */
+.dark[data-accent="crimson-night"] .fixed.inset-0[class*="bg-gradient"] {
+  background: linear-gradient(135deg, #0c0a0e, #150810, #0c0a0e) !important;
+}
+.dark[data-accent="cyber-teal"] .fixed.inset-0[class*="bg-gradient"] {
+  background: linear-gradient(135deg, #021a1a, #031f1f, #021a1a) !important;
+}
+.dark[data-accent="midnight-gold"] .fixed.inset-0[class*="bg-gradient"] {
+  background: linear-gradient(135deg, #0d0b07, #14100a, #0d0b07) !important;
+}
+.dark[data-accent="aurora-violet"] .fixed.inset-0[class*="bg-gradient"] {
+  background: linear-gradient(135deg, #0a0515, #0f081e, #0a0515) !important;
+}
+
+/* --- Dark: Radial gradient overlays --- */
+.dark[data-accent="crimson-night"] .fixed.inset-0[class*="from-blue-900"] {
+  background: radial-gradient(ellipse at top right, rgba(220,38,38,0.15), transparent, transparent) !important;
+}
+.dark[data-accent="crimson-night"] .fixed.inset-0[class*="from-purple-900"] {
+  background: radial-gradient(ellipse at bottom left, rgba(190,18,60,0.10), transparent, transparent) !important;
+}
+.dark[data-accent="cyber-teal"] .fixed.inset-0[class*="from-blue-900"] {
+  background: radial-gradient(ellipse at top right, rgba(20,184,166,0.15), transparent, transparent) !important;
+}
+.dark[data-accent="cyber-teal"] .fixed.inset-0[class*="from-purple-900"] {
+  background: radial-gradient(ellipse at bottom left, rgba(94,234,212,0.08), transparent, transparent) !important;
+}
+.dark[data-accent="midnight-gold"] .fixed.inset-0[class*="from-blue-900"] {
+  background: radial-gradient(ellipse at top right, rgba(245,158,11,0.12), transparent, transparent) !important;
+}
+.dark[data-accent="midnight-gold"] .fixed.inset-0[class*="from-purple-900"] {
+  background: radial-gradient(ellipse at bottom left, rgba(217,119,6,0.08), transparent, transparent) !important;
+}
+.dark[data-accent="aurora-violet"] .fixed.inset-0[class*="from-blue-900"] {
+  background: radial-gradient(ellipse at top right, rgba(139,92,246,0.15), transparent, transparent) !important;
+}
+.dark[data-accent="aurora-violet"] .fixed.inset-0[class*="from-purple-900"] {
+  background: radial-gradient(ellipse at bottom left, rgba(167,139,250,0.10), transparent, transparent) !important;
+}
+
+/* --- Dark: Card backgrounds (glass panels) --- */
+.dark[data-accent="crimson-night"] main [class*="bg-slate-900"] {
+  background: rgba(25,10,18,0.85) !important;
+  border-color: rgba(220,38,38,0.10) !important;
+}
+.dark[data-accent="cyber-teal"] main [class*="bg-slate-900"] {
+  background: rgba(2,30,30,0.85) !important;
+  border-color: rgba(20,184,166,0.10) !important;
+}
+.dark[data-accent="midnight-gold"] main [class*="bg-slate-900"] {
+  background: rgba(20,16,10,0.85) !important;
+  border-color: rgba(245,158,11,0.10) !important;
+}
+.dark[data-accent="aurora-violet"] main [class*="bg-slate-900"] {
+  background: rgba(15,8,30,0.85) !important;
+  border-color: rgba(139,92,246,0.10) !important;
+}
+
+/* --- Dark: Sidebar --- */
+.dark[data-accent="crimson-night"] aside {
+  background: linear-gradient(180deg, #150810, #0c0a0e, #080608) !important;
+}
+.dark[data-accent="cyber-teal"] aside {
+  background: linear-gradient(180deg, #031f1f, #021a1a, #011212) !important;
+}
+.dark[data-accent="midnight-gold"] aside {
+  background: linear-gradient(180deg, #14100a, #0d0b07, #080604) !important;
+}
+.dark[data-accent="aurora-violet"] aside {
+  background: linear-gradient(180deg, #0f081e, #0a0515, #06030e) !important;
+}
+
+/* --- Dark: Gradient heading buttons --- */
+.dark[data-accent="crimson-night"] main [class*="bg-gradient-to-br"][class*="from-blue-500"] {
+  background: linear-gradient(135deg, #dc2626, #ef4444) !important;
+}
+.dark[data-accent="cyber-teal"] main [class*="bg-gradient-to-br"][class*="from-blue-500"] {
+  background: linear-gradient(135deg, #14b8a6, #2dd4bf) !important;
+}
+.dark[data-accent="midnight-gold"] main [class*="bg-gradient-to-br"][class*="from-blue-500"] {
+  background: linear-gradient(135deg, #f59e0b, #fbbf24) !important;
+}
+.dark[data-accent="aurora-violet"] main [class*="bg-gradient-to-br"][class*="from-blue-500"] {
+  background: linear-gradient(135deg, #8b5cf6, #a78bfa) !important;
+}
+
+/* --- Dark: Primary action buttons --- */
+.dark[data-accent="crimson-night"] main [class*="bg-gradient-to-r"][class*="from-blue-600"] {
+  background: linear-gradient(to right, #dc2626, #b91c1c) !important;
+  box-shadow: 0 10px 25px -5px rgba(220,38,38,0.3) !important;
+}
+.dark[data-accent="cyber-teal"] main [class*="bg-gradient-to-r"][class*="from-blue-600"] {
+  background: linear-gradient(to right, #14b8a6, #0d9488) !important;
+  box-shadow: 0 10px 25px -5px rgba(20,184,166,0.3) !important;
+}
+.dark[data-accent="midnight-gold"] main [class*="bg-gradient-to-r"][class*="from-blue-600"] {
+  background: linear-gradient(to right, #f59e0b, #d97706) !important;
+  box-shadow: 0 10px 25px -5px rgba(245,158,11,0.3) !important;
+}
+.dark[data-accent="aurora-violet"] main [class*="bg-gradient-to-r"][class*="from-blue-600"] {
+  background: linear-gradient(to right, #8b5cf6, #7c3aed) !important;
+  box-shadow: 0 10px 25px -5px rgba(139,92,246,0.3) !important;
+}
+
+/* --- Dark: Scrollbar --- */
+.dark[data-accent="crimson-night"] ::-webkit-scrollbar-thumb { background: rgba(220,38,38,0.4) !important; }
+.dark[data-accent="cyber-teal"] ::-webkit-scrollbar-thumb { background: rgba(20,184,166,0.4) !important; }
+.dark[data-accent="midnight-gold"] ::-webkit-scrollbar-thumb { background: rgba(245,158,11,0.4) !important; }
+.dark[data-accent="aurora-violet"] ::-webkit-scrollbar-thumb { background: rgba(139,92,246,0.4) !important; }
